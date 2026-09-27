@@ -1,0 +1,196 @@
+%Warning-DECLFILENAME: protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:L:C: Filename 'KL_pp_dispatch' does not match MODULE name: 'KL_pp_dispatch_fifo'
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+%Warning-GENUNNAMED: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'aecp_rxs_rd_data_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'aecp_rxs_slot_len_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'aecp_txn_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'aecp_txn_valid_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'm_axis_tdest'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'm_axis_tid'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'm_axis_tuser'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'nvm_unres_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'pause_ack'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'status_bad_frame'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'status_depth'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'status_depth_commit'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'status_good_frame'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'status_overflow'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'svc_ready_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'svc_rsp_data_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'svc_rsp_status_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'svc_rsp_valid_o'
+%Warning-PINCONNECTEMPTY: hdl/milan/KL_pp_shadow.sv:L:C: Instance pin connected by name with empty reference: 'tx_sof_o'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'depth_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'good_frame_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'overflow_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'send_frame_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 's_frame_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+%Warning-PROCASSINIT: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Selection index out of range: 80:73 outside 73:0
+%Warning-SELRANGE: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Selection index out of range: 80:73 outside 73:0
+%Warning-SYNCASYNCNET: hdl/milan/KL_pp_shadow.sv:L:C: Signal flopped as both synchronous and async: 'rst_n'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/acmp/pp_acmp_pkg.sv:L:C: Parameter is not used: 'TROM_AW_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/adp/pp_adp_pkg.sv:L:C: Parameter is not used: 'ADP_ETH_HDR_BYTES_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:L:C: Parameter is not used: 'RGN_DATA_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Parameter is not used: 'UPC_LOCKED1_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Parameter is not used: 'UPC_LOCKED4_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Parameter is not used: 'UPC_NAMEERR_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'REL_EQ_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'REL_GE_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'REL_IN_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'REL_LT_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'REL_NE_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'RESP_BYTES_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'ST_NO_RESOURCES_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/aecp/ucpu_pkg.sv:L:C: Parameter is not used: 'ST_NOT_IMPLEMENTED_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/common/pp_pkg.sv:L:C: Parameter is not used: 'PP_TIMER_SLOTS_BASE_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/common/pp_pkg.sv:L:C: Parameter is not used: 'PP_TX_OVERSIZE_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Parameter is not used: 'RXF_ADP_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Parameter is not used: 'RXF_AECP_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Parameter is not used: 'RXF_LSTN_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Parameter is not used: 'RXF_MAAP_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Parameter is not used: 'RXF_TKR_C'
+%Warning-UNUSEDPARAM: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Parameter is not used: 'RXF_UCPU_C'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:L:C: Bits of signal are not used: 'cap_rec_w'[383:192,127:112,31:14,10:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_acmp_talker.sv:L:C: Bits of function variable are not used: 'r'[83:81,47:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_acmp_talker.sv:L:C: Bits of signal are not used: 'rec_wdata_s'[81:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_acmp_talker.sv:L:C: Bits of signal are not used: 'txn_in_w'[392:124,59:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_acmp_talker.sv:L:C: Bits of signal are not used: 'txn_r'[392:391,388:357,349:286,141:124,56:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:L:C: Bits of signal are not used: 'recwr_rec_w'[383:13,11:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:L:C: Bits of signal are not used: 'txn_i'[392:357,344:286,141:124,56:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:L:C: Bits of signal are not used: 'vlan_f_r'[15:12]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:L:C: Signal is not used: 'tmr_exp_slot_i'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:L:C: Signal is not used: 'txn_has_slot_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/adp/KL_adp_engine.sv:L:C: Bits of function variable are not used: 'sh'[15:8]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/adp/KL_adp_engine.sv:L:C: Bits of function variable are not used: 'sh'[31:8]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/adp/KL_adp_engine.sv:L:C: Bits of function variable are not used: 'sh'[47:8]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/adp/KL_adp_engine.sv:L:C: Bits of function variable are not used: 'sh'[63:8]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/adp/KL_adp_engine.sv:L:C: Bits of signal are not used: 'txn_in_w'[392:391,388:357,344:222,157:60,56:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/adp/KL_adp_engine.sv:L:C: Signal is not used: 'tmr_exp_owner_i'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:L:C: Bits of signal are not used: 'desc_off_r'[2:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:L:C: Bits of signal are not used: 'hdr_b0_r'[15:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:L:C: Bits of signal are not used: 'patch_name_lane_w'[15:9]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:L:C: Bits of signal are not used: 'st_addr_i'[2:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:L:C: Bits of signal are not used: 'st_addr_i'[2:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Bits of signal are not used: 'amap_stage_assem_r'[63:56]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Bits of signal are not used: 'cdl_w'[15:11]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Bits of signal are not used: 'cmd_r'[392:357,349:345,221:158,141:140,123:60,56:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'dyn_oob_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'dyn_writes_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'resp_burst_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'resp_drop_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'store_dlen_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'store_fetch_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'store_rowr_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'ucpu_ovf_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'ucpu_st_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_engine.sv:L:C: Signal is not used: 'ucpu_upc_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_notify.sv:L:C: Signal is not used: 'em_cmd_r'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:L:C: Bits of signal are not used: 'sk_strb_r'[2]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/common/KL_pp_timer_service.sv:L:C: Bits of signal are not used: 'age_w'[30:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/common/pp_pkg.sv:L:C: Bits of function variable are not used: 'm'[415:160,127:32]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/maap/KL_pp_maap.sv:L:C: Bits of function variable are not used: 'sh'[15:8]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/maap/KL_pp_maap.sv:L:C: Bits of function variable are not used: 'sh'[47:8]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/maap/KL_pp_maap.sv:L:C: Bits of signal are not used: 'txn_in_w'[392:354,349:334,221:124,56:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:L:C: Bits of signal are not used: 'enq_txn_w'[392:357,353:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:L:C: Signal is not used: 'dev_busy_i'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_admission.sv:L:C: Bits of signal are not used: 'slope_prod_w'[32]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_decoder.sv:L:C: Bits of signal are not used: 'attr_len_r'[7:6]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_decoder.sv:L:C: Bits of signal are not used: 'pr_r'[3:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Bits of signal are not used: 'a_idx_r'[7:1]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'dec_dbg_listlen_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'dec_evt_max_frame_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'dec_evt_max_interval_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'dec_evt_rank_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'dec_listlen_bad_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'enc_cnt_mvrp_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'enc_ev_drop_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'ls_dbg_app_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'ls_dbg_reg_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'tk_dbg_app_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/KL_srp_top.sv:L:C: Signal is not used: 'tk_dbg_reg_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/srp/srp_pkg.sv:L:C: Bits of function variable are not used: 'q'[7:3]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Bits of signal are not used: 'aecp_head_w'[392:60,36:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Bits of signal are not used: 'lstn_commit_rec_w'[383:11,2:0]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Bits of signal are not used: 'maapeng_rxs_free_slot_w'[2]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Bits of signal are not used: 'sp_snap_addr_w'[15:6]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Bits of signal are not used: 'sp_trace_addr_w'[15:10]
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'adp_dbg_tkdisc_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'adp_gm_tick_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'adp_txreq_if_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'adp_txs_oversize_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'aecp_dbg_busy_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'aecp_eff_commit_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'ca_issued_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'ca_issued_owner_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'desc_mem_debt_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'disp_maap_level_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'disp_maap_stall_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'evr_lost_cnt_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'hz_valid_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lsn_exp_drop_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lsn_own_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lstn_act_notify_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lstn_act_nvm_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lstn_act_nvm_set_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lstn_strq_drop_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'lstn_txs_oversize_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'maapeng_txs_oversize_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_done_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_err_cause_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_err_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_gnt_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_rdata_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_rvalid_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nm1_wready_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nrm_mgmt_ready_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nrm_self_ready_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nrm_tmr_ready_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'ntfy_coalesce_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'ntfy_reg_cnt_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'ntfy_uns_cnt_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nvm_dbg_touched_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nvm_dbg_valid_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nvm_drain_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'nvm_restore_cause_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'org_busy_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'org_fail_id_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'org_rsp_ign_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'org_rt_id_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'prng_lfsr_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sb_kill_ack_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_dbg_addr_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_fw_addr_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_fw_req_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_fw_wdata_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_fw_we_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_img_addr_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_img_wdata_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'sp_img_we_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'srp_dbg_adm_round_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'srp_dbg_pdu_done_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'srp_dbg_pdu_malformed_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'srp_dbg_pdu_ok_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'srp_dbg_vlan_err_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'srp_txs_oversize_nc_w'
+%Warning-UNUSEDSIGNAL: protocol-processor/hdl/top/protocol_processor_top.sv:L:C: Signal is not used: 'tkr_resp_if_nc_w'
+%Warning-UNUSEDSIGNAL: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Signal is not used: 'mem_read_data_valid_reg'
+%Warning-UNUSEDSIGNAL: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Signal is not used: 'pause_req'
+%Warning-UNUSEDSIGNAL: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Signal is not used: 's_axis_tdest'
+%Warning-UNUSEDSIGNAL: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Signal is not used: 's_axis_tid'
+%Warning-WIDTHEXPAND: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Operator COND expects 13 bits on the Conditional False, but Conditional False's VARREF 'depth_commit_reg' generates 10 bits.
+%Warning-WIDTHEXPAND: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Operator COND expects 13 bits on the Conditional False, but Conditional False's VARREF 'depth_reg' generates 10 bits.
+%Warning-WIDTHTRUNC: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Logical operator LOGOR expects 1 bit on the RHS, but RHS's NOT generates 2 bits.
+%Warning-WIDTHTRUNC: third_party/verilog-axis/rtl/axis_fifo.v:L:C: Logical operator LOGOR expects 1 bit on the RHS, but RHS's SHIFTR generates 2 bits.

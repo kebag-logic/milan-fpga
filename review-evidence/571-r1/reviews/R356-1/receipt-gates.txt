@@ -1,0 +1,12 @@
+rc=0  python3 sw/builder/test_declarations.py  | [gate 40] 26 refusals; 3 header mutants per config
+rc=0  python3 scripts/docs_check.py  | docs_check: 0 finding(s) across 169 md files + 904 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-
+rc=0  python3 scripts/check_doc_paths.py  | doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=2  python3 scripts/gen_toc.py --check  | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+rc=0  python3 scripts/check_feature_status.py  | feature_status: 0 finding(s)
+rc=0  python3 scripts/check_doc_style.py  | documentation style: OK (22 current documents)
+rc=0  python3 scripts/check_py_idiom.py  |   over-long line: 0 <= 0
+rc=2  python3 scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4  | check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --req
+rc=0  python3 scripts/check_nvm_capture.py  | PASS: capture census, clocks, both timing arms and receipt agree
+rc=0  git diff --check 2a2a7bb655e528edc3087c88033cd3a47546feb4 f8a52f919bd309960046330a5af127b56731cb27  | warning: unable to find all commit-graph files
+rc=0  [docs venv python] scripts/gen_toc.py --check  | TOC gate: OK (111 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0  [docs venv python] scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4  | check_em_dash: 0 finding(s) over 23 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [2a2a7bb6..HEAD]

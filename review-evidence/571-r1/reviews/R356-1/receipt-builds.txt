@@ -1,0 +1,93 @@
+base endstation_arty_4x4 rc=0
+base endstation_arty_8ch rc=0
+base endstation_arty_current rc=0
+base endstation_ax7101_1x1_tdm8 rc=0
+base endstation_ax7101_8x8 rc=0
+head endstation_arty_4x4 rc=0
+head endstation_arty_8ch rc=0
+head endstation_arty_current rc=0
+head endstation_ax7101_1x1_tdm8 rc=0
+head endstation_ax7101_8x8 rc=0
+== per-artifact comparison base vs head (out dirs) ==
+endstation_arty_4x4 ./adp_shape_defaults.svh DIFFERS fbf4bf36ab9c9727
+endstation_arty_4x4 ./aecp_aem_rom.svh IDENTICAL 1cd6c92190c1b4f8
+endstation_arty_4x4 ./aem_overlay.json IDENTICAL a9b9d900fb425e95
+endstation_arty_4x4 ./build_plan.md IDENTICAL c040b872fa010257
+endstation_arty_4x4 ./gptp_ucode.hex IDENTICAL 09f5d05defa75990
+endstation_arty_4x4 ./lwsrp_csr_defaults.svh IDENTICAL 90d4615e95883d5c
+endstation_arty_4x4 ./lwsrp_table.json IDENTICAL 90e1aa992317980e
+endstation_arty_4x4 ./lwsrp_table.svh IDENTICAL 36331d96c16b57ba
+endstation_arty_4x4 ./platform_shape.json IDENTICAL bbd040ba298a66ff
+endstation_arty_4x4 ./soc_params.json IDENTICAL fe552b1ec220f349
+endstation_arty_4x4 file-count base=10 head=10
+endstation_arty_8ch ./adp_shape_defaults.svh DIFFERS 48076cb36b171972
+endstation_arty_8ch ./aecp_aem_rom.svh IDENTICAL 19dd262b93e56aea
+endstation_arty_8ch ./aem_overlay.json IDENTICAL 87fc3c51e2fc5a49
+endstation_arty_8ch ./build_plan.md IDENTICAL 1a93c95f35d176c5
+endstation_arty_8ch ./gptp_ucode.hex IDENTICAL 09f5d05defa75990
+endstation_arty_8ch ./lwsrp_csr_defaults.svh IDENTICAL f2519804843397b4
+endstation_arty_8ch ./lwsrp_table.json IDENTICAL 0e151e2854b37992
+endstation_arty_8ch ./lwsrp_table.svh IDENTICAL c7189e2e3dcf79a7
+endstation_arty_8ch ./platform_shape.json IDENTICAL b818b72a035c5f73
+endstation_arty_8ch ./soc_params.json IDENTICAL 7a10be52746259e1
+endstation_arty_8ch file-count base=10 head=10
+endstation_arty_current ./adp_shape_defaults.svh DIFFERS 13540133426c56e8
+endstation_arty_current ./aecp_aem_rom.svh IDENTICAL d8365928caecf01d
+endstation_arty_current ./aem_overlay.json IDENTICAL 12f48ab98be36408
+endstation_arty_current ./build_plan.md IDENTICAL 4eb5e433433f1c3a
+endstation_arty_current ./gptp_ucode.hex IDENTICAL 09f5d05defa75990
+endstation_arty_current ./lwsrp_csr_defaults.svh IDENTICAL d10ce5559b108f54
+endstation_arty_current ./lwsrp_table.json IDENTICAL dc4a200fa4dae047
+endstation_arty_current ./lwsrp_table.svh IDENTICAL df3c4fa0289d23de
+endstation_arty_current ./platform_shape.json IDENTICAL 03328f238565f45f
+endstation_arty_current ./soc_params.json IDENTICAL 696350eee365adb6
+endstation_arty_current file-count base=10 head=10
+endstation_ax7101_1x1_tdm8 ./adp_shape_defaults.svh DIFFERS c6c43feb9ae57310
+endstation_ax7101_1x1_tdm8 ./aecp_aem_rom.svh IDENTICAL deea618d789b235c
+endstation_ax7101_1x1_tdm8 ./aem_overlay.json IDENTICAL e148841ac36dbf3e
+endstation_ax7101_1x1_tdm8 ./build_plan.md IDENTICAL 203c4859f9557b4a
+endstation_ax7101_1x1_tdm8 ./gptp_ucode.hex IDENTICAL 78c8418a00b35cda
+endstation_ax7101_1x1_tdm8 ./lwsrp_csr_defaults.svh IDENTICAL 0e9df2d455d90782
+endstation_ax7101_1x1_tdm8 ./lwsrp_table.json IDENTICAL 61b2e71d9a40c61b
+endstation_ax7101_1x1_tdm8 ./lwsrp_table.svh IDENTICAL 8209fdee3cd744d2
+endstation_ax7101_1x1_tdm8 ./platform_shape.json IDENTICAL 0325a3cc988f7f97
+endstation_ax7101_1x1_tdm8 ./soc_params.json IDENTICAL d5ec9866f86c339d
+endstation_ax7101_1x1_tdm8 file-count base=10 head=10
+endstation_ax7101_8x8 ./adp_shape_defaults.svh DIFFERS 85939da9c5718d5a
+endstation_ax7101_8x8 ./aecp_aem_rom.svh IDENTICAL 9f69631902568099
+endstation_ax7101_8x8 ./aem_overlay.json IDENTICAL baef8bb15a57606b
+endstation_ax7101_8x8 ./build_plan.md IDENTICAL 2d303d06c5fc2f13
+endstation_ax7101_8x8 ./gptp_ucode.hex IDENTICAL 78c8418a00b35cda
+endstation_ax7101_8x8 ./lwsrp_csr_defaults.svh IDENTICAL c9849c561b9aab3f
+endstation_ax7101_8x8 ./lwsrp_table.json IDENTICAL b525824ef9b4a7c5
+endstation_ax7101_8x8 ./lwsrp_table.svh IDENTICAL eed72271ec9a0e3d
+endstation_ax7101_8x8 ./platform_shape.json IDENTICAL a08aef1e775ecd34
+endstation_ax7101_8x8 ./soc_params.json IDENTICAL 41763d46738df0e9
+endstation_ax7101_8x8 file-count base=10 head=10
+== header diffs base -> head (out dirs) ==
+--- endstation_arty_4x4
+37a38
+>   localparam int AEM_N_CONTROL_C    = 1;
+--- endstation_arty_8ch
+37a38
+>   localparam int AEM_N_CONTROL_C    = 1;
+--- endstation_arty_current
+37a38
+>   localparam int AEM_N_CONTROL_C    = 1;
+--- endstation_ax7101_1x1_tdm8
+37a38
+>   localparam int AEM_N_CONTROL_C    = 1;
+--- endstation_ax7101_8x8
+37a38
+>   localparam int AEM_N_CONTROL_C    = 1;
+== regenerated tracked copies vs committed head blobs ==
+endstation_arty_4x4 configs copy == regenerated head: YES
+endstation_arty_8ch configs copy == regenerated head: YES
+endstation_arty_current configs copy == regenerated head: YES
+endstation_ax7101_1x1_tdm8 configs copy == regenerated head: YES
+endstation_ax7101_8x8 configs copy == regenerated head: YES
+hdl/common copy == regenerated head for endstation_arty_4x4: no
+hdl/common copy == regenerated head for endstation_arty_8ch: no
+hdl/common copy == regenerated head for endstation_arty_current: no
+hdl/common copy == regenerated head for endstation_ax7101_1x1_tdm8: YES
+hdl/common copy == regenerated head for endstation_ax7101_8x8: no

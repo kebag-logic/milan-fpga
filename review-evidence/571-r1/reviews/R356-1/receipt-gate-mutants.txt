@@ -1,0 +1,192 @@
+OK  B0     expect=PASS got=PASS exact-head sources
+OK  H0-a   expect=KILL got=KILL CONTROL bound to the CLOCK_DOMAIN symbol (wrong symbol, no swap)
+        reason: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_CONTROL_C']
+OK  H0-b   expect=KILL got=KILL AUDIO_UNIT bound to sized literal 32'd1
+        reason: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ["32'd1"], expected ['AEM_N_AUDIO_UNIT_C']
+OK  H0-c   expect=KILL got=KILL three-way rotation of the three values
+        reason: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_
+OK  H0-d   expect=KILL got=KILL CONTROL binding commented out (line comment), comma removed
+        reason: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C']
+OK  H0-e   expect=KILL got=KILL CONTROL bound through a local alias localparam
+        reason: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['PP_N_CTL_C'], expected ['AEM_N_CONTROL_C']
+OK  H0-f   expect=KILL got=KILL ifdef-guarded alternate literal CONTROL binding
+        reason: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1', 'AEM_N_CONTROL_C'], expected ['AEM_N_CONTROL_C']
+OK  H0-g   expect=KILL got=KILL CONTROL and CLOCK_DOMAIN both fed AEM_N_CLKDOM_C (duplicate value)
+        reason: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_CONTROL_C']
+OK  H0-h   expect=KILL got=KILL pp_shadow instance renamed (map no longer found)
+        reason: pp_shadow: exactly one parameter map: got 0, expected 1
+OK  H0-i   expect=PASS got=PASS block comment inside the value (equivalent rewrite)
+OK  H0-j   expect=PASS got=PASS value on its own line (equivalent rewrite)
+OK  H1-a   expect=KILL got=KILL u_pp CONTROL bound to N_AUDIO_UNIT_P (wrong symbol, no swap)
+        reason: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['N_AUDIO_UNIT_P'], expected ['N_CONTROL_P']
+OK  H1-b   expect=KILL got=KILL u_pp AUDIO_UNIT bound to sized literal 32'd1
+        reason: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ["32'd1"], expected ['N_AUDIO_UNIT_P']
+OK  H1-c   expect=KILL got=KILL u_pp CLOCK_DOMAIN unbound via block comment
+        reason: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P']
+OK  H1-d   expect=KILL got=KILL u_pp three-way rotation
+        reason: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P']
+OK  H1-e   expect=KILL got=KILL u_pp CLOCK_DOMAIN bound to a same-named but undeclared N_CLK_DOMAIN_P
+        reason: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CLK_DOMAIN_P'], expected ['N_CLK_DOM_P']
+OK  H1-f   expect=KILL got=KILL u_pp instance renamed (map no longer found)
+        reason: u_pp: exactly one parameter map: got 0, expected 1
+OK  H1-g   expect=KILL got=KILL u_pp CONTROL bound to an arithmetic expression N_CONTROL_P - 1
+        reason: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['N_CONTROL_P - 1'], expected ['N_CONTROL_P']
+OK  H1-h   expect=KILL got=KILL u_pp all three unbound together
+        reason: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P']
+OK  H1-i   expect=PASS got=PASS u_pp value wrapped over lines (equivalent rewrite)
+
+== endstation_ax7101_8x8  (8x8) ==
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [1], expected [2])
+         (rejected by: zero census: AUDIO_UNIT has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CLKDOM_C == CLOCK_DOMAIN census: got [1], expected [3])
+         (rejected by: zero census: CLOCK_DOMAIN has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CONTROL_C == CONTROL census: got [1], expected [4])
+         (rejected by: zero census: AEM_N_CONTROL_C == CONTROL census: got [3], expected [0])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['1'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got [], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1'], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+OK  E-a/g  expect=PASS got=PASS emitter cross-wired: CONTROL line reads CLOCK_DOMAIN -- ordinary gate, shipping 8x8
+OK  E-a/s  expect=KILL got=KILL emitter cross-wired: CONTROL line reads CLOCK_DOMAIN -- self-test distinct-census oracle
+        reason: distinct census: AEM_N_CONTROL_C == CONTROL census: got [3], expected [4]
+
+== endstation_ax7101_8x8  (8x8) ==
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [1], expected [2])
+         (rejected by: zero census: AUDIO_UNIT has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CLKDOM_C == CLOCK_DOMAIN census: got [1], expected [3])
+         (rejected by: zero census: CLOCK_DOMAIN has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CONTROL_C == CONTROL census: got [1], expected [4])
+         (rejected by: zero census: AEM_N_CONTROL_C == CONTROL census: got [1], expected [0])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['1'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got [], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1'], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+OK  E-b/g  expect=PASS got=PASS emitter literal: CONTROL line hard-codes 1 -- ordinary gate, shipping 8x8
+OK  E-b/s  expect=KILL got=KILL emitter literal: CONTROL line hard-codes 1 -- self-test distinct-census oracle
+        reason: distinct census: AEM_N_CONTROL_C == CONTROL census: got [1], expected [4]
+
+== endstation_ax7101_8x8  (8x8) ==
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [1], expected [2])
+         (rejected by: zero census: AUDIO_UNIT has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CLKDOM_C == CLOCK_DOMAIN census: got [1], expected [3])
+         (rejected by: zero census: CLOCK_DOMAIN has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CONTROL_C == CONTROL census: got [], expected [4])
+         (rejected by: zero census: AEM_N_CONTROL_C == CONTROL census: got [], expected [0])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['1'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got [], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1'], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+OK  E-c/g  expect=KILL got=KILL emitter omits the CONTROL line -- ordinary gate, shipping 8x8
+        reason: endstation_ax7101_8x8: AEM_N_CONTROL_C == CONTROL census: got [], expected [1]
+OK  E-c/s  expect=KILL got=KILL emitter omits the CONTROL line -- self-test distinct-census oracle
+        reason: distinct census: AEM_N_CONTROL_C == CONTROL census: got [], expected [4]
+
+== endstation_ax7101_8x8  (8x8) ==
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [1], expected [2])
+         (rejected by: zero census: AUDIO_UNIT has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CLKDOM_C == CLOCK_DOMAIN census: got [1], expected [3])
+         (rejected by: zero census: CLOCK_DOMAIN has at least one descriptor: got False, expected True)
+         (rejected by: mutant census: AEM_N_CONTROL_C == CONTROL census: got [1], expected [4])
+         (rejected by: zero census: CONTROL has at least one descriptor: got False, expected True)
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['1'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got [], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1'], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+OK  E-d/g  expect=KILL got=KILL census literal CONTROL: 2 in _overlay_document -- ordinary gate, shipping 8x8
+        reason: endstation_ax7101_8x8: generated ROM CONTROL descriptors: got 1, expected 2
+OK  E-d/s  expect=PASS got=PASS census literal CONTROL: 2 in _overlay_document -- self-test distinct-census oracle
+
+== endstation_ax7101_8x8  (8x8) ==
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [1], expected [2])
+         (rejected by: zero census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [3], expected [0])
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [3], expected [2])
+         (rejected by: zero census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [0], expected [2])
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [3], expected [2])
+         (rejected by: zero census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [3], expected [2])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['1'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got [], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1'], expected ['AEM_N_CONTROL_C'])
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+OK  E-e/g  expect=PASS got=PASS emitter cross-wired: AUDIO_UNIT line reads CLOCK_DOMAIN -- ordinary gate, shipping 8x8
+OK  E-e/s  expect=KILL got=KILL emitter cross-wired: AUDIO_UNIT line reads CLOCK_DOMAIN -- self-test distinct-census oracle
+        reason: distinct census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [3], expected [2]
+
+== endstation_ax7101_8x8  (8x8) ==
+OK  R-a    expect=KILL got=KILL aem_assemble emits no CONTROL descriptor -- ordinary gate
+        reason: StopIteration: 
+
+== endstation_ax7101_8x8  (8x8) ==
+OK  R-0    expect=PASS got=PASS restored constructor -- ordinary gate
+
+reviewer mutants: 32 verdicts, 32 as expected, 0 unexpected
+rc=0

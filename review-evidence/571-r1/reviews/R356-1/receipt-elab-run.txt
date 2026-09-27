@@ -1,0 +1,15 @@
+base endstation_ax7101_1x1_tdm8 args: -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 -GDESC_NAME_ENTRIES_P=38 -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1
+base   endstation_ax7101_1x1_tdm8   rc=0  stats=present
+head endstation_ax7101_1x1_tdm8 args: -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 -GDESC_NAME_ENTRIES_P=38 -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_CONTROL_P=1
+head   endstation_ax7101_1x1_tdm8   rc=0  stats=present
+base endstation_ax7101_8x8 args: -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 -GDESC_NAME_ENTRIES_P=99 -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1
+base   endstation_ax7101_8x8        rc=0  stats=present
+head endstation_ax7101_8x8 args: -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 -GDESC_NAME_ENTRIES_P=99 -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_CONTROL_P=1
+head   endstation_ax7101_8x8        rc=0  stats=present
+base   au2                          rc=0  stats=present
+head   au2                          rc=0  stats=present
+head   ctl3                         rc=0  stats=present
+head   cd2                          rc=0  stats=present
+head   zero-N_AUDIO_UNIT_P          rc=1  stats=absent
+head   zero-N_CLK_DOM_P             rc=1  stats=absent
+head   zero-N_CONTROL_P             rc=1  stats=absent

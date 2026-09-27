@@ -1,0 +1,133 @@
+base-endstation_ax7101_1x1_tdm8 vs head-endstation_ax7101_1x1_tdm8: lines 666/666 DIFFER (7 differing rows)
+   - Input, Verilog bytes read                                                          21443530
+   + Input, Verilog bytes read                                                          21443710
+   - Node count, BASICDTYPE                6231       295       295       270
+   + Node count, BASICDTYPE                6232       295       295       270
+   - Node count, CONST                    15488     15598     23022     29883     21386
+   + Node count, CONST                    15489     15598     23022     29883     21386
+   - Node count, PIN                       1927
+   + Node count, PIN                       1930
+   - Node count, VAR                       6050      4140      3462      3760       515
+   + Node count, VAR                       6051      4140      3462      3760       515
+   - Node count, VARREF                   24011     26609     34680     35048     26187
+   + Node count, VARREF                   24014     26609     34680     35048     26187
+   - Node mem %, PIN                       2.68
+   + Node mem %, PIN                       2.69
+base-endstation_ax7101_8x8 vs head-endstation_ax7101_8x8: lines 673/673 DIFFER (7 differing rows)
+   - Input, Verilog bytes read                                                          21443530
+   + Input, Verilog bytes read                                                          21443710
+   - Node count, BASICDTYPE                6231       302       302       273
+   + Node count, BASICDTYPE                6232       302       302       273
+   - Node count, CONST                    15488     23311     33391     44082     32105
+   + Node count, CONST                    15489     23311     33391     44082     32105
+   - Node count, PIN                       1927
+   + Node count, PIN                       1930
+   - Node count, VAR                       6050      4362      3683      4053       394
+   + Node count, VAR                       6051      4362      3683      4053       394
+   - Node count, VARREF                   24011     34619     45606     46134     34399
+   + Node count, VARREF                   24014     34619     45606     46134     34399
+   - Node mem %, PIN                       2.68
+   + Node mem %, PIN                       2.69
+base-endstation_ax7101_1x1_tdm8 vs base-au2: lines 666/666 DIFFER (33 differing rows)
+   - Optimizations, DFG, AstToDfg, input processes                                          4181
+   + Optimizations, DFG, AstToDfg, input processes                                          4182
+   - Optimizations, DFG, AstToDfg, representable                                            4181
+   + Optimizations, DFG, AstToDfg, representable                                            4182
+   - Optimizations, DFG, DfgToAst, expressions inlined                                       942
+   + Optimizations, DFG, DfgToAst, expressions inlined                                       943
+   - Optimizations, DFG, Peephole, fold assoc binary lhs of rhs                              134
+   + Optimizations, DFG, Peephole, fold assoc binary lhs of rhs                              138
+   - Optimizations, DFG, Peephole, fold binary                                                11
+   + Optimizations, DFG, Peephole, fold binary                                                12
+   - Optimizations, DFG, Peephole, remove var                                                709
+   + Optimizations, DFG, Peephole, remove var                                                710
+   - Optimizations, DFG, Peephole, right leaning assoc                                       655
+   + Optimizations, DFG, Peephole, right leaning assoc                                       657
+   - Optimizations, DFG, Peephole, swap sides in binary                                      821
+   + Optimizations, DFG, Peephole, swap sides in binary                                      823
+   - Optimizations, DFG, Regularize, used variables inlined                                  156
+   + Optimizations, DFG, Regularize, used variables inlined                                  157
+   - Optimizations, DFG, Synthesis, conv / input assignments                                2100
+   + Optimizations, DFG, Synthesis, conv / input assignments                                2101
+   - Optimizations, DFG, Synthesis, conv / representable inputs                             2156
+   + Optimizations, DFG, Synthesis, conv / representable inputs                             2157
+   - Optimizations, DFG, Synthesis, synt / continuous assignments considered                1568
+   + Optimizations, DFG, Synthesis, synt / continuous assignments considered                1569
+head-endstation_ax7101_1x1_tdm8 vs head-au2: lines 666/666 DIFFER (47 differing rows)
+   - Optimizations, DFG, AstToDfg, input processes                                          4181
+   + Optimizations, DFG, AstToDfg, input processes                                          4182
+   - Optimizations, DFG, AstToDfg, representable                                            4181
+   + Optimizations, DFG, AstToDfg, representable                                            4182
+   - Optimizations, DFG, DfgToAst, expressions inlined                                       942
+   + Optimizations, DFG, DfgToAst, expressions inlined                                       939
+   - Optimizations, DFG, Peephole, fold assoc binary lhs of rhs                              134
+   + Optimizations, DFG, Peephole, fold assoc binary lhs of rhs                              138
+   - Optimizations, DFG, Peephole, fold binary                                                11
+   + Optimizations, DFG, Peephole, fold binary                                                12
+   - Optimizations, DFG, Peephole, remove var                                                709
+   + Optimizations, DFG, Peephole, remove var                                                710
+   - Optimizations, DFG, Peephole, right leaning assoc                                       655
+   + Optimizations, DFG, Peephole, right leaning assoc                                       657
+   - Optimizations, DFG, Peephole, swap sides in binary                                      821
+   + Optimizations, DFG, Peephole, swap sides in binary                                      823
+   - Optimizations, DFG, Regularize, used variables inlined                                  156
+   + Optimizations, DFG, Regularize, used variables inlined                                  157
+   - Optimizations, DFG, Synthesis, conv / input assignments                                2100
+   + Optimizations, DFG, Synthesis, conv / input assignments                                2101
+   - Optimizations, DFG, Synthesis, conv / representable inputs                             2156
+   + Optimizations, DFG, Synthesis, conv / representable inputs                             2157
+   - Optimizations, DFG, Synthesis, synt / continuous assignments considered                1568
+   + Optimizations, DFG, Synthesis, synt / continuous assignments considered                1569
+head-endstation_ax7101_1x1_tdm8 vs head-ctl3: lines 666/666 DIFFER (17 differing rows)
+   - Optimizations, DFG, CSE 1st, expressions eliminated                                    1064
+   + Optimizations, DFG, CSE 1st, expressions eliminated                                    1063
+   - Optimizations, DFG, Regularize, unused vertices removed                                  86
+   + Optimizations, DFG, Regularize, unused vertices removed                                  85
+   - Optimizations, DFG, Regularize, used variables inlined                                  156
+   + Optimizations, DFG, Regularize, used variables inlined                                  157
+   - Optimizations, Loop unrolling, Unrolled iterations                                      828
+   + Optimizations, Loop unrolling, Unrolled iterations                                      830
+   - Optimizations, NBA flags shared                                                         137
+   + Optimizations, NBA flags shared                                                         139
+   - Optimizations, Vars localized                                                           370
+   + Optimizations, Vars localized                                                           369
+   - Output, C++ bytes written                                                           3930422
+   + Output, C++ bytes written                                                           3930638
+   - Scheduling, size of class: clocked                                                    50232
+   + Scheduling, size of class: clocked                                                    50242
+   - Scheduling, size of region: NBA                                                       77332
+   + Scheduling, size of region: NBA                                                       77342
+   - Node count, ARRAYSEL                             638      1075      1075       808
+   + Node count, ARRAYSEL                             640      1077      1077       810
+   - Node count, ASSIGN                    2195      5220      6224      6469      4476
+   + Node count, ASSIGN                    2195      5222      6226      6471      4478
+   - Node count, CONST                    15489     15598     23022     29883     21386
+   + Node count, CONST                    15489     15602     23026     29887     21390
+head-endstation_ax7101_1x1_tdm8 vs head-cd2: lines 666/666 DIFFER (52 differing rows)
+   - Optimizations, DFG, AstToDfg, input processes                                          4181
+   + Optimizations, DFG, AstToDfg, input processes                                          4183
+   - Optimizations, DFG, AstToDfg, representable                                            4181
+   + Optimizations, DFG, AstToDfg, representable                                            4183
+   - Optimizations, DFG, DfgToAst, expressions inlined                                       942
+   + Optimizations, DFG, DfgToAst, expressions inlined                                       940
+   - Optimizations, DFG, Peephole, fold assoc binary lhs of rhs                              134
+   + Optimizations, DFG, Peephole, fold assoc binary lhs of rhs                              137
+   - Optimizations, DFG, Peephole, fold binary                                                11
+   + Optimizations, DFG, Peephole, fold binary                                                12
+   - Optimizations, DFG, Peephole, remove var                                                709
+   + Optimizations, DFG, Peephole, remove var                                                711
+   - Optimizations, DFG, Peephole, right leaning assoc                                       655
+   + Optimizations, DFG, Peephole, right leaning assoc                                       659
+   - Optimizations, DFG, Peephole, swap sides in binary                                      821
+   + Optimizations, DFG, Peephole, swap sides in binary                                      825
+   - Optimizations, DFG, Regularize, used variables inlined                                  156
+   + Optimizations, DFG, Regularize, used variables inlined                                  158
+   - Optimizations, DFG, Synthesis, conv / input assignments                                2100
+   + Optimizations, DFG, Synthesis, conv / input assignments                                2102
+   - Optimizations, DFG, Synthesis, conv / representable inputs                             2156
+   + Optimizations, DFG, Synthesis, conv / representable inputs                             2158
+   - Optimizations, DFG, Synthesis, synt / continuous assignments considered                1568
+   + Optimizations, DFG, Synthesis, synt / continuous assignments considered                1570
+base-au2 vs head-au2: lines 666/666 DIFFER (33 differing rows)
+   - Input, Verilog bytes read                                                          21443530
+   + Input, Verilog bytes read                                                          21443710
