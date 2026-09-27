@@ -1,0 +1,12 @@
+PROBE M29a  scripts/ci_scope.py --selftest               rc=0 SURVIVES
+PROBE M29a  scripts/ci_events.py --check                 rc=0 SURVIVES
+PROBE M29a  scripts/docs_check.py                        rc=0 SURVIVES
+PROBE M29a  classification_probe.py .                    rc=0 SURVIVES
+PROBE M29b  scripts/ci_scope.py --selftest               rc=0 SURVIVES
+PROBE M29b  scripts/ci_events.py --check                 rc=0 SURVIVES
+PROBE M29b  scripts/docs_check.py                        rc=0 SURVIVES
+PROBE M29b  classification_probe.py .                    rc=1 KILLS
+PROBE CTL   scripts/ci_scope.py --selftest               rc=0 SURVIVES
+PROBE CTL   scripts/ci_events.py --check                 rc=0 SURVIVES
+PROBE CTL   scripts/docs_check.py                        rc=0 SURVIVES
+PROBE CTL   classification_probe.py .                    rc=0 SURVIVES

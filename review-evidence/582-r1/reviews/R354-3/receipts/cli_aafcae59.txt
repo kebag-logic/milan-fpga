@@ -1,0 +1,400 @@
+OPT help default='==SUPPRESS==' type=_HelpAction choices=None help='show this help message and exit'
+OPT xlen default=32 type=_StoreAction choices=[32, 64] help='CPU register width, honoured by BOTH --cpu choices (the bare-metal product profile requires RV32 without an MMU)'
+OPT cpu_count default=1 type=_StoreAction choices=None help='number of cores (this config: 1)'
+OPT cpu default='vexiiriscv' type=_StoreAction choices=['naxriscv', 'vexiiriscv'] help='soft CPU (the product profile uses vexiiriscv)'
+OPT software_profile default='baremetal' type=_StoreAction choices=('baremetal',) help='firmware shape; the product uses the cacheless RV32I M-mode Vexii core and Milan UART/CSR firmware'
+OPT with_fpu default=False type=_StoreTrueAction choices=None help='hardware FP unit (rv64imafd / lp64d)'
+OPT scala_args default=[] type=_AppendAction choices=None help='extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)'
+OPT sys_clk_freq default=100000000.0 type=_StoreAction choices=None help='system clock in Hz; when --milan-clk-freq is omitted or zero, must equal CPU_HZ in tb/verilator/nvm_capture_cpu/recipe.py (bare-metal build contract), including --no-milan'
+OPT board default='ax7101' type=_StoreAction choices=['ax7101', 'arty'] help='target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, second Milan node for AVDECC interop).'
+OPT l2_bytes default=None type=_StoreAction choices=None help='shared-L2 size in bytes (the cacheless RV32I product recipes state 0)'
+OPT milan_clk_freq default=None type=_StoreAction choices=None help='separate Milan and CPU domain in Hz; must equal CPU_HZ in tb/verilator/nvm_capture_cpu/recipe.py (bare-metal build contract), including --no-milan. Omitted or zero uses --sys-clk-freq, which must then equal that same clock'
+OPT num_streams default=1 type=_StoreAction choices=None help="NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts per shared engine (milan_datapath N_STREAMS). The builder emits this from the config's streams section; default 1 = today's bit-compatible single-stream shape."
+OPT fabric_gptp default=None type=_StoreTrueAction choices=None help="use the fabric gPTP plane (the product default for every Milan software profile) and the builder's MAC/priority/clock-specific ROM"
+OPT fabric_gptp default=None type=_StoreFalseAction choices=None help='elaborate the option-off comparison plane. VERIFICATION-ONLY hardware (#259): the image has no gPTP owner, is not a supported product image, and the flash tools refuse its artifacts'
+OPT gptp_ingress_lat_ns default=0 type=_StoreAction choices=None help='nanoseconds the fabric gPTP plane SUBTRACTS from every arrival timestamp (milan_datapath GPTP_INGRESS_LAT_NS_P). Per-board physical receive latency; 0..65535, and the applied pair is published read-only at CSR 0x7F0'
+OPT gptp_egress_lat_ns default=0 type=_StoreAction choices=None help="nanoseconds the fabric gPTP plane ADDS to every reconstructed launch timestamp (milan_datapath GPTP_EGRESS_LAT_NS_P). Per-board physical transmit latency, on top of the plane's own measured register stages; 0..65535"
+OPT no_render_lpf default=False type=_StoreTrueAction choices=None help='AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. Vivado place report of the shipping 8x8 bitstream prices it at 428 LUT / 756 FF / 0 DSP. The pruned datapath behaves exactly like a shipped one with LPF_CTRL[0]=0 (raw AXIS to the DAC), so no digital acceptance surface moves - but the analog loop THD+N record was measured THROUGH the filter and must be re-measured before it is quoted against a pruned bitstream. Default off => filter PRESENT, build byte-identical.'
+OPT no_media_clock_servo default=False type=_StoreTrueAction choices=None help="AREA LEVER: prune KL_mmcm_drp_servo (the audio-MMCM media-clock actuator). Legal ONLY when the media clock is INTERNAL - the servo is what disciplines the MMCM to the CRF sink's recovered clock, the only remote source advertised since #389, so a pruned build cannot follow a remote media clock at all. A_MCSRV_STAT 0x8F8 then reads 0 STRUCTURALLY. Default off => servo PRESENT."
+OPT no_latency_taps default=False type=_StoreTrueAction choices=None help='AREA LEVER: prune KL_aaf_latency_taps. Pure instrumentation - nothing in the media path reads a tap - so no acceptance surface moves, but the whole LTAP CSR window 0x870-0x8B0 reads 0 and every number in docs/AAF_LATENCY_TAPS.md becomes unreproducible on the resulting bitstream. Default off => taps PRESENT.'
+OPT no_maap default=False type=_StoreTrueAction choices=None help='AREA LEVER: prune KL_maap (IEEE 1722 Annex B dynamic stream DMAC allocation). Unsupported by the builder: every declared talker requires MAAP; numeric srp.stream_dmac_base is legacy scratch. MAAP_CTRL.en becomes effectively reserved: setting it would pin AAF admission shut, because the claim can never complete. Default off => MAAP PRESENT.'
+OPT no_i2s_playback default=False type=_StoreTrueAction choices=None help='AREA LEVER: prune KL_i2s_playback (the DAC serializer + its rate servo). For a board with no DAC: the four i2s_dac_* pins park at 0 and the I2SPB CSR group reads 0. Also stops i2spb_converged, so an EXTERNAL media clock never reports converged (consistent - there is no render device to converge). Default off => playback PRESENT.'
+OPT entity_gen_dir default=None type=_StoreAction choices=None help='required for Milan builds: configs/generated/<cfg>, containing the generated entity definition (gen/adp_shape_defaults.svh). Run the end-station builder for that config first; matching artifacts must also exist in sw/builder/out/<cfg>. There is no tracked entity fallback'
+OPT no_datapath_probes default=False type=_StoreTrueAction choices=None help='AREA LEVER: prune the APRB (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding diagnostics; the range reads 0 on a pruned build (the LTAP precedent). Default off => probes PRESENT.'
+OPT no_rx_mac_filter default=False type=_StoreTrueAction choices=None help='AREA LEVER: prune rx_mac_filter + its TCAM. The RX stream becomes a straight wire to the fabric observers, which is bit-exactly what the filter does with promisc=1 - so this is legal only when the port is meant to be PROMISCUOUS. The TCAM_* CSR window still accepts writes and nothing reads them. Default off => filter PRESENT.'
+OPT loopback_lane default=False type=_StoreTrueAction choices=None help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a talker slot naming a loopback AUDIO_CLUSTER really carries that RECEIVED channel pair. This is what makes the entity's declared loopback clusters true; without it they select silence. NOT free: +2303 LUT / +1542 FF OOC at the 8x8 shape (32 pair holds x 48 b that cannot be LUTRAM - the bank takes a reset and two writes per beat). Default off => no parameter passed, so the top .v is byte-identical. The endstation config declares it (cluster_mapping.fabric.loopback_lane) so the AEM's power-on map and this flag can never disagree."
+OPT pps default=False type=_StoreTrueAction choices=None help="METROLOGY: build the PPS output (milan_datapath PPS_P -> the timestamp counter's own comparator) and route it to the board's `pps` pad - AX7101 J11.35, ball C17, LVCMOS33. One rising edge per PHC second, 1 ms wide, emitted in gtx_clk so the edge is deterministic to a single tick. This is the only way this device's gPTP accuracy can be MEASURED against an external reference: without it every accuracy figure is the device reading its own servo error. Measured OOC at +118 LUT / +83 FF (yosys xc7, flattened). Default off => no comparator, no constraint, pin free. Building it does not start it: software must arm PTP_PPS_TGT_{LO,HI} at a second boundary and set PTP_PPS_CTRL[0]."
+OPT audio_interface default='i2s_philips' type=_StoreAction choices=('i2s_philips', 'tdm8', 'tdm16', 'tdm32') help='item-4 audio-interface family: capture front-end generate select (milan_datapath AUDIO_IF_SLOTS_P). i2s_philips (default) = the stereo I2S master front-end, bit-identical to the shipping build; tdmN = the KL_tdm_capture N-slot TDM slave (the builder emits this from audio_interface.kind).'
+OPT audio_interface_master default=False type=_StoreTrueAction choices=None help="item-4: be the TDM bus MASTER (milan_datapath AUDIO_IF_MASTER_P -> KL_tdm_capture_master). The fabric GENERATES bclk/fsync instead of waiting for a codec to drive them, which is the difference between a declared interface and one the wire-accountability gate can count: with --audio-interface tdmN alone the SLAVE's fsync never toggles (the SoC ties it to 0) so the front-end yields no pairs and every talker is silent. Needs --audio-interface tdmN. Adds a second audio MMCM output at 2 x SLOTS x 32 x 48 kHz (TDM8 24.576 / TDM16 49.152 / TDM32 98.304 MHz) and re-derives the two-stage integer clock plan so one VCO serves it and the 24.576 MHz CRF/DAC clock; the audio clock's error IMPROVES from -10.6 to -0.66 ppm. Default off => byte-identical build."
+OPT audio_interface_render default=0 type=_StoreAction choices=None help="issue #447: how many TDM slots this build SERIALIZES onto tdm_dout_o (milan_datapath AUDIO_IF_RENDER_SLOTS_P -> KL_tdm_render_master on a master bus, KL_tdm_render on a codec-driven one). A SEPARATE quantity from the --audio-interface width: that is the bus the capture front-end frames, this is the render half a board may or may not back. The builder emits it from audio_interface.physical_channels.render, the same fact that sizes the advertised physical input cluster pool. Needs --audio-interface tdmN; milan_datapath refuses a width wider than the bus or than the render crossbar's TDM key lane. Default 0 => the lane is pruned, tdm_dout_o is driven low and the build is byte-identical."
+OPT audio_fs_hz default=48000 type=_StoreAction choices=None help="issue #399: the media clock the TDM bus frames at, in Hz (milan_datapath AUDIO_IF_FS_HZ_P, and the fs in bclk = SLOTS x slot bits x fs that sets AUDIO_IF_CLK_HZ_P and the audio MMCM's TDM output). The builder emits it from clocking.sampling_rate_hz, so the rate the entity advertises and the rate the fabric frames at come from ONE declaration instead of this file hardcoding 48000. Needs --audio-interface tdmN --audio-interface-master: those are the only builds with a rate to set, and a flag that is accepted and does nothing is the defect class this issue closes. milan_datapath refuses a clk_tdm_i that is not an exact even multiple of the resulting bit clock, and _CRG refuses a TDM clock its VCO cannot divide to. Default 48000 => the parameter is withheld and the build is byte-identical."
+OPT audio_word_bits default=32 type=_StoreAction choices=(16, 24, 32) help='issue #399: BIT CLOCKS PER TDM SLOT - the slot WIDTH (milan_datapath AUDIO_IF_WORD_BITS_P -> the KL_tdm_capture[_master] WORD_BITS_P and the same bclk arithmetic). NOT the sample\'s valid-bit count: audio_interface.word_length_bits: 24 means 24 valid bits MSB-aligned inside a 32-bclk slot ("24-in-32"), which the front-ends take off the top of the slot whatever this is. Same --audio-interface tdmN --audio-interface-master requirement and the same reason. Default 32 => the parameter is withheld and the build is byte-identical.'
+OPT talker_wire_chans default=2 type=_StoreAction choices=None help="item-00 WIRE CHANNEL CONSTANT: channels_per_frame the AAF framer emits per talker (milan_datapath TALKER_WIRE_CHANS_P, even 2..8). This is what the fabric PUTS ON THE WIRE, not what the entity advertises - milan_datapath refuses at elaboration any width the capture front-end selected by --audio-interface cannot feed, so raising it requires raising the framer (roadmap item 5). Default 2 = today's stereo framer, byte-identical."
+OPT main_ram_size default=32768 type=_StoreAction choices=None help='integrated main RAM size (bytes)'
+OPT no_milan default=False type=_StoreTrueAction choices=None help='CLI smoke path only; cannot finish a bare-metal image because firmware requires the Milan entity'
+OPT with_mac default=False type=_StoreTrueAction choices=None help='attach the 1G MAC + RGMII PHY (§A.7) at the datapath MAC boundary'
+OPT with_dram default=False type=_StoreTrueAction choices=None help='512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16)'
+OPT bus_standard default='wishbone' type=_StoreAction choices=['wishbone', 'axi-lite'] help="main SoC bus standard. 'axi-lite' makes the control path AXI end to end and deletes the two round-trip bridges LiteX inserts when the default 'wishbone' sits between the CPU's AXI-Lite pBus and the AXI-Lite milan_csr window (OOC: 106 + 150 LUT, minus 18 for AXILite2CSR over Wishbone2CSR). Carries no packet payload."
+OPT with_spiflash default=False type=_StoreTrueAction choices=None help='memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can load the bare-metal AEM image. Included by --full.'
+OPT flashboot default='none' type=_StoreAction choices=['none', 'baremetal'] help="which artifacts live in flash (needs --with-spiflash or --full): 'baremetal' stores the raw AEM image beside the bitstream; 'none' (default) maps the flash but adds no boot method."
+OPT full default=False type=_StoreTrueAction choices=None help='enable the complete fabric endpoint + MAC/PHY + DDR3 (= --with-mac --with-dram). Physical two-board traffic acceptance remains a separate bench obligation.'
+OPT eth_port default='e1' type=_StoreAction choices=['e1', 'e2'] help='AX7101 PHY port: e1 (default) or e2 — the e1-GMII-RX hardware-fault fallback (2026-07-22); both are 8-bit GMII'
+OPT gtx_tx_invert default=False type=_StoreTrueAction choices=None help='forward GMII gtx_clk 180° out of phase with TXD so the PHY samples mid-bit - the GMII-TX setup/hold correction for the RTL8211E. Default off = edge-aligned.'
+OPT rgmii_tx_delay default=2e-09 type=_StoreAction choices=None help='RGMII MAC-side TX clock delay, seconds (default 2e-9).'
+OPT rgmii_rx_delay default=0.0 type=_StoreAction choices=None help='RGMII MAC-side RX IDELAY, seconds (default 0  -  the AX7101 PHY uses RX-clock inversion, not IDELAY, to centre sampling; see milan_rgmii.py).'
+OPT uart_baudrate default=115200 type=_StoreAction choices=None help='console UART baud (default 115200; the AX7101 factory demo uses 9600)'
+OPT build default=False type=_StoreTrueAction choices=None help='run vendor P&R (needs Artix-7 in Vivado)'
+OPT load default=False type=_StoreTrueAction choices=None help='program the board over JTAG (openFPGALoader -c ft232)'
+OPT vivado_max_threads default=32 type=_StoreAction choices=None help='max Vivado synth/place/route threads (set_param general.maxThreads; Vivado caps at 32)'
+OPT place_directive default=None type=_StoreAction choices=None help='override the Vivado place directive (e.g. AltSpreadLogic_high to relieve congestion on a route-dominated critical path).'
+OPT synth_directive default=None type=_StoreAction choices=None help='override the Vivado synth_design directive (e.g. AreaOptimized_high for the AREA-70 density flow).'
+OPT opt_directive default=None type=_StoreAction choices=None help='override the Vivado opt_design directive (e.g. ExploreArea).'
+OPT route_directive default=None type=_StoreAction choices=None help='override the Vivado route_design directive (e.g. AlternateCLBRouting when routing dies on node overlaps at high fill; --timing-opt alone pins AggressiveExplore).'
+OPT area_flow default=False type=_StoreTrueAction choices=None help='AREA-70 density flow: synth AreaOptimized_high + opt ExploreArea + a second opt_design -control_set_merge -merge_equivalent_drivers pass before placement. The slice binder is packing density, not LUT count (cbse_spr: 71.2 percent LUTs but 94.85 percent slices at 75 percent fill).'
+OPT timing_opt default=False type=_StoreTrueAction choices=None help='aggressive Vivado place/route/phys-opt directives to squeeze out the last ns of setup slack (slower P&R; use when WNS is marginally negative, e.g. the 100 MHz --full CBS path)'
+OPT floorplan default=False type=_StoreTrueAction choices=None help='attempt to attack the 100 MHz critical path (sys_rst, fanout ~3900, 8.9 ns route, 0 logic levels) for a higher sys clock. NOTE: reset replication does NOT work here  -  Vivado protects the reset control set (DONT_TOUCH on the synchronizer clock), so the RTL max_fanout attr this sets AND the forced phys_opt both leave sys_rst at fo~3969. The real fix is a multicycle/false-path on the reset, not this flag; the clock itself is set via --sys-clk-freq.'
+OPT output_dir default=None type=_StoreAction choices=None help='Base output directory.'
+OPT gateware_dir default=None type=_StoreAction choices=None help='Output directory for gateware files.'
+OPT software_dir default=None type=_StoreAction choices=None help='Output directory for software files.'
+OPT include_dir default=None type=_StoreAction choices=None help='Output directory for header files.'
+OPT generated_dir default=None type=_StoreAction choices=None help='Output directory for generated files.'
+OPT build_backend default='litex' type=_StoreAction choices=['litex', 'edalize'] help='Select build backend.'
+OPT build_log default=True type=_StoreAction choices=None help='Write build log to file (default: output_dir/litex.log).'
+OPT build_log default=True type=_StoreFalseAction choices=None help='Disable build log generation.'
+OPT no_compile default=False type=_StoreTrueAction choices=None help='Disable software and gateware compilation.'
+OPT no_compile_software default=False type=_StoreTrueAction choices=None help='Disable software compilation only.'
+OPT no_compile_gateware default=False type=_StoreTrueAction choices=None help='Disable gateware compilation only.'
+OPT soc_csv default=None type=_StoreAction choices=None help='Write SoC mapping to the specified CSV file (always generated, default: <output-dir>/csr.csv). Generated when the Builder build step runs; on board targets, use --build --no-compile for export only.'
+OPT soc_json default=None type=_StoreAction choices=None help='Write SoC mapping to the specified JSON file (always generated, default: <output-dir>/csr.json). Generated when the Builder build step runs; on board targets, use --build --no-compile for export only.'
+OPT soc_svd default=None type=_StoreAction choices=None help='Write SoC mapping to the specified SVD file. Generated when the Builder build step runs; on board targets, use --build --no-compile for export only.'
+OPT memory_x default=None type=_StoreAction choices=None help='Write SoC memory regions to the specified Memory-X file. Generated when the Builder build step runs; on board targets, use --build --no-compile for export only.'
+OPT doc default=False type=_StoreTrueAction choices=None help='Generate SoC documentation.'
+OPT hierarchical_verilog default=False type=_StoreTrueAction choices=None help='Enable hierarchical Verilog generation.'
+OPT build_bundle default=False type=_StoreAction choices=None help='Generate build input bundle (optionally to PATH).'
+OPT build_bundle default=True type=_StoreFalseAction choices=None help='Disable build input bundle generation.'
+OPT bundle_root default=[] type=_AppendAction choices=None help='Add directory root to bundle.'
+OPT bundle_include default=[] type=_AppendAction choices=None help='Add extra file/directory to bundle.'
+OPT bundle_pythonpath_root default=[] type=_AppendAction choices=None help='Add Python import root to bundle.'
+OPT bundle_auto_pythonpath default=False type=_StoreTrueAction choices=None help='Auto-bundle LiteX Python import roots.'
+OPT bundle_strict default='warn' type=_StoreAction choices=['warn', 'error'] help='Missing bundle input handling.'
+OPT bios_lto default=False type=_StoreTrueAction choices=None help='Enable BIOS LTO (Link Time Optimization) compilation.'
+OPT bios_format default='integer' type=_StoreAction choices=['integer', 'float', 'double'] help='Select BIOS printf format.'
+OPT bios_console default='full' type=_StoreAction choices=['full', 'no-history', 'no-autocomplete', 'lite', 'disable'] help='Select BIOS console config.'
+OPT bios_no_ansi default=False type=_StoreTrueAction choices=None help='Disable ANSI escape sequences in BIOS output.'
+OPT bios_stack_margin default=None type=_StoreAction choices=None help='Fail BIOS build when available stack space is below this byte count.'
+OPT libc_mode default='minimal' type=_StoreAction choices=['full', 'minimal'] help='Select LiteX libc build mode.'
+OPT no_integrated_rom_auto_size default=False type=_StoreTrueAction choices=None help='Keep integrated ROM at requested size instead of auto-resizing it to the BIOS size.'
+----- --help -----
+usage: milan_soc.py [-h] [--xlen {32,64}] [--cpu-count CPU_COUNT] [--cpu {naxriscv,vexiiriscv}]
+                    [--software-profile {baremetal}] [--with-fpu] [--scala-args SCALA_ARGS]
+                    [--sys-clk-freq SYS_CLK_FREQ] [--board {ax7101,arty}] [--l2-bytes L2_BYTES]
+                    [--milan-clk-freq MILAN_CLK_FREQ] [--num-streams NUM_STREAMS] [--fabric-gptp | --no-fabric-gptp]
+                    [--gptp-ingress-lat-ns GPTP_INGRESS_LAT_NS] [--gptp-egress-lat-ns GPTP_EGRESS_LAT_NS]
+                    [--no-render-lpf] [--no-media-clock-servo] [--no-latency-taps] [--no-maap] [--no-i2s-playback]
+                    [--entity-gen-dir ENTITY_GEN_DIR] [--no-datapath-probes] [--no-rx-mac-filter] [--loopback-lane]
+                    [--pps] [--audio-interface {i2s_philips,tdm8,tdm16,tdm32}] [--audio-interface-master]
+                    [--audio-interface-render AUDIO_INTERFACE_RENDER] [--audio-fs-hz AUDIO_FS_HZ]
+                    [--audio-word-bits {16,24,32}] [--talker-wire-chans TALKER_WIRE_CHANS]
+                    [--main-ram-size MAIN_RAM_SIZE] [--no-milan] [--with-mac] [--with-dram]
+                    [--bus-standard {wishbone,axi-lite}] [--with-spiflash] [--flashboot {none,baremetal}] [--full]
+                    [--eth-port {e1,e2}] [--gtx-tx-invert] [--rgmii-tx-delay RGMII_TX_DELAY]
+                    [--rgmii-rx-delay RGMII_RX_DELAY] [--uart-baudrate UART_BAUDRATE] [--build] [--load]
+                    [--vivado-max-threads VIVADO_MAX_THREADS] [--place-directive PLACE_DIRECTIVE]
+                    [--synth-directive SYNTH_DIRECTIVE] [--opt-directive OPT_DIRECTIVE]
+                    [--route-directive ROUTE_DIRECTIVE] [--area-flow] [--timing-opt] [--floorplan]
+                    [--output-dir OUTPUT_DIR] [--gateware-dir GATEWARE_DIR] [--software-dir SOFTWARE_DIR]
+                    [--include-dir INCLUDE_DIR] [--generated-dir GENERATED_DIR] [--build-backend {litex,edalize}]
+                    [--build-log [BUILD_LOG]] [--no-build-log] [--no-compile] [--no-compile-software]
+                    [--no-compile-gateware] [--soc-csv SOC_CSV] [--soc-json SOC_JSON] [--soc-svd SOC_SVD]
+                    [--memory-x MEMORY_X] [--doc] [--hierarchical-verilog] [--build-bundle [PATH]] [--no-build-bundle]
+                    [--bundle-root BUNDLE_ROOT] [--bundle-include BUNDLE_INCLUDE]
+                    [--bundle-pythonpath-root BUNDLE_PYTHONPATH_ROOT] [--bundle-auto-pythonpath]
+                    [--bundle-strict {warn,error}] [--bios-lto] [--bios-format {integer,float,double}]
+                    [--bios-console {full,no-history,no-autocomplete,lite,disable}] [--bios-no-ansi]
+                    [--bios-stack-margin BIOS_STACK_MARGIN] [--libc-mode {full,minimal}] [--no-integrated-rom-auto-size]
+
+Milan RISC-V fabric-control SoC
+
+options:
+  -h, --help
+          show this help message and exit
+  --xlen {32,64}
+          CPU register width, honoured by BOTH --cpu choices (the bare-metal product profile requires RV32 without an
+          MMU) (default: 32)
+  --cpu-count CPU_COUNT
+          number of cores (this config: 1) (default: 1)
+  --cpu {naxriscv,vexiiriscv}
+          soft CPU (the product profile uses vexiiriscv) (default: vexiiriscv)
+  --software-profile {baremetal}
+          firmware shape; the product uses the cacheless RV32I M-mode Vexii core and Milan UART/CSR firmware (default:
+          baremetal)
+  --with-fpu
+          hardware FP unit (rv64imafd / lp64d) (default: False)
+  --scala-args SCALA_ARGS
+          extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append) (default: [])
+  --sys-clk-freq SYS_CLK_FREQ
+          system clock in Hz; when --milan-clk-freq is omitted or zero, must equal CPU_HZ in
+          tb/verilator/nvm_capture_cpu/recipe.py (bare-metal build contract), including --no-milan (default:
+          100000000.0)
+  --board {ax7101,arty}
+          target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or arty (Digilent Arty A7-100: 100M MII DP83848, serial
+          boot, second Milan node for AVDECC interop). (default: ax7101)
+  --l2-bytes L2_BYTES
+          shared-L2 size in bytes (the cacheless RV32I product recipes state 0) (default: None)
+  --milan-clk-freq MILAN_CLK_FREQ
+          separate Milan and CPU domain in Hz; must equal CPU_HZ in tb/verilator/nvm_capture_cpu/recipe.py (bare-metal
+          build contract), including --no-milan. Omitted or zero uses --sys-clk-freq, which must then equal that same
+          clock (default: None)
+  --num-streams NUM_STREAMS
+          NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts per shared engine
+          (milan_datapath N_STREAMS). The builder emits this from the config's streams section; default 1 = today's bit-
+          compatible single-stream shape. (default: 1)
+  --fabric-gptp
+          use the fabric gPTP plane (the product default for every Milan software profile) and the builder's
+          MAC/priority/clock-specific ROM (default: None)
+  --no-fabric-gptp
+          elaborate the option-off comparison plane. VERIFICATION-ONLY hardware (#259): the image has no gPTP owner, is
+          not a supported product image, and the flash tools refuse its artifacts (default: None)
+  --no-render-lpf
+          AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune KL_pcm_lpf, the 2nd-order Butterworth on the DAC render
+          tap. Vivado place report of the shipping 8x8 bitstream prices it at 428 LUT / 756 FF / 0 DSP. The pruned
+          datapath behaves exactly like a shipped one with LPF_CTRL[0]=0 (raw AXIS to the DAC), so no digital acceptance
+          surface moves - but the analog loop THD+N record was measured THROUGH the filter and must be re-measured
+          before it is quoted against a pruned bitstream. Default off => filter PRESENT, build byte-identical. (default:
+          False)
+  --no-media-clock-servo
+          AREA LEVER: prune KL_mmcm_drp_servo (the audio-MMCM media-clock actuator). Legal ONLY when the media clock is
+          INTERNAL - the servo is what disciplines the MMCM to the CRF sink's recovered clock, the only remote source
+          advertised since #389, so a pruned build cannot follow a remote media clock at all. A_MCSRV_STAT 0x8F8 then
+          reads 0 STRUCTURALLY. Default off => servo PRESENT. (default: False)
+  --no-latency-taps
+          AREA LEVER: prune KL_aaf_latency_taps. Pure instrumentation - nothing in the media path reads a tap - so no
+          acceptance surface moves, but the whole LTAP CSR window 0x870-0x8B0 reads 0 and every number in
+          docs/AAF_LATENCY_TAPS.md becomes unreproducible on the resulting bitstream. Default off => taps PRESENT.
+          (default: False)
+  --no-maap
+          AREA LEVER: prune KL_maap (IEEE 1722 Annex B dynamic stream DMAC allocation). Unsupported by the builder:
+          every declared talker requires MAAP; numeric srp.stream_dmac_base is legacy scratch. MAAP_CTRL.en becomes
+          effectively reserved: setting it would pin AAF admission shut, because the claim can never complete. Default
+          off => MAAP PRESENT. (default: False)
+  --no-i2s-playback
+          AREA LEVER: prune KL_i2s_playback (the DAC serializer + its rate servo). For a board with no DAC: the four
+          i2s_dac_* pins park at 0 and the I2SPB CSR group reads 0. Also stops i2spb_converged, so an EXTERNAL media
+          clock never reports converged (consistent - there is no render device to converge). Default off => playback
+          PRESENT. (default: False)
+  --entity-gen-dir ENTITY_GEN_DIR
+          required for Milan builds: configs/generated/<cfg>, containing the generated entity definition
+          (gen/adp_shape_defaults.svh). Run the end-station builder for that config first; matching artifacts must also
+          exist in sw/builder/out/<cfg>. There is no tracked entity fallback (default: None)
+  --no-datapath-probes
+          AREA LEVER: prune the APRB (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding diagnostics; the
+          range reads 0 on a pruned build (the LTAP precedent). Default off => probes PRESENT. (default: False)
+  --no-rx-mac-filter
+          AREA LEVER: prune rx_mac_filter + its TCAM. The RX stream becomes a straight wire to the fabric observers,
+          which is bit-exactly what the filter does with promisc=1 - so this is legal only when the port is meant to be
+          PROMISCUOUS. The TCAM_* CSR window still accepts writes and nothing reads them. Default off => filter PRESENT.
+          (default: False)
+  --loopback-lane
+          task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK bucket (SRC_LOOP = 5) to the depacketizer payload
+          clone, so a talker slot naming a loopback AUDIO_CLUSTER really carries that RECEIVED channel pair. This is
+          what makes the entity's declared loopback clusters true; without it they select silence. NOT free: +2303 LUT /
+          +1542 FF OOC at the 8x8 shape (32 pair holds x 48 b that cannot be LUTRAM - the bank takes a reset and two
+          writes per beat). Default off => no parameter passed, so the top .v is byte-identical. The endstation config
+          declares it (cluster_mapping.fabric.loopback_lane) so the AEM's power-on map and this flag can never disagree.
+          (default: False)
+  --pps   METROLOGY: build the PPS output (milan_datapath PPS_P -> the timestamp counter's own comparator) and route it
+          to the board's `pps` pad - AX7101 J11.35, ball C17, LVCMOS33. One rising edge per PHC second, 1 ms wide,
+          emitted in gtx_clk so the edge is deterministic to a single tick. This is the only way this device's gPTP
+          accuracy can be MEASURED against an external reference: without it every accuracy figure is the device reading
+          its own servo error. Measured OOC at +118 LUT / +83 FF (yosys xc7, flattened). Default off => no comparator,
+          no constraint, pin free. Building it does not start it: software must arm PTP_PPS_TGT_{LO,HI} at a second
+          boundary and set PTP_PPS_CTRL[0]. (default: False)
+  --audio-interface {i2s_philips,tdm8,tdm16,tdm32}
+          item-4 audio-interface family: capture front-end generate select (milan_datapath AUDIO_IF_SLOTS_P).
+          i2s_philips (default) = the stereo I2S master front-end, bit-identical to the shipping build; tdmN = the
+          KL_tdm_capture N-slot TDM slave (the builder emits this from audio_interface.kind). (default: i2s_philips)
+  --audio-interface-master
+          item-4: be the TDM bus MASTER (milan_datapath AUDIO_IF_MASTER_P -> KL_tdm_capture_master). The fabric
+          GENERATES bclk/fsync instead of waiting for a codec to drive them, which is the difference between a declared
+          interface and one the wire-accountability gate can count: with --audio-interface tdmN alone the SLAVE's fsync
+          never toggles (the SoC ties it to 0) so the front-end yields no pairs and every talker is silent. Needs
+          --audio-interface tdmN. Adds a second audio MMCM output at 2 x SLOTS x 32 x 48 kHz (TDM8 24.576 / TDM16 49.152
+          / TDM32 98.304 MHz) and re-derives the two-stage integer clock plan so one VCO serves it and the 24.576 MHz
+          CRF/DAC clock; the audio clock's error IMPROVES from -10.6 to -0.66 ppm. Default off => byte-identical build.
+          (default: False)
+  --audio-interface-render AUDIO_INTERFACE_RENDER
+          issue #447: how many TDM slots this build SERIALIZES onto tdm_dout_o (milan_datapath AUDIO_IF_RENDER_SLOTS_P
+          -> KL_tdm_render_master on a master bus, KL_tdm_render on a codec-driven one). A SEPARATE quantity from the
+          --audio-interface width: that is the bus the capture front-end frames, this is the render half a board may or
+          may not back. The builder emits it from audio_interface.physical_channels.render, the same fact that sizes the
+          advertised physical input cluster pool. Needs --audio-interface tdmN; milan_datapath refuses a width wider
+          than the bus or than the render crossbar's TDM key lane. Default 0 => the lane is pruned, tdm_dout_o is driven
+          low and the build is byte-identical. (default: 0)
+  --audio-fs-hz AUDIO_FS_HZ
+          issue #399: the media clock the TDM bus frames at, in Hz (milan_datapath AUDIO_IF_FS_HZ_P, and the fs in bclk
+          = SLOTS x slot bits x fs that sets AUDIO_IF_CLK_HZ_P and the audio MMCM's TDM output). The builder emits it
+          from clocking.sampling_rate_hz, so the rate the entity advertises and the rate the fabric frames at come from
+          ONE declaration instead of this file hardcoding 48000. Needs --audio-interface tdmN --audio-interface-master:
+          those are the only builds with a rate to set, and a flag that is accepted and does nothing is the defect class
+          this issue closes. milan_datapath refuses a clk_tdm_i that is not an exact even multiple of the resulting bit
+          clock, and _CRG refuses a TDM clock its VCO cannot divide to. Default 48000 => the parameter is withheld and
+          the build is byte-identical. (default: 48000)
+  --audio-word-bits {16,24,32}
+          issue #399: BIT CLOCKS PER TDM SLOT - the slot WIDTH (milan_datapath AUDIO_IF_WORD_BITS_P -> the
+          KL_tdm_capture[_master] WORD_BITS_P and the same bclk arithmetic). NOT the sample's valid-bit count:
+          audio_interface.word_length_bits: 24 means 24 valid bits MSB-aligned inside a 32-bclk slot ("24-in-32"), which
+          the front-ends take off the top of the slot whatever this is. Same --audio-interface tdmN --audio-interface-
+          master requirement and the same reason. Default 32 => the parameter is withheld and the build is byte-
+          identical. (default: 32)
+  --talker-wire-chans TALKER_WIRE_CHANS
+          item-00 WIRE CHANNEL CONSTANT: channels_per_frame the AAF framer emits per talker (milan_datapath
+          TALKER_WIRE_CHANS_P, even 2..8). This is what the fabric PUTS ON THE WIRE, not what the entity advertises -
+          milan_datapath refuses at elaboration any width the capture front-end selected by --audio-interface cannot
+          feed, so raising it requires raising the framer (roadmap item 5). Default 2 = today's stereo framer, byte-
+          identical. (default: 2)
+  --main-ram-size MAIN_RAM_SIZE
+          integrated main RAM size (bytes) (default: 32768)
+  --no-milan
+          CLI smoke path only; cannot finish a bare-metal image because firmware requires the Milan entity (default:
+          False)
+  --with-mac
+          attach the 1G MAC + RGMII PHY (§A.7) at the datapath MAC boundary (default: False)
+  --with-dram
+          512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16) (default: False)
+  --bus-standard {wishbone,axi-lite}
+          main SoC bus standard. 'axi-lite' makes the control path AXI end to end and deletes the two round-trip bridges
+          LiteX inserts when the default 'wishbone' sits between the CPU's AXI-Lite pBus and the AXI-Lite milan_csr
+          window (OOC: 106 + 150 LUT, minus 18 for AXILite2CSR over Wishbone2CSR). Carries no packet payload. (default:
+          wishbone)
+  --with-spiflash
+          memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can load the bare-metal AEM image. Included by
+          --full. (default: False)
+  --flashboot {none,baremetal}
+          which artifacts live in flash (needs --with-spiflash or --full): 'baremetal' stores the raw AEM image beside
+          the bitstream; 'none' (default) maps the flash but adds no boot method. (default: none)
+  --full  enable the complete fabric endpoint + MAC/PHY + DDR3 (= --with-mac --with-dram). Physical two-board traffic
+          acceptance remains a separate bench obligation. (default: False)
+  --eth-port {e1,e2}
+          AX7101 PHY port: e1 (default) or e2 — the e1-GMII-RX hardware-fault fallback (2026-07-22); both are 8-bit GMII
+          (default: e1)
+  --gtx-tx-invert
+          forward GMII gtx_clk 180° out of phase with TXD so the PHY samples mid-bit - the GMII-TX setup/hold correction
+          for the RTL8211E. Default off = edge-aligned. (default: False)
+  --rgmii-tx-delay RGMII_TX_DELAY
+          RGMII MAC-side TX clock delay, seconds (default 2e-9). (default: 2e-09)
+  --rgmii-rx-delay RGMII_RX_DELAY
+          RGMII MAC-side RX IDELAY, seconds (default 0 - the AX7101 PHY uses RX-clock inversion, not IDELAY, to centre
+          sampling; see milan_rgmii.py). (default: 0.0)
+  --uart-baudrate UART_BAUDRATE
+          console UART baud (default 115200; the AX7101 factory demo uses 9600) (default: 115200)
+  --build
+          run vendor P&R (needs Artix-7 in Vivado) (default: False)
+  --load  program the board over JTAG (openFPGALoader -c ft232) (default: False)
+  --vivado-max-threads VIVADO_MAX_THREADS
+          max Vivado synth/place/route threads (set_param general.maxThreads; Vivado caps at 32) (default: 32)
+  --place-directive PLACE_DIRECTIVE
+          override the Vivado place directive (e.g. AltSpreadLogic_high to relieve congestion on a route-dominated
+          critical path). (default: None)
+  --synth-directive SYNTH_DIRECTIVE
+          override the Vivado synth_design directive (e.g. AreaOptimized_high for the AREA-70 density flow). (default:
+          None)
+  --opt-directive OPT_DIRECTIVE
+          override the Vivado opt_design directive (e.g. ExploreArea). (default: None)
+  --route-directive ROUTE_DIRECTIVE
+          override the Vivado route_design directive (e.g. AlternateCLBRouting when routing dies on node overlaps at
+          high fill; --timing-opt alone pins AggressiveExplore). (default: None)
+  --area-flow
+          AREA-70 density flow: synth AreaOptimized_high + opt ExploreArea + a second opt_design -control_set_merge
+          -merge_equivalent_drivers pass before placement. The slice binder is packing density, not LUT count (cbse_spr:
+          71.2 percent LUTs but 94.85 percent slices at 75 percent fill). (default: False)
+  --timing-opt
+          aggressive Vivado place/route/phys-opt directives to squeeze out the last ns of setup slack (slower P&R; use
+          when WNS is marginally negative, e.g. the 100 MHz --full CBS path) (default: False)
+  --floorplan
+          attempt to attack the 100 MHz critical path (sys_rst, fanout ~3900, 8.9 ns route, 0 logic levels) for a higher
+          sys clock. NOTE: reset replication does NOT work here - Vivado protects the reset control set (DONT_TOUCH on
+          the synchronizer clock), so the RTL max_fanout attr this sets AND the forced phys_opt both leave sys_rst at
+          fo~3969. The real fix is a multicycle/false-path on the reset, not this flag; the clock itself is set via
+          --sys-clk-freq. (default: False)
+
+gPTP timestamp latency:
+  --gptp-ingress-lat-ns GPTP_INGRESS_LAT_NS
+          nanoseconds the fabric gPTP plane SUBTRACTS from every arrival timestamp (milan_datapath
+          GPTP_INGRESS_LAT_NS_P). Per-board physical receive latency; 0..65535, and the applied pair is published read-
+          only at CSR 0x7F0 (default: 0)
+  --gptp-egress-lat-ns GPTP_EGRESS_LAT_NS
+          nanoseconds the fabric gPTP plane ADDS to every reconstructed launch timestamp (milan_datapath
+          GPTP_EGRESS_LAT_NS_P). Per-board physical transmit latency, on top of the plane's own measured register
+          stages; 0..65535 (default: 0)
+
+Builder options:
+  --output-dir OUTPUT_DIR
+          Base output directory. (default: None)
+  --gateware-dir GATEWARE_DIR
+          Output directory for gateware files. (default: None)
+  --software-dir SOFTWARE_DIR
+          Output directory for software files. (default: None)
+  --include-dir INCLUDE_DIR
+          Output directory for header files. (default: None)
+  --generated-dir GENERATED_DIR
+          Output directory for generated files. (default: None)
+  --build-backend {litex,edalize}
+          Select build backend. (default: litex)
+  --build-log [BUILD_LOG]
+          Write build log to file (default: output_dir/litex.log). (default: True)
+  --no-build-log
+          Disable build log generation. (default: True)
+  --no-compile
+          Disable software and gateware compilation. (default: False)
+  --no-compile-software
+          Disable software compilation only. (default: False)
+  --no-compile-gateware
+          Disable gateware compilation only. (default: False)
+  --soc-csv, --csr-csv SOC_CSV
+          Write SoC mapping to the specified CSV file (always generated, default: <output-dir>/csr.csv). Generated when
+          the Builder build step runs; on board targets, use --build --no-compile for export only. (default: None)
+  --soc-json, --csr-json SOC_JSON
+          Write SoC mapping to the specified JSON file (always generated, default: <output-dir>/csr.json). Generated
+          when the Builder build step runs; on board targets, use --build --no-compile for export only. (default: None)
+  --soc-svd, --csr-svd SOC_SVD
+          Write SoC mapping to the specified SVD file. Generated when the Builder build step runs; on board targets, use
+          --build --no-compile for export only. (default: None)
+  --memory-x MEMORY_X
+          Write SoC memory regions to the specified Memory-X file. Generated when the Builder build step runs; on board
+          targets, use --build --no-compile for export only. (default: None)
+  --doc   Generate SoC documentation. (default: False)
+  --hierarchical-verilog
+          Enable hierarchical Verilog generation. (default: False)
+
+Build bundle options:
+  --build-bundle [PATH]
+          Generate build input bundle (optionally to PATH). (default: False)
+  --no-build-bundle
+          Disable build input bundle generation. (default: True)
+  --bundle-root BUNDLE_ROOT
+          Add directory root to bundle. (default: [])
+  --bundle-include BUNDLE_INCLUDE
+          Add extra file/directory to bundle. (default: [])
+  --bundle-pythonpath-root BUNDLE_PYTHONPATH_ROOT
+          Add Python import root to bundle. (default: [])
+  --bundle-auto-pythonpath
+          Auto-bundle LiteX Python import roots. (default: False)
+  --bundle-strict {warn,error}
+          Missing bundle input handling. (default: warn)
+
+BIOS options:
+  --bios-lto
+          Enable BIOS LTO (Link Time Optimization) compilation. (default: False)
+  --bios-format {integer,float,double}
+          Select BIOS printf format. (default: integer)
+  --bios-console {full,no-history,no-autocomplete,lite,disable}
+          Select BIOS console config. (default: full)
+  --bios-no-ansi
+          Disable ANSI escape sequences in BIOS output. (default: False)
+  --bios-stack-margin BIOS_STACK_MARGIN
+          Fail BIOS build when available stack space is below this byte count. (default: None)
+  --libc-mode {full,minimal}
+          Select LiteX libc build mode. (default: minimal)
+  --no-integrated-rom-auto-size
+          Keep integrated ROM at requested size instead of auto-resizing it to the BIOS size. (default: False)
+

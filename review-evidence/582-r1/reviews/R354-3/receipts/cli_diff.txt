@@ -1,0 +1,9 @@
+34c34
+< OPT no_milan default=False type=_StoreTrueAction choices=None help='bare SoC, no NIC (bring-up smoke test)'
+---
+> OPT no_milan default=False type=_StoreTrueAction choices=None help='CLI smoke path only; cannot finish a bare-metal image because firmware requires the Milan entity'
+258c258,259
+<           bare SoC, no NIC (bring-up smoke test) (default: False)
+---
+>           CLI smoke path only; cannot finish a bare-metal image because firmware requires the Milan entity (default:
+>           False)

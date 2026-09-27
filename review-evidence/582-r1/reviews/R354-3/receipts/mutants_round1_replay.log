@@ -1,0 +1,7 @@
+PROBE S1 SoC guard exempts: not args.no_milan              expected=KILLED got=KILLED   MATCH
+PROBE S2 SoC guard exempts: not args.full                  expected=KILLED got=KILLED   MATCH
+PROBE S3 SoC guard exempts: args.board != "arty"           expected=KILLED got=KILLED   MATCH
+PROBE S4 SoC guard exempts: not args.with_spiflash         expected=KILLED got=KILLED   MATCH
+PROBE B3 builder guard only for flashboot baremetal        expected=KILLED got=KILLED   MATCH
+PROBE CTL unmutated SoC and builder arms pass                      MATCH
+rc=0

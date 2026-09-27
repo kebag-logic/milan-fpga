@@ -1,0 +1,25 @@
+== mut/e1_head: AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-wire-chans', '4', '--
+== mut/e1_parent: 
+[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+== mut/R1_head: AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+== mut/R2_head: AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+== mut/eq_head: 
+[clock contract] endstation_zz_equal_clock: SKIP system-clock control: sys_clk_hz == milan_clk_hz
+[clock contract] 6 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+== mut/eq_parent: AssertionError: endstation_zz_equal_clock: ROM clock control is insensitive
+== mut/eqr1_head: AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+== mut/ctl_soc: 
+[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+== mut/ctl_rom: 
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+== mut/ctl_parent_soc: 
+[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+== mut1/S1: AssertionError: clock accepted before platform: ['--no-milan', '--milan-clk-freq', '49999999']
+== mut1/S2: AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-wire-chans', '4', '--
+== mut1/S3: AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-wire-chans', '4', '--
+== mut1/S4: AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-wire-chans', '4', '--
+== mut1/B3:     raise AssertionError(f"accepted invalid input: {reason}")
+== mut1/ctl_soc: 
+[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+== mut1/ctl_builder: 
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure

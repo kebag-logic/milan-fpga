@@ -1,0 +1,34 @@
+ok   A1 paragraph pages ['docs/AAF_LATENCY_TAPS.md', 'docs/reference/REGISTER_MAP.md', 'docs/reference/TRACE_EVENTS.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md'] == GATE_READ_DOCS
+ok   A2 paragraph count word 'Four' == 4
+ok   A3 docs/AAF_LATENCY_TAPS.md classified relevant
+ok   A3 docs/reference/REGISTER_MAP.md classified relevant
+ok   A3 docs/reference/TRACE_EVENTS.md classified relevant
+ok   A3 docs/testing/MILAN_V12_AUDIT_2026-08-16.md classified relevant
+ok   B0 table has 3 reader rows (expected 3)
+ok   B1 tap page is not a row of the documentation-only table
+ok   B2 row reader sw/builder/test_builder.py known to the probe
+ok   B3 row reader sw/builder/test_builder.py is outside the scan (DOCS_JOB_PY or outside GATED_ROOTS)
+ok   B4 sw/builder/test_builder.py: docs/CHANNEL_MAP_64.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/ENDSTATION_BUILDER.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/architecture/07_memory_maps.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/design/AREA_BUDGET.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/design/GPTP_PLANE.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/development/CODE_QUALITY.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/integration/BAREMETAL_FIRMWARE.md classified documentation only
+ok   B4 sw/builder/test_builder.py: docs/reference/EGRESS_QUEUE_MAP.md classified documentation only
+ok   B2 row reader docs/traceability/gen_module_matrix.py known to the probe
+ok   B3 row reader docs/traceability/gen_module_matrix.py is outside the scan (DOCS_JOB_PY or outside GATED_ROOTS)
+ok   B4 docs/traceability/gen_module_matrix.py: docs/traceability/MODULE_MATRIX.md classified documentation only
+ok   B4 docs/traceability/gen_module_matrix.py: docs/traceability/ieee8021as.md classified documentation only
+ok   B4 docs/traceability/gen_module_matrix.py: docs/traceability/ieee8021q.md classified documentation only
+ok   B2 row reader scripts/ci_events.py known to the probe
+ok   B3 row reader scripts/ci_events.py is outside the scan (DOCS_JOB_PY or outside GATED_ROOTS)
+ok   B4 scripts/ci_events.py: docs/testing/CI_WORKFLOWS.md classified documentation only
+ok   C1 tap reader absent from DOCS_JOB_PY
+ok   C2 tap reader is a scanned gated file
+ok   C3 tap reader names the tap page
+ok   D1 docs.yml runs the builder bank
+ok   D2 builder bank __main__ runs test_tap_clock_docs
+PROBE PASS
+rc=0

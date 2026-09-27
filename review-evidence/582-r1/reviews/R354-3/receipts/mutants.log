@@ -1,0 +1,15 @@
+warning: unable to find all commit-graph files
+PROBE E1 entity-gen-dir bypass vs head test        expected=KILLED   got=KILLED   MATCH
+PROBE E1 entity-gen-dir bypass vs parent test      expected=SURVIVED got=SURVIVED MATCH
+PROBE R1 ROM clock mutant vs head test (tracked shapes) expected=KILLED   got=KILLED   MATCH
+PROBE R2 ROM clock mutant vs head test (tracked shapes) expected=KILLED   got=KILLED   MATCH
+PROBE EQ equal-clock shape vs head test            expected=PASS     got=PASS     MATCH
+PROBE EQ named SKIP line present                              MATCH
+PROBE EQ exactly one SKIP (tracked shapes not skipped)        MATCH
+PROBE EQ equal-clock shape vs parent test (old failure) expected=KILLED   got=KILLED   MATCH
+PROBE EQ parent failure is the insensitive-control assertion   MATCH
+PROBE EQ+R1 ROM clock dropped, equal-clock shape present expected=KILLED   got=KILLED   MATCH
+PROBE CTL unmutated SoC arm                        expected=PASS     got=PASS     MATCH
+PROBE CTL unmutated ROM arm                        expected=PASS     got=PASS     MATCH
+PROBE CTL unmutated SoC arm, parent test           expected=PASS     got=PASS     MATCH
+rc=0
