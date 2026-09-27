@@ -259,10 +259,23 @@ verified blocks outside the shipping datapath; the station-address rules
   No unexplained `MEDIA_UNLOCKED` increase is permitted.
   No `asCapable` loss is permitted.
   `asCapable` authority: Milan v1.2 4.2.6.2.4.
+  Every `mr` toggle requires a recorded media-clock cause.
+  Allowed causes: clock-source change, CRF disruption, or CRF `mr` toggle.
+  CRF causes apply only to streams deriving timestamps from it.
+  GM change alone never excuses an `mr` toggle.
+  Match each cause within the recorded relative timestamp resolution.
+  Every toggle holds for at least eight AVTPDUs of its stream.
+  Every MEDIA_RESET increment requires a distinct, cause-correlated wire toggle.
+  Multiple toggles can share one device observation interval.
+  Counter updates may lag toggles by at most one second.
+  Authority: IEEE 1722-2016 4.4.4.3; Milan Tables 5.4/5.6, Annex B.1.2.
+  Retain timestamped source events, packet indices, and counter reads.
+  Missing evidence for these checks is NOT RUN.
   Each `tu` interval contains at least one recorded discontinuity.
   Containment uses `[observed_start - observation_resolution_s, clear)`.
   The observed start is the first captured `tu=1` packet.
-  Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+  Accepted kinds include GM-identity and GM time-source changes.
+  Other detected gPTP discontinuities include PHC settime/adjtime and fabric discontinuities.
   Measure from the last recorded discontinuity before `tu` clears.
   It clears within 0.5 seconds plus stated observation resolution.
   Any `tu` without a recorded discontinuity fails.
@@ -272,7 +285,12 @@ verified blocks outside the shipping datapath; the station-address rules
   The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
   The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines start-edge containment.
   Uncertainty authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1.
-  B.1.1 states 0.25 seconds; the project reads this as a minimum.
+  After every GM change, `tu` remains set for 0.25 seconds.
+  The project treats that duration as a minimum.
+  Require `clear + observation_resolution_s >= last_GM_change + 0.25`.
+  Record GM history separately; missing history is NOT RUN.
+  Resolution appears in every timing verdict.
+  The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs these `mr`/`tu` checks.
   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
   B.1's five-second media-clock holdover never bounds `tu`.
   Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.

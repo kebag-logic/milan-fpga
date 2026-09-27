@@ -136,6 +136,7 @@ import json
 import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field, asdict, replace
+from decimal import Decimal
 from typing import Optional
 
 # ------------------------------------------------------- counter definitions --
@@ -3366,7 +3367,7 @@ class ReleaseSettings:
 RELEASE_CLAUSE = "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions"
 A_RELEASE_EVIDENCE = AssertSpec(
     "release.complete-evidence", RELEASE_CLAUSE + ": all required assertions "
-    "need measured PASS records on the exact image; missing, SKIP, INFO, "
+    "need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, "
     "KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release")
 SOAK_ASSERTS = (
     A_RELEASE_EVIDENCE,
@@ -3384,20 +3385,31 @@ SOAK_ASSERTS = (
                "; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: zero SEQ_NUM_MISMATCH and "
                "STREAM_INTERRUPTED growth; no unexplained MEDIA_UNLOCKED; "
                "record every delta and each unlock explanation"),
+    AssertSpec("soak.mr-causes-and-hold", RELEASE_CLAUSE +
+               "; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: "
+               "every mr toggle and MEDIA_RESET increment needs a recorded "
+               "media-clock-source change, CRF disruption, or received CRF mr toggle "
+               "mapped to that stream's clock source; GM change alone fails; "
+               "match causes within +/- observation_resolution_s of the toggle; "
+               "hold each new value for at least 8 AVTPDUs of that stream; "
+               "MEDIA_RESET counts observation intervals, not packets; "
+               "missing packet, cause, counter or resolution evidence is NOT RUN"),
     AssertSpec("soak.gptp-continuity", RELEASE_CLAUSE +
                "; Milan v1.2 4.2.6.2.4: coherent fabric "
                "publication reads and transition evidence prove no asCapable loss"),
     AssertSpec("soak.tu-within-holdover", RELEASE_CLAUSE +
                "; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
                "each tu interval contains at least one recorded discontinuity: "
-               "PHC settime/adjtime, fabric discontinuity, or GM-identity edge; "
+               "GM-identity edge, GM time-source change, or other detected gPTP discontinuity "
+               "(including PHC settime/adjtime and fabric discontinuity); "
                "containment uses [observed_start - observation_resolution_s, clear); "
                "measure from the last recorded discontinuity before tu clears; "
                "it clears within 0.5 s plus "
                "the stated observation resolution; uncorrelated tu fails; "
                "resolution comes from wire capture and correlated event timestamps; "
                "it includes launch-to-capture latency and event-to-capture correlation error; "
-               "B.1.1 states 0.25 s, read by the project as a minimum; clock validity "
+               "after each GM change, clear + observation_resolution_s must be at least "
+               "GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity "
                "implements 0.25-0.5 s; B.1's 5 s media-clock holdover is "
                "not a tu bound; "
                "periodic healthy samples alone cannot prove this"),
@@ -3533,34 +3545,150 @@ def check_release_boot(boot_passes: int | None, restarts: int | None, *,
              "why": "exactly one BIOS pass and no additional restart per cold cut"})
 
 
+def _release_finite(value: object) -> bool:
+    import math
+    return type(value) in (int, float) and math.isfinite(value)
+
+
 def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[float], *,
                      holdover_bound_s: float, observation_resolution_s: float | None,
-                     capture_complete: bool) -> tuple[str, dict]:
-    """L3 #396 round 5: grade one wire-observed interval with capture resolution.
+                     capture_complete: bool, gm_changes_s: list[float] | None = None) -> tuple[str, dict]:
+    """Grade a complete wire interval and timestamped gPTP discontinuities.
 
-    The caller supplies only recorded PHC settime/adjtime, fabric discontinuity,
-    or GM-identity events, on the same clock as the wire interval. Missing
-    evidence cannot pass; a complete interval with no such event fails.
-    Events in [observed_start - observation_resolution_s, clear) are contained.
+    The caller records accepted IEEE 1722-2016 4.4.4.7 discontinuities on
+    the capture clock. GM identity changes are supplied separately, including
+    an explicit empty list when none occurred. They also count as discontinuities.
+    Resolution bounds the relative event/capture error, including frame launch.
     """
-    import math
-    values = (*interval_s, *discontinuities_s, holdover_bound_s, observation_resolution_s)
-    if (capture_complete is not True or len(interval_s) != 2
-            or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
-        return "SKIP", {"why": "complete finite interval, events and resolution required"}
-    observed_start_s, clear_s = interval_s
-    if clear_s < observed_start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
-        return "SKIP", {"why": "ordered interval, positive bound and nonnegative resolution required"}
+    detail = {"observation_resolution_s": observation_resolution_s}
+    if (capture_complete is not True or gm_changes_s is None
+            or interval_s is None or discontinuities_s is None or len(interval_s) != 2):
+        return "NOT RUN", dict(detail, why="complete interval, discontinuity and GM history required")
+    values = (*interval_s, *discontinuities_s, *gm_changes_s, holdover_bound_s, observation_resolution_s)
+    if any(not _release_finite(value) for value in values):
+        return "NOT RUN", dict(detail, why="finite interval, events and resolution required")
+    observed_start_s, clear_s = (Decimal(str(value)) for value in interval_s)
+    if clear_s <= observed_start_s or holdover_bound_s != 0.5 or observation_resolution_s < 0:
+        return "NOT RUN", dict(detail, why="ordered interval, 0.5 s release bound and nonnegative resolution required")
+    observation_resolution_s = Decimal(str(observation_resolution_s))
+    holdover_bound_s = Decimal(str(holdover_bound_s))
+    discontinuities_s = [Decimal(str(value)) for value in discontinuities_s]
+    gm_changes_s = [Decimal(str(value)) for value in gm_changes_s]
     # Frame launch and capture can lag the event; include that measured allowance.
     start_s = observed_start_s - observation_resolution_s
-    events_s = [event_s for event_s in discontinuities_s if start_s <= event_s < clear_s]
+    events_s = [event_s for event_s in discontinuities_s + gm_changes_s if start_s <= event_s < clear_s]
     if not events_s:
-        return "FAIL", {"why": "uncorrelated tu fails"}
+        return "FAIL", {"why": "uncorrelated tu fails", **detail}
     last_discontinuity_s = max(events_s)
     deadline_s = last_discontinuity_s + holdover_bound_s + observation_resolution_s
-    return ("PASS" if clear_s <= deadline_s else "FAIL",
-            {"last_discontinuity_s": last_discontinuity_s, "deadline_s": deadline_s,
-             "clear_s": clear_s})
+    gm_events_s = [event_s for event_s in gm_changes_s if event_s < clear_s]
+    minimum_clear_s = max(gm_events_s) + Decimal("0.25") if gm_events_s else None
+    detail.update(last_discontinuity_s=float(last_discontinuity_s), deadline_s=float(deadline_s),
+                  clear_s=float(clear_s), minimum_clear_s=float(minimum_clear_s) if gm_events_s else None)
+    if minimum_clear_s is not None and clear_s + observation_resolution_s < minimum_clear_s:
+        return "FAIL", dict(detail, why="tu shorter than the GM minimum")
+    return ("PASS" if clear_s <= deadline_s else "FAIL", detail)
+
+
+def _release_mr_records_valid(pdus: list[dict], causes: list[dict], reads: list[dict]) -> bool:
+    for record in [*pdus, *causes, *reads]:
+        if (not isinstance(record, dict) or not isinstance(record.get("stream_id"), str)
+                or not record["stream_id"] or not _release_finite(record.get("timestamp_s"))):
+            return False
+    for pdu in pdus:
+        if (type(pdu.get("pdu_index")) is not int or pdu["pdu_index"] < 0
+                or type(pdu.get("mr")) is not int or pdu["mr"] not in (0, 1)):
+            return False
+    for event in causes:
+        if not isinstance(event.get("kind"), str):
+            return False
+    for read in reads:
+        if type(read.get("value")) is not int or not 0 <= read["value"] < 2**32:
+            return False
+    return True
+
+
+def _release_mr_toggles(pdus: list[dict], causes: list[dict], resolution_s: float) -> tuple[str, dict]:
+    toggles = []
+    for previous, current in zip(pdus, pdus[1:]):
+        if (current["pdu_index"] != previous["pdu_index"] + 1
+                or current["timestamp_s"] < previous["timestamp_s"]):
+            return "NOT RUN", {"why": "ordered, contiguous per-stream PDU indices required"}
+        if current["mr"] != previous["mr"]:
+            toggles.append(current)
+    allowed = {"media-clock-source change", "CRF disruption", "CRF mr toggle"}
+    for toggle in toggles:
+        if not any(event["kind"] in allowed
+                   and abs(Decimal(str(event["timestamp_s"])) - Decimal(str(toggle["timestamp_s"])))
+                   <= Decimal(str(resolution_s))
+                   for event in causes):
+            return "FAIL", {"why": "mr toggle without a recorded media-clock cause", "toggle": toggle}
+    for previous, current in zip(toggles, toggles[1:]):
+        if current["pdu_index"] - previous["pdu_index"] < 8:
+            return "FAIL", {"why": "mr held for fewer than 8 stream PDUs", "toggle": previous}
+    if toggles and pdus[-1]["pdu_index"] - toggles[-1]["pdu_index"] + 1 < 8:
+        return "NOT RUN", {"why": "capture ends before the final toggle's eighth PDU"}
+    return "PASS", {"toggles_s": [toggle["timestamp_s"] for toggle in toggles]}
+
+
+def _release_media_resets(reads: list[dict], toggles_s: list[float], resolution_s: float) -> tuple[str, dict]:
+    # Tables 5.4/5.6 update at interval end, at most one second after a toggle.
+    # Each increment consumes one distinct, already cause-correlated toggle.
+    # Several toggles may share a device interval; equality is not required.
+    unused_s = list(toggles_s)
+    increments = 0
+    for before, after in zip(reads, reads[1:]):
+        if after["timestamp_s"] <= before["timestamp_s"]:
+            return "NOT RUN", {"why": "ordered MEDIA_RESET reads required"}
+        delta = (after["value"] - before["value"]) % 2**32
+        lower_s = (Decimal(str(before["timestamp_s"])) - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S))
+                   - Decimal(str(resolution_s)))
+        upper_s = Decimal(str(after["timestamp_s"])) + Decimal(str(resolution_s))
+        matches_s = [event_s for event_s in unused_s if lower_s <= Decimal(str(event_s)) <= upper_s]
+        if delta > len(matches_s):
+            return "FAIL", {"why": "MEDIA_RESET increment without a distinct caused toggle",
+                            "delta": delta, "cause_window_s": [float(lower_s), float(upper_s)]}
+        for event_s in matches_s[:delta]:
+            unused_s.remove(event_s)
+        increments += delta
+    return "PASS", {"media_reset_increments": increments}
+
+
+def check_release_mr(stream_id: str, pdus: list[dict] | None, causes: list[dict] | None,
+                     media_reset_reads: list[dict] | None, *, observation_resolution_s: float | None,
+                     capture_complete: bool) -> tuple[str, dict]:
+    """Grade one stream and one counter endpoint from complete recorded evidence.
+
+    PDUs carry stream_id, timestamp_s, unwrapped per-stream pdu_index and mr.
+    Causes carry stream_id, timestamp_s and kind; the controller maps a source
+    change or a received CRF event to each affected talker stream. Counter reads
+    carry stream_id, timestamp_s and value, from one descriptor's MEDIA_RESET.
+    Call separately for input and output counters, including both directions.
+    Complete evidence includes the pre-window PDU, counter baseline, every PDU,
+    all relevant source events, and a tail proving the final eight-PDU hold.
+    None is missing evidence; an empty complete event list proves no events.
+    """
+    detail = {"stream_id": stream_id, "observation_resolution_s": observation_resolution_s,
+              "cause_window": "toggle timestamp +/- observation_resolution_s",
+              "counter_update_bound_s": MILAN_MAX_OBSERVATION_INTERVAL_S}
+    if (capture_complete is not True or not stream_id or pdus is None or causes is None
+            or media_reset_reads is None or not _release_finite(observation_resolution_s)
+            or observation_resolution_s < 0):
+        return "NOT RUN", dict(detail, why="complete packet, cause, counter and resolution evidence required")
+    if not _release_mr_records_valid(pdus, causes, media_reset_reads):
+        return "NOT RUN", dict(detail, why="invalid recorded evidence")
+    stream_pdus = [pdu for pdu in pdus if pdu["stream_id"] == stream_id]
+    stream_causes = [event for event in causes if event["stream_id"] == stream_id]
+    reads = [read for read in media_reset_reads if read["stream_id"] == stream_id]
+    if len(reads) < 2:
+        return "NOT RUN", dict(detail, why="MEDIA_RESET baseline and endpoint reads required")
+    verdict, evidence = _release_mr_toggles(stream_pdus, stream_causes, observation_resolution_s)
+    detail.update(evidence)
+    if verdict != "PASS":
+        return verdict, detail
+    verdict, evidence = _release_media_resets(reads, detail["toggles_s"], observation_resolution_s)
+    detail.update(evidence)
+    return verdict, detail
 
 
 def plan_soak(dut: Device = ARTY, peer: Device = PEER,
@@ -3575,11 +3703,21 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                 gptp_publication=["gm", "parent", "path", "pdelay_ns",
                                   "sync", "asCapable", "tu"],
                 continuous_evidence=["asCapable_transitions", "tu_intervals",
-                                     "stream_flow", "uptime"],
+                                     "stream_flow", "uptime", "mr_pdus", "media_clock_events",
+                                     "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes"],
+                mr_oracle="check_release_mr",
+                mr_cause_kinds=["media-clock-source change", "CRF disruption", "CRF mr toggle"],
+                mr_cause_window="toggle timestamp +/- observation_resolution_s",
+                mr_hold_pdus=8, mr_pdu_index="unwrapped per-stream capture index",
+                mr_counter_update_bound_s=MILAN_MAX_OBSERVATION_INTERVAL_S,
+                missing_evidence="NOT RUN",
+                tu_gm_minimum_s=0.25,
+                tu_gm_minimum_check="clear + observation_resolution_s >= GM change + 0.25 s",
                 tu_holdover_bound_s=0.5,
                 tu_time_origin="last recorded discontinuity before tu clears",
                 tu_event_window="[observed_start - observation_resolution_s, clear)",
-                tu_discontinuity_kinds=["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"],
+                tu_discontinuity_kinds=["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge",
+                                        "GM time-source change", "other detected gPTP discontinuity"],
                 tu_observation_resolution="record wire-capture and correlated event-timestamp resolution in seconds",
                 tu_uncorrelated="fail",
                 timestamp_margin={"register": "AVTPRX_TSD", "offset": 0x6EC,
@@ -3955,13 +4093,13 @@ def verdict_record(step_id: str, assertion: str, verdict: str, **fields) -> dict
             "detail": detail}
 
 
-VERDICTS = ("PASS", "FAIL", "SKIP", "INFO", "KNOWN-PENDING",
+VERDICTS = ("PASS", "FAIL", "NOT RUN", "SKIP", "INFO", "KNOWN-PENDING",
             "CONFORMANT-REFUSAL", "NEEDS-HUMAN", INSTRUMENT_SUSPECT)
 
 
 def exit_code(records: Sequence[dict[str, object]]) -> int:
     """0 all good; 1 a SHALL-severity FAIL; 2 only RECOMMENDED failures or
-    NEEDS-HUMAN entries outstanding.  A SKIP alone never fails the run - it is
+    NEEDS-HUMAN or NOT RUN entries outstanding. A SKIP alone never fails the run - it is
     honest - but it is counted in the summary so it cannot hide.
 
     INSTRUMENT-SUSPECT never fails the run either, for the same reason: it says
@@ -3971,7 +4109,7 @@ def exit_code(records: Sequence[dict[str, object]]) -> int:
     cannot read as a clean one."""
     hard = any(r["verdict"] == "FAIL" and r.get("severity") == "SHALL"
                for r in records)
-    soft = any(r["verdict"] in ("FAIL", "NEEDS-HUMAN") for r in records)
+    soft = any(r["verdict"] in ("FAIL", "NEEDS-HUMAN", "NOT RUN") for r in records)
     return 1 if hard else (2 if soft else 0)
 
 
@@ -4857,7 +4995,7 @@ class _ReleasePlanChecks:
         expected = {
             "soak": {"release.complete-evidence", "soak.continuous-duration",
                      "soak.bound-both-directions", "soak.counter-walk",
-                     "soak.no-counter-errors", "soak.gptp-continuity",
+                     "soak.no-counter-errors", "soak.gptp-continuity", "soak.mr-causes-and-hold",
                      "soak.tu-within-holdover", "soak.timestamp-margin",
                      "soak.uptime-monotonic"},
             "power": {"release.complete-evidence", "power.cold-count-and-phase",
@@ -5147,7 +5285,8 @@ class _ReleasePlanChecks:
         self.assertEqual(soak.args["tu_time_origin"], "last recorded discontinuity before tu clears")
         self.assertEqual(soak.args["tu_event_window"], "[observed_start - observation_resolution_s, clear)")
         self.assertEqual(soak.args["tu_discontinuity_kinds"],
-                         ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"])
+                         ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge",
+                          "GM time-source change", "other detected gPTP discontinuity"])
         self.assertEqual(soak.args["tu_observation_resolution"],
                          "record wire-capture and correlated event-timestamp resolution in seconds")
         self.assertEqual(soak.args["tu_uncorrelated"], "fail")
@@ -5168,7 +5307,7 @@ class _ReleasePlanChecks:
             with self.subTest(clear_s=clear_s, events_s=events_s, resolution_s=resolution_s):
                 verdict, evidence = check_release_tu(
                     (0, clear_s), events_s, holdover_bound_s=bound_s,
-                    observation_resolution_s=resolution_s, capture_complete=True)
+                    observation_resolution_s=resolution_s, capture_complete=True, gm_changes_s=[])
                 self.assertEqual(verdict, expected, evidence)
         for interval_s, events_s, resolution_s, complete in (
                 ((0, 0.62), [0, 0.2], None, True),
@@ -5179,7 +5318,7 @@ class _ReleasePlanChecks:
                 ((0, 0.62), [0.2], True, True)):
             self.assertEqual(check_release_tu(
                 interval_s, events_s, holdover_bound_s=bound_s,
-                observation_resolution_s=resolution_s, capture_complete=complete)[0], "SKIP")
+                observation_resolution_s=resolution_s, capture_complete=complete, gm_changes_s=[])[0], "NOT RUN")
 
     def test_release_tu_start_resolution(self) -> None:
         """L3 #396 round 5: lone events bracket the observed start independently."""
@@ -5196,7 +5335,7 @@ class _ReleasePlanChecks:
             with self.subTest(event_s=event_s, resolution_s=resolution_s):
                 verdict, evidence = check_release_tu(
                     (0, 0.4), [event_s], holdover_bound_s=0.5,
-                    observation_resolution_s=resolution_s, capture_complete=True)
+                    observation_resolution_s=resolution_s, capture_complete=True, gm_changes_s=[])
                 self.assertEqual(verdict, expected, evidence)
                 if expected == "PASS":
                     self.assertEqual(evidence["last_discontinuity_s"], event_s)
@@ -5206,7 +5345,7 @@ class _ReleasePlanChecks:
         for clear_s, expected in ((10.4, "PASS"), (10.6, "FAIL")):
             verdict, evidence = check_release_tu(
                 (0, clear_s), [10], holdover_bound_s=0.5,
-                observation_resolution_s=0.001, capture_complete=True)
+                observation_resolution_s=0.001, capture_complete=True, gm_changes_s=[])
             self.assertEqual(verdict, expected, evidence)
 
     def test_release_assertion_text(self) -> None:
@@ -5214,7 +5353,7 @@ class _ReleasePlanChecks:
         specs = {spec.name: spec.clause for step in build_plan(["soak", "power"])
                  for spec in step.asserts}
         for phrase in ("contains at least one recorded discontinuity",
-                       "PHC settime/adjtime, fabric discontinuity, or GM-identity edge",
+                       "GM-identity edge, GM time-source change, or other detected gPTP discontinuity",
                        "containment uses [observed_start - observation_resolution_s, clear)",
                        "launch-to-capture latency and event-to-capture correlation error",
                        "last recorded discontinuity before tu clears", "within 0.5 s plus",
@@ -5258,6 +5397,172 @@ class _ReleasePlanChecks:
             self.assertEqual(step.args["boot_evidence"],
                              "complete UART/reset observation from T0 through next cut or campaign end; "
                              "at least boot_observation_s")
+
+
+class _ReleaseSoakChecks:
+    """Issue #593 recorded-event controls, independent of the release constants."""
+
+    def _mr_trace(self, *, second_toggle: int | None = None) -> list[dict]:
+        return [{"stream_id": "stream-a", "timestamp_s": index / 100,
+                 "pdu_index": index, "mr": int(index >= 1 and
+                                              (second_toggle is None or index < second_toggle))}
+                for index in range(20)]
+
+    def _mr_grade(self, *, pdus=None, causes=None, reads=None, resolution_s=0.001) -> tuple[str, dict]:
+        return check_release_mr(
+            "stream-a", self._mr_trace() if pdus is None else pdus,
+            [{"stream_id": "stream-a", "timestamp_s": 0.01,
+              "kind": "media-clock-source change"}] if causes is None else causes,
+            [{"stream_id": "stream-a", "timestamp_s": 0, "value": 0},
+             {"stream_id": "stream-a", "timestamp_s": 0.19, "value": 1}] if reads is None else reads,
+            observation_resolution_s=resolution_s, capture_complete=True)
+
+    def test_release_mr_allowed_causes(self) -> None:
+        """Each allowed clock cause independently explains a toggle and reset."""
+        for kind in ("media-clock-source change", "CRF disruption", "CRF mr toggle"):
+            with self.subTest(kind=kind):
+                verdict, evidence = self._mr_grade(causes=[
+                    {"stream_id": "stream-a", "timestamp_s": 0.01, "kind": kind}])
+                self.assertEqual(verdict, "PASS", evidence)
+                self.assertEqual(evidence["media_reset_increments"], 1)
+                self.assertEqual(evidence["observation_resolution_s"], 0.001)
+
+    def test_release_mr_no_cause(self) -> None:
+        """A complete empty cause history cannot excuse an observed toggle."""
+        self.assertEqual(self._mr_grade(causes=[])[0], "FAIL")
+
+    def test_release_mr_gm_only(self) -> None:
+        """A GM edge or PHC step alone is not a media-clock-source change."""
+        for kind in ("GM-identity edge", "PHC settime/adjtime", "GM time-source change"):
+            self.assertEqual(self._mr_grade(causes=[
+                {"stream_id": "stream-a", "timestamp_s": 0.01, "kind": kind}])[0], "FAIL")
+
+    def test_release_mr_resolution(self) -> None:
+        """A measured relative timestamp bound controls both matching edges."""
+        for timestamp_s, expected in ((0.009, "PASS"), (0.011, "PASS"),
+                                      (0.0089, "FAIL"), (0.0111, "FAIL")):
+            with self.subTest(timestamp_s=timestamp_s):
+                self.assertEqual(self._mr_grade(causes=[
+                    {"stream_id": "stream-a", "timestamp_s": timestamp_s,
+                     "kind": "CRF disruption"}])[0], expected)
+        self.assertEqual(self._mr_grade(resolution_s=0)[0], "PASS")
+        self.assertEqual(self._mr_grade(causes=[
+            {"stream_id": "stream-a", "timestamp_s": 0.02, "kind": "CRF disruption"}],
+            resolution_s=0.02)[0], "PASS")
+
+    def test_release_mr_stream_scope(self) -> None:
+        """Neither another stream's cause nor its PDUs can satisfy this stream."""
+        self.assertEqual(self._mr_grade(causes=[
+            {"stream_id": "stream-b", "timestamp_s": 0.01, "kind": "CRF disruption"}])[0], "FAIL")
+        pdus = self._mr_trace(second_toggle=8)
+        mixed = []
+        for pdu in pdus:
+            mixed.extend([dict(pdu, stream_id="stream-b", mr=0), pdu])
+        causes = [{"stream_id": "stream-a", "timestamp_s": stamp, "kind": "CRF disruption"}
+                  for stamp in (0.01, 0.08)]
+        self.assertEqual(self._mr_grade(pdus=mixed, causes=causes)[0], "FAIL")
+
+    def test_release_mr_eight_pdus(self) -> None:
+        """Seven PDUs fails; exactly eight passes, including a falling toggle."""
+        for second_toggle, expected in ((8, "FAIL"), (9, "PASS")):
+            causes = [{"stream_id": "stream-a", "timestamp_s": stamp, "kind": "CRF mr toggle"}
+                      for stamp in (0.01, second_toggle / 100)]
+            verdict, evidence = self._mr_grade(pdus=self._mr_trace(second_toggle=second_toggle), causes=causes)
+            self.assertEqual(verdict, expected, evidence)
+        self.assertEqual(self._mr_grade(pdus=self._mr_trace()[:8])[0], "NOT RUN")
+        self.assertEqual(self._mr_grade(pdus=self._mr_trace()[:9])[0], "PASS")
+
+    def test_release_media_reset_no_cause(self) -> None:
+        """A counter increase without a caused wire toggle must fail."""
+        steady = [dict(pdu, mr=0) for pdu in self._mr_trace()]
+        self.assertEqual(self._mr_grade(pdus=steady, causes=[])[0], "FAIL")
+        self.assertEqual(self._mr_grade(reads=[
+            {"stream_id": "stream-a", "timestamp_s": 0, "value": 0},
+            {"stream_id": "stream-a", "timestamp_s": 0.19, "value": 2}])[0], "FAIL")
+
+    def test_release_media_reset_intervals(self) -> None:
+        """Counts are per device interval, with bounded deferred updates."""
+        for before_s, expected in ((1.01, "PASS"), (1.011, "PASS"), (1.0111, "FAIL")):
+            reads = [{"stream_id": "stream-a", "timestamp_s": before_s, "value": 0},
+                     {"stream_id": "stream-a", "timestamp_s": 1.5, "value": 1}]
+            self.assertEqual(self._mr_grade(reads=reads)[0], expected)
+        causes = [{"stream_id": "stream-a", "timestamp_s": stamp, "kind": "CRF disruption"}
+                  for stamp in (0.01, 0.09)]
+        self.assertEqual(self._mr_grade(pdus=self._mr_trace(second_toggle=9), causes=causes)[0], "PASS")
+        reads = [{"stream_id": "stream-a", "timestamp_s": stamp, "value": value}
+                 for stamp, value in ((0, 0), (0.1, 1), (0.19, 2))]
+        self.assertEqual(self._mr_grade(reads=reads)[0], "FAIL")
+        reads = [{"stream_id": "stream-a", "timestamp_s": 0, "value": 2**32 - 1},
+                 {"stream_id": "stream-a", "timestamp_s": 0.19, "value": 0}]
+        self.assertEqual(self._mr_grade(reads=reads)[0], "PASS")
+
+    def test_release_mr_missing_evidence(self) -> None:
+        """Missing records, incomplete capture and invalid resolution never pass."""
+        args = dict(stream_id="stream-a", pdus=self._mr_trace(), causes=[],
+                    media_reset_reads=[{"stream_id": "stream-a", "timestamp_s": 0, "value": 0},
+                                       {"stream_id": "stream-a", "timestamp_s": 1, "value": 0}],
+                    observation_resolution_s=0.001, capture_complete=True)
+        for key, value in (("pdus", None), ("causes", None), ("media_reset_reads", None),
+                           ("media_reset_reads", []), ("capture_complete", False),
+                           ("observation_resolution_s", None), ("observation_resolution_s", -1),
+                           ("observation_resolution_s", float("nan")), ("observation_resolution_s", True)):
+            with self.subTest(key=key, value=value):
+                self.assertEqual(check_release_mr(**dict(args, **{key: value}))[0], "NOT RUN")
+        for pdus in (self._mr_trace()[::2], list(reversed(self._mr_trace())),
+                     [dict(pdu, mr=2) for pdu in self._mr_trace()],
+                     [dict(pdu, pdu_index=True) for pdu in self._mr_trace()]):
+            self.assertEqual(self._mr_grade(pdus=pdus)[0], "NOT RUN")
+        # Complete capture of a silent, unbound stream is different from missing capture.
+        self.assertEqual(check_release_mr(**dict(args, pdus=[]))[0], "PASS")
+
+    def test_release_tu_gm_minimum(self) -> None:
+        """The latest GM edge requires 0.25 s, allowing recorded resolution."""
+        for clear_s, gm_s, resolution_s, expected in (
+                (0.24, [0], 0.001, "FAIL"), (0.25, [0], 0, "PASS"),
+                (0.249, [0], 0.001, "PASS"), (0.248, [0], 0.001, "FAIL"),
+                (0.4, [0, 0.2], 0.001, "FAIL"), (0.45, [0, 0.2], 0, "PASS"),
+                (0.62, [0], 0.001, "PASS"), (0.8, [0], 0.001, "FAIL"),
+                (0.1, [], 0.001, "PASS"), (0.249, [-0.001], 0, "PASS"),
+                (0.24, [-0.002], 0.001, "FAIL")):
+            with self.subTest(clear_s=clear_s, gm_s=gm_s, resolution_s=resolution_s):
+                verdict, evidence = check_release_tu(
+                    (0, clear_s), [0, 0.2] if clear_s > 0.2 else [0],
+                    gm_changes_s=gm_s, holdover_bound_s=0.5,
+                    observation_resolution_s=resolution_s, capture_complete=True)
+                self.assertEqual(verdict, expected, evidence)
+                self.assertEqual(evidence["observation_resolution_s"], resolution_s)
+        verdict, evidence = check_release_tu((0, 0.25), [], gm_changes_s=[0], holdover_bound_s=0.5,
+                                             observation_resolution_s=0, capture_complete=True)
+        self.assertEqual(verdict, "PASS", evidence)
+
+    def test_release_tu_missing_gm_history(self) -> None:
+        """An omitted GM history cannot silently bypass the minimum check."""
+        for gm_s in (None, [float("nan")], [True]):
+            self.assertEqual(check_release_tu(
+                (0, 0.1), [0], gm_changes_s=gm_s, holdover_bound_s=0.5,
+                observation_resolution_s=0.001, capture_complete=True)[0], "NOT RUN")
+        self.assertEqual(exit_code([verdict_record("soak", "mr", "NOT RUN")]), 2)
+
+    def test_release_mr_plan_contract(self) -> None:
+        """The emitted soak contract requires all inputs used by the checks."""
+        step = build_plan(["soak"])[0]
+        args = step.args
+        self.assertEqual(args["mr_oracle"], "check_release_mr")
+        self.assertEqual(args["mr_cause_kinds"],
+                         ["media-clock-source change", "CRF disruption", "CRF mr toggle"])
+        self.assertEqual(args["mr_hold_pdus"], 8)
+        self.assertEqual(args["mr_cause_window"], "toggle timestamp +/- observation_resolution_s")
+        self.assertEqual(args["mr_counter_update_bound_s"], 1)
+        self.assertEqual(args["mr_pdu_index"], "unwrapped per-stream capture index")
+        self.assertEqual(args["tu_gm_minimum_s"], 0.25)
+        self.assertEqual(args["tu_gm_minimum_check"], "clear + observation_resolution_s >= GM change + 0.25 s")
+        self.assertEqual(args["missing_evidence"], "NOT RUN")
+        self.assertTrue({"mr_pdus", "media_clock_events", "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes"}
+                        <= set(args["continuous_evidence"]))
+        assertion = next(spec.clause for spec in step.asserts if spec.name == "soak.mr-causes-and-hold")
+        for phrase in ("4.4.4.3", "B.1.2", "Tables 5.4/5.6", "GM change alone fails",
+                       "at least 8 AVTPDUs of that stream", "observation_resolution_s", "NOT RUN"):
+            self.assertIn(phrase, assertion)
 
 
 class _ConcurrencyChecks:
@@ -5545,7 +5850,7 @@ def self_test() -> int:
     import unittest
 
     class T(_CounterLawChecks, _StreamingLicenceChecks, _PlanContractChecks,
-            _AreaContractChecks, _ReleasePlanChecks, _ConcurrencyChecks,
+            _AreaContractChecks, _ReleasePlanChecks, _ReleaseSoakChecks, _ConcurrencyChecks,
             unittest.TestCase):
         """Every arm of the offline suite, under the one name the report uses."""
 

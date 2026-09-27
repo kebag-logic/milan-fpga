@@ -912,10 +912,54 @@ Teardown follows the final snapshot.
 | Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets |
 | `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
 | `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
+| Wire `mr`, media-clock events, MEDIA_RESET; IEEE 1722-2016 4.4.4.3, Milan Tables 5.4/5.6, Annex B.1.2 | Each toggle and increment has a recorded source change, CRF disruption, or received CRF `mr` toggle; eight-PDU hold per stream; GM change alone fails |
 | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
-| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
+| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: GM identity change, GM time-source change, or other detected gPTP discontinuity; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; after a GM change, hold at least 0.25 seconds, allowing that resolution; uncorrelated `tu` fails |
 | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
 | DUT uptime | Monotonic advance, with no reboot |
+
+The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs the `mr`/`tu` release checks.
+Use `check_release_mr` separately for each stream and counter endpoint.
+Include both directions, AAF, and CRF.
+Provide the stream ID and these timestamped records:
+
+| Record list | Required fields | Source |
+|---|---|---|
+| `pdus` | `stream_id`, `timestamp_s`, `pdu_index`, `mr` | AVTP capture; indices are unwrapped and consecutive within each stream |
+| `causes` | `stream_id`, `timestamp_s`, `kind` | Controller readbacks and received CRF captures, mapped to affected talker streams |
+| `media_reset_reads` | `stream_id`, `timestamp_s`, `value` | One descriptor's GET_COUNTERS MEDIA_RESET readings, with baseline and endpoint |
+
+Cause kinds are `media-clock-source change`, `CRF disruption`, `CRF mr toggle`.
+Controller evidence must establish the affected stream's clock-source lineage.
+CRF causes require recorded derivation from that received CRF stream.
+A GM edge or PHC step alone is no cause.
+The check filters by stream before counting its PDUs.
+The first captured PDU establishes the prior `mr` level.
+Capture starts before the observation window and includes every PDU.
+Continue until the final toggle has held eight PDUs.
+An earlier retoggle fails; an unfinished tail is NOT RUN.
+Packet gaps, malformed records, or missing resolution are NOT RUN.
+Explicit empty lists with complete capture represent observed silence.
+They differ from missing records, represented by `None`.
+
+Let R be the recorded relative event/capture timestamp resolution.
+Include frame-launch latency and correlation error when deriving R.
+The cause window is `[toggle - R, toggle + R]`.
+No fixed coincidence window replaces that measured bound.
+Every verdict includes R, even when evidence is missing.
+Counter intervals may finish after their causing wire toggle.
+Milan Tables 5.4/5.6 bound that delay by one second.
+For adjacent reads, match caused toggles in `[before - 1 - R, after + R]`.
+The one-second term is the device update ceiling, not sampling cadence.
+Each increment consumes a distinct matching toggle within that window.
+The same toggle cannot explain two increments of one counter.
+Several toggles may contribute to a single device observation interval.
+Therefore, increment and toggle counts need not be equal.
+Unsigned 32-bit counter wrap is decoded before checking the delta.
+Counter resets remain subject to the separate counter-walk assertion.
+Input and output counters are graded separately against their captures.
+Complete evidence must cover counter windows, including delayed updates.
+Missing records produce NOT RUN, which cannot qualify a release.
 
 Periodic healthy reads cannot prove that intermediate transitions never happened.
 Retain continuous transition, streaming, and uncertainty evidence too.
@@ -935,13 +979,18 @@ Their first observed packet can lag the causing discontinuity.
 Allow the stated resolution before the observed start, inclusive.
 An event exactly at clear remains excluded.
 The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines this start-edge allowance.
-Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+Accepted kinds include GM identity and GM time-source changes.
+Other detected gPTP discontinuities include PHC settime/adjtime and fabric discontinuities.
 Measure from the last recorded discontinuity before `tu` clears.
 The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
 Every discontinuity reloads the implemented holdover.
 Sync requalification must finish within the same clearing deadline.
 Use `check_release_tu` with complete interval and discontinuity evidence.
 Supply the plan's `tu_holdover_bound_s` and measured observation resolution.
+Supply `gm_changes_s` separately, including an explicit empty history.
+GM identity changes also count as discontinuities automatically.
+Missing GM history produces NOT RUN.
+Each verdict records the measured resolution and applicable deadlines.
 Its timestamps share the capture's correlated host clock.
 Include only recorded discontinuities of the accepted kinds.
 For example, a GM edge occurs at zero seconds.
@@ -962,6 +1011,12 @@ Its lone discontinuity at 10 seconds satisfies this uncertainty check.
 All other soak assertions still apply independently.
 Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
 B.1.1 states 0.25 seconds; the project reads this as a minimum.
+Require `clear + observation_resolution_s >= last_GM_change + 0.25`.
+Use the latest recorded GM change before clear.
+A subsequent PHC step reloads only the upper-bound anchor.
+At 0.001-second resolution, clearing 0.24 seconds after GM fails.
+Clearing at 0.249 seconds meets the minimum with that resolution.
+Non-GM discontinuities remain valid causes without the GM minimum.
 [`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.
 B.1's recommended five-second media-clock holdover never bounds `tu`.
 
