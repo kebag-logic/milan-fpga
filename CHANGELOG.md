@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
 - **[Unreleased - pending follows live writes](#unreleased---pending-follows-live-writes)** -- Pending follows accepted writes.
 - **[Unreleased - processor pin 0922e434](#unreleased---processor-pin-0922e434)** -- MVU waiver and parameter inventory.
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
@@ -31,6 +32,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 16be6768
+
+- Issue #580 adopts processor `16be6768`.
+- The packer rejects body/key type and index mismatches.
+- The processor documents descriptor ownership.
+- Milan 5.3.3.8's cluster minimum remains required.
+- All five configurations retain identical AEM images and builder outputs.
+- The ROM ledger adds current rows and retains earlier pins.
+- The capture receipt refreshes its pin.
+- Measured inputs remain unchanged.
 
 ## Unreleased - pending follows live writes
 

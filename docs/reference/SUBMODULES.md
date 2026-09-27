@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `870ff88ad35bbd532244e4c7e6d7661b9f6e1366` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `16be6768f710e79450aace277abacd6c2c3336e5` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -54,14 +54,21 @@ The repository tool recorded ROM digest rows for `0922e434`.
 
 Their digests match the `990f9652` rows.
 
-Issue #502 advances the current pin to `870ff88a`.
+Issue #502 adopted processor pin `870ff88a`.
 
 - PR 121 exports each accepted live name write.
 - `KL_pp_shadow` connects that pulse to saved-state pending.
 - The parent's actual-write enable supplies the map trigger.
 - Later marks retain their command-completion meaning.
 
-The ROM ledger retains both adopted pins' rows.
+Issue #580 advances the current pin to `16be6768`.
+
+- PR 124 rejects body/key type and index mismatches.
+- PR 126 documents descriptor ownership.
+- Milan 5.3.3.8's cluster minimum remains required.
+- All five configurations retain identical AEM images and builder outputs.
+
+The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
 
