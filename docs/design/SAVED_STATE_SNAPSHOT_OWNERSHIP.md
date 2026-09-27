@@ -966,7 +966,8 @@ The backend therefore reports pending on the accepting edge.
 All producers share the backend's clock and reset.
 Map phase 5 cannot stall after phase 1 accepts.
 The parent derives `amap_live_wr_i` from `amap_edit_live_wr_p`.
-That same enable updates live storage and records the change.
+The store and pulse share the same change conditions.
+The store retains input-change priority over output changes.
 Unchanged duplicate records produce no pulse.
 Unchanged name lanes produce no pulse.
 The later class-6/7 marks retain their command-completion meaning.

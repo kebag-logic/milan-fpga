@@ -128,7 +128,7 @@ reads NONE for each, and the contract reports them honestly instead: the
 parent's `pend_i` combines three sources in `KL_pp_shadow.sv`.
 These are dynamic-state dirtiness, unflushed bindings and live name/map writes.
 Accepted name writes pulse `aecp_name_wr_o`.
-The parent's `amap_edit_live_wr_p` enables actual phase-5 map writes.
+The parent's `amap_edit_live_wr_p` reports actual phase-5 map writes.
 It also drives the shadow's `amap_live_wr_i` input.
 `latch_live_pending` retains both live-write sources until reset.
 No slot holds these unmaterialized name/map changes.
@@ -224,7 +224,7 @@ declared shippable.
 Issue #502 implements that standalone reporting correction.
 The processor pin is now `870ff88a`.
 `KL_pp_shadow` consumes `aecp_name_wr_o` and `amap_live_wr_i`.
-The parent derives `amap_live_wr_i` from its actual write enable.
+The parent derives `amap_live_wr_i` from its store-change conditions.
 Both sources share `clk_i` and `rst_n` with the backend.
 Their pulses and sticky history feed the registered pending input.
 Pending therefore rises on the accepting live-write edge.
