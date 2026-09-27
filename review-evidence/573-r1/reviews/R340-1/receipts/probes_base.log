@@ -1,0 +1,38 @@
+F1 control unchanged arty_current                    accepted                                      0x001BC50AC1000005
+F1 literal YAML int 0                                accepted                                      0x0000000000000000
+F1 literal YAML int all-ones                         refused                                       entity.entity_model_id: '18446744073709551615' out of EUI-64 range
+F1 literal short '0x0'                               accepted                                      0x0000000000000000
+F1 literal lowercase all-ones                        accepted                                      0xFFFFFFFFFFFFFFFF
+F1 pin YAML int 0                                    accepted                                      0x0000000000000000
+F1 pin decimal string all-ones                       refused                                       entity.model_id_pin: '18446744073709551615' out of EUI-64 range
+F1 zero literal shadowed by legal pin                accepted               accepted               0x001BC50AC1000005
+F1 hash-derived with vendor_oui 0                    accepted               accepted               0x00000057FC6ABBC8
+F1 literal legal 1                                   accepted                                      0x0000000000000001
+F2 default omitted                                   accepted                                      0x001BC572F79BC5D1
+F2 last listener 2125999                             accepted                                      0x001BC577C3D2E05E
+F2 null                                              accepted                                      0x001BC58256DA7138
+F2 float 2126000.0                                   accepted               accepted               0x001BC5C39AFEBD6F
+F2 2**32 (field is 32-bit)                           accepted               accepted               0x001BC56BAFC0BA8F
+F2 2**32+2125999 wraps below floor if truncated      accepted               accepted               0x001BC5A4F0799933
+F2 talker 1 ns (talker unaffected)                   accepted                                      0x001BC572F79BC5D1
+F2 talker string (talker unaffected)                 accepted                                      0x001BC572F79BC5D1
+F3 listener 46 declared (47 final)                   accepted                                      0x001BC578F8814A98
+F3 listener 47 declared (48 final)                   accepted                                      0x001BC5E477E4FFF7
+F3 talker 47                                         accepted                                      0x001BC531CAFFAF13
+F3 talker 48                                         accepted                                      0x001BC5CE240BB981
+F3 last talker mixed                                 accepted                                      0x001BC598F1CA6359
+F3 last listener mixed                               accepted                                      0x001BC5DA369D0053
+F3 listener empty list (default)                     accepted                                      0x001BC557FC6ABBC8
+F3 CRF input YAML int word                           refused                                       clocking.crf_format: '292839533190364032' out of EUI-64 range
+F3 CRF input altered word, sink disabled             accepted                                      0x001BC5DBBD4940C5
+F3 CRF output altered word, output disabled          accepted                                      0x001BC50AC1000005
+F3 CRF output altered word, output enabled           accepted                                      0x001BC50AC1000005
+F3 CRF output plural 'formats' key (alternate key)   accepted                                      0x001BC50AC1000005
+F4 [internal] only, sink off, outputs                accepted                                      0x001BC50AC1000005
+F4 reversed [crf, internal]                          accepted                                      0x001BC50AC1000005
+F4 [crf] default omitted                             refused                                       default_source 'internal' not in media_clock_sources
+F4 [crf] + CRF output enabled                        accepted                                      0x001BC50AC1000005
+F4 empty sources, default omitted                    crashed:IndexError                            list index out of range
+F4 empty sources, default internal                   crashed:IndexError                            list index out of range
+F4 [crf] on 8x8                                      accepted                                      0x001BC5C29E227D13
+rc=0

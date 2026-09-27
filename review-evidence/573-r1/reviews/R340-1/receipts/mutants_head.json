@@ -1,0 +1,224 @@
+[
+ {
+  "id": "A573-01 zero guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+ },
+ {
+  "id": "A573-02 all-ones guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+ },
+ {
+  "id": "A573-03 literal validation removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+ },
+ {
+  "id": "A573-04 pin validation removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.model_id_pin: must not be zero or all ones"
+ },
+ {
+  "id": "A574-05 listener floor guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+ },
+ {
+  "id": "A575-06 format count guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+ },
+ {
+  "id": "A575-07 AAF family guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+ },
+ {
+  "id": "A575-08 output count guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.talkers[0].formats: format count"
+ },
+ {
+  "id": "A575-09 output family guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.talkers[0].formats: must contain only AAF formats"
+ },
+ {
+  "id": "A575-10 CRF word guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.crf_format: CRF format must be"
+ },
+ {
+  "id": "A575-11 CRF output word guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.crf_output.format: CRF format must be"
+ },
+ {
+  "id": "A576-12 INTERNAL guard removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+ },
+ {
+  "id": "A576-13 AAF output arm removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+ },
+ {
+  "id": "A576-14 CRF output arm removed",
+  "origin": "author",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: ('clocking.media_clock_sources', 'requires INTERNAL', 'streams.talkers: needs at least one talker stream')"
+ },
+ {
+  "id": "R-F1a legal near-endpoint rejected",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.1; IEEE 1722.1-2021 6.2.2.8)"
+ },
+ {
+  "id": "R-F1b guard after literal only via hash path",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.model_id_pin: must not be zero or all ones"
+ },
+ {
+  "id": "R-F2a floor off-by-one (<=)",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+ },
+ {
+  "id": "R-F2b floor lowered by one",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+ },
+ {
+  "id": "R-F2c integer-type check removed",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+ },
+ {
+  "id": "R-F2d guard applied to talkers instead",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+ },
+ {
+  "id": "R-F3a count off-by-one (>=)",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: streams.listeners[0].formats: format count 47 exceeds 47 (IEEE 1722.1-2021 Table 7-8)"
+ },
+ {
+  "id": "R-F3b declared list validated before completion",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+ },
+ {
+  "id": "R-F3c family compared on top nibble only",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+ },
+ {
+  "id": "R-F3d family checks current format only",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+ },
+ {
+  "id": "R-F3e CRF word checks only first entry",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.crf_format: CRF format must be"
+ },
+ {
+  "id": "R-F3f CRF input unvalidated",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.crf_format: CRF format must be"
+ },
+ {
+  "id": "R-F3g CRF output unvalidated",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.crf_output.format: CRF format must be"
+ },
+ {
+  "id": "R-F4a selection instead of availability",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)"
+ },
+ {
+  "id": "R-F4b call site removed",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+ },
+ {
+  "id": "R-F4c call site reads listeners (equivalent in reachable space)",
+  "origin": "reviewer",
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: ('streams.talkers', 'needs at least one talker stream', 'clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)')"
+ },
+ {
+  "id": "unmutated control",
+  "origin": "reviewer",
+  "returncode": 0,
+  "verdict": "PASS",
+  "last_line": "[gate 40] 26 refusals; 3 header mutants per config"
+ },
+ {
+  "id": "source restored",
+  "sha256": "16b4ee464b42bb4abf9450e838ceecc9cdddff2097013198284fc31b1bc5f5f1",
+  "identical": true
+ }
+]

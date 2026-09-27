@@ -1,0 +1,182 @@
+[
+ {
+  "id": "A573-01 zero guard removed",
+  "origin": "author",
+  "old": "if number in (0, EUI64_MAX):",
+  "new": "if number in (EUI64_MAX,):"
+ },
+ {
+  "id": "A573-02 all-ones guard removed",
+  "origin": "author",
+  "old": "if number in (0, EUI64_MAX):",
+  "new": "if number in (0,):"
+ },
+ {
+  "id": "A573-03 literal validation removed",
+  "origin": "author",
+  "old": "_model_id(raw, \"entity.entity_model_id\")",
+  "new": "_eui64(raw, \"entity.entity_model_id\")"
+ },
+ {
+  "id": "A573-04 pin validation removed",
+  "origin": "author",
+  "old": "_model_id(pin, \"entity.model_id_pin\")",
+  "new": "_eui64(pin, \"entity.model_id_pin\")"
+ },
+ {
+  "id": "A574-05 listener floor guard removed",
+  "origin": "author",
+  "old": "if direction == \"listener\" and (\n            type(length_ns)",
+  "new": "if False and (\n            type(length_ns)"
+ },
+ {
+  "id": "A575-06 format count guard removed",
+  "origin": "author",
+  "old": "if len(formats) > MAX_STREAM_FORMATS:",
+  "new": "if False:"
+ },
+ {
+  "id": "A575-07 AAF family guard removed",
+  "origin": "author",
+  "old": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+  "new": "if family != \"AAF\" and any(int(word, 16) >> 56 != family_word >> 56 for word in formats):"
+ },
+ {
+  "id": "A575-08 output count guard removed",
+  "origin": "author",
+  "old": "if len(formats) > MAX_STREAM_FORMATS:",
+  "new": "if \"talkers\" not in ctx and len(formats) > MAX_STREAM_FORMATS:"
+ },
+ {
+  "id": "A575-09 output family guard removed",
+  "origin": "author",
+  "old": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+  "new": "if \"talkers\" not in ctx and any(int(word, 16) >> 56 != family_word >> 56 for word in formats):"
+ },
+ {
+  "id": "A575-10 CRF word guard removed",
+  "origin": "author",
+  "old": "if family == \"CRF\" and any(word != CRF_FORMAT_DEFAULT for word in formats):",
+  "new": "if False:"
+ },
+ {
+  "id": "A575-11 CRF output word guard removed",
+  "origin": "author",
+  "old": "if family == \"CRF\" and any(word != CRF_FORMAT_DEFAULT for word in formats):",
+  "new": "if \"crf_output\" not in ctx and family == \"CRF\" and any(word != CRF_FORMAT_DEFAULT for word in formats):"
+ },
+ {
+  "id": "A576-12 INTERNAL guard removed",
+  "origin": "author",
+  "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+  "new": "if False:"
+ },
+ {
+  "id": "A576-13 AAF output arm removed",
+  "origin": "author",
+  "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+  "new": "if clocking[\"crf_output\"] and \"internal\" not in clocking[\"media_clock_sources\"]:"
+ },
+ {
+  "id": "A576-14 CRF output arm removed",
+  "origin": "author",
+  "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+  "new": "if talkers and \"internal\" not in clocking[\"media_clock_sources\"]:"
+ },
+ {
+  "id": "R-F1a legal near-endpoint rejected",
+  "origin": "reviewer",
+  "old": "if number in (0, EUI64_MAX):",
+  "new": "if number in (0, EUI64_MAX, EUI64_MAX - 1):"
+ },
+ {
+  "id": "R-F1b guard after literal only via hash path",
+  "origin": "reviewer",
+  "old": "mid, src = _model_id(pin, \"entity.model_id_pin\"), \"pin\"",
+  "new": "mid, src = _eui64(pin, \"entity.model_id_pin\") or 1, \"pin\""
+ },
+ {
+  "id": "R-F2a floor off-by-one (<=)",
+  "origin": "reviewer",
+  "old": "length_ns < BUFLEN_DEFAULT_NS):",
+  "new": "length_ns <= BUFLEN_DEFAULT_NS):"
+ },
+ {
+  "id": "R-F2b floor lowered by one",
+  "origin": "reviewer",
+  "old": "length_ns < BUFLEN_DEFAULT_NS):",
+  "new": "length_ns < BUFLEN_DEFAULT_NS - 1):"
+ },
+ {
+  "id": "R-F2c integer-type check removed",
+  "origin": "reviewer",
+  "old": "type(length_ns) is not int or length_ns < BUFLEN_DEFAULT_NS",
+  "new": "not isinstance(length_ns, (int, float)) or length_ns < BUFLEN_DEFAULT_NS"
+ },
+ {
+  "id": "R-F2d guard applied to talkers instead",
+  "origin": "reviewer",
+  "old": "if direction == \"listener\" and (",
+  "new": "if direction == \"talker\" and ("
+ },
+ {
+  "id": "R-F3a count off-by-one (>=)",
+  "origin": "reviewer",
+  "old": "if len(formats) > MAX_STREAM_FORMATS:",
+  "new": "if len(formats) >= MAX_STREAM_FORMATS:"
+ },
+ {
+  "id": "R-F3b declared list validated before completion",
+  "origin": "reviewer",
+  "old": "            fmts = base_format_complete(fmts)\n        _validate_stream_formats(fmts, f\"{sctx}.formats\", \"AAF\")",
+  "new": "            _validate_stream_formats(fmts, f\"{sctx}.formats\", \"AAF\")\n            fmts = base_format_complete(fmts)"
+ },
+ {
+  "id": "R-F3c family compared on top nibble only",
+  "origin": "reviewer",
+  "old": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+  "new": "if any(int(word, 16) >> 60 != family_word >> 60 for word in formats):"
+ },
+ {
+  "id": "R-F3d family checks current format only",
+  "origin": "reviewer",
+  "old": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+  "new": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats[:1]):"
+ },
+ {
+  "id": "R-F3e CRF word checks only first entry",
+  "origin": "reviewer",
+  "old": "any(word != CRF_FORMAT_DEFAULT for word in formats)",
+  "new": "any(word != CRF_FORMAT_DEFAULT for word in formats[1:])"
+ },
+ {
+  "id": "R-F3f CRF input unvalidated",
+  "origin": "reviewer",
+  "old": "_crf_format(clk.get(\"crf_format\", CRF_FORMAT_DEFAULT),",
+  "new": "_fmt64(clk.get(\"crf_format\", CRF_FORMAT_DEFAULT),"
+ },
+ {
+  "id": "R-F3g CRF output unvalidated",
+  "origin": "reviewer",
+  "old": "_crf_format(co.get(\"format\", CRF_FORMAT_DEFAULT),",
+  "new": "_fmt64(co.get(\"format\", CRF_FORMAT_DEFAULT),"
+ },
+ {
+  "id": "R-F4a selection instead of availability",
+  "origin": "reviewer",
+  "old": "and \"internal\" not in clocking[\"media_clock_sources\"]:",
+  "new": "and clocking[\"default_source\"] != \"internal\":"
+ },
+ {
+  "id": "R-F4b call site removed",
+  "origin": "reviewer",
+  "old": "    _validate_output_clock_sources(st.get(\"talkers\", []), clocking)\n",
+  "new": "\n"
+ },
+ {
+  "id": "R-F4c call site reads listeners (equivalent in reachable space)",
+  "origin": "reviewer",
+  "old": "_validate_output_clock_sources(st.get(\"talkers\", []), clocking)",
+  "new": "_validate_output_clock_sources(st.get(\"listeners\", []), clocking)"
+ }
+]
