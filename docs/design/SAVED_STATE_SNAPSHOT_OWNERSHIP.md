@@ -1588,10 +1588,14 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. MEASURED on 2026-09-26 in the
+Timing. MEASURED on 2026-09-27 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs this measurement.
-The [clock assignment](https://github.com/kebag-logic/milan-fpga/issues/565#issuecomment-5848231174) requires this configuration remeasurement.
+The [clock assignment](https://github.com/kebag-logic/milan-fpga/issues/565#issuecomment-5848231174) set both configurations to the contract clock.
+The [pin-adoption assignment](https://github.com/kebag-logic/milan-fpga/issues/580#issuecomment-5857045698) requires this remeasurement.
+The measured parent commit is `499b15f97eb0a469b7cd1308fbba7af3c64d1851`.
+Its tree is `83b988d3b59a398a7d0cd1977194c50be92522da`.
+Its protocol-processor pin is `16be6768f710e79450aace277abacd6c2c3336e5`.
 **Hold sizing uses the writer's actual clock.**
 The [bare-metal contract](../integration/BAREMETAL_FIRMWARE.md#build-contract) specifies a 50 MHz CPU.
 Both shapes use that clock, with aligned system rising edges.

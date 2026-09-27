@@ -38,11 +38,15 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Issue #580 adopts processor `16be6768`.
 - The packer rejects body/key type and index mismatches.
 - The processor documents descriptor ownership.
-- Milan 5.3.3.8's cluster minimum remains required.
+- [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
+- The zero-cluster 8x8 input pools violate that minimum.
+- Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
 - All five configurations retain identical AEM images and builder outputs.
 - The ROM ledger adds current rows and retains earlier pins.
-- The capture receipt refreshes its pin.
-- Measured inputs remain unchanged.
+- The capture was re-measured at the adopted processor pin.
+- The receipt identifies the measured parent tree and processor pins.
+- Each of the six traffic arms contains 16 captures.
+- The 8x8 maximum remains below 24.5 ms.
 
 ## Unreleased - pending follows live writes
 

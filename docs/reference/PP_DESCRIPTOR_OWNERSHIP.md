@@ -2,7 +2,7 @@
 
 This is the parent contract allocation for [#509][coordination].
 It records measurements at `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
-The processor pin is `990f96526bb89356c963a260ebbdcf2a77e6623a`.
+The audit's processor pin was `990f96526bb89356c963a260ebbdcf2a77e6623a`.
 
 The [assignment decision][decision] settles ownership, not implementation completeness.
 Processor contract publication follows independent review in a separate change.
@@ -55,7 +55,7 @@ The consumer names identify the boundary relying on each rule.
 
 | Rule and clause | Producer -> consumer | Authoritative enforcement and evidence | Supported boundary; open owner |
 |---|---|---|---|
-| L1: single parent, cardinalities; Milan 5.3.2 | Parent assembly -> processor descriptor store | Parent **C**: `A._entity_descriptors`, `_port_descriptors`, `B.cluster_layout`; **T**: builder gate 6 `test_port_layout_invariants`. No general parent-partition refusal. | Single AUDIO_UNIT/domain; generated contiguous pools. Changed output `base_cluster=0` still packs. F07.2's cluster minimum conflicts with the zero-cluster 8x8 input pools; [PP60][pp60], [F5](#follow-up-allocation). |
+| L1: single parent, cardinalities; Milan 5.3.2 | Parent assembly -> processor descriptor store | Parent **C**: `A._entity_descriptors`, `_port_descriptors`, `B.cluster_layout`; **T**: builder gate 6 `test_port_layout_invariants`. No general parent-partition refusal. | Single AUDIO_UNIT/domain; generated contiguous pools. Changed output `base_cluster=0` still packs. [Processor #122][cluster-decision] retains F07.2's Milan 5.3.3.8 cluster minimum. The zero-cluster 8x8 input pools violate it; parent [#584][cluster-fix] owns the correction. See [F5](#follow-up-allocation). |
 | L2: dense indices and hierarchy ordering; IEEE 1722.1 7.2 | Parent directory -> processor index map/store | Processor **R**: `P._grouped_descriptors` rejects duplicates; `P._index_entries` rejects index gaps. Parent **C/T**: `A.two_level_directory`, `check_two_level`, generator self-test. | Density is checked per configuration/type. Parent multi-level ordering is constructed. Body/key consistency is enforced by the processor packer at `493e5e4b`; see [F7](#follow-up-allocation). [PP60][pp60] retains its published scope. |
 | L3: Base formats, role presence and rate completeness; Milan 5.3.3.4, 6.3/6.4 | Parent stream declarations -> processor format tables and media fabric | Parent **R**: `B._streams` rejects an empty direction. **C**: `B.base_format_complete`; **T**: builder gate 29 `test_milan_base_formats_are_rate_complete`. | One configuration; listener Base-rate family completion. Talkers follow 6.3's separate obligation, not listener-wide family completion. Generic model lint remains [PP60][pp60]; multi-configuration claims untested. |
 | L4: buffer floor, CLASS_A, format family, current membership, 47-format cap; Milan 5.3.3.4, IEEE Table 7-8 | Parent descriptor constructors -> processor and media consumers | Parent **C**: `D.d_stream`, `A._entity_descriptors` set CLASS_A, use first format as current, and emit Table 7-8. **T**: gate 29 checks shipped formats. Neither parent nor packer generally refuses all L4 violations. | All shipped inputs use 2,126,000 ns; format lists have one or two entries. Buffer, CRF-word, mixed-list and 48-entry inputs still build. [PP60][pp60], [F2/F3](#follow-up-allocation). |
@@ -132,9 +132,11 @@ Every other configuration uses `0x4801/0x4801`.
 ENTITY capabilities are `0x0000C588` in all five images.
 
 The 8x8 inputs own zero clusters, as parent D8 specifies.
-The processor's F07.2 diagram instead draws a `1..*` minimum.
-This audit records that discrepancy without resolving its normative interpretation.
-The separate processor contract change must disposition it under PP60.
+The processor's F07.2 diagram requires a `1..*` minimum.
+The [processor #122 disposition][cluster-decision] retains that Milan 5.3.3.8 requirement.
+Dynamic mapping permits zero maps, not zero clusters.
+The 8x8 input pools violate the requirement.
+Parent [#584][cluster-fix] owns the D8 product correction.
 
 The shipping `arty_current` image retains six static-map coherence deviations.
 They map channels 2..7 against a stereo output format.
@@ -240,7 +242,7 @@ Existing processor issues retain their published scope and acceptance criteria.
 | F2 | Parent buffer-floor follow-up; coordinate [PP60][pp60] L4. Validate every declared listener buffer. | 2126000 accepted, 2125999 refused; all five images unchanged. |
 | F3 | Parent stream-format follow-up; coordinate [PP60][pp60] L3/L4. Bound format count and validate AAF/CRF family and Milan CRF word. | Legal family controls; independently refuse 48 entries, mixed family and altered CRF word; test inputs and outputs. |
 | F4 | Parent source-construction follow-up; coordinate [PP60][pp60] L6. Outputs must have INTERNAL available. | INTERNAL+CRF accepted; outputs with only CRF refused; preserve applicable input-only behavior. |
-| F5 | Processor contract follow-up under [PP60][pp60]. Reconcile F07.2's minimum with parent D8 zero-cluster input pools. | Public clause-backed disposition; do not infer a requirement waiver from successful packing. |
+| F5 | [Processor #122][cluster-decision] retains F07.2's Milan 5.3.3.8 minimum. Parent [#584][cluster-fix] owns correcting D8's non-conforming zero-cluster 8x8 input pools. | Every input port must own at least one cluster. Product meaning, refusal tests and image changes remain #584's work; successful packing grants no waiver. |
 | F6 | Parent image-check follow-up and [PP89][pp89]. Add discriminating L6 identity-list and L10 offset/count/length checks at the shipping image boundary. Processor retained semantic checks are defence in depth. | Legal one/eight-entry structural boundaries; independently reject offset, count, truncated/extra length and non-identity source lists. Preserve #478's narrower loader scope. |
 | F7 | Body/key refusal is enforced by the processor packer at `493e5e4b`, adopted through `16be6768` in #580. This is separate from [PP60][pp60]'s published acceptance. | Processor `protocol-processor/tb/desc_store/test_gen_desc_image.py` retains a legal pair and independently rejects mismatched body type and index through `build()` and the CLI. |
 | F8 | Parent static-map product-policy follow-up. Disposition the six shipping arty_current stream-channel width deviations. Record a clause-backed policy and implement matching image validation and model changes. [#464][selftest] remains closed. | Decode AUDIO_MAP[0] channels 0..7 against stereo STREAM_OUTPUT[0]. Preserve a legal in-range control; detect each channel 2..7 deviation. Demonstrate the chosen policy with positive/negative image fixtures and matching shipping bytes. |
@@ -296,3 +298,5 @@ Builder compiler availability and calibration skips remain explicit evidence lim
 [selftest]: https://github.com/kebag-logic/milan-fpga/issues/464
 [residue]: https://github.com/kebag-logic/milan-fpga/issues/495
 [qualification]: https://github.com/kebag-logic/milan-fpga/issues/76
+[cluster-decision]: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588
+[cluster-fix]: https://github.com/kebag-logic/milan-fpga/issues/584

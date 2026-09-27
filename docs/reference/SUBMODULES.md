@@ -63,9 +63,11 @@ Issue #502 adopted processor pin `870ff88a`.
 
 Issue #580 advances the current pin to `16be6768`.
 
-- PR 124 rejects body/key type and index mismatches.
-- PR 126 documents descriptor ownership.
-- Milan 5.3.3.8's cluster minimum remains required.
+- [Processor PR 124](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/124) rejects body/key type and index mismatches.
+- [Processor PR 126](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/126) documents descriptor ownership.
+- [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
+- The zero-cluster 8x8 input pools violate that minimum.
+- Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
 - All five configurations retain identical AEM images and builder outputs.
 
 The ROM ledger records current and earlier pins.
