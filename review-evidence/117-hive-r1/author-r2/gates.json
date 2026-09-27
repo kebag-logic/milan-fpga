@@ -1,0 +1,80 @@
+[
+  {
+    "command": [
+      "/tmp/117-a376-markdown/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-1.txt"
+  },
+  {
+    "command": [
+      "/tmp/117-a376-markdown/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-2.txt"
+  },
+  {
+    "command": [
+      "/tmp/117-a376-markdown/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-3.txt"
+  },
+  {
+    "command": [
+      "/tmp/117-a376-markdown/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "2a2a7bb6"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-4.txt"
+  },
+  {
+    "command": [
+      "/tmp/117-a376-markdown/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-5.txt"
+  },
+  {
+    "command": [
+      "/tmp/117-a376-markdown/bin/python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-6.txt"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-7.txt"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "head": "ecd36018a29f605efe790d33dd50382aec9c1201",
+    "rc": 0,
+    "receipt": "gate-8.txt"
+  }
+]
