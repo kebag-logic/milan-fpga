@@ -2,6 +2,8 @@
 
 Refs #75. Operator [A386], measured 2026-09-27.
 
+Round-2 analysis [A389], 2026-09-28, uses recorded data only.
+
 Measured transport: CRF, one direction at a time.
 AAF restart timing remains unmeasured.
 
@@ -13,6 +15,7 @@ AAF restart timing remains unmeasured.
 - **[Growth](#growth)** -- Ordered blocks and latency trends.
 - **[MSRP attribution](#msrp-attribution)** -- Sender counts, rates, and declaration events.
 - **[Cycle evidence](#cycle-evidence)** -- Every measured restart and captured exchange.
+- **[Stop checks](#stop-checks)** -- Silence assertions, counter deltas, and excluded attempts.
 - **[Counters and restoration](#counters-and-restoration)** -- Counter authority and restored state.
 - **[Acceptance](#acceptance)** -- Evidence against each issue criterion.
 - **[Artifacts](#artifacts)** -- Exact image hashes and full capture index.
@@ -58,7 +61,7 @@ It is absent from this running architecture.
 and [design](https://github.com/kebag-logic/milan-fpga/blob/eb375c131ef0e3b3b42ef42f4e546d8d8b20b494/docs/LWSRP_FPGA_ARCHITECTURE.md)
 were read without restoring retired files.
 
-[Current SRP design](../../protocol-processor/docs/architecture/10_srp_engine.md)
+[Current SRP design](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/870ff88ad35bbd532244e4c7e6d7661b9f6e1366/docs/architecture/10_srp_engine.md)
 defines the replacement and remaining LeaveAll-timer deviation.
 This measurement neither changes RTL nor resolves that deviation.
 
@@ -84,23 +87,70 @@ The controller then sends `DISCONNECT_RX`.
 After success, it waits two seconds.
 It then sends `CONNECT_RX`.
 
-The successful response starts the measured interval.
+The successful response crossing the tap starts the interval.
 The first valid stream PDU ends it.
+
+This anchor differs from the controller's response receipt.
+The talker-direction response arrives from the peer through the bridge.
 
 Controller identity and sequence identify the response.
 Stream identity and direction identify the resumed PDU.
 
-CRF validation checks version, stream-valid, type, frequency, and lengths.
-It also checks interval, VLAN, priority, and settled destination.
+The retained predicate uses these CRF payload offsets.
 
-Source identity must match the bound stream.
-The next packet must advance sequence and timestamp.
+| Check | Predicate |
+|---|---|
+| Transport | EtherType `0x22f0`; subtype `0x04` |
+| Header and payload | At least 28 bytes; byte 1 masked with `0xf0` equals `0x80` |
+| Version and stream-valid | Version 0; `sv=1` |
+| Type | Byte 3 equals 1, audio sample timestamps |
+| Pull and base frequency | Bytes 12-15 equal `0x0000bb80`, pull 0 and 48 kHz |
+| Data length and interval | Bytes 16-19 equal `0x00080060`, eight bytes and 96 samples |
+| VLAN | VID 2; PCP 3 |
+| Stream identity | Recorded binding's stream ID |
+| Direction and source | Bound talker's tap direction and source address |
+| Destination | Settled listener binding's destination address |
+| Progression | Next PDU advances sequence modulo 256 and timestamp |
+
+The mask leaves `mr`, `fs`, and `tu` unchecked.
+Round-2 replay additionally records these flags as zero throughout.
+
+It validates every target PDU, including the disconnect hold.
+This is a restart predicate, not complete AVTP conformance testing.
 
 The tap timestamps both endpoints on one hardware clock.
 Its nanosecond word is unwrapped using capture-host timestamps.
 
 Host clock offsets do not enter the elapsed interval.
+The timestamp word resolves one nanosecond before unwrapping.
+
+CRF PDUs arrive every two milliseconds, at 500 PDUs/s.
+That cadence limits observation of when transmission becomes possible.
+
+The measured endpoint remains the actual first valid PDU.
+
+Maximum recorded unwrap-anchor spread is 0.106533 seconds.
+That stays below the 2.147484-second half-wrap ambiguity limit.
+
 Printed precision does not establish absolute timestamp calibration.
+No calibrated oscillator-error bound is claimed.
+
+Each restart now requires a successful offline stop assertion.
+Settling allows 0.5 seconds after the tapped disconnect response.
+
+That allowance defines this analysis, not a protocol deadline.
+Count valid target PDUs from settling through the reconnect response.
+
+The window includes its start and excludes its end.
+The count must equal zero before accepting a restart.
+
+The original final-half-second count is also recomputed and checked.
+
+A proven stop followed by early resumption requires separate censoring.
+Such resumption would be reported at or before the response.
+
+Continuous traffic cannot qualify as a restart or zero-time resumption.
+No demonstrated restart here resumes before the response.
 
 Each restart observation has a thirty-second cap.
 Pre-capture and the mandated disconnect hold precede that observation.
@@ -120,13 +170,30 @@ Analysis runs after that lock is released.
 
 All values are seconds; p95 uses nearest rank.
 
-| Direction | Cycles | Below 1 s | Min | Median | p95 | Max | Result |
+| Direction | Demonstrated restarts | Below 1 s | Min | Median | p95 | Max | Result |
 |---|---|---|---|---|---|---|---|
 | DUT listener | 100 | 100 | 0.006641 | 0.110280 | 0.188503 | 0.204859 | PASS |
-| DUT talker | 100 | 100 | 0.000297 | 0.019165 | 0.039614 | 0.117736 | PASS |
+| DUT talker | 97 | 97 | 0.017427 | 0.019175 | 0.042347 | 0.117736 | 97 pass; count short by 3 |
 
-Initial binds are excluded from these distributions.
-Any censored cycle remains a failure, outside numeric quantiles.
+Each direction contains 100 controller attempts.
+Talker cycles 13, 24, and 75 never stop transmitting.
+
+They are excluded from restart quantiles and the restart count.
+Their sub-period intervals measure already-flowing traffic's next PDU.
+
+The minimum changes from 0.000297 to 0.017427 seconds.
+The median and p95 also change; the maximum remains unchanged.
+
+The listener distribution is unchanged.
+
+Initial binds also remain outside these reconnect distributions.
+[The round-2 decision](https://github.com/kebag-logic/milan-fpga/issues/75#issuecomment-5860261220)
+places initial binds outside criterion 1.
+
+Numbered reconnects follow disconnect success and a two-second hold.
+Initial binds have neither prerequisite and form a separate population.
+
+Missing resumption would fail the bound, outside numeric quantiles.
 
 | Initial bind, excluded from cycle count | Response to AVTP, seconds | Below 1 s |
 |---|---|---|
@@ -134,26 +201,53 @@ Any censored cycle remains a failure, outside numeric quantiles.
 | DUT talker | 6.889398 | FAIL |
 
 The initial DUT-talker binding exceeds one second.
-Its capture retains the delayed Listener Ready arrival.
+This open exception belongs to [#606](https://github.com/kebag-logic/milan-fpga/issues/606).
+
+Its capture identifier is `talker-setup/tap.pcap`.
 
 Bridge Listener Ready arrives after 6.888605 seconds.
 Valid CRF follows another 0.000793 seconds later.
 
-DUT Talker Advertise repeats while that Ready is absent.
-A bridge LeaveAll precedes the eventual Ready.
+DUT Talker Advertise is absent before this initial bind.
+Its first declaration follows the response by 0.079 seconds.
 
-This locates the observed wait before Ready reaches DUT.
-Peer-side capture is required for further causal attribution.
+It then repeats every second while Ready remains absent.
+
+The bridge sends no MSRP until its LeaveAll.
+That arrives 6.080 seconds after the response.
+
+Numbered reconnects instead retain DUT Talker Advertise through the hold.
+The initial bind therefore differs in DUT-side state too.
+
+The tapped segment locates convergence after the bridge LeaveAll.
+It cannot attribute the entire wait to the peer.
+
+Issue #606 owns causal attribution and the first-bind path.
 
 ## Growth
 
 Ordered blocks expose changes hidden by pooled quantiles.
-Regression uses cycle number against latency in seconds.
+Regression uses original cycle numbers against demonstrated restart latency.
 
-| Direction | First ten median | Last ten median | Slope, seconds/cycle |
-|---|---|---|---|
-| DUT listener | 0.122844 | 0.118585 | -0.000100 |
-| DUT talker | 0.019894 | 0.019818 | -0.000008 |
+Excluded attempts keep their positions; cycles are never renumbered.
+
+| Direction | First ten median | Last ten median | Slope, seconds/cycle | 95% slope interval |
+|---|---|---|---|---|
+| DUT listener | 0.122844 | 0.118585 | -0.000099788 | [-0.000501182, +0.000301607] |
+| DUT talker | 0.019894 | 0.019818 | -0.000019700 | [-0.000133251, +0.000093851] |
+
+Intervals use ordinary least squares and Student's t.
+Residual degrees of freedom are 98 and 95, respectively.
+
+These descriptive intervals assume independent errors with constant variance.
+They do not guarantee future cycles or unmeasured operating states.
+
+Both intervals include zero.
+
+Upper bounds: +30.161 and +9.385 ms/100 cycles.
+
+Excluding talker cycle 1 gives +0.000040905 seconds/cycle.
+The conclusion therefore uses intervals and blocks, not slope signs.
 
 | Direction | Cycles | Median, seconds | Maximum, seconds | Combined MSRP PDUs/s |
 |---|---|---|---|---|
@@ -168,18 +262,20 @@ Regression uses cycle number against latency in seconds.
 | DUT listener | 81-90 | 0.087061 | 0.180242 | 2.416954 |
 | DUT listener | 91-100 | 0.118585 | 0.178821 | 2.363093 |
 | DUT talker | 1-10 | 0.019894 | 0.117736 | 2.108677 |
-| DUT talker | 11-20 | 0.018978 | 0.039614 | 1.920865 |
-| DUT talker | 21-30 | 0.019365 | 0.020036 | 1.750685 |
+| DUT talker | 11-20 | 0.019175 | 0.039614 | 1.920865 |
+| DUT talker | 21-30 | 0.019419 | 0.020036 | 1.750685 |
 | DUT talker | 31-40 | 0.018961 | 0.020482 | 1.867057 |
 | DUT talker | 41-50 | 0.018974 | 0.082168 | 2.017861 |
 | DUT talker | 51-60 | 0.018862 | 0.066967 | 1.878170 |
 | DUT talker | 61-70 | 0.019376 | 0.042347 | 1.880260 |
-| DUT talker | 71-80 | 0.019060 | 0.020492 | 1.831848 |
+| DUT talker | 71-80 | 0.019068 | 0.020492 | 1.831848 |
 | DUT talker | 81-90 | 0.018913 | 0.116171 | 1.956921 |
 | DUT talker | 91-100 | 0.019818 | 0.021083 | 2.044871 |
 
-Neither direction shows progressive slowdown across ten-cycle blocks.
-Both fitted slopes are negative.
+Neither demonstrated series shows progressive slowdown across ten-cycle blocks.
+Block latency statistics exclude the three non-restarts.
+
+MSRP rates still include every attempt's complete capture.
 
 Last-ten medians remain below their first-ten medians.
 These observations cover the measured CRF pairs only.
@@ -248,12 +344,15 @@ The full event lists preserve every declaration and withdrawal.
 ## Cycle evidence
 
 Paired counts use DUT / bridge order.
-Counts cover each complete capture, including the unbound interval.
+Counts cover complete captures, including the commanded disconnect hold.
+
+Intervals below retain the original response-to-next-valid-PDU measurements.
+The three non-restart rows remain visible but never enter quantiles.
 
 TA and Listener counts include New, JoinIn, and JoinMt.
 Ready counts require packed Ready within those declarations.
 
-| Direction | Cycle | Restart, seconds | PDUs | LeaveAll | TA declarations | Listener declarations | Ready | Result |
+| Direction | Cycle | Interval, seconds | PDUs | LeaveAll | TA declarations | Listener declarations | Ready | Result |
 |---|---|---|---|---|---|---|---|---|
 | DUT listener | 1 | 0.112517 | 13 / 6 | 0 / 4 | 0 / 4 | 10 / 0 | 10 / 0 | PASS |
 | DUT listener | 2 | 0.178174 | 13 / 6 | 0 / 0 | 0 / 4 | 9 / 0 | 9 / 0 | PASS |
@@ -367,7 +466,7 @@ Ready counts require packed Ready within those declarations.
 | DUT talker | 10 | 0.018896 | 11 / 5 | 0 / 4 | 11 / 0 | 0 / 3 | 0 / 3 | PASS |
 | DUT talker | 11 | 0.019726 | 9 / 4 | 0 / 0 | 9 / 0 | 0 / 3 | 0 / 3 | PASS |
 | DUT talker | 12 | 0.019536 | 11 / 6 | 4 / 0 | 10 / 0 | 0 / 5 | 0 / 5 | PASS |
-| DUT talker | 13 | 0.000364 | 12 / 7 | 4 / 4 | 11 / 0 | 0 / 4 | 0 / 4 | PASS |
+| DUT talker | 13 | 0.000364 | 12 / 7 | 4 / 4 | 11 / 0 | 0 / 4 | 0 / 4 | NOT RESTART |
 | DUT talker | 14 | 0.017658 | 12 / 8 | 4 / 4 | 12 / 0 | 0 / 5 | 0 / 5 | PASS |
 | DUT talker | 15 | 0.018366 | 10 / 5 | 0 / 4 | 10 / 0 | 0 / 4 | 0 / 4 | PASS |
 | DUT talker | 16 | 0.019175 | 10 / 4 | 0 / 0 | 9 / 0 | 0 / 3 | 0 / 3 | PASS |
@@ -378,7 +477,7 @@ Ready counts require packed Ready within those declarations.
 | DUT talker | 21 | 0.019727 | 10 / 5 | 0 / 4 | 10 / 0 | 0 / 4 | 0 / 4 | PASS |
 | DUT talker | 22 | 0.019556 | 9 / 4 | 0 / 0 | 9 / 0 | 0 / 3 | 0 / 3 | PASS |
 | DUT talker | 23 | 0.019419 | 9 / 4 | 0 / 0 | 9 / 0 | 0 / 3 | 0 / 3 | PASS |
-| DUT talker | 24 | 0.000297 | 11 / 6 | 4 / 0 | 10 / 0 | 0 / 3 | 0 / 3 | PASS |
+| DUT talker | 24 | 0.000297 | 11 / 6 | 4 / 0 | 10 / 0 | 0 / 3 | 0 / 3 | NOT RESTART |
 | DUT talker | 25 | 0.018126 | 12 / 7 | 4 / 4 | 11 / 0 | 0 / 6 | 0 / 6 | PASS |
 | DUT talker | 26 | 0.020036 | 13 / 7 | 4 / 4 | 12 / 0 | 0 / 6 | 0 / 6 | PASS |
 | DUT talker | 27 | 0.018798 | 11 / 5 | 0 / 4 | 11 / 0 | 0 / 4 | 0 / 4 | PASS |
@@ -429,7 +528,7 @@ Ready counts require packed Ready within those declarations.
 | DUT talker | 72 | 0.017427 | 9 / 4 | 0 / 0 | 9 / 0 | 0 / 3 | 0 / 3 | PASS |
 | DUT talker | 73 | 0.018249 | 9 / 4 | 0 / 0 | 9 / 0 | 0 / 3 | 0 / 3 | PASS |
 | DUT talker | 74 | 0.019052 | 10 / 6 | 4 / 0 | 10 / 0 | 0 / 5 | 0 / 5 | PASS |
-| DUT talker | 75 | 0.001864 | 12 / 7 | 4 / 4 | 11 / 0 | 0 / 4 | 0 / 4 | PASS |
+| DUT talker | 75 | 0.001864 | 12 / 7 | 4 / 4 | 11 / 0 | 0 / 4 | 0 / 4 | NOT RESTART |
 | DUT talker | 76 | 0.018660 | 12 / 7 | 4 / 4 | 12 / 0 | 0 / 4 | 0 / 4 | PASS |
 | DUT talker | 77 | 0.020492 | 12 / 7 | 4 / 4 | 11 / 0 | 0 / 5 | 0 / 5 | PASS |
 | DUT talker | 78 | 0.020409 | 11 / 5 | 0 / 4 | 11 / 0 | 0 / 4 | 0 / 4 | PASS |
@@ -456,6 +555,263 @@ Ready counts require packed Ready within those declarations.
 | DUT talker | 99 | 0.019083 | 13 / 7 | 4 / 4 | 12 / 0 | 0 / 6 | 0 / 6 | PASS |
 | DUT talker | 100 | 0.019959 | 13 / 7 | 4 / 4 | 12 / 0 | 0 / 4 | 0 / 4 | PASS |
 
+## Stop checks
+
+Settled PDUs cover disconnect-response plus 0.5 seconds through reconnect-response.
+Command-response PDUs are a subset, closing the original checking gap.
+
+Counter pairs give STREAM_START / STREAM_STOP increments.
+DUT counters refer to Stream Output 1 in both directions.
+
+The active talker is the stream source in each pair.
+
+All 100 listener attempts demonstrate a stopped stream.
+Another 97 talker attempts do too.
+
+Their zero counts are asserted before accepting restart timing.
+The original final-half-second counts also equal zero for these attempts.
+
+Talker cycles 13, 24, and 75 fail that assertion.
+Each has 250 PDUs in the original final-half-second window.
+
+Each also has 1,000 PDUs across the two-second hold.
+Their largest hold-spanning packet gap is 0.002000053 seconds.
+
+Sequence and timestamp progression remain continuous throughout.
+No stopped stream, early resumption, or counter mismatch is demonstrated.
+
+These are non-restarts, excluded from the measured restart population.
+[#75](https://github.com/kebag-logic/milan-fpga/issues/75) retains this behavior and the missing three restarts.
+
+The follow-up must establish why transmission continued through disconnect.
+
+| Direction | Cycle | Settled PDUs | Command-response PDUs | DUT start/stop | Active talker start/stop | Stop check |
+|---|---|---|---|---|---|---|
+| DUT listener | 1 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 2 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 3 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 4 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 5 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 6 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 7 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 8 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 9 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 10 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 11 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 12 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 13 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 14 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 15 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 16 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 17 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 18 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 19 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 20 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 21 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 22 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 23 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 24 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 25 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 26 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 27 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 28 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 29 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 30 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 31 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 32 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 33 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 34 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 35 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 36 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 37 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 38 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 39 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 40 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 41 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 42 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 43 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 44 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 45 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 46 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 47 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 48 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 49 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 50 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 51 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 52 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 53 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 54 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 55 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 56 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 57 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 58 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 59 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 60 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 61 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 62 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 63 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 64 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 65 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 66 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 67 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 68 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 69 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 70 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 71 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 72 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 73 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 74 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 75 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 76 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 77 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 78 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 79 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 80 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 81 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 82 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 83 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 84 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 85 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 86 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 87 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 88 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 89 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 90 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 91 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 92 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 93 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 94 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 95 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 96 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 97 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 98 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 99 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT listener | 100 | 0 | 0 | 0 / 0 | 1 / 1 | PASS |
+| DUT talker | 1 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 2 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 3 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 4 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 5 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 6 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 7 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 8 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 9 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 10 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 11 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 12 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 13 | 754 | 4 | 0 / 0 | 0 / 0 | FAIL |
+| DUT talker | 14 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 15 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 16 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 17 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 18 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 19 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 20 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 21 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 22 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 23 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 24 | 754 | 4 | 0 / 0 | 0 / 0 | FAIL |
+| DUT talker | 25 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 26 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 27 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 28 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 29 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 30 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 31 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 32 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 33 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 34 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 35 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 36 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 37 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 38 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 39 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 40 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 41 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 42 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 43 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 44 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 45 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 46 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 47 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 48 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 49 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 50 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 51 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 52 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 53 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 54 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 55 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 56 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 57 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 58 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 59 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 60 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 61 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 62 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 63 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 64 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 65 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 66 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 67 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 68 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 69 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 70 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 71 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 72 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 73 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 74 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 75 | 755 | 5 | 0 / 0 | 0 / 0 | FAIL |
+| DUT talker | 76 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 77 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 78 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 79 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 80 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 81 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 82 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 83 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 84 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 85 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 86 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 87 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 88 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 89 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 90 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 91 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 92 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 93 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 94 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 95 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 96 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 97 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 98 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 99 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+| DUT talker | 100 | 0 | 0 | 1 / 1 | 1 / 1 | PASS |
+
+The six largest talker captures have two different explanations.
+The normal median capture span is 8.998121 seconds.
+
+Its median post-first-PDU tail is 3.954053 seconds.
+Cycles 48, 49, and 83 have longer recorded tails.
+
+Cycles 24 and 75 instead contain continuously flowing hold traffic.
+Cycle 13 combines continuous traffic with a shorter capture tail.
+
+Every captured CRF record contributes 108 stored bytes.
+Other bytes include non-CRF records and their record headers.
+
+Add 24 global-header bytes to reproduce each capture size.
+Tail starts at the first valid PDU after the response.
+
+| Talker cycle | Bytes | Span, seconds | Tail, seconds | CRF PDUs | CRF bytes | Other bytes | Explanation |
+|---|---|---|---|---|---|---|---|
+| 83 | 524681 | 10.998148 | 5.964080 | 4491 | 485028 | 39629 | Longer capture tail |
+| 24 | 518465 | 8.998121 | 3.956053 | 4500 | 486000 | 32441 | Continuous hold |
+| 75 | 518170 | 8.998121 | 3.946053 | 4500 | 486000 | 32146 | Continuous hold |
+| 48 | 467106 | 9.998134 | 4.958067 | 3993 | 431244 | 35838 | Longer capture tail |
+| 49 | 466890 | 9.998134 | 4.960067 | 3991 | 431028 | 35838 | Longer capture tail |
+| 13 | 461102 | 7.998107 | 3.004040 | 4000 | 432000 | 29078 | Continuous hold; shorter tail |
+
 ## Counters and restoration
 
 The [register map](../reference/REGISTER_MAP.md) defines counter authority.
@@ -472,8 +828,31 @@ Legacy per-plane PDU counters are structural zeros.
 Zero legacy words cannot measure current protocol traffic.
 The per-cycle wire counts supply that measurement.
 
+The numbered talker series increments both output counters by 97.
+Setup records STREAM_START 18 and STREAM_STOP 17.
+
+Before restore, those counters read 115 and 114.
+The three non-restarts each contribute zero to both counters.
+
+Every demonstrated talker restart contributes one to each.
+The wire and retained counter evidence therefore agree exactly.
+
+The listener series's reference output increments both counters by 100.
+Setup values are 12/11; final values are 112/111.
+
+The inactive DUT output counters remain unchanged throughout that series.
+The stop-check table publishes both DUT and active-talker deltas.
+
+The round-1 claim of 100 talker restarts is withdrawn.
+
 Restoration PASS: all 18 stream states are unbound.
 Both original clocks, configurations, rates, and descriptors match.
+
+DUT Stream Output 1 retains one dynamic state difference.
+Its destination changes from all-zero to a MAAP-range address.
+
+This is runtime state, not a binding or setting.
+The restored system therefore differs from the initial first-bind state.
 
 Reserved response halfwords are excluded from setting comparisons.
 Observed counters are retained without reset.
@@ -493,8 +872,10 @@ Power, DUT firmware, wiring, and excluded equipment were untouched.
 
 | Issue criterion | Result | Evidence |
 |---|---|---|
-| First valid AVTP below one second | PASS for measured CRF | Per-direction distribution and all cycle records |
-| Restart latency does not grow | PASS for measured CRF | Ordered blocks and fitted trends |
+| First valid AVTP below one second | PASS for 100 listener and 97 talker restarts; talker count incomplete | Two CRF pairs above; `DISCONNECT_RX`, two-second hold, then `CONNECT_RX`; three talker non-restarts excluded |
+| Restart latency does not grow | No progressive growth observed within demonstrated restarts | Same two CRF pairs and disconnect/hold/reconnect sequence; 100 listener and 97 talker observations; intervals and ordered blocks |
+| Initial DUT-talker bind, outside criterion 1 | Open exception: 6.889398 s, exceeds one second; [#606](https://github.com/kebag-logic/milan-fpga/issues/606) | No preceding disconnect/hold; separate initial-bind population excluded by the recorded decision |
+| At least 100 physical restarts per direction | Listener 100/100; talker 97/100, NOT MET | Talker attempts 13, 24, and 75 continue transmitting through the hold; owned by [#75](https://github.com/kebag-logic/milan-fpga/issues/75) |
 | Firmware, topology, capture, distribution documented | PASS | Identity, method, full capture index, restore evidence |
 
 This is an operator measurement, not an independent review.
@@ -739,14 +1120,31 @@ No raw capture or binary enters the repository.
 The handoff packet contains acquisition and analysis source.
 It also contains transcripts, decoded events, and manifests.
 
+Round-2 addendum artifacts are separate from the original packet.
+
+| Addendum artifact | Bytes | SHA-256 |
+|---|---|---|
+| `recompute.py` | 16028 | `aa747eeda8e7a2ea3353d866d7ed0d534ec9bb74b7215c6ecbcdf8edb8674dd0` |
+| `stop-checks.csv` | 62360 | `f256af16b208fcfa485d4c761554288dc01ffbf2cc91facf084f60ff4577a247` |
+| `recomputed-summary.json` | 23769 | `a21e78057783a99e39e97e375204b791dfef5c4bd349423e177a22de258edc1a` |
+| `input-hashes.csv` | 94219 | `a2cef220ae51fe4fcf063627cfa86f32cf0f7a906eccd29ffeedb0799e5d9971` |
+
 ## Validation
 
-All nine assigned gates return zero.
+All nine assigned gates return zero at the round-2 head.
 Commands run from the physical candidate worktree without pipelines.
+
+The documentation check also runs without submodule contents.
+Its isolated validation clone has the same committed head.
+
+Removing Git metadata there reproduces the no-Git documentation context.
+These local results do not claim new hosted-context results.
 
 | Command | Return code |
 |---|---|
 | `python3 scripts/docs_check.py` | 0 |
+| `python3 scripts/docs_check.py`, no submodules | 0 |
+| `python3 scripts/docs_check.py`, no submodules or Git metadata | 0 |
 | `python3 scripts/check_doc_style.py` | 0 |
 | `python3 scripts/gen_toc.py --check` | 0 |
 | `python3 scripts/check_em_dash.py --base 8bc97021` | 0 |
@@ -757,7 +1155,7 @@ Commands run from the physical candidate worktree without pipelines.
 | `git diff --check` | 0 |
 
 Pinned Markdown dependencies run outside the retained evidence packet.
-All 206 captures replay successfully with final analysis source.
+Round-1 analysis replayed all 206 captures successfully.
 
 Live and replayed response-to-AVTP measurements agree.
 All captures report zero capture-host packet drops.
@@ -765,8 +1163,18 @@ All captures report zero capture-host packet drops.
 No parsing errors or timestamp reversals appear.
 The handoff records exact commands, return codes, and local head.
 
-Reproduce analysis with the retained `analyze.py` and capture index.
-Rebuild the page with retained `report.py`.
+The round-2 addendum replays all 200 numbered captures independently.
+It checks raw hashes, response anchors, validity, and counter continuity.
+
+Stop assertions pass 197 attempts and reject three non-restarts.
+It retains per-cycle results and recomputes distributions and slope intervals.
+
+The original packet remains unchanged.
+
+Reproduce round-1 timing with retained `analyze.py` and capture index.
+Use addendum `recompute.py` for round-2 classifications and statistics.
+
+The original `report.py` generates only the superseded round-1 page.
 
 Bench retention follows [TESTING.md section 6b](../testing/TESTING.md#6b-bench-evidence-retention).
 All bench changes require complete restoration before handoff.
