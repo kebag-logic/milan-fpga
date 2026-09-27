@@ -1,0 +1,31 @@
+== link_status CSR (MAC_STATUS 0x110) fields and resets
+1783:            CSRField("link_up", size=1, offset=0, reset=1,
+1784-                     description="PHY link is up (MAC_STATUS[0]). Software-published "
+1785-                                 "from the MDIO autoneg result; reset 1 = the "
+--
+1787:            CSRField("speed", size=2, offset=1,
+1788-                     reset=(0b01 if phy_model == "mii" else 0b10),
+1789-                     description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
+--
+1794:            CSRField("full_duplex", size=1, offset=3, reset=1,
+1795-                     description="Full-duplex indication (MAC_STATUS[3])."),
+1796-        ], description="PHY/MAC link status published by software (MDIO). See "
+== reset value: link_up=1 | speed(gmii)=2<<1 | full_duplex=1<<3 = 0x0d
+== writers of link_status outside its definition (expect none)
+none
+== bare-metal firmware MDIO / link / MAC_STATUS references (expect none)
+none
+== counter link view
+2904:  assign eff_link_w = i_link_up & cfg_sw_link &
+2905:                      (cfg_linkg_dis | linkg_est_w);
+2914:  assign cnt_link_w = i_link_up & (cfg_linkg_dis | linkg_est_w);
+3472:  wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
+3493:      if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
+3494:      if (ctr_avb_link_edge_w && !eff_link_w) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
+== guard estimate
+320:  assign link_est_o = rx_alive_r;
+== registers
+225:| `0x71C` | Link guard / MAC recovery (`LINK_CTRL`, `RST_EPOCH`, `LINKG_STAT` 0x774) |
+405:| `0x110` | `MAC_STATUS` | RO | – | `[0]` link_up, `[2:1]` speed (0=10,1=100,2=1000), `[3]` full_duplex |
+734:| `0x71C` | `LINK_CTRL` | RW | `0x0000_0001` | `[0]` firmware link qualification (assumed up at reset), `[1]` manual mac_reinit (hold MAC sys-side in reset), `[2]` linkg_dis (1 = guard disabled), `[3]` linkg_freeze (
+736:| `0x774` | `LINKG_STAT` | RO | -- | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX activity within the last 2^27 guard clock cycles: 2.7 s at the 50 MHz Mi

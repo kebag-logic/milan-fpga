@@ -1,0 +1,25 @@
+== control A: cycle 6 media interval 10.75-11.04 -> 10.75-11.14
+cycle  6: row-diffs=['med1'] steps=1 servo-states-over-bracket=[5] holdover=True dut-first-PDU-after-step=+12.54s peer-first-PDU-after-step=+8.00s wire-silent-before-step=True MAC_STATUS=['0xd'] LINK_UP/DOWN-delta=0/0 FAIL
+RESULT FAIL
+rc=0
+== control B: page reintroduces private locator
+page private-locator hits: ['/tmp/a375/cycleNN/`.']
+RESULT FAIL
+== control C: one hash digit changed in the artifact table
+RAW-ARTIFACTS.json cycle records=90 page-minus-index=[(1, 'console.jsonl', 670801, '9aa7aa7d45d6ee5c56a412b5a94f4abebb12cde5fd8b12ac20eac5479ea315b5')] index-minus-page=[(1, 'console.jsonl', 670801, '
+per-cycle index records=90; records with a page artifact name=50 page-minus-index=[(1, 'console.jsonl', 670801, '9aa7aa7d45d6ee5c56a412b5a94f4abebb12cde5fd8b12ac20eac5479ea315b5')] same-name-index-min
+RESULT FAIL
+== control D: table delimiter gains a cell
+  line 235: header=9 delimiter=10 rows=10 row-cells=[9] MISMATCH
+RESULT FAIL
+== peer LINK_UP/DOWN per cycle
+cycle01 peer first 1 / 0 delta 0 / 0
+cycle02 peer first 1 / 0 delta 0 / 0
+cycle03 peer first 1 / 0 delta 0 / 0
+cycle04 peer first 1 / 0 delta 0 / 0
+cycle05 peer first 1 / 0 delta 0 / 0
+cycle06 peer first 1 / 0 delta 0 / 0
+cycle07 peer first 1 / 0 delta 0 / 0
+cycle08 peer first 1 / 0 delta 0 / 0
+cycle09 peer first 1 / 0 delta 0 / 0
+cycle10 peer first 1 / 0 delta 0 / 0
