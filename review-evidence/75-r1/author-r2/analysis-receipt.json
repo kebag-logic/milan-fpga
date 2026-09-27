@@ -1,0 +1,22 @@
+{
+  "head": "5c7577e51702b00683a121f97a9806c167eb072b",
+  "source": "recompute.py",
+  "source_sha256": "aa747eeda8e7a2ea3353d866d7ed0d534ec9bb74b7215c6ecbcdf8edb8674dd0",
+  "command": "python3 -B recompute.py OPERATOR_PACKET RAW_CAPTURE_ROOT OUTPUT_DIRECTORY",
+  "return_code": 0,
+  "captures_checked": 200,
+  "stop_checks_pass": 197,
+  "stop_checks_fail": 3,
+  "excluded_talker_cycles": [
+    13,
+    24,
+    75
+  ],
+  "original_intervals_match": 200,
+  "counter_continuity": "PASS",
+  "counter_reconciliation": "PASS",
+  "recorded_flag_audit": "mr=0, fs=0, tu=0 throughout all numbered captures",
+  "disclosure_command": "python3 -B verify_disclosures.py OPERATOR_PACKET OUTPUT_DIRECTORY",
+  "disclosure_return_code": 0,
+  "note": "Analysis ran offline before commit using the source and outputs authenticated in the committed page."
+}
