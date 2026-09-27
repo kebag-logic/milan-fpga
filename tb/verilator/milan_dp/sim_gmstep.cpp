@@ -301,6 +301,7 @@ class GmStepHarness {
     uint8_t aaf_seq_ = 0;
     uint8_t crf_seq_ = 0;
     bool crf_mr_ = false;
+    bool received_crf_mr_ = false;
     uint64_t crf_start_cyc_ = 0;
     unsigned crf_toggle_pulses_ = 0;
     unsigned settime_pulses_ = 0;
@@ -456,7 +457,11 @@ void GmStepHarness::observe_slew_alignment(bool raw, uint64_t increment) {
 
 void GmStepHarness::observe() {
     auto* root = dut_->rootp;
-    const bool crf_toggle = root->milan_datapath__DOT__crf_mr_toggle_p_w;
+    // The receiver's accepted level survives a removed propagation wire.
+    // This feed starts at zero and stays bound and started throughout.
+    const bool received_mr = root->milan_datapath__DOT__crf_rx__DOT__prev_mr_r;
+    const bool crf_toggle = received_mr != received_crf_mr_;
+    received_crf_mr_ = received_mr;
     const bool settime = root->milan_datapath__DOT__csr__DOT__ptp_load_p;
     crf_toggle_pulses_ += crf_toggle;
     settime_pulses_ += settime;
