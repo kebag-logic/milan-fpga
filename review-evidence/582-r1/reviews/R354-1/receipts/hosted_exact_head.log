@@ -1,0 +1,27 @@
+# read-only inspection 2026-09-27T17:12:28Z; PR #596 head 3baff4411fd70aaccb066662628ff0b0a7d7c05d
+changes	fail	18s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607821/job/108662948762	
+elaborate	fail	17s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607811/job/108662948380	
+full-ci-gate	fail	20s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607868/job/108662948508	
+rtl-fast	fail	4s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607821/job/108663004824	
+verilator-suites	fail	8s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607868/job/108663109035	
+yosys-portability	fail	7s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607868/job/108663139734	
+Physical gPTP (nightly and manual)	skipping	0	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607868/job/108663109862	
+verilator-lint	skipping	0	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607821/job/108663005106	
+yosys-elaboration	skipping	0	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607821/job/108663005156	
+bdd-conformance	pass	14s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607821/job/108662948543	
+docs-check	pass	15m1s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607838/job/108662948367	
+docs-check-no-git	pass	12s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607838/job/108662948401	
+wire-accountability	pass	9s	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607838/job/108662948424	
+Verilator shard ${{ matrix.shard }}/${{ matrix.total }}	skipping	0	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607868/job/108663109315	
+Yosys shard ${{ matrix.shard }}/${{ matrix.total }}	skipping	0	https://github.com/kebag-logic/milan-fpga/actions/runs/36334607868/job/108663109570	
+run 36334607821: rtl-fast head=3baff4411fd70aaccb066662628ff0b0a7d7c05d conclusion=failure
+run 36334607811: elaborate head=3baff4411fd70aaccb066662628ff0b0a7d7c05d conclusion=failure
+run 36334607868: rtl-full head=3baff4411fd70aaccb066662628ff0b0a7d7c05d conclusion=failure
+run 36334607838: docs head=3baff4411fd70aaccb066662628ff0b0a7d7c05d conclusion=success
+## failing classify lines
+changes	Classify the change conservatively	2026-09-27T16:48:57.7034420Z   FAIL gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:155) is relevant
+changes	Classify the change conservatively	2026-09-27T16:48:57.7077749Z selftest: 1 FAILURE(S)
+elaborate	Decide whether this head needs an elaboration	2026-09-27T16:48:57.3726875Z   FAIL gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:155) is relevant
+elaborate	Decide whether this head needs an elaboration	2026-09-27T16:48:57.3754587Z selftest: 1 FAILURE(S)
+full-ci-gate	Decide whether this exact head needs the exhaustive gates	2026-09-27T16:49:36.0178276Z   FAIL gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:155) is relevant
+full-ci-gate	Decide whether this exact head needs the exhaustive gates	2026-09-27T16:49:36.0246466Z selftest: 1 FAILURE(S)

@@ -1,0 +1,93 @@
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (847 cited paths all resolve; 0 line anchor(s) within their file)
+rc=0
+=== python3 scripts/check_em_dash.py --base 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_py_idiom.py
+py idiom: 265 first-party modules, 177705 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+=== python3 scripts/check_sh_idiom.py
+sh idiom: 23 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+rc=0
+=== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 901 tracked first-party file(s))
+rc=0
+=== python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
+=== python3 scripts/check_hygiene.py --check
+
+792 first-party file(s) scanned: superproject 594, protocol-processor 154, gptp-processor 44
+14 generated file(s) skipped, their fix is in their generator:
+  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  configs/generated/sweep_opts_arty.sh
+  configs/generated/sweep_opts_ax7101.sh
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  hdl/common/gen/adp_shape_defaults.svh
+  tb/avtp_packet_gen_sv/examples/top.tcl
+  tb/itests/ptp_timestamp/tb_ptp_ts_top.tcl
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 792 file(s))
+rc=0
+=== python3 scripts/check_nvm_capture.py
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree
+rc=0
+warning: unable to find all commit-graph files
+=== git diff --check base..head rc=0

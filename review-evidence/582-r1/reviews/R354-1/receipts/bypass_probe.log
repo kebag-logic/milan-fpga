@@ -1,0 +1,21 @@
+ok   SoC equals form 100e6 REFUSE
+ok   SoC repeated option, last wins 100e6 REFUSE
+ok   SoC repeated option, last wins 50e6 ACCEPT
+ok   SoC build.sh EXTRA appended after shipping argv REFUSE
+ok   SoC build.sh EXTRA system clock only (Milan domain kept) ACCEPT
+ok   SoC disabled domain at 100 MHz system REFUSE
+ok   SoC negative zero falls back to system 100 MHz REFUSE
+ok   SoC no Milan datapath, CPU on 50 MHz domain ACCEPT
+ok   SoC no Milan datapath, CPU on 100 MHz system REFUSE
+ok   SoC sub-hertz above contract REFUSE
+ok   builder string 100000000 REFUSE baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+ok   builder float 1e8 REFUSE baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+ok   builder bool true REFUSE baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+ok   builder string 50000000 ACCEPT emits --milan-clk-freq 50e6
+ok   builder float 50000000.9 (int-normalised) ACCEPT emits --milan-clk-freq 50e6
+info builder accepts omitted sys_clk_hz -> 100000000
+info configured_clock_pairs raises KeyError: 'sys_clk_hz'
+info sweep_extra (cwd=/) omitted sys_clk_hz rc=0: ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 100000000 --milan-clk-freq
+info sweep_extra (cwd=/) SWEEP_CFG=omitted-sys rc=0: ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 100000000 --milan-clk-freq
+bypass probe failures=0
+rc=0
