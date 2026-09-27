@@ -163,7 +163,7 @@ These experiments measure existing enforcement; they add no shipping validator.
 | Processor generic extent | Opaque descriptor length 576 | Length 577 | Refused for line-buffer size |
 | Processor L10 | Offset/count/length `144/8/176` | `144/9/180`, offset 143, count/extent mismatch, or one byte short | Each accepted; no semantic refusal |
 | Processor L6 | Source list `[0,1]` | List `[1,0]` | Accepted; no membership-shape refusal |
-| Processor L4 | Buffer 2126000; 47-entry size 514 | Buffer 2125999; 48-entry size 522 | Both accepted; 576-byte buffer is not the 46-format cap |
+| Processor L4 | Buffer 2126000; 46-entry size 506 | Buffer 2125999; 47-entry size 514 exceeds the 2021 cap | All accepted; missing semantic refusal remains [PP60][pp60] defence-in-depth debt |
 | Processor L1/L2/L7/L8/L9/ADP | Pristine shipping document | Shared cluster block; mismatched wire type/index; static input map; duplicate output target; two-channel cluster; non-IDENTIFY type; invalid ID; wrong counts | Each accepted; see individual receipt rows |
 
 The synthetic size boundaries establish only the named structural property.

@@ -207,7 +207,8 @@ def packer_probes(document: dict[str, Any]) -> list[dict[str, Any]]:
         ("L4", "CLASS_A cleared", lambda d: change_field(d, 5, 72, 1)),
         ("L4", "current format outside list", lambda d: change_field(d, 5, 74, 0, 8)),
         ("L4", "mixed AAF and CRF formats", lambda d: change_field(d, 5, 146, 0x041060010000BB80, 8)),
-        ("L4", "47 formats at Table 7-8 cap", lambda d: resize_list(d, 5, 47)),
+        ("L4", "46 formats at 2021 Table 7-8 cap (506 octets)", lambda d: resize_list(d, 5, 46)),
+        ("L4", "47 formats above 2021 Table 7-8 cap (514 octets)", lambda d: resize_list(d, 5, 47)),
         ("L4", "48 formats below line-buffer cap", lambda d: resize_list(d, 5, 48)),
         ("L6", "source list reversed", lambda d: document_row(d, 36).update(
             bytes=document_row(d, 36)["bytes"][:-8] + "00010000")),
