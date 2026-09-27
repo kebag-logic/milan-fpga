@@ -1,0 +1,24 @@
+target sha256 d7e994331546ebf06aeac1b6e190ed3fe139059d2e39df49056e0b23d58efb78
+baseline self-test rc=0 behave rc=0
+KILLED   self-test rc=1 behave rc=1  A1 audit checks only the first repeat group of an area
+KILLED   self-test rc=1 behave rc=1  A2 per-repeat observation audit checks the DUT only
+KILLED   self-test rc=1 behave rc=1  A3 direction audit checks the return direction only
+KILLED   self-test rc=1 behave rc=1  A4 direction audit checks the outbound direction only (control)
+KILLED   self-test rc=1 behave rc=1  A5 CRF binding audit skipped for the outbound direction
+KILLED   self-test rc=1 behave rc=1  A6 per-repeat observation audit checks listeners only
+KILLED   self-test rc=1 behave rc=0  A7 power phase-mix audit removed
+KILLED   self-test rc=1 behave rc=1  P1 soak interval hardcoded to 60 s
+KILLED   self-test rc=1 behave rc=1  P2 power total_cycles hardcoded to 200
+KILLED   self-test rc=1 behave rc=0  P3 power release_eligible ignores the idle/commit minimums
+KILLED   self-test rc=1 behave rc=0  P4 soak release_eligible always true
+KILLED   self-test rc=1 behave rc=1  P5 soak duration hardcoded
+KILLED   self-test rc=1 behave rc=0  P6 persisted items hardcoded
+KILLED   self-test rc=1 behave rc=0  P7 idle/commit sum check removed
+KILLED   self-test rc=1 behave rc=1  P8 rebind bound made inclusive
+KILLED   self-test rc=1 behave rc=1  P9 soak endpoint sample dropped
+KILLED   self-test rc=1 behave rc=1  T1 outbound CRF pair dropped
+KILLED   self-test rc=1 behave rc=1  T2 peer CRF sink counter target dropped
+KILLED   self-test rc=1 behave rc=1  T3 return AAF pairs dropped
+KILLED   self-test rc=1 behave rc=1  T4 AAF bound into the CRF sink
+KILLED   self-test rc=1 behave rc=1  T5 DUT talker counter targets dropped above index 0
+restored target sha256 d7e994331546ebf06aeac1b6e190ed3fe139059d2e39df49056e0b23d58efb78; survivors 0

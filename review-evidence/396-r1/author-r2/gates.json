@@ -1,0 +1,90 @@
+{
+  "head": "24d32d549fa7470318a93984403a92423a63fa25",
+  "cwd": "$LANES/396-release-gates",
+  "results": [
+    {
+      "name": "planner-selftest",
+      "command": "python3 -B tb/tools/torture_campaign.py --self-test",
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "planner-selftest.log"
+    },
+    {
+      "name": "plan-feature",
+      "command": "python3 -B -m behave tests/features/torture_campaign_plan.feature -f plain",
+      "rc": 0,
+      "seconds": 0.465,
+      "log": "plan-feature.log"
+    },
+    {
+      "name": "feature-status-selftest",
+      "command": "python3 -B scripts/check_feature_status.py --self-test",
+      "rc": 0,
+      "seconds": 0.665,
+      "log": "feature-status-selftest.log"
+    },
+    {
+      "name": "docs-check",
+      "command": "python3 -B scripts/docs_check.py",
+      "rc": 0,
+      "seconds": 4.222,
+      "log": "docs-check.log"
+    },
+    {
+      "name": "doc-paths",
+      "command": "python3 -B scripts/check_doc_paths.py",
+      "rc": 0,
+      "seconds": 0.064,
+      "log": "doc-paths.log"
+    },
+    {
+      "name": "em-dash",
+      "command": "python3 -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31",
+      "rc": 0,
+      "seconds": 3.025,
+      "log": "em-dash.log"
+    },
+    {
+      "name": "toc",
+      "command": "python3 -B scripts/gen_toc.py --check",
+      "rc": 0,
+      "seconds": 2.571,
+      "log": "toc.log"
+    },
+    {
+      "name": "doc-style",
+      "command": "python3 -B scripts/check_doc_style.py",
+      "rc": 0,
+      "seconds": 0.064,
+      "log": "doc-style.log"
+    },
+    {
+      "name": "python-idiom",
+      "command": "python3 -B scripts/check_py_idiom.py",
+      "rc": 0,
+      "seconds": 3.321,
+      "log": "python-idiom.log"
+    },
+    {
+      "name": "area-coverage",
+      "command": "python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power",
+      "rc": 0,
+      "seconds": 0.114,
+      "log": "area-coverage.log"
+    },
+    {
+      "name": "diff-worktree",
+      "command": "git diff --check",
+      "rc": 0,
+      "seconds": 0.016,
+      "log": "diff-worktree.log"
+    },
+    {
+      "name": "diff-base",
+      "command": "git diff ac18b50968b12efe4d15c0a06301264b35656b31 HEAD --check",
+      "rc": 0,
+      "seconds": 0.016,
+      "log": "diff-base.log"
+    }
+  ]
+}

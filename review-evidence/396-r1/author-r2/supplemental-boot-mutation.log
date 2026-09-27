@@ -1,0 +1,5 @@
+Supplemental current-contract control; public scripts remain unchanged.
+Mutation: replace the derived boot observation with a literal 60 seconds.
+tb/tools/torture_campaign.py --self-test: rc=1
+-m behave tests/features/torture_campaign_plan.feature -f plain: rc=1
+KILLED by both gates; original exported bytes restored.

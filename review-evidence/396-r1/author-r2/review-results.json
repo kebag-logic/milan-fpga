@@ -1,0 +1,55 @@
+{
+  "head": "24d32d549fa7470318a93984403a92423a63fa25",
+  "cwd": "$LANES/396-release-gates",
+  "results": [
+    {
+      "name": "internal-mutants",
+      "command": [
+        "/tmp/396-a359-docenv/bin/python3",
+        "-B",
+        "/tmp/396-a359-review/planner_mutants.py",
+        "$LANES/396-release-gates",
+        "/tmp/396-a359-internal-mutants"
+      ],
+      "rc": 0,
+      "seconds": 6.175,
+      "log": "internal-mutants.log"
+    },
+    {
+      "name": "omission-probe",
+      "command": [
+        "/tmp/396-a359-docenv/bin/python3",
+        "-B",
+        "/tmp/396-a359-review/plan_omission_probe.py",
+        "$LANES/396-release-gates"
+      ],
+      "rc": 0,
+      "seconds": 0.816,
+      "log": "omission-probe.log"
+    },
+    {
+      "name": "external-mutants",
+      "command": [
+        "/tmp/396-a359-docenv/bin/python3",
+        "-B",
+        "/tmp/396-a359-review/mutants.py",
+        "/tmp/396-a359-external-tree"
+      ],
+      "rc": 0,
+      "seconds": 17.693,
+      "log": "external-mutants.log"
+    },
+    {
+      "name": "audit-probe",
+      "command": [
+        "/tmp/396-a359-docenv/bin/python3",
+        "-B",
+        "/tmp/396-a359-review/audit_probe.py",
+        "/tmp/396-a359-external-tree"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "log": "audit-probe.log"
+    }
+  ]
+}
