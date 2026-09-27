@@ -1,0 +1,138 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 00:14:10 2026
+# Process ID         : 1806695
+# Current directory  : $PACKET/scratch/viv/probe
+# Command line       : vivado -mode batch -nojournal -notrace -log probe.log -source $PACKET/scripts/vivado_probe.tcl -tclargs $WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp $CLONE/sw/litex/timing_grade.tcl $PACKET/scratch/viv/probe
+# Log file           : $PACKET/scratch/viv/probe/probe.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 64517 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $PACKET/scripts/vivado_probe.tcl -notrace
+Command: open_checkpoint $WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1448.152 ; gain = 7.938 ; free physical = 11719 ; free virtual = 61680
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.27 . Memory (MB): peak = 1980.137 ; gain = 0.000 ; free physical = 10844 ; free virtual = 61065
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.12 . Memory (MB): peak = 2134.293 ; gain = 0.000 ; free physical = 10296 ; free virtual = 60684
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2814.371 ; gain = 11.383 ; free physical = 8941 ; free virtual = 60283
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2814.371 ; gain = 0.000 ; free physical = 8941 ; free virtual = 60283
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2814.371 ; gain = 0.000 ; free physical = 8941 ; free virtual = 60283
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2892.660 ; gain = 78.289 ; free physical = 8532 ; free virtual = 59973
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2892.660 ; gain = 0.000 ; free physical = 8531 ; free virtual = 59973
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.54 . Memory (MB): peak = 2916.660 ; gain = 24.000 ; free physical = 8774 ; free virtual = 60251
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2916.660 ; gain = 113.672 ; free physical = 8776 ; free virtual = 60256
+Restored from archive | CPU: 3.560000 secs | Memory: 85.994194 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2916.660 ; gain = 113.672 ; free physical = 8774 ; free virtual = 60254
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2945.715 ; gain = 0.000 ; free physical = 8623 ; free virtual = 60190
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:26 ; elapsed = 00:00:20 . Memory (MB): peak = 2949.750 ; gain = 1511.535 ; free physical = 8609 ; free virtual = 60199
+get_timing_paths: Time (s): cpu = 00:00:29 ; elapsed = 00:00:06 . Memory (MB): peak = 3127.434 ; gain = 177.684 ; free physical = 5959 ; free virtual = 58283
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 20 -nworst 1 -delay_type max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 20 -nworst 1 -delay_type max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+P1 grade=commercial tj=0 tool-reports: Device Grade = commercial | Junction Temp = 0.0 (C)
+P1 grade=commercial tj=0 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=commercial tj=0 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=commercial tj=85 tool-reports: Device Grade = commercial | Junction Temp = 85.0 (C)
+P1 grade=commercial tj=85 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=commercial tj=85 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=commercial tj=25 tool-reports: Device Grade = commercial | Junction Temp = 25.0 (C)
+P1 grade=commercial tj=25 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=commercial tj=25 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=industrial tj=-40 tool-reports: Device Grade = industrial | Junction Temp = -40.0 (C)
+P1 grade=industrial tj=-40 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=industrial tj=-40 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=industrial tj=100 tool-reports: Device Grade = industrial | Junction Temp = 100.0 (C)
+P1 grade=industrial tj=100 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=industrial tj=100 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=extended tj=100 tool-reports: Device Grade = extended | Junction Temp = 100.0 (C)
+P1 grade=extended tj=100 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=extended tj=100 corner=Fast WNS=1.429 WHS=0.036
+P1 both-corners commercial 85 WNS=0.123 WHS=0.036
+P2 grade-industrial refused=1 msg=TIMING-GRADE operating conditions changed: Device Grade = industrial
+P2 tj-25 refused=1 msg=TIMING-GRADE operating conditions changed: Device Grade = commercial
+P2 tj-0 refused=1 msg=TIMING-GRADE operating conditions changed: Device Grade = commercial
+P2 fast-max-only refused=1 msg=TIMING-GRADE requires setup and hold at Fast: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+P2 slow-min-only refused=1 msg=TIMING-GRADE requires setup and hold at Slow: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+P2 fast-none refused=1 msg=TIMING-GRADE requires setup and hold at Fast: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+P2 restored-good refused=0
+P2 report_config_timing: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved. | --------------------------------------------------------------------------------------------------------------------------------------------- | | Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026 | | Date         : Mon Sep 28 00:15:32 2026 | | Host         : archlinux running 64-bit unknown | | Command      : report_config_timing -return_string | | Design       : alinx_ax7101 | | Device       : 7a100t-fgg484 | | Speed File   : -2  PRODUCTION 1.23 2018-06-13 | | Design State : Physopt postRoute | --------------------------------------------------------------------------------------------------------------------------------------------- |  | Timing Configuration Report |  |   Enable Multi Corner Analysis               :  Yes |   Enable Pessimism Removal                   :  Yes |   Pessimism Removal Resolution               :  Nearest Common Node |   Enable Input Delay Default Clock           :  No |   Enable Preset / Clear Arcs                 :  No |   Disable Flight Delays                      :  No |   Ignore I/O Paths                           :  No |   Timing Early Launch at Borrowing Latches   :  No |   Borrow Time for Max Delay Exceptions       :  Yes |   Merge Timing Exceptions                    :  Yes |   Inter-SLR Compensation                     :  Conservative |  |   Corner  Analyze    Analyze     |   Name    Max Paths  Min Paths   |   ------  ---------  ---------   |   Slow    Yes        Yes         |   Fast    Yes        Yes         |  | 
+P3 clocks: clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+P3 crg_clkout0 matches: 0
+P3 mr_ff cells: 210
+P3 quasi_static cells: 112
+P3 mr_ff false paths still reported after reset: 5
+P3 reset_path mr_ff rc=1 invalid command name "reset_path"
+P3 Slow eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst=UNCONSTRAINED exc=False Path start=milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C end=impl_xilinxmultiregimpl140_reg/D
+P3 Slow milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst=UNCONSTRAINED exc=False Path start=milansoc_phy_reset_storage_reg/C end=FDPE_14/PRE
+P3 Slow eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=2.560 req=8.000 datapath_max=5.373 datapath_min=4.746 exc=MaxDelay Path 8.000ns -datapath_only
+P3 Slow milansoc_crg_clkout1->eth_clocks0_rx paths=6 worst_slack=7.066 req=8.000 datapath_max=0.875 datapath_min=0.640 exc=MaxDelay Path 8.000ns -datapath_only
+P3 Fast eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst=UNCONSTRAINED exc=False Path start=milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C end=impl_xilinxmultiregimpl140_reg/D
+P3 Fast milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst=UNCONSTRAINED exc=False Path start=milansoc_phy_reset_storage_reg/C end=FDPE_14/PRE
+P3 Fast eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=4.823 req=8.000 datapath_max=3.092 datapath_min=2.719 exc=MaxDelay Path 8.000ns -datapath_only
+P3 Fast milansoc_crg_clkout1->eth_clocks0_rx paths=6 worst_slack=7.538 req=8.000 datapath_max=0.432 datapath_min=0.310 exc=MaxDelay Path 8.000ns -datapath_only
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 00:15:44 2026...

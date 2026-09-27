@@ -1,0 +1,195 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Mon Sep 28 00:18:39 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source help.tcl -notrace
+set_operating_conditions
+
+Description: 
+Set operating conditions for power estimation
+
+Syntax: 
+set_operating_conditions  [-voltage <args>] [-grade <arg>] [-process <arg>]
+                          [-junction_temp <arg>] [-ambient_temp <arg>]
+                          [-thetaja <arg>] [-thetasa <arg>] [-airflow <arg>]
+                          [-heatsink <arg>] [-thetajb <arg>] [-board <arg>]
+                          [-board_temp <arg>] [-board_layers <arg>]
+                          [-design_power_budget <arg>]
+                          [-supply_current_budget <args>] [-quiet] [-verbose]
+
+Usage: 
+  Name                      Description
+  -------------------------------------
+  [-voltage]                List of voltage pairs, e.g., {name value}.  
+                            Supported voltage supplies vary by family.
+  [-grade]                  Temperature grade.  Supported values vary by 
+                            family.
+                            Default: commercial
+  [-process]                Process data: typical or maximum
+                            Default: typical
+  [-junction_temp]          Junction Temperature (C): auto|degC
+                            Default: auto
+  [-ambient_temp]           Ambient Temperature (C): default|degC
+                            Default: default
+  [-thetaja]                ThetaJA (C/W): auto|degC/W
+                            Default: auto
+  [-thetasa]                ThetaSA (C/W): auto|degC/W
+                            Default: auto
+  [-airflow]                Airflow (LFM): 0 to 750
+                            Default: varies by family
+  [-heatsink]               Dimensions of heatsink: none, low, medium, high, 
+                            custom
+                            Default: medium
+  [-thetajb]                ThetaJB (C/W): auto|degC/W
+                            Default: auto
+  [-board]                  Board type: jedec, small, medium, large, custom
+                            Default: medium
+  [-board_temp]             Board Temperature degC
+  [-board_layers]           Board layers: 4to7, 8to11, 12to15, 16+
+                            Default: 8to11
+  [-design_power_budget]    Design Power Budget (W)
+                            Default: Unspecified
+  [-supply_current_budget]  Sets list of supply current budget 'name value' 
+                            pairs.  Supported voltage supplies vary by 
+                            family.
+  [-quiet]                  Ignore command errors
+  [-verbose]                Suspend message limits during command execution
+
+Categories: 
+SDC, XDC, Power
+
+Description:
+
+  Sets the real-world operating conditions that are used when performing
+  analysis of the design. The environmental operating conditions of the
+  device are used for power analysis when running the report_power command.
+
+  Note: This command operates silently and does not return direct feedback of
+  its operation.
+
+  Operating conditions can be restored to their default values with the use
+  of the reset_operating_conditions command.
+
+  Current operating conditions can be reported with the
+  report_operating_conditions command.
+
+Arguments:
+
+  -voltage <arg> - (Optional) List of voltage supply names and their values
+  specified in pairs. Supported voltage supply names and their values vary by
+  family. For example if a family supports a voltage supply named Vccint, you
+  can set the supply voltage to 0.8 with the following argument and value:
+  -voltage {Vccint 0.8}
+
+  Note: If you specify a voltage that is outside the valid operating range
+  for the target device, the set_operating_conditions command can change the
+  device speedgrade to match the specified voltage. This can have an affect
+  on timing analysis. For UltraScale devices, when changing the Vccint
+  voltage, the Vivado tool will automatically change the device to or from a
+  low-voltage device as indicated by the voltage level specified.
+
+  -grade <arg> - (Optional) The temperature grade of the target device.
+  Supported values vary by family. The default value is "commercial".
+
+  -process <arg> - (Optional) The manufacturing process characteristics to
+  assume. Valid values are "typical" or "maximum". The default value is
+  "typical".
+
+  -junction_temp <arg> - (Optional) The device junction temperature used for
+  modeling. Valid values are "auto" or an actual temperature specified in
+  degrees C. The default value is "auto".
+
+  -ambient_temp <arg> - (Optional) The environment ambient temperature in
+  degrees C. The default setting is "default".
+
+  -thetaja <arg> - (Optional) The Theta-JA thermal resistance used for
+  modeling in degrees C/W. The default setting is "auto".
+
+  -thetasa <arg> - (Optional) The Theta-SA thermal resistance used during
+  modeling in degrees C/W. The default setting is "auto".
+
+  -airflow <[0:750]> - (Optional) Linear Feet Per Minute (LFM) airflow to be
+  used for modeling. The default setting varies by device family.
+
+  -heatsink <arg> - (Optional) The heatsink profile to be used during
+  modeling. Valid values are: none, low, medium, high, custom. The default
+  setting is "medium".
+
+  -thetajb <arg> - (Optional) The Theta-JB thermal resistance used for
+  modeling in degrees C/W. The default setting is "auto".
+
+  -board <arg> - (Optional) The board size to be used for modeling. The valid
+  values are: jedec, small, medium, large, custom. The default value is
+  "medium".
+
+  -board_temp <arg> - (Optional) The board temperature in degrees Centigrade
+  to be used for modeling.
+
+  -board_layers <arg> - (Optional) The number of board layers to be used for
+  modeling. Valid values are: "4to7" for boards with 4 to 7 layers, "8to11"
+  for boards with 8 to 11 layers, "12to15" for boards with 12 to 15 layers,
+  and "16+" for boards with 16 or more layers. The default setting is
+  "12to15".
+
+  -design_power_budget <arg> - (Optional) The design power budget in Watts.
+  This value is used by the report_power command to report the difference
+  between the calculated on-chip power and the design power budget. When
+  unspecified, the difference is not reported. The default is "unspecified".
+
+  -supply_current_budget <arg> - (Optional) List of voltage supply names and
+  their current budget values specified in pairs. Supported voltage supply
+  names vary by family. For example if a family supports a voltage supply
+  named Vccint, you can set the supply current budget to 10 A with the
+  following argument and value: -supply_current_budget {Vccint 10}
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example specifies an industrial grade device with an ambient
+  operating temperature of 75 degrees C:
+
+    set_operating_conditions -grade industrial -ambient_temp 75 
+    
+
+  The following example sets the supply voltage Vccaux to a value of 1.9:
+
+    set_operating_conditions  -voltage {Vccaux 1.89} 
+    
+
+  The following example sets the manufacturing process corner to maximum:
+
+    set_operating_conditions -process maximum 
+    
+
+  The following example sets the manufacturing process corner to maximum and
+  the voltage supply Vccint to 0.875:
+
+    set_operating_conditions -process maximum -voltage {Vccint 0.875} 
+    
+
+See Also:
+
+   *  report_operating_conditions
+   *  report_power
+   *  reset_operating_conditions
+
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 00:18:42 2026...

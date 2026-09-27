@@ -1,0 +1,381 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Sep 28 00:16:56 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -from [get_clocks eth_clocks0_rx] -to [get_clocks milansoc_crg_clkout0] -max_paths 20 -nworst 1 -file $PACKET/scratch/viv/crossings/eth_to_sys_bounded.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             5.746ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl140_reg/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        2.179ns  (logic 0.379ns (17.390%)  route 1.800ns (82.610%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X0Y119                                      0.000     0.000 r  milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C
+    SLICE_X0Y119         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/Q
+                         net (fo=2, routed)           1.800     2.179    milansoc_liteethmaccore_pulsesynchronizer0_toggle_i
+    SLICE_X23Y150        FDRE                                         r  impl_xilinxmultiregimpl140_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X23Y150        FDRE (Setup_fdre_C_D)       -0.075     7.925    impl_xilinxmultiregimpl140_reg
+  -------------------------------------------------------------------
+                         required time                          7.925    <hidden>
+                         arrival time                          -2.179    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  5.746    <hidden>
+
+Slack (MET) :             6.776ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl160_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        1.017ns  (logic 0.348ns (34.231%)  route 0.669ns (65.769%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y44                                      0.000     0.000 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[1]/C
+    SLICE_X16Y44         FDRE (Prop_fdre_C_Q)         0.348     0.348 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[1]/Q
+                         net (fo=2, routed)           0.669     1.017    milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q[1]
+    SLICE_X18Y44         FDRE                                         r  impl_xilinxmultiregimpl160_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X18Y44         FDRE (Setup_fdre_C_D)       -0.207     7.793    impl_xilinxmultiregimpl160_reg[1]
+  -------------------------------------------------------------------
+                         required time                          7.793    <hidden>
+                         arrival time                          -1.017    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  6.776    <hidden>
+
+Slack (MET) :             6.964ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl160_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.821ns  (logic 0.348ns (42.399%)  route 0.473ns (57.601%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y44                                      0.000     0.000 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[2]/C
+    SLICE_X16Y44         FDRE (Prop_fdre_C_Q)         0.348     0.348 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[2]/Q
+                         net (fo=2, routed)           0.473     0.821    milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q[2]
+    SLICE_X18Y44         FDRE                                         r  impl_xilinxmultiregimpl160_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X18Y44         FDRE (Setup_fdre_C_D)       -0.215     7.785    impl_xilinxmultiregimpl160_reg[2]
+  -------------------------------------------------------------------
+                         required time                          7.785    <hidden>
+                         arrival time                          -0.821    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  6.964    <hidden>
+
+Slack (MET) :             6.987ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl130_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.848ns  (logic 0.348ns (41.039%)  route 0.500ns (58.961%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y78                                      0.000     0.000 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[3]/C
+    SLICE_X13Y78         FDRE (Prop_fdre_C_Q)         0.348     0.348 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[3]/Q
+                         net (fo=2, routed)           0.500     0.848    milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q[3]
+    SLICE_X10Y78         FDRE                                         r  impl_xilinxmultiregimpl130_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X10Y78         FDRE (Setup_fdre_C_D)       -0.165     7.835    impl_xilinxmultiregimpl130_reg[3]
+  -------------------------------------------------------------------
+                         required time                          7.835    <hidden>
+                         arrival time                          -0.848    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  6.987    <hidden>
+
+Slack (MET) :             6.988ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[4]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl160_reg[4]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.805ns  (logic 0.348ns (43.206%)  route 0.457ns (56.794%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y46                                      0.000     0.000 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[4]/C
+    SLICE_X16Y46         FDRE (Prop_fdre_C_Q)         0.348     0.348 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[4]/Q
+                         net (fo=2, routed)           0.457     0.805    milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q[4]
+    SLICE_X19Y46         FDRE                                         r  impl_xilinxmultiregimpl160_reg[4]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X19Y46         FDRE (Setup_fdre_C_D)       -0.207     7.793    impl_xilinxmultiregimpl160_reg[4]
+  -------------------------------------------------------------------
+                         required time                          7.793    <hidden>
+                         arrival time                          -0.805    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  6.988    <hidden>
+
+Slack (MET) :             7.044ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl160_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.754ns  (logic 0.398ns (52.806%)  route 0.356ns (47.194%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X14Y45                                      0.000     0.000 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[0]/C
+    SLICE_X14Y45         FDRE (Prop_fdre_C_Q)         0.398     0.398 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[0]/Q
+                         net (fo=2, routed)           0.356     0.754    milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q[0]
+    SLICE_X19Y46         FDRE                                         r  impl_xilinxmultiregimpl160_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X19Y46         FDRE (Setup_fdre_C_D)       -0.202     7.798    impl_xilinxmultiregimpl160_reg[0]
+  -------------------------------------------------------------------
+                         required time                          7.798    <hidden>
+                         arrival time                          -0.754    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.044    <hidden>
+
+Slack (MET) :             7.061ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[5]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl130_reg[5]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.908ns  (logic 0.379ns (41.724%)  route 0.529ns (58.276%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y78                                      0.000     0.000 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[5]/C
+    SLICE_X13Y78         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[5]/Q
+                         net (fo=2, routed)           0.529     0.908    milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q[5]
+    SLICE_X10Y78         FDRE                                         r  impl_xilinxmultiregimpl130_reg[5]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X10Y78         FDRE (Setup_fdre_C_D)       -0.031     7.969    impl_xilinxmultiregimpl130_reg[5]
+  -------------------------------------------------------------------
+                         required time                          7.969    <hidden>
+                         arrival time                          -0.908    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.061    <hidden>
+
+Slack (MET) :             7.078ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl130_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.712ns  (logic 0.348ns (48.885%)  route 0.364ns (51.115%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y77                                      0.000     0.000 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[1]/C
+    SLICE_X13Y77         FDRE (Prop_fdre_C_Q)         0.348     0.348 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[1]/Q
+                         net (fo=2, routed)           0.364     0.712    milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q[1]
+    SLICE_X13Y79         FDRE                                         r  impl_xilinxmultiregimpl130_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X13Y79         FDRE (Setup_fdre_C_D)       -0.210     7.790    impl_xilinxmultiregimpl130_reg[1]
+  -------------------------------------------------------------------
+                         required time                          7.790    <hidden>
+                         arrival time                          -0.712    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.078    <hidden>
+
+Slack (MET) :             7.153ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[4]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl130_reg[4]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.772ns  (logic 0.379ns (49.110%)  route 0.393ns (50.890%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y78                                      0.000     0.000 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[4]/C
+    SLICE_X13Y78         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[4]/Q
+                         net (fo=2, routed)           0.393     0.772    milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q[4]
+    SLICE_X9Y78          FDRE                                         r  impl_xilinxmultiregimpl130_reg[4]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X9Y78          FDRE (Setup_fdre_C_D)       -0.075     7.925    impl_xilinxmultiregimpl130_reg[4]
+  -------------------------------------------------------------------
+                         required time                          7.925    <hidden>
+                         arrival time                          -0.772    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.153    <hidden>
+
+Slack (MET) :             7.175ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl160_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.752ns  (logic 0.379ns (50.395%)  route 0.373ns (49.605%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y44                                      0.000     0.000 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[3]/C
+    SLICE_X16Y44         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[3]/Q
+                         net (fo=5, routed)           0.373     0.752    milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q[3]
+    SLICE_X19Y46         FDRE                                         r  impl_xilinxmultiregimpl160_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X19Y46         FDRE (Setup_fdre_C_D)       -0.073     7.927    impl_xilinxmultiregimpl160_reg[3]
+  -------------------------------------------------------------------
+                         required time                          7.927    <hidden>
+                         arrival time                          -0.752    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.175    <hidden>
+
+Slack (MET) :             7.205ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl130_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.762ns  (logic 0.379ns (49.757%)  route 0.383ns (50.243%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y78                                      0.000     0.000 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C
+    SLICE_X13Y78         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/Q
+                         net (fo=2, routed)           0.383     0.762    milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q[0]
+    SLICE_X10Y78         FDRE                                         r  impl_xilinxmultiregimpl130_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X10Y78         FDRE (Setup_fdre_C_D)       -0.033     7.967    impl_xilinxmultiregimpl130_reg[0]
+  -------------------------------------------------------------------
+                         required time                          7.967    <hidden>
+                         arrival time                          -0.762    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.205    <hidden>
+
+Slack (MET) :             7.306ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[5]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl160_reg[5]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.622ns  (logic 0.379ns (60.943%)  route 0.243ns (39.057%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X16Y46                                      0.000     0.000 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[5]/C
+    SLICE_X16Y46         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[5]/Q
+                         net (fo=2, routed)           0.243     0.622    milansoc_liteethmaccore_rx_cdc_cdc_graycounter0_q[5]
+    SLICE_X19Y46         FDRE                                         r  impl_xilinxmultiregimpl160_reg[5]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X19Y46         FDRE (Setup_fdre_C_D)       -0.072     7.928    impl_xilinxmultiregimpl160_reg[5]
+  -------------------------------------------------------------------
+                         required time                          7.928    <hidden>
+                         arrival time                          -0.622    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.306    <hidden>
+
+Slack (MET) :             7.320ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            impl_xilinxmultiregimpl130_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.651ns  (logic 0.379ns (58.234%)  route 0.272ns (41.766%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y78                                      0.000     0.000 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C
+    SLICE_X13Y78         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/Q
+                         net (fo=2, routed)           0.272     0.651    milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q[2]
+    SLICE_X10Y78         FDRE                                         r  impl_xilinxmultiregimpl130_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X10Y78         FDRE (Setup_fdre_C_D)       -0.029     7.971    impl_xilinxmultiregimpl130_reg[2]
+  -------------------------------------------------------------------
+                         required time                          7.971    <hidden>
+                         arrival time                          -0.651    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.320    <hidden>
+
+
+
+

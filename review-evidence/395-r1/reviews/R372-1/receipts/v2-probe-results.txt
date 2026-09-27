@@ -1,0 +1,41 @@
+P1 grade=commercial tj=0 tool-reports: Device Grade = commercial | Junction Temp = 0.0 (C)
+P1 grade=commercial tj=0 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=commercial tj=0 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=commercial tj=85 tool-reports: Device Grade = commercial | Junction Temp = 85.0 (C)
+P1 grade=commercial tj=85 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=commercial tj=85 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=commercial tj=25 tool-reports: Device Grade = commercial | Junction Temp = 25.0 (C)
+P1 grade=commercial tj=25 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=commercial tj=25 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=industrial tj=-40 tool-reports: Device Grade = industrial | Junction Temp = -40.0 (C)
+P1 grade=industrial tj=-40 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=industrial tj=-40 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=industrial tj=100 tool-reports: Device Grade = industrial | Junction Temp = 100.0 (C)
+P1 grade=industrial tj=100 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=industrial tj=100 corner=Fast WNS=1.429 WHS=0.036
+P1 grade=extended tj=100 tool-reports: Device Grade = extended | Junction Temp = 100.0 (C)
+P1 grade=extended tj=100 corner=Slow WNS=0.123 WHS=0.101
+P1 grade=extended tj=100 corner=Fast WNS=1.429 WHS=0.036
+P1 both-corners commercial 85 WNS=0.123 WHS=0.036
+P2 grade-industrial refused=1 msg=TIMING-GRADE operating conditions changed: Device Grade = industrial
+P2 tj-25 refused=1 msg=TIMING-GRADE operating conditions changed: Device Grade = commercial
+P2 tj-0 refused=1 msg=TIMING-GRADE operating conditions changed: Device Grade = commercial
+P2 fast-max-only refused=1 msg=TIMING-GRADE requires setup and hold at Fast: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+P2 slow-min-only refused=1 msg=TIMING-GRADE requires setup and hold at Slow: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+P2 fast-none refused=1 msg=TIMING-GRADE requires setup and hold at Fast: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+P2 restored-good refused=0
+P2 report_config_timing: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved. | --------------------------------------------------------------------------------------------------------------------------------------------- | | Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026 | | Date         : Mon Sep 28 00:15:32 2026 | | Host         : archlinux running 64-bit unknown | | Command      : report_config_timing -return_string | | Design       : alinx_ax7101 | | Device       : 7a100t-fgg484 | | Speed File   : -2  PRODUCTION 1.23 2018-06-13 | | Design State : Physopt postRoute | --------------------------------------------------------------------------------------------------------------------------------------------- |  | Timing Configuration Report |  |   Enable Multi Corner Analysis               :  Yes |   Enable Pessimism Removal                   :  Yes |   Pessimism Removal Resolution               :  Nearest Common Node |   Enable Input Delay Default Clock           :  No |   Enable Preset / Clear Arcs                 :  No |   Disable Flight Delays                      :  No |   Ignore I/O Paths                           :  No |   Timing Early Launch at Borrowing Latches   :  No |   Borrow Time for Max Delay Exceptions       :  Yes |   Merge Timing Exceptions                    :  Yes |   Inter-SLR Compensation                     :  Conservative |  |   Corner  Analyze    Analyze     |   Name    Max Paths  Min Paths   |   ------  ---------  ---------   |   Slow    Yes        Yes         |   Fast    Yes        Yes         |  | 
+P3 clocks: clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+P3 crg_clkout0 matches: 0
+P3 mr_ff cells: 210
+P3 quasi_static cells: 112
+P3 mr_ff false paths still reported after reset: 5
+P3 reset_path mr_ff rc=1 invalid command name "reset_path"
+P3 Slow eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst=UNCONSTRAINED exc=False Path start=milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C end=impl_xilinxmultiregimpl140_reg/D
+P3 Slow milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst=UNCONSTRAINED exc=False Path start=milansoc_phy_reset_storage_reg/C end=FDPE_14/PRE
+P3 Slow eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=2.560 req=8.000 datapath_max=5.373 datapath_min=4.746 exc=MaxDelay Path 8.000ns -datapath_only
+P3 Slow milansoc_crg_clkout1->eth_clocks0_rx paths=6 worst_slack=7.066 req=8.000 datapath_max=0.875 datapath_min=0.640 exc=MaxDelay Path 8.000ns -datapath_only
+P3 Fast eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst=UNCONSTRAINED exc=False Path start=milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C end=impl_xilinxmultiregimpl140_reg/D
+P3 Fast milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst=UNCONSTRAINED exc=False Path start=milansoc_phy_reset_storage_reg/C end=FDPE_14/PRE
+P3 Fast eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=4.823 req=8.000 datapath_max=3.092 datapath_min=2.719 exc=MaxDelay Path 8.000ns -datapath_only
+P3 Fast milansoc_crg_clkout1->eth_clocks0_rx paths=6 worst_slack=7.538 req=8.000 datapath_max=0.432 datapath_min=0.310 exc=MaxDelay Path 8.000ns -datapath_only

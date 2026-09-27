@@ -1,0 +1,8 @@
+r372-1-395: fast-hold-off: hook rc=1 stderr='TIMING-GRADE requires setup and hold at Fast: Slow Yes Yes\nFast Yes No'
+r372-1-395: slow-off: hook rc=1 stderr='TIMING-GRADE requires setup and hold at Slow: Slow No No\nFast Yes Yes'
+r372-1-395: grade-industrial: hook rc=1 stderr='TIMING-GRADE operating conditions changed: Device Grade = industrial\nJunction Temp = 85 (C'
+r372-1-395: tj-25: hook rc=1 stderr='TIMING-GRADE operating conditions changed: Device Grade = commercial\nJunction Temp = 25 (C'
+reports-no-leading-check: fast-hold-off: hook rc=0 stderr=''
+reports-no-leading-check: slow-off: hook rc=0 stderr=''
+reports-no-leading-check: grade-industrial: hook rc=1 stderr='TIMING-GRADE operating conditions changed: Device Grade = industrial\nJunction Temp = 85 (C'
+reports-no-leading-check: tj-25: hook rc=0 stderr=''
