@@ -1,0 +1,25 @@
+## script identity (round-1 packet copy, this packet copy)
+0f418e0591a491ac2ec1dc1881689061e0984a0178934d5013dd68ea3f360c22  <R350-1-PKT>/scripts/normalized_verilog.py
+0f418e0591a491ac2ec1dc1881689061e0984a0178934d5013dd68ea3f360c22  scripts/normalized_verilog.py
+## committed at head
+warning: unable to find all commit-graph files
+committed_sha256=38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575
+equal=True
+## export A: checkout root <SCRATCH>/rootA-7q/milan-checkout, token $REPO
+reviewer_root_occurrences=3
+normalized_sha256=38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575
+## export B: checkout root <SCRATCH>/zz-second-root/b/deeper/mf, token $REPO
+reviewer_root_occurrences=3
+normalized_sha256=38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575
+## raw file hashes differ (roots embedded)
+dee4a7db2d6405f4b8573dca0cfb50f444e45fd7ed27da86d3431a202b32bb65  <SCRATCH>/workA-exports/w1/ax8x8/gateware/alinx_ax7101.v
+047481a5b29d002f7306739c122756d375303cc81a0f3630ed6e8e432edd38d3  <SCRATCH>/other-work/B_long_named_build_dir/ax8x8/gateware/alinx_ax7101.v
+## negative control: author's round-1 lane root instead of token (reproduces the superseded digest)
+reviewer_root_occurrences=3
+normalized_sha256=3d371f2da7fd185b474e97681a337b061028afd9e73b0bd11a031832e06d22b1
+## negative control: reviewer's own root left in place (identity substitution)
+reviewer_root_occurrences=3
+normalized_sha256=c7e1c6c03cf99721da7e290bb1bbc90bc31b0a3faffd15dcfc119b82313235ae
+## negative control: wrong token spelling ${REPO}
+reviewer_root_occurrences=3
+normalized_sha256=7d3f40a5e3ca83e354a8990038c95ea6c821691768f4144024d8729a0e2be84c

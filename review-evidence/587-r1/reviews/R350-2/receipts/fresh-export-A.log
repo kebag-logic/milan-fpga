@@ -1,0 +1,21 @@
+fresh_export.sh rc=0 (recipe redirects, ax8x8 --dry-run preview, export without --build; redirects removed afterwards)
+## dry-run exec line
+ cd <scratch>/rootA-7q/milan-checkout/sw/litex && source <home>/Xilinx2/2026.1/Vivado/settings64.sh && export PATH=<litex-env>/venv/bin:$PATH && export PYTHONHASHSEED=0 && exec python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <scratch>/rootA-7q/milan-checkout/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive AltSpreadLogic_high --vivado-max-threads 32 --build --output-dir <litex-env>/work/build_ax8x8_09271542
+## clock argument
+--milan-clk-freq 50e6
+## elaboration log tail
+INFO:SoC:Initializing ROM rom with contents (Size: 0xcacc).
+INFO:SoC:Auto-Resizing ROM rom from 0x20000 to 0xcacc.
+[milan] entity model (18288 B) -> <scratch>/workA-exports/w1/ax8x8/aem_desc.bin @ 0x7f700000
+[milan] flash-boot layout (baremetal) -> <scratch>/workA-exports/w1/ax8x8/flashboot_layout.json
+## generated gateware (bytes sha256)
+alinx_ax7101.v 1764815 dee4a7db2d6405f4b8573dca0cfb50f444e45fd7ed27da86d3431a202b32bb65
+alinx_ax7101.tcl 36507 1684bd4f0ce42bb072d0938758b44704ac15a39bbb6d3642f06e1664eeb1ad6c
+alinx_ax7101.xdc 21076 28fae38e8ef8e1d4288289943424d023f04e996bcc4a9058f4e36e6214ce71a1
+alinx_ax7101_rom.init 116811 c05e5c24ed202eee530f6dcd44585eafca46e74d94d82865bbf404e03cd964dd
+alinx_ax7101_sram.init 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+alinx_ax7101_mem.init 147 d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335
+## root-bearing parameters in generated top
+30876:	.GPTP_UCODE_HEX_P      ("<scratch>/rootA-7q/milan-checkout/sw/builder/out/endstation_ax7101_8x8/gptp_ucode.hex"),
+30884:	.PP_TROM_HEX_P         ("<scratch>/rootA-7q/milan-checkout/configs/generated/ltn_rom.hex"),
+30885:	.PP_UCODE_HEX_P        ("<scratch>/rootA-7q/milan-checkout/configs/generated/ucode.hex"),

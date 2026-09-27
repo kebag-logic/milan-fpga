@@ -1,0 +1,20 @@
+## control: unmodified fresh checkout at head read as worktree
+RESULT failures=0
+rc=0
+## mutant 1: one historical data cell 68,136 -> 68,137 on the tagged Measurements row
+CELL-CHANGE ['Vivado integrated synthesis, whole 8x8 SoC, historical 100 MHz', '68,136', '70,835', '80', '29', '11', '3,916', '-11.331'] -> ['Vivado integrated synthesis, whole 8x8 SoC, historical 100 MHz, pin `990f9652`', '68,137', '70,835', '80', '29', '11', '3,916', '-11.331']
+FAIL data cells unchanged in every table row (label changes=14)
+RESULT failures=1
+rc=1
+## mutant 2: prose figure 4,736 -> 4,737
+FAIL no prose numeric token lost (lost={'4,736': 1})
+FAIL added prose numeric tokens are clock/pin/issue tags only (unexpected=['4,737'])
+RESULT failures=2
+rc=1
+## mutant 3: manifest metric default whole LUT 68047 -> 68048
+INFO json differing paths: ['$.export_comparison.normalization', '$.export_comparison.normalized_verilog_sha256', '$.measurements.default.metrics.alinx_ax7101.LUT']
+FAIL json differs only in the digest and its rule
+RESULT failures=1
+rc=1
+## restored scratch checkout
+0

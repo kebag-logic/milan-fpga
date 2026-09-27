@@ -1,0 +1,40 @@
+OK   table row count old=138 new=138
+LABEL 'Input' -> 'Original #231 input'
+LABEL 'Product configuration' -> 'Original #231 product configuration'
+LABEL '`endstation_ax7101_8x8`, historical #231' -> '`endstation_ax7101_8x8`, historical #231, pin `990f9652`'
+LABEL 'Vivado OOC, product 8x8, historical 100 MHz' -> 'Vivado OOC, product 8x8, historical 100 MHz, pin `990f9652`'
+LABEL 'Vivado integrated synthesis, whole 8x8 SoC, historical 100 MHz' -> 'Vivado integrated synthesis, whole 8x8 SoC, historical 100 MHz, pin `990f9652`'
+LABEL '8x8 synthesis, historical 100 MHz' -> '8x8 synthesis, historical 100 MHz, pin `990f9652`'
+HEADER-CHANGE 'Wrapper parameter': ['Historical 100 MHz', 'Declared 50 MHz'] -> ['Historical 100 MHz, pin `990f9652`', 'Declared 50 MHz, pin `0922e434`']
+    header numeric tokens old=['100', '50'] new=['100', '990', '9652', '50', '0922', '434']
+LABEL 'Historical 100 MHz synthesis' -> 'Historical 100 MHz synthesis, pin `990f9652`'
+LABEL '8x8 synthesis, historical 100 MHz' -> '8x8 synthesis, historical 100 MHz, pin `990f9652`'
+LABEL '8x8, historical 100 MHz `u_pp/u_aecp/u_dyn`' -> '8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_aecp/u_dyn`'
+LABEL '8x8, historical 100 MHz `u_pp/u_aecp`' -> '8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_aecp`'
+LABEL '8x8, historical 100 MHz `u_pp/u_srp`' -> '8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_srp`'
+LABEL '8x8, historical 100 MHz `u_pp/u_notify`' -> '8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_notify`'
+LABEL '8x8, historical 100 MHz `wrapper`' -> '8x8, historical 100 MHz, pin `990f9652`, `wrapper`'
+LABEL '8x8' -> '8x8, historical 100 MHz timers, pin `990f9652`'
+HEADER-CHANGE 'Contribution to Yosys minus Vivado LUT total': ['1x1', '8x8'] -> ['1x1', 'Historical 8x8, 100 MHz timers, pin `990f9652`']
+    header numeric tokens old=['1', '1', '8', '8'] new=['1', '1', '8', '8,', '100', '990', '9652']
+HEADER-CHANGE 'Raw logic contribution': ['Hierarchical Yosys 1x1', 'Raw Vivado 1x1', 'Difference 1x1', 'Hierarchical Yosys 8x8', 'Raw Vivado 8x8', 'Difference 8x8'] -> ['Hierarchical Yosys 1x1', 'Raw Vivado 1x1', 'Difference 1x1', 'Hierarchical Yosys 8x8, historical 100 MHz timers, pin `990f9652`', 'Raw Vivado 8x8, historical 100 MHz, pin `990f9652`', 'Difference 8x8']
+    header numeric tokens old=['1', '1', '1', '1', '1', '1', '8', '8', '8', '8', '8', '8'] new=['1', '1', '1', '1', '1', '1', '8', '8,', '100', '990', '9652', '8', '8,', '100', '990', '9652', '8', '8']
+HEADER-CHANGE 'Primitive': ['1x1', '8x8'] -> ['1x1', 'Historical 8x8, 100 MHz timers, pin `990f9652`']
+    header numeric tokens old=['1', '1', '8', '8'] new=['1', '1', '8', '8,', '100', '990', '9652']
+HEADER-CHANGE 'Instance': ['Vivado tiles 1x1 / 8x8', 'Yosys tiles 1x1 / 8x8'] -> ['Historical Vivado tiles 1x1 / 8x8, 100 MHz OOC, pin `990f9652`', 'Historical Yosys tiles 1x1 / 8x8, 50/100 MHz timers, pin `990f9652`']
+    header numeric tokens old=['1', '1', '8', '8', '1', '1', '8', '8'] new=['1', '1', '8', '8,', '100', '990', '9652', '1', '1', '8', '8,', '50', '100', '990', '9652']
+OK   data cells unchanged in every table row (label changes=14)
+OK   no prose numeric token lost (lost={})
+INFO prose numeric tokens added: {'231': 7, '587': 1, '8': 12, '50': 6, '100': 14, '1': 2}
+OK   added prose numeric tokens are clock/pin/issue tags only (unexpected=[])
+INFO json differing paths: ['$.export_comparison.normalization', '$.export_comparison.normalized_verilog_sha256']
+OK   json differs only in the digest and its rule
+OK   equal flag true in both
+INFO old digest=3d371f2da7fd185b474e97681a337b061028afd9e73b0bd11a031832e06d22b1
+INFO new digest=38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575
+OK   50 MHz ranking TSV byte-identical
+INFO changed paths: ['docs/design/AREA_BUDGET.md', 'docs/findings/PP_SHADOW_BASELINE.md', 'docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json']
+INFO docs/design/AREA_BUDGET.md: removed=[] added=["It also records issue #587's 50 MHz 8x8 rerun."]
+OK   docs/design/AREA_BUDGET.md: nothing removed
+RESULT failures=0
+rc=0

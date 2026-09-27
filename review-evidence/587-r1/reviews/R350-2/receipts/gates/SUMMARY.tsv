@@ -1,0 +1,17 @@
+pp_baseline_selftest	rc=0	python3 -B syn/ooc/pp_baseline.py --selftest
+pp_baseline_mutants	rc=0	python3 -B syn/ooc/pp_baseline_mutants.py
+docs_check_git	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/docs_check.py
+docs_check_nogit	rc=0	env GIT_DIR=/dev/null <scratch>/mdvenv/bin/python3 -B scripts/docs_check.py
+em_dash	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/check_em_dash.py --base 63fe4fb0164d798d44a6476001dc8b887cdd4609
+doc_style	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/check_doc_style.py
+gen_toc_check	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/gen_toc.py --check
+gen_toc_anchors	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/gen_toc.py --verify-anchors
+doc_paths	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/check_doc_paths.py
+diff_check_committed	rc=0	git diff --check 63fe4fb0164d798d44a6476001dc8b887cdd4609 ce65430125a3c800138d5206dd481ba060cb2328
+diff_check_delta	rc=0	git diff --check 55079500483970ee244f12fa4c94401783f3df6f ce65430125a3c800138d5206dd481ba060cb2328
+diff_check_worktree	rc=0	git diff --check
+baremetal_only_check	rc=0	python3 -B scripts/check_baremetal_only.py --check
+baremetal_only_selftest	rc=0	python3 -B scripts/check_baremetal_only.py --selftest
+entity_shape_selftest	rc=0	python3 -B scripts/check_entity_shape.py --self-test
+entity_shape_default	rc=0	python3 -B scripts/check_entity_shape.py
+pp_srcs_check	rc=0	python3 -B scripts/pp_srcs.py --check --selftest

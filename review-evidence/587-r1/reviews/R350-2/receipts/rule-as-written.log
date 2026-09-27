@@ -1,0 +1,15 @@
+committed rule: Replace each absolute build root with $BUILD, then the absolute checkout root with $REPO (including GPTP_UCODE_HEX_P, PP_TROM_HEX_P and PP_UCODE_HEX_P paths). Strip block comments with /\*.*?\*/ in DOTALL mode, then line comments with //[^\n]*; preserve all other whitespace and hash UTF-8 bytes. Tcl and XDC compare after both root replacements only.
+export A
+  occurrences build_root=0 checkout_root=3
+  $BUILD-bearing lines before comment strip=0; after strip=0; $REPO after strip=3
+  normalized_sha256=38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575
+export B
+  occurrences build_root=0 checkout_root=3
+  $BUILD-bearing lines before comment strip=0; after strip=0; $REPO after strip=3
+  normalized_sha256=38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575
+OK   export A digest == committed
+OK   export B digest == committed
+OK   alinx_ax7101.tcl equal after both root replacements (raw equal=False)
+OK   alinx_ax7101.xdc equal after both root replacements (raw equal=True)
+RESULT mismatches=0
+rc=0
