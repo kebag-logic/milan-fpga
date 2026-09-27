@@ -123,7 +123,7 @@ Complete product configurations still require AAF listeners and talkers.
 AAF declarations accept only AAF formats; CRF declarations accept only CRF.
 Milan v1.2 5.3.3.4 forbids mixing these families.
 Both CRF directions require `0x041060010000BB80` (Milan 7.3.2, Table 7.1).
-IEEE 1722.1-2021 Table 7-8 limits each list to 47 formats.
+IEEE 1722.1-2021 Table 7-8 limits each list to 46 formats.
 The limit includes derived listener family entries (Milan 6.4).
 
 Every listener `buffer_length_ns` must be an integer, at least `2126000`.

@@ -264,6 +264,13 @@ def d_audio_unit(rates: list[int], current_rate: int, n_in_ports: int,
         b += be32(r)
     return b
 
+#: IEEE 1722.1-2021 7.2 and Table 7-8, with no redundant streams.
+AEM_DESCRIPTOR_MAX_BYTES = 508
+STREAM_FORMATS_OFFSET = 138
+STREAM_FORMAT_BYTES = struct.calcsize(">Q")
+MAX_STREAM_FORMATS = (AEM_DESCRIPTOR_MAX_BYTES - STREAM_FORMATS_OFFSET) // STREAM_FORMAT_BYTES
+
+
 def d_stream(dtype: int, index: int, name: str, flags: int,
              formats: list[int], buffer_len: int = 0) -> bytes:
     """STREAM_INPUT/STREAM_OUTPUT descriptor in the 1722.1-**2021** layout.
@@ -292,14 +299,14 @@ def d_stream(dtype: int, index: int, name: str, flags: int,
     #! optional here ("A PAAD-AE MAY use the extension ... and SHALL use it
     #! for the Streams that are part of the redundant pair", 5.3.3.4), and
     #! this entity declares no redundant pair, so 7.2.6 governs unmodified.
-    b += be16(138)                      # formats_offset (fixed)
+    b += be16(STREAM_FORMATS_OFFSET)    # formats_offset (fixed)
     b += be16(len(formats))
     b += (be64(0) + be16(0)) * 4        # backup talkers 0..2 + backedup
     b += be16(0)                        # avb_interface_index
     b += be32(buffer_len)               # buffer_length
     #! R = 0: no redundant association is declared, so redundant_offset points
     #! at the empty array just past the formats (Table 7-8: "138 + 8*N").
-    b += be16(138 + 8 * len(formats))   # redundant_offset
+    b += be16(STREAM_FORMATS_OFFSET + STREAM_FORMAT_BYTES * len(formats))   # redundant_offset
     b += be16(0)                        # number_of_redundant_streams (R)
     #! timing = 0 is only readable because TIMING_FIELD_VALID (Table 7-9 bit 2,
     #! mask 0x2000 - the table numbers bits MSB-first) is CLEAR in every

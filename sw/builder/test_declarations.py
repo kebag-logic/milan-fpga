@@ -89,6 +89,8 @@ def test_listener_buffer_contract() -> None:
 
 def test_stream_format_contract() -> None:
     """Table 7-8 count after Milan 6.4 completion; 5.3.3.4 family separation."""
+    import gen_aemi_image as join
+
     base = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
     # Independent format strings and cap from AVTP I.2.4 and Table 7-8.
     aaf = "0x0205022000806000"
@@ -101,18 +103,31 @@ def test_stream_format_contract() -> None:
                 stream = raw["streams"][direction][index]
                 field = f"streams.{direction}[{index}].formats"
                 derived = int(direction == "listeners")
-                for count in (1, 47 - derived):
+                for count in (1, 46 - derived):
                     stream["formats"] = [aaf] * count
                     cfg = _load(raw, directory)
                     assert len(cfg[direction][index]["formats"]) == count + derived
-                for count in (48 - derived, 48):
+                    if count + derived == 46:
+                        overlay = eb.emit_aem_overlay(cfg)
+                        document = join.model_to_document(
+                            join.aem.build_model(join.aem.spec_from_overlay(overlay)),
+                            join.identity_from_overlay(overlay))
+                        join.image.build(document, 576)
+                        dtype = 0x0005 if direction == "listeners" else 0x0006
+                        row = next(r for r in document["descriptors"]
+                                   if r["type"] == dtype and r["index"] == index)
+                        body = bytes.fromhex(row["bytes"])
+                        assert int.from_bytes(body[82:84], "big") == 138
+                        assert int.from_bytes(body[84:86], "big") == 46
+                        assert len(body) == 506 and len(body) <= 508
+                for count in (47 - derived, 48 - derived, 48):
                     stream["formats"] = [aaf] * count
                     _refused(raw, directory, field, "format count")
                 for formats in ([aaf, crf], [crf, aaf], [crf],
                                 [aaf, "0x0000000000000000"], ["0x8205022000806000"]):
                     stream["formats"] = formats
                     _refused(raw, directory, field, "must contain only AAF formats")
-    print("[F3] each AAF input/output: 47 final entries accepted; count/family refusals")
+    print("[F3] each AAF input/output: 46 final entries accepted; count/family refusals")
 
 
 def test_crf_format_contract() -> None:

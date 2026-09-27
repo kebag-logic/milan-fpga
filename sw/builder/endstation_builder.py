@@ -121,7 +121,7 @@ MODEL_ID_HASH_BITS = 40              # EUI-64 bits taken from the sha256
 #: the descriptor layer that writes them, so the accepted keys and their
 #: defaults have one owner (avdecc/aem_descriptors.py).
 sys.path.insert(0, str(ROOT / "avdecc"))
-from aem_descriptors import OBJECT_NAMES  # noqa: E402
+from aem_descriptors import MAX_STREAM_FORMATS, OBJECT_NAMES  # noqa: E402
 
 #: CLOCK_SOURCE object_name by source type, and the `names.clock_sources`
 #: keys a config may declare (schema 1.2). This builder owns these literals:
@@ -1193,8 +1193,6 @@ BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
 #: Processor walk bound: protocol-processor/docs/architecture/07_memory_maps.md
 #: section 3.1, L10 (AUDIO_UNIT sampling_rates at offset 144).
 MAX_AUDIO_UNIT_RATES = 8
-#: IEEE 1722.1-2021 Table 7-8, independent of descriptor line-buffer size.
-MAX_STREAM_FORMATS = 47
 #: Milan v1.2 6.2 / Table 6.1 - the ONLY channel counts that are Base formats.
 BASE_CHANNELS = (1, 2, 4, 6, 8)
 
@@ -1395,7 +1393,7 @@ def _validate_stream_formats(formats: Sequence[str], ctx: str, family: str) -> N
     if len(formats) > MAX_STREAM_FORMATS:
         raise ConfigError(
             f"{ctx}: format count {len(formats)} exceeds {MAX_STREAM_FORMATS} "
-            "(IEEE 1722.1-2021 Table 7-8)")
+            "(IEEE 1722.1-2021 Table 7-8; final list including derived entries)")
     family_word = int(CRF_FORMAT_DEFAULT, 16) if family == "CRF" else aaf_pcm32(0)
     if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):
         raise ConfigError(
