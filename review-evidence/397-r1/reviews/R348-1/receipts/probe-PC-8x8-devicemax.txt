@@ -1,0 +1,86 @@
+== PC: 8x8, plan = one 'milan_nvm commit', erase WIP 3,000,000 us, page-program WIP 5,000 us (saved-state 9.4 device maxima)
+Milan NVM: commit (console) seq 2 -> slot B, 12680 B, capture 1 acknowledged.
+RESULT: PASS
+{
+ "csr_write_addresses_seen": [
+  "0x90000920",
+  "0x90000934",
+  "0x9000093c"
+ ],
+ "boot": {
+  "enable_write_ms": 1031.44025,
+  "prev_uart_line_end_ms": 1031.4237,
+  "enable_uart_line_start_ms": 1031.4548,
+  "bracket_ok": true
+ },
+ "aem_copy_crc": {
+  "first_aem_flash_read_ms": 896.67788,
+  "last_aem_flash_read_ms": 1007.99006,
+  "aem_reads": 13721,
+  "first_read_to_enable_ms": 134.76237
+ },
+ "commands": [
+  {
+   "index": 0,
+   "command": "milan_nvm commit",
+   "ms": 4307.68299,
+   "journal_reads": 54665,
+   "journal_read_span_ms": 4304.82451,
+   "erases": 1,
+   "programs": 50
+  }
+ ],
+ "fabric_kicks": 15,
+ "csr_heartbeat_writes": 15,
+ "max_fabric_kick_gaps_ms": [
+  [
+   588.61054,
+   893.96255,
+   1482.57309,
+   1411
+  ],
+  [
+   532.52185,
+   4808.12467,
+   5340.64652,
+   null
+  ],
+  [
+   324.51014,
+   4232.58057,
+   4557.09071,
+   1675
+  ],
+  [
+   251.03396,
+   4557.09071,
+   4808.12467,
+   1749
+  ]
+ ],
+ "min_alive_remaining_ms_at_kick": 1411,
+ "backed_lapses": [],
+ "commit_brackets_ms": [
+  3856.7271
+ ],
+ "erase_windows": [
+  {
+   "erase_ms": 1482.5454,
+   "next_program_ms": 4557.06287,
+   "heartbeats_inside": 12,
+   "max_hb_spacing_inside_ms": 250.00068
+  }
+ ],
+ "final_uart_line": "\r\u001b[92;1mlitex\u001b[0m> ",
+ "backed_status_prints": [
+  "\rMilan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered  ... backed=1. @ 894.027 ms"
+ ]
+}
+harness-marker view:
+ heartbeats 15 first/last ms 893.96257 4808.12469
+ largest heartbeat gaps (ms, from, to): [(588.61054, 893.96257, 1482.57311), (532.52183, 4808.12469, 5340.64652), (324.51014, 4232.58059, 4557.09073), (251.03396, 4557.09073, 4808.12469)]
+ spacing of heartbeats inside erase WIP (ms): [250.0007]
+ START->ACK ms 3856.7271  (doc conditional projection 3857.19782)
+ whole console commit ms 4307.68299  (doc conditional projection 4308.15735)
+ erase accept -> first program ms 3074.51747 ; programs 50 span ms 306.9398
+ last program -> ACK ms 475.24338 ; command start -> START ms 449.55542

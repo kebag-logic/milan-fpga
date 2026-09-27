@@ -1,0 +1,248 @@
+== PB stdout vs committed 8x8 receipt
+committed log sha256  c38caa7bbcc93c87a8a761bcd7cf2c0b1e9348530f0042627809f334bc466115
+reviewer  log sha256  c38caa7bbcc93c87a8a761bcd7cf2c0b1e9348530f0042627809f334bc466115
+raw log identical     True
+rows identical        True
+findings              ['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+== independent observers
+{
+ "csr_write_addresses_seen": [
+  "0x90000920",
+  "0x90000934",
+  "0x9000093c"
+ ],
+ "boot": {
+  "enable_write_ms": 1031.44025,
+  "prev_uart_line_end_ms": 1031.4237,
+  "enable_uart_line_start_ms": 1031.4548,
+  "bracket_ok": true
+ },
+ "aem_copy_crc": {
+  "first_aem_flash_read_ms": 896.67788,
+  "last_aem_flash_read_ms": 1007.99006,
+  "aem_reads": 13721,
+  "first_read_to_enable_ms": 134.76237
+ },
+ "commands": [
+  {
+   "index": 0,
+   "command": "milan_status",
+   "ms": 7.71925,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 1,
+   "command": "milan_gettime",
+   "ms": 2.32535,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 2,
+   "command": "milan_nvm",
+   "ms": 788.85883,
+   "journal_reads": 52264,
+   "journal_read_span_ms": 781.77194,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 3,
+   "command": "milan_nvm commit",
+   "ms": 1109.15709,
+   "journal_reads": 54665,
+   "journal_read_span_ms": 1106.29827,
+   "erases": 1,
+   "programs": 50
+  },
+  {
+   "index": 4,
+   "command": "milan_nvm commit",
+   "ms": 1109.15735,
+   "journal_reads": 54665,
+   "journal_read_span_ms": 1106.2969,
+   "erases": 1,
+   "programs": 50
+  },
+  {
+   "index": 5,
+   "command": "milan_nvm",
+   "ms": 788.87705,
+   "journal_reads": 52264,
+   "journal_read_span_ms": 781.77194,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 6,
+   "command": "milan_nvm wipe",
+   "ms": 151.09423,
+   "journal_reads": 19022,
+   "journal_read_span_ms": 147.5052,
+   "erases": 2,
+   "programs": 0
+  },
+  {
+   "index": 7,
+   "command": "milan_nvm",
+   "ms": 7.60883,
+   "journal_reads": 62,
+   "journal_read_span_ms": 0.47514,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 8,
+   "command": "milan_nvm invalid",
+   "ms": 1.96577,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 9,
+   "command": "milan_settime 0 0",
+   "ms": 2.44635,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 10,
+   "command": "milan_settime 18446744073 709551615",
+   "ms": 5.17229,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 11,
+   "command": "milan_settime 18446744073 709551616",
+   "ms": 4.96911,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 12,
+   "command": "milan_settime invalid",
+   "ms": 2.41423,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 13,
+   "command": "milan_utc 0 0 37",
+   "ms": 3.36773,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 14,
+   "command": "milan_utc 18446744073709551615 0 1",
+   "ms": 5.97003,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 15,
+   "command": "milan_utc invalid 0 0",
+   "ms": 2.52219,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 16,
+   "command": "milan_status",
+   "ms": 7.77759,
+   "journal_reads": 0,
+   "journal_read_span_ms": 0.0,
+   "erases": 0,
+   "programs": 0
+  }
+ ],
+ "fabric_kicks": 4,
+ "csr_heartbeat_writes": 4,
+ "max_fabric_kick_gaps_ms": [
+  [
+   1449.77764,
+   3390.63745,
+   4840.41509,
+   550
+  ],
+  [
+   1387.51738,
+   893.96255,
+   2281.47993,
+   612
+  ],
+  [
+   1109.15752,
+   2281.47993,
+   3390.63745,
+   891
+  ],
+  [
+   193.95187,
+   4840.41509,
+   5034.36696,
+   null
+  ]
+ ],
+ "min_alive_remaining_ms_at_kick": 550,
+ "backed_lapses": [],
+ "commit_brackets_ms": [
+  658.19782,
+  658.19782
+ ],
+ "erase_windows": [
+  {
+   "erase_ms": 2281.45224,
+   "next_program_ms": 2356.96367,
+   "heartbeats_inside": 1,
+   "max_hb_spacing_inside_ms": null
+  },
+  {
+   "erase_ms": 3390.60976,
+   "next_program_ms": 3466.12119,
+   "heartbeats_inside": 1,
+   "max_hb_spacing_inside_ms": null
+  },
+  {
+   "erase_ms": 4840.3872,
+   "next_program_ms": null,
+   "heartbeats_inside": 1,
+   "max_hb_spacing_inside_ms": null
+  },
+  {
+   "erase_ms": 4914.6676,
+   "next_program_ms": null,
+   "heartbeats_inside": 0,
+   "max_hb_spacing_inside_ms": null
+  }
+ ],
+ "final_uart_line": "\r\u001b[92;1mlitex\u001b[0m> ",
+ "backed_status_prints": [
+  "\rMilan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered  ... backed=1. @ 894.027 ms",
+  "\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1  ... backed=1 dirty=0 stale=0 v @ 1828.238 ms",
+  "\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1  ... backed=1 dirty=0 stale=0 v @ 4835.411 ms",
+  "\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1  ... backed=1 dirty=0 stale=0 v @ 4994.114 ms"
+ ]
+}

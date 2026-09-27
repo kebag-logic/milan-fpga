@@ -1,0 +1,14 @@
+committed log sha256  c38caa7bbcc93c87a8a761bcd7cf2c0b1e9348530f0042627809f334bc466115
+reviewer  log sha256  c38caa7bbcc93c87a8a761bcd7cf2c0b1e9348530f0042627809f334bc466115
+raw log identical     True
+rows identical        True
+findings              ['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+run.json rows == committed rows True | input_hashes equal True
+BUDGET FINDING: over-budget duty: milan_nvm
+BUDGET FINDING: over-budget duty: milan_nvm
+BUDGET FINDING: over-budget duty: maximum_heartbeat_gap
+PASS: measurement evidence; budget findings: 3
+regrade 8x8 --record-budget-findings rc=0
+PASS: measurement evidence; budget findings: 3
+regrade 8x8 default (expect refusal on budget findings) rc=1
+RuntimeError: budget findings require disposition

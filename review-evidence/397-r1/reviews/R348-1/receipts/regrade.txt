@@ -1,0 +1,5 @@
+regrade 1x1 rc=0
+PASS: measurement evidence; budget findings: 0
+tampered-log regrade rc=1 (expect nonzero)
+RuntimeError: recorded log changed
+e1a488958715b4b66416054e03bf1083744e6841137a6d9ebb3e962d619d2e61  $REVIEWS/397-r348-1-packet/scratch/build-endstation_ax7101_1x1_tdm8/service-1-0.log

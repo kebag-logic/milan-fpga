@@ -1,0 +1,65 @@
+$ python3 -B tb/verilator/fw_service_budget/run.py --self-test
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+fw_service_budget_oracle: checks: 8 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census
+rc=0
+$ python3 -B scripts/check_nvm_capture.py
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree
+rc=0
+$ python3 -B scripts/check_nvm_capture.py --mutation bytes
+FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12635, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}, measured-for={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+rc=1
+$ python3 -B scripts/check_nvm_capture.py --mutation records
+FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 157, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}, measured-for={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+rc=1
+$ python3 -B scripts/check_nvm_capture.py --mutation clock
+FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000001, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}, measured-for={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+rc=1
+$ python3 -B scripts/check_nvm_capture.py --mutation ignore-off-timing
+FAIL: OFF timing omitted from maximum
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+rc=1
+$ make -C tb/verilator/fw_service_budget
+make: Entering directory '$REVIEWS/r348-1-397/tb/verilator/fw_service_budget'
+python3 -B run.py --self-test
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+fw_service_budget_oracle: checks: 8 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census
+make: Leaving directory '$REVIEWS/r348-1-397/tb/verilator/fw_service_budget'
+rc=0

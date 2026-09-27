@@ -1,0 +1,15 @@
+hb-marker-start          self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census
+hb-marker-bitmask        self-test rc=0 (ESCAPED) | {'1X1': 'rows-identical', '8X8': 'rows-identical'} | PASS: over-budget duty, marker integrity and product dispatch census
+hb-drop-final-tail       self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'rows-identical'} | PASS: over-budget duty, marker integrity and product dispatch census
+enable-marker-bit1       self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census
+boot-start-zero          self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census
+walk-end-first-write     self-test rc=1 (CAUGHT) | {'1X1': 'REFUSED: restore interval contains no backend memory handshakes', '8X8': 'REFUSED: restore interval contains no backend memory handshakes'} | RuntimeError: restore interval contains no backend memory handshakes
+cpu-ratio-1to1           self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census
+ms-at-50mhz              self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census
+budget-at-50mhz          self-test rc=1 (CAUGHT) | {'1X1': 'DIFFERS(rows=True,findings=False)', '8X8': 'rows-identical'} | RuntimeError: over-budget duty: planted-duty
+budget-at-200mhz         self-test rc=1 (CAUGHT) | {'1X1': 'rows-identical', '8X8': 'DIFFERS(rows=True,findings=False)'} | RuntimeError: over-budget duty escaped
+command-end-shift        self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=False)'} | PASS: over-budget duty, marker integrity and product dispatch census
+status-budget-8000       self-test rc=1 (CAUGHT) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=False)'} | RuntimeError: over-budget UART trace escaped; unrelated heartbeat refusal is insufficient
+commit-budget-500        self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=False)'} | PASS: over-budget duty, marker integrity and product dispatch census
+wait-not-subtracted      self-test rc=0 (ESCAPED) | {'1X1': 'rows-identical', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census
+erase-envelope-to-ack    self-test rc=0 (ESCAPED) | {'1X1': 'DIFFERS(rows=False,findings=True)', '8X8': 'DIFFERS(rows=False,findings=True)'} | PASS: over-budget duty, marker integrity and product dispatch census

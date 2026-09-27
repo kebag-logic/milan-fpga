@@ -1,0 +1,200 @@
+
+[1m        __   _ __      _  __[0m
+[1m       / /  (_) /____ | |/_/[0m
+[1m      / /__/ / __/ -_)>  <[0m
+[1m     /____/_/\__/\__/_/|_|[0m
+[1m   Build your hardware, easily![0m
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+
+ LiteX git sha1: a1e1c36
+
+--================ [1mSoC[0m =================--
+[1mCPU[0m:		VexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz
+[1mBUS[0m:		wishbone 32-bit data/32-bit addr
+[1mCSR[0m:		32-bit data big ordering
+[1mROM[0m:		128.0KiB
+[1mSRAM[0m:		8.0KiB
+[1mFLASH[0m:		16.0MiB
+[1mSDRAM[0m:		1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)
+[1mMAIN RAM[0m:	1.0GiB
+
+--=========== [1mInitialization[0m ===========--
+Initializing SDRAM @0x40000000...
+Switching SDRAM to software control.
+Switching SDRAM to hardware control.
+
+Initializing n25q128a13 SPI Flash @0x01000000...
+Memspeed at 0x1000000 (Sequential, 4.0KiB)...
+   Read speed: 1.3MiB/s
+Memspeed at 0x1000000 (Random, 4.0KiB)...
+   Read speed: 451.5KiB/s
+
+Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.
+
+EVENT cycle=2935513 kind=write address=2336 value=0 requests=0 responses=0 errors=0
+
+EVENT cycle=89394577 kind=write address=2364 value=64 requests=0 responses=0 errors=0
+
+EVENT cycle=89395639 kind=write address=2336 value=2 requests=0 responses=0 errors=0
+
+EVENT cycle=89396257 kind=write address=2364 value=1 requests=4 responses=4 errors=0
+
+EVENT cycle=89401039 kind=write address=2336 value=0 requests=32 responses=32 errors=0
+Milan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered A seq 1 (VD_OK), 12680 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1.
+Milan baremetal: AEM 18288 B copied QSPI +0x00400000 -> 0x7f700000, CRC 823b739f.
+
+EVENT cycle=103144025 kind=write address=2336 value=1 requests=32 responses=32 errors=0
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+--============== [1mConsole[0m ===============--
+
+[92;1mlitex[0m> 
+EVENT cycle=103296352 kind=boot_prompt
+
+EVENT cycle=103296353 kind=command_start index=0 tx_bytes=1456
+milan_nvm commit
+
+EVENT cycle=111291397 kind=write address=2364 value=8 requests=32 responses=32 errors=0
+
+EVENT cycle=113716301 kind=write address=2364 value=16 requests=32 responses=32 errors=0
+
+EVENT cycle=148251895 kind=write address=2364 value=4 requests=32 responses=32 errors=0
+
+EVENT cycle=148254540 kind=flash opcode=216 wait_cycles=300000000
+
+EVENT cycle=148257311 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=173257379 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=198257447 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=223257515 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=248257583 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=273257651 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=298257719 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=323257787 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=348257855 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=373257923 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=398257991 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=423258059 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=455706287 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=455709073 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=456333885 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=456961483 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=457589041 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=458216639 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=458844233 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=459471795 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=460099389 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=460726987 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=461354545 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=461982143 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=462609737 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=463237299 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=463864893 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=464492491 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=465120089 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=465747647 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=466375245 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=467002839 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=467630401 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=468257995 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=468885593 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=469513151 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=470140749 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=470768343 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=471395905 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=472023499 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=472651097 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=473278695 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=473906253 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=474533851 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=475161445 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=475789007 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=476416601 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=477044199 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=477671757 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=478299355 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=478926949 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=479554511 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=480182105 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=480809703 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=480812469 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=481437347 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=482064941 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=482692503 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=483320097 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=483947695 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=484575253 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=485202851 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=485830445 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=486400267 kind=flash opcode=2 wait_cycles=500000
+
+EVENT cycle=533924605 kind=write address=2364 value=65538 requests=32 responses=32 errors=0
+Milan NVM: commit (console) seq 2 -> slot B, 12680 B, capture 1 acknowledged.
+[92;1mlitex[0m> 
+EVENT cycle=534064652 kind=command_end index=0 erases=1 programs=50 bytes=12680 tx_bytes=1571
+== fw_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS
