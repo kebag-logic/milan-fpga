@@ -254,6 +254,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Release 0x0002_0060 - saved-state pending bit widened
 
+Historical behavior before issue #502's live-write reporting correction.
+The original mark trigger left the later-discovered program-tail window.
+
 - 0x005F defined `PP_STAT[11]` `nvm_pend` but could not fully raise it.
 - The pinned processor exported only the AECP store's dirty level.
 - Two of the bit's three terms read a constant zero.

@@ -29,6 +29,9 @@
 > place that was reserved for them. A binding accepted inside the manager's
 > debounce now reads PENDING (case E3, an ordinary passing case since), and a
 > channel map or user name change is reported instead of reading durable.
+> Issue #502 closes the original marks' program-tail reporting window.
+> Names use accepted writes; maps use actual parent phase-5 writes.
+> The marks retain their command-completion meaning.
 > What is still a KNOWN LIMITATION of the shipping build, and a scope rather
 > than a defect of this contract, is MATERIALIZATION: no record writer exists
 > for the non-binding groups, which is scope D3 and UNRESOLVED 1.

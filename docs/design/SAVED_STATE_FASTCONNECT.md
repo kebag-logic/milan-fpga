@@ -120,7 +120,7 @@ it.
 | The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal` at `0xEE_0000`, 128 KiB, and `user` at `0xF0_0000`, 1 MiB |
 | The processor frames and streams one record class | **Landed** (submodule) | `KL_pp_nvm_port` + `KL_acmp_nvm_shadow`. The shadow is the ONLY manager wired to the port today (`protocol_processor_top.sv` lines 2261 and 2278); it owns BINDING records and nothing else |
 | A manager for every other persisted item | **ABSENT** | `KL_pp_nvm_port`'s own header says the manager "lands in P4". Nothing serializes names, formats, offsets, maps, rates, clock source, configuration index or SUID |
-| The processor emits commit marks | **Landed, unobserved** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
+| The processor emits commit marks | **Historical: landed, unobserved at `44489453`** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
 | A write path on the shipping profile | **Landed** (2026-09-06) | `sw/firmware/milan_baremetal/milan_baremetal.c`: boot validation of both slots, the staged container, the control tuple, the restore walk, the heartbeat, the debounced A/B commit through the LiteSPI command master with erase, page program and read-back; `sw/firmware/nvm_hosttest/test_nvm_firmware.py` grades it per shape against `scripts/nvm_klj2.py` |
 | The record set fits the namespace | **DECIDED HERE** (2026-09-05), gated: the donor's F07.8 rule unchanged, one record per item group and index, 156 of 256 ids at the largest shipped shape | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
@@ -1368,11 +1368,14 @@ are exactly the items with the most records in section 4.
 
 ### 12.2 Where they go today
 
-Nowhere. `KL_aecp_ucpu` drives `eff_nvm_stb_o` and `eff_nvm_mark_o[7:0]`, and
-`protocol_processor_top.sv` binds both to `_nc_w` wires at lines 2777, 2778,
-3051 and 3052. The mark carries a class, not a record id; mapping a class plus
-the program's descriptor index onto section 4's allocation is the missing
-manager's job.
+Historically, at `44489453`, both mark outputs ended on `_nc_w` wires.
+Scope D2 subsequently exported them to the parent.
+Issue #502 uses accepted name writes for pending reporting.
+Maps use the parent's actual phase-5 write enable.
+Unchanged maps raise nothing; marks remain command-completion triggers.
+Neither group has a record writer yet.
+The [ownership contract](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#61-the-pending-bit-owner-decision)
+defines the current pending sources.
 
 That manager is proposed in
 [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500),
@@ -1387,12 +1390,11 @@ of the mark
   master one byte at a time in 1x mode, the way `liblitespi` does; the host
   test cannot see a timing or arbitration defect against the real master, so
   the first board commit is still a measurement.
-- **Only the binding records reach the store.** The manager that turns the
-  eight commit marks of section 12.1 into records for the other seven items
-  is the donor's open work; until it lands, an accepted image on a board is
-  binding records and erased spans, and the erased-record rule is what makes
-  that image legal. Its design is proposed in
+- **Only binding records reach the store.** Other groups need materialization.
+  Their record writer remains proposed in
   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md).
+  Until adoption, accepted images contain bindings and erased spans.
+  The erased-record rule makes those images legal.
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that
   price honest rather than hidden.

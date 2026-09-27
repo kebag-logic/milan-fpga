@@ -176,6 +176,7 @@ module milan_csr #(
   //! this is one new PP_STAT bit and new meaning inside the backend's
   //! existing indexed window. The register occupies four bytes.
   //!
+  //! Historical 0x0060 behavior before #502's live-write correction:
   //! 0x0060 WIDENS what PP_STAT 0x924 [11] nvm_pend REPORTS (#496, and
   //! protocol-processor issue 90, merged). 0x005F defined the bit but could
   //! only raise it for a dynamic-state field held by the AECP store, because
@@ -189,7 +190,11 @@ module milan_csr #(
   //! saved-state page's 9.3 durable reading - (backed 1, dirty 0, stale 0)
   //! AND pend 0 - honest for those three cases: a host that polled it over
   //! one of them was told durable while the change was not. Nothing here
-  //! loosens the bit: 0 still means no accepted work is outstanding. No CSR
+  //! loosens the bit: 0 still means no accepted work is outstanding.
+  //! #502 closes the original marks' program-tail window: accepted name
+  //! writes and actual parent phase-5 map writes now raise pending.
+  //! Unchanged maps raise nothing; marks still delimit command completion.
+  //! No CSR
   //! address, width, access or OTHER field moves, and PP_NVM_STAT 0x93C,
   //! PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged. The
   //! register occupies four bytes.

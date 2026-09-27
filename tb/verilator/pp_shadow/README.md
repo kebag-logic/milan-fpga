@@ -92,6 +92,7 @@ Two-record controls refuse after the first record claims a key.
 The second record conflicts with that claim in each direction.
 Each starts durable and requires status 7 without storage changes.
 Both pending status bits must remain clear through the abort.
+Refusal status and map-count diagnostics include their case names.
 Reset separates the groups and restores the clean baseline.
 A permanently asserted pending bit fails that baseline.
 

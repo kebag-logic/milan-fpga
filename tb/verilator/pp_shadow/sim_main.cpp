@@ -1353,7 +1353,8 @@ class PpShadowHarness {
 
     std::vector<uint8_t> pending_command(uint16_t opcode,
                                          const std::vector<uint8_t>& payload,
-                                         uint16_t seq, unsigned status = 0) {
+                                         uint16_t seq, unsigned status = 0,
+                                         const char* tag = "K command") {
         uint8_t frame[160];
         const size_t at = tx_frames.size();
         const size_t bytes = build_aecp(frame, 0, TEST_EID, opcode, seq,
@@ -1366,7 +1367,9 @@ class PpShadowHarness {
         ck("K command: matching response completes",
            response.size() >= 38 && get_be(response, 34, 2) == seq
                && get_be(response, 36, 2) == opcode, 1);
-        ck("K command: response status", response.size() >= 38
+        char label[128];
+        snprintf(label, sizeof label, "%s: response status", tag);
+        ck(label, response.size() >= 38
            ? (response[16] >> 3) & 31u : 255u, status);
         return response;
     }
@@ -1414,11 +1417,14 @@ class PpShadowHarness {
         ck("K commit preserves unmaterialized pending", (stat >> 22) & 1u, 1);
     }
 
-    void pending_map_value(uint16_t type, unsigned count, uint16_t seq) {
+    void pending_map_value(uint16_t type, unsigned count, uint16_t seq,
+                           const char* tag = "K12") {
         std::vector<uint8_t> get(8, 0);
         put16be(get.data(), type);
-        const auto response = pending_command(0x002b, get, seq);
-        ck("K12 GET_AUDIO_MAP record count", response.size() >= 48
+        const auto response = pending_command(0x002b, get, seq, 0, tag);
+        char label[128];
+        snprintf(label, sizeof label, "%s GET_AUDIO_MAP record count", tag);
+        ck(label, response.size() >= 48
            ? get_be(response, 46, 2) : 0xffffu, count);
         if (count != 0)
             ck("K12 GET_AUDIO_MAP exact record", response.size() >= 58
@@ -1451,10 +1457,12 @@ class PpShadowHarness {
         pending_boot(6);
         auto bad = map;
         put16be(bad.data() + 8, 0x7fff); // refused at record validation
-        pending_command(0x002c, bad, static_cast<uint16_t>(0x5038 + type), 7);
-        pending_map_value(type, 0, 0x5039);
-        pending_report(type == 0xe ? "K12 refused record input"
-                                  : "K12 refused record output", 0, 0, 0);
+        const char* refused_tag = type == 0xe ? "K12 refused record input"
+                                             : "K12 refused record output";
+        pending_command(0x002c, bad, static_cast<uint16_t>(0x5038 + type),
+                        7, refused_tag);
+        pending_map_value(type, 0, 0x5039, refused_tag);
+        pending_report(refused_tag, 0, 0, 0);
 
         pending_boot(6);
         auto partial = map;
@@ -1463,10 +1471,12 @@ class PpShadowHarness {
         // Record 0 claims key 0. Record 1 conflicts with that claim:
         // input changes the channel; output changes the cluster.
         put16be(partial.data() + (type == 0xe ? 18 : 20), 1);
-        pending_command(0x002c, partial, static_cast<uint16_t>(0x5048 + type), 7);
-        pending_map_value(type, 0, 0x5049);
-        pending_report(type == 0xe ? "K12 partial refusal input"
-                                  : "K12 partial refusal output", 0, 0, 0);
+        const char* partial_tag = type == 0xe ? "K12 partial refusal input"
+                                             : "K12 partial refusal output";
+        pending_command(0x002c, partial, static_cast<uint16_t>(0x5048 + type),
+                        7, partial_tag);
+        pending_map_value(type, 0, 0x5049, partial_tag);
+        pending_report(partial_tag, 0, 0, 0);
 
         pending_boot(6);
         pending_command(0x002c, map, static_cast<uint16_t>(0x5040 + type));
@@ -1514,7 +1524,8 @@ class PpShadowHarness {
             if (type == 0xf) {
                 std::vector<uint8_t> unsupported(8, 0);
                 put16be(unsupported.data(), type);
-                pending_command(0x002c, unsupported, 0x5090, 11);
+                pending_command(0x002c, unsupported, 0x5090, 11,
+                                "K12 static output refused");
                 pending_report("K12 static output refused", 0, 0, 0);
                 continue;
             }
