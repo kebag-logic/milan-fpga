@@ -1,0 +1,35 @@
+old table rows 109 rows whose values changed or vanished 0
+removed lines:
+   -Measured on 2026-09-26 for issue #231 and optimization epic #229.
+   -Measured RTL revision: `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+   -| `endstation_ax7101_8x8` | 9 / 9 | 99 | 8 / 8 | 100 | 100 |
+   -| Vivado OOC, product 1x1 | 22,350 | 24,533 | 21 | 3 | 5 | 1,415 | -6.180 |
+   -| Vivado OOC, product 8x8 | 28,992 | 32,984 | 26 | 5 | 5 | 1,775 | -10.987 |
+   -| Vivado integrated synthesis, whole 1x1 SoC | 51,125 | 58,006 | 79 | 27 | 11 | 3,214 | -1.201 |
+   -| Vivado integrated route, whole 1x1 SoC | 48,618 | 57,854 | 79 | 27 | 11 | 3,203 | +0.013 |
+   -| Vivado integrated synthesis, whole 8x8 SoC | 68,136 | 70,835 | 80 | 29 | 11 | 3,916 | -11.331 |
+   -| 1x1 synthesis | 22,314 | 24,535 | 21 | 3 | 5 | 1,415 | -1.201 |
+   -| 1x1 route | 20,655 | 23,558 | 21 | 3 | 5 | 1,321 | +0.041 |
+   -| 8x8 synthesis | 29,489 | 32,991 | 26 | 5 | 8 | 1,809 | -10.846 |
+   -The integrated 1x1 processor runs at 50 MHz; 8x8 runs at 100 MHz.
+   -Integrated 8x8 synthesis exceeds the device's 63,400 LUTs by 4,736.
+   -The [complete resource ranking](PP_SHADOW_BASELINE_RANKING.tsv) covers eight measured endpoints.
+   -**Vivado OOC, product 1x1**
+   -**Vivado OOC, product 8x8**
+   -**Vivado attribution-only integrated synthesis, product 8x8**
+   -**Vivado attribution-only integrated route, shipping product 1x1**
+   -At 8x8, the attribution wrapper uses eight DSPs.
+   -| 1x1 synthesis | 51,125 / 52,210 | 23,272 / 22,314 | 6,639 / 4,678 | 1,296 / 111 |
+   -| 1x1 route | 48,618 / 48,825 | 22,441 / 20,655 | 6,428 / 4,504 | 1,299 / 111 |
+   -| 8x8 synthesis | 68,136 / 70,206 | 37,809 / 29,489 | 15,199 / 5,025 | 6,915 / 574 |
+   -| 1x1 `u_pp/u_aecp/u_dyn` | 1,624 / 144 | 763 / 0 | 476 / 0 |
+   -| 1x1 `u_pp/u_aecp` | 7,649 / 5,269 | 903 / 18 | 574 / 0 |
+   -| 1x1 `u_pp/u_srp` | 4,960 / 4,947 | 87 / 96 | 86 / 96 |
+   -| 1x1 `u_pp/u_notify` | 3,419 / 3,361 | 0 / 0 | 0 / 0 |
+   -| 1x1 `wrapper` | 26,213 / 24,983 | 1,175 / 173 | 792 / 131 |
+   -| 8x8 `u_pp/u_aecp/u_dyn` | 8,817 / 607 | 5,922 / 0 | 3,108 / 0 |
+   -| 8x8 `u_pp/u_aecp` | 17,872 / 5,607 | 6,187 / 18 | 3,357 / 0 |
+   -| 8x8 `u_pp/u_srp` | 9,110 / 9,480 | 74 / 442 | 67 / 432 |
+   -| 8x8 `u_pp/u_notify` | 3,565 / 3,027 | 1 / 0 | 0 / 0 |
+   -| 8x8 `wrapper` | 42,962 / 32,833 | 6,397 / 519 | 3,499 / 467 |
+   -Its geometry matches the integrated wrapper's elaborated parameters.

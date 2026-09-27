@@ -1,0 +1,10 @@
+## probe 1: literal submodule source path planted in the committed JSON -> pp_srcs --check must fail
+1
+rc=1
+  - docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json: names submodule source(s) literally that are not permitted prose: protocol-processor/hdl/acmp/pp_acmp_pkg.sv. A build input must derive the list
+## probe 2: retired-stack term planted in the committed TSV -> check_baremetal_only --check must fail
+rc=1
+  - docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv:84: [T] retired-stack term 'buildroot': 'probe\tbuildroot' (#259: the checkout is bare-metal only; history lives in git)
+## restored
+?? sw/builder/out
+worktree clean vs head

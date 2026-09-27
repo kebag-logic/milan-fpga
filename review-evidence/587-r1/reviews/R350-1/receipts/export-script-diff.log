@@ -1,0 +1,9 @@
+## read commands per export (reviewer)
+work-default read_verilog=118 read_xdc=1
+work-attribution read_verilog=118 read_xdc=2
+## executed-script difference after replacing checkout/work roots
+248a249
+> read_xdc baseline_boundary.xdc
+diff rc=1
+## boundary constraint file
+set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]

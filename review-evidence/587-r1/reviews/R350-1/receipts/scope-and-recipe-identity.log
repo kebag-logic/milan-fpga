@@ -1,0 +1,28 @@
+## recipe/tooling unchanged since the #231 merge (ac18b509) at this head
+
+(empty above = identical)
+## #565 change set (ac18b509..63fe4fb0)
+configs/endstation_ax7101_8x8.yaml             |  2 +-
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md  | 14 +++---
+ docs/integration/BAREMETAL_FIRMWARE.md         | 23 +++++++---
+ hdl/ieee1722/aaf/README-parameters.md          |  4 +-
+ scripts/check_nvm_capture.py                   |  4 +-
+ tb/verilator/nvm_capture_cpu/README.md         |  8 +++-
+ tb/verilator/nvm_capture_cpu/measurements.json | 61 ++++++++++++++++----------
+ tb/verilator/nvm_capture_cpu/recipe.py         |  2 +-
+ tb/verilator/nvm_capture_cpu/soc.py            |  2 +-
+ 9 files changed, 76 insertions(+), 44 deletions(-)
+## 8x8 config clock change in #565 (lines appended below)
+## PR diff paths (63fe4fb0..55079500), with modes
+:100644 100644 aa03dd7ce b262eed14 M	docs/findings/PP_SHADOW_BASELINE.md
+:000000 100644 000000000 9771fc5c6 A	docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json
+:000000 100644 000000000 4a29cc5a5 A	docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv
+ docs/findings/PP_SHADOW_BASELINE.md                |  221 +-
+ docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json | 3141 ++++++++++++++++++++
+ docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv |   83 +
+ 3 files changed, 3412 insertions(+), 33 deletions(-)
+
+Changes:
+
+-    milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
++    milan_clk_hz: 50000000           # BAREMETAL_FIRMWARE.md build contract (#565)

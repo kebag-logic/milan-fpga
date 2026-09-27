@@ -1,0 +1,21 @@
+docs_check_git	rc=0	python3 -B scripts/docs_check.py
+docs_check_nogit	rc=0	env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+ENV-MISSING-RENDERER(superseded) em_dash	rc=2	python3 scripts/check_em_dash.py --base 63fe4fb0164d798d44a6476001dc8b887cdd4609
+doc_style	rc=0	python3 scripts/check_doc_style.py
+ENV-MISSING-RENDERER(superseded) gen_toc_check	rc=2	python3 scripts/gen_toc.py --check
+ENV-MISSING-RENDERER(superseded) gen_toc_anchors	rc=2	python3 scripts/gen_toc.py --verify-anchors
+doc_paths	rc=0	python3 scripts/check_doc_paths.py
+diff_check_committed	rc=0	git diff --check 63fe4fb0164d798d44a6476001dc8b887cdd4609 55079500483970ee244f12fa4c94401783f3df6f
+diff_check_worktree	rc=0	git diff --check
+baremetal_only_check	rc=0	python3 scripts/check_baremetal_only.py --check
+baremetal_only_selftest	rc=0	python3 scripts/check_baremetal_only.py --selftest
+entity_shape_selftest	rc=0	python3 scripts/check_entity_shape.py --self-test
+entity_shape_default	rc=0	python3 scripts/check_entity_shape.py
+pp_srcs_check	rc=0	python3 scripts/pp_srcs.py --check --selftest
+em_dash_pinned	rc=0	<scratch>/mdvenv/bin/python3 scripts/check_em_dash.py --base 63fe4fb0164d798d44a6476001dc8b887cdd4609
+gen_toc_check_pinned	rc=0	<scratch>/mdvenv/bin/python3 scripts/gen_toc.py --check
+gen_toc_anchors_pinned	rc=0	<scratch>/mdvenv/bin/python3 scripts/gen_toc.py --verify-anchors
+docs_check_git_pinned	rc=0	<scratch>/mdvenv/bin/python3 -B scripts/docs_check.py
+docs_check_nogit_pinned	rc=0	env GIT_DIR=/dev/null <scratch>/mdvenv/bin/python3 -B scripts/docs_check.py
+doc_style_pinned	rc=0	<scratch>/mdvenv/bin/python3 scripts/check_doc_style.py
+doc_paths_pinned	rc=0	<scratch>/mdvenv/bin/python3 scripts/check_doc_paths.py

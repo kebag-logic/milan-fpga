@@ -1,0 +1,37 @@
+## vendor tool
+vivado v2026.1 (64-bit)
+Tool Version Limit: 2026.06
+SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+## python
+Python 3.14.7
+## SDK (installed from the pinned archive into a scratch destination, verified)
+d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+14.3.0
+## LiteX dependency revisions (manifest dependency_revisions)
+litex a1e1c3652ec2f1346ebaea7663d2867f393ae2c4
+liteeth 276c9e37fb4d92a5c0f30d39a51c20f42a59cf93
+litedram f9b75e0347fc43267d083f7ff5965170fe8f9a58
+litex-boards 9ac53c7a11f2571ba2c9f165f468ae021a4f9bda
+pythondata-cpu-vexiiriscv 15cfab529a17c473d0fc75edf3f409eb374cef35
+## repository patch series applied (reverse-apply check)
+0004 applied
+0005 applied
+0002 applied
+## recipe input hashes at head (manifest recipe_inputs)
+8d3123e27d965b75b655715a3cc9de38e607062a05e4f8a99ff98dfaee158177  syn/ooc/pp_baseline.py
+334076317acfe2fcd8cc9c7afcf03a6911e8b7108964a2068865556764d6bcae  sw/litex/build.sh
+b3662e2b54beb6f6a59faea338453d832b992c1b27c597c662a92a388d85bbcf  sw/litex/milan_soc.py
+ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4  scripts/ci_rv32_sdk.py
+eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a  sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch
+cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8  sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch
+e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0  sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch
+manifest 8d3123e27d965b75b655715a3cc9de38e607062a05e4f8a99ff98dfaee158177 syn/ooc/pp_baseline.py
+manifest 334076317acfe2fcd8cc9c7afcf03a6911e8b7108964a2068865556764d6bcae sw/litex/build.sh
+manifest b3662e2b54beb6f6a59faea338453d832b992c1b27c597c662a92a388d85bbcf sw/litex/milan_soc.py
+manifest ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4 scripts/ci_rv32_sdk.py
+manifest eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch
+manifest cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8 sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch
+manifest e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0 sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch
+## public probe sources (fetched from e21bc530 review packet)
+45debf2947b8f91378a892e5e6826dc27ea9492d63662010ee3e1df1105f55ed probe_boundary/boundary.tcl
+a1a9097c2f59c27a7e37ac577a84898cc2084905af21a36341255fc1efe228e5 probe_boundary/loads.tcl
