@@ -1,0 +1,83 @@
+[
+  {
+    "gate": "docs-check",
+    "command": "python3 scripts/docs_check.py",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 4.37,
+    "receipt": "gate-docs-check.txt",
+    "pinned_markdown_environment": false
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 0.11,
+    "receipt": "gate-doc-style.txt",
+    "pinned_markdown_environment": false
+  },
+  {
+    "gate": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 2.67,
+    "receipt": "gate-toc.txt",
+    "pinned_markdown_environment": true
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 2a2a7bb6",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 3.32,
+    "receipt": "gate-em-dash.txt",
+    "pinned_markdown_environment": true
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 0.11,
+    "receipt": "gate-doc-paths.txt",
+    "pinned_markdown_environment": false
+  },
+  {
+    "gate": "ci-scope",
+    "command": "python3 scripts/ci_scope.py --selftest",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 2.02,
+    "receipt": "gate-ci-scope.txt",
+    "pinned_markdown_environment": false
+  },
+  {
+    "gate": "baremetal",
+    "command": "python3 scripts/check_baremetal_only.py --check",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 14.9,
+    "receipt": "gate-baremetal.txt",
+    "pinned_markdown_environment": false
+  },
+  {
+    "gate": "feature-status",
+    "command": "python3 scripts/check_feature_status.py --self-test",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 0.72,
+    "receipt": "gate-feature-status.txt",
+    "pinned_markdown_environment": false
+  },
+  {
+    "gate": "diff-check",
+    "command": "git diff --check",
+    "head": "6f2cdab6fcc966bd5f9570fd9e37e34276cd72c1",
+    "rc": 0,
+    "seconds": 0.03,
+    "receipt": "gate-diff-check.txt",
+    "pinned_markdown_environment": false
+  }
+]
