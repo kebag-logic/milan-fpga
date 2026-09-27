@@ -1,0 +1,261 @@
+{
+  "name": "listener-003",
+  "mode": "cycle",
+  "direction": "listener",
+  "stream_id": "3cc0c60102034000",
+  "status": "PASS",
+  "seq": 17178,
+  "response_ns": 5021840512,
+  "first_avtp_ns": 5148599234,
+  "latency_s": 0.126758722,
+  "observation_s": 3.976833649,
+  "disconnect_response_ns": 3021510936,
+  "connect_command_ns": 5021833016,
+  "disconnect_hold_s": 2.00032208,
+  "frames_last_half_second_disconnected": 0,
+  "capture_rc": 0,
+  "errors": [],
+  "settled_binding_matches": true,
+  "first_ready_since_connect_ns": 5145279090,
+  "first_advertise_since_connect_ns": 5025225048,
+  "response_to_ready_s": 0.123438578,
+  "ready_to_first_avtp_s": 0.003320144,
+  "ready_sender": "DUT",
+  "first_sequence": 53,
+  "first_timestamp": 10209944087807,
+  "next_sequence": 54,
+  "next_timestamp": 10209946087829,
+  "msrp": {
+    "before": {
+      "DUT": {
+        "seconds": 3.021510936,
+        "pdus": 3,
+        "rate": 0.99288073534876,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinIn": 3,
+          "JoinMt": 3
+        },
+        "types": {
+          "TalkerAdvertise": {},
+          "TalkerFailed": {},
+          "Listener": {
+            "JoinMt": 3
+          },
+          "Domain": {
+            "JoinIn": 3
+          }
+        },
+        "ready": 3,
+        "target_ready": 3,
+        "target_talker": 0
+      },
+      "bridge": {
+        "seconds": 3.021510936,
+        "pdus": 0,
+        "rate": 0.0,
+        "leaveall_vectors": 0,
+        "events": {},
+        "types": {
+          "TalkerAdvertise": {},
+          "TalkerFailed": {},
+          "Listener": {},
+          "Domain": {}
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 0
+      }
+    },
+    "after": {
+      "DUT": {
+        "seconds": 3.976833649,
+        "pdus": 6,
+        "rate": 1.5087379884518775,
+        "leaveall_vectors": 0,
+        "events": {
+          "New": 2,
+          "JoinIn": 4,
+          "JoinMt": 4
+        },
+        "types": {
+          "TalkerAdvertise": {},
+          "TalkerFailed": {},
+          "Listener": {
+            "New": 2,
+            "JoinMt": 4
+          },
+          "Domain": {
+            "JoinIn": 4
+          }
+        },
+        "ready": 6,
+        "target_ready": 6,
+        "target_talker": 0
+      },
+      "bridge": {
+        "seconds": 3.976833649,
+        "pdus": 3,
+        "rate": 0.7543689942259387,
+        "leaveall_vectors": 0,
+        "events": {
+          "New": 2,
+          "JoinMt": 1
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "New": 2,
+            "JoinMt": 1
+          },
+          "TalkerFailed": {},
+          "Listener": {},
+          "Domain": {}
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 3
+      }
+    },
+    "whole": {
+      "DUT": {
+        "seconds": 8.998674161,
+        "pdus": 13,
+        "rate": 1.4446572647714742,
+        "leaveall_vectors": 4,
+        "events": {
+          "JoinIn": 10,
+          "JoinMt": 7,
+          "Lv": 1,
+          "LeaveAll": 4,
+          "Mt": 4,
+          "New": 2
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "LeaveAll": 1,
+            "Mt": 2
+          },
+          "TalkerFailed": {
+            "LeaveAll": 1
+          },
+          "Listener": {
+            "JoinMt": 7,
+            "Lv": 1,
+            "LeaveAll": 1,
+            "Mt": 2,
+            "New": 2
+          },
+          "Domain": {
+            "JoinIn": 10,
+            "LeaveAll": 1
+          }
+        },
+        "ready": 9,
+        "target_ready": 9,
+        "target_talker": 0
+      },
+      "bridge": {
+        "seconds": 8.998674161,
+        "pdus": 7,
+        "rate": 0.777892373338486,
+        "leaveall_vectors": 0,
+        "events": {
+          "Mt": 1,
+          "Lv": 1,
+          "JoinMt": 3,
+          "JoinIn": 2,
+          "New": 2
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "Lv": 1,
+            "New": 2,
+            "JoinMt": 1
+          },
+          "TalkerFailed": {},
+          "Listener": {
+            "Mt": 1
+          },
+          "Domain": {
+            "JoinMt": 2,
+            "JoinIn": 2
+          }
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 4
+      }
+    },
+    "resumed": {
+      "DUT": {
+        "seconds": 3.850074927,
+        "pdus": 5,
+        "rate": 1.2986760244419524,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinIn": 4,
+          "New": 1,
+          "JoinMt": 4
+        },
+        "types": {
+          "TalkerAdvertise": {},
+          "TalkerFailed": {},
+          "Listener": {
+            "New": 1,
+            "JoinMt": 4
+          },
+          "Domain": {
+            "JoinIn": 4
+          }
+        },
+        "ready": 5,
+        "target_ready": 5,
+        "target_talker": 0
+      },
+      "bridge": {
+        "seconds": 3.850074927,
+        "pdus": 1,
+        "rate": 0.25973520488839047,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinMt": 1
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "JoinMt": 1
+          },
+          "TalkerFailed": {},
+          "Listener": {},
+          "Domain": {}
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 1
+      }
+    }
+  },
+  "msrp_parse_errors": [],
+  "msrp_sources": {
+    "DUT": [
+      "020000000001"
+    ],
+    "bridge": [
+      "3cc0c6fe0211"
+    ]
+  },
+  "valid_avtp": 3499,
+  "acmp_wire_counts": {
+    "DUT": {
+      "11": 1,
+      "9": 1,
+      "7": 1,
+      "0": 1
+    },
+    "bridge": {
+      "10": 1,
+      "8": 1,
+      "6": 1,
+      "1": 1
+    }
+  }
+}

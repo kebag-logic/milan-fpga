@@ -1,0 +1,283 @@
+{
+  "name": "talker-005",
+  "mode": "cycle",
+  "direction": "talker",
+  "stream_id": "0200000000010001",
+  "status": "PASS",
+  "seq": 25530,
+  "response_ns": 5034237551,
+  "first_avtp_ns": 5054067821,
+  "latency_s": 0.01983027,
+  "observation_s": 3.963883171,
+  "disconnect_response_ns": 3025451642,
+  "connect_command_ns": 5025742475,
+  "disconnect_hold_s": 2.000290833,
+  "frames_last_half_second_disconnected": 0,
+  "capture_rc": 0,
+  "errors": [],
+  "settled_binding_matches": true,
+  "first_ready_since_connect_ns": 5052951907,
+  "first_advertise_since_connect_ns": 5735197642,
+  "response_to_ready_s": 0.018714356,
+  "ready_to_first_avtp_s": 0.001115914,
+  "ready_sender": "bridge",
+  "first_sequence": 15,
+  "first_timestamp": 11381453362920,
+  "next_sequence": 16,
+  "next_timestamp": 11381455362930,
+  "msrp": {
+    "before": {
+      "DUT": {
+        "seconds": 3.025451642,
+        "pdus": 3,
+        "rate": 0.9915874900637397,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinIn": 3,
+          "JoinMt": 3
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "JoinMt": 3
+          },
+          "TalkerFailed": {},
+          "Listener": {},
+          "Domain": {
+            "JoinIn": 3
+          }
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 3
+      },
+      "bridge": {
+        "seconds": 3.025451642,
+        "pdus": 0,
+        "rate": 0.0,
+        "leaveall_vectors": 0,
+        "events": {},
+        "types": {
+          "TalkerAdvertise": {},
+          "TalkerFailed": {},
+          "Listener": {},
+          "Domain": {}
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 0
+      }
+    },
+    "after": {
+      "DUT": {
+        "seconds": 3.963883171,
+        "pdus": 6,
+        "rate": 1.5136672149916903,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinIn": 5,
+          "JoinMt": 6,
+          "Mt": 3
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "JoinMt": 6,
+            "Mt": 1
+          },
+          "TalkerFailed": {},
+          "Listener": {
+            "Mt": 2
+          },
+          "Domain": {
+            "JoinIn": 5
+          }
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 6
+      },
+      "bridge": {
+        "seconds": 3.963883171,
+        "pdus": 5,
+        "rate": 1.2613893458264085,
+        "leaveall_vectors": 4,
+        "events": {
+          "New": 2,
+          "JoinMt": 4,
+          "LeaveAll": 4,
+          "Mt": 1
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "LeaveAll": 1,
+            "Mt": 1
+          },
+          "TalkerFailed": {
+            "LeaveAll": 1
+          },
+          "Listener": {
+            "New": 2,
+            "JoinMt": 2,
+            "LeaveAll": 1
+          },
+          "Domain": {
+            "LeaveAll": 1,
+            "JoinMt": 2
+          }
+        },
+        "ready": 4,
+        "target_ready": 4,
+        "target_talker": 1
+      }
+    },
+    "whole": {
+      "DUT": {
+        "seconds": 8.998120722,
+        "pdus": 11,
+        "rate": 1.2224774861161283,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinIn": 10,
+          "JoinMt": 11,
+          "Mt": 3
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "JoinMt": 11,
+            "Mt": 1
+          },
+          "TalkerFailed": {},
+          "Listener": {
+            "Mt": 2
+          },
+          "Domain": {
+            "JoinIn": 10
+          }
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 11
+      },
+      "bridge": {
+        "seconds": 8.998120722,
+        "pdus": 6,
+        "rate": 0.6668059015178881,
+        "leaveall_vectors": 4,
+        "events": {
+          "Lv": 1,
+          "New": 2,
+          "JoinMt": 4,
+          "LeaveAll": 4,
+          "Mt": 1
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "LeaveAll": 1,
+            "Mt": 1
+          },
+          "TalkerFailed": {
+            "LeaveAll": 1
+          },
+          "Listener": {
+            "Lv": 1,
+            "New": 2,
+            "JoinMt": 2,
+            "LeaveAll": 1
+          },
+          "Domain": {
+            "LeaveAll": 1,
+            "JoinMt": 2
+          }
+        },
+        "ready": 4,
+        "target_ready": 4,
+        "target_talker": 1
+      }
+    },
+    "resumed": {
+      "DUT": {
+        "seconds": 3.944052901,
+        "pdus": 6,
+        "rate": 1.5212777694940964,
+        "leaveall_vectors": 0,
+        "events": {
+          "JoinIn": 5,
+          "JoinMt": 6,
+          "Mt": 3
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "JoinMt": 6,
+            "Mt": 1
+          },
+          "TalkerFailed": {},
+          "Listener": {
+            "Mt": 2
+          },
+          "Domain": {
+            "JoinIn": 5
+          }
+        },
+        "ready": 0,
+        "target_ready": 0,
+        "target_talker": 6
+      },
+      "bridge": {
+        "seconds": 3.944052901,
+        "pdus": 4,
+        "rate": 1.0141851796627308,
+        "leaveall_vectors": 4,
+        "events": {
+          "New": 1,
+          "JoinMt": 4,
+          "LeaveAll": 4,
+          "Mt": 1
+        },
+        "types": {
+          "TalkerAdvertise": {
+            "LeaveAll": 1,
+            "Mt": 1
+          },
+          "TalkerFailed": {
+            "LeaveAll": 1
+          },
+          "Listener": {
+            "New": 1,
+            "JoinMt": 2,
+            "LeaveAll": 1
+          },
+          "Domain": {
+            "LeaveAll": 1,
+            "JoinMt": 2
+          }
+        },
+        "ready": 3,
+        "target_ready": 3,
+        "target_talker": 1
+      }
+    }
+  },
+  "msrp_parse_errors": [],
+  "msrp_sources": {
+    "DUT": [
+      "020000000001"
+    ],
+    "bridge": [
+      "3cc0c6fe0211"
+    ]
+  },
+  "valid_avtp": 3492,
+  "acmp_wire_counts": {
+    "DUT": {
+      "1": 1
+    },
+    "bridge": {
+      "10": 1,
+      "11": 1,
+      "8": 1,
+      "9": 1,
+      "6": 1,
+      "7": 1,
+      "0": 1
+    }
+  }
+}

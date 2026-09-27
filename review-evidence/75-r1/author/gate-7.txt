@@ -1,0 +1,5 @@
+COMMAND rtk proxy timeout 90s python3 -B scripts/check_baremetal_only.py --check
+CWD $LANES/75-reconnect-bench
+baremetal-only: OK (0 findings across 915 tracked first-party file(s))
+
+RC 0

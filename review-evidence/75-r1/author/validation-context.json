@@ -1,0 +1,128 @@
+{
+  "head": "0e8ec0d2bd78b1d87f84d96e095966ae7c07c525",
+  "base": "8bc97021f28fb7f729418d3a00851c84ea0b50fd",
+  "branch": "75-reconnect-bench",
+  "subject": "Record phase-two CRF reconnect restart measurements for issue 75",
+  "clean": true,
+  "changed": [
+    "docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md"
+  ],
+  "source_sha256": "699ce679d7d6b4a3925b6fe9d3b064eafc1580c314030845bfd59e0bf87e18d2",
+  "gates": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/check_em_dash.py",
+        "--base",
+        "8bc97021"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "/tmp/a375-docs-env/bin/python",
+        "-B",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "90s",
+        "git",
+        "diff",
+        "--check"
+      ],
+      "rc": 0
+    }
+  ],
+  "physical_cwd": "$LANES/75-reconnect-bench"
+}
