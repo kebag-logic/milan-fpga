@@ -1,0 +1,15 @@
+R358-2 independent verdict and ledger, recorded before reading any other reviewer's findings (R359-1).
+Own round-1 findings (R358-1) were read after the independent pass over the diff and evidence.
+
+Verdict: POSITIVE - exact head ecd36018a29f605efe790d33dd50382aec9c1201
+Open MINOR/MAJOR/BLOCKER: none.
+Suggestions: S1 box 5 row / Contents still count two packets; S2 undated 2026-09-23 box-4 and step-5 rows next to dated ones;
+S3 "original hashes" wording vs redaction.json for identity-aecp.jsonl; S4 packet addendum omission list not exhaustive;
+S5 PR body item 4 stale; S6 follow-up: other pages still say silicon Milan-controller confirmation "follows the merge (#117)".
+
+Ledger:
+Conformance | CLEAN | assignment 5858871629 items 1-3, page :6-9 :30 :33 :55 :464 :469 :540-552 :633-667 :688-689, B4 hashes vs 557087b3, #534/#529/50e78097 ancestry, upstream defaults at 6d61a92e | R358-2 | ecd36018a29f605efe790d33dd50382aec9c1201
+RTL | CLEAN | diff name-only, 9e9954e9..head no hdl/tb/config change, hdl/milan/milan_datapath.sv:3564 0xF3F vs dumps, gitlinks | R358-2 | ecd36018a29f605efe790d33dd50382aec9c1201
+Robustness | CLEAN | redacted dumps reproduce static tree + inventories, include-order shadowing, run-log LIB option lines, conditioning sentence | R358-2 | ecd36018a29f605efe790d33dd50382aec9c1201
+Tests | CLEAN | 8 docs gates rc 0, mutation probes M0-M5 | R358-2 | ecd36018a29f605efe790d33dd50382aec9c1201
+Docs | CLEAN | page delta, Contents, header, packet addendum, PR body, hygiene gates | R358-2 | ecd36018a29f605efe790d33dd50382aec9c1201
