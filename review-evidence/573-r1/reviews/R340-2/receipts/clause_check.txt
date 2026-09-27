@@ -1,0 +1,19 @@
+Reviewer clause check (text extracted locally with a PDF text extractor from the
+standards PDFs whose sha256 is in environment.txt; only one-line quotes here).
+
+Milan v1.2 5.3.3.1 ENTITY: "The entity_model_id field shall be a valid EUI-64
+  (neither all zeros nor all ones)."                         -> refusal message OK
+Milan v1.2 5.6.2 ADPDUs: same sentence for the ADPDU field.  -> refusal message OK
+Milan v1.2 5.3.1 Introduction: only the "reports a different Entity Model ID"
+  evolution note; no zero/all-ones rule.                     -> kept for evolution only (matrix L9) OK
+Milan v1.2 5.3.3.4: STREAM_INPUT buffer_length ">= 2126000 ns". -> floor OK
+Milan v1.2 5.3.3.6: "Each Clock Domain of a Configuration shall have at least
+  one associated CLOCK_SOURCE descriptor"; INTERNAL required when a Stream
+  Output exists.                                             -> L6 empty-list refusal cites 5.3.3.6 OK
+IEEE 1722.1-2021 7.2: "The maximum length of a descriptor shall be 508 octets."
+IEEE 1722.1-2021 Table 7-8: formats_offset "is 138 for this version of AEM";
+  number_of_formats "maximum value ... is 46 for this version of AEM";
+  buffer_length at offset 128, length 4 (u32, nanoseconds).
+IEEE 1722.1-2013 Table 7-8 (contrast): formats_offset 132; maximum 47.
+Derivation at head avdecc/aem_descriptors.py:273-276: (508 - 138) // 8 = 46,
+  matching the 2021 table; 47 formats -> 514 octets > 508.

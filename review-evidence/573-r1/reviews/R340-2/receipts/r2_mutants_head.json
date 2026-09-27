@@ -1,0 +1,178 @@
+[
+ {
+  "id": "R2-01 listener upper bound removed",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width"
+ },
+ {
+  "id": "R2-02 upper bound admits 2^32 (off by one)",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width"
+ },
+ {
+  "id": "R2-03 upper bound refuses 0xFFFFFFFF",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ },
+ {
+  "id": "R2-04 upper bound applied to talkers too",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: streams.talkers[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ },
+ {
+  "id": "R2-05 shared field maximum one bit narrow",
+  "file": "avdecc/aem_descriptors.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be <= 2147483647 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ },
+ {
+  "id": "R2-06 derived format cap raised by one",
+  "file": "avdecc/aem_descriptors.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+ },
+ {
+  "id": "R2-07 derived format cap lowered by one",
+  "file": "avdecc/aem_descriptors.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "endstation_builder.ConfigError: streams.listeners[0].formats: format count 46 exceeds 45 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)"
+ },
+ {
+  "id": "R2-08 descriptor maximum restated as 2013-era 516",
+  "file": "avdecc/aem_descriptors.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+ },
+ {
+  "id": "R2-09 builder restates the old literal cap 47",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+ },
+ {
+  "id": "R2-10 formats_offset shifted (layout and cap)",
+  "file": "avdecc/aem_descriptors.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError"
+ },
+ {
+  "id": "R2-11 YAML int reinterpreted as hex digits again",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError"
+ },
+ {
+  "id": "R2-12 bool admitted as an integer EUI-64",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "PROBE",
+  "applied": true,
+  "returncode": 0,
+  "verdict": "SURVIVED",
+  "last_line": "[gate 40] 26 refusals; 3 header mutants per config"
+ },
+ {
+  "id": "R2-13 shadowed literal no longer validated",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+ },
+ {
+  "id": "R2-14 hash-derived arm bypasses the guard",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+ },
+ {
+  "id": "R2-15 shadowed literal checked for width only",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+ },
+ {
+  "id": "R2-16 empty clock-source guard removed",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "IndexError: list index out of range"
+ },
+ {
+  "id": "R2-17 empty guard matches only the empty list (null crashes)",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "PROBE",
+  "applied": true,
+  "returncode": 0,
+  "verdict": "SURVIVED",
+  "last_line": "[gate 40] 26 refusals; 3 header mutants per config"
+ },
+ {
+  "id": "R2-18 CRF-output arm removed (direct control)",
+  "file": "sw/builder/endstation_builder.py",
+  "expect": "KILLED",
+  "applied": true,
+  "returncode": 1,
+  "verdict": "KILLED",
+  "last_line": "AssertionError: CRF output accepted without INTERNAL"
+ },
+ {
+  "id": "unmutated control",
+  "returncode": 0,
+  "verdict": "PASS",
+  "last_line": "[gate 40] 26 refusals; 3 header mutants per config"
+ },
+ {
+  "id": "sources restored",
+  "sha256": {
+   "avdecc/aem_descriptors.py": "293eae9fbb0a76f5e321985794c2ef2f9df1504b8488bacc03a7be4c7ed7406d",
+   "sw/builder/endstation_builder.py": "09524249c32f335863b672a99550f6546f86fe1e861b16fc29b8e26f47deae08"
+  },
+  "identical": true
+ }
+]

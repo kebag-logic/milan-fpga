@@ -1,0 +1,20 @@
+KILLED   [KILLED] R2-01 listener upper bound removed: AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width
+KILLED   [KILLED] R2-02 upper bound admits 2^32 (off by one): AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width
+KILLED   [KILLED] R2-03 upper bound refuses 0xFFFFFFFF: endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)
+KILLED   [KILLED] R2-04 upper bound applied to talkers too: endstation_builder.ConfigError: streams.talkers[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)
+KILLED   [KILLED] R2-05 shared field maximum one bit narrow: endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be <= 2147483647 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)
+KILLED   [KILLED] R2-06 derived format cap raised by one: AssertionError: accepted invalid streams.listeners[0].formats: format count
+KILLED   [KILLED] R2-07 derived format cap lowered by one: endstation_builder.ConfigError: streams.listeners[0].formats: format count 46 exceeds 45 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)
+KILLED   [KILLED] R2-08 descriptor maximum restated as 2013-era 516: AssertionError: accepted invalid streams.listeners[0].formats: format count
+KILLED   [KILLED] R2-09 builder restates the old literal cap 47: AssertionError: accepted invalid streams.listeners[0].formats: format count
+KILLED   [KILLED] R2-10 formats_offset shifted (layout and cap): AssertionError
+KILLED   [KILLED] R2-11 YAML int reinterpreted as hex digits again: AssertionError
+SURVIVED [PROBE] R2-12 bool admitted as an integer EUI-64: [gate 40] 26 refusals; 3 header mutants per config
+KILLED   [KILLED] R2-13 shadowed literal no longer validated: AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones
+KILLED   [KILLED] R2-14 hash-derived arm bypasses the guard: AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones
+KILLED   [KILLED] R2-15 shadowed literal checked for width only: AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones
+KILLED   [KILLED] R2-16 empty clock-source guard removed: IndexError: list index out of range
+SURVIVED [PROBE] R2-17 empty guard matches only the empty list (null crashes): [gate 40] 26 refusals; 3 header mutants per config
+KILLED   [KILLED] R2-18 CRF-output arm removed (direct control): AssertionError: CRF output accepted without INTERNAL
+{'id': 'unmutated control', 'returncode': 0, 'verdict': 'PASS', 'last_line': '[gate 40] 26 refusals; 3 header mutants per config'} {'id': 'sources restored', 'sha256': {'avdecc/aem_descriptors.py': '293eae9fbb0a76f5e321985794c2ef2f9df1504b8488bacc03a7be4c7ed7406d', 'sw/builder/endstation_builder.py': '09524249c32f335863b672a99550f6546f86fe1e861b16fc29b8e26f47deae08'}, 'identical': True}
+rc=0

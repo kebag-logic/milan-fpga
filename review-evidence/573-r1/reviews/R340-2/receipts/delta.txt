@@ -1,0 +1,27 @@
+# commits e0920d77..08374721 (subject | body lines)
+638182177e3e8b3fad502389a4efa90d97771e20 | Refuse reserved literal and pinned model IDs (#573) | body-lines=0
+556901b5f4048654c7259f7626cba3d0ac31ebc0 | Validate every declared listener buffer against the Milan floor (#574) | body-lines=0
+82fa859b147b62bf2a943f21654a5bf5bb767d8f | Bound stream format counts and enforce AAF and Milan CRF families (#575) | body-lines=0
+4f746408a15f494c4b30bdc9add6d7295309dff9 | Require INTERNAL clock availability for every stream output (#576) | body-lines=0
+2a15d68b7cf8475547ab9ae43cba93266b0be627 | fix(builder): derive the 2021 final stream format limit | body-lines=0
+71b614ba6061c147d7781985c20309e3c0af8b96 | fix(builder): refuse listener buffers beyond the packed field width | body-lines=0
+d20eeb892b669060278f669be977b0540f7c0d34 | docs(builder): cite the ENTITY and ADPDU identity validity clauses | body-lines=0
+5cf31b2c2628903b03998b3a19623a13a313db5e | docs(builder): describe the enforced reserved identity refusal | body-lines=0
+08374721d958b32ade38e7e62d25a7ccea215119 | fix(builder): validate every model identity and empty clock sources | body-lines=0
+
+# delta 4f746408..08374721
+ avdecc/aem_descriptors.py                 |  18 ++++-
+ docs/ENDSTATION_BUILDER.md                |   3 +-
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md |  20 +++---
+ sw/builder/README-parameters.md           |  13 +++-
+ sw/builder/endstation_builder.py          |  26 ++++---
+ sw/builder/test_declarations.py           | 113 +++++++++++++++++++++++++++---
+ 6 files changed, 159 insertions(+), 34 deletions(-)
+
+# per-commit files
+2a15d68b7cf8475547ab9ae43cba93266b0be627: avdecc/aem_descriptors.py docs/reference/PP_DESCRIPTOR_OWNERSHIP.md sw/builder/README-parameters.md sw/builder/endstation_builder.py sw/builder/test_declarations.py 
+71b614ba6061c147d7781985c20309e3c0af8b96: avdecc/aem_descriptors.py docs/reference/PP_DESCRIPTOR_OWNERSHIP.md sw/builder/README-parameters.md sw/builder/endstation_builder.py sw/builder/test_declarations.py 
+d20eeb892b669060278f669be977b0540f7c0d34: docs/reference/PP_DESCRIPTOR_OWNERSHIP.md sw/builder/README-parameters.md sw/builder/endstation_builder.py sw/builder/test_declarations.py 
+5cf31b2c2628903b03998b3a19623a13a313db5e: docs/ENDSTATION_BUILDER.md 
+08374721d958b32ade38e7e62d25a7ccea215119: docs/reference/PP_DESCRIPTOR_OWNERSHIP.md sw/builder/README-parameters.md sw/builder/endstation_builder.py sw/builder/test_declarations.py 
+# git diff --check e0920d77..08374721: clean

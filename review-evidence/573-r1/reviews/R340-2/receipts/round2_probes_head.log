@@ -1,0 +1,31 @@
+entity_model_id  prefixed hex, unquoted                                         int   accepted   True  0x001BC50AC1000005
+entity_model_id  prefixed hex, quoted                                           str   accepted   True  0x001BC50AC1000005
+entity_model_id  prefixed hex with underscores, unquoted                        int   accepted   True  0x001BC50AC1000005
+entity_model_id  unprefixed hex with letters, unquoted                          str   accepted   True  0x001BC50AC1000005
+entity_model_id  unprefixed all-decimal-digit hex, quoted                       str   accepted   True  0x1234567890123456
+entity_model_id  unprefixed all-decimal-digit hex, unquoted                     int   accepted   False 0x000462D53C8ABAC0
+entity_model_id  unprefixed 0-7 digits leading zero, quoted                     str   accepted   True  0x0012345670123456
+entity_model_id  unprefixed 0-7 digits leading zero, unquoted (YAML 1.1 octal)  int   accepted   False 0x000000A72EE0A72E
+entity_model_id  unprefixed digits with 8/9 and leading zero, unquoted          str   accepted   True  0x0012345678901234
+entity_model_id  decimal all-ones, unquoted                                     int   refused          entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+entity_model_id  bool, unquoted                                                 bool  refused          entity.entity_model_id: 'True' is not a hex EUI-64
+model_id_pin     prefixed hex, unquoted                                         int   accepted   True  0x001BC50AC1000005
+model_id_pin     prefixed hex, quoted                                           str   accepted   True  0x001BC50AC1000005
+model_id_pin     prefixed hex with underscores, unquoted                        int   accepted   True  0x001BC50AC1000005
+model_id_pin     unprefixed hex with letters, unquoted                          str   accepted   True  0x001BC50AC1000005
+model_id_pin     unprefixed all-decimal-digit hex, quoted                       str   accepted   True  0x1234567890123456
+model_id_pin     unprefixed all-decimal-digit hex, unquoted                     int   accepted   False 0x000462D53C8ABAC0
+model_id_pin     unprefixed 0-7 digits leading zero, quoted                     str   accepted   True  0x0012345670123456
+model_id_pin     unprefixed 0-7 digits leading zero, unquoted (YAML 1.1 octal)  int   accepted   False 0x000000A72EE0A72E
+model_id_pin     unprefixed digits with 8/9 and leading zero, unquoted          str   accepted   True  0x0012345678901234
+model_id_pin     decimal all-ones, unquoted                                     int   refused          entity.model_id_pin: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+model_id_pin     bool, unquoted                                                 bool  refused          entity.model_id_pin: 'True' is not a hex EUI-64
+                 malformed literal shadowed by legal pin                              refused          entity.entity_model_id: 'not-hex' is not a hex EUI-64
+                 all-ones literal shadowed by legal pin                               refused          entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+                 legal literal + legal pin (pin wins)                                 accepted         0x001BC50AC1000005
+                 stream_dmac_base unquoted prefixed hex                               accepted         0x001BC50AC1000005
+                 media_clock_sources null (empty key)                                 refused          clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)
+                 media_clock_sources [] + crf_output enabled                          refused          clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)
+                 media_clock_sources [internal] only                                  accepted         0x001BC50AC1000005
+                 media_clock_sources empty string                                     refused          clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)
+rc=0
