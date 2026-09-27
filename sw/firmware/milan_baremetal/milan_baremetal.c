@@ -762,12 +762,159 @@ static void nvm_publish(unsigned int verdict)
 	nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | (verdict & 0xfu));
 }
 
+/* The generated accessors are also declared for reduced-header validation
+ * builds. Product csr.h supplies their static inline definitions first. */
+void milan_mac_phy_mdio_w_write(uint32_t value);
+uint32_t milan_mac_phy_mdio_r_read(void);
+void milan_mac_link_status_write(uint32_t value);
+
+/* Half the 250 ms service allowance schedules PHY work; the other half
+ * accommodates a pending duty and the bounded Clause-22 transactions. */
+#define PHY_POLL_NS (NVM_HEARTBEAT_NS / 2u)
+#define PHY_MDC 1u
+#define PHY_OE  2u
+#define PHY_OUT 4u
+#define PHY_BMSR_LINK 4u
+#define PHY_BMSR_AN_DONE 0x20u
+#define PHY_BMSR_EXTENDED 0x100u
+#define PHY_BMCR_AN_ENABLE 0x1000u
+
+#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR
+static unsigned int phy_address;
+static int phy_found;
+static uint32_t phy_published;
+static uint64_t phy_last_poll;
+
+/* At least 32 CPU delay cycles per half-period, even at 100 MHz.
+ * Input synchronization settles before the read at the high phase. */
+static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
+{
+	uint32_t pins = (drive ? PHY_OE : 0u) | (bit ? PHY_OUT : 0u);
+	unsigned int value;
+
+	milan_mac_phy_mdio_w_write(pins);
+	cdelay(32);
+	milan_mac_phy_mdio_w_write(pins | PHY_MDC);
+	cdelay(32);
+	value = milan_mac_phy_mdio_r_read() & 1u;
+	milan_mac_phy_mdio_w_write(pins);
+	return value;
+}
+
+/* An absent turnaround acknowledgement is an error, never link-up. */
+static int phy_mdio_read(unsigned int reg)
+{
+	uint32_t command = (6u << 10) | (phy_address << 5) | reg;
+	unsigned int i;
+	unsigned int ack;
+	unsigned int value = 0;
+
+	for (i = 0; i < 32u; ++i)
+		phy_mdio_bit(1, 1);
+	for (i = 0; i < 14u; ++i)
+		phy_mdio_bit(1, (command >> (13u - i)) & 1u);
+	phy_mdio_bit(0, 0);
+	ack = phy_mdio_bit(0, 0);
+	for (i = 0; i < 16u; ++i)
+		value = (value << 1) | phy_mdio_bit(0, 0);
+	milan_mac_phy_mdio_w_write(0);
+	return ack ? -1 : (int)value;
+}
+
+/* Standard Clause-22 negotiation registers serve both board PHY families.
+ * Return only a resolved common mode; incomplete negotiation stays down. */
+static uint32_t phy_resolved_status(unsigned int bmsr)
+{
+	int control = phy_mdio_read(0);
+	int local;
+	int peer;
+	unsigned int common;
+
+	if (control < 0)
+		return 0;
+	if (!(control & PHY_BMCR_AN_ENABLE)) {
+		unsigned int speed = (control & 0x40u) ? 2u :
+				     ((control & 0x2000u) ? 1u : 0u);
+		return 1u | (speed << 1) | ((control & 0x100u) ? 8u : 0u);
+	}
+	if (!(bmsr & PHY_BMSR_AN_DONE))
+		return 0;
+	if (bmsr & PHY_BMSR_EXTENDED) {
+		int extended = phy_mdio_read(15);
+
+		if (extended < 0)
+			return 0;
+		if (extended & 0x3000u) {
+			local = phy_mdio_read(9);
+			peer = phy_mdio_read(10);
+			if (local < 0 || peer < 0 || (peer & 0x8000u))
+				return 0;
+			common = ((unsigned int)local << 2) & (unsigned int)peer;
+			if (common & 0x800u)
+				return 13u;
+			if (common & 0x400u)
+				return 5u;
+		}
+	}
+	local = phy_mdio_read(4);
+	peer = phy_mdio_read(5);
+	if (local < 0 || peer < 0)
+		return 0;
+	common = (unsigned int)local & (unsigned int)peer;
+	if (common & 0x100u)
+		return 11u;
+	if (common & 0x80u)
+		return 3u;
+	if (common & 0x40u)
+		return 9u;
+	return (common & 0x20u) ? 1u : 0u;
+}
+
+static void phy_link_tick(uint64_t now)
+{
+	int bmsr;
+	uint32_t status = 0;
+
+	if (phy_last_poll && now >= phy_last_poll &&
+	    now - phy_last_poll < PHY_POLL_NS)
+		return;
+	phy_last_poll = now;
+	if (!phy_found) {
+		int id = phy_mdio_read(2);
+
+		/* Probe one address per opportunity, with no blocking scan. */
+		if (id <= 0 || id == 0xffff) {
+			phy_address = (phy_address + 1u) & 31u;
+			phy_last_poll = 0;
+			milan_mac_link_status_write(0);
+			return;
+		}
+		phy_found = 1;
+	}
+	bmsr = phy_mdio_read(1);
+	/* Preserve a latched loss while previously up. Once down, read again
+	 * to clear BMSR's latch and observe recovery without duplicate edges. */
+	if (bmsr >= 0 && !(phy_published & 1u))
+		bmsr = phy_mdio_read(1);
+	if (bmsr >= 0 && bmsr != 0xffff && (bmsr & PHY_BMSR_LINK))
+		status = phy_resolved_status((unsigned int)bmsr);
+	milan_mac_link_status_write(status);
+	phy_published = status;
+}
+#else
+static void phy_link_tick(uint64_t now)
+{
+	(void)now;
+}
+#endif
+
 /* Re-arm T-NVM-WRITER-ALIVE at most every NVM_HEARTBEAT_NS; the first
  * call answers at once, so the restore walk runs behind a live writer. */
 static void nvm_heartbeat_tick(void)
 {
 	uint64_t now = gettime_ns();
 
+	phy_link_tick(now);
 	/* a retired writer answers no more: nvm_backed must fall */
 	if (nvm_retired)
 		return;
