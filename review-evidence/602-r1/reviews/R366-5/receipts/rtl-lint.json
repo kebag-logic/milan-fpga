@@ -1,0 +1,22 @@
+{
+ "name": "rtl-lint",
+ "head": "d09c72ea2b0be1a2df3e18e77774f14f6df3242c",
+ "cwd": "$REVIEWS/r366-5-602",
+ "cmd": [
+  "python3",
+  "-B",
+  "scripts/lint_rtl.py",
+  "--check",
+  "--jobs",
+  "8"
+ ],
+ "env_overrides": {
+  "PATH": "packet scratch/bin prepended to the host PATH (host entries redacted)"
+ },
+ "timeout_s": 1800,
+ "rc": 0,
+ "elapsed_s": 7.99,
+ "log_bytes": 14186,
+ "log_sha256": "100ecae619de3a93cf00434335ad236f2369d7a4d93dfb8ecbc4b9ac2251fdd7",
+ "log": "receipts/rtl-lint.log"
+}

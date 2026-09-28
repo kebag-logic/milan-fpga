@@ -1,0 +1,33 @@
+PASS single parent 6c5ca18f
+PASS one-line message: 'Clarify pre-602 measurements and post-602 acceptance contract'
+PASS no trailers
+PASS only changed path is docs/findings/394_387_E1_SWITCH_CYCLES.md: ['M\tdocs/findings/394_387_E1_SWITCH_CYCLES.md']
+PASS gitlinks unchanged (4)
+PASS table rows identical to 6c5ca18f: 91 rows, 8286 bytes incl. newlines
+PASS table rows identical to dev 0eff6d2e
+PASS page at 6c5ca18f equals dev 0eff6d2e (delta is the only lane edit)
+PASS replace old 165-165 -> new 165-169 inside disposed regions
+   - 165: #387 item 2 records the [media re-base contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+   + 165: #387 item 2 defined the measured pre-#602 image's media re-base contract.
+   + 166: 
+   + 167: The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) supersedes that contract's PHC-step `mr` and MEDIA_RESET obligation.
+   + 168: 
+   + 169: The [current contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step) retains the render re-base and `tu`.
+PASS replace old 169-169 -> new 173-173 inside disposed regions
+   - 169: The contract requires one counted event per step.
+   + 173: That pre-#602 contract required one counted event per step.
+PASS replace old 171-171 -> new 175-175 inside disposed regions
+   - 171: Licensed streams keep running.
+   + 175: Licensed streams kept running.
+PASS replace old 173-173 -> new 177-177 inside disposed regions
+   - 173: One `mr` toggle and one MEDIA_RESET record that event.
+   + 177: Under that pre-#602 contract, one `mr` toggle and one MEDIA_RESET recorded the event.
+PASS replace old 349-349 -> new 353-355 inside disposed regions
+   - 349: That measurement must observe the step's counted media event.
+   + 353: Under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355), that measurement must observe the step's counted render re-base and `tu`.
+   + 354: 
+   + 355: A PHC-only step must leave `mr` and MEDIA_RESET unchanged.
+PASS two ruling links
+PASS anchor docs/design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step exists
+PASS anchor docs/design/TIME_SYNC.md#step-policy exists
+== 0 failed assertion(s)
