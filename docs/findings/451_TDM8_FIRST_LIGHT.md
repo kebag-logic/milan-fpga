@@ -1,6 +1,6 @@
 # TDM8 first light, 2026-09-28
 
-[A403] REVIEW READY. Refs #451.
+[A403] Refs #451.
 
 Both directions of the TDM8 link carry identifiable audio in all eight slots,
 in order, over at least 60 s each.
@@ -12,7 +12,8 @@ in order, over at least 60 s each.
   decodes to the expected channel. This needed the talker's output map, which
   the first session left empty.
 
-One DUT property is recorded for triage, not as a link fault: the talker can
+One DUT property is recorded as a defect, not as a link fault, and is tracked
+by [#617](https://github.com/kebag-logic/milan-fpga/issues/617): the talker can
 assemble one AAF frame from two adjacent TDM frames, split between channel
 pairs. See [DIN frame coherence](#din-frame-coherence).
 
@@ -105,8 +106,11 @@ run does not establish their cause.
 
 The first session recorded the DUT talker stream while the SoC played the
 pattern, and every word was zero. It inferred a fault on the DIN wire or the
-SoC transmit pad, and the owner then checked the link wiring. The owner
-reported checking all five connections; no wiring change is recorded here.
+SoC transmit pad. The owner then checked the link wiring end to end and found
+it correct, with no change made
+([owner report](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5872564358)).
+The report names BCLK, FSYNC, DOUT, DIN and ground. The amendment's link is
+seven conductors: those four signals and three grounds.
 
 The cause was the DUT configuration. In this image STREAM_PORT_OUTPUT 0 has
 a dynamic audio map: `ADP_DMAP_OUT_MASK_C` bit 0 is set in the generated
@@ -121,8 +125,15 @@ wrong.
 The second session first repeated the first session's DIN leg unchanged, as
 asked, and again recorded all-zero words. It then repeated it with eight
 identity mappings on STREAM_PORT_OUTPUT 0, and the pattern decoded in every
-slot. With the map routed, the DIN line reads all ones whenever the SoC is not
-playing, so a zero word could not have come from the pin.
+slot. The map edit was the only change between the two runs.
+
+The pin can deliver zero words: when playback stopped, the routed recording
+carried 777 frames of zero words that came in through the TDM input (see
+[Direction decode](#direction-decode)). The unrouted silence is not that. The
+two unrouted recordings are 94.8 s and 94.9 s long and each holds 70 s of
+playback, so about 25 s of each was recorded while the SoC was not playing.
+Those stretches are zero as well. In the routed recording, the stretches
+before playback and after the stop tail read `0xffffff00` in every word.
 
 The SoC board's USB function was not visible on the bench host in the second
 session. Neither leg uses it: the pattern period was built on the SoC board,
@@ -226,8 +237,23 @@ DIN: SoC transmit toward the DUT talker stream, second session, routed, 70 s.
 The playback region is the first to the last frame in which all eight stream
 channels carry their own tag. It spans 3,360,035 frames, 70.001 s at 48 kHz,
 and inside it every word is valid and carries its own channel's tag. Slot
-order is the identity with no rotation. Outside the region the SoC was not
-playing, and the slot words read `0xffffff00`: the line idles high.
+order is the identity with no rotation.
+
+Outside the region the recording holds 1,193,185 frames:
+
+- **Before playback and after the stop tail** (frames 0 to 150,488 and
+  3,511,302 to 4,553,219), every word reads `0xffffff00`.
+- **Frame 150,489**, just before the region, reads `ffffff00`, `fff80000`, then
+  six zero words.
+- **Frames 3,510,525 to 3,511,301**, just after the region, are 777 frames
+  (16.2 ms) that carry zero words. The first is torn like the pattern frames:
+  pair 0 is zero while pairs 1 to 3 still carry the last ordinal, `0x44ff`. So
+  these zeros came in through the TDM input. The next 775 frames are all zero.
+  The last holds five zero words, two `ffffff00` and one `00ffff00`.
+
+In total, the 9,545,480 words outside the region are 9,539,259 `ffffff00`
+words, 6,213 zero words and eight others: `fff80000`, the six pattern words
+of frame 3,510,525 and `00ffff00`.
 
 The two all-zero DIN recordings are not decodable, and silence establishes no
 order. The first session's recording held 4,550,280 frames and the second
@@ -258,14 +284,15 @@ The mechanism is in the capture crossbar. Each TDM pair's hold is written by
 its own pair-valid pulse
 ([`KL_chan_map_capture.sv`](../../hdl/ieee1722/aaf/KL_chan_map_capture.sv),
 lines 486 to 487). The media-tick walk reads the latest hold of each pair
-(lines 958 to 960), with no frame-wide buffer. The TDM frame runs 10.64 ppm
+(lines 959 to 960), with no frame-wide buffer. The TDM frame runs 10.64 ppm
 behind the media grid, so the tick drifts through the TDM frame. It reads each
 pair either before or after that pair's update.
 
 This is a DUT capture-path property: the samples of one AAF frame can come
 from two TDM frames, one sample period apart. The SoC transmits whole frames,
 and the render direction updates atomically (DOUT showed no torn frame). It is
-recorded for triage as a separate issue.
+tracked as a defect by
+[#617](https://github.com/kebag-logic/milan-fpga/issues/617).
 
 ## Continuity and rate
 
@@ -280,9 +307,13 @@ Discontinuities closer than 50 ms were grouped into clusters.
 
 | DOUT cluster class | Clusters | Repeated frames | Dropped frames | Cause |
 |---|---|---|---|---|
-| INTERNAL-source beat | 34 | 657 | 691 | TDM frame against media tick; spacing 93,989 to 93,992 frames (1.958 s); net one drop per crossing |
+| INTERNAL-source beat, clear of any underrun | 34 | 657 | 691 | TDM frame against media tick; spacing 93,989 to 93,992 frames (1.958 s); net one drop per crossing |
 | Underrun after logged talker lateness | 9 | 975 | 963 | A PDU sent 150 us or more late within the preceding 60 ms |
 | Underrun, no host-visible lateness | 8 | 541 | 537 | Same signature; lateness not visible to the sending process |
+
+The capture spans 36 beat crossings, and the beat row holds 34 of them. The
+other two fall inside underrun clusters, the ones starting at frames 129,825
+and 411,321, and are counted in the "no host-visible lateness" row.
 
 The beat is documented behaviour at the INTERNAL clock source (see the
 [channel map](../CHANNEL_MAP_64.md)). The render stage's constant-latency law
@@ -366,15 +397,16 @@ Operator errors:
 
 | Item | Result |
 |---|---|
-| DIN path: J11.7 to P1.02, SoC transmit pad and setup | Working: pattern decoded in all eight slots; idle line reads high |
-| Electrical continuity check | NOT RUN here; the owner reported checking the wiring between the sessions |
+| DIN path: J11.7 to P1.02, SoC transmit pad and setup | Working: pattern decoded in all eight slots |
+| Electrical continuity check | NOT RUN here; the [owner report](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5872564358) records an end-to-end wiring check between the sessions, found correct |
 | BCLK, FSYNC and DOUT scope measurements | NOT RUN, owner item |
 | Same-sample timing, #386 acceptance 4 | NOT RUN, owner item |
 | Calibrated listener-audio sequence, #117 | NOT RUN, owner item |
 | DOUT slot and channel order | PROVEN, identity |
 | DIN slot and channel order | PROVEN, identity |
 | Sixty seconds of identifiable audio | DOUT met (70 s); DIN met (70 s) |
-| DIN frame coherence across channel pairs | NOT MET: a DUT capture-path property, for triage as a separate issue |
+| Identifiable samples in both directions through the USB Audio device (#451 checklist) | NOT RUN: both legs used McASP0 directly, without the SoC board's USB function |
+| DIN frame coherence across channel pairs | NOT MET: a DUT capture-path defect, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617) |
 | SoC board USB function on the bench host | Not visible in the second session; both legs ran without it |
 
 The identity STOP condition did not occur, and the SoC saw bit clock and frame
@@ -382,7 +414,9 @@ sync in both sessions. This record does not close #451, #448, #386 or #117.
 
 ## Artifacts and validation
 
-The publication packet is identified as `451-a403`. Its manifest covers every
+The publication packet is identified as `451-a403`. It is published in the
+[public evidence archive](https://github.com/kebag-logic/milan-fpga/tree/851f835c8ba778b82c78ca9cf0ec814613ddfeda/review-evidence/451-r1/author),
+commit `851f835c` on the `451-review-evidence` branch. Its manifest covers every
 retained file except itself. Raw originals stay outside the packet and are
 indexed there by size and hash.
 
@@ -400,5 +434,5 @@ indexed there by size and hash.
 | DIN 94.9 s talker stream recording, unrouted repeat | 189771350 | `351f9aaaef6811995b34cd1832e12b988df9455145536ac60c9d4a03c376b692` |
 | DIN 94.9 s talker stream recording, routed | 189720730 | `2ab93c0bc7e6c1710b3a2212e0b833d933b5b09529e32e28eae9aebedd5da66d` |
 
-Validation commands and results belong to the accompanying packet. They cover
+Validation commands and results belong to the archived packet. They cover
 documentation integrity, scope controls and bare-metal policy.
