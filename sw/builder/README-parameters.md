@@ -67,7 +67,7 @@ placement fact shared with gateware:
 
 | Field | Type | Notes |
 |---|---|---|
-| `mac_address` | EUI-48 | Required, unicast, and nonzero. |
+| `mac_address` | EUI-48 YAML string | Required, unicast, and nonzero. Colon and dash spellings remain valid. |
 | `pp_mem_phys` | aligned address | Base of the protocol-processor descriptor window. |
 | `rx_address_filter` | `promiscuous` | Existing reset/boot accept-all posture. `hardware` refuses with migration text. |
 
@@ -124,6 +124,10 @@ Empty source lists raise a named L6 refusal.
 Complete product configurations still require AAF listeners and talkers.
 
 AAF declarations accept only AAF formats; CRF declarations accept only CRF.
+Each declared AAF `formats` value must be a list.
+Scalar strings, numbers, booleans, nulls and mappings refuse.
+Omitting `formats` or declaring `[]` retains derived defaults.
+Quote each hexadecimal list entry.
 Milan v1.2 5.3.3.4 forbids mixing these families.
 Both CRF directions require `0x041060010000BB80` (Milan 7.3.2, Table 7.1).
 IEEE 1722.1-2021 Table 7-8 limits each list to 46 formats.
@@ -152,10 +156,15 @@ Literal, pinned and hash-derived IDs reject zero and all ones.
 A pin cannot hide an invalid literal.
 Hexadecimal identity, destination and format values require YAML strings.
 Quote `entity_id`, `entity_model_id`, `model_id_pin` and `srp.stream_dmac_base`.
-Also quote AAF `formats`, `clocking.crf_format` and `clocking.crf_output.format`.
+Also quote `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
+Quote AAF `formats` entries, `clocking.crf_format` and `clocking.crf_output.format`.
 Hexadecimal text accepts an optional `0x` prefix and underscores.
 For example, `"1234567890123456"` retains those hexadecimal digits.
 YAML numbers and other non-strings receive a named quote instruction.
+This includes octal, base-60 integers, booleans and explicit nulls.
+MAC strings also accept colon and dash separators.
+For example, `"020000000002"` and `"02:00:00:00:00:02"` name the same MAC.
+Unquoted `020000000002` and `10:20:30:40:50:02` refuse before YAML reinterpretation propagates.
 The `hash-derived`, `mac-derived` and `maap` selectors remain supported.
 Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.
 Section 5.6.2 repeats this rule for ADPDUs.
