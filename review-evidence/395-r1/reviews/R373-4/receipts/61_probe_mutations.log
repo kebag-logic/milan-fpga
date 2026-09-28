@@ -1,0 +1,44 @@
+# cwd: $REVIEWS/395-r373-4-packet/scratch/probe-tree
+# head: 0ba810fea6a994e6dc8ba927c0c94c6fe24ae5a3
+# command: timeout 1500 python3 -B $REVIEWS/395-r373-4-packet/scripts/probe_mutations.py $REVIEWS/395-r373-4-packet/scratch/probe-tree
+# start: 2026-09-28T10:03:10Z
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+[control] test_soc_shipping_image_contract: rc=0 (pass; as expected)
+      [gate 36b] source list in header: L6_OFFSET
+      [gate 36b] padded source offset: L6_OFFSET
+    RESULT test_soc_shipping_image_contract PASS skipped: []
+[control] test_commercial_timing_grade: rc=0 (pass; as expected)
+      [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+      [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+    RESULT test_commercial_timing_grade PASS skipped: []
+[577_image_check_removed] test_soc_shipping_image_contract: rc=1 (fail; as expected)
+        assert reason is None, f"gate 36b: {label} accepted; missing {reason}"
+               ^^^^^^^^^^^^^^
+    AssertionError: gate 36b: empty rates accepted; missing L10_EMPTY
+[577_image_check_removed] test_commercial_timing_grade: rc=0 (pass; as expected)
+      [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+      [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+    RESULT test_commercial_timing_grade PASS skipped: []
+[395_pll_grade_literal] test_soc_shipping_image_contract: rc=0 (pass; as expected)
+      [gate 36b] source list in header: L6_OFFSET
+      [gate 36b] padded source offset: L6_OFFSET
+    RESULT test_soc_shipping_image_contract PASS skipped: []
+[395_pll_grade_literal] test_commercial_timing_grade: rc=1 (fail; as expected)
+        assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    AssertionError: call(speedgrade=-2)
+[both_removed] test_soc_shipping_image_contract: rc=1 (fail; as expected)
+        assert reason is None, f"gate 36b: {label} accepted; missing {reason}"
+               ^^^^^^^^^^^^^^
+    AssertionError: gate 36b: empty rates accepted; missing L10_EMPTY
+[both_removed] test_commercial_timing_grade: rc=1 (fail; as expected)
+        assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    AssertionError: call(speedgrade=-2)
+MUTATION PROBE PASS
+# end: 2026-09-28T10:03:17Z
+# wall_seconds: 7.059433609
+# rc: 0
