@@ -1,0 +1,101 @@
+[
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "log": "docs-check.log",
+    "elapsed_seconds": 4.69
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "exit": 0,
+    "log": "doc-paths.log",
+    "elapsed_seconds": 0.09
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "exit": 0,
+    "log": "doc-style.log",
+    "elapsed_seconds": 0.06
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "toc.log",
+    "elapsed_seconds": 2.84
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "c07232228c12b72805dd20e6852bf93f25794da0"
+    ],
+    "exit": 0,
+    "log": "em-dash.log",
+    "elapsed_seconds": 3.19
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "baremetal.log",
+    "elapsed_seconds": 14.96
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "log": "ci-scope.log",
+    "elapsed_seconds": 2.19
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "diff-check.log",
+    "elapsed_seconds": 0.04
+  },
+  {
+    "head": "6029890c8ba6fd35fac3d3210b8f3a7b30bb1769",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "c07232228c12b72805dd20e6852bf93f25794da0",
+      "HEAD"
+    ],
+    "exit": 0,
+    "log": "committed-diff-check.log",
+    "elapsed_seconds": 0.03
+  }
+]
