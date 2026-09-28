@@ -1,0 +1,42 @@
+return code: 2
+1342 checks: 1302 PASS, 40 FAIL
+FAIL: I: leftovers resp=0 gate=0 arm=0 mreq=1
+FAIL: J6 nothing was ever accepted while maap was gone
+FAIL: J7 the owed RELEASE is taken FIRST maap src got 6
+FAIL: J7 the owed RELEASE is taken FIRST maap rel got 0
+FAIL: J7 ...and only then does the rejoin allocate maap rel got 1
+FAIL: J: leftovers resp=0 gate=0 arm=0 mreq=1
+FAIL: K0 src2 release maap src got 4
+FAIL: K0 src2 release maap rel got 0
+FAIL: K0 src6 release settled behind the busy face maap src got 2
+FAIL: K0: leftovers resp=0 gate=0 arm=0 mreq=1
+FAIL: K1 src6 alloc ACCEPTED maap rel got 1
+FAIL: K2 THE DEFECT: src2's allocation is stranded by src6's unanswered request (1 accepted)
+FAIL: K4 the bound has NOT elapsed: nothing may be re-offered yet
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 6
+FAIL: K8 the abandoned source retries maap src got 2
+FAIL: K: leftovers resp=0 gate=0 arm=0 mreq=1
+FAIL: L0 src7 release maap src got 6
+FAIL: L0 src7 release maap rel got 0
+FAIL: L0 src7 ALLOC now PARKS the face maap rel got 1
+FAIL: L0: leftovers resp=0 gate=0 arm=0 mreq=1
+FAIL: L1 and nothing can be accepted while the claim walk holds the face
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap src got 7
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap rel got 0
+FAIL: L3 no second request for src 1
+FAIL: L4 src0 release takes the free face maap src got 1
+FAIL: L4 both are owed, neither is accepted yet
+FAIL: L4 src3's owed release, lowest index first maap src got 0
+FAIL: L4 src5's owed release follows maap src got 3
+FAIL: L4 three teardowns, three releases, no fourth (1 extra)
+FAIL: L: leftovers resp=0 gate=0 arm=0 mreq=1
+FAIL: R2 demand cannot bypass retry pacing
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 demand cannot bypass retry pacing
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 demand cannot bypass retry pacing
+FAIL: R7 out-of-block probes cannot storm
+FAIL: R17 absent same-round probes cannot re-offer
+FAIL: R17 absent next round offers every source once
+FAIL: R17 absent same-round probes cannot re-offer
+FAIL: R17 absent next round offers every source once

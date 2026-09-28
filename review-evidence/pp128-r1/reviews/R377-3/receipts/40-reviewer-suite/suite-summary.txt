@@ -1,0 +1,26 @@
+identity                           SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+ctl_kill_no_live_conflict          KILLED    1342 checks: 1340 PASS, 2 FAIL     FAIL: R13 cancellation kind0 edge3 never publishes obsolete grant
+eq_no_sticky_gp_window             SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+eq_accept_kill_zero                SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+eq_accept_kill_no_disable          SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+eq_kill_no_pending_conflict        SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+readd_en_q_clear                   SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+elig_drop_conflict                 KILLED    1342 checks: 1341 PASS, 1 FAIL     FAIL: R16 conflict event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_pcp                      KILLED    1342 checks: 1341 PASS, 1 FAIL     FAIL: R16 pcp event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_tmr                      KILLED    1342 checks: 1341 PASS, 1 FAIL     FAIL: R16 freshness event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_lsn                      KILLED    1342 checks: 1341 PASS, 1 FAIL     FAIL: R16 listener event served under continuous commands (gates 0x02 want 0x06)
+elig_unmasked_init                 KILLED    1342 checks: 1132 PASS, 210 FAIL   FAIL: R2 repeated probe src0 consumed
+init_busy_else_removed             SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+kill_w_no_off                      SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+accept_kill_no_pending_conflict    SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+accept_kill_no_live_conflict       SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+rotate_from_pointer                KILLED    1342 checks: 1334 PASS, 8 FAIL     FAIL: K5 THE REGRESSION: another source allocates again maap src got 6
+turn_not_on_grant                  SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+tick_sets_all                      SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+init_ready_no_en                   SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+disp_init_no_avail                 KILLED    1342 checks: 1309 PASS, 33 FAIL    FAIL: A maap src got 2
+wait_on_visit                      KILLED    1342 checks: 1341 PASS, 1 FAIL     FAIL: R12 demand arc 2 allocates inside round
+turn_clear_on_dispatch             SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+eq_sticky_kill_ignores_accept      SURVIVED  1342 checks: 1342 PASS, 0 FAIL     
+wait_only_on_accept                KILLED    1342 checks: 1338 PASS, 4 FAIL     FAIL: R17 absent same-round probes cannot re-offer
+t0_reset_zero                      SURVIVED  1342 checks: 1342 PASS, 0 FAIL     

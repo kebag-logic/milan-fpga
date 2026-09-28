@@ -1,0 +1,64 @@
+return code: 2
+1338 checks: 1276 PASS, 62 FAIL
+FAIL: I3 listener retries the alloc: maap request missing
+FAIL: I3 listener registered + alloc REFUSED: the gate is still shut
+FAIL: I3 no declare edge on the second refusal
+FAIL: I3 no DECLARE_TALKER without a DA
+FAIL: I4 no DA yet at answer time status got 0 want 3
+FAIL: I4 no DA yet at answer time stream_id got ab00000000000006
+FAIL: I4 no DA yet at answer time vlan got 2
+FAIL: I4 retry alloc: maap request missing
+FAIL: I4 grant declares open da got 000000000000 want 91e0f000010a
+FAIL: J7 grant re-declares open da got 91e0f000010a want 91e0f000010b
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 91e0f000010a
+FAIL: R1 automatic bounded acquisition
+FAIL: R1 first probe after bound src0 status/tuple
+FAIL: R1 first probe after bound src1 status/tuple
+FAIL: R1 first probe after bound src2 status/tuple
+FAIL: R1 first probe after bound src3 status/tuple
+FAIL: R1 first probe after bound src4 status/tuple
+FAIL: R1 first probe after bound src5 status/tuple
+FAIL: R1 first probe after bound src6 status/tuple
+FAIL: R1 first probe after bound src7 status/tuple
+FAIL: R1 owned addresses are never reallocated
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 no declaration without ownership
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 no declaration without ownership
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 no declaration without ownership
+FAIL: R7 shrink and block move src2 status/tuple
+FAIL: R7 shrink and block move src3 status/tuple
+FAIL: R7 shrink and block move src4 status/tuple
+FAIL: R7 shrink and block move src5 status/tuple
+FAIL: R7 shrink and block move src6 status/tuple
+FAIL: R7 shrink and block move src7 status/tuple
+FAIL: R7 only in-block sources declare
+FAIL: R8 wrap retry at bound
+FAIL: R10 re-enable immediately restarts acquisition
+FAIL: R12 probe after conflict src0 status/tuple
+FAIL: R12 demand arc 0 allocates inside round
+FAIL: R12 demand arc 1 allocates inside round

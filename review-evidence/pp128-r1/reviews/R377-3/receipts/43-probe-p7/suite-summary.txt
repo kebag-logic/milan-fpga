@@ -1,0 +1,5 @@
+identity                           SURVIVED  1363 checks: 1363 PASS, 0 FAIL     
+elig_drop_conflict                 KILLED    1363 checks: 1361 PASS, 2 FAIL     FAIL: R16 conflict event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_pcp                      KILLED    1363 checks: 1361 PASS, 2 FAIL     FAIL: R16 pcp event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_tmr                      KILLED    1363 checks: 1361 PASS, 2 FAIL     FAIL: R16 freshness event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_lsn                      KILLED    1363 checks: 1361 PASS, 2 FAIL     FAIL: R16 listener event served under continuous commands (gates 0x02 want 0x06)

@@ -1,0 +1,50 @@
+return code: 2
+1335 checks: 1287 PASS, 48 FAIL
+FAIL: J7 ...and only then does the rejoin allocate: maap request missing
+FAIL: J7 grant re-declares: gate strobe missing
+FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+FAIL: J7 final gates, got 0x6a
+FAIL: J7b the recovered source answers with its NEW DA status got 3 want 0
+FAIL: J7b the recovered source answers with its NEW DA stream_id got 0000000000000000
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 000000000000
+FAIL: J7b the recovered source answers with its NEW DA vlan got 0
+FAIL: J: leftovers resp=0 gate=1 arm=0 mreq=1
+FAIL: K0 src2 release maap src got 4
+FAIL: K0 src2 release maap rel got 0
+FAIL: K0 withdraw on removal expected close, got open
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0 src6 release settled behind the busy face maap src got 2
+FAIL: K0: leftovers resp=0 gate=1 arm=0 mreq=1
+FAIL: K1 src6 alloc ACCEPTED maap rel got 1
+FAIL: K2 THE DEFECT: src2's allocation is stranded by src6's unanswered request (1 accepted)
+FAIL: K4 the bound has NOT elapsed: nothing may be re-offered yet
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 6
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa
+FAIL: K8 the abandoned source retries maap src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb
+FAIL: K: leftovers resp=0 gate=1 arm=0 mreq=1
+FAIL: L0 src7 release maap src got 6
+FAIL: L0 src7 release maap rel got 0
+FAIL: L0 src7 ALLOC now PARKS the face maap rel got 1
+FAIL: L0: leftovers resp=0 gate=1 arm=0 mreq=1
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face close src got 6
+FAIL: L1 and nothing can be accepted while the claim walk holds the face
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap src got 7
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap rel got 0
+FAIL: L3 no second request for src 1
+FAIL: L4 src0 release takes the free face maap src got 1
+FAIL: L4 src3 withdraws at once close src got 1
+FAIL: L4 src5 withdraws at once close src got 3
+FAIL: L4 both are owed, neither is accepted yet
+FAIL: L4 src3's owed release, lowest index first maap src got 0
+FAIL: L4 src5's owed release follows maap src got 3
+FAIL: L4 three teardowns, three releases, no fourth (1 extra)
+FAIL: L: leftovers resp=0 gate=1 arm=0 mreq=1
+FAIL: R15 release does not consume re-enabled lifetime allocation attempt

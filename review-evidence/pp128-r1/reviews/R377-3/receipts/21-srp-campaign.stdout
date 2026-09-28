@@ -1,0 +1,69 @@
+make: Entering directory '<SCRATCH>/head/tb/srp_top'
+python3 mutants.py --output "<PACKET>/receipts/21-srp-campaign"
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+peer-restarts-timer: rc=2 failures=8 KILLED tags=M4
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+expiry-event: rc=2 failures=81 KILLED tags=K1,K11,K12,K2,K4,K5,K9
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+pending-peer-ignored: rc=2 failures=14 KILLED tags=M1,M10,M2,M3
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp: rc=2 failures=6 KILLED tags=M1,M2,M3
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+round-completion-lost: rc=2 failures=1 KILLED tags=N13
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+leaveall-expiry-lost: rc=2 failures=18 KILLED tags=M1,M10,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+preparation-before-slot: rc=2 failures=22 KILLED tags=M1,M10,M11,M12,M5,M6,M8
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-expiry-pulse: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+assertion coverage: 49/49; missing=[]
+64 checks: 64 PASS, 0 FAIL
+make: Leaving directory '<SCRATCH>/head/tb/srp_top'
+srp mutants rc=0

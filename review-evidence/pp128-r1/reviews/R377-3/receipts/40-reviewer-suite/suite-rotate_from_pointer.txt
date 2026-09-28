@@ -1,0 +1,13 @@
+mutant: rotate_from_pointer
+note: reviewer
+rc: 2
+tally: 1342 checks: 1334 PASS, 8 FAIL
+verdict: KILLED
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 6
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x7a
+FAIL: K8 the abandoned source retries maap src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002

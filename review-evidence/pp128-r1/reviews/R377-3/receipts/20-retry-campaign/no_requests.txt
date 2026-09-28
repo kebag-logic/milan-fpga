@@ -1,0 +1,217 @@
+return code: 2
+1191 checks: 976 PASS, 215 FAIL
+FAIL: A allocs got 0
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: A: maap request missing
+FAIL: B1 declare: gate strobe missing
+FAIL: B1 declaring_o[3] OBSERVED 0 -> 1
+FAIL: B1 gate level, got 0x00
+FAIL: B1 status got 3 want 0
+FAIL: B1 stream_id got 0000000000000000
+FAIL: B1 dest_mac got 000000000000
+FAIL: B1 vlan got 0
+FAIL: B2 dest_mac got 000000000000
+FAIL: B3 dest_mac got 000000000000
+FAIL: B4 status got 3 want 0
+FAIL: B4 stream_id got 0000000000000000
+FAIL: B4 dest_mac got 000000000000
+FAIL: B4 vlan got 0
+FAIL: B5 content sane
+FAIL: B6 dest_mac got 000000000000
+FAIL: B7 dest_mac got 000000000000
+FAIL: C6 declare: gate strobe missing
+FAIL: C6 truncated status got 3 want 0
+FAIL: C6 truncated stream_id got 0000000000000000
+FAIL: C6 truncated dest_mac got 000000000000
+FAIL: C6 truncated vlan got 0
+FAIL: D2 freshness lapse: gate strobe missing
+FAIL: D2 declaring_o[3] OBSERVED 1 -> 0
+FAIL: D2 only src3's gate closed, got 0x00
+FAIL: D3 dest_mac got 000000000000
+FAIL: D4 re-declare: gate strobe missing
+FAIL: D4 status got 3 want 0
+FAIL: D4 stream_id got 0000000000000000
+FAIL: D4 dest_mac got 000000000000
+FAIL: D4 vlan got 0
+FAIL: E1 conflict withdraw: gate strobe missing
+FAIL: E1 draw kind 3
+FAIL: E1 leaveall2: timer arm missing
+FAIL: E2 no DAFRESH arm while BACKOFF holds the slot
+FAIL: E3 re-alloc: maap request missing
+FAIL: E3 re-declare new DA: gate strobe missing
+FAIL: E4 new DA answered dest_mac got 000000000000
+FAIL: E: leftovers resp=0 gate=0 arm=1 mreq=0
+FAIL: E7 re-alloc: maap request missing
+FAIL: E7b dest_mac got 000000000000
+FAIL: E7: leftovers resp=0 gate=0 arm=1 mreq=0
+FAIL: F1 listener-driven declare: gate strobe missing
+FAIL: F2 pcp withdraw src0: gate strobe missing
+FAIL: F2 leaveall2 src0 arm slot got 20
+FAIL: F2 leaveall2 src0 arm owner got 53
+FAIL: F2 leaveall2 src0 arm deadline got 65000 want 114000
+FAIL: F2 pcp withdraw src1: gate strobe missing
+FAIL: F2 leaveall2 src1: timer arm missing
+FAIL: F2 pcp withdraw src3: gate strobe missing
+FAIL: F2 leaveall2 src3: timer arm missing
+FAIL: F2 three draws
+FAIL: F3 pcp backoff keeps the DA status got 3 want 0
+FAIL: F3 pcp backoff keeps the DA stream_id got 0000000000000000
+FAIL: F3 pcp backoff keeps the DA dest_mac got 000000000000
+FAIL: F3 pcp backoff keeps the DA vlan got 0
+FAIL: F3 no DAFRESH arm while BACKOFF holds the slot
+FAIL: F4 re-declare same DA: gate strobe missing
+FAIL: F5 re-declare src3 same DA: gate strobe missing
+FAIL: G1 src2 untouched by src1/src3 churn dest_mac got 000000000000
+FAIL: G2a declare: gate strobe missing
+FAIL: G3 declare src5: gate strobe missing
+FAIL: G2 content sane
+FAIL: H1 release DA: maap request missing
+FAIL: I0 gates carried in from A-H, got 0x00
+FAIL: I1 alloc on re-enable: maap request missing
+FAIL: I3 listener retries the alloc: maap request missing
+FAIL: I4 retry alloc: maap request missing
+FAIL: I4 grant declares: gate strobe missing
+FAIL: I4 declaring_o[6] OBSERVED 0 -> 1 on the grant
+FAIL: I4 only src6 moved, got 0x00
+FAIL: J1 withdraw on removal: gate strobe missing
+FAIL: J1 declaring_o[4] OBSERVED 1 -> 0
+FAIL: J2 RELEASE_DA offered and unaccepted
+FAIL: J3 answer unaffected by the hung request dest_mac got 000000000000
+FAIL: J4 request abandoned after exactly 1024 cycles, got 0
+FAIL: J6 the owed RELEASE is re-offered after the abandon, got 0 offers
+FAIL: J6 and it is still src 4's release that is owed
+FAIL: J7 the owed RELEASE is taken FIRST: maap request missing
+FAIL: J7 ...and only then does the rejoin allocate: maap request missing
+FAIL: J7 grant re-declares: gate strobe missing
+FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+FAIL: J7 final gates, got 0x00
+FAIL: J7b the recovered source answers with its NEW DA status got 3 want 0
+FAIL: J7b the recovered source answers with its NEW DA stream_id got 0000000000000000
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 000000000000
+FAIL: J7b the recovered source answers with its NEW DA vlan got 0
+FAIL: K0 src2 release: maap request missing
+FAIL: K0 withdraw on removal: gate strobe missing
+FAIL: K0 src6 release settled behind the busy face: maap request missing
+FAIL: K0 gates after removal, got 0x00
+FAIL: K1 src6 alloc ACCEPTED: maap request missing
+FAIL: K1 exactly one request offered, got 0
+FAIL: K2 src2's request is never even OFFERED, got 0 offers
+FAIL: K2 no gate can open, got 0x00
+FAIL: K4 the bound has NOT elapsed: nothing may be re-offered yet
+FAIL: K5 THE REGRESSION: another source allocates again: maap request missing
+FAIL: K6 stale response changed the gate level to 0x00
+FAIL: K7 src2 declares with ITS OWN DA: gate strobe missing
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x00
+FAIL: K8 the abandoned source retries: maap request missing
+FAIL: K8 abandoned source recovers with a FRESH DA: gate strobe missing
+FAIL: K8 final gates, got 0x00
+FAIL: L0 src7 release: maap request missing
+FAIL: L0 src7 ALLOC now PARKS the face: maap request missing
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face: gate strobe missing
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face: maap request missing
+FAIL: L2 offered exactly once, got 0
+FAIL: L3 a TAKEN release is never re-offered, got 0
+FAIL: L4 src0 release takes the free face: maap request missing
+FAIL: L4 src3 withdraws at once: gate strobe missing
+FAIL: L4 src5 withdraws at once: gate strobe missing
+FAIL: L4 src3's owed release, lowest index first: maap request missing
+FAIL: L4 src5's owed release follows: maap request missing
+FAIL: L4 final gates, got 0x00
+FAIL: R1 one refused startup attempt per source
+FAIL: R1 no retry before 100 ms
+FAIL: R1 automatic bounded acquisition
+FAIL: R1 first probe after bound src0 status/tuple
+FAIL: R1 first probe after bound src1 status/tuple
+FAIL: R1 first probe after bound src2 status/tuple
+FAIL: R1 first probe after bound src3 status/tuple
+FAIL: R1 first probe after bound src4 status/tuple
+FAIL: R1 first probe after bound src5 status/tuple
+FAIL: R1 first probe after bound src6 status/tuple
+FAIL: R1 first probe after bound src7 status/tuple
+FAIL: R1 every probed source declares
+FAIL: R1 owned addresses are never reallocated
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 re-enable recovers src0 status/tuple
+FAIL: R2 re-enable recovers src1 status/tuple
+FAIL: R2 re-enable recovers src2 status/tuple
+FAIL: R2 re-enable recovers src3 status/tuple
+FAIL: R2 re-enable recovers src4 status/tuple
+FAIL: R2 re-enable recovers src5 status/tuple
+FAIL: R2 re-enable recovers src6 status/tuple
+FAIL: R2 re-enable recovers src7 status/tuple
+FAIL: R3 every source gets an attempt under continuous commands
+FAIL: R3 absent request respects accept bound
+FAIL: R4 pending allocation accepted
+FAIL: R4 obsolete successful allocation released before retry
+FAIL: R4 reacquires after obsolete release
+FAIL: R4 pending allocation accepted
+FAIL: R4 obsolete successful allocation released before retry
+FAIL: R4 reacquires after obsolete release
+FAIL: R5 no premature response timeout across wrap
+FAIL: R5 timeout retries automatically across wrap
+FAIL: R5 silent accepts stop at stale-credit capacity
+FAIL: R5 stale drain releases capacity for another source
+FAIL: R6 before backoff src0 status/tuple
+FAIL: R6 full two-LeaveAll backoff armed
+FAIL: R6 backoff expiry redeclares with fresh demand
+FAIL: R6 only conflict needs a new address
+FAIL: R6 after backoff src0 status/tuple
+FAIL: R6 before backoff src0 status/tuple
+FAIL: R6 full two-LeaveAll backoff armed
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 backoff expiry redeclares with fresh demand
+FAIL: R6 after backoff src0 status/tuple
+FAIL: R7 block mapping src0
+FAIL: R7 block mapping src1
+FAIL: R7 block mapping src0
+FAIL: R7 block mapping src1
+FAIL: R7 block mapping src2
+FAIL: R7 block mapping src3
+FAIL: R7 block mapping src4
+FAIL: R7 block mapping src5
+FAIL: R7 block mapping src6
+FAIL: R7 block mapping src7
+FAIL: R7 shrink and block move src0 status/tuple
+FAIL: R7 shrink and block move src1 status/tuple
+FAIL: R7 only in-block sources declare
+FAIL: R8 wrap retry bound minus one
+FAIL: R8 wrap retry at bound
+FAIL: R9 allocation accepted and unanswered
+FAIL: R10 conflict immediately restarts acquisition
+FAIL: R10 re-enable immediately restarts acquisition
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 immediate release serviced under continuous commands
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 owed release serviced under continuous commands
+FAIL: R12 demand arc 0 allocates inside round
+FAIL: R12 demand arc 1 allocates inside round
+FAIL: R12 declaring before backoff src0 status/tuple
+FAIL: R12 demand arc 2 allocates inside round
+FAIL: R13 cancellation kind0 edge0 releases obsolete grant
+FAIL: R13 cancellation kind0 edge1 releases obsolete grant
+FAIL: R13 cancellation kind0 edge2 releases obsolete grant
+FAIL: R13 cancellation kind0 edge3 releases obsolete grant
+FAIL: R13 cancellation kind1 edge0 releases obsolete grant
+FAIL: R13 cancellation kind1 edge1 releases obsolete grant
+FAIL: R13 cancellation kind1 edge2 releases obsolete grant
+FAIL: R13 cancellation kind1 edge3 releases obsolete grant
+FAIL: R15 release offered after disable
+FAIL: R15 release does not consume re-enabled lifetime allocation attempt
+FAIL: R16 conflict src1 declaring before stimulus (0x00)
+FAIL: R16 pcp src1 declaring before stimulus (0x00)
+FAIL: R16 freshness src1 declaring before stimulus (0x00)
+FAIL: R16 freshness gate still open before expiry
+FAIL: R16 listener src1 declaring before stimulus (0x00)
+FAIL: R16 listener event served under continuous commands (gates 0x00 want 0x06)
+FAIL: R17 absent startup offers every source once
+FAIL: R17 absent next round offers every source once
+FAIL: R17 absent next round offers every source once

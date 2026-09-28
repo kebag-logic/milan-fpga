@@ -1,0 +1,67 @@
+hosted check-runs at 66451539ee49262d97403bc6b010202bb773d272 (queried 2026-09-28T07:11:00Z)
+total_count=6
+docs-gates	status=completed	conclusion=success	started=2026-09-28T04:48:29Z	completed=2026-09-28T04:48:41Z	run=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36379246299/job/108791368346
+suites	status=completed	conclusion=success	started=2026-09-28T04:48:29Z	completed=2026-09-28T05:35:10Z	run=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36379246299/job/108791368332
+portability	status=completed	conclusion=success	started=2026-09-28T04:48:29Z	completed=2026-09-28T04:50:59Z	run=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36379246299/job/108791368157
+suites	status=completed	conclusion=success	started=2026-09-28T04:48:26Z	completed=2026-09-28T05:34:50Z	run=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36379242893/job/108791358421
+portability	status=completed	conclusion=success	started=2026-09-28T04:48:26Z	completed=2026-09-28T04:50:59Z	run=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36379242893/job/108791358419
+docs-gates	status=completed	conclusion=success	started=2026-09-28T04:48:26Z	completed=2026-09-28T04:48:35Z	run=https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36379242893/job/108791358271
+
+combined status:
+state=pending contexts=0
+
+workflow runs for head_sha:
+36379246299	pull_request	completed	success	hdl	66451539ee49262d97403bc6b010202bb773d272
+36379242893	push	completed	success	hdl	66451539ee49262d97403bc6b010202bb773d272
+
+job steps (queried 2026-09-28T07:27:49Z):
+job 108791368346 docs-gates success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Link, matrix, parameter, wavedrom and staleness gates: success
+  step 6 Post Run actions/checkout@v4: success
+  step 7 Complete job: success
+job 108791368332 suites success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Cache the pinned Verilator build: success
+  step 4 Build Verilator v5.050: skipped
+  step 5 Lint (zero tolerance) + every suite: success
+  step 6 SRP LeaveAll mutation campaign: success
+  step 7 Traceability matrix no-drift + untested budget 0: success
+  step 8 nvm_port README figures agree with the tree: success
+  step 15 Post Cache the pinned Verilator build: success
+  step 16 Post Run actions/checkout@v4: success
+  step 17 Complete job: success
+job 108791368157 portability success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install yosys + sv2v: success
+  step 4 Elaborate every top off-vendor: success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+job 108791358421 suites success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Cache the pinned Verilator build: success
+  step 4 Build Verilator v5.050: skipped
+  step 5 Lint (zero tolerance) + every suite: success
+  step 6 SRP LeaveAll mutation campaign: success
+  step 7 Traceability matrix no-drift + untested budget 0: success
+  step 8 nvm_port README figures agree with the tree: success
+  step 15 Post Cache the pinned Verilator build: success
+  step 16 Post Run actions/checkout@v4: success
+  step 17 Complete job: success
+job 108791358419 portability success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install yosys + sv2v: success
+  step 4 Elaborate every top off-vendor: success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+job 108791358271 docs-gates success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Link, matrix, parameter, wavedrom and staleness gates: success
+  step 6 Post Run actions/checkout@v4: success
+  step 7 Complete job: success

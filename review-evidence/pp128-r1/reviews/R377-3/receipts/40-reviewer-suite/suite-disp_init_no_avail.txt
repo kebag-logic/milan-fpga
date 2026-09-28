@@ -1,0 +1,38 @@
+mutant: disp_init_no_avail
+note: reviewer
+rc: 2
+tally: 1342 checks: 1309 PASS, 33 FAIL
+verdict: KILLED
+FAIL: A maap src got 2
+FAIL: A maap src got 4
+FAIL: A maap src got 6
+FAIL: A maap src got 1
+FAIL: A maap src got 3
+FAIL: B1 declare open da got 91e0f0000106 want 91e0f0000103
+FAIL: B1 dest_mac got 91e0f0000106
+FAIL: B2 dest_mac got 91e0f0000106
+FAIL: B3 dest_mac got 91e0f0000106
+FAIL: B4 dest_mac got 91e0f0000106
+FAIL: B5 content sane
+FAIL: B6 dest_mac got 91e0f0000106
+FAIL: B7 dest_mac got 91e0f0000106
+FAIL: D3 dest_mac got 91e0f0000106
+FAIL: D4 re-declare open da got 91e0f0000106 want 91e0f0000103
+FAIL: D4 dest_mac got 91e0f0000106
+FAIL: F1 listener-driven declare open da got 91e0f0000104 want 91e0f0000101
+FAIL: F3 pcp backoff keeps the DA dest_mac got 91e0f0000104
+FAIL: F4 re-declare same DA open da got 91e0f0000104 want 91e0f0000101
+FAIL: G1 src2 untouched by src1/src3 churn dest_mac got 91e0f0000101
+FAIL: G2a declare open da got 91e0f0000102 want 91e0f0000104
+FAIL: G2 content sane
+FAIL: J3 answer unaffected by the hung request dest_mac got 91e0f0000101
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 6
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x7a
+FAIL: K8 the abandoned source retries maap src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 demand before disable src1 status/tuple

@@ -1,0 +1,28 @@
+R377-3 independent notes, written after reading the diff 97bd3786..66451539 and the
+round-3 delta cc7c911e..8eefb7b9, and BEFORE reading R376-2 / R377-2 findings text on the PR
+(round-2 packet REPORT.md of this reviewer was read as assigned input only for F1/S1 mapping).
+
+1. Merge 66451539 = 8eefb7b9 + 97bd3786. `git diff 16be6768 8eefb7b9` equals `git diff 97bd3786 66451539`
+   byte for byte, and `git diff 16be6768 97bd3786` equals `git diff 8eefb7b9 66451539`: textually clean,
+   no shared files. Semantic interaction still to be checked by running acmp_talker, SRP suites and pp_top.
+2. Round-3 RTL delta in hdl/acmp/KL_acmp_talker.sv is comment-only (EVC_REL comment :856-858).
+   Must confirm by comment-stripped comparison.
+3. EVC_INIT busy fallback (:872) is unreachable: EVC_INIT dispatch requires maap_avail_w in S_IDLE;
+   between S_IDLE and S_EV_ACT busy can be set only by accept (S_EV_MAAP only), gp_valid only by a
+   live response (needs busy), stale credit only rises on a response timeout (needs busy).
+   So maap_avail_w stays 1 through S_EV_ACT. Stated equivalent: agree.
+4. pe_off_r term of maap_kill_w (:480): pe_off_r[i] is set only one cycle after a cycle where
+   !cfg_src_en_i[i] (edge detector). In that cycle the !en term fires; if busy||gp_valid then the
+   sticky latch captures it; if accept on that cycle, the accept expression's !en term captures it;
+   otherwise the request is not yet accepted and the later accept expression includes pe_off_r
+   (EVC_OFF cannot dispatch while the walker is in S_EV_MAAP). Stated equivalent: agree, pending lockstep.
+5. sticky_kill_ignores_accept: accept requires avail => busy=0 and gp_valid=0 on that edge,
+   so dropping !maap_accept_w from the sticky condition is equivalent. Agree.
+6. init_ready_no_en stated as PERFORMANCE control (not equivalence): action-side guard in EVC_INIT
+   checks cfg_src_en_i. Must check it is honestly labelled (lockstep diverges in round 2).
+7. New tests R16 (event_classes) and R17 (absent_demand_pacing). R16 holds txn_valid_i high with a
+   GET_TX_STATE for src3 and raises conflict/pcp/expiry on src1 or listener on src2; samples declaring_o
+   (a flop mirror updated only by walker actions) while commands still presented. Need to run the four
+   elig_drop_* mutants and wait_only_on_accept and confirm named kills.
+8. R17 counts offers (hold start) not accepts with ready=0: meant to kill wait_only_on_accept.
+9. PR body "Validation at 8eefb7b9" -- the merge head validation is the manager's; check public evidence.

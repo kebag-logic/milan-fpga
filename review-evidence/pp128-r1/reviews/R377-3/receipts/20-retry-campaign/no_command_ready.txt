@@ -1,0 +1,695 @@
+return code: 2
+1342 checks: 649 PASS, 693 FAIL
+FAIL: B1 consumed
+FAIL: B2 consumed
+FAIL: B2 msg_type got 1 want 5
+FAIL: B2 listener_eid got 1111222233334444
+FAIL: B2 listener_uid got 7
+FAIL: B2 sequence_id got 256
+FAIL: B2 flags got 000a want 0000
+FAIL: B3 consumed
+FAIL: B3 msg_type got 1 want 5
+FAIL: B3 listener_eid got 1111222233334444
+FAIL: B3 listener_uid got 7
+FAIL: B3 sequence_id got 256
+FAIL: B3 flags got 000a want 0040
+FAIL: B4 consumed
+FAIL: B4 re-ping arm deadline got 16000 want 17000
+FAIL: B4 sequence_id got 256
+FAIL: B5a consumed
+FAIL: B5b consumed
+FAIL: B5 content sane
+FAIL: B6 consumed
+FAIL: B6 msg_type got 1 want 5
+FAIL: B6 listener_eid got 1111222233334444
+FAIL: B6 listener_uid got 7
+FAIL: B6 sequence_id got 256
+FAIL: B6 flags got 000a want 0000
+FAIL: B7 consumed
+FAIL: B7 msg_type got 1 want 5
+FAIL: B7 listener_eid got 1111222233334444
+FAIL: B7 listener_uid got 7
+FAIL: B7 sequence_id got 256
+FAIL: B7 flags got 000a want 0000
+FAIL: B: leftovers resp=8694 gate=0 arm=508 mreq=0
+FAIL: C1 consumed
+FAIL: C1 unknown-id status got 0 want 2
+FAIL: C1 unknown-id stream_id got ab00000000000003
+FAIL: C1 unknown-id talker_uid got 3
+FAIL: C1 unknown-id listener_uid got 7
+FAIL: C1 unknown-id dest_mac got 91e0f0000103
+FAIL: C1 unknown-id sequence_id got 256
+FAIL: C1 unknown-id flags got 000a want 0002
+FAIL: C1 unknown-id vlan got 2
+FAIL: C2 consumed
+FAIL: C2 unknown-id msg_type got 1 want 5
+FAIL: C2 unknown-id status got 0 want 2
+FAIL: C2 unknown-id stream_id got ab00000000000003
+FAIL: C2 unknown-id listener_eid got 1111222233334444
+FAIL: C2 unknown-id talker_uid got 3
+FAIL: C2 unknown-id listener_uid got 7
+FAIL: C2 unknown-id dest_mac got 91e0f0000103
+FAIL: C2 unknown-id sequence_id got 256
+FAIL: C2 unknown-id flags got 000a want 0000
+FAIL: C2 unknown-id vlan got 2
+FAIL: C3 consumed
+FAIL: C3 no response on wrong interface
+FAIL: C3 no freshness ping on wrong interface
+FAIL: C3 slot freed
+FAIL: C4 consumed
+FAIL: C4 disconnect no-op msg_type got 1 want 3
+FAIL: C4 disconnect no-op stream_id got ab00000000000003
+FAIL: C4 disconnect no-op dest_mac got 91e0f0000103
+FAIL: C4 disconnect no-op sequence_id got 256
+FAIL: C4 disconnect no-op flags got 000a want 0000
+FAIL: C4 disconnect no-op vlan got 2
+FAIL: C5 consumed
+FAIL: C5 get_tx_connection msg_type got 1 want 13
+FAIL: C5 get_tx_connection status got 0 want 31
+FAIL: C5 get_tx_connection stream_id got ab00000000000003
+FAIL: C5 get_tx_connection dest_mac got 91e0f0000103
+FAIL: C5 get_tx_connection sequence_id got 256
+FAIL: C5 get_tx_connection flags got 000a want 0000
+FAIL: C5 get_tx_connection vlan got 2
+FAIL: C6 consumed
+FAIL: C6 ping arm slot got 20
+FAIL: C6 ping arm owner got 53
+FAIL: C6 ping arm deadline got 16000 want 18000
+FAIL: C6 truncated stream_id got ab00000000000003
+FAIL: C6 truncated talker_uid got 3
+FAIL: C6 truncated listener_uid got 7
+FAIL: C6 truncated dest_mac got 91e0f0000103
+FAIL: C6 truncated sequence_id got 256
+FAIL: C6 truncated flags got 000a want 0000
+FAIL: C7 consumed
+FAIL: C7 foreign talker_entity_id ignored
+FAIL: C7 slot freed
+FAIL: C: leftovers resp=11078 gate=0 arm=762 mreq=0
+FAIL: D3 consumed
+FAIL: D3 msg_type got 1 want 5
+FAIL: D3 listener_eid got 1111222233334444
+FAIL: D3 listener_uid got 7
+FAIL: D3 sequence_id got 256
+FAIL: D3 flags got 000a want 0000
+FAIL: D4 consumed
+FAIL: D4 ping arm deadline got 16000 want 55000
+FAIL: D4 sequence_id got 256
+FAIL: D4 flags got 000a want 0002
+FAIL: D: leftovers resp=12690 gate=0 arm=1016 mreq=0
+FAIL: E1 leaveall2 arm deadline got 16000 want 70000
+FAIL: E2 consumed
+FAIL: E2 backoff probe status got 0 want 3
+FAIL: E2 backoff probe stream_id got ab00000000000003
+FAIL: E2 backoff probe dest_mac got 91e0f0000103
+FAIL: E2 backoff probe sequence_id got 256
+FAIL: E2 backoff probe flags got 000a want 0002
+FAIL: E2 backoff probe vlan got 2
+FAIL: E2 no DAFRESH arm while BACKOFF holds the slot
+FAIL: E4 consumed
+FAIL: E4 new DA answered msg_type got 1 want 5
+FAIL: E4 new DA answered listener_eid got 1111222233334444
+FAIL: E4 new DA answered listener_uid got 7
+FAIL: E4 new DA answered dest_mac got 91e0f0000103
+FAIL: E4 new DA answered sequence_id got 256
+FAIL: E4 new DA answered flags got 000a want 0000
+FAIL: E: leftovers resp=14309 gate=0 arm=1016 mreq=0
+FAIL: E7b consumed
+FAIL: E7b msg_type got 1 want 5
+FAIL: E7b stream_id got ab00000000000003
+FAIL: E7b listener_eid got 1111222233334444
+FAIL: E7b talker_uid got 3
+FAIL: E7b listener_uid got 7
+FAIL: E7b dest_mac got 91e0f0000103
+FAIL: E7b sequence_id got 256
+FAIL: E7b flags got 000a want 0000
+FAIL: E7: leftovers resp=15674 gate=0 arm=1016 mreq=0
+FAIL: F2 leaveall2 src0 arm slot got 20
+FAIL: F2 leaveall2 src0 arm owner got 53
+FAIL: F2 leaveall2 src0 arm deadline got 16000 want 114000
+FAIL: F2 leaveall2 src1 arm slot got 20
+FAIL: F2 leaveall2 src1 arm owner got 53
+FAIL: F2 leaveall2 src1 arm deadline got 16000 want 114000
+FAIL: F2 leaveall2 src3 arm deadline got 16000 want 114000
+FAIL: F3 consumed
+FAIL: F3 pcp backoff keeps the DA stream_id got ab00000000000003
+FAIL: F3 pcp backoff keeps the DA talker_uid got 3
+FAIL: F3 pcp backoff keeps the DA listener_uid got 7
+FAIL: F3 pcp backoff keeps the DA dest_mac got 91e0f0000103
+FAIL: F3 pcp backoff keeps the DA sequence_id got 256
+FAIL: F3 pcp backoff keeps the DA flags got 000a want 0008
+FAIL: F3 no DAFRESH arm while BACKOFF holds the slot
+FAIL: F4 remaining freshness arm slot got 20
+FAIL: F4 remaining freshness arm owner got 53
+FAIL: F4 remaining freshness arm deadline got 16000 want 105000
+FAIL: F6 src0 exits backoff without declaring
+FAIL: F: leftovers resp=15930 gate=0 arm=1016 mreq=0
+FAIL: G1 consumed
+FAIL: G1 src2 untouched by src1/src3 churn msg_type got 1 want 5
+FAIL: G1 src2 untouched by src1/src3 churn stream_id got ab00000000000003
+FAIL: G1 src2 untouched by src1/src3 churn listener_eid got 1111222233334444
+FAIL: G1 src2 untouched by src1/src3 churn talker_uid got 3
+FAIL: G1 src2 untouched by src1/src3 churn listener_uid got 7
+FAIL: G1 src2 untouched by src1/src3 churn dest_mac got 91e0f0000103
+FAIL: G1 src2 untouched by src1/src3 churn sequence_id got 256
+FAIL: G1 src2 untouched by src1/src3 churn flags got 000a want 0000
+FAIL: G2a consumed
+FAIL: G2a ping arm slot got 20
+FAIL: G2a ping arm owner got 53
+FAIL: G2a ping arm deadline got 16000 want 215000
+FAIL: G3 consumed
+FAIL: G4 consumed
+FAIL: G2b consumed
+FAIL: G2 content sane
+FAIL: G2b re-ping arm slot got 20
+FAIL: G2b re-ping arm owner got 53
+FAIL: G2b re-ping arm deadline got 16000 want 215000
+FAIL: G: leftovers resp=19420 gate=0 arm=1525 mreq=0
+FAIL: H1 cancel shared slot arm slot got 20
+FAIL: H1 cancel shared slot arm owner got 53
+FAIL: H1 cancel shared slot arm cancel got 0
+FAIL: H2 consumed
+FAIL: H2 disabled source status got 0 want 2
+FAIL: H2 disabled source stream_id got ab00000000000003
+FAIL: H2 disabled source talker_uid got 3
+FAIL: H2 disabled source listener_uid got 7
+FAIL: H2 disabled source dest_mac got 91e0f0000103
+FAIL: H2 disabled source sequence_id got 256
+FAIL: H2 disabled source flags got 000a want 0002
+FAIL: H2 disabled source vlan got 2
+FAIL: H: leftovers resp=19675 gate=0 arm=1525 mreq=0
+FAIL: I2 consumed
+FAIL: I2 refused source answers with no DA msg_type got 1 want 5
+FAIL: I2 refused source answers with no DA stream_id got ab00000000000003
+FAIL: I2 refused source answers with no DA listener_eid got 1111222233334444
+FAIL: I2 refused source answers with no DA talker_uid got 3
+FAIL: I2 refused source answers with no DA listener_uid got 7
+FAIL: I2 refused source answers with no DA dest_mac got 91e0f0000103
+FAIL: I2 refused source answers with no DA sequence_id got 256
+FAIL: I2 refused source answers with no DA flags got 000a want 0000
+FAIL: I4 consumed
+FAIL: I4 no DA yet at answer time status got 0 want 3
+FAIL: I4 no DA yet at answer time stream_id got ab00000000000003
+FAIL: I4 no DA yet at answer time talker_uid got 3
+FAIL: I4 no DA yet at answer time listener_uid got 7
+FAIL: I4 no DA yet at answer time dest_mac got 91e0f0000103
+FAIL: I4 no DA yet at answer time sequence_id got 256
+FAIL: I4 no DA yet at answer time flags got 000a want 0008
+FAIL: I4 no DA yet at answer time vlan got 2
+FAIL: I4 ping arm slot got 20
+FAIL: I4 ping arm owner got 53
+FAIL: I4 ping arm deadline got 16000 want 225000
+FAIL: I: leftovers resp=21294 gate=0 arm=1779 mreq=0
+FAIL: J1 cancel shared slot arm slot got 20
+FAIL: J1 cancel shared slot arm owner got 53
+FAIL: J1 cancel shared slot arm cancel got 0
+FAIL: J3 THE REGRESSION: a command is still consumed with maap hung
+FAIL: J3 served inside the accept window (4096 cycles)
+FAIL: J3 answer unaffected by the hung request msg_type got 1 want 5
+FAIL: J3 answer unaffected by the hung request stream_id got ab00000000000003
+FAIL: J3 answer unaffected by the hung request listener_eid got 1111222233334444
+FAIL: J3 answer unaffected by the hung request talker_uid got 3
+FAIL: J3 answer unaffected by the hung request listener_uid got 7
+FAIL: J3 answer unaffected by the hung request dest_mac got 91e0f0000103
+FAIL: J3 answer unaffected by the hung request sequence_id got 256
+FAIL: J3 answer unaffected by the hung request flags got 000a want 0000
+FAIL: J5 consumed
+FAIL: J5 abandoned alloc = the refused-alloc state status got 0 want 3
+FAIL: J5 abandoned alloc = the refused-alloc state stream_id got ab00000000000003
+FAIL: J5 abandoned alloc = the refused-alloc state talker_uid got 3
+FAIL: J5 abandoned alloc = the refused-alloc state listener_uid got 7
+FAIL: J5 abandoned alloc = the refused-alloc state dest_mac got 91e0f0000103
+FAIL: J5 abandoned alloc = the refused-alloc state sequence_id got 256
+FAIL: J5 abandoned alloc = the refused-alloc state flags got 000a want 0002
+FAIL: J5 abandoned alloc = the refused-alloc state vlan got 2
+FAIL: J5 ping still arms freshness arm slot got 20
+FAIL: J5 ping still arms freshness arm owner got 53
+FAIL: J5 ping still arms freshness arm deadline got 16000 want 315000
+FAIL: J7b consumed
+FAIL: J7b the recovered source answers with its NEW DA stream_id got ab00000000000003
+FAIL: J7b the recovered source answers with its NEW DA talker_uid got 3
+FAIL: J7b the recovered source answers with its NEW DA listener_uid got 7
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 91e0f0000103
+FAIL: J7b the recovered source answers with its NEW DA sequence_id got 256
+FAIL: J7b the recovered source answers with its NEW DA flags got 000a want 0002
+FAIL: J7b ping arm slot got 20
+FAIL: J7b ping arm owner got 53
+FAIL: J7b ping arm deadline got 16000 want 335000
+FAIL: J: leftovers resp=21553 gate=0 arm=2036 mreq=0
+FAIL: K0 cancel src2 slot arm slot got 20
+FAIL: K0 cancel src2 slot arm owner got 53
+FAIL: K0 cancel src2 slot arm cancel got 0
+FAIL: K0 cancel src6 slot arm slot got 20
+FAIL: K0 cancel src6 slot arm owner got 53
+FAIL: K0 cancel src6 slot arm cancel got 0
+FAIL: K0: leftovers resp=21553 gate=0 arm=2036 mreq=0
+FAIL: K3 consumed
+FAIL: K3 the waiting source degrades honestly status got 0 want 3
+FAIL: K3 the waiting source degrades honestly stream_id got ab00000000000003
+FAIL: K3 the waiting source degrades honestly talker_uid got 3
+FAIL: K3 the waiting source degrades honestly listener_uid got 7
+FAIL: K3 the waiting source degrades honestly dest_mac got 91e0f0000103
+FAIL: K3 the waiting source degrades honestly sequence_id got 256
+FAIL: K3 the waiting source degrades honestly flags got 000a want 0002
+FAIL: K3 the waiting source degrades honestly vlan got 2
+FAIL: K3 ping still arms freshness arm slot got 20
+FAIL: K3 ping still arms freshness arm owner got 53
+FAIL: K3 ping still arms freshness arm deadline got 16000 want 415000
+FAIL: K6 consumed
+FAIL: K6 src2 answers with NO DA, not the stale one msg_type got 1 want 5
+FAIL: K6 src2 answers with NO DA, not the stale one stream_id got ab00000000000003
+FAIL: K6 src2 answers with NO DA, not the stale one listener_eid got 1111222233334444
+FAIL: K6 src2 answers with NO DA, not the stale one talker_uid got 3
+FAIL: K6 src2 answers with NO DA, not the stale one listener_uid got 7
+FAIL: K6 src2 answers with NO DA, not the stale one dest_mac got 91e0f0000103
+FAIL: K6 src2 answers with NO DA, not the stale one sequence_id got 256
+FAIL: K6 src2 answers with NO DA, not the stale one flags got 000a want 0000
+FAIL: K: leftovers resp=23173 gate=0 arm=2291 mreq=0
+FAIL: L0 cancel src7 slot arm slot got 20
+FAIL: L0 cancel src7 slot arm owner got 53
+FAIL: L0 cancel src7 slot arm cancel got 0
+FAIL: L0: leftovers resp=23173 gate=0 arm=2291 mreq=0
+FAIL: L1 cancel src1 slot arm slot got 20
+FAIL: L1 cancel src1 slot arm owner got 53
+FAIL: L1 cancel src1 slot arm cancel got 0
+FAIL: L1 consumed
+FAIL: L1 the removed source answers at once status got 0 want 2
+FAIL: L1 the removed source answers at once stream_id got ab00000000000003
+FAIL: L1 the removed source answers at once talker_uid got 3
+FAIL: L1 the removed source answers at once listener_uid got 7
+FAIL: L1 the removed source answers at once dest_mac got 91e0f0000103
+FAIL: L1 the removed source answers at once sequence_id got 256
+FAIL: L1 the removed source answers at once flags got 000a want 0002
+FAIL: L1 the removed source answers at once vlan got 2
+FAIL: L4 cancel src0 slot arm slot got 20
+FAIL: L4 cancel src0 slot arm owner got 53
+FAIL: L4 cancel src0 slot arm cancel got 0
+FAIL: L4 cancel src3 slot arm cancel got 0
+FAIL: L4 cancel src5 slot arm slot got 20
+FAIL: L4 cancel src5 slot arm owner got 53
+FAIL: L4 cancel src5 slot arm cancel got 0
+FAIL: L: leftovers resp=23388 gate=0 arm=2291 mreq=0
+FAIL: R1 first probe after bound src0 consumed
+FAIL: R1 first probe after bound src0 response budget
+FAIL: R1 first probe after bound src0 status/tuple
+FAIL: R1 first probe after bound src1 consumed
+FAIL: R1 first probe after bound src1 response budget
+FAIL: R1 first probe after bound src1 status/tuple
+FAIL: R1 first probe after bound src2 consumed
+FAIL: R1 first probe after bound src2 response budget
+FAIL: R1 first probe after bound src2 status/tuple
+FAIL: R1 first probe after bound src3 consumed
+FAIL: R1 first probe after bound src3 response budget
+FAIL: R1 first probe after bound src3 status/tuple
+FAIL: R1 first probe after bound src4 consumed
+FAIL: R1 first probe after bound src4 response budget
+FAIL: R1 first probe after bound src4 status/tuple
+FAIL: R1 first probe after bound src5 consumed
+FAIL: R1 first probe after bound src5 response budget
+FAIL: R1 first probe after bound src5 status/tuple
+FAIL: R1 first probe after bound src6 consumed
+FAIL: R1 first probe after bound src6 response budget
+FAIL: R1 first probe after bound src6 status/tuple
+FAIL: R1 first probe after bound src7 consumed
+FAIL: R1 first probe after bound src7 response budget
+FAIL: R1 first probe after bound src7 status/tuple
+FAIL: R2 honest refusal src0 consumed
+FAIL: R2 honest refusal src0 response budget
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 consumed
+FAIL: R2 repeated probe src0 response budget
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 consumed
+FAIL: R2 honest refusal src2 response budget
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 consumed
+FAIL: R2 repeated probe src2 response budget
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 consumed
+FAIL: R2 honest refusal src4 response budget
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 consumed
+FAIL: R2 repeated probe src4 response budget
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 consumed
+FAIL: R2 honest refusal src6 response budget
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 consumed
+FAIL: R2 repeated probe src6 response budget
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 honest refusal src0 consumed
+FAIL: R2 honest refusal src0 response budget
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 consumed
+FAIL: R2 repeated probe src0 response budget
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 consumed
+FAIL: R2 honest refusal src2 response budget
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 consumed
+FAIL: R2 repeated probe src2 response budget
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 consumed
+FAIL: R2 honest refusal src4 response budget
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 consumed
+FAIL: R2 repeated probe src4 response budget
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 consumed
+FAIL: R2 honest refusal src6 response budget
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 consumed
+FAIL: R2 repeated probe src6 response budget
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 honest refusal src0 consumed
+FAIL: R2 honest refusal src0 response budget
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 consumed
+FAIL: R2 repeated probe src0 response budget
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 consumed
+FAIL: R2 honest refusal src2 response budget
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 consumed
+FAIL: R2 repeated probe src2 response budget
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 consumed
+FAIL: R2 honest refusal src4 response budget
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 consumed
+FAIL: R2 repeated probe src4 response budget
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 consumed
+FAIL: R2 honest refusal src6 response budget
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 consumed
+FAIL: R2 repeated probe src6 response budget
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 disabled probe src7 consumed
+FAIL: R2 disabled probe src7 response budget
+FAIL: R2 disabled probe src7 status/tuple
+FAIL: R2 re-enable recovers src0 consumed
+FAIL: R2 re-enable recovers src0 response budget
+FAIL: R2 re-enable recovers src0 status/tuple
+FAIL: R2 re-enable recovers src1 consumed
+FAIL: R2 re-enable recovers src1 response budget
+FAIL: R2 re-enable recovers src1 status/tuple
+FAIL: R2 re-enable recovers src2 consumed
+FAIL: R2 re-enable recovers src2 response budget
+FAIL: R2 re-enable recovers src2 status/tuple
+FAIL: R2 re-enable recovers src3 consumed
+FAIL: R2 re-enable recovers src3 response budget
+FAIL: R2 re-enable recovers src3 status/tuple
+FAIL: R2 re-enable recovers src4 consumed
+FAIL: R2 re-enable recovers src4 response budget
+FAIL: R2 re-enable recovers src4 status/tuple
+FAIL: R2 re-enable recovers src5 consumed
+FAIL: R2 re-enable recovers src5 response budget
+FAIL: R2 re-enable recovers src5 status/tuple
+FAIL: R2 re-enable recovers src6 consumed
+FAIL: R2 re-enable recovers src6 response budget
+FAIL: R2 re-enable recovers src6 status/tuple
+FAIL: R2 re-enable recovers src7 consumed
+FAIL: R2 re-enable recovers src7 response budget
+FAIL: R2 re-enable recovers src7 status/tuple
+FAIL: R3 absent allocator src0 consumed
+FAIL: R3 absent allocator src0 response budget
+FAIL: R3 absent allocator src0 status/tuple
+FAIL: R4 obsolete grant rejected src0 consumed
+FAIL: R4 obsolete grant rejected src0 response budget
+FAIL: R4 obsolete grant rejected src0 status/tuple
+FAIL: R4 fresh grant src0 consumed
+FAIL: R4 fresh grant src0 response budget
+FAIL: R4 fresh grant src0 status/tuple
+FAIL: R4 obsolete grant rejected src0 consumed
+FAIL: R4 obsolete grant rejected src0 response budget
+FAIL: R4 obsolete grant rejected src0 status/tuple
+FAIL: R4 fresh grant src0 consumed
+FAIL: R4 fresh grant src0 response budget
+FAIL: R4 fresh grant src0 status/tuple
+FAIL: R5 stale timeout response src0 consumed
+FAIL: R5 stale timeout response src0 response budget
+FAIL: R5 stale timeout response src0 status/tuple
+FAIL: R5 retry response src0 consumed
+FAIL: R5 retry response src0 response budget
+FAIL: R5 retry response src0 status/tuple
+FAIL: R5 saturated silence src7 consumed
+FAIL: R5 saturated silence src7 response budget
+FAIL: R5 saturated silence src7 status/tuple
+FAIL: R6 before backoff src0 consumed
+FAIL: R6 before backoff src0 response budget
+FAIL: R6 before backoff src0 status/tuple
+FAIL: R6 probe during backoff src0 consumed
+FAIL: R6 probe during backoff src0 response budget
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 after backoff src0 consumed
+FAIL: R6 after backoff src0 response budget
+FAIL: R6 after backoff src0 status/tuple
+FAIL: R6 before backoff src0 consumed
+FAIL: R6 before backoff src0 response budget
+FAIL: R6 before backoff src0 status/tuple
+FAIL: R6 probe during backoff src0 consumed
+FAIL: R6 probe during backoff src0 response budget
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 after backoff src0 consumed
+FAIL: R6 after backoff src0 response budget
+FAIL: R6 after backoff src0 status/tuple
+FAIL: R7 query consumed src0
+FAIL: R7 block mapping src0
+FAIL: R7 query consumed src1
+FAIL: R7 block mapping src1
+FAIL: R7 query consumed src2
+FAIL: R7 block mapping src2
+FAIL: R7 query consumed src3
+FAIL: R7 block mapping src3
+FAIL: R7 query consumed src4
+FAIL: R7 block mapping src4
+FAIL: R7 query consumed src5
+FAIL: R7 block mapping src5
+FAIL: R7 query consumed src6
+FAIL: R7 block mapping src6
+FAIL: R7 query consumed src7
+FAIL: R7 block mapping src7
+FAIL: R7 query consumed src0
+FAIL: R7 block mapping src0
+FAIL: R7 query consumed src1
+FAIL: R7 block mapping src1
+FAIL: R7 query consumed src2
+FAIL: R7 block mapping src2
+FAIL: R7 query consumed src3
+FAIL: R7 block mapping src3
+FAIL: R7 query consumed src4
+FAIL: R7 block mapping src4
+FAIL: R7 query consumed src5
+FAIL: R7 block mapping src5
+FAIL: R7 query consumed src6
+FAIL: R7 block mapping src6
+FAIL: R7 query consumed src7
+FAIL: R7 block mapping src7
+FAIL: R7 shrink and block move src0 consumed
+FAIL: R7 shrink and block move src0 response budget
+FAIL: R7 shrink and block move src0 status/tuple
+FAIL: R7 shrink and block move src1 consumed
+FAIL: R7 shrink and block move src1 response budget
+FAIL: R7 shrink and block move src1 status/tuple
+FAIL: R7 shrink and block move src2 consumed
+FAIL: R7 shrink and block move src2 response budget
+FAIL: R7 shrink and block move src2 status/tuple
+FAIL: R7 shrink and block move src3 consumed
+FAIL: R7 shrink and block move src3 response budget
+FAIL: R7 shrink and block move src3 status/tuple
+FAIL: R7 shrink and block move src4 consumed
+FAIL: R7 shrink and block move src4 response budget
+FAIL: R7 shrink and block move src4 status/tuple
+FAIL: R7 shrink and block move src5 consumed
+FAIL: R7 shrink and block move src5 response budget
+FAIL: R7 shrink and block move src5 status/tuple
+FAIL: R7 shrink and block move src6 consumed
+FAIL: R7 shrink and block move src6 response budget
+FAIL: R7 shrink and block move src6 status/tuple
+FAIL: R7 shrink and block move src7 consumed
+FAIL: R7 shrink and block move src7 response budget
+FAIL: R7 shrink and block move src7 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 consumed
+FAIL: R9 consecutive command during silent allocation src1 response budget
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 consumed
+FAIL: R9 consecutive command during silent allocation src1 response budget
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 consumed
+FAIL: R9 consecutive command during silent allocation src1 response budget
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 consumed
+FAIL: R9 consecutive command during silent allocation src1 response budget
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 consumed
+FAIL: R9 consecutive command during silent allocation src1 response budget
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 consumed
+FAIL: R9 consecutive command during silent allocation src1 response budget
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R11 demand before disable src1 consumed
+FAIL: R11 demand before disable src1 response budget
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 seed command consumed
+FAIL: R11 demand before disable src1 consumed
+FAIL: R11 demand before disable src1 response budget
+FAIL: R11 demand before disable src1 status/tuple
+FAIL: R11 seed command consumed
+FAIL: R12 probe after conflict src0 consumed
+FAIL: R12 probe after conflict src0 response budget
+FAIL: R12 probe after conflict src0 status/tuple
+FAIL: R12 declaring before backoff src0 consumed
+FAIL: R12 declaring before backoff src0 response budget
+FAIL: R12 declaring before backoff src0 status/tuple
+FAIL: R16 conflict seed probe
+FAIL: R16 conflict command seed
+FAIL: R16 pcp seed probe
+FAIL: R16 pcp command seed
+FAIL: R16 freshness seed probe
+FAIL: R16 freshness command seed
+FAIL: R16 listener seed probe
+FAIL: R16 listener command seed
+FAIL: R17 repeated absent probe src0 consumed
+FAIL: R17 repeated absent probe src0 response budget
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 consumed
+FAIL: R17 repeated absent probe src1 response budget
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 consumed
+FAIL: R17 repeated absent probe src2 response budget
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 consumed
+FAIL: R17 repeated absent probe src3 response budget
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 consumed
+FAIL: R17 repeated absent probe src4 response budget
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 consumed
+FAIL: R17 repeated absent probe src5 response budget
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 consumed
+FAIL: R17 repeated absent probe src6 response budget
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 consumed
+FAIL: R17 repeated absent probe src7 response budget
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 consumed
+FAIL: R17 repeated absent probe src0 response budget
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 consumed
+FAIL: R17 repeated absent probe src1 response budget
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 consumed
+FAIL: R17 repeated absent probe src2 response budget
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 consumed
+FAIL: R17 repeated absent probe src3 response budget
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 consumed
+FAIL: R17 repeated absent probe src4 response budget
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 consumed
+FAIL: R17 repeated absent probe src5 response budget
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 consumed
+FAIL: R17 repeated absent probe src6 response budget
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 consumed
+FAIL: R17 repeated absent probe src7 response budget
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 consumed
+FAIL: R17 repeated absent probe src0 response budget
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 consumed
+FAIL: R17 repeated absent probe src1 response budget
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 consumed
+FAIL: R17 repeated absent probe src2 response budget
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 consumed
+FAIL: R17 repeated absent probe src3 response budget
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 consumed
+FAIL: R17 repeated absent probe src4 response budget
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 consumed
+FAIL: R17 repeated absent probe src5 response budget
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 consumed
+FAIL: R17 repeated absent probe src6 response budget
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 consumed
+FAIL: R17 repeated absent probe src7 response budget
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 consumed
+FAIL: R17 repeated absent probe src0 response budget
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 consumed
+FAIL: R17 repeated absent probe src1 response budget
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 consumed
+FAIL: R17 repeated absent probe src2 response budget
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 consumed
+FAIL: R17 repeated absent probe src3 response budget
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 consumed
+FAIL: R17 repeated absent probe src4 response budget
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 consumed
+FAIL: R17 repeated absent probe src5 response budget
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 consumed
+FAIL: R17 repeated absent probe src6 response budget
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 consumed
+FAIL: R17 repeated absent probe src7 response budget
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 consumed
+FAIL: R17 repeated absent probe src0 response budget
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 consumed
+FAIL: R17 repeated absent probe src1 response budget
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 consumed
+FAIL: R17 repeated absent probe src2 response budget
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 consumed
+FAIL: R17 repeated absent probe src3 response budget
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 consumed
+FAIL: R17 repeated absent probe src4 response budget
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 consumed
+FAIL: R17 repeated absent probe src5 response budget
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 consumed
+FAIL: R17 repeated absent probe src6 response budget
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 consumed
+FAIL: R17 repeated absent probe src7 response budget
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 consumed
+FAIL: R17 repeated absent probe src0 response budget
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 consumed
+FAIL: R17 repeated absent probe src1 response budget
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 consumed
+FAIL: R17 repeated absent probe src2 response budget
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 consumed
+FAIL: R17 repeated absent probe src3 response budget
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 consumed
+FAIL: R17 repeated absent probe src4 response budget
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 consumed
+FAIL: R17 repeated absent probe src5 response budget
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 consumed
+FAIL: R17 repeated absent probe src6 response budget
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 consumed
+FAIL: R17 repeated absent probe src7 response budget
+FAIL: R17 repeated absent probe src7 status/tuple

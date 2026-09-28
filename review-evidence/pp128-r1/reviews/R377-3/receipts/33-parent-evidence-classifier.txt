@@ -1,0 +1,8 @@
+parent scripts/measure_test_evidence.py @54ce8773 sha256 bfa1e44243345ac541da6cc7026ab662042213e9a3cf21eea746db072aa406ee
+parent scripts/code_quality_scope.py @54ce8773 sha256 4497818d6444cc1ea7aefc002d1b32675f206e07988cbf6b19708b08409de14b
+parent scripts/suite_tally.py @54ce8773 sha256 e0b81c18d78d6e631d4ebdb5fd2304dafdd1f183a8ecc9caedd8c22293867d3d
+uses_wall_clock(retry_mutants.py) = False
+uses_wall_clock(retry_cases.hpp) = False
+uses_wall_clock(sim_main.cpp) = False
+retry_mutants.py DUT_READ_PY match: True  DUT_PATH match: True
+disposition row for protocol-processor/tb/acmp_talker/retry_mutants.py in parent table @54ce8773: False
