@@ -1,0 +1,13 @@
+[PASS] the unmutated gateware still passes the gmstep leg
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 2 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+    it broke 2 check(s): CRF control: selected CRF mr propagates exactly once; coincident: a PHC step neither adds nor suppresses the CRF restart
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+
+6 checks: 6 PASS, 0 FAIL
