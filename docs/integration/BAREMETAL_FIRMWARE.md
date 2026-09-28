@@ -1902,7 +1902,8 @@ Several short commands can therefore exceed that same liveness deadline.
 [Issue #590](https://github.com/kebag-logic/milan-fpga/issues/590) owns dispatch and long-walk tick opportunities.
 The hook heartbeats every 250 ms, half the section 9.4
 maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
-window (1,000 ms, the provisional value section 14 leaves open) with no record
+window (1,000 ms, the first-dirty policy ruled by
+[D3 DR2a](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register)) with no record
 operation and no commit bracket in flight, it commits: the container is sealed
 under the next sequence, validated in memory (a torn record defers the commit
 rather than opening a bracket over it), the bracket is opened, the
@@ -1914,6 +1915,20 @@ deadline lapse. A failed erase, program or read-back publishes `VD_ERASE`,
 `VD_PROGRAM` or `VD_VERIFY` through the store's verdict nibble and withholds
 the acknowledgement, so the commit deadline revokes the durability claim
 instead of the firmware asserting one.
+
+The adopted D3 transaction retry policy still requires implementation.
+[D3 DR2c](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) permits three attempts per unchanged captured work set.
+The count includes the initial attempt; failed attempts wait 1,000 ms.
+The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) names only the port's `nvm_alarm`.
+It is the only reset-sticky alarm; no status bit is added.
+Firmware transaction exhaustion has no alarm of its own.
+It reports `VD_*` verdict loss and never ACKs the failed slot.
+[FASTCONNECT section 9.2](../design/SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) owns the resulting `nvm_stale=1` and recovery.
+That producer record stays un-ACKed; exhausting its attempts raises `nvm_alarm`.
+Its limit remains three attempts, separated by 500 ms.
+A later successful commit clears `nvm_stale` under section 9.2's condition.
+It never clears `nvm_alarm`; an asserted alarm retains loss.
+[D3 lane 2](../design/SAVED_STATE_MATERIALIZATION.md#182-lane-2-parent-scalars-and-restored-ptof) owns that change and its controls.
 
 **What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`
 compiles this translation unit unchanged against stub headers and a host

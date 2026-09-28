@@ -67,22 +67,20 @@
 > processor writes into the store, which is the binding records alone until
 > the manager of section 12.2 exists.
 
-Milan v1.2 names eight things a PAAD-AE shall keep across a power cycle, plus
-the bound state, the binding parameters and the started/stopped state. This
-device keeps none of them yet. `KL_pp_shadow` answers the processor's NVM port
-with `KL_nvm_backend`, the backing store this page decided (sections 4, 8 and
-9); until firmware configures and validates a record image through it, the
-backend answers exactly what the blank-flash responder it replaced did: reads
-return `0xFF`, writes are accepted and discarded, erase completes. A restore
-walk therefore still finds blank flash, restores zero records, and -- since the
-wrapper started publishing `nvm_backed_o` -- says so rather than reporting
-success for it.
+Milan requires eight non-binding item groups and saved binding state.
+Binding survival has a [dated cold-cycle result](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5753091599).
+The eight non-binding groups still lack materialization and replay.
+The accepted [D3 contract](SAVED_STATE_MATERIALIZATION.md) defines that remaining work.
+Adoption does not close #70 or its physical acceptance.
+
+`KL_nvm_backend` backs the processor's NVM device face.
+The firmware validates, loads and commits the A/B journal.
+An unconfigured backend still cannot provide a valid restored image.
 
 This page is the **decision record** issue #70's first work item asks for:
 which media backs those records, who owns the write path, how the records are
 named inside the image, and what the fabric is allowed to claim about a restore.
-It does not describe a built system. Every row below is marked with what proves
-it.
+Implementation and historical evidence remain explicitly distinguished below.
 
 > **A page of this name existed before and was deleted** in `eff99a9c`, the
 > commit that substituted the legacy 1722.1/SRP plane for the protocol
@@ -96,7 +94,7 @@ it.
 
 ## Contents
 
-- **[1. Status](#1-status)** -- A row per piece with the evidence that proves it. The honest bottom line: the media is reserved and one record class is framed, but there is no device behind the port, no manager for the other eleven item groups, and the shipping firmware profile cannot write flash at all.
+- **[1. Status](#1-status)** -- Backend and firmware exist; non-binding materialization remains open.
 - **[2. What the two ends actually look like](#2-what-the-two-ends-actually-look-like)** -- The port offers a per-record region with `ERASE_REGION` and an eight-bit record id; the media offers 64 KiB erase blocks, two of them. Three ways they fail to compose, including the one round 1 missed: the record id is a capacity, not just an address width.
 - **[3. The decision](#3-the-decision)** -- One image, promoted A/B, media owned by firmware through the LiteSPI master that already exists. Three measured reasons rather than a preference, with reason 1 re-measured after the namespace correction.
 - **[4. The record allocation contract](#4-the-record-allocation-contract)** -- The BLOCKER round 1 missed: 292 records at the 2026-08 8x8 shape against 256 ids, and the banked allocation proposed to bring it to 87. Then the reversal: #259 shrank that shape to a conformant 164, and nothing had persisted or decoded a bank, so the allocation is the donor's own F07.8 rule, one record per item group and index, DECIDED, and the amendment request is withdrawn. Plus the gate that builds the image and reads it back.
@@ -108,17 +106,17 @@ it.
 - **[10. Boot-side work](#10-boot-side-work)** -- Five items, and why the block-layer route a previous profile assumed was never available on this controller.
 - **[11. Bench recipe](#11-bench-recipe)** -- G0 and G0b, which run today, and why G1 belonged to a superseded target profile. Cited by `milan_soc.py`.
 - **[12. The commit marks that already exist](#12-the-commit-marks-that-already-exist)** -- Eight marks across seven programs, derived from the pinned donor rather than from a comment, plus the exemplar that is not one and the deliberate absence at IDENTIFY that is a requirement. Round 1 said three.
-- **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- The proven writer no longer exists in the tree, persistence depends on firmware liveness, the debounce window is a data-loss window a PR must quantify, three donor risks remain against the port, and the record contract's one external dependency is now the donor pin itself.
-- **[14. What this page does NOT decide](#14-what-this-page-does-not-decide)** -- Two things: the debounce window's value, and where the proposed CSR bits actually land.
-- **[15. Sequencing](#15-sequencing)** -- Why this page is deliberately ahead of the submodule pin it will be implemented on, and why nothing in it moves when that pin lands.
-- **[16. Acceptance for the implementation](#16-acceptance-for-the-implementation)** -- Twenty-seven checks in six groups, including the vacuity trap a naive save/restore test falls into, one refused case per container verdict code, the six liveness and recovery cases the state table makes determinate, and the requirement that deleting any of the eight `NVM_MARK` sites must redden something.
+- **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- Physical evidence, firmware liveness, unsaved work and processor recovery obligations.
+- **[14. What this page does NOT decide](#14-what-this-page-does-not-decide)** -- Remaining policy choices belong in the D3 decision register.
+- **[15. Sequencing](#15-sequencing)** -- The manager's lane order and unresolved prerequisites.
+- **[16. Acceptance for the implementation](#16-acceptance-for-the-implementation)** -- Acceptance in six groups, including the vacuity trap a naive save/restore test falls into, one refused case per container verdict code, the six liveness and recovery cases the state table makes determinate, and the accepted D3 live-trigger, replay and IDENTIFY-exclusion controls.
 
 ## 1. Status
 
 | Piece | State | Evidence |
 |---|---|---|
 | The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal` at `0xEE_0000`, 128 KiB, and `user` at `0xF0_0000`, 1 MiB |
-| The processor frames and streams one record class | **Landed** (submodule) | `KL_pp_nvm_port` + `KL_acmp_nvm_shadow`. The shadow is the ONLY manager wired to the port today (`protocol_processor_top.sv` lines 2261 and 2278); it owns BINDING records and nothing else |
+| The processor frames and streams one record class | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owns BINDING records through manager 0 of `KL_pp_nvm_mgr_arb`. In [the processor top](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/top/protocol_processor_top.sv), the arbiter starts at line 2523; manager 1 is tied idle at lines 2540-2546. No non-binding writer is connected |
 | A manager for every other persisted item | **ABSENT** | `KL_pp_nvm_port`'s own header says the manager "lands in P4". Nothing serializes names, formats, offsets, maps, rates, clock source, configuration index or SUID |
 | The processor emits commit marks | **Historical: landed, unobserved at `44489453`** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
@@ -130,13 +128,17 @@ it.
 | The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
-**Which donor commit.** The processor pin is
-`2faa5af8889d97616bda1369e4739a546da7b0f1` (root issue #424).
-It merges [donor PR #32](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/32).
-Its tree matches reviewed head `488b876f83c0a7b2d1dd73e892b05ea35ed6087a`.
-Completion now belongs only to the granted device command.
-The existing `protocol-processor/tb/nvm_port` controls check that ownership.
-Parent device and manager handshakes remain unchanged.
+**Reconciliation pin.** Parent `c0723222` pins processor
+`16be6768f710e79450aace277abacd6c2c3336e5`, matching D3's reconciliation baseline.
+Processor PR #109 supplies S1/S3/S4; #110 supplies S2.
+Manager 1 remains idle; D3 integration is still owed.
+
+**Historical completion repair.** Root issue #424 adopted
+`2faa5af8889d97616bda1369e4739a546da7b0f1`, merging
+[processor PR #32](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/32).
+That tree matched reviewed head `488b876f83c0a7b2d1dd73e892b05ea35ed6087a`.
+The repair confined completion to the granted device command.
+The `protocol-processor/tb/nvm_port` controls check that ownership.
 Full saved-state and board acceptance remain open under #70.
 
 ## 2. What the two ends actually look like
@@ -964,6 +966,11 @@ That is a build-time obligation on the module that actually lands, not a
 precondition for the decision this page records: work item 1 asked for the area
 to be measured before committing, and it is measured above.
 
+[D3 DR4](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) now narrows shipping area acceptance to 1x1 TDM8.
+The 8x8 retains synthesis diagnostics and its post-place obligation.
+That obligation stays open and blocked, not waived.
+The 8x8 remains non-shipping until it fits (#584/#229).
+
 **Reproduce it:**
 
 ```sh
@@ -1117,8 +1124,24 @@ drops its dirty bit and raises it, so after that neither `nvm_dirty` nor the
 pending bit can report the change it abandoned, and without the revocation the
 status reads durable over a lost controller change. It is sticky in the donor
 until reset, so one exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1
-until reset -- a permanent false negative, never a false durable claim; when
-and whether it may be forgiven is open. The JEDEC cause still has no reporter:
+until reset, even after a later successful commit.
+[D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules that alarm lifetime.
+The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) names only this `nvm_alarm`.
+It is the only reset-sticky alarm; no status bit is added.
+Neither a heartbeat nor later success clears `nvm_alarm`.
+
+Firmware transaction exhaustion is a `VD_*` verdict loss without ACK.
+Its limit remains three attempts per unchanged captured work set.
+Failed attempts remain separated by 1,000 ms under DR2c.
+It sets `nvm_stale`; firmware has no alarm of its own.
+The failed slot never receives ACK, leaving its producer record un-ACKed.
+If that exhausts three producer attempts, `nvm_alarm` rises until reset.
+Producer attempts remain separated by 500 ms.
+A later successful commit clears `nvm_stale` under this section's recovery condition.
+It never clears `nvm_alarm`; an asserted alarm remains a loss level.
+The [section 9.2 recovery rule](#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) remains unchanged.
+Firmware loss alone can heal; producer abandonment keeps revocation until reset.
+The JEDEC cause still has no reporter:
 the writer performs no identity check.
 
 **`nvm_stale` sets** whenever `nvm_backed` falls after having been 1 at any
@@ -1201,12 +1224,18 @@ than left off the table. Round 2's version of this table had five rows and used
 | `0` | `0` | `1` | yes | **Writer lost, nothing outstanding.** Everything that was committed is durable; new changes will not be |
 | `0` | `1` | `1` | yes | **Writer lost with data outstanding.** The image accepted changes that are NOT durable. This is the wedged-writer case, and it reads as not backed |
 
-The split between `dirty` and `backed` is the part that matters. When the writer
-wedges, the entity must keep answering AECP and keep accepting SETs: refusing a
-controller because flash is unreachable would be a worse defect than not saving.
-What it must not do is claim durability. `nvm_dirty` is what makes the debounce
-window visible instead of implicit, and it is what a power-cut test reads to
-know whether the loss it observed was permitted.
+The split between `dirty` and `backed` remains authoritative here.
+D3 [section 7.1](SAVED_STATE_MATERIALIZATION.md#71-what-clears-and-when) owns producer retirement.
+It hands pending work to the existing backend ownership contract.
+
+A stalled persistence device must not permanently block ordinary commands.
+The accepted boot exceptions are defined in
+[D3 section 8.8](SAVED_STATE_MATERIALIZATION.md#88-deadlines-and-containment).
+Proven defaults release AECP after bounded restore failure.
+An unprovable descriptor image instead remains CLOSED until reset.
+[D3 section 8.1](SAVED_STATE_MATERIALIZATION.md#81-the-order) owns the three release points.
+The firmware timeout never releases the combined ADP enable.
+Neither service recovery nor backing alone proves restored values.
 
 ### 9.4 The deadlines
 
@@ -1269,10 +1298,20 @@ T-NVM-WRITER-ALIVE                                      = 2000 ms
 T-NVM-COMMIT-TIMEOUT >= 2 x T_commit_worst(every shape) = 8000 ms
 ```
 
-`T-NVM-DEBOUNCE` is a different quantity and is still open; section 14 says so
-and section 13 says what the PR that picks it owes.
+Debounce is separate from these media and liveness deadlines.
+[D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules both first-dirty windows:
+500 ms in each producer and 1,000 ms in firmware.
+Each writer lane measures normal-load acceptance-to-durable time.
+Those windows supply no unconditional durability bound.
 
 ## 10. Boot-side work
+
+[D3 section 5.3](SAVED_STATE_MATERIALIZATION.md#53-in-the-firmware) owns the adopted boot changes.
+[D3 section 8](SAVED_STATE_MATERIALIZATION.md#8-restore) owns the restore transaction.
+That includes AEM readiness, rollback, combined enable and CLOSED behavior.
+The sequence below describes the existing media writer only.
+Its AEM ordering and early-return corrections remain implementation work.
+Product deadline choices await the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
 
 Cited by the retired flash-partition emitter as
 where the previous target-side experiment lived; it is not part of the current
@@ -1352,15 +1391,16 @@ commit this page cites:
 
 The two stream-format entries are one source program placed twice
 (`place(E_SFMTI, _sfmt(SEL_FMTIN))` and `place(E_SFMTO, _sfmt(SEL_FMTOUT))`), so
-deleting the mark deletes both. A test that grades only one of them cannot tell
-the difference, which is why the acceptance in section 16 names them separately.
+deleting that source mark affects both placements.
+D3 section 3.1 separately grades input/output live-write triggers and replay.
 
 Two more sites exist and are deliberately not in that table: a
 `SET_SAMPLING_RATE` **exemplar** at line 438 with mark class `0x21`, which is
 documentation for the donor's `06_aecp_engine.md` section 8 and not an
 operational program, and the **absence** at line 1464, where `SET_CONTROL`
 carries a comment saying no mark is emitted because 5.3.12 keeps IDENTIFY
-volatile. That absence is a requirement, and section 16 grades it.
+volatile. IDENTIFY must remain volatile. D3 section 3.1 grades its exclusion.
+The historical mark inventory is not a persistence-trigger contract.
 
 The round-1 version of this page said there were three marks. There are eight,
 and the five it omitted (maps, both stream formats, presentation offset, names)
@@ -1377,39 +1417,34 @@ Neither group has a record writer yet.
 The [ownership contract](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#61-the-pending-bit-owner-decision)
 defines the current pending sources.
 
-That manager is proposed in
-[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500),
-which asks the contract reviews to let it trigger on the live write instead
-of the mark
-([its UNRESOLVED 1](SAVED_STATE_MATERIALIZATION.md#15-unresolved)).
+The accepted manager contract is
+[D3 section 3.1](SAVED_STATE_MATERIALIZATION.md#31-accepted-live-write-groups).
+Live writes select records; marks retain command-completion meaning.
+D3 remains unimplemented; contract adoption supplies no persistence evidence.
 
 ## 13. Risks, stated rather than discovered later
 
-- **The firmware writer landed on a host model, not yet on the bench.** The
-  write path in `sw/firmware/milan_baremetal/` drives the LiteSPI command
-  master one byte at a time in 1x mode, the way `liblitespi` does; the host
-  test cannot see a timing or arbitration defect against the real master, so
-  the first board commit is still a measurement.
+- **Physical proof remains partial.** The dated result covers bind/unbind survival.
+  Complete saved-set, cut-during-commit and fast-connect campaigns remain open.
+  [D3 lane 5](SAVED_STATE_MATERIALIZATION.md#185-lane-5-complete-fault-campaign-and-release-bench) defines their remaining scope.
 - **Only binding records reach the store.** Other groups need materialization.
-  Their record writer remains proposed in
+  Their accepted writer contract is
   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md).
-  Until adoption, accepted images contain bindings and erased spans.
+  Until implementation, accepted images contain bindings and erased spans.
   The erased-record rule makes those images legal.
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that
   price honest rather than hidden.
-- **The debounce window is a data-loss window.** The processor already debounces
-  commits (`T-NVM-DEBOUNCE`, coalescing) and the mapping compliance sequence
-  issues a dozen SETs in a row, so a commit per command would burn erase cycles
-  for nothing. The firmware holds a commit for 1,000 ms after `nvm_dirty`
-  first reports, as a PROVISIONAL value: a power cut inside that second loses
-  exactly the changes `nvm_dirty` was reporting and nothing older, because the
-  authoritative slot is never touched until the new one has verified. The
-  value is not the bench-measured one section 14 asks for.
-- **Three donor risks remain against the port:** no device timeout,
-  collapsed restore outcomes, and unchecked `record_id` regions.
-  The consumed PR #32 fixes unowned `done_seen_r` completion.
-  It changes none of those remaining contracts.
+- **The debounce window is a data-loss window.** DR2a rules both first-dirty windows.
+  The [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns their values and measurements.
+  Cuts before verified promotion may lose unsaved changes.
+  The last verified snapshot survives.
+  Every writer lane must measure normal-load acceptance-to-durable time.
+  No unconditional durability promise follows from adding the windows.
+- **Processor recovery remains incomplete.** #15 still requires reusable-port recovery.
+  #109 adds DEVICE/UNFRAMED classification, bounded binding restore and admission.
+  #20 still needs processor-reviewer reconciliation under the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
+  The earlier PR #32 fixed unowned completion.
   The unchecked region remains load-bearing: section
   4's blocks are enforced by the manager and by
   `scripts/check_nvm_record_space.py`, not by the port.
@@ -1427,38 +1462,45 @@ of the mark
 
 ## 14. What this page does NOT decide
 
-Two things. Round 2 said two and listed neither of the deadlines it had made
-load-bearing; the deadlines are decided in section 9.4 now, and the names
-allocation that rounds 3 and 4 listed here is decided in section 4.2.
+The [D3 decision register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns materialization policy decisions.
+It records options, consequences and the manager's selected defaults.
+These include wear/retry, boot/recovery, stage budgets, inventory and sequencing.
+DR2a settles debounce policy; measured durability evidence remains required.
+DR3a requires lane 1 to measure both deadline candidates.
+The manager ratifies or revises both before lane 2 implements.
+Section 9.4's existing media deadlines remain binding.
 
-- **The debounce window's value.** `T-NVM-DEBOUNCE` is a wear-versus-loss trade
-  that needs a bench, and section 13 says what the PR that picks it owes. It is
-  a different quantity from the two deadlines of section 9.4, which are fixed
-  here. The firmware ships 1,000 ms as a provisional value and section 13
-  states its loss window; the bench still owes the measurement.
-- **The exact CSR addresses** of the control tuple in section 8.2, and the bit
-  positions proposed in section 9.1. The shapes are decided; where they land in
-  `milan_csr` is the implementation's, and
-  [`docs/reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) owes the
-  rows -- including a correction, because it currently describes `nvm_backed` as
-  a **constant**, which section 9 makes wrong.
+The control addresses have landed in the
+[register map](../reference/REGISTER_MAP.md).
+Future combined D3 restore semantics must update that implementation reference.
+They are not claims about the current register implementation.
 
-The snapshot-ownership and acknowledgement-identity contract of issue #419 is
-accepted and implemented, on [its own page](SAVED_STATE_SNAPSHOT_OWNERSHIP.md)
-(issue #484); sections 9.1, 9.2 and 9.3 here carry what it changed, and
-`tb/verilator/nvm_cosim` grades it against this module and the shipping
-writer.
+The [snapshot-ownership contract](SAVED_STATE_SNAPSHOT_OWNERSHIP.md) remains accepted and implemented.
+It governs capture, attestation, acknowledgement identity and window ownership.
+`tb/verilator/nvm_cosim` grades the shipping backend/firmware pair.
+D3 adoption does not replace that evidence or its operational obligations.
 
 ## 15. Sequencing
 
-The parent-side work starts when issue #69's submodule pin is on `dev`: that pin
-is the one carrying the donor's nvm_port power-cut coverage, and there is no
-donor commit with one without the other. This page is deliberately ahead of it,
-because the decision it records is what the implementation needs first and it
-depends on none of that. Section 12.1's inventory is identical at both commits,
-so nothing here moves when the pin does.
+The [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328) supersedes the historical #69 wait.
+D3 is accepted as a contract; its implementation remains open.
+The [child contracts](SAVED_STATE_MATERIALIZATION.md#18-child-lane-contracts) define lanes 1-5.
+The decision register records the manager's rulings.
+DR3a's measured deadline ratification still precedes lane 2 implementation.
+Final integration follows the manager's stated shared-file sequence.
+No open dependency is counted as landed by this page.
 
 ## 16. Acceptance for the implementation
+
+[D3 section 17](SAVED_STATE_MATERIALIZATION.md#17-acceptance-reconciliation) maps every acceptance line.
+Materialization rules have their normative home on that page.
+[D3 section 7](SAVED_STATE_MATERIALIZATION.md#7-the-clear-rule) owns dirty retirement.
+[D3 section 8](SAVED_STATE_MATERIALIZATION.md#8-restore) owns the boot transaction and rollback.
+That includes AEM availability, debt isolation, combined enable and CLOSED.
+[D3 DR3a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) governs the product deadline acceptance.
+Lane 1 measures both candidates.
+The manager ratifies or revises both before lane 2 implements.
+The checklist's unchecked obligations remain open after contract adoption.
 
 **The record namespace**
 
@@ -1526,13 +1568,21 @@ so nothing here moves when the pin does.
 - [ ] A timeout injected during each of erase, program and read-back produces
       the same revocation and the same verdict, and the three are distinguished
       in `nvm_verdict`.
-- [ ] A power cut inside the debounce window loses exactly the marked changes,
-      and `nvm_dirty` said so beforehand.
+- [ ] Cuts inside either debounce obey
+      [D3 section 7.1](SAVED_STATE_MATERIALIZATION.md#71-what-clears-and-when).
+      Producer pending reports unmaterialized changes; backend dirty reports committable work.
+      The last verified snapshot survives; unsaved changes may be lost.
+      Every lost change was reported at the cut.
+      Its reporter was producer pending or `nvm_dirty`.
+      Timing, coalescing and measured durability follow D3's ruled DR2a.
 - [x] A restore walk over blank flash reports "nothing restored", never success:
       on the host model `blank=1 fail=0 backed=1`, the register map's second
       row; the bench reading is still owed.
 
 **The saved set**
+
+[D3 section 8.2](SAVED_STATE_MATERIALIZATION.md#82-what-is-proven-cleared-first) owns cleared-first proof.
+[D3 section 9](SAVED_STATE_MATERIALIZATION.md#9-what-must-not-persist) owns volatile exclusions.
 
 - [ ] All eight Milan items plus the bound state, the binding parameters and
       started/stopped survive a reset that is proven to have cleared the rows
@@ -1542,22 +1592,28 @@ so nothing here moves when the pin does.
       controller registry is empty, IDENTIFY is 0.
 - [ ] A commit interrupted at every stage leaves a complete image in one slot.
 
-**The marks**
+**The live-write triggers**
 
-- [ ] Each of the **eight** marks in section 12.1 is graded end to end: deleting
-      it alone must redden a save/restore test. Both stream-format placements
-      count separately, and the mapping, presentation-offset and name marks are
-      included.
-- [ ] Deleting the mark's **absence** at `SET_CONTROL`, that is adding one, must
-      also redden something: 5.3.12 requires IDENTIFY to stay volatile.
+- [ ] Every group satisfies [D3 section 3.1](SAVED_STATE_MATERIALIZATION.md#31-accepted-live-write-groups).
+      Delete each trigger and each replay independently.
+      Each deletion must fail that group's save/restore value check.
+      Input/output formats and maps count separately; names cover every ordinal.
+- [ ] Adding IDENTIFY to persistence fails D3's exclusion control.
+      See [D3 section 9](SAVED_STATE_MATERIALIZATION.md#9-what-must-not-persist).
+      Milan 5.3.12 keeps its value volatile.
 
 **The area**
 
-- [ ] `scripts/area_baseline.py --compare` post-place at both
-      `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`, against the
-      section 8.3 OOC bound. The OOC figure is an upper bound and the in-context
-      delta should come in under it; a post-place delta ABOVE 781 LUT means the
-      shipping module diverged from the candidate that was priced, and the
-      divergence has to be explained rather than absorbed. Distributed RAM
-      counts: `ooc.sh`'s `LUT_TOT` column exists because 128 LUT6 of SLICEM were
-      being priced at zero.
+[D3 DR4](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns stage budgets and shipping area scope.
+The [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862405632) narrows shipping area acceptance to 1x1 TDM8.
+The 781-LUT figure prices the historical backend, not D3.
+
+- [ ] `scripts/area_baseline.py --compare` post-place at
+      `endstation_ax7101_1x1_tdm8` meets D3's DR4 stage budgets.
+      Use matched heads and #607's corrected constraints.
+      Include distributed RAM and every DR4 measurement field.
+      Explain historical backend-bound divergence separately from D3's incremental cost.
+
+Retain synthesis diagnostics for `endstation_ax7101_8x8`.
+Its post-place obligation remains open and blocked, not waived.
+The 8x8 remains non-shipping until it fits (#584/#229).

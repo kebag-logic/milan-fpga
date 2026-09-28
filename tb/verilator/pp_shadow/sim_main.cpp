@@ -117,6 +117,10 @@
 #error "PP_ADP_ENTITY_CAPS_C must come from pp_adp_pkg::ADP_ENTITY_CAPS_C"
 #endif
 
+#ifndef DECLARATION_OUTPUTS
+#define DECLARATION_OUTPUTS 1
+#endif
+
 namespace {
 
 //! Everything the substitution harness owns: the Verilated model it
@@ -128,7 +132,7 @@ class PpShadowHarness {
     //! the model is owned for the whole of `run()`: the destructor runs
     //! `final()` and frees it on every path out, so there is no teardown at
     //! the bottom of this function to skip (R.11, R.20, C.149)
-    int run(bool pending_only) {
+    int run(bool pending_only, bool first_probe_only, bool crf_stop_only) {
         const milan::tb::Model<Vmilan_datapath> model;
         dut = model.get();                  // the harness's observing pointer
 
@@ -138,7 +142,14 @@ class PpShadowHarness {
         build_desc_image();
         do_reset();
 
-        if (!pending_only) {
+        if (first_probe_only) {
+            provision_the_identity_before_enable();
+            enable_the_entity_and_read_the_class_d_baseline();
+            grade_maap_refuses_without_wedging();
+            grade_maap_grants_and_opens_the_da_gate();
+        } else if (crf_stop_only) {
+            grade_crf_stop_regression();
+        } else if (!pending_only) {
             grade_declaration_reset_and_rx();
             grade_plane_presence_and_csr_window();
             provision_the_identity_before_enable();
@@ -166,7 +177,12 @@ class PpShadowHarness {
             grade_backend_rejection_reaches_the_processor();
             grade_generated_domain_binding();
         }
-        grade_pending_live_writes();
+        if (!first_probe_only && !crf_stop_only) {
+            grade_pending_live_writes();
+#if DECLARATION_OUTPUTS == 2
+            if (!pending_only) grade_crf_stop_regression();
+#endif
+        }
 
         printf("----------------------------------------------------------------\n");
         printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);
@@ -176,6 +192,7 @@ class PpShadowHarness {
 
  private:
     Vmilan_datapath* dut = nullptr;
+    uint64_t cycle_count = 0;
     long checks = 0;
     long fails = 0;
 
@@ -195,7 +212,14 @@ class PpShadowHarness {
         long answered   = 0;   // rsp_valid              — the shim completed one
         long granted    = 0;   // rsp_valid && rsp_ok    — with an address
         long released   = 0;   // req_valid && req_release — a RELEASE_DA offered
-        uint64_t last_da = 0;  // the address of the last grant
+        // The response has no source tag. Pair it with the accepted request.
+        unsigned pending_source = 0;
+        bool response_pending = false;
+        bool pending_release = false;
+        long unpaired_responses = 0;
+        std::array<long, DECLARATION_OUTPUTS> source_grants{};
+        std::array<long, DECLARATION_OUTPUTS> source_refusals{};
+        std::array<uint64_t, DECLARATION_OUTPUTS> source_da{};
         long declaring_cycles = 0;  // cycles acmp_declaring_o[0] was high
     };
     MaapObs mo;
@@ -206,6 +230,7 @@ class PpShadowHarness {
     // frame CONTENT is the evidence, so every egressed frame is retained.
     struct TxFrame {
         std::vector<uint8_t> bytes;
+        uint64_t end_cycle = 0;
         int  beats      = 0;
         bool short_beat = false;   // a non-final beat with a partial tkeep
     };
@@ -232,15 +257,31 @@ class PpShadowHarness {
             }
         }
         if (rp->milan_datapath__DOT__pp_maap_req_valid_w
-            && rp->milan_datapath__DOT__pp_maap_req_ready_w) mo.accepted++;
+            && rp->milan_datapath__DOT__pp_maap_req_ready_w) {
+            mo.accepted++;
+            mo.pending_source = rp->milan_datapath__DOT__pp_maap_req_src_w;
+            mo.response_pending = true;
+            mo.pending_release = rp->milan_datapath__DOT__pp_maap_req_release_w;
+        }
         if (rp->milan_datapath__DOT__pp_maap_req_valid_w
             && rp->milan_datapath__DOT__pp_maap_req_release_w) mo.released++;
         if (rp->milan_datapath__DOT__pp_maap_rsp_valid_w) {
             mo.answered++;
+            if (!mo.response_pending) ++mo.unpaired_responses;
             if (rp->milan_datapath__DOT__pp_maap_rsp_ok_w) {
                 mo.granted++;
-                mo.last_da = rp->milan_datapath__DOT__pp_maap_rsp_da_w;
+                if (mo.response_pending && mo.pending_source < mo.source_grants.size()) {
+                    ++mo.source_grants[mo.pending_source];
+                    mo.source_da[mo.pending_source] = rp->milan_datapath__DOT__pp_maap_rsp_da_w;
+                } else {
+                    ++mo.unpaired_responses;
+                }
             }
+            if (mo.response_pending && !mo.pending_release
+                && !rp->milan_datapath__DOT__pp_maap_rsp_ok_w
+                && mo.pending_source < mo.source_refusals.size())
+                ++mo.source_refusals[mo.pending_source];
+            mo.response_pending = false;
         }
         if (rp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u) mo.declaring_cycles++;
 
@@ -256,7 +297,10 @@ class PpShadowHarness {
             if (!dut->m_axis_mac_tx_tlast && keep != 0xFF) {
                 f.short_beat = true; tx_bad_keep++;
             }
-            if (dut->m_axis_mac_tx_tlast) tx_open = false;
+            if (dut->m_axis_mac_tx_tlast) {
+                f.end_cycle = cycle_count;
+                tx_open = false;
+            }
         }
     }
 
@@ -541,7 +585,7 @@ class PpShadowHarness {
 
     // ---- clocking (single domain, as milan_dp drives it) ----
     void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0; mem_drive(); rmem_drive(); dut->eval(); observe(); mem_edge(); rmem_edge(); }
-    void hi() { pending_pre_edge(); dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval(); pending_post_edge(); }
+    void hi() { ++cycle_count; pending_pre_edge(); dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval(); pending_post_edge(); }
     void step() { lo(); hi(); }
 
     // ---- AXI4-Lite BFM (identical protocol/timing to the milan_dp harness) ----
@@ -1866,7 +1910,10 @@ class PpShadowHarness {
         size_t pn = build_probe_tx(pf, TEST_EID, 0);
         uint32_t rxf0 = axi_read(A_PP_DIAG) & 0xFF;
         inject_rx(pf, pn, 400);
-        run_idle(4000);
+        // T-ACMP-DA-RETRY is 100 ms, then a bounded source sweep.
+        // A probe inside an attempted round cannot force another allocation.
+        run_idle(kAcquisitionCycles);
+        drain_maap_response();
         uint32_t rxf1 = axi_read(A_PP_DIAG) & 0xFF;
         long h_acc = mo.accepted - h0.accepted;
         long h_ans = mo.answered - h0.answered;
@@ -1903,17 +1950,25 @@ class PpShadowHarness {
     // Enable KL_maap and let it walk IDLE -> 3x PROBE -> ANNOUNCE. From here
     // on the FABRIC's own MAAP engine transmits too, which is what makes the
     // shared-lane section K possible at all.
+    static constexpr int kAcquisitionCycles =
+        100 * PP_MS_CYCLES + DECLARATION_OUTPUTS * (1024 + 64);
+
+    void drain_maap_response() {
+        for (int c = 0; c < 4 && mo.response_pending; ++c) step();
+        ck("MAAP response finishes within four clocks", mo.response_pending, 0);
+    }
+
     void grade_maap_grants_and_opens_the_da_gate() {
-        uint8_t pf[128];
-        size_t pn = 0;
-        printf("[I] maap adapter with a claimed block: grant + DA gate\n");
-        #ifndef DECLARATION_OUTPUTS
-#define DECLARATION_OUTPUTS 1
-#endif
-        // The normal fixture has one AAF output; the CRF-on fixture adds one.
-        // This independent fixture count must agree with both ADP and MAAP.
+        printf("[I] maap adapter with a claimed block: grant + first probe\n");
         constexpr unsigned outputs = DECLARATION_OUTPUTS;
         ck("#403 declared output count", axi_read(A_ADP_TALK) & 0xffff, outputs);
+        // Count from enable: grants during ANNOUNCE polling also count.
+        const MaapObs i0 = mo;
+        for (unsigned source = 0; source < outputs; ++source) {
+            char label[96];
+            snprintf(label, sizeof label, "#606 source %u startup allocation was refused", source);
+            ck_true(label, i0.source_refusals[source] > 0, "no block was valid at acceptance");
+        }
         axi_write(A_MAAP_CTRL, (outputs << 8) | 1);
         ck("#403 exact MAAP boot count readback", axi_read(A_MAAP_CTRL),
            (outputs << 8) | 1);
@@ -1924,62 +1979,214 @@ class PpShadowHarness {
         }
         ck_true("KL_maap reached ANNOUNCE (a block is claimed)", announced,
                 announced ? "addr_valid asserted" : "TIMED OUT - check MAAP_CLK_HZ_P");
-        uint32_t maap_off = axi_read(A_MAAP_STAT0) & 0xFFFF;
-
-        MaapObs i0 = mo;
-        pn = build_probe_tx(pf, TEST_EID, 0);
-        inject_rx(pf, pn, 400);
-        run_idle(8000);
-        long i_acc = mo.accepted - i0.accepted;
-        long i_ans = mo.answered - i0.answered;
-        long i_gr  = mo.granted  - i0.granted;
-        ck_true("the shim GRANTED an address", i_gr > 0,
-                i_gr ? "ok = 1 returned" : "still refusing with a claimed block");
-        ck_true("every accepted request was ANSWERED", i_acc == i_ans,
-                i_acc == i_ans ? "accepted == answered" : "an accepted request went unanswered");
-        // source 0 maps onto block offset 0 — the same base+index rule the fabric
-        // already uses for its own per-stream DMACs.
-        ck_true("granted DA == KL_maap base + source index",
-                mo.last_da == (MAAP_POOL_BASE | static_cast<uint64_t>((maap_off + 0) & 0xFFFF)),
-                mo.last_da == (MAAP_POOL_BASE | static_cast<uint64_t>((maap_off + 0) & 0xFFFF))
-                    ? "matches MAAP_STAT0's offset" : "address disagrees with the engine");
+        const uint32_t maap_off = axi_read(A_MAAP_STAT0) & 0xFFFF;
+        run_idle(kAcquisitionCycles);
+        drain_maap_response();
+        ck("every accepted request was ANSWERED", mo.answered - i0.answered,
+           mo.accepted - i0.accepted);
+        ck("every response has its accepted source", mo.unpaired_responses, 0);
+        for (unsigned source = 0; source < outputs; ++source) {
+            char label[128];
+            snprintf(label, sizeof label, "#606 source %u auto-acquired before first probe", source);
+            ck(label, mo.source_grants[source] - i0.source_grants[source], 1);
+            const uint64_t expected_da = MAAP_POOL_BASE | ((maap_off + source) & 0xffff);
+            snprintf(label, sizeof label, "[I] source %u grant equals MAAP base plus index", source);
+            ck_true(label, mo.source_da[source] == expected_da, "accepted request identifies the response");
+            grade_first_probe(source, expected_da);
+        }
         ck("the per-source DA GATE is OPEN (acmp_declaring = 1)",
            dut->rootp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u, 1u);
         ck_true("and it was held, not a one-cycle blip", mo.declaring_cycles > 100,
                 mo.declaring_cycles > 100 ? "gate held" : "gate did not hold");
-        // the SUCCESS half of the PROBE_TX answer, which section H could not see:
-        // with a DA in hand the talker answers SUCCESS and names the stream_id
-        // milan_datapath derives for source 0, {station MAC, uid}.
-        //
-        // THE THIRD PROBE, NOT THE SECOND. The allocation is asynchronous to the
-        // answer: a probe against a source in GS_NO_DA issues the ALLOC_DA and is
-        // answered TALKER_DEST_MAC_FAILED in the same walk, because the walker
-        // must not park waiting for the allocator (KL_pp_maap_shim's decision 1).
-        // So the probe that TRIGGERS the grant still gets a refusal, and the first
-        // SUCCESS is the next one. Grading the triggering probe would have been
-        // grading the race.
-        const size_t frames_before_p3 = tx_frames.size();
-        pn = build_probe_tx(pf, TEST_EID, 0);
-        inject_rx(pf, pn, 400);
+    }
+
+    // #606: refused startup, late real MAAP claim, then one acquisition bound.
+    // The first query must succeed; no second query repairs the observation.
+    void grade_first_probe(unsigned source, uint64_t expected_da) {
+        uint8_t frame[128];
+        const size_t frames_before = tx_frames.size();
+        const long grants_before = mo.source_grants[source];
+        const size_t bytes = build_probe_tx(frame, TEST_EID, source);
+        inject_rx(frame, bytes, 400);
         run_idle(8000);
         int found = -1;
-        for (size_t i = tx_frames.size(); i-- > frames_before_p3; )
-            if (classify(tx_frames[i]) == FR_ACMP
-                && tx_frames[i].bytes.size() >= 62
-                && (tx_frames[i].bytes[15] & 0xF) == 1) { found = static_cast<int>(i); break; }
-        ck_true("a CONNECT_TX_RESPONSE came back with a block claimed", found >= 0,
-                found >= 0 ? "response on the wire" : "no ACMP response egressed");
-        if (found >= 0) {
-            const std::vector<uint8_t>& b = tx_frames[found].bytes;
-            ck("PROBE_TX now answers SUCCESS", (b[16] >> 3) & 0x1F, 0u);
-            ck("...naming stream_id {station MAC, uid 0} high half",
-               static_cast<uint32_t>(get_be(b, 18, 4)), 0x02000000u);
-            ck("...and its low half", static_cast<uint32_t>(get_be(b, 22, 4)), 0x00010000u);
-            ck("...with stream_dest_mac = the granted DA (high half)",
-               static_cast<uint32_t>(get_be(b, 54, 4)), 0x91E0F000u);
-            ck("...and its low half = base offset + 0",
-               static_cast<uint32_t>(get_be(b, 58, 2)), maap_off & 0xFFFFu);
+        for (size_t i = frames_before; i < tx_frames.size(); ++i) {
+            const auto& b = tx_frames[i].bytes;
+            if (classify(tx_frames[i]) == FR_ACMP && b.size() >= 70
+                && (b[15] & 15) == 1 && get_be(b, 50, 2) == source)
+                found = static_cast<int>(i);
         }
+        ck_true("#606 first probe response arrived", found >= 0, "bounded command service");
+        if (found < 0) return;
+        const auto& b = tx_frames[found].bytes;
+        ck("#606 first probe after acquisition bound succeeds", (b[16] >> 3) & 31, 0);
+        ck_true("#606 first probe names the source SID",
+                get_be(b, 18, 8) == (0x0200000000010000ULL | source), "station MAC and source UID");
+        ck_true("#606 first probe names the acquired destination",
+                get_be(b, 54, 6) == expected_da, "real MAAP base plus source");
+        ck("#606 first probe names the configured VID", get_be(b, 66, 2), DECLARATION_VID);
+        ck("#606 first probe needs no new allocation", mo.source_grants[source], grants_before);
+        printf("FIRST_PROBE source=%u status=%u DA=%012llx\n", source,
+               (b[16] >> 3) & 31, static_cast<unsigned long long>(get_be(b, 54, 6)));
+    }
+
+    // #608 uses the product CRF framer and Table 5.4 counter wiring.
+    // Audio and axis have equal clocks here: 512 * 96 clocks per PDU.
+    // Protocol milliseconds remain compressed to PP_MS_CYCLES clocks.
+    static constexpr int kCrfPeriodCycles = 512 * 96;
+    static constexpr uint64_t kCrfSid = 0x0200000000010001ULL;
+
+    uint32_t processor_ms() const {
+        return dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__now_ms_w;
+    }
+
+    uint32_t own_leaveall_deadline_ms() const {
+        return dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__cad_dl_r[3];
+    }
+
+    unsigned crf_stream_stops() const {
+#if DECLARATION_OUTPUTS == 2
+        return dut->rootp->milan_datapath__DOT__talker_diag__DOT__stop_r[1];
+#else
+        return 0;
+#endif
+    }
+
+    bool crf_frame(const TxFrame& frame) {
+        const auto& b = frame.bytes;
+        return frame.end_cycle != 0 && b.size() >= 46
+            && get_be(b, 12, 2) == 0x8100 && get_be(b, 16, 2) == 0x22f0
+            && b[18] == 4 && b[21] == 1 && get_be(b, 22, 8) == kCrfSid
+            && get_be(b, 34, 2) == 8 && get_be(b, 36, 2) == 96;
+    }
+
+    size_t crf_frame_count() {
+        size_t count = 0;
+        for (const auto& frame : tx_frames) if (crf_frame(frame)) ++count;
+        return count;
+    }
+
+    void crf_listener(int event) {
+        uint8_t frame[64];
+        const size_t bytes = build_msrp_listener(frame, kCrfSid, event, 2);
+        inject_rx(frame, bytes, 400);
+    }
+
+    void crf_probe() {
+        uint8_t frame[128];
+        const size_t bytes = build_probe_tx(frame, TEST_EID, 1);
+        inject_rx(frame, bytes, 400);
+        run_idle(kAcquisitionCycles);
+    }
+
+    void crf_start_and_measure() {
+        crf_listener(0); // New / Ready, through the real byte-stream decoder.
+        const size_t before = crf_frame_count();
+        const size_t at = tx_frames.size();
+        run_idle(3 * kCrfPeriodCycles);
+        ck_true("#608 CRF actually transmits before withdrawal",
+                crf_frame_count() >= before + 2, "at least two complete tagged CRF PDUs");
+        ck("#608 CRF licence is active", (axi_read(0x750) >> 7) & 1u, 1);
+        uint64_t previous = 0;
+        unsigned periods = 0;
+        for (size_t i = at; i < tx_frames.size(); ++i) {
+            const auto& frame = tx_frames[i];
+            if (!crf_frame(frame)) continue;
+            if (previous && frame.end_cycle - previous == kCrfPeriodCycles) ++periods;
+            previous = frame.end_cycle;
+        }
+        ck_true("#608 observed CRF cadence equals one PDU period", periods > 0,
+                "independent 512 * 96 audio-clock cadence");
+    }
+
+    void crf_withdraw_and_grade(const char* phase) {
+        const unsigned stops = crf_stream_stops();
+        const uint64_t withdrawal_cycle = cycle_count;
+        const size_t at = tx_frames.size();
+        crf_listener(5); // Lv while IN: Milan 4.2.7.2.2, not the LV policy.
+        while (cycle_count < withdrawal_cycle + kCrfPeriodCycles) step();
+        ck("#608 withdrawal closes the CRF licence within one PDU",
+           dut->rootp->milan_datapath__DOT__crft_emit_en_w, 0);
+        ck("#608 STREAM_STOP counts this withdrawal exactly once", crf_stream_stops(), stops + 1);
+        run_idle(2000 * PP_MS_CYCLES);
+        unsigned late_frames = 0;
+        unsigned tail_frames = 0;
+        for (size_t i = at; i < tx_frames.size(); ++i) {
+            if (!crf_frame(tx_frames[i])) continue;
+            if (tx_frames[i].end_cycle > withdrawal_cycle + kCrfPeriodCycles) ++late_frames;
+            else ++tail_frames;
+        }
+        ck("#608 no CRF frame after the one-PDU withdrawal bound", late_frames, 0);
+        ck_true("#608 at most one in-flight PDU completes", tail_frames <= 1,
+                "a started PDU may drain without truncation");
+        ck("#608 hold creates no duplicate STREAM_STOP", crf_stream_stops(), stops + 1);
+        printf("CRF_STOP phase=%s withdrawal_cycle=%llu period_cycles=%d "
+               "late_frames=%u tail_frames=%u stop_before=%u stop_after=%u\n",
+               phase, static_cast<unsigned long long>(withdrawal_cycle), kCrfPeriodCycles,
+               late_frames, tail_frames, stops, crf_stream_stops());
+    }
+
+    void crf_wait_for_expiry_window() {
+        // Anchor the stimulus to the real timer deadline, never to LV entry.
+        // Refresh while waiting so an unrelated LeaveTime cannot stop the stream.
+        const uint32_t deadline = own_leaveall_deadline_ms();
+        ck_true("#608 own LeaveAll deadline is still ahead",
+                deadline > processor_ms() + 500, "deadline captured before its timer fires");
+        for (int poll = 0; poll < 30 && processor_ms() + 1000 < deadline; ++poll) {
+            crf_listener(1); // JoinIn / Ready
+            crf_probe();
+            run_idle(500 * PP_MS_CYCLES);
+        }
+        crf_listener(1);
+        const uint32_t target = deadline + 1;
+        for (int c = 0; c < 1100 * PP_MS_CYCLES && processor_ms() < target; ++c) step();
+        ck("#608 expiry-window stimulus reaches deadline + 1 ms", processor_ms(), target);
+        const unsigned registrar =
+            (dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__u_talker__DOT__reg_r >> 2) & 3;
+        ck("#608 timer expiry preserves IN until own transmit action", registrar, 1);
+        printf("CRF_STOP own_deadline_ms=%u withdrawal_ms=%u registrar=%u\n",
+               deadline, processor_ms(), registrar);
+    }
+
+    void grade_crf_stop_regression() {
+#if DECLARATION_OUTPUTS == 2
+        printf("[CRF_STOP] #608 IN withdrawal, own LeaveAll expiry and restart\n");
+        pending = PendingObs{};
+        mem_busy = false;
+        rm_wpend = false;
+        build_desc_image();
+        do_reset();
+        mo = MaapObs{};
+        tx_frames.clear();
+        tx_open = false;
+        provision_the_identity_before_enable();
+        enable_the_entity_and_read_the_class_d_baseline();
+        axi_write(A_MAAP_CTRL, (2u << 8) | 1u);
+        bool claimed = false;
+        for (int i = 0; i < 200 && !claimed; ++i) {
+            run_idle(2000);
+            claimed = (axi_read(A_MAAP_STAT1) & 4u) != 0;
+        }
+        ck("#608 real MAAP block claimed", claimed, 1);
+        // Two setup probes let the old pin acquire too. This isolates #608
+        // from #606; the graded event is the later Listener withdrawal.
+        crf_probe();
+        crf_probe();
+        axi_write(0x680, 3); // lwSRP enabled with talker policing
+        axi_write(0x654, DECLARATION_VID << 16); // AAF bypass is off
+        axi_write(0x750, 1); // CRF enable, real licence still required
+        ck("#608 no Listener means no CRF licence", (axi_read(0x750) >> 7) & 1u, 0);
+        crf_start_and_measure();
+        crf_withdraw_and_grade("ordinary-IN");
+        crf_start_and_measure();
+        crf_wait_for_expiry_window();
+        crf_withdraw_and_grade("own-expiry-before-transmit");
+        crf_start_and_measure();
+        crf_withdraw_and_grade("reconnected-IN");
+        ck("#608 three withdrawals count three stops", crf_stream_stops(), 3);
+#else
+        ck_true("#608 requires the CRF-output fixture", false, "use run-crf");
+#endif
     }
 
     void grade_maap_output_boundaries() {
@@ -3619,5 +3826,7 @@ class PpShadowHarness {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     PpShadowHarness harness;
-    return harness.run(argc == 2 && std::strcmp(argv[1], "--pending-only") == 0);
+    return harness.run(argc == 2 && std::strcmp(argv[1], "--pending-only") == 0,
+                       argc == 2 && std::strcmp(argv[1], "--first-probe-only") == 0,
+                       argc == 2 && std::strcmp(argv[1], "--crf-stop-only") == 0);
 }
