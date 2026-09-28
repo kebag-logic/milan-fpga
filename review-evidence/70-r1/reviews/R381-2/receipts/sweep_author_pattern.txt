@@ -1,0 +1,262 @@
+tb/side_port/side_port_tb_wrap.sv:27:    input  wire          entity_enable_i,
+tb/side_port/side_port_tb_wrap.sv:127:      .entity_enable_i(entity_enable_i),
+tb/side_port/side_port_tb_wrap.sv:193:      .entity_enable_i(entity_enable_i),
+tb/side_port/sim_main.cpp:234:  dut->entity_enable_i = 0;
+tb/side_port/sim_main.cpp:313:    dut->entity_enable_i = 0;
+tb/side_port/sim_main.cpp:321:    dut->entity_enable_i = 1;
+tb/side_port/sim_main.cpp:330:    dut->entity_enable_i = 0;
+tb/adp_engine/sim_main.cpp:403:  d->entity_enable_i = 0;       d->link_up_i = 0;
+tb/adp_engine/sim_main.cpp:426:  d->entity_enable_i = 1;
+tb/adp_engine/sim_main.cpp:601:  d->entity_enable_i = 0;
+tb/adp_engine/sim_main.cpp:616:  d->entity_enable_i = 1;
+tb/adp_engine/sim_main.cpp:651:    d->entity_enable_i = 0;                    // departing
+tb/adp_engine/sim_main.cpp:656:    d->entity_enable_i = 1;
+tb/adp_engine/tb_adp_top.sv:29:    input  wire                    entity_enable_i,
+tb/adp_engine/tb_adp_top.sv:116:      .entity_enable_i       (entity_enable_i),
+docs/architecture/06_aecp_engine.md:859:| Effects | `COMMIT`, `NVM_MARK`, `NOTIFY_ENQ` | commit is the atomicity point |
+docs/architecture/06_aecp_engine.md:874:  SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate
+docs/architecture/04_adp_engine.md:159:| Held in DOWN until `entity_enable` (boot gate) | Milan §5.6.1 |
+docs/architecture/05_acmp_engine.md:160:| The faces are **released once**, when the binding walk has drained. | the shadow's terminal (`restore_done_o`, failed or not), no preload presented, the listener idle and its last A4 strobe gone. The shadow never walks again before a reset. |
+docs/architecture/05_acmp_engine.md:161:| The release is **the binding walk's end**. | the top's `restore_done_o` is the shadow's terminal AND the release, and `restore_busy_o` covers the cycles between them, so an entity enable gated on `restore_done_o` cannot precede the last preload's record write and discovery arm |
+docs/architecture/05_acmp_engine.md:186:is bounded by `T-NVM-RS-DEADLINE`: a device that stops answering fails the whole walk at
+docs/architecture/05_acmp_engine.md:190:listener service, or an enable gated on `restore_done_o`, for ever.
+docs/architecture/05_acmp_engine.md:196:[`tb/pp_top`](../../tb/pp_top/README.md) (section BW; BW4 grades `restore_done_o` and
+docs/architecture/01_overview.md:106:  `entity_enable` — only now may ADP advertise (Milan §5.6.1), because the entity must
+docs/architecture/01_overview.md:170:| P-NVM-RS-TMO-CYC | P-CLK-HZ / 50 (20 ms) | above the slowest single record read the NVM device face can take (`NVM_RS_TMO_CYC_P`) | boot restore walk's read deadline, `T-NVM-RS-DEADLINE` ([07 §5.3](07_memory_maps.md#fig-07-nvmflow)) |
+tb/ucpu/README.md:32:chain (state write-back strobes, COMMIT, NVM_MARK, NOTIFY_ENQ — and their
+docs/architecture/08_timing.md:42:| T-NVM-DEBOUNCE | ≈ 500 ms (design) | NVM mgr | commit coalescing | design | |
+docs/architecture/08_timing.md:43:| T-NVM-RS-DEADLINE | `P-NVM-RS-TMO-CYC` clocks without progress (default 20 ms) | NVM mgr | the boot restore walk's read phase: expiry fails the whole walk and abandons an issued read ([07 §5.3](07_memory_maps.md#fig-07-nvmflow)) | design (persistence that wedges must not hold the entity) | a clock counter in the manager, not a timer-service slot |
+docs/architecture/08_timing.md:118:| T-LOCK-UNLOCK, T-IDENT-BURST, T-IDENT-REARM, T-CTR-OBSERVE, T-NVM-DEBOUNCE | singletons | 5 |
+docs/architecture/07_memory_maps.md:50:side-port is read-only everywhere after `entity_enable` except the control window.
+docs/architecture/07_memory_maps.md:193:`entity_enable` — **not** through the side-port window, and not as a synthesized ROM.
+docs/architecture/07_memory_maps.md:452:    chg["committed state change (COMMIT + NVM_MARK)"] --> dirty["set record dirty bit"]
+docs/architecture/07_memory_maps.md:453:    dirty --> deb["debounce T-NVM-DEBOUNCE (coalesce bursts)"]
+docs/architecture/07_memory_maps.md:459:  subgraph boot ["boot restore (before entity_enable)"]
+docs/architecture/07_memory_maps.md:465:    preload --> en["release entity_enable (ADP may start - Milan 5.6.1)"]
+docs/architecture/07_memory_maps.md:471:at their producers until then, and `restore_done_o` marks that end
+docs/architecture/07_memory_maps.md:478:its vendor default, `restore_fail_o` and no preload, never with part of the image. It
+docs/architecture/07_memory_maps.md:488:| waits `P-NVM-RS-TMO-CYC` consecutive clocks without progress (`T-NVM-RS-DEADLINE`): for the port idle before a read, or for a byte, `done` or `err` during it | the **whole walk** fails, and a read already issued is abandoned to the arbiter, which drains it ([02 §8.2](02_interfaces.md#82-two-record-managers-one-port)) | 3 |
+docs/architecture/07_memory_maps.md:494:and an enable gated on `restore_done_o` follows. A walk that validated no record reports
+docs/architecture/07_memory_maps.md:495:`restore_blank_o`, a failed one included. What the deadline does **not** do: it gives the
+docs/architecture/07_memory_maps.md:518:Wear management (write coalescing beyond `T-NVM-DEBOUNCE`) is device-dependent
+docs/architecture/07_memory_maps.md:528:| 0x30000–0x300FF | RW | control/status: entity_enable, boot state, NVM alarm, version/build id | word 0 scratch, word 1 boot state |
+docs/architecture/07_memory_maps.md:542:accesses — a write to a read-only window, an image write after `entity_enable`, or any
+tb/acmp_nvm/sim_main.cpp:16:// Proven: debounce coalescing (N changes in one T-NVM-DEBOUNCE window ->
+tb/acmp_nvm/sim_main.cpp:55:constexpr int DEB_TICKS = 50;      // -GDEB_TICKS_P
+tb/acmp_nvm/sim_main.cpp:388:  long done_cyc = -1;              // restore_done_o first seen
+tb/acmp_nvm/sim_main.cpp:690:    if (d->restore_done_o && done_cyc < 0) done_cyc = cycles;
+tb/acmp_nvm/sim_main.cpp:821:  bool restore_done() { return d->restore_done_o != 0; }
+tb/acmp_nvm/sim_main.cpp:894:  CHECK(!d->restore_fail_o && d->restore_cause_o == 0,
+tb/acmp_nvm/sim_main.cpp:900:  // cannot tell the two apart. restore_blank_o is the pin that can.
+tb/acmp_nvm/sim_main.cpp:901:  CHECK(d->restore_blank_o,
+tb/acmp_nvm/sim_main.cpp:922:        "B3 burst released after T-NVM-DEBOUNCE");
+tb/acmp_nvm/sim_main.cpp:1037:  CHECK(!d->restore_fail_o && d->restore_cause_o == 0,
+tb/acmp_nvm/sim_main.cpp:1043:  CHECK(!d->restore_blank_o,
+tb/acmp_nvm/sim_main.cpp:1091:  CHECK(d->restore_fail_o && d->restore_cause_o == 1,
+tb/acmp_nvm/sim_main.cpp:1100:  CHECK(d->restore_blank_o,
+tb/acmp_nvm/sim_main.cpp:1141:  CHECK(!d->restore_fail_o, "H3 live changes are not a failure");
+tb/acmp_nvm/sim_main.cpp:1188:// protocol_processor_top publishes this vector as nvm_unflushed_o (issue
+tb/acmp_nvm/sim_main.cpp:1336:  if (!d->restore_done_o || d->restore_fail_o) bad("the walk is not done, or failed");
+tb/acmp_nvm/sim_main.cpp:1425:    return d->restore_done_o && !d->pre_valid_o && !d->lsn_busy_o
+tb/acmp_nvm/sim_main.cpp:1973:  if (!d->restore_done_o || !d->restore_fail_o || d->restore_cause_o != cause) {
+tb/acmp_nvm/sim_main.cpp:1975:             unsigned(d->restore_done_o), unsigned(d->restore_fail_o),
+tb/acmp_nvm/sim_main.cpp:1981:  if (!d->restore_blank_o) bad("a failed walk reports records it discarded");
+tb/acmp_nvm/sim_main.cpp:2048:    CHECK(!d->restore_fail_o && d->restore_cause_o == 0 && !d->restore_blank_o
+tb/acmp_nvm/sim_main.cpp:2134:              && !d->restore_fail_o,
+tb/acmp_nvm/sim_main.cpp:2246:    const bool walk = l_walk_ok(why) && !d->restore_fail_o && d->restore_cause_o == 0
+tb/acmp_nvm/sim_main.cpp:2284:    CHECK(wd_max == RS_TMO - 1 && aborts == 0 && !d->restore_fail_o
+tb/acmp_nvm/sim_main.cpp:2393:// full restore, which is why restore_blank_o exists.
+tb/acmp_nvm/sim_main.cpp:2438:    CHECK(d->restore_done_o && !d->restore_fail_o && d->restore_cause_o == 0
+tb/acmp_nvm/sim_main.cpp:2439:              && d->restore_blank_o && !pre_valid_seen && d->dbg_valid_o == 0
+docs/architecture/02_interfaces.md:93:   loaded via `mgmt`) is written only while `entity_enable = 0` and is treated as
+docs/architecture/02_interfaces.md:96:   order ([01 §5](01_overview.md)); `entity_enable` is the master gate implementing
+docs/architecture/02_interfaces.md:479:| `0x30000` | RW | control/status: `entity_enable`, `shutdown_req`, boot status, profile select |
+docs/architecture/02_interfaces.md:534:`entity_enable` ([07 §5.3](07_memory_maps.md)). Which failures are one record's
+docs/architecture/02_interfaces.md:546:| `nvm_unflushed_o` | out | `P-N-STREAM-IN` | bit k is 1 from the cycle the manager ACCEPTS a changed binding for sink k (a write-back that moves no persisted field never raises it) until that record commits with `done`, or until it gives up after `RETRY-MAX` retries — which is the same cycle `nvm_alarm_o` rises. A capture that lands mid-flush holds the bit: the burst re-serializes. |
+docs/architecture/02_interfaces.md:563:kept for a second record writer (the integrating platform's saved-state writer) and is
+docs/architecture/02_interfaces.md:572:| The drain ends **only** on that operation's own `done` or `err`. | never on time. A device that never ends the abandoned read keeps the port **quarantined until reset**: every later binding change reads pending in `nvm_unflushed_o` and is never written. Reusable service after a permanently silent device needs a real cancellation, which is the port's open recovery contract (processor issue #15) |
+tb/pp_top/pp_top_wrap.sv:49:    input  wire         entity_enable_i,
+tb/pp_top/pp_top_wrap.sv:166:    output logic        restore_done_o,
+tb/pp_top/pp_top_wrap.sv:167:    output logic        restore_fail_o,
+tb/pp_top/pp_top_wrap.sv:168:    output logic        restore_blank_o,
+tb/pp_top/pp_top_wrap.sv:170:    output logic  [7:0] nvm_unflushed_o,
+tb/pp_top/pp_top_wrap.sv:256:    //! the binding manager's OWN terminal (KL_acmp_nvm_shadow restore_done_o),
+tb/pp_top/pp_top_wrap.sv:257:    //! which the top's restore_done_o follows once the listener admission
+tb/pp_top/pp_top_wrap.sv:263:    //! restore_done_o and restore_busy_o against them every cycle
+tb/pp_top/pp_top_wrap.sv:388:      .entity_enable_i       (entity_enable_i),
+tb/pp_top/pp_top_wrap.sv:432:      .aecp_dyn_dirty_o      (),
+tb/pp_top/pp_top_wrap.sv:503:      .restore_done_o        (restore_done_o),
+tb/pp_top/pp_top_wrap.sv:504:      .restore_fail_o        (restore_fail_o),
+tb/pp_top/pp_top_wrap.sv:505:      .restore_blank_o       (restore_blank_o),
+tb/pp_top/pp_top_wrap.sv:507:      .nvm_unflushed_o       (nvm_unflushed_o),
+tb/acmp_nvm/acmp_nvm_wrap.sv:52:    parameter int unsigned  DEB_TICKS_P   = 500,
+tb/acmp_nvm/acmp_nvm_wrap.sv:53:    parameter int unsigned  RETRY_MAX_P   = 2,
+tb/acmp_nvm/acmp_nvm_wrap.sv:65:    output logic                     restore_done_o,  //! restore complete level
+tb/acmp_nvm/acmp_nvm_wrap.sv:66:    output logic                     restore_fail_o,  //! whole-restore abort level
+tb/acmp_nvm/acmp_nvm_wrap.sv:67:    output logic                     restore_blank_o, //! completed walk validated ZERO records
+tb/acmp_nvm/acmp_nvm_wrap.sv:250:      .DEB_TICKS_P  (DEB_TICKS_P),
+tb/acmp_nvm/acmp_nvm_wrap.sv:251:      .RETRY_MAX_P  (RETRY_MAX_P),
+tb/acmp_nvm/acmp_nvm_wrap.sv:259:      .restore_done_o  (restore_done_o),
+tb/acmp_nvm/acmp_nvm_wrap.sv:260:      .restore_fail_o  (restore_fail_o),
+tb/acmp_nvm/acmp_nvm_wrap.sv:261:      .restore_blank_o (restore_blank_o),
+tb/acmp_nvm/acmp_nvm_wrap.sv:403:      .walk_done_i    (restore_done_o),
+tb/acmp_nvm/Makefile:16:         -GDEB_TICKS_P=50 -GRS_TMO_CYC_P=3000 \
+docs/guides/integrator.md:85:| `NVM_RS_TMO_CYC_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-NVM-RS-TMO-CYC`; [F08.1](../architecture/08_timing.md#fig-08-constants), `T-NVM-RS-DEADLINE` | Boot restore read-phase no-progress deadline, in core clocks; size above the slowest record read on the NVM device face |
+docs/guides/integrator.md:205:| `DESC_BASE_P` | your descriptor image, sized by your entity model | **your software**, before `entity_enable_i`. The processor only reads it. |
+docs/guides/integrator.md:229:them before `entity_enable_i` and leave them alone. The two dynamic rows are
+docs/guides/integrator.md:237:| Level controls | `entity_enable_i`, `link_up_i` |
+docs/guides/integrator.md:261:`entity_enable_i` is the boot gate of Milan §5.6.1. While it is low the advertise machine
+docs/guides/integrator.md:293:| NVM device | `nvm_dev_*`, plus `restore_go_i`, `restore_busy_o`, `restore_done_o`, `restore_fail_o`, `restore_blank_o`, `nvm_alarm_o`, `nvm_unflushed_o` | bindings do not survive a power cycle. **`restore_go_i` is not part of the tie-off:** pulse it on every boot. The ACMP listener serves nothing until the walk has ended ([05 §5.1](../architecture/05_acmp_engine.md#sec-05-boot-admission)), and what the walk reports depends on how you tie the face off. Tie it off **as erased media**: grant each READ, deliver the bytes it asks for as `0xFF`, then `done`. The walk then ends with `restore_done_o`, no `restore_fail_o` and `restore_blank_o`, the same done-without-fail as a successful walk, so publish `restore_blank_o` beside them and report not-successful when you know there is no media. A face that answers with `err`, or with `done` before the eight header bytes, is a failing device: the walk fails whole (`restore_fail_o`, a device error). A face that never answers fails the walk at `NVM_RS_TMO_CYC_P` (`restore_fail_o`, the deadline) and leaves the port quarantined until reset ([07 §5.3](../architecture/07_memory_maps.md#fig-07-nvmflow)). Nothing else changes **in this plane**. |
+docs/guides/integrator.md:302:`cfg_maap_internal_i` to 1 (quasi-static, set before `entity_enable_i`)
+docs/guides/integrator.md:334:| `nvm_unflushed_o` | per-sink binding state the manager has accepted and not yet committed. 1 from the accepted change until its record commits with `done`, or until the retries are exhausted and `nvm_alarm_o` rises on the same cycle. OR it with `aecp_dyn_dirty_o` for a "saved state pending" bit; without it a binding taken inside the commit debounce reads durable. |
+docs/guides/integrator.md:336:| `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a dynamic-state field, 6 channel maps, 7 user names. Nothing in the processor writes a record for 6 or 7. This completion mark retains its timing; use `aecp_name_wr_o` for the earlier name writes and `amap_edit_req_o` with `amap_edit_phase_o == 5` for live map writes. |
+docs/guides/integrator.md:360:   for `restore_done_o`, then read `restore_fail_o` **and** `restore_blank_o`.
+docs/guides/integrator.md:361:   `restore_done_o` says the walk sequenced, not that anything came back: every
+docs/guides/integrator.md:362:   per-record vendor default sets it. `restore_blank_o` is the pin that separates
+docs/guides/integrator.md:364:   optional: from reset until `restore_done_o` the ACMP listener's work is held at
+docs/guides/integrator.md:366:   listener command. `restore_done_o` rises once the last restored binding has been
+docs/guides/integrator.md:369:   reaches that terminal: `restore_fail_o` beside it says it failed whole (a torn
+docs/guides/integrator.md:377:5. Assert `entity_enable_i`. Only now may the entity advertise.
+hdl/acmp/KL_pp_acmp_lsn_admit.sv:59://                binding manager's walk at its terminal (restore_done_o,
+hdl/acmp/KL_pp_acmp_lsn_admit.sv:65://                top's restore_done_o (which releases the entity enable)
+hdl/acmp/KL_pp_acmp_lsn_admit.sv:95:    input  wire                 walk_done_i,     //! KL_acmp_nvm_shadow restore_done_o
+tb/acmp_nvm/README.md:8:exit 0 = PASS, 349 checks. `-GDEB_TICKS_P=50` pins the debounce window the C++
+tb/acmp_nvm/README.md:10:`-GRS_TMO_CYC_P=3000` the walk's read deadline (`T-NVM-RS-DEADLINE`) that group N
+tb/acmp_nvm/README.md:34:bookkeeping, GET_RX-style — cost zero NVM traffic); T-NVM-DEBOUNCE
+tb/acmp_nvm/README.md:39:`restore_blank_o` separating a walk that validated records from one that
+tb/acmp_nvm/README.md:40:read blank or unframed media (`restore_done_o` is set on BOTH, which is
+tb/acmp_nvm/README.md:49:bytes) aborting the WHOLE restore — `restore_fail_o`, not one preload
+tb/acmp_nvm/README.md:56:`protocol_processor_top` exports as `nvm_unflushed_o` (issue #90) — the bit
+tb/acmp_nvm/README.md:128:walk is graded whole: `restore_done_o` and `restore_fail_o` with the named
+tb/acmp_nvm/README.md:200:violation (07 §5.3 restores before entity_enable) and are not defended
+tb/acmp_nvm/README.md:216:- **M6** `restore_blank_o` hard-wired to `1'b0`: fails 2 of 76 (A2b empty
+docs/guides/hdl-engineer.md:236:| There is no shutdown port | [01 §5](../architecture/01_overview.md) describes a `SHUTDOWN` request. In the RTL, deasserting `entity_enable_i` **is** the shutdown: it emits ENTITY_DEPARTING and resets `available_index`. |
+hdl/adp/KL_adp_engine.sv:16://                    entity_enable_i — Milan §5.6.1 boot gate);
+hdl/adp/KL_adp_engine.sv:100:    input  wire                        entity_enable_i,    //! Milan §5.6.1 boot gate (level); falling edge = SHUTDOWN
+hdl/adp/KL_adp_engine.sv:242:  assign enable_rise_w = entity_enable_i && !enable_q_r;
+hdl/adp/KL_adp_engine.sv:243:  assign enable_fall_w = !entity_enable_i && enable_q_r;
+hdl/adp/KL_adp_engine.sv:254:      enable_q_r <= entity_enable_i;
+hdl/adp/KL_adp_engine.sv:655:        if (entity_enable_i && !enable_fall_w
+docs/guides/operator.md:80:| 0x00000 | write before `entity_enable`, read | reserved seam. **Reads 0x00000000** — the descriptor image is loaded into main memory by software, not through here |
+docs/guides/operator.md:88:`entity_enable`, or an unmapped address — answers with the error flag one cycle later and
+docs/guides/operator.md:107:| 3 | 0 | `entity_enable_i` |
+docs/guides/operator.md:200:| 1 | read only | bit 0 `entity_enable_i` · bit 1 restore busy · bit 2 restore done · bit 3 restore failed |
+docs/guides/operator.md:202:`restore_fail_o` means the whole boot restore was abandoned — deliberately, so a partial
+docs/guides/operator.md:224:`restore_blank_o` is the third pin: set when the walk validated zero records, a failed
+docs/guides/operator.md:248:a gate is down, not a fault: Milan §5.6.1 holds the entity silent until `entity_enable_i`.
+docs/guides/operator.md:253:- **deasserting `entity_enable_i`** is the shutdown — it emits ENTITY_DEPARTING and
+hdl/acmp/KL_acmp_nvm_shadow.sv:10://                manager face; 08 §2 T-NVM-DEBOUNCE)
+hdl/acmp/KL_acmp_nvm_shadow.sv:30://                (T-NVM-DEBOUNCE via tick_i, F07.9 coalescing) and retried
+hdl/acmp/KL_acmp_nvm_shadow.sv:31://                RETRY_MAX_P times before the sticky side-port alarm; the
+hdl/acmp/KL_acmp_nvm_shadow.sv:55://                aborts the WHOLE restore: restore_fail_o, no preload is
+hdl/acmp/KL_acmp_nvm_shadow.sv:82://  Blank arm   : restore_done_o is SEQUENCING, not a verdict. Every
+hdl/acmp/KL_acmp_nvm_shadow.sv:89://                did not), so restore_blank_o carries it: it is done AND no
+hdl/acmp/KL_acmp_nvm_shadow.sv:117:    //! T-NVM-DEBOUNCE in tick_i units (F08.1: ≈500 ms at a 1 ms tick)
+hdl/acmp/KL_acmp_nvm_shadow.sv:118:    parameter int unsigned DEB_TICKS_P   = 500,
+hdl/acmp/KL_acmp_nvm_shadow.sv:120:    parameter int unsigned RETRY_MAX_P   = 2,
+hdl/acmp/KL_acmp_nvm_shadow.sv:121:    //! T-NVM-RS-DEADLINE (F08.1) in clocks: the restore walk's read phase
+hdl/acmp/KL_acmp_nvm_shadow.sv:134:    output logic                       restore_done_o, //! level: restore sequencing complete
+hdl/acmp/KL_acmp_nvm_shadow.sv:135:    output logic                       restore_fail_o, //! level: the WHOLE restore aborted, any cause
+hdl/acmp/KL_acmp_nvm_shadow.sv:136:    output logic                       restore_blank_o,//! level: the completed walk validated ZERO records (blank or invalid media)
+hdl/acmp/KL_acmp_nvm_shadow.sv:137:    //! level, with restore_fail_o: why the walk failed. 0 it did not, 1 a
+hdl/acmp/KL_acmp_nvm_shadow.sv:388:  // ---- debounce (T-NVM-DEBOUNCE, F07.9 coalescing) ------------------------
+hdl/acmp/KL_acmp_nvm_shadow.sv:401:        deb_cnt_r  <= DEB_TICKS_P;
+hdl/acmp/KL_acmp_nvm_shadow.sv:571:  assign fl_giveup_w = fl_err_w && (fl_retry_r >= RETRY_MAX_P);
+hdl/acmp/KL_acmp_nvm_shadow.sv:867:            if (fl_retry_r >= RETRY_MAX_P) begin
+hdl/acmp/KL_acmp_nvm_shadow.sv:887:            if (fl_retry_r >= RETRY_MAX_P) begin
+hdl/acmp/KL_acmp_nvm_shadow.sv:921:  assign restore_done_o  = done_r;
+hdl/acmp/KL_acmp_nvm_shadow.sv:922:  assign restore_fail_o  = fail_r;
+hdl/acmp/KL_acmp_nvm_shadow.sv:923:  assign restore_blank_o = done_r && !any_rec_r;
+docs/diagrams/24-adp-acmp-states.svg:39:  <text x="305" y="207" font-size="10.5" fill="#4a5058">entity_enable rises with the link up</text>
+docs/diagrams/24-adp-acmp-states.svg:53:  <text x="58" y="316" font-size="10.5" fill="#a03030" transform="rotate(-90 58 316)">link down · or entity_enable falls</text>
+docs/diagrams/24-adp-acmp-states.svg:58:  <text x="42" y="579" font-size="11" fill="#4a5058">Deasserting entity_enable_i is the shutdown: it emits ENTITY_DEPARTING and</text>
+tb/pp_top/README.md:253:  manager's own terminal (`dbg_walk_done_o`), not on `restore_done_o`, so every
+tb/pp_top/README.md:255:- **S0/S1** quiescence + snapshot identity, and `restore_done_o` has followed
+tb/pp_top/README.md:271:  vendor default while `entity_enable_i` is still low. Released, the device
+tb/pp_top/README.md:278:  (issue #93 S4) grades the top's `restore_done_o` and `restore_busy_o` in
+tb/pp_top/README.md:282:  next reset one of the two reads 1; `restore_done_o` never reads 1 while
+tb/pp_top/README.md:284:  discovery arm of a walk lands in a cycle at or after its `restore_done_o`
+tb/pp_top/README.md:310:  face, and the `nvm_unflushed_o` export (issue #90) sampled every cycle
+tb/pp_top/README.md:390:| M36 | the top's `restore_done_o` without the release (`= nvm_walk_done_w`) | default build 2 FAIL of 1,414: BW4 (8 cycles of `restore_done_o` while the gate owned the listener, one in each of the six earlier walks and two in BW4's own; and in BW4's own walk the last preload's discovery arm lands in the cycle `restore_done_o` rose). Every other section PASSES |
+tb/pp_top/README.md:437:  `entity_enable`; the "software has not loaded it" and "no bridge at all"
+docs/diagrams/23-bringup-decision.svg:32:  <text x="42" y="256" font-size="11.5" fill="#4a5058">Word 3 bit 0 is entity_enable_i, bit 1 is link_up_i.</text>
+docs/diagrams/23-bringup-decision.svg:38:  <text x="630" y="256" font-size="11.5" fill="#4a5058">Milan §5.6.1 holds the advertise machine in DOWN until entity_enable_i, because the entity must already be able to</text>
+tb/pp_top/sim_main.cpp:1039:  //! the same vector as it stands now (nvm_unflushed_o, issue #90)
+tb/pp_top/sim_main.cpp:1053:  long rs_done_owned = 0;   // cycles restore_done_o read 1 while owned
+tb/pp_top/sim_main.cpp:1055:  long rs_pre_late = 0;     // ...of them, those at or after restore_done_o
+tb/pp_top/sim_main.cpp:1186:    nvm_unflushed_seen |= d->nvm_unflushed_o;
+tb/pp_top/sim_main.cpp:1204:    if (d->restore_done_o && !rs_done) { rs_done = true; ++rs_dones; }
+tb/pp_top/sim_main.cpp:1205:    if (rs_on && !d->restore_busy_o && !d->restore_done_o) ++rs_hole;
+tb/pp_top/sim_main.cpp:1206:    if (d->restore_done_o && owned) ++rs_done_owned;
+tb/pp_top/sim_main.cpp:1570:    d->entity_enable_i = 0; d->link_up_i = 0; d->gm_change_i = 0;
+tb/pp_top/sim_main.cpp:8345:  // The claim needs no entity_enable: addresses are owned before the
+tb/pp_top/sim_main.cpp:8404:    d2->entity_enable_i = 1;
+tb/pp_top/sim_main.cpp:8671:    entity_enable_adpdu_window_and_cadence();
+tb/pp_top/sim_main.cpp:8726:  // BEFORE reset, exactly as software does before entity_enable. The image is
+tb/pp_top/sim_main.cpp:8797:    //! top's restore_done_o now follows that terminal by the listener
+tb/pp_top/sim_main.cpp:8802:    CHECK(d->restore_fail_o == 0, "R: no restore_fail on a blank device");
+tb/pp_top/sim_main.cpp:8814:    CHECK(d->restore_done_o == 1 && d->restore_busy_o == 0,
+tb/pp_top/sim_main.cpp:8815:          "S0: restore_done_o has followed the walk's terminal (issue #92)");
+tb/pp_top/sim_main.cpp:8887:  void entity_enable_adpdu_window_and_cadence() {
+tb/pp_top/sim_main.cpp:8890:    d->entity_enable_i = 1;
+tb/pp_top/sim_main.cpp:9124:    h.run_ms(700);                       // > T-NVM-DEBOUNCE at 1 ms ticks
+tb/pp_top/sim_main.cpp:9147:    //! this vector ORed with aecp_dyn_dirty_o, so the port has to carry the
+tb/pp_top/sim_main.cpp:9153:          "S9: nvm_unflushed_o[0] rose while the binding was unflushed "
+tb/pp_top/sim_main.cpp:9155:    CHECK(d->nvm_unflushed_o == 0,
+tb/pp_top/sim_main.cpp:9156:          "S9: nvm_unflushed_o clears on the commit's done (reads 0x%02x)",
+tb/pp_top/sim_main.cpp:9157:          d->nvm_unflushed_o);
+tb/pp_top/sim_main.cpp:9215:    while (!d->restore_done_o && guard--) h.step();
+tb/pp_top/sim_main.cpp:9216:    return d->restore_done_o != 0;
+tb/pp_top/sim_main.cpp:9253:    h.run_ms(1500);                      // T-NVM-DEBOUNCE, then the burst
+tb/pp_top/sim_main.cpp:9267:    CHECK(h.q_acmp.empty() && !d->restore_busy_o && !d->restore_done_o,
+tb/pp_top/sim_main.cpp:9278:              && !d->restore_done_o,
+tb/pp_top/sim_main.cpp:9281:    while (!d->restore_done_o && guard--) h.step();
+tb/pp_top/sim_main.cpp:9328:    while (!d->restore_done_o && waited < 4 * BW_TMO) { h.step(); ++waited; }
+tb/pp_top/sim_main.cpp:9330:    CHECK(d->restore_done_o && d->restore_fail_o && d->restore_blank_o
+tb/pp_top/sim_main.cpp:9331:              && d->entity_enable_i == 0 && waited < BW_TMO + 200
+tb/pp_top/sim_main.cpp:9338:              && d->entity_enable_i == 0,
+tb/pp_top/sim_main.cpp:9380:    CHECK(bw_boot() && !d->restore_fail_o, "BW3: the next walk ends clean");
+tb/pp_top/sim_main.cpp:9389:  // BW4 (issue #93 S4): the top's restore_done_o is the binding walk's END,
+tb/pp_top/sim_main.cpp:9404:    CHECK(bw_boot() && !d->restore_fail_o,
+tb/pp_top/sim_main.cpp:9414:          "BW4: %ld walks, each ended with restore_done_o, the walk's terminal "
+tb/pp_top/sim_main.cpp:9417:          "BW4: restore_busy_o or restore_done_o read 1 in every cycle from "
+tb/pp_top/sim_main.cpp:9420:          "BW4: restore_done_o never read 1 while the admission gate still "
+tb/pp_top/sim_main.cpp:9424:          "before its restore_done_o (%ld of %ld after it)", h.rs_pre_late,
+tb/pp_top/sim_main.cpp:9752:  h.d->entity_enable_i = 1;
+tb/pp_top/gsi_internal.hpp:33:    while (!io.d->restore_done_o && budget-- != 0) io.step();
+tb/pp_top/gsi_internal.hpp:34:    CHECK(io.d->restore_done_o && !io.d->restore_fail_o,
+tb/pp_top/gsi_internal.hpp:37:    io.d->entity_enable_i = 1;
+docs/diagrams/21-integration-faces.svg:67:  <text x="42" y="357" font-size="11.5" fill="#4a5058">entity_enable_i · link_up_i · gm_change_i · gm_id_i</text>
+docs/diagrams/21-integration-faces.svg:68:  <text x="42" y="380" font-size="11.5" fill="#a03030">entity_enable_i is the boot gate: 0 means never advertise.</text>
+docs/diagrams/21-integration-faces.svg:129:  <text x="42" y="770" font-size="11.5" fill="#4a5058">At DESC_BASE_P — the descriptor image your software writes before entity_enable. The processor only READS it.</text>
+hdl/aecp/ucode/gen_ucode.py:27:    'COMMIT': 21, 'NVM_MARK': 22, 'NOTIFY_ENQ': 23,
+hdl/packet_engine/KL_pp_side_port.sv:25://                write after entity_enable (07 §2: "read-only everywhere
+hdl/packet_engine/KL_pp_side_port.sv:26://                after entity_enable except the control window"), or any
+hdl/packet_engine/KL_pp_side_port.sv:50:    input  wire         entity_enable_i,  //! 1 = image window is write-locked
+hdl/packet_engine/KL_pp_side_port.sv:63:    output logic        img_we_o,         //! write strobe (only while !entity_enable_i)
+hdl/packet_engine/KL_pp_side_port.sv:133:      WIN_IMG_C:   fwd_ok_w = we_i ? !entity_enable_i : 1'b1;  // W pre-enable, R
+hdl/top/protocol_processor_top.sv:111:    //! entity_enable; if it has not (or loaded a truncated one), the store's
+hdl/top/protocol_processor_top.sv:124:    //! T-NVM-RS-DEADLINE (F08.1), P-NVM-RS-TMO-CYC (F01.5): the boot restore
+hdl/top/protocol_processor_top.sv:128:    //! of holding the listener (and an enable gated on restore_done_o) for ever.
+hdl/top/protocol_processor_top.sv:193:    input  wire         entity_enable_i,       //! Milan §5.6.1 boot gate (level)
+hdl/top/protocol_processor_top.sv:427:    output logic        restore_done_o,        //! level: restore complete
+hdl/top/protocol_processor_top.sv:434:    output logic        restore_fail_o,
+hdl/top/protocol_processor_top.sv:440:    output logic        restore_blank_o,       //! level: completed walk validated ZERO records
+hdl/top/protocol_processor_top.sv:452:    //! with aecp_dyn_dirty_o; without it a binding taken inside the
+hdl/top/protocol_processor_top.sv:454:    output logic [N_STREAM_IN_P-1:0] nvm_unflushed_o,
+hdl/top/protocol_processor_top.sv:610:    //! Quasi-static (02 §2 rule 4: set before entity_enable, stable after).
+hdl/top/protocol_processor_top.sv:647:    output logic                         aecp_dyn_dirty_o,    //! a persisted field moved
+hdl/top/protocol_processor_top.sv:664:    //! for groups 6 and 7, so an integrator that persists those groups has
+hdl/top/protocol_processor_top.sv:1645:      .entity_enable_i       (entity_enable_i),
+hdl/top/protocol_processor_top.sv:1774:  //! END, and restore_done_o below takes it.
+hdl/top/protocol_processor_top.sv:2478:      .restore_done_o   (nvm_walk_done_w),
+hdl/top/protocol_processor_top.sv:2479:      .restore_fail_o   (restore_fail_o),
+hdl/top/protocol_processor_top.sv:2480:      .restore_blank_o  (restore_blank_o),
+hdl/top/protocol_processor_top.sv:2508:      .dbg_dirty_o      (nvm_unflushed_o),
+hdl/top/protocol_processor_top.sv:2516:  //! enable (entity_enable_i AND restore_done_o, 07 §5.3 boot-before-enable)
+hdl/top/protocol_processor_top.sv:2519:  assign restore_done_o = nvm_walk_done_w && lsn_released_w;
+hdl/top/protocol_processor_top.sv:3506:      .dyn_dirty_o        (aecp_dyn_dirty_o)
+hdl/top/protocol_processor_top.sv:4200:      .entity_enable_i (entity_enable_i),
+hdl/top/protocol_processor_top.sv:4270:        8'd1:    sp_ctrl_rdata_r <= {28'd0, restore_fail_o, restore_done_o,
+hdl/top/protocol_processor_top.sv:4271:                                     restore_busy_o, entity_enable_i};
+hdl/top/protocol_processor_top.sv:4282:                                   link_up_i, entity_enable_i};

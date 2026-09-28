@@ -1,0 +1,91 @@
+processor HEAD 16be6768f710e79450aace277abacd6c2c3336e5 (pin 16be6768f710e79450aace277abacd6c2c3336e5)
+== F1: statements at the pin that D3 falsifies (mark as persistence trigger; manager 1 owned by the platform; NVM never delays responses)
+warning: unable to find all commit-graph files
+hdl/aecp/ucode/gen_ucode.py:2091 | rows for file in 15.2: 0 | matched by the named sweep: 0
+        u('NVM_MARK', imm=7),                       # naming persistence trigger
+warning: unable to find all commit-graph files
+hdl/aecp/ucode/gen_ucode.py:1364 | rows for file in 15.2: 0 | matched by the named sweep: 0
+        u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+warning: unable to find all commit-graph files
+hdl/aecp/ucode/gen_ucode.py:1791 | rows for file in 15.2: 0 | matched by the named sweep: 0
+        u('NVM_MARK', imm=6),                        # persist changed map state
+warning: unable to find all commit-graph files
+docs/architecture/06_aecp_engine.md:342 | rows for file in 15.2: 1 | matched by the named sweep: 0
+    name, and emits the naming persistence and notification triggers. Repeating the
+warning: unable to find all commit-graph files
+docs/architecture/06_aecp_engine.md:365 | rows for file in 15.2: 1 | matched by the named sweep: 0
+    | SET_NAME | configuration valid, descriptor exists, semantic name index valid, lock, compare all 64 bytes, then commit and emit persistence plus notification triggers only when changed |
+warning: unable to find all commit-graph files
+docs/architecture/06_aecp_engine.md:423 | rows for file in 15.2: 1 | matched by the named sweep: 0
+      marks the mapping persistence class dirty. A confirmed no-op succeeds without
+warning: unable to find all commit-graph files
+docs/00_MILAN_COMPLIANCE_REVIEW.md:208 | rows for file in 15.2: 1 | matched by the named sweep: 0
+    emit the persistence trigger, but replay after power loss remains in GAP-09.
+warning: unable to find all commit-graph files
+hdl/top/protocol_processor_top.sv:2450 | rows for file in 15.2: 2 | matched by the named sweep: 0
+      //! nobody (issue #93, S3). Manager 1 is the platform's saved-state writer;
+warning: unable to find all commit-graph files
+tb/acmp_nvm/README.md:15 | rows for file in 15.2: 1 | matched by the named sweep: 0
+    manager 1 is a harness face, as the platform's saved-state writer will be), the
+warning: unable to find all commit-graph files
+docs/architecture/03_packet_engine.md:236 | rows for file in 15.2: 0 | matched by the named sweep: 0
+    - **(d)** NVM commits are asynchronous and never delay responses.
+-- 15.2 row locations for the files above that do have rows:
+warning: unable to find all commit-graph files
+     docs/architecture/06_aecp_engine.md | 4/5 and state/name/format/map interfaces 
+     hdl/top/protocol_processor_top.sv | parameter header, lines 124-130; NVM/status/effect contracts, lines 424-454 and 647-668 
+     hdl/top/protocol_processor_top.sv | binding release/arbiter wiring, lines 2513-2546; ADP enable at line 1645; side-port enable at line 4200 
+     tb/acmp_nvm/README.md | coverage of debounce, bounded retry, alarm and group X pending 
+     docs/00_MILAN_COMPLIANCE_REVIEW.md | GAP-09; REQ-AEM-011/013/021 and REQ-PER-001/002/003 
+-- D3 rule that falsifies them:
+warning: unable to find all commit-graph files
+2. **No shadow.** One dirty bit per record. At flush the writer LATCHES the
+   live value from its owner, in ONE window in which no AECP program runs
+   and none is dispatched: the dynamic-state store or the name table over
+   the state bus, a port's map over the GET_AUDIO_MAP read face. A latched
+   value is therefore always a value some completed command left.
+3. **Triggers are the live writes, never the commit marks**: the µCPU's
+   accepted state-bus write to a persisted dynamic-state row (selectors 0
+   to 5) or to a name-table entry, and the edit face's commit-one-record
+   beat (`amap_edit_phase_o` 5) for a map. Selector 7, IDENTIFY, is never a
+   trigger. The marks follow the write by a program tail (section 2), and
+Selectors and indices must be in their allocated ranges.
+Restore writes never trigger materialization.
+Command-completion marks remain notification effects, without record-selection authority.
+Their historical inventory remains FASTCONNECT section 12.1.
+Time, EXECUTED in model cycles of the processor clock: the dispatch hold-off
+of a latch lasts 10 cycles for a scalar, 114 for a name, and at most 179 for
+a port's map at 1x1 and 115 at 8x8. The whole boot restore, both walks,
+-- sweep exemption text:
+warning: unable to find all commit-graph files
+2358:Unaffected framing, completion ownership and microprogram marks stay valid.
+2359:They do not need rewriting merely because this search finds them.
+
+== F2: firmware DR2c 'alarm until reset' versus the status contract
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_MATERIALIZATION.md:758:The alarm remains until reset; failed slots never receive ACK.
+docs/design/SAVED_STATE_MATERIALIZATION.md:2310:| [docs/architecture/08_timing.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/08_timing.md) | 2, T-NVM-DEBOUNCE/T-NVM-RS-DEADLINE (lines 42-43), and 5 timer allocation | Add DR2c's attempt counts, 500 ms record backoff, 1,000 ms firmware backoff and reset-only alarm. Account for the implemented timer resources. Separate producer debounce, firmware debounce, per-wait clocks, aggregate restore budget and media deadlines. Record ruled DR2 values and their measurement anchors. Label DR3a's numbers initial candidates until lane 1 measures and the manager ratifies or revises both before lane 2 implements. Never claim quarantine satisfies #15. |
+docs/design/SAVED_STATE_MATERIALIZATION.md:2557:Implement DR2c's firmware transaction limit, spacing and reset-only alarm.
+docs/design/SAVED_STATE_MATERIALIZATION.md:2588:Clear an exhausted alarm on heartbeat or later success.
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1097:Exhaustion keeps the alarm until reset; failed slots never receive ACK.
+warning: unable to find all commit-graph files
+docs/integration/BAREMETAL_FIRMWARE.md:1916:Exhaustion keeps the alarm until reset; failed slots never receive ACK.
+-- FASTCONNECT 9.2 loss causes and recovery rule (normative status home), unchanged for firmware exhaustion:
+warning: unable to find all commit-graph files
+1106:**Clears** on any of: `T-NVM-WRITER-ALIVE` expiring; a commit not acknowledged
+1109:bounded-retry exhaustion.
+1165:backed'  = loss ? 0 : heartbeat ? 1 : backed
+1167:stale'   = loss ? 1 : (backed' AND NOT dirty') ? 0 : stale
+1542:- [ ] **A healed outage does not contaminate later commits**: after a loss with
+-- firmware-exhaustion carrier named anywhere in the four pages or the register map (expect none):
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_FASTCONNECT.md: 0
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_MATERIALIZATION.md: 0
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md: 0
+warning: unable to find all commit-graph files
+docs/integration/BAREMETAL_FIRMWARE.md: 0
+warning: unable to find all commit-graph files
+docs/reference/REGISTER_MAP.md: 0
