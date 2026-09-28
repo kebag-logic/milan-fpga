@@ -514,6 +514,31 @@ are not required. Bench roles as of 2026-09-06:
 
 ## 5. Gates before a build is "good"
 
+Every completed implementation is checked for rejected constraints (#607).
+`milan_soc.py` reads `gateware/vivado.log` before publishing the flash manifest.
+An emitted `12-4739` or `20-1307` diagnostic fails the build on every board.
+An absent log also fails. All launchers use this same check.
+
+AX7101 Ethernet data crossings to and from the system and Milan clocks have
+an 8 ns datapath-only bound. Clock selections derive from the SoC signals.
+The post-synthesis hook in
+[`clock_constraints.tcl`](../../sw/litex/clock_constraints.tcl) scopes LiteX's
+MultiReg false paths away from those pairs before optimization.
+Other MultiReg paths retain their false paths, including asynchronous inputs.
+Reset-synchronizer PRE pins retain their asynchronous-assert exceptions;
+the inter-stage reset bound remains 2 ns. Hold is excluded across Ethernet
+clock pairs because their clock phases are unrelated.
+Quasi-static tagged registers receive setup-4/hold-3 multicycles in the same
+Tcl phase, outside the XDC. An empty tagged class adds no exception.
+
+Retain the implementation log and its emitted critical-warning census,
+`*_clock_interaction.rpt`, and `*_exceptions.rpt` with every sweep seed.
+The Ethernet data pairs must read `Max Delay Datapath Only`, with no unsafe
+pair, and meet the 8 ns bound. Check WNS >= +0.03 ns and WHS >= 0 at every
+corner for AX7101, following the
+[#395 margin decision](https://github.com/kebag-logic/milan-fpga/issues/395).
+These timing margins remain manual acceptance checks.
+
 A build that reached a bitstream has already passed the IOB packing check
 (section 0). If it stopped before routing with `IOB-PACK FAIL`, the named
 port's row in `*_iob_pack.rpt` says what was found: a register in a slice or

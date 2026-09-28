@@ -157,6 +157,24 @@ utilization report. For AX7101 release candidates, retain comfortable timing
 margin and run the configured placement-directive sweep; an elaboration or
 out-of-context estimate is not a substitute for the placed design.
 
+Issue #607's constraint tests run in the complete builder bank.
+They check namespace-derived clocks, scoped MultiReg exceptions, conditional
+quasi-static constraints, and implementation-log refusal on `12-4739` and
+`20-1307`. A live planted wrong clock name can also be checked against a
+read-only routed checkpoint, using an interpreter with the build packages:
+
+```sh
+python3 sw/builder/test_clock_constraints.py \
+  --vivado /path/to/vivado --checkpoint /path/to/routed.dcp
+```
+
+The live control uses at most 16 threads and never saves the checkpoint.
+Set `TMPDIR` to the desired physical build storage before running it.
+Retain each seed's clock-interaction report and bound slack, as specified in
+[BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+For AX7101, the manual margin rule is WNS >= +0.03 ns and WHS >= 0 at every
+corner; a completed implementation alone does not establish those margins.
+
 ## 6. Silicon acceptance
 
 After flashing or JTAG-loading a candidate, run the UART grader from the build

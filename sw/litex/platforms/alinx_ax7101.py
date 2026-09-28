@@ -16,6 +16,7 @@ from typing import Any
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
+from clock_constraints import BoundedEthVivadoToolchain
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -296,6 +297,8 @@ class Platform(Xilinx7SeriesPlatform):
         # XC7A100T-2FGG484I: Artix-7, FGG484 package, speed grade -2.
         Xilinx7SeriesPlatform.__init__(self, "xc7a100t-fgg484-2", _io, _connectors,
                                        toolchain=toolchain)
+        if toolchain == "vivado":
+            self.toolchain = BoundedEthVivadoToolchain()
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
             "set_property CONFIG_MODE SPIx4 [current_design]",

@@ -27554,6 +27554,14 @@ def test_nvm_firmware_shapes() -> None:
          "--self-test"], check=True, cwd=ROOT, timeout=600)
 
 
+def test_clock_crossing_constraints() -> None:
+    """Run the generated-clock, scoped-exception and implementation-log controls."""
+    python = _litex_or_skip("607 clock constraints")
+    if python is not None:
+        subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+                       check=True, cwd=ROOT, timeout=120)
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
@@ -27564,7 +27572,8 @@ if __name__ == "__main__":
         write_cluster_names_golden()
         sys.exit(0)
     for fn in (test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
-               test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
+               test_declaration_contracts, test_clock_crossing_constraints,
+               test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
                test_qspi_owner_transition_completed_write_prefixes,

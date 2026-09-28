@@ -52,6 +52,14 @@ The datapath's `gtx_clk` is not the physical GTX clock.
 Read the [clock-domain guide](CLOCK_DOMAINS.md).
 It maps clock sources, reset ownership, crossings, and known gaps.
 
+AX7101 Ethernet data crossings to and from `sys` and `milan` carry an
+8 ns datapath-only bound (#607). The SoC's clock signals select the clocks.
+A post-synthesis Tcl hook scopes the generic MultiReg exception away from
+these pairs and applies the tagged quasi-static multicycles.
+Asynchronous reset assertion retains its PRE-pin exception.
+Every implementation checks its log for rejected constraints before publishing
+the flash manifest. See [BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+
 ### 2.2 MilanNIC and MilanMAC
 
 `MilanNIC` calls the single `add_milan_datapath()` integration helper, which

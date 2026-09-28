@@ -59,6 +59,7 @@ from litex.soc.interconnect.csr import CSRStorage, CSRStatus, CSRField
 from litex.gen.genlib.cdc import BusSynchronizer
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
+from clock_constraints import add_eth_constraints, add_quasi_static_constraints, check_implementation_log
 from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 
 # THIS FILE'S TWO ROOTS, as `Path`s, derived once. Every path below is a
@@ -241,6 +242,8 @@ class _CRG(LiteXModule):
         # kept assuming the request: a silent 1 %-class detune of timestamps
         # and pacing. margin=0 = exact division or a loud elaboration error.
         pll.create_clkout(self.cd_sys, sys_clk_freq, margin=0)
+        self.eth_bounded_clocks = [pll.clkouts[pll.nclkouts - 1].clk]
+        self.eth_async_clocks = []
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
 
         if board == "arty" and with_eth:
@@ -262,6 +265,7 @@ class _CRG(LiteXModule):
             # Bresenhams of the same constant - so the synthesized frequency
             # must BE the requested one, never merely "within 1 %".
             pll.create_clkout(self.cd_milan, milan_clk_freq, margin=0)
+            self.eth_bounded_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
             platform.add_false_path_constraints(self.cd_sys.clk, self.cd_milan.clk)
 
             # CLEAN audio clock (07-18): the CS4344 needs a ~ps-jitter MCLK -
@@ -417,6 +421,7 @@ class _CRG(LiteXModule):
             self.specials += Instance("MMCME2_ADV", name="mmcm_audio",
                                       **mmcm_ports)
             self.specials += Instance("BUFG", i_I=audio_mclk_raw, o_O=self.cd_audio.clk)
+            self.eth_async_clocks.extend([pll_audio_fb, audio_ref_raw, audio_mclk_raw])
             # audio-domain reset while the MMCM is unlocked (incl. during a
             # servo DRP repair - the clock-outage sequencing class shared
             # with the link-guard GMII CDC reinit)
@@ -426,6 +431,7 @@ class _CRG(LiteXModule):
             if audio_tdm_hz is not None:
                 self.specials += Instance("BUFG", i_I=audio_tdm_raw,
                                           o_O=self.cd_audio_tdm.clk)
+                self.eth_async_clocks.append(audio_tdm_raw)
                 self.specials += AsyncResetSynchronizer(
                     self.cd_audio_tdm, ~self.audio_mmcm_locked)
                 platform.add_false_path_constraints(self.cd_sys.clk,
@@ -440,13 +446,16 @@ class _CRG(LiteXModule):
             self.cd_sys4x     = ClockDomain()
             self.cd_sys4x_dqs = ClockDomain()
             pll.create_clkout(self.cd_sys4x,     4 * sys_clk_freq, margin=0)
+            self.eth_async_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
             pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90, margin=0)
+            self.eth_async_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
 
         if with_dram or with_eth:
             # 200 MHz IDELAY reference + controller (DDR3 PHY + RGMII PHY IODELAYs).
             from litex.soc.cores.clock import S7IDELAYCTRL
             self.cd_idelay = ClockDomain()
             pll.create_clkout(self.cd_idelay, 200e6, margin=0)
+            self.eth_async_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
             self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 
@@ -1499,74 +1508,15 @@ class MilanMAC(LiteXModule):
             eth_clk_groups.append("eth_clocks%d_tx" % phy_index)
         else:
             platform.add_period_constraint(clk_pads.rx, 1e9/125e6)
-        # MUST go through additional_xdc_commands, NOT add_platform_command:
-        # platform commands are emitted in list order and the create_clock
-        # lines are only appended at finalize() - a construction-time
-        # set_clock_groups would land BEFORE its create_clock in the XDC,
-        # resolve an empty clock list, and silently never apply, leaving the
-        # newly-timed eth clocks RELATED to sys (Opus verify D2: the worst of
-        # both worlds - every gray-coded crossing timed as a same-PLL path).
-        # additional_xdc_commands is emitted in its own section after the
-        # clock + false-path sections (vivado.py build_io_constraints).
-        #
-        # USER 2026-08-06 (the t522-eppo placement-lottery postmortem): a
-        # blanket `set_clock_groups -asynchronous` FALSE-PATHS every eth
-        # crossing, so the gray-pointer/synchronizer skew into sys+milan was
-        # bounded by nothing but placement luck - the eppo seed shipped a
-        # bitstream whose CPU-bound RX/ARP died as the die warmed while
-        # the fabric plane stayed healthy. GMII boards now get BOUNDED
-        # crossings instead: hold analysis is meaningless across async
-        # domains (false_path -hold), and setup becomes a real 8 ns
-        # datapath-only budget (min of the two periods) that every seed
-        # must MEET - the lottery becomes an STA failure the sweep gate can
-        # see. MII (arty, retired) keeps the legacy groups.
+        # MII keeps its legacy asynchronous clock groups. GMII's bounded
+        # exceptions are installed by the SoC using its actual CRG signals;
+        # hand-written generated-clock names silently dropped them (#607).
         if phy_model == "mii":
             for eth_clk_pad in eth_clk_groups:
                 platform.toolchain.additional_xdc_commands.add(
                     "set_clock_groups -asynchronous -group "
                     "[get_clocks -of_objects [get_ports %s]]" % eth_clk_pad)
-        else:
-            eth_ck = ("[get_clocks -of_objects [get_ports %s]]"
-                      % eth_clk_groups[0])
-            # LiteX templates additional_xdc_commands through str.format -
-            # literal TCL braces must be doubled or they parse as format keys
-            part_cks = "[get_clocks {{crg_clkout0 crg_clkout1}}]"
-            for a, b in ((eth_ck, part_cks), (part_cks, eth_ck)):
-                platform.toolchain.additional_xdc_commands.add(
-                    "set_false_path -hold -from %s -to %s" % (a, b))
-                platform.toolchain.additional_xdc_commands.add(
-                    "set_max_delay -datapath_only -from %s -to %s 8.000"
-                    % (a, b))
-            # the audio/idelay clocks have no real eth crossings - keep them
-            # formally asynchronous so nothing accidental gets timed as
-            # PLL-related
-            platform.toolchain.additional_xdc_commands.add(
-                "set_clock_groups -asynchronous -group %s -group "
-                "[get_clocks {{crg_audio_ref_raw crg_audio_mclk_raw "
-                "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}}]"
-                % eth_ck)
-
-        # QUASI-STATIC CLASS RELAXATION (USER 2026-08-15: constrain by CLASS,
-        # never by per-endpoint analysis). Registers tagged
-        # (* quasi_static = "yes" *) in the RTL (the tagging rules live at the
-        # tag site in milan_csr.sv) are boot-written levels whose whole
-        # fan-out cone is legitimately multi-cycle: one rule here prunes
-        # every tagged cone from the single-cycle graph, and a register
-        # tagged in any FUTURE round inherits the relaxation with no XDC
-        # edit. Guarded so a build with zero tagged cells (or a synthesis
-        # that dropped the attribute) degrades to full-strictness rather
-        # than a Tcl error - the constraint can only ever RELAX known-safe
-        # paths, never mask an untagged one. Hold 3 accompanies setup 4 per
-        # the standard multicycle pairing, so hold analysis does not move to
-        # the wrong capture edge. (Doubled braces: LiteX templates these
-        # lines through str.format.)
-        platform.toolchain.additional_xdc_commands.add(
-            "set qs_cells [get_cells -hierarchical -quiet "
-            "-filter {{quasi_static == \"yes\"}}]")
-        platform.toolchain.additional_xdc_commands.add(
-            "if {{[llength $qs_cells] > 0}} {{ "
-            "set_multicycle_path 4 -setup -from $qs_cells ; "
-            "set_multicycle_path 3 -hold  -from $qs_cells }}")
+        add_quasi_static_constraints(platform)
 
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
@@ -2781,6 +2731,9 @@ class MilanSoC(SoCCore):
                                           phy_model=("mii" if board == "arty" else "gmii"),
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
+                if board == "ax7101":
+                    add_eth_constraints(platform, self.crg,
+                                        platform.lookup_request("eth_clocks", eth_phy_index).rx)
                 dp_ports.update(self.milan_mac.dp_ports)
             # audio-MMCM servo boundary: the real MMCME2_ADV DRP/PS wiring
             # (KL_mmcm_drp_servo inside milan_datapath <-> _CRG mmcm_audio)
@@ -4001,6 +3954,10 @@ def main() -> None:
         for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
             soc.add_constant(_name, _value)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    if args.build:
+        # Every launcher and shipping board passes here. A successful vendor
+        # exit cannot turn rejected constraints into a successful candidate.
+        check_implementation_log(Path(builder.gateware_dir) / "vivado.log")
     # Ship the entity model WITH the gateware that reads it, and record the
     # base it was compiled for. Bitstream and image are one deliverable: a
     # board flashed with one and loaded with the other's model enumerates the
