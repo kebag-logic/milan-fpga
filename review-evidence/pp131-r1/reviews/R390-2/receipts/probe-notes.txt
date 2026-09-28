@@ -1,0 +1,6 @@
+# probe provenance (R390-2)
+- scripts/run_probes.sh appends probe_hol.hpp, probe_hol_restore.hpp (round-1, unchanged), probe_gaps.hpp (round-1, G2 wait window widened to 700,000 cycles for the 500,001-cycle backoff) and probe_r2.hpp / probe_r2c.hpp to a disposable git-archive copy's tb/pp_top/d3_phases.hpp, adds the matching switches to that copy's sim_main.cpp, builds gsi-build and runs them. receipts/probes-head.txt is that run at 2b38d68e.
+- The A0 header comment in probe_r2.hpp was reworded after the run (comment only; no code change).
+- scripts/run_probe_r2d.sh additionally adds two reviewer device-model knobs (nv_hdr_every, nv_byte_every: cycles each header / payload READ byte is withheld) to the copy's sim_main.cpp; receipts/probe-slow-binding-walk-head.txt is its run at 2b38d68e.
+- Mutant probe receipts: the same scripts on copies whose RTL carries one r390_2_mutants.py edit (hold_unbounded, agg_ignores_in_hand, agg_not_in_rollback).
+- The review clone was never modified (receipts/clone-integrity.txt).

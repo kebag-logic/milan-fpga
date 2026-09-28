@@ -1,0 +1,13 @@
+# tool identity (R390-2)
+requested: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator -> ls: cannot access '$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator': No such file or directory
+used: $VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator
+Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator
+#!/bin/sh
+exec env VERILATOR_ROOT=<pinned-image-root>/usr/share/verilator <pinned-image-root>/usr/bin/verilator "$@"
+system verilator (NOT used): Verilator 5.052 2026-09-05 rev v5.052
+g++ (GCC) 16.2.1 20260810
+Python 3.14.7
+Mon Sep 28 06:24:52 PM UTC 2026
+fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf  <pinned-image-root>/usr/bin/verilator
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  <pinned-image-root>/usr/bin/verilator_bin

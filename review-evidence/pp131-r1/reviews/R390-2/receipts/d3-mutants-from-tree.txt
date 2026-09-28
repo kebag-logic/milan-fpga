@@ -1,0 +1,69 @@
+# tb/pp_top/d3_mutants.py run from a git-archive copy of 2b38d68e (blob 1ad7435b), --jobs 8, in two halves (--only)
+dm1 golden-pp_top: PASS
+dm1 TRG_clks: KILLED suite=tb/pp_top named=['D3S1 clks'] missing=[] failing=5
+dm1 latch_ignores_program: KILLED suite=tb/pp_top named=['D3S9'] missing=[] failing=3
+dm1 image_unproven_continues: KILLED suite=tb/pp_top named=['D3O2: CLOSED at', 'D3O3: CLOSED'] missing=[] failing=6
+dm1 TRG_cfg: KILLED suite=tb/pp_top named=['D3S1 cfg'] missing=[] failing=3
+dm1 hold_released_at_go: KILLED suite=tb/pp_top named=['D3O1: released at'] missing=[] failing=10
+dm1 dispatch_not_held: KILLED suite=tb/pp_top named=['D3O1: without the walk the writer owns every cycle'] missing=[] failing=4
+dm1 own_taken_at_the_walk: KILLED suite=tb/pp_top named=['D3R9: the held SET'] missing=[] failing=10
+dm1 TRG_rate: KILLED suite=tb/pp_top named=['D3S1 rate'] missing=[] failing=3
+dm1 TRG_fmti: KILLED suite=tb/pp_top named=['D3S1 fmti'] missing=[] failing=4
+dm1 TRG_fmto: KILLED suite=tb/pp_top named=['D3S1 fmto'] missing=[] failing=4
+dm1 taint_ignored: KILLED suite=tb/pp_top named=['D3S4 taint'] missing=[] failing=1
+dm1 clear_wins_same_edge: KILLED suite=tb/pp_top named=['D3S5 same edge'] missing=[] failing=1
+dm1 clear_by_group: KILLED suite=tb/pp_top named=['D3S6 group'] missing=[] failing=8
+dm1 TRG_ptof: KILLED suite=tb/pp_top named=['D3S1 ptof'] missing=[] failing=21
+dm1 identify_is_a_change: KILLED suite=tb/pp_top named=['D3S7'] missing=[] failing=1
+dm1 clear_by_index: KILLED suite=tb/pp_top named=['D3S6 index'] missing=[] failing=14
+dm1 unchanged_compare_ignores_validity: KILLED suite=tb/pp_top named=['D3S8 validity'] missing=[] failing=1
+dm1 RPL_cfg: KILLED suite=tb/pp_top named=['D3R1 cfg'] missing=[] failing=5
+dm1 RPL_rate: KILLED suite=tb/pp_top named=['D3R1 rate'] missing=[] failing=5
+dm1 RPL_clks: KILLED suite=tb/pp_top named=['D3R1 clks'] missing=[] failing=3
+dm1 RPL_fmto: KILLED suite=tb/pp_top named=['D3R1 fmto'] missing=[] failing=2
+dm1 rule_ignored: KILLED suite=tb/pp_top named=['D3R2: COMPLETE'] missing=[] failing=3
+dm1 RPL_ptof: KILLED suite=tb/pp_top named=['D3R1 ptof'] missing=[] failing=6
+dm1 RPL_fmti: KILLED suite=tb/pp_top named=['D3R1 fmti'] missing=[] failing=2
+dm1 unframed_reads_as_device_error: KILLED suite=tb/pp_top named=['D3R6: an erased device restores blank'] missing=[] failing=37
+dm1 passes_may_disagree: KILLED suite=tb/pp_top named=['D3R4:', 'D3R4b'] missing=[] failing=3
+dm1 device_error_reads_as_blank: KILLED suite=tb/pp_top named=['D3R5 device error on the header', 'D3R6: the one saved record'] missing=[] failing=4
+dm1 desc_error_is_a_refusal: KILLED suite=tb/pp_top named=['D3R7'] missing=[] failing=4
+dm1 restore_writes_are_changes: KILLED suite=tb/pp_top named=['D3R1: no restore write is a change'] missing=[] failing=1
+dm1 enable_not_released_by_restore: KILLED suite=tb/pp_top named=['D3R1: the enable requested from reset'] missing=[] failing=2
+dm1 no_restore_watchdog: KILLED suite=tb/pp_top named=['D3R8: a READ granted', 'D3R8b'] missing=[] failing=7
+D3 mutations: 31 of 31 KILLED by their named checks; goldens PASS
+dm2 golden-acmp_nvm: PASS
+dm2 golden-pp_top: PASS
+dm2 golden-rx_validator: PASS
+dm2 done_without_d3: KILLED suite=tb/pp_top named=['D3R1: the enable requested from reset', 'D3R1: COMPLETE'] missing=[] failing=31
+dm2 store_not_cleared: KILLED suite=tb/pp_top named=['D3R1: every row at its reset value'] missing=[] failing=15
+dm2 valid_not_cleared: KILLED suite=tb/pp_top named=['D3R1: every row at its reset value'] missing=[] failing=15
+dm2 dyn_not_rolled_back: KILLED suite=tb/pp_top named=['D3R4:'] missing=[] failing=4
+dm2 no_rollback: KILLED suite=tb/pp_top named=['D3R4:'] missing=[] failing=12
+dm2 blank_ignores_d3: KILLED suite=tb/pp_top named=['D3R1: COMPLETE'] missing=[] failing=1
+dm2 store_not_rolled_back: KILLED suite=tb/pp_top named=['D3R10 5000'] missing=[] failing=2
+dm2 quarantine_released_by_time: KILLED suite=tb/pp_top named=['D3R5: once the device ends the drained read a later SET persists'] missing=[] failing=3
+dm2 fourth_attempt_binding: KILLED suite=tb/acmp_nvm named=['E8 DR2c count'] missing=[] failing=3
+dm2 no_backoff_binding: KILLED suite=tb/acmp_nvm named=['E9 DR2c timing'] missing=[] failing=1
+dm2 alarm_forgiven_binding: KILLED suite=tb/acmp_nvm named=['E11 DR2c revocation'] missing=[] failing=1
+dm2 rollback_ignores_debt: KILLED suite=tb/pp_top named=['D3R10 16000'] missing=[] failing=2
+dm2 no_backoff_d3: KILLED suite=tb/pp_top named=['D3S10 timing'] missing=[] failing=2
+dm2 closed_releases_the_entity: KILLED suite=tb/pp_top named=['D3R12'] missing=[] failing=1
+dm2 alarm_forgiven_by_success: KILLED suite=tb/pp_top named=['D3S10 revocation'] missing=[] failing=1
+dm2 fourth_attempt: KILLED suite=tb/pp_top named=['D3S10 count'] missing=[] failing=2
+dm2 backoff_derivation: KILLED suite=tb/pp_top named=['D3S10 timing'] missing=[] failing=2
+dm2 disagree_one_direction: KILLED suite=tb/pp_top named=['D3R4b'] missing=[] failing=1
+dm2 backoff_holds_dispatch: KILLED suite=tb/pp_top named=['D3S10 backoff'] missing=[] failing=1
+dm2 rollback_one_cycle: KILLED suite=tb/pp_top named=['D3R4 strobe'] missing=[] failing=1
+dm2 pass1_read_not_drained: KILLED suite=tb/pp_top named=['D3R5b: once the device ends the drained pass-1 READ'] missing=[] failing=1
+dm2 judge_wait_unwatched: KILLED suite=tb/pp_top named=['D3R8b'] missing=[] failing=1
+dm2 rate_walk_stuck_on_first_lane: KILLED suite=tb/pp_top named=['D3R3b entry 7'] missing=[] failing=1
+dm2 no_aggregate_deadline: KILLED suite=tb/pp_top named=['D3R13 pass 0: DEFAULTS at clock', 'D3R13 pass 1'] missing=[] failing=3
+dm2 rate_walk_unbounded: KILLED suite=tb/pp_top named=['D3R3b entry 8'] missing=[] failing=1
+dm2 aggregate_mirrored: KILLED suite=tb/pp_top named=['D3R13 pass 0: DEFAULTS at clock'] missing=[] failing=3
+dm2 validator_admits_held_aecp: KILLED suite=tb/rx_validator named=['F28 held AECP', 'F28 rx_aecp_held counts both'] missing=[] failing=4
+dm2 aggregate_from_the_walk: KILLED suite=tb/pp_top named=['D3R13 pass 0: DEFAULTS at clock'] missing=[] failing=3
+dm2 per_wait_floor: KILLED suite=tb/pp_top named=['D3R8 deadline'] missing=[] failing=1
+dm2 aecp_hold_unbounded: KILLED suite=tb/pp_top named=['D3O5: in CLOSED each GET_RX_STATE', 'D3O6: during the slowed walk'] missing=[] failing=6
+dm2 held_drop_uncounted: KILLED suite=tb/pp_top named=['D3O5: one AECP command held', 'D3O6: at the terminal'] missing=[] failing=4
+D3 mutations: 31 of 31 KILLED by their named checks; goldens PASS

@@ -1,0 +1,9 @@
+PROBE C1 d=-3: grant forced at step 999997; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=-2: grant forced at step 999998; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=-1: grant forced at step 999999; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+0: grant forced at step 1000000; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+1: grant forced at step 1000001; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+2: grant forced at step 1000002; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+3: grant forced at step 1000003; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C2 k=300: error planted at 999701, roll-back strobe from 999703; done at clock -1, closed at clock 1000001 (bound 1000001); fail 1 cause 2 rb 0
+PROBE C2 k=3000: error planted at 997001, roll-back strobe from 997003; done at clock 997547, closed at clock -1 (bound 1000001); fail 1 cause 2 rb 1

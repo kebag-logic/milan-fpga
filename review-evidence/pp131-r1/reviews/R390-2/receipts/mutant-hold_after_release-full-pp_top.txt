@@ -1,0 +1,12 @@
+# mutant hold_after_release (r390_2_mutants.py edit), full tb/pp_top make at 2b38d68e
+make[1]: Entering directory '$REVIEWS/pp131-r390-2-packet/scratch/mut/hold_after_release/tb/pp_top/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/pp131-r390-2-packet/scratch/mut/hold_after_release/tb/pp_top/obj_dir'
+FAIL: W21dd2: ...and so did the second (st=-1)
+FAIL: W21ee: the SECOND command's effect survived a busy walker (started=0x01) - START then STOP must end STOPPED; a SUCCESS whose effect was overwritten is the defect the holder's ready line exists to prevent
+FAIL: U11g: cleanup commands answer for both controllers
+GI latency walks added: 5568 checks, 0 failures
+NW: 85 checks, 0 failures
+D3: 104 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7839 checks, 3 failures
+make: *** [Makefile:71: run] Error 1
