@@ -353,6 +353,8 @@ typedef char nvm_own_words_is_eight[(NVM_OWN_WORDS == 8u) ? 1 : -1];
 #define NVM_LOAD_TRIES         4u
 
 void set_idle_hook(void (*fptr)(void));
+void bios_dispatch_hook_required(void);
+void command_dispatch_hook(void);
 
 struct nvm_block {
 	uint8_t base;
@@ -413,6 +415,8 @@ static const char *const nvm_verdict_name[VD_COUNT] = {
 	"VD_PROGRAM", "VD_VERIFY",
 };
 
+/* Identity and shape must admit a writer before any service access. */
+static int nvm_started;
 static int nvm_ready;
 /* This writer has disabled itself for the rest of this reset and will never
  * commit again. It stops answering the liveness deadline, so the fabric
@@ -917,7 +921,11 @@ static void phy_link_tick(uint64_t now)
  * call answers at once, so the restore walk runs behind a live writer. */
 static void nvm_heartbeat_tick(void)
 {
-	uint64_t now = gettime_ns();
+	uint64_t now;
+
+	if (!nvm_started)
+		return;
+	now = gettime_ns();
 
 	phy_link_tick(now);
 	/* a retired writer answers no more: nvm_backed must fall */
@@ -1432,10 +1440,13 @@ static void nvm_boot(void)
 	int loaded = 0;
 	int live = 0;			/* the window went live */
 
+	/* Patch 0006 supplies this symbol; an older BIOS must fail to link. */
+	bios_dispatch_hook_required();
 	if (!nvm_shape_consistent()) {
 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
 		return;
 	}
+	nvm_started = 1;
 	nvm_verdict_a = nvm_validate(nvm_slot(NVM_SLOT_A));
 	nvm_verdict_b = nvm_validate(nvm_slot(NVM_SLOT_B));
 	seq_a = (nvm_verdict_a == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_A)) : 0;

@@ -19,6 +19,7 @@ static unsigned int downs;
 static unsigned int publishes;
 static int latched_down;
 static int acknowledge = 1;
+static unsigned int nak_register = 32;
 static uint64_t delay_cycles;
 
 void nvm_host_tick(int cycles)
@@ -56,7 +57,7 @@ void milan_mac_phy_mdio_w_write(uint32_t value)
 			 * Edge 46 launches TA zero; edge 47 launches D15. */
 			reply_bit = clock_bit == 46u ? 0u : clock_bit == 63u ? 1u :
 				((input_word >> (62u - clock_bit)) & 1u);
-			if (!addressed || !acknowledge)
+			if (!addressed || !acknowledge || (command_bits & 31u) == nak_register)
 				reply_bit = 1;
 		}
 		++clock_bit;
@@ -150,6 +151,14 @@ int main(void)
 		now += 125000000u;
 		expect_poll(now, expected[i]);
 	}
+	/* NAK after BMSR and BMCR succeed: 0xffff would falsely resolve 100FD. */
+	registers[5] = 0x101;
+	nak_register = 5;
+	now += 125000000u;
+	expect_poll(now, 0);
+	nak_register = 32;
+	now += 125000000u;
+	expect_poll(now, 11);
 	/* A brief loss recovered before this poll. Publish both edges now. */
 	registers[1] = 0x24;
 	registers[5] = 0x101;

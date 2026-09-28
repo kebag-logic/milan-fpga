@@ -41,7 +41,8 @@ WHAT IT GRADES, per shipped shape, all on bytes:
   9. an idle board stays backed and never stale;
  10. `milan_nvm wipe` erases both slots;
  11. an open record beside an unaligned closed predecessor keeps its staged
-     bytes while the predecessor's change commits byte-identically.
+     bytes while the predecessor's change commits byte-identically;
+ 12. rejected shape/identity startup never heartbeats under console input.
 
 NEGATIVE CONTROLS. `--self-test` plants five writer defects into a copy of
 the firmware, one at a time, and requires the suite to redden on each: the
@@ -616,6 +617,8 @@ def main() -> int:
     a = ap.parse_args()
     cfgs = a.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
     firmware_text = FIRMWARE.read_text()
+    import test_disabled_writer as disabled
+
     findings = []
     with tempfile.TemporaryDirectory(prefix="nvmfw.") as tmp:
         for cfg in cfgs:
@@ -623,11 +626,14 @@ def main() -> int:
             work.mkdir()
             bench = make_bench(cfg, work, firmware_text)
             got = grade(bench)
+            got += disabled.grade(cfg, work / "disabled", firmware_text)
+            disabled.check_link_guard(bench)
             findings += got
             print(f"{cfg.stem:<28} records={len(bench.frames):3d} image={bench.img_len:5d} B "
                   f"{'OK' if not got else f'{len(got)} finding(s)'}")
         if a.self_test and not findings:
             findings += self_test(cfgs[0], Path(tmp) / "selftest", firmware_text)
+            findings += disabled.self_test(cfgs[0], Path(tmp) / "disabled-mutant", firmware_text)
             subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],
                            check=True, timeout=180)
     for x in findings:

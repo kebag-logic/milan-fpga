@@ -58,9 +58,18 @@ uint8_t nvm_host_ddr[NVM_HOST_DDR_BYTES];
 extern init_func const nvm_host_init_milan_init;
 extern cmd_handler const nvm_host_cmd_milan_nvm;
 extern cmd_handler const nvm_host_cmd_milan_status;
+extern cmd_handler const nvm_host_cmd_milan_gettime;
+extern cmd_handler const nvm_host_cmd_milan_settime;
+extern cmd_handler const nvm_host_cmd_milan_utc;
 
 void set_idle_hook(void (*fptr)(void));
 void command_dispatch_hook(void);
+void bios_dispatch_hook_required(void);
+
+/* The host replaces the BIOS, including its patch-0006 link marker. */
+void bios_dispatch_hook_required(void)
+{
+}
 unsigned int crc32(const unsigned char *buffer, unsigned int len);
 
 struct backend {
@@ -640,6 +649,12 @@ static void run_uart(char *line)
 		nvm_host_cmd_milan_nvm(nb, params);
 	else if (cmd && strcmp(cmd, "milan_status") == 0)
 		nvm_host_cmd_milan_status(nb, params);
+	else if (cmd && strcmp(cmd, "milan_gettime") == 0)
+		nvm_host_cmd_milan_gettime(nb, params);
+	else if (cmd && strcmp(cmd, "milan_settime") == 0)
+		nvm_host_cmd_milan_settime(nb, params);
+	else if (cmd && strcmp(cmd, "milan_utc") == 0)
+		nvm_host_cmd_milan_utc(nb, params);
 	else
 		printf("HOST: unknown console command\n");
 	settle();

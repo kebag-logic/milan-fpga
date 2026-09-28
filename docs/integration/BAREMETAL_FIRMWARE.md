@@ -1894,8 +1894,12 @@ verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
 map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 
 **Runtime.** The product BIOS calls `command_dispatch_hook` after each line.
+[Patch 0006](../../sw/litex/patches/0006-bios-dispatch-hook.patch) supplies the hook and required link marker.
+Firmware fails linking when that BIOS patch is absent.
 The hook precedes parsing, including built-ins, unknown and empty lines.
 Firmware supplies a heartbeat opportunity through this hook.
+Identity and shape checks must admit the writer first.
+Rejected startup paths cannot arm backing through any console command.
 This services chained commands while queued input suppresses idle service.
 CRC walks also yield every 256 bytes after writer initialization.
 Record-validation walks yield every sixteen records.
@@ -1905,7 +1909,9 @@ Long BIOS built-ins remain a residual under the round-2 decision.
 Examples include `mem_test` and large-range `mem_read`.
 Their bodies provide no internal heartbeat or PHY service.
 They can exceed 500 ms heartbeats and 250 ms PHY publication.
-Beyond 2,000 ms without service, saved-state backing can lapse.
+A built-in body can lapse backing after about 1,750 ms.
+The 2,000 ms deadline includes up to 250 ms beforehand.
+That phase can suppress the dispatch heartbeat write.
 The dispatch hook services their boundaries only.
 The existing heartbeat rate limit remains 250 ms.
 The idle hook supplies opportunities while the console awaits input.

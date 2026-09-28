@@ -192,7 +192,9 @@ Long BIOS built-ins remain a residual under the round-2 decision.
 Examples include `mem_test` and large-range `mem_read`.
 Their bodies contain no internal heartbeat or PHY opportunities.
 They can exceed 500 ms heartbeats and 250 ms PHY publication.
-After 2000 ms without service, saved-state backing can lapse.
+A built-in body can lapse backing after about 1,750 ms.
+The 2,000 ms deadline includes up to 250 ms beforehand.
+That phase can suppress the dispatch heartbeat write.
 The dispatch hook services their boundaries only.
 CRC walks yield every 256 bytes after writer initialization.
 Record-validation walks yield every sixteen records.
@@ -264,7 +266,7 @@ Both Clause-22 peers follow IEEE 802.3 section 22.3.4.
 Rising edge k launches bit k+1 at simulated MDIO pins.
 Firmware samples before rising edges, following the pinned LiteX reader.
 Two turnaround clocks precede sixteen data samples.
-The unchanged phase probe reads BMSR 0x796d and PHYID1 0x001c.
+The [unchanged phase probe](https://github.com/kebag-logic/milan-fpga/blob/a1c4d79f/review-evidence/590-r1/reviews/R369-1/probe_mdio_phase.py) reads BMSR 0x796d and PHYID1 0x001c.
 Its IEEE phase publishes link_status=13 for negotiated 1000/full.
 A committed late-sample mutant fails this negotiation check.
 Firmware writes the existing link-status CSR.
@@ -299,7 +301,7 @@ The separate capture harness measures concurrent request traffic.
 
 ## Controls and reproduction
 
-Portable checks pass 43 grading controls and 14 flash controls.
+Portable checks pass 47 grading controls and 14 flash controls.
 They retain historical traces and their original duration comparisons.
 New controls refuse one-cycle overruns, a single unbacked cycle and duplicate link edges.
 A target dispatch-removal mutation must lose backing in both `queued-short` and `queued-builtins`.
@@ -313,5 +315,7 @@ Only `device-wait` adds `--device-wait-us 3000000 --program-wait-us 5000`.
 Use `--regrade` with identical arguments to check a retained bound log.
 Reuse verifies generated inputs, BIOS, ELF and executable hashes.
 The evidence packet records SHA-256 and size for large receipts and logs.
-Only small summaries belong in that packet or this repository.
+Raw logs and JSON receipts remain in the evidence packet.
+Large files are compressed, with raw and compressed SHA-256 bindings.
+Only summaries belong in this repository.
 Author validation is not a review verdict.

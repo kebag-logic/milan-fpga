@@ -104,3 +104,9 @@ section 11), and today only the processor's binding records reach the store.
 The model follows the backend's contract as `hdl/milan/KL_nvm_backend.sv`
 states it; the backend itself is graded by
 [`tb/verilator/nvm_backend`](../../../tb/verilator/nvm_backend/README.md).
+
+Console tests reject shape and identity mismatches on every shape.
+Every Milan command and empty input keep `hb=0 backed=0 stale=0`.
+Removing startup admission must fail both cases.
+Removing the BIOS dispatch marker must fail linking.
+A negotiation-stage NAK also kills the ignored-ACK mutant.

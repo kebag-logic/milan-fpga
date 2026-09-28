@@ -350,7 +350,7 @@ def service_findings(result: dict, raw: str) -> list[str]:
     """Apply the assigned service rule to opportunities, deadlines and backing."""
     findings = []
     for row in result['rows']:
-        if result['media']['plan'] == 'queued-builtins' and 'command_index' in row:
+        if result['media']['plan'] in ('queued-builtins', 'queued-short') and 'command_index' in row:
             if row['tick_calls'] == 0:
                 findings.append('console line lacks a dispatch opportunity: ' + row['duty'])
         # Ordinary console response time has no protocol deadline. Its shared
@@ -464,7 +464,29 @@ def service_controls() -> int:
                 'queued plan is not the full 133-byte schedule')
     require(sum(len(command) + 1 for command in command_plan('queued-builtins')) >= 133,
             'built-in queue is shorter than the required paste')
-    return 9 + publication_controls(result, raw)
+    return 9 + publication_controls(result, raw) + dispatch_controls()
+
+
+def dispatch_controls() -> int:
+    """A missing line tick fails even while aggregate liveness stays green."""
+    raw = ('BACKING armed=1 unbacked_cycles=0\n'
+           'PHY_TIMING transactions=8 publications=1 max_transaction_cycles=10 '
+           'max_poll_cycles=90 down_edges=1 up_edges=1\n')
+    row = dict(interval('empty line', 1, 100_001, 500), period_bound_ms=260,
+               command_index=0, tick_calls=1)
+    result = dict(rows=[row], media=dict(plan='queued-builtins'), liveness=[dict(backed=1)])
+    require(service_findings(result, raw) == [], 'serviced console line refused')
+    row['tick_calls'] = 0
+    missing = 'console line lacks a dispatch opportunity: empty line'
+    require(service_findings(result, raw) == [missing], 'per-line dispatch omission escaped')
+    try:
+        report_verdict('remove-dispatch', ['continuous backing lost'], False)
+    except RuntimeError as error:
+        require('per-line' in str(error), 'dispatch control failed for unrelated reason')
+    else:
+        raise RuntimeError('dispatch verdict accepted backing loss without per-line finding')
+    report_verdict('remove-dispatch', ['continuous backing lost', missing], False)
+    return 4
 
 
 def publication_controls(result: dict, raw: str) -> int:
@@ -528,7 +550,9 @@ def report_verdict(mutation: str, findings: list[str], record_budget_findings: b
     """Controls must fail their named oracle; ordinary runs retain every finding."""
     if mutation == 'remove-dispatch':
         require('continuous backing lost' in findings, 'dispatch removal escaped backing check')
-        print('PASS: dispatch removal caught by continuous backing check')
+        require(any(item.startswith('console line lacks a dispatch opportunity: ') for item in findings),
+                'dispatch removal escaped per-line check')
+        print('PASS: dispatch removal caught by continuous backing and per-line checks')
         return
     if mutation == 'late-sample':
         require('PHY initial gigabit negotiation was not published' in findings,

@@ -7,6 +7,7 @@
 #                                            marginal RTL8211E TX setup/hold — used by
 #                                            milan_soc.py --gtx-tx-invert)
 #   0004-vexiiriscv-baremetal-variant.patch -> litex (RV32I, M-mode-only CPU variant)
+#   0006-bios-dispatch-hook.patch -> litex (per-line service and link guard)
 #   0005-vexiiriscv-cacheless-litex.patch -> pythondata-cpu-vexiiriscv (connect the
 #                                            cacheless iBus/dBus and dedicated
 #                                            protocol-memory attachment)

@@ -21,7 +21,7 @@ def main() -> None:
         command = ["gcc", "-std=gnu11", "-O1", "-Wall", "-Wextra", "-Werror", "-Wno-format",
                    "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",
                    f"-I{work}", f"-I{nvm.STUBS}", str(driver), "-o", str(work / "phy")]
-        for mutant in ("none", "no-publish", "defer-recovery", "late-sample"):
+        for mutant in ("none", "no-publish", "defer-recovery", "late-sample", "ack-ignored"):
             text = nvm.FENCE_RE.sub("(void)0;", source)
             if mutant == "no-publish":
                 anchor = "\tmilan_mac_link_status_write(status);"
@@ -29,6 +29,11 @@ def main() -> None:
                     raise RuntimeError("publisher mutation anchor is not unique")
                 text = text.replace(anchor, "\t(void)status;")
                 text = text.replace("milan_mac_link_status_write(0);", "(void)0;")
+            elif mutant == "ack-ignored":
+                anchor = "return ack ? -1 : (int)value;"
+                if text.count(anchor) != 1:
+                    raise RuntimeError("acknowledgement mutation anchor is not unique")
+                text = text.replace(anchor, "(void)ack; return (int)value;")
             elif mutant == "late-sample":
                 anchor = ("\tvalue = milan_mac_phy_mdio_r_read() & 1u;\n"
                           "\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n\tcdelay(32);")
