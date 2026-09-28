@@ -13,6 +13,11 @@ The series contains:
 - `0005-vexiiriscv-cacheless-litex.patch`: connect the cacheless instruction and
   data buses plus the dedicated protocol-memory port to the LiteX bus fabric.
 
+- `0006-bios-dispatch-hook.patch`: call a weak product hook after every
+  console line, before parsing built-in, unknown or empty input.
+  Bare-metal firmware overrides it for heartbeat and PHY service.
+  Long built-in bodies still need their own internal service opportunities.
+
 Usage:
 
 ```sh

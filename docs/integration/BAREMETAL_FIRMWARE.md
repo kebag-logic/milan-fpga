@@ -1893,12 +1893,20 @@ verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
 `backed` bits, so a blank board reads `blank=1 fail=0 backed=1`, the register
 map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 
-**Runtime.** Every registered Milan command begins with a heartbeat opportunity.
+**Runtime.** The product BIOS calls `command_dispatch_hook` after each line.
+The hook precedes parsing, including built-ins, unknown and empty lines.
+Firmware supplies a heartbeat opportunity through this hook.
 This services chained commands while queued input suppresses idle service.
 CRC walks also yield every 256 bytes after writer initialization.
 Record-validation walks yield every sixteen records.
 Wipe yields between its two slot-erase verification walks.
-These placements service single long commands, including 8x8 slot status.
+These placements service long Milan commands, including 8x8 slot status.
+Long BIOS built-ins remain a residual under the round-2 decision.
+Examples include `mem_test` and large-range `mem_read`.
+Their bodies provide no internal heartbeat or PHY service.
+They can exceed 500 ms heartbeats and 250 ms PHY publication.
+Beyond 2,000 ms without service, saved-state backing can lapse.
+The dispatch hook services their boundaries only.
 The existing heartbeat rate limit remains 250 ms.
 The idle hook supplies opportunities while the console awaits input.
 This interval is half the section 9.4 maximum.
@@ -1924,6 +1932,9 @@ The [capture receipt](../../tb/verilator/nvm_capture_cpu/measurements.json) bind
 
 Firmware also publishes PHY state through the existing MDIO window.
 Clause-22 reads obtain link, negotiated speed and duplex.
+MDIO sampling follows IEEE 802.3 section 22.3.4.
+Two turnaround clocks precede data sampling before each rising edge.
+This matches the pinned LiteX `libliteeth/mdio.c` reader.
 BMSR latch handling publishes a latched loss, then resolves current state in the same poll.
 A second MDIO read separates the loss and recovery publications across the CDC.
 Repeated stable readings leave the fabric edge counters unchanged.
@@ -1947,7 +1958,9 @@ shape: the staged and committed containers equal the Python encoder's byte for
 byte, the verdict the firmware prints for every section 6.2 refusal equals
 `klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
 transaction failures and the heartbeat through a 3 s erase; `--self-test`
-plants four writer defects and requires each to be caught. What it cannot
+plants five writer defects and requires each to be caught. A partial ownership fixture protects an open record beside an unaligned edge.
+The edge-crossing word-copy control must fail that fixture.
+What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
 processor writing records into it. Today only the processor's binding records
 reach the store (the manager for the other seven Milan items is the donor's

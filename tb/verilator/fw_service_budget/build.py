@@ -108,12 +108,17 @@ def prepare_firmware(destination: Path, mutation: str) -> Path:
         return firmware_path
     source = (firmware_path / 'milan_baremetal.c').read_text()
     if mutation == 'remove-dispatch':
-        names = ('milan_status', 'milan_nvm', 'milan_gettime', 'milan_settime', 'milan_utc')
-        for name in names:
-            anchor = f'static void {name}_handler(int nb_params, char **params)\n{{\n\tnvm_heartbeat_tick();'
-            if source.count(anchor) != 1:
-                raise RuntimeError('dispatch mutation anchor is not unique')
-            source = source.replace(anchor, anchor.removesuffix('\n\tnvm_heartbeat_tick();'))
+        anchor = 'void command_dispatch_hook(void)\n{\n\tnvm_heartbeat_tick();'
+        if source.count(anchor) != 1:
+            raise RuntimeError('dispatch mutation anchor is not unique')
+        source = source.replace(anchor, anchor.removesuffix('\n\tnvm_heartbeat_tick();'))
+    elif mutation == 'late-sample':
+        anchor = ('\tvalue = milan_mac_phy_mdio_r_read() & 1u;\n'
+                  '\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n\tcdelay(32);')
+        if source.count(anchor) != 1:
+            raise RuntimeError('phase mutation anchor is not unique')
+        source = source.replace(anchor, '\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n'
+                                '\tcdelay(32);\n\tvalue = milan_mac_phy_mdio_r_read() & 1u;')
     else:
         anchor = '\tmilan_mac_link_status_write(status);'
         if source.count(anchor) != 1:

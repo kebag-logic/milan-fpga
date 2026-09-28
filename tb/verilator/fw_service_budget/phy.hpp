@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <stdexcept>
 
-// Independent Clause-22 peer; firmware supplies every clock and publication.
+// IEEE 802.3 22.3.4 peer; firmware supplies every clock and publication.
 class PhyPeer {
 public:
     void tick_entry(std::uint64_t cycle) { entry_ = cycle; }
@@ -23,7 +23,8 @@ public:
                 if (pins & 2u) throw std::runtime_error("MDIO read bus contention");
                 if ((command_ >> 10) != 6u) throw std::runtime_error("MDIO not Clause-22 read");
                 if (bit_ == 46) value_ = reg(command_ & 31u, cycle);
-                reply_ = bit_ < 48 ? unsigned(bit_ == 46) : ((value_ >> (63u - bit_)) & 1u);
+                // Edge k launches bit k+1: TA zero at 46, D15 at 47.
+                reply_ = bit_ == 46 ? 0u : bit_ == 63 ? 1u : ((value_ >> (62u - bit_)) & 1u);
                 if (((command_ >> 5) & 31u) != 0) reply_ = 1;
             }
             ++bit_;

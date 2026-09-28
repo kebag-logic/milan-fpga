@@ -49,6 +49,7 @@ The named plans are:
 | `uart-paced` | Same cases; both UART directions use 115,200 baud, 8N1 spacing |
 | `queued-input` | Twelve NVM status commands, then status: 133 bytes on both shapes |
 | `queued-short` | 350 consecutive status commands; isolates dispatch service from inner walks |
+| `queued-builtins` | Repeated bounded `mem_read`, empty and unknown lines; final status |
 | `device-wait` | One commit, then status; isolates erase/page WIP behavior |
 
 `queued-input` models continuously available input at each returned prompt.
@@ -93,6 +94,11 @@ Use identical scenario arguments with `--regrade`.
 
 Use `--enforce-service` for the firmware lane's required verdict.
 It checks each duty's tick allowance and actual deadlines.
+Long-running BIOS built-ins remain outside these measured duty bounds.
+`mem_test` and large `mem_read` ranges lack internal service.
+They can exceed heartbeat and PHY publication bounds until returning.
+The BIOS dispatch hook covers their boundaries, including queued input.
+
 PHY publication reserves a 125 ms trigger phase plus the duty stretch,
 UART allowance and a conservative poll charge within 250 ms.
 The charge adds nine maximum measured transactions to the measured complete poll.
@@ -189,6 +195,10 @@ It is not presented as a physical flash command sequence.
 
 The harness provides a Clause-22 peer at simulated MDIO pins.
 The firmware performs every bit-bang transaction and status publication.
+Both peers follow IEEE 802.3 section 22.3.4 output timing.
+Rising edge k launches bit k+1 for subsequent sampling.
+The firmware samples before the data rising edge.
+A late-sample control must fail initial negotiated-status publication.
 Simulation CSRs reproduce the product register and synchronizer semantics.
 The product datapath receives the existing link-status inputs.
 A separate bus reader reads the real MAC_STATUS register.
@@ -197,7 +207,7 @@ Every published link transition must increment its corresponding counter once.
 Repeated publications must leave both counters unchanged.
 The peer drops link from 1.5 through 1.8 seconds.
 At 2.4 seconds it changes negotiation to 100 Mb/s.
-Both queued plans and `device-wait` require one completed down/up cycle.
+All queued plans and `device-wait` require one completed down/up cycle.
 Host tests separately cover discovery, errors and speed/duplex modes.
 They require a latched brief loss and its recovered state to publish in one poll.
 A mutation restoring the old second-poll delay must fail that current-state check.
@@ -214,13 +224,16 @@ Explicit controls use scratch firmware with checked substitution anchors:
 ```sh
 python3 -B tb/verilator/fw_service_budget/run.py \
   --shape endstation_ax7101_1x1_tdm8 --build-dir /tmp/service-no-dispatch \
-  --populated --plan queued-short --enforce-service --mutation remove-dispatch
+  --populated --plan queued-builtins --enforce-service --mutation remove-dispatch
 python3 -B tb/verilator/fw_service_budget/run.py \
   --shape endstation_ax7101_1x1_tdm8 --build-dir /tmp/service-no-publish \
   --populated --plan all --enforce-service --mutation no-publish
 ```
 
 Dispatch removal must fail the continuous-backing check.
+Every normal built-in, unknown and empty line requires an observed tick.
+The built-in queue exceeds the required 133 input bytes.
+`--mutation late-sample` must fail the negotiated-status check.
 Publication removal must fail the target publication-evidence check.
 The ordinary firmware serves as each control's positive arm.
 Portable fixtures reject one-cycle service overruns and duplicate link edges.

@@ -786,7 +786,8 @@ static uint32_t phy_published;
 static uint64_t phy_last_poll;
 
 /* At least 32 CPU delay cycles per half-period, even at 100 MHz.
- * Input synchronization settles before the read at the high phase. */
+ * IEEE 802.3 22.3.4: the PHY advances its output after each rising edge.
+ * Sample with MDC low before that edge, as LiteX libliteeth/mdio.c does. */
 static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
 {
 	uint32_t pins = (drive ? PHY_OE : 0u) | (bit ? PHY_OUT : 0u);
@@ -794,9 +795,9 @@ static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
 
 	milan_mac_phy_mdio_w_write(pins);
 	cdelay(32);
+	value = milan_mac_phy_mdio_r_read() & 1u;
 	milan_mac_phy_mdio_w_write(pins | PHY_MDC);
 	cdelay(32);
-	value = milan_mac_phy_mdio_r_read() & 1u;
 	milan_mac_phy_mdio_w_write(pins);
 	return value;
 }
@@ -927,6 +928,13 @@ static void nvm_heartbeat_tick(void)
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_HB);
 		nvm_hb_last = now;
 	}
+}
+
+/* The product BIOS calls this before every line, including built-ins,
+ * unknown commands and empty lines. Do not start an idle auto-commit here. */
+void command_dispatch_hook(void)
+{
+	nvm_heartbeat_tick();
 }
 
 /* ---- the LiteSPI command master, one byte at a time, 1x mode ---------- */
@@ -1632,7 +1640,6 @@ define_init_func(milan_init);
 
 static void milan_status_handler(int nb_params, char **params)
 {
-	nvm_heartbeat_tick();
 	uint32_t gm_lo;
 	uint32_t gm_hi;
 	uint32_t parent_lo;
@@ -1734,7 +1741,6 @@ static void nvm_print_status(void)
 
 static void milan_nvm_handler(int nb_params, char **params)
 {
-	nvm_heartbeat_tick();
 	if (nb_params == 0) {
 		nvm_print_status();
 		return;
@@ -1767,7 +1773,6 @@ define_command(milan_nvm, milan_nvm_handler,
 
 static void milan_gettime_handler(int nb_params, char **params)
 {
-	nvm_heartbeat_tick();
 	(void)nb_params;
 	(void)params;
 	print_tod(gettime_ns());
@@ -1778,7 +1783,6 @@ define_command(milan_gettime, milan_gettime_handler,
 
 static void milan_settime_handler(int nb_params, char **params)
 {
-	nvm_heartbeat_tick();
 	uint64_t seconds;
 	uint64_t nanoseconds = 0;
 	uint64_t value;
@@ -1799,7 +1803,6 @@ define_command(milan_settime, milan_settime_handler,
 
 static void milan_utc_handler(int nb_params, char **params)
 {
-	nvm_heartbeat_tick();
 	uint64_t utc;
 	uint64_t nanoseconds;
 	uint64_t tai_minus_utc;

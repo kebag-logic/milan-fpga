@@ -21,7 +21,7 @@ def main() -> None:
         command = ["gcc", "-std=gnu11", "-O1", "-Wall", "-Wextra", "-Werror", "-Wno-format",
                    "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",
                    f"-I{work}", f"-I{nvm.STUBS}", str(driver), "-o", str(work / "phy")]
-        for mutant in ("none", "no-publish", "defer-recovery"):
+        for mutant in ("none", "no-publish", "defer-recovery", "late-sample"):
             text = nvm.FENCE_RE.sub("(void)0;", source)
             if mutant == "no-publish":
                 anchor = "\tmilan_mac_link_status_write(status);"
@@ -29,6 +29,14 @@ def main() -> None:
                     raise RuntimeError("publisher mutation anchor is not unique")
                 text = text.replace(anchor, "\t(void)status;")
                 text = text.replace("milan_mac_link_status_write(0);", "(void)0;")
+            elif mutant == "late-sample":
+                anchor = ("\tvalue = milan_mac_phy_mdio_r_read() & 1u;\n"
+                          "\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n\tcdelay(32);")
+                if text.count(anchor) != 1:
+                    raise RuntimeError("phase mutation anchor is not unique")
+                text = text.replace(anchor,
+                                    "\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n"
+                                    "\tcdelay(32);\n\tvalue = milan_mac_phy_mdio_r_read() & 1u;")
             elif mutant == "defer-recovery":
                 anchor = ("\tif (bmsr >= 0 && !(bmsr & PHY_BMSR_LINK) && (phy_published & 1u)) {\n"
                           "\t\tmilan_mac_link_status_write(0);\n"

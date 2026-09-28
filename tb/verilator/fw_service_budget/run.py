@@ -17,10 +17,11 @@ ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 SHAPES = ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8')
 CPU_HZ = 50_000_000
-PLANS = ('all', 'queued-input', 'queued-short', 'uart-paced', 'device-wait')
+PLANS = ('all', 'queued-input', 'queued-short', 'queued-builtins', 'uart-paced', 'device-wait')
 SYS_HZ = 100_000_000
 # Cover every command registered by the product translation unit, plus
-# normal, boundary and refused parameter paths. BIOS maintenance is separate.
+# normal, boundary and refused parameter paths. A separate queued plan
+# covers BIOS built-ins, unknown commands and empty lines.
 COMMANDS = (
     'milan_status', 'milan_gettime', 'milan_nvm',
     'milan_nvm commit', 'milan_nvm commit', 'milan_nvm',
@@ -45,6 +46,8 @@ def command_plan(plan: str, shape: str = SHAPES[0]) -> tuple[str, ...]:
         return ('milan_nvm',) * 12 + ('milan_status',)
     if plan == 'queued-short':
         return ('milan_status',) * 350
+    if plan == 'queued-builtins':
+        return ('mem_read 0x40000000 128', '', 'unknown_command') * 350 + ('milan_status',)
     if plan == 'device-wait':
         return ('milan_nvm commit', 'milan_status')
     return COMMANDS
@@ -156,6 +159,7 @@ def inputs() -> dict[str, str]:
     """Hash measurement code and product inputs without recording local paths."""
     files = [ROOT / 'sw/firmware/milan_baremetal/milan_baremetal.c',
              ROOT / 'sw/firmware/milan_baremetal/Makefile', ROOT / 'sw/litex/milan_soc.py']
+    files += sorted((ROOT / 'sw/litex/patches').glob('*.patch'))
     files += [ROOT / 'configs' / (s + '.yaml') for s in SHAPES]
     files += sorted((ROOT / 'tb/verilator/nvm_capture_cpu').glob('*.py'))
     files += sorted(p for p in HERE.iterdir() if p.suffix in ('.py', '.cpp', '.hpp', '.vlt'))
@@ -346,6 +350,9 @@ def service_findings(result: dict, raw: str) -> list[str]:
     """Apply the assigned service rule to opportunities, deadlines and backing."""
     findings = []
     for row in result['rows']:
+        if result['media']['plan'] == 'queued-builtins' and 'command_index' in row:
+            if row['tick_calls'] == 0:
+                findings.append('console line lacks a dispatch opportunity: ' + row['duty'])
         # Ordinary console response time has no protocol deadline. Its shared
         # heartbeat deadline applies to opportunities inside the handler.
         if row['duty'] in ('boot_to_entity_enabled', 'restore_walk',
@@ -390,7 +397,7 @@ def service_findings(result: dict, raw: str) -> list[str]:
     if reads and reads[-1]['cycle'] >= 265_000_000:
         if not any(event['cycle'] >= 240_000_000 and event['status'] == 11 for event in reads):
             findings.append('PHY did not publish the 100 Mb/s negotiation')
-    if result['media']['plan'] in ('queued-input', 'queued-short', 'device-wait'):
+    if result['media']['plan'] in ('queued-input', 'queued-short', 'queued-builtins', 'device-wait'):
         if (int(timing[5]), int(timing[6])) != (1, 1):
             findings.append('PHY cycle did not reach both fabric counters exactly once')
     return findings
@@ -455,7 +462,9 @@ def service_controls() -> int:
     for shape in SHAPES:
         require(sum(len(command) + 1 for command in command_plan('queued-input', shape)) == 133,
                 'queued plan is not the full 133-byte schedule')
-    return 8 + publication_controls(result, raw)
+    require(sum(len(command) + 1 for command in command_plan('queued-builtins')) >= 133,
+            'built-in queue is shorter than the required paste')
+    return 9 + publication_controls(result, raw)
 
 
 def publication_controls(result: dict, raw: str) -> int:
@@ -515,6 +524,23 @@ def self_test() -> None:
     print('PASS: over-budget duty, marker integrity and product dispatch census')
 
 
+def report_verdict(mutation: str, findings: list[str], record_budget_findings: bool) -> None:
+    """Controls must fail their named oracle; ordinary runs retain every finding."""
+    if mutation == 'remove-dispatch':
+        require('continuous backing lost' in findings, 'dispatch removal escaped backing check')
+        print('PASS: dispatch removal caught by continuous backing check')
+        return
+    if mutation == 'late-sample':
+        require('PHY initial gigabit negotiation was not published' in findings,
+                'late sampling escaped negotiated-status check')
+        print('PASS: late MDIO sampling caught by target negotiation check')
+        return
+    for finding in findings:
+        print('BUDGET FINDING: ' + finding)
+    require(record_budget_findings or not findings, 'budget findings require disposition')
+    print('PASS: measurement evidence; budget findings: ' + str(len(findings)))
+
+
 def main() -> None:
     """Run foreground builds outside the checkout; keep receipts separate."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -529,7 +555,7 @@ def main() -> None:
     parser.add_argument('--populated', action='store_true')
     parser.add_argument('--enforce-service', action='store_true',
                         help='grade duty tick stretches and continuous backing')
-    parser.add_argument('--mutation', choices=('none', 'remove-dispatch', 'no-publish'), default='none')
+    parser.add_argument('--mutation', choices=('none', 'remove-dispatch', 'no-publish', 'late-sample'), default='none')
     parser.add_argument('--plan', choices=PLANS, default='all')
     parser.add_argument('--device-wait-us', type=int, default=0, help='erase WIP in microseconds')
     parser.add_argument('--program-wait-us', type=int, default=0, help='page-program WIP in microseconds')
@@ -539,8 +565,8 @@ def main() -> None:
         return
     if args.build_dir is None:
         parser.error('--build-dir is required for measurement')
-    if args.mutation == 'remove-dispatch' and args.plan != 'queued-short':
-        parser.error('dispatch control requires queued-short')
+    if args.mutation == 'remove-dispatch' and args.plan not in ('queued-short', 'queued-builtins'):
+        parser.error('dispatch control requires queued-short or queued-builtins')
     if args.mutation != 'none' and not args.enforce_service:
         parser.error('mutation controls require --enforce-service')
     args.build_dir = args.build_dir.resolve()
@@ -603,14 +629,7 @@ def main() -> None:
     require(inputs() == hashes, 'measurement code changed during the run; receipt requires regrade')
     print(json.dumps(result['rows'], indent=2))
     findings = result.get('service_findings', result['budget_findings'])
-    if args.mutation == 'remove-dispatch':
-        require('continuous backing lost' in findings, 'dispatch removal escaped backing check')
-        print('PASS: dispatch removal caught by continuous backing check')
-        return
-    for finding in findings:
-        print('BUDGET FINDING: ' + finding)
-    require(args.record_budget_findings or not findings, 'budget findings require disposition')
-    print('PASS: measurement evidence; budget findings: ' + str(len(findings)))
+    report_verdict(args.mutation, findings, args.record_budget_findings)
 
 
 if __name__ == '__main__':

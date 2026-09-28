@@ -41,11 +41,11 @@ WHAT IT GRADES, per shipped shape, all on bytes:
   9. an idle board stays backed and never stale;
  10. `milan_nvm wipe` erases both slots.
 
-NEGATIVE CONTROLS. `--self-test` plants four writer defects into a copy of
+NEGATIVE CONTROLS. `--self-test` plants five writer defects into a copy of
 the firmware, one at a time, and requires the suite to redden on each: the
 ascending-id check removed, the heartbeat dropped from the erase poll loop,
 the read-back verify skipped, and the erased-record rule accepting a header
-alone. A control that stays green is reported as the finding it is.
+alone, and a word copy crossing into an open neighbour. A control that stays green is reported as the finding it is.
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
@@ -109,6 +109,9 @@ SUMMARY_RE = re.compile(r"^HOST (.*)$", re.M)
 #: (label, the text that must occur exactly once, its replacement) - each is
 #: one writer defect the suite must catch
 MUTATIONS = {
+    "edge_cross": (
+        "if ((i & 3u) == 0 && next - i >= 4u &&",
+        "if ((i & 3u) == 0 && next - i >= 1u &&"),
     "no_ascending_check": (
         "\t\t\tif (!rec.ok || (int)rec.id <= last)\n",
         "\t\t\tif (!rec.ok)\n"),
@@ -529,9 +532,46 @@ def grade_snapshot_contract(bench: Bench) -> list[str]:
     return f
 
 
+def grade_partial_ownership(bench: Bench) -> list[str]:
+    """An open record keeps staged bytes beside an unaligned closed edge."""
+    findings = []
+    offsets = bench.offsets()
+    rids = sorted(bench.frames, key=offsets.get)
+    pairs = [(left, right) for left, right in zip(rids, rids[1:])
+             if offsets[right] % 4 and offsets[left] + len(bench.frames[left]) == offsets[right]]
+    if not pairs:
+        return ["partial ownership fixture has no unaligned record boundary"]
+    closed, opened = pairs[0]
+    golden = bench.assemble(bench.frames, 5)
+    closed_frame = bench.frames[closed]
+    payload = bytes(byte ^ 0x55 for byte in closed_frame[REC_HDR:])
+    changed = frame_record(closed, payload, bench.donor.layout)
+    # Poison the open record's header too: crossing even one byte is visible.
+    poison = bytes(byte ^ 0xff for byte in bench.frames[opened])
+    stage = bench.work / "partial-stage.bin"
+    slot = bench.work / "partial-slot.bin"
+    _, state, _ = run(bench, "--slot-b", slot_file(bench, "partial-golden.bin", golden),
+                      "--boot", "--open-record", str(opened),
+                      "--change", f"{KLJ2_HDR + offsets[opened]}:{poison.hex()}",
+                      "--change", f"{KLJ2_HDR + offsets[closed]}:{changed.hex()}",
+                      "--uart", "milan_nvm commit", "--dump-stage", str(stage),
+                      "--dump-slot-a", str(slot))
+    kept = dict(bench.frames)
+    kept[closed] = changed
+    expected = bench.assemble(kept, 6)
+    start = KLJ2_HDR + offsets[opened]
+    end = start + len(bench.frames[opened])
+    _check(findings, stage.read_bytes()[start:end] == golden[start:end],
+           "partial ownership: open record changed across unaligned predecessor edge")
+    _check(findings, stage.read_bytes()[:bench.img_len] == expected
+           and slot.read_bytes()[:bench.img_len] == expected and state.get("acks") == 1,
+           "partial ownership: closed change and preserved open record did not commit byte-identically")
+    return findings
+
+
 GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
           grade_parity, grade_failures, grade_liveness,
-          grade_snapshot_contract)
+          grade_snapshot_contract, grade_partial_ownership)
 
 
 def grade(bench: Bench) -> list[str]:
@@ -553,6 +593,8 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
         sub.mkdir(parents=True)
         bench = make_bench(cfg, sub, firmware_text.replace(old, new))
         got = grade(bench)
+        if label == "edge_cross" and not any("open record changed across unaligned" in item for item in got):
+            findings.append("self-test: edge_cross missed its named partial ownership assertion")
         if not got:
             findings.append(f"self-test: the {label} defect was NOT caught")
         else:

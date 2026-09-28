@@ -52,8 +52,10 @@ void milan_mac_phy_mdio_w_write(uint32_t value)
 					latched_down = 0;
 				}
 			}
-			reply_bit = clock_bit < 48u ? (clock_bit == 46u) :
-				((input_word >> (63u - clock_bit)) & 1u);
+			/* IEEE 802.3 22.3.4: edge k launches frame bit k+1.
+			 * Edge 46 launches TA zero; edge 47 launches D15. */
+			reply_bit = clock_bit == 46u ? 0u : clock_bit == 63u ? 1u :
+				((input_word >> (62u - clock_bit)) & 1u);
 			if (!addressed || !acknowledge)
 				reply_bit = 1;
 		}

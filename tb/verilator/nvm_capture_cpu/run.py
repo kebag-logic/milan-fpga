@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Measure product CPU captures with controller traffic enabled or disabled."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -44,6 +45,12 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
     if returncode:
         raise RuntimeError(f'simulator exited {returncode}')
     summary = grade_rows(rows, spec)
+    if spec['mutation'] == 'byte-only':
+        baseline_path = Path(spec['baseline_measurement'])
+        baseline = json.loads(baseline_path.read_text())
+        grade_byte_only(summary, baseline)
+        summary['baseline_sha256'] = hashlib.sha256(baseline_path.read_bytes()).hexdigest()
+        summary['minimum_slowdown'] = summary['minimum_ms'] / baseline['maximum_ms']
     (build_dir / 'measurement.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps(summary, indent=2), flush=True)
 
@@ -75,6 +82,34 @@ def grade_rows(rows: list[dict], spec: dict) -> dict:
                 margin=HOLD_FLOOR_MS / max(elapsed), rows=rows)
 
 
+def grade_byte_only(measured: dict, baseline: dict) -> None:
+    """Require every byte-only capture to cost at least 1.5x the word path.
+
+    The previous byte loop was about 1.84x at 8x8/50 MHz. The 1.5x
+    discriminator leaves timing variation room while rejecting an inert plant.
+    This control does not change the ordinary capture timing or byte oracles.
+    """
+    keys = ('shape', 'cpu_hz', 'sys_hz', 'configured_cpu_hz', 'phase', 'traffic')
+    if any(measured[key] != baseline[key] for key in keys):
+        raise RuntimeError('byte-only baseline uses a different capture scenario')
+    if baseline['maximum_ms'] <= 0 or measured['minimum_ms'] < 1.5 * baseline['maximum_ms']:
+        raise RuntimeError('byte-only control did not restore the slower copy cost')
+
+
+def byte_only_controls() -> None:
+    """Accept the ratio boundary; reject a faster or mismatched control."""
+    baseline = dict(shape=SHAPES[0], cpu_hz=CPU_HZ, sys_hz=100_000_000,
+                    configured_cpu_hz=CPU_HZ, phase='fixed', traffic='on', maximum_ms=10)
+    measured = dict(baseline, minimum_ms=15)
+    grade_byte_only(measured, baseline)
+    for planted in (dict(measured, minimum_ms=14.99999), dict(measured, cpu_hz=100_000_000)):
+        try:
+            grade_byte_only(planted, baseline)
+        except RuntimeError:
+            continue
+        raise RuntimeError('byte-only grading control escaped')
+
+
 def maximum_ms(arms: list[dict]) -> float:
     """The published maximum includes every capture in both traffic arms."""
     if {arm['traffic'] for arm in arms} != {'on', 'off'}:
@@ -104,12 +139,17 @@ def main() -> None:
     parser.add_argument('--shape', choices=SHAPES, required=True)
     parser.add_argument('--build-dir', type=Path, required=True)
     parser.add_argument('--captures', type=int, default=16)
+    parser.add_argument('--baseline-measurement', type=Path,
+                        help='matching optimized measurement.json, required by byte-only control')
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--cpu-hz', type=int, choices=[CPU_HZ, 100_000_000], default=CPU_HZ,
                         help='explicit contract clock; 100 MHz is a non-contract comparison')
     parser.add_argument('--traffic', choices=['on', 'off'], default='on')
     parser.add_argument('--mutation', choices=['none', 'skip-copy', 'no-traffic', 'byte-only'], default='none')
     args = parser.parse_args()
+    byte_only_controls()
+    if args.mutation == 'byte-only' and args.baseline_measurement is None:
+        parser.error('byte-only requires --baseline-measurement')
     if args.mutation != 'none' and args.traffic != 'on':
         parser.error('mutation controls require --traffic on')
     if not 2 <= args.captures <= 256:
@@ -128,6 +168,8 @@ def main() -> None:
     with (args.build_dir / 'capture.log').open('w') as log:
         result = subprocess.run(argv, cwd=args.build_dir / 'gateware', stdout=log,
                                 stderr=subprocess.STDOUT, check=False)
+    if args.baseline_measurement is not None:
+        spec['baseline_measurement'] = str(args.baseline_measurement.resolve())
     _grade(args.build_dir, spec, result.returncode)
 
 

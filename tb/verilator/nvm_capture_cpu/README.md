@@ -79,12 +79,16 @@ The word-copy timing control forces the existing byte path:
 ```sh
 python3 tb/verilator/nvm_capture_cpu/run.py \
   --shape endstation_ax7101_8x8 --captures 2 --mutation byte-only \
-  --build-dir /tmp/nvm-capture-byte-only
+  --build-dir /tmp/nvm-capture-byte-only \
+  --baseline-measurement /tmp/nvm-capture-8x8-50-on/measurement.json
 ```
 
 It retains the byte, ownership, traffic and timing oracles.
-Compare its measured interval with the optimized capture receipt.
-The slower interval proves the word path's timing contribution.
+The baseline must use the same shape, clocks, phase and traffic.
+Every byte-only capture must exceed 1.5 times its maximum.
+The historical ratio was approximately 1.84 at 8x8/50 MHz.
+This threshold rejects an inert control while allowing timing variation.
+Boundary and mismatched-scenario controls run before each measurement.
 
 The two negative controls return zero only when their named defects are detected.
 Skipping stores must leave every raw byte poisoned.
@@ -98,6 +102,10 @@ It retains the product memory CDC, buses and PP bridges.
 The DDR controller and SPI controller remain present.
 The product builder generates shape constants and AEM flash contents.
 Audio domains and configured audio geometry remain present.
+This capture SoC omits `milan_mac` and its MDIO CSR.
+Consequently, the measured binary compiles the PHY path out.
+ARM through ATTEST contains no heartbeat or PHY call.
+The receipt still binds the complete product firmware source digest.
 No tracked generated files or donor files are changed.
 
 `firmware.py` instruments a scratch copy at unique, checked anchors.
