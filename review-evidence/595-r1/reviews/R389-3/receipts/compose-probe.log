@@ -1,0 +1,18 @@
+ok   A endstation_arty_4x4.yaml: image check ran once and accepted
+ok   A endstation_arty_8ch.yaml: image check ran once and accepted
+ok   A endstation_arty_current.yaml: image check ran once and accepted
+ok   A endstation_ax7101_1x1_tdm8.yaml: image check ran once and accepted
+ok   A endstation_ax7101_8x8.yaml: image check ran once and accepted
+ok   B platform.mac_address=020000000002: refused 'platform.mac_address: quote the hexadecimal value as a YAML string', image check not reached
+ok   B platform.mac_address=10:20:30:40:50:02: refused 'platform.mac_address: quote the hexadecimal value as a YAML string', image check not reached
+ok   B entity.vendor_oui=0x001BC5: refused 'entity.vendor_oui: quote the hexadecimal value as a YAML string', image check not reached
+ok   B entity.vendor_oui=true: refused 'entity.vendor_oui: quote the hexadecimal value as a YAML string', image check not reached
+ok   B entity.entity_capabilities=0x8: refused 'entity.entity_capabilities: quote the hexadecimal value as a YAML string', image check not reached
+ok   B entity.entity_capabilities=null: refused 'entity.entity_capabilities: quote the hexadecimal value as a YAML string', image check not reached
+ok   B talker formats scalar "0x0205022002006000": refused 'streams.talkers[0].formats: must be a list of quoted hexadecimal strings'
+ok   B talker formats scalar 0x0205022002006000: refused 'streams.talkers[0].formats: must be a list of quoted hexadecimal strings'
+ok   B talker formats scalar 7: refused 'streams.talkers[0].formats: must be a list of quoted hexadecimal strings'
+ok   C platform.mac_address="02-00-00-00-00-02": loaded, image checked and accepted
+ok   C entity.vendor_oui="0x001BC5": loaded, image checked and accepted
+ok   D quoted OUI + damaged AUDIO_UNIT rate offset: refused 'aem_desc.bin: L10_OFFSET: configuration 0, type 0x0002, image byte 696: offset 1'
+image-check invocations: 8; failures: 0

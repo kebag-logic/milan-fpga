@@ -1,0 +1,384 @@
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index 50dec78b3..5e0248920 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -884,6 +884,16 @@ N = 2, R = 0) against `KL_aecp_desc_store`'s 576-octet line buffer.
+ 
+ ## 3. Config schema → AEM descriptor mapping
+ 
++Hexadecimal declarations require YAML strings.
++This includes `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
++Numbers, booleans and explicit nulls receive field-named quote instructions.
++Quoted MAC strings retain colon, dash and underscore separators.
++Hexadecimal digits retain their value, with an optional `0x` prefix.
++Each declared AAF `formats` must be a list.
++Quote each entry; scalar strings and other non-lists refuse.
++Omitted or empty lists retain the derived format defaults.
++The [parameter guide](../sw/builder/README-parameters.md#entity-identity) covers every quoted hexadecimal field.
++
+ Every key `load_config` accepts has a row below, and
+ [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) gate 32 holds
+ the two in step: it loads the five tracked configs through a recording
+diff --git a/sw/builder/README-parameters.md b/sw/builder/README-parameters.md
+index bfbc55895..7b519d0f2 100644
+--- a/sw/builder/README-parameters.md
++++ b/sw/builder/README-parameters.md
+@@ -67,7 +67,7 @@ placement fact shared with gateware:
+ 
+ | Field | Type | Notes |
+ |---|---|---|
+-| `mac_address` | EUI-48 | Required, unicast, and nonzero. |
++| `mac_address` | EUI-48 YAML string | Required, unicast, and nonzero. Colon and dash spellings remain valid. |
+ | `pp_mem_phys` | aligned address | Base of the protocol-processor descriptor window. |
+ | `rx_address_filter` | `promiscuous` | Existing reset/boot accept-all posture. `hardware` refuses with migration text. |
+ 
+@@ -124,6 +124,10 @@ Empty source lists raise a named L6 refusal.
+ Complete product configurations still require AAF listeners and talkers.
+ 
+ AAF declarations accept only AAF formats; CRF declarations accept only CRF.
++Each declared AAF `formats` value must be a list.
++Scalar strings, numbers, booleans, nulls and mappings refuse.
++Omitting `formats` or declaring `[]` retains derived defaults.
++Quote each hexadecimal list entry.
+ Milan v1.2 5.3.3.4 forbids mixing these families.
+ Both CRF directions require `0x041060010000BB80` (Milan 7.3.2, Table 7.1).
+ IEEE 1722.1-2021 Table 7-8 limits each list to 46 formats.
+@@ -152,10 +156,15 @@ Literal, pinned and hash-derived IDs reject zero and all ones.
+ A pin cannot hide an invalid literal.
+ Hexadecimal identity, destination and format values require YAML strings.
+ Quote `entity_id`, `entity_model_id`, `model_id_pin` and `srp.stream_dmac_base`.
+-Also quote AAF `formats`, `clocking.crf_format` and `clocking.crf_output.format`.
++Also quote `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
++Quote AAF `formats` entries, `clocking.crf_format` and `clocking.crf_output.format`.
+ Hexadecimal text accepts an optional `0x` prefix and underscores.
+ For example, `"1234567890123456"` retains those hexadecimal digits.
+ YAML numbers and other non-strings receive a named quote instruction.
++This includes octal, base-60 integers, booleans and explicit nulls.
++MAC strings also accept colon and dash separators.
++For example, `"020000000002"` and `"02:00:00:00:00:02"` name the same MAC.
++Unquoted `020000000002` and `10:20:30:40:50:02` refuse before YAML reinterpretation propagates.
+ The `hash-derived`, `mac-derived` and `maap` selectors remain supported.
+ Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.
+ Section 5.6.2 repeats this rule for ADPDUs.
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index a6a182ec2..129445f17 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -1441,7 +1441,10 @@ def _streams(lst, ctx, direction, rate_hz=48000):
+         # hand-copied encoding rots out of sight (endstation_arty_4x4 carried
+         # a ut entry capped at 4 channels, so its Stream Inputs advertised
+         # neither the 6- nor the 8-channel 48 kHz Base format).
+-        fmts = s.get("formats") or [f"0x{aaf_pcm32(ch, rate_hz):016X}"]
++        fmts = s.get("formats", [])
++        if not isinstance(fmts, list):
++            raise ConfigError(f"{sctx}.formats: must be a list of quoted hexadecimal strings")
++        fmts = fmts or [f"0x{aaf_pcm32(ch, rate_hz):016X}"]
+         fmts = [_fmt64(f, f"{sctx}.formats") for f in fmts]
+         # IEEE 1722-2016 Annex I.2.4: "The ut field shall be set to zero (0)
+         # when the stream format is the current format of the stream and when
+@@ -3182,8 +3185,13 @@ def emit_interface_params(cfg: dict[str, Any]) -> dict[str, Any] | None:
+ 
+ # ---------------------------------------------------------- platform -------
+ def _mac48(v, ctx):
+-    """'02:00:00:00:00:02' or 0x020000000002 -> int, unicast + non-zero."""
+-    s = str(v).replace(":", "").replace("-", "").replace("_", "")
++    """Quoted hex, including colon/dash MAC strings; unicast and nonzero.
++
++    Non-strings must be quoted before YAML can reinterpret their digits.
++    """
++    if not isinstance(v, str):
++        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
++    s = v.replace(":", "").replace("-", "").replace("_", "")
+     try:
+         n = int(s, 16)
+     except ValueError:
+@@ -3302,7 +3310,7 @@ def load_platform(raw: dict[str, Any] | None) -> dict[str, Any]:
+     p.update(raw)
+     for key in ("pp_mem_phys",):
+         p[key] = int(p[key])
+-    if p["mac_address"] is None:
++    if "mac_address" not in raw:
+         raise ConfigError("platform.mac_address is required")
+     mac = _mac48(p["mac_address"], "platform.mac_address")
+     p["mac_address"] = ":".join(
+@@ -3660,13 +3668,11 @@ def _aem_string(v, ctx):
+ 
+ 
+ def _declared_uint(v, bits, ctx):
+-    """An unsigned field a config may spell as a YAML integer or a hex
+-    string, refused outside `bits` bits. A bool is refused too: YAML reads
+-    `yes` as True, and True == 1 would pass for a value."""
+-    if isinstance(v, bool) or not isinstance(v, (int, str)):
+-        raise ConfigError(f"{ctx}: {v!r} is not an integer")
++    """An unsigned quoted hex field, refused outside `bits` bits."""
++    if not isinstance(v, str):
++        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
+     try:
+-        n = v if isinstance(v, int) else int(v, 16)
++        n = int(v, 16)
+     except ValueError:
+         raise ConfigError(f"{ctx}: {v!r} is not a hex integer") from None
+     if not 0 <= n < 1 << bits:
+@@ -3680,10 +3686,9 @@ def _vendor_oui(ent):
+     first octet is refused: an OUI never carries it, and D4
+     (docs/ENDSTATION_BUILDER.md) records that 6.2.2.8 uses that bit of the
+     EUI-64 for dynamically assigned ids, which this builder never emits."""
+-    raw = ent.get("vendor_oui")
+-    if raw is None:
++    if "vendor_oui" not in ent:
+         return MODEL_ID_OUI
+-    oui = _declared_uint(raw, 24, "entity.vendor_oui")
++    oui = _declared_uint(ent["vendor_oui"], 24, "entity.vendor_oui")
+     if oui & 0x010000:
+         raise ConfigError(
+             f"entity.vendor_oui 0x{oui:06X} sets the I/G bit of its first "
+@@ -3700,10 +3705,9 @@ def _verify_entity_capabilities(ent):
+     ADPDU's), so a config may state that value and nothing else - the
+     gptp_engine_pins rule for the Announce dataset. Absent, nothing changes:
+     the image derives it as before. One parser: gen_aemi_image's."""
+-    raw = ent.get("entity_capabilities")
+-    if raw is None:
++    if "entity_capabilities" not in ent:
+         return
+-    declared = _declared_uint(raw, 32, "entity.entity_capabilities")
++    declared = _declared_uint(ent["entity_capabilities"], 32, "entity.entity_capabilities")
+     desc = ROOT / "protocol-processor" / "hdl" / "aecp" / "desc"
+     if not (desc / "gen_desc_image.py").is_file():
+         raise ConfigError(
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index b4d6ee9f3..b5f4e0919 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -25544,6 +25544,8 @@ def _schema_12_config() -> Path:
+     doc = yaml.safe_load(CONFIGS[SCHEMA_12_BASE].read_text())
+     _setting(*SCHEMA_12_DECLARED.items(),
+              ("entity.entity_capabilities", _adp_entity_caps()))(doc)
++    for key in ("vendor_oui", "entity_capabilities"):
++        doc["entity"][key] = f"0x{doc['entity'][key]:X}"
+     path = OUT / "_schema_12" / "endstation_schema_12_declared.yaml"
+     path.parent.mkdir(parents=True, exist_ok=True)
+     path.write_text(yaml.safe_dump(doc))
+@@ -25725,22 +25727,22 @@ def _schema_12_refusal_cases(caps: int) -> list[tuple[str, str, Callable[[dict],
+     base, pinned = SCHEMA_12_BASE, "arty_current"
+     return [
+         ("entity_capabilities diverges from the ADP constant", base,
+-         _setting(("entity.entity_capabilities", caps ^ 0x4000)),
++         _setting(("entity.entity_capabilities", f"0x{caps ^ 0x4000:X}")),
+          _adp_caps_line()),
+         ("entity_capabilities past 32 bits", base,
+-         _setting(("entity.entity_capabilities", 1 << 32)), "outside 32 bits"),
++         _setting(("entity.entity_capabilities", "0x100000000")), "outside 32 bits"),
+         ("entity_capabilities not a number", base,
+          _setting(("entity.entity_capabilities", "fast")), "not a hex integer"),
+         ("vendor_oui past 24 bits", base,
+-         _setting(("entity.vendor_oui", 0x1000000)), "outside 24 bits"),
++         _setting(("entity.vendor_oui", "0x1000000")), "outside 24 bits"),
+         ("vendor_oui negative", base,
+-         _setting(("entity.vendor_oui", -1)), "outside 24 bits"),
++         _setting(("entity.vendor_oui", "-1")), "outside 24 bits"),
+         ("vendor_oui a bool", base,
+-         _setting(("entity.vendor_oui", True)), "is not an integer"),
++         _setting(("entity.vendor_oui", True)), "quote the hexadecimal value as a YAML string"),
+         ("vendor_oui with the I/G bit", base,
+-         _setting(("entity.vendor_oui", 0x011BC5)), "I/G bit"),
++         _setting(("entity.vendor_oui", "0x011BC5")), "I/G bit"),
+         ("vendor_oui the pin contradicts", pinned,
+-         _setting(("entity.vendor_oui", 0x123456)), "contradicts the pin"),
++         _setting(("entity.vendor_oui", "0x123456")), "contradicts the pin"),
+         ("locale empty", base, _setting(("entity.locale", "")), "non-empty"),
+         ("locale past 64 bytes", base,
+          _setting(("entity.locale", "x" * 65)), "exceeds 64 bytes"),
+@@ -25798,14 +25800,14 @@ def test_schema_12_refusals() -> None:
+         finally:
+             p.unlink()
+     agreed = _variant(CONFIGS["arty_current"],
+-                      _setting(("entity.vendor_oui", 0x001BC5)))
++                      _setting(("entity.vendor_oui", "0x001BC5")))
+     try:
+         assert eb.load_config(agreed)["model_id"]["value"] == DEPLOYED_MODEL_ID
+     finally:
+         agreed.unlink()
+     bad = caps ^ 0x4000
+     p = _variant(CONFIGS[SCHEMA_12_BASE],
+-                 _setting(("entity.entity_capabilities", bad)))
++                 _setting(("entity.entity_capabilities", f"0x{bad:X}")))
+     real = eb._verify_entity_capabilities
+     eb._verify_entity_capabilities = lambda ent: None
+     try:
+diff --git a/sw/builder/test_declarations.py b/sw/builder/test_declarations.py
+index 9d4fc4634..77899ae7c 100644
+--- a/sw/builder/test_declarations.py
++++ b/sw/builder/test_declarations.py
+@@ -12,6 +12,9 @@ import yaml
+ import endstation_builder as eb
+ 
+ ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT / "scripts"))
++from pp_srcs import pp_sources  # noqa: E402
++
+ sys.path.insert(0, str(ROOT / "sw/litex"))
+ from boot_policy import fabric_constants  # noqa: E402
+ 
+@@ -163,6 +166,152 @@ def test_aem_u32_contract() -> None:
+     print("[u32] zero/maximum pack unchanged; negative and overflowing fields refuse")
+ 
+ 
++def _yaml_template(raw, keys):
++    """Keep the tested token's YAML spelling intact through the loader."""
++    document = copy.deepcopy(raw)
++    node = document
++    for key in keys[:-1]:
++        node = node[key]
++    node[keys[-1]] = "YAML_SLOT"
++    template = yaml.safe_dump(document)
++    assert template.count("YAML_SLOT") == 1
++    return template
++
++
++def _yaml_refused(path, template, spelling, message):
++    """An exact named refusal must replace acceptance or incidental errors."""
++    path.write_text(template.replace("YAML_SLOT", spelling))
++    try:
++        eb.load_config(path)
++    except eb.ConfigError as exc:
++        assert str(exc) == message, (spelling, message, str(exc))
++    else:
++        raise AssertionError(f"accepted {spelling}: expected {message}")
++
++
++def test_station_mac_string_contract() -> None:
++    """Quoted station addresses preserve digits; YAML scalar coercion refuses."""
++    base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
++    template = _yaml_template(base, ("platform", "mac_address"))
++    field = "platform.mac_address"
++    with tempfile.TemporaryDirectory(prefix="mac-string-contract.") as tmp:
++        path = Path(tmp) / "case.yaml"
++        for spelling, expected in (
++                ("0x020000000002", 0x020000000002),
++                ("020000000002", 0x020000000002),
++                ("02:00:00:00:00:02", 0x020000000002),
++                ("02-00-00-00-00-02", 0x020000000002),
++                ("0x0200_0000_0002", 0x020000000002),
++                ("123456789012", 0x123456789012),
++                ("0x000000F42402", 0x000000F42402),
++                ("10:20:30:40:50:02", 0x102030405002)):
++            path.write_text(template.replace("YAML_SLOT", f'"{spelling}"'))
++            cfg = eb.load_config(path)
++            assert eb._mac48(spelling, field) == expected, spelling
++            resolved = int(cfg["platform"]["mac_address"].replace(":", ""), 16)
++            assert resolved == expected, (spelling, resolved, expected)
++        for spelling in ("0x000000F42402", "0x020000000002", "020000000002",
++                         "123456789012", "10:20:30:40:50:02", "0", "true", "false",
++                         "null", "", "1.5", "[]", "{}"):
++            assert not isinstance(yaml.safe_load(spelling), str), spelling
++            _yaml_refused(path, template, spelling,
++                          f"{field}: quote the hexadecimal value as a YAML string")
++        omitted = copy.deepcopy(base)
++        del omitted["platform"]["mac_address"]
++        _refused(omitted, Path(tmp), field, "is required")
++        for spelling, rule in (("0", "out of MAC-48 range"),
++                               ("1000000000000", "out of MAC-48 range"),
++                               ("010000000001", "I/G bit"), ("xyz", "not a MAC-48")):
++            base["platform"]["mac_address"] = spelling
++            _refused(base, Path(tmp), field, rule)
++    print("[595 MAC] eight quoted values preserved; non-strings receive exact quote refusals")
++
++
++def test_declared_hex_string_contract() -> None:
++    """Both declared unsigned callers require strings, including explicit nulls."""
++    base = yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text())
++    # Find the authority by its package declaration so source moves stay valid.
++    sources = [(ROOT / path).read_text() for path in pp_sources()]
++    packages = [source for source in sources
++                if re.search(r"^\s*package\s+pp_adp_pkg\s*;", source, re.M)]
++    assert len(packages) == 1, "expected one pp_adp_pkg in derived processor sources"
++    matches = re.findall(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)", packages[0])
++    assert len(matches) == 1
++    caps = int(matches[0], 16)
++    with tempfile.TemporaryDirectory(prefix="declared-hex-contract.") as tmp:
++        path = Path(tmp) / "case.yaml"
++        for key, bits, expected in (("vendor_oui", 24, 0x123456),
++                                    ("entity_capabilities", 32, caps)):
++            field = f"entity.{key}"
++            template = _yaml_template(base, ("entity", key))
++            digits = f"{expected:0{bits // 4}X}"
++            for spelling in (f"0x{digits}", digits, f"0x{digits[:2]}_{digits[2:]}"):
++                path.write_text(template.replace("YAML_SLOT", f'"{spelling}"'))
++                cfg = eb.load_config(path)
++                assert eb._declared_uint(spelling, bits, field) == expected, spelling
++                if key == "vendor_oui":
++                    resolved = int(cfg["entity"]["entity_model_id"], 16) >> 40
++                else:
++                    blob = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
++                    row = int.from_bytes(blob[12:16], "big")
++                    assert blob[row:row + 4] == bytes(4), "first row must be ENTITY[0]"
++                    offset = int.from_bytes(blob[row + 8:row + 12], "big")
++                    resolved = int.from_bytes(blob[offset + 20:offset + 24], "big")
++                assert resolved == expected, (field, spelling, resolved, expected)
++            # Numeric-looking hex strings have their literal value even where
++            # later capability/OUI semantics would refuse that particular value.
++            for spelling, number in (("123456", 0x123456), ("001234", 0x001234),
++                                      ("10_20", 0x1020), ("0", 0),
++                                      (f"{(1 << bits) - 1:X}", (1 << bits) - 1)):
++                assert eb._declared_uint(spelling, bits, field) == number, (field, spelling)
++            for spelling in (f"0x{digits}", str(expected), "123456", "001234", "10:20:30",
++                             "0", "true", "false", "null", "", "1.5", "[]", "{}"):
++                assert not isinstance(yaml.safe_load(spelling), str), spelling
++                _yaml_refused(path, template, spelling,
++                              f"{field}: quote the hexadecimal value as a YAML string")
++            for spelling in ("-1", f"{1 << bits:X}"):
++                raw = copy.deepcopy(base)
++                raw["entity"][key] = spelling
++                _refused(raw, Path(tmp), field, f"outside {bits} bits")
++            assert key not in base["entity"]
++            _load(base, Path(tmp))
++    print("[595 uint] OUI and capabilities strings preserve values; all non-strings refuse")
++
++
++def test_formats_list_contract() -> None:
++    """Every stream requires a list; empty or omitted lists keep defaults."""
++    base = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
++    with tempfile.TemporaryDirectory(prefix="formats-list-contract.") as tmp:
++        path = Path(tmp) / "case.yaml"
++        default = _load(base, Path(tmp))
++        for direction in ("talkers", "listeners"):
++            for index in range(len(base["streams"][direction])):
++                keys = ("streams", direction, index, "formats")
++                field = f"streams.{direction}[{index}].formats"
++                template = _yaml_template(base, keys)
++                for spelling in ('"0205022000806000"', '"0x0205022000806000"',
++                                 "0x0205022000806000", "0205022000806000", "123456",
++                                 "10:20:30", "0", "true", "false", "null", "", '""',
++                                 "1.5", "{}", '{"0x0205022000806000": 1}'):
++                    _yaml_refused(path, template, spelling,
++                                  f"{field}: must be a list of quoted hexadecimal strings")
++                for spelling in ("0x0205022000806000", "0205022000806000",
++                                 "0x0205_0220_0080_6000"):
++                    path.write_text(template.replace("YAML_SLOT", f'["{spelling}"]'))
++                    cfg = eb.load_config(path)
++                    assert cfg[direction][index]["formats"][0] == "0x0205022000806000", field
++                _yaml_refused(path, template, "[0x0205022000806000]",
++                              f"{field}: quote the hexadecimal value as a YAML string")
++                raw = copy.deepcopy(base)
++                stream = raw["streams"][direction][index]
++                stream.pop("formats", None)
++                omitted = _load(raw, Path(tmp))[direction][index]["formats"]
++                stream["formats"] = []
++                empty = _load(raw, Path(tmp))[direction][index]["formats"]
++                assert omitted == empty == default[direction][index]["formats"], field
++    print("[595 formats] all stream indices: list type, exact quoted values, defaults and element refusals")
++
++
+ def test_listener_buffer_contract() -> None:
+     """Milan 5.3.3.4 floor and Table 7-8 width survive descriptor packing."""
+     import gen_aemi_image as join
+@@ -366,6 +515,9 @@ def test_declaration_contracts() -> None:
+     test_model_id_contract()
+     test_model_id_resolution_contract()
+     test_hex_scalar_contract()
++    test_station_mac_string_contract()
++    test_declared_hex_string_contract()
++    test_formats_list_contract()
+     test_aem_u32_contract()
+     test_listener_buffer_contract()
+     test_stream_format_contract()

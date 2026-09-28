@@ -1,0 +1,10 @@
+control-decl: rc=0 [gate 40] 26 refusals; 3 header mutants per config
+control-36b: rc=0 36b+schema12 ok
+M1: rc=1 KILLED :: AssertionError: accepted 0x000000F42402: expected platform.mac_address: quote the hexadecimal value as a YAML string
+M2: rc=1 KILLED :: AssertionError: accepted 0x123456: expected entity.vendor_oui: quote the hexadecimal value as a YAML string
+M3: rc=1 KILLED :: AssertionError: ('"0205022000806000"', 'streams.talkers[0].formats: must be a list of quoted hexadecimal strings', 'streams.talkers[0].formats: must contain onl
+M4: rc=1 KILLED :: AssertionError: gate 36b: empty rates accepted; missing L10_EMPTY
+M5: rc=1 KILLED :: AssertionError: gate 36b: empty rates accepted; missing L10_EMPTY
+restored-decl: rc=0 [gate 40] 26 refusals; 3 header mutants per config
+restored-36b: rc=0 36b+schema12 ok
+source restored: sha256 0cb5b7f36cc8edc1c0c3ce82e84f2fe851568baa89a7a926730ee5fdd7386b94
