@@ -1,0 +1,425 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Sep 28 01:38:01 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -from [get_clocks milansoc_crg_clkout1] -to [get_clocks eth_clocks0_rx] -max_paths 20 -nworst 1 -file $VALIDATION_STORAGE/395-a393-work/reports-3b5603e3d/B_milan_to_eth.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             4.056ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_18/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.652ns  (logic 0.484ns (13.254%)  route 3.168ns (86.746%))
+  Logic Levels:           1  (LUT2=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          2.565     2.944    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X8Y120         LUT2 (Prop_lut2_I0_O)        0.105     3.049 f  milan_datapath/link_guard/FDPE_19_i_1/O
+                         net (fo=2, routed)           0.602     3.652    impl_xilinxasyncresetsynchronizerimpl9
+    SLICE_X11Y125        FDPE                                         f  FDPE_18/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X11Y125        FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_18
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.652    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.056    <hidden>
+
+Slack (MET) :             4.056ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_19/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.652ns  (logic 0.484ns (13.254%)  route 3.168ns (86.746%))
+  Logic Levels:           1  (LUT2=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          2.565     2.944    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X8Y120         LUT2 (Prop_lut2_I0_O)        0.105     3.049 f  milan_datapath/link_guard/FDPE_19_i_1/O
+                         net (fo=2, routed)           0.602     3.652    impl_xilinxasyncresetsynchronizerimpl9
+    SLICE_X11Y125        FDPE                                         f  FDPE_19/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X11Y125        FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_19
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.652    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.056    <hidden>
+
+Slack (MET) :             4.208ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_14/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.500ns  (logic 0.484ns (13.829%)  route 3.016ns (86.171%))
+  Logic Levels:           1  (LUT6=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          2.247     2.626    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X2Y131         LUT6 (Prop_lut6_I5_O)        0.105     2.731 f  milan_datapath/link_guard/FDPE_15_i_1/O
+                         net (fo=4, routed)           0.769     3.500    milansoc_phy_eth_reset
+    SLICE_X0Y121         FDPE                                         f  FDPE_14/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X0Y121         FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_14
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.500    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.208    <hidden>
+
+Slack (MET) :             4.208ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_15/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.500ns  (logic 0.484ns (13.829%)  route 3.016ns (86.171%))
+  Logic Levels:           1  (LUT6=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          2.247     2.626    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X2Y131         LUT6 (Prop_lut6_I5_O)        0.105     2.731 f  milan_datapath/link_guard/FDPE_15_i_1/O
+                         net (fo=4, routed)           0.769     3.500    milansoc_phy_eth_reset
+    SLICE_X0Y121         FDPE                                         f  FDPE_15/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X0Y121         FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_15
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.500    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.208    <hidden>
+
+Slack (MET) :             4.317ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_12/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.391ns  (logic 0.484ns (14.271%)  route 2.907ns (85.729%))
+  Logic Levels:           1  (LUT6=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          2.247     2.626    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X2Y131         LUT6 (Prop_lut6_I5_O)        0.105     2.731 f  milan_datapath/link_guard/FDPE_15_i_1/O
+                         net (fo=4, routed)           0.660     3.391    milansoc_phy_eth_reset
+    SLICE_X0Y120         FDPE                                         f  FDPE_12/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X0Y120         FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_12
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.391    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.317    <hidden>
+
+Slack (MET) :             4.317ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_13/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.391ns  (logic 0.484ns (14.271%)  route 2.907ns (85.729%))
+  Logic Levels:           1  (LUT6=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          2.247     2.626    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X2Y131         LUT6 (Prop_lut6_I5_O)        0.105     2.731 f  milan_datapath/link_guard/FDPE_15_i_1/O
+                         net (fo=4, routed)           0.660     3.391    milansoc_phy_eth_reset
+    SLICE_X0Y120         FDPE                                         f  FDPE_13/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X0Y120         FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_13
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.391    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.317    <hidden>
+
+Slack (MET) :             4.638ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_20/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.070ns  (logic 0.484ns (15.767%)  route 2.586ns (84.233%))
+  Logic Levels:           1  (LUT2=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          1.934     2.313    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X4Y120         LUT2 (Prop_lut2_I0_O)        0.105     2.418 f  milan_datapath/link_guard/FDPE_21_i_1/O
+                         net (fo=2, routed)           0.652     3.070    impl_xilinxasyncresetsynchronizerimpl10
+    SLICE_X3Y113         FDPE                                         f  FDPE_20/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X3Y113         FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_20
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.070    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.638    <hidden>
+
+Slack (MET) :             4.638ns  (required time - arrival time)
+  Source:                 milan_datapath/link_guard/eth_rst_r_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            FDPE_21/PRE
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        3.070ns  (logic 0.484ns (15.767%)  route 2.586ns (84.233%))
+  Logic Levels:           1  (LUT2=1)
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y78                                       0.000     0.000 r  milan_datapath/link_guard/eth_rst_r_reg/C
+    SLICE_X5Y78          FDRE (Prop_fdre_C_Q)         0.379     0.379 f  milan_datapath/link_guard/eth_rst_r_reg/Q
+                         net (fo=10, routed)          1.934     2.313    milan_datapath/link_guard/milansoc_eth_rst
+    SLICE_X4Y120         LUT2 (Prop_lut2_I0_O)        0.105     2.418 f  milan_datapath/link_guard/FDPE_21_i_1/O
+                         net (fo=2, routed)           0.652     3.070    impl_xilinxasyncresetsynchronizerimpl10
+    SLICE_X3Y113         FDPE                                         f  FDPE_21/PRE
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X3Y113         FDPE (Recov_fdpe_C_PRE)     -0.292     7.708    FDPE_21
+  -------------------------------------------------------------------
+                         required time                          7.708    <hidden>
+                         arrival time                          -3.070    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  4.638    <hidden>
+
+Slack (MET) :             7.066ns  (required time - arrival time)
+  Source:                 KL_gptp_gmii_launch/u_rec_cdc/ack_tog_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.875ns  (logic 0.379ns (43.333%)  route 0.496ns (56.667%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X4Y135                                      0.000     0.000 r  KL_gptp_gmii_launch/u_rec_cdc/ack_tog_reg/C
+    SLICE_X4Y135         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  KL_gptp_gmii_launch/u_rec_cdc/ack_tog_reg/Q
+                         net (fo=2, routed)           0.496     0.875    KL_gptp_gmii_launch/u_rec_cdc/ack_tog
+    SLICE_X4Y136         FDRE                                         r  KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X4Y136         FDRE (Setup_fdre_C_D)       -0.059     7.941    KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]
+  -------------------------------------------------------------------
+                         required time                          7.941    <hidden>
+                         arrival time                          -0.875    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.066    <hidden>
+
+Slack (MET) :             7.149ns  (required time - arrival time)
+  Source:                 KL_gptp_gmii_launch/u_seal_cdc/req_tog_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.788ns  (logic 0.379ns (48.119%)  route 0.409ns (51.881%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X7Y145                                      0.000     0.000 r  KL_gptp_gmii_launch/u_seal_cdc/req_tog_reg/C
+    SLICE_X7Y145         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  KL_gptp_gmii_launch/u_seal_cdc/req_tog_reg/Q
+                         net (fo=2, routed)           0.409     0.788    KL_gptp_gmii_launch/u_seal_cdc/req_tog_reg_n_0
+    SLICE_X9Y145         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X9Y145         FDRE (Setup_fdre_C_D)       -0.063     7.937    KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]
+  -------------------------------------------------------------------
+                         required time                          7.937    <hidden>
+                         arrival time                          -0.788    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.149    <hidden>
+
+Slack (MET) :             7.298ns  (required time - arrival time)
+  Source:                 KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.643ns  (logic 0.379ns (58.967%)  route 0.264ns (41.033%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y143                                      0.000     0.000 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[1]/C
+    SLICE_X3Y143         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[1]/Q
+                         net (fo=1, routed)           0.264     0.643    KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg_n_0_[1]
+    SLICE_X7Y143         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X7Y143         FDRE (Setup_fdre_C_D)       -0.059     7.941    KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[1]
+  -------------------------------------------------------------------
+                         required time                          7.941    <hidden>
+                         arrival time                          -0.643    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.298    <hidden>
+
+Slack (MET) :             7.321ns  (required time - arrival time)
+  Source:                 KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.640ns  (logic 0.379ns (59.244%)  route 0.261ns (40.756%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y143                                      0.000     0.000 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C
+    SLICE_X3Y143         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/Q
+                         net (fo=1, routed)           0.261     0.640    KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg_n_0_[3]
+    SLICE_X7Y143         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X7Y143         FDRE (Setup_fdre_C_D)       -0.039     7.961    KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]
+  -------------------------------------------------------------------
+                         required time                          7.961    <hidden>
+                         arrival time                          -0.640    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.321    <hidden>
+
+Slack (MET) :             7.325ns  (required time - arrival time)
+  Source:                 KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.643ns  (logic 0.379ns (58.967%)  route 0.264ns (41.033%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y143                                      0.000     0.000 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[0]/C
+    SLICE_X3Y143         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[0]/Q
+                         net (fo=1, routed)           0.264     0.643    KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg_n_0_[0]
+    SLICE_X7Y143         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X7Y143         FDRE (Setup_fdre_C_D)       -0.032     7.968    KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                          7.968    <hidden>
+                         arrival time                          -0.643    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.325    <hidden>
+
+Slack (MET) :             7.333ns  (required time - arrival time)
+  Source:                 KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (MaxDelay Path 8.000ns)
+  Data Path Delay:        0.640ns  (logic 0.379ns (59.244%)  route 0.261ns (40.756%))
+  Logic Levels:           0  
+  Timing Exception:       MaxDelay Path 8.000ns -datapath_only
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+    SLICE_X3Y143                                      0.000     0.000 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C
+    SLICE_X3Y143         FDRE (Prop_fdre_C_Q)         0.379     0.379 r  KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/Q
+                         net (fo=1, routed)           0.261     0.640    KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg_n_0_[2]
+    SLICE_X7Y143         FDRE                                         r  KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    8.000     8.000    <hidden>
+    SLICE_X7Y143         FDRE (Setup_fdre_C_D)       -0.027     7.973    KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]
+  -------------------------------------------------------------------
+                         required time                          7.973    <hidden>
+                         arrival time                          -0.640    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  7.333    <hidden>
+
+
+
+

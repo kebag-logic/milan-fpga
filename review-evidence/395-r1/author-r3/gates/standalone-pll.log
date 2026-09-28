@@ -1,0 +1,30 @@
+CONTROL rc=0
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+
+PLL LITERAL MUTANT rc=1
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+
+Traceback (most recent call last):
+  File "<string>", line 15, in <module>
+    runpy.run_path(ENTRY, run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$LANES/395-timing-grade/sw/builder/test_timing_grade.py", line 190, in <module>
+    test_pll_grade(sys.argv[1])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$LANES/395-timing-grade/sw/builder/test_timing_grade.py", line 182, in test_pll_grade
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "<string>", line 22, in <module>
+    assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: call(speedgrade=-2)
+
+
+PASS: the standalone entry reaches the changed-part assertion and kills the literal.
