@@ -1,0 +1,186 @@
+# cwd: $REVIEWS/395-r373-4-packet/scratch/probe-tree
+# head: 0ba810fea6a994e6dc8ba927c0c94c6fe24ae5a3
+# command: timeout 900 $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $REVIEWS/395-r373-4-packet/scripts/probe_composed_build_path.py $REVIEWS/395-r373-4-packet/scratch/probe-tree $REVIEWS/395-r373-4-packet/scratch/probe-work
+# start: 2026-09-28T10:02:45Z
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir $REVIEWS/395-r373-4-packet/scratch/probe-tree/configs/generated/endstation_ax7101_1x1_tdm8
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-09-28 12:02:45)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100t-fgg484-2.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:S7PLL:Creating S7PLL, speedgrade -2.
+INFO:S7PLL:Registering Differential ClkIn of 200.00MHz.
+INFO:S7PLL:Creating ClkOut0 sys of 100.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut1 milan of 50.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut2 sys4x of 400.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut3 sys4x_dqs of 400.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut4 idelay of 200.00MHz (+-0.00ppm).
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:Allocating Cached Region of size 0x01000000...
+INFO:SoCBusHandler:spiflash Region allocated at Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:spiflash Bus offset by 0x01000000.
+INFO:SoCBusHandler:spiflash added as Bus Slave.
+INFO:SoCBusHandler:milan_csr Region added at Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:milan_csr Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:milan_csr added as Bus Slave.
+wrote $REVIEWS/395-r373-4-packet/scratch/probe-tree/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+$REVIEWS/395-r373-4-packet/scratch/probe-tree/configs/generated/ucode.hex: 2048 words, 80 programs
+INFO:SoCDMABusHandler:milan_desc_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_desc_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_resp_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_resp_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_nvm_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_nvm_mem added as Bus Master.
+INFO:SoCCSRHandler:ppmem CSR added at Location 31.
+[milan] entity model (7352 B) -> $REVIEWS/395-r373-4-packet/scratch/probe-work/positive/aem_desc.bin @ 0x7f700000
+[milan] flash-boot layout (baremetal) -> $REVIEWS/395-r373-4-packet/scratch/probe-work/positive/flashboot_layout.json
+positive: image checked before build, 7352 bytes, CRC32 0x93742dd2 is what is bound and written
+positive: pre-placement commands carry ['source {$REVIEWS/395-r373-4-packet/scratch/probe-tree/sw/litex/timing_grade.tcl}', 'kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}']
+positive: post-route hook first: kl_timing_grade_reports candidate_signoff
+positive: PLL speed grades constructed: [-2]
+positive: PLL outputs: [('sys', 100000000), ('milan', 50000000.0), ('sys4x', 400000000), ('sys4x_dqs', 400000000), ('idelay', 200000000.0)]
+positive: Milan clock domain(s) ['milan'] run at recipe CPU_HZ 50000000
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-09-28 12:02:46)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100t-fgg484-2.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:S7PLL:Creating S7PLL, speedgrade -2.
+INFO:S7PLL:Registering Differential ClkIn of 200.00MHz.
+INFO:S7PLL:Creating ClkOut0 sys of 100.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut1 milan of 50.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut2 sys4x of 400.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut3 sys4x_dqs of 400.00MHz (+-0.00ppm).
+INFO:S7PLL:Creating ClkOut4 idelay of 200.00MHz (+-0.00ppm).
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:Allocating Cached Region of size 0x01000000...
+INFO:SoCBusHandler:spiflash Region allocated at Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:spiflash Bus offset by 0x01000000.
+INFO:SoCBusHandler:spiflash added as Bus Slave.
+INFO:SoCBusHandler:milan_csr Region added at Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:milan_csr Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:milan_csr added as Bus Slave.
+wrote $REVIEWS/395-r373-4-packet/scratch/probe-tree/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+$REVIEWS/395-r373-4-packet/scratch/probe-tree/configs/generated/ucode.hex: 2048 words, 80 programs
+INFO:SoCDMABusHandler:milan_desc_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_desc_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_resp_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_resp_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_nvm_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_nvm_mem added as Bus Master.
+INFO:SoCCSRHandler:ppmem CSR added at Location 31.
+negative: planted image refusal raised 'aem_desc.bin: planted composition refusal' before the build step; no aem_desc.bin written
+COMPOSED BUILD PATH PROBE PASS
+# end: 2026-09-28T10:02:47Z
+# wall_seconds: 2.016150005
+# rc: 0

@@ -1,0 +1,63 @@
+duplicate top-level defs in sw/builder/test_builder.py:
+(end)
+duplicate names in __main__ tuple:
+(end)
+tuple entries count:
+95
+gate-number tags '[gate N]' used by PR files:
+240:      UNAVOIDABLE (gate 36, issue #358): every tracked config states both
+27022:# ================================================================= gate 36 ===
+27073:            assert key in gp, f"gate 36: {name} did not load gptp.{key}"
+27075:                f"gate 36: {name} gptp.{key}={gp[key]!r} is not 0..65535 ns")
+27083:                    f"gate 36: {name} declares {flag} {value} and the argv "
+27087:                    f"gate 36: {name} declares {flag} 0 and the argv carries "
+27095:                f"gate 36: {name} is a measured board and declares a zero")
+27098:                f"gate 36: {name} splits {ing} + {egr} = {ing + egr} ns, "
+27103:                f"gate 36: {name} splits the sum evenly, so no gate in this "
+27108:                f"gate 36: {name} declares {ing}/{egr} with no measurement")
+27118:                f"gate 36: dropping gptp.{key} was refused for another reason")
+27121:                f"gate 36: a config with no gptp.{key} was ACCEPTED - the "
+27132:            "gate 36: an over-wide correction was refused for another reason")
+27135:            "gate 36: a correction wider than the 0x7F0 publication was "
+27147:            "gate 36: recalibrating the board rotated entity_model_id "
+27161:            "gate 36: a latency correction changed the AEM overlay"
+27166:# ================================================================ gate 36a ===
+27176:    assert eb._load_clocking(base, "gate 36a")["audio_unit_rates_hz"] == eight, \
+27177:        "gate 36a: eight distinct entries must load in declared order"
+27181:        loaded = eb._load_clocking(base, "gate 36a")
+27183:            "gate 36a: omitted rate list must default to the current rate"
+27205:                    f"gate 36a: {label} refused for another cause: {message}"
+27207:                raise AssertionError(f"gate 36a: {label} accepted")
+27210:    print("  [gate 36a] eight distinct entries and defaults pass; distinct "
+27220:            f"gate 36a: {name} shipping rate declaration changed"
+27226:            f"gate 36a: {name} AUDIO_UNIT rate offset/count changed"
+27228:        assert got == want, f"gate 36a: {name} image rates {got} != {want}"
+27229:        print(f"  [gate 36a] {name}: image advertises {got}, offset {offset}")
+27232:# ================================================================ gate 36b ===
+27316:            assert reason is None, f"gate 36b: {label} accepted; missing {reason}"
+27320:    print(f"  [gate 36b] {label}: {verdict}")
+27334:        print(f"  [gate 36b] {name}: rates {rate_offset}/{rate_count}/{len(au)}, "
+27381:            raise AssertionError(f"gate 36b: skipped configuration/type/index {row}")
+27382:    print(f"  [gate 36b] all {len(rows)} descriptors checked across configurations, strides and runs")
+27417:            print(f"  [gate 36b] {name}: SoC/builder images identical")
+27455:                    raise AssertionError(f"gate 36b: {label}, configuration {config} accepted; missing {reason}")
+27456:                print(f"  [gate 36b] {label}, configuration {config}: {reason}")
+27466:            raise AssertionError(f"gate 36b: header count {config_count} accepted; missing {reason}")
+27467:        print(f"  [gate 36b] header configuration count {config_count}: {reason}")
+27477:        "gate 36a: expected one literal AU_RATES_C declaration"
+27480:        f"gate 36a: AU_RATES_C declared length {length} != {len(rates)}"
+27483:        "gate 36a: AU_RATES_C must contain literal rate words"
+27485:    assert got == rates, f"gate 36a: AU_RATES_C values {got} != {rates}"
+27511:                f"gate 36a: pp_shadow drift refused for another cause: {exc}"
+27513:            raise AssertionError(f"gate 36a: pp_shadow {reason} drift accepted")
+27514:    print("  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent "
+27795:def test_commercial_timing_grade() -> None:
+27797:    from test_timing_grade import test_platform_hooks, test_pll_grade, test_timing_grade_contract
+27799:    test_timing_grade_contract()
+27800:    python = _litex_or_skip("timing grade platform")
+27815:    for fn in (test_commercial_timing_grade,
+labels passed to _litex_or_skip that equal 'timing grade platform':
+1
+sw/builder/test_timing_grade.py:141:    print("  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; "
+sw/builder/test_timing_grade.py:163:    print("  [timing grade] " + result.stdout.strip())
+sw/builder/test_timing_grade.py:183:    print("  [timing grade] " + result.stdout.strip())

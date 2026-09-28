@@ -1,0 +1,58 @@
+## diff 895be3071..0ba810fea -- sw/litex (source head vs candidate)
+warning: unable to find all commit-graph files
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index 856f1b935..025fb4f6f 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -3356,6 +3356,7 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
+     import gen_aem_store as _aem
+     import gen_desc_image as _img
+     import gen_aemi_image as _join
++    from sw.builder import aem_image_checks
+ 
+     with open(overlay, encoding="utf-8") as fh:
+         ovl = json.load(fh)
+@@ -3365,6 +3366,11 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
+     # coming. Passed explicitly rather than defaulted so the two move together.
+     blob, report = _img.build(
+         _join.model_to_document(model, _join.identity_from_overlay(ovl)), 576)
++    # Validate exactly what main() CRC-binds and writes as aem_desc.bin.
++    try:
++        aem_image_checks.validate_shipping_image(blob)
++    except aem_image_checks.ImageCheckError as exc:
++        raise RuntimeError(f"aem_desc.bin: {exc}") from exc
+     return blob, report, overlay
+ 
+ 
+## diff 895be3071..0ba810fea -- sw/builder --stat
+warning: unable to find all commit-graph files
+ sw/builder/aem_image_checks.py   | 133 ++++++++++++++++++++++
+ sw/builder/endstation_builder.py |   6 +
+ sw/builder/test_builder.py       | 240 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 379 insertions(+)
+## candidate vs source: files differing
+warning: unable to find all commit-graph files
+ docs/ENDSTATION_BUILDER.md                    |  28 +-
+ docs/README.md                                |   4 +-
+ docs/design/SAVED_STATE_FASTCONNECT.md        | 268 +++++---
+ docs/design/SAVED_STATE_MATERIALIZATION.md    | 924 ++++++++++++++++++++------
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md |  74 ++-
+ docs/diagrams/PNG_MANIFEST.json               |   4 +-
+ docs/diagrams/submodule_boundaries.drawio     |   2 +-
+ docs/diagrams/submodule_boundaries.png        | Bin 323461 -> 323517 bytes
+ docs/diagrams/submodule_boundaries.svg        |   2 +-
+ docs/integration/BAREMETAL_FIRMWARE.md        |  17 +-
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md     |  76 ++-
+ docs/reference/SUBMODULES.md                  |  14 +-
+ protocol-processor                            |   2 +-
+ scripts/measure_test_evidence.py              |   3 +
+ sw/builder/aem_image_checks.py                | 133 ++++
+ sw/builder/endstation_builder.py              |   6 +
+ sw/builder/test_builder.py                    | 240 +++++++
+ sw/litex/milan_soc.py                         |   6 +
+ syn/yosys/rom_digests.tsv                     |   2 +
+ tb/verilator/pp_shadow/Makefile               |   4 +-
+ tb/verilator/pp_shadow/README.md              |  68 +-
+ tb/verilator/pp_shadow/recovery_probes.vlt    |   7 +
+ tb/verilator/pp_shadow/sim_main.cpp           | 343 ++++++++--
+ 23 files changed, 1784 insertions(+), 443 deletions(-)

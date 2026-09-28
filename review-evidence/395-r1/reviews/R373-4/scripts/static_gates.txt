@@ -1,0 +1,37 @@
+20_docs_check|MDPY -B scripts/docs_check.py
+21_gen_toc_selftest|MDPY -B scripts/gen_toc.py --selftest
+22_gen_toc_verify_anchors|MDPY -B scripts/gen_toc.py --verify-anchors
+23_gen_toc_check|MDPY -B scripts/gen_toc.py --check
+24_check_doc_paths|python3 -B scripts/check_doc_paths.py
+25_em_dash_base_parent|MDPY -B scripts/check_em_dash.py --base 7d29909dacf6c1df56cfa70d0bb4837a469d72a9
+26_em_dash_selftest|MDPY -B scripts/check_em_dash.py --selftest
+27_doc_style|python3 -B scripts/check_doc_style.py
+28_doc_style_selftest|python3 -B scripts/check_doc_style.py --selftest
+29_solution_docs|python3 -B scripts/check_solution_docs.py
+30_solution_docs_selftest|python3 -B scripts/check_solution_docs.py --selftest
+31_feature_status|python3 -B scripts/check_feature_status.py
+32_feature_status_selftest|python3 -B scripts/check_feature_status.py --self-test
+33_baremetal_only_check|python3 -B scripts/check_baremetal_only.py --check
+34_baremetal_only_selftest|python3 -B scripts/check_baremetal_only.py --selftest
+35_ci_events_check|python3 -B scripts/ci_events.py --check
+36_ci_events_selftest|python3 -B scripts/ci_events.py --selftest
+37_ci_scope_selftest|python3 -B scripts/ci_scope.py --selftest
+38_py_idiom|python3 -B scripts/check_py_idiom.py
+39_py_idiom_selftest|python3 -B scripts/check_py_idiom.py --selftest
+40_hygiene_check|python3 -B scripts/check_hygiene.py --check
+41_measure_test_evidence_check|python3 -B scripts/measure_test_evidence.py --check
+42_todo_ownership|python3 -B scripts/check_todo_ownership.py
+43_doc_map_check|python3 -B docs/DOC_MAP.gen.py --check
+44_check_archive|python3 -B scripts/check_archive.py
+45_soc_sources|python3 -B scripts/check_soc_sources.py
+46_timing_grade_standalone_litex|python3 -B sw/builder/test_timing_grade.py $WORKSPACE_HOME/litex-milan/venv/bin/python3
+47_diff_check_composition|git diff --check 7d29909dacf6c1df56cfa70d0bb4837a469d72a9 0ba810fea6a994e6dc8ba927c0c94c6fe24ae5a3
+48_diff_check_candidate_vs_devtip|git diff --check 2180c73e177767c744d5481c07831c1a17ec132d 0ba810fea6a994e6dc8ba927c0c94c6fe24ae5a3
+49_gptp_docs|python3 -B scripts/check_gptp_docs.py
+50_submodule_docs|python3 -B scripts/check_submodule_docs.py
+51_iob_pack_selftest|python3 -B sw/litex/iob_pack_selftest.py
+52_check_sweep_shape_selftest|python3 -B scripts/check_sweep_shape.py --self-test
+53_check_deploy_shape_selftest|python3 -B scripts/check_deploy_shape.py --self-test
+54_check_entity_shape_selftest|python3 -B scripts/check_entity_shape.py --self-test
+55_measure_test_evidence_selftest|python3 -B scripts/measure_test_evidence.py --selftest
+56_hygiene_selftest|python3 -B scripts/check_hygiene.py --selftest

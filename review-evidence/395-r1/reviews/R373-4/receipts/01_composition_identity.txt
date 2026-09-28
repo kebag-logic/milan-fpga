@@ -1,0 +1,59 @@
+warning: unable to find all commit-graph files
+HEAD 0ba810fea6a994e6dc8ba927c0c94c6fe24ae5a3 tree 702a78ea93c7519566a903f8d0dbb2205f21c58b
+warning: unable to find all commit-graph files
+parents: 7d29909dacf6c1df56cfa70d0bb4837a469d72a9 895be30712acf8dd80956a5b954690859b080d87
+merge-base --all 7d29909da 895be3071:
+warning: unable to find all commit-graph files
+54ce877371ee6e8878cf67294e86c2a8481b62f6
+9c18068512dec844d24fdff7fe0a3eb0d63c14f5
+7a051e618677ecd907ed04b086afbdfe374b4336
+merge-tree --write-tree 7d29909da 895be3071:
+warning: unable to find all commit-graph files
+702a78ea93c7519566a903f8d0dbb2205f21c58b
+---- PR-own diff stat 1fa2357fc..895be3071
+warning: unable to find all commit-graph files
+ docs/findings/COMMERCIAL_TIMING_395.md | 196 +++++++++++++++++++++++++++++++++
+ docs/findings/README.md                |   1 +
+ docs/integration/BUILDING.md           |  63 ++++++++++-
+ docs/litex/LITEX_SOC.md                |  24 ++++
+ docs/testing/RUNNING_TESTS.md          |  32 +++++-
+ sw/builder/test_builder.py             |  14 ++-
+ sw/builder/test_timing_grade.py        | 190 ++++++++++++++++++++++++++++++++
+ sw/litex/milan_soc.py                  |   5 +-
+ sw/litex/platforms/alinx_ax7101.py     |  10 +-
+ sw/litex/platforms/ax7101_timing.py    |  41 +++++++
+ sw/litex/report_timing_grade.py        |  33 ++++++
+ sw/litex/timing_grade.tcl              |  79 +++++++++++++
+ 12 files changed, 673 insertions(+), 15 deletions(-)
+---- composition diff stat 7d29909da..0ba810fea
+warning: unable to find all commit-graph files
+ docs/findings/COMMERCIAL_TIMING_395.md | 196 +++++++++++++++++++++++++++++++++
+ docs/findings/README.md                |   1 +
+ docs/integration/BUILDING.md           |  63 ++++++++++-
+ docs/litex/LITEX_SOC.md                |  24 ++++
+ docs/testing/RUNNING_TESTS.md          |  32 +++++-
+ sw/builder/test_builder.py             |  14 ++-
+ sw/builder/test_timing_grade.py        | 190 ++++++++++++++++++++++++++++++++
+ sw/litex/milan_soc.py                  |   5 +-
+ sw/litex/platforms/alinx_ax7101.py     |  10 +-
+ sw/litex/platforms/ax7101_timing.py    |  41 +++++++
+ sw/litex/report_timing_grade.py        |  33 ++++++
+ sw/litex/timing_grade.tcl              |  79 +++++++++++++
+ 12 files changed, 673 insertions(+), 15 deletions(-)
+---- files changed by predecessor since the dev tip the PR merged (1fa2357fc..7d29909da) that the PR also changes
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+sw/builder/test_builder.py
+sw/litex/milan_soc.py
+---- patch comparison (index lines dropped)
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+390c390
+< @@ -27792,6 +27792,17 @@ def test_nvm_firmware_shapes() -> None:
+---
+> @@ -27554,6 +27554,17 @@ def test_nvm_firmware_shapes() -> None:
+408c408
+< @@ -27801,7 +27812,8 @@ if __name__ == "__main__":
+---
+> @@ -27563,7 +27574,8 @@ if __name__ == "__main__":
+diff-exit=1
