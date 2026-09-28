@@ -1,0 +1,8 @@
+[PASS] control caught: software settime is restored as an mr cause - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 2 check(s): CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+[PASS] control caught: PHC adjtime is restored as an mr cause - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+[PASS] control caught: both PHC restart causes are restored - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 3 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602); CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+[PASS] control caught: a PHC step suppresses a coincident CRF restart - breaks "coincident: a PHC step neither adds nor suppresses the CRF restart"
+    it broke 1 check(s): coincident: a PHC step neither adds nor suppresses the CRF restart

@@ -1,0 +1,629 @@
+{
+  "name": "rtl-lint",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/lint_rtl.py",
+    "--check",
+    "--jobs",
+    "8"
+  ],
+  "timeout": "1800",
+  "rc": 0,
+  "seconds": 9.43,
+  "log": "$VALIDATION_STORAGE/602-a388-work/rtl-lint.log",
+  "bytes": 14186,
+  "sha256": "d754295fe8f3aa2304724f7a1ef4fd1856a6a1ea7e766bc1fef86ccb764e6147"
+}
+enerates 4 bits.
+  hdl/ieee1722/maap/KL_maap.sv:278:21: WIDTHTRUNC  Operator ASSIGNDLY expects 4 bits on the Assign RHS, but Assign RHS's AND generates 8 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:204:42: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'IS_TX' generates 32 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:224:24: WIDTHEXPAND  Operator LTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:22: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:261:39: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:271:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:276:55: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:280:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:170:21: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:200:37: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:246:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:452:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+
+{
+  "name": "ci-scope",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/ci_scope.py",
+    "--selftest"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 2.12,
+  "log": "$VALIDATION_STORAGE/602-a388-work/ci-scope.log",
+  "bytes": 5513,
+  "sha256": "28161d5982dcae0b4de065681fd30e6784d0587e138c854b29a426b6f8df99f5"
+}
+ ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+  ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a comment naming it names nothing
+  ok   a new reader spelt as a message naming it names nothing
+  ok   a new reader spelt as a reader docs-check runs too names nothing
+  ok   mutation: gptp-processor filed as docs-only is rejected
+  ok   mutation: protocol-processor filed as docs-only is rejected
+  ok   mutation: external filed as docs-only is rejected
+  ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+  ok   mutation: .gitmodules filed as docs-only is rejected
+  ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+  ok   mutation: LICENSE filed as docs-only is rejected
+  ok   mutation: .rst filed as docs-only is rejected
+  ok   mutation: docs/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+  ok   mutation: tb/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+
+{
+  "name": "baremetal-check",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 15.05,
+  "log": "$VALIDATION_STORAGE/602-a388-work/baremetal-check.log",
+  "bytes": 71,
+  "sha256": "3655a4730d7e28d3fcad06fd531d762d27eae7b2313aabdeb754830d88e22690"
+}
+baremetal-only: OK (0 findings across 904 tracked first-party file(s))
+
+{
+  "name": "baremetal-selftest",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_baremetal_only.py",
+    "--selftest"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 5.48,
+  "log": "$VALIDATION_STORAGE/602-a388-work/baremetal-selftest.log",
+  "bytes": 43,
+  "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8"
+}
+baremetal-only selftest: PASS (700 arm(s))
+
+{
+  "name": "docs",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/docs_check.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 4.29,
+  "log": "$VALIDATION_STORAGE/602-a388-work/docs.log",
+  "bytes": 127,
+  "sha256": "d14cd817984a172045f326b1f8efdd4783d0e3b61dfa0b69328ff6d693940999"
+}
+docs_check: 0 finding(s) across 169 md files + 906 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+{
+  "name": "doc-style",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_doc_style.py"
+  ],
+  "timeout": "600",
+  "rc": 1,
+  "seconds": 0.07,
+  "log": "$VALIDATION_STORAGE/602-a388-work/doc-style.log",
+  "bytes": 190,
+  "sha256": "6622e669e3293d5e3bafdc2d8348b94549ddead433314e86f80d9518fe2aa07b"
+}
+CHANGELOG.md:16: sentence has 13 words; maximum is 10: Unreleased - one media event per PHC step -- Separates render re-base from media-clock restart.
+documentation style: FAIL (1 findings)
+
+{
+  "name": "doc-style-selftest",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_doc_style.py",
+    "--selftest"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.07,
+  "log": "$VALIDATION_STORAGE/602-a388-work/doc-style-selftest.log",
+  "bytes": 33,
+  "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+}
+documentation style selftest: OK
+
+{
+  "name": "em-dash",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_em_dash.py",
+    "--base",
+    "6d5ebd7357c1e468e446f18a61527c5be6118a04"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 3.53,
+  "log": "$VALIDATION_STORAGE/602-a388-work/em-dash.log",
+  "bytes": 139,
+  "sha256": "86fd3672dfb43970862ba5958d02ce38c3dfb7185ab4b1076b23534d6b49483e"
+}
+check_em_dash: 0 finding(s) over 88 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6d5ebd73..HEAD]
+
+{
+  "name": "doc-paths",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_doc_paths.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.1,
+  "log": "$VALIDATION_STORAGE/602-a388-work/doc-paths.log",
+  "bytes": 84,
+  "sha256": "739bb2ef18557ca83fc94ed48b185be243b7748f792347da6cde11c908edceab"
+}
+doc path gate: OK (850 cited paths all resolve; 0 line anchor(s) within their file)
+
+{
+  "name": "toc",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--check"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 2.96,
+  "log": "$VALIDATION_STORAGE/602-a388-work/toc.log",
+  "bytes": 94,
+  "sha256": "809c4d1d747037e3abf90b86d58f95a8830965a48f302e5107fde95e0bbea028"
+}
+TOC gate: OK (111 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+
+{
+  "name": "toc-selftest",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--selftest"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.84,
+  "log": "$VALIDATION_STORAGE/602-a388-work/toc-selftest.log",
+  "bytes": 38,
+  "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+}
+TOC selftest: PASS (1501/1501 arm(s))
+
+{
+  "name": "gptp-docs",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_gptp_docs.py",
+    "--with-submodule"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.17,
+  "log": "$VALIDATION_STORAGE/602-a388-work/gptp-docs.log",
+  "bytes": 66,
+  "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41"
+}
+gPTP documentation: OK (8 current pages, donor checkout verified)
+
+{
+  "name": "feature-status",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_feature_status.py",
+    "--self-test"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.69,
+  "log": "$VALIDATION_STORAGE/602-a388-work/feature-status.log",
+  "bytes": 1500,
+  "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+}
+  PASS  clean
+  PASS  status conflict
+  PASS  duplicate identifier
+  PASS  unknown status
+  PASS  non-string status
+  PASS  unknown reference
+  PASS  header text in value
+  PASS  fenced claim ignored
+  PASS  fenced example ignored
+  PASS  unmarked claim rejected
+  PASS  operation inventory drift
+  PASS  missing operation inventory
+  PASS  obsolete banner
+  PASS  archive path
+  PASS  source facts
+  PASS  source version drift
+  PASS  source inventory drift
+  PASS  commented source ignored
+  PASS  version drift
+  PASS  version drift names every file
+  PASS  historic marker accepted
+  PASS  historic marker still needs a live claim
+  PASS  historic marker on the current value
+  PASS  retired major is history
+  PASS  minor-only spelling is history
+  PASS  version presence
+  PASS  count drift
+  PASS  numeral spelling accepted
+  PASS  mvu count drift
+  PASS  count in a fence ignored
+  PASS  an adjective is not a count
+  PASS  claim wrapped across lines
+  PASS  wrapped version claim still read
+  PASS  claim inside a block quote
+  PASS  count in a fact block ignored
+  PASS  documented order reversed
+  PASS  order block required
+  PASS  order block unregistered
+  PASS  boot order source tie
+  PASS  boot order reversed in firmware
+  PASS  boot step absent
+  PASS  commented boot call ignored
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+
+{
+  "name": "solution-docs",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_solution_docs.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.13,
+  "log": "$VALIDATION_STORAGE/602-a388-work/solution-docs.log",
+  "bytes": 87,
+  "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+}
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+
+{
+  "name": "submodule-docs",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_submodule_docs.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.43,
+  "log": "$VALIDATION_STORAGE/602-a388-work/submodule-docs.log",
+  "bytes": 47,
+  "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835"
+}
+submodule documentation: OK (4 exact gitlinks)
+
+{
+  "name": "module-matrix",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "docs/traceability/gen_module_matrix.py",
+    "--check"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.96,
+  "log": "$VALIDATION_STORAGE/602-a388-work/module-matrix.log",
+  "bytes": 118,
+  "sha256": "cc9edd89394353084471aad6ea6b5f2e292b331712a07fa90ca9beb934a0e2d7"
+}
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+
+{
+  "name": "diagram-pngs",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_diagram_pngs.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.33,
+  "log": "$VALIDATION_STORAGE/602-a388-work/diagram-pngs.log",
+  "bytes": 66,
+  "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"
+}
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+
+{
+  "name": "archive",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_archive.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.29,
+  "log": "$VALIDATION_STORAGE/602-a388-work/archive.log",
+  "bytes": 93,
+  "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+}
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+
+{
+  "name": "source-lists",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_rtl_source_lists.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 1.41,
+  "log": "$VALIDATION_STORAGE/602-a388-work/source-lists.log",
+  "bytes": 390,
+  "sha256": "1dd83081ba29241f1333d9dba1ab448b1d8512840a6449eaf3515bfe751f2e14"
+}
+protocol-processor native tops list (syn/yosys/run.sh): 35 top(s) for 41 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (106 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 35/41 tops, 6 recorded)
+
+{
+  "name": "sv-idiom",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_sv_idiom.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.46,
+  "log": "$VALIDATION_STORAGE/602-a388-work/sv-idiom.log",
+  "bytes": 218,
+  "sha256": "f593c2c09ec9ad3238b7154f82d9d04de4cfe8b623f8b5393dceb71e707be7d0"
+}
+SystemVerilog idiom gate: OK (127 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+
+{
+  "name": "cpp-idiom",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_cpp_idiom.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 1.23,
+  "log": "$VALIDATION_STORAGE/602-a388-work/cpp-idiom.log",
+  "bytes": 315,
+  "sha256": "5fcfda67372888f00805f233179b9a143d9d57a08d52639d1b1794f302886ca5"
+}
+cpp idiom: 156 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+
+{
+  "name": "py-idiom",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_py_idiom.py"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 3.39,
+  "log": "$VALIDATION_STORAGE/602-a388-work/py-idiom.log",
+  "bytes": 461,
+  "sha256": "8174c4533c54d4ef04765d01f03cf2cf1bc6f3ccc072da5c45e9a3b205dd538e"
+}
+py idiom: 266 first-party modules, 178783 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+
+{
+  "name": "hygiene",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/check_hygiene.py",
+    "--check"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 0.36,
+  "log": "$VALIDATION_STORAGE/602-a388-work/hygiene.log",
+  "bytes": 1872,
+  "sha256": "1601933447eed79d3186ef8e46e114826196708c5e8c2b0ad0d543c4f51325d3"
+}
+
+793 first-party file(s) scanned: superproject 595, protocol-processor 154, gptp-processor 44
+14 generated file(s) skipped, their fix is in their generator:
+  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  configs/generated/sweep_opts_arty.sh
+  configs/generated/sweep_opts_ax7101.sh
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  hdl/common/gen/adp_shape_defaults.svh
+  tb/avtp_packet_gen_sv/examples/top.tcl
+  tb/itests/ptp_timestamp/tb_ptp_ts_top.tcl
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 793 file(s))
+
+{
+  "name": "test-evidence",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "scripts/measure_test_evidence.py",
+    "--check"
+  ],
+  "timeout": "600",
+  "rc": 0,
+  "seconds": 5.43,
+  "log": "$VALIDATION_STORAGE/602-a388-work/test-evidence.log",
+  "bytes": 10747,
+  "sha256": "b223ee28796bf8444bd48878486c98488eb191fe0502fa86ba4d8351cbabbcc3"
+}
+tage control removes the instance and requires structural zero despite accepted ingress; no expected value is derived from source text
+   tb/verilator/milan_dp/render_mutants.py: mutation campaign; it plants one of four render-law defects into a copy and requires a named failure
+   tb/verilator/milan_dp_render/tdm8_render_mutants.py: mutation campaign; it plants one render-lane defect from its own table into a copy or runs a leg-side defect arm, and requires the named check to fail. The suite's default target runs its --leg-defects arms; the gateware and shape mutants are the explicit tdm8render-mutants target
+   tb/verilator/mmcm_servo/slew_mutants.py: mutation campaign; copies the servo and requires named failures for discard removal, tied-low level, partial-tail trust, omitted tally, boundary step double counting, retained guard streak, streak increment on slew discard and slew discard counted as a guard trip; no expectations read from RTL
+   tb/verilator/nvm_backend/mutate.py: mutation campaign; it plants one of four backend defects into a copy and requires failure
+   tb/verilator/nvm_cosim/run_cases.py: co-simulation driver; it reads the SHIPPING backend and the SHIPPING writer because they ARE the pair under test -- it compiles that writer for the host and Verilates that backend behind it, planting a named defect through mutate.py or taking a pre-contract copy for the non-vacuity control. It grades nothing from the text: every verdict is a named check in cosim_checks.py over a dumped journal
+   tb/verilator/pp_shadow/pending_mutant.py: mutation campaign; restores the late mark trigger in a copy and requires both K10/K12 durability checks to fail
+   tb/verilator/ptp_ts/sva_campaign.py: mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a scratch copy and requires the named SVA property, or for one row the scoreboard, to fail; no expected value is read from the text
+   tb/verilator/render_setpoint/mutants.py: mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+   tb/verilator/tkdiag/mcr_mutants.py: mutation campaign; it plants one of four restart-engine defects against the #387 pending-restart merge and its wire boundary into a copy and requires a named failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+
+{
+  "name": "diff-check",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "6d5ebd7357c1e468e446f18a61527c5be6118a04",
+    "HEAD"
+  ],
+  "timeout": "120",
+  "rc": 0,
+  "seconds": 0.06,
+  "log": "$VALIDATION_STORAGE/602-a388-work/diff-check.log",
+  "bytes": 47,
+  "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c"
+}
+warning: unable to find all commit-graph files
+
+Failed gates: ['doc-style']

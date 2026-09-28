@@ -1,0 +1,16 @@
+{
+  "name": "controls-development",
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "cwd": "$LANES/602-phc-step-mr",
+  "command": [
+    "python3",
+    "-c",
+    "import sys; from pathlib import Path; import tempfile; sys.path.insert(0,\"tb/verilator/milan_dp\"); import gmstep_mutants as g; controls=[c for c in g.CONTROLS if c.leg==\"option-off\" or c.name.startswith(\"a PHC step suppresses\")]; work=tempfile.TemporaryDirectory(prefix=\"602-controls-\",dir=\"$VALIDATION_STORAGE/602-a388-work\"); results=[g.run_control(c,Path(work.name),i) for i,c in enumerate(controls)]; work.cleanup(); sys.exit(0 if all(results) else 1)"
+  ],
+  "timeout": "3300",
+  "rc": 0,
+  "seconds": 105.99,
+  "log": "$VALIDATION_STORAGE/602-a388-work/controls-development.log",
+  "bytes": 970,
+  "sha256": "c530dcd376ae49ec4e27acc1b40860627c488e3eed054719288e76b7a8bd9e8c"
+}

@@ -1,0 +1,218 @@
+ndex (1)
+  [ok]   CRF: the root resolve sees the selection                   = 1
+  [ok]   CRF: the NCO servo gate is live                            = 1
+  [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+  [ok]   CRF: align loop engaged on the physical frame marker       = 1
+  MEASURED     :   +0.2667 ppm with CRF selected (was  -10.7021)
+  [ok]   CRF: the grids are ALIGNED (|ppm| < 0.5 - the #74 close)   = 1
+  [ok]   CRF: zero junction dups over the aligned window            = 0
+  [ok]   CRF: zero junction skips over the aligned window           = 0
+  [ok]   CRF: phase error bounded well inside a sample (<300 cycles) = 1
+  A_MCSRV_STAT : 0x00000033
+  [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: one recentre once the grid settled
+  [ok]   RENDER-LIVE-CRF: the selection fired the settled-grid trigger once = 1
+  [ok]   RENDER-LIVE-CRF: ...as one recentre pulse                  = 1
+  [ok]   RENDER-LIVE-CRF: the recentre executed once                = 1
+  RENDER-LIVE-CRF: 1196 PDUs, first-event delay min 18680 max 18686 mean 18683.3 cycles = 8.966..8.969 media ticks
+  RENDER-LIVE-CRF: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-LIVE-CRF: PDUs measured in the window               = 1
+  [ok]   RENDER-LIVE-CRF: every PDU's first event inside the law band = 1196
+  [ok]   RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU = 1196
+  [ok]   RENDER-LIVE-CRF: one constant: spread within 2147 cycles   = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+[RENDER-CRF] the render law under CRF (cadence = the physical grid, 12500 + 52/391)
+  [ok]   RENDER-CRF: every injected PDU was accepted                = 1359
+  RENDER-CRF: 1195 PDUs, first-event delay min 18686 max 18690 mean 18688.0 cycles = 8.969..8.971 media ticks
+  RENDER-CRF: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-CRF: PDUs measured in the window                    = 1
+  [ok]   RENDER-CRF: every PDU's first event inside the law band    = 1195
+  [ok]   RENDER-CRF: the fill at accept is the setpoint for every PDU = 1195
+  [ok]   RENDER-CRF: one constant: spread within 2147 cycles        = 1
+  [ok]   RENDER-CRF: no rail inside the window                      = 0
+  [ok]   RENDER-CRF: no underrun inside the window                  = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-RC-CRF] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each
+  RENDER-RC-CRF: displaced 3 ticks late: 12 PDUs, delay min 12439 max 12440 cycles = 5.971..5.971 ticks
+  [ok]   RENDER-RC-CRF: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+  [ok]   RENDER-RC-CRF: ...and the delay left the law band (late)   = 0
+  [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (late) = 0
+  [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (late) = 1
+  [ok]   RENDER-RC-CRF: the recentre executed once (late)           = 1
+  [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (late) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (late) = 13
+  [ok]   RENDER-RC-CRF: counted once, never again (late)            = 1
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (late) = 96
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (late) = 96
+  [ok]   RENDER-RC-CRF: the recentre is not a rail (late)           = 0
+  RENDER-RC-CRF: displaced 3 ticks early: 13 PDUs, delay min 24939 max 24940 cycles = 11.971..11.971 ticks
+  [ok]   RENDER-RC-CRF: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay left the law band (early)  = 0
+  [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (early) = 0
+  [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (early) = 2
+  [ok]   RENDER-RC-CRF: the recentre executed once (early)          = 2
+  [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (early) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (early) = 13
+  [ok]   RENDER-RC-CRF: counted once, never again (early)           = 2
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (early) = 96
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (early) = 96
+  [ok]   RENDER-RC-CRF: the recentre is not a rail (early)          = 0
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23732571-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 2 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 786556
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 131073
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[RENDER-LIVE] the running feed moved past a tick (the grid moved earlier): one event off, no recovery
+  RENDER-LIVE: accept phase 0.095 tick; the feed moves 0.395 ticks later
+  [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+  RENDER-LIVE: moved: 12 PDUs, delay min 16041 max 16042 cycles = 7.700..7.700 ticks
+  [ok]   RENDER-LIVE: the fill at accept is one event short for every PDU = 12
+  [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+  [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+  [ok]   RENDER-LIVE: nothing recentred it                          = 0
+  [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 1
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 0
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 1
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 1
+  [ok]   MR: align loop disengaged again at INTERNAL                = 0
+
+[RENDER-LIVE-INT] the deselect under the running stream: one recentre after the dwell
+  [ok]   RENDER-LIVE-INT: the source change fired the settled-grid trigger once = 1
+  [ok]   RENDER-LIVE-INT: ...as one recentre pulse                  = 1
+  [ok]   RENDER-LIVE-INT: the recentre executed once                = 1
+  RENDER-LIVE-INT: 96 PDUs, first-event delay min 18017 max 18030 mean 18023.5 cycles = 8.648..8.654 media ticks
+  RENDER-LIVE-INT: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-LIVE-INT: PDUs measured in the window               = 1
+  [ok]   RENDER-LIVE-INT: every PDU's first event inside the law band = 96
+  [ok]   RENDER-LIVE-INT: the fill at accept is the setpoint for every PDU = 96
+  [ok]   RENDER-LIVE-INT: one constant: spread within 2147 cycles   = 1
+  [ok]   RENDER-LIVE-INT: no rail                                   = 0
+  [ok]   RENDER-LIVE-INT: counted once, never again                 = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: rail mirrors taps                              = 65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+  [ok]   RENDER-CSR: rail event reached the word                    = 1
+  [ok]   RENDER-CSR: rail cleared convergence                       = 0
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+
+----------------------------------------------------------------------
+media_aclk: 190 checks, 0 failures
+RESULT: PASS
+---- #386 render law: the same leg against mutated setpoint stages and datapath ----
+python3 render_mutants.py
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.002, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.002, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.002}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 56.813, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 56.811, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 56.813, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 104.627, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 47.814, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 104.629, "case": "prefill_target_three_events_high", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 118.074, "case": "prefill_target_three_events_high", "phase": "build", "mode": null, "elapsed_s": 13.445, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 118.074, "case": "prefill_target_three_events_high", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 165.524, "case": "prefill_target_three_events_high", "phase": "simulation", "mode": "--render-only", "elapsed_s": 47.45, "status": 1}
+[PASS] mutant caught (--render-only): prefill target three events high - breaks "RENDER-INT: every PDU's first event inside the law band"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 165.526, "case": "recentre_pulse_ignored", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 178.808, "case": "recentre_pulse_ignored", "phase": "build", "mode": null, "elapsed_s": 13.282, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 178.808, "case": "recentre_pulse_ignored", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 227.832, "case": "recentre_pulse_ignored", "phase": "simulation", "mode": "--render-only", "elapsed_s": 49.024, "status": 1}
+[PASS] mutant caught (--render-only): recentre pulse ignored - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 227.833, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 241.308, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "build", "mode": null, "elapsed_s": 13.475, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 241.308, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 288.966, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "simulation", "mode": "--render-only", "elapsed_s": 47.658, "status": 1}
+[PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 288.968, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 302.691, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "build", "mode": null, "elapsed_s": 13.723, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 302.691, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 361.129, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "simulation", "mode": "--live-only", "elapsed_s": 58.438, "status": 1}
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 361.242, "state": "idle", "idle_s": 0.113}
+
+6 checks: 6 PASS, 0 FAIL
+---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----
+python3 gmstep_mutants.py
+[INFO] obj_gmstep/Vmilan_dp_gmstep is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the gmstep leg
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 2 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+rp_csr_defaults.svh
+  wrote /tmp/gmstep-mutants-jgokgku6/obj_c2/aem-build/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote /tmp/gmstep-mutants-jgokgku6/obj_c2/aem-build/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote /tmp/gmstep-mutants-jgokgku6/obj_c2/aem-build/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote /tmp/gmstep-mutants-jgokgku6/obj_c2/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote /tmp/gmstep-mutants-jgokgku6/obj_c2/aem-build/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+[gen_aemi_image] /tmp/gmstep-mutants-jgokgku6/obj_c2/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json: 41 descriptors -> /tmp/gmstep-mutants-jgokgku6/obj_c2/aemi.bin, 7352 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 38
+index_off 0x000020  names_off 0x001338  image_bytes 7352  desc_max_len 452
+checksum 0xBCE6827F
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      2        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x0006D0          -
+    0  0x000D      0      1       452     456  0x000718          -
+    0  0x000E      0      1        20      24  0x0008E0          -
+    0  0x000F      0      1        20      24  0x0008F8          -
+    0  0x0014      0     25        90      96  0x000910         11
+    0  0x001A      0      1       113     120  0x001270         36
+    0  0x0024      0      1        80      80  0x0012E8         37
+f/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv $LANES/602-phc-step-mr/hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $LANES/602-phc-step-mr/hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv /tmp/gmstep-mutants-jgokgku6/c2_milan_datapath.sv sim_gmstep.cpp -o Vmilan_dp_gmstep
+make[1]: *** [Makefile:357: gmstep-build] Error 2
+[FAIL] control 'selected CRF mr propagation is removed' did not compile; a control that cannot build proves nothing about the leg
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+
+6 checks: 5 PASS, 1 FAIL
+make: *** [Makefile:499: run] Error 1
+make: Leaving directory '$LANES/602-phc-step-mr/tb/verilator/milan_dp'
