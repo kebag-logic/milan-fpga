@@ -26641,6 +26641,7 @@ uint8_t fabric_host_ram[0x30000];
 void fabric_host_write(unsigned int offset, uint32_t value);
 void fabric_host_configure(void);
 void set_idle_hook(void (*fptr)(void));
+void bios_dispatch_hook_required(void);
 
 void fabric_host_write(unsigned int offset, uint32_t value)
 {
@@ -26661,6 +26662,7 @@ unsigned int crc32(const unsigned char *b, unsigned int n)
     return 0u;
 }
 void set_idle_hook(void (*fptr)(void)) { (void)fptr; }
+void bios_dispatch_hook_required(void) { }
 
 int main(void)
 {
