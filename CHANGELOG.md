@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
 - **[Unreleased - pending follows live writes](#unreleased---pending-follows-live-writes)** -- Pending follows accepted writes.
 - **[Unreleased - processor pin 0922e434](#unreleased---processor-pin-0922e434)** -- MVU waiver and parameter inventory.
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
@@ -31,6 +32,21 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 16be6768
+
+- Issue #580 adopts processor `16be6768`.
+- The packer rejects body/key type and index mismatches.
+- The processor documents descriptor ownership.
+- [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
+- The zero-cluster 8x8 input pools violate that minimum.
+- Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
+- All five configurations retain identical AEM images and builder outputs.
+- The ROM ledger adds current rows and retains earlier pins.
+- The capture was re-measured at the adopted processor pin.
+- The receipt identifies the measured parent tree and processor pins.
+- Each of the six traffic arms contains 16 captures.
+- The 8x8 maximum remains below 24.5 ms.
 
 ## Unreleased - pending follows live writes
 

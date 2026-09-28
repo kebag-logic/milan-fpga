@@ -229,7 +229,8 @@ Issue #502 corrects reporting with live-write triggers, described below.
 Section 10 retains that correction as a stage-release prerequisite.
 
 Issue #502 implements that standalone reporting correction.
-The processor pin is now `870ff88a`.
+That correction adopted processor pin `870ff88a`.
+Issue #580 advances it to `16be6768`.
 `KL_pp_shadow` consumes `aecp_name_wr_o` and `amap_live_wr_i`.
 The parent derives `amap_live_wr_i` from its store-change conditions.
 Both sources share `clk_i` and `rst_n` with the backend.
