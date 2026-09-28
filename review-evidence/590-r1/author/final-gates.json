@@ -1,0 +1,375 @@
+[
+  {
+    "name": "host",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 41.833,
+    "path": "/tmp/a385-final-gate-host.log",
+    "size": 2671,
+    "sha256": "515d8fbe003259e805a604eb83852bb2d48dbe79c238f64e603020df41796604"
+  },
+  {
+    "name": "capture-receipt",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 0.804,
+    "path": "/tmp/a385-final-gate-capture-receipt.log",
+    "size": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+  },
+  {
+    "name": "service-selftest",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.623,
+    "path": "/tmp/a385-final-gate-service-selftest.log",
+    "size": 187,
+    "sha256": "e11d02eb867e9b9d9c4b7d0a513d93cd33f55fdc36ea5cb0fef32de78e925c9a"
+  },
+  {
+    "name": "phy-reuse",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/590-a385/check_phy_reuse.py"
+    ],
+    "rc": 0,
+    "seconds": 0.754,
+    "path": "/tmp/a385-final-gate-phy-reuse.log",
+    "size": 136,
+    "sha256": "a5f32960466b75e36b39c9cce1cabeca92c07b50e1369e2dc3537f953ae95bb6"
+  },
+  {
+    "name": "ci-scope",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.07,
+    "path": "/tmp/a385-final-gate-ci-scope.log",
+    "size": 5513,
+    "sha256": "28161d5982dcae0b4de065681fd30e6784d0587e138c854b29a426b6f8df99f5"
+  },
+  {
+    "name": "docs",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.371,
+    "path": "/tmp/a385-final-gate-docs.log",
+    "size": 127,
+    "sha256": "6c83b5ca183ef8f8272b41eef775e73027454d43d43cd3d1d9eccc1830f4dd00"
+  },
+  {
+    "name": "doc-paths",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.082,
+    "path": "/tmp/a385-final-gate-doc-paths.log",
+    "size": 84,
+    "sha256": "cd50d342bd45ca670f10f5206a5884bd6f87349e02da772d539c99d41ade535b"
+  },
+  {
+    "name": "doc-style",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.066,
+    "path": "/tmp/a385-final-gate-doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "name": "archive",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.293,
+    "path": "/tmp/a385-final-gate-archive.log",
+    "size": 93,
+    "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+  },
+  {
+    "name": "toc",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.607,
+    "path": "/tmp/a385-final-gate-toc.log",
+    "size": 94,
+    "sha256": "03a1f5b8124e65265e90fa1032633f1da8271c16441890a9de218bab5ce7cf48"
+  },
+  {
+    "name": "em-dash",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "20aa4eabf"
+    ],
+    "rc": 0,
+    "seconds": 3.19,
+    "path": "/tmp/a385-final-gate-em-dash.log",
+    "size": 140,
+    "sha256": "03d19a905f3fefe766fec3a32818accdf0da533f254794bc23fef2afa05edbff"
+  },
+  {
+    "name": "features",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.707,
+    "path": "/tmp/a385-final-gate-features.log",
+    "size": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+  },
+  {
+    "name": "pp-sources",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/pp_srcs.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.234,
+    "path": "/tmp/a385-final-gate-pp-sources.log",
+    "size": 936,
+    "sha256": "2a853ad7b68e8b045540ecf0066c21800f2bdac978c9b4ba033c55d4a9d55b95"
+  },
+  {
+    "name": "baremetal-only",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 14.95,
+    "path": "/tmp/a385-final-gate-baremetal-only.log",
+    "size": 71,
+    "sha256": "1707ed709345723522a64692e7bcf785a516870bbc0762c078596aa5378b5e02"
+  },
+  {
+    "name": "entity-shape",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 41.329,
+    "path": "/tmp/a385-final-gate-entity-shape.log",
+    "size": 16251,
+    "sha256": "ec63a3ed107458d985b44ba7b7c872acee41ffc3847a9a2f35639c75144c4a22"
+  },
+  {
+    "name": "python-idiom",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.374,
+    "path": "/tmp/a385-final-gate-python-idiom.log",
+    "size": 461,
+    "sha256": "9dc8bbb26e642d2ed5cba7e21813114f7b5964b61c07d61a3f1a1570d4eac8e5"
+  },
+  {
+    "name": "cpp-idiom",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.213,
+    "path": "/tmp/a385-final-gate-cpp-idiom.log",
+    "size": 315,
+    "sha256": "c9e2cb3f854358b2b9c25228bb67b860c4a21f1b1386bcd44870ad9ef254e22f"
+  },
+  {
+    "name": "hygiene",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.362,
+    "path": "/tmp/a385-final-gate-hygiene.log",
+    "size": 1872,
+    "sha256": "188bc44481d606030c9d4552965101c89da7a0d3c36699d24e32fa650d167cab"
+  },
+  {
+    "name": "test-evidence",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.395,
+    "path": "/tmp/a385-final-gate-test-evidence.log",
+    "size": 10995,
+    "sha256": "065d1fb707de32222267f2f0369fcdb370764bb2f595dc8979efda8fbcbe5388"
+  },
+  {
+    "name": "diff-whitespace",
+    "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "60",
+      "git",
+      "diff",
+      "--check",
+      "20aa4eabf"
+    ],
+    "rc": 0,
+    "seconds": 0.049,
+    "path": "/tmp/a385-final-gate-diff-whitespace.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

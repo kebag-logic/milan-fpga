@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,"sw/builder"); import test_builder; test_builder.test_baremetal_profile_contract()
+                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/590-592-599-firmware/sw/builder/test_builder.py", line 13304, in test_baremetal_profile_contract
+    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 1b's directive readers do not find the #ifdef a split `%:` digraph spells in the UART handler, where the pinned GCC does: they read the selections ['line 782 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken; line 1671 `# ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken', 'line 782 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken; line 1671 `# ifdef CSR_UART_BASE`: CSR_UART_BASE not defined, no arm taken', 'line 782 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR not defined, arm 2 of 2 taken; line 1671 `# ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken', 'line 782 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR not defined, arm 2 of 2 taken; line 1671 `# ifdef CSR_UART_BASE`: CSR_UART_BASE not defined, no arm taken']
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()

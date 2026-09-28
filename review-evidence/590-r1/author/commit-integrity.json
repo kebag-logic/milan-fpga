@@ -1,0 +1,72 @@
+{
+  "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+  "branch": "590-592-599-firmware",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "commits": [
+    {
+      "head": "4befe3f0da157a3646dd132c51e37a11f47f1506",
+      "subject": "Fix queued console and validation heartbeat service for #590"
+    },
+    {
+      "head": "a133358f9601d7c6f3ae2d1acba7b86004aff012",
+      "subject": "Use aligned word copies within closed NVM records for #592"
+    },
+    {
+      "head": "f420e1a735d0a8dd66ce6ac52cea5b60e2844f00",
+      "subject": "Publish negotiated PHY status from firmware for #599"
+    },
+    {
+      "head": "42f7f4fe7ce23c226d984513e36ad21000be478c",
+      "subject": "Merge dev processor pin into firmware lane"
+    },
+    {
+      "head": "999a032558e8878591b17a1fbd787c9b7c3f845a",
+      "subject": "Account for the MDIO conditional group in the census fixture"
+    },
+    {
+      "head": "0d6f697ac6a91c7581f3007ab2da679257375368",
+      "subject": "Exercise queued service and PHY publication on the product CPU"
+    },
+    {
+      "head": "7eae38744b41dec62b9398323bb0c58de5c84695",
+      "subject": "Service PHY polling between slot erase verification walks"
+    },
+    {
+      "head": "ba3a4781174e50fffea9ccfb0a19e36709a0e228",
+      "subject": "Record firmware capture timings at the merged processor pin"
+    },
+    {
+      "head": "5e8edc86822a5cd2ba11da41dec0df7397d76da0",
+      "subject": "Resolve latched PHY recovery within the current poll"
+    },
+    {
+      "head": "792a57b092efaee8920f344faacb7675c8e163bd",
+      "subject": "Bind final firmware service budgets and capture evidence"
+    }
+  ],
+  "paths": [
+    "docs/findings/397_SERVICE_BUDGET.md",
+    "docs/integration/BAREMETAL_FIRMWARE.md",
+    "docs/reference/MILAN_COMPLIANCE_MATRIX.md",
+    "docs/reference/REGISTER_MAP.md",
+    "sw/builder/test_builder.py",
+    "sw/firmware/milan_baremetal/milan_baremetal.c",
+    "sw/firmware/nvm_hosttest/phy_host.c",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+    "sw/firmware/nvm_hosttest/test_phy_firmware.py",
+    "tb/verilator/fw_service_budget/README.md",
+    "tb/verilator/fw_service_budget/build.py",
+    "tb/verilator/fw_service_budget/phy.hpp",
+    "tb/verilator/fw_service_budget/phy.py",
+    "tb/verilator/fw_service_budget/run.py",
+    "tb/verilator/fw_service_budget/sim_main.cpp",
+    "tb/verilator/nvm_capture_cpu/README.md",
+    "tb/verilator/nvm_capture_cpu/firmware.py",
+    "tb/verilator/nvm_capture_cpu/measurements.json",
+    "tb/verilator/nvm_capture_cpu/run.py"
+  ],
+  "builder_changed_lines": [
+    "-    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \\",
+    "+    assert len(split_digraph_selections) == 4 and split_digraph_product_arm, \\"
+  ]
+}

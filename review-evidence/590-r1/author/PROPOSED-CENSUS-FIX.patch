@@ -1,0 +1,12 @@
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -13301,7 +13301,8 @@
+          if which.endswith("ifdef CSR_UART_BASE`: CSR_UART_BASE defined, "
+                            "arm 1 of 1 taken")),
+         None)
+-    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \
++    base_selections = arm_selections(firmware_source) or [("unconditional", firmware_source)]
++    assert len(split_digraph_selections) == 2 * len(base_selections) and split_digraph_product_arm, \
+         "gate 1b's directive readers do not find the #ifdef a split `%:` " \
+         "digraph spells in the UART handler, where the pinned GCC does: " \
+         f"they read the selections {sorted(split_digraph_selections)}"

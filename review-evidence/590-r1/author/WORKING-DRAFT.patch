@@ -1,0 +1,531 @@
+diff --git a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+index a4e560fbd..560c70b81 100644
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c
+@@ -444,6 +444,9 @@ static uint64_t nvm_dirty_since;
+  */
+ #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
+ #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
++typedef uint32_t nvm_word_t;
++
++static void nvm_heartbeat_tick(void);
+ 
+ static const volatile uint8_t *nvm_slot(uint32_t offset)
+ {
+@@ -464,6 +467,10 @@ static uint32_t nvm_crc32(const volatile uint8_t *p, uint32_t len)
+ 	unsigned int bit;
+ 
+ 	for (i = 0; i < len; ++i) {
++		/* A slot CRC can exceed the service window on the largest shape.
++		 * Boot validation precedes writer arming; runtime validation does not. */
++		if (nvm_ready && (i & 255u) == 0)
++			nvm_heartbeat_tick();
+ 		crc ^= p[i];
+ 		for (bit = 0; bit < 8; ++bit)
+ 			crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1u)));
+@@ -624,6 +631,9 @@ static unsigned int nvm_validate(const volatile uint8_t *img)
+ 	for (i = 0; i < nrec; ++i) {
+ 		struct nvm_rec rec;
+ 
++		/* Bound the record-validation walk independently of the slot CRC. */
++		if (nvm_ready && (i & 15u) == 0)
++			nvm_heartbeat_tick();
+ 		if (pos + REC_HDR > end)
+ 			return VD_LEN;
+ 		if (nvm_all_erased(img + pos, REC_HDR)) {
+@@ -752,12 +762,159 @@ static void nvm_publish(unsigned int verdict)
+ 	nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | (verdict & 0xfu));
+ }
+ 
++/* The generated accessors are also declared for reduced-header validation
++ * builds. Product csr.h supplies their static inline definitions first. */
++void milan_mac_phy_mdio_w_write(uint32_t value);
++uint32_t milan_mac_phy_mdio_r_read(void);
++void milan_mac_link_status_write(uint32_t value);
++
++/* Half the 250 ms service allowance schedules PHY work; the other half
++ * accommodates a pending duty and the bounded Clause-22 transactions. */
++#define PHY_POLL_NS (NVM_HEARTBEAT_NS / 2u)
++#define PHY_MDC 1u
++#define PHY_OE  2u
++#define PHY_OUT 4u
++#define PHY_BMSR_LINK 4u
++#define PHY_BMSR_AN_DONE 0x20u
++#define PHY_BMSR_EXTENDED 0x100u
++#define PHY_BMCR_AN_ENABLE 0x1000u
++
++#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR
++static unsigned int phy_address;
++static int phy_found;
++static uint32_t phy_published;
++static uint64_t phy_last_poll;
++
++/* At least 32 CPU delay cycles per half-period, even at 100 MHz.
++ * Input synchronization settles before the read at the high phase. */
++static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
++{
++	uint32_t pins = (drive ? PHY_OE : 0u) | (bit ? PHY_OUT : 0u);
++	unsigned int value;
++
++	milan_mac_phy_mdio_w_write(pins);
++	cdelay(32);
++	milan_mac_phy_mdio_w_write(pins | PHY_MDC);
++	cdelay(32);
++	value = milan_mac_phy_mdio_r_read() & 1u;
++	milan_mac_phy_mdio_w_write(pins);
++	return value;
++}
++
++/* An absent turnaround acknowledgement is an error, never link-up. */
++static int phy_mdio_read(unsigned int reg)
++{
++	uint32_t command = (6u << 10) | (phy_address << 5) | reg;
++	unsigned int i;
++	unsigned int ack;
++	unsigned int value = 0;
++
++	for (i = 0; i < 32u; ++i)
++		phy_mdio_bit(1, 1);
++	for (i = 0; i < 14u; ++i)
++		phy_mdio_bit(1, (command >> (13u - i)) & 1u);
++	phy_mdio_bit(0, 0);
++	ack = phy_mdio_bit(0, 0);
++	for (i = 0; i < 16u; ++i)
++		value = (value << 1) | phy_mdio_bit(0, 0);
++	milan_mac_phy_mdio_w_write(0);
++	return ack ? -1 : (int)value;
++}
++
++/* Standard Clause-22 negotiation registers serve both board PHY families.
++ * Return only a resolved common mode; incomplete negotiation stays down. */
++static uint32_t phy_resolved_status(unsigned int bmsr)
++{
++	int control = phy_mdio_read(0);
++	int local;
++	int peer;
++	unsigned int common;
++
++	if (control < 0)
++		return 0;
++	if (!(control & PHY_BMCR_AN_ENABLE)) {
++		unsigned int speed = (control & 0x40u) ? 2u :
++				     ((control & 0x2000u) ? 1u : 0u);
++		return 1u | (speed << 1) | ((control & 0x100u) ? 8u : 0u);
++	}
++	if (!(bmsr & PHY_BMSR_AN_DONE))
++		return 0;
++	if (bmsr & PHY_BMSR_EXTENDED) {
++		int extended = phy_mdio_read(15);
++
++		if (extended < 0)
++			return 0;
++		if (extended & 0x3000u) {
++			local = phy_mdio_read(9);
++			peer = phy_mdio_read(10);
++			if (local < 0 || peer < 0 || (peer & 0x8000u))
++				return 0;
++			common = ((unsigned int)local << 2) & (unsigned int)peer;
++			if (common & 0x800u)
++				return 13u;
++			if (common & 0x400u)
++				return 5u;
++		}
++	}
++	local = phy_mdio_read(4);
++	peer = phy_mdio_read(5);
++	if (local < 0 || peer < 0)
++		return 0;
++	common = (unsigned int)local & (unsigned int)peer;
++	if (common & 0x100u)
++		return 11u;
++	if (common & 0x80u)
++		return 3u;
++	if (common & 0x40u)
++		return 9u;
++	return (common & 0x20u) ? 1u : 0u;
++}
++
++static void phy_link_tick(uint64_t now)
++{
++	int bmsr;
++	uint32_t status = 0;
++
++	if (phy_last_poll && now >= phy_last_poll &&
++	    now - phy_last_poll < PHY_POLL_NS)
++		return;
++	phy_last_poll = now;
++	if (!phy_found) {
++		int id = phy_mdio_read(2);
++
++		/* Probe one address per opportunity, with no blocking scan. */
++		if (id <= 0 || id == 0xffff) {
++			phy_address = (phy_address + 1u) & 31u;
++			phy_last_poll = 0;
++			milan_mac_link_status_write(0);
++			return;
++		}
++		phy_found = 1;
++	}
++	bmsr = phy_mdio_read(1);
++	/* Preserve a latched loss while previously up. Once down, read again
++	 * to clear BMSR's latch and observe recovery without duplicate edges. */
++	if (bmsr >= 0 && !(phy_published & 1u))
++		bmsr = phy_mdio_read(1);
++	if (bmsr >= 0 && bmsr != 0xffff && (bmsr & PHY_BMSR_LINK))
++		status = phy_resolved_status((unsigned int)bmsr);
++	milan_mac_link_status_write(status);
++	phy_published = status;
++}
++#else
++static void phy_link_tick(uint64_t now)
++{
++	(void)now;
++}
++#endif
++
+ /* Re-arm T-NVM-WRITER-ALIVE at most every NVM_HEARTBEAT_NS; the first
+  * call answers at once, so the restore walk runs behind a live writer. */
+ static void nvm_heartbeat_tick(void)
+ {
+ 	uint64_t now = gettime_ns();
+ 
++	phy_link_tick(now);
+ 	/* a retired writer answers no more: nvm_backed must fall */
+ 	if (nvm_retired)
+ 		return;
+@@ -1006,11 +1163,23 @@ static struct nvm_cap nvm_capture(void)
+ 		copy = !((own[rec.id >> 5] >> (rec.id & 31u)) & 1u);
+ 		next = off + REC_HDR + rec.plen;
+ 		if (copy) {
+-			for (i = off; i < NVM_AREA_RAW; ++i) {
++			for (i = off; i < NVM_AREA_RAW;) {
+ 				if (i >= next) {
+ 					break;
+ 				}
+-				NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
++				/* Both windows and the header are word aligned. Never
++				 * cross a record edge: its neighbour may be open. */
++				if ((i & 3u) == 0 && next - i >= 4u &&
++				    i <= NVM_AREA_RAW - 4u) {
++					*(volatile nvm_word_t *)(MILAN_NVM_STAGE_BASE + KLJ2_HDR + i) =
++						*(const volatile nvm_word_t *)(MILAN_NVM_LIVE_BASE + KLJ2_HDR + i);
++					i += 4u;
++				} else {
++					if (i < NVM_AREA_RAW) {
++						NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
++					}
++					++i;
++				}
+ 			}
+ 		}
+ 		off = next;
+@@ -1459,6 +1628,7 @@ define_init_func(milan_init);
+ 
+ static void milan_status_handler(int nb_params, char **params)
+ {
++	nvm_heartbeat_tick();
+ 	uint32_t gm_lo;
+ 	uint32_t gm_hi;
+ 	uint32_t parent_lo;
+@@ -1560,6 +1730,7 @@ static void nvm_print_status(void)
+ 
+ static void milan_nvm_handler(int nb_params, char **params)
+ {
++	nvm_heartbeat_tick();
+ 	if (nb_params == 0) {
+ 		nvm_print_status();
+ 		return;
+@@ -1588,6 +1759,7 @@ define_command(milan_nvm, milan_nvm_handler,
+ 
+ static void milan_gettime_handler(int nb_params, char **params)
+ {
++	nvm_heartbeat_tick();
+ 	(void)nb_params;
+ 	(void)params;
+ 	print_tod(gettime_ns());
+@@ -1598,6 +1770,7 @@ define_command(milan_gettime, milan_gettime_handler,
+ 
+ static void milan_settime_handler(int nb_params, char **params)
+ {
++	nvm_heartbeat_tick();
+ 	uint64_t seconds;
+ 	uint64_t nanoseconds = 0;
+ 	uint64_t value;
+@@ -1618,6 +1791,7 @@ define_command(milan_settime, milan_settime_handler,
+ 
+ static void milan_utc_handler(int nb_params, char **params)
+ {
++	nvm_heartbeat_tick();
+ 	uint64_t utc;
+ 	uint64_t nanoseconds;
+ 	uint64_t tai_minus_utc;
+diff --git a/tb/verilator/nvm_capture_cpu/firmware.py b/tb/verilator/nvm_capture_cpu/firmware.py
+index 16797e5ba..0ea434eb8 100644
+--- a/tb/verilator/nvm_capture_cpu/firmware.py
++++ b/tb/verilator/nvm_capture_cpu/firmware.py
+@@ -89,11 +89,21 @@ def prepare(root: Path, destination: Path, mutation: str) -> Path:
+         if source.count(before) != 1:
+             raise RuntimeError('capture instrumentation anchor is not unique: ' + before)
+         source = source.replace(before, after)
++    word_store = ('*(volatile nvm_word_t *)(MILAN_NVM_STAGE_BASE + KLJ2_HDR + i) =\n'
++                  '\t\t\t\t\t\t*(const volatile nvm_word_t *)(MILAN_NVM_LIVE_BASE + KLJ2_HDR + i);')
++    if mutation == 'byte-only':
++        branch = 'if ((i & 3u) == 0 && next - i >= 4u &&'
++        if source.count(branch) != 1:
++            raise RuntimeError('word-copy branch is not unique')
++        source = source.replace(branch, 'if (0 && next - i >= 4u &&')
+     if mutation == 'skip-copy':
+         store = 'NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];'
+         if source.count(store) != 1:
+             raise RuntimeError('copy mutation anchor is not unique')
+         source = source.replace(store, '(void)NVM_IMG[KLJ2_HDR + i];')
++        if source.count(word_store) != 1:
++            raise RuntimeError('word-copy mutation anchor is not unique')
++        source = source.replace(word_store, '(void)NVM_IMG[KLJ2_HDR + i];')
+     driver = DRIVER.replace('probe_enable_write(1);', 'probe_enable_write(0);') if mutation == 'no-traffic' else DRIVER
+     (destination / 'milan_baremetal.c').write_text(source + driver)
+     (destination / 'Makefile').write_bytes((root / 'sw/firmware/milan_baremetal/Makefile').read_bytes())
+diff --git a/tb/verilator/nvm_capture_cpu/run.py b/tb/verilator/nvm_capture_cpu/run.py
+index e7ed95875..484edde38 100644
+--- a/tb/verilator/nvm_capture_cpu/run.py
++++ b/tb/verilator/nvm_capture_cpu/run.py
+@@ -36,7 +36,7 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
+             for line in raw.splitlines() if line.startswith('CAPTURE index=')]
+     if len(rows) != spec['captures'] or 'CAPTURE_DONE' not in raw:
+         raise RuntimeError('not every requested capture completed')
+-    if spec['mutation'] != 'none':
++    if spec['mutation'] in ('skip-copy', 'no-traffic'):
+         _grade_mutation(rows, spec['mutation'], returncode)
+         if spec['mutation'] == 'skip-copy':
+             return
+@@ -108,7 +108,7 @@ def main() -> None:
+     parser.add_argument('--cpu-hz', type=int, choices=[CPU_HZ, 100_000_000], default=CPU_HZ,
+                         help='explicit contract clock; 100 MHz is a non-contract comparison')
+     parser.add_argument('--traffic', choices=['on', 'off'], default='on')
+-    parser.add_argument('--mutation', choices=['none', 'skip-copy', 'no-traffic'], default='none')
++    parser.add_argument('--mutation', choices=['none', 'skip-copy', 'no-traffic', 'byte-only'], default='none')
+     args = parser.parse_args()
+     if args.mutation != 'none' and args.traffic != 'on':
+         parser.error('mutation controls require --traffic on')
+diff --git a/sw/firmware/nvm_hosttest/phy_host.c b/sw/firmware/nvm_hosttest/phy_host.c
+new file mode 100644
+index 000000000..e6dbf2129
+--- /dev/null
++++ b/sw/firmware/nvm_hosttest/phy_host.c
+@@ -0,0 +1,165 @@
++/* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
++/* Pin-level Clause-22 peer for the unchanged firmware translation unit. */
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include "milan_baremetal.c"
++
++static uint16_t registers[32];
++static unsigned int clock_bit;
++static unsigned int previous_pins;
++static unsigned int command_bits;
++static unsigned int reply_bit;
++static unsigned int transfers;
++static unsigned int target_address = 7;
++static unsigned int input_word;
++static unsigned int status_word;
++static unsigned int ups;
++static unsigned int downs;
++static unsigned int publishes;
++static int latched_down;
++static int acknowledge = 1;
++static uint64_t delay_cycles;
++
++void nvm_host_tick(int cycles)
++{
++	assert(cycles >= 32);
++	delay_cycles += (unsigned int)cycles;
++}
++
++void milan_mac_phy_mdio_w_write(uint32_t value)
++{
++	if ((value & 1u) && !(previous_pins & 1u)) {
++		assert(clock_bit < 64u);
++		if (clock_bit < 46u) {
++			assert(value & 2u);
++			if (clock_bit < 32u)
++				assert(value & 4u);
++			else
++				command_bits = (command_bits << 1) | ((value >> 2) & 1u);
++			reply_bit = 1;
++		} else {
++			unsigned int addressed = ((command_bits >> 5) & 31u) == target_address;
++
++			assert(!(value & 2u));
++			assert((command_bits >> 10) == 6u);
++			if (clock_bit == 46u) {
++				unsigned int reg = command_bits & 31u;
++
++				input_word = registers[reg];
++				if (reg == 1u && latched_down && addressed) {
++					input_word &= ~4u;
++					latched_down = 0;
++				}
++			}
++			reply_bit = clock_bit < 48u ? (clock_bit == 46u) :
++				((input_word >> (63u - clock_bit)) & 1u);
++			if (!addressed || !acknowledge)
++				reply_bit = 1;
++		}
++		++clock_bit;
++	}
++	if (!(value & 1u) && clock_bit == 64u) {
++		clock_bit = 0;
++		command_bits = 0;
++		++transfers;
++	}
++	previous_pins = value;
++}
++
++uint32_t milan_mac_phy_mdio_r_read(void)
++{
++	return reply_bit;
++}
++
++void milan_mac_link_status_write(uint32_t value)
++{
++	assert(value < 16u);
++	if ((status_word ^ value) & 1u) {
++		if (value & 1u)
++			++ups;
++		else
++			++downs;
++	}
++	status_word = value;
++	++publishes;
++	printf("PHY_PUBLISH value=%u up=%u down=%u\n", value, ups, downs);
++}
++
++static void expect_poll(uint64_t now, unsigned int expected)
++{
++	unsigned int before = publishes;
++
++	phy_link_tick(now);
++	assert(publishes == before + 1u);
++	assert(status_word == expected);
++}
++
++int main(void)
++{
++	uint64_t now = 1;
++	unsigned int i;
++	unsigned int count;
++	unsigned int up_before;
++	unsigned int down_before;
++
++	/* Standard 1000BASE-T full-duplex negotiation, at a nonzero address. */
++	registers[0] = 0x1000;
++	registers[1] = 0x0124;
++	registers[2] = 0x001c;
++	registers[4] = 0x01e1;
++	registers[5] = 0x01e1;
++	registers[9] = 0x0300;
++	registers[10] = 0x0c00;
++	registers[15] = 0x3000;
++	for (i = 0; i < target_address; ++i)
++		expect_poll(now++, 0);
++	expect_poll(now, 13);
++	count = transfers;
++	phy_link_tick(now + 124999999u);
++	assert(transfers == count);
++	now += 125000000u;
++	expect_poll(now, 13);
++	up_before = ups;
++	down_before = downs;
++	registers[1] &= ~4u;
++	now += 125000000u;
++	expect_poll(now, 0);
++	now += 125000000u;
++	expect_poll(now, 0);
++	registers[1] |= 4u;
++	latched_down = 1;
++	now += 125000000u;
++	expect_poll(now, 13);
++	now += 125000000u;
++	expect_poll(now, 13);
++	assert(ups == up_before + 1u && downs == down_before + 1u);
++	/* Negotiated 100/10, full/half; no extended-status register on MII. */
++	registers[1] = 0x24;
++	for (i = 0; i < 4; ++i) {
++		static const uint16_t peer_modes[4] = {0x101, 0x81, 0x41, 0x21};
++		static const unsigned int expected[4] = {11, 3, 9, 1};
++
++		registers[5] = peer_modes[i];
++		now += 125000000u;
++		expect_poll(now, expected[i]);
++	}
++	/* Forced 100 full; incomplete negotiation; missing ACK; clock rewind. */
++	registers[0] = 0x2100;
++	now += 125000000u;
++	expect_poll(now, 11);
++	registers[0] = 0x1000;
++	registers[1] = 4;
++	now += 125000000u;
++	expect_poll(now, 0);
++	acknowledge = 0;
++	now += 125000000u;
++	expect_poll(now, 0);
++	acknowledge = 1;
++	registers[1] = 0x24;
++	registers[5] = 0x101;
++	expect_poll(1, 11);
++	printf("PHY_OK transfers=%u delay_cycles=%llu\n", transfers,
++	       (unsigned long long)delay_cycles);
++	return 0;
++}
+diff --git a/sw/firmware/nvm_hosttest/test_phy_firmware.py b/sw/firmware/nvm_hosttest/test_phy_firmware.py
+new file mode 100644
+index 000000000..898f35175
+--- /dev/null
++++ b/sw/firmware/nvm_hosttest/test_phy_firmware.py
+@@ -0,0 +1,45 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: (GPL-2.0 OR MIT)
++"""Drive the firmware's bit-bang transactions and kill a missing publisher."""
++from pathlib import Path
++import subprocess
++import tempfile
++
++import test_nvm_firmware as nvm
++
++
++def main() -> None:
++    """Compile the product translation with a pin-level peer and unchanged policy."""
++    source = nvm.FIRMWARE.read_text()
++    with tempfile.TemporaryDirectory(prefix="milan-phy-") as temporary:
++        work = Path(temporary)
++        nvm.make_bench(nvm.ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml", work, source)
++        (work / "generated/csr.h").write_text(
++            f'#include "{nvm.STUBS / "generated/csr.h"}"\n'
++            '#define CSR_MILAN_MAC_PHY_MDIO_W_ADDR 1\n')
++        driver = Path(__file__).with_name("phy_host.c")
++        command = ["gcc", "-std=gnu11", "-O1", "-Wall", "-Wextra", "-Werror", "-Wno-format",
++                   "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",
++                   f"-I{work}", f"-I{nvm.STUBS}", str(driver), "-o", str(work / "phy")]
++        for mutant in (False, True):
++            text = nvm.FENCE_RE.sub("(void)0;", source)
++            if mutant:
++                anchor = "\tmilan_mac_link_status_write(status);"
++                if text.count(anchor) != 1:
++                    raise RuntimeError("publisher mutation anchor is not unique")
++                text = text.replace(anchor, "\t(void)status;")
++            (work / "milan_baremetal.c").write_text(text)
++            subprocess.run(command, check=True, timeout=120)
++            result = subprocess.run([str(work / "phy")], capture_output=True, text=True, timeout=120)
++            if not mutant:
++                if result.returncode or "PHY_OK" not in result.stdout:
++                    raise RuntimeError(result.stdout + result.stderr)
++                print(result.stdout, end="")
++            elif result.returncode == 0 or "publishes == before + 1u" not in result.stderr:
++                raise RuntimeError("missing publication escaped its named assertion")
++            else:
++                print("PHY_MUTANT missing publication: caught")
++
++
++if __name__ == "__main__":
++    main()
