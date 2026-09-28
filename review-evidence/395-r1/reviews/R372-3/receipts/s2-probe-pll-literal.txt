@@ -1,0 +1,21 @@
+216:            self.pll = pll = S7PLL(speedgrade=-int(platform.device.rsplit("-", 1)[1]))
+216:            self.pll = pll = S7PLL(speedgrade=-2)
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+Traceback (most recent call last):
+  File "$REVIEWS/r372-3-395/sw/builder/test_timing_grade.py", line 190, in <module>
+    test_pll_grade(sys.argv[1])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/r372-3-395/sw/builder/test_timing_grade.py", line 182, in test_pll_grade
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "<string>", line 10, in <module>
+    assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: call(speedgrade=-2)
+
+mutant_rc=1
+warning: unable to find all commit-graph files
+restored=clean
+restored_rc=0

@@ -1,0 +1,9 @@
+$ $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_em_dash.py --base 8bc97021f28fb7f729418d3a00851c84ea0b50fd
+check_em_dash: 0 finding(s) over 306 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [8bc97021..HEAD]
+rc=0
+$ $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_em_dash.py --base 3a0cb4cf4fed2d71436a43f4b96cb375f9178342
+check_em_dash: 0 finding(s) over 45 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [3a0cb4cf..HEAD]
+rc=0
+$ $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (339 arm(s))
+rc=0
