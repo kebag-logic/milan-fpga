@@ -1,0 +1,29 @@
+{
+ "entries_before": 32,
+ "entries_after": 32,
+ "differing": 1,
+ "details": [
+  {
+   "key": [
+    "dut",
+    "avb"
+   ],
+   "before": [
+    {
+     "cmd": "GET_AVB_INFO",
+     "status": "SUCCESS",
+     "cdl": 36,
+     "payload": "00090000<grandmaster-id>0000017f0017000106030002"
+    }
+   ],
+   "after": [
+    {
+     "cmd": "GET_AVB_INFO",
+     "status": "SUCCESS",
+     "cdl": 36,
+     "payload": "00090000<grandmaster-id>0000017d0017000106030002"
+    }
+   ]
+  }
+ ]
+}

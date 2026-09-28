@@ -1,0 +1,109 @@
+{
+ "entries_before": 32,
+ "entries_after": 32,
+ "differing": 4,
+ "details": [
+  {
+   "key": [
+    "dut",
+    "avb"
+   ],
+   "before": [
+    {
+     "cmd": "GET_AVB_INFO",
+     "status": "SUCCESS",
+     "cdl": 36,
+     "payload": "00090000<grandmaster-id>0000017d0017000106030002"
+    }
+   ],
+   "after": [
+    {
+     "cmd": "GET_AVB_INFO",
+     "status": "SUCCESS",
+     "cdl": 36,
+     "payload": "00090000<grandmaster-id>000001820017000106030002"
+    }
+   ]
+  },
+  {
+   "key": [
+    "dut",
+    "map-0x000e-0"
+   ],
+   "before": [
+    {
+     "cmd": "GET_AUDIO_MAP",
+     "status": "NOT_IMPLEMENTED",
+     "cdl": 20,
+     "payload": "000e000000000000"
+    }
+   ],
+   "after": [
+    {
+     "cmd": "GET_AUDIO_MAP",
+     "status": "SUCCESS",
+     "cdl": 24,
+     "payload": "000e00000000000100000000"
+    }
+   ]
+  },
+  {
+   "key": [
+    "dut",
+    "map-0x000f-0"
+   ],
+   "before": [
+    {
+     "cmd": "GET_AUDIO_MAP",
+     "status": "NOT_IMPLEMENTED",
+     "cdl": 20,
+     "payload": "000f000000000000"
+    }
+   ],
+   "after": [
+    {
+     "cmd": "GET_AUDIO_MAP",
+     "status": "SUCCESS",
+     "cdl": 24,
+     "payload": "000f00000000000100000000"
+    }
+   ]
+  },
+  {
+   "key": [
+    "dut",
+    "tx-state-0"
+   ],
+   "before": [
+    {
+     "status": 0,
+     "stream_id": "0200000000010000",
+     "controller": "<controller-entity-id>",
+     "talker": "020000fffe000001",
+     "listener": "0000000000000000",
+     "talker_uid": 0,
+     "listener_uid": 0,
+     "dmac": "000000000000",
+     "conn_count": 0,
+     "flags": "0x0000",
+     "vlan": 2
+    }
+   ],
+   "after": [
+    {
+     "status": 0,
+     "stream_id": "0200000000010000",
+     "controller": "<controller-entity-id>",
+     "talker": "020000fffe000001",
+     "listener": "0000000000000000",
+     "talker_uid": 0,
+     "listener_uid": 0,
+     "dmac": "91e0f0003f0a",
+     "conn_count": 0,
+     "flags": "0x0000",
+     "vlan": 2
+    }
+   ]
+  }
+ ]
+}

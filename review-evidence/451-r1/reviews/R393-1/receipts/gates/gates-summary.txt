@@ -1,0 +1,13 @@
+Documentation gates at exact head 6339479d69830614d4267bd3170113737afbf8f4, run from the review clone, unpiped, one log per gate.
+gate-1 rc=0 :: python3 scripts/docs_check.py
+gate-2 rc=0 :: python3 scripts/check_doc_style.py
+gate-3 rc=0 :: <pinned-markdown-venv>/bin/python3 scripts/gen_toc.py --check
+gate-4 rc=0 :: <pinned-markdown-venv>/bin/python3 scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04
+gate-5 rc=0 :: python3 scripts/check_doc_paths.py
+gate-6 rc=0 :: python3 scripts/ci_scope.py --selftest
+gate-7 rc=0 :: python3 scripts/check_baremetal_only.py --check
+gate-8 rc=0 :: git diff --check 6d5ebd7357c1e468e446f18a61527c5be6118a04 HEAD
+Note: gates 3 and 4 first ran under the system interpreter and refused with rc=2 because the pinned renderer
+(html5lib) was absent; they were re-run under a private venv installed with
+`pip install --require-hashes -r tools/markdown/requirements.txt` (cmarkgfm 2025.10.22, html5lib 1.1) and passed.
+The logs gate-3.txt and gate-4.txt are the passing runs.

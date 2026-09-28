@@ -1,0 +1,296 @@
+{
+ "records": 758908,
+ "non_stream_records": {
+  "avtp_subtype_fc_other": 1,
+  "avtp_subtype_fe_other": 23,
+  "avtp_subtype_fa_other": 14
+ },
+ "pdus": 758870,
+ "header_census": [
+  {
+   "pcp": 3,
+   "vid": 2,
+   "format": 2,
+   "nsr": 5,
+   "channels_per_frame": 8,
+   "bit_depth": 32,
+   "stream_data_length": 192,
+   "tv": 1,
+   "sv": 1,
+   "pdus": 758870
+  }
+ ],
+ "seq_gaps": 0,
+ "seq_missing_pdus": 0,
+ "frames": 4553220,
+ "all_zero_frames": 775,
+ "zero_words": 6213,
+ "idle_ffffff00_words": 9539259,
+ "playback_region": {
+  "first_frame": 150490,
+  "last_frame": 3510524,
+  "frames": 3360035,
+  "seconds_at_48k": 70.00072916666667
+ },
+ "region_invalid_words": 0,
+ "region_not_own_tag_words": 0,
+ "channels": [
+  {
+   "stream_channel": 0,
+   "tag_histogram": {
+    "1": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 1,
+   "tag_histogram": {
+    "2": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 2,
+   "tag_histogram": {
+    "3": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 3,
+   "tag_histogram": {
+    "4": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 4,
+   "tag_histogram": {
+    "5": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 5,
+   "tag_histogram": {
+    "6": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 6,
+   "tag_histogram": {
+    "7": 3360035
+   },
+   "valid_words": 3360035
+  },
+  {
+   "stream_channel": 7,
+   "tag_histogram": {
+    "8": 3360035
+   },
+   "valid_words": 3360035
+  }
+ ],
+ "outside_region_frames": 1193185,
+ "outside_region_word_values_top": {
+  "ffffff00": 9539259,
+  "00000000": 6213,
+  "00ffff00": 1,
+  "0344ff00": 1,
+  "0444ff00": 1,
+  "0544ff00": 1
+ },
+ "torn_frames": 2267868,
+ "frames_with_pair_internal_disagreement": 0,
+ "pair_offset_shapes": [
+  {
+   "offsets_pairs_1_2_3": [
+    0,
+    0,
+    0
+   ],
+   "frames": 1092167,
+   "share": 0.325
+  },
+  {
+   "offsets_pairs_1_2_3": [
+    0,
+    0,
+    -1
+   ],
+   "frames": 761510,
+   "share": 0.2266
+  },
+  {
+   "offsets_pairs_1_2_3": [
+    0,
+    -1,
+    -1
+   ],
+   "frames": 761459,
+   "share": 0.2266
+  },
+  {
+   "offsets_pairs_1_2_3": [
+    -1,
+    -1,
+    -1
+   ],
+   "frames": 744899,
+   "share": 0.2217
+  }
+ ],
+ "longest_run_per_shape": {
+  "[0, 0, 0]": 30477,
+  "[0, 0, -1]": 21096,
+  "[0, -1, -1]": 21096,
+  "[-1, -1, -1]": 21096
+ },
+ "per_channel_continuity": [
+  {
+   "stream_channel": 0,
+   "step_histogram": {
+    "0": 711,
+    "1": 3358647,
+    "2": 676
+   },
+   "repeated": 711,
+   "skipped": 676,
+   "backward_or_large": 0,
+   "clusters": 35,
+   "cluster_net_repeat_histogram": {
+    "1": 35
+   },
+   "first_cluster_recording_frame": 237363,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 1,
+   "step_histogram": {
+    "0": 711,
+    "1": 3358647,
+    "2": 676
+   },
+   "repeated": 711,
+   "skipped": 676,
+   "backward_or_large": 0,
+   "clusters": 35,
+   "cluster_net_repeat_histogram": {
+    "1": 35
+   },
+   "first_cluster_recording_frame": 237363,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 2,
+   "step_histogram": {
+    "0": 736,
+    "1": 3358598,
+    "2": 700
+   },
+   "repeated": 736,
+   "skipped": 700,
+   "backward_or_large": 0,
+   "clusters": 36,
+   "cluster_net_repeat_histogram": {
+    "1": 36
+   },
+   "first_cluster_recording_frame": 216210,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 3,
+   "step_histogram": {
+    "0": 736,
+    "1": 3358598,
+    "2": 700
+   },
+   "repeated": 736,
+   "skipped": 700,
+   "backward_or_large": 0,
+   "clusters": 36,
+   "cluster_net_repeat_histogram": {
+    "1": 36
+   },
+   "first_cluster_recording_frame": 216210,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 4,
+   "step_histogram": {
+    "0": 734,
+    "1": 3358602,
+    "2": 698
+   },
+   "repeated": 734,
+   "skipped": 698,
+   "backward_or_large": 0,
+   "clusters": 36,
+   "cluster_net_repeat_histogram": {
+    "1": 36
+   },
+   "first_cluster_recording_frame": 195060,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 5,
+   "step_histogram": {
+    "0": 734,
+    "1": 3358602,
+    "2": 698
+   },
+   "repeated": 734,
+   "skipped": 698,
+   "backward_or_large": 0,
+   "clusters": 36,
+   "cluster_net_repeat_histogram": {
+    "1": 36
+   },
+   "first_cluster_recording_frame": 195060,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 6,
+   "step_histogram": {
+    "0": 734,
+    "1": 3358602,
+    "2": 698
+   },
+   "repeated": 734,
+   "skipped": 698,
+   "backward_or_large": 0,
+   "clusters": 36,
+   "cluster_net_repeat_histogram": {
+    "1": 36
+   },
+   "first_cluster_recording_frame": 173907,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  },
+  {
+   "stream_channel": 7,
+   "step_histogram": {
+    "0": 734,
+    "1": 3358602,
+    "2": 698
+   },
+   "repeated": 734,
+   "skipped": 698,
+   "backward_or_large": 0,
+   "clusters": 36,
+   "cluster_net_repeat_histogram": {
+    "1": 36
+   },
+   "first_cluster_recording_frame": 173907,
+   "cluster_spacing_min": 93990,
+   "cluster_spacing_max": 93993
+  }
+ ]
+}
