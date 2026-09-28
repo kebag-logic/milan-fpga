@@ -938,9 +938,9 @@ Controller evidence must establish the affected stream's clock-source lineage.
 CRF causes require recorded derivation from that received CRF stream.
 A GM edge or PHC step alone is no cause.
 The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
-The current image still toggles `mr` on PHC steps.
-A soak containing one therefore fails the step-only check.
-This remains until #602's RTL change lands.
+A PHC-only re-base leaves `mr` unchanged.
+The existing `tu` path signals that gPTP discontinuity.
+It adds no step-only MEDIA_RESET increment.
 Each cause excuses at most one toggle per stream.
 Causes are consumed chronologically, preserving later matches.
 The check filters by stream before counting its PDUs.
