@@ -1,0 +1,48 @@
+## files changed ce550952e47fbd92367f0d9b099345100f7f4215..HEAD
+M	CHANGELOG.md
+M	docs/CHANNEL_MAP_64.md
+M	docs/design/TIME_SYNC.md
+M	docs/fpga/FPGA_DESIGN.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/TESTING.md
+M	docs/traceability/MODULE_MATRIX.md
+M	hdl/common/README-tests.md
+M	hdl/common/csr/README-tests.md
+M	hdl/common/eth_event_counter/README-tests.md
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/ieee1722/aaf/README-tests.md
+M	hdl/ieee1722/avtp/README-tests.md
+M	hdl/ieee1722/crf/README-tests.md
+M	hdl/ieee1722/maap/README-tests.md
+M	hdl/ieee17221/adp/README-tests.md
+M	hdl/ieee8021as/gptp_plane/README-tests.md
+M	hdl/ieee8021as/ptp_timestamp/README-tests.md
+M	hdl/ieee8021q/filtering/README-tests.md
+M	hdl/milan/README-tests.md
+M	hdl/milan/milan_datapath.sv
+M	scripts/measure_test_evidence.py
+A	tb/verilator/capture_coherence/.gitignore
+A	tb/verilator/capture_coherence/Makefile
+A	tb/verilator/capture_coherence/coherence_bench.hpp
+A	tb/verilator/capture_coherence/coherence_wrap.sv
+A	tb/verilator/capture_coherence/mutants.py
+A	tb/verilator/capture_coherence/sim_dp.cpp
+A	tb/verilator/capture_coherence/sim_main.cpp
+M	tb/verilator/chmap_capture/chmap_wrap.sv
+M	tb/verilator/chmap_capture/sim_main.cpp
+## gitlinks base
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## gitlinks head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## render/sw/processor paths touched (expect none)
+none
+## port-list lines changed in the two RTL files (input/output declarations)
+none
+## parameter lines changed
++  parameter int unsigned TDM_FRAME_PAIRS_P = (N_TDM_P < 2) ? 1 : N_TDM_P / 2,

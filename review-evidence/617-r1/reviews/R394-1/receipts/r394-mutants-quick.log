@@ -1,0 +1,53 @@
+[KILLED] RM1 snapshot one cycle late (first STEP cycle, slot 0 reads the old walk bank)
+    == capture_coherence: checks: 440   failures: 52 ==
+    [FAIL] [INT-slow] [A] AAF columns mixing two TDM frames got=3199 exp=0
+    [FAIL] [INT-slow] [W] walks reading two TDM frames got=3195 exp=0
+    [FAIL] [INT-fast] [A] AAF columns mixing two TDM frames got=3202 exp=0
+    [FAIL] [INT-fast] [W] walks reading two TDM frames got=3198 exp=0
+    [FAIL] [CRF-true-00] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-00] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-01] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-01] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-02] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-02] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-03] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-03] [W] walks reading two TDM frames got=1998 exp=0
+[KILLED] RM2 closing pair published from the stale stage (pair 3 one frame behind)
+    == capture_coherence: checks: 440   failures: 52 ==
+    [FAIL] [INT-slow] [A] AAF columns mixing two TDM frames got=3202 exp=0
+    [FAIL] [INT-slow] [W] walks reading two TDM frames got=3198 exp=0
+    [FAIL] [INT-fast] [A] AAF columns mixing two TDM frames got=3202 exp=0
+    [FAIL] [INT-fast] [W] walks reading two TDM frames got=3198 exp=0
+    [FAIL] [CRF-true-00] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-00] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-01] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-01] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-02] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-02] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-03] [A] AAF columns mixing two TDM frames got=2002 exp=0
+    [FAIL] [CRF-true-03] [W] walks reading two TDM frames got=1998 exp=0
+[KILLED] RM3 walk bank also takes a whole new frame when one closes mid-walk
+    == capture_coherence: checks: 440   failures: 12 ==
+    [FAIL] [INT-slow] [A] AAF columns mixing two TDM frames got=292 exp=0
+    [FAIL] [INT-slow] [W] walks reading two TDM frames got=287 exp=0
+    [FAIL] [INT-fast] [A] AAF columns mixing two TDM frames got=230 exp=0
+    [FAIL] [INT-fast] [W] walks reading two TDM frames got=225 exp=0
+    [FAIL] [CRF-true-00] [A] AAF columns mixing two TDM frames got=2003 exp=0
+    [FAIL] [CRF-true-00] [W] walks reading two TDM frames got=1998 exp=0
+    [FAIL] [CRF-true-01] [A] AAF columns mixing two TDM frames got=595 exp=0
+    [FAIL] [CRF-true-01] [W] walks reading two TDM frames got=590 exp=0
+    [FAIL] [CRF-50-0] [A] AAF columns mixing two TDM frames got=845 exp=0
+    [FAIL] [CRF-50-0] [W] walks reading two TDM frames got=840 exp=0
+    [FAIL] [CRF+50-0] [A] AAF columns mixing two TDM frames got=821 exp=0
+    [FAIL] [CRF+50-0] [W] walks reading two TDM frames got=816 exp=0
+[KILLED] RM4 close coinciding with the snapshot cycle hands the walk the half-built stage
+    == capture_coherence: checks: 440   failures: 6 ==
+    [FAIL] [INT-slow] [A] AAF columns mixing two TDM frames got=3 exp=0
+    [FAIL] [INT-slow] [W] walks reading two TDM frames got=3 exp=0
+    [FAIL] [INT-fast] [A] AAF columns mixing two TDM frames got=4 exp=0
+    [FAIL] [INT-fast] [W] walks reading two TDM frames got=4 exp=0
+    [FAIL] [CRF+50-0] [A] AAF columns mixing two TDM frames got=25 exp=0
+    [FAIL] [CRF+50-0] [W] walks reading two TDM frames got=25 exp=0
+
+4 mutants, 4 killed, 0 not killed (quick)
+rc=0

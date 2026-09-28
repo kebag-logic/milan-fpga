@@ -1,0 +1,6 @@
+base probe tree = head tree with these tracked files replaced:
+  hdl/ieee1722/aaf/KL_chan_map_capture.sv  head=53589f50982b06fad28f1a6605d8241e12a6f435 probe=a46611c423e902c0f8ddade0dae0654236e8a85b
+  hdl/milan/milan_datapath.sv  head=ac4ff237a060fe9fd745219a498914dbca2e3ecc probe=193d74be5a26b497b801664ed599f15e5d1d3b97
+  tb/verilator/capture_coherence/coherence_wrap.sv  head=98473eb5ee963abcf157e5ea6b49e95aa1d647a9 probe=e84f6f01ff37f0b263c4722722c6d5c53c687537
+ce550952 blobs: a46611c423e902c0f8ddade0dae0654236e8a85b KL_chan_map_capture.sv, 193d74be5a26b497b801664ed599f15e5d1d3b97 milan_datapath.sv
+wrapper edit: the single line '.TDM_FRAME_PAIRS_P (TDM_SLOTS_P / 2),' deleted (the PR body's reproduction recipe)
