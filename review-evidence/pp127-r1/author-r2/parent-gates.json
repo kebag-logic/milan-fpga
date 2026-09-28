@@ -1,0 +1,58 @@
+{
+  "head": "00b5c6c96af5ebcaa92ddb3bdaeb4aa5302ef27c",
+  "parent_head": "931f396ec9f13271e9e67b755e18833d0024f234",
+  "source_snapshot": "/tmp/pp127-a398/parent/protocol-processor",
+  "scripts": [
+    {
+      "path": "scripts/check_cpp_idiom.py",
+      "bytes": 49510,
+      "sha256": "a059f01c0f8f69edb7de540004ce27b168c4e8d53a5c79c0238b0d5bb9f5f228"
+    },
+    {
+      "path": "scripts/check_py_idiom.py",
+      "bytes": 34832,
+      "sha256": "d7831ca27a456abf2e5356bddb37b15464aa19c735034d35531360ac8393fb12"
+    },
+    {
+      "path": "scripts/measure_test_evidence.py",
+      "bytes": 48654,
+      "sha256": "bfa1e44243345ac541da6cc7026ab662042213e9a3cf21eea746db072aa406ee"
+    }
+  ],
+  "results": [
+    {
+      "gate": "rule11",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "cwd": "/tmp/pp127-a398/parent",
+      "rc": 0,
+      "bytes": 315,
+      "sha256": "774de76988babeb8af470a1c823c0f56cbb2d0219078ab142bea30395499e299"
+    },
+    {
+      "gate": "rule12",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "cwd": "/tmp/pp127-a398/parent",
+      "rc": 0,
+      "bytes": 461,
+      "sha256": "179d8380f68126699a611cc4692444b51e9fad051e16bfa1325efed9d9dff72f"
+    },
+    {
+      "gate": "evidence",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "cwd": "/tmp/pp127-a398/parent",
+      "rc": 0,
+      "bytes": 10995,
+      "sha256": "065d1fb707de32222267f2f0369fcdb370764bb2f595dc8979efda8fbcbe5388"
+    }
+  ]
+}

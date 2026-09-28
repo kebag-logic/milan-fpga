@@ -1,0 +1,13 @@
+FIRST_BIND prompt peer: declare=1000 first_TA=1203 Ready_done=1204 ACTIVE=1; no LeaveAll required
+FIRST_BIND prescribed peer delay: 9 TA frames before +6080 ms LeaveAll; inactive until injected +6888 ms Ready, then ACTIVE=1
+LONG_HOLD service boundary: 20000 ms withdrawn; re-declare to Ready/ACTIVE 117 ms
+NORMAL Leave: IN->MT, ACTIVE=0 by decoded PDU; restart after 2000 ms hold, start=501
+OWN_LA race: timer/LV=14200 ms Lv_decoded=14200 ms wire_LA=14206 ms; ACTIVE stayed 1 throughout 2000 ms
+OWN_LA quick re-declare: IN again, no ACTIVE falling edge, old LeaveTime canceled
+OWN_LA race: timer/LV=14200 ms Lv_decoded=14200 ms wire_LA=14206 ms; ACTIVE stayed 1 throughout 2000 ms
+OWN_LA no renewal: ACTIVE finally falls at 19200 ms (5000 ms after LV entry)
+RECEIVED_LA control: LV + rLv keeps ACTIVE; JoinMt restores IN before expiry
+TYPE_SCOPE control: Talker Advertise LeaveAll leaves Listener IN
+PHASE offset=-50 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=baseline
+PHASE offset=-1 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=baseline
+FAIL: timer-before-transmit window mismatch

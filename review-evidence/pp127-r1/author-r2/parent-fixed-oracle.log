@@ -1,0 +1,14 @@
+FIRST_BIND prompt peer: declare=1000 first_TA=1203 Ready_done=1204 ACTIVE=1; no LeaveAll required
+FIRST_BIND prescribed peer delay: 9 TA frames before +6080 ms LeaveAll; inactive until injected +6888 ms Ready, then ACTIVE=1
+LONG_HOLD service boundary: 20000 ms withdrawn; re-declare to Ready/ACTIVE 117 ms
+NORMAL Leave: IN->MT, ACTIVE=0 by decoded PDU; restart after 2000 ms hold, start=501
+RECEIVED_LA control: LV + rLv keeps ACTIVE; JoinMt restores IN before expiry
+TYPE_SCOPE control: Talker Advertise LeaveAll leaves Listener IN
+PHASE offset=-50 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=defer registrar to join
+PHASE offset=-1 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=defer registrar to join
+PHASE offset=+1 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=defer registrar to join
+PHASE offset=+40 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=defer registrar to join
+PHASE offset=+80 ms from own deadline=14096: reg_before_Lv=1 ACTIVE_after=0 variant=defer registrar to join
+PHASE offset=+120 ms from own deadline=14096: reg_before_Lv=2 ACTIVE_after=1 variant=defer registrar to join
+PHASE offset=+199 ms from own deadline=14096: reg_before_Lv=2 ACTIVE_after=1 variant=defer registrar to join
+PASS: focused reproductions and controls; ACTIVE is SRP licence, no AVTP framer instantiated

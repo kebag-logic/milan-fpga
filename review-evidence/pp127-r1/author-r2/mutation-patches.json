@@ -1,0 +1,506 @@
+[
+  {
+    "name": "bad-listener-length",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K12:",
+    "patch": "tb/srp_top/mutations/bad-listener-length.patch",
+    "bytes": 611,
+    "sha256": "c43de250ceb056928108b5d363d3dbf0ba06d26bf5b198bdcb2362fa26b05ed9"
+  },
+  {
+    "name": "peer-restarts-timer",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M4:",
+    "patch": "tb/srp_top/mutations/peer-restarts-timer.patch",
+    "bytes": 382,
+    "sha256": "a35c4f7def8d6e2a647d305ccb7c2761ddd72dc71037e832a626f92bff9a646a"
+  },
+  {
+    "name": "repeated-action",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N4:",
+    "patch": "tb/srp_top/mutations/repeated-action.patch",
+    "bytes": 666,
+    "sha256": "efc9adca68fce80d5406840c5cd3cfb380a95b41fc3777a05aa9d5b32ce805ed"
+  },
+  {
+    "name": "expiry-event",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K2:",
+    "patch": "tb/srp_top/mutations/expiry-event.patch",
+    "bytes": 684,
+    "sha256": "304a7980c6ca77bff6b871315cb3b811685c522fb3aace6d3f1e367ce15a181f"
+  },
+  {
+    "name": "before-slot",
+    "suite": "srp_top",
+    "group": "edge",
+    "assertion": "L1:",
+    "patch": "tb/srp_top/mutations/before-slot.patch",
+    "bytes": 629,
+    "sha256": "0c1bb09b8efcb7fcad5e989c8e792518d4aa8776506ce77f18f85b42595edb28"
+  },
+  {
+    "name": "talker-no-own",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K2:",
+    "patch": "tb/srp_top/mutations/talker-no-own.patch",
+    "bytes": 481,
+    "sha256": "8c2f2caae0da4e654655d7b6af24373d6c57c2a9c4125d829c36a5bb826d7969"
+  },
+  {
+    "name": "listener-no-own",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K11:",
+    "patch": "tb/srp_top/mutations/listener-no-own.patch",
+    "bytes": 485,
+    "sha256": "e9155a555ec7ed431702b154fe0918deb0dacd68303bcb5eb20b4a092d283a84"
+  },
+  {
+    "name": "talker-lost-txla",
+    "suite": "srp_stream_fsms",
+    "group": "",
+    "assertion": "T QA txla=2:",
+    "patch": "tb/srp_top/mutations/talker-lost-txla.patch",
+    "bytes": 401,
+    "sha256": "ef066053988b93fd546112a7ab77c0adb8c52b53a4fcfda02666df6072e72190"
+  },
+  {
+    "name": "listener-lost-txla",
+    "suite": "srp_stream_fsms",
+    "group": "",
+    "assertion": "L QA txla=2:",
+    "patch": "tb/srp_top/mutations/listener-lost-txla.patch",
+    "bytes": 410,
+    "sha256": "8d917844feedf5d437ed623bdfbf9a9d1e4c7d39bb57427c9232914eddd8efb5"
+  },
+  {
+    "name": "talker-strict-lv",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K2:",
+    "patch": "tb/srp_top/mutations/talker-strict-lv.patch",
+    "bytes": 505,
+    "sha256": "2416414d1f25173c82c4f6bad550c23462bedbf6f2e6a07377d819c203576b84"
+  },
+  {
+    "name": "listener-strict-lv",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K11:",
+    "patch": "tb/srp_top/mutations/listener-strict-lv.patch",
+    "bytes": 481,
+    "sha256": "8fe3f892dbcbde89d397f8b3a1a314ed527bc2d0b05fdf6d6524d1f90c3a7a65"
+  },
+  {
+    "name": "listener-sid-ignored",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K5:",
+    "patch": "tb/srp_top/mutations/listener-sid-ignored.patch",
+    "bytes": 386,
+    "sha256": "8c2cf9840983287d0a9e1d6618f73ab8e4e11af851feaa46c127a93e47899f28"
+  },
+  {
+    "name": "talker-no-renewal",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K7:",
+    "patch": "tb/srp_top/mutations/talker-no-renewal.patch",
+    "bytes": 580,
+    "sha256": "f2d54662d7f876acbba44d75e66aa3e6cfd26446412f97050228258960b3bc09"
+  },
+  {
+    "name": "listener-no-renewal",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K7:",
+    "patch": "tb/srp_top/mutations/listener-no-renewal.patch",
+    "bytes": 600,
+    "sha256": "684dc907ed56eaf75eec831ad023670c421e08d02c61c714c415b96a2e9b73ba"
+  },
+  {
+    "name": "talker-no-expiry",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K8:",
+    "patch": "tb/srp_top/mutations/talker-no-expiry.patch",
+    "bytes": 518,
+    "sha256": "8ad51cdd87d8f7137e82367addc8d124c17b66251f31ed4d1fd9c403c782151e"
+  },
+  {
+    "name": "listener-no-expiry",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K8:",
+    "patch": "tb/srp_top/mutations/listener-no-expiry.patch",
+    "bytes": 453,
+    "sha256": "a82417eeb357d2a14cbe57b0df10729800af84f7127033d65c8c86e94f454fca"
+  },
+  {
+    "name": "pending-peer-ignored",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M1:",
+    "patch": "tb/srp_top/mutations/pending-peer-ignored.patch",
+    "bytes": 383,
+    "sha256": "38dcf2c70c1cfc9b32a7c6a8e6f2dc7f444a1c8a6a769461d846ae0d7664df55"
+  },
+  {
+    "name": "encoder-peer-ignored",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M6:",
+    "patch": "tb/srp_top/mutations/encoder-peer-ignored.patch",
+    "bytes": 1628,
+    "sha256": "3cc6d07db6e11af8f190d93d0ea76357690844f3a6c6076612a0697a5e3e896b"
+  },
+  {
+    "name": "mvrp-supersedes-msrp",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M1:",
+    "patch": "tb/srp_top/mutations/mvrp-supersedes-msrp.patch",
+    "bytes": 412,
+    "sha256": "311d5505186309cb018f83975c84c8b3f5bb595e2c36688fbd20af64ef6b5a5c"
+  },
+  {
+    "name": "reset-retains-intent",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K10:",
+    "patch": "tb/srp_top/mutations/reset-retains-intent.patch",
+    "bytes": 377,
+    "sha256": "f57062ae4edbdce6143335b6e53ebe4b3a7ce26bbe84eb28cff70361913bb651"
+  },
+  {
+    "name": "full-drain-missing",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N6:",
+    "patch": "tb/srp_top/mutations/full-drain-missing.patch",
+    "bytes": 418,
+    "sha256": "78e432d9c0c278f9bed64f3ec0d9521362046c07cff9e51a2a1969b74deaa296"
+  },
+  {
+    "name": "already-full-missed",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N10:",
+    "patch": "tb/srp_top/mutations/already-full-missed.patch",
+    "bytes": 359,
+    "sha256": "fa7f900d9704fe456f4ac40db9537b1df8ad40414dc8637746824dc6da990d81"
+  },
+  {
+    "name": "round-completion-lost",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N13:",
+    "patch": "tb/srp_top/mutations/round-completion-lost.patch",
+    "bytes": 402,
+    "sha256": "9a1d1e705331a57e8414f57f081e23d49948f765bcb8a4f360a44497742bf052"
+  },
+  {
+    "name": "own-flags-missing",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N5:",
+    "patch": "tb/srp_top/mutations/own-flags-missing.patch",
+    "bytes": 632,
+    "sha256": "ed0debe2a32cafee99fca6bc136e8574e7f90b136e3820aeb109cf50bf1e5d13"
+  },
+  {
+    "name": "expiry-congestion",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N1:",
+    "patch": "tb/srp_top/mutations/expiry-congestion.patch",
+    "bytes": 684,
+    "sha256": "304a7980c6ca77bff6b871315cb3b811685c522fb3aace6d3f1e367ce15a181f"
+  },
+  {
+    "name": "missing-registrar-edge",
+    "suite": "srp_top",
+    "group": "edge",
+    "assertion": "L3:",
+    "patch": "tb/srp_top/mutations/missing-registrar-edge.patch",
+    "bytes": 481,
+    "sha256": "8c2f2caae0da4e654655d7b6af24373d6c57c2a9c4125d829c36a5bb826d7969"
+  },
+  {
+    "name": "empty-canceled-pdu",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M11:",
+    "patch": "tb/srp_top/mutations/empty-canceled-pdu.patch",
+    "bytes": 408,
+    "sha256": "3830966413924209ef922baa6332d28b8da15401d4eab2ead8014073ec001e26"
+  },
+  {
+    "name": "reserved-slot-not-reused",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M12:",
+    "patch": "tb/srp_top/mutations/reserved-slot-not-reused.patch",
+    "bytes": 616,
+    "sha256": "8a9ca1792ebe67c998a38660ae98cdeb575cbbe20835fdde67bb2762bec95486"
+  },
+  {
+    "name": "renewal-congestion",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N7:",
+    "patch": "tb/srp_top/mutations/renewal-congestion.patch",
+    "bytes": 580,
+    "sha256": "30b577358f9cb4d054e3edccfe714d14ef103f0f9b7233b1c85259be5ea2b001"
+  },
+  {
+    "name": "leaveall-expiry-lost",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M9:",
+    "patch": "tb/srp_top/mutations/leaveall-expiry-lost.patch",
+    "bytes": 531,
+    "sha256": "67ceffc7234608166d3786e8a367f61d494b36e0850fd041df86ccb3cbadf9ea"
+  },
+  {
+    "name": "expiry-outranks-peer",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M10:",
+    "patch": "tb/srp_top/mutations/expiry-outranks-peer.patch",
+    "bytes": 446,
+    "sha256": "3d19440d615d2778bbbf95f1bb679013b11e63549061d4f853e08a319bd3ff94"
+  },
+  {
+    "name": "repeated-expiry-queued",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N12:",
+    "patch": "tb/srp_top/mutations/repeated-expiry-queued.patch",
+    "bytes": 726,
+    "sha256": "dc12a4cb24248879f936f8d21514fcb6ae285250720b8a8e2232274169e83a27"
+  },
+  {
+    "name": "receive-priority-lost",
+    "suite": "srp_top",
+    "group": "edge",
+    "assertion": "L2:",
+    "patch": "tb/srp_top/mutations/receive-priority-lost.patch",
+    "bytes": 720,
+    "sha256": "335d5e1686e9825a8435a19bb410a8ee1ee20ba551c39ba3bd981b28c4baa6bc"
+  },
+  {
+    "name": "action-omitted",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N3:",
+    "patch": "tb/srp_top/mutations/action-omitted.patch",
+    "bytes": 620,
+    "sha256": "15c0dbcf3dfd15624380032360aa85df0e348380a818e9f0d33ea4b1e94e1f92"
+  },
+  {
+    "name": "preparation-before-slot",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M5:",
+    "patch": "tb/srp_top/mutations/preparation-before-slot.patch",
+    "bytes": 651,
+    "sha256": "916cf5e65cae6b47890cd45ace25a9847c98325efa3180f1874df929f26ae087"
+  },
+  {
+    "name": "table-one-short",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N9:",
+    "patch": "tb/srp_top/mutations/table-one-short.patch",
+    "bytes": 542,
+    "sha256": "2f47a73f3867318a0afdf1f82a9d075a70825462afbce1236ff26f5049062573"
+  },
+  {
+    "name": "my-expiry-pulse",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K2:",
+    "patch": "tb/srp_top/mutations/my-expiry-pulse.patch",
+    "bytes": 1970,
+    "sha256": "21448c8a55ea90109ca5ac0dcc038ad79cdb526806bfffbaea943eb01e181b97"
+  },
+  {
+    "name": "my-join-edge-peer",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O3:",
+    "patch": "tb/srp_top/mutations/my-join-edge-peer.patch",
+    "bytes": 450,
+    "sha256": "f86901f777f55da35aea817e4391078568168293345217e67618984afee4c5e5"
+  },
+  {
+    "name": "my-cancel-eats-new-intent",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O2:",
+    "patch": "tb/srp_top/mutations/my-cancel-eats-new-intent.patch",
+    "bytes": 424,
+    "sha256": "e62783acdc8e5d3fb39ba0dc093632e3632c25bdd6595501fe4628fd83bb9d7d"
+  },
+  {
+    "name": "my-edge-cancel-lost",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M6:",
+    "patch": "tb/srp_top/mutations/my-edge-cancel-lost.patch",
+    "bytes": 596,
+    "sha256": "513633c96a55d655dfadb4ca12e9f8853d48d268ab97bf892fe6279f7e08c982"
+  },
+  {
+    "name": "my-la-outranks-leave",
+    "suite": "srp_top",
+    "group": "edge",
+    "assertion": "L2:",
+    "patch": "tb/srp_top/mutations/my-la-outranks-leave.patch",
+    "bytes": 550,
+    "sha256": "016c051bb8943465107ab6cf5e17739cad27f0d038b9c71e4eb5743de934722a"
+  },
+  {
+    "name": "my-drop-join-during-wait",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O6:",
+    "patch": "tb/srp_top/mutations/my-drop-join-during-wait.patch",
+    "bytes": 437,
+    "sha256": "0454c49d02015453d9a452de1698e327c0993374d6d43b5b18a47a7de96e6fc6"
+  },
+  {
+    "name": "my-no-walk-at-sLA",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N6:",
+    "patch": "tb/srp_top/mutations/my-no-walk-at-sLA.patch",
+    "bytes": 401,
+    "sha256": "b0cc9a187c50db53daba22e6aca40188e9542f3d18162d7a70fcdf91a07276a5"
+  },
+  {
+    "name": "my-reuse-flags-ignore-cancel",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O4:",
+    "patch": "tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch",
+    "bytes": 482,
+    "sha256": "6c90a302603954e22dc3a8142f192cf02d9c86992feb2085a78778d16181a4f4"
+  },
+  {
+    "name": "r-expiry-pulse-restored",
+    "suite": "srp_top",
+    "group": "phases",
+    "assertion": "K2:",
+    "patch": "tb/srp_top/mutations/r-expiry-pulse-restored.patch",
+    "bytes": 1389,
+    "sha256": "c8938610dbccb39154c0dfa6530bb7e11db3ea9066b778e5560a4f43f0a14158"
+  },
+  {
+    "name": "r-cancel-latch-dropped",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O1:",
+    "patch": "tb/srp_top/mutations/r-cancel-latch-dropped.patch",
+    "bytes": 398,
+    "sha256": "8706da00d36e7c228d9092fc7f9e7d1464745b447e5708851ec069ec48262673"
+  },
+  {
+    "name": "r-cancel-consumes-new-intent",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O2:",
+    "patch": "tb/srp_top/mutations/r-cancel-consumes-new-intent.patch",
+    "bytes": 424,
+    "sha256": "e62783acdc8e5d3fb39ba0dc093632e3632c25bdd6595501fe4628fd83bb9d7d"
+  },
+  {
+    "name": "r-join-start-guard-dropped",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O3:",
+    "patch": "tb/srp_top/mutations/r-join-start-guard-dropped.patch",
+    "bytes": 450,
+    "sha256": "f86901f777f55da35aea817e4391078568168293345217e67618984afee4c5e5"
+  },
+  {
+    "name": "r-sink-receive-priority-lost",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O5:",
+    "patch": "tb/srp_top/mutations/r-sink-receive-priority-lost.patch",
+    "bytes": 682,
+    "sha256": "db940e19ddb4c25b54b91a7a3d86899f0b8176434c4e5edee082a106533892ef"
+  },
+  {
+    "name": "r-join-coalesce-dropped",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O6:",
+    "patch": "tb/srp_top/mutations/r-join-coalesce-dropped.patch",
+    "bytes": 412,
+    "sha256": "ad03b230417963d5535f705eb4b18ec9804a9f7aa119dbee353e94c456411ec7"
+  },
+  {
+    "name": "r-la-only-emission-lost",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M12:",
+    "patch": "tb/srp_top/mutations/r-la-only-emission-lost.patch",
+    "bytes": 374,
+    "sha256": "be593498c652889f2b8da8e8b5c5cb125b0d44d05865c0605eb92e4efffea6a7"
+  },
+  {
+    "name": "r-collect-blocks-pushes",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N6:",
+    "patch": "tb/srp_top/mutations/r-collect-blocks-pushes.patch",
+    "bytes": 511,
+    "sha256": "c84271b7d20a29116bd0ac21558170ca5083df7b1b4abfce0e021a5a15c59b77"
+  },
+  {
+    "name": "r-accept-edge-drain-lost",
+    "suite": "srp_top",
+    "group": "congestion",
+    "assertion": "N10:",
+    "patch": "tb/srp_top/mutations/r-accept-edge-drain-lost.patch",
+    "bytes": 395,
+    "sha256": "8925e44cad3110b514c60d363509841806d2d10d6f4fcf84dea2c80d4a6157ab"
+  },
+  {
+    "name": "r-reuse-without-action",
+    "suite": "srp_top",
+    "group": "peer",
+    "assertion": "M12:",
+    "patch": "tb/srp_top/mutations/r-reuse-without-action.patch",
+    "bytes": 587,
+    "sha256": "abcf7d886450ce7e5fc49e8881e6a1808a45c01b5f3edf26db418c55b4b22890"
+  },
+  {
+    "name": "r-mvrp-start-during-prepare",
+    "suite": "srp_encoder",
+    "group": "",
+    "assertion": "O8:",
+    "patch": "tb/srp_top/mutations/r-mvrp-start-during-prepare.patch",
+    "bytes": 594,
+    "sha256": "93636c34b174a7509a5e8724bfb4da9d4c534087073b1c803a5b150a1c6d3fcc"
+  },
+  {
+    "name": "canceled-content-never-drains",
+    "suite": "srp_top",
+    "group": "guards",
+    "assertion": "O7:",
+    "patch": "tb/srp_top/mutations/canceled-content-never-drains.patch",
+    "bytes": 420,
+    "sha256": "e6b447e4e0b2289aaf7fcd30d94592895be0c995d91467e12b2d6824e2f157f4"
+  }
+]
