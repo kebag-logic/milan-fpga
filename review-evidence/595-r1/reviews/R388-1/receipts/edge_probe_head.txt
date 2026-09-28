@@ -1,0 +1,39 @@
+REFUSE platform.mac_address 'yes' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address 'on' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address 'off' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address '2026-09-28' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address '!!binary AgAAAAAC' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address '.inf' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address '1:30.5' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address '~' -> platform.mac_address: quote the hexadecimal value as a YAML string
+REFUSE platform.mac_address '0b10' -> platform.mac_address: quote the hexadecimal value as a YAML string
+ACCEPT platform.mac_address '02:00:00:00:00:02' -> 02:00:00:00:00:02
+ACCEPT platform.mac_address "'02:00:00:00:00:02'" -> 02:00:00:00:00:02
+ACCEPT platform.mac_address '"0x02:00:00:00:00:02"' -> 02:00:00:00:00:02
+ACCEPT platform.mac_address '"-2"' -> 00:00:00:00:00:02
+ACCEPT platform.mac_address '"0:2"' -> 00:00:00:00:00:02
+ACCEPT platform.mac_address '" 020000000002 "' -> 02:00:00:00:00:02
+ACCEPT platform.mac_address '"2"' -> 00:00:00:00:00:02
+REFUSE platform.mac_address '0205022000806000' -> platform.mac_address: '0205022000806000' out of MAC-48 range (or all-zero)
+REFUSE entity.vendor_oui 'yes' -> entity.vendor_oui: quote the hexadecimal value as a YAML string
+REFUSE entity.vendor_oui '2026-09-28' -> entity.vendor_oui: quote the hexadecimal value as a YAML string
+ACCEPT entity.vendor_oui '001BC5' -> 0x001BC5C40236BA0E
+ACCEPT entity.vendor_oui '"001BC5"' -> 0x001BC5C40236BA0E
+ACCEPT entity.vendor_oui '"0x00_1B_C5"' -> 0x001BC5C40236BA0E
+ACCEPT entity.vendor_oui '"+1BC5"' -> 0x001BC5C40236BA0E
+ACCEPT entity.vendor_oui '" 1BC5"' -> 0x001BC5C40236BA0E
+REFUSE entity.vendor_oui '[]' -> entity.vendor_oui: quote the hexadecimal value as a YAML string
+REFUSE entity.entity_capabilities 'yes' -> entity.entity_capabilities: quote the hexadecimal value as a YAML string
+ACCEPT entity.entity_capabilities '0000C588' -> accepted
+ACCEPT entity.entity_capabilities '"0000C588"' -> accepted
+ACCEPT entity.entity_capabilities '"0x0000_C588"' -> accepted
+REFUSE entity.entity_capabilities '0x0000C588' -> entity.entity_capabilities: quote the hexadecimal value as a YAML string
+REFUSE entity.entity_capabilities '50568' -> entity.entity_capabilities: quote the hexadecimal value as a YAML string
+REFUSE streams.listeners.0.formats '[null]' -> streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+REFUSE streams.listeners.0.formats '[["0x0205022000806000"]]' -> streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+ACCEPT streams.listeners.0.formats '[0205022000806000]' -> ['0x0205022000806000', '0x0215022002006000']
+REFUSE streams.listeners.0.formats '[true]' -> streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+REFUSE streams.listeners.0.formats '!!set {a: null}' -> streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+REFUSE streams.listeners.0.formats 'yes' -> streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+REFUSE streams.listeners.0.formats '2026-09-28' -> streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+ACCEPT streams.listeners.0.formats '["0205022000806000", "0x0205022000806000"]' -> ['0x0205022000806000', '0x0205022000806000']

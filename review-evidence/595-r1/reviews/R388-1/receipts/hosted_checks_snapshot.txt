@@ -1,0 +1,27 @@
+2026-09-28T10:24:59Z
+bdd-conformance	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739329/job/108883589670
+changes	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739329/job/108883589439
+docs-check	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739547/job/108883589980
+docs-check-no-git	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739547/job/108883590522
+elaborate	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739330/job/108883590485
+full-ci-gate	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883589935
+Physical gPTP (nightly and manual)	completed	skipped	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883732940
+verilator-lint	completed	failure	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739329/job/108883709381
+Verilator shard 0/5	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731115
+Verilator shard 1/5	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731581
+Verilator shard 2/5	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731205
+Verilator shard 3/5	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731099
+Verilator shard 4/5	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731273
+wire-accountability	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739547/job/108883590409
+yosys-elaboration	in_progress	null	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739329/job/108883709349
+Yosys shard 0/4	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731100
+Yosys shard 1/4	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731095
+Yosys shard 2/4	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731261
+Yosys shard 3/4	completed	success	https://github.com/kebag-logic/milan-fpga/actions/runs/36408739347/job/108883731097
+
+verilator-lint failing step excerpt:
+2026-09-28T10:17:20.9221143Z ##[group]Run python3 scripts/pp_srcs.py --check --selftest
+2026-09-28T10:17:20.9221587Z python3 scripts/pp_srcs.py --check --selftest
+2026-09-28T10:17:20.9258691Z shell: /usr/bin/bash -e {0}
+2026-09-28T10:17:21.0510904Z   - sw/builder/test_declarations.py: names submodule source(s) literally that are not permitted prose: protocol-processor/hdl/adp/pp_adp_pkg.sv. A build input must derive the list with this script. If this really is prose, add the exact literal to PROSE_OK with the reason.
+2026-09-28T10:17:21.0561067Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,9 @@
+## exact-head clone: python3 scripts/pp_srcs.py --check --selftest
+  - sw/builder/test_declarations.py: names submodule source(s) literally that are not permitted prose: protocol-processor/hdl/adp/pp_adp_pkg.sv. A build input must derive the list with this script. If this really is prose, add the exact literal to PROSE_OK with the reason.
+
+A build input names a stale set of submodule sources. This is what a
+submodule bump breaks and what nothing used to catch: the copies are
+correct against the pin they were written for and go stale the moment it
+moves. Derive the list with this script rather than editing the copy.
+rc=1
+## base comparison: see pp_srcs_base_vs_head.txt (check() run over git-show blobs of each commit)

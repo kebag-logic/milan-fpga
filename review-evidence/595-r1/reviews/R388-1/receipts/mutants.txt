@@ -1,0 +1,59 @@
+CONTROL (unmutated head copy): rc=0
+KILLED rc=1 M1 mac int(str(v),16) reread (pre-PR)
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted 0x000000F42402: expected platform.mac_address: quote the hexadecimal value as a YAML string
+KILLED rc=1 M2 mac bool-only refusal then str(v) reread
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted 0x000000F42402: expected platform.mac_address: quote the hexadecimal value as a YAML string
+KILLED rc=1 M3 mac accepts ints at face value
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted 0x000000F42402: expected platform.mac_address: quote the hexadecimal value as a YAML string
+KILLED rc=1 M4 mac drops dash separator
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 206, in test_station_mac_string_contract
+    raise ConfigError(f"{ctx}: '{v}' is not a MAC-48")
+    endstation_builder.ConfigError: platform.mac_address: '02-00-00-00-00-02' is not a MAC-48
+KILLED rc=1 M5 uint integer acceptance (pre-PR)
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted 0x123456: expected entity.vendor_oui: quote the hexadecimal value as a YAML string
+KILLED rc=1 M6 uint int(str(v),16) reread
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 264, in test_declared_hex_string_contract
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 184, in _yaml_refused
+    AssertionError: ('0x123456', 'entity.vendor_oui: quote the hexadecimal value as a YAML string', 'entity.vendor_oui: 1193046 is outside 24 bits')
+KILLED rc=1 M7 formats scalar accepted (pre-PR)
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 290, in test_formats_list_contract
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 184, in _yaml_refused
+    AssertionError: ('"0205022000806000"', 'streams.talkers[0].formats: must be a list of quoted hexadecimal strings', 'streams.talkers[0].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)')
+KILLED rc=1 M8 formats falsy scalars default
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted 0: expected streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+KILLED rc=1 M9 formats str wrapped into a list
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted "0205022000806000": expected streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+KILLED rc=1 M10 platform null mac -> required (pre-PR presence test)
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 214, in test_station_mac_string_contract
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 184, in _yaml_refused
+    AssertionError: ('null', 'platform.mac_address: quote the hexadecimal value as a YAML string', 'platform.mac_address is required')
+KILLED rc=1 M11 vendor_oui null -> default (pre-PR presence test)
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted null: expected entity.vendor_oui: quote the hexadecimal value as a YAML string
+KILLED rc=1 M12 entity_capabilities null -> skipped (pre-PR presence test)
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 186, in _yaml_refused
+    raise AssertionError(f"accepted {spelling}: expected {message}")
+    AssertionError: accepted null: expected entity.entity_capabilities: quote the hexadecimal value as a YAML string
+KILLED rc=1 M13 capabilities call-site str() coercion
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 264, in test_declared_hex_string_contract
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 184, in _yaml_refused
+    AssertionError: ('0x0000C588', 'entity.entity_capabilities: quote the hexadecimal value as a YAML string', "entity.entity_capabilities 0x00050568 diverges from ADP_ENTITY_CAPS_C = 0x0000C588 at protocol-processor/hdl/adp/pp_adp_pkg.sv:53: the ADP engine advertises that constant and the image's ENTIT
+KILLED rc=1 M14 vendor_oui call-site str() coercion
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 264, in test_declared_hex_string_contract
+    File "$REVIEWS/595-r388-1-packet/scratch/mut/sw/builder/test_declarations.py", line 184, in _yaml_refused
+    AssertionError: ('0x123456', 'entity.vendor_oui: quote the hexadecimal value as a YAML string', "entity.vendor_oui: '1193046' is outside 24 bits")
+RESTORED CONTROL: rc=0
+restored-identical
