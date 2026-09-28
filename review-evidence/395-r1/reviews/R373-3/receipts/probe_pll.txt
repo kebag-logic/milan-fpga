@@ -1,0 +1,8 @@
+control rc=0
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+planted-lines=1
+fault literal-pll rc=1
+AssertionError: Traceback (most recent call last):
+    assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+AssertionError: call(speedgrade=-2)
+final-status: 0 dirty; head: 3b5603e3d16a164c35329efeb633800fe4fe9f95

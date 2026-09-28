@@ -1,0 +1,26 @@
+R373-3 receipts: how each file was produced (exact head 3b5603e3d16a164c35329efeb633800fe4fe9f95).
+<clone> is the detached review clone at that head; <packet> is this packet. Every command ran in the foreground.
+No command ran against the review clone's tracked files except read-only gates; probes ran in a disposable
+clone under <packet>/scratch (never published).
+
+baremetal_check.txt        python3 -B scripts/check_baremetal_only.py --check      (in <clone>)
+baremetal_selftest.txt     python3 -B scripts/check_baremetal_only.py --selftest   (in <clone>)
+probe_baremetal.txt        ../probe_baremetal.sh <disposable clone at head>
+probe_pll.txt              ../probe_pll.sh <disposable clone at head, submodules at the gitlinks> <LiteX python>
+standalone_timing_grade.txt        python3 -B sw/builder/test_timing_grade.py <LiteX python>   (in <clone>)
+standalone_timing_grade_noarg.txt  python3 -B sw/builder/test_timing_grade.py                 (in <clone>)
+focused_builder_timing_grade.txt   (cd sw/builder) python3 -B -c "import test_builder as t; t.test_commercial_timing_grade()"
+doc_gates.txt              docs_check, check_doc_paths, check_feature_status, check_doc_style,
+                           check_solution_docs, check_py_idiom, git diff --check 8bc97021..HEAD,
+                           ci_scope --selftest (system python; gen_toc/em-dash there refuse without
+                           the pinned renderer, rc 2, and are rerun below)
+doc_gates_renderer.txt     gen_toc --check, check_em_dash --base 8bc97021 and --base 3a0cb4cf, docs_check,
+                           with a private venv holding tools/markdown/requirements.txt (--require-hashes)
+shipping_xdc_excerpt.txt   sizes, SHA-256 and lines 560-600 of the shipping build's alinx_ax7101.xdc (read-only)
+classify_crossings_results.txt / classify_crossings_vivado.log
+                           vivado -mode batch -nojournal -source ../classify_crossings.tcl
+                             -tclargs <scratch copy of alinx_ax7101_route.dcp> <out>   (8 threads, rc 0)
+hosted_check_runs.txt      GET commits/3b5603e3.../check-runs   snapshot 2026-09-28T00:22Z
+hosted_docs_check_steps.txt GET actions/jobs/108738208969        snapshot 2026-09-28T00:22Z
+integrity.txt              HEAD/tree/index/blob/gitlink verification of <clone> after all probes, and
+                           re-hash of the four shipping inputs

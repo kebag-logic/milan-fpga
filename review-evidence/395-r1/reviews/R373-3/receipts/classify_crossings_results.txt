@@ -1,0 +1,16 @@
+eth=eth_clocks0_rx sys=milansoc_crg_clkout0 milan=milansoc_crg_clkout1
+crg_clkout0 matches: 0
+STRUCT ars:PRE,milansoc_crg_clkout0,eth_clocks0_rx count=4
+  cells: FDPE_12 FDPE_13 FDPE_14 FDPE_15
+STRUCT ars:PRE,milansoc_crg_clkout1,eth_clocks0_rx count=8
+  cells: FDPE_12 FDPE_13 FDPE_14 FDPE_15 FDPE_18 FDPE_19 FDPE_20 FDPE_21
+STRUCT mr_ff:D,eth_clocks0_rx,milansoc_crg_clkout0 count=13
+STRUCT mr_ff:D,milansoc_crg_clkout0,eth_clocks0_rx count=12
+PATHS Slow eth_to_sys n=13 classes={mr_ff:D|False Path} 13
+PATHS Fast eth_to_sys n=13 classes={mr_ff:D|False Path} 13
+PATHS Slow sys_to_eth n=16 classes={mr_ff:D|False Path} 12 {ars:PRE|False Path} 4
+PATHS Fast sys_to_eth n=16 classes={mr_ff:D|False Path} 12 {ars:PRE|False Path} 4
+PATHS Slow eth_to_milan n=50 classes=untagged:D|timed 50
+PATHS Fast eth_to_milan n=50 classes=untagged:D|timed 50
+PATHS Slow milan_to_eth n=6 classes=untagged:D|timed 6
+PATHS Fast milan_to_eth n=6 classes=untagged:D|timed 6
