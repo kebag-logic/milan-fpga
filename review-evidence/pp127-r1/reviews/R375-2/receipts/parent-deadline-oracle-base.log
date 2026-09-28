@@ -1,0 +1,6 @@
+FIRST_BIND prompt peer: declare=1000 first_TA=1203 Ready_done=1204 ACTIVE=1; no LeaveAll required
+FIRST_BIND prescribed peer delay: 9 TA frames before +6080 ms LeaveAll; inactive until injected +6888 ms Ready, then ACTIVE=1
+LONG_HOLD service boundary: 20000 ms withdrawn; re-declare to Ready/ACTIVE 117 ms
+NORMAL Leave: IN->MT, ACTIVE=0 by decoded PDU; restart after 2000 ms hold, start=501
+FAIL: timer expiry prematurely aged registrar
+base rc=1

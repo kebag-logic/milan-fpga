@@ -1,0 +1,8 @@
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top phases: rc=0 PASS
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+7 checks: 7 PASS, 0 FAIL

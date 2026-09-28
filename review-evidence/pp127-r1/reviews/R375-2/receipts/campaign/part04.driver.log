@@ -1,0 +1,8 @@
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+mvrp-supersedes-msrp: rc=2 failures=6 KILLED tags=M1,M2,M3
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+7 checks: 7 PASS, 0 FAIL

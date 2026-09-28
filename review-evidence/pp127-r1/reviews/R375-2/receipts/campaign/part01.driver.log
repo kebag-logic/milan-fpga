@@ -1,0 +1,8 @@
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+peer-restarts-timer: rc=2 failures=8 KILLED tags=M4
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+leaveall-expiry-lost: rc=2 failures=18 KILLED tags=M1,M10,M12,M2,M3,M5,M8,M9
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+7 checks: 7 PASS, 0 FAIL
