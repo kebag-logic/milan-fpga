@@ -171,7 +171,7 @@ decompress, so the file was sent again.
 first session it was streamed from the bench host over the SoC board's USB
 network link. In the second, the SoC board built one 65,536-frame period of
 the pattern in its own memory. The period's SHA-256 matched the host
-pattern's first period, and aplay read it in a loop. The ordinal is 16 bits
+pattern's first period, and the SoC's playback read it in a loop. The ordinal is 16 bits
 wide, so the played bytes equal the first session's source file.
 
 A software listener on the controller host probed STREAM_OUTPUT 0 over ACMP
