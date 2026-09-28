@@ -1,0 +1,62 @@
+Source: public job log https://github.com/kebag-logic/milan-fpga/actions/runs/36418013981/job/108913705616 (check run 108913705616, event pull_request, head_sha f3bd6b6694ab61b8f70b7f13f1049a14a6fb3461, tested merge 825f3c8a = f3bd6b66 into dev 7a7582f0). Timestamps stripped; excerpt only.
+
+HEAD is now at 825f3c8ab Merge f3bd6b6694ab61b8f70b7f13f1049a14a6fb3461 into 7a7582f03ce5ba7863a90ac342c21be18d90db0b
+##[group]Run python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+...
+[constraints] /tmp/constraint-log-1re7envq/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_clock_constraints.py", line 271, in <module>
+    test_shipping_constraints()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 82, in test_shipping_constraints
+    assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: info] loading settings for project all from build.sbt ...
+...
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 98, in <module>
+    elaborate_shipping(args.config, args.port, args.output_dir)
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 66, in elaborate_shipping
+    milan_soc.main()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/litex/milan_soc.py", line 3955, in main
+    builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 38, in build
+    namespace = super().build(**kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 521, in build
+    return self._build(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 563, in _build
+    self._generate_includes(with_bios=with_bios)
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 301, in _generate_includes
+    variables_contents = self._get_variables_contents()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 260, in _get_variables_contents
+    picolibc_directory    = remap_path(get_data_mod("software", "picolibc").data_location)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/__init__.py", line 30, in get_data_mod
+    raise ImportError("""\
+ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+No module named 'pythondata_software_picolibc'
+
+You can install this by running;
+ pip3 install git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
+
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_builder.py", line 27651, in <module>
+test_baremetal_clock_contract:
+test_gptp_rom_clock:
+test_extra_sweep_clocks:
+test_tap_clock_docs:
+test_declaration_contracts:
+test_clock_crossing_constraints:
+    fn()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_builder.py", line 27561, in test_clock_crossing_constraints
+    subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python3', '<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_clock_constraints.py']' returned non-zero exit status 1.
+##[error]Process completed with exit code 1.

@@ -1,0 +1,15 @@
+[constraints] <PACKET>/scratch/deploy-probe/build_accepted_old/gateware/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined <PACKET>/scratch/deploy-probe/build_refused_new/gateware/alinx_ax7101.bit as <PACKET>/scratch/deploy-probe/build_refused_new/gateware/alinx_ax7101.bit.rejected
+[constraints] quarantined <PACKET>/scratch/deploy-probe/build_nolog_newest/gateware/alinx_ax7101.bit as <PACKET>/scratch/deploy-probe/build_nolog_newest/gateware/alinx_ax7101.bit.rejected
+build_accepted_old: accepted; gateware now: ['alinx_ax7101.bit']
+build_refused_new: refused (RuntimeError); gateware now: ['alinx_ax7101.bit.rejected']
+build_nolog_newest: refused (FileNotFoundError); gateware now: ['alinx_ax7101.bit.rejected']
+deploy.sh lines evaluated:
+  BIT="${BIT:-$(ls -t "$HERE"/*/gateware/alinx_ax7101.bit 2>/dev/null | head -1 || true)}"
+  LAYOUT="${LAYOUT:-$(ls -t "$HERE"/*/flashboot_layout.json 2>/dev/null | head -1 || true)}"
+BIT=<HERE>/build_accepted_old/gateware/alinx_ax7101.bit
+LAYOUT=<HERE>/build_accepted_old/flashboot_layout.json
+layout_from_soch glob build_accepted_old: ['alinx_ax7101.bit']
+layout_from_soch glob build_refused_new: []
+layout_from_soch glob build_nolog_newest: []
+PASS: newest refused/unverifiable builds are not selected; the accepted build is

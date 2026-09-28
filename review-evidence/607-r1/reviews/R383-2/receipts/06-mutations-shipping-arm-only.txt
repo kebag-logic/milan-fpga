@@ -1,0 +1,18 @@
+BASELINE rc=0 [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_
+M07 hook gated to arty: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M07b hook gated to a nonexistent board: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M16 hook unreachable when a MAC exists: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M06d hook call deleted inside the guard: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M06 hook call and guard deleted: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M08 hook passes the other port: KILLED rc=1 litex.build.generic_platform.ConstraintError: Resource not found: eth_clocks:1
+M01 retain generic MultiReg mask: KILLED rc=1 AssertionError: generic MultiReg false path in shipping XDC
+M09 idelay clock moved into bounded class: KILLED rc=1 AssertionError: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout4] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_c
+M17 bounded flag never set: KILLED rc=1 AssertionError: generic MultiReg false path in shipping XDC
+M18 hook moved to pre-placement: KILLED rc=1 AssertionError: shipping hook outside pre-optimize
+M19 platform keeps stock toolchain: KILLED rc=1 RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+M20 Milan clock dropped from bounded pair: KILLED rc=1 AssertionError: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_c
+M21 hook bounds sys against itself instead of eth: KILLED rc=1 AssertionError: milan_eth_constraints milansoc_crg_clkout0 [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 mila
+
+real	0m19.164s
+user	0m34.684s
+sys	0m12.427s

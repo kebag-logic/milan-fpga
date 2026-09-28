@@ -1,0 +1,12 @@
+== base (head) with /usr/bin/python3
+arm rc=0  elapsed=8.7s
+  child=python3 script=<TREE>/sw/builder/test_clock_constraints.py timeout=2700 rc=0 shipping_markers=4
+    [constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pl
+    [constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pl
+    [constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_aud
+    [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_aud
+skips=n/a
+== M16 with /usr/bin/python3
+arm rc=1 CalledProcessError: Command '['<HOME>/litex-milan/venv/bin/python3', '<PACKET>/scratch/bank-m16/sw/builder/test_clock_constraints.py']' returned non-zero exit status 1. elapsed=2.5s
+  child=python3 script=<TREE>/sw/builder/test_clock_constraints.py timeout=2700 rc=1 shipping_markers=0
+skips=n/a
