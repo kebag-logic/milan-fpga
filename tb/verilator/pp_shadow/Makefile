@@ -92,7 +92,7 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
-         -Wall waivers.vlt pending_probes.vlt \
+         -Wall waivers.vlt pending_probes.vlt recovery_probes.vlt \
          -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GGPTP_PLANE_EN_P=0 \
          $(TIM_G) $(MAAP_G) \
@@ -158,7 +158,7 @@ run-crf: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/crf_on.yaml obj_crf/fixture
 	$(VERILATOR) +incdir+obj_crf/fixture $(VFLAGS) --Mdir obj_crf \
 	  -CFLAGS "-DDECLARATION_OUTPUTS=2 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_crf
-	./obj_crf/Vpp_crf
+	./obj_crf/Vpp_crf $(SIM_ARGS)
 
 run-pending: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/pending.yaml obj_pending/fixture

@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `16be6768f710e79450aace277abacd6c2c3336e5` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `c951a9ff0cb5851fb159d33e966e5a2a9a188fe3` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -61,7 +61,7 @@ Issue #502 adopted processor pin `870ff88a`.
 - The parent's actual-write enable supplies the map trigger.
 - Later marks retain their command-completion meaning.
 
-Issue #580 advances the current pin to `16be6768`.
+Issue #580 adopted processor pin `16be6768`.
 
 - [Processor PR 124](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/124) rejects body/key type and index mismatches.
 - [Processor PR 126](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/126) documents descriptor ownership.
@@ -69,6 +69,16 @@ Issue #580 advances the current pin to `16be6768`.
 - The zero-cluster 8x8 input pools violate that minimum.
 - Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
 - All five configurations retain identical AEM images and builder outputs.
+
+Issues #606 and #608 adopt processor pin `c951a9ff`.
+
+- [Processor PR 129](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/129) retries refused destination allocation every 100 ms.
+- Every enabled source acquires independently of its first probe.
+- [Processor PR 130](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/130) defers own LeaveAll aging until transmit acceptance.
+- Listener withdrawal before that action still clears IN.
+- Existing LV withdrawal semantics remain unchanged.
+- Parent regressions exercise MAAP acquisition and CRF STREAM_STOP.
+- Bench re-measurement follows on the next image.
 
 The ROM ledger records current and earlier pins.
 
