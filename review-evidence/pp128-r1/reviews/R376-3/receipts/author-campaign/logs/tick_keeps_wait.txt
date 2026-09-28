@@ -1,0 +1,35 @@
+return code: 2
+1322 checks: 1289 PASS, 33 FAIL
+FAIL: I3 listener retries the alloc: maap request missing
+FAIL: I4 retry alloc: maap request missing
+FAIL: I4 grant declares: gate strobe missing
+FAIL: I4 declaring_o[6] OBSERVED 0 -> 1 on the grant
+FAIL: I4 only src6 moved, got 0x3a
+FAIL: J7 grant re-declares open da got 91e0f000010a want 91e0f000010b
+FAIL: J7 final gates, got 0x3a
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 91e0f000010a
+FAIL: K0 withdraw on removal: gate strobe missing
+FAIL: K0 src6 release settled behind the busy face: maap request missing
+FAIL: K8 the abandoned source retries: maap request missing
+FAIL: K8 abandoned source recovers with a FRESH DA: gate strobe missing
+FAIL: K8 final gates, got 0x3e
+FAIL: L4 final gates, got 0x14
+FAIL: R1 automatic bounded acquisition
+FAIL: R1 first probe after bound src0 status/tuple
+FAIL: R1 first probe after bound src1 status/tuple
+FAIL: R1 first probe after bound src2 status/tuple
+FAIL: R1 first probe after bound src3 status/tuple
+FAIL: R1 first probe after bound src4 status/tuple
+FAIL: R1 first probe after bound src5 status/tuple
+FAIL: R1 first probe after bound src6 status/tuple
+FAIL: R1 first probe after bound src7 status/tuple
+FAIL: R1 every probed source declares
+FAIL: R1 owned addresses are never reallocated
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 one attempt per enabled source per round
+FAIL: R2 one attempt per enabled source per round
+FAIL: R5 timeout retries automatically across wrap
+FAIL: R5 retry response src0 status/tuple
+FAIL: R8 wrap retry at bound
+FAIL: R17 absent next round offers every source once
+FAIL: R17 absent next round offers every source once

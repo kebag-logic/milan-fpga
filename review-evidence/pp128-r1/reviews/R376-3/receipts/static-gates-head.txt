@@ -1,0 +1,5 @@
+scripts/lint_hdl.sh rc=0
+make -C tb/acmp_talker lint rc=0
+make check rc=0
+gen_matrix --check rc=0
+git diff --check 97bd3786 HEAD rc=0

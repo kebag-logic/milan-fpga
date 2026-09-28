@@ -1,0 +1,19 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+pending-peer-ignored: rc=2 failures=14 KILLED tags=M1,M10,M2,M3
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp: rc=2 failures=6 KILLED tags=M1,M2,M3
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+round-completion-lost: rc=2 failures=1 KILLED tags=N13
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+17 checks: 17 PASS, 0 FAIL
+runner rc=0

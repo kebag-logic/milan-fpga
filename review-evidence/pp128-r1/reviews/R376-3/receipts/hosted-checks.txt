@@ -1,0 +1,11 @@
+# hosted checks at exact head 66451539ee49262d97403bc6b010202bb773d272 (read-only API)
+run 36379246299 event=pull_request workflow=hdl head_sha=66451539ee49262d97403bc6b010202bb773d272 status=completed conclusion=success
+  job portability completed success: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites completed success: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; SRP LeaveAll mutation campaign=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+  job docs-gates completed success: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+run 36379242893 event=push workflow=hdl head_sha=66451539ee49262d97403bc6b010202bb773d272 status=completed conclusion=success
+  job docs-gates completed success: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job portability completed success: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites completed success: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; SRP LeaveAll mutation campaign=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+legacy combined status: pending, contexts=0
+Executed jobs: 6 (suites, portability, docs-gates in each run), all success. Skipped contexts: none. Only skipped step: 'Build Verilator v5.050' (cache hit).

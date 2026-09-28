@@ -1,0 +1,10 @@
+control srp_encoder : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+8 checks: 8 PASS, 0 FAIL
+runner rc=0

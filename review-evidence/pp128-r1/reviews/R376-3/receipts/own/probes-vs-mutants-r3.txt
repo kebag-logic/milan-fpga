@@ -1,0 +1,239 @@
+== head (rc=0) seeds=300
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+PROBE-PASS P7: absent allocator: one offer per enabled source per round
+BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+PROBE-PASS P9: absent allocator: same-round probes do not re-offer an abandoned source
+BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+PROBE-PASS P10: conflict acts within 256 cycles under continuous commands
+BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+PROBE-PASS P10: pcp acts within 256 cycles under continuous commands
+BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+PROBE-PASS P10: freshness acts within 256 cycles under continuous commands
+BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+PROBE-PASS P10: lsn-arrive acts within 256 cycles under continuous commands
+BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+PROBE-PASS P10: lsn-depart acts within 256 cycles under continuous commands
+PROBES-OK: 0 probe failures
+== A_init_busy_else_removed (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_kill_w_no_off (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_sticky_kill_ignores_accept (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m29_sticky_kill_ignores_accept (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_no_sticky_gp_window (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_accept_kill_zero (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_kill_no_pending_conflict (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m03_no_accept_kill (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_init_ready_no_en (rc=0) trace-differs-from-head in 298/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m28_init_ready_drops_enable (rc=0) trace-differs-from-head in 298/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_elig_drop_conflict (rc=1) trace-differs-from-head in 296/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 4352 cycles, final gates 0x12 want 0x02, responses while held 1473
+   PROBE-FAIL P10: conflict acts within 256 cycles under continuous commands
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_elig_drop_pcp (rc=1) trace-differs-from-head in 278/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 4352 cycles, final gates 0x12 want 0x00, responses while held 1473
+   PROBE-FAIL P10: pcp acts within 256 cycles under continuous commands
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_elig_drop_tmr (rc=1) trace-differs-from-head in 294/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 4352 cycles, final gates 0x12 want 0x10, responses while held 1473
+   PROBE-FAIL P10: freshness acts within 256 cycles under continuous commands
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== A_elig_drop_lsn (rc=1) trace-differs-from-head in 293/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 4352 cycles, final gates 0x12 want 0x52, responses while held 1473
+   PROBE-FAIL P10: lsn-arrive acts within 256 cycles under continuous commands
+   BEHAVIOR P10 lsn-depart: effect after 4352 cycles, final gates 0x12 want 0x02, responses while held 1473
+   PROBE-FAIL P10: lsn-depart acts within 256 cycles under continuous commands
+== A_kill_no_live_conflict (rc=0) trace-differs-from-head in 6/300 seeds first=[29, 76, 114, 162, 221]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== n05_turn_only_on_init (rc=1) trace-differs-from-head in 300/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 19 cycles, final gates 0x00 want 0x00, responses while held 18
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m27_wait_only_on_accept (rc=1) trace-differs-from-head in 155/300 seeds first=[3, 4, 8, 9, 11]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 3
+   PROBE-FAIL P9: absent allocator: same-round probes do not re-offer an abandoned source
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m30_probe_sets_all (rc=0) trace-differs-from-head in 192/300 seeds first=[2, 3, 4, 6, 8]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 1
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m01_conflict_keeps_wait (rc=1) trace-differs-from-head in 208/300 seeds first=[2, 3, 4, 6, 9]
+   PROBE-FAIL P1: DA_OK conflict reallocates without waiting for the next round
+   PROBE-FAIL P3b: the owed release is offered while commands are continuous
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m07_eligible_ignores_rel (rc=1) trace-differs-from-head in 0/300 seeds
+   PROBE-FAIL P3b: the owed release is offered while commands are continuous
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22
+== m17_eligible_only_init (rc=1) trace-differs-from-head in 299/300 seeds first=[1, 2, 3, 4, 5]
+   PROBE-FAIL P3b: the owed release is offered while commands are continuous
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 4352 cycles, final gates 0x12 want 0x02, responses while held 1473
+   PROBE-FAIL P10: conflict acts within 256 cycles under continuous commands
+   BEHAVIOR P10 pcp: effect after 4352 cycles, final gates 0x12 want 0x00, responses while held 1473
+   PROBE-FAIL P10: pcp acts within 256 cycles under continuous commands
+   BEHAVIOR P10 freshness: effect after 4352 cycles, final gates 0x12 want 0x10, responses while held 1473
+   PROBE-FAIL P10: freshness acts within 256 cycles under continuous commands
+   BEHAVIOR P10 lsn-arrive: effect after 4352 cycles, final gates 0x12 want 0x52, responses while held 1473
+   PROBE-FAIL P10: lsn-arrive acts within 256 cycles under continuous commands
+   BEHAVIOR P10 lsn-depart: effect after 4352 cycles, final gates 0x12 want 0x02, responses while held 1473
+   PROBE-FAIL P10: lsn-depart acts within 256 cycles under continuous commands
+== m19_init_elig_no_avail (rc=1) trace-differs-from-head in 299/300 seeds first=[1, 2, 3, 4, 5]
+   PROBE-FAIL P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+   BEHAVIOR P10 conflict: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 21
+   BEHAVIOR P10 pcp: effect after 31 cycles, final gates 0x00 want 0x00, responses while held 22
+   BEHAVIOR P10 freshness: effect after 3 cycles, final gates 0x10 want 0x10, responses while held 22
+   BEHAVIOR P10 lsn-arrive: effect after 3 cycles, final gates 0x52 want 0x52, responses while held 22
+   BEHAVIOR P10 lsn-depart: effect after 3 cycles, final gates 0x02 want 0x02, responses while held 22

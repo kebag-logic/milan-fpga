@@ -1,0 +1,60 @@
+# read-only excerpts of manager receipts at head 66451539 (<VALIDATION_STORAGE>/pp128-manager-66451539)
+## donor-full complete.json
+{
+  "head": "66451539ee49262d97403bc6b010202bb773d272",
+  "exit_code": 0,
+  "finished": "2026-09-28T08:59:20.023212+02:00"
+}
+
+01 rc=0 verilator --version
+02 rc=0 git fetch --no-tags origin refs/pull/129/head
+03 rc=0 bash scripts/lint_hdl.sh
+04 rc=0 bash scripts/run_suites.sh
+05 rc=0 make -j1 check
+06 rc=0 python3 scripts/gen_matrix.py --check
+07 rc=0 bash syn/yosys/run.sh
+08 rc=0 make -C tb/nvm_port figures
+09 rc=0 git diff --check 97bd3786a56020adec99068369642d2025b801e4 HEAD
+## parent-consumer complete.json
+{
+  "head": "3f47bf103dea43234554cc0a943f582712a16918",
+  "exit_code": 1,
+  "finished": "2026-09-28T09:02:36.085360+02:00"
+}
+
+01 rc=0 python3 scripts/check_cpp_idiom.py
+02 rc=0 python3 scripts/check_py_idiom.py
+03 rc=0 python3 scripts/xvlog_gate.py --check
+04 rc=0 python3 scripts/check_rtl_source_lists.py
+05 rc=0 python3 scripts/pp_srcs.py --check --selftest
+06 rc=0 python3 sw/builder/test_builder.py
+07 rc=2 make -C tb/verilator/pp_shadow -j8
+08 rc=0 python3 scripts/check_port_contracts.py
+09 rc=0 python3 scripts/measure_naming.py --check
+10 rc=1 python3 scripts/measure_test_evidence.py --check
+11 rc=0 python3 scripts/docs_check.py
+## donor-full 04.log tail
+suites: 1015815 checks total, 0 failing
+## parent-consumer 03.log (xvlog) tail
+  pinned processors: 4 finding(s)
+    protocol-processor:hdl/aecp/KL_aecp_notify.sv:502  [VRFC 10-3380] 'pd_ix_w'  identifier 'pd_ix_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:821  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+## parent-consumer 07.log (pp_shadow) failures and results
+173:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+740:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+804:  [FAIL] granted DA == KL_maap base + source index  address disagrees with the engine
+900:pp_shadow: 591 checks, 1 failures
+901:RESULT: FAIL
+1472:pp_shadow: 591 checks, 2 failures
+1473:RESULT: FAIL
+1514:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+2034:pp_shadow: 295 checks, 0 failures
+2035:RESULT: PASS
+2377:pp_shadow: 591 checks, 1 failures
+2378:RESULT: FAIL
+## parent-consumer 10.log (evidence classifier)
+120:   protocol-processor/tb/acmp_talker/retry_mutants.py: UNEXPLAINED
+154:FAIL: 1 unexplained DUT-source reader(s) > ratchet 0; stale dispositions: []

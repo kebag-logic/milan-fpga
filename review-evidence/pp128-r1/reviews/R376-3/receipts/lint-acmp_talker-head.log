@@ -1,0 +1,7 @@
+make: Entering directory '<PACKET>/scratch/head/tb/acmp_talker'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/KL_acmp_talker.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.158 MB sources in 4 modules, into 0.314 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.043 s (elab=0.005, cvt=0.026, bld=0.000); cpu 0.043 s on 1 threads; allocated 22.297 MB
+make: Leaving directory '<PACKET>/scratch/head/tb/acmp_talker'

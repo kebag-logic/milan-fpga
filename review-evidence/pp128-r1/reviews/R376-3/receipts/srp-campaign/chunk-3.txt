@@ -1,0 +1,20 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+18 checks: 18 PASS, 0 FAIL
+runner rc=0

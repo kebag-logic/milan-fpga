@@ -1,0 +1,9 @@
+# main 97bd3786 (PR #130) vs branch base 16be6768: SRP module headers (comments stripped)
+hdl/srp/KL_srp_top.sv header: identical
+hdl/srp/KL_srp_encoder.sv header: DIFFERS
+hdl/srp/KL_srp_talker_fsm.sv header: identical
+hdl/srp/KL_srp_listener_fsm.sv header: identical
+hdl/top changed 16be6768..HEAD: 0 files
+srp_pcp_change / srp_lsn_reg_state drivers in hdl/top at HEAD:
+1983:      .srp_lsn_reg_state_i   (srp_lstn_reg_state_w),
+1985:      .srp_pcp_change_i      (srp_evt_domain_change_w),
