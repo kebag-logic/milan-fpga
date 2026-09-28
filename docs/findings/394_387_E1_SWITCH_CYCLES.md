@@ -162,15 +162,19 @@ The media row permits recovery within one further stream restart.
 
 That row is #117 outage-recovery context, not #387's bound.
 
-#387 item 2 records the [media re-base contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+#387 item 2 defined the measured pre-#602 image's media re-base contract.
+
+The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) supersedes that contract's PHC-step `mr` and MEDIA_RESET obligation.
+
+The [current contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step) retains the render re-base and `tu`.
 
 The [step policy](../design/TIME_SYNC.md#step-policy) identifies the triggering PHC steps.
 
-The contract requires one counted event per step.
+That pre-#602 contract required one counted event per step.
 
-Licensed streams keep running.
+Licensed streams kept running.
 
-One `mr` toggle and one MEDIA_RESET record that event.
+Under that pre-#602 contract, one `mr` toggle and one MEDIA_RESET recorded the event.
 
 It specifies no step-to-relocked-media time bound.
 
@@ -346,7 +350,9 @@ This run reports these restart observations without grading #593.
 
 A grandmaster change must occur while locked CRF keeps running.
 
-That measurement must observe the step's counted media event.
+Under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355), that measurement must observe the step's counted render re-base and `tu`.
+
+A PHC-only step must leave `mr` and MEDIA_RESET unchanged.
 
 This run also leaves AAF render timing and waveform continuity unmeasured.
 

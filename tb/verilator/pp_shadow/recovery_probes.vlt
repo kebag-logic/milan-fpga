@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Read-only timing anchors; no register is forced by the recovery tests.
+`verilator_config
+public_flat_rd -module "KL_srp_top" -var "cad_dl_r"
+public_flat_rd -module "protocol_processor_top" -var "now_ms_w"
+public_flat_rd -module "KL_srp_talker_fsm" -var "reg_r"
+public_flat_rd -module "milan_datapath" -var "pp_maap_req_src_w"

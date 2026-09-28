@@ -152,10 +152,34 @@ The canonical launcher is:
 sw/litex/build.sh <config> [<config> ...] [--sweep]
 ```
 
-Gate the final candidate on non-negative post-route WNS and the placed
-utilization report. For AX7101 release candidates, retain comfortable timing
-margin and run the configured placement-directive sweep; an elaboration or
-out-of-context estimate is not a substitute for the placed design.
+Gate the final AX7101 candidate on WNS >= +0.03 ns and WHS >= 0
+at every declared corner, and on the placed utilization report.
+Run the configured placement-directive sweep and select its seed manually.
+The timing thresholds are **not automatically enforced**, as the
+[margin correction](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860783553) confirms.
+An elaboration or out-of-context estimate is not a substitute for the placed design.
+
+The AX7101 dev-board release claims **commercial grade, 0 to 85 C junction**.
+The part and conditions come from
+[`TIMING_GRADE`](../../sw/litex/platforms/ax7101_timing.py); the full builder
+bank pins this declaration and exercises wrong-condition refusals.
+Every candidate enables setup and hold at both Slow and Fast timing corners.
+Artix-7 supplies fixed speed models, so the two temperature-endpoint reports
+repeat each model rather than represent four independent PVT models.
+Power-estimation junction temperature does not prorate timing delays.
+The [margin decision](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860418611)
+requires WNS >= +0.03 ns and WHS >= 0.
+Apply both thresholds at every declared corner.
+
+Use the saved-checkpoint command in
+[BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
+to retain WNS/TNS/WHS/THS per model and endpoint, clock interaction, CDC and
+unconstrained-path evidence. Retain the implementation log's CRITICAL WARNING census too.
+Record negative-slack paths without hiding them
+behind the command's exit status. Positive WNS does not discharge CDC findings,
+missing external I/O constraints, or #395's physical temperature and oscillator
+measurements. The [candidate record](../findings/COMMERCIAL_TIMING_395.md)
+contains the measured table and report limitations.
 
 ## 6. Silicon acceptance
 

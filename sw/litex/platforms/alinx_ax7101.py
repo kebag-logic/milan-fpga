@@ -16,6 +16,7 @@ from typing import Any
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
+from platforms.ax7101_timing import TIMING_GRADE, configure_commands
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -293,10 +294,15 @@ class Platform(Xilinx7SeriesPlatform):
     default_clk_period = 1e9 / 200e6
 
     def __init__(self, toolchain="vivado"):
-        # XC7A100T-2FGG484I: Artix-7, FGG484 package, speed grade -2.
-        Xilinx7SeriesPlatform.__init__(self, "xc7a100t-fgg484-2", _io, _connectors,
+        # The board marking is industrial; #395 declares a commercial release.
+        Xilinx7SeriesPlatform.__init__(self, TIMING_GRADE["part"], _io, _connectors,
                                        toolchain=toolchain)
+        for command in configure_commands():
+            # LiteX formats these strings once while writing the build Tcl.
+            self.toolchain.pre_placement_commands.append(
+                command.replace("{", "{{").replace("}", "}}"))
         self.toolchain.bitstream_commands = [
+            "kl_timing_grade_reports {build_name}_signoff",
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",
             "set_property CONFIG_MODE SPIx4 [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]",

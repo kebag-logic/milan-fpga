@@ -106,11 +106,8 @@ class MilanDatapathHarness {
     long checks = 0;
     long fails = 0;
     long skipped = 0;
-    //! PHC steps this harness itself commanded (PTP_CMD settime or adjtime).
-    //! #387 makes each one an mr toggle, so the parity is the wire's mr level
-    //! while no talker streams: the expectation is what the harness did, not
-    //! a DUT read.
-    long phc_steps_issued = 0;
+    //! Keep the adjtime baseline until the settle interval before settime.
+    bool adjtime_mr_before = false;
 
     void ck(const char* what, unsigned long got, unsigned long exp) {
         bool ok = (got == exp);
@@ -576,8 +573,8 @@ class MilanDatapathHarness {
             uint64_t t4 = snap();
             axi_write(A_PTP_OFLO, 100000);
             axi_write(A_PTP_OFHI, 0);
+            adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
             axi_write(A_PTP_CMD2, 0x2);
-            phc_steps_issued++;
             uint64_t t5 = snap();
             ck("PHC adjtime hops the counter",
                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
@@ -994,9 +991,6 @@ class MilanDatapathHarness {
         //! history below
         ck("CLKV: ownerless frame keeps tv=1",
            f.size() ? f[19] & 0xF7 : 0, 0x81);
-        ck("CLKV: its mr toggled once per PHC step issued so far (#387)",
-           f.size() ? (f[19] >> 3) & 1 : 0xEE,
-           static_cast<unsigned long>(phc_steps_issued & 1));
         ck("CLKV: frame remains the full AAF PDU",
            static_cast<long>(f.size()), static_cast<long>(AAF_BYTES));
     }
@@ -1053,8 +1047,8 @@ class MilanDatapathHarness {
 
     // A fabric-observed PHC step still arms the diagnostic holdover,
     // but ownerless tu is one before, during, and after that hold.
-    // The step is a software settime, which #387 makes one mr toggle
-    // and one MEDIA_RESET like any other PHC step.
+    // #602: software settime re-bases presentation time, without changing
+    // the INTERNAL media source, mr, or MEDIA_RESET.
     void prove_the_phc_step_holdover_never_clears_tu() {
         constexpr uint16_t A_CLKV_TUCNT = 0x780;
         constexpr uint16_t A_PTP_CMD = 0x520;
@@ -1064,8 +1058,12 @@ class MilanDatapathHarness {
         constexpr int kCountSettleCyc = 4096;
         for (int c = 0; c < kCountSettleCyc; ++c) step();
         const uint32_t media_resets0 = talker0_media_resets();
+        const bool settime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
+        // Grade adjtime through settling, before settime takes over: a delayed
+        // restart must fail here instead of disappearing into the next baseline.
+        ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
+           settime_mr_before, adjtime_mr_before);
         axi_write(A_PTP_CMD, 0x1);
-        phc_steps_issued++;
         ck("CLKV: PHC step arms holdover",
            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
         ck("CLKV: PHC step keeps tu asserted",
@@ -1084,12 +1082,12 @@ class MilanDatapathHarness {
         ck("CLKV: post-holdover frame is emitted", next_aaf(f), 1);
         ck("CLKV: post-holdover frame still carries tu=1",
            f.size() ? f[21] & 1 : 0xEE, 1);
-        ck("CLKV: the settime toggled mr once more (#387)",
+        ck("CLKV: the settime leaves mr unchanged (#602)",
            f.size() ? (f[19] >> 3) & 1 : 0xEE,
-           static_cast<unsigned long>(phc_steps_issued & 1));
+           settime_mr_before);
         for (int c = 0; c < kCountSettleCyc; ++c) step();
-        ck("CLKV: ... and MEDIA_RESET counted that toggle once (#387)",
-           talker0_media_resets() - media_resets0, 1);
+        ck("CLKV: settime adds no MEDIA_RESET (#602)",
+           talker0_media_resets() - media_resets0, 0);
     }
 
     // ------------------------------------------------------------------
