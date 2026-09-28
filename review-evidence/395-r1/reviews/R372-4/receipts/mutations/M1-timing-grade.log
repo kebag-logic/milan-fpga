@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/M1/sw/builder/test_timing_grade.py", line 187, in <module>
+    test_timing_grade_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/M1/sw/builder/test_timing_grade.py", line 134, in test_timing_grade_contract
+    _check_report_content(result.stdout)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/M1/sw/builder/test_timing_grade.py", line 78, in _check_report_content
+    assert "-delay_type min_max" in line, line
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type max -report_unconstrained -max_paths 5 -file /tmp/timing-grade-3dey9az4/candidate_Slow_0C_timing.rpt

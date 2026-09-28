@@ -1,0 +1,14 @@
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/M3/sw/builder/test_timing_grade.py", line 189, in <module>
+    test_platform_hooks(sys.argv[1])
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/M3/sw/builder/test_timing_grade.py", line 162, in test_platform_hooks
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "<string>", line 10, in <module>
+    assert reports[0] == "kl_timing_grade_reports candidate_signoff", reports
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]', 'set_property CONFIG_MODE SPIx4 [current_design]', 'set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]', 'set_property CFGBVS VCCO [current_design]', 'set_property CONFIG_VOLTAGE 3.3 [current_design]']
+
