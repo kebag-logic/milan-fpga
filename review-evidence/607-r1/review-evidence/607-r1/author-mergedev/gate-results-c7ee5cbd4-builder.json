@@ -1,0 +1,32 @@
+[
+  {
+    "name": "builder-present",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "rc": 0,
+    "elapsed_s": 770.32,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/builder-present.log",
+    "size": 95281,
+    "sha256": "de921b1337912cd37f95e1a968b0ce89935e15cb85ab826ab11ec5bd0a3b0fc1"
+  },
+  {
+    "name": "builder-absent",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/607-a427/run_builder_absent.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 571.18,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/builder-absent.log",
+    "size": 97308,
+    "sha256": "6c78a5aed3a7ab714182eadbb523840c2412b9cc47737a36aefbdae7e82454bd"
+  }
+]

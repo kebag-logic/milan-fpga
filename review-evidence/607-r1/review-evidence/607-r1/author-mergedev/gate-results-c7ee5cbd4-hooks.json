@@ -1,0 +1,68 @@
+[
+  {
+    "name": "shipping-hook-bench",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+      "-B",
+      "sw/builder/test_clock_constraints.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 8.28,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/shipping-hook-bench.log",
+    "size": 5525,
+    "sha256": "51510f17b43ce25762e9fb74146c2916d1056f7063228aff70e2109fe7311223"
+  },
+  {
+    "name": "shipping-hook-pins",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "sh",
+      "$MANAGEMENT/2026-09-23/607-a427/pins_env.sh",
+      "$LANES/607-xdc-clock-names",
+      "$VALIDATION_STORAGE/607-a427",
+      "python3",
+      "-B",
+      "sw/builder/test_clock_constraints.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 7.33,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/shipping-hook-pins.log",
+    "size": 5525,
+    "sha256": "77169ae3464c9c9425918d36d7ddefa796d169ccfd5a07b24fbc1f088450029c"
+  },
+  {
+    "name": "timing-grade-bench",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "sw/builder/test_timing_grade.py",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/timing-grade-bench.log",
+    "size": 407,
+    "sha256": "e0283e02c362280e94fd2ae6eb9c077d274394de042a72df57792ebcc5dedac8"
+  },
+  {
+    "name": "timing-grade-pins",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "sh",
+      "$MANAGEMENT/2026-09-23/607-a427/pins_env.sh",
+      "$LANES/607-xdc-clock-names",
+      "$VALIDATION_STORAGE/607-a427",
+      "python3",
+      "-B",
+      "sw/builder/test_timing_grade.py",
+      "python3"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/timing-grade-pins.log",
+    "size": 407,
+    "sha256": "e0283e02c362280e94fd2ae6eb9c077d274394de042a72df57792ebcc5dedac8"
+  }
+]

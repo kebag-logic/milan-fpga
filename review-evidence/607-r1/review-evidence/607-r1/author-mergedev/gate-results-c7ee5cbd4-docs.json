@@ -1,0 +1,1192 @@
+[
+  {
+    "name": "gen_hdl_reference-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 2,
+    "elapsed_s": 0.11,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_hdl_reference-selftest.log",
+    "size": 107,
+    "sha256": "8da1cd187bb14030a082441aef7ae696667236c33d79a5e21374a0d37648bcdb"
+  },
+  {
+    "name": "gen_hdl_reference-output",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$VALIDATION_STORAGE/607-a427/hdl-reference-c7ee5cbd4"
+    ],
+    "rc": 2,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_hdl_reference-output.log",
+    "size": 107,
+    "sha256": "8da1cd187bb14030a082441aef7ae696667236c33d79a5e21374a0d37648bcdb"
+  },
+  {
+    "name": "docs_check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 4.62,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/docs_check.log",
+    "size": 127,
+    "sha256": "fcade68199603ee7d6978be27d183b622af28d1f34897ec75436ca91806ca7ac"
+  },
+  {
+    "name": "check_em_dash-base",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "7390b43627032c71c470e2aa8d0845eb5b740663"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.92,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_em_dash-base.log",
+    "size": 139,
+    "sha256": "215e34f0aeba70c580334ee01a38ba23c1ba41e3c764d288f241564b338df149"
+  },
+  {
+    "name": "check_em_dash-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 3.02,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_em_dash-selftest.log",
+    "size": 42,
+    "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a"
+  },
+  {
+    "name": "check_doc_style",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.06,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_doc_style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "name": "check_doc_style-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.06,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_doc_style-selftest.log",
+    "size": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+  },
+  {
+    "name": "check_gptp_docs",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.16,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_gptp_docs.log",
+    "size": 41,
+    "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d"
+  },
+  {
+    "name": "check_gptp_docs-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.21,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_gptp_docs-selftest.log",
+    "size": 46,
+    "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e"
+  },
+  {
+    "name": "DOC_MAP.gen-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/DOC_MAP.gen-check.log",
+    "size": 61,
+    "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16"
+  },
+  {
+    "name": "DOC_MAP.gen-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.46,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/DOC_MAP.gen-selftest.log",
+    "size": 60,
+    "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9"
+  },
+  {
+    "name": "timesync_chain.gen-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/timesync_chain.gen-check.log",
+    "size": 60,
+    "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4"
+  },
+  {
+    "name": "timesync_chain.gen-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/timesync_chain.gen-selftest.log",
+    "size": 61,
+    "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa"
+  },
+  {
+    "name": "check_solution_docs",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.11,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_solution_docs.log",
+    "size": 87,
+    "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+  },
+  {
+    "name": "check_solution_docs-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.57,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_solution_docs-selftest.log",
+    "size": 59,
+    "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30"
+  },
+  {
+    "name": "submodule_boundaries.gen-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/submodule_boundaries.gen-check.log",
+    "size": 54,
+    "sha256": "905777610f39981543faabafcc11309ac6ab670121c8866a45e171e5c9b7d00c"
+  },
+  {
+    "name": "submodule_boundaries.gen-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.46,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/submodule_boundaries.gen-selftest.log",
+    "size": 60,
+    "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889"
+  },
+  {
+    "name": "check_submodule_docs",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_submodule_docs.log",
+    "size": 47,
+    "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835"
+  },
+  {
+    "name": "check_submodule_docs-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.06,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_submodule_docs-selftest.log",
+    "size": 66,
+    "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b"
+  },
+  {
+    "name": "gen_wavedrom-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.16,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_wavedrom-selftest.log",
+    "size": 77,
+    "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42"
+  },
+  {
+    "name": "gen_wavedrom-wd_axis_backpressure.json",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.31,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_wavedrom-wd_axis_backpressure.json.log",
+    "size": 58,
+    "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3"
+  },
+  {
+    "name": "gen_wavedrom-wd_cdc_handshake.json",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_wavedrom-wd_cdc_handshake.json.log",
+    "size": 54,
+    "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5"
+  },
+  {
+    "name": "gen_wavedrom-wd_gptp_pdelay.json",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_wavedrom-wd_gptp_pdelay.json.log",
+    "size": 52,
+    "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9"
+  },
+  {
+    "name": "check_diagram_pngs",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_diagram_pngs.log",
+    "size": 66,
+    "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"
+  },
+  {
+    "name": "check_diagram_pngs-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 6.52,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_diagram_pngs-selftest.log",
+    "size": 59,
+    "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5"
+  },
+  {
+    "name": "check_feature_status-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.71,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_feature_status-self-test.log",
+    "size": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+  },
+  {
+    "name": "check_feature_status",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.71,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_feature_status.log",
+    "size": 29,
+    "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"
+  },
+  {
+    "name": "gen_module_matrix-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.97,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_module_matrix-check.log",
+    "size": 118,
+    "sha256": "cc9edd89394353084471aad6ea6b5f2e292b331712a07fa90ca9beb934a0e2d7"
+  },
+  {
+    "name": "check_gptp_docs-with-submodule",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.16,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_gptp_docs-with-submodule.log",
+    "size": 66,
+    "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41"
+  },
+  {
+    "name": "measure_control_flow-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.16,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_control_flow-selftest.log",
+    "size": 2565,
+    "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b"
+  },
+  {
+    "name": "measure_cohesion-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.06,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_cohesion-selftest.log",
+    "size": 728,
+    "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363"
+  },
+  {
+    "name": "check_baremetal_only-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 15.29,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_baremetal_only-check.log",
+    "size": 71,
+    "sha256": "5019571b9e2799b52f16036e23d145f77ccfbf7dfbcc69689aaef40cc454d33c"
+  },
+  {
+    "name": "check_baremetal_only-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 6.38,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_baremetal_only-selftest.log",
+    "size": 43,
+    "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8"
+  },
+  {
+    "name": "test_firmware_compiler-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.37,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/test_firmware_compiler-selftest.log",
+    "size": 138,
+    "sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7"
+  },
+  {
+    "name": "test_firmware_compiler-absent",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "$VALIDATION_STORAGE/607-a427/firmware-absent-c7ee5cbd4.jsonl"
+    ],
+    "rc": 0,
+    "elapsed_s": 439.24,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/test_firmware_compiler-absent.log",
+    "size": 50536,
+    "sha256": "d37ac6fbf71755a763fffdbb5a077ec4df0be04789d0cab59efbb9dff7e39f23"
+  },
+  {
+    "name": "check_nvm_record_space",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.07,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_nvm_record_space.log",
+    "size": 2412,
+    "sha256": "cf6813f2dd61aa65a405b7e91c7300a78161e6f4ef1d290c6fb0624b4e2c91d5"
+  },
+  {
+    "name": "check_nvm_record_space-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 31.44,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_nvm_record_space-self-test.log",
+    "size": 6252,
+    "sha256": "3dda71ee533685ec28bc8d8025b9eb67f6ecb06f03cf4932448f3f65c1cfd6f4"
+  },
+  {
+    "name": "check_nvm_capture",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.77,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_nvm_capture.log",
+    "size": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+  },
+  {
+    "name": "test_nvm_firmware-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 39.13,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/test_nvm_firmware-self-test.log",
+    "size": 1758,
+    "sha256": "06c1ee804c94c8c7830acbcf8fbe4f5ea0d5e9df2d59004e41bf0c4aca3e98f5"
+  },
+  {
+    "name": "check_soc_sources",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.11,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_soc_sources.log",
+    "size": 85,
+    "sha256": "136eb537ae03b4d52fc917125d95083776d5de54fba79a68ecc4e045f561b43f"
+  },
+  {
+    "name": "check_soc_sources-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.21,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_soc_sources-selftest.log",
+    "size": 1501,
+    "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0"
+  },
+  {
+    "name": "iob_pack_selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.07,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/iob_pack_selftest.log",
+    "size": 3147,
+    "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad"
+  },
+  {
+    "name": "check_rtl_source_lists",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.42,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_rtl_source_lists.log",
+    "size": 390,
+    "sha256": "1dd83081ba29241f1333d9dba1ab448b1d8512840a6449eaf3515bfe751f2e14"
+  },
+  {
+    "name": "check_rtl_source_lists-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.67,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_rtl_source_lists-selftest.log",
+    "size": 3189,
+    "sha256": "fc558c5b2dfb3009f27cead55634312dee0a13c3ccba3da5705542a1103b4eb2"
+  },
+  {
+    "name": "measure_naming-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.46,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_naming-check.log",
+    "size": 36572,
+    "sha256": "7eca83e6def78a50741bb20aa46d761f23a1e76f814fcf5330d20620f6d05e93"
+  },
+  {
+    "name": "measure_naming-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.46,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_naming-selftest.log",
+    "size": 4026,
+    "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02"
+  },
+  {
+    "name": "check_port_contracts",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.32,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_port_contracts.log",
+    "size": 421,
+    "sha256": "8cdf5dbee594341013021238a5fd6f373417940904226329feb664fce37d3cb7"
+  },
+  {
+    "name": "check_port_contracts-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.62,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_port_contracts-selftest.log",
+    "size": 4619,
+    "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e"
+  },
+  {
+    "name": "measure_fail_fast-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.47,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_fail_fast-check.log",
+    "size": 6218,
+    "sha256": "0e6607fe32fafebe2f473566adf59682ca6025722b75062084bef3289e53af3a"
+  },
+  {
+    "name": "measure_fail_fast-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.42,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_fail_fast-selftest.log",
+    "size": 6597,
+    "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a"
+  },
+  {
+    "name": "check_todo_ownership",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_todo_ownership.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.47,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_todo_ownership.log",
+    "size": 160,
+    "sha256": "5d6ec1e649af4ed1064310996ed36775fd6b3938a722c397a7a044621a8bd190"
+  },
+  {
+    "name": "check_todo_ownership-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.47,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_todo_ownership-selftest.log",
+    "size": 2584,
+    "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b"
+  },
+  {
+    "name": "measure_test_evidence-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 5.52,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_test_evidence-check.log",
+    "size": 11253,
+    "sha256": "02b91ce2d5607aa9e8310c7d5284a6ff0bcabde43d7c4245889634a036419eae"
+  },
+  {
+    "name": "measure_test_evidence-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 5.63,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/measure_test_evidence-selftest.log",
+    "size": 5659,
+    "sha256": "3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba"
+  },
+  {
+    "name": "check_hygiene-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_hygiene-check.log",
+    "size": 1896,
+    "sha256": "567bd4aa4f79234168274d76f68b0259afe9eb1d8b21f7852933e860f52644ec"
+  },
+  {
+    "name": "check_hygiene-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.36,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_hygiene-selftest.log",
+    "size": 1847,
+    "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8"
+  },
+  {
+    "name": "check_sv_idiom",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_sv_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_sv_idiom.log",
+    "size": 218,
+    "sha256": "f593c2c09ec9ad3238b7154f82d9d04de4cfe8b623f8b5393dceb71e707be7d0"
+  },
+  {
+    "name": "check_sv_idiom-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.41,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_sv_idiom-selftest.log",
+    "size": 2955,
+    "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b"
+  },
+  {
+    "name": "check_cpp_idiom",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.22,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_cpp_idiom.log",
+    "size": 315,
+    "sha256": "7110c5112adbaf655b3da90fa92c8fe7e4dbd3277ea47ef350c185d6c033233f"
+  },
+  {
+    "name": "check_cpp_idiom-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.32,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_cpp_idiom-selftest.log",
+    "size": 3593,
+    "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9"
+  },
+  {
+    "name": "check_py_idiom",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 3.52,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_py_idiom.log",
+    "size": 461,
+    "sha256": "796284f88ca396a1a62ffb77541785ebcb0173e858d3b38550603037b8941f32"
+  },
+  {
+    "name": "check_py_idiom-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 3.52,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_py_idiom-selftest.log",
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+  },
+  {
+    "name": "check_sh_idiom",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.21,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_sh_idiom.log",
+    "size": 235,
+    "sha256": "6562e98a67676ec422c2e0ba00613886c2b71a60e1b391268ccf74ac202482ec"
+  },
+  {
+    "name": "check_sh_idiom-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.26,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_sh_idiom-selftest.log",
+    "size": 2461,
+    "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57"
+  },
+  {
+    "name": "ci_events-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.21,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/ci_events-check.log",
+    "size": 167,
+    "sha256": "2c2f0fa6752c33d64eeb3b91e978d427669eeaf29ed34b779f8894e5a8d10d08"
+  },
+  {
+    "name": "ci_events-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 14.94,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/ci_events-selftest.log",
+    "size": 141657,
+    "sha256": "886bef0d386f45de9913929a5c8ead76b3da7569499f7f8b36720f05642fe4bf"
+  },
+  {
+    "name": "check_doc_paths",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.11,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_doc_paths.log",
+    "size": 84,
+    "sha256": "4e42f194548399a5dc03e75558d578435fae85e29032d742664ed21a2041d389"
+  },
+  {
+    "name": "check_archive",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.31,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_archive.log",
+    "size": 93,
+    "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+  },
+  {
+    "name": "check_archive-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.06,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_archive-selftest.log",
+    "size": 35,
+    "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a"
+  },
+  {
+    "name": "gen_toc-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.82,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_toc-selftest.log",
+    "size": 38,
+    "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+  },
+  {
+    "name": "gen_toc-verify-anchors",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.72,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_toc-verify-anchors.log",
+    "size": 64,
+    "sha256": "961ebf6ef6809b170d14b09755e86e8970cf5a6025d2ee41ac8667aeba0250de"
+  },
+  {
+    "name": "gen_toc-check",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.92,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_toc-check.log",
+    "size": 94,
+    "sha256": "86bb9d40303db07f7a191e72dbd7992847891ccaf8ef4aea28c6fd36c0c91da0"
+  },
+  {
+    "name": "gen_aem_store-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.06,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_aem_store-self-test.log",
+    "size": 3596,
+    "sha256": "c8381bc7b96e209cc0a007a6b934eb0854bcf01014d2d924dee5ffccd7a912ac"
+  },
+  {
+    "name": "check_sweep_shape-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 11.75,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_sweep_shape-self-test.log",
+    "size": 19714,
+    "sha256": "7986e4d1ff0a3241d005e95f9cef50efcadc46ef6c7f14d56ca5b3a81db887e6"
+  },
+  {
+    "name": "check_deploy_shape-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.42,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_deploy_shape-self-test.log",
+    "size": 9286,
+    "sha256": "c58da12a0ba8848ded77f541f96965fc85472e8b6c467b8c9a15b30d5056a98a"
+  },
+  {
+    "name": "check_entity_shape-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 41.35,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_entity_shape-self-test.log",
+    "size": 24936,
+    "sha256": "456317d18262748c54d84ae39fe841c5763fd29c5442d680b7b5630a15aae780"
+  },
+  {
+    "name": "check_wire_accountability-self-test",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.26,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/check_wire_accountability-self-test.log",
+    "size": 4965,
+    "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4"
+  },
+  {
+    "name": "gptp-docs",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "make",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.71,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gptp-docs.log",
+    "size": 2686,
+    "sha256": "590d18a3535fedbf0576434a44b97b5ed4f83db3980e9d929bd2cda4ec5ffce0"
+  },
+  {
+    "name": "git-diff-worktree",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.03,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/git-diff-worktree.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "git-diff-committed",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "7390b43627032c71c470e2aa8d0845eb5b740663",
+      "HEAD"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.03,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/git-diff-committed.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]
