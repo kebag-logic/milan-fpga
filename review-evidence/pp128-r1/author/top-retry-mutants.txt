@@ -1,0 +1,12 @@
+baseline: rc=0
+45 checks: 45 PASS, 0 FAIL
+
+no_round: rc=1
+FAIL: S10: exactly one ALLOC_DA for every enabled source
+FAIL: MP3: first PROBE_TX_RESPONSE succeeds after acquisition bound
+45 checks: 43 PASS, 2 FAIL
+
+restored: rc=0
+45 checks: 45 PASS, 0 FAIL
+
+PASS: updated S10 and MP3 assertions kill the no-round defect; clean controls rc 0

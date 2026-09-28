@@ -1,0 +1,38 @@
+retry_cases.hpp:24: retry_monopoly, no_command_ready
+retry_cases.hpp:26: retry_monopoly, no_command_ready
+retry_cases.hpp:28: no_round, late_round, retry_monopoly, refusal_is_grant, obsolete_grant, no_response_bound, no_stale_swallow, no_stale_drain, backoff_bypass, reallocate_owned, declare_without_demand, source_alias, no_requests, no_command_ready
+retry_cases.hpp:46: no_requests
+retry_cases.hpp:48: early_round, no_requests
+retry_cases.hpp:50: no_round, late_round, refusal_is_grant, no_requests
+retry_cases.hpp:51: declare_without_demand, gate_without_ownership
+retry_cases.hpp:55: no_round, late_round, source_alias, no_requests
+retry_cases.hpp:58: fresh_forever, gate_without_ownership
+retry_cases.hpp:59: refusal_is_grant, reallocate_owned, source_alias, no_requests
+retry_cases.hpp:73: no_round, late_round, no_pacing, refusal_is_grant, no_requests
+retry_cases.hpp:80: no_round, no_pacing
+retry_cases.hpp:81: refusal_is_grant, gate_without_ownership
+retry_cases.hpp:87: disabled_alloc
+retry_cases.hpp:119: fixed_priority, command_monopoly, no_accept_bound, no_requests
+retry_cases.hpp:121: retry_monopoly, no_accept_bound
+retry_cases.hpp:123: no_accept_bound, short_accept_bound, no_requests
+retry_cases.hpp:124: gate_without_ownership
+retry_cases.hpp:135: no_requests
+retry_cases.hpp:143: obsolete_grant, gate_without_ownership
+retry_cases.hpp:144: obsolete_grant, obsolete_release_lost, no_requests
+retry_cases.hpp:148: obsolete_grant, obsolete_release_lost, no_requests
+retry_cases.hpp:165: response_wrap, no_requests
+retry_cases.hpp:167: no_round, no_response_bound, no_requests
+retry_cases.hpp:179: no_response_bound, no_stale_capacity, no_requests
+retry_cases.hpp:182: no_response_bound, no_stale_swallow, no_stale_capacity, no_stale_drain, no_requests
+retry_cases.hpp:183: gate_without_ownership
+retry_cases.hpp:197: half_backoff, no_requests
+retry_cases.hpp:202: backoff_bypass, reallocate_owned, gate_without_ownership
+retry_cases.hpp:208: gate_without_ownership, no_requests
+retry_cases.hpp:209: reallocate_owned, no_requests
+retry_cases.hpp:223: no_command_ready
+retry_cases.hpp:224: no_round, late_round, declare_without_demand, source_alias, no_requests, no_command_ready
+retry_cases.hpp:232: declare_without_demand, gate_without_ownership
+retry_cases.hpp:241: no_round, no_pacing
+retry_cases.hpp:242: refusal_is_grant, declare_without_demand, source_alias, gate_without_ownership, no_requests
+retry_cases.hpp:254: early_round, retry_wrap, no_requests
+retry_cases.hpp:256: no_round, late_round, retry_wrap, refusal_is_grant, no_requests

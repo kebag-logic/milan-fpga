@@ -1,0 +1,17 @@
+return code: 2
+1107 checks: 1070 PASS, 37 FAIL
+FAIL: R1 acquired addresses neither declare nor borrow timer slots
+FAIL: R1 freshness expiry still withdraws every source
+FAIL: R2 no declaration without ownership
+FAIL: R2 no declaration without ownership
+FAIL: R2 no declaration without ownership
+FAIL: R3 absent allocator never declares
+FAIL: R4 obsolete grant cannot declare
+FAIL: R4 obsolete grant cannot declare
+FAIL: R5 stale drain does not grant ownership
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 backoff expiry redeclares with fresh demand
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 backoff expiry redeclares with fresh demand
+FAIL: R7 count growth does not create demand
+FAIL: R7 only in-block sources declare

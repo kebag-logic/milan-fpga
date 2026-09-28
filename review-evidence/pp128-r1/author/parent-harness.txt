@@ -1,0 +1,9 @@
+Donor HEAD: 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+parent/protocol-processor/hdl/acmp/KL_acmp_talker.sv size=64466 sha256=7a242dc78558f17c6fb89a7373d2d9a28a9f3382fc1bdf16fddadb84d3b38d0b
+parent/hdl/milan/KL_pp_maap_shim.sv size=14354 sha256=965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e
+reproduce_first_probe.cpp size=2804 sha256=9a195388127df6145d54d4b32b14b9b4f5b832e24dea9185a47dd5fca5eceffa
+FIRST_PROBE setup: boot ALLOC refused for 8 sources; block later valid; retry interval and bounded sweep elapsed
+FIRST_PROBE fixed: status=0, DA=91e0f0006818, source SID and VID valid; no probe-triggered ALLOC
+SECOND_PROBE control: status=0, DA=91e0f0006818, source SID valid; no LeaveAll input exists on this path
+WARM_DA control: first probe status=0 even though no Talker Advertise before probe
+PASS: late availability recovered within the acquisition bound; peer retry delay and bench allocator history are not modeled
