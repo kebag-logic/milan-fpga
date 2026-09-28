@@ -39,13 +39,16 @@ WHAT IT GRADES, per shipped shape, all on bytes:
   8. the heartbeat is serviced through a datasheet-worst-case erase, at most
      500 ms apart (section 9.4's normative requirement on the writer);
   9. an idle board stays backed and never stale;
- 10. `milan_nvm wipe` erases both slots.
+ 10. `milan_nvm wipe` erases both slots;
+ 11. an open record beside an unaligned closed predecessor keeps its staged
+     bytes while the predecessor's change commits byte-identically.
 
 NEGATIVE CONTROLS. `--self-test` plants five writer defects into a copy of
 the firmware, one at a time, and requires the suite to redden on each: the
 ascending-id check removed, the heartbeat dropped from the erase poll loop,
-the read-back verify skipped, and the erased-record rule accepting a header
-alone, and a word copy crossing into an open neighbour. A control that stays green is reported as the finding it is.
+the read-back verify skipped, the erased-record rule accepting a header
+alone, and a word copy crossing into an open neighbour. A control that stays
+green is reported as the finding it is.
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
@@ -484,7 +487,7 @@ def grade_snapshot_contract(bench: Bench) -> list[str]:
     The writer sequence of SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 7. What
     this bench can reach is the WRITER's side of it, because the host backend
     model has no device-face producer: the orderings that need one (a grant
-    inside a hold, a record left open, an acknowledgement racing a completion)
+    inside a hold, a concurrent record change, an acknowledgement racing a completion)
     are graded against the real RTL and the real donor in
     tb/verilator/nvm_cosim.
     """

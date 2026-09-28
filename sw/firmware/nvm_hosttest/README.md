@@ -8,8 +8,8 @@ every shipped shape passed and every planted defect reddened.
 
 - **[What it drives](#what-it-drives)** -- the shipping firmware translation unit, compiled unchanged against stub headers
 - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
-- **[What is graded](#what-is-graded)** -- ten checks per shape, all on bytes
-- **[The four negative controls](#the-four-negative-controls)** -- writer defects planted into a copy, each of which must be caught
+- **[What is graded](#what-is-graded)** -- eleven checks per shape, all on bytes
+- **[The five negative controls](#the-five-negative-controls)** -- writer defects planted into a copy, each of which must be caught
 - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
 
 ## What it drives
@@ -49,6 +49,10 @@ overlay.
 - **time**, advanced by the firmware's own `cdelay()` and by every SPI byte,
   so the heartbeat cadence and every timeout are measured in model time.
 
+An explicit stimulus can reopen one ownership-vector bit after reload.
+This leaves closed neighbours beside an open record without modeling a producer.
+Concurrent device-side changes remain the real-backend cosimulation's scope.
+
 ## What is graded
 
 Per shipped shape (`configs/endstation_*.yaml`), the driver builds the shape
@@ -70,9 +74,11 @@ the harness through boot, idle time and console commands, and compares bytes:
    verdict, withhold the acknowledgement, and the commit deadline lapses;
 8. the heartbeat is serviced through a 3 s erase, at most 500 ms apart;
 9. an idle board stays backed and never stale;
-10. `milan_nvm wipe` erases both slots.
+10. `milan_nvm wipe` erases both slots;
+11. an open record beside an unaligned closed predecessor retains its golden
+    staged bytes while the predecessor's change commits byte-identically.
 
-## The four negative controls
+## The five negative controls
 
 `--self-test` plants each defect into a copy of the firmware, rebuilds the
 harness and requires the suite to redden:
@@ -83,6 +89,11 @@ harness and requires the suite to redden:
 | `no_heartbeat_in_wait` | the erase poll loop stops heartbeating | the 3 s erase check |
 | `verify_skipped` | the read-back never fails | the failed-verify check sees an acknowledgement |
 | `erased_header_only` | an erased header is accepted over a live payload | verdict parity on the torn erased span |
+| `edge_cross` | a word copy crosses an unaligned record edge | the open neighbour's poisoned live bytes must never replace its staged bytes |
+
+The self-test also invokes the PHY host checks.
+Their IEEE-timed peer catches missing publication, deferred recovery and
+sampling after the rising edge instead of before it.
 
 ## What this suite does NOT prove
 

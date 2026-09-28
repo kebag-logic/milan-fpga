@@ -3,9 +3,10 @@
 The firmware repairs for [#590](https://github.com/kebag-logic/milan-fpga/issues/590),
 [#592](https://github.com/kebag-logic/milan-fpga/issues/592) and the simulated portion of
 [#599](https://github.com/kebag-logic/milan-fpga/issues/599) retain one cacheless hart.
-Both shapes retain continuous backing in every executed plan.
+Both shapes retain continuous backing in every positive plan.
 This refresh follows the [combined assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5859537529)
-and [merged-pin correction](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5859930453).
+[merged-pin correction](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5859930453),
+and [round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5862495507).
 Physical switch-cycle acceptance remains a later lane.
 The future-duty inventory and physical torture remain open under #397.
 
@@ -33,20 +34,22 @@ The old report remains in [the merged findings page](https://github.com/kebag-lo
 Its queued heartbeat gaps were 2569.49201 ms at 1x1 and 2513.33593 ms at 8x8.
 Those failures describe the old firmware only.
 
-Measured source head: `5e8edc86822a5cd2ba11da41dec0df7397d76da0`.
+Measured source head: `ececc631c1f64893223a6d21a2de3c89b5fc7665`.
 Protocol-processor pin: `16be6768f710e79450aace277abacd6c2c3336e5`.
-Firmware SHA-256: `91d6ca57937530e429985e08e687b4e6949e074a7b75f38bfdf47c554430be7d`.
+Firmware SHA-256: `2e715af6bdb4ffce409ab2f913784dbe71e419dda75091eba16fd015093ade1b`.
 CPU netlist SHA-256: `c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d`.
 Later analysis, documentation and receipt commits do not change the compiled inputs.
 Final bound-log regrading verifies the native executable, generated inputs and raw logs
 before applying the current analysis; the evidence packet records that final head.
 
-All five plans use populated A/B slots.
-`all`, `uart-paced`, `queued-input` and `queued-short` use zero device WIP.
+All six plans use populated A/B slots.
+`all`, `uart-paced`, `queued-input`, `queued-short` and `queued-builtins` use zero device WIP.
 `device-wait` uses 3 s erase and 5 ms page WIP.
 The first two plans cover every registered command, boundaries, refused arguments, two commits and wipe.
 `queued-input` supplies twelve NVM status commands and register status: 133 bytes on both shapes.
 `queued-short` supplies 350 status commands and isolates dispatch service from long-walk service.
+`queued-builtins` repeats bounded memory reads, empty lines and unknown commands.
+It ends with a status command, totaling 14363 input bytes.
 Queues offer each next command immediately at its prompt, without idle time.
 They do not inject all bytes simultaneously into a finite RX ring.
 
@@ -59,7 +62,7 @@ This is the current binding walk, not all remaining saved-state work.
 
 CPU cycles are elapsed system cycles divided by two, rounded upward.
 Milliseconds use the unrounded 100 MHz system count.
-Each row selects the maximum elapsed duty across all five finite plans.
+Each row selects the maximum elapsed duty across all six finite plans.
 Boot starts at reset release and ends at entity enable.
 AEM starts at the first accepted flash address and ends at entity enable.
 Restore brackets real backend handshakes.
@@ -73,20 +76,23 @@ Wipe has two erase envelopes, ending at the next erase and at the prompt.
 
 | Duty | Plan | CPU cycles | Elapsed ms | Deadline ms | Margin ms |
 | --- | --- | --- | --- | --- | --- |
-| Boot to entity enabled | uart-paced | 18941168 | 378.82335 | 20000.00000 | 19621.17665 |
-| AEM copy/CRC | uart-paced | 2901072 | 58.02144 | N/A | N/A |
-| Restore walk | all | 33175 | 0.66350 | 3000.00000 | 2999.33650 |
-| `milan_status` | uart-paced | 1448759 | 28.97517 | N/A | N/A |
-| `milan_gettime` | uart-paced | 265178 | 5.30355 | N/A | N/A |
-| `milan_nvm` | uart-paced | 11971340 | 239.42679 | N/A | N/A |
-| `milan_nvm commit` | device-wait | 167277443 | 3345.54885 | 8000.00000 | 4654.45115 |
-| `milan_nvm wipe` | uart-paced | 2483617 | 49.67233 | N/A | N/A |
+| Boot to entity enabled | uart-paced | 18940584 | 378.81167 | 20000.00000 | 19621.18833 |
+| AEM copy/CRC | uart-paced | 2901014 | 58.02028 | N/A | N/A |
+| Restore walk | all | 32652 | 0.65304 | 3000.00000 | 2999.34696 |
+| `milan_status` | uart-paced | 1448819 | 28.97637 | N/A | N/A |
+| `milan_gettime` | uart-paced | 265669 | 5.31337 | N/A | N/A |
+| `milan_nvm` | uart-paced | 11970942 | 239.41883 | N/A | N/A |
+| `milan_nvm commit` | device-wait | 167277045 | 3345.54089 | 8000.00000 | 4654.45911 |
+| `milan_nvm wipe` | uart-paced | 2483483 | 49.66965 | N/A | N/A |
 | Wipe erase envelope | uart-paced | 1448160 | 28.96320 | 3500.00000 | 3471.03680 |
-| `milan_nvm invalid` | uart-paced | 274251 | 5.48501 | N/A | N/A |
-| `milan_settime` | uart-paced | 511629 | 10.23257 | N/A | N/A |
-| `milan_utc` | uart-paced | 606362 | 12.12723 | N/A | N/A |
-| Journal START-to-ACK | device-wait | 161233092 | 3224.66184 | 8000.00000 | 4775.33816 |
-| Journal erase envelope | device-wait | 151006085 | 3020.12169 | 3500.00000 | 479.87831 |
+| `milan_nvm invalid` | uart-paced | 274270 | 5.48539 | N/A | N/A |
+| `milan_settime` | uart-paced | 511470 | 10.22939 | N/A | N/A |
+| `milan_utc` | uart-paced | 607038 | 12.14075 | N/A | N/A |
+| Journal START-to-ACK | device-wait | 161232941 | 3224.65882 | 8000.00000 | 4775.34118 |
+| Journal erase envelope | device-wait | 151006997 | 3020.13993 | 3500.00000 | 479.86007 |
+| `mem_read 0x40000000 128` | queued-builtins | 1067043 | 21.34085 | N/A | N/A |
+| Empty line | queued-builtins | 46611 | 0.93221 | 500.00000 | 499.06779 |
+| Unknown line | queued-builtins | 87114 | 1.74227 | 500.00000 | 498.25773 |
 
 
 **1x1 service opportunities.**
@@ -94,39 +100,45 @@ Wipe has two erase envelopes, ending at the next erase and at the prompt.
 | Duty | Span plan | No-tick ms | TX allowance ms | Heartbeat bound ms | PHY check ms |
 | --- | --- | --- | --- | --- | --- |
 | Boot to entity enabled | uart-paced | 316.91512 | 0 | Unarmed prefix | N/A |
-| AEM copy/CRC | uart-paced | 58.02144 | 0.00000 | 308.02144 | Startup cost 59.81091 |
-| Restore walk | all | 0.66227 | 0.00000 | 250.66227 | Startup cost 2.45174 |
-| `milan_status` | uart-paced | 15.12404 | 28.47222 | 293.59626 | 170.38573 |
-| `milan_gettime` | all | 1.21557 | 5.20833 | 256.42390 | 133.21337 |
-| `milan_nvm` | uart-paced | 24.74636 | 32.55208 | 307.29844 | 184.08791 |
-| `milan_nvm commit` | device-wait | 28.58932 | 9.89583 | 288.48515 | 165.27462 |
-| `milan_nvm wipe` | uart-paced | 20.61798 | 11.54514 | 282.16312 | 158.95259 |
-| Wipe erase envelope | uart-paced | 20.39496 | 11.54514 | 281.94010 | 158.72957 |
-| `milan_nvm invalid` | all | 1.49913 | 5.38194 | 256.88107 | 133.67054 |
-| `milan_settime` | all | 2.92286 | 8.50694 | 261.42980 | 138.21927 |
-| `milan_utc` | all | 3.80082 | 9.46181 | 263.26263 | 140.05210 |
-| Journal START-to-ACK | device-wait | 27.24995 | 9.89583 | 287.14578 | 163.93525 |
-| Journal erase envelope | device-wait | 20.14383 | 9.89583 | 280.03966 | 156.82913 |
+| AEM copy/CRC | uart-paced | 58.02028 | 0.00000 | 308.02028 | Startup cost 59.78462 |
+| Restore walk | all | 0.65181 | 0.00000 | 250.65181 | Startup cost 2.41615 |
+| `milan_status` | uart-paced | 15.29568 | 28.47222 | 293.76790 | 170.53224 |
+| `milan_gettime` | uart-paced | 1.31620 | 5.20833 | 256.52453 | 133.28887 |
+| `milan_nvm` | uart-paced | 24.74636 | 32.55208 | 307.29844 | 184.06278 |
+| `milan_nvm commit` | device-wait | 28.57894 | 9.89583 | 288.47477 | 165.23911 |
+| `milan_nvm wipe` | uart-paced | 20.61492 | 11.54514 | 282.16006 | 158.92440 |
+| Wipe erase envelope | uart-paced | 20.39496 | 11.54514 | 281.94010 | 158.70444 |
+| `milan_nvm invalid` | all | 1.33135 | 5.38194 | 256.71329 | 133.47763 |
+| `milan_settime` | all | 3.09102 | 8.50694 | 261.59796 | 138.36230 |
+| `milan_utc` | all | 3.95678 | 9.46181 | 263.41859 | 140.18293 |
+| Journal START-to-ACK | device-wait | 27.23957 | 9.89583 | 287.13540 | 163.89974 |
+| Journal erase envelope | device-wait | 20.14441 | 9.89583 | 280.04024 | 156.80458 |
+| `mem_read 0x40000000 128` | queued-builtins | 19.60328 | 59.80903 | 329.41231 | 206.17665 |
+| Empty line | queued-builtins | 0.88070 | 1.73611 | 252.61681 | 129.38115 |
+| Unknown line | queued-builtins | 1.19677 | 4.68750 | 255.88427 | 132.64861 |
 
 
 **8x8 elapsed duty maxima.**
 
 | Duty | Plan | CPU cycles | Elapsed ms | Deadline ms | Margin ms |
 | --- | --- | --- | --- | --- | --- |
-| Boot to entity enabled | uart-paced | 55557223 | 1111.14445 | 20000.00000 | 18888.85555 |
-| AEM copy/CRC | uart-paced | 6851914 | 137.03828 | N/A | N/A |
-| Restore walk | all | 33178 | 0.66356 | 3000.00000 | 2999.33644 |
-| `milan_status` | uart-paced | 1449078 | 28.98155 | N/A | N/A |
-| `milan_gettime` | uart-paced | 265176 | 5.30351 | N/A | N/A |
-| `milan_nvm` | uart-paced | 41798623 | 835.97245 | N/A | N/A |
-| `milan_nvm commit` | device-wait | 216474273 | 4329.48545 | 8000.00000 | 3670.51455 |
-| `milan_nvm wipe` | uart-paced | 7911755 | 158.23509 | N/A | N/A |
+| Boot to entity enabled | uart-paced | 55556838 | 1111.13675 | 20000.00000 | 18888.86325 |
+| AEM copy/CRC | uart-paced | 6852024 | 137.04048 | N/A | N/A |
+| Restore walk | uart-paced | 32681 | 0.65362 | 3000.00000 | 2999.34638 |
+| `milan_status` | uart-paced | 1448819 | 28.97637 | N/A | N/A |
+| `milan_gettime` | uart-paced | 265667 | 5.31333 | N/A | N/A |
+| `milan_nvm` | uart-paced | 41795522 | 835.91043 | N/A | N/A |
+| `milan_nvm commit` | device-wait | 216471185 | 4329.42369 | 8000.00000 | 3670.57631 |
+| `milan_nvm wipe` | uart-paced | 7912045 | 158.24089 | N/A | N/A |
 | Wipe erase envelope | uart-paced | 4167030 | 83.34060 | 3500.00000 | 3416.65940 |
-| `milan_nvm invalid` | uart-paced | 274250 | 5.48499 | N/A | N/A |
-| `milan_settime` | uart-paced | 511770 | 10.23539 | N/A | N/A |
-| `milan_utc` | uart-paced | 606535 | 12.13069 | N/A | N/A |
-| Journal START-to-ACK | device-wait | 193443894 | 3868.87788 | 8000.00000 | 4131.12212 |
-| Journal erase envelope | device-wait | 153725245 | 3074.50489 | 3500.00000 | 425.49511 |
+| `milan_nvm invalid` | uart-paced | 274269 | 5.48537 | N/A | N/A |
+| `milan_settime` | uart-paced | 511269 | 10.22537 | N/A | N/A |
+| `milan_utc` | uart-paced | 606828 | 12.13655 | N/A | N/A |
+| Journal START-to-ACK | device-wait | 193441588 | 3868.83176 | 8000.00000 | 4131.16824 |
+| Journal erase envelope | device-wait | 153726027 | 3074.52053 | 3500.00000 | 425.47947 |
+| `mem_read 0x40000000 128` | queued-builtins | 1089839 | 21.79677 | N/A | N/A |
+| Empty line | queued-builtins | 46629 | 0.93257 | 500.00000 | 499.06743 |
+| Unknown line | queued-builtins | 87114 | 1.74227 | 500.00000 | 498.25773 |
 
 
 **8x8 service opportunities.**
@@ -134,19 +146,22 @@ Wipe has two erase envelopes, ending at the next erase and at the prompt.
 | Duty | Span plan | No-tick ms | TX allowance ms | Heartbeat bound ms | PHY check ms |
 | --- | --- | --- | --- | --- | --- |
 | Boot to entity enabled | uart-paced | 970.13952 | 0 | Unarmed prefix | N/A |
-| AEM copy/CRC | uart-paced | 137.03828 | 0.00000 | 387.03828 | Startup cost 139.01833 |
-| Restore walk | all | 0.66235 | 0.00000 | 250.66235 | Startup cost 2.64240 |
-| `milan_status` | uart-paced | 15.12396 | 28.47222 | 293.59618 | 170.57623 |
-| `milan_gettime` | all | 1.21557 | 5.20833 | 256.42390 | 133.40395 |
-| `milan_nvm` | uart-paced | 85.85876 | 32.72569 | 368.58445 | 245.56450 |
-| `milan_nvm commit` | uart-paced | 95.82806 | 9.98264 | 355.81070 | 232.79075 |
-| `milan_nvm wipe` | all | 75.17266 | 11.54514 | 336.71780 | 213.69785 |
-| Wipe erase envelope | uart-paced | 74.77236 | 11.54514 | 336.31750 | 213.29755 |
-| `milan_nvm invalid` | all | 1.49913 | 5.38194 | 256.88107 | 133.86112 |
-| `milan_settime` | all | 3.10698 | 8.50694 | 261.61392 | 138.59397 |
-| `milan_utc` | all | 3.98534 | 9.46181 | 263.44715 | 140.42720 |
-| Journal START-to-ACK | uart-paced | 94.10101 | 9.98264 | 354.08365 | 231.06370 |
-| Journal erase envelope | device-wait | 74.52111 | 9.98264 | 334.50375 | 211.48380 |
+| AEM copy/CRC | uart-paced | 137.04048 | 0.00000 | 387.04048 | Startup cost 138.99434 |
+| Restore walk | uart-paced | 0.65241 | 0.00000 | 250.65241 | Startup cost 2.60627 |
+| `milan_status` | uart-paced | 15.29560 | 28.47222 | 293.76782 | 170.72168 |
+| `milan_gettime` | uart-paced | 1.35670 | 5.20833 | 256.56503 | 133.51889 |
+| `milan_nvm` | uart-paced | 85.85876 | 32.72569 | 368.58445 | 245.53831 |
+| `milan_nvm commit` | uart-paced | 95.82756 | 9.98264 | 355.81020 | 232.76406 |
+| `milan_nvm wipe` | all | 75.16216 | 11.54514 | 336.70730 | 213.66116 |
+| Wipe erase envelope | uart-paced | 74.77236 | 11.54514 | 336.31750 | 213.27136 |
+| `milan_nvm invalid` | all | 1.33135 | 5.38194 | 256.71329 | 133.66715 |
+| `milan_settime` | all | 3.27214 | 8.50694 | 261.77908 | 138.73294 |
+| `milan_utc` | all | 4.13830 | 9.46181 | 263.60011 | 140.55397 |
+| Journal START-to-ACK | device-wait | 94.10095 | 9.98264 | 354.08359 | 231.03745 |
+| Journal erase envelope | device-wait | 74.52173 | 9.98264 | 334.50437 | 211.45823 |
+| `mem_read 0x40000000 128` | queued-builtins | 20.06014 | 59.80903 | 329.86917 | 206.82303 |
+| Empty line | queued-builtins | 0.88106 | 1.73611 | 252.61717 | 129.57103 |
+| Unknown line | queued-builtins | 1.19677 | 4.68750 | 255.88427 | 132.83813 |
 
 
 The heartbeat bound adds the unchanged 250 ms rate-limit phase, measured no-tick span
@@ -167,7 +182,18 @@ No isolated final-WIP marker measures the 50 ms page timeout.
 
 ## Tick placement and queued service
 
-Each registered Milan command begins with one opportunity.
+The product BIOS invokes a weak dispatch hook after every line.
+Firmware overrides it with one heartbeat and PHY service opportunity.
+The call precedes parsing, covering built-in, unknown and empty lines.
+The committed patch extends the pinned BIOS without a fork.
+The built-in queue requires an observed opportunity for every line.
+
+Long BIOS built-ins remain a residual under the round-2 decision.
+Examples include `mem_test` and large-range `mem_read`.
+Their bodies contain no internal heartbeat or PHY opportunities.
+They can exceed 500 ms heartbeats and 250 ms PHY publication.
+After 2000 ms without service, saved-state backing can lapse.
+The dispatch hook services their boundaries only.
 CRC walks yield every 256 bytes after writer initialization.
 Record-validation walks yield every sixteen records.
 Wipe yields between its two erase-verification walks.
@@ -186,16 +212,18 @@ Every positive run has zero unbacked cycles and all-positive console samples.
 
 | Shape | Plan | Heartbeat gap ms | 500 ms margin | Final tail | Unbacked cycles | Down/up edges |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1x1 | all | 264.62414 | 235.37586 | False | 0 | 0/0 |
+| 1x1 | all | 264.61056 | 235.38944 | False | 0 | 0/0 |
 | 1x1 | uart-paced | 252.67354 | 247.32646 | False | 0 | 1/0 |
-| 1x1 | queued-input | 269.07786 | 230.92214 | False | 0 | 1/1 |
-| 1x1 | queued-short | 257.67502 | 242.32498 | False | 0 | 1/1 |
-| 1x1 | device-wait | 250.41246 | 249.58754 | False | 0 | 1/1 |
-| 8x8 | all | 322.47112 | 177.52888 | False | 0 | 1/1 |
-| 8x8 | uart-paced | 295.46250 | 204.53750 | False | 0 | 1/1 |
-| 8x8 | queued-input | 322.47112 | 177.52888 | False | 0 | 1/1 |
-| 8x8 | queued-short | 257.67564 | 242.32436 | False | 0 | 1/1 |
-| 8x8 | device-wait | 275.41748 | 224.58252 | False | 0 | 1/1 |
+| 1x1 | queued-input | 269.06300 | 230.93700 | False | 0 | 1/1 |
+| 1x1 | queued-short | 257.65204 | 242.34796 | False | 0 | 1/1 |
+| 1x1 | queued-builtins | 269.20674 | 230.79326 | False | 0 | 1/1 |
+| 1x1 | device-wait | 250.54144 | 249.45856 | False | 0 | 1/1 |
+| 8x8 | all | 322.45756 | 177.54244 | False | 0 | 1/1 |
+| 8x8 | uart-paced | 295.44250 | 204.55750 | False | 0 | 1/1 |
+| 8x8 | queued-input | 322.45756 | 177.54244 | False | 0 | 1/1 |
+| 8x8 | queued-short | 257.65266 | 242.34734 | False | 0 | 1/1 |
+| 8x8 | queued-builtins | 258.39768 | 241.60232 | False | 0 | 1/1 |
+| 8x8 | device-wait | 275.39434 | 224.60566 | False | 0 | 1/1 |
 
 
 ## PHY poll derivation and simulation
@@ -223,16 +251,22 @@ transaction time twice; the longer fallback path is bounded, not claimed as targ
 
 | Shape | One transaction ms | Complete poll ms | Scheduling charge ms | 50 ms page-poll margin |
 | --- | --- | --- | --- | --- |
-| 1x1 | 0.12616 | 0.65403 | 1.78947 | 48.21053 |
-| 8x8 | 0.12624 | 0.84389 | 1.98005 | 48.01995 |
+| 1x1 | 0.12451 | 0.64375 | 1.76434 | 48.23566 |
+| 8x8 | 0.12451 | 0.83327 | 1.95386 | 48.04614 |
 
 | Shape | Worst duty + UART + charge ms | Maximum permissible trigger ms | Selected trigger ms | Remaining reserve ms |
 | --- | --- | --- | --- | --- |
-| 1x1 | 59.08791 | 190.91209 | 125.00000 | 65.91209 |
-| 8x8 | 120.56450 | 129.43550 | 125.00000 | 4.43550 |
+| 1x1 | 81.17665 | 168.82335 | 125.00000 | 43.82335 |
+| 8x8 | 120.53831 | 129.46169 | 125.00000 | 4.46169 |
 
 
-An independent Clause-22 peer drives simulated MDIO pins.
+Both Clause-22 peers follow IEEE 802.3 section 22.3.4.
+Rising edge k launches bit k+1 at simulated MDIO pins.
+Firmware samples before rising edges, following the pinned LiteX reader.
+Two turnaround clocks precede sixteen data samples.
+The unchanged phase probe reads BMSR 0x796d and PHYID1 0x001c.
+Its IEEE phase publishes link_status=13 for negotiated 1000/full.
+A committed late-sample mutant fails this negotiation check.
 Firmware writes the existing link-status CSR.
 A separate bus master reads real MAC_STATUS; the observer samples actual fabric link counters.
 A drop at 1.5 s and recovery at 1.8 s produce one down and one up in each queued and device-wait plan.
@@ -265,16 +299,16 @@ The separate capture harness measures concurrent request traffic.
 
 ## Controls and reproduction
 
-Portable checks pass 42 grading controls and 14 flash controls.
+Portable checks pass 43 grading controls and 14 flash controls.
 They retain historical traces and their original duration comparisons.
 New controls refuse one-cycle overruns, a single unbacked cycle and duplicate link edges.
-A target dispatch-removal mutation must lose backing in `queued-short`.
+A target dispatch-removal mutation must lose backing in both `queued-short` and `queued-builtins`.
 A target publication-removal mutation must fail the named missing-publication check.
 Matching unmodified plans provide positive controls.
 The capture harness checks byte-only timing and missing-copy/traffic controls.
 
 Follow the [foreground recipe](../../tb/verilator/fw_service_budget/README.md#run-and-reproduce).
-Use `--populated --enforce-service`, each of five plans and separate external directories.
+Use `--populated --enforce-service`, each of six plans and separate external directories.
 Only `device-wait` adds `--device-wait-us 3000000 --program-wait-us 5000`.
 Use `--regrade` with identical arguments to check a retained bound log.
 Reuse verifies generated inputs, BIOS, ELF and executable hashes.
