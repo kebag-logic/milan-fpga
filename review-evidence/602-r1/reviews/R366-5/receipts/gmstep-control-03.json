@@ -1,0 +1,24 @@
+{
+ "name": "gmstep-control-03",
+ "head": "d09c72ea2b0be1a2df3e18e77774f14f6df3242c",
+ "cwd": "$REVIEWS/r366-5-602",
+ "cmd": [
+  "python3",
+  "-B",
+  "$REVIEWS/602-r366-5-packet/gmstep_chunk.py",
+  "$REVIEWS/r366-5-602",
+  "3",
+  "3"
+ ],
+ "env_overrides": {
+  "VERILATOR": "$REVIEWS/602-r366-5-packet/scratch/bin/verilator",
+  "MAKEFLAGS": "",
+  "VERILATOR_JOBS": "8"
+ },
+ "timeout_s": 1800,
+ "rc": 0,
+ "elapsed_s": 45.54,
+ "log_bytes": 389,
+ "log_sha256": "d7685deca2dcaffc63a4b8807d930054afc511904da90ef17c385d2591681b02",
+ "log": "receipts/gmstep-control-03.log"
+}

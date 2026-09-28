@@ -1,0 +1,75 @@
+== strict phrasings at d09c72ea2b0be1a2df3e18e77774f14f6df3242c: 2 hit(s)
+  docs/findings/394_387_E1_SWITCH_CYCLES.md:177:Under that pre-#602 contract, one `mr` toggle and one MEDIA_RESET recorded the event.
+  docs/testing/TESTING.md:273:| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`
+== broad co-mention inventory: 71 hit(s)
+  CHANGELOG.md:17:- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Preserves `mr`.
+  CHANGELOG.md:136:- A PHC-only re-base leaves `mr` and MEDIA_RESET unchanged.
+  CHANGELOG.md:154:- Option-off checks compare `mr` across each PHC event.
+  REQUIREMENTS.md:280:  The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
+  REQUIREMENTS.md:281:  A PHC-only re-base leaves `mr` unchanged.
+  REQUIREMENTS.md:283:  It adds no step-only MEDIA_RESET increment.
+  docs/MILAN_V12_ROADMAP.md:360:> A PHC-only re-base preserves `mr` ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
+  docs/design/GM_LOSS_RECOVERY.md:177:| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Unchanged for a PHC-only step ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | `mcr_restart_p_w` takes only selected-CRF disruption or received-`mr` propagation. Source chang
+  docs/design/GM_LOSS_RECOVERY.md:178:| Talker MEDIA_RESET (Milan Table 5.4) | No step-only increment ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | `KL_talker_diag_ctx` still counts intervals containing transmitted `mr` toggles. The gmstep leg checks n
+  docs/design/GM_LOSS_RECOVERY.md:179:| A step while an `mr` restart is pending | The PHC-only step adds no request ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)); the genuine restart continues | The engine still merges genuine requests until the first re
+  docs/design/GM_LOSS_RECOVERY.md:205:- `mr` and MEDIA_RESET: neither changes across the PHC-only step.
+  docs/design/GM_LOSS_RECOVERY.md:270:| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
+  docs/design/TIME_SYNC.md:113:| PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
+  docs/design/TIME_SYNC.md:354:| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 
+  docs/findings/394_387_E1_SWITCH_CYCLES.md:167:The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) supersedes that contract's PHC-step `mr` and MEDIA_RESET obligation.
+  docs/findings/394_387_E1_SWITCH_CYCLES.md:239:| Cycle | OFF duration | Controller down / up | GM return / PHC step | gPTP recovery | First DUT / peer PDU | Outage media recovery after step | DUT / peer mr changes | DUT MEDIA_RESET sequence |
+  docs/findings/394_387_E1_SWITCH_CYCLES.md:355:A PHC-only step must leave `mr` and MEDIA_RESET unchanged.
+  docs/fpga/FPGA_DESIGN.md:178:A PHC-only re-base preserves `mr` ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
+  docs/reference/MILAN_COMPLIANCE_MATRIX.md:120:| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and the CRF triggers of `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). A PHC-only re-b
+  docs/reference/MILAN_COMPLIANCE_MATRIX.md:206:| 4.4.4.3 | `mr` toggles on source change or selected-CRF disruption/received toggle; held >= 8 AVTPDUs | implemented: `KL_media_clock_restart`; tkdiag holds/merging and milan_dp controls. PHC-only re-base is excluded by the [#602 ruling](https://github.
+  docs/reference/REGISTER_MAP.md:128:   received toggle). A PHC-only re-base preserves `mr` under either selection.
+  docs/reference/REGISTER_MAP.md:359:| `0x004` | `VERSION` | RO | `0x0002_0060` | `[31:16]` major, `[15:0]` minor. **Versioning policy (2026-08-11): MAJOR = entire redesign of blocks -- 0x0002 opens the scenario-B era (the protocol-processor architecture of record, `protocol-processor/` submodule, rep
+  docs/testing/TESTING.md:940:The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
+  docs/testing/TESTING.md:941:A PHC-only re-base leaves `mr` unchanged.
+  docs/testing/TESTING.md:943:It adds no step-only MEDIA_RESET increment.
+  hdl/milan/milan_datapath.sv:3097:  //  toggling mr would be a false alarm to every listener. A PHC-only
+  tb/tools/torture_campaign.py:5702:        assertion = next(spec.clause for spec in step.asserts if spec.name == "soak.mr-causes-and-hold")
+  tb/verilator/milan_dp/Makefile:21:#                 controls of the option-off leg's #602 PHC-only mr exclusions, outside
+  tb/verilator/milan_dp/Makefile:399:# re-base leaves mr and MEDIA_RESET unchanged).
+  tb/verilator/milan_dp/README.md:79:| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with unchanged `mr` and MEDIA_RESET;
+  tb/verilator/milan_dp/README.md:657:| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of it
+  tb/verilator/milan_dp/README.md:658:| Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
+  tb/verilator/milan_dp/README.md:667:plane's step pulse. Outgoing `mr` stays unchanged throughout the window.
+  tb/verilator/milan_dp/README.md:697:| the PHC re-base restart term is restored | datapath | restart: a PHC-only step leaves outgoing mr unchanged | the sweep |
+  tb/verilator/milan_dp/README.md:708:| software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+  tb/verilator/milan_dp/README.md:709:| PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+  tb/verilator/milan_dp/README.md:710:| both PHC restart causes are restored | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+  tb/verilator/milan_dp/README.md:711:| PHC adjtime becomes an `mr` cause 16 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+  tb/verilator/milan_dp/README.md:712:| PHC adjtime becomes an `mr` cause 256 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+  tb/verilator/milan_dp/README.md:728:settime: neither changes `mr`, and settime adds no MEDIA_RESET.
+  tb/verilator/milan_dp/README.md:990:| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU | **233 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `
+  tb/verilator/milan_dp/README.md:997:| `obj_nolpf` (`sim_main`) | 273 / 75 | **231 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) | **233 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stabil
+  tb/verilator/milan_dp/README.md:999:| `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
+  tb/verilator/milan_dp/gmstep_mutants.py:6:The #602 ruling excludes PHC-only causes from outgoing mr and MEDIA_RESET.
+  tb/verilator/milan_dp/gmstep_mutants.py:133:            "restart: a PHC-only step leaves outgoing mr unchanged", True),
+  tb/verilator/milan_dp/gmstep_mutants.py:185:    Control("software settime is restored as an mr cause", "datapath",
+  tb/verilator/milan_dp/gmstep_mutants.py:188:            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off",
+  tb/verilator/milan_dp/gmstep_mutants.py:189:            ("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",)),
+  tb/verilator/milan_dp/gmstep_mutants.py:190:    Control("PHC adjtime is restored as an mr cause", "datapath",
+  tb/verilator/milan_dp/gmstep_mutants.py:193:            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+  tb/verilator/milan_dp/gmstep_mutants.py:194:            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",)),
+  tb/verilator/milan_dp/gmstep_mutants.py:198:            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
+  tb/verilator/milan_dp/gmstep_mutants.py:199:    Control("PHC adjtime becomes an mr cause 16 cycles later", "datapath",
+  tb/verilator/milan_dp/gmstep_mutants.py:207:            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+  tb/verilator/milan_dp/gmstep_mutants.py:208:            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
+  tb/verilator/milan_dp/gmstep_mutants.py:209:                           "CLKV: settime adds no MEDIA_RESET (#602)")),
+  tb/verilator/milan_dp/gmstep_mutants.py:210:    Control("PHC adjtime becomes an mr cause 256 cycles later", "datapath",
+  tb/verilator/milan_dp/gmstep_mutants.py:219:            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+  tb/verilator/milan_dp/gmstep_mutants.py:220:            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
+  tb/verilator/milan_dp/gmstep_mutants.py:221:                           "CLKV: settime adds no MEDIA_RESET (#602)")),
+  tb/verilator/milan_dp/sim_gmstep.cpp:11:// propagation to toggle outgoing mr. gmstep_mutants.py proves these checks
+  tb/verilator/milan_dp/sim_gmstep.cpp:13:// A final phase sweeps software settime against received CRF mr, including
+  tb/verilator/milan_dp/sim_gmstep.cpp:1060://! #602: a PHC-only re-base never requests 4.4.4.3 mr. Table 5.4
+  tb/verilator/milan_dp/sim_gmstep.cpp:1061://! MEDIA_RESET reports transmitted toggles, so the step adds none.
+  tb/verilator/milan_dp/sim_gmstep.cpp:1065:    check_.dec("restart: a PHC-only step leaves outgoing mr unchanged",
+  tb/verilator/milan_dp/sim_gmstep.cpp:1073:    check_.dec("restart: MEDIA_RESET does not move between the commit and the step",
+  tb/verilator/milan_dp/sim_gmstep.cpp:1075:    check_.dec("restart: a PHC-only step adds no MEDIA_RESET",
+  tb/verilator/milan_dp/sim_gmstep.cpp:1139:    check_.that("coincident: received CRF mr overlaps the PHC re-base pulse",
+  tb/verilator/milan_dp/sim_main.cpp:1064:        ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
+  tb/verilator/milan_dp/sim_main.cpp:1085:        ck("CLKV: the settime leaves mr unchanged (#602)",
+  tb/verilator/milan_dp/sim_main.cpp:1089:        ck("CLKV: settime adds no MEDIA_RESET (#602)",

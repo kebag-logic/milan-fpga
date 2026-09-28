@@ -1,0 +1,23 @@
+{
+ "name": "gmstep-clean",
+ "head": "d09c72ea2b0be1a2df3e18e77774f14f6df3242c",
+ "cwd": "$REVIEWS/r366-5-602/tb/verilator/milan_dp",
+ "cmd": [
+  "make",
+  "gmstep"
+ ],
+ "env_overrides": {
+  "VERILATOR": "$REVIEWS/602-r366-5-packet/scratch/bin/verilator",
+  "MAKEFLAGS": "",
+  "VERILATOR_JOBS": "8"
+ },
+ "timeout_s": 1800,
+ "rc": 0,
+ "elapsed_s": 46.42,
+ "log": "receipts/gmstep-clean.log",
+ "log_sha256_raw": "e046bba4db88104667fe3de174ef1934443d0f1871a48bfa6ae9add57f3042f4",
+ "log_bytes_raw": 95571,
+ "redaction": "host path of the pinned simulator root replaced by <pinned-verilator-root>",
+ "log_sha256": "533cedace75c9eb6a5704a548279c4aa8d46e3d00465c86b36fa39897c610b01",
+ "log_bytes": 89848
+}

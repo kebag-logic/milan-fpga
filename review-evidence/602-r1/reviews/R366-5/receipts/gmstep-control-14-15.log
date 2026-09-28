@@ -1,0 +1,8 @@
+[INFO] control 14: software settime is restored as an mr cause (leg option-off)
+[PASS] control caught: software settime is restored as an mr cause - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 2 check(s): CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+[INFO] control 15: PHC adjtime is restored as an mr cause (leg option-off)
+[PASS] control caught: PHC adjtime is restored as an mr cause - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+
+chunk ['14', '15']: 2 items: 2 PASS, 0 FAIL (inventory size 20)
