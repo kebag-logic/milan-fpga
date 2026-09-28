@@ -1,0 +1,4 @@
+472c472
+<     sources = list(range(n_sources))
+---
+>     sources = list(range(n_sources))[::-1]  # PROBE: planted reversed list

@@ -1,0 +1,11 @@
+L10 matched count/extent: {0: 'ACCEPT', 1: 'ACCEPT', 2: 'ACCEPT', 3: 'ACCEPT', 4: 'ACCEPT', 5: 'ACCEPT', 6: 'ACCEPT', 7: 'ACCEPT', 8: 'ACCEPT', 9: 'L10_COUNT'}
+L10 offsets != 144 all L10_OFFSET: True 299
+L10 partial tails: {(1, -3): 'L10_PARTIAL_WORD', (1, -2): 'L10_PARTIAL_WORD', (1, -1): 'L10_PARTIAL_WORD', (1, 1): 'L10_PARTIAL_WORD', (1, 2): 'L10_PARTIAL_WORD', (1, 3): 'L10_PARTIAL_WORD', (8, -3): 'L10_PARTIAL_WORD', (8, -2): 'L10_PARTIAL_WORD', (8, -1): 'L10_PARTIAL_WORD', (8, 1): 'L10_PARTIAL_WORD', (8, 2): 'L10_PARTIAL_WORD', (8, 3): 'L10_PARTIAL_WORD'}
+L10 count vs extent: {(1, 0): 'L10_COUNT_EXTENT', (1, 2): 'L10_EXTRA_WORDS', (2, 1): 'L10_COUNT_EXTENT', (2, 3): 'L10_EXTRA_WORDS', (8, 7): 'L10_COUNT_EXTENT', (8, 9): 'L10_EXTRA_WORDS'}
+L10 header lengths: {0: 'L10_HEADER', 139: 'L10_HEADER', 140: 'L10_HEADER', 143: 'L10_HEADER'}
+L6 accepted lists over all k<=4 tuples from 0..k: [(0,), (0, 1), (0, 1, 2), (0, 1, 2, 3)]
+L6 reason histogram: {'ACCEPT': 4, 'L6_DUPLICATE': 548, 'L6_GAP': 119, 'L6_ORDER': 29}
+L6 empty: L6_EMPTY offset 78 padded identity: ACCEPT identity + trailing word: ACCEPT
+index fuzz outcomes: {'ACCEPT': 2406, 'IMAGE_STRUCTURE': 418, 'L10_EXTRA_WORDS': 5, 'L10_HEADER': 16, 'L10_OFFSET': 80, 'L10_PARTIAL_WORD': 4, 'L6_EMPTY': 58, 'L6_EXTENT': 7, 'L6_HEADER': 6} non-ImageCheckError: 0
+truncations: {0: 'IMAGE_STRUCTURE', 3: 'IMAGE_STRUCTURE', 10: 'IMAGE_STRUCTURE', 15: 'IMAGE_STRUCTURE', 40: 'IMAGE_STRUCTURE', 700: 'IMAGE_STRUCTURE', 3930: 'IMAGE_STRUCTURE'}
+rc=0
