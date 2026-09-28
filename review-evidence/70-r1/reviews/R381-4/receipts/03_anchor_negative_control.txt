@@ -1,0 +1,22 @@
+# Negative control: stale anchor planted in BAREMETAL_FIRMWARE.md on a scratch export of HEAD
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index fd76127..7854eb2 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -1917,7 +1917,7 @@ the acknowledgement, so the commit deadline revokes the durability claim
+ instead of the firmware asserting one.
+ 
+ The adopted D3 transaction retry policy still requires implementation.
+-[D3 DR2c](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) permits three attempts per unchanged captured work set.
++[D3 DR2c](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-registry) permits three attempts per unchanged captured work set.
+ The count includes the initial attempt; failed attempts wait 1,000 ms.
+ The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) names only the port's `nvm_alarm`.
+ It is the only reset-sticky alarm; no status bit is added.
+MISS docs/integration/BAREMETAL_FIRMWARE.md -> ../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-registry
+MISS docs/integration/BAREMETAL_FIRMWARE.md -> ../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-registry
+TOTAL resolved=540 missing=2
+probe rc=1
+  MISS docs/integration/BAREMETAL_FIRMWARE.md -> ../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-registry
+anchor check: 231 existing cross-page fragment links reproduced, 1 NOT reproduced
+verify-anchors rc=1
+restored scratch export: 0 changes

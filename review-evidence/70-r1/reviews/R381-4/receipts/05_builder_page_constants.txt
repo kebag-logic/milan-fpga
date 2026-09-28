@@ -1,0 +1,182 @@
+BOTH re '\n\n| 0 | `planted.key` | - | - | - |' counts={'base': 165613, '582': 165982, '610': 166861, 'cand': 167230}
+BOTH re ' ... ' counts={'base': 4094, '582': 4097, '610': 4108, 'cand': 4111}
+BOTH lit ' and ' counts={'base': 831, '582': 832, '610': 834, 'cand': 835}
+BOTH re ' and ' counts={'base': 831, '582': 832, '610': 834, 'cand': 835}
+610-only lit ' has no ' counts={'base': 7, '582': 7, '610': 8, 'cand': 8}
+610-only re ' has no ' counts={'base': 7, '582': 7, '610': 8, 'cand': 8}
+582-only lit ' in ' counts={'base': 238, '582': 237, '610': 238, 'cand': 237}
+582-only re ' in ' counts={'base': 238, '582': 237, '610': 238, 'cand': 237}
+610-only lit ' names ' counts={'base': 45, '582': 45, '610': 46, 'cand': 46}
+610-only re ' names ' counts={'base': 45, '582': 45, '610': 46, 'cand': 46}
+610-only lit ' of ' counts={'base': 241, '582': 241, '610': 242, 'cand': 242}
+610-only re ' of ' counts={'base': 241, '582': 241, '610': 242, 'cand': 242}
+BOTH re '"(?:\\\\.|[^"\\\\])*"|[A-Za-z_$][\\w$]*|[^\\s]' counts={'base': 39486, '582': 39557, '610': 39817, 'cand': 39888}
+BOTH re '#[^\\n]*' counts={'base': 190, '582': 189, '610': 195, 'cand': 194}
+BOTH re '#if !defined(__riscv_xlen) || __riscv_xlen != ' counts={'base': 165822, '582': 166191, '610': 167071, 'cand': 167440}
+BOTH re '$|^call\\s+' counts={'base': 2029, '582': 2035, '610': 2044, 'cand': 2050}
+BOTH re '(?![\\w.$])' counts={'base': 37253, '582': 37321, '610': 37474, 'cand': 37542}
+610-only re '(?:-|s)?include' counts={'base': 79, '582': 79, '610': 80, 'cand': 80}
+BOTH re '(?:0[xX][0-9A-Fa-f]+|\\d+)' counts={'base': 962, '582': 955, '610': 984, 'cand': 977}
+BOTH re '(?:0[xX][0-9a-fA-F]+|0[bB][01]+|0[0-7]*|[1-9][0-9]*)(?:[uU](?:[lL]|ll|LL)?|(?:[lL]|ll|LL)[uU]?)?' counts={'base': 976, '582': 969, '610': 998, 'cand': 991}
+610-only re '(?:<=|=)\\s*([^;]*);' counts={'base': 65, '582': 65, '610': 66, 'cand': 66}
+BOTH re '(?:[$][({][^)}\\n]*[)}]|[$][^({\\n]|[+?!](?!=)|[^ \\t#\\n=:+?!$])+' counts={'base': 26968, '582': 27010, '610': 27100, 'cand': 27142}
+582-only re '(?:\\+\\+|--)\\s*\\b' counts={'base': 50, '582': 58, '610': 50, 'cand': 58}
+BOTH re '(?:\\.[a-z]+)*\\s' counts={'base': 27351, '582': 27395, '610': 27477, 'cand': 27521}
+610-only re '(?<![=!<>+\\-*/%&|^])=(?!=)' counts={'base': 131, '582': 131, '610': 132, 'cand': 132}
+BOTH re '(?<![\\w.$])' counts={'base': 37253, '582': 37321, '610': 37474, 'cand': 37542}
+BOTH re '(?<![\\w.])(-?(?:0[xX][0-9A-Fa-f]+|\\d+))(?![\\w.])' counts={'base': 479, '582': 472, '610': 490, 'cand': 483}
+BOTH re '(?m)#[^\\n]*' counts={'base': 190, '582': 189, '610': 195, 'cand': 194}
+BOTH re '(?m)^' counts={'base': 2028, '582': 2034, '610': 2043, 'cand': 2049}
+BOTH re '(?m)^[ \\t]*' counts={'base': 2028, '582': 2034, '610': 2043, 'cand': 2049}
+610-only re '(?m)^\\s+' counts={'base': 294, '582': 294, '610': 295, 'cand': 295}
+BOTH re '([A-Za-z_][A-Za-z0-9_]*)' counts={'base': 26927, '582': 26980, '610': 27100, 'cand': 27153}
+BOTH re '([A-Za-z_]\\w*)' counts={'base': 26927, '582': 26980, '610': 27100, 'cand': 27153}
+BOTH re '([A-Za-z_]\\w*)?' counts={'base': 67165, '582': 67280, '610': 67622, 'cand': 67737}
+582-only lit ', the ' counts={'base': 121, '582': 120, '610': 121, 'cand': 120}
+582-only re ', the ' counts={'base': 121, '582': 120, '610': 121, 'cand': 120}
+BOTH re '-?\\d+' counts={'base': 1002, '582': 995, '610': 1024, 'cand': 1017}
+610-only re '.comm' counts={'base': 89, '582': 89, '610': 91, 'cand': 91}
+582-only re '.fini' counts={'base': 32, '582': 33, '610': 32, 'cand': 33}
+BOTH re '.init' counts={'base': 49, '582': 50, '610': 50, 'cand': 51}
+610-only re '.section' counts={'base': 13, '582': 13, '610': 14, 'cand': 14}
+BOTH re '/\\*.*?\\*/|//[^\\n]*' counts={'base': 10, '582': 9, '610': 11, 'cand': 10}
+BOTH re '/\\*|//|\\\\' counts={'base': 31, '582': 30, '610': 32, 'cand': 31}
+BOTH re '::?(?!=)' counts={'base': 397, '582': 396, '610': 398, 'cand': 397}
+610-only re '=|:::=|::=|:=|\\+=|\\?=|!=' counts={'base': 150, '582': 150, '610': 151, 'cand': 151}
+BOTH re '[ \\t\\v\\f\\r\\n]' counts={'base': 27351, '582': 27395, '610': 27477, 'cand': 27521}
+BOTH re '[ \\t\\v\\f\\r]' counts={'base': 25324, '582': 25362, '610': 25435, 'cand': 25473}
+BOTH re '[ \\t]' counts={'base': 25324, '582': 25362, '610': 25435, 'cand': 25473}
+BOTH re '[ \\t]*(\\w*)' counts={'base': 43257, '582': 43347, '610': 43590, 'cand': 43680}
+610-only re '[ \\t]*=(?P<value>[^;]+);' counts={'base': 65, '582': 65, '610': 66, 'cand': 66}
+610-only re '[ \\t]*=[ \\t]*(?P<value>[^;]+);' counts={'base': 65, '582': 65, '610': 66, 'cand': 66}
+BOTH re '[ \\t]+(?P<value>[^\\r\\n]*?)[ \\t]*$' counts={'base': 1797, '582': 1802, '610': 1811, 'cand': 1816}
+BOTH re '[ \\t]+[^\\n]*\\n' counts={'base': 1797, '582': 1802, '610': 1811, 'cand': 1816}
+BOTH re '[/\\"\'\\f\\v\\0]' counts={'base': 594, '582': 595, '610': 610, 'cand': 611}
+BOTH re '[0-9A-Fa-fxX()~|&^<>+\\-\\s]*' counts={'base': 132393, '582': 132677, '610': 133455, 'cand': 133739}
+BOTH re '[0-9]+|[@%<?^+|*][DF]?' counts={'base': 2101, '582': 2094, '610': 2124, 'cand': 2117}
+BOTH re '[A-Za-z0-9._-]+' counts={'base': 27056, '582': 27109, '610': 27210, 'cand': 27263}
+BOTH re '[A-Za-z0-9_.+/-]+' counts={'base': 26948, '582': 26999, '610': 27090, 'cand': 27141}
+BOTH re '[A-Za-z_$][\\w$]*' counts={'base': 27231, '582': 27284, '610': 27404, 'cand': 27457}
+BOTH re '[A-Za-z_$][\\w$]*|0[xX][0-9a-fA-F]+[uUlL]*|0[bB][01]+[uUlL]*|[0-9]+[uUlL]*|<<=|>>=|[-+*/%|&^]=|\\+\\+|--|==|!=|<=|>=|&&|\\|\\' counts={'base': 38975, '582': 39047, '610': 39286, 'cand': 39358}
+BOTH re '[A-Za-z_]' counts={'base': 124949, '582': 125256, '610': 125907, 'cand': 126214}
+BOTH re '[A-Za-z_][A-Za-z0-9_]*' counts={'base': 26927, '582': 26980, '610': 27100, 'cand': 27153}
+BOTH re '[\\s_]' counts={'base': 28137, '582': 28186, '610': 28277, 'cand': 28326}
+BOTH re '[^\\n]*' counts={'base': 3874, '582': 3886, '610': 3903, 'cand': 3915}
+582-only re '[^\\t\\n\\v\\f\\r\\x00\\x20-\\x7e]' counts={'base': 15, '582': 9, '610': 15, 'cand': 9}
+610-only re '\\\n\\\n' counts={'base': 181, '582': 181, '610': 182, 'cand': 182}
+BOTH re '\\S+[ \\t]*$' counts={'base': 1846, '582': 1852, '610': 1860, 'cand': 1866}
+610-only re '\\b\\s*(?:\\+\\+|--|(?:<<|>>|[-+*/%|&^])?=(?!=))' counts={'base': 118, '582': 118, '610': 119, 'cand': 119}
+610-only re '\\b\\s*(?:\\[[^\\]]*\\])?\\s*(?:<=|=)\\s*([^;]*);' counts={'base': 38, '582': 38, '610': 39, 'cand': 39}
+BOTH re '\\b|\\b' counts={'base': 55056, '582': 55148, '610': 55432, 'cand': 55524}
+BOTH re '\\r\\n|\\r|\\n' counts={'base': 2027, '582': 2033, '610': 2042, 'cand': 2048}
+610-only re '\\s*(?:<=|=)\\s*([^;]*);' counts={'base': 65, '582': 65, '610': 66, 'cand': 66}
+610-only re '\\s*,' counts={'base': 1722, '582': 1722, '610': 1724, 'cand': 1724}
+610-only re '\\s*;' counts={'base': 217, '582': 217, '610': 221, 'cand': 221}
+610-only re '\\s*=\\s*' counts={'base': 150, '582': 150, '610': 151, 'cand': 151}
+610-only re "\\s*=\\s*(?:1'b)?([0-9_]+)" counts={'base': 14, '582': 14, '610': 15, 'cand': 15}
+610-only re '\\s*\\(' counts={'base': 674, '582': 674, '610': 679, 'cand': 679}
+610-only re '\\s*\\(\\s*(?P<value>[^)]*?)\\s*\\)' counts={'base': 587, '582': 587, '610': 591, 'cand': 591}
+BOTH re '\\s*\\d+[uU]?\\s*' counts={'base': 1002, '582': 995, '610': 1024, 'cand': 1017}
+BOTH re '\\s+\\S+[ \\t]*$' counts={'base': 1846, '582': 1852, '610': 1860, 'cand': 1866}
+BOTH re '`([a-z_][a-z0-9_]*(?:\\.(?:[a-z0-9_]+|\\{[a-z0-9_,]+\\})(?:\\[\\])?)*)`' counts={'base': 331, '582': 333, '610': 335, 'cand': 337}
+BOTH re '`[ \\t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\\b' counts={'base': 1481, '582': 1488, '610': 1490, 'cand': 1497}
+BOTH re '`[^\\r\\n]*' counts={'base': 694, '582': 699, '610': 700, 'cand': 705}
+610-only lit 'action' counts={'base': 1, '582': 1, '610': 3, 'cand': 3}
+610-only re 'action' counts={'base': 1, '582': 1, '610': 3, 'cand': 3}
+610-only lit 'arm ' counts={'base': 28, '582': 28, '610': 30, 'cand': 30}
+610-only re 'arm ' counts={'base': 28, '582': 28, '610': 30, 'cand': 30}
+582-only lit 'baremetal' counts={'base': 12, '582': 13, '610': 12, 'cand': 13}
+582-only re 'baremetal' counts={'base': 12, '582': 13, '610': 12, 'cand': 13}
+582-only lit 'before' counts={'base': 72, '582': 74, '610': 72, 'cand': 74}
+582-only re 'before' counts={'base': 72, '582': 74, '610': 72, 'cand': 74}
+582-only lit 'build' counts={'base': 60, '582': 61, '610': 60, 'cand': 61}
+582-only re 'build' counts={'base': 60, '582': 61, '610': 60, 'cand': 61}
+BOTH lit 'capture' counts={'base': 3, '582': 5, '610': 4, 'cand': 6}
+BOTH re 'capture' counts={'base': 3, '582': 5, '610': 4, 'cand': 6}
+610-only lit 'clears' counts={'base': 0, '582': 0, '610': 2, 'cand': 2}
+610-only re 'clears' counts={'base': 0, '582': 0, '610': 2, 'cand': 2}
+610-only lit 'control' counts={'base': 52, '582': 52, '610': 53, 'cand': 53}
+610-only re 'control' counts={'base': 52, '582': 52, '610': 53, 'cand': 53}
+610-only lit 'failed' counts={'base': 5, '582': 5, '610': 7, 'cand': 7}
+610-only re 'failed' counts={'base': 5, '582': 5, '610': 7, 'cand': 7}
+610-only lit 'first' counts={'base': 47, '582': 47, '610': 48, 'cand': 48}
+610-only re 'first' counts={'base': 47, '582': 47, '610': 48, 'cand': 48}
+582-only lit 'hash' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+582-only re 'hash' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+582-only lit 'hashes' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+582-only re 'hashes' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+582-only lit 'import ' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+582-only re 'import ' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+610-only lit 'include' counts={'base': 79, '582': 79, '610': 80, 'cand': 80}
+610-only re 'include' counts={'base': 79, '582': 79, '610': 80, 'cand': 80}
+610-only lit 'main' counts={'base': 29, '582': 29, '610': 30, 'cand': 30}
+610-only re 'main' counts={'base': 29, '582': 29, '610': 30, 'cand': 30}
+582-only lit 'milan_' counts={'base': 76, '582': 77, '610': 76, 'cand': 77}
+582-only re 'milan_' counts={'base': 76, '582': 77, '610': 76, 'cand': 77}
+BOTH re 'milan_alias->word = (csr_page << 16) | ' counts={'base': 25324, '582': 25362, '610': 25435, 'cand': 25473}
+582-only lit 'milan_clk_hz' counts={'base': 1, '582': 2, '610': 1, 'cand': 2}
+582-only re 'milan_clk_hz' counts={'base': 1, '582': 2, '610': 1, 'cand': 2}
+BOTH re 'milan_slot.word = (csr_page << 16) | ' counts={'base': 25324, '582': 25362, '610': 25435, 'cand': 25473}
+BOTH lit 'name' counts={'base': 233, '582': 234, '610': 234, 'cand': 235}
+BOTH re 'name' counts={'base': 233, '582': 234, '610': 234, 'cand': 235}
+610-only lit 'names' counts={'base': 53, '582': 53, '610': 54, 'cand': 54}
+610-only re 'names' counts={'base': 53, '582': 53, '610': 54, 'cand': 54}
+610-only re 'names.' counts={'base': 53, '582': 53, '610': 54, 'cand': 54}
+BOTH lit 'only ' counts={'base': 84, '582': 83, '610': 86, 'cand': 85}
+BOTH re 'only ' counts={'base': 84, '582': 83, '610': 86, 'cand': 85}
+610-only lit 'open' counts={'base': 49, '582': 49, '610': 48, 'cand': 48}
+610-only re 'open' counts={'base': 49, '582': 49, '610': 48, 'cand': 48}
+582-only lit 'plat' counts={'base': 12, '582': 13, '610': 12, 'cand': 13}
+582-only re 'plat' counts={'base': 12, '582': 13, '610': 12, 'cand': 13}
+582-only lit 'platform' counts={'base': 2, '582': 3, '610': 2, 'cand': 3}
+582-only re 'platform' counts={'base': 2, '582': 3, '610': 2, 'cand': 3}
+582-only lit 'platform.' counts={'base': 2, '582': 3, '610': 2, 'cand': 3}
+582-only re 'platform.' counts={'base': 2, '582': 3, '610': 2, 'cand': 3}
+610-only lit 'policy' counts={'base': 6, '582': 6, '610': 8, 'cand': 8}
+610-only re 'policy' counts={'base': 6, '582': 6, '610': 8, 'cand': 8}
+BOTH lit 'port' counts={'base': 49, '582': 50, '610': 51, 'cand': 52}
+BOTH re 'port' counts={'base': 49, '582': 50, '610': 51, 'cand': 52}
+610-only lit 'ports' counts={'base': 12, '582': 12, '610': 13, 'cand': 13}
+610-only re 'ports' counts={'base': 12, '582': 12, '610': 13, 'cand': 13}
+582-only lit 'recipe' counts={'base': 50, '582': 53, '610': 50, 'cand': 53}
+582-only re 'recipe' counts={'base': 50, '582': 53, '610': 50, 'cand': 53}
+582-only lit 'refusal' counts={'base': 63, '582': 64, '610': 63, 'cand': 64}
+582-only re 'refusal' counts={'base': 63, '582': 64, '610': 63, 'cand': 64}
+610-only lit 'register' counts={'base': 34, '582': 34, '610': 36, 'cand': 36}
+610-only re 'register' counts={'base': 34, '582': 34, '610': 36, 'cand': 36}
+610-only lit 'restore' counts={'base': 6, '582': 6, '610': 7, 'cand': 7}
+610-only re 'restore' counts={'base': 6, '582': 6, '610': 7, 'cand': 7}
+610-only lit 'result' counts={'base': 9, '582': 9, '610': 10, 'cand': 10}
+610-only re 'result' counts={'base': 9, '582': 9, '610': 10, 'cand': 10}
+610-only lit 'rule' counts={'base': 104, '582': 104, '610': 105, 'cand': 105}
+610-only re 'rule' counts={'base': 104, '582': 104, '610': 105, 'cand': 105}
+610-only lit 'sets' counts={'base': 8, '582': 8, '610': 9, 'cand': 9}
+610-only re 'sets' counts={'base': 8, '582': 8, '610': 9, 'cand': 9}
+610-only lit 'slot' counts={'base': 36, '582': 36, '610': 37, 'cand': 37}
+610-only re 'slot' counts={'base': 36, '582': 36, '610': 37, 'cand': 37}
+610-only lit 'stale' counts={'base': 1, '582': 1, '610': 3, 'cand': 3}
+610-only re 'stale' counts={'base': 1, '582': 1, '610': 3, 'cand': 3}
+610-only lit 'store' counts={'base': 133, '582': 133, '610': 134, 'cand': 134}
+610-only re 'store' counts={'base': 133, '582': 133, '610': 134, 'cand': 134}
+582-only lit 'target' counts={'base': 22, '582': 21, '610': 22, 'cand': 21}
+582-only re 'target' counts={'base': 22, '582': 21, '610': 22, 'cand': 21}
+BOTH lit 'the ' counts={'base': 1747, '582': 1752, '610': 1752, 'cand': 1757}
+BOTH re 'the ' counts={'base': 1747, '582': 1752, '610': 1752, 'cand': 1757}
+610-only lit 'value' counts={'base': 100, '582': 100, '610': 99, 'cand': 99}
+610-only re 'value' counts={'base': 100, '582': 100, '610': 99, 'cand': 99}
+610-only lit 'verdict' counts={'base': 36, '582': 36, '610': 37, 'cand': 37}
+610-only re 'verdict' counts={'base': 36, '582': 36, '610': 37, 'cand': 37}
+582-only lit 'verilator' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+582-only re 'verilator' counts={'base': 0, '582': 1, '610': 0, 'cand': 1}
+BOTH re "| 0 / c | 0 | 7 | 7 | `TDM8 Out SR` | 9 (`7'h49`) | TDM lane 0, slot 7 | " counts={'base': 191110, '582': 191517, '610': 192470, 'cand': 192877}
+BOTH re "| 1 (`7'h41`) | TDM lane 0, slot 2 |" counts={'base': 165822, '582': 166191, '610': 167071, 'cand': 167440}
+BOTH re "| 4 (`7'h44`) | TDM lane 0, slot 2 |" counts={'base': 165822, '582': 166191, '610': 167071, 'cand': 167440}
+constants=7350 probes=14267 moved: 582-only=37 610-only=70 both=66 non-additive=0
+rc=1
+
+# Interpretation (reviewer)
+non-additive=0: for every string/regex constant of sw/builder/test_builder.py, the composed page's match count equals base + (#582 delta) + (#610 delta).
+The 66 'both' entries (listed above) are generic tokenizer/fragment patterns (identifier, number, comment, whitespace regexes; common words 'the ', ' and ', 'port', 'name', 'capture', 'only '),
+or regexes containing '|' alternations that match nearly everywhere. The only documentation-shaped one, KEY_TOKEN_RE (test_builder.py:26158-26159), is applied to docs/ENDSTATION_BUILDER.md (gate 32), not to this page.
+The #582 hunk lies in '## Build contract' (page lines 29-82) and the Contents block; the #610 hunk lies in '## Saved state: the flash writer' (1854-1946).
+The rc=1 above is the probe's conservative exit on any 'both' entry; after classification no page-specific constant moved on both sides.

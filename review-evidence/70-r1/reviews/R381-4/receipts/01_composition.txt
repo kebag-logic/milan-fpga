@@ -1,0 +1,70 @@
+HEAD c08becbbfdbf622ee678d5854312c53faf805d39 tree cd7ae9561bdb16aec3d422241ad8ec5de2aaf24e
+tree cd7ae9561bdb16aec3d422241ad8ec5de2aaf24e
+parent c1fa4183f99293f8ee0777cda454d9d77855ca09
+parent 6b76f2d8260b57c49e2fd3a619d269eb3a7fbd14
+merge-tree --merge-base=c07232228 c1fa4183 6b76f2d82 -> cd7ae9561bdb16aec3d422241ad8ec5de2aaf24e
+tree(1304205cf)==tree(54ce8773): 28c36c12cf459020de252185dbdb14ea508724d2 28c36c12cf459020de252185dbdb14ea508724d2
+tree(b468a56d9)==tree(c07232228): a071a87d577cd8cbde421ebff480f3f17b177573 a071a87d577cd8cbde421ebff480f3f17b177573
+6b76f2d82^1 = 816c3b742940b9ac8d160ff03e05553a47e5e66d
+--- PR source files (c07232228..6b76f2d82)
+docs/README.md
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/design/SAVED_STATE_MATERIALIZATION.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/integration/BAREMETAL_FIRMWARE.md
+--- train steps
+== 582
+docs/AAF_LATENCY_TAPS.md
+docs/ENDSTATION_BUILDER.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/testing/CI_WORKFLOWS.md
+scripts/check_solution_docs.py
+scripts/ci_scope.py
+sw/builder/README-parameters.md
+sw/builder/endstation_builder.py
+sw/builder/test_builder.py
+sw/builder/test_clock_contract.py
+sw/litex/milan_soc.py
+sw/litex/sweep_extra.sh
+sw/litex/test_pp_mem_bridge.py
+== 593
+REQUIREMENTS.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/testing/TESTING.md
+tb/tools/torture_campaign.py
+tb/tools/torture_release_mutants.py
+tests/features/torture_campaign_plan.feature
+tests/steps/torture_release_steps.py
+== 75
+docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md
+docs/findings/README.md
+--- candidate diff vs parent1
+ docs/README.md                                |   4 +-
+ docs/design/SAVED_STATE_FASTCONNECT.md        | 268 +++++---
+ docs/design/SAVED_STATE_MATERIALIZATION.md    | 924 ++++++++++++++++++++------
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md |  74 ++-
+ docs/integration/BAREMETAL_FIRMWARE.md        |  17 +-
+ 5 files changed, 948 insertions(+), 339 deletions(-)
+--- candidate diff vs PR source head (should be train-only files)
+REQUIREMENTS.md
+docs/AAF_LATENCY_TAPS.md
+docs/ENDSTATION_BUILDER.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md
+docs/findings/README.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+scripts/check_solution_docs.py
+scripts/ci_scope.py
+sw/builder/README-parameters.md
+sw/builder/endstation_builder.py
+sw/builder/test_builder.py
+sw/builder/test_clock_contract.py
+sw/litex/milan_soc.py
+sw/litex/sweep_extra.sh
+sw/litex/test_pp_mem_bridge.py
+tb/tools/torture_campaign.py
+tb/tools/torture_release_mutants.py
+tests/features/torture_campaign_plan.feature
+tests/steps/torture_release_steps.py

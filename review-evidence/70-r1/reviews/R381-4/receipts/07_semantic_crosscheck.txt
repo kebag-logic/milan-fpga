@@ -1,0 +1,115 @@
+# Semantic cross-check of the composed saved-state pages against the train's pages (candidate c08becbb)
+## 1. Clock statements in the five PR pages vs #582's single definition
+recipe: 5:CPU_HZ = 50_000_000
+docs/design/SAVED_STATE_MATERIALIZATION.md:556:That is 50,000,000 cycles at 100 MHz; 25,000,000 at 50 MHz.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1433:20,000 cycles, 20 ms at its 1 MHz clock; the integrator sizes it above the
+docs/design/SAVED_STATE_MATERIALIZATION.md:2128:- Time: the model clock is 1 MHz; the hold, the debounces, the deadlines and
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:75:> 50 MHz CPU clock (section 18). Four cases and five mutants are added and the
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1612:The [clock assignment](https://github.com/kebag-logic/milan-fpga/issues/565#issuecomment-5848231174) set both configurations to the contract clock.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1618:The [bare-metal contract](../integration/BAREMETAL_FIRMWARE.md#build-contract) specifies a 50 MHz CPU.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1620:The system timer remains at 100 MHz.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1621:Both configurations now declare the contract clock after
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1623:The 100 MHz 8x8 point is a non-contract comparison.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1641:| Shape | CPU / system MHz, basis | Traffic | System ticks, minimum to maximum | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1672:At 50 MHz, 8x8 ON exceeds OFF by 0.04092 ms.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1676:At 100 MHz, ON is 0.78591 ms faster than OFF.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1702:The actual-clock requirement remains; 50 MHz is not retired.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1730:- Transaction counts versus model time: the backend clock is 1 MHz of MODEL
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1796:   Both shapes use the contract's 50 MHz CPU and aligned edges.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1806:   The 100 MHz 8x8 comparison is non-contract: 19.79024 ms maximum.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1944:| The derived copy time assumes 100 MHz; the shipping core runs at 50 MHz (G6, MINOR) | Re-derived at 50 MHz: about 22 ms and 44 ms at 8x8, a margin 
+docs/integration/BAREMETAL_FIRMWARE.md:38:- The effective Milan/CPU clock equals the shared contract clock.
+docs/integration/BAREMETAL_FIRMWARE.md:43:The clock's single definition is `CPU_HZ` in
+docs/integration/BAREMETAL_FIRMWARE.md:56:- The cacheless CPU side and the 64-bit Milan plane run at the contract clock. Vexii's
+docs/integration/BAREMETAL_FIRMWARE.md:58:  back into the 100 MHz LiteX system fabric; its memory master stays on the
+docs/integration/BAREMETAL_FIRMWARE.md:68:The [8x8 shape](../../configs/endstation_ax7101_8x8.yaml) also declares the contract clock ([#565](https://github.com/kebag-logic/milan-fpga/issues/565)).
+docs/integration/BAREMETAL_FIRMWARE.md:2010:three place directives below. The 100 MHz system/audio clocks and the 50 MHz
+docs/integration/BAREMETAL_FIRMWARE.md:2028:100 MHz. It emitted bitstreams but did not meet setup timing:
+docs/integration/BAREMETAL_FIRMWARE.md:2036:That result is why the cacheless CPU and 64-bit Milan plane run at 50 MHz;
+docs/integration/BAREMETAL_FIRMWARE.md:2038:recipe remain at 100 MHz.
+blame of the PR-page 50 MHz lines (all predate the source base except D3 :556, a CLK_HZ_P-parameterised example):
+77aa478f5c (line 75) > 50 
+31808e6525 (line 1618) The
+31808e6525 (line 1702) The
+31808e6525 (line 1796)    
+77aa478f5c (line 1944) | T
+816c3b7429 (line 556) That
+## 2. PR pages vs #593 (mr/tu/MEDIA_RESET rules) - occurrences in the PR pages:
+docs/design/SAVED_STATE_MATERIALIZATION.md:0
+docs/design/SAVED_STATE_FASTCONNECT.md:0
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:0
+docs/integration/BAREMETAL_FIRMWARE.md:0
+## 3. D3 lane-5 physical contract vs composed REQ-VER-06 and TESTING 6d
+**Physical result.** Follow [REQ-VER-06](../../REQUIREMENTS.md#8-verification-and-release-acceptance).
+Use [TESTING section 6d](../testing/TESTING.md#6d-unattended-campaign-vehicle)'s campaign vehicle.
+Complete seven continuous days with the reference peer.
+Include both directions, CRF and every declared stream index.
+Complete 200 cold cuts: 160 idle and 40 during commits.
+Restore all eight item groups and the complete binding inventory.
+No controller repair may count as automatic recovery.
+
+T0 is the host-timestamped outlet ON command.
+First ENTITY_AVAILABLE must precede T0 plus twenty seconds.
+Its `valid_time` is 10; boot consumes that window.
+Automatic AVTP restoration has the existing provisional thirty-second ceiling.
+Ratification uses #397/#75 measurements; larger bounds remain ineligible.
+After automatic restoration, test controller reconnect separately below one second.
+The full counter, uncertainty and observation rules remain REQ-VER-06's.
+--- REQUIREMENTS.md power campaign:
+320:  The power campaign completes 200 unattended cold cuts.
+321:  Of these, 160 occur idle; 40 interrupt journal commits.
+326:  All eight Milan items become mandatory when #70 lands.
+337:  Milan 5.6.2 requires `valid_time=10`, giving twenty seconds.
+338:  The first post-cut advertisement must arrive before T0 plus twenty seconds.
+345:  Restoration is automatic; controller repair cannot satisfy it.
+--- TESTING.md campaign vehicle:
+850:Complete 200 unattended cold cuts: 160 idle, 40 journal-commit.
+860:  --power-cycles 200 --idle-cycles 160 --commit-cycles 40 \
+883:Both require `restore_bound_s <= RELEASE_RESTORE_BOUND_S`, provisionally 30 seconds.
+1096:| Each persisted binding's first valid AVTP, both directions/CRF | T0 through `restore_bound_s`, inclusive; provisional default 30 seconds |
+1098:| Complete UART/reset observation | T0 until next cut or campaign end, at least `restore_bound_s + boot_margin_s`; margin defaults to five seconds |
+1119:The manager ratifies `restore_bound_s` from #397/#75 measurements.
+1159:Disabled persistence must instead fail `power.state-restored`.
+## 4. #75 findings page: saved-state vocabulary
+(restore lines refer to bench-state restoration by the controller:)
+
+Restoration PASS: all 18 stream states are unbound.
+Both original clocks, configurations, rates, and descriptors match.
+
+DUT Stream Output 1 retains one dynamic state difference.
+Its destination changes from all-zero to a MAAP-range address.
+
+This is runtime state, not a binding or setting.
+The restored system therefore differs from the initial first-bind state.
+
+## 5. GM_LOSS_RECOVERY saved-state vocabulary:
+0
+## 6. FASTCONNECT 5.1 citation table (pre-existing; observation S1)
+`grep -rn SAVED_STATE_FASTCONNECT --include=*.py --include=*.sv --include=*.sh .`:
+
+| file | line | cites | resolves |
+|---|---|---|---|
+| `sw/litex/milan_soc.py` | 137 | section 11 gate G0 | yes, section 11 |
+| `sw/litex/milan_soc.py` | 159 | section 5, the flash map's one source of truth | yes, this section |
+| `scripts/check_nvm_record_space.py` | 8 | the page, as the design the gate defends | yes, sections 4 and 9.4 |
+| `syn/yosys/ooc.sh` | 81 | section 8.3 | yes, section 8.3 |
+| `syn/ooc/sizing/KL_nvm_blankflash_sizer.sv` | 8 | section 8.3 | yes, section 8.3 |
+c07232228 milan_soc.py cites FASTCONNECT at: 130 527 1206 
+54ce8773 milan_soc.py cites FASTCONNECT at: 143 540 1219 
+c1fa4183 milan_soc.py cites FASTCONNECT at: 143 540 1219 
+6b76f2d82 milan_soc.py cites FASTCONNECT at: 130 527 1206 
+HEAD milan_soc.py cites FASTCONNECT at: 143 540 1219 
+52c4d9c6b0 (line 555) | `s
+52c4d9c6b0 (line 556) | `s
+other rows at HEAD: ooc.sh cites at 168 ; check_nvm_record_space.py at 8 
+## 7. #582 milan_soc.py change (clock refusal; no tracked entity fallback) vs PR pages
+files #582 changed that the train composes: docs/AAF_LATENCY_TAPS.md docs/ENDSTATION_BUILDER.md docs/integration/BAREMETAL_FIRMWARE.md docs/testing/CI_WORKFLOWS.md scripts/check_solution_docs.py scripts/ci_scope.py sw/builder/README-parameters.md sw/builder/endstation_builder.py sw/builder/test_builder.py sw/builder/test_clock_contract.py sw/litex/milan_soc.py sw/litex/sweep_extra.sh sw/litex/test_pp_mem_bridge.py 
+PR-page mentions of SoC CLI / entity fallback:
+docs/design/SAVED_STATE_FASTCONNECT.md:982:# configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh (30)
+docs/design/SAVED_STATE_FASTCONNECT.md:983:# and configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh (99)
+docs/integration/BAREMETAL_FIRMWARE.md:48:Without `--milan-clk-freq`, that clock is `--sys-clk-freq`.
+(FASTCONNECT :982-983 cite configs/generated/<cfg>/gen paths, the ones #582 makes mandatory; BAREMETAL :48 is #582's own line.)
+FLASHBOOT/NVM/journal lines changed by #582 in milan_soc.py: 4
+protocol-processor gitlink: source head 16be6768f710e79450aace277abacd6c2c3336e5, candidate 16be6768f710e79450aace277abacd6c2c3336e5
+HDL/processor paths changed by the train since the source base: 0
+(All 4 matches are the recipe path 'nvm_capture_cpu/recipe.py' for CPU_HZ; no FLASHBOOT, journal or NVM-face line changed.)

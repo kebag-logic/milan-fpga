@@ -1,0 +1,105 @@
+# Hosted docs workflow at the source head, read-only (run 36392094990, event pull_request)
+checkout lines:
+docs-check-no-git	Run actions/checkout@v4	2026-09-28T07:31:27.1880947Z HEAD is now at ae8108b Merge 6b76f2d8260b57c49e2fd3a619d269eb3a7fbd14 into 54ce877371ee6e8878cf67294e86c2a8481b62f6
+wire-accountability	Run actions/checkout@v4	2026-09-28T07:31:27.0442345Z HEAD is now at ae8108b Merge 6b76f2d8260b57c49e2fd3a619d269eb3a7fbd14 into 54ce877371ee6e8878cf67294e86c2a8481b62f6
+docs-check	Run actions/checkout@v4	2026-09-28T07:31:38.0993391Z HEAD is now at ae8108b62 Merge 6b76f2d8260b57c49e2fd3a619d269eb3a7fbd14 into 54ce877371ee6e8878cf67294e86c2a8481b62f6
+merge commit (GitHub API): ae8108b62f96eb4b4dc04940afe26d2880051f92 tree c2ba01708cc96f3e23002b04885716c674d5a454
+local: git merge-tree --write-tree 54ce8773 6b76f2d8 -> c2ba01708cc96f3e23002b04885716c674d5a454
+files differing between that tree and the candidate c08becbb:
+REQUIREMENTS.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md
+docs/findings/README.md
+docs/testing/TESTING.md
+tb/tools/torture_campaign.py
+tb/tools/torture_release_mutants.py
+tests/features/torture_campaign_plan.feature
+tests/steps/torture_release_steps.py
+PR page blobs, hosted-merge vs candidate:
+  docs/README.md ff0276e8a3771a9a46c0f0a478f73b420d7bcfd6 ff0276e8a3771a9a46c0f0a478f73b420d7bcfd6
+  docs/design/SAVED_STATE_FASTCONNECT.md 3146e52929876fc33e5b1c2c11cc62148c8d69d6 3146e52929876fc33e5b1c2c11cc62148c8d69d6
+  docs/design/SAVED_STATE_MATERIALIZATION.md 60ed87f187d7facfb0a93659cee7beffac542778 60ed87f187d7facfb0a93659cee7beffac542778
+  docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md 26bbada6ef1b133bb1f411d50aff6bf805958141 26bbada6ef1b133bb1f411d50aff6bf805958141
+  docs/integration/BAREMETAL_FIRMWARE.md fd761272537dbbf4dff474a190bce54429eb66e7 fd761272537dbbf4dff474a190bce54429eb66e7
+jobs:
+docs-check-no-git	completed	success
+wire-accountability	completed	success
+docs-check	completed	success
+docs-check steps:
+1	Set up job	success
+2	Run actions/checkout@v4	success
+3	Build the validated HDL reference	success
+4	Upload the HDL reference HTML	success
+5	Install the python gate dependencies	success
+6	Cache the pinned Markdown renderer downloads	success
+7	Install the pinned Markdown renderer	success
+8	Install diagram gate dependencies	success
+9	Link health, wording, dead-reference and local-info gate	success
+10	Added-line em-dash gate	success
+11	Concise audience documentation gate	success
+12	Audience diagram no-drift gate	success
+13	Product solution source-fact gate	success
+14	Verified submodule documentation gate	success
+15	HDL timing diagram no-drift gate	success
+16	Published diagram PNG gate	success
+17	Milan feature-status consistency gate	success
+18	Traceability matrix no-drift gate	success
+19	Fetch the builder source dependencies	success
+20	Imported gPTP documentation gate	success
+21	Code-quality measurement self-tests	success
+22	Install the pinned sv2v release	success
+23	Bare-metal scope gate	success
+24	Cache the pinned RV32 SDK	success
+25	Install and verify the pinned RV32 SDK	success
+26	Compiler-absent firmware controls	success
+27	End-station builder gates	success
+28	NVM record-space gate	success
+29	Capture measurement census and clock gate	success
+30	Saved-state writer gate	success
+31	SoC source-list gate (Vivado would fail 40 min in without this)	success
+32	RTL source-list drift gate	success
+33	Boundary-unit naming ratchet	success
+34	Port contract gate	success
+35	Fail-fast ratchet	success
+36	TODO ownership gate	success
+37	Test-evidence ratchet	success
+38	Mechanical hygiene ratchet	success
+39	SystemVerilog idiom gate	success
+40	C and C++ idiom gate	success
+41	Python idiom gate	success
+42	Shell idiom gate	success
+43	CI event and SHA contract gate	success
+44	Local act runner contract gate	success
+45	Doc cited-path gate	success
+46	Archive integrity gate	success
+47	Per-page contents gate	success
+48	AEM store generator self-test	success
+49	Sweep/build shape gate	success
+50	Deploy shape gate	success
+51	Entity shape gate	success
+100	Post Cache the pinned RV32 SDK	success
+101	Post Cache the pinned Markdown renderer downloads	success
+102	Post Run actions/checkout@v4	success
+103	Complete job	success
+check-runs at 6b76f2d8 (snapshot at review time):
+bdd-conformance	completed	success
+changes	completed	success
+docs-check	completed	success
+docs-check-no-git	completed	success
+elaborate	completed	success
+full-ci-gate	completed	success
+Physical gPTP (nightly and manual)	completed	skipped
+rtl-fast	completed	success
+verilator-lint	completed	success
+Verilator shard 0/5	completed	success
+Verilator shard 1/5	in_progress	-
+Verilator shard 2/5	completed	success
+Verilator shard 3/5	completed	success
+Verilator shard 4/5	in_progress	-
+wire-accountability	completed	success
+yosys-elaboration	completed	success
+Yosys shard 0/4	completed	success
+Yosys shard 1/4	completed	success
+Yosys shard 2/4	completed	success
+Yosys shard 3/4	completed	success
+test_builder.py references to #593/#75 files (REQUIREMENTS.md, TESTING.md, GM_LOSS_RECOVERY, 75_RECONNECT, findings/README, torture_*): 0

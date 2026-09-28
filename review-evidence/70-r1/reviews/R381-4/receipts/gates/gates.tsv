@@ -1,0 +1,27 @@
+0	docs_check	<py> scripts/docs_check.py
+0	check_doc_paths	<py> scripts/check_doc_paths.py
+0	check_doc_style	<py> scripts/check_doc_style.py
+0	check_doc_style_self	<py> scripts/check_doc_style.py --selftest
+0	gen_toc_check	<py> scripts/gen_toc.py --check
+0	gen_toc_anchors	<py> scripts/gen_toc.py --verify-anchors
+0	gen_toc_self	<py> scripts/gen_toc.py --selftest
+0	em_dash_parent1	<py> scripts/check_em_dash.py --base c1fa4183f99293f8ee0777cda454d9d77855ca09
+0	em_dash_srcbase	<py> scripts/check_em_dash.py --base c07232228c12b72805dd20e6852bf93f25794da0
+0	em_dash_self	<py> scripts/check_em_dash.py --selftest
+0	doc_map_check	<py> docs/DOC_MAP.gen.py --check
+0	feature_status	<py> scripts/check_feature_status.py
+0	solution_docs	<py> scripts/check_solution_docs.py
+0	baremetal_only	<py> scripts/check_baremetal_only.py --check
+0	baremetal_only_self	<py> scripts/check_baremetal_only.py --selftest
+0	nvm_record_space	<py> scripts/check_nvm_record_space.py
+0	ci_scope_self	<py> scripts/ci_scope.py --selftest
+0	ci_events_check	<py> scripts/ci_events.py --check
+0	ci_events_self	<py> scripts/ci_events.py --selftest
+0	todo_ownership	<py> scripts/check_todo_ownership.py
+0	hygiene	<py> scripts/check_hygiene.py --check
+0	test_evidence	<py> scripts/measure_test_evidence.py --check
+0	archive	<py> scripts/check_archive.py
+0	diff_check_parent1	git -c core.commitGraph=false diff --check c1fa4183f99293f8ee0777cda454d9d77855ca09 HEAD
+0	diff_check_srcbase	git -c core.commitGraph=false diff --check c07232228c12b72805dd20e6852bf93f25794da0 HEAD
+0	gptp_docs	<py> scripts/check_gptp_docs.py
+0	gptp_docs_self	<py> scripts/check_gptp_docs.py --selftest
