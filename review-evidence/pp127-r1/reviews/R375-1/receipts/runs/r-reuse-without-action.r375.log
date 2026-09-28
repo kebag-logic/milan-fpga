@@ -1,0 +1,49 @@
+R375_CAL fp=2 target=0 expiry=84 join=4244 action=4244 wire_done=4701 (cycles from mark; 40 cycles = 1 tb ms)
+R375_RESIDUAL fp=2 action_to_wire_done_cycles=457
+R375_WINDOW fp=2 target=0 rx_minus_expiry=1 rx_minus_opportunity=-4159 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=0 rx_minus_expiry=40 rx_minus_opportunity=-4120 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=0 rx_minus_expiry=2080 rx_minus_opportunity=-2080 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=0 rx_minus_expiry=4158 rx_minus_opportunity=-2 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=0 rx_minus_expiry=4160 rx_minus_opportunity=0 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=0 rx_minus_expiry=4162 rx_minus_opportunity=2 expect_stop=0 active_after_hold=1 reg=2
+R375_CAL fp=2 target=7 expiry=84 join=4244 action=4244 wire_done=4701 (cycles from mark; 40 cycles = 1 tb ms)
+R375_RESIDUAL fp=2 action_to_wire_done_cycles=457
+R375_WINDOW fp=2 target=7 rx_minus_expiry=1 rx_minus_opportunity=-4159 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=7 rx_minus_expiry=40 rx_minus_opportunity=-4120 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=7 rx_minus_expiry=2080 rx_minus_opportunity=-2080 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=7 rx_minus_expiry=4158 rx_minus_opportunity=-2 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=7 rx_minus_expiry=4160 rx_minus_opportunity=0 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=2 target=7 rx_minus_expiry=4162 rx_minus_opportunity=2 expect_stop=0 active_after_hold=1 reg=2
+R375_CAL fp=3 target=0 expiry=84 join=4244 action=4244 wire_done=4701 (cycles from mark; 40 cycles = 1 tb ms)
+R375_RESIDUAL fp=3 action_to_wire_done_cycles=457
+R375_WINDOW fp=3 target=0 rx_minus_expiry=1 rx_minus_opportunity=-4159 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=0 rx_minus_expiry=40 rx_minus_opportunity=-4120 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=0 rx_minus_expiry=2080 rx_minus_opportunity=-2080 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=0 rx_minus_expiry=4158 rx_minus_opportunity=-2 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=0 rx_minus_expiry=4160 rx_minus_opportunity=0 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=0 rx_minus_expiry=4162 rx_minus_opportunity=2 expect_stop=0 active_after_hold=1 reg=2
+R375_CAL fp=3 target=7 expiry=84 join=4244 action=4244 wire_done=4701 (cycles from mark; 40 cycles = 1 tb ms)
+R375_RESIDUAL fp=3 action_to_wire_done_cycles=457
+R375_WINDOW fp=3 target=7 rx_minus_expiry=1 rx_minus_opportunity=-4159 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=7 rx_minus_expiry=40 rx_minus_opportunity=-4120 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=7 rx_minus_expiry=2080 rx_minus_opportunity=-2080 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=7 rx_minus_expiry=4158 rx_minus_opportunity=-2 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=7 rx_minus_expiry=4160 rx_minus_opportunity=0 expect_stop=1 active_after_hold=0 reg=0
+R375_WINDOW fp=3 target=7 rx_minus_expiry=4162 rx_minus_opportunity=2 expect_stop=0 active_after_hold=1 reg=2
+R375_MVRP cancel=0 waiting=1 enc_state_after_release=15 msrp_pending=0 park_ends_ms=0 mvrp_response_ms=2
+R375_MVRP cancel=1 waiting=1 enc_state_after_release=0 msrp_pending=0 park_ends_ms=1 mvrp_response_ms=50
+R375_JOINSTART peer_minus_opportunity=-2 accepted_before_peer=0 actions=0
+R375_JOINSTART peer_minus_opportunity=-1 accepted_before_peer=0 actions=0
+R375_JOINSTART peer_minus_opportunity=0 accepted_before_peer=0 actions=0
+R375_JOINSTART peer_minus_opportunity=1 accepted_before_peer=0 actions=0
+R375_JOINSTART peer_minus_opportunity=2 accepted_before_peer=0 actions=0
+R375_JOINSTART peer_minus_opportunity=3 accepted_before_peer=0 actions=0
+R375_SINKEDGE fp=2 release=32 rx_minus_sLA=1 sink_reg=2
+R375_SINKEDGE fp=2 release=33 rx_minus_sLA=0 sink_reg=0
+R375_SINKEDGE fp=2 release=34 rx_minus_sLA=-1 sink_reg=0
+R375_SINKEDGE fp=3 release=32 rx_minus_sLA=1 sink_reg=2
+R375_SINKEDGE fp=3 release=33 rx_minus_sLA=0 sink_reg=0
+R375_SINKEDGE fp=3 release=34 rx_minus_sLA=-1 sink_reg=0
+R375_BUSY waiting=1 enc_state=15
+R375_NEWINTENT actions=1 flagged=1
+102 checks: 102 PASS, 0 FAIL

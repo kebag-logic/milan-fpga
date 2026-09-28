@@ -1,0 +1,18 @@
+bad-listener-length suite=srp_top group=phases rc=2 217 checks: 216 PASS, 1 FAIL KILLED failures=1 tags=K12
+peer-restarts-timer suite=srp_top group=peer rc=2 67 checks: 59 PASS, 8 FAIL KILLED failures=8 tags=M4
+repeated-action suite=srp_top group=congestion rc=2 13 checks: 8 PASS, 5 FAIL KILLED failures=5 tags=N10,N12,N13,N4,N8
+expiry-event suite=srp_top group=phases rc=2 217 checks: 136 PASS, 81 FAIL KILLED failures=81 tags=K1,K11,K12,K2,K4,K5,K9
+before-slot suite=srp_top group=edge rc=2 86 checks: 56 PASS, 30 FAIL KILLED failures=30 tags=L1,L4
+talker-no-own suite=srp_top group=phases rc=2 217 checks: 192 PASS, 25 FAIL KILLED failures=25 tags=K2,K4,K8
+listener-no-own suite=srp_top group=phases rc=2 217 checks: 204 PASS, 13 FAIL KILLED failures=13 tags=K11,K6
+talker-lost-txla suite=srp_stream_fsms group=all rc=2 1203 checks: 1191 PASS, 12 FAIL KILLED failures=12 tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla suite=srp_stream_fsms group=all rc=2 1211 checks: 1199 PASS, 12 FAIL KILLED failures=12 tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv suite=srp_top group=phases rc=2 217 checks: 193 PASS, 24 FAIL KILLED failures=24 tags=K2,K4
+listener-strict-lv suite=srp_top group=phases rc=2 217 checks: 204 PASS, 13 FAIL KILLED failures=13 tags=K11,K6
+listener-sid-ignored suite=srp_top group=phases rc=2 217 checks: 184 PASS, 33 FAIL KILLED failures=33 tags=K12,K3,K5,K8
+talker-no-renewal suite=srp_top group=phases rc=2 217 checks: 216 PASS, 1 FAIL KILLED failures=1 tags=K7
+listener-no-renewal suite=srp_top group=phases rc=2 217 checks: 216 PASS, 1 FAIL KILLED failures=1 tags=K7
+talker-no-expiry suite=srp_top group=phases rc=2 217 checks: 216 PASS, 1 FAIL KILLED failures=1 tags=K8
+listener-no-expiry suite=srp_top group=phases rc=2 217 checks: 216 PASS, 1 FAIL KILLED failures=1 tags=K8
+pending-peer-ignored suite=srp_top group=peer rc=2 67 checks: 53 PASS, 14 FAIL KILLED failures=14 tags=M1,M10,M2,M3
+encoder-peer-ignored suite=srp_top group=peer rc=2 67 checks: 47 PASS, 20 FAIL KILLED failures=20 tags=M1,M11,M12,M2,M3,M6,M7
