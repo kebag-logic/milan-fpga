@@ -1,0 +1,49 @@
+# git diff --stat 49012143b..471892a9 -- hdl sw configs syn scripts .github protocol-processor gptp-processor third_party external
+rc=0
+# full delta name-status
+M	CHANGELOG.md
+M	docs/MILAN_V12_ROADMAP.md
+M	docs/design/GM_LOSS_RECOVERY.md
+M	docs/fpga/FPGA_DESIGN.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/TESTING.md
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/gmstep_mutants.py
+M	tb/verilator/milan_dp/sim_gmstep.cpp
+M	tb/verilator/milan_dp/sim_main.cpp
+M	tb/verilator/tkdiag/mcr_mutants.py
+M	tb/verilator/tkdiag/sim_main.cpp
+# PR total name-status base..head
+M	CHANGELOG.md
+M	docs/MILAN_V12_ROADMAP.md
+M	docs/design/GM_LOSS_RECOVERY.md
+M	docs/design/TIME_SYNC.md
+M	docs/fpga/FPGA_DESIGN.md
+M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/TESTING.md
+M	hdl/ieee1722/avtp/KL_media_clock_restart.sv
+M	hdl/milan/milan_datapath.sv
+M	sw/builder/test_builder.py
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/gmstep_mutants.py
+M	tb/verilator/milan_dp/sim_gmstep.cpp
+M	tb/verilator/milan_dp/sim_main.cpp
+M	tb/verilator/tkdiag/mcr_mutants.py
+M	tb/verilator/tkdiag/sim_main.cpp
+# commits
+471892a9bcc2d26fdcfc19db01949ecea83c5e0f test: observe received CRF state independently of propagation
+add85ca6a5945b7cb815ef53e9c916a3c22aa969 test: isolate PHC restart exclusions and cover coincident CRF events
+49012143b335ea48d6a71c441a05d0c1796887ff Align builder restart assertions with the PHC-only ruling
+81893de43af69791c5e368150487ba3351a69cc1 Correct the restart input comment for PHC-only steps
+f7660247e2df93f83b6ac1998bcc90870684153a Keep PHC-only re-base separate from media clock restart
+# commit message bodies (one-line rule)
+471892a9bcc2d26fdcfc19db01949ecea83c5e0f lines=1
+add85ca6a5945b7cb815ef53e9c916a3c22aa969 lines=1
+49012143b335ea48d6a71c441a05d0c1796887ff lines=1
+81893de43af69791c5e368150487ba3351a69cc1 lines=1
+f7660247e2df93f83b6ac1998bcc90870684153a lines=1

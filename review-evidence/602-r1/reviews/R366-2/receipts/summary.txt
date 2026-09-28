@@ -1,0 +1,54 @@
+O0_clean: leg=option-off rc=0 fails=0 []
+
+O1_settime_only: leg=option-off rc=1 fails=2 []
+    [FAIL] CLKV: the settime leaves mr unchanged (#602) got=0x00000001 exp=0x00000000
+    [FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000
+
+O2_adjtime_only: leg=option-off rc=1 fails=1 []
+    [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+
+O3_both_causes: leg=option-off rc=1 fails=3 []
+    [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+    [FAIL] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000001
+    [FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000
+
+O4_adjtime_delay16: leg=option-off rc=0 fails=0 []
+
+O5_adjtime_delay256: leg=option-off rc=0 fails=0 []
+
+G0_clean: leg=gmstep rc=0 fails=0 []
+
+G1_rebase_restored: leg=gmstep rc=1 fails=2 []
+    [FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0
+    [FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0
+
+O6_adjtime_delay2: leg=option-off rc=1 fails=1 []
+    [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+
+O6_adjtime_delay4: leg=option-off rc=1 fails=1 []
+    [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+
+O6_adjtime_delay8: leg=option-off rc=1 fails=1 []
+    [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+
+O6_adjtime_delay12: leg=option-off rc=1 fails=1 []
+    [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+
+G2_crf_propagation_removed: leg=gmstep rc=1 fails=2 []
+    [FAIL] CRF control: selected CRF mr propagates exactly once got=0 exp=1
+    [FAIL] coincident: a PHC step neither adds nor suppresses the CRF restart got=32 exp=0
+
+G3_same_cycle_veto: leg=gmstep rc=1 fails=1 []
+    [FAIL] coincident: a PHC step neither adds nor suppresses the CRF restart got=1 exp=0
+
+G4_one_cycle_late_veto: leg=gmstep rc=1 fails=1 []
+    [FAIL] coincident: a PHC step neither adds nor suppresses the CRF restart got=1 exp=0
+
+G5_settime_only_restored: leg=gmstep rc=0 fails=0 []
+
+G6_adjtime_delay16_gmstep: leg=gmstep rc=1 fails=2 []
+    [FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0
+    [FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0
+
+G7_settime_delay16_gmstep: leg=gmstep rc=0 fails=0 []
+

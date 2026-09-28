@@ -1,0 +1,21 @@
+== scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 169 md files + 906 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== scripts/check_doc_style.py rc=0
+documentation style: OK (22 current documents)
+== scripts/check_doc_paths.py rc=0
+doc path gate: OK (850 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+== scripts/check_hygiene.py --check rc=2
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -870ff88ad35bbd532244e4c7e6d7661b9f6e1366 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+MISSING scripts/gen_module_matrix.py --check
+== scripts/gen_toc.py --check rc=0
+TOC gate: OK (111 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+== scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04 rc=0
+check_em_dash: 0 finding(s) over 136 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6d5ebd73..HEAD]
+== git diff --check base..head rc=0
+== (review clone) scripts/check_hygiene.py --check rc=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 793 file(s))
+== (review clone) docs/traceability/gen_module_matrix.py --check rc=0
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
