@@ -880,6 +880,16 @@ N = 2, R = 0) against `KL_aecp_desc_store`'s 576-octet line buffer.
 
 ## 3. Config schema → AEM descriptor mapping
 
+Hexadecimal declarations require quoted YAML strings.
+This includes `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
+Numbers, booleans and explicit nulls receive field-named quote instructions.
+Quoted MAC strings retain colon, dash and underscore separators.
+Hexadecimal digits retain their value, with an optional `0x` prefix.
+Each declared AAF `formats` must be a list.
+Quote each entry; scalar strings and other non-lists refuse.
+Omitted or empty lists retain the derived format defaults.
+The [parameter guide](../sw/builder/README-parameters.md#entity-identity) covers every quoted hexadecimal field.
+
 Every key `load_config` accepts has a row below, and
 [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) gate 32 holds
 the two in step: it loads the five tracked configs through a recording

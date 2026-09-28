@@ -25544,6 +25544,8 @@ def _schema_12_config() -> Path:
     doc = yaml.safe_load(CONFIGS[SCHEMA_12_BASE].read_text())
     _setting(*SCHEMA_12_DECLARED.items(),
              ("entity.entity_capabilities", _adp_entity_caps()))(doc)
+    for key in ("vendor_oui", "entity_capabilities"):
+        doc["entity"][key] = f"0x{doc['entity'][key]:X}"
     path = OUT / "_schema_12" / "endstation_schema_12_declared.yaml"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(doc))
@@ -25725,22 +25727,22 @@ def _schema_12_refusal_cases(caps: int) -> list[tuple[str, str, Callable[[dict],
     base, pinned = SCHEMA_12_BASE, "arty_current"
     return [
         ("entity_capabilities diverges from the ADP constant", base,
-         _setting(("entity.entity_capabilities", caps ^ 0x4000)),
+         _setting(("entity.entity_capabilities", f"0x{caps ^ 0x4000:X}")),
          _adp_caps_line()),
         ("entity_capabilities past 32 bits", base,
-         _setting(("entity.entity_capabilities", 1 << 32)), "outside 32 bits"),
+         _setting(("entity.entity_capabilities", "0x100000000")), "outside 32 bits"),
         ("entity_capabilities not a number", base,
          _setting(("entity.entity_capabilities", "fast")), "not a hex integer"),
         ("vendor_oui past 24 bits", base,
-         _setting(("entity.vendor_oui", 0x1000000)), "outside 24 bits"),
+         _setting(("entity.vendor_oui", "0x1000000")), "outside 24 bits"),
         ("vendor_oui negative", base,
-         _setting(("entity.vendor_oui", -1)), "outside 24 bits"),
+         _setting(("entity.vendor_oui", "-1")), "outside 24 bits"),
         ("vendor_oui a bool", base,
-         _setting(("entity.vendor_oui", True)), "is not an integer"),
+         _setting(("entity.vendor_oui", True)), "quote the hexadecimal value as a YAML string"),
         ("vendor_oui with the I/G bit", base,
-         _setting(("entity.vendor_oui", 0x011BC5)), "I/G bit"),
+         _setting(("entity.vendor_oui", "0x011BC5")), "I/G bit"),
         ("vendor_oui the pin contradicts", pinned,
-         _setting(("entity.vendor_oui", 0x123456)), "contradicts the pin"),
+         _setting(("entity.vendor_oui", "0x123456")), "contradicts the pin"),
         ("locale empty", base, _setting(("entity.locale", "")), "non-empty"),
         ("locale past 64 bytes", base,
          _setting(("entity.locale", "x" * 65)), "exceeds 64 bytes"),
@@ -25798,14 +25800,14 @@ def test_schema_12_refusals() -> None:
         finally:
             p.unlink()
     agreed = _variant(CONFIGS["arty_current"],
-                      _setting(("entity.vendor_oui", 0x001BC5)))
+                      _setting(("entity.vendor_oui", "0x001BC5")))
     try:
         assert eb.load_config(agreed)["model_id"]["value"] == DEPLOYED_MODEL_ID
     finally:
         agreed.unlink()
     bad = caps ^ 0x4000
     p = _variant(CONFIGS[SCHEMA_12_BASE],
-                 _setting(("entity.entity_capabilities", bad)))
+                 _setting(("entity.entity_capabilities", f"0x{bad:X}")))
     real = eb._verify_entity_capabilities
     eb._verify_entity_capabilities = lambda ent: None
     try:
