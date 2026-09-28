@@ -1,0 +1,37 @@
+RM5: keep-off halved to 128 cycles (still above nothing the true plan needs, below the 200-cycle proportional equilibrium a 50 ppm source forces on a pulled engagement)
+RM6: lock-target split one cycle late: the aligner sees the tick two cycles late
+RM7: a tick queued behind a running walk snapshots nothing (the late-snapshot path removed)
+RM8: a queued tick snapshots at the tick instant anyway (tick_late_r ignored: the walk bank reloads while the walk the tick queued behind is still reading it)
+RM5 [tb/verilator/capture_coherence (full)]: rc=1 checks: 5240   failures: 181
+     [FAIL] [CRF+50-0] [C] CRF slips net zero
+     [FAIL] [CRF+50-0] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-144] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-144] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-144] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-140] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-140] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-140] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-136] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-136] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-136] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-132] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-132] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-132] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-128] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-128] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-128] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-124] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-124] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-124] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-120] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-120] [C] CRF slips only inside the engagement's first columns
+     [FAIL] [CRF-band-50-120] [C] slips while the CRF lock held got=1 exp=0
+     [FAIL] [CRF-band-50-116] [C] CRF slips net zero
+     [FAIL] [CRF-band-50-116] [C] CRF slips only inside the engagement's first columns
+     ... 181 FAIL lines
+RM5 [tb/verilator/capture_coherence --band]: rc=0 checks: 1302   failures: 0
+RM6 [tb/verilator/capture_coherence --band]: DID NOT BUILD (see $REVIEWS/617-r394-2-packet/scratch/mut2/RM6_capture_coherence_band/build.log)
+RM7 [tb/verilator/capture_coherence --quick]: rc=0 checks: 494   failures: 0
+RM7 [tb/verilator/chmap_capture (full)]: rc=0 318 checks, 0 failures
+RM8 [tb/verilator/capture_coherence --quick]: rc=0 checks: 494   failures: 0
+RM8 [tb/verilator/chmap_capture (full)]: rc=0 318 checks, 0 failures

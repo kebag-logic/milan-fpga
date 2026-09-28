@@ -1,0 +1,178 @@
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.211 MB sources in 5 modules, into 0.111 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.015 s (elab=0.005, cvt=0.016, bld=4.981); cpu 0.038 s on 16 threads; allocated 1204.781 MB
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.211 MB sources in 5 modules, into 0.112 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.078 s (elab=0.005, cvt=0.016, bld=5.044); cpu 0.039 s on 16 threads; allocated 1076.828 MB
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-UNSIGNED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:184:46: Comparison is constant due to unsigned arithmetic
+                                                                          : ... note: In instance 'media_grid_align_wrap.u_align'
+  184 |   wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_LO_C
+      |                                              ^
+                   ... For warning description see https://verilator.org/warn/UNSIGNED?v=5.050
+                   ... Use "/* verilator lint_off UNSIGNED */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.211 MB sources in 5 modules, into 0.111 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 4.995 s (elab=0.005, cvt=0.015, bld=4.963); cpu 0.037 s on 16 threads; allocated 1012.730 MB
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.206 MB sources in 5 modules, into 0.111 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 4.992 s (elab=0.005, cvt=0.016, bld=4.959); cpu 0.038 s on 16 threads; allocated 692.812 MB
+======================================================================
+== KL_media_grid_align closed over KL_media_nco (#74) ==
+
+[G0] reset / deselected: no command, no engagement
+  [ ok ] G0: u_o stays 0 with sel_i low                       = 0
+  [ ok ] G0: engaged_o stays 0 with sel_i low                 = 0
+
+[G1] INTERNAL equivalence: deselected NCO is bit-exact nominal
+  [ ok ] G1: 4800 ticks in 10M cycles (exact 48 kHz)          = 4800
+
+[G2] select at the true Plan-A ratio: acquire, bound, hold
+  [ ok ] G2: loop engaged                                     = 1
+  [ ok ] G2: |err| peak over acquisition (cycles, <1 sample=2083) = 35 (in [0, 300])
+  [ ok ] G2: zero surplus ticks while engaged (junction law)  = 0
+  [ ok ] G2: zero surplus frames while engaged (junction law) = 0
+  [ ok ] G2: settled u (LSB of 1/16 ppm; plan needs ~-170)    = -172 (in [-200, -140])
+  [ ok ] G2: settled |err| (cycles)                           = 7 (in [0, 60])
+  [ ok ] G2: locked tick count tracks frame count (+/-1)      = 0 (in [-1, 1])
+
+[G3] the opposite direction: a +10.64 ppm fast feed
+  [ ok ] G3: zero surplus ticks (junction law)                = 0
+  [ ok ] G3: zero surplus frames (junction law)               = 0
+  [ ok ] G3: u flips sign with the rate (~+170 LSB)           = 175 (in [140, 200])
+
+[G4] feed watchdog: silence disengages, frames re-engage
+  [ ok ] G4: engaged_o falls on a dead feed                   = 0
+  [ ok ] G4: u_o returns to 0 on a dead feed                  = 0
+  [ ok ] G4: dead-feed NCO free-runs at exact 48 kHz          = 4800
+  [ ok ] G4: re-engaged after the feed returns                = 1
+  [ ok ] G4: reacquired u (~-170 LSB)                         = -176 (in [-200, -140])
+
+[G5] deselect mid-lock: INTERNAL free-run comes back untouched
+  [ ok ] G5: u_o drops to 0 on deselect                       = 0
+  [ ok ] G5: engaged_o drops on deselect                      = 0
+  [ ok ] G5: deselected NCO is bit-exact nominal again        = 4800
+
+[G6] beyond authority: a 400 ppm feed parks at the clamp,
+     slips honestly, and recovery is frames - not seconds
+  [ ok ] G6: u parked at the negative clamp                   = -3200
+  [ ok ] G6: slips stop after recovery (surplus ticks)        = 0
+  [ ok ] G6: slips stop after recovery (surplus frames)       = 0
+  [ ok ] G6: recovered u (~-170 LSB)                          = -152 (in [-200, -140])
+
+[G7] raced lock: the engaging frame lands ON a tick (#74 item 2)
+  [ ok ] G7: the loop engaged on that frame                   = 1
+  [ ok ] G7: the engaging frame raced onto the tick (phase)   = 0
+  acquisition: 0 junction dups, 0 skips
+  [ ok ] G7: still engaged after settling                     = 1
+  window 0: 0 junction dups, 0 skips, err 5 cycles
+  window 1: 0 junction dups, 0 skips, err 3 cycles
+  window 2: 0 junction dups, 0 skips, err 0 cycles
+  window 3: 0 junction dups, 0 skips, err 1 cycles
+  window 4: 0 junction dups, 0 skips, err 1 cycles
+  window 5: 0 junction dups, 0 skips, err 0 cycles
+  window 6: 0 junction dups, 0 skips, err 0 cycles
+  window 7: 0 junction dups, 0 skips, err 1 cycles
+  [ ok ] G7: zero junction dups over 8 x 0.2 s at the raced lock = 0
+  [ ok ] G7: zero junction skips over 8 x 0.2 s at the raced lock = 0
+  [ ok ] G7: marker clearance from every tick at lock (cycles) = 15 (in [12, 2083])
+  [ ok ] G7: a held frame is one junction dup                 = 1
+  [ ok ] G7: a held frame is no junction skip                 = 0
+  [ ok ] G7: a surplus frame is one junction skip             = 1
+  [ ok ] G7: a surplus frame is no junction dup               = 0
+  [ ok ] G7: the loop stayed engaged through both slips       = 1
+
+[G8] raced lock from below: the engaging frame lands just BEFORE a tick
+  [ ok ] G8: the loop engaged on that frame                   = 1
+  [ ok ] G8: the engaging frame raced the next tick (phase)   = 2082 (in [2081, 2083])
+  acquisition: 84 junction dups, 84 skips
+  [ ok ] G8: zero junction dups over 0.2 s at the lock        = 0
+  [ ok ] G8: zero junction skips over 0.2 s at the lock       = 0
+  [ ok ] G8: marker clearance from every tick at lock (cycles) = 14 (in [12, 2083])
+
+[G9] free-running: one slow passage across a tick is ONE slip, its way
+  [ ok ] G9: a slow grid's passage is one junction dup        = 1
+  [ ok ] G9: a slow grid's passage is no junction skip        = 0
+  [ ok ] G9: a fast grid's passage is one junction skip       = 1
+  [ ok ] G9: a fast grid's passage is no junction dup         = 0
+
+----------------------------------------------------------------------
+45 checks, 0 failures
+RESULT: PASS
+---- negative control: the inverted-sign build MUST fail -------------
+negative control MGA_MUT_U_SIGN: RED as required --   [FAIL] G2: |err| peak over acquisition (cycles, <1 sample=2083) = 11040 (outside [0, 300])
+---- negative control: no lock-phase keep-off MUST fail [G7] ---------
+negative control MGA_MUT_NO_KEEPOFF: RED as required --   [FAIL] G7: zero junction dups over 8 x 0.2 s at the raced lock = 5203 (expected 0)
+---- negative control: the old coincidence law MUST fail [G9] --------
+negative control MGA_MUT_COIN: RED as required --   [FAIL] G9: a slow grid's passage is one junction dup        = 11 (expected 1)

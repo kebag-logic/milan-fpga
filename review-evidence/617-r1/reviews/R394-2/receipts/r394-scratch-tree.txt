@@ -1,0 +1,14 @@
+R394-2 scratch tree provenance (disposable, unpublished; under scratch/head)
+
+- scratch/head = `git archive 377d1ac3658feb8d544e6ed1005b186b67127f35` of the clone
+  (tree 1707f6897f5c1824e7ec4f1e6f40c9be62d4fc7d): every tracked file byte-identical by construction.
+- Submodule working copies copied from the clone's checked-out gitlinks:
+  protocol-processor c951a9ff0cb5851fb159d33e966e5a2a9a188fe3,
+  third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce,
+  gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d.
+- scratch/head/protocol-processor only: its gitfile was replaced by a scratch-local `git init`
+  + one commit of the copied files, so scripts/pp_srcs.py (`git ls-files`) can derive the
+  datapath source list; the clone's .git and .git/modules were never written.
+- Every build, run, probe and mutant ran in scratch/head or beside it (cc_r394_* probe copies,
+  mut2*/ mutant work dirs); no file in the clone was edited, built or executed in place.
+- Round-1 RTL for the area delta: `git show 5546b976:hdl/ieee1722/aaf/KL_chan_map_capture.sv`.

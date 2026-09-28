@@ -1,0 +1,7 @@
+RM5: keep-off halved to 128 cycles (still above nothing the true plan needs, below the 200-cycle proportional equilibrium a 50 ppm source forces on a pulled engagement)
+RM6: lock-target split one cycle late: the aligner sees the tick two cycles late
+RM7: a tick queued behind a running walk snapshots nothing (the late-snapshot path removed)
+RM8: a queued tick snapshots at the tick instant anyway (tick_late_r ignored: the walk bank reloads while the walk the tick queued behind is still reading it)
+RM6 [tb/verilator/capture_coherence --band]: rc=1 checks: 1302   failures: 2
+     [FAIL] [CRF-band-true+2] [C] CRF slips net zero
+     [FAIL] [CRF-band-true+3] [C] CRF slips net zero

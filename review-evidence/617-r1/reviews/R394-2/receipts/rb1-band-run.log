@@ -1,0 +1,215 @@
+=== TDM capture junction: AAF column coherence (#617), --band: the true plan's band alone ===
+
+  [i]  calibration, true 391/1591 plan: with the TDM clock unheld the first close lands 14 cycles after its tick
+
+[CRF-band-true] CRF, true 391/1591 plan, engagement placed every 1 cycles from -32 to +32 of the crossing, 2000 columns each
+  [i]  CRF-band-true-32: engaged -33 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 22 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-31: engaged -32 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 21 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-30: engaged -32 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 21 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-29: engaged -31 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 20 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-28: engaged -29 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 18 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-27: engaged -28 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 17 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-26: engaged -28 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 17 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-25: engaged -27 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 16 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-24: engaged -25 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 14 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-23: engaged -24 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 13 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-22: engaged -24 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 13 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-21: engaged -23 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 12 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-20: engaged -21 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 10 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-19: engaged -20 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 9 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-18: engaged -19 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 8 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-17: engaged -19 cycles from the crossing, the close then moved +0..+18 (furthest at column 1973); tail: tick 8 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true-16: engaged -18 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 7 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [FAIL] [CRF-band-true-15] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-15] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-15: engaged -16 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 5 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-15] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 913.0  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 652.6  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 392.2  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 131.8  max 1042 axis cycles
+  [FAIL] [CRF-band-true-14] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-14] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-14: engaged -15 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 4 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-14] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 989.7  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 729.3  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 468.9  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 208.5  max 1042 axis cycles
+  [FAIL] [CRF-band-true-13] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-13] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-13: engaged -15 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 4 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-13] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 989.7  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 729.3  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 468.9  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 208.5  max 1042 axis cycles
+  [FAIL] [CRF-band-true-12] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-12] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-12: engaged -14 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 3 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-12] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1051.8  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 791.4  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 531.0  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 270.6  max 1042 axis cycles
+  [FAIL] [CRF-band-true-11] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-11] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-11: engaged -12 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-11] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1190.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 930.1  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 669.7  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 409.3  max 1042 axis cycles
+  [FAIL] [CRF-band-true-10] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-10] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-10: engaged -11 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 0 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-10] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1252.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 992.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 731.8  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 471.4  max 1042 axis cycles
+  [FAIL] [CRF-band-true-9] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-9] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-9: engaged -11 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 0 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [FAIL] [CRF-band-true-9] [C] slips while the CRF lock held got=1 exp=0
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1252.7  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 992.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 731.8  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 471.4  max 1042 axis cycles
+  [FAIL] [CRF-band-true-8] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-8] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-8: engaged -10 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1041 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1313.2  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1052.8  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 792.3  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 531.9  max 1042 axis cycles
+  [FAIL] [CRF-band-true-7] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-7] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-7: engaged -8 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1039 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1422.7  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1162.3  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 901.9  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 641.5  max 1042 axis cycles
+  [FAIL] [CRF-band-true-6] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-6] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-6: engaged -7 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1038 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1483.3  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1222.8  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 962.4  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 702.0  max 1042 axis cycles
+  [FAIL] [CRF-band-true-5] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-5] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-5: engaged -7 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1038 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1483.3  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1222.9  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 962.4  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 702.0  max 1042 axis cycles
+  [FAIL] [CRF-band-true-4] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-4] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-4: engaged -6 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1037 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1529.2  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1268.8  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 1008.4  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 747.9  max 1042 axis cycles
+  [FAIL] [CRF-band-true-3] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-3] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-3: engaged -4 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1035 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1637.2  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1376.8  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 1116.4  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 855.9  max 1042 axis cycles
+  [FAIL] [CRF-band-true-2] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-2] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-2: engaged -3 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1034 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1683.1  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1422.7  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 1162.3  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 901.9  max 1042 axis cycles
+  [FAIL] [CRF-band-true-1] [C] CRF slips net zero
+  [FAIL] [CRF-band-true-1] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true-1: engaged -3 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1034 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1683.1  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1422.7  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 1162.3  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 901.9  max 1042 axis cycles
+  [FAIL] [CRF-band-true+0] [C] CRF slips net zero
+  [FAIL] [CRF-band-true+0] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-band-true+0: engaged -2 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1033 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1729.0  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 520  mean 1468.6  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 1208.2  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 947.8  max 1042 axis cycles
+  [FAIL] [CRF-band-true+1] [C] CRF slips net zero
+  [i]  CRF-band-true+1: engaged +0 cycles from the crossing, the close then moved +0..+18 (furthest at column 1913); tail: tick 1031 cycles after the frame close, -7..+1 (spread 8); 1 repeats, 0 skips
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 1805  mean 1813.1  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 1544  mean 1552.6  max 1562 axis cycles
+  [i]    pair 2 sample age at the tick: min 1284  mean 1292.2  max 1302 axis cycles
+  [i]    pair 3 sample age at the tick: min 1024  mean 1031.8  max 1041 axis cycles
+  [i]  CRF-band-true+2: engaged +1 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1030 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+3: engaged +1 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1030 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+4: engaged +2 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1029 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+5: engaged +4 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1027 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+6: engaged +5 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1026 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+7: engaged +5 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1026 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+8: engaged +6 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1025 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+9: engaged +8 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1023 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+10: engaged +9 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1022 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+11: engaged +9 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1022 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+12: engaged +10 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1021 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+13: engaged +12 cycles from the crossing, the close then moved +0..+18 (furthest at column 1912); tail: tick 1019 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+14: engaged +14 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1018 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+15: engaged +14 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1018 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+16: engaged +15 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1017 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+17: engaged +17 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1015 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+18: engaged +18 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1014 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+19: engaged +18 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1014 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+20: engaged +19 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1013 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+21: engaged +21 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1011 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+22: engaged +22 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1010 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+23: engaged +22 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1010 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+24: engaged +23 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1009 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+25: engaged +25 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1007 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+26: engaged +26 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1006 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+27: engaged +26 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1006 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+28: engaged +27 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1005 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+29: engaged +29 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1003 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+30: engaged +30 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1002 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+31: engaged +30 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1002 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true+32: engaged +31 cycles from the crossing, the close then moved -1..+17 (furthest at column 1919); tail: tick 1001 cycles after the frame close, -7..+1 (spread 8); 0 repeats, 0 skips
+  [i]  CRF-band-true: 65 engagements landed from -33 to +31, widest gap 2 cycles
+== capture_coherence: checks: 1302   failures: 40 ==
+RESULT: FAIL
