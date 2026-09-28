@@ -1,0 +1,28 @@
+proc issue #15 OPEN No timeout or abort: a silent device wedges the port forever
+proc issue #20 OPEN acmp_nvm_shadow classifies a dying flash as a blank region
+proc issue #92 CLOSED Read-only GET_RX_STATE during boot restore can erase a saved listener binding
+proc issue #93 CLOSED D3 prerequisites: terminal error cause, bounded binding restore and boot listener admission
+proc issue #94 CLOSED Isolate late descriptor-memory responses across timeout and rollback
+proc PR #109 MERGED 008edbbf486598ae237414273d75e385cf0e1a56 Keep a saved binding through boot restore, name NVM error causes and bound the binding walk
+proc PR #110 MERGED 939c143333d11e2378a514f1c7b6abd4c3259bfd Hold the descriptor store's next request while an abandoned burst is still owed
+proc PR #129 OPEN - Retry refused ACMP destination allocations in fair paced rounds
+proc PR #130 OPEN - Apply own MSRP LeaveAll at transmit acceptance
+parent issue #500 CLOSED [Saved state] Decide and specify D3: who materializes configuration, rates, formats, offsets, maps and names into NVM records, and how they come back
+parent issue #501 CLOSED [Saved state] Resolve output-map record capacity for legal 8x8 fan-out sets
+parent issue #502 CLOSED [Saved state] Assert pending from live name and map writes before their commit marks
+parent issue #584 OPEN 8x8 stream input ports own no AUDIO_CLUSTER, against Milan 5.3.3.8
+parent issue #229 OPEN [EPIC][Optimisation] Reduce KL_pp_shadow resource usage and restore implementation headroom
+parent issue #602 OPEN Decide whether a PHC-step media re-base toggles mr (owner mr rule vs #387 decision)
+parent issue #607 OPEN Clock-crossing constraints silently fail to apply (wrong clock names in the shipping XDC)
+parent issue #397 OPEN [Architecture] Service-budget decision: one cacheless hart or a second hart for the firmware's duties
+parent issue #75 OPEN ACMP: bound stream restart exceeds one second
+parent PR #557 MERGED c533b4818df8b3f581df76aa0d1c6d5f55d20449 Grow dynamic output-map records to the stream-channel key space
+parent PR #579 MERGED 682ecf0cb995473b72d5b4921088053ba753fc93 Assert saved-state pending from accepted name and map writes
+parent PR #603 OPEN - Keep a PHC-only re-base separate from the media clock restart
+parent PR #609 OPEN - Service queued console input, copy captures word-wide and publish PHY status in firmware
+parent PR #503 MERGED b17580b91deb11f3441dfc5d7f9fafe539d929b8 [A154] Propose saved-state materialization and staged restore ownership
+proc #18 OPEN The power-cut suite never asserts rst_n: a device err is not a power failure
+proc #19 OPEN Four nvm_port RTL mechanisms have zero test coverage
+proc #21 OPEN The harness has no device model that misbehaves on the handshake
+proc #61 OPEN Persist and restore the AECP dynamic state, audio maps and names (REQ-PER-001 beyond BINDING)
+proc #83 OPEN GAP-09: only the ACMP BINDING record persists; AECP state, names and maps have no NVM manager

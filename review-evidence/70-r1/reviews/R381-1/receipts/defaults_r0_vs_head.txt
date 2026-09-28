@@ -1,0 +1,44 @@
+r0 header: ['| ID and status | Options and consequences | Proposed default and required evidence |']
+head header: ['| ID and status | Options and consequences | Selected option (manager ruling) | Adopted default and required evidence |']
+== DR1a r0 cells 3
+ options same: True
+ default same: False
+  r0  : Require #15's unchanged criterion before full #70 closure. Independent contract work may continue. Demonstrate bounded error, busy release, and a later successful operation; reject late-response reassignment. Never equate DEFAULTS service with reusable persistence.
+  head: Require #15's unchanged criterion before full #70 closure. Contract work and lanes 1-4 may proceed meanwhile. Demonstrate bounded error, busy release, and a later successful operation; reject late-response reassignment. Never equate DEFAULTS service with reusable persistence.
+== DR1b r0 cells 3
+ options same: True
+ default same: True
+== DR2a r0 cells 3
+ options same: True
+ default same: False
+  r0  : Start with 500 ms producer and 1,000 ms firmware first-dirty windows. Drain one eligible burst per producer window. Measure command sweeps, final-value convergence and erases. Cuts before verified promotion may lose unsaved changes; the last verified snapshot survives. Publish measured normal-load acceptance-to-durable time, separately from failure/backpressure. No unconditional 1.5-second durability promise.
+  head: Use 500 ms producer and 1,000 ms firmware first-dirty windows. Drain one eligible burst per producer window. Measure command sweeps, final-value convergence and erases. Cuts before verified promotion may lose unsaved changes; the last verified snapshot survives. Each lane implementing a writer publishes measured normal-load acceptance-to-durable time, separately from failure/backpressure. No unconditional 1.5-second durability promise.
+== DR2b r0 cells 3
+ options same: True
+ default same: True
+== DR2c r0 cells 3
+ options same: True
+ default same: False
+  r0  : Propose at most three write attempts per record, relatching each time, separated by 500 ms. Specify attempts versus retries explicitly. Propose at most three firmware transaction attempts per unchanged captured work set, separated by 1,000 ms. After exhaustion, keep the alarm until reset. Never ACK a failed slot or forgive producer loss on heartbeat. These limits do not solve an operation that never ends; DR1a governs that case. Measure error bursts and erase amplification.
+  head: Use at most three write attempts per record, relatching each time, separated by 500 ms. Specify attempts versus retries explicitly. Use at most three firmware transaction attempts per unchanged captured work set, separated by 1,000 ms. After exhaustion, keep the alarm until reset. Never ACK a failed slot or forgive producer loss on heartbeat. These limits do not solve an operation that never ends; DR1a governs that case. Measure error bursts and erase amplification.
+== DR3a r0 cells 3
+ options same: True
+ default same: False
+  r0  : Use 20 ms as the initial per-wait candidate, then prove it exceeds the image walk and largest record transaction. Record `ceil(core_hz * timeout_ms / 1000)` and clock ratios. Propose a 1,000 ms aggregate budget from accepted `PP_CTRL[1]` to COMPLETE, DEFAULTS or CLOSED, including rollback. Ratify or revise from product measurements before implementation. Firmware's wait never overrides fabric enable. Release deadlines remain REQUIREMENTS section 8, including the provisional 30-second restoration ceiling.
+  head: Use 20 ms as the initial per-wait candidate, then prove it exceeds the image walk and largest record transaction. Record `ceil(core_hz * timeout_ms / 1000)` and clock ratios. Use an initial 1,000 ms aggregate budget from accepted `PP_CTRL[1]` to COMPLETE, DEFAULTS or CLOSED, including rollback. Lane 1 measures; the manager ratifies or revises both numbers before lane 2 implements. Firmware's wait never overrides fabric enable. Release deadlines remain REQUIREMENTS section 8, including the provisional 30-second restoration ceiling.
+== DR3b r0 cells 3
+ options same: True
+ default same: False
+  r0  : Prefer coupled resets until O4 is physically proven. Preserve O1's sole control writer, O2's fabric-to-CPU reset, and O3's admission order. Load and CRC-check AEM before descriptor-dependent restore. On a shape failure, disable persistence but start the failure/default walk when fabric identity is valid. On an unprovable AEM image, reach CLOSED. Prove all cold paths reach a terminal; never bypass restore on a firmware timeout. No runtime reload may erase producer ownership.
+  head: Couple CPU and fabric resets until O4 retention is physically proven. Preserve O1's sole control writer, O2's fabric-to-CPU reset, and O3's admission order. Load and CRC-check AEM before descriptor-dependent restore. On a shape failure, disable persistence but start the failure/default walk when fabric identity is valid. On an unprovable AEM image, reach CLOSED. Prove all cold paths reach a terminal; never bypass restore on a firmware timeout. No runtime reload may erase producer ownership.
+== DR4 r0 cells 3
+ options same: True
+ default same: False
+  r0  : Propose the stage budgets below and the latter scope, subject to an explicit manager amendment. The existing both-shape obligation remains open meanwhile. Measure matched before/after heads, generated inventory, clocks, device, directives, seeds and corrected #607 constraints. Include LUTRAM, FF, BRAM, DSP, WNS and firmware size. The historical 781-LUT backend figure is not a D3 budget.
+  head: Use the stage budgets below for 1x1 TDM8 shipping area acceptance. Retain 8x8 synthesis diagnostics; its post-place obligation remains open and blocked, not waived. The 8x8 remains non-shipping until it fits (#584/#229). Measure matched before/after heads, generated inventory, clocks, device, directives, seeds and corrected #607 constraints. Include LUTRAM, FF, BRAM, DSP, WNS and firmware size. The historical 781-LUT backend figure is not a D3 budget.
+== DR5 r0 cells 3
+ options same: True
+ default same: True
+== DR6 r0 cells 3
+ options same: True
+ default same: True

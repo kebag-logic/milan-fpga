@@ -1,0 +1,29 @@
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 172 md files + 917 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (853 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+exit=0
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+exit=0
+### python3 scripts/gen_toc.py --check
+TOC gate: OK (114 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+exit=0
+### python3 scripts/check_em_dash.py --base c07232228c12b72805dd20e6852bf93f25794da0
+check_em_dash: 0 finding(s) over 707 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c0723222..HEAD]
+exit=0
+### python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 915 tracked first-party file(s))
+exit=0
+### python3 scripts/ci_scope.py --selftest
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+exit=0
+### python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+exit=0
+git diff --check base..HEAD -> 0

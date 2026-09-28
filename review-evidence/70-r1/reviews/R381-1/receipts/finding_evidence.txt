@@ -1,0 +1,47 @@
+== processor pin
+16be6768f710e79450aace277abacd6c2c3336e5
+== F1: files and sections the D3 section 15.2 table names
+ [docs/architecture/07_memory_maps.md | 5.3, F07.9 runtime, lines 447-458 
+ [docs/architecture/07_memory_maps.md | 5.3, F07.9 boot, lines 459-475 
+ [docs/architecture/07_memory_maps.md | 5.3 failure table and following paragraphs 
+ [docs/architecture/07_memory_maps.md | 5.1/5.2/5.4, F07.8 inventory and open choices 
+ [docs/architecture/02_interfaces.md | 8.1/8.2, lines 538-572 
+ [docs/architecture/06_aecp_engine.md | 4/5 and state/name/format/map interfaces 
+ [docs/architecture/05_acmp_engine.md | 5.1 boot admission 
+ [docs/architecture/08_timing.md | 2, T-NVM-DEBOUNCE and T-NVM-RS-DEADLINE 
+ [docs/architecture/09_verification.md | 3, NVM; 8, suite evidence 
+== F1: superseded statements at the pin outside those rows
+-- 02_interfaces.md section 8 boot paragraph (table cites only 8.1/8.2, lines 538-572)
+Boot restore is the mirror image (`we = 0`): the boot sequencer reads every record,
+CRC-validates, falls back to vendor defaults on failure, **then** releases
+`entity_enable` ([07 §5.3](07_memory_maps.md)). Which failures are one record's
+default and which fail the whole walk is [07 §5.3](07_memory_maps.md#fig-07-nvmflow)'s
+table.
+-- guides/integrator.md (not in the table)
+334:| `nvm_unflushed_o` | per-sink binding state the manager has accepted and not yet committed. 1 from the accepted change until its record commits with `done`, or until the retries are exhausted and `nvm_alarm_o` rises on the same cycle. OR it with `aecp_dyn_dirty_o` for a "saved state pending" bit; without it a binding taken inside the commit debounce reads durable. |
+336:| `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a dynamic-state field, 6 channel maps, 7 user names. Nothing in the processor writes a record for 6 or 7. This completion mark retains its timing; use `aecp_name_wr_o` for the earlier name writes and `amap_edit_req_o` with `amap_edit_phase_o == 5` for live map writes. |
+-- guides/operator.md (not in the table)
+202:`restore_fail_o` means the whole boot restore was abandoned — deliberately, so a partial
+204:record read, or a device that stopped answering for the read deadline. Every sink then
+-- 01_overview.md F01.5 parameter row (not in the table)
+170:| P-NVM-RS-TMO-CYC | P-CLK-HZ / 50 (20 ms) | above the slowest single record read the NVM device face can take (`NVM_RS_TMO_CYC_P`) | boot restore walk's re
+-- D3 contract statements these contradict
+540:| Exports | `nvm_unflushed_o` stays the binding manager's; new `d3_unflushed_o`, the OR of the writer's dirty bits; `nvm_alarm_o` becomes both managers' alarm; `restore_done_o`, `restore_fail_o` a
+541:| Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port input cluster counts and output entry capacities from [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-t
+555:  `aecp_dyn_dirty_o` stays exported for diagnosis but leaves `pend_i`.
+1400:| CLOSED | an image not proven at the start; a roll-back that cannot validate the image, or whose memory debt outlasts the deadline; an abort during the roll-back | never | 1 | kept for ever | ne
+2260:| [docs/architecture/07_memory_maps.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/07_memory_maps.m
+== F2: FASTCONNECT section 1 present-tense pin/line claims
+119:| The processor frames and streams one record class | **Landed** (submodule) | `KL_pp_nvm_port` + `KL_acmp_nvm_shadow`. The shadow is the ONLY manager wired to the port today (`protocol_processor_top.sv` lines 2261 a
+131:**Which donor commit.** The processor pin is
+-- D3 reconciliation baseline
+72:Its processor pin is `16be6768f710e79450aace277abacd6c2c3336e5`.
+-- lines FASTCONNECT cites at the actual pin
+      .req_op_i            (srp_req_op_w),
+      .wr_valid_o          (srp_txs_wr_valid_w),
+2523:  KL_pp_nvm_mgr_arb u_nvm_arb (
+2542:      .m1_req_i       (1'b0),
+-- ancestry
+2faa5af8 is an ancestor, 97 commits behind
+-- sentence added by this change
+83:Implementation and historical evidence remain explicitly distinguished below.
