@@ -1,0 +1,108 @@
+=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617) ===
+
+[DP-INT-slow] milan_datapath, INTERNAL, -1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [i]  2201 columns in 367 PDUs, 0 torn (0.0%), 2 repeats, 0 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2201 columns  100.0%  coherent
+
+[DP-INT-fast] milan_datapath, INTERNAL, +1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [i]  2201 columns in 367 PDUs, 0 torn (0.0%), 0 repeats, 3 skips, 3 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2201 columns  100.0%  coherent
+
+[DP-CRF-0] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 0 steps, 1500 columns
+  [i]  DP-CRF-0: engaged +14 cycles from the crossing; tail: tick 1029 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-1] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 520 steps, 1500 columns
+  [i]  DP-CRF-1: engaged +143 cycles from the crossing; tail: tick 900 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-2] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1041 steps, 1500 columns
+  [i]  DP-CRF-2: engaged +274 cycles from the crossing; tail: tick 769 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-3] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1562 steps, 1500 columns
+  [i]  DP-CRF-3: engaged +403 cycles from the crossing; tail: tick 640 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-4] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2083 steps, 1500 columns
+  [i]  DP-CRF-4: engaged -508 cycles from the crossing; tail: tick 508 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-5] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2604 steps, 1500 columns
+  [i]  DP-CRF-5: engaged -378 cycles from the crossing; tail: tick 379 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-6] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3125 steps, 1500 columns
+  [i]  DP-CRF-6: engaged -247 cycles from the crossing; tail: tick 248 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-7] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3646 steps, 1500 columns
+  [i]  DP-CRF-7: engaged -118 cycles from the crossing; tail: tick 119 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+  [i]  calibration, true 391/1591 plan: with the TDM clock unheld the first close under CRF lands 14 cycles after its tick
+
+[DP-band-true] milan_datapath, CRF, true 391/1591 plan, engagement placed every 2 cycles from -20 to +4 of the crossing, 1500 columns each
+  [i]  DP-band-true-20: engaged -21 cycles from the crossing; tail: tick 21 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-18: engaged -19 cycles from the crossing; tail: tick 19 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-16: engaged -17 cycles from the crossing; tail: tick 17 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-14: engaged -15 cycles from the crossing; tail: tick 15 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-12: engaged -13 cycles from the crossing; tail: tick 13 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-10: engaged -11 cycles from the crossing; tail: tick 11 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true-8] [C] CRF slips net zero
+  [FAIL] [DP-band-true-8] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true-8: engaged -9 cycles from the crossing; tail: tick 9 cycles after the fsync edge, -6..+1 (spread 7); 5 repeats, 4 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true-8] [C] slips while the CRF lock held got=9 exp=0
+  [FAIL] [DP-band-true-8] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 5 repeats, 4 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [FAIL] [DP-band-true-6] [C] CRF slips net zero
+  [FAIL] [DP-band-true-6] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true-6: engaged -7 cycles from the crossing; tail: tick 7 cycles after the fsync edge, -6..+1 (spread 7); 28 repeats, 27 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true-6] [C] slips while the CRF lock held got=55 exp=0
+  [FAIL] [DP-band-true-6] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 28 repeats, 27 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [FAIL] [DP-band-true-4] [C] CRF slips net zero
+  [FAIL] [DP-band-true-4] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true-4: engaged -5 cycles from the crossing; tail: tick 5 cycles after the fsync edge, -7..+1 (spread 8); 30 repeats, 29 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true-4] [C] slips while the CRF lock held got=59 exp=0
+  [FAIL] [DP-band-true-4] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 30 repeats, 29 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [FAIL] [DP-band-true-2] [C] CRF slips net zero
+  [FAIL] [DP-band-true-2] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true-2: engaged -3 cycles from the crossing; tail: tick 3 cycles after the fsync edge, -7..+1 (spread 8); 21 repeats, 20 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true-2] [C] slips while the CRF lock held got=41 exp=0
+  [FAIL] [DP-band-true-2] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 21 repeats, 20 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [FAIL] [DP-band-true+0] [C] CRF slips net zero
+  [FAIL] [DP-band-true+0] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true+0: engaged -1 cycles from the crossing; tail: tick 1 cycles after the fsync edge, -7..+1 (spread 8); 20 repeats, 19 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true+0] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [FAIL] [DP-band-true+2] [C] CRF slips net zero
+  [FAIL] [DP-band-true+2] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true+2: engaged +1 cycles from the crossing; tail: tick 1041 cycles after the fsync edge, -7..+1 (spread 8); 20 repeats, 19 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true+2] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [FAIL] [DP-band-true+4] [C] CRF slips net zero
+  [FAIL] [DP-band-true+4] [C] CRF slips only inside the engagement's first columns
+  [i]  DP-band-true+4: engaged +3 cycles from the crossing; tail: tick 1039 cycles after the fsync edge, -7..+0 (spread 7); 20 repeats, 19 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-band-true+4] [C] SLIP_TDM counted the columns' repeats and skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+  [i]  DP-band-true: 13 engagements landed from -21 to +3, widest gap 2 cycles
+== capture_coherence_dp: checks: 311   failures: 25 ==
+RESULT: FAIL
