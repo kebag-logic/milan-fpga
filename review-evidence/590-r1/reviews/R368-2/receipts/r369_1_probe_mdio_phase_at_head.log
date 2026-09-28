@@ -1,0 +1,8 @@
+# R369-1 public probe (review-evidence/590-r1/reviews/R369-1 at a1c4d79f), unchanged; sha256 probe_mdio_phase.py 06ac49d5..., probe_mdio_phase.c 192c2603...; run at c64f8cd8
+PHASE=0 BMSR true=0x796d litex_reader=0x3cb6 firmware_reader=-ack 0x0000
+PHASE=0 PHYID1 true=0x001c litex_reader=0x000e firmware_reader=-ack 0x0000
+PHASE=0 published link_status=0 (expected 13: up, 1000, full) phy_found=0 phy_address=8
+PHASE=1 BMSR true=0x796d litex_reader=0x796d firmware_reader=0x796d
+PHASE=1 PHYID1 true=0x001c litex_reader=0x001c firmware_reader=0x001c
+PHASE=1 published link_status=13 (expected 13: up, 1000, full) phy_found=1 phy_address=1
+rc=0
