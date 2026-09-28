@@ -27235,8 +27235,9 @@ def _image_contract_cases(blob: bytes) -> list[tuple[str, int, bytes, str | None
     au = bytearray(image_descriptor(blob, 0x0002)[:144])
     cd = bytearray(image_descriptor(blob, 0x0024)[:76])
 
-    def _rates(words):
+    def _rates(words, current=48000):
         body = bytearray(au)
+        struct.pack_into(">I", body, 136, current)
         struct.pack_into(">HH", body, 140, 144, len(words))
         return bytes(body) + struct.pack(f">{len(words)}I", *words)
 
@@ -27260,6 +27261,11 @@ def _image_contract_cases(blob: bytes) -> list[tuple[str, int, bytes, str | None
         ("eight rates", 0x0002, _rates(eight), None),
         ("identity sources", 0x0024, identity, None),
         ("one source", 0x0024, _sources([0]), None),
+        ("current rate last", 0x0002, _rates([96000, 48000]), None),
+        ("current rate with pull", 0x0002, _rates([0x2000BB80], 0x2000BB80), None),
+        ("empty rates", 0x0002, _rates([]), "L10_EMPTY"),
+        ("unlisted current rate", 0x0002, _rates([96000]), "L10_CURRENT"),
+        ("current pull mismatch", 0x0002, _rates([0x2000BB80]), "L10_CURRENT"),
         ("wrong offset", 0x0002, _field(one, 140, 143), "L10_OFFSET"),
         ("ninth rate", 0x0002, _rates(eight + [22050]), "L10_COUNT"),
         ("count exceeds extent", 0x0002, _field(one, 142, 2), "L10_COUNT_EXTENT"),
@@ -27272,11 +27278,13 @@ def _image_contract_cases(blob: bytes) -> list[tuple[str, int, bytes, str | None
         ("short domain header", 0x0024, identity[:75], "L6_HEADER"),
         ("empty sources", 0x0024, _sources([]), "L6_EMPTY"),
         ("short source list", 0x0024, identity[:-1], "L6_EXTENT"),
-        ("source list in header", 0x0024, _field(identity, 72, 70), "L6_EXTENT"),
+        ("source list in header", 0x0024, _field(identity, 72, 70), "L6_OFFSET"),
+        ("padded source offset", 0x0024,
+         _field(identity[:76] + b"\0\0" + identity[76:], 72, 78), "L6_OFFSET"),
     ]
 
 
-def _assert_image_contract_case(cfg, overlay, case):
+def _assert_image_contract_case(cfg, overlay, case, emit_image=None):
     """Plant after successful loading; require the image emitter's named verdict."""
     from unittest.mock import patch
     import gen_desc_image as packer
@@ -27284,6 +27292,8 @@ def _assert_image_contract_case(cfg, overlay, case):
     label, dtype, body, reason = case
     original_build = packer.build
     emitted = []
+    if emit_image is None:
+        emit_image = lambda: eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
 
     def _pack_changed(document, *args, **kwargs):
         changed = copy.deepcopy(document)
@@ -27297,14 +27307,14 @@ def _assert_image_contract_case(cfg, overlay, case):
 
     with patch.object(packer, "build", side_effect=_pack_changed):
         try:
-            result = eb._entity_model_image(cfg, overlay)
-        except eb.ConfigError as exc:
+            result = emit_image()
+        except (eb.ConfigError, RuntimeError) as exc:
             assert reason is not None and str(exc).startswith(f"aem_desc.bin: {reason}:"), \
                 f"{label}: wrong refusal {exc}"
             verdict = reason
         else:
             assert reason is None, f"gate 36b: {label} accepted; missing {reason}"
-            assert result["aem_desc.bin"] == emitted[0], f"{label}: checked bytes were replaced"
+            assert result == emitted[0], f"{label}: checked bytes were replaced"
             verdict = "accepted"
     assert len(emitted) == 1, f"{label}: no packed-image evidence"
     print(f"  [gate 36b] {label}: {verdict}")
@@ -27370,6 +27380,91 @@ def test_shipping_image_contract_index_walk() -> None:
         else:
             raise AssertionError(f"gate 36b: skipped configuration/type/index {row}")
     print(f"  [gate 36b] all {len(rows)} descriptors checked across configurations, strides and runs")
+
+
+def _soc_image_emitter(directory):
+    """Load the real SoC emitter without importing elaboration dependencies.
+
+    Only the overlay lookup is replaced. The function body is copied verbatim
+    from the repository source, then imported as ordinary Python from scratch.
+    No checker or packer is substituted here.
+    """
+    import importlib.util
+
+    source = (ROOT / "sw/litex/milan_soc.py").read_text()
+    function = _def_of(ast.parse(source), "build_desc_image")
+    path = directory / "soc_image_emitter.py"
+    path.write_text(ast.get_source_segment(source, function) + "\n")
+    spec = importlib.util.spec_from_file_location("soc_image_emitter", path)
+    module = importlib.util.module_from_spec(spec)
+    module.REPO_ROOT, module.sys, module.json = ROOT, sys, json
+    module._builder_out = lambda _directory, name: directory / name
+    spec.loader.exec_module(module)
+    return module.build_desc_image
+
+
+def test_soc_shipping_image_contract() -> None:
+    """Gate 36b: the deployed-image emitter checks its own final packed bytes."""
+    with tempfile.TemporaryDirectory(prefix="soc-image-contract-") as temporary:
+        directory = Path(temporary)
+        emit = _soc_image_emitter(directory)
+        for name, path in CONFIGS.items():
+            cfg = eb.load_config(path)
+            overlay = eb.emit_aem_overlay(cfg)
+            (directory / "aem_overlay.json").write_text(json.dumps(overlay))
+            expected = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+            assert emit("fixture")[0] == expected, f"{name}: builder/SoC bytes differ"
+            print(f"  [gate 36b] {name}: SoC/builder images identical")
+        cfg = eb.load_config(CONFIGS["arty_current"])
+        overlay = eb.emit_aem_overlay(cfg)
+        (directory / "aem_overlay.json").write_text(json.dumps(overlay))
+        pristine = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        for case in _image_contract_cases(pristine):
+            _assert_image_contract_case(cfg, overlay, case, lambda: emit("fixture")[0])
+
+
+def test_shipping_image_contract_presence() -> None:
+    """Gate 36b: count checked descriptors in every header configuration."""
+    import gen_desc_image as packer
+
+    cfg = eb.load_config(CONFIGS["arty_current"])
+    pristine = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
+    rows = [dict(configuration=config, type=dtype, index=0,
+                 bytes=image_descriptor(pristine, dtype).hex())
+            for config in (0, 1) for dtype in (0x0001, 0x0002, 0x0024)]
+
+    def _image(entries):
+        return packer.build(dict(format="kl-aem-image", version=1, descriptors=entries), 576)[0]
+
+    eb.aem_image_checks.validate_shipping_image(_image(rows))
+    for config in (0, 1):
+        for dtype, reason in ((0x0002, "L10_MISSING"), (0x0024, "L6_MISSING")):
+            missing = [row for row in rows if (row["configuration"], row["type"]) != (config, dtype)]
+            blob = _image(rows)
+            zero_count = bytearray(blob)
+            count, index = struct.unpack_from(">H", blob, 8)[0], struct.unpack_from(">I", blob, 12)[0]
+            for at in range(index, index + 16 * count, 16):
+                if struct.unpack_from(">HH", blob, at) == (config, dtype):
+                    struct.pack_into(">H", zero_count, at + 4, 0)
+            for label, damaged in (("absent row", _image(missing)), ("zero row count", bytes(zero_count))):
+                try:
+                    eb.aem_image_checks.validate_shipping_image(damaged)
+                except eb.aem_image_checks.ImageCheckError as exc:
+                    assert str(exc).startswith(f"{reason}: configuration {config}:"), str(exc)
+                else:
+                    raise AssertionError(f"gate 36b: {label}, configuration {config} accepted; missing {reason}")
+                print(f"  [gate 36b] {label}, configuration {config}: {reason}")
+    # Header-only populations must not turn the per-configuration loop vacuous.
+    for config_count, reason in ((0, "IMAGE_CONFIGS"), (3, "L10_MISSING")):
+        damaged = bytearray(_image(rows))
+        struct.pack_into(">H", damaged, 6, config_count)
+        try:
+            eb.aem_image_checks.validate_shipping_image(bytes(damaged))
+        except eb.aem_image_checks.ImageCheckError as exc:
+            assert str(exc).startswith(reason + ":"), str(exc)
+        else:
+            raise AssertionError(f"gate 36b: header count {config_count} accepted; missing {reason}")
+        print(f"  [gate 36b] header configuration count {config_count}: {reason}")
 
 
 def _assert_pp_shadow_audio_unit_rates(source: str, rates: list[int]) -> None:
@@ -27780,6 +27875,7 @@ if __name__ == "__main__":
                test_audio_unit_rates_loader_contract,
                test_audio_unit_shipping_rates,
                test_shipping_image_contract, test_shipping_image_contract_index_walk,
+               test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device):
         print(f"{fn.__name__}:")

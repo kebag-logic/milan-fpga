@@ -45,6 +45,8 @@ def _audio_unit(data: bytes, who: str, list_offset: int, walk_count: int) -> Non
     offset, count = struct.unpack_from(">HH", data, 140)
     if offset != list_offset:
         raise ImageCheckError(f"L10_OFFSET: {who}: offset {offset}, consumer reads {list_offset}")
+    if not count:
+        raise ImageCheckError(f"L10_EMPTY: {who}: no sampling rates (Milan 5.3.3.3)")
     if count > walk_count:
         raise ImageCheckError(f"L10_COUNT: {who}: count {count} exceeds consumer walk {walk_count}")
     word_bytes = struct.calcsize(">I")  # Full sampling-rate word, including pull bits.
@@ -56,6 +58,11 @@ def _audio_unit(data: bytes, who: str, list_offset: int, walk_count: int) -> Non
     elif extent_words > count:
         raise ImageCheckError(f"L10_EXTRA_WORDS: {who}: count {count}, extent has {extent_words} words")
 
+    current = struct.unpack_from(">I", data, 136)[0]
+    rates = struct.unpack_from(f">{count}I", data, offset)
+    if current not in rates:
+        raise ImageCheckError(f"L10_CURRENT: {who}: current rate {current} is not in {rates}")
+
 
 def _clock_domain(data: bytes, who: str) -> None:
     """Prove the processor's range check equals membership in the served list."""
@@ -64,10 +71,12 @@ def _clock_domain(data: bytes, who: str) -> None:
     if len(data) < fields_end:
         raise ImageCheckError(f"L6_HEADER: {who}: missing clock-source fields")
     offset, count = struct.unpack_from(">HH", data, 72)
+    if offset != fields_end:  # IEEE 7.2.32 fixes the list immediately after the fields.
+        raise ImageCheckError(f"L6_OFFSET: {who}: offset {offset}, expected {fields_end}")
     if not count:
         raise ImageCheckError(f"L6_EMPTY: {who}: no clock sources")
     list_end = offset + count * struct.calcsize(">H")
-    if offset < fields_end or list_end > len(data):
+    if list_end > len(data):
         raise ImageCheckError(f"L6_EXTENT: {who}: source list {offset}..{list_end} outside descriptor")
     sources = list(struct.unpack_from(f">{count}H", data, offset))
     identity = list(range(count))
@@ -91,11 +100,17 @@ def validate_shipping_image(blob: bytes) -> None:
     try:
         if blob[:4] != b"AEMI" or struct.unpack_from(">H", blob, 4)[0] != 1:
             raise ImageCheckError("IMAGE_STRUCTURE: expected AEMI version 1")
+        config_count = struct.unpack_from(">H", blob, 6)[0]
+        if not config_count:
+            raise ImageCheckError("IMAGE_CONFIGS: no shipping configurations")
+        checked = [set() for _ in range(config_count)]
         row_count = struct.unpack_from(">H", blob, 8)[0]
         index_offset = struct.unpack_from(">I", blob, 12)[0]
         for row in range(row_count):
             cfg, dtype, count, length, base, _names, stride = struct.unpack_from(
                 ">HHHHIHH", blob, index_offset + row * struct.calcsize(">HHHHIHH"))
+            if cfg >= config_count:
+                raise ImageCheckError(f"IMAGE_STRUCTURE: configuration {cfg} outside header count {config_count}")
             if dtype not in (0x0002, 0x0024):  # IEEE 7.2 AUDIO_UNIT / CLOCK_DOMAIN.
                 continue
             for index in range(count):
@@ -108,5 +123,11 @@ def validate_shipping_image(blob: bytes) -> None:
                     _audio_unit(data, who, list_offset, walk_count)
                 else:
                     _clock_domain(data, who)
+                checked[cfg].add(dtype)
+        for cfg, types in enumerate(checked):
+            if 0x0002 not in types:
+                raise ImageCheckError(f"L10_MISSING: configuration {cfg}: no checked AUDIO_UNIT")
+            if 0x0024 not in types:
+                raise ImageCheckError(f"L6_MISSING: configuration {cfg}: no checked CLOCK_DOMAIN")
     except struct.error as exc:
         raise ImageCheckError(f"IMAGE_STRUCTURE: truncated packed field: {exc}") from exc
