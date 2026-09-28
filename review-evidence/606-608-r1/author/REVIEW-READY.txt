@@ -1,0 +1,30 @@
+[A412] REVIEW READY
+
+Commit: `e8bf5e080e4b7d586d0484427ec2ef4fe9c51744`
+Branch: `606-608-pp-pin` (local; not pushed).
+
+Changed: adopt processor `c951a9ff` containing both merged fixes; re-record the ROM ledger, submodule reference and generated boundary diagram/manifest; reconcile pp_shadow H/I with the 100 ms retry round, accepted-request source pairing and grants counted from MAAP enable; add the exact retry_mutants.py disposition and committed parent first-probe/CRF-stop regressions.
+
+Validation at this committed head, all rc 0:
+
+- `python3 sw/builder/test_builder.py --require-elaboration --require-rv32`
+- `make -C tb/verilator/pp_shadow -j8`: all four legs, 2,120 checks, zero failures.
+- Parent consumer commands: `scripts/check_cpp_idiom.py`, `scripts/check_py_idiom.py`, `scripts/xvlog_gate.py --check`, `scripts/check_rtl_source_lists.py`, `scripts/pp_srcs.py --check --selftest`, `scripts/check_port_contracts.py`, `scripts/measure_naming.py --check`, `scripts/measure_test_evidence.py --check`, and `scripts/docs_check.py` (each invoked with its configured Python interpreter).
+- Full documented builder-support set: SoC import, `avdecc/gen_aem_store.py --self-test`, `scripts/check_soc_sources.py`, `scripts/check_sweep_shape.py --self-test`, `scripts/check_deploy_shape.py --selftest`, `sw/litex/iob_pack_selftest.py`, and all four tracked `sw/litex/test_*.py` scripts.
+- `python3 scripts/check_nvm_capture.py`: census, clocks, both timing arms and receipt agree; all planted controls detected. No re-measurement required.
+- `python3 scripts/check_submodule_docs.py`, `python3 docs/diagrams/submodule_boundaries.gen.py --check`, documentation TOC check, ROM digest re-record and committed diff whitespace check.
+
+Required regression comparison uses identical committed parent sources in a separate scratch export; this branch was never reverted:
+
+| Regression | Old pin `16be6768` | New pin `c951a9ff` |
+|---|---|---|
+| `make -C tb/verilator/pp_shadow run-crf SIM_ARGS=--first-probe-only -j8` | 37 checks, 14 assertion failures; both first probes status 3; binary rc 1 / make rc 2 | 37 checks, zero failures, rc 0; both sources status 0, correct SID/DA/VID, no probe-caused allocation |
+| `make -C tb/verilator/pp_shadow run-crf SIM_ARGS=--crf-stop-only -j8` | 31 checks, six assertion failures; expiry race has four late frames and misses STREAM_STOP; binary rc 1 / make rc 2 | 31 checks, zero failures, rc 0; ordinary, expiry-window and reconnected withdrawals stop within one PDU and count 0 -> 1 -> 2 -> 3 |
+
+The CRF race is anchored to the actual own LeaveAll deadline plus 1 ms, with real MAC TX frames and the Table 5.4 stop context. It preserves the documented LV + rLv decision. The old-pin scratch comparison also verifies 118 parent input files byte-for-byte.
+
+Assigned pin-adoption acceptance criteria: met. Worktree and processor submodule are clean. No firmware, processor source or interface edits. No push, PR creation, merge or hardware access.
+
+Limits: the existing builder placement-calibration arm is explicitly NOT RUN because its report is absent; all required elaboration arms ran. The declaration gate retains four recorded findings and source-list coverage retains six recorded omissions. Bench re-measurement follows on the next image; Relates to #606 and Relates to #608, both remain open.
+
+Evidence packet: `2026-09-23/606-a412/HANDOFF.md`, `PR-BODY.md`, `final-results.json`, per-command receipts and old-pin provenance. Large logs remain in scratch with recorded sizes and SHA256 digests. Independent reviewers: [R386] internal, [R387] external.

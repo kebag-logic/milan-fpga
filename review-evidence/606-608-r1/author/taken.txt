@@ -1,0 +1,7 @@
+[A412] TAKEN
+Branch: 606-608-pp-pin, base 54ce877371ee6e8878cf67294e86c2a8481b62f6.
+Authoritative references: assignment above; #606 and #608 decisions; processor #127/#128 and PRs #129/#130; CONTRIBUTING.md and docs/reference/SUBMODULES.md.
+Interpreted scope: adopt c951a9ff, reconcile pp_shadow H/I and evidence disposition, refresh pin-bound records, and commit parent first-probe and CRF STREAM_STOP regressions. Bench re-measurement follows on the next image.
+Validation plan: old-pin failures in a scratch copy and new-pin passes, capture check, full builder bank set, pp_shadow and parent consumer set at the committed head.
+Reviewers: [R386] internal and [R387] external, as assigned.
+Blockers: none.

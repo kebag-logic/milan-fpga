@@ -1,0 +1,443 @@
+{
+  "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+  "results": [
+    {
+      "name": "final-cpp",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 315,
+      "sha256": "7110c5112adbaf655b3da90fa92c8fe7e4dbd3277ea47ef350c185d6c033233f",
+      "log": "$VALIDATION_STORAGE/606-a412/final-cpp.log"
+    },
+    {
+      "name": "final-py",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 461,
+      "sha256": "f24b6c863d91eeb6b6e15045dce63aca3ac354186fe72209e0358bfcc2a46b57",
+      "log": "$VALIDATION_STORAGE/606-a412/final-py.log"
+    },
+    {
+      "name": "final-xvlog",
+      "command": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 1320,
+      "sha256": "b268a14b64af793eb535c655dd1bf2a845fbd1f644cf598d9569e842520ee1f3",
+      "log": "$VALIDATION_STORAGE/606-a412/final-xvlog.log"
+    },
+    {
+      "name": "final-source-lists",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 390,
+      "sha256": "1dd83081ba29241f1333d9dba1ab448b1d8512840a6449eaf3515bfe751f2e14",
+      "log": "$VALIDATION_STORAGE/606-a412/final-source-lists.log"
+    },
+    {
+      "name": "final-pp-sources",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 955,
+      "sha256": "fb4b6d8cc0ca4895f44f9c3def2890afd606d8a14f1a05063fff138a534caa7a",
+      "log": "$VALIDATION_STORAGE/606-a412/final-pp-sources.log"
+    },
+    {
+      "name": "final-builder",
+      "command": [
+        "python3",
+        "sw/builder/test_builder.py",
+        "--require-elaboration",
+        "--require-rv32"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 86041,
+      "sha256": "7f7f03531d83dcebec2aa069086d145e7941221e0458f66adb3a6cc95b5d4266",
+      "log": "$VALIDATION_STORAGE/606-a412/final-builder.log"
+    },
+    {
+      "name": "final-shadow",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/pp_shadow",
+        "-j8"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 220685,
+      "sha256": "a0f6d165ce883e4f4d3af9f445c4e8bedee319a095d98243ccc743c70e36ed88",
+      "log": "$VALIDATION_STORAGE/606-a412/final-shadow.log"
+    },
+    {
+      "name": "final-port-contracts",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 421,
+      "sha256": "8cdf5dbee594341013021238a5fd6f373417940904226329feb664fce37d3cb7",
+      "log": "$VALIDATION_STORAGE/606-a412/final-port-contracts.log"
+    },
+    {
+      "name": "final-naming",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 36572,
+      "sha256": "7eca83e6def78a50741bb20aa46d761f23a1e76f814fcf5330d20620f6d05e93",
+      "log": "$VALIDATION_STORAGE/606-a412/final-naming.log"
+    },
+    {
+      "name": "final-evidence",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 11253,
+      "sha256": "02b91ce2d5607aa9e8310c7d5284a6ff0bcabde43d7c4245889634a036419eae",
+      "log": "$VALIDATION_STORAGE/606-a412/final-evidence.log"
+    },
+    {
+      "name": "final-docs",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 127,
+      "sha256": "8e21406764265751618609bc9d478766348a0ac9c4d161aa82c2e2b6888d4004",
+      "log": "$VALIDATION_STORAGE/606-a412/final-docs.log"
+    },
+    {
+      "name": "final-soc-import",
+      "command": [
+        "python3",
+        "-c",
+        "import sys; sys.path.insert(0, 'sw/litex'); import milan_soc"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log": "$VALIDATION_STORAGE/606-a412/final-soc-import.log"
+    },
+    {
+      "name": "final-aem",
+      "command": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 3596,
+      "sha256": "c8381bc7b96e209cc0a007a6b934eb0854bcf01014d2d924dee5ffccd7a912ac",
+      "log": "$VALIDATION_STORAGE/606-a412/final-aem.log"
+    },
+    {
+      "name": "final-soc-sources",
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 85,
+      "sha256": "136eb537ae03b4d52fc917125d95083776d5de54fba79a68ecc4e045f561b43f",
+      "log": "$VALIDATION_STORAGE/606-a412/final-soc-sources.log"
+    },
+    {
+      "name": "final-sweep-shape",
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 19694,
+      "sha256": "aa21b75a3a2aaafae02a1d786a8dbdfb7bf6950f536c2f952f2a169013598520",
+      "log": "$VALIDATION_STORAGE/606-a412/final-sweep-shape.log"
+    },
+    {
+      "name": "final-deploy-shape",
+      "command": [
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--selftest"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 9276,
+      "sha256": "33c09146a124c44e1013f74c2807535e5c2c3eafd3e57016c37bdedce64f9c0a",
+      "log": "$VALIDATION_STORAGE/606-a412/final-deploy-shape.log"
+    },
+    {
+      "name": "final-iob",
+      "command": [
+        "python3",
+        "sw/litex/iob_pack_selftest.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 3147,
+      "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad",
+      "log": "$VALIDATION_STORAGE/606-a412/final-iob.log"
+    },
+    {
+      "name": "final-capture",
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 324,
+      "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+      "log": "$VALIDATION_STORAGE/606-a412/final-capture.log"
+    },
+    {
+      "name": "final-submodule-docs",
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 47,
+      "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835",
+      "log": "$VALIDATION_STORAGE/606-a412/final-submodule-docs.log"
+    },
+    {
+      "name": "final-boundary-diagram",
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 54,
+      "sha256": "905777610f39981543faabafcc11309ac6ab670121c8866a45e171e5c9b7d00c",
+      "log": "$VALIDATION_STORAGE/606-a412/final-boundary-diagram.log"
+    },
+    {
+      "name": "final-toc",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 94,
+      "sha256": "d4a9157e6cf23862be13da58165eef08c5a35fee49d88b6f7dbac6df966035c8",
+      "log": "$VALIDATION_STORAGE/606-a412/final-toc.log"
+    },
+    {
+      "name": "final-first",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/pp_shadow",
+        "run-crf",
+        "SIM_ARGS=--first-probe-only",
+        "-j8"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 10799,
+      "sha256": "e732eed1bfe9d1a57ba54258c4c4d2361182e177465dbd1127f1d3dff83da7e7",
+      "log": "$VALIDATION_STORAGE/606-a412/final-first.log"
+    },
+    {
+      "name": "final-crf",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/pp_shadow",
+        "run-crf",
+        "SIM_ARGS=--crf-stop-only",
+        "-j8"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 10824,
+      "sha256": "49f3e210d357522acd823048e52f45c335c5238c6fcd7d42259bf776ca64b636",
+      "log": "$VALIDATION_STORAGE/606-a412/final-crf.log"
+    },
+    {
+      "name": "final-rom-record",
+      "command": [
+        "bash",
+        "syn/yosys/ooc.sh",
+        "--record-rom-digests"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 198,
+      "sha256": "ef723923f991cdf96e23bf70e276a6631c6a79f1ab49bcc04581bf501e01364e",
+      "log": "$VALIDATION_STORAGE/606-a412/final-rom-record.log"
+    },
+    {
+      "name": "final-boot-freeze",
+      "command": [
+        "python3",
+        "sw/litex/test_pp_boot_bus_freeze.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 2603,
+      "sha256": "2d4a7be0753b1f4e46c6b023e98bc24910e34471dcbb9a167d1b7c9bdae9a0fd",
+      "log": "$VALIDATION_STORAGE/606-a412/final-boot-freeze.log"
+    },
+    {
+      "name": "final-timestamp",
+      "command": [
+        "python3",
+        "sw/litex/test_gptp_tx_timestamp.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 166772,
+      "sha256": "a63cd27c64d0ac17efde7eab5fe5eb14336c02a966f6982309d58d54646cc749",
+      "log": "$VALIDATION_STORAGE/606-a412/final-timestamp.log"
+    },
+    {
+      "name": "final-memory-cdc",
+      "command": [
+        "python3",
+        "sw/litex/test_cpu_memory_port_cdc.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 1949,
+      "sha256": "63e160d8132f36c5ca5f8b5192e778e15782a0f8be593f8bce9f9c9ac04d8dbd",
+      "log": "$VALIDATION_STORAGE/606-a412/final-memory-cdc.log"
+    },
+    {
+      "name": "final-memory-bridge",
+      "command": [
+        "python3",
+        "sw/litex/test_pp_mem_bridge.py"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 8712,
+      "sha256": "dea4080c261a6281771e3ed10160b6c5b5eaa17d076d283394673342d66b142e",
+      "log": "$VALIDATION_STORAGE/606-a412/final-memory-bridge.log"
+    },
+    {
+      "name": "final-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "54ce877371ee6e8878cf67294e86c2a8481b62f6",
+        "HEAD",
+        "--check"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 0,
+      "bytes": 47,
+      "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c",
+      "log": "$VALIDATION_STORAGE/606-a412/final-diff-check.log"
+    },
+    {
+      "name": "final-old-first",
+      "command": [
+        "make",
+        "-C",
+        "$VALIDATION_STORAGE/606-a412/old-pin/tb/verilator/pp_shadow",
+        "run-crf",
+        "SIM_ARGS=--first-probe-only",
+        "-j8"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 2,
+      "bytes": 11671,
+      "sha256": "2852db79fd5c2d72994e624bffc0b064fc7db005b77a5b97ed73068dd0e89ffe",
+      "log": "$VALIDATION_STORAGE/606-a412/final-old-first.log"
+    },
+    {
+      "name": "final-old-crf",
+      "command": [
+        "make",
+        "-C",
+        "$VALIDATION_STORAGE/606-a412/old-pin/tb/verilator/pp_shadow",
+        "run-crf",
+        "SIM_ARGS=--crf-stop-only",
+        "-j8"
+      ],
+      "cwd": "$LANES/606-608-pp-pin",
+      "head": "e8bf5e080e4b7d586d0484427ec2ef4fe9c51744",
+      "rc": 2,
+      "bytes": 10866,
+      "sha256": "1d565c0141f2669d782e50d43b9162a833c093ea4881b9f4cb1d000fbaaa76ac",
+      "log": "$VALIDATION_STORAGE/606-a412/final-old-crf.log"
+    }
+  ]
+}

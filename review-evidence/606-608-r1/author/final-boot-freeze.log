@@ -1,0 +1,48 @@
+test_control_loaded_bus:
+  [ok]   loaded healthy bus: the boot probe is answered
+  [ok]   loaded healthy bus: the later locate is answered
+  [ok]   loaded healthy bus: another master reads too
+  [ok]   loaded healthy bus: the bridge was ACKED, not timed out
+  [ok]   loaded healthy bus: every access it issued was answered
+  [ok]   loaded healthy bus: the arbiter still rotates
+  [ok]   the gate's COST is one refused boot probe on a healthy bus
+  [ok]   and nothing after the handover pays it
+test_pre_fix_shape_freezes_the_read_half:
+  [ok]   pre-fix: the boot probe is reported err (the watchdog fired)
+  [ok]   pre-fix: the counters read like the board - issued, none acked
+  [ok]   pre-fix: another master is STARVED after it
+  [ok]   pre-fix: the read grant is frozen on the descriptor bridge
+  [ok]   pre-fix: an AR is outstanding that will never see r.last
+  [ok]   pre-fix: the bridge cannot transact again either
+test_shipping_shape_survives_its_boot_probe:
+  [ok]   shipping: no bus cycle while the memory cannot answer
+  [ok]   shipping: the boot probe is ANSWERED, and answered err
+  [ok]   shipping: answered at once, not after a watchdog
+  [ok]   shipping: the later locate COMPLETES, all four beats, no err
+  [ok]   shipping: nothing timed out
+  [ok]   shipping: another master is answered too
+  [ok]   shipping: the arbiter is free and nothing is outstanding
+  [ok]   shipping: the gate opened at the DFI handover and not before
+test_the_claims_can_fail:
+  [ok]   mutant `mem_rdy = 1` is CAUGHT: it drives a bus that cannot answer
+  [ok]   mutant `mem_rdy = 1` fails the completion claims as well
+  [ok]   mutant `mem_rdy = 0` is CAUGHT: the access never completes
+  [ok]   mutant `mem_rdy = 0` degrades HONESTLY: every request is answered
+  [ok]   mutant `mem_rdy = 0` does not take the bus down with it
+test_gate_derivation:
+  [ok]   hardware control at configuration does NOT open the gate
+  [ok]   the software-control window keeps it shut
+  [ok]   the handover opens it
+  [ok]   and it stays open (a level, not a pulse)
+test_structural:
+  [ok]   MilanSoC builds the gate with pp_mem_gate
+  [ok]   the gate is derived from the LiteDRAM DFI handover, not restated
+  [ok]   hardware control ALONE is not taken as proof (sel resets to 1)
+  [ok]   MilanSoC builds the descriptor bridge with pp_desc_bridge
+  [ok]   and hands it THAT gate
+  [ok]   the response bridge's IDLE arm consults the gate too
+  [ok]   the gate is published for firmware diagnostics
+  [ok]   the grant table above is the SoC's, in insertion order
+
+test_pp_boot_bus_freeze: 39 checks: 39 PASS, 0 FAIL
+RESULT: PASS

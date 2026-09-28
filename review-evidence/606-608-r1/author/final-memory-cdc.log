@@ -1,0 +1,31 @@
+test_cpu_memory_port_cdc: the CPU memory port crosses into the LiteDRAM clock (#359)
+  [ok  ] one memory bus is handed to LiteDRAM
+  [ok  ] the LiteDRAM-facing port is in the sys domain
+  [ok  ] an AXIClockDomainCrossing sits behind the port
+  [ok  ] the port keeps the CPU port's data, address, id widths and version
+  [ok  ] a CPU without cpu_clk is left alone
+  [ok  ] a CPU port carrying LiteX's default sys label is still crossed (the label is not the fact)
+  [ok  ] cd_from == cd_to installs nothing (the simulation SoCs' shape)
+  [ok  ] equal-clock direct connection carries aw exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries w exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries b exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries ar exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries r exactly (stimulus control)
+  [ok  ] through the hook, aw is exact at periods (20, 10)
+  [ok  ] through the hook, w is exact at periods (20, 10)
+  [ok  ] through the hook, b is exact at periods (20, 10)
+  [ok  ] through the hook, ar is exact at periods (20, 10)
+  [ok  ] through the hook, r is exact at periods (20, 10)
+  [ok  ] through the hook, aw is exact at periods (30, 14)
+  [ok  ] through the hook, w is exact at periods (30, 14)
+  [ok  ] through the hook, b is exact at periods (30, 14)
+  [ok  ] through the hook, ar is exact at periods (30, 14)
+  [ok  ] through the hook, r is exact at periods (30, 14)
+  [ok  ] through the hook, aw is exact at periods (10, 20)
+  [ok  ] through the hook, w is exact at periods (10, 20)
+  [ok  ] through the hook, b is exact at periods (10, 20)
+  [ok  ] through the hook, ar is exact at periods (10, 20)
+  [ok  ] through the hook, r is exact at periods (10, 20)
+  [ok  ] the pre-#359 direct connection loses or duplicates beats across unequal clocks (15 of 15 arms)
+test_cpu_memory_port_cdc: 0 failure(s)
+RESULT: PASS
