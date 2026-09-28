@@ -1,0 +1,20 @@
+command: python3 scripts/check_cpp_idiom.py
+head: a3f95a4cea1faa3470b65b4ffc8a9bb3dc1b0c9c
+tree: 289ab42c1ba974b27ac35b6891f2a9d25b80be25
+start: 2026-09-28T11:35:56Z
+----
+cpp idiom: 160 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+----
+end: 2026-09-28T11:35:57Z
+seconds: 1
+rc: 0
