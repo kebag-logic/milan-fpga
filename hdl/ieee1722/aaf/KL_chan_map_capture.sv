@@ -50,14 +50,49 @@
                          reads it; every other bucket ignores it, which is why
                          it can sit above the legacy byte (see next para).
 
-                SOURCE BUCKETS (wire-truth, free-running): the latest pair per
-                FRONT-END source is latched into a hold register the instant
-                its pair_valid pulse arrives, so the tick-time walk always
-                injects the freshest sample. The tone bucket is the live
+                SOURCE BUCKETS (wire-truth, free-running): the I2S pair is
+                latched into a hold register the instant its pair_valid pulse
+                arrives, so the tick-time walk always injects the freshest
+                sample. The TDM bucket hands the walk whole FRAMES instead -
+                see TDM FRAME HANDOFF. The tone bucket is the live
                 tone_smp_i (both L/R). No CDC lives here - every source has
-                already crossed into clk_i. The LOOP bucket is the one
+                already crossed into clk_i. The LOOP bucket is the other
                 exception: it is a BURSTY source (a whole PDU of samples at
                 wire speed), so it is QUEUED, not held - see LOOP QUEUE.
+
+                TDM FRAME HANDOFF (#617). A TDM front end delivers one frame
+                as N_TDM_P/2 pair strobes spread across the frame (the TDM8
+                master strobes pair k at the end of slot 2k+1), and a walk
+                reads the bucket slot by slot. A per-pair latest-sample hold
+                therefore let one walk read some pairs of frame n and the
+                rest of frame n-1: on the #451 bench 67.5% of the talker's AAF
+                columns mixed two frames, pairs 1..3 one frame behind pair 0,
+                cycling once per 1.958 s beat. IEEE 1722-2016 7.3.5 makes the
+                channels of one sample event one instant, so the bucket hands
+                the walk whole frames through three banks:
+                  * STAGE tdm_stage_r: each pair strobe writes its own pair,
+                    exactly as the old hold did.
+                  * FRAME tdm_frame_r: the strobe of pair TDM_FRAME_PAIRS_P-1,
+                    the frame's last, publishes that pair and the staged ones
+                    in one edge - the newest COMPLETE frame.
+                  * WALK tdm_walk_r: loaded from FRAME on the pre-walk's last
+                    cycle, the edge before slot 0 reads it, and held for the
+                    whole walk, so a frame closing mid-walk waits for the
+                    next tick instead of tearing this one.
+                The walk bank is required, not a convenience: at the 8x8
+                shape a walk (866 cycles) outlasts the two TDM slots between
+                a frame's last pair and the next frame's first (260 cycles at
+                50 MHz), so a publish deferred to the walk's end would find
+                the stage already overwritten.
+                LATENCY. A walk reads the newest frame complete at its
+                snapshot, and no frame is complete before its last pair, so
+                pair p is published (TDM_FRAME_PAIRS_P-1-p) pair periods after
+                it arrived: what atomicity costs, and no more. The last pair's
+                delay and the slip RATE are unchanged; a beat now slips one
+                whole frame where it used to slip each pair at its own phase
+                (docs/design/TIME_SYNC.md, Talker capture handoff). The
+                junction slip counters keep their marker and their tick, and
+                the render direction does not pass through this module.
 
                 LOOP BUCKET (rx -> talker loopback). The other multi-channel
                 sources are the board's physical capture front-ends, and the
@@ -206,6 +241,13 @@
                      tb/verilator/milan_dp [T68]: zero dup / zero skip /
                      zero alien against a paced ramp through the whole RX ->
                      loop -> TX path.
+                  L1 the TDM frame handoff is tb/verilator/capture_coherence:
+                     the real TDM8 master, media NCO, grid aligner, this
+                     module and the packetizer at the 1x1 TDM8 shape, the
+                     #451 pattern on the data pin, every AAF column one TDM
+                     frame through INTERNAL drift sweeps and CRF locks, and
+                     the per-pair hold (the pre-#617 law) as a mutant that
+                     must fail.
 
                 EMIT (media sample tick): on tick_i the engine first runs the
                 LOOP pre-walk (pop one queued event per fed pair into
@@ -252,7 +294,9 @@
 //! mapped while its sibling stays silent
 //! (I2S capture / TDM / tone / RX-stream loopback / silence; source 3 is a
 //! reserved-zero ABI encoding);
-//! free-running source holds, per-tick low-to-high slot walk emitting the
+//! free-running source holds (the TDM bucket frame-atomic: whole frames are
+//! published at the frame's last pair and snapshotted before each walk),
+//! per-tick low-to-high slot walk emitting the
 //! packetizer inject cadence (one pulse + GAP_CYC_P settle) on EVERY slot,
 //! unmapped ones carrying PCM silence so an unmapped channel never costs its
 //! talker the stream. The loopback bucket de-interleaves the depacketizer
@@ -267,6 +311,10 @@
 module KL_chan_map_capture #(
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
+  //! TDM FRAME HANDOFF (#617): the pairs one front-end frame delivers into
+  //! the TDM bucket, pair 0 first. The strobe of pair TDM_FRAME_PAIRS_P-1
+  //! closes the frame and publishes it whole; 1..N_TDM_P/2.
+  parameter int unsigned TDM_FRAME_PAIRS_P = (N_TDM_P < 2) ? 1 : N_TDM_P / 2,
   parameter int unsigned GAP_CYC_P = 24,   //! settle cycles between slot injects
   //! LOOP bucket sizing: the RX stream-channel space kept as pair queues
   //! (N_LB_STREAMS_P * N_LB_CH_P/2 pair queues x LB_QDEPTH_C x 48 b).
@@ -326,6 +374,8 @@ module KL_chan_map_capture #(
   //! the hold register behind it: a harness that leaves the codec data pins
   //! at zero writes the hold with zeros forever, so watching the hold for a
   //! CHANGE reports a dead feed as healthy (it did, first try).
+  //! The pairs of one frame arrive pair 0 first; the strobe of pair
+  //! TDM_FRAME_PAIRS_P-1 closes the frame (TDM FRAME HANDOFF).
   input  wire         tdm_pair_valid_i /* verilator public_flat_rd */,  //! latch pulse
   input  wire [3:0]   tdm_pair_slot_i,   //! TDM pair index (0..N_TDM_P/2-1)
   input  wire [23:0]  tdm_l_i,
@@ -368,9 +418,8 @@ module KL_chan_map_capture #(
   output logic [15:0] lb_skip_cnt_o,     //! dropped events (full / skid ovf)
 
   //! --- TDM junction slip evidence (saturating; ZERO with aligned grids) --
-  //! The TDM holds are latest-sample buckets - correct for a once-per-frame
-  //! source, but a hold written on the fsync grid and read on the media grid
-  //! slips one whole frame per beat period of the two rates (the shipping
+  //! The TDM bucket is written on the fsync grid and read on the media grid,
+  //! so it slips one whole frame per beat period of the two rates (the shipping
   //! divider plan: -10.64 ppm = one frame per ~1.96 s), and until 0x0057
   //! NOTHING counted it - the LOOP counters watch only the queue bucket.
   //! One event per FRAME, not per pair: every pair shares the fsync clock,
@@ -466,25 +515,53 @@ module KL_chan_map_capture #(
     end
   end : map_read_port
 
+  //! a frame is closed by the strobe of its last pair, so that pair must be
+  //! one the bucket keeps
+  if (TDM_FRAME_PAIRS_P < 1 || TDM_FRAME_PAIRS_P > N_TDM_PAIRS_C)
+  begin : g_tdm_frame_guard
+    $error("KL_chan_map_capture: TDM_FRAME_PAIRS_P=%0d must be 1..%0d (N_TDM_P/2). The strobe of a frame's last pair closes it, so that pair must be one the TDM bucket keeps.",
+           TDM_FRAME_PAIRS_P, N_TDM_PAIRS_C);
+  end : g_tdm_frame_guard
+
   // ---------------------------------------------------------------------- //
-  // Source hold buckets (latch the latest pair per source; wire-truth)      //
+  // Source hold buckets: the I2S pair latches its latest value; the TDM     //
+  // bucket stages pairs and publishes whole frames (TDM FRAME HANDOFF)      //
   // ---------------------------------------------------------------------- //
   logic [47:0] i2s_hold_r;               //! the single stereo I2S pair
-  //! public_flat_rd: the slot-indexed physical bucket. It was tied off in
-  //! milan_datapath until 0x0042, so "was it ever written" is the check that
-  //! a physical cluster beyond channels 0..1 can be backed at all - and it is
-  //! the one a tie-off regression would trip.
-  logic [47:0] tdm_hold_r  [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
+  //! STAGE: each TDM pair strobe writes its own pair (the pre-#617 hold)
+  logic [47:0] tdm_stage_r [N_TDM_PAIRS_C];
+  //! FRAME: the newest complete TDM frame, published in one edge by the
+  //! strobe of the frame's last pair. public_flat_rd: the slot-indexed
+  //! physical bucket was tied off in milan_datapath until 0x0042, so "was it
+  //! ever written" is the check that a physical cluster beyond channels 0..1
+  //! can be backed at all - and it is the one a tie-off regression would trip.
+  logic [47:0] tdm_frame_r [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
+
+  wire [47:0] tdm_pair_w  = {tdm_l_i, tdm_r_i};
+  wire        tdm_stage_w = tdm_pair_valid_i &&
+                            (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C);
+  //! the frame's last pair: its strobe closes and publishes the frame
+  wire        tdm_close_w = tdm_pair_valid_i &&
+                            (32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);
 
   always_ff @(posedge clk_i) begin : source_latch
     if (!rst_n) begin
       i2s_hold_r <= '0;
-      for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_hold_r[t]  <= '0;
+      for (int t = 0; t < N_TDM_PAIRS_C; t++) begin
+        tdm_stage_r[t] <= '0;
+        tdm_frame_r[t] <= '0;
+      end
     end
     else begin
       if (i2s_pair_valid_i) i2s_hold_r <= {i2s_l_i, i2s_r_i};
-      if (tdm_pair_valid_i && (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C))
-        tdm_hold_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= {tdm_l_i, tdm_r_i};
+      if (tdm_stage_w) tdm_stage_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= tdm_pair_w;
+      //! the closing pair goes straight in beside the pairs staged before it
+      //! (the select is an elaboration constant per bank entry, no mux)
+      if (tdm_close_w) begin
+        for (int t = 0; t < N_TDM_PAIRS_C; t++)
+          tdm_frame_r[t] <= (t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w
+                                                               : tdm_stage_r[t];
+      end
     end
   end : source_latch
 
@@ -933,6 +1010,22 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   logic [SLOTW_C-1:0] slot_r;            //! walk pointer
 
+  //! WALK: the TDM frame this walk reads, loaded from the frame bank on the
+  //! pre-walk's last cycle (the edge before CM_STEP_S reads slot 0) and held
+  //! for the whole walk, so a frame that closes mid-walk waits for the next
+  //! tick instead of tearing this one (TDM FRAME HANDOFF)
+  logic [47:0] tdm_walk_r [N_TDM_PAIRS_C];
+  wire tdm_snap_w = (st_r == CM_POP_S) && (32'(pop_idx_r) == LB_PAIRS_C);
+
+  always_ff @(posedge clk_i) begin : tdm_walk_snapshot
+    if (!rst_n) begin
+      for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= '0;
+    end
+    else if (tdm_snap_w) begin
+      for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= tdm_frame_r[t];
+    end
+  end : tdm_walk_snapshot
+
   //! the pair step reads BOTH channel entries of the slot and resolves
   //! each independently - "one cluster == one audio channel" (USER 08-06)
   wire [12:0] ent_l_w = map_r[{slot_r, 1'b0}];   //! even channel 2p
@@ -957,7 +1050,7 @@ module KL_chan_map_capture #(
       unique case (en_f ? src_f : 3'd0)
         SRC_I2S_C : pair_f = i2s_hold_r;
         SRC_TDM_C : pair_f = (32'(idx_f) < N_TDM_PAIRS_C)
-                               ? tdm_hold_r[idx_f[TDMPW_C-1:0]] : 48'd0;
+                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;
         SRC_TONE_C: pair_f = {tone_smp_i, tone_smp_i};
         SRC_LOOP_C: pair_f = lbok_f
                                ? lb_hold_r[LBPW_C'(32'(idxh_f) * LB_PPS_C

@@ -33,7 +33,15 @@
 //       sample on both channels and the AX7101 has no audio input at all).
 //   Lane B: chmap(32) -> packetizer(N=8, ALL 8ch = 32 pair slots). Exercises
 //     the widened pair_slot: talker 7 owns slots 28..31, so slot 31 = t7's
-//     4th pair - its payload proves the >15 slot path end to end.
+//     4th pair - its payload proves the >15 slot path end to end. Its TDM
+//     frame is one pair long (the I2S-capture shapes' frame, #617), so one
+//     pair-0 strobe publishes it.
+//   [F] the TDM FRAME HANDOFF (#617) on lane A's four-pair frame, column by
+//     column in one PDU: a partial frame is invisible to the walk, the last
+//     pair publishes the frame whole, and a frame that closes between two of
+//     a walk's TDM slots waits for the next walk instead of tearing this one.
+//     Every other lane A arm delivers whole frames, pair 0 first, as a front
+//     end does. tb/verilator/capture_coherence is the drift-level proof.
 //   [G] tone ONE-GRID contract (task #59): clk_audio drifts against clk at
 //     an incommensurate ratio; both tone shapes are sampled at the media-
 //     tick instants exactly as the crossbar's TONE bucket reads them. The
@@ -81,6 +89,8 @@ class ChanMapCaptureHarness {
   void b_tctx_wr(int t, int w, uint32_t v);
   void drv_i2s(uint32_t l, uint32_t r);
   void drv_tdm(int slot, uint32_t l, uint32_t r);
+  void drv_tdm_frame();
+  void drv_tdm_frame_tagged(int tag, int first_pair, int last_pair);
   void lb_set_chans(int s, int chans);
   void drv_lb_pdu(int s, int chans, int events, int e0);
   void a_tick();
@@ -112,6 +122,7 @@ class ChanMapCaptureHarness {
   void pin_mono_wire_rides_the_skid();
   void pin_all_32_pairs_concurrent();
   void pin_tone_one_grid_contract();
+  void pin_tdm_frame_handoff();
   void pin_starved_pair_pegs_and_holds();
 
   const milan::tb::Model<Vchmap_wrap> model_;
@@ -326,6 +337,17 @@ constexpr uint32_t I2S_R = 0x1A2222;
 constexpr uint32_t TONE  = 0x7A7A7A;
 uint32_t TDM_L(int p) { return 0x2B0000 | (p << 4); }
 uint32_t TDM_R(int p) { return 0x2BB000 | (p << 4); }
+//! [F]'s frames: frame `tag`, pair p, each half distinct
+uint32_t TDMF_L(int tag, int p) { return 0x300001 | (tag << 12) | (p << 4); }
+uint32_t TDMF_R(int tag, int p) { return 0x300002 | (tag << 12) | (p << 4); }
+
+//! One whole TDM frame as a front end delivers it: pairs 0..3 in order, the
+//! last one closing the frame (#617: only a closed frame reaches the walk).
+void ChanMapCaptureHarness::drv_tdm_frame() {
+  for (int p = 0; p < 4; p++) drv_tdm(p, TDM_L(p), TDM_R(p)); }
+//! Pairs first_pair..last_pair of [F]'s frame `tag`.
+void ChanMapCaptureHarness::drv_tdm_frame_tagged(int tag, int first_pair, int last_pair) {
+  for (int p = first_pair; p <= last_pair; p++) drv_tdm(p, TDMF_L(tag, p), TDMF_R(tag, p)); }
 
 void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->rst_n = 0;
@@ -443,8 +465,7 @@ void ChanMapCaptureHarness::pin_per_slot_source_routing() {
 
   dut->tone_smp_i = TONE;
   drv_i2s(I2S_L, I2S_R);
-  drv_tdm(0, TDM_L(0), TDM_R(0));
-  drv_tdm(1, TDM_L(1), TDM_R(1));
+  drv_tdm_frame();
   cyc(4);
 
   afr.clear();
@@ -1026,8 +1047,7 @@ void ChanMapCaptureHarness::pin_loopback_quarantine() {
   a_map_wr(4, ent(1, 4, 0));
   dut->tone_smp_i = TONE;
   drv_i2s(I2S_L, I2S_R);
-  drv_tdm(0, TDM_L(0), TDM_R(0));
-  drv_tdm(1, TDM_L(1), TDM_R(1));
+  drv_tdm_frame();
   cyc(4);
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();     // loopback AXIS IDLE
@@ -1396,12 +1416,69 @@ int ChanMapCaptureHarness::run() {
   pin_mono_wire_rides_the_skid();
   pin_all_32_pairs_concurrent();
   pin_tone_one_grid_contract();
+  pin_tdm_frame_handoff();
   pin_starved_pair_pegs_and_holds();
 
   printf("\n======================================================================\n");
   printf("KL_chan_map_capture: %ld checks, %ld failures\nRESULT: %s\n",
          checks, fails, fails ? "FAIL" : "PASS");
   return fails ? 1 : 0;
+}
+
+void ChanMapCaptureHarness::pin_tdm_frame_handoff() {
+  // ====================================================================== //
+  // [F] THE TDM FRAME HANDOFF (#617). One t1 PDU = six walks = six columns, //
+  // with lane A's t1 pairs 0..3 mapped to TDM pairs 0..3, and the frames   //
+  // delivered between (and once inside) the walks so each column has one   //
+  // right answer:                                                          //
+  //   col 0  frame A, delivered whole before the walk;                     //
+  //   col 1  still A: B's pairs 0..2 arrived, but B is not closed;         //
+  //   col 2  B, closed by its pair 3 before the walk;                      //
+  //   col 3  still B: C's pair 3 closes C AFTER this walk injected TDM     //
+  //          pairs 0 and 1 (a per-pair or unsnapshotted read tears here);  //
+  //   col 4  C, published by that mid-walk close for the next walk;        //
+  //   col 5  D, delivered whole.                                           //
+  // ====================================================================== //
+  printf("\n[F] TDM frame handoff: partial frames invisible, closes atomic\n");
+  for (int p = 0; p < 4; p++) a_map_wr(1 + p, ent(1, 2, p));   // t1 = TDM 0..3
+  dut->a_en_i = 0;              // a disarmed talker restarts its PDU at event 0
+  cyc(4);
+  dut->a_en_i = 2;                                              // t1 alone
+  drv_tdm_frame_tagged(0xA, 0, 3);
+  cyc(4);
+  afr.clear();
+  a_tick();                                                     // col 0
+  drv_tdm_frame_tagged(0xB, 0, 2);
+  a_tick();                                                     // col 1
+  drv_tdm_frame_tagged(0xB, 3, 3);
+  a_tick();                                                     // col 2
+  drv_tdm_frame_tagged(0xC, 0, 2);
+  //! col 3: tick, then close C once the walk has injected slots 0..2 (t1's
+  //! TDM pairs 0 and 1 are slots 1 and 2) and before slot 3
+  dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;
+  int injects = 0;
+  for (int g = 0; g < WALK_C && injects < 3; g++) { injects += dut->a_pv_o ? 1 : 0; cyc(); }
+  ck("F: the mid-walk close lands after slot 2's inject", injects, 3);
+  drv_tdm_frame_tagged(0xC, 3, 3);
+  cyc(WALK_C + 60);
+  a_tick();                                                     // col 4
+  drv_tdm_frame_tagged(0xD, 0, 3);
+  a_tick();                                                     // col 5
+  cyc(400);
+  const int f = find_len(afr, 234);
+  ck("F: one t1 PDU of six columns", f >= 0 && afr.size() == 1, 1);
+  if (f < 0) return;
+  const std::array<int, 6> want = {0xA, 0xA, 0xB, 0xB, 0xC, 0xD};
+  for (int col = 0; col < 6; col++) {
+    for (int p = 0; p < 4; p++) {
+      char what[64];
+      const int at = 42 + col * 32 + p * 8;
+      std::snprintf(what, sizeof what, "F: col %d pair %d L is frame %X", col, p, want[col]);
+      ck(what, be(afr[f], at, 3), TDMF_L(want[col], p));
+      std::snprintf(what, sizeof what, "F: col %d pair %d R is frame %X", col, p, want[col]);
+      ck(what, be(afr[f], at + 4, 3), TDMF_R(want[col], p));
+    }
+  }
 }
 
 void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {

@@ -1205,9 +1205,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [N_STREAMS*8*16-1:0] amap_out_owner_r;
   logic [N_STREAMS*8*16-1:0] amap_out_cluster_r;
 
+  //! #617: the crossbar's TDM bucket publishes a frame whole when the
+  //! frame's last pair lands, so it must know which pair that is. The front
+  //! end strobes AIF_PAIRS_C pairs per frame, pair 0 first (1 for the I2S
+  //! capture, S/2 for a TDM bus, one more for the blend's I2S pair at slot
+  //! 0); the bucket keeps CMAP_TDM_SLOTS_C/2 of them, so a wider bus closes
+  //! on the last pair the bucket keeps. On the blend the I2S pair at slot 0
+  //! rides its own grid: each TDM close publishes the latest I2S pair beside
+  //! that frame's TDM pairs.
+  localparam int CMAP_TDM_SLOTS_C       = 8;
+  localparam int CMAP_TDM_FRAME_PAIRS_C = (AIF_PAIRS_C < CMAP_TDM_SLOTS_C / 2)
+                                        ? AIF_PAIRS_C : CMAP_TDM_SLOTS_C / 2;
+
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
-    .N_TDM_P   (8),
+    .N_TDM_P   (CMAP_TDM_SLOTS_C),
+    .TDM_FRAME_PAIRS_P (CMAP_TDM_FRAME_PAIRS_C),
     //! ON: sized to exactly what the AEM declares - talker t's loopback pool
     //! is rx stream t's wire channels, so the bucket keeps every listener
     //! stream at the full rx wire width. Anything smaller would re-open the
@@ -1250,8 +1263,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! SINGLE 48-bit hold (KL_chan_map_capture.sv:444 "the single stereo I2S
     //! pair", read with the cluster's idx IGNORED), so it can only ever carry
     //! two channels - feed a 4-pair TDM8 master into it and all four slots
-    //! collapse onto whichever pair was written last. tdm_hold_r[] is the
-    //! bucket sized for the job (N_TDM_P=8 -> 4 pairs, already elaborated),
+    //! collapse onto whichever pair was written last. The TDM bucket is the
+    //! one sized for the job (N_TDM_P=8 -> 4 pairs, already elaborated),
     //! and it was tied off, so a physical cluster beyond channels 0..1 could
     //! never be backed on ANY shape. Every front end - I2S capture, TDM
     //! slave, TDM master, blend - emits the same {pair_valid, pair_slot, L, R}
