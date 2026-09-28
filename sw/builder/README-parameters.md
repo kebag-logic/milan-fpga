@@ -67,7 +67,7 @@ placement fact shared with gateware:
 
 | Field | Type | Notes |
 |---|---|---|
-| `mac_address` | quoted EUI-48 | Required, unicast, and nonzero. Colon and dash spellings remain valid. |
+| `mac_address` | EUI-48 YAML string | Required, unicast, and nonzero. Colon and dash spellings remain valid. |
 | `pp_mem_phys` | aligned address | Base of the protocol-processor descriptor window. |
 | `rx_address_filter` | `promiscuous` | Existing reset/boot accept-all posture. `hardware` refuses with migration text. |
 

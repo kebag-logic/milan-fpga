@@ -880,7 +880,7 @@ N = 2, R = 0) against `KL_aecp_desc_store`'s 576-octet line buffer.
 
 ## 3. Config schema → AEM descriptor mapping
 
-Hexadecimal declarations require quoted YAML strings.
+Hexadecimal declarations require YAML strings.
 This includes `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
 Numbers, booleans and explicit nulls receive field-named quote instructions.
 Quoted MAC strings retain colon, dash and underscore separators.

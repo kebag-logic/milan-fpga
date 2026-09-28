@@ -12,6 +12,9 @@ import yaml
 import endstation_builder as eb
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+from pp_srcs import pp_sources  # noqa: E402
+
 sys.path.insert(0, str(ROOT / "sw/litex"))
 from boot_policy import fabric_constants  # noqa: E402
 
@@ -227,9 +230,12 @@ def test_station_mac_string_contract() -> None:
 def test_declared_hex_string_contract() -> None:
     """Both declared unsigned callers require strings, including explicit nulls."""
     base = yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text())
-    # The descriptor's authority supplies the only legal capabilities value.
-    source = (ROOT / "protocol-processor/hdl/adp/pp_adp_pkg.sv").read_text()
-    matches = re.findall(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)", source)
+    # Find the authority by its package declaration so source moves stay valid.
+    sources = [(ROOT / path).read_text() for path in pp_sources()]
+    packages = [source for source in sources
+                if re.search(r"^\s*package\s+pp_adp_pkg\s*;", source, re.M)]
+    assert len(packages) == 1, "expected one pp_adp_pkg in derived processor sources"
+    matches = re.findall(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)", packages[0])
     assert len(matches) == 1
     caps = int(matches[0], 16)
     with tempfile.TemporaryDirectory(prefix="declared-hex-contract.") as tmp:
