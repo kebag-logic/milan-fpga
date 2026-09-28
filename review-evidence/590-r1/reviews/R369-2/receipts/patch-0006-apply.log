@@ -1,0 +1,36 @@
+litex pristine a1e1c3652ec2f1346ebaea7663d2867f393ae2c4
+Checking patch litex/soc/cores/cpu/vexiiriscv/core.py...
+Hunk #3 succeeded at 574 (offset -1 lines).
+applied 0004-vexiiriscv-baremetal-variant.patch rc=0
+Checking patch litex/soc/software/bios/main.c...
+applied 0006-bios-dispatch-hook.patch rc=0
+0006 reverse-check ok
+--- applied tree vs shared install main.c:
+identical to shared install main.c
+#endif
+
+	/* Console */
+#ifdef BIOS_CONSOLE_DISABLE
+	bios_print_section("Done (No Console)");
+#else
+	bios_print_section("Console");
+#if !defined(BIOS_CONSOLE_LITE) && !defined(BIOS_CONSOLE_NO_HISTORY)
+	hist_init();
+#endif
+	printf("\n%s", PROMPT);
+	while(1) {
+		readline(buffer, CMD_LINE_BUFFER_SIZE);
+		command_dispatch_hook();
+		printf("\n");
+		if (buffer[0] != 0) {
+			nb_params = get_param(buffer, &command, params);
+			/* Ignore whitespace-only lines */
+			if (*command != 0) {
+				cmd = command_dispatcher(command, nb_params, params);
+				if (!cmd)
+					printf("Command not found\n");
+			}
+		}
+		printf("%s", PROMPT);
+	}
+shared LiteX (read-only, untouched): a1e1c3652ec2f1346ebaea7663d2867f393ae2c4  M litex/soc/cores/cpu/vexiiriscv/core.py  M litex/soc/software/bios/main.c ?? litex/soc/software/bios/xz/ 
