@@ -1,0 +1,20 @@
+# restore receipt, 2026-09-28T10:29:48+02:00
+HEAD a53682ed38720de758006602a19f78c8e40d69da tree e434badd5de9c04bebc451f8abbde187c06b8cae
+expected a53682ed38720de758006602a19f78c8e40d69da e434badd5de9c04bebc451f8abbde187c06b8cae
+worktree==index: yes
+index==HEAD: yes
+index modes+blobs+paths sha256 088ca2b7e5e058728e7e5b01e64cd70e1726119ae17ccb0ca478f295309ea118
+HEAD  modes+blobs+paths sha256 088ca2b7e5e058728e7e5b01e64cd70e1726119ae17ccb0ca478f295309ea118
+index entries == HEAD tree: yes
+per-file hash-object check done (mismatch lines above, if any)
+untracked/ignored:
+(end)
+gitlinks vs submodule HEADs:
+external gitlink=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 actual=a53682ed38720de758006602a19f78c8e40d69da match=NO dirty_or_ignored_entries=0
+gptp-processor gitlink=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d actual=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d match=yes dirty_or_ignored_entries=0
+protocol-processor gitlink=16be6768f710e79450aace277abacd6c2c3336e5 actual=16be6768f710e79450aace277abacd6c2c3336e5 match=yes dirty_or_ignored_entries=0
+third_party/verilog-axis gitlink=48ff7a7e2ef782cf778d47910cf85835c64b1bce actual=48ff7a7e2ef782cf778d47910cf85835c64b1bce match=yes dirty_or_ignored_entries=0
+note: 'external' is an uninitialized submodule in this clone (submodule status prefix '-', no .git inside), so 'git -C external' resolved to the parent repository; its gitlink efeb541a is unchanged in HEAD and base, and nothing under it is populated:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+entries in external/: 0
+required gitlinks (protocol-processor, gptp-processor, third_party/verilog-axis): match=yes, clean

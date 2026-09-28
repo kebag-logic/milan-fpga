@@ -1,0 +1,10 @@
+control: one rate + [0,1]: ACCEPTED
+rate count 0, length 144 (Milan 5.3.3.3: current rate must be listed): ACCEPTED
+current_sampling_rate 44100 not in list [48000]: ACCEPTED
+clock_sources_offset 78 with 2 pad bytes (IEEE Table 7-61: 76): ACCEPTED
+CLOCK_DOMAIN identity [0,1] with trailing extra bytes: ACCEPTED
+index rows retyped so no AUDIO_UNIT/CLOCK_DOMAIN row exists ([1,0] in body): ACCEPTED
+truncated blob, 14 bytes: REFUSED IMAGE_STRUCTURE
+truncated blob, 3 bytes: REFUSED IMAGE_STRUCTURE
+pristine arty_current image: ACCEPTED
+rc=0

@@ -1,0 +1,36 @@
+# scope receipt at a53682ed38720de758006602a19f78c8e40d69da vs 54ce877371ee6e8878cf67294e86c2a8481b62f6
+a53682ed38720de758006602a19f78c8e40d69da
+e434badd5de9c04bebc451f8abbde187c06b8cae
+## diff --stat
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md |  51 +++++++++--
+ sw/builder/aem_image_checks.py            | 112 +++++++++++++++++++++++
+ sw/builder/endstation_builder.py          |   6 ++
+ sw/builder/test_builder.py                | 144 ++++++++++++++++++++++++++++++
+ 4 files changed, 307 insertions(+), 6 deletions(-)
+## gitlinks base
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 16be6768f710e79450aace277abacd6c2c3336e5	protocol-processor
+## gitlinks head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 16be6768f710e79450aace277abacd6c2c3336e5	protocol-processor
+## submodule diff (empty = none)
+## endstation_builder.py diff
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 5ea57194a..a6a182ec2 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -71,0 +72 @@ from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # no
++from sw.builder import aem_image_checks  # noqa: E402
+@@ -2306,0 +2308,5 @@ def _entity_model_image(cfg, overlay):
++    # Check the packed bytes served by the store, after every producer ran.
++    try:
++        aem_image_checks.validate_shipping_image(blob)
++    except aem_image_checks.ImageCheckError as exc:
++        raise ConfigError(f"aem_desc.bin: {exc}") from exc
+## _load_clocking / _validate_output_clock_sources body hashes base vs head
+54ce8773 _load_clocking b57488956f2cea544e961107db40c23af3c8950ba0ca89c39c35c51959303591
+54ce8773 _validate_output_clock_sources ac37158551472a2dab9fe7a46c3b04f05fe2c65bd8fd9f3159e33384543d9311
+a53682ed _load_clocking b57488956f2cea544e961107db40c23af3c8950ba0ca89c39c35c51959303591
+a53682ed _validate_output_clock_sources ac37158551472a2dab9fe7a46c3b04f05fe2c65bd8fd9f3159e33384543d9311
