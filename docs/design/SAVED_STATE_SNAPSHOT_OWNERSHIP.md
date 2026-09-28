@@ -185,7 +185,7 @@ page's.
 - **[17. Consequences](#17-consequences)** -- What the contract changes and costs.
 - **[18. Cost](#18-cost)** -- Measured area and firmware size, derived timing.
 - **[19. The executable model and its omissions](#19-the-executable-model-and-its-omissions)** -- Scope and totals.
-- **[20. UNRESOLVED](#20-unresolved)** -- Seven items this contract does not settle.
+- **[20. UNRESOLVED](#20-unresolved)** -- Eight items this contract does not settle.
 - **[21. Traceability](#21-traceability)** -- Acceptance bullets, obligations and review findings mapped to sections.
 
 ## 1. Context
