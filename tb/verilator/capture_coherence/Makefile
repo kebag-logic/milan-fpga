@@ -10,9 +10,11 @@
 # phases on the true plan and at four on +/-50 ppm plans, and the aligner's
 # engagement PLACED against the capture walk's crossing - every cycle across
 # +/-32 of it and every 16 round the frame on the true plan, every 4 across
-# the +/-50 ppm acquisition band (sim_main.cpp's header lists them). A second
-# leg runs the same bench against the whole milan_datapath on the shipping
-# shape, with its own placed band.
+# the +/-50 ppm acquisition band, every quarter cycle at 64 sub-step phases
+# across the crossing at -50 ppm, and the settled lock at +/-80 and +/-100
+# ppm (sim_main.cpp's header lists them). A second leg runs the same bench
+# against the whole milan_datapath on the shipping shape, with its own placed
+# band.
 #   make         - both legs, then the mutation arm
 #   make run     - the junction harness alone
 #   make dp      - the milan_datapath leg alone
@@ -44,16 +46,17 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) $(GFLAGS) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra $(DFLAGS)"
-# CMAP_SRC, WRAP_SRC and MDIR are overridable so the mutation arm builds a
-# MUTATED COPY of the crossbar, or of the wrapper's aligner binding, with this
-# exact flag set, into its own directory, through the same recipe - one
-# statement of how the harness is built.
+# CMAP_SRC, NCO_SRC, WRAP_SRC and MDIR are overridable so the mutation arm
+# builds a MUTATED COPY of the crossbar, of the media NCO, or of the wrapper's
+# aligner binding, with this exact flag set, into its own directory, through
+# the same recipe - one statement of how the harness is built.
 CMAP_SRC ?= $(AAF)/KL_chan_map_capture.sv
+NCO_SRC  ?= $(CRF)/KL_media_nco.sv
 WRAP_SRC ?= coherence_wrap.sv
 MDIR     ?= obj_dir
 SRCS = $(RTL_DIR)/common/cdc_pair_fifo.sv \
        $(AAF)/KL_tdm_capture_master.sv \
-       $(CRF)/KL_media_nco.sv \
+       $(NCO_SRC) \
        $(CRF)/KL_media_grid_align.sv \
        $(CMAP_SRC) \
        $(AAF)/KL_aaf_packetizer.sv \
@@ -65,8 +68,14 @@ CPP  = sim_main.cpp
 .DEFAULT_GOAL := all
 all: run dp mutants
 
+# THE ALIGNER KEEP-OFF IS THE DATAPATH'S, NOT A RESTATEMENT: mga_keepoff.py
+# copies milan_datapath's MGA_* declarations out of DP_SRC (below) into the
+# build directory, where the wrapper `include-s them. So a datapath mutant
+# (the mutation arm's band50 leg) reaches this leg as well.
 build:
-	$(VERILATOR) $(VFLAGS) --Mdir $(MDIR) $(SRCS) $(CPP) -o $(EXE)
+	mkdir -p $(MDIR)
+	python3 mga_keepoff.py $(DP_SRC) $(MDIR)/mga_keepoff.svh
+	$(VERILATOR) $(VFLAGS) +incdir+$(MDIR) --Mdir $(MDIR) $(SRCS) $(CPP) -o $(EXE)
 
 run: build
 	@echo "======================================================================"

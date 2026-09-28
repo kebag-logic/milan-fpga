@@ -14,12 +14,20 @@ holds, as the crossbar did at ce550952.
 
 So the real RTL is mutated, one defect at a time, and the SAME harness is
 run against each mutant through its suite's own Makefile recipe, so the flag
-set is stated once. Five legs:
+set is stated once. Eight legs:
   junction  a crossbar mutant through `make build` (CMAP_SRC, MDIR) against
             the junction harness, `--quick`;
   band      a mutant of the wrapper's grid-aligner binding (WRAP_SRC) - the
             round-2 guard: marker, delayed tick, keep-off - against the
             junction harness's placed true-plan band, `--band`;
+  band50    a datapath mutant through the junction's `make build` (DP_SRC):
+            the wrapper binds milan_datapath's own keep-off declaration
+            (mga_keepoff.py), so a mutated keep-off meets the junction's
+            placed +/-50 ppm bands, `--band50` - the value the true-plan band
+            cannot see;
+  fine      a media NCO mutant (NCO_SRC) against the junction's sub-cycle
+            sweep at -50 ppm, `--fine`: where the aligner's trim updates land
+            on the NCO's terminal count;
   dp        a datapath mutant through `make dp-build` (DP_SRC, DP_MDIR)
             against the milan_datapath leg's fixed scenarios, `--quick`: the
             only leg that sees the frame length milan_datapath hands the
@@ -28,7 +36,11 @@ set is stated once. Five legs:
             only leg that sees milan_datapath's own aligner binding;
   chmap     a crossbar mutant through tb/verilator/chmap_capture's `make
             build` (CMAP_SRC, MDIR): the only harness that elaborates the
-            one-pair TDM frame of the I2S-capture shapes.
+            one-pair TDM frame of the I2S-capture shapes, and that queues a
+            tick behind a running walk;
+  nco       a media NCO mutant through tb/verilator/media_nco's `make build`
+            (NCO_SRC, MDIR): the grid alone, its trim moved on every cycle
+            around the terminal count.
 Every mutant must make the harness FAIL by its OWN verdict (a `[FAIL]` line
 or a tally with failures, read by scripts/suite_tally.py) AND the failure
 must be the check the mutant names: a run that fails some other check proves
@@ -39,9 +51,10 @@ silently skipping a mutant.
 
 `--quick` leaves out the junction's whole true-plan beat (whose phases the
 +/-1000 ppm sweeps cross in 3,200 frames each) and every placed sweep;
-`--band` runs the true plan's placed band alone. Each leg's clean control
-runs the same way as its mutants, so a mutant is graded against exactly the
-scenarios its control passed.
+`--band` runs the true plan's placed band alone; `--band50` the +/-50 ppm
+bands every 32 cycles; `--fine` the -50 ppm sub-cycle sweep. Each leg's clean
+control runs the same way as its mutants, so a mutant is graded against
+exactly the scenarios its control passed.
 
 What bounds a livelocking mutant. This driver sets no host-time deadline on a
 run (rule 8's wall-clock ratchet, scripts/test_evidence.budget item 4). The
@@ -66,8 +79,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 CHMAP = HERE / "../chmap_capture"
+MEDIA_NCO = HERE / "../media_nco"
 CROSSBAR = HERE / "../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv"
 DATAPATH = HERE / "../../../hdl/milan/milan_datapath.sv"
+NCO = HERE / "../../../hdl/ieee1722/crf/KL_media_nco.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
@@ -81,17 +96,25 @@ LOCK_SLIP = "[C] slips while the CRF lock held"
 LEGS = {
     "junction": (HERE, "build", "CMAP_SRC", "MDIR", CROSSBAR, "Vcoherence_sim", ("--quick",)),
     "band": (HERE, "build", "WRAP_SRC", "MDIR", HERE / "coherence_wrap.sv", "Vcoherence_sim", ("--band",)),
+    "band50": (HERE, "build", "DP_SRC", "MDIR", DATAPATH, "Vcoherence_sim", ("--band50",)),
+    "fine": (HERE, "build", "NCO_SRC", "MDIR", NCO, "Vcoherence_sim", ("--fine",)),
     "dp": (HERE, "dp-build", "DP_SRC", "DP_MDIR", DATAPATH, "Vcoherence_dp", ("--quick",)),
     "dp-band": (HERE, "dp-build", "DP_SRC", "DP_MDIR", DATAPATH, "Vcoherence_dp", ("--band",)),
     "chmap": (CHMAP, "build", "CMAP_SRC", "MDIR", CROSSBAR, "Vchmap_wrap", ()),
+    "nco": (MEDIA_NCO, "build", "NCO_SRC", "MDIR", NCO, "Vmedia_nco_sim", ()),
 }
 
-#: the wrapper's aligner binding and milan_datapath's, as round 2 writes them
-WRAP_KEEPOFF = ("    .FS_HZ_P            (FS_HZ_C),\n    .LOCK_KEEPOFF_CYC_P (256)",
+#: the wrapper's aligner binding and milan_datapath's, as rounds 2 and 3
+#: write them
+WRAP_KEEPOFF = ("    .FS_HZ_P            (FS_HZ_C),\n    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)",
                 "    .FS_HZ_P            (FS_HZ_C)")
 WRAP_TICK = ("    .tick_i (tick_q_r),", "    .tick_i (tick_w),")
 WRAP_MARKER = ("    .frame_ev_i (cap_pv_w && (32'(cap_slot_w) == TDM_SLOTS_P / 2 - 1)),",
                "    .frame_ev_i (cap_pv_w && (cap_slot_w == 4'd0)),")
+#: the crossbar's snapshot instant and the NCO's terminal compare (#617
+#: rounds 2 and 3)
+SNAP = "  wire tdm_snap_w = (st_r == CM_IDLE_S) && (tick_pend_r ? tick_late_r : tick_i);"
+NCO_EQ = (("    else if (32'(cnt_r) >= end_w) begin", "    else if (32'(cnt_r) == end_w) begin"),)
 
 #: (leg, name, ((pattern, replacement), ...), the check(s) this defect must
 #: break, spelled as the harness prints them)
@@ -157,6 +180,23 @@ MUTATIONS = [
        "    .frame_ev_i (aafcap_pv_w && (aafcap_slot_w == 4'd0)),\n"
        "    .tick_i     (media_tick_p),")),
      LOCK_SLIP),
+    ("chmap", "RM7: a tick queued behind a running walk takes no snapshot when its walk starts",
+     ((SNAP, "  wire tdm_snap_w = (st_r == CM_IDLE_S) && !tick_pend_r && tick_i;"),),
+     "Q: col 2 pair 0 L is frame 4"),
+    ("chmap", "RM8: a queued tick snapshots at the tick itself, reloading the walk still running",
+     ((SNAP, "  wire tdm_snap_w = tick_i;"),),
+     ("Q: col 1 pair 2 L is frame 2", "Q: col 2 pair 0 L is frame 4")),
+    ("band50", "RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional "
+               "equilibrium a 50 ppm rate forces on a pulled engagement",
+     (("                                            ? MGA_SAMPLE_CYC_C / 4 : 256;",
+       "                                            ? MGA_SAMPLE_CYC_C / 4 : 128;"),),
+     LOCK_SLIP),
+    ("nco", "the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed",
+     NCO_EQ,
+     "update landing at old end +0: one tick, in a period the old or the new trim sets"),
+    ("fine", "the terminal compare back to == (377d1ac3), under the aligner's trim updates",
+     NCO_EQ,
+     "[C] CRF slips net zero"),
     ("chmap", "the frame closes on the bucket's last pair whatever the frame length",
      (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",
        "(32'(tdm_pair_slot_i) == N_TDM_PAIRS_C - 1);"),

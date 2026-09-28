@@ -53,11 +53,47 @@ constexpr int kPayloadOffset = 42;
 constexpr int kFrameBytes = kPayloadOffset + kEvents * kChans * 4;
 //! columns closer than this belong to one slip cluster
 constexpr long kClusterGap = 64;
-//! CRF: the columns in which an engagement landing within the close's
-//! one-cycle jitter of the walk's crossing may still repeat and skip, before
-//! the aligner's pull (0.07 cycles per frame at its 256-cycle keep-off) has
-//! carried the close two cycles clear
+//! CRF: the columns in which an engagement landing on the walk's crossing may
+//! repeat and skip a frame, one of each, net zero. The aligner's split puts
+//! such an engagement's lock target a keep-off to one side, and its
+//! proportional term pulls the close there at u = keep-off << KP_LOG2_P, in
+//! 1/16 ppm: 64 ppm at milan_datapath's 256 cycles (the wrapper's
+//! engage_u_o). A relative rate |r| against the pull leaves (64 - |r|) ppm,
+//! (64 - |r|) x 1e-6 x 1041.7 cycles a frame, and the close stops dithering
+//! across the crossing once that has carried it a cycle, its jitter, clear.
+//! At the Milan v1.2 7.4 +/-50 ppm bound that is 0.0146 cycles a frame, 68
+//! frames, and the talker's first column comes about four frames after the
+//! engagement: 64 columns. Measured at every sub-cycle phase of the crossing
+//! (CRF-fine-50, -50 ppm): the last slip at column 57. Below the bound the
+//! departure is faster and the bound's window holds (last slips at columns
+//! 19, 23 and 31 at -10.64, -25 and -40 ppm); beyond it, engage_columns().
 constexpr long kEngageColumns = 64;
+//! Milan v1.2 7.4: a media clock source within +/-50 ppm of nominal
+constexpr double kMilanPpm = 50.0;
+//! no column window: an engagement at or past the pull is carried across the
+//! crossing and back while its lock settles, so only the lock is graded
+constexpr long kUnbounded = LONG_MAX;
+
+//! The engagement window at relative rate `ppm` against a pull of `pull_ppm`
+//! (the aligner's u at one keep-off of error): kEngageColumns within the
+//! Milan bound; beyond it stretched as the departure (pull - |r|) slows, since
+//! the time to clear a cycle is its inverse (224 columns at 60 ppm, where the
+//! last slip measures column 181); unbounded at or past the pull, the
+//! on-crossing engagement limit (measured: carried across from about 63 ppm
+//! below nominal and 67 above).
+inline long engage_columns(double ppm, double pull_ppm) {
+    const double rate = std::fabs(ppm);
+    if (rate <= kMilanPpm) return kEngageColumns;
+    if (rate >= pull_ppm) return kUnbounded;
+    return static_cast<long>(
+        std::ceil(static_cast<double>(kEngageColumns) * (pull_ppm - kMilanPpm) / (pull_ppm - rate)));
+}
+
+//! Where a CRF run's lock tail starts: its second half, and never inside its
+//! engagement window - a slip the window admits is acquisition, not the lock.
+inline long tail_start(long frames, long window) {
+    return window == kUnbounded ? frames / 2 : std::max(frames / 2, window);
+}
 
 //! A TDM clock as a fractional-N divider of the 200 MHz step rate: the clock
 //! toggles on every step at which `num` accumulated into `den` wraps.
@@ -90,15 +126,22 @@ struct Edges {
     bool tdm = false;
 };
 
+//! Sub-step phases of the TDM clock: its fractional-N accumulator can start
+//! at k / kSubPhases of the plan's denominator, which moves every TDM edge
+//! by up to one oscillator step - finer than a held step, a quarter cycle.
+constexpr long kSubPhases = 64;
+
 //! The oscillator: the axis clock at a fixed division, the TDM clock as the
 //! plan's fractional-N divider, held for a number of steps after a restart
-//! so a scenario can place the TDM frame against the packet grid.
+//! and started at a sub-step phase, so a scenario can place the TDM frame
+//! against the packet grid finer than an axis cycle.
 class Oscillator {
  public:
-    void restart(const ClockPlan& plan, long hold_steps) {
+    void restart(const ClockPlan& plan, long hold_steps, long sub_phase = 0) {
         plan_ = plan;
         acc_ = 0;
         hold_ = hold_steps;
+        if (sub_phase > 0) acc_ = plan.den * static_cast<std::uint64_t>(sub_phase) / kSubPhases;
     }
 
     Edges step() {
@@ -200,7 +243,9 @@ constexpr long kUnplaced = LONG_MIN;
 constexpr long kPlaceTolerance = 2;
 
 //! A placed sweep: one CRF scenario per offset from `lo` to `hi` cycles from
-//! the crossing, `step` apart, each `frames` columns long.
+//! the crossing, `step` apart, each `frames` columns long - and, for a
+//! sub-cycle sweep, per offset `holds` placements a quarter cycle (one held
+//! step) apart, each at `phases` sub-step phases.
 struct Sweep {
     std::string tag;
     ClockPlan plan;
@@ -208,6 +253,8 @@ struct Sweep {
     long hi = 0;
     long step = 1;
     long frames = 0;
+    long holds = 1;
+    long phases = 1;
 };
 
 //! a cycle offset wrapped into one frame about zero, (-P/2, P/2]
@@ -301,10 +348,12 @@ class ColumnBench {
     //! (INTERNAL) `ppm` is the TDM frame's offset against the grid and every
     //! slip cluster must net one frame in its direction. Without it (CRF) the
     //! grids are held together and there is no drift to net: a slip may come
-    //! only from an engagement landing on the walk's crossing, inside the
-    //! first kEngageColumns columns, and it nets zero - the aligner's pull
-    //! returns the close to the side it engaged on.
-    void grade(milan::tb::Checker& check, const std::string& n, long min_columns, double ppm, bool drift) const {
+    //! only while the engagement acquires - on the walk's crossing, inside
+    //! its `window` columns (engage_columns()), or, past the on-crossing
+    //! limit, anywhere before the lock's tail - and it nets zero: the
+    //! aligner's loop returns the close to the side it engaged on.
+    void grade(milan::tb::Checker& check, const std::string& n, long min_columns, double ppm, bool drift,
+               long window) const {
         check.dec((n + "[A] PDUs not the 8-channel AAF shape").c_str(), static_cast<std::uint64_t>(t_.bad_pdus), 0);
         check.that((n + "[V] every requested column was decoded").c_str(), t_.columns >= min_columns);
         check.dec((n + "[A] words not carrying their own channel tag").c_str(),
@@ -317,7 +366,7 @@ class ColumnBench {
         if (!drift) {
             check.that((n + "[C] CRF slips net zero").c_str(), t_.skips == t_.dups);
             check.that((n + "[C] CRF slips only inside the engagement's first columns").c_str(),
-                       t_.last_slip_col < kEngageColumns);
+                       t_.last_slip_col < std::min(window, tail_start(min_columns, window)));
             return;
         }
         check.dec((n + "[C] slip clusters not netting exactly one frame").c_str(),

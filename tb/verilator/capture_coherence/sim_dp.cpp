@@ -297,9 +297,16 @@ void DatapathHarness::run(const Scenario& sc) {
     bench_.print_table();
 }
 
+//! Every CRF plan of this leg is the true one, inside the Milan bound, where
+//! the engagement window is kEngageColumns whatever the aligner's pull (the
+//! junction leg grades the rates past the bound).
 void DatapathHarness::grade(const Scenario& sc) {
     const std::string n = "[" + sc.name + "] ";
-    bench_.grade(check_, n, sc.frames, sc.plan.ppm, !sc.crf);
+    if (sc.crf) {
+        check_.that((n + "[V] the CRF plan is inside the Milan bound this leg's engagement window assumes").c_str(),
+                    std::fabs(sc.plan.ppm) <= kMilanPpm);
+    }
+    bench_.grade(check_, n, sc.frames, sc.plan.ppm, !sc.crf, kEngageColumns);
     if (!sc.crf) {
         check_.that((n + "[V] the root keeps the INTERNAL selection").c_str(),
                     dut_->rootp->milan_datapath__DOT__crf_clk_selected_r == 0);

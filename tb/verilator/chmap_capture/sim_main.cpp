@@ -43,8 +43,10 @@
 //     walk's TDM slots waits for the next walk instead of tearing this one,
 //     and a frame closing on the tick cycle itself is that walk's when no
 //     frame is pending and the next walk's when one is (the junction
-//     counters' coincidence law, which the walk follows). Every other lane A
-//     arm delivers whole frames, pair 0 first, as a front end does.
+//     counters' coincidence law, which the walk follows). A tick queued
+//     behind a running walk takes its frame when its own walk starts, never
+//     at the tick and never under the running walk. Every other lane A arm
+//     delivers whole frames, pair 0 first, as a front end does.
 //     tb/verilator/capture_coherence is the drift-level proof.
 //   [G] tone ONE-GRID contract (task #59): clk_audio drifts against clk at
 //     an incommensurate ratio; both tone shapes are sampled at the media-
@@ -128,6 +130,7 @@ class ChanMapCaptureHarness {
   void pin_tone_one_grid_contract();
   void pin_tdm_frame_handoff();
   void pin_close_on_the_tick_cycle();
+  void pin_queued_tick_snapshots_at_its_walk();
   void pin_one_pair_frame_publishes_on_pair_0();
   void pin_starved_pair_pegs_and_holds();
 
@@ -140,6 +143,7 @@ class ChanMapCaptureHarness {
   Frame acur;
   Frame bcur;
   uint32_t lb_chans_word = 0;
+  long a_injects = 0;   //! lane A crossbar injects since reset
 };
 
 void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
@@ -149,6 +153,7 @@ void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
 }
 
 void ChanMapCaptureHarness::sample() {
+  if (dut->a_pv_o) a_injects++;
   if (dut->a_tvalid_o && dut->a_tready_i) {
     for (int i = 0; i < 8; i++) if ((dut->a_tkeep_o >> i) & 1)
       acur.push_back((dut->a_tdata_o >> (8 * i)) & 0xFF);
@@ -1430,6 +1435,7 @@ int ChanMapCaptureHarness::run() {
   pin_tone_one_grid_contract();
   pin_tdm_frame_handoff();
   pin_close_on_the_tick_cycle();
+  pin_queued_tick_snapshots_at_its_walk();
   pin_one_pair_frame_publishes_on_pair_0();
   pin_starved_pair_pegs_and_holds();
 
@@ -1548,6 +1554,67 @@ void ChanMapCaptureHarness::pin_close_on_the_tick_cycle() {
       ck(what, be(afr[f], at, 3), TDMF_L(col + 1, p));
       std::snprintf(what, sizeof what, "F: tick-cycle col %d pair %d R is frame %d", col, p, col + 1);
       ck(what, be(afr[f], at + 4, 3), TDMF_R(col + 1, p));
+    }
+  }
+}
+
+void ChanMapCaptureHarness::pin_queued_tick_snapshots_at_its_walk() {
+  // ====================================================================== //
+  // [Q] A TICK QUEUED BEHIND A RUNNING WALK (#617, R394-2 S1). A tick that //
+  // lands while a walk runs waits in the one-deep queue, and its own walk  //
+  // snapshots the frame bank when it STARTS - the bank then, not the bank  //
+  // at the tick, and never a reload under the walk still running. The next//
+  // t1 PDU:                                                                //
+  //   col 0  frame 1, whole before its tick;                               //
+  //   col 1  frame 2, whole before its tick, and the walk runs on while    //
+  //          frame 3 closes, a second tick queues and frame 4 closes: it   //
+  //          keeps frame 2 on every pair;                                  //
+  //   col 2  frame 4: the queued tick's walk, snapshotting as it starts;   //
+  //   cols 3..5  frames 5, 6, 7, whole.                                    //
+  // Frame 3 is the one no walk reads: the junction counters count one skip //
+  // and no dup. A queued tick that took no snapshot would repeat frame 2;  //
+  // one that snapshotted at the tick would reload the running walk with    //
+  // frame 3 (col 1 torn) and hand its own walk frame 3.                    //
+  // ====================================================================== //
+  printf("\n[Q] a tick queued behind a running walk snapshots when its walk starts\n");
+  const long dup0 = dut->a_tdm_dup_cnt_o;
+  const long skip0 = dut->a_tdm_skip_cnt_o;
+  afr.clear();
+  drv_tdm_frame_tagged(1, 0, 3);
+  a_tick();                                                     // col 0
+  drv_tdm_frame_tagged(2, 0, 3);
+  const long inj0 = a_injects;
+  dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;                  // col 1's tick
+  for (int g = 0; g < WALK_C && a_injects - inj0 < 3; g++) cyc();
+  drv_tdm_frame_tagged(3, 0, 3);                                // closes mid-walk
+  dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;                  // col 2's tick, queued
+  drv_tdm_frame_tagged(4, 0, 3);                                // closes after it
+  ck("Q: frame 4 closed with col 1's walk still running (injects so far)",
+     a_injects - inj0 < 32, 1);
+  cyc(2 * WALK_C + 60);
+  ck("Q: the queued tick ran its own walk right after (32 + 32 injects)", a_injects - inj0, 64);
+  drv_tdm_frame_tagged(5, 0, 3);
+  a_tick();                                                     // col 3
+  drv_tdm_frame_tagged(6, 0, 3);
+  a_tick();                                                     // col 4
+  drv_tdm_frame_tagged(7, 0, 3);
+  a_tick();                                                     // col 5
+  cyc(400);
+  ck("Q: the junction counters: frame 3, read by no walk, is one skip",
+     static_cast<long>(dut->a_tdm_skip_cnt_o) - skip0, 1);
+  ck("Q: ...and no walk repeated a frame (no dup)", static_cast<long>(dut->a_tdm_dup_cnt_o) - dup0, 0);
+  const int f = find_len(afr, 234);
+  ck("Q: one more t1 PDU of six columns", f >= 0 && afr.size() == 1, 1);
+  if (f < 0) return;
+  const std::array<int, 6> want = {1, 2, 4, 5, 6, 7};
+  for (int col = 0; col < 6; col++) {
+    for (int p = 0; p < 4; p++) {
+      char what[72];
+      const int at = 42 + col * 32 + p * 8;
+      std::snprintf(what, sizeof what, "Q: col %d pair %d L is frame %d", col, p, want[col]);
+      ck(what, be(afr[f], at, 3), TDMF_L(want[col], p));
+      std::snprintf(what, sizeof what, "Q: col %d pair %d R is frame %d", col, p, want[col]);
+      ck(what, be(afr[f], at + 4, 3), TDMF_R(want[col], p));
     }
   }
 }

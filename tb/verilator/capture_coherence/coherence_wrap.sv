@@ -71,6 +71,10 @@ module coherence_wrap #(
   output wire [23:0]  walk_r_o,
   output wire [15:0]  tdm_dup_cnt_o,   //! the shipped junction counters
   output wire [15:0]  tdm_skip_cnt_o,
+  //! the aligner binding's constants, for the harness's engagement law:
+  //! the keep-off, and the u it pulls a raced engagement with (1/16 ppm)
+  output wire [15:0]  keepoff_cyc_o,
+  output wire [15:0]  engage_u_o,
 
   //! --- the talker's AAF PDUs ---------------------------------------------
   output wire [63:0]  tdata_o,
@@ -133,7 +137,13 @@ module coherence_wrap #(
   //! milan_datapath's aligner binding (#617): the frame close as the marker
   //! (pair TDM_SLOTS_P/2 - 1 on a solo TDM master), the tick one cycle late
   //! so the lock-target split is the crossbar walk's crossing, and its
-  //! MGA_KEEPOFF_CYC_C keep-off
+  //! MGA_KEEPOFF_CYC_C keep-off - the datapath's own declaration, which the
+  //! Makefile copies out of milan_datapath.sv (mga_keepoff.py) and which
+  //! elaborates here against this leg's clock under the datapath's name for
+  //! it, so the keep-off every sweep grades is the one the datapath ships
+  localparam int unsigned MILAN_CLK_FREQ_HZ = CLK_HZ_P;
+  `include "mga_keepoff.svh"
+
   logic tick_q_r;
   always_ff @(posedge clk) begin : align_tick_delay
     if (!rst_n) tick_q_r <= 1'b0;
@@ -143,7 +153,7 @@ module coherence_wrap #(
   KL_media_grid_align #(
     .CLK_FREQ_HZ_P      (CLK_HZ_P),
     .FS_HZ_P            (FS_HZ_C),
-    .LOCK_KEEPOFF_CYC_P (256)
+    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)
   ) u_align (
     .clk_i (clk), .rst_n (rst_n),
     .sel_i (sel_crf_i),
@@ -155,6 +165,9 @@ module coherence_wrap #(
   );
 
   assign tick_o = tick_w;
+  assign keepoff_cyc_o = 16'(MGA_KEEPOFF_CYC_C);
+  //! the proportional term at one keep-off of error, the aligner's own gain
+  assign engage_u_o = 16'(MGA_KEEPOFF_CYC_C << u_align.KP_LOG2_P);
 
   // ---------------------------------------------------------------------- //
   //  The capture crossbar under test, fed as milan_datapath feeds it: the   //

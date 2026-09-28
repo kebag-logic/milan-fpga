@@ -30,7 +30,9 @@
 // one instant where the TDM frame and the packet grid meet. Under CRF the
 // grid aligner keys on the same close, sees the tick one cycle late so its
 // lock-target split is that crossing, and holds the close 256 cycles clear
-// of it (milan_datapath MGA_KEEPOFF_CYC_C, restated in the wrapper).
+// of it: milan_datapath's MGA_KEEPOFF_CYC_C, which the wrapper elaborates
+// from the datapath's own declaration (mga_keepoff.py), so every sweep here
+// grades the keep-off the datapath ships.
 //
 // INTERNAL AND CRF, and exactly what is swept. The clock-source verdict is
 // the wrapper's sel_crf_i, the net milan_datapath resolves from the stored
@@ -56,8 +58,25 @@
 //                     -32 to +176 (+50 ppm), 6,000 columns: the crossing and
 //                     the offsets whose acquisition transient carries the
 //                     close across it inside the tail, a band 40 cycles wide
-//                     or more at +/-50 ppm, so ten or more land in it.
-// Each CRF scenario's tail is its second half.
+//                     or more at +/-50 ppm, so ten or more land in it;
+//   CRF-fine-50       -50 ppm, every offset from -1 to +1 cycle - the
+//                     crossing and the side before it, where the aligner's
+//                     trim updates land on the media NCO's terminal count -
+//                     at each of four quarter-cycle holds and 64 sub-step
+//                     phases of the TDM clock (768 engagements, 300
+//                     columns): the NCO race of R395-2 F1 lost two ticks in
+//                     nine of these engagements until the NCO's terminal
+//                     compare was made monotone;
+//   CRF-settle-80/+80, -100/+100  the settled lock past the envelope, two
+//                     engagements each: on the crossing (0 cycles at the
+//                     negative rates, +8 at the positive ones: the side the
+//                     pull carries a close across) and 256 cycles further to
+//                     that side, where past about 86 ppm the unpulled
+//                     acquisition transient crosses it; 30,000 columns, so
+//                     the acquisition's net-zero crossings end in the first
+//                     half and the lock is graded after them.
+// Each CRF scenario's tail is its second half, and never starts inside its
+// engagement window (coherence_bench's engage_columns and tail_start).
 //
 // THE CHECKS, per scenario:
 //   [A] every AAF column after the first valid one carries its own channel
@@ -67,9 +86,10 @@
 //       not newer (the frame is fixed before the walk reads it);
 //   [C] column continuity: each column's frame is the previous one's plus
 //       one, or a slip cluster netting one frame in the drift's direction,
-//       one cluster per beat crossing (INTERNAL), no slip in the CRF tail;
-//       and the junction counters (SLIP_TDM) count each walk's own repeat
-//       and skip, walk by walk;
+//       one cluster per beat crossing (INTERNAL); under CRF slips net zero,
+//       only while the engagement acquires, none in the tail; and the
+//       junction counters (SLIP_TDM) count each walk's own repeat and skip,
+//       walk by walk;
 //   [V] vacuity: the front end captured the pattern it was sent, every
 //       requested column was decoded, the INTERNAL drift swept the tick
 //       through the whole frame and gave the counters slips to count, a CRF
@@ -83,10 +103,12 @@
 // The counters and the aligner marker used to be the slot-0 strobe against
 // the tick, three pair periods from the walk's crossing; nothing here keys
 // on slot 0 any more. mutants.py rebuilds this harness against defective
-// copies of the crossbar and of the wrapper's aligner binding and requires
-// the named checks to fail; the first is the ce550952 law, per-pair holds
-// read at slot time, and the round-1 aligner binding must reproduce the
-// band (`--band`).
+// copies of the crossbar, of the wrapper's aligner binding, of the media
+// NCO and of milan_datapath's keep-off, and requires the named checks to
+// fail; the first is the ce550952 law, per-pair holds read at slot time,
+// the round-1 aligner binding must reproduce the band (`--band`), a keep-off
+// of 128 cycles the +/-50 ppm bands (`--band50`), and the NCO's == terminal
+// compare the sub-cycle sweep's lost ticks (`--fine`).
 
 #include "coherence_bench.hpp"
 #include "Vcoherence_wrap.h"
@@ -114,7 +136,11 @@ struct Scenario {
     bool sweep = false;         //! INTERNAL: the tick must cross the frame
     bool brief = false;         //! one [i] line unless a check fails
     long placed = kUnplaced;    //! engagement close offset from the crossing
+    long sub_phase = 0;         //! TDM clock sub-step phase, of kSubPhases
 };
+
+//! the aligner's u is in 1/16 ppm (KL_media_grid_align's servo units)
+constexpr double kUPerPpm = 16.0;
 
 //! What the junction taps measured (the columns are the bench's).
 struct JunctionTally {
@@ -198,7 +224,8 @@ class JunctionHarness {
     void grade(const Scenario& sc);
     void grade_sweep(const Scenario& sc, const std::string& n);
     void grade_lock(const Scenario& sc, const std::string& n);
-    long calibrate(const ClockPlan& plan);
+    long window(const Scenario& sc) const;
+    long calibrate(const ClockPlan& plan, long sub_phase = 0);
     void grade_window(const Sweep& sw);
     void print_ages() const;
 };
@@ -224,8 +251,14 @@ void JunctionHarness::restart(const Scenario& sc) {
     dut_->rst_n = 1;
     prev_dup_ = 0;
     prev_skip_ = 0;
-    osc_.restart(sc.plan, sc.start_delay_steps);
+    osc_.restart(sc.plan, sc.start_delay_steps, sc.sub_phase);
     soc_.restart(kFirstFrame, dut_->tdm_bclk_o);
+}
+
+//! The scenario's engagement window (coherence_bench's engage_columns), at
+//! the pull the wrapper's aligner applies at one keep-off of error.
+long JunctionHarness::window(const Scenario& sc) const {
+    return engage_columns(sc.plan.ppm, static_cast<double>(dut_->engage_u_o) / kUPerPpm);
 }
 
 //! identity routing: stream channel c takes TDM slot c, the #451 routed map
@@ -454,8 +487,9 @@ void JunctionHarness::run(const Scenario& sc) {
     //! a cycle guard, never a verdict: a scenario that stops producing
     //! columns fails its [V] column count
     const long guard = cycle_ + (sc.frames + 400) * 1100;
+    const long tail_from = tail_start(sc.frames, window(sc));
     while (bench_.tally().columns < sc.frames && cycle_ < guard) {
-        tail_ = sc.crf && bench_.tally().columns >= sc.frames / 2;
+        tail_ = sc.crf && bench_.tally().columns >= tail_from;
         bench_.set_tail(tail_);
         cycle(1024);
     }
@@ -469,18 +503,22 @@ void JunctionHarness::run(const Scenario& sc) {
 
 //! Where the first close after reset lands against its tick with the TDM
 //! clock unheld: the origin every placed CRF engagement is measured from,
-//! once per plan.
-long JunctionHarness::calibrate(const ClockPlan& plan) {
-    const auto known = unheld_.find(plan.name);
+//! once per plan and sub-step phase (a phase moves the TDM edges by up to a
+//! cycle, so a placement is calibrated at its own).
+long JunctionHarness::calibrate(const ClockPlan& plan, long sub_phase) {
+    const std::string key = plan.name + "/" + std::to_string(sub_phase);
+    const auto known = unheld_.find(key);
     if (known != unheld_.end()) return known->second;
-    const Scenario sc{"calibrate", plan, true, 0, 0, false, true, kUnplaced};
+    const Scenario sc{"calibrate", plan, true, 0, 0, false, true, kUnplaced, sub_phase};
     restart(sc);
     const long guard = cycle_ + 16 * 1100;
     while (!t_.engage_seen && cycle_ < guard) cycle(1);
     check_.that(("[calibrate " + plan.name + "] [V] the first close was seen").c_str(), t_.engage_seen);
-    std::printf("\n  [i]  calibration, %s: with the TDM clock unheld the first close lands %ld cycles after its "
-                "tick\n", plan.name.c_str(), t_.engage_offset);
-    unheld_[plan.name] = t_.engage_offset;
+    if (sub_phase == 0) {
+        std::printf("\n  [i]  calibration, %s: with the TDM clock unheld the first close lands %ld cycles after its "
+                    "tick\n", plan.name.c_str(), t_.engage_offset);
+    }
+    unheld_[key] = t_.engage_offset;
     return t_.engage_offset;
 }
 
@@ -493,7 +531,7 @@ void JunctionHarness::grade(const Scenario& sc) {
     check_.dec((n + "[V] front-end pairs not matching the pattern sent").c_str(),
                static_cast<std::uint64_t>(t_.frame_mismatch), 0);
     check_.that((n + "[V] the front end captured a frame per column").c_str(), t_.frames_in >= sc.frames - 16);
-    bench_.grade(check_, n, sc.frames, sc.plan.ppm, !sc.crf);
+    bench_.grade(check_, n, sc.frames, sc.plan.ppm, !sc.crf, window(sc));
     check_.that((n + "[W] walks graded").c_str(), t_.walks >= sc.frames - 16);
     check_.dec((n + "[W] walks reading two TDM frames").c_str(), static_cast<std::uint64_t>(t_.walk_torn), 0);
     check_.dec((n + "[W] walks older than the frame their tick takes").c_str(),
@@ -538,6 +576,11 @@ void JunctionHarness::grade_lock(const Scenario& sc, const std::string& n) {
                 "at column %ld); tail: tick %ld cycles after the frame close, %+ld..%+ld (spread %ld); %ld repeats, "
                 "%ld skips\n", sc.name.c_str(), landed, t_.run_min, t_.run_max, t_.run_far_col, t_.lock_phase_ref,
                 t_.lock_phase_min, t_.lock_phase_max, spread, bench_.tally().dups, bench_.tally().skips);
+    if (bench_.tally().dups + bench_.tally().skips > 0) {
+        const long win = window(sc);
+        std::printf("  [i]  %s: last slip at column %ld; engagement window %s columns\n", sc.name.c_str(),
+                    bench_.tally().last_slip_col, win == kUnbounded ? "unbounded" : std::to_string(win).c_str());
+    }
     if (sc.placed != kUnplaced) {
         check_.that((n + "[V] the engagement close landed where the sweep placed it").c_str(),
                     t_.engage_seen && std::labs(landed - sc.placed) <= kPlaceTolerance);
@@ -565,11 +608,24 @@ void JunctionHarness::run_sweep(const Sweep& sw) {
     const long unheld = calibrate(sw.plan);
     std::printf("\n[%s] CRF, %s, engagement placed every %ld cycles from %+ld to %+ld of the crossing, "
                 "%ld columns each\n", sw.tag.c_str(), sw.plan.name.c_str(), sw.step, sw.lo, sw.hi, sw.frames);
+    if (sw.holds > 1 || sw.phases > 1) {
+        std::printf("  [i]  each offset at %ld quarter-cycle holds x %ld sub-step phases of the TDM clock\n",
+                    sw.holds, sw.phases);
+    }
     placed_landed_.clear();
     for (long off = sw.lo; off <= sw.hi; off += sw.step) {
-        char name[40];
-        std::snprintf(name, sizeof name, "%s%+ld", sw.tag.c_str(), off);
-        run({name, sw.plan, true, delay_for(unheld, off), sw.frames, false, true, off});
+        for (long h = 0; h < sw.holds; h++) {
+            for (long k = 0; k < sw.phases; k++) {
+                char name[48];
+                if (sw.holds > 1 || sw.phases > 1) {
+                    std::snprintf(name, sizeof name, "%s%+ld.%ld/%ld", sw.tag.c_str(), off, h, k);
+                } else {
+                    std::snprintf(name, sizeof name, "%s%+ld", sw.tag.c_str(), off);
+                }
+                run({name, sw.plan, true, delay_for(k == 0 ? unheld : calibrate(sw.plan, k), off) + h, sw.frames,
+                     false, true, off, k});
+            }
+        }
     }
     grade_window(sw);
 }
@@ -580,14 +636,20 @@ void JunctionHarness::grade_window(const Sweep& sw) {
     coherence::grade_window(check_, sw, placed_landed_);
 }
 
-//! What each run mode builds (the header's list). `quick` (the mutation
-//! arm) leaves out the true plan's whole beat and every placed sweep; `band`
-//! (the guard mutants) is the true plan's band alone.
-enum class Mode { kAll, kQuick, kBand };
+//! What each run mode builds (the header's list). The mutation arm's modes:
+//! `quick` leaves out the true plan's whole beat and every placed sweep;
+//! `band` is the true plan's band alone (the guard mutants); `band50` the
+//! +/-50 ppm bands at a 32-cycle step (the keep-off's value); `fine` the
+//! sub-cycle sweep alone (the NCO's terminal compare).
+enum class Mode { kAll, kQuick, kBand, kBand50, kFine };
+
+//! the sub-cycle sweep's holds per offset: one quarter-cycle step each,
+//! covering the cycle between two offsets
+constexpr long kQuarterHolds = 4;
 
 std::vector<Scenario> scenarios(Mode mode) {
     std::vector<Scenario> list;
-    if (mode == Mode::kBand) return list;
+    if (mode != Mode::kAll && mode != Mode::kQuick) return list;
     //! one beat of the true plan is 1 / 10.64e-6 = 93,990 frames
     if (mode == Mode::kAll) list.push_back({"INT-true", true_plan(), false, 0, 96'000, true, false, kUnplaced});
     list.push_back({"INT-slow", ppm_plan(-1000), false, 0, 3'200, true, false, kUnplaced});
@@ -614,11 +676,28 @@ std::vector<Scenario> scenarios(Mode mode) {
 std::vector<Sweep> sweeps(Mode mode) {
     std::vector<Sweep> list;
     if (mode == Mode::kQuick) return list;
+    if (mode == Mode::kBand50) {
+        list.push_back({"CRF-band-50", ppm_plan(-50), -176, 32, 32, 6'000});
+        list.push_back({"CRF-band+50", ppm_plan(+50), -32, 176, 32, 6'000});
+        return list;
+    }
+    const Sweep fine{"CRF-fine-50", ppm_plan(-50), -1, 1, 1, 300, kQuarterHolds, kSubPhases};
+    if (mode == Mode::kFine) return {fine};
     list.push_back({"CRF-band-true", true_plan(), -32, 32, 1, 2'000});
     if (mode == Mode::kBand) return list;
     list.push_back({"CRF-frame-true", true_plan(), -512, 512, 16, 2'000});
     list.push_back({"CRF-band-50", ppm_plan(-50), -176, 32, 4, 6'000});
     list.push_back({"CRF-band+50", ppm_plan(+50), -32, 176, 4, 6'000});
+    list.push_back(fine);
+    //! the settled lock past the envelope: the acquisition slips of 100 ppm
+    //! end by column 13,100 (measured), inside the first half
+    for (const int ppm : {-80, +80, -100, +100}) {
+        char tag[24];
+        std::snprintf(tag, sizeof tag, "CRF-settle%+d", ppm);
+        const long near = ppm < 0 ? 0 : 8;
+        const long far = ppm < 0 ? -256 : 8 + 256;
+        list.push_back({tag, ppm_plan(ppm), std::min(near, far), std::max(near, far), 256, 30'000});
+    }
     return list;
 }
 
@@ -629,11 +708,21 @@ int main(int argc, char** argv) {
     const milan::tb::Model<Vcoherence_wrap> model;
     JunctionHarness harness(model.get());
     const std::string arg = argc > 1 ? argv[1] : "";
-    const Mode mode = arg == "--quick" ? Mode::kQuick : arg == "--band" ? Mode::kBand : Mode::kAll;
+    const Mode mode = arg == "--quick"    ? Mode::kQuick
+                      : arg == "--band"   ? Mode::kBand
+                      : arg == "--band50" ? Mode::kBand50
+                      : arg == "--fine"   ? Mode::kFine
+                                          : Mode::kAll;
     std::printf("=== TDM capture junction: AAF column coherence (#617)%s ===\n",
-                mode == Mode::kQuick  ? ", --quick: the true plan's whole beat and the placed sweeps left out"
-                : mode == Mode::kBand ? ", --band: the true plan's band alone"
-                                      : "");
+                mode == Mode::kQuick    ? ", --quick: the true plan's whole beat and the placed sweeps left out"
+                : mode == Mode::kBand   ? ", --band: the true plan's band alone"
+                : mode == Mode::kBand50 ? ", --band50: the +/-50 ppm bands every 32 cycles alone"
+                : mode == Mode::kFine   ? ", --fine: the sub-cycle sweep alone"
+                                        : "");
+    model.get()->eval();
+    std::printf("  [i]  aligner keep-off %u cycles (milan_datapath's MGA_KEEPOFF_CYC_C), engagement pull %.1f ppm\n",
+                static_cast<unsigned>(model.get()->keepoff_cyc_o),
+                static_cast<double>(model.get()->engage_u_o) / kUPerPpm);
     for (const Scenario& sc : scenarios(mode)) harness.run(sc);
     for (const Sweep& sw : sweeps(mode)) harness.run_sweep(sw);
     return harness.report();
