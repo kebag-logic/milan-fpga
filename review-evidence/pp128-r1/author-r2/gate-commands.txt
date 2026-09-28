@@ -1,0 +1,18 @@
+All commands are run in the foreground. Command output is redirected to logs, never piped.
+PATH begins with a private copy of the pinned simulator wrapper.
+./scripts/run_suites.sh
+./scripts/lint_hdl.sh
+make check
+python3 scripts/gen_matrix.py --check
+./syn/yosys/run.sh
+make -C tb/nvm_port figures
+python3 tb/acmp_talker/retry_mutants.py --logs /tmp/pp128-a399/mutants-complete
+Parent scratch invocation and head are recorded in parent-gates.txt and parent-harness.txt.
+
+Final parent gate staging and first-probe packet replay:
+python3 $MANAGEMENT/2026-09-23/pp128-a399/run_parent_gates.py $LANES/pp128-acmp-da-retry $LANES/trusted-dev-20260928-931f396e /tmp/pp128-a399/gptp-objects.git /tmp/pp128-a399/parent-gates-final
+python3 $MANAGEMENT/2026-09-23/pp128-a399/run_parent_probe.py $LANES/pp128-acmp-da-retry $LANES/trusted-dev-20260928-63de19bd $MANAGEMENT/2026-09-23/pp128-a399 /tmp/pp128-a399/parent-probe-packet
+From /tmp/pp128-a399/parent-gates-final:
+python3 scripts/check_cpp_idiom.py --check
+python3 scripts/check_py_idiom.py --check
+Use new scratch directory names when repeating the staging command.

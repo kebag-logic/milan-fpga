@@ -1,0 +1,121 @@
+return code: 2
+1161 checks: 1042 PASS, 119 FAIL
+FAIL: B5 identical query = identical answer
+FAIL: B6 dest_mac got 91e0f000010b
+FAIL: B7 dest_mac got 91e0f000010b
+FAIL: B: leftovers resp=0 gate=0 arm=0 mreq=8
+FAIL: C6 declare open da got 91e0f0000110 want 91e0f0000100
+FAIL: C6 truncated dest_mac got 91e0f0000110
+FAIL: C: leftovers resp=0 gate=0 arm=0 mreq=12
+FAIL: D3 dest_mac got 91e0f0000113
+FAIL: D4 re-declare open da got 91e0f0000113 want 91e0f0000103
+FAIL: D4 dest_mac got 91e0f0000113
+FAIL: D: leftovers resp=0 gate=0 arm=0 mreq=16
+FAIL: E3 re-alloc maap src got 0
+FAIL: E3 re-declare new DA open da got 91e0f000011b want 91e0f0000108
+FAIL: E4 new DA answered dest_mac got 91e0f000011b
+FAIL: E: leftovers resp=0 gate=0 arm=0 mreq=22
+FAIL: E7 re-alloc maap src got 1
+FAIL: E7b dest_mac got 91e0f000011f
+FAIL: E7: leftovers resp=0 gate=0 arm=0 mreq=24
+FAIL: F1 listener-driven declare open da got 91e0f0000121 want 91e0f0000101
+FAIL: F3 pcp backoff keeps the DA dest_mac got 91e0f0000121
+FAIL: F4 re-declare same DA open da got 91e0f0000121 want 91e0f0000101
+FAIL: F5 re-declare src3 same DA open da got 91e0f0000123 want 91e0f0000108
+FAIL: F: leftovers resp=0 gate=0 arm=0 mreq=34
+FAIL: G1 src2 untouched by src1/src3 churn dest_mac got 91e0f000012a
+FAIL: G2a declare open da got 91e0f0000124 want 91e0f0000104
+FAIL: G3 declare src5 open da got 91e0f0000125 want 91e0f0000105
+FAIL: G2 stateless: identical probe = identical bytes
+FAIL: G2 content sane
+FAIL: G: leftovers resp=0 gate=0 arm=0 mreq=38
+FAIL: H1 release DA maap src got 2
+FAIL: H1 release DA maap rel got 0
+FAIL: H: leftovers resp=0 gate=0 arm=0 mreq=41
+FAIL: I1 alloc on re-enable maap src got 3
+FAIL: I3 listener retries the alloc maap src got 4
+FAIL: I4 retry alloc maap src got 5
+FAIL: I4 grant declares open da got 91e0f0000134 want 91e0f000010a
+FAIL: I: leftovers resp=0 gate=0 arm=0 mreq=50
+FAIL: J1 withdraw on removal: gate strobe missing
+FAIL: J1 cancel shared slot: timer arm missing
+FAIL: J1 declaring_o[4] OBSERVED 1 -> 0
+FAIL: J2 RELEASE_DA offered and unaccepted
+FAIL: J3 answer unaffected by the hung request dest_mac got 91e0f0000132
+FAIL: J5 ping still arms freshness arm cancel got 1
+FAIL: J5 ping still arms freshness arm deadline got 0 want 315000
+FAIL: J6 nothing was ever accepted while maap was gone
+FAIL: J7 the owed RELEASE is taken FIRST maap src got 6
+FAIL: J7 the owed RELEASE is taken FIRST maap rel got 0
+FAIL: J7 ...and only then does the rejoin allocate maap src got 7
+FAIL: J7 grant re-declares expected open, got close
+FAIL: J7 grant re-declares open da got 000000000000 want 91e0f000010b
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 91e0f0000139
+FAIL: J7b ping arm deadline got 315000 want 335000
+FAIL: J: leftovers resp=0 gate=1 arm=1 mreq=63
+FAIL: K0 cancel src2 slot arm slot got 21
+FAIL: K0 cancel src2 slot arm owner got 54
+FAIL: K0 cancel src2 slot arm cancel got 0
+FAIL: K0 src2 release maap src got 0
+FAIL: K0 src2 release maap rel got 0
+FAIL: K0 withdraw on removal expected close, got open
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0 cancel src6 slot arm slot got 19
+FAIL: K0 cancel src6 slot arm owner got 52
+FAIL: K0 src6 release settled behind the busy face maap src got 1
+FAIL: K0 src6 release settled behind the busy face maap rel got 0
+FAIL: K0: leftovers resp=0 gate=1 arm=1 mreq=69
+FAIL: K1 src6 alloc ACCEPTED maap src got 2
+FAIL: K2 THE DEFECT: src2's allocation is stranded by src6's unanswered request (69 accepted)
+FAIL: K3 ping still arms freshness arm cancel got 1
+FAIL: K3 ping still arms freshness arm deadline got 0 want 415000
+FAIL: K4 the bound has NOT elapsed: nothing may be re-offered yet
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 3
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x3a
+FAIL: K8 the abandoned source retries maap src got 4
+FAIL: K8 abandoned source recovers with a FRESH DA: gate strobe missing
+FAIL: K8 final gates, got 0x3a
+FAIL: K: leftovers resp=0 gate=0 arm=1 mreq=70
+FAIL: L0 cancel src7 slot arm slot got 23
+FAIL: L0 cancel src7 slot arm owner got 56
+FAIL: L0 cancel src7 slot arm cancel got 0
+FAIL: L0 src7 release maap src got 5
+FAIL: L0 src7 release maap rel got 0
+FAIL: L0 src7 ALLOC now PARKS the face maap src got 6
+FAIL: L0: leftovers resp=0 gate=0 arm=1 mreq=69
+FAIL: L1 cancel src1 slot arm slot got 24
+FAIL: L1 cancel src1 slot arm owner got 57
+FAIL: L1 and nothing can be accepted while the claim walk holds the face
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap src got 7
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap rel got 0
+FAIL: L3 no second request for src 1
+FAIL: L4 cancel src0 slot arm slot got 18
+FAIL: L4 cancel src0 slot arm owner got 51
+FAIL: L4 src0 release takes the free face maap rel got 0
+FAIL: L4 cancel src3 slot arm slot got 17
+FAIL: L4 cancel src3 slot arm owner got 50
+FAIL: L4 cancel src5 slot arm slot got 20
+FAIL: L4 cancel src5 slot arm owner got 53
+FAIL: L4 both are owed, neither is accepted yet
+FAIL: L4 src3's owed release, lowest index first maap src got 1
+FAIL: L4 src3's owed release, lowest index first maap rel got 0
+FAIL: L4 src5's owed release follows maap src got 2
+FAIL: L4 src5's owed release follows maap rel got 0
+FAIL: L4 three teardowns, three releases, no fourth (70 extra)
+FAIL: L4 final gates, got 0x10
+FAIL: L: leftovers resp=0 gate=0 arm=1 mreq=70
+FAIL: R1 owned addresses are never reallocated
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 only conflict needs a new address
+FAIL: R6 after backoff src0 status/tuple
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 only conflict needs a new address
+FAIL: R6 after backoff src0 status/tuple
