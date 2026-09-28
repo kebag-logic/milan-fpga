@@ -1,0 +1,78 @@
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_gptp_rom_clock:
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_extra_sweep_clocks:
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+test_tap_clock_docs:
+[clock contract] 5 tap conversions and presence declarations match configurations
+test_declaration_contracts:
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+  [gate 1b] boot-unit asm forms: 11 exact production forms; whitespace controls accepted; 7 changed/incomplete forms refused; fifth fence needs no extra entry
+  [gate 1b] identity storage: 3 automatic spellings accepted; 3 nonautomatic spellings refused on the identity-sample absence rule
+Traceback (most recent call last):
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 11769, in assert_rejected
+    assert_boot_contract(firmware, docs, csr, files.makefile,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         files.listing, files.datapath)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 10759, in assert_boot_contract
+    direct_initializer(
+    ~~~~~~~~~~~~~~~~~~^
+        datapath, r"wire[ \t]+eff_ptp_adjust_w",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        "effective PHC adjust strobe must select only gPTP or CSR "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "control")
+        ^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 10583, in direct_initializer
+    assert actual == expected_value, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: effective PHC adjust strobe must select only gPTP or CSR control: unexpected eff_ptp_adjust_w initializer "(GPTP_PLANE_EN_P != 1'b0)\n                               ? gptp_step_we_w          : (cfg_ptp_cmd_adjust & cfg_adp_enable)"
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 27786, in <module>
+    fn()
+    ~~^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 16206, in test_baremetal_profile_contract
+    assert_rejected(*mutation)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 11776, in assert_rejected
+    assert_rtl_mutant_elaborates(label, csr, files.datapath)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 11746, in assert_rtl_mutant_elaborates
+    result = subprocess.run(
+        command, cwd=ROOT, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, text=True)
+  File "/usr/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1208, in communicate
+    stdout = self.stdout.read()
+KeyboardInterrupt

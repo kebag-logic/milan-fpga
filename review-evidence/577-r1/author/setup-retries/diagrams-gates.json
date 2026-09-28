@@ -1,0 +1,167 @@
+[
+  {
+    "label": "diagrams-01",
+    "command": "/tmp/milan-577-venv/bin/python -u docs/DOC_MAP.gen.py --check",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.36,
+    "bytes": 61,
+    "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+    "log": "diagrams-01.log"
+  },
+  {
+    "label": "diagrams-02",
+    "command": "/tmp/milan-577-venv/bin/python -u docs/DOC_MAP.gen.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.46,
+    "bytes": 60,
+    "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+    "log": "diagrams-02.log"
+  },
+  {
+    "label": "diagrams-03",
+    "command": "/tmp/milan-577-venv/bin/python -u docs/diagrams/timesync_chain.gen.py --check",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.36,
+    "bytes": 60,
+    "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+    "log": "diagrams-03.log"
+  },
+  {
+    "label": "diagrams-04",
+    "command": "/tmp/milan-577-venv/bin/python -u docs/diagrams/timesync_chain.gen.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.41,
+    "bytes": 61,
+    "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+    "log": "diagrams-04.log"
+  },
+  {
+    "label": "diagrams-05",
+    "command": "/tmp/milan-577-venv/bin/python -u docs/diagrams/submodule_boundaries.gen.py --check",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.36,
+    "bytes": 54,
+    "sha256": "905777610f39981543faabafcc11309ac6ab670121c8866a45e171e5c9b7d00c",
+    "log": "diagrams-05.log"
+  },
+  {
+    "label": "diagrams-06",
+    "command": "/tmp/milan-577-venv/bin/python -u docs/diagrams/submodule_boundaries.gen.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.41,
+    "bytes": 60,
+    "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+    "log": "diagrams-06.log"
+  },
+  {
+    "label": "diagrams-07",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_wavedrom.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.11,
+    "bytes": 77,
+    "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+    "log": "diagrams-07.log"
+  },
+  {
+    "label": "diagrams-08",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.31,
+    "bytes": 58,
+    "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+    "log": "diagrams-08.log"
+  },
+  {
+    "label": "diagrams-09",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.36,
+    "bytes": 54,
+    "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+    "log": "diagrams-09.log"
+  },
+  {
+    "label": "diagrams-10",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.31,
+    "bytes": 52,
+    "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+    "log": "diagrams-10.log"
+  },
+  {
+    "label": "diagrams-11",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/check_diagram_pngs.py",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.31,
+    "bytes": 66,
+    "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+    "log": "diagrams-11.log"
+  },
+  {
+    "label": "diagrams-12",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/check_diagram_pngs.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 6.32,
+    "bytes": 59,
+    "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+    "log": "diagrams-12.log"
+  },
+  {
+    "label": "diagrams-13",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_hdl_reference.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 2,
+    "seconds": 0.11,
+    "bytes": 107,
+    "sha256": "8da1cd187bb14030a082441aef7ae696667236c33d79a5e21374a0d37648bcdb",
+    "log": "diagrams-13.log"
+  },
+  {
+    "label": "diagrams-14",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/check_sh_idiom.py",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.21,
+    "bytes": 235,
+    "sha256": "6562e98a67676ec422c2e0ba00613886c2b71a60e1b391268ccf74ac202482ec",
+    "log": "diagrams-14.log"
+  },
+  {
+    "label": "diagrams-15",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/check_sh_idiom.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.21,
+    "bytes": 2461,
+    "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "log": "diagrams-15.log"
+  }
+]

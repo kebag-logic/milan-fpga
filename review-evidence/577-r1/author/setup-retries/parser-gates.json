@@ -1,0 +1,24 @@
+[
+  {
+    "label": "parser-01",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_hdl_reference.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 0,
+    "seconds": 0.21,
+    "bytes": 385,
+    "sha256": "b5e3c4a985fbf7bce626a35881e9612d9efa7dc973c63f9916b12a595db33392",
+    "log": "parser-01.log"
+  },
+  {
+    "label": "parser-02",
+    "command": "/tmp/milan-577-venv/bin/python -u scripts/gen_hdl_reference.py --output /tmp/milan-577-hdl-reference",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "a53682ed38720de758006602a19f78c8e40d69da",
+    "rc": 2,
+    "seconds": 0.11,
+    "bytes": 75,
+    "sha256": "87e529936437c3ca8755956574ef3d7ff60a217e49afab898b0faf9bdda5bfe0",
+    "log": "parser-02.log"
+  }
+]

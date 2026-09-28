@@ -1,0 +1,40 @@
+Compiler mode: absent cross tools
+Compiler audit: /tmp/milan-577-absent.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what those instruments carry: a token-joining splice or a ## paste OUTSIDE the six boot-path bodies, a file beside the firmware, a cast, store or asm the resolver would place in the window, and the COMPILER half of the retired conditional-reach ban -- an arm only one build compiles whose defect no text rule reads, such as `0 &&` in the choke point's verdict test, is graded here by the text rules alone, which do not refuse it -- and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives: the splice and ## bans KEPT inside the six boot-path bodies, one #define per name (which is what refuses a read hidden in a second definition of the identity magic), the macro-body rule, the closed-grammar subset check S (the character allowlist, then the literal, digraph, trigraph, $, universal-character-name, __has_include, header-name, _Pragma and unterminated-comment refusals), read on the whole firmware before any reader, the directive readers as the two lexer corpora and the character-closure table recorded them (not re-measured), and the per-selection grading of each conditional (its text half); and the hosted builder jobs require this compiler
+Traceback (most recent call last):
+  File "$LANES/577-image-l6-l10/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 14534, in test_baremetal_profile_contract
+    assert_boot_contract(
+    ~~~~~~~~~~~~~~~~~~~~^
+        firmware_source, docs_source, csr_source,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        makefile_source[:objects_span_at] + spelling +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        makefile_source[objects_span_to:])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 10694, in assert_boot_contract
+    reference_census(
+    ~~~~~~~~~~~~~~~~^
+        datapath,
+        ^^^^^^^^^
+    ...<48 lines>...
+            "phc_tod_snap_valid_ts_w": 3,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }, phc_net_reason)
+        ^^^^^^^^^^^^^^^^^^
+  File "$LANES/577-image-l6-l10/sw/builder/test_builder.py", line 10567, in reference_census
+    found = len(re.findall(rf"\b{re.escape(name)}\b", source))
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/re/__init__.py", line 278, in findall
+    return _compile(pattern, flags).findall(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+KeyboardInterrupt

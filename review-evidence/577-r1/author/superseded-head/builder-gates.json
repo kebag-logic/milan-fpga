@@ -1,0 +1,35 @@
+[
+  {
+    "label": "builder-01",
+    "command": "/tmp/milan-577-venv/bin/python -u sw/builder/test_builder.py --require-rv32",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "c118bbbbd9bac9eeebef4acd4d9a98ba6d83560c",
+    "rc": -2,
+    "seconds": 230.64,
+    "bytes": 5149,
+    "sha256": "7cd0d7e275d7c3902d4df79dbdfc12e4bb02bc945da5065e63643ef476d5c5b3",
+    "log": "builder-01.log"
+  },
+  {
+    "label": "builder-02",
+    "command": "/tmp/milan-577-venv/bin/python -u sw/builder/test_firmware_compiler.py --selftest",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "c118bbbbd9bac9eeebef4acd4d9a98ba6d83560c",
+    "rc": 0,
+    "seconds": 1.32,
+    "bytes": 138,
+    "sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7",
+    "log": "builder-02.log"
+  },
+  {
+    "label": "builder-03",
+    "command": "/tmp/milan-577-venv/bin/python -u sw/builder/test_firmware_compiler.py --absent --audit /tmp/milan-577-absent.jsonl",
+    "cwd": "$LANES/577-image-l6-l10",
+    "head": "c118bbbbd9bac9eeebef4acd4d9a98ba6d83560c",
+    "rc": -2,
+    "seconds": 24.11,
+    "bytes": 4018,
+    "sha256": "f13fa713a64c95c9bf1d4180437d41dc01973eb495d1d0fe9f99592f33a4acf9",
+    "log": "builder-03.log"
+  }
+]

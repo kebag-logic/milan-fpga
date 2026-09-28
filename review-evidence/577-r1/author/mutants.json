@@ -1,0 +1,67 @@
+[
+  {
+    "reason": "L10_OFFSET",
+    "verdict": "killed",
+    "failure": "gate 36b: wrong offset accepted; missing L10_OFFSET"
+  },
+  {
+    "reason": "L10_COUNT",
+    "verdict": "killed",
+    "failure": "gate 36b: ninth rate accepted; missing L10_COUNT"
+  },
+  {
+    "reason": "L10_COUNT_EXTENT",
+    "verdict": "killed",
+    "failure": "gate 36b: count exceeds extent accepted; missing L10_COUNT_EXTENT"
+  },
+  {
+    "reason": "L10_PARTIAL_WORD",
+    "verdict": "killed",
+    "failure": "gate 36b: one byte short accepted; missing L10_PARTIAL_WORD"
+  },
+  {
+    "reason": "L10_EXTRA_WORDS",
+    "verdict": "killed",
+    "failure": "gate 36b: one word extra accepted; missing L10_EXTRA_WORDS"
+  },
+  {
+    "reason": "L6_ORDER",
+    "verdict": "killed",
+    "failure": "gate 36b: reversed sources accepted; missing L6_ORDER"
+  },
+  {
+    "reason": "L6_GAP",
+    "verdict": "killed",
+    "failure": "gate 36b: source gap accepted; missing L6_GAP"
+  },
+  {
+    "reason": "L6_DUPLICATE",
+    "verdict": "killed",
+    "failure": "gate 36b: duplicate source accepted; missing L6_DUPLICATE"
+  },
+  {
+    "reason": "L10_HEADER",
+    "verdict": "killed",
+    "failure": "short audio header: wrong refusal aem_desc.bin: IMAGE_STRUCTURE: truncated packed field: unpack_from requires a buffer of at least 144 bytes for unpacking 4 bytes at offset 140 (actual buffer size is 143)"
+  },
+  {
+    "reason": "L6_HEADER",
+    "verdict": "killed",
+    "failure": "short domain header: wrong refusal aem_desc.bin: IMAGE_STRUCTURE: truncated packed field: unpack_from requires a buffer of at least 76 bytes for unpacking 4 bytes at offset 72 (actual buffer size is 75)"
+  },
+  {
+    "reason": "L6_EMPTY",
+    "verdict": "killed",
+    "failure": "gate 36b: empty sources accepted; missing L6_EMPTY"
+  },
+  {
+    "reason": "L6_EXTENT",
+    "verdict": "killed",
+    "failure": "short source list: wrong refusal aem_desc.bin: IMAGE_STRUCTURE: truncated packed field: unpack_from requires a buffer of at least 80 bytes for unpacking 4 bytes at offset 76 (actual buffer size is 79)"
+  },
+  {
+    "reason": "emitter hook removed",
+    "verdict": "killed",
+    "failure": "gate 36b: wrong offset accepted; missing L10_OFFSET"
+  }
+]
