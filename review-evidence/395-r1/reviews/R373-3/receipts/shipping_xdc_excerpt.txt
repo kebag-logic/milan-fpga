@@ -1,0 +1,46 @@
+# shipping inputs, read-only
+20700 alinx_ax7101.xdc
+115715651 alinx_ax7101_route.dcp
+3825992 alinx_ax7101.bit
+30654 alinx_ax7101.tcl
+c94fe242303759d9b800eacd719c5d7e51504b51533247746607b58f4b716d49  alinx_ax7101.xdc
+5f7a442b6a9327ad5d41aa0b10e18c84d9ca4c0aacd573d2ad25d444f5b2f5d1  alinx_ax7101_route.dcp
+1696d1ea7568b2cf3cd536b1d34488e1ce7702e4a79e7cf3aca2c6ed6a54d2c7  alinx_ax7101.bit
+a6827b1388c04ad08a0c08f255d39d941fe22fb9a019abb0ab9c4cf7a1bc895e  alinx_ax7101.tcl
+# alinx_ax7101.xdc:560-600
+560: 
+561: ################################################################################
+562: # False path constraints
+563: ################################################################################
+564: 
+565: 
+566: set_false_path -quiet -to [get_cells -hierarchical -filter {mr_ff == TRUE}]
+567: 
+568: set_false_path -quiet -to [get_pins -filter {REF_PIN_NAME == PRE} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]]
+569: 
+570: set_max_delay 2 -quiet -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE}]] -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {ars_ff2 == TRUE}]]
+571: 
+572: set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets milan_clk]] -asynchronous
+573: 
+574: set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets audio_clk]] -asynchronous
+575: 
+576: set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets milansoc_crg_clkin_signal]] -asynchronous
+577: 
+578: set_clock_groups -group [get_clocks -of [get_nets milan_clk]] -group [get_clocks -of [get_nets audio_clk]] -asynchronous
+579: ################################################################################
+580: # Additional XDC constraints
+581: ################################################################################
+582: 
+583: set_false_path -hold -from [get_clocks -of_objects [get_ports eth_clocks0_rx]] -to [get_clocks {crg_clkout0 crg_clkout1}]
+584: 
+585: set_max_delay -datapath_only -from [get_clocks -of_objects [get_ports eth_clocks0_rx]] -to [get_clocks {crg_clkout0 crg_clkout1}] 8.000
+586: 
+587: set_false_path -hold -from [get_clocks {crg_clkout0 crg_clkout1}] -to [get_clocks -of_objects [get_ports eth_clocks0_rx]]
+588: 
+589: set_max_delay -datapath_only -from [get_clocks {crg_clkout0 crg_clkout1}] -to [get_clocks -of_objects [get_ports eth_clocks0_rx]] 8.000
+590: 
+591: set_clock_groups -asynchronous -group [get_clocks -of_objects [get_ports eth_clocks0_rx]] -group [get_clocks {crg_audio_ref_raw crg_audio_mclk_raw crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}]
+592: 
+593: set qs_cells [get_cells -hierarchical -quiet -filter {quasi_static == "yes"}]
+594: 
+595: if {[llength $qs_cells] > 0} { set_multicycle_path 4 -setup -from $qs_cells ; set_multicycle_path 3 -hold  -from $qs_cells }

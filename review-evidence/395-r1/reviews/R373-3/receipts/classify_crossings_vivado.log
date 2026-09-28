@@ -1,0 +1,137 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 02:17:36 2026
+# Process ID         : 2959339
+# Current directory  : <packet>/scratch/viv
+# Command line       : vivado -mode batch -nojournal -log classify.log -source ../../classify_crossings.tcl -tclargs route.dcp ../../receipts/classify_crossings_results.txt
+# Log file           : <packet>/scratch/viv/classify.log
+# Journal file       : 
+# Running On         : <build-host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 30244 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source ../../classify_crossings.tcl
+# set dcp [lindex $argv 0]
+# set out [open [lindex $argv 1] w]
+# set_param general.maxThreads 8
+# open_checkpoint $dcp
+Command: open_checkpoint route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1448.188 ; gain = 7.938 ; free physical = 1477 ; free virtual = 28719
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.28 ; elapsed = 00:00:00.28 . Memory (MB): peak = 1980.156 ; gain = 0.000 ; free physical = 2933 ; free virtual = 27563
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2135.250 ; gain = 0.000 ; free physical = 2818 ; free virtual = 27452
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.12 . Memory (MB): peak = 2811.930 ; gain = 8.984 ; free physical = 3901 ; free virtual = 28547
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2813.930 ; gain = 2.000 ; free physical = 3897 ; free virtual = 28543
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2813.930 ; gain = 0.000 ; free physical = 3897 ; free virtual = 28543
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2891.219 ; gain = 77.289 ; free physical = 3729 ; free virtual = 28382
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2891.219 ; gain = 0.000 ; free physical = 3729 ; free virtual = 28382
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.92 . Memory (MB): peak = 2916.219 ; gain = 25.000 ; free physical = 3942 ; free virtual = 28439
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2916.219 ; gain = 113.273 ; free physical = 4059 ; free virtual = 28556
+Restored from archive | CPU: 3.550000 secs | Memory: 85.993645 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2916.219 ; gain = 113.273 ; free physical = 4048 ; free virtual = 28544
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2945.273 ; gain = 0.000 ; free physical = 3710 ; free virtual = 28239
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:26 ; elapsed = 00:00:24 . Memory (MB): peak = 2949.309 ; gain = 1514.027 ; free physical = 3431 ; free virtual = 28020
+# set eth [get_clocks -of_objects [get_ports eth_clocks0_rx]]
+# set sys [get_clocks milansoc_crg_clkout0]
+# set mil [get_clocks milansoc_crg_clkout1]
+# puts $out "eth=$eth sys=$sys milan=$mil"
+# puts $out "crg_clkout0 matches: [llength [get_clocks -quiet crg_clkout0]]"
+# proc clk_of_pin {p} { return [lsort -unique [get_clocks -quiet -of_objects $p]] }
+# proc launch_clks {p} {
+#     set sps [all_fanin -quiet -flat -startpoints_only $p]
+#     set cl {}
+#     foreach sp $sps { foreach c [get_clocks -quiet -of_objects $sp] { lappend cl $c } }
+#     return [lsort -unique $cl]
+# }
+# array set cnt {}
+# foreach cell [get_cells -hierarchical -filter {mr_ff == TRUE}] {
+#     set d [get_pins -of_objects $cell -filter {REF_PIN_NAME == D}]
+#     set cap [clk_of_pin [get_pins -of_objects $cell -filter {REF_PIN_NAME == C}]]
+#     foreach l [launch_clks $d] { foreach c $cap {
+#         if {$l ne $c} { incr cnt(mr_ff:D,$l,$c) }
+#     } }
+# }
+# foreach cell [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}] {
+#     set p [get_pins -of_objects $cell -filter {REF_PIN_NAME == PRE}]
+#     if {[llength $p] == 0} { continue }
+#     set cap [clk_of_pin [get_pins -of_objects $cell -filter {REF_PIN_NAME == C}]]
+#     foreach l [launch_clks $p] { foreach c $cap {
+#         if {$l ne $c} { incr cnt(ars:PRE,$l,$c); lappend who(ars:PRE,$l,$c) $cell }
+#     } }
+# }
+# foreach k [lsort [array names cnt]] {
+#     set parts [split $k ,]
+#     set l [lindex $parts 1]; set c [lindex $parts 2]
+#     if {$l eq $eth || $c eq $eth} {
+#         puts $out "STRUCT $k count=$cnt($k)"
+#         if {[info exists who($k)]} { puts $out "  cells: [lsort $who($k)]" }
+#     }
+# }
+# foreach {name from to} [list eth_to_sys $eth $sys sys_to_eth $sys $eth eth_to_milan $eth $mil milan_to_eth $mil $eth] {
+#     foreach corner {Slow Fast} {
+#         config_timing_corners -corner $corner -delay_type min_max
+#         foreach other {Slow Fast} { if {$other ne $corner} { config_timing_corners -corner $other -delay_type none } }
+#         set paths [get_timing_paths -quiet -from $from -to $to -max_paths 5000 -nworst 1 -setup]
+#         array unset ep
+#         set worst ""
+#         foreach p $paths {
+#             set e [get_property ENDPOINT_PIN $p]
+#             set cell [get_cells -of_objects $e]
+#             set pin [get_property REF_PIN_NAME $e]
+#             set tag untagged
+#             if {[string is true -strict [get_property -quiet mr_ff $cell]]} { set tag mr_ff }
+#             if {[string is true -strict [get_property -quiet ars_ff1 $cell]] || [string is true -strict [get_property -quiet ars_ff2 $cell]]} { set tag ars }
+#             set ex [get_property EXCEPTION $p]
+#             if {$ex eq ""} { set ex timed }
+#             incr ep($tag:$pin|$ex)
+#         }
+#         puts $out "PATHS $corner $name n=[llength $paths] classes=[array get ep]"
+#     }
+# }
+# close $out
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 02:19:14 2026...
