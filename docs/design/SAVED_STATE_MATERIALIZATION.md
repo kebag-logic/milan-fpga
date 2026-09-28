@@ -306,9 +306,12 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    Section 15.2 carries the required processor F07.9 amendment.
 4. **The clear rule** (section 7): a record's dirty bit is set by a change
    and cleared only by the done of the whole-record WRITE that carries a
-   value latched after the last change, or when the record is given up after
-   `RETRY_MAX_P` failed writes, which raises the sticky alarm that revokes
-   `nvm_backed` (the same exception the binding manager makes). A change
+   value latched after the last change, or on DR2c attempt exhaustion.
+   DR2c permits at most three attempts, including the initial write.
+   Failed attempts are separated by 500 ms (section 6.1).
+   Abandonment raises the alarm, revoking `nvm_backed` until reset.
+   The binding manager must follow the same ruled policy.
+   Section 15.2 records its required backoff change. A change
    after the latch taints the write, and a tainted write clears nothing. A
    change on the done edge wins. Set and clear name the record by group AND
    index.
@@ -580,7 +583,9 @@ first and the third (section 14).
    entity model is loaded"; `nvm_boot`'s own comment says it "Runs after
    the AEM image is in place and before the entity is advertised, the order
    Milan 5.5.3.5.2 requires" (`sw/firmware/milan_baremetal/milan_baremetal.c`
-   lines 1448 and 1219). The code follows the first. D3 needs the second:
+   lines 1450 and 1220-1221 at parent `c0723222`).
+   The calls at lines 1453-1454 follow the first comment.
+   D3 needs the second:
    the restore judges values against the image, and a name written back
    before the store walks the image is overwritten by it (section 8.5).
    Without this change the image is not in main memory when the walk
@@ -613,17 +618,33 @@ CLOSED, nothing V1a sets is saved, and V1b's end-to-end check reads
 Service begins at the restore's COMPLETE or DEFAULTS terminal, with `own`
 released; the CLOSED terminal never reaches it.
 
+DR2c in section 15.1 owns the retry policy.
+At most three attempts include the initial write and two retries.
+`RETRY_MAX_P` counts additional retries; its product value is 2.
+An attempt starts when the arbiter grants the record WRITE.
+After a failed attempt, BACKOFF waits 500 ms before reacquiring.
+Arbitration or an active program can delay the next attempt further.
+BACKOFF holds neither the state bus nor the port.
+Each retry relatches the complete value, preserving change/taint rules.
+Relatching or intervening writes never replenish that attempt budget.
+Exhaustion raises the alarm, which remains set until reset.
+Later success and heartbeats cannot clear it.
+This backoff is required behavior, not historical prototype evidence.
+The pinned binding writer needs the matching change in section 15.2.
+
 | State | Leaves when | To |
 |---|---|---|
-| RUN | the debounce armed and a record is dirty and not skipped | ACQUIRE, the first such record in round-robin order |
+| RUN | the debounce armed and a record is dirty and not skipped | ACQUIRE, the first such record in round-robin order; attempts 0 |
 | ACQUIRE | `prog_busy` is 0 | LATCH (scalar), LATCH-NAME (eight lanes) or LATCH-MAP (the port's live set); `own` 1, taint 0 |
 | LATCH-MAP | the set has more mappings than the record has entries | RUN, `own` 0, the record skipped and still dirty |
 | any latch | the value is in the payload buffer | RELEASE |
 | RELEASE | one cycle | CRC, `own` 0: programs may run again |
 | CRC | the header without its crc field and the payload are summed | REQUEST |
-| REQUEST | the arbiter grants manager 1 | STREAM |
+| REQUEST | the arbiter grants manager 1 | STREAM; increment attempts |
 | STREAM | the 8 header bytes and the payload are taken | WAIT |
-| STREAM or WAIT | the port pulses err | ACQUIRE again (a fresh latch), or RUN with the alarm after `RETRY_MAX_P` retries |
+| STREAM or WAIT | attempt 1 or 2 ends with port err | BACKOFF; retain dirty, `own` 0; start the 500 ms wait |
+| BACKOFF | 500 ms have elapsed since that err | ACQUIRE again for a fresh latch; retain the attempt count |
+| STREAM or WAIT | the third attempt ends with err | RUN with the sticky alarm; give up under section 7's clear rule |
 | WAIT | the port pulses done | RUN |
 
 ### 6.2 The writer at boot: the restore transaction
@@ -659,7 +680,14 @@ Priorities are written out, as the snapshot-ownership page does:
 ```
 set[r]      = the live write of section 3 rule 3 that names record r
 done_ok     = WAIT AND port done AND NOT taint
-giveup      = port err AND retries = RETRY_MAX_P
+attempts'   = RUN selects a record ? 0
+            : REQUEST AND writer granted ? attempts + 1 : attempts
+write_err   = (STREAM OR WAIT) AND port err
+retry       = write_err AND attempts < 1 + RETRY_MAX_P
+giveup      = write_err AND attempts = 1 + RETRY_MAX_P
+backoff     = retry starts a 500 ms wait; own = 0, no port request
+retry_ready = BACKOFF AND 500 ms elapsed since the failed attempt ended
+retry_ready => ACQUIRE with attempts unchanged; never retry directly on err
 clr[r]      = (done_ok OR giveup) AND r is the record in hand (group AND index)
 dirty[r]'   = set[r] ? 1 : clr[r] ? 0 : dirty[r]
 taint'      = (ACQUIRE AND NOT prog_busy) ? 0
@@ -719,6 +747,18 @@ bind_end    = NOT own_lsn   (live ACMP work; the D3 walk's go; restore_done)
 The prototype uses a first-change debounce window of `DEB_TICKS_P`.
 Its close arms one burst that drains every eligible record.
 DR2a governs the ruled product windows and required measurements.
+The attempt counter above implements DR2c, with `RETRY_MAX_P = 2`.
+No fourth attempt follows the third failure for that record.
+Only reset clears the alarm, including after later successful writes.
+
+Firmware retries obey DR2c separately from producer record retries.
+Each unchanged captured work set permits at most three transaction attempts.
+That includes the first START and at most two further STARTs.
+Failed transactions wait 1,000 ms before another transaction attempt.
+The alarm remains until reset; failed slots never receive ACK.
+Capture refusal before START is not a media transaction attempt.
+Capture identity and retirement remain the snapshot contract's responsibility.
+Lane 2 implements this transaction policy; current firmware lacks its bound.
 
 ### 6.4 Two managers, one port
 
@@ -1916,7 +1956,8 @@ Historical prototype latency estimate, DERIVED: pending rises the cycle after ac
 Current #502 reporting instead covers the accepting edge (section 2).
 The record reaches the window within `DEB_TICKS_P` (500 ms at the binding
 manager's value) plus the latch and the write. The firmware commits after
-its provisional 1,000 ms debounce, and a commit takes at most 3.07 s at 1x1
+its 1,000 ms first-dirty window, now ruled by DR2a.
+The historical datasheet estimate gives 3.07 s at 1x1
 and 3.26 s at 8x8 by the datasheet
 ([section 9.4](SAVED_STATE_FASTCONNECT.md#94-the-deadlines)). The arithmetic totals are approximately 4.6 s and 4.8 s.
 They exclude arbitration, retries, CPU execution and indefinite device stalls.
@@ -2251,7 +2292,11 @@ It remains non-shipping until it fits (#584/#229).
 
 All paths below are relative to the processor repository.
 These are later-lane obligations; lane 0 edits none of them.
-Apply them before or with the scalar implementation's reviewed pin.
+The baseline is processor `16be6768f710e79450aace277abacd6c2c3336e5`.
+Apply synchronized contract edits before or with lane 1's reviewed pin.
+Mark names/maps as accepted but unimplemented until their respective lanes.
+Source-contract changes accompany their owning implementation, never precede it as claims.
+Raw submodule verdicts remain distinct from the combined top-level verdicts.
 
 | File | Section or artifact at `16be6768` | Required change |
 |---|---|---|
@@ -2259,15 +2304,60 @@ Apply them before or with the scalar implementation's reviewed pin.
 | [docs/architecture/07_memory_maps.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/07_memory_maps.md) | 5.3, F07.9 boot, lines 459-475 | Show verified AEM, drained binding terminal, D3 image proof, both passes, validation and valid-bit apply. Draw COMPLETE, DEFAULTS and CLOSED. Keep listener release, AECP release and combined ADP enable distinct. |
 | [docs/architecture/07_memory_maps.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/07_memory_maps.md) | 5.3 failure table and following paragraphs | Preserve DEVICE/UNFRAMED and per-walk atomicity. Add D3 rollback of both stores, then maps. Debt survives local reset. Distinguish raw binding blank from combined `done && !fail` blank; a failed product restore is never blank. Preserve completed bindings on D3 rollback. |
 | [docs/architecture/07_memory_maps.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/07_memory_maps.md) | 5.1/5.2/5.4, F07.8 inventory and open choices | Retain one record per group/index, flat names and erased SUID/MCR reservations. Adopt #501 map lengths without reviving name banks. Record ratified migration and wear decisions, with exact inventory references. |
-| [docs/architecture/02_interfaces.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/02_interfaces.md) | 8.1/8.2, lines 538-572 | Assign manager 1 to the processor D3 writer. Replace integrator-owned group wording. Document D3 unflushed, combined alarms/verdicts, owner/rollback/debt and image-valid interfaces. Marks remain completion notifications. Retain the one device initiator and drain rule. |
+| [docs/architecture/02_interfaces.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/02_interfaces.md) | 8 boot paragraph and 8.1/8.2, lines 532-572 | Replace unconditional defaults-then-enable with image proof and COMPLETE/DEFAULTS/CLOSED. Assign manager 1 to the processor D3 writer. Replace integrator-owned group wording. Document D3 unflushed, combined alarms/verdicts, owner/rollback/debt and image-valid interfaces. Marks remain completion notifications. Retain the one device initiator and drain rule. |
 | [docs/architecture/06_aecp_engine.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/06_aecp_engine.md) | 4/5 and state/name/format/map interfaces | Document command-side snooping, dispatch ownership from reset, coherent name capture, real map read/apply faces and shared semantic validation. Exclude restore writes and IDENTIFY values. Distinguish persisted CONTROL names. |
-| [docs/architecture/05_acmp_engine.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/05_acmp_engine.md) | 5.1 boot admission | Cross-reference the D3 order without reimplementing #109. Preserve saved bindings after failed walks and read-only polling. D3 rollback never resets the listener or its admission gate. |
-| [docs/architecture/08_timing.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/08_timing.md) | 2, T-NVM-DEBOUNCE and T-NVM-RS-DEADLINE | Separate producer debounce, firmware debounce, per-wait clocks, aggregate restore budget and media deadlines. Record ruled DR2 values and their measurement anchors. Label DR3a's numbers initial candidates until lane 1 measures and the manager ratifies or revises both before lane 2 implements. Never claim quarantine satisfies #15. |
+| [docs/architecture/05_acmp_engine.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/05_acmp_engine.md) | 5.1 boot admission, lines 160-196 | Separate the binding release from combined `restore_done_o`; D3 extends top-level busy/done beyond that release. Cross-reference the D3 order without reimplementing #109. Preserve saved bindings after failed walks and read-only polling. D3 rollback never resets the listener or its admission gate. |
+| [docs/architecture/08_timing.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/08_timing.md) | 2, T-NVM-DEBOUNCE/T-NVM-RS-DEADLINE (lines 42-43), and 5 timer allocation | Add DR2c's attempt counts, 500 ms record backoff, 1,000 ms firmware backoff and reset-only alarm. Account for the implemented timer resources. Separate producer debounce, firmware debounce, per-wait clocks, aggregate restore budget and media deadlines. Record ruled DR2 values and their measurement anchors. Label DR3a's numbers initial candidates until lane 1 measures and the manager ratifies or revises both before lane 2 implements. Never claim quarantine satisfies #15. |
 | [docs/architecture/09_verification.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/09_verification.md) | 3, NVM; 8, suite evidence | Add cleared-first checks, nine trigger/replay controls, volatile exclusions, transport/value distinction, debt and rollback faults, and real-command integration. Reconcile existing #18/#19/#21 tests before adding missing cases. |
+| [docs/architecture/01_overview.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/01_overview.md) | 5 operational model, lines 100-107; 7, F01.5, P-NVM-RS-TMO-CYC at line 170 | Insert binding admission release, D3 transaction and combined ADP enable in order; image proof failure ends CLOSED. Extend the parameter authority beyond the binding read deadline: D3 shape, `DEB_TICKS_P`, `RETRY_MAX_P`, `RS_TMO_CYC_P`, backoff and aggregate budget, mapped to the actual top declarations. Preserve DR3a measurement and pre-lane-2 ratification. |
+| [docs/guides/integrator.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/guides/integrator.md) | 2 complete top-parameter inventory, lines 47-105 | Keep the inventory exactly equal to overridable top declarations, including any D3 parameters exposed by implementation. Reference F01.5/F08.1 for values; distinguish additional retries from total attempts. Run `python3 scripts/check-integrator-params.py` without weakening its equality check. |
+| [docs/guides/integrator.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/guides/integrator.md) | 6 level controls; 7 optional faces, lines 261-293 | Describe requested versus restore-released ADP enable. Qualify the claim that every tied-off face leaves commands available: an unprovable descriptor image ends CLOSED. Distinguish descriptor/image failure from erased NVM with a proven image, which permits defaults. Add D3 verdict exports and keep every-boot restore initiation. |
+| [docs/guides/integrator.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/guides/integrator.md) | 8 status rows, lines 334-336 | Replace `nvm_unflushed_o` OR `aecp_dyn_dirty_o` with binding unflushed OR `d3_unflushed_o`, stage by stage. Dynamic dirty remains diagnostic. Remove the claim that groups 6/7 have no processor writer as those stages land; assign them to D3. Keep completion marks distinct from accepted live-write triggers. |
+| [docs/guides/integrator.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/guides/integrator.md) | 9 bring-up order, lines 355-377 | Require loaded, CRC-checked AEM before descriptor-dependent restore. Distinguish S4 listener release, D3 AECP release and combined enable. Replace always-done/every-binding-default claims with both-walk status, preserved successful bindings on D3 failure, and CLOSED without done. Include DR3a aggregate and per-wait budgets. |
+| [docs/guides/operator.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/guides/operator.md) | 6 control window and verdict table, lines 197-227; 8 operation, lines 245-268 | Update the status recipe for both walks: D3-only failure preserves completed bindings. Replace the blanket every-sink-unbound claim. Add COMPLETE, DEFAULTS and CLOSED rows and cause/rollback diagnostics; combined blank excludes failure. Explain requested versus effective enable and the separate listener/AECP release points. |
+| [docs/diagrams/21-integration-faces.svg](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/diagrams/21-integration-faces.svg) | editable master: integration-parameters group, lines 31-46; external faces and tie-off behavior | Keep the complete parameter inventory equal to the new top and integrator table. Add D3 exports, pending composition and CLOSED behavior. Update the SVG master, regenerate its PNG export and inspect it under [the diagram rules](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/diagrams/README.md); run [the parameter check](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/scripts/check-integrator-params.py). |
+| [docs/diagrams/20-rtl-dataflow.svg](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/diagrams/20-rtl-dataflow.svg) | AECP/store/guard interior and shared NVM chain, lines 97-128 and 179 | Add the D3 writer, state-bus ownership and guard-debt connection to the actual module diagram; show both managers and the distinct binding/D3 releases. This SVG is its own master; render and inspect under the diagram rules. |
+| [docs/diagrams/23-bringup-decision.svg](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/diagrams/23-bringup-decision.svg) | ADP bring-up checks, lines 32-40 | Make the ladder check the combined restore terminal before treating requested enable plus link as sufficient. Include CLOSED/image-failure diagnosis. Preserve requested-enable readback as such; render and inspect the editable SVG. |
+| [docs/diagrams/24-adp-acmp-states.svg](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/diagrams/24-adp-acmp-states.svg) | ADP enable labels, lines 39-58; restored-binding operation, line 114 | Label ADP transitions with the effective restore-released enable. Keep binding admission release distinct from D3 completion and do not imply a D3 rollback unbinds successfully restored listeners. Render and inspect the editable SVG. |
+| [hdl/top/protocol_processor_top.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/top/protocol_processor_top.sv) | parameter header, lines 124-130; NVM/status/effect contracts, lines 424-454 and 647-668 | Synchronize the port comments with combined busy/done/fail/blank, reset-only combined alarm, D3 unflushed and cause/rollback/closed exports. Remove dynamic dirty as the final pending source and integrator-owned groups 6/7 claims. Document D3 timing parameters and mark completion-only semantics. |
+| [hdl/top/protocol_processor_top.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/top/protocol_processor_top.sv) | binding release/arbiter wiring, lines 2513-2546; ADP enable at line 1645; side-port enable at line 4200 | Document and implement D3 as manager 1 using the landed arbiter. Gate ADP with combined restore completion, retain requested enable on the side-port lock, and extend top-level verdicts beyond the binding release. Update the idle-manager comment with implementation; preserve S4 and the drain. |
+| [hdl/acmp/KL_acmp_nvm_shadow.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/acmp/KL_acmp_nvm_shadow.sv) | banner and parameters, lines 14, 30-31 and 117-122; H_FL_STREAM/H_FL_WAIT, lines 865-895 | At this pin `RETRY_MAX_P = 2` means two additional retries, hence three attempts, but errors immediately return to H_FL_RD. Required lane-1 change: insert DR2c 500 ms backoff before relatching/retrying. Keep the bound, taint/change priority and sticky alarm. Replace the future P4-manager claim as D3 lands. Document the distinction between this raw binding verdict and the combined top verdict; do not count the current retry path as DR2c evidence. |
+| [hdl/packet_engine/KL_pp_nvm_mgr_arb.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv) | manager ownership banner, lines 11-54 | Replace the future integrator-writer description with processor D3 ownership. Retain one initiator, grant-cycle busy, read-only abort/drain and no timed reuse. Preserve the #15 limitation; no second arbiter implementation. |
+| [hdl/aecp/KL_aecp_engine.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/aecp/KL_aecp_engine.sv) | state-store wiring and dispatch; map/format faces, lines 380-426; effect/dynamic exports, lines 533-579 | Document the D3 state-bus owner and dispatch hold from reset, command-side change snoops, shared map/format faces and combined restore release. Route image validity and hard-reset-only guard debt; distinguish diagnostic dirty and completion marks from persistence work. |
+| [hdl/aecp/KL_aecp_dyn_state.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/aecp/KL_aecp_dyn_state.sv) | persistence/dirty banner, lines 47-68; dirty output at line 123; reset/write logic | Remove the statement that sticky dirty drives the NVM manager; it remains diagnostic. Document per-record command-side ownership, restored validity and stage-1 local rollback. Preserve IDENTIFY exclusion; replay writes must not become new producer work. |
+| [hdl/aecp/KL_aecp_desc_store.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/aecp/KL_aecp_desc_store.sv) | memory-guard banner, state/name face, image-valid export and reset/watchdog contracts | Document stage-1 store-local rollback and watchdog re-arm before recovery LOCATE, with image validity exposed to D3. In the name stage add coherent capture/replay after image readiness and command-side live-write qualification. Keep guard debt outside this local reset. |
+| [hdl/aecp/KL_aecp_desc_mem_guard.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/aecp/KL_aecp_desc_mem_guard.sv) | hard-reset/debt contract, lines 18-21 and debt_o at line 54 | Retain the landed debt semantics and hard-reset-only rule; update its integration contract when D3 consumes debt and holds restorable owners. No store-local rollback may clear debt; no reimplementation of #110. |
+| [tb/acmp_nvm/README.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/tb/acmp_nvm/README.md) | coverage of debounce, bounded retry, alarm and group X pending | Document new backoff/count controls against real binding behavior, including no fourth attempt and no alarm forgiveness. Preserve raw binding-walk evidence separately from combined D3 verdicts; retain historical counts with their heads. |
+| [tb/pp_top/README.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/tb/pp_top/README.md) | BW0-BW4 boot-walk coverage and limitations; S9 pending; D3 integration additions | Add real-command scalar/name/map evidence as each stage lands. Separate S4 release from combined done, add CLOSED/rollback/status controls and nine trigger/replay controls. Preserve existing binding and completion-mark tests without treating marks as persistence proof. |
+| [docs/traceability/MODULE_MATRIX.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/traceability/MODULE_MATRIX.md) | generated rows for changed top, stores and new writer | Regenerate from the processor traceability sources after the owning implementation/tests land. Add no coverage claim without runnable evidence; never hand-edit this generated matrix. |
+| [docs/architecture/04_adp_engine.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/04_adp_engine.md) | boot gate rule, line 159 | Identify the ADP engine input as the effective enable, released by both walks at the top. Keep talker discovery independent and the side-port lock on requested enable; cross-reference the three releases in section 8.1. |
+| [docs/architecture/07_memory_maps.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/07_memory_maps.md) | 3.3.1 descriptor memory/guard; 3.4 overlay; 4 dynamic-state ownership | Document D3 ownership, image-valid/debt exports and store-local rollback from scalar stage 1. Names still initialize from the verified image before replay; the guard never takes the local reset. Cross-reference command-side triggers rather than sticky diagnostic dirty. |
+| [docs/guides/hdl-engineer.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/guides/hdl-engineer.md) | module-to-authority table around line 137; diagram 20 | Add the D3 writer and its owning contract, state/descriptor reset boundaries and guard-debt consumer as they land. Keep module inventory and the edited dataflow diagram synchronized. |
+| [docs/00_MILAN_COMPLIANCE_REVIEW.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/00_MILAN_COMPLIANCE_REVIEW.md) | GAP-09; REQ-AEM-011/013/021 and REQ-PER-001/002/003 | Link the accepted D3 trigger, replay and exclusion contract. Record configuration persistence as the retained design decision, not an unresolved choice. Update implementation status only for stages with exact-head executable evidence; contract adoption closes no persistence requirement. |
+| [hdl/packet_engine/KL_pp_nvm_port.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/packet_engine/KL_pp_nvm_port.sv) | manager banner, lines 9-12 | Replace the future P4-manager claim when D3 lands with the binding/D3 producers behind the existing arbiter. Preserve the port framing and terminal-cause contracts; managers still validate CRC and replay semantics. |
 
 F07.9 is inline Mermaid in the memory-map document.
-Any associated generated render follows its processor generation rules.
+Diagram 21's SVG is its editable master; its PNG is generated.
+Other generated renders follow the processor's diagram rules.
 The authoritative source changes first; no generated copy is hand-edited.
+
+**Contract sweep, required at the adopted processor head.**
+Lane 1 reconciles every affected statement, including newly moved ones.
+Run this named search in the processor repository and review every match:
+
+```sh
+rg -n 'COMMIT.*NVM_MARK|aecp_dyn_dirty_o|nvm_unflushed_o|d3_unflushed_o|restore_(done|fail|blank)_o|T-NVM|RETRY_MAX_P|DEB_TICKS_P|entity_enable|Nothing in the processor|groups 6 and 7|integrating platform' docs hdl tb
+python3 scripts/check-integrator-params.py
+```
+
+The search is an inventory, not a zero-match test.
+Publish each superseded statement's corrected location or bounded historical scope.
+Include source banners, port comments, guides, diagrams and suite contracts.
+Existing raw binding-module facts must retain their limited meaning.
+Historical test results keep their original heads and limitations.
+Unaffected framing, completion ownership and microprogram marks stay valid.
+They do not need rewriting merely because this search finds them.
+Gate success alone does not replace this statement-by-statement reconciliation.
 
 ## 16. Traceability
 
@@ -2417,7 +2507,9 @@ Hold AECP ownership from reset through the D3 terminal.
 Implement both passes, semantic validation and combined restore outputs.
 Stage 1 rolls back dynamic and descriptor stores together.
 Debt survives local rollback; watchdog recovery precedes the re-LOCATE.
-Apply the processor documentation table in section 15.2.
+Apply the complete processor contract table in section 15.2.
+Complete its named contract sweep before handing off the pin.
+Implement DR2c for both record producers, including binding retry backoff.
 Measure DR3a's initial 20 ms per-wait candidate.
 Measure its 1,000 ms aggregate from accepted `PP_CTRL[1]`.
 Include both walks and rollback to COMPLETE, DEFAULTS or CLOSED.
@@ -2437,6 +2529,8 @@ Drop taint or same-edge precedence; count restore writes as changes.
 Collapse DEVICE into blank; omit descriptor rollback or debt hold.
 Release AECP/ADP early; release quarantine by time alone.
 Exercise zero, boundary, corrupt, refused and indefinitely delayed inputs.
+Remove backoff; permit a fourth attempt; forgive an exhausted alarm.
+Each must fail a named DR2c timing, count or revocation assertion.
 
 **Prerequisites and physical remainder.** Apply the ruled DR1-DR5 choices.
 DR1a permits lanes 1-4 before #15's full-closure evidence.
@@ -2460,6 +2554,16 @@ Preserve O1-O3; couple CPU and fabric resets under DR3b.
 CPU-only restart requires physical proof of O4 retention.
 Grade every cold path against DR3a's manager-ratified deadlines.
 Update actual boot/status documentation when implementation changes it.
+Implement DR2c's firmware transaction limit, spacing and reset-only alarm.
+Preserve failed-slot refusal and capture-identity ownership.
+Correct these stale source comments when their owning files change:
+
+| File at parent `c0723222` | Required lane-2 correction |
+|---|---|
+| `sw/firmware/milan_baremetal/milan_baremetal.c:340` | Replace the open debounce citation with ruled DR2a: 500 ms producer and 1,000 ms firmware first-dirty windows. |
+| `scripts/nvm_shape.py:146` | Replace the provisional firmware debounce citation with DR2a's ruled 1,000 ms first-dirty window. |
+
+Lane 0 leaves those source files unchanged.
 
 Save legal PTOF values, including zero and a non-default offset.
 After reset, prove the rows and valid flags cleared.
@@ -2480,6 +2584,8 @@ Swap an output index; disconnect the timestamp consumer.
 Restore before AEM; return early on shape failure.
 Enable at firmware timeout; accept a wrong capture identity.
 Suppress scalar pending while materialization is unfinished.
+Remove transaction backoff; permit a fourth attempt; ACK a failed slot.
+Clear an exhausted alarm on heartbeat or later success.
 Each must fail a named value, ordering or durability assertion.
 
 **Dependencies and physical result.** Follow DR6 and lane 1.

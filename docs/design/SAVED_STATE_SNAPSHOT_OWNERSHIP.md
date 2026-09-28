@@ -1090,6 +1090,15 @@ implements it:
    verified slot stands (its content is an attested capture) and the captured
    work stays owned, so the next commit captures it again.
 
+D3 adds a transaction retry policy to this ownership sequence.
+[D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) permits at most three attempts per unchanged captured work set.
+That count includes the first START and two further STARTs.
+Failed transactions wait 1,000 ms before another transaction attempt.
+Exhaustion keeps the alarm until reset; failed slots never receive ACK.
+Capture refusals before START remain distinct from media transaction failures.
+Their next-service retry does not authorize another media transaction.
+Lane 2 implements the bound; this historical sequence does not prove it.
+
 The backend never touches the stage. After the attestation nothing the
 producer does can change what is sealed, programmed or compared: updates land
 in the live window during the verify (A2) and during a 3 s erase (A9) and are
@@ -1331,7 +1340,9 @@ alarm is sticky in the donor until reset, so after a retry exhaustion the
 entity reads nvm_backed 0 and nvm_stale 1 until reset, which is the honest
 reading of a lost change. It stays so even after the same sink is rewritten
 and committed later: a permanent false negative, never a false durable claim.
-Whether and when the alarm may be forgiven is UNRESOLVED 7. The JEDEC cause has no reporter at the current
+[D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules that lifetime: only reset clears the alarm.
+Section 20 item 7 records that disposition.
+The JEDEC cause has no reporter at the current
 source (the writer performs no identity check): UNRESOLVED 5. EXECUTED
 controls: M12_alarm_not_revoking is killed by B1 : alarm_revokes@end and
 M13_report_not_revoking by F2 : failure_revokes.
@@ -1797,12 +1808,10 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    Debounce policy is ruled under
    [D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
    Each writer lane still owes measured normal-load durability.
-7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
-   exhaustion holds nvm_backed at 0 and nvm_stale at 1 until reset, even
-   after the same sink is later rewritten and committed (section 12). That
-   is a permanent false negative, never a false durable claim. A donor-side
-   alarm clear, or a backend rule that forgives the alarm after a later
-   verified commit of the record, is not defined here.
+7. **RULED: alarm lifetime.** [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) keeps the alarm until reset.
+   Exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1.
+   A later successful commit or heartbeat cannot forgive it.
+   Section 12's revocation remains binding.
 8. A writer disabled for a SHAPE or TAG mismatch (section 14) keeps
    heartbeating, so it reads as a live writer that never commits: (backed 1,
    dirty 0 or 1, stale 0) with pend 1. It is the TAG mismatch alone: on a
@@ -1908,7 +1917,7 @@ are N1 to N5, the POSITIVE review's P1 to P5 and its suggestions PS1 to PS4):
 | The boot order of section 7 step 1 (N4) | The executed order, step by step | 7 | R1, W1 |
 | The owner's confirmation is not cited (PS3) | Cited | the status block | - |
 | "far below 50 ms" carries no number (PS2) | The measured instruction count and a derived time | 18, 20 (item 6) | - |
-| Alarm forgiveness (PS1, and a suggestion of the NEGATIVE review) | UNRESOLVED 7 | 12, 20 | - |
+| Alarm forgiveness (PS1, and a suggestion of the NEGATIVE review) | RULED by D3 DR2c; reset only | 12, 20 item 7 | - |
 | "record 0x30 erased in every slot" (PS4) | Stated per build | 11 | E1 |
 
 The re-review at `53b2026e`, revision b (the NEGATIVE review's findings are

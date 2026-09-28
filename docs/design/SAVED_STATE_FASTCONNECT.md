@@ -116,7 +116,7 @@ Implementation and historical evidence remain explicitly distinguished below.
 | Piece | State | Evidence |
 |---|---|---|
 | The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal` at `0xEE_0000`, 128 KiB, and `user` at `0xF0_0000`, 1 MiB |
-| The processor frames and streams one record class | **Landed** (submodule) | `KL_pp_nvm_port` + `KL_acmp_nvm_shadow`. The shadow is the ONLY manager wired to the port today (`protocol_processor_top.sv` lines 2261 and 2278); it owns BINDING records and nothing else |
+| The processor frames and streams one record class | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owns BINDING records through manager 0 of `KL_pp_nvm_mgr_arb`. In [the processor top](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/top/protocol_processor_top.sv), the arbiter starts at line 2523; manager 1 is tied idle at lines 2540-2546. No non-binding writer is connected |
 | A manager for every other persisted item | **ABSENT** | `KL_pp_nvm_port`'s own header says the manager "lands in P4". Nothing serializes names, formats, offsets, maps, rates, clock source, configuration index or SUID |
 | The processor emits commit marks | **Historical: landed, unobserved at `44489453`** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
@@ -128,13 +128,17 @@ Implementation and historical evidence remain explicitly distinguished below.
 | The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
-**Which donor commit.** The processor pin is
-`2faa5af8889d97616bda1369e4739a546da7b0f1` (root issue #424).
-It merges [donor PR #32](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/32).
-Its tree matches reviewed head `488b876f83c0a7b2d1dd73e892b05ea35ed6087a`.
-Completion now belongs only to the granted device command.
-The existing `protocol-processor/tb/nvm_port` controls check that ownership.
-Parent device and manager handshakes remain unchanged.
+**Reconciliation pin.** Parent `c0723222` pins processor
+`16be6768f710e79450aace277abacd6c2c3336e5`, matching D3's reconciliation baseline.
+Processor PR #109 supplies S1/S3/S4; #110 supplies S2.
+Manager 1 remains idle; D3 integration is still owed.
+
+**Historical completion repair.** Root issue #424 adopted
+`2faa5af8889d97616bda1369e4739a546da7b0f1`, merging
+[processor PR #32](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/32).
+That tree matched reviewed head `488b876f83c0a7b2d1dd73e892b05ea35ed6087a`.
+The repair confined completion to the granted device command.
+The `protocol-processor/tb/nvm_port` controls check that ownership.
 Full saved-state and board acceptance remain open under #70.
 
 ## 2. What the two ends actually look like
@@ -1120,8 +1124,10 @@ drops its dirty bit and raises it, so after that neither `nvm_dirty` nor the
 pending bit can report the change it abandoned, and without the revocation the
 status reads durable over a lost controller change. It is sticky in the donor
 until reset, so one exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1
-until reset -- a permanent false negative, never a false durable claim; when
-and whether it may be forgiven is open. The JEDEC cause still has no reporter:
+until reset, even after a later successful commit.
+[D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules that alarm lifetime.
+Neither a heartbeat nor later success forgives exhausted work.
+The JEDEC cause still has no reporter:
 the writer performs no identity check.
 
 **`nvm_stale` sets** whenever `nvm_backed` falls after having been 1 at any
@@ -1278,8 +1284,11 @@ T-NVM-WRITER-ALIVE                                      = 2000 ms
 T-NVM-COMMIT-TIMEOUT >= 2 x T_commit_worst(every shape) = 8000 ms
 ```
 
-`T-NVM-DEBOUNCE` is a different quantity and is still open; section 14 says so
-and section 13 says what the PR that picks it owes.
+Debounce is separate from these media and liveness deadlines.
+[D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules both first-dirty windows:
+500 ms in each producer and 1,000 ms in firmware.
+Each writer lane measures normal-load acceptance-to-durable time.
+Those windows supply no unconditional durability bound.
 
 ## 10. Boot-side work
 
@@ -1549,6 +1558,8 @@ The checklist's unchecked obligations remain open after contract adoption.
       [D3 section 7.1](SAVED_STATE_MATERIALIZATION.md#71-what-clears-and-when).
       Producer pending reports unmaterialized changes; backend dirty reports committable work.
       The last verified snapshot survives; unsaved changes may be lost.
+      Every lost change was reported at the cut.
+      Its reporter was producer pending or `nvm_dirty`.
       Timing, coalescing and measured durability follow D3's ruled DR2a.
 - [x] A restore walk over blank flash reports "nothing restored", never success:
       on the host model `blank=1 fail=0 backed=1`, the register map's second
