@@ -1,0 +1,14 @@
+## base c951a9ff -> head
+ports+params: 242 -> 249
+ADDED   param NVM_RETRY_BACKOFF_CYC_P | parameter int unsigned NVM_RETRY_BACKOFF_CYC_P = (CLK_HZ_P / 32'd2) + (CLK_HZ_P % 32'd2),
+ADDED   param NVM_RS_AGG_CYC_P | parameter int unsigned NVM_RS_AGG_CYC_P = CLK_HZ_P,
+ADDED   port d3_unflushed_o | output logic d3_unflushed_o,
+ADDED   port restore_cause_o | output logic [1:0] restore_cause_o,
+ADDED   port restore_closed_o | output logic restore_closed_o,
+ADDED   port restore_rb_o | output logic restore_rb_o,
+ADDED   port rs_cause_o | output logic [2:0] rs_cause_o,
+CHANGED NVM_RS_TMO_CYC_P | parameter int unsigned NVM_RS_TMO_CYC_P = CLK_HZ_P / 32'd50, => parameter int unsigned NVM_RS_TMO_CYC_P = (CLK_HZ_P / 32'd50)
+## round-1 e1ae468f -> head
+ports+params: 248 -> 249
+ADDED   param NVM_RS_AGG_CYC_P | parameter int unsigned NVM_RS_AGG_CYC_P = CLK_HZ_P,
+CHANGED NVM_RS_TMO_CYC_P | parameter int unsigned NVM_RS_TMO_CYC_P = CLK_HZ_P / 32'd50, => parameter int unsigned NVM_RS_TMO_CYC_P = (CLK_HZ_P / 32'd50)
