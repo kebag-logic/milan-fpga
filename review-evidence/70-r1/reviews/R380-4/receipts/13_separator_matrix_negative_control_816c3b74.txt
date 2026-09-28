@@ -1,0 +1,20 @@
+# negative control: D3 at 816c3b74 (round-3 pattern)
+## joints in sweep: 12
+   class [[:space:]]+  x11
+   class [[:space:]/]*  x1
+## every joint is [[:space:]/!#*]+ : False
+## matrix: phrase | joint | prose | // | //! | # |  *  | -- | ; | > | <br/>
+   dirty mark                   | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   Nothing in the processor     | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   Nothing in the processor     | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   Nothing in the processor     | 3 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   groups 6 and 7               | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   groups 6 and 7               | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   groups 6 and 7               | 3 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   integrating platform         | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   platform's saved-state       | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   never delay                  | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   asynchronous to protocol     | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+   asynchronous to protocol     | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+## RESULT FAIL
+script_rc=1

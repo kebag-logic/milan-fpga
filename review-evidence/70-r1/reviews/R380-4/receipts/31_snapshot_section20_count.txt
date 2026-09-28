@@ -1,0 +1,126 @@
+section 20 lines 1768-1885 of docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+## 20. UNRESOLVED
+
+1. Materialization. Nothing writes a record for configuration index,
+   sampling rate, clock source, stream formats, presentation time offset,
+   channel maps or names at the current source; only bindings have a writer.
+   The pending bit reports the dynamic-state fields truthfully (1 until
+   reset); making them durable needs the accepted D3 contract in
+   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md), under #70.
+   Its implementation remains open; its policy register records manager rulings.
+   DR3a still requires measured deadline ratification before lane 2 implements.
+2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
+   name commit marks reach the parent on `aecp_nvm_stb_o` /
+   `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
+   no longer reads durable over them. Making them durable still needs D3,
+   which is item 1.
+3. CLOSED by donor scope D1 (issue 90): `nvm_unflushed_o` is bound in
+   `KL_pp_shadow`, a binding inside the manager's debounce reads pending from
+   the accept, and E3 passes as an ordinary case.
+4. Whether the shipping memory bridge can withhold a write completion forever
+   is not established. The contract relies on neither answer, but a silent
+   write wedges the single-outstanding device face, so no later record
+   operation of any record is granted until reset; a device-face timeout that
+   ends such an operation with err is a possible follow-up, not proposed here.
+5. The JEDEC identity-mismatch revocation cause of
+   [section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven)
+   has no reporter at the current source.
+6. Physical timing remains unmeasured: capture hold, debounce and memory ordering.
+   [Section 18](#18-cost) replaces the copy model with product-CPU measurements.
+   Both shapes use the contract's 50 MHz CPU and aligned edges.
+   Each has 16 captures per traffic arm, ON and OFF.
+   The [configuration remeasurement](#18-cost) covers the declared clock change.
+   The worst 8x8 copy is 24.30246 ms across both arms.
+   It covers 12,634 bytes and 156 records, including output maps.
+   Its margin against the guaranteed 49 ms floor is 2.0163x.
+   It meets 24.5 ms only under the measured conditions.
+   The unchanged nominal 50 ms hold is retained conditionally.
+   The 1x1 maximum is 6.60642 ms (7.4170x floor margin).
+   Both intervals include the complete record walk and attestation.
+   The 100 MHz 8x8 comparison is non-contract: 19.79024 ms maximum.
+   [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
+   Hold sizing still uses the writer's actual clock.
+   The hosted input gate requires unchanged census and clock values.
+   Changed product firmware also forces new measurements.
+   Traffic effects are quantified in section 18, including small increases.
+   These measurements do not establish a general contention bound.
+   Instruction/access cost factors and the blanket twofold penalty are retired.
+   Physical memory-port ordering remains unmeasured under section 19.
+   Debounce policy is ruled under
+   [D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
+   Each writer lane still owes measured normal-load durability.
+7. **RULED: alarm lifetime.** [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) keeps `nvm_alarm` until reset.
+   Producer exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1.
+   A later successful commit or heartbeat never clears `nvm_alarm`.
+   Firmware exhaustion alone is verdict loss without ACK, not another alarm.
+   [FASTCONNECT section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) clears `nvm_stale` after successful recovery.
+   Section 12's revocation remains binding.
+8. A writer disabled for a SHAPE or TAG mismatch (section 14) keeps
+   heartbeating, so it reads as a live writer that never commits: (backed 1,
+   dirty 0 or 1, stale 0) with pend 1. It is the TAG mismatch alone: on a
+   SHAPE mismatch the writer returns before it installs its service hook, so
+   nothing heartbeats. That predates this contract and this page does not
+   change it; revisions c and d retire the writer only in the state they
+   introduce, the terminal row of section 5.3. Making every disabled writer
+   stop heartbeating would be a one-line change with a wider blast radius
+   (the mixed-build case reads backed 1 today) and belongs to the
+   implementation lane, with the saved-state section 9.3 rows re-read.
+9. Obligations O1 (one sequential writer) and O2 (one reset domain) of
+   section 7 are what exclude the pre-reset acknowledgement alias of section
+   5.4. O2 holds for the product examined here (one PLL, the board reset) and
+   the reverse -- a CPU-only reset -- is real; a fabric-only reset is not
+   excluded by hardware, only by the absence of a reset controller that could
+   request one. Neither obligation is enforced by anything in the backend. The
+   honest alternatives, neither chosen here: make the identity not repeat
+   across a reset (a reset-surviving identity or a boot nonce), or have the
+   backend refuse an acknowledgement until the writer has re-armed after the
+   reset it did not see. Until one is taken, a later lane that adds a second
+   control-face master or a datapath soft reset re-opens the alias.
+10. Obligation O4: whether the live window and the fabric's view of it
+    survive the product's CPU-only restart is NOT established. The re-attach
+    branch needs the memory holding the window to still hold what the backend
+    believes it holds; a restart path that re-initialises that memory would
+    leave records reading closed over bytes nobody wrote, and the once-per-
+    reset rule refuses the only action that would repair them. What stands
+    between that and a slot is the stage validation, which a corrupted frame
+    fails; a span that reads all 0xFF is a valid erased record under the
+    ratified KLJ2 rule and would be promoted. The two honest ways out: show
+    that the window survives the product's CPU-only restart, or make every
+    CPU reset a fabric reset, in which case load pending reads 1 with no walk
+    sequenced and the cold-boot path runs. Whichever is chosen belongs in the
+    implementation lane's acceptance. Not reachable in the cold-boot contract
+    and not a defect of the backend rules; W1 to W4 cannot see it
+    (section 19). Revision d narrows the exposure but does not close the item:
+    the re-attach branch is now taken only when PP_NVM_STAT[2] says the
+    backend accepted the load, so a boot that validated nothing no longer
+    re-attaches at all; a boot that DID accept its load still re-attaches over
+    a window this page cannot prove survived the restart.
+    [D3 DR3b](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) selects coupled CPU and fabric resets.
+    That restriction remains until O4 retention is physically proven.
+    Implementation and physical evidence remain owed by lane 2.
+
+11. **A record closed across a refused load's fill stays closed until a
+    producer rewrites it or the fabric is reset** (revision d, from the second
+    re-review). A refused RELOAD does not un-write the window: the fill wrote
+    the whole window, so a whole-record WRITE streaming across the last
+    attempt's fill ends with done over bytes the fill wrote, and its record
+    reads CLOSED although the producer did not write those bytes. Rule 9 makes
+    this safe rather than absent: nothing in that boot can capture, commit or
+    retire, so the record is REPORTED and never promoted, the last verified
+    slot is untouched and no reading is durable (W3, W4). What is not resolved
+    is convergence WITHIN that reset: the record's bytes are wrong until
+    something rewrites it, and only a producer rewrite or a reset does. The
+    honest alternative, not taken here, is the re-review's RS1 (a refused
+    RELOAD re-opens every record, and an operation in flight at a re-base or a
+    refused RELOAD does not close its record); section 15 says why rule 9 was
+    preferred. An implementation lane may adopt RS1 in addition, and nothing
+    in this contract forbids it.
+
+--- top-level numbered items:
+11
+--- top-level bullets:
+0
+--- TOC line:
+188:- **[20. UNRESOLVED](#20-unresolved)** -- Eight items this contract does not settle.
+--- other count mentions:
+188:- **[20. UNRESOLVED](#20-unresolved)** -- Eight items this contract does not settle.

@@ -1,0 +1,12 @@
+# negative control: row_extension_evidence.py against D3 at 816c3b74 (pre-delta), processor pin
+## 15.2 rows 37
+  BAD CONTEXT NOT-CITED contract-keywords=NO tb/acmp_nvm/acmp_nvm_wrap.sv:12  //                KL_pp_nvm_mgr_arb (the shadow is its manager 0; manager 1
+  BAD MATCH   NOT-CITED contract-keywords=NO tb/acmp_nvm/acmp_nvm_wrap.sv:13  //                is a harness face, as the platform's saved-state writer
+  BAD CONTEXT NOT-CITED contract-keywords=NO tb/acmp_nvm/acmp_nvm_wrap.sv:14  //                will be), the REAL
+    rows citing tb/acmp_nvm/acmp_nvm_wrap.sv: 0; cited lines []; keywords ['both descriptions', 'processor D3 writer']
+  BAD MATCH   NOT-CITED contract-keywords=NO hdl/aecp/ucode/gen_ucode.py:472  u('NVM_MARK', imm=0x21),                     # sampling_rate record
+    rows citing hdl/aecp/ucode/gen_ucode.py: 1; cited lines [1364, 1439, 1582, 1583, 1584, 1675, 1791, 1925, 2002, 2091]; keywords ['E_SETSR exemplar', 'never the mark']
+  BAD MATCH   NOT-CITED contract-keywords=NO docs/architecture/06_aecp_engine.md:874  SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate
+    rows citing docs/architecture/06_aecp_engine.md: 1; cited lines [341, 342, 343, 344, 365, 421, 422, 423, 424, 425]; keywords ['sampling-rate exemplar', 'completion effect']
+## RESULT FAIL
+script_rc=1

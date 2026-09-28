@@ -1,0 +1,21 @@
+Verilator 5.050 2026-07-01 rev v5.050
+build_rc=0
+rm Vbackoff_probe__ALL.verilator_deplist.tmp
+make: Leaving directory '$REVIEWS/70-r380-4-packet/scratch/backoff/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.047 MB sources in 3 modules, into 0.026 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 7.909 s (elab=0.001, cvt=0.003, bld=7.902); cpu 0.007 s on 1 threads; allocated 18.492 MB
+CLK_HZ_P=4294967295 BACKOFF=2147483648 REF=2147483648    MATCH
+CLK_HZ_P=4294967294 BACKOFF=2147483647 REF=2147483647    MATCH
+CLK_HZ_P=156250001 BACKOFF=78125001 REF=78125001    MATCH
+CLK_HZ_P=100000000 BACKOFF=50000000 REF=50000000    MATCH
+CLK_HZ_P=50000000 BACKOFF=25000000 REF=25000000    MATCH
+CLK_HZ_P=3 BACKOFF=2 REF=2    MATCH
+CLK_HZ_P=1 BACKOFF=1 REF=1    MATCH
+CLK_HZ_P=0 BACKOFF=0 REF=0    MATCH
+BACKOFF_PROBE PASS 8/8
+- $REVIEWS/70-r380-4-packet/scripts/backoff_probe/backoff_probe.sv:27: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 1ps; walltime 0.000 s; speed 17.254 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 7 MB
+run_rc=0

@@ -1,0 +1,69 @@
+== tb/acmp_nvm/acmp_nvm_wrap.sv:1-20 @ 16be6768f710e79450aace277abacd6c2c3336e5
+     1	/*
+     2	 * SPDX-FileCopyrightText: 2026 Kebag Logic
+     3	 * SPDX-License-Identifier: CERN-OHL-W-2.0
+     4	 */
+     5	//---------------------------------------------------------------------------//
+     6	//  File        : acmp_nvm_wrap.sv
+     7	//  Project     : IEEE 1722.1 protocol processor — acmp_nvm suite wrap
+     8	//                (docs/architecture/05 §5, 07 §5, 02 §8)
+     9	//
+    10	//  Description : Integration wrap for the KL_acmp_nvm_shadow suite: the
+    11	//                shadow, the REAL KL_pp_nvm_port behind the REAL
+    12	//                KL_pp_nvm_mgr_arb (the shadow is its manager 0; manager 1
+    13	//                is a harness face, as the platform's saved-state writer
+    14	//                will be), the REAL
+    15	//                KL_pp_acmp_listener and the REAL KL_pp_acmp_lsn_admit wired
+    16	//                at their landed faces, the way protocol_processor_top wires
+    17	//                them — the shadow's capture face on the listener's record
+    18	//                write port, the shadow's pre_* driving the listener's
+    19	//                preload face, the shadow's class-F face on the port's
+    20	//                manager face, and the admission gate between the
+== tb/acmp_nvm/README.md:10-18
+    10	`-GRS_TMO_CYC_P=3000` the walk's read deadline (`T-NVM-RS-DEADLINE`) that group N
+    11	places its boundaries against.
+    12	
+    13	The wrap compiles the shadow together with the REAL `KL_pp_nvm_port` (class-F
+    14	manager face) behind the REAL `KL_pp_nvm_mgr_arb` (the shadow is its manager 0;
+    15	manager 1 is a harness face, as the platform's saved-state writer will be), the
+    16	REAL `KL_pp_acmp_listener` (capture from its record write
+    17	port, boot replay into its `pre_*` preload face) and the REAL
+    18	`KL_pp_acmp_lsn_admit` between the listener's four work faces and their
+== hdl/aecp/ucode/gen_ucode.py:462-482
+   462	# --- SET_SAMPLING_RATE exemplar (06 §8): checks, write-back, effects --------
+   463	place(E_SETSR, [
+   464	    u('CHECK_LOCK', ra=15, imm=E_FAIL),
+   465	    u('DESC_ADDR', ra=14, imm=0x00100),
+   466	    u('BR_STATUS', cnd=0, imm=E_FAIL),
+   467	    u('MOVE', rd=2, imm=0xBB80),                 # requested rate
+   468	    u('MOVE', rd=3, imm=0xBB80),                 # allowed-set entry
+   469	    u('CHECK_ARG', ra=2, rb=3, fmt=FMT_D, cnd=0, imm=E_FAIL),
+   470	    u('WRITE_ST', ra=2, fmt=FMT_D, imm=8),       # current_rate <- arg
+   471	    u('COMMIT'),                                 # atomicity point
+   472	    u('NVM_MARK', imm=0x21),                     # sampling_rate record
+   473	    u('SET_STATUS', imm=ST_OK),
+   474	    u('BUILD_HDR', ra=15, rb=13),
+   475	    u('BUILD_FLD', ra=2, fmt=FMT_D),
+   476	    u('SEND_RESP'),
+   477	    u('NOTIFY_ENQ', imm=5),                      # unsolicited, excl requester
+   478	    u('END'),
+   479	])
+   480	
+   481	# --- NAME_RD / NAME_WR (name region select) ---------------------------------
+   482	place(E_NAME, [
+== docs/architecture/06_aecp_engine.md:866-880
+   866	
+   867	```text
+   868	GET_SAMPLING_RATE:                    SET_SAMPLING_RATE:
+   869	  DESC_ADDR  AUDIO_UNIT[idx]            CHECK_LOCK
+   870	  BRANCH_IF_STATUS fail                 DESC_ADDR  AUDIO_UNIT[idx]
+   871	  READ_STATE r1 <- current_rate         CHECK_ARG  rate in sampling_rates[]
+   872	  SET_STATUS SUCCESS                    CHECK_ARG  SRC rule (may NOT_SUPPORTED)
+   873	  BUILD_HEADER; BUILD_FIELD r1          WRITE_STATE current_rate <- arg
+   874	  SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate
+   875	                                        SET_STATUS SUCCESS
+   876	ACQUIRE_ENTITY:                         BUILD_HEADER; BUILD_FIELD
+   877	  SET_STATUS NOT_SUPPORTED              SEND_RESPONSE
+   878	  BUILD_HEADER (echo, owner_id=0)       NOTIFY_ENQ  {resp, excl=requester}
+   879	  SEND_RESPONSE; END                    END
+   880	

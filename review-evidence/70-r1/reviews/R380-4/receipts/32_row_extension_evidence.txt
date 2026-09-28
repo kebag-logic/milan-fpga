@@ -1,0 +1,12 @@
+## parent 6b76f2d8260b57c49e2fd3a619d269eb3a7fbd14 processor 16be6768f710e79450aace277abacd6c2c3336e5
+## 15.2 rows 37
+  OK  CONTEXT ROW-CITED contract-keywords=yes tb/acmp_nvm/acmp_nvm_wrap.sv:12  //                KL_pp_nvm_mgr_arb (the shadow is its manager 0; manager 1
+  OK  MATCH   ROW-CITED contract-keywords=yes tb/acmp_nvm/acmp_nvm_wrap.sv:13  //                is a harness face, as the platform's saved-state writer
+  OK  CONTEXT ROW-CITED contract-keywords=yes tb/acmp_nvm/acmp_nvm_wrap.sv:14  //                will be), the REAL
+    rows citing tb/acmp_nvm/acmp_nvm_wrap.sv: 1; cited lines [12, 13, 14]; keywords ['both descriptions', 'processor D3 writer']
+  OK  MATCH   ROW-CITED contract-keywords=yes hdl/aecp/ucode/gen_ucode.py:472  u('NVM_MARK', imm=0x21),                     # sampling_rate record
+    rows citing hdl/aecp/ucode/gen_ucode.py: 1; cited lines [472, 1364, 1439, 1582, 1583, 1584, 1675, 1791, 1925, 2002, 2091]; keywords ['E_SETSR exemplar', 'never the mark']
+  OK  MATCH   ROW-CITED contract-keywords=yes docs/architecture/06_aecp_engine.md:874  SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate
+    rows citing docs/architecture/06_aecp_engine.md: 1; cited lines [341, 342, 343, 344, 365, 421, 422, 423, 424, 425, 874]; keywords ['sampling-rate exemplar', 'completion effect']
+## RESULT PASS
+rc=0
