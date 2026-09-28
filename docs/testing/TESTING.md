@@ -401,6 +401,10 @@ The manual `nvm_capture_cpu` measurement is the Makefile exception.
 Its LiteX tree, CPU netlist and pinned RV32 SDK are prerequisites.
 The separate `scripts/check_nvm_capture.py` gate needs neither compiler nor simulation.
 It regenerates capture counts and checks clocks against measured inputs.
+The [firmware service-budget sibling](../../tb/verilator/fw_service_budget/README.md)
+has a default Makefile target for its portable oracle and device controls.
+Its full product-CPU measurements are explicit runs with the same prerequisites
+as the capture measurement; the default target does not regenerate timings.
 **Run the suites for verdicts; this page omits them.** The last
 whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
 described a tree that no longer exists — twelve of the suites it graded have
@@ -912,10 +916,76 @@ Teardown follows the final snapshot.
 | Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets |
 | `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
 | `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
+| Wire `mr`, media-clock events, MEDIA_RESET; IEEE 1722-2016 4.4.4.3, Milan Tables 5.4/5.6, Annex B.1.2 | Each toggle and increment has a recorded source change, CRF disruption, or received CRF `mr` toggle; eight-PDU hold per stream; GM change alone fails |
 | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
-| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
+| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: GM identity change, GM time-source change, or other detected gPTP discontinuity; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; after a GM change, hold at least 0.25 seconds, allowing that resolution; uncorrelated `tu` fails |
 | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
 | DUT uptime | Monotonic advance, with no reboot |
+
+The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs the `mr`/`tu` release checks.
+Use `check_release_mr` separately for each stream and counter endpoint.
+Include both directions, AAF, and CRF.
+Provide the stream ID and these timestamped records:
+
+| Record list | Required fields | Source |
+|---|---|---|
+| `pdus` | `stream_id`, `timestamp_s`, `pdu_index`, `mr` | AVTP capture; indices are unwrapped and consecutive within each stream |
+| `causes` | `stream_id`, `timestamp_s`, `kind` | Controller readbacks and received CRF captures, mapped to affected talker streams |
+| `media_reset_reads` | `stream_id`, `timestamp_s`, `value` | One descriptor's GET_COUNTERS MEDIA_RESET readings, with baseline and endpoint |
+
+Cause kinds are `media-clock-source change`, `CRF disruption`, `CRF mr toggle`.
+Controller evidence must establish the affected stream's clock-source lineage.
+CRF causes require recorded derivation from that received CRF stream.
+A GM edge or PHC step alone is no cause.
+The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
+The current image still toggles `mr` on PHC steps.
+A soak containing one therefore fails the step-only check.
+This remains until #602's RTL change lands.
+Each cause excuses at most one toggle per stream.
+Causes are consumed chronologically, preserving later matches.
+The check filters by stream before counting its PDUs.
+The first captured PDU establishes the prior `mr` level.
+Capture starts before the observation window and includes every PDU.
+Continue until the final toggle has held eight PDUs.
+An earlier retoggle fails; an unfinished tail is NOT RUN.
+Packet gaps, malformed records, or missing resolution are NOT RUN.
+Explicit empty lists with complete capture represent observed silence.
+They differ from missing records, represented by `None`.
+
+Let R be the recorded relative event/capture timestamp resolution.
+Include frame-launch latency and correlation error when deriving R.
+The cause window is `[toggle - R, toggle + R]`.
+No fixed coincidence window replaces that measured bound.
+Every verdict includes R, even when evidence is missing.
+Require `2 * R < 1 s`, the counter-update ceiling.
+The coincidence window must be narrower than that observation interval.
+Thus the deciding resolution limit is `1 s / 2`.
+Resolution at or above that limit yields NOT RUN.
+The verdict records this limit as `resolution_limit_s`.
+Counter intervals may finish after their causing wire toggle.
+Milan Tables 5.4/5.6 bound that delay by one second.
+For adjacent reads, match caused toggles in `[before - 1 - R, after + R]`.
+The one-second term is the device update ceiling, not sampling cadence.
+Each increment consumes a distinct matching toggle within that window.
+The same toggle cannot explain two increments of one counter.
+Several toggles may contribute to a single device observation interval.
+Therefore, increment and toggle counts need not be equal.
+A MEDIA_RESET decrease is reported as a counter reset.
+Table 5.4 resets the counter when the talker starts.
+It is never decoded as billions of new increments.
+This fails the soak and requires counter-walk investigation.
+Even an explained talker restart interrupts the continuous soak.
+Retain the start evidence when interpreting the reset.
+Input and output counters are graded separately against their captures.
+Supply `capture_complete=ReleaseCapture((start, end), complete=True)` from capture metadata.
+The object records the window and completeness together.
+With boolean `True`, the first and last PDUs bound coverage.
+Silent captures require explicit endpoints; empty PDUs cannot prove duration.
+The span must cover `[first read - 1 - R, last read]`.
+It must also contain every supplied stream PDU.
+An insufficient span yields NOT RUN for the `mr` checks.
+Complete evidence must cover counter windows, including delayed updates.
+Missing records produce NOT RUN, which cannot qualify a release.
 
 Periodic healthy reads cannot prove that intermediate transitions never happened.
 Retain continuous transition, streaming, and uncertainty evidence too.
@@ -935,13 +1005,40 @@ Their first observed packet can lag the causing discontinuity.
 Allow the stated resolution before the observed start, inclusive.
 An event exactly at clear remains excluded.
 The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines this start-edge allowance.
-Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+Accepted kinds include GM identity and GM time-source changes.
+Other detected gPTP discontinuities include PHC settime/adjtime and fabric discontinuities.
 Measure from the last recorded discontinuity before `tu` clears.
 The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
 Every discontinuity reloads the implemented holdover.
 Sync requalification must finish within the same clearing deadline.
-Use `check_release_tu` with complete interval and discontinuity evidence.
-Supply the plan's `tu_holdover_bound_s` and measured observation resolution.
+Use `check_release_tu_history` with complete interval and discontinuity evidence.
+Supply every `tu` interval and every recorded GM change.
+Grade each stream over the complete observation window.
+Capture boundary tails until all GM minimums can be judged.
+An explicit empty interval list records continuously clear `tu`.
+A missing list is NOT RUN; uncovered GM changes fail.
+Ordered intervals must be separate and have positive duration.
+`check_release_tu` remains the single-interval diagnostic entry.
+It grades every GM change supplied to that entry.
+Supply the measured observation resolution.
+The history check uses the fixed 0.5-second release bound.
+Supply `gm_changes_s` separately, including an explicit empty history.
+GM identity changes also count as discontinuities automatically.
+Missing GM history produces NOT RUN.
+Let R be the recorded relative event/capture error bound.
+True hold d is observed as h within `d +/- R`.
+The minimum accepts `h + R >= 0.25 s`.
+Consequently, a PASS guarantees only `d >= 0.25 s - 2R`.
+Require `2R < 0.25 s` so an instant clear fails.
+Thus `resolution_limit_s` is 0.125 seconds, with equality refused.
+The upper check requires `h + R <= 0.5 s + R`.
+Equivalently, require `h <= 0.5 s`, guaranteeing `d <= 0.5 s + R`.
+No additional resolution ceiling applies.
+Coarser resolution yields NOT RUN, even with no intervals.
+Each verdict records the measured resolution and applicable limits.
+Single-interval verdicts also record their deadlines and latest possible clears.
+`latest_clear_s` is the observed clear plus R.
+`deadline_s` is the last discontinuity plus `0.5 s + R`.
 Its timestamps share the capture's correlated host clock.
 Include only recorded discontinuities of the accepted kinds.
 For example, a GM edge occurs at zero seconds.
@@ -955,13 +1052,21 @@ An event 0.002 seconds before start does not count.
 An event exactly at start counts, including with zero resolution.
 The clearing deadline still uses the recorded event timestamp.
 
-The decided rule permits uncertainty before its first recorded discontinuity.
-It adds no separate bound for that preceding duration.
-For example, an observed interval spans zero through 10.4 seconds.
-Its lone discontinuity at 10 seconds satisfies this uncertainty check.
-All other soak assertions still apply independently.
+The first contained event must also satisfy `event <= observed_start + R`.
+Thus the rise itself must coincide with a recorded discontinuity.
+An interval spanning zero through 10.4 seconds fails this check.
+Its lone discontinuity at 10 seconds cannot justify its rise.
 Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
 B.1.1 states 0.25 seconds; the project reads this as a minimum.
+Require `clear + observation_resolution_s >= last_GM_change + 0.25`.
+Every recorded GM change must have a covering interval.
+A change at clear belongs to no preceding interval.
+A change with `tu` never set also fails.
+Use the latest covered GM change for each interval's minimum.
+A subsequent PHC step reloads only the upper-bound anchor.
+At 0.001-second resolution, clearing 0.24 seconds after GM fails.
+Clearing at 0.249 seconds meets the minimum with that resolution.
+Non-GM discontinuities remain valid causes without the GM minimum.
 [`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.
 B.1's recommended five-second media-clock holdover never bounds `tu`.
 

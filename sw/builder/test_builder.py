@@ -17106,8 +17106,6 @@ def test_baremetal_profile_contract() -> None:
         ("station MAC", lambda c: c["platform"].__setitem__(
             "mac_address", "02:00:00:00:00:03")),
         ("priority1", lambda c: c["gptp"].__setitem__("priority1", 247)),
-        ("fabric clock", lambda c: c["board"]["constraints"].__setitem__(
-            "milan_clk_hz", 80_000_000)),
     )
     with tempfile.TemporaryDirectory() as td:
         for label, mutate in ucode_mutations:
@@ -17119,8 +17117,11 @@ def test_baremetal_profile_contract() -> None:
                     f"{label}: mutation did not reach gptp_ucode.hex"
             finally:
                 path.unlink()
-    print("  [gate 1b] gPTP ROM changes with each YAML-owned input: station "
-          "MAC, priority1 and fabric clock")
+    # The former 80 MHz ROM variant violates the bare-metal build contract.
+    # test_baremetal_clock_contract now requires its named refusal.
+    # test_gptp_rom_clock separately proves the configured clock reaches ROM bytes.
+    print("  [gate 1b] gPTP ROM changes with station MAC and priority1; "
+          "the bare-metal fabric clock is fixed by the build contract")
 
     #! [R-parallel] on #228: the engine consumes NOTHING else from gptp:,
     #! so every other field must REFUSE a divergent config value instead of
@@ -27555,11 +27556,15 @@ def test_nvm_firmware_shapes() -> None:
 
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
+    from test_clock_contract import (
+        test_baremetal_clock_contract, test_extra_sweep_clocks, test_gptp_rom_clock, test_tap_clock_docs,
+    )
 
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
+    for fn in (test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
+               test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
                test_qspi_owner_transition_completed_write_prefixes,

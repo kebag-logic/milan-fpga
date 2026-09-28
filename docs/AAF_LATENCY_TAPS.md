@@ -11,8 +11,25 @@ the exact RTL trigger and the CSR that reports it. The measurement engine is
 [Section 0x870 of `REGISTER_MAP.md`](reference/REGISTER_MAP.md#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps); the per-sample DDR3 history is
 [`LATENCY_HISTORY_RING.md`](LATENCY_HISTORY_RING.md).
 
-All deltas are in **`axis_clk` cycles** — divide by the datapath clock
-(100 MHz on the AX7101 ⇒ 10 ns/cycle) for seconds. Each chain follows **one
+All deltas are in **`axis_clk` cycles**.
+Seconds equal cycles divided by the configuration's `milan_clk_hz`.
+Cycle time is `1e9 / milan_clk_hz` nanoseconds.
+
+<!-- configured-tap-clocks:start -->
+| Configuration | Milan clock (Hz) | ns/cycle | Latency taps |
+|---|---:|---:|---|
+| `endstation_arty_4x4` | 50000000 | 20 | present |
+| `endstation_arty_8ch` | 50000000 | 20 | present |
+| `endstation_arty_current` | 50000000 | 20 | present |
+| `endstation_ax7101_1x1_tdm8` | 50000000 | 20 | present |
+| `endstation_ax7101_8x8` | 50000000 | 20 | pruned |
+<!-- configured-tap-clocks:end -->
+
+The table follows [`configs/`](../configs/) and is checked by
+[`test_clock_contract.py`](../sw/builder/test_clock_contract.py).
+Pruned taps report structural zeros, never measured latency.
+
+Each chain follows **one
 in-flight frame at a time**: it arms on a stage-0 edge (latching the gPTP
 epoch) and takes the next edge at each later stage, so min/last/max
 characterise the latency *envelope*, not one threaded frame id.
@@ -120,6 +137,9 @@ A per-stage timeout (`MILAN_CLK_FREQ_HZ/2000` ≈ 0.5 ms) aborts and re-arms a
 stuck token so a dropped frame can never wedge a chain (counted in `timeouts`).
 
 ## Measured on silicon — TX chain (2026-07-26)
+
+These are historical measurements at the then-configured datapath clock.
+Their conversions retain that clock, independent of today's configurations.
 
 Board **AX7101**, flashed gateware `VERSION = 0x0001_000B`, datapath domain
 **100 MHz** (10 ns/cycle), talker stream 0 live and paced to the second board,

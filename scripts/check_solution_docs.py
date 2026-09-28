@@ -791,8 +791,8 @@ def _source_fact_mutations() -> list[tuple[str, Path, str, str, str]]:
     (
         "system clock default",
         SOC,
-        'ap.add_argument("--sys-clk-freq", default=100e6, type=float)',
-        'ap.add_argument("--sys-clk-freq", default=80e6, type=float)',
+        'ap.add_argument("--sys-clk-freq", default=100e6,',
+        'ap.add_argument("--sys-clk-freq", default=80e6,',
         "system clock default differs",
     ),
     (

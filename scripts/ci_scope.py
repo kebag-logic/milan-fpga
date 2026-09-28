@@ -49,9 +49,10 @@ TOP_LEVEL_SUFFIXES = [".md"]
 #: docs-only path skips may read them. Not a list written from memory: the
 #: selftest derives the same set from the tree and refuses any difference.
 #: The behave suite (rtl-fast's `bdd-conformance`, which docs.yml never runs)
-#: asserts on the first two; the third is the page the trace catalogue
-#: generator's `--check` compares.
+#: asserts on the register map and audit; the trace catalogue compares its
+#: event page, and the clock-contract test checks the latency-tap table.
 GATE_READ_DOCS = [
+    "docs/AAF_LATENCY_TAPS.md",
     "docs/reference/REGISTER_MAP.md",
     "docs/reference/TRACE_EVENTS.md",
     "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
@@ -260,7 +261,8 @@ def _cases() -> list[Case]:
         # The campaign records check_results_fresh.py compares in tsn_fuzz.
         (["hdl/ieee1722/avtp/doc/TEST_RESULTS.md"], True),
         (["hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md"], True),
-        # The pages the behave suite and the trace generator read.
+        # The pages the behave suite, trace generator and clock test read.
+        (["docs/AAF_LATENCY_TAPS.md"], True),
         (["docs/reference/REGISTER_MAP.md"], True),
         (["docs/testing/MILAN_V12_AUDIT_2026-08-16.md"], True),
         (["docs/reference/TRACE_EVENTS.md"], True),
