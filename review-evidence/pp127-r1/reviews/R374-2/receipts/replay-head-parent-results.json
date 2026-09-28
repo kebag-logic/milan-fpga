@@ -1,0 +1,84 @@
+{
+  "head": "00b5c6c96af5ebcaa92ddb3bdaeb4aa5302ef27c",
+  "results": [
+    {
+      "name": "parent-original-oracle",
+      "command": [
+        "python3",
+        "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/original/run_reproduction.py",
+        "$REVIEWS/pp127-r374-2-packet/scratch/headgit",
+        "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/original/build"
+      ],
+      "rc": 1,
+      "expected_rc": 1,
+      "bytes": 1129,
+      "sha256": "64192ec486e56fd9ea0b1566da5a05f279f45e9be7acca5bd66ca45af0979b56"
+    },
+    {
+      "name": "parent-fixed-oracle",
+      "command": [
+        "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/original/build/obj/reproduce",
+        "deferred"
+      ],
+      "rc": 0,
+      "expected_rc": 0,
+      "bytes": 1382,
+      "sha256": "c79e89c382a114f84005bc36fe02c89e16d86c7b19e3e29a2b8beaa1182b9a30"
+    },
+    {
+      "name": "parent-deadline-oracle",
+      "command": [
+        "python3",
+        "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/deadline/run_reproduction.py",
+        "$REVIEWS/pp127-r374-2-packet/scratch/headgit",
+        "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/deadline/build"
+      ],
+      "rc": 0,
+      "expected_rc": 0,
+      "bytes": 1646,
+      "sha256": "7b9527be1263247cbd7b7585d114592d60d8f5c7821daba700a5e04de95a4198"
+    }
+  ],
+  "files": [
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay/reproduce.cpp",
+      "bytes": 7711,
+      "sha256": "a509453e76d47cb004cbdae263c6f0cc859b318dda07cd5b64360d9b7a2b7b1b"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay/run_reproduction.py",
+      "bytes": 2479,
+      "sha256": "d7ecb4cef397a6e53b8a6287ef05ff1b956619ec25556e0c4f94e4a3934a3a1c"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay/parent-expiry-oracle.patch",
+      "bytes": 3426,
+      "sha256": "d99c2df3e6b137a224c30867a163a32c3590606c2865c9b9101f597e67ce422a"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/deadline/reproduce.cpp",
+      "bytes": 6736,
+      "sha256": "a3ee0057719c7032a5d30e9af82c8709397c5b45b7d2a125d144cb0f1aeffe9f"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/original/build/obj/reproduce",
+      "bytes": 570136,
+      "sha256": "d44d2378f507cba621a455a17a4fd015301c0437f47b2a0526fa2e8fbc640757"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/deadline/build/obj/reproduce",
+      "bytes": 569960,
+      "sha256": "568aad4951832d6a757b081e3cfbbef38736375ff06da7753388e83129731687"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/original/build/build.log",
+      "bytes": 11574,
+      "sha256": "1233a432d0bbb970806328f7edfdc89c804a142a519b9f2ae29eb643d0d554c6"
+    },
+    {
+      "path": "$REVIEWS/pp127-r374-2-packet/scratch/replay-run/deadline/build/build.log",
+      "bytes": 11574,
+      "sha256": "79c3cc1339ce9d9a375f7787108d983a6f0e8668fe580812c1675da469a2f4ba"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+control srp_top guards: rc=0 PASS
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+5 checks: 5 PASS, 0 FAIL
+DRIVER_RC=0

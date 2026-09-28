@@ -1,0 +1,13 @@
+control srp_encoder : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+peer-restarts-timer: rc=2 failures=8 KILLED tags=M4
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+round-completion-lost: rc=2 failures=1 KILLED tags=N13
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+11 checks: 11 PASS, 0 FAIL
+DRIVER_RC=0

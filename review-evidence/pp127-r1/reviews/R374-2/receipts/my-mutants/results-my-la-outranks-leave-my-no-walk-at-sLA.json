@@ -1,0 +1,85 @@
+{
+ "my-la-outranks-leave": {
+  "build": true,
+  "tally": [
+   "1987 checks: 1985 PASS, 2 FAIL"
+  ],
+  "exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": [
+   "FAIL: L2: decoded Lv at acceptance boundary delta=0",
+   "FAIL: L2: decoded Lv at acceptance boundary delta=0"
+  ],
+  "probes": {
+   "r374r3": [
+    0,
+    "1 checks: 1 PASS, 0 FAIL"
+   ],
+   "r374r4": [
+    0,
+    "2 checks: 2 PASS, 0 FAIL"
+   ],
+   "r374r5": [
+    0,
+    "5 checks: 5 PASS, 0 FAIL"
+   ]
+  }
+ },
+ "my-no-walk-at-sLA": {
+  "build": true,
+  "tally": [
+   "1987 checks: 1957 PASS, 30 FAIL"
+  ],
+  "exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": [
+   "FAIL: F1: MSRP LeaveAllEvent PDU within 16 s",
+   "FAIL: F1: the LeaveAll MRPDU flags every MSRP type once, first vector",
+   "FAIL: F1: Domain JoinIn rides the LeaveAll cycle",
+   "FAIL: F1: Listener Ready re-joins the LeaveAll cycle",
+   "FAIL: F1: registration published through LV",
+   "FAIL: F2: Listener Lv on the wire",
+   "FAIL: F4: every cycle re-declares Listener Ready",
+   "FAIL: F5a: own MSRP LeaveAll within 16 s",
+   "FAIL: F5b: own MSRP LeaveAll within 16 s",
+   "FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)",
+   "FAIL: F5c: own MSRP LeaveAll within 16 s",
+   "FAIL: M11: quiet canceled round emits valid content and recovers",
+   "FAIL: M12: a later own action reuses an empty canceled reservation",
+   "FAIL: M2: supersession agrees with the wire flags",
+   "FAIL: M2: supersession agrees with the wire flags",
+   "FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=3",
+   "FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=2",
+   "FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=1",
+   "FAIL: M10: peer supersession respects expiry ordering delta=-1",
+   "FAIL: N5: full-table recovery emits one flagged round",
+   "FAIL: N6: full-table drain preserves all types and all live declarations",
+   "FAIL: N10: already-full table drains and both walks complete",
+   "FAIL: N12: repeated pending expiries coalesce into one accepted action",
+   "FAIL: N13: asymmetric walks preserve completion across blocked cadence ticks",
+   "FAIL: O2: canceled acceptance preserves the newer own intent exactly once",
+   "FAIL: O4: reuse acceptance calibrated",
+   "FAIL: O4: peer decoded exactly on retained reservation acceptance",
+   "FAIL: O4: reuse peer delta=1 wire flags require an uncanceled sLA (placed=1 actions=0 flags=0)",
+   "FAIL: O6: blocked cadence ticks coalesce into one immediate follow-up walk (ticks=0)",
+   "FAIL: O7: Domain periodic refresh drains canceled reservation within periodic plus join"
+  ],
+  "probes": {
+   "r374r3": [
+    1,
+    "FAIL: R3: a newer expiry after a canceled preparation still yields one own sLA",
+    "1 checks: 0 PASS, 1 FAIL"
+   ],
+   "r374r4": [
+    0,
+    "2 checks: 2 PASS, 0 FAIL"
+   ],
+   "r374r5": [
+    0,
+    "4 checks: 4 PASS, 0 FAIL"
+   ]
+  }
+ }
+}

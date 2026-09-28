@@ -1,0 +1,12 @@
+control srp_stream_fsms : rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+preparation-before-slot: rc=2 failures=22 KILLED tags=M1,M10,M11,M12,M5,M6,M8
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+10 checks: 10 PASS, 0 FAIL
+DRIVER_RC=0

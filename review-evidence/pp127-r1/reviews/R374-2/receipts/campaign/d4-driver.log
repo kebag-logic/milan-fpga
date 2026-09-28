@@ -1,0 +1,11 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+pending-peer-ignored: rc=2 failures=14 KILLED tags=M1,M10,M2,M3
+mvrp-supersedes-msrp: rc=2 failures=6 KILLED tags=M1,M2,M3
+leaveall-expiry-lost: rc=2 failures=18 KILLED tags=M1,M10,M12,M2,M3,M5,M8,M9
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+9 checks: 9 PASS, 0 FAIL
+DRIVER_RC=0

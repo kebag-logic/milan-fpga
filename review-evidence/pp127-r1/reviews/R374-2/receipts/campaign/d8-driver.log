@@ -1,0 +1,11 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top phases: rc=0 PASS
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+9 checks: 9 PASS, 0 FAIL
+DRIVER_RC=0

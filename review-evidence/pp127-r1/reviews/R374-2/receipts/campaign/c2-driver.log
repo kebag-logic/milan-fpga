@@ -1,0 +1,6 @@
+control srp_top guards: rc=0 PASS
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+4 checks: 4 PASS, 0 FAIL
+DRIVER_RC=0

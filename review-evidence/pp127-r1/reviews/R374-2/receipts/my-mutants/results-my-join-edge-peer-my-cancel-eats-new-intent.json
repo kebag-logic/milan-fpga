@@ -1,0 +1,58 @@
+{
+ "my-join-edge-peer": {
+  "build": true,
+  "tally": [
+   "1987 checks: 1985 PASS, 2 FAIL"
+  ],
+  "exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": [
+   "FAIL: O3: peer at join delta=0 supersedes before acceptance on both planes",
+   "FAIL: O4: reuse peer delta=-1 wire flags require an uncanceled sLA (placed=1 actions=1 flags=1)"
+  ],
+  "probes": {
+   "r374r3": [
+    0,
+    "1 checks: 1 PASS, 0 FAIL"
+   ],
+   "r374r4": [
+    1,
+    "FAIL: R4: peer on/after the join clock but before sLA supersedes rel=0",
+    "2 checks: 1 PASS, 1 FAIL"
+   ],
+   "r374r5": [
+    1,
+    "FAIL: R5: peer on or before reuse acceptance supersedes delta=0",
+    "6 checks: 5 PASS, 1 FAIL"
+   ]
+  }
+ },
+ "my-cancel-eats-new-intent": {
+  "build": true,
+  "tally": [
+   "1987 checks: 1986 PASS, 1 FAIL"
+  ],
+  "exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": [
+   "FAIL: O2: canceled acceptance preserves the newer own intent exactly once"
+  ],
+  "probes": {
+   "r374r3": [
+    1,
+    "FAIL: R3: a newer expiry after a canceled preparation still yields one own sLA",
+    "1 checks: 0 PASS, 1 FAIL"
+   ],
+   "r374r4": [
+    0,
+    "2 checks: 2 PASS, 0 FAIL"
+   ],
+   "r374r5": [
+    0,
+    "5 checks: 5 PASS, 0 FAIL"
+   ]
+  }
+ }
+}

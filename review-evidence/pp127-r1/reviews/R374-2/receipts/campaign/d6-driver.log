@@ -1,0 +1,11 @@
+control srp_top congestion: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+9 checks: 9 PASS, 0 FAIL
+DRIVER_RC=0

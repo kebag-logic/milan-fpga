@@ -1,0 +1,55 @@
+{
+ "my-reuse-flags-ignore-cancel": {
+  "build": true,
+  "tally": [
+   "1987 checks: 1986 PASS, 1 FAIL"
+  ],
+  "exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": [
+   "FAIL: O4: reuse peer delta=0 wire flags require an uncanceled sLA (placed=1 actions=0 flags=1)"
+  ],
+  "probes": {
+   "r374r3": [
+    0,
+    "1 checks: 1 PASS, 0 FAIL"
+   ],
+   "r374r4": [
+    0,
+    "2 checks: 2 PASS, 0 FAIL"
+   ],
+   "r374r5": [
+    1,
+    "FAIL: R5: own LeaveAll flags on the wire only with an sLA strobe delta=1",
+    "5 checks: 4 PASS, 1 FAIL"
+   ]
+  }
+ },
+ "my-drop-join-during-wait": {
+  "build": true,
+  "tally": [
+   "1987 checks: 1986 PASS, 1 FAIL"
+  ],
+  "exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": [
+   "FAIL: O6: blocked cadence ticks coalesce into one immediate follow-up walk (ticks=1)"
+  ],
+  "probes": {
+   "r374r3": [
+    0,
+    "1 checks: 1 PASS, 0 FAIL"
+   ],
+   "r374r4": [
+    0,
+    "2 checks: 2 PASS, 0 FAIL"
+   ],
+   "r374r5": [
+    0,
+    "5 checks: 5 PASS, 0 FAIL"
+   ]
+  }
+ }
+}
