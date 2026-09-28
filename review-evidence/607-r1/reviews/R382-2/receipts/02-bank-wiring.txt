@@ -1,0 +1,20 @@
+# builder-bank wiring of the #607 shipping arm at f3bd6b66
+27557:def test_clock_crossing_constraints() -> None:
+27562:                       check=True, cwd=ROOT, timeout=2700)
+27575:               test_declaration_contracts, test_clock_crossing_constraints,
+def test_clock_crossing_constraints() -> None:
+    """Run shipping elaborations, scoped exceptions and implementation-log controls."""
+    python = _litex_or_skip("607 clock constraints")
+    if python is not None:
+        subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+                       check=True, cwd=ROOT, timeout=2700)
+
+# test_clock_constraints.py __main__ calls the shipping arm unconditionally:
+270:    from test_shipping_clock_constraints import test_shipping_constraints
+271:    test_shipping_constraints()
+# --require-elaboration refuses a NO_LITEX skip:
+23622:    missing = [(g, w) for g, w, k in skipped if k in (NO_LITEX, TOOLCHAIN)]
+# hosted elaborate step:
+260:        run: python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+# CI LiteX install source (no picolibc pin):
+sw/litex/litex_pins.txt:28:#   python3 -m pip install -r sw/litex/litex_pins.txt

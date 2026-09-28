@@ -1,0 +1,37 @@
+M00-control-unmutated: SURVIVED
+M01-keep-generic-mask: KILLED (rc=1) AssertionError: generic MultiReg false path in shipping XDC
+M02-bound-80ns: SURVIVED
+M03-swap-exclusions: SURVIVED
+M04-drop-hold-fp: SURVIVED
+M05-regex-no-critical: SURVIVED
+M06-drop-log-check: SURVIVED
+M07-hook-wrong-board: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M08-hook-fixed-port0: KILLED (rc=1) litex.build.generic_platform.ConstraintError: Resource not found: eth_clocks:0
+M09-milan-wrong-clkout: KILLED (rc=1) AssertionError: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout0] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw
+M10-drop-idelay-async: SURVIVED
+M11-platform-no-subclass: KILLED (rc=1) RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+M12-unguarded-qs: SURVIVED
+M13-drop-other-fp: SURVIVED
+M14-hook-after-opt: KILLED (rc=1) AssertionError: shipping hook outside pre-optimize
+M15-no-datapath-only: SURVIVED
+M16-no-async-group: SURVIVED
+M17-drop-inputs-fp: SURVIVED
+M18-ambiguous-accepted: SURVIVED
+M19-no-template-refusal: SURVIVED
+M20-drop-tdm-async: SURVIVED
+M21-call-deleted-in-guard: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M22-guard-and-not-mac: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M23-guard-board-arty: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M24-hook-only-port-e1: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M25-hook-duplicated: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: ['milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list mila
+M26-bounded-sys-only: KILLED (rc=1) AssertionError: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_m
+M27-hook-after-place: KILLED (rc=1) AssertionError: shipping hook outside pre-optimize
+M28-drop-5201-gate: SURVIVED
+M29-no-quarantine: SURVIVED
+M30-quarantine-not-on-missing-log: SURVIVED
+M31-quarantine-wrong-dir: SURVIVED
+M32-toolchain-swap-dropped-late: KILLED (rc=1) RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+
+real	0m28.864s
+user	2m55.414s
+sys	0m26.606s

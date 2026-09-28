@@ -1,0 +1,16 @@
+rc=0
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+constraint application failed (#607):
+$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/vivado.log:81: CRITICAL WARNING: [Vivado 12-4739] set_max_delay:No valid object(s) found for '-from [get_clocks wrong_clock_607]'. [$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/wrong.xdc:1]
+$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/vivado.log:85: CRITICAL WARNING: [Vivado 12-4739] set_clock_groups:No valid object(s) found for '-group [get_clocks wrong_clock_607]'. [$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/wrong.xdc:2]
+$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/vivado.log:87: CRITICAL WARNING: [Vivado 12-4739] set_clock_groups:No valid object(s) found for '-group '. [$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/wrong.xdc:2]
+$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/vivado.log:89: CRITICAL WARNING: [Vivado 12-5201] set_clock_groups: cannot set the clock group when only one non-empty group remains. [$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/wrong.xdc:2]
+$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/vivado.log:90: CRITICAL WARNING: [Designutils 20-1307] Command 'if' is not supported in the xdc constraint file. [$REVIEWS/607-r382-2-packet/scratch/live/tmp/constraint-live-gdqg5uwb/wrong.xdc:3]
+[constraints] live wrong clock and unsupported XDC control: vendor rc=0, build gate REFUSED
+
+real	0m35.631s
+user	0m41.251s
+sys	0m9.967s
+checkpoint sha256 before=5f7a442b6a9327ad5d41aa0b10e18c84d9ca4c0aacd573d2ad25d444f5b2f5d1 after=5f7a442b6a9327ad5d41aa0b10e18c84d9ca4c0aacd573d2ad25d444f5b2f5d1 UNCHANGED

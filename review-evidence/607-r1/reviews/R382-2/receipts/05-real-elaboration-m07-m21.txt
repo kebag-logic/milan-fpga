@@ -1,0 +1,42 @@
+== control (endstation_ax7101_1x1_tdm8)
+elaboration rc=0
+milan_eth_constraints lines: 1
+report_clock_interaction lines: 1
+generic MultiReg false path in XDC: 0
+order synth/hook/opt line numbers: 258/271/275
+committed builder-bank #607 test on this tree: PASS
+== M07-board-guard-disabled (endstation_ax7101_1x1_tdm8)
+elaboration rc=0
+milan_eth_constraints lines: 0
+report_clock_interaction lines: 0
+generic MultiReg false path in XDC: 1
+order synth/hook/opt line numbers: 258//274
+committed builder-bank #607 test on this tree: FAIL (AssertionError: shipping Ethernet hook missing or duplicated: [])
+== M21-call-deleted-in-guard (endstation_ax7101_1x1_tdm8)
+elaboration rc=0
+milan_eth_constraints lines: 0
+report_clock_interaction lines: 0
+generic MultiReg false path in XDC: 1
+order synth/hook/opt line numbers: 258//274
+committed builder-bank #607 test on this tree: FAIL (AssertionError: shipping Ethernet hook missing or duplicated: [])
+== control (endstation_ax7101_8x8)
+elaboration rc=0
+milan_eth_constraints lines: 1
+report_clock_interaction lines: 1
+generic MultiReg false path in XDC: 0
+order synth/hook/opt line numbers: 258/271/275
+committed builder-bank #607 test on this tree: PASS
+== M07-board-guard-disabled (endstation_ax7101_8x8)
+elaboration rc=0
+milan_eth_constraints lines: 0
+report_clock_interaction lines: 0
+generic MultiReg false path in XDC: 1
+order synth/hook/opt line numbers: 258//274
+committed builder-bank #607 test on this tree: FAIL (AssertionError: shipping Ethernet hook missing or duplicated: [])
+== M21-call-deleted-in-guard (endstation_ax7101_8x8)
+elaboration rc=0
+milan_eth_constraints lines: 0
+report_clock_interaction lines: 0
+generic MultiReg false path in XDC: 1
+order synth/hook/opt line numbers: 258//274
+committed builder-bank #607 test on this tree: FAIL (AssertionError: shipping Ethernet hook missing or duplicated: [])

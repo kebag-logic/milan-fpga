@@ -1,0 +1,11 @@
+rc=0 python3 -B scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 920 tracked first-party file(s))
+rc=0 python3 -B scripts/docs_check.py :: docs_check: 0 finding(s) across 172 md files + 922 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 python3 -B scripts/check_doc_paths.py :: doc path gate: OK (853 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0 python3 -B scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=0 python3 -B scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 python3 -B scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 805 file(s))
+rc=2 python3 -B scripts/check_em_dash.py --base 54ce877371ee6e8878cf67294e86c2a8481b62f6 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/
+rc=2 python3 -B scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdow
+rc=2 python3 -B scripts/gen_toc.py --verify-anchors :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdow
+rc=0 rtk proxy git diff --check 54ce877371ee6e8878cf67294e86c2a8481b62f6..HEAD :: 
+added-line em dash count 350af5dc..HEAD: 0

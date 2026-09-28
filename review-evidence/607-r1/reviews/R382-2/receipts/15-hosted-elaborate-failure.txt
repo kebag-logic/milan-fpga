@@ -1,0 +1,102 @@
+# hosted job elaborate (run 36418013981, job 108913705616) at f3bd6b66: failed-step log, ANSI stripped, CPU-generator and SoC-hierarchy listings elided
+ ##[group]Run python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+^[[36;1mpython3 sw/builder/test_builder.py --require-elaboration --require-rv32^[[0m
+shell: /usr/bin/bash -e {0}
+env:
+  VERILATOR_VERSION: v5.050
+  pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+  PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+  Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+  Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+  Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+  LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+##[endgroup]
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+[constraints] /tmp/constraint-log-1re7envq/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] /tmp/constraint-log-1re7envq/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_clock_constraints.py", line 271, in <module>
+    test_shipping_constraints()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 82, in test_shipping_constraints
+    assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: info] loading settings for project all from build.sbt ...
+[success] Total time: 7 s, completed Sep 28, 2026, 11:53:53 AM
+
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 98, in <module>
+    elaborate_shipping(args.config, args.port, args.output_dir)
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 66, in elaborate_shipping
+    milan_soc.main()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/litex/milan_soc.py", line 3955, in main
+    builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_shipping_clock_constraints.py", line 38, in build
+    namespace = super().build(**kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 521, in build
+    return self._build(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 563, in _build
+    self._generate_includes(with_bios=with_bios)
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 301, in _generate_includes
+    variables_contents = self._get_variables_contents()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 260, in _get_variables_contents
+    picolibc_directory    = remap_path(get_data_mod("software", "picolibc").data_location)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/litex/__init__.py", line 30, in get_data_mod
+    raise ImportError("""\
+ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+No module named 'pythondata_software_picolibc'
+
+You can install this by running;
+ pip3 install git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
+
+Traceback (most recent call last):
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_builder.py", line 27651, in <module>
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_gptp_rom_clock:
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_extra_sweep_clocks:
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+test_tap_clock_docs:
+[clock contract] 5 tap conversions and presence declarations match configurations
+test_declaration_contracts:
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+test_clock_crossing_constraints:
+    fn()
+  File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_builder.py", line 27561, in test_clock_crossing_constraints
+    subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python3', '<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_clock_constraints.py']' returned non-zero exit status 1.
+##[error]Process completed with exit code 1.

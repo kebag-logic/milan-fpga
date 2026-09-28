@@ -1,0 +1,23 @@
+# unmodified head copy: $HOME/litex-milan/venv/bin/python3 -B sw/builder/test_clock_constraints.py (bank entry), rc=0
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+[constraints] <scratch>/constraint-log-xwb8areh/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] <scratch>/constraint-log-xwb8areh/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+
+real	0m8.494s
+user	0m7.600s
+sys	0m0.877s
+# tracked-file status of the copy after the run (ignored outputs only):
+!! configs/generated/ltn_rom.hex
+!! configs/generated/ucode.hex
+!! sw/builder/out/

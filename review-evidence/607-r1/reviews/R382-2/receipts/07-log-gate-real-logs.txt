@@ -1,0 +1,12 @@
+build_ax7101_eto_tdm8dev9e9954e9: REFUSED findings=14 {'Designutils 20-1307': 2, 'Vivado 12-4739': 10, 'Vivado 12-5201': 2}; files after gate: ['alinx_ax7101.bit.rejected']
+[constraints] scratch/logs/gate-build_ax7101_asl_350af5dcf/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+build_ax7101_asl_350af5dcf: ACCEPTED; files after gate: ['alinx_ax7101.bit']
+[constraints] scratch/logs/gate-build_ax7101_eto_350af5dcf/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+build_ax7101_eto_350af5dcf: ACCEPTED; files after gate: ['alinx_ax7101.bit']
+[constraints] scratch/logs/gate-build_ax7101_eppo_350af5dcf/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+build_ax7101_eppo_350af5dcf: ACCEPTED; files after gate: ['alinx_ax7101.bit']
+synthetic-12-5201-WARNING: REFUSED findings=1 {'Vivado 12-5201': 1}; files after gate: ['alinx_ax7101.bit.rejected']
+synthetic-12-5201-CRITICAL_WARNING: REFUSED findings=1 {'Vivado 12-5201': 1}; files after gate: ['alinx_ax7101.bit.rejected']
+synthetic-12-5201-ERROR: REFUSED findings=1 {'Vivado 12-5201': 1}; files after gate: ['alinx_ax7101.bit.rejected']
+[constraints] scratch/logs/gate-synthetic-12-5201-INFO/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+synthetic-12-5201-INFO: ACCEPTED; files after gate: ['alinx_ax7101.bit']

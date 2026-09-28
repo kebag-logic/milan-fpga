@@ -1,0 +1,37 @@
+M00-control-unmutated: SURVIVED
+M01-keep-generic-mask: KILLED (rc=1) AssertionError
+M02-bound-80ns: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M03-swap-exclusions: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M04-drop-hold-fp: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M05-regex-no-critical: KILLED (rc=1) AssertionError: accepted Vivado 12-4739
+M06-drop-log-check: KILLED (rc=1) AssertionError
+M07-hook-wrong-board: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M08-hook-fixed-port0: KILLED (rc=1) litex.build.generic_platform.ConstraintError: Resource not found: eth_clocks:0
+M09-milan-wrong-clkout: KILLED (rc=1) AssertionError
+M10-drop-idelay-async: KILLED (rc=1) AssertionError
+M11-platform-no-subclass: KILLED (rc=1) RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+M12-unguarded-qs: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M13-drop-other-fp: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M14-hook-after-opt: KILLED (rc=1) AssertionError
+M15-no-datapath-only: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M16-no-async-group: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M17-drop-inputs-fp: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M18-ambiguous-accepted: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M19-no-template-refusal: SURVIVED
+M20-drop-tdm-async: KILLED (rc=1) AssertionError
+M21-call-deleted-in-guard: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M22-guard-and-not-mac: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M23-guard-board-arty: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M24-hook-only-port-e1: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M25-hook-duplicated: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: ['milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list mila
+M26-bounded-sys-only: KILLED (rc=1) AssertionError
+M27-hook-after-place: KILLED (rc=1) AssertionError
+M28-drop-5201-gate: KILLED (rc=1) AssertionError: accepted Vivado 12-5201
+M29-no-quarantine: KILLED (rc=1) AssertionError: refused bitstream remains discoverable
+M30-quarantine-not-on-missing-log: KILLED (rc=1) AssertionError: missing log left discoverable bitstream
+M31-quarantine-wrong-dir: KILLED (rc=1) AssertionError: refused bitstream remains discoverable
+M32-toolchain-swap-dropped-late: KILLED (rc=1) RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+
+real	0m10.285s
+user	0m38.221s
+sys	0m13.871s
