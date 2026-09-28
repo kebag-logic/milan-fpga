@@ -1,0 +1,13 @@
+python3 scripts/docs_check.py rc=0
+python3 scripts/check_doc_paths.py rc=0
+python3 scripts/check_doc_style.py rc=0
+python3 scripts/check_hygiene.py --check rc=0
+python3 scripts/check_cpp_idiom.py rc=0
+python3 scripts/check_py_idiom.py rc=0
+python3 scripts/measure_test_evidence.py --check rc=0
+python3 scripts/check_rtl_source_lists.py rc=0
+python3 scripts/check_sv_idiom.py rc=0
+git diff --check base..head rc=0
+make -C tb/verilator/tkdiag rc=0 (receipts/tkdiag_make.log)
+<pinned-renderer python 3.14.7 env> scripts/check_em_dash.py --base 6d5ebd73... rc=0
+<pinned-renderer python 3.14.7 env> scripts/gen_toc.py --check rc=0

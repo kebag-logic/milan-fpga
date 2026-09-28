@@ -1,0 +1,17 @@
+O0_clean	optoff	new	0	234	0	
+O1_adjtime_only	optoff	new	1	234	1	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+O2_settime_only	optoff	new	1	234	2	CLKV: the settime leaves mr unchanged (#602) | CLKV: settime adds no MEDIA_RESET (#602)
+O3_both	optoff	new	1	234	3	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | CLKV: the settime leaves mr unchanged (#602) | CLKV: settime adds no MEDIA_RESET (#602)
+O4_mr_resets_high	optoff	new	0	234	0	
+O5_adjtime_delay16	optoff	new	1	234	1	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+O6_adjtime_delay256	optoff	new	1	234	1	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+O7_adjtime_delay4096	optoff	new	1	234	1	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+O8_adjtime_delay65536	optoff	new	1	234	1	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+OH0_clean_oldharness	optoff	old	0	234	0	
+OH5_delay16_oldharness	optoff	old	0	234	0	
+OH6_delay256_oldharness	optoff	old	0	234	0	
+G0_clean	gmstep	new	0	103	0	
+G1_rebase_restored	gmstep	new	1	103	2	restart: a PHC-only step leaves outgoing mr unchanged | restart: a PHC-only step adds no MEDIA_RESET
+G2_suppress_on_rebase	gmstep	new	1	103	1	coincident: a PHC step does not suppress the CRF restart
+G3_crf_propagation_removed	gmstep	new	1	103	2	CRF control: selected CRF mr propagates exactly once | coincident: a PHC step does not suppress the CRF restart
+G4_settime_restored	gmstep	new	0	103	0	
