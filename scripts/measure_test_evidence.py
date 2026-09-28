@@ -594,6 +594,12 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "protocol-processor/tb/acmp_talker/retry_mutants.py":
+        "mutation campaign; plants named defects in a scratch copy and requires named assertion "
+        "failures from completed cycle-bounded simulations; reads no expected behavior from RTL",
+    "protocol-processor/tb/desc_store/test_gen_desc_image.py":
+        "unit test of the descriptor packer; it imports the generator by path "
+        "to call build() and its CLI on synthetic models and reads no expectation from source",
     "protocol-processor/tb/pp_top/name_wr_mutant.py":
         "mutation campaign; removes the accepted name-write export in a copy "
         "and requires the named pulse check to fail",

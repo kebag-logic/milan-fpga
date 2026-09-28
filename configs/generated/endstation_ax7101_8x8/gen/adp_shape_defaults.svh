@@ -35,6 +35,7 @@
   //! one media-clock-reference record per domain.
   localparam int AEM_N_AUDIO_UNIT_C = 1;
   localparam int AEM_N_CLKDOM_C     = 1;
+  localparam int AEM_N_CONTROL_C    = 1;
   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
   //! exists to back it

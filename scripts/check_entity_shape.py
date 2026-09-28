@@ -155,6 +155,7 @@ ROOT = Path(__file__).resolve().parent.parent
 #: two names always spell the tree's own sources.
 DATAPATH = ROOT / "hdl/milan/milan_datapath.sv"
 CSR = ROOT / "hdl/common/csr/milan_csr.sv"
+PP_SHADOW = ROOT / "hdl/milan/KL_pp_shadow.sv"
 CONFIG_DIR = ROOT / "configs"
 #: What a per-config `gen/` include dir may hold. adp_shape_defaults.svh is
 #: the ONE generated entity artifact any RTL still compiles; aecp_aem_rom.svh
@@ -166,6 +167,12 @@ GEN_DIR_FORBIDDEN = ("aecp_aem_rom.svh",)
 # IEEE 1722.1-2021 Table 7.1 descriptor types
 ENTITY = 0x0000
 STREAM_INPUT, STREAM_OUTPUT = 0x0005, 0x0006
+# Descriptor census -> header -> wrapper -> processor dynamic-state rows.
+UNIT_COUNTS = (
+    ("AUDIO_UNIT", 0x0002, "AEM_N_AUDIO_UNIT_C", "N_AUDIO_UNIT_P", "N_AUDIO_UNIT_P"),
+    ("CLOCK_DOMAIN", 0x0024, "AEM_N_CLKDOM_C", "N_CLK_DOM_P", "N_CLK_DOMAIN_P"),
+    ("CONTROL", 0x001A, "AEM_N_CONTROL_C", "N_CONTROL_P", "N_CONTROL_P"),
+)
 
 #: IEEE 1722.1-2021 7.2.1 Table 7-2: the ENTITY descriptor's firmware_version
 #: field sits at offset 116 and is 64 octets - "64-octet UTF-8 string
@@ -362,6 +369,39 @@ def check_include_ambiguity() -> None:
 
 
 # ------------------------------------------------------ RTL consumption --
+def check_unit_bindings(datapath: str, shadow: str) -> None:
+    """Require both real instance maps to forward each symbolic count once.
+
+    Equal shipping counts cannot expose a swapped pair numerically. Inspect
+    the named expressions, after removing comments, instead of accepting any
+    expression that happens to evaluate to one at today's shape.
+    """
+    for source, module, instance, hop in (
+            (datapath, "KL_pp_shadow", "pp_shadow", 0),
+            (shadow, "protocol_processor_top", "u_pp", 1)):
+        source = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
+        blocks = re.findall(rf"\b{module}\s*#\s*\((.*?)\)\s*{instance}\s*\(",
+                            source, re.S)
+        ck(f"{instance}: exactly one parameter map", len(blocks), 1)
+        for _kind, _dtype, header, wrapper, processor in UNIT_COUNTS:
+            parameter, expected = ((wrapper, header) if hop == 0 else
+                                   (processor, wrapper))
+            values = re.findall(rf"\.{parameter}\s*\(\s*([^()]*)\s*\)",
+                                blocks[0] if len(blocks) == 1 else "")
+            ck(f"{instance}.{parameter} derives from {expected}",
+               [value.strip() for value in values], [expected])
+
+
+def check_unit_header(header: str, counts: dict[str, int], label: str) -> None:
+    """Each generated count equals the descriptor census and is nonzero."""
+    for kind, _dtype, symbol, _wrapper, _processor in UNIT_COUNTS:
+        values = re.findall(rf"localparam\s+int\s+{symbol}\s*=\s*(\d+)\s*;",
+                            header)
+        ck(f"{label}: {symbol} == {kind} census",
+           [int(value) for value in values], [counts[kind]])
+        ck(f"{label}: {kind} has at least one descriptor", counts[kind] >= 1, True)
+
+
 def check_rtl_wiring() -> None:
     """F: the RTL CONSUMES the generated shape and serves it read-only.
 
@@ -370,6 +410,7 @@ def check_rtl_wiring() -> None:
     no path exists for software to overwrite them."""
     print("== RTL: the shape is included from the config, and is read-only ==")
     dp = read_text(RTL.datapath)
+    check_unit_bindings(dp, read_text(PP_SHADOW))
     ck("milan_datapath includes the generated shape",
        '`include "gen/adp_shape_defaults.svh"' in dp, True)
     ck("ACMP talker contexts sized by ADP_TALKER_SRC_C",
@@ -514,6 +555,7 @@ def check_config(builder: ModuleType,
     # counts ARE the STREAM_OUTPUT/STREAM_INPUT descriptor counts)
     ovl = builder.emit_aem_overlay(cfg)
     dc, ec = ovl["descriptor_counts"], ovl["entity_counts"]
+    check_unit_header(adp_svh, dc, name)
     ck(f"{name}: overlay entity_counts.talker == STREAM_OUTPUT",
        ec["talker_stream_sources"], dc["STREAM_OUTPUT"])
     ck(f"{name}: overlay entity_counts.listener == STREAM_INPUT",
@@ -530,6 +572,8 @@ def check_config(builder: ModuleType,
     # arm A are derived from that same model. A model that disagrees with
     # itself produces an ADP count nobody should trust.
     rom = rom_descriptor_counts(builder.emit_aem_rom_svh(cfg, ovl))
+    for kind, dtype, _symbol, _wrapper, _processor in UNIT_COUNTS:
+        ck(f"{name}: generated ROM {kind} descriptors", rom.get(dtype, 0), dc[kind])
     ck(f"{name}: generated ROM STREAM_OUTPUT descriptors",
        rom.get(STREAM_OUTPUT, 0), got["talker_stream_sources"])
     ck(f"{name}: generated ROM STREAM_INPUT descriptors",

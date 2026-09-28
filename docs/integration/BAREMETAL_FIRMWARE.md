@@ -19,12 +19,12 @@ The capability rows on this page are checked against the
 
 ## Contents
 
-- **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
-- **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
-- **[Saved state: the flash writer](#saved-state-the-flash-writer)** — The boot validation of the two journal slots, the staged KLJ2 container and the control tuple, the heartbeat and debounced A/B commit, and the host model that grades all of it per shape.
-- **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and the ownerless verification-only option-off elaboration.
-- **[UART commands](#uart-commands)** — The status, TAI set/get, explicit UTC conversion and saved-state slot commands, followed by the non-disruptive bench smoke invocation.
-- **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
+- **[Build contract](#build-contract)** -- The checked shipping shape, its cacheless one-hart RV32I invariants, the shared Milan/CPU clock boundary and the configuration-owned gPTP ROM.
+- **[Boot and AEM image](#boot-and-aem-image)** -- The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
+- **[Saved state: the flash writer](#saved-state-the-flash-writer)** -- The boot validation of the two journal slots, the staged KLJ2 container and the control tuple, the heartbeat and debounced A/B commit, and the host model that grades all of it per shape.
+- **[Fabric gPTP option](#fabric-gptp-option)** -- The default fabric owner, generated microcode, and the ownerless verification-only option-off elaboration.
+- **[UART commands](#uart-commands)** -- The status, TAI set/get, explicit UTC conversion and saved-state slot commands, followed by the non-disruptive bench smoke invocation.
+- **[Verification gates](#verification-gates)** -- The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
 
 ## Build contract
 
@@ -35,19 +35,25 @@ The authoritative product shape is
 
 - CPU is VexiiRiscv, XLEN is 32, and `cpu_count` is one.
 - `l2_bytes` is zero, and no Scala overrides are present.
+- The effective Milan/CPU clock equals the shared contract clock.
 
 The builder also restricts `flashboot` to `baremetal` or `none`.
 `milan_soc.py` additionally refuses an FPU.
 
-The 50 MHz target is not checked by either tool.
-For clocks, the builder only requires `milan_clk_hz <= sys_clk_hz`.
-Clock enforcement is tracked in [#582](https://github.com/kebag-logic/milan-fpga/issues/582).
+The clock's single definition is `CPU_HZ` in
+[`recipe.py`](../../tb/verilator/nvm_capture_cpu/recipe.py).
+Both tools import it and issue a named `baremetal clock` refusal.
+The builder checks `milan_clk_hz` before writing artifacts.
+The SoC checks the effective clock before constructing the platform.
+Without `--milan-clk-freq`, that clock is `--sys-clk-freq`.
+The builder also requires `milan_clk_hz <= sys_clk_hz`.
+The recipe stays unchanged because the capture receipt hashes it.
 
 The product contract also requires these properties:
 
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
-- The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
+- The cacheless CPU side and the 64-bit Milan plane run at the contract clock. Vexii's
   decoupled-clock option crosses the CPU's peripheral bridge and DMA slave
   back into the 100 MHz LiteX system fabric; its memory master stays on the
   CPU clock, and `sw/litex/milan_soc.py` crosses that port before LiteDRAM
@@ -57,9 +63,9 @@ The product contract also requires these properties:
   unchanged.
 - `board.features.fabric_gptp` is true and a `gptp:` section is present. The
   builder emits `--fabric-gptp` and generates `gptp_ucode.hex` from that same
-  configuration's station MAC, priority1 and 50 MHz Milan clock.
+  configuration's station MAC, priority1 and checked Milan clock.
 
-The [8x8 shape](../../configs/endstation_ax7101_8x8.yaml) also declares 50 MHz ([#565](https://github.com/kebag-logic/milan-fpga/issues/565)).
+The [8x8 shape](../../configs/endstation_ax7101_8x8.yaml) also declares the contract clock ([#565](https://github.com/kebag-logic/milan-fpga/issues/565)).
 That declaration states the target, without claiming timing closure.
 No cacheless 8x8 placement or routing record exists.
 
@@ -1890,9 +1896,14 @@ map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 console command that itself runs for more than the 2,000 ms liveness deadline
 lets `nvm_backed` lapse until the prompt returns; with nothing outstanding the
 next heartbeat heals it, with a change outstanding `nvm_stale` records the gap.
+Queued input also suppresses the idle hook between commands.
+Several short commands can therefore exceed that same liveness deadline.
+[The service-budget measurements](../findings/397_SERVICE_BUDGET.md) reproduce this at both shapes.
+[Issue #590](https://github.com/kebag-logic/milan-fpga/issues/590) owns dispatch and long-walk tick opportunities.
 The hook heartbeats every 250 ms, half the section 9.4
 maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
-window (1,000 ms, the provisional value section 14 leaves open) with no record
+window (1,000 ms, the first-dirty policy ruled by
+[D3 DR2a](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register)) with no record
 operation and no commit bracket in flight, it commits: the container is sealed
 under the next sequence, validated in memory (a torn record defers the commit
 rather than opening a bracket over it), the bracket is opened, the
@@ -1904,6 +1915,20 @@ deadline lapse. A failed erase, program or read-back publishes `VD_ERASE`,
 `VD_PROGRAM` or `VD_VERIFY` through the store's verdict nibble and withholds
 the acknowledgement, so the commit deadline revokes the durability claim
 instead of the firmware asserting one.
+
+The adopted D3 transaction retry policy still requires implementation.
+[D3 DR2c](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) permits three attempts per unchanged captured work set.
+The count includes the initial attempt; failed attempts wait 1,000 ms.
+The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) names only the port's `nvm_alarm`.
+It is the only reset-sticky alarm; no status bit is added.
+Firmware transaction exhaustion has no alarm of its own.
+It reports `VD_*` verdict loss and never ACKs the failed slot.
+[FASTCONNECT section 9.2](../design/SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) owns the resulting `nvm_stale=1` and recovery.
+That producer record stays un-ACKed; exhausting its attempts raises `nvm_alarm`.
+Its limit remains three attempts, separated by 500 ms.
+A later successful commit clears `nvm_stale` under section 9.2's condition.
+It never clears `nvm_alarm`; an asserted alarm retains loss.
+[D3 lane 2](../design/SAVED_STATE_MATERIALIZATION.md#182-lane-2-parent-scalars-and-restored-ptof) owns that change and its controls.
 
 **What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`
 compiles this translation unit unchanged against stub headers and a host

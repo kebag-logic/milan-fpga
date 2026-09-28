@@ -7424,7 +7424,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .N_SPORT_IN_P        (ADP_DMAP_IN_NPORTS_C),
       .N_SPORT_OUT_P       (ADP_DMAP_OUT_NPORTS_C),
       .N_AUDIO_UNIT_P      (AEM_N_AUDIO_UNIT_C),
-      .N_CLK_DOM_P         (AEM_N_CLKDOM_C)
+      .N_CLK_DOM_P         (AEM_N_CLKDOM_C),
+      //! IDENTIFY CONTROL rows in the processor use that same census.
+      .N_CONTROL_P         (AEM_N_CONTROL_C)
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),

@@ -66,6 +66,11 @@ except ImportError:  # pragma: no cover
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 
+# Keep the capture receipt's hashed recipe as the single clock authority.
+sys.path.insert(0, str(ROOT))
+from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # noqa: E402
+from sw.builder import aem_image_checks  # noqa: E402
+
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
 EUI64_MAX = (1 << 64) - 1
@@ -2300,6 +2305,11 @@ def _entity_model_image(cfg, overlay):
     blob, report = _img.build(
         _join.model_to_document(model, _join.identity_from_overlay(overlay)),
         576)
+    # Check the packed bytes served by the store, after every producer ran.
+    try:
+        aem_image_checks.validate_shipping_image(blob)
+    except aem_image_checks.ImageCheckError as exc:
+        raise ConfigError(f"aem_desc.bin: {exc}") from exc
     base = int(cfg["platform"]["pp_mem_phys"])
     manifest = {
         "desc_base": base,
@@ -2776,11 +2786,10 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
     a("  //! This sizes the processor overlay from the generated descriptor")
     a("  //! shape, so a larger model cannot compile with a smaller cache.")
     a(f"  localparam int AEM_NAME_ENTRIES_C = {aem_name_entries};")
-    # The two descriptor counts the saved-state record allocation is sized
-    # by and nothing else in the fabric had needed until now (design page
-    # section 4.2: one RATE record per AUDIO_UNIT, one CLKSRC and one MCR
-    # record per CLOCK_DOMAIN). Read from the overlay's descriptor_counts,
-    # the same pass that emitted the descriptors, never a hand literal.
+    # Saved-state allocation and processor dynamic-state rows share this
+    # census. _overlay_document always constructs one AUDIO_UNIT, CLOCK_DOMAIN
+    # and IDENTIFY CONTROL (Milan v1.2 section 5.3.3); no config can omit them.
+    # Read the counts from the descriptor pass, never the processor defaults.
     dc = overlay["descriptor_counts"]
     a("  //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:")
     a("  //! the saved-state record allocation (KL_nvm_backend) is sized by")
@@ -2788,6 +2797,7 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
     a("  //! one media-clock-reference record per domain.")
     a(f"  localparam int AEM_N_AUDIO_UNIT_C = {int(dc.get('AUDIO_UNIT', 0))};")
     a(f"  localparam int AEM_N_CLKDOM_C     = {int(dc.get('CLOCK_DOMAIN', 0))};")
+    a(f"  localparam int AEM_N_CONTROL_C    = {int(dc['CONTROL'])};")
     a("  //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |")
     a("  //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT")
     a("  //! exists to back it")
@@ -4289,10 +4299,14 @@ def _load_soc(cfg, cons):
         raise ConfigError("soc.xlen must be 32 or 64")
     soc["xlen"] = int(soc["xlen"])
     if soc["software_profile"] == "baremetal":
+        if cons["milan_clk_hz"] != BAREMETAL_CLK_HZ:
+            raise ConfigError(
+                f"baremetal clock: milan_clk_hz must be {BAREMETAL_CLK_HZ} Hz "
+                "(docs/integration/BAREMETAL_FIRMWARE.md build contract)")
         if soc["cpu"] != "vexiiriscv" or soc["xlen"] != 32 or soc["cpu_count"] != 1:
             raise ConfigError("baremetal SoC requires VexiiRiscv RV32 and one hart")
         if cons["l2_bytes"] != 0 or soc["scala_args"]:
-            raise ConfigError("baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args")
+            raise ConfigError("baremetal SoC requires l2_bytes: 0 and no scala_args overrides")
         if cons["flashboot"] not in ("baremetal", "none"):
             raise ConfigError("baremetal SoC requires flashboot: baremetal (or none)")
     return soc
