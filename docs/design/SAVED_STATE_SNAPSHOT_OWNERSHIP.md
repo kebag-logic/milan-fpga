@@ -185,7 +185,7 @@ page's.
 - **[17. Consequences](#17-consequences)** -- What the contract changes and costs.
 - **[18. Cost](#18-cost)** -- Measured area and firmware size, derived timing.
 - **[19. The executable model and its omissions](#19-the-executable-model-and-its-omissions)** -- Scope and totals.
-- **[20. UNRESOLVED](#20-unresolved)** -- Seven items this contract does not settle.
+- **[20. UNRESOLVED](#20-unresolved)** -- Eight items this contract does not settle.
 - **[21. Traceability](#21-traceability)** -- Acceptance bullets, obligations and review findings mapped to sections.
 
 ## 1. Context
@@ -1090,6 +1090,22 @@ implements it:
    verified slot stands (its content is an attested capture) and the captured
    work stays owned, so the next commit captures it again.
 
+D3 adds a transaction retry policy to this ownership sequence.
+[D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) permits at most three attempts per unchanged captured work set.
+That count includes the first START and two further STARTs.
+Failed transactions wait 1,000 ms before another transaction attempt.
+The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) adds no firmware alarm or status bit.
+Only the port's `nvm_alarm` is reset-sticky.
+Firmware transaction exhaustion reports `VD_*` loss and never ACKs failure.
+[FASTCONNECT section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) owns the resulting `nvm_stale=1` and recovery.
+The producer record remains un-ACKed; exhausting its attempts raises `nvm_alarm`.
+Its limit remains three attempts, separated by 500 ms.
+A later successful commit clears `nvm_stale` under section 9.2's condition.
+It never clears `nvm_alarm`; its asserted level retains loss.
+Capture refusals before START remain distinct from media transaction failures.
+Their next-service retry does not authorize another media transaction.
+Lane 2 implements the bound; this historical sequence does not prove it.
+
 The backend never touches the stage. After the attestation nothing the
 producer does can change what is sealed, programmed or compared: updates land
 in the live window during the verify (A2) and during a 3 s erase (A9) and are
@@ -1281,10 +1297,11 @@ UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
 scope D2 landed. Issue #502 makes accepted live writes sticky instead.
 They still lack a writer, which is the same UNRESOLVED 1.
 
-A writer for every NONE row is proposed on its own page,
-[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500,
-PROPOSED): one processor-side record writer behind the same port, so this
-contract applies to its records unchanged.
+The non-binding writer contract is accepted under #70 lane 0.
+[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) owns its live-write groups and retirement.
+It uses one processor-side writer behind the same port.
+This snapshot contract applies unchanged to those records.
+SUID/MCR reservations stay erased; implementation remains open.
 
 ## 12. The section 9.2 revocation discrepancy
 
@@ -1330,7 +1347,9 @@ alarm is sticky in the donor until reset, so after a retry exhaustion the
 entity reads nvm_backed 0 and nvm_stale 1 until reset, which is the honest
 reading of a lost change. It stays so even after the same sink is rewritten
 and committed later: a permanent false negative, never a false durable claim.
-Whether and when the alarm may be forgiven is UNRESOLVED 7. The JEDEC cause has no reporter at the current
+[D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules that lifetime: only reset clears the alarm.
+Section 20 item 7 records that disposition.
+The JEDEC cause has no reporter at the current
 source (the writer performs no identity check): UNRESOLVED 5. EXECUTED
 controls: M12_alarm_not_revoking is killed by B1 : alarm_revokes@end and
 M13_report_not_revoking by F2 : failure_revokes.
@@ -1400,14 +1419,13 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   [section 12.1](SAVED_STATE_FASTCONNECT.md#121-the-inventory-derived-from-the-donor)
   of the saved-state page.
 
-**D3, materialization of the non-binding fields. STILL OPEN** -- the only
-donor dependency of this contract that is. Not settled here and not
-only an interface: a record writer must exist for every NONE row of section
-11 before those fields can reach a slot at all. Whether it is a donor-side
-manager per group or a parent-side writer behind a second device-face
-initiator is its own scope: UNRESOLVED 1. Its proposal, one donor-side
-writer for every group behind the one port, is
-[Saved-state materialization, section 3](SAVED_STATE_MATERIALIZATION.md#3-decision).
+**D3, materialization: ACCEPTED contract; implementation STILL OPEN.**
+The [D3 decision](SAVED_STATE_MATERIALIZATION.md#3-decision) chooses one processor-side writer.
+It shares the existing port with the binding manager.
+Its [trigger table](SAVED_STATE_MATERIALIZATION.md#31-accepted-live-write-groups) supersedes mark-based selection.
+Its [retirement rule](SAVED_STATE_MATERIALIZATION.md#7-the-clear-rule) replaces sticky sources stage by stage.
+Neither adoption nor pending reporting proves those fields persist.
+Reserved SUID/MCR spans remain erased, without a mutable source.
 
 **No donor dependency** for the hold (KL_pp_nvm_port holds dev_req_o until
 dev_gnt_i by its own stated contract and has no grant timeout; EXECUTED with
@@ -1753,8 +1771,10 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    sampling rate, clock source, stream formats, presentation time offset,
    channel maps or names at the current source; only bindings have a writer.
    The pending bit reports the dynamic-state fields truthfully (1 until
-   reset); making them durable needs scope D3, which is proposed in
-   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500).
+   reset); making them durable needs the accepted D3 contract in
+   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md), under #70.
+   Its implementation remains open; its policy register records manager rulings.
+   DR3a still requires measured deadline ratification before lane 2 implements.
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
    `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
@@ -1792,14 +1812,15 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    These measurements do not establish a general contention bound.
    Instruction/access cost factors and the blanket twofold penalty are retired.
    Physical memory-port ordering remains unmeasured under section 19.
-   Debounce remains open under
-   [section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide).
-7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
-   exhaustion holds nvm_backed at 0 and nvm_stale at 1 until reset, even
-   after the same sink is later rewritten and committed (section 12). That
-   is a permanent false negative, never a false durable claim. A donor-side
-   alarm clear, or a backend rule that forgives the alarm after a later
-   verified commit of the record, is not defined here.
+   Debounce policy is ruled under
+   [D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
+   Each writer lane still owes measured normal-load durability.
+7. **RULED: alarm lifetime.** [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) keeps `nvm_alarm` until reset.
+   Producer exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1.
+   A later successful commit or heartbeat never clears `nvm_alarm`.
+   Firmware exhaustion alone is verdict loss without ACK, not another alarm.
+   [FASTCONNECT section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) clears `nvm_stale` after successful recovery.
+   Section 12's revocation remains binding.
 8. A writer disabled for a SHAPE or TAG mismatch (section 14) keeps
    heartbeating, so it reads as a live writer that never commits: (backed 1,
    dirty 0 or 1, stale 0) with pend 1. It is the TAG mismatch alone: on a
@@ -1840,6 +1861,9 @@ Physical timing and memory ordering remain UNRESOLVED 6.
     backend accepted the load, so a boot that validated nothing no longer
     re-attaches at all; a boot that DID accept its load still re-attaches over
     a window this page cannot prove survived the restart.
+    [D3 DR3b](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) selects coupled CPU and fabric resets.
+    That restriction remains until O4 retention is physically proven.
+    Implementation and physical evidence remain owed by lane 2.
 
 11. **A record closed across a refused load's fill stays closed until a
     producer rewrites it or the fabric is reset** (revision d, from the second
@@ -1902,7 +1926,7 @@ are N1 to N5, the POSITIVE review's P1 to P5 and its suggestions PS1 to PS4):
 | The boot order of section 7 step 1 (N4) | The executed order, step by step | 7 | R1, W1 |
 | The owner's confirmation is not cited (PS3) | Cited | the status block | - |
 | "far below 50 ms" carries no number (PS2) | The measured instruction count and a derived time | 18, 20 (item 6) | - |
-| Alarm forgiveness (PS1, and a suggestion of the NEGATIVE review) | UNRESOLVED 7 | 12, 20 | - |
+| Alarm forgiveness (PS1, and a suggestion of the NEGATIVE review) | RULED by D3 DR2c; reset only | 12, 20 item 7 | - |
 | "record 0x30 erased in every slot" (PS4) | Stated per build | 11 | E1 |
 
 The re-review at `53b2026e`, revision b (the NEGATIVE review's findings are
