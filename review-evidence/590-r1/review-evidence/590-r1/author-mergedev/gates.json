@@ -1,0 +1,335 @@
+[
+  {
+    "name": "host",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 58.603,
+    "path": "logs/gate-host.log",
+    "size": 4264,
+    "sha256": "92060ff8832d14a204f065252c610cf6f2ce39441d7105f902ca42b9794ed6e6"
+  },
+  {
+    "name": "capture-receipt",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 0.686,
+    "path": "logs/gate-capture-receipt.log",
+    "size": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+  },
+  {
+    "name": "kept-native-capture-oracles",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/590-a411/verify_packet.py"
+    ],
+    "rc": 0,
+    "seconds": 0.107,
+    "path": "logs/gate-kept-native-capture-oracles.log",
+    "size": 68,
+    "sha256": "f2881da4e6654350e66225cb7f28d0c7e08444883370d6412a354bdcee6c9e09"
+  },
+  {
+    "name": "service-selftest",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.57,
+    "path": "logs/gate-service-selftest.log",
+    "size": 259,
+    "sha256": "d58286440932d69e08997e422d58ad48b55d7c75bd86d427f639003c3b45673b"
+  },
+  {
+    "name": "ci-scope",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.628,
+    "path": "logs/gate-ci-scope.log",
+    "size": 5837,
+    "sha256": "ca1e05049a07662ce0e7a175af17fb7f24ac0e8b3eaa94b2c97830d12edcf628"
+  },
+  {
+    "name": "docs",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.363,
+    "path": "logs/gate-docs.log",
+    "size": 127,
+    "sha256": "4b9b64c601b52f76548b7d88dab5ac1fcf739966bc1dd70b999a2745c8eeb7a3"
+  },
+  {
+    "name": "doc-paths",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.065,
+    "path": "logs/gate-doc-paths.log",
+    "size": 84,
+    "sha256": "8554ae954d5961bfed36a235f36ca200db53e25387ff04b1178cee4759fb05ae"
+  },
+  {
+    "name": "doc-style",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.047,
+    "path": "logs/gate-doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "name": "archive",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.284,
+    "path": "logs/gate-archive.log",
+    "size": 93,
+    "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+  },
+  {
+    "name": "toc",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.895,
+    "path": "logs/gate-toc.log",
+    "size": 94,
+    "sha256": "e8b99195c55f8a7a3c7255642a6bec248132ee4cdbc5cbdf1c0ac413ee06663e"
+  },
+  {
+    "name": "em-dash",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "7a7582f03ce5ba7863a90ac342c21be18d90db0b"
+    ],
+    "rc": 0,
+    "seconds": 2.918,
+    "path": "logs/gate-em-dash.log",
+    "size": 141,
+    "sha256": "bdb500e40f8fd98d442743b6f616ae10321a8d2dae3b3ea5090d04407624c2c3"
+  },
+  {
+    "name": "features",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.703,
+    "path": "logs/gate-features.log",
+    "size": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+  },
+  {
+    "name": "pp-sources",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/pp_srcs.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.204,
+    "path": "logs/gate-pp-sources.log",
+    "size": 936,
+    "sha256": "2a853ad7b68e8b045540ecf0066c21800f2bdac978c9b4ba033c55d4a9d55b95"
+  },
+  {
+    "name": "baremetal-only",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 15.083,
+    "path": "logs/gate-baremetal-only.log",
+    "size": 71,
+    "sha256": "9bb781711c45fb270ddc273e039c129e7ed49f1001aea90239fc806d85c0a8c1"
+  },
+  {
+    "name": "entity-shape",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 41.012,
+    "path": "logs/gate-entity-shape.log",
+    "size": 24937,
+    "sha256": "5727109f6cafe09905dc55505046f722ecdecc220a92098240aa5985158562be"
+  },
+  {
+    "name": "python-idiom",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.406,
+    "path": "logs/gate-python-idiom.log",
+    "size": 461,
+    "sha256": "09859961a5846bbc9a1e1958ee2aa77e7523a979061b23ca6b685213cbe3391b"
+  },
+  {
+    "name": "cpp-idiom",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.197,
+    "path": "logs/gate-cpp-idiom.log",
+    "size": 315,
+    "sha256": "c9e2cb3f854358b2b9c25228bb67b860c4a21f1b1386bcd44870ad9ef254e22f"
+  },
+  {
+    "name": "hygiene",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.334,
+    "path": "logs/gate-hygiene.log",
+    "size": 1896,
+    "sha256": "4c6ab5aa06a79713ddf54f8de4fd6042460214702908c6665bfee06dde7614ee"
+  },
+  {
+    "name": "test-evidence",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "1800",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "-B",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.477,
+    "path": "logs/gate-test-evidence.log",
+    "size": 10995,
+    "sha256": "065d1fb707de32222267f2f0369fcdb370764bb2f595dc8979efda8fbcbe5388"
+  },
+  {
+    "name": "diff-whitespace",
+    "head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+    "command": [
+      "timeout",
+      "60",
+      "git",
+      "diff",
+      "--check",
+      "7a7582f03ce5ba7863a90ac342c21be18d90db0b"
+    ],
+    "rc": 0,
+    "seconds": 0.038,
+    "path": "logs/gate-diff-whitespace.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

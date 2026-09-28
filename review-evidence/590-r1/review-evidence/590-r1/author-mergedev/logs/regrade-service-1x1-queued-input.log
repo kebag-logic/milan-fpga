@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$LANES/590-592-599-firmware/tb/verilator/fw_service_budget/run.py", line 660, in <module>
+    main()
+    ~~~~^^
+  File "$LANES/590-592-599-firmware/tb/verilator/fw_service_budget/run.py", line 615, in main
+    require(spec.get('build_hashes') == build_hashes(args.build_dir, spec), 'stale or unbound build; rebuild')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/590-592-599-firmware/tb/verilator/fw_service_budget/run.py", line 39, in require
+    raise RuntimeError(message)
+RuntimeError: stale or unbound build; rebuild
