@@ -1,0 +1,33 @@
+diff --git a/tb/verilator/milan_dp/sim_main.cpp b/tb/verilator/milan_dp/sim_main.cpp
+index d653cd86e..0a3a2ff40 100644
+--- a/tb/verilator/milan_dp/sim_main.cpp
++++ b/tb/verilator/milan_dp/sim_main.cpp
+@@ -140,7 +140,11 @@ class MilanDatapathHarness {
+     void hi() {
+         dut->axis_clk = 1; dut->gtx_clk = 1;
+         dut->clk_audio_i = 1; dut->clk_tdm_i = 1; eval();
++        const bool r367_mr = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
++        if (r367_arm && r367_mr != r367_prev) r367_toggles++;
++        r367_prev = r367_mr;
+     }
++    bool r367_arm = false, r367_prev = false; long r367_toggles = 0;
+     long g_step = 0;
+     void step() { lo(); hi(); g_step++; }
+ 
+@@ -574,6 +578,7 @@ class MilanDatapathHarness {
+             axi_write(A_PTP_OFLO, 100000);
+             axi_write(A_PTP_OFHI, 0);
+             adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
++            r367_prev = adjtime_mr_before; r367_toggles = 0; r367_arm = true;
+             axi_write(A_PTP_CMD2, 0x2);
+             uint64_t t5 = snap();
+             ck("PHC adjtime hops the counter",
+@@ -1059,6 +1064,8 @@ class MilanDatapathHarness {
+         for (int c = 0; c < kCountSettleCyc; ++c) step();
+         const uint32_t media_resets0 = talker0_media_resets();
+         const bool settime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
++        printf("R367-WITNESS: mr toggles between adjtime and settime baseline = %ld\n", r367_toggles);
++        r367_arm = false;
+         // Grade adjtime through settling, before settime takes over: a delayed
+         // restart must fail here instead of disappearing into the next baseline.
+         ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
