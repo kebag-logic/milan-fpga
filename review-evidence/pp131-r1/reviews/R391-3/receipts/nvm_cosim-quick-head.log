@@ -1,0 +1,11 @@
+building 2 build(s)
+  FAIL contract-1x1 B1_erase_error_full_span : later_record_persists@end:0x21 -- record 0x21 at end: 172202210014efae0300000201020304050607081112131415161718
+  FAIL contract-1x1 B2_erase_error_partial_span : later_record_persists@end:0x21 -- record 0x21 at end: 172202210014efae0300000201020304050607081112131415161718
+  FAIL contract-1x1 B3_erase_error_no_byte : later_record_persists@end:0x21 -- record 0x21 at end: 172202210014efae0300000201020304050607081112131415161718
+  FAIL contract-1x1 B4_write_error_after_erase : later_record_persists@end:0x21 -- record 0x21 at end: 172202210014efae0300000201020304050607081112131415161718
+  FAIL contract-1x1 R_power_cycle~B1_erase_error_full_span@end : restores_last_verified@restored -- restored [0, 1]; mismatches ["sink 1: {'sink': 1, 'teid': '0x0102030405060708', 'uid': 2, 'ceid': '0x1112131415161718', 'sw': 0, 'started': 1}"]
+  FAIL contract-1x1 R_power_cycle~B2_erase_error_partial_span@end : restores_last_verified@restored -- restored [0, 1]; mismatches ["sink 1: {'sink': 1, 'teid': '0x0102030405060708', 'uid': 2, 'ceid': '0x1112131415161718', 'sw': 0, 'started': 1}"]
+  FAIL contract-1x1 R_power_cycle~B4_write_error_after_erase@end : restores_last_verified@restored -- restored [0, 1]; mismatches ["sink 1: {'sink': 1, 'teid': '0x0102030405060708', 'uid': 2, 'ceid': '0x1112131415161718', 'sw': 0, 'started': 1}"]
+[contract-1x1] 62 case run(s): 308 ok, 7 bad, 0 not expressible
+nvm_cosim: 315 checks: 308 PASS, 7 FAIL (0 not expressible)
+RESULT: FAIL

@@ -1,0 +1,60 @@
+base B1_erase_error_full_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:err E20@2730315:err E20@2730469:err E21@4230161:done W21@4230305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@6730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+base B2_erase_error_partial_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730077:err E20@2730147:err E20@2730217:err E21@4230161:done W21@4230305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@6730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+base B3_erase_error_no_byte:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730053:err E20@2730099:err E20@2730145:err E21@4230161:done W21@4230305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@6730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+base B4_write_error_after_erase:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:done W20@2730170:err E20@2730324:done W20@2730333:err E20@2730487:done W20@2730496:err E21@4230161:done W21@4230305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@6730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+head B1_erase_error_full_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:err
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 1; end@6730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 3
+head B2_erase_error_partial_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730077:err
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 1; end@6730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 3
+head B3_erase_error_no_byte:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730053:err
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 1; end@6730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 3
+head B4_write_error_after_erase:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:done W20@2730170:err
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 1; end@6730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 3
+ruled B1_erase_error_full_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:err E20@3230315:err E20@3730469:done W20@3730613:done E21@3730768:done W21@3730912:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 1; end@6730ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0
+ruled B2_erase_error_partial_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730077:err E20@3230147:err E20@3730217:err E21@4230161:done W21@4230305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@6730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+ruled B3_erase_error_no_byte:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730053:err E20@3230099:err E20@3730145:err E21@4230161:done W21@4230305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@6730ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+ruled B4_write_error_after_erase:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:done W20@2730170:err E20@3230324:done W20@3230333:err E20@3730487:done W20@3730631:done E21@3730786:done W21@3730930:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@3730ms pend 1 alarm 0 backed 1 stale 0 mgr_dirty 1; end@6730ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0
+ruledlong B1_erase_error_full_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:err E20@3230315:err E20@3730469:err E21@5330161:done W21@5330305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@4830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@7830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+ruledlong B2_erase_error_partial_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730077:err E20@3230147:err E20@3730217:err E21@5330161:done W21@5330305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@4830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@7830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+ruledlong B3_erase_error_no_byte:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730053:err E20@3230099:err E20@3730145:err E21@5330161:done W21@5330305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@4830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@7830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+ruledlong B4_write_error_after_erase:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:done W20@2730170:err E20@3230324:done W20@3230333:err E20@3730487:done W20@3730496:err E21@5330161:done W21@5330305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@4830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@7830ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+headlong B1_erase_error_full_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:err E20@52730315:err E20@102730469:err E21@104730161:done W21@104730305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@104230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@107230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+headlong B2_erase_error_partial_span:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730077:err E20@52730147:err E20@102730217:err E21@104730161:done W21@104730305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@104230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@107230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+headlong B3_erase_error_no_byte:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730053:err E20@52730099:err E20@102730145:err E21@104730161:done W21@104730305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@104230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@107230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0
+headlong B4_write_error_after_erase:
+  ops  E20@530161:done W20@530305:done E21@530460:done W21@530604:done E20@2730161:done W20@2730170:err E20@52730324:done W20@52730333:err E20@102730487:done W20@102730496:err E21@104730161:done W21@104730305:done
+  obs  boot@30ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; base@2230ms pend 0 alarm 0 backed 1 stale 0 mgr_dirty 0; gave_up@104230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0; end@107230ms pend 1 alarm 1 backed 0 stale 1 mgr_dirty 0

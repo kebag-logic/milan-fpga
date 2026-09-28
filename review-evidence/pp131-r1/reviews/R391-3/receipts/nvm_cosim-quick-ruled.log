@@ -1,0 +1,8 @@
+building 2 build(s)
+  FAIL contract-1x1 B1_erase_error_full_span : last_verified_kept@end:0x20 -- record 0x20 at end: 17220220001438fe01000001112233445566778899aabbccddeeffff
+  FAIL contract-1x1 B4_write_error_after_erase : last_verified_kept@end:0x20 -- record 0x20 at end: 17220220001438fe01000001112233445566778899aabbccddeeffff
+  FAIL contract-1x1 R_power_cycle~B1_erase_error_full_span@end : restores_last_verified@restored -- restored [0, 1]; mismatches ["sink 0: {'sink': 0, 'teid': '0x1122334455667788', 'uid': 1, 'ceid': '0x99aabbccddeeffff', 'sw': 0, 'started': 0}"]
+  FAIL contract-1x1 R_power_cycle~B4_write_error_after_erase@end : restores_last_verified@restored -- restored [0, 1]; mismatches ["sink 0: {'sink': 0, 'teid': '0x1122334455667788', 'uid': 1, 'ceid': '0x99aabbccddeeffff', 'sw': 0, 'started': 0}"]
+[contract-1x1] 62 case run(s): 311 ok, 4 bad, 0 not expressible
+nvm_cosim: 315 checks: 311 PASS, 4 FAIL (0 not expressible)
+RESULT: FAIL
