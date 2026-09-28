@@ -1,0 +1,67 @@
+head 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+suite acmp_talker
+verilator Verilator 5.050 2026-07-01 rev v5.050
+baseline rc=0 tally=1107/1107/0 fails=0 SURVIVED
+base_rtl_16be6768 rc=2 tally=1107/1069/38 fails=38 KILLED
+    FAIL: R1 automatic bounded acquisition
+    FAIL: R1 first probe after bound src0 status/tuple
+    FAIL: R1 first probe after bound src1 status/tuple
+    FAIL: R1 first probe after bound src2 status/tuple
+    FAIL: R1 first probe after bound src3 status/tuple
+    FAIL: R1 first probe after bound src4 status/tuple
+no_conflict_wait_clear rc=0 tally=1107/1107/0 fails=0 SURVIVED
+no_reenable_wait_clear rc=0 tally=1107/1107/0 fails=0 SURVIVED
+wait_on_release rc=2 tally=1100/1053/47 fails=47 KILLED
+    FAIL: J7 ...and only then does the rejoin allocate: maap request missing
+    FAIL: J7 grant re-declares: gate strobe missing
+    FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+    FAIL: J7 final gates, got 0x6a
+    FAIL: J7b the recovered source answers with its NEW DA status got 3 want 0
+    FAIL: J7b the recovered source answers with its NEW DA stream_id got 0000000000000000
+tick_no_rearm rc=2 tally=1107/1067/40 fails=40 KILLED
+    FAIL: I: leftovers resp=0 gate=0 arm=0 mreq=2
+    FAIL: J6 nothing was ever accepted while maap was gone
+    FAIL: J7 the owed RELEASE is taken FIRST maap src got 6
+    FAIL: J7 the owed RELEASE is taken FIRST maap rel got 0
+    FAIL: J7 ...and only then does the rejoin allocate maap src got 6
+    FAIL: J: leftovers resp=0 gate=0 arm=0 mreq=2
+no_rotate_advance rc=2 tally=1107/1106/1 fails=1 KILLED
+    FAIL: R3 every source gets an attempt under continuous commands
+no_sticky_gp_window rc=0 tally=1107/1107/0 fails=0 SURVIVED
+grant_kill_reg_only rc=0 tally=1107/1107/0 fails=0 SURVIVED
+accept_kill_zero rc=0 tally=1107/1107/0 fails=0 SURVIVED
+kill_no_pending_conflict rc=0 tally=1107/1107/0 fails=0 SURVIVED
+kill_no_live_conflict rc=0 tally=1107/1107/0 fails=0 SURVIVED
+kill_no_disable rc=0 tally=1107/1107/0 fails=0 SURVIVED
+init_elig_no_avail rc=0 tally=1107/1107/0 fails=0 SURVIVED
+no_turn_restore rc=2 tally=1098/1041/57 fails=57 KILLED
+    FAIL: J3 THE REGRESSION: a command is still consumed with maap hung
+    FAIL: J3 served inside the accept window (4096 cycles)
+    FAIL: J3 answer unaffected by the hung request: response missing
+    FAIL: J3 answer unaffected by the hung request msg_type got 0 want 5
+    FAIL: J3 answer unaffected by the hung request stream_id got 0000000000000000
+    FAIL: J3 answer unaffected by the hung request controller_eid got 0000000000000000
+elig_drop_rel rc=0 tally=1107/1107/0 fails=0 SURVIVED
+elig_drop_off rc=0 tally=1107/1107/0 fails=0 SURVIVED
+ready_ignores_turn rc=2 tally=1083/994/89 fails=89 KILLED
+    FAIL: B4 re-ping: timer arm missing
+    FAIL: B4: response missing
+    FAIL: B4 msg_type got 0 want 1
+    FAIL: B4 stream_id got 0000000000000000
+    FAIL: B4 controller_eid got 0000000000000000
+    FAIL: B4 talker_eid got 0000000000000000
+init_ignores_off_conflict rc=0 tally=1107/1107/0 fails=0 SURVIVED
+retry_period_200 rc=2 tally=1105/1084/21 fails=21 KILLED
+    FAIL: I3 listener retries the alloc: maap request missing
+    FAIL: R1 automatic bounded acquisition
+    FAIL: R1 first probe after bound src0 status/tuple
+    FAIL: R1 first probe after bound src1 status/tuple
+    FAIL: R1 first probe after bound src2 status/tuple
+    FAIL: R1 first probe after bound src3 status/tuple
+tick_ge_to_gt rc=2 tally=1105/1084/21 fails=21 KILLED
+    FAIL: I3 listener retries the alloc: maap request missing
+    FAIL: R1 automatic bounded acquisition
+    FAIL: R1 first probe after bound src0 status/tuple
+    FAIL: R1 first probe after bound src1 status/tuple
+    FAIL: R1 first probe after bound src2 status/tuple
+    FAIL: R1 first probe after bound src3 status/tuple

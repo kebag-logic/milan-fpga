@@ -1,0 +1,14 @@
+head 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+suite acmp_talker
+verilator Verilator 5.050 2026-07-01 rev v5.050
+baseline rc=0 tally=1107/1107/0 fails=0 SURVIVED
+no_probe_initset rc=0 tally=1107/1107/0 fails=0 SURVIVED
+no_lsn_initset rc=0 tally=1107/1107/0 fails=0 SURVIVED
+no_conflict_daok_initset rc=2 tally=1105/1067/38 fails=38 KILLED
+    FAIL: E7 re-alloc: maap request missing
+    FAIL: E7b dest_mac got 000000000000
+    FAIL: F: leftovers resp=0 gate=0 arm=0 mreq=1
+    FAIL: G: leftovers resp=0 gate=0 arm=0 mreq=1
+    FAIL: H1 release DA maap src got 7
+    FAIL: H1 release DA maap rel got 0
+no_backoff_exit_initset rc=0 tally=1107/1107/0 fails=0 SURVIVED

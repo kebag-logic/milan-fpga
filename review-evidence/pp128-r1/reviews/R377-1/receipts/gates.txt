@@ -1,0 +1,21 @@
+head 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+== make -C tb/acmp_talker lint
+  -Wno-UNUSEDPARAM ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/KL_acmp_talker.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.158 MB sources in 4 modules, into 0.314 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.045 s (elab=0.005, cvt=0.027, bld=0.000); cpu 0.045 s on 1 threads; allocated 22.312 MB
+make: Leaving directory '$REVIEWS/pp128-r377-1-packet/scratch/gates/tb/acmp_talker'
+lint rc=0
+== gen_matrix --check
+matrix: OK (92 rows, 0 untested)
+rc=0
+== make check
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 920 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (92 rows, 0 untested)
+parameters: top 24, guide 24, diagram 24, OK
+make check rc=0
+lint KL_acmp_talker rc=0 findings=0
+lint protocol_processor_top rc=0 findings=0

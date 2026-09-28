@@ -1,0 +1,44 @@
+Reviewer incident record (R377-1), disclosed in REPORT.md.
+
+What happened
+- First invocation of scripts/parent_first_probe.sh passed its last two
+  arguments in swapped order, so the harness log redirect targeted the
+  manager's pinned simulator wrapper
+  $VALIDATION_STORAGE/pp128-manager-9476898b/pinned-tool-bin/verilator
+  and replaced its 319-byte content with a 555-byte harness log.
+- Window: from about 03:00:48 CEST (script creation, run start) to
+  03:01:14 CEST (restore), 2026-09-28.
+
+Before (recorded by the reviewer earlier in the session, before the incident)
+- size 319, mode 755, sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+
+Overwritten state (observed)
+- size 555, sha256 30bb9c8ec1cf2a878a3f118e6cd9650355703dc48d0984cb1fd9b307d2118302
+
+Restore
+- Content copied from a byte-identical sibling wrapper
+  ($VALIDATION_STORAGE/pp125-manager-e04234e1/pinned-tool-bin/verilator; 133
+  sibling wrappers share sha256 905795b9...) into the same inode (mode kept).
+- Verified after restore: size 319, mode 755,
+  sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f,
+  "--version" reports Verilator 5.050 2026-07-01 rev v5.050.
+- mtime set from the containing directory (2026-09-22 15:48:29.212 +0200),
+  which dates from the wrapper's creation; the original sub-second mtime is
+  not otherwise recoverable.
+
+Overlap with manager work
+- The manager's parent-consumer run in the same directory tree finished at
+  03:01:04 (exit 1). Its step 7 (pp_shadow) had built all four binaries
+  before the window and its failures are simulation assertion failures with
+  printed tallies. Steps 8-11 are python gates (port contracts, naming, test
+  evidence, docs). The reviewer's judgment is that the failures are not
+  caused by the overwrite, but the manager should re-run any step that may
+  have invoked the wrapper in the window.
+
+Guard added
+- parent_first_probe.sh now refuses unless OUT_LOG ends in .txt, does not
+  exist, and VERILATOR is executable.
+
+Also disclosed
+- One transient list file was written to /tmp during the clone-integrity
+  check and deleted in the same command.

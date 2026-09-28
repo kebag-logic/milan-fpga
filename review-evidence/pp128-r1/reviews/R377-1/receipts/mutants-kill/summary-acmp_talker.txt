@@ -1,0 +1,23 @@
+head 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+suite acmp_talker
+verilator Verilator 5.050 2026-07-01 rev v5.050
+baseline rc=0 tally=1107/1107/0 fails=0 SURVIVED
+kill_no_conflict_at_all rc=2 tally=1107/1102/5 fails=5 KILLED
+    FAIL: R4 obsolete grant rejected src0 status/tuple
+    FAIL: R4 obsolete grant cannot declare
+    FAIL: R4 obsolete successful allocation released before retry
+    FAIL: R4 reacquires after obsolete release
+    FAIL: R4 fresh grant src0 status/tuple
+kill_no_disable_at_all rc=2 tally=1107/1102/5 fails=5 KILLED
+    FAIL: R4 obsolete grant rejected src0 status/tuple
+    FAIL: R4 obsolete grant cannot declare
+    FAIL: R4 obsolete successful allocation released before retry
+    FAIL: R4 reacquires after obsolete release
+    FAIL: R4 fresh grant src0 status/tuple
+kill_sticky_off rc=2 tally=1107/1097/10 fails=10 KILLED
+    FAIL: R4 obsolete grant rejected src0 status/tuple
+    FAIL: R4 obsolete grant cannot declare
+    FAIL: R4 obsolete successful allocation released before retry
+    FAIL: R4 reacquires after obsolete release
+    FAIL: R4 fresh grant src0 status/tuple
+    FAIL: R4 obsolete grant rejected src0 status/tuple

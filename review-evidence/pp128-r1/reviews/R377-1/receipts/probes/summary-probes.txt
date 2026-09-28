@@ -1,0 +1,22 @@
+head 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+head rc=0 1154 checks: 1154 PASS, 0 FAIL
+init_elig_no_avail rc=2 1154 checks: 1144 PASS, 10 FAIL
+    FAIL: P1 command 1 consumed within bound (ok=0 cyc=4096)
+    FAIL: P1 command 1 honest DEST_MAC_FAILED
+    FAIL: P1 command 2 consumed within bound (ok=0 cyc=4096)
+    FAIL: P1 command 2 honest DEST_MAC_FAILED
+    FAIL: P1 command 3 consumed within bound (ok=0 cyc=4096)
+    FAIL: P1 command 3 honest DEST_MAC_FAILED
+    FAIL: P1 command 4 consumed within bound (ok=0 cyc=4096)
+    FAIL: P1 command 4 honest DEST_MAC_FAILED
+no_conflict_wait_clear rc=2 1154 checks: 1150 PASS, 4 FAIL
+    FAIL: P2 conflicted DA_OK source re-allocates inside the round (8)
+    FAIL: P4 backoff exit re-allocates inside the round (1 -> 1)
+    FAIL: P5 probe re-asks inside the round after a conflict (8 -> 8)
+    FAIL: P6 listener change re-asks inside the round after a conflict (8 -> 8)
+no_probe_initset rc=2 1154 checks: 1153 PASS, 1 FAIL
+    FAIL: P5 probe re-asks inside the round after a conflict (8 -> 8)
+no_lsn_initset rc=2 1154 checks: 1153 PASS, 1 FAIL
+    FAIL: P6 listener change re-asks inside the round after a conflict (8 -> 8)
+no_backoff_exit_initset rc=2 1154 checks: 1153 PASS, 1 FAIL
+    FAIL: P4 backoff exit re-allocates inside the round (1 -> 1)

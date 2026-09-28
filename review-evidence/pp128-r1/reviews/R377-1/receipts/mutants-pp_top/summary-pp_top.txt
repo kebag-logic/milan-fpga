@@ -1,0 +1,7 @@
+head 9476898b28ffc8f77b2aa5f873f3899a17287d3a
+suite pp_top
+verilator Verilator 5.050 2026-07-01 rev v5.050
+baseline rc=0 tally=7751/7751/0 fails=0 SURVIVED
+base_rtl_16be6768 rc=2 tally=- fails=2 NO-TALLY
+    FAIL: S10: exactly one ALLOC_DA for every enabled source
+    FAIL: MP3: first PROBE_TX_RESPONSE succeeds after acquisition bound

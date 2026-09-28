@@ -1,0 +1,35 @@
+# extract of manager consumer-gate receipts (read-only), candidate head 13fd3b68499f1e362e5e031f23f6ea42b6db7599 on parent base 931f396ec9f13271e9e67b755e18833d0024f234
+# source sha256: 07.log a5b70e672878765e4c5c984fbdf2f04cf0da7819a7df28ce60e87ff10f234d47, 10.log 284a294ef2e896926fa4022f44d968a7ddf0a0b38f8792f067c1f9711b3cd9f4, complete.json f87753550c14f49225786803039cb0a70315b53fb0396bb474798cbe7a53b12e
+## complete.json
+{
+  "head": "13fd3b68499f1e362e5e031f23f6ea42b6db7599",
+  "exit_code": 1,
+  "finished": "2026-09-28T03:01:04.852361+02:00"
+}
+## 07.log (make -C tb/verilator/pp_shadow -j8): section headers, FAIL lines, tallies
+154:[H] maap adapter with NO allocator: refuse, never wedge
+156:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+164:[I] maap adapter with a claimed block: grant + DA gate
+562:[H] maap adapter with NO allocator: refuse, never wedge
+564:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+572:[I] maap adapter with a claimed block: grant + DA gate
+713:[H] maap adapter with NO allocator: refuse, never wedge
+715:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+723:[I] maap adapter with a claimed block: grant + DA gate
+826:  [FAIL] granted DA == KL_maap base + source index  address disagrees with the engine
+1418:pp_shadow: 591 checks, 1 failures
+1419:RESULT: FAIL
+1420:make: *** [Makefile:146: run-base] Error 1
+1728:pp_shadow: 295 checks, 0 failures
+1729:RESULT: PASS
+2168:pp_shadow: 591 checks, 1 failures
+2169:RESULT: FAIL
+2170:make: *** [Makefile:154: run-vid73] Error 1
+2315:pp_shadow: 591 checks, 2 failures
+2316:RESULT: FAIL
+2317:make: *** [Makefile:160: run-crf] Error 1
+## 10.log (scripts/measure_test_evidence.py --check): lines naming the processor retry driver and verdicts
+120:   protocol-processor/tb/acmp_talker/retry_mutants.py: UNEXPLAINED
+146:   protocol-processor/tb/acmp_talker/retry_mutants.py
+155:FAIL: 1 unexplained DUT-source reader(s) > ratchet 0; stale dispositions: []
+157:FAIL: 4 wall-clock-dependent suite file(s) > ratchet 3. New behavioral tests use DUT cycles, not host time.
