@@ -137,7 +137,7 @@ TDM uses 32-bit slots at nominal 48 kHz:
 - `KL_tdm_capture_master` uses clock enables on `clk_tdm_i`.
 - Slave TDM instead clocks registers from external `tdm_bclk_i`.
 - That external clock is another domain requiring integration constraints.
-- The example configuration exposes capture, not physical TDM rendering.
+- The example configuration exposes capture and physical TDM rendering. [TDM8 first light](../findings/451_TDM8_FIRST_LIGHT.md) carried both on hardware (#451).
 
 Three different meanings of “time” coexist:
 
