@@ -1,0 +1,9 @@
+Documentation gates at exact head 335e55c4135979a554dc0281d6980ac1e2158aee, run from the review clone, unpiped, one log per gate; <pinned-markdown-venv> = the assignment's pinned Markdown environment (cmarkgfm 2025.10.22, html5lib 1.1).
+gate-1 rc=0 :: <pinned-markdown-venv>/bin/python scripts/docs_check.py
+gate-2 rc=0 :: <pinned-markdown-venv>/bin/python scripts/check_doc_style.py
+gate-3 rc=0 :: <pinned-markdown-venv>/bin/python scripts/gen_toc.py --check
+gate-4 rc=0 :: <pinned-markdown-venv>/bin/python scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04
+gate-5 rc=0 :: <pinned-markdown-venv>/bin/python scripts/check_doc_paths.py
+gate-6 rc=0 :: <pinned-markdown-venv>/bin/python scripts/ci_scope.py --selftest
+gate-7 rc=0 :: <pinned-markdown-venv>/bin/python scripts/check_baremetal_only.py --check
+gate-8 rc=0 :: git diff --check 6d5ebd7357c1e468e446f18a61527c5be6118a04 HEAD
