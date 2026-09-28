@@ -1,0 +1,255 @@
+diff --git a/docs/design/GM_LOSS_RECOVERY.md b/docs/design/GM_LOSS_RECOVERY.md
+index 7a0b7b9f6..ac996fba2 100644
+--- a/docs/design/GM_LOSS_RECOVERY.md
++++ b/docs/design/GM_LOSS_RECOVERY.md
+@@ -233,10 +233,12 @@ The accept-timed buffer cannot exhibit PHC-step-induced fill drift.
+ 
+ `make gmstep-mutants` plants the whole inventory.
+ 
+-Three controls restore PHC-only causes on the INTERNAL option-off leg.
++Five controls restore PHC-only causes on the INTERNAL option-off leg.
+ 
+ They restore settime, adjtime, or both together.
+ 
++Two delay the adjtime cause by 16 and 256 cycles.
++
+ Another control suppresses a genuine restart during a PHC re-base.
+ 
+ The coincidence phase must reject that suppression at run time.
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index 62e720892..3c452f4cb 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -1466,9 +1466,9 @@ The rest are refusals, and each one costs a legitimate edit:
+ |---|---|
+ | `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and the `ptp_csr_sync`/`ts_counter` pair directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual PHC consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
+ | `cfg_ptp_cmd_load` has exactly five references; `eff_ptp_adjust_w` has three | Their extra reader is now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`. Every other PHC-net census count stays unchanged |
+-| `media_rebase_p_w` has exactly three references | Its initializer and two readers: `render_recentre_p_w` and `mcr_restart_p_w`. Another reader or driver is refused |
++| `media_rebase_p_w` has exactly two references | Its initializer and sole reader, `render_recentre_p_w`, under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355). Another reader or driver is refused |
+ | `render_recentre_p_w` is exactly `media_rebase_p_w \| src_recentre_p_r` | The render stage receives the step and settled source change. GM identity alone contributes no second re-centre |
+-| `mcr_restart_p_w` is exactly `(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)) \| media_rebase_p_w` | The step is ungated by clock selection. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
++| `mcr_restart_p_w` is exactly `crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
+ | External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
+ | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
+ | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 1bb185ded..6bc0c4709 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -270,7 +270,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+-| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and three option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
++| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
+ | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+ 
+ The default sweep still runs both render legs, and their assertions are unchanged.
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 35c583d59..05929357a 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -17,8 +17,8 @@
+ #                 (gsi_mutants.py), outside the sweep's deadline
+ #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
+ #                 the acceptance's controls of it (gmstep_mutants.py)
+-#   make gmstep-mutants - that leg's whole control inventory, with three
+-#                 controls of the option-off leg's #387 mr checks, outside
++#   make gmstep-mutants - that leg's whole control inventory, with five
++#                 controls of the option-off leg's #602 PHC-only mr exclusions, outside
+ #                 the sweep's deadline
+ #   make clean  - remove build artifacts
+ 
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 1750d0765..ed44939a5 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -658,6 +658,10 @@ CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issue
+ | Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
+ | Coincident restart | 32 delays between a received CRF toggle and software settime; at least one observed same-cycle overlap of the received pulse and PHC re-base pulse; every trial actually steps the PHC and emits exactly one outgoing toggle, with more than eight outgoing PDUs and the selected sink still locked |
+ 
++The coincident check grades suppression of the CRF restart.
++An extra request inside its pending window merges with that restart.
++The isolated PHC-step checks grade the exclusion of an added request.
++
+ **The counted event is the step's, not the commit's.** The render re-base
+ must be counted at a PDU end within two AAF periods (500 cycles) after the
+ plane's step pulse. Outgoing `mr` stays unchanged throughout the window.
+@@ -677,7 +681,9 @@ accept, so it moves with the feed's start phase (9 or 10 events here).
+ **Start phase.** The binary's optional second argument, `GMSTEP_FEED_DELAY`
+ through `make`, idles that many fabric cycles before the peer's media feed
+ starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
+-accept phase. The #387 run passed at all 42; later counts require re-measurement.
++accept phase. At head `471892a9`, both round-2 reviews measured 103 checks
++and zero failures at all 42 delays ([R366-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861287085),
++[R367-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861301512)).
+ 
+ **It runs in the default sweep, with its negative controls.**
+ `run` invokes `gmstep_mutants.py` after the clean leg.
+@@ -702,23 +708,28 @@ Each control must fail its named check:
+ | software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+ | PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+ | both PHC restart causes are restored | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+-| a PHC step suppresses a coincident CRF restart | datapath | coincident: a PHC step neither adds nor suppresses the CRF restart | `gmstep-mutants` |
++| PHC adjtime becomes an `mr` cause 16 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
++| PHC adjtime becomes an `mr` cause 256 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
++| a PHC step suppresses a coincident CRF restart | datapath | coincident: a PHC step does not suppress the CRF restart | `gmstep-mutants` |
+ 
+ Each control costs one datapath elaboration.
+ The sweep carries five controls named by the two acceptances.
+ 
+-The explicit `make gmstep-mutants` target runs all eighteen controls.
++The explicit `make gmstep-mutants` target runs all twenty controls.
+ The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
+ 
+-It includes the fifteen tabulated above, plus three #545 controls.
++It includes the seventeen tabulated above, plus three #545 controls.
+ The additions cover the policy level and applied-rate tail.
+ 
+ See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
+-Three controls grade the option-off leg (`sim_main.cpp`, rebuilt through
++Five controls grade the option-off leg (`sim_main.cpp`, rebuilt through
+ `option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
+ media clock, where the harness issues a CLKV adjtime and then a software
+ settime: neither changes `mr`, and settime adds no MEDIA_RESET.
+ Each event compares its preceding `mr` level with its resulting level.
++The adjtime verdict uses the level after the settle interval, immediately
++before the settime baseline. The 16-cycle and 256-cycle delayed causes
++must fail the adjtime check alone.
+ The adjtime-only control must leave the settime check clean.
+ The settime-only control must leave the adjtime check clean.
+ Restoring both causes must still fail the settime check.
+@@ -971,7 +982,7 @@ No count is inferred for their merged tree.
+ Rows dated 2026-09-24 UTC were re-measured for #508, in one sweep at its head.
+ These dated counts are historical, not re-measured for #602 here.
+ The #602 gmstep run below was measured on 2026-09-27 UTC.
+-Its controls now total eighteen, five in the default sweep.
++Its controls now total twenty, five in the default sweep.
+ 
+ | leg | before (measured) | #508 round 1 (measured; date noted below) | note | dev c266432d record / later dated measurement |
+ |---|---|---|---|---|
+@@ -987,7 +998,7 @@ Its controls now total eighteen, five in the default sweep.
+ | `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** (2026-09-24 UTC) | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) | **33 / 0** |
+ | `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
+ | `obj_aclk` (`sim_aclk`) | 5 / 0 | **140 / 0** (2026-09-24 UTC) | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 | **139 / 0** |
+-| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, eighteen in `gmstep-mutants` (three option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
++| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, twenty in `gmstep-mutants` (five option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
+ | `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in | same |
+ 
+ Earlier re-measurement had stopped because the `protocol-processor` submodule
+diff --git a/tb/verilator/milan_dp/gmstep_mutants.py b/tb/verilator/milan_dp/gmstep_mutants.py
+index a87d927d6..9f775a9f1 100755
+--- a/tb/verilator/milan_dp/gmstep_mutants.py
++++ b/tb/verilator/milan_dp/gmstep_mutants.py
+@@ -20,6 +20,7 @@ holdover, continuity, render-law and slew controls, and restores either PHC
+ cause separately on the INTERNAL option-off leg.
+ It also restores both PHC causes together and vetoes a genuine CRF request
+ on the very cycle a software settime re-bases the PHC.
++Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
+ 
+ What bounds a run. This driver sets no host-time deadline (rule 8's
+ wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
+@@ -58,6 +59,7 @@ from suite_tally import log_reports_failure  # noqa: E402
+ #: #386 and #447 render runners plant their clock-source control on
+ RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
+ RESTART_TRIGGER = "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);"
++RESTART_DECL = "  wire mcr_restart_p_w = crf_clk_selected_r\n" + RESTART_TRIGGER
+ TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
+ 
+ 
+@@ -194,10 +196,33 @@ CONTROLS = [
+             RESTART_TRIGGER,
+             RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+             "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
++    Control("PHC adjtime becomes an mr cause 16 cycles later", "datapath",
++            RESTART_DECL,
++            "  logic [15:0] probe_adj_sr_r;\n"
++            "  always_ff @(posedge axis_clk) begin : probe_adj_delay\n"
++            "    if (!axis_resetn) probe_adj_sr_r <= '0;\n"
++            "    else probe_adj_sr_r <= {probe_adj_sr_r[14:0], eff_ptp_adjust_w};\n"
++            "  end : probe_adj_delay\n" +
++            RESTART_DECL[:-1] + " | probe_adj_sr_r[15];",
++            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
++            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
++                           "CLKV: settime adds no MEDIA_RESET (#602)")),
++    Control("PHC adjtime becomes an mr cause 256 cycles later", "datapath",
++            RESTART_DECL,
++            "  logic [8:0] probe_adj_cnt_r;\n"
++            "  always_ff @(posedge axis_clk) begin : probe_adj_count\n"
++            "    if (!axis_resetn) probe_adj_cnt_r <= '0;\n"
++            "    else if (eff_ptp_adjust_w) probe_adj_cnt_r <= 9'd256;\n"
++            "    else if (probe_adj_cnt_r != 9'd0) probe_adj_cnt_r <= probe_adj_cnt_r - 9'd1;\n"
++            "  end : probe_adj_count\n" +
++            RESTART_DECL[:-1] + " | (probe_adj_cnt_r == 9'd1);",
++            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
++            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
++                           "CLKV: settime adds no MEDIA_RESET (#602)")),
+     Control("a PHC step suppresses a coincident CRF restart", "datapath",
+             RESTART_TRIGGER,
+             RESTART_TRIGGER[:-1] + " & ~media_rebase_p_w;",
+-            "coincident: a PHC step neither adds nor suppresses the CRF restart", False),
++            "coincident: a PHC step does not suppress the CRF restart", False),
+ ]
+ 
+ 
+diff --git a/tb/verilator/milan_dp/sim_gmstep.cpp b/tb/verilator/milan_dp/sim_gmstep.cpp
+index 69a5f107a..c7c698cbd 100644
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -1095,6 +1095,8 @@ void GmStepHarness::check_crf_restart() {
+ //! receive pulse and CSR load must overlap on at least one observed cycle,
+ //! so a one-cycle PHC veto cannot survive merely by missing the stimulus.
+ //! Each trial allows more than eight outgoing AAF PDUs before the next one.
++//! Pending requests merge, so these trials grade suppression. The isolated
++//! PHC-step checks grade an added restart request.
+ void GmStepHarness::check_coincident_restart() {
+     constexpr unsigned kPhases = 32;
+     constexpr uint64_t kTrialCyc = 4 * kCrfPeriodCyc;
+@@ -1138,7 +1140,7 @@ void GmStepHarness::check_coincident_restart() {
+                 coincident_pulses_ > overlap0);
+     check_.dec("coincident: PDUs bracket every trial and complete the hold", short_windows, 0);
+     check_.dec("coincident: the selected CRF sink stays locked", unlocked, 0);
+-    check_.dec("coincident: a PHC step neither adds nor suppresses the CRF restart", wrong_toggles, 0);
++    check_.dec("coincident: a PHC step does not suppress the CRF restart", wrong_toggles, 0);
+ }
+ 
+ //! Wire-driven policy verdict from the real engine through the actual
+diff --git a/tb/verilator/milan_dp/sim_main.cpp b/tb/verilator/milan_dp/sim_main.cpp
+index a3ce784ca..d653cd86e 100644
+--- a/tb/verilator/milan_dp/sim_main.cpp
++++ b/tb/verilator/milan_dp/sim_main.cpp
+@@ -106,6 +106,8 @@ class MilanDatapathHarness {
+     long checks = 0;
+     long fails = 0;
+     long skipped = 0;
++    //! Keep the adjtime baseline until the settle interval before settime.
++    bool adjtime_mr_before = false;
+ 
+     void ck(const char* what, unsigned long got, unsigned long exp) {
+         bool ok = (got == exp);
+@@ -571,13 +573,11 @@ class MilanDatapathHarness {
+             uint64_t t4 = snap();
+             axi_write(A_PTP_OFLO, 100000);
+             axi_write(A_PTP_OFHI, 0);
+-            const bool adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
++            adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
+             axi_write(A_PTP_CMD2, 0x2);
+             uint64_t t5 = snap();
+             ck("PHC adjtime hops the counter",
+                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
+-            ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
+-               dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1, adjtime_mr_before);
+             axi_write(A_PTP_ADJ, 0);
+         }
+     }
+@@ -1059,6 +1059,10 @@ class MilanDatapathHarness {
+         for (int c = 0; c < kCountSettleCyc; ++c) step();
+         const uint32_t media_resets0 = talker0_media_resets();
+         const bool settime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
++        // Grade adjtime through settling, before settime takes over: a delayed
++        // restart must fail here instead of disappearing into the next baseline.
++        ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
++           settime_mr_before, adjtime_mr_before);
+         axi_write(A_PTP_CMD, 0x1);
+         ck("CLKV: PHC step arms holdover",
+            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);

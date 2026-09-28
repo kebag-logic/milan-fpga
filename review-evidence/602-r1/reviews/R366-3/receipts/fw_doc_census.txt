@@ -1,0 +1,23 @@
+OK  media_rebase_p_w: RTL code refs=2 doc=2 builder_pin=2
+OK  mcr_restart_p_w: RTL code refs=2 doc=2 builder_pin=2
+OK  eff_ptp_adjust_w: RTL code refs=3 doc=3 builder_pin=3
+OK  cfg_ptp_cmd_load: RTL code refs=5 doc=5 builder_pin=5
+OK  media_rebase_p_w initializer: 'eff_ptp_adjust_w | cfg_ptp_cmd_load'
+OK  mcr_restart_p_w initializer: 'crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)'
+render_recentre_p_w initializer: 'media_rebase_p_w | src_recentre_p_r'
+media_rebase_p_w reference contexts:
+  milan_datapath.sv:3132: wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+  milan_datapath.sv:6054: media_rebase_p_w
+mcr_restart_p_w reference contexts:
+  milan_datapath.sv:3133: wire mcr_restart_p_w = crf_clk_selected_r
+  milan_datapath.sv:3163: .restart_p_i (mcr_restart_p_w),
+doc rows:
+  BAREMETAL_FIRMWARE.md:1468: | `cfg_ptp_cmd_load` has exactly five references; `eff_ptp_adjust_w` has three | Their extra reader is now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`. Every other PHC-net census count stays unchanged |
+  BAREMETAL_FIRMWARE.md:1469: | `media_rebase_p_w` has exactly two references | Its initializer and sole reader, `render_recentre_p_w`, under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355). Another reader or driver is refused |
+  BAREMETAL_FIRMWARE.md:1470: | `render_recentre_p_w` is exactly `media_rebase_p_w \| src_recentre_p_r` | The render stage receives the step and settled source change. GM identity alone contributes no second re-centre |
+  BAREMETAL_FIRMWARE.md:1471: | `mcr_restart_p_w` is exactly `crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
+OK  doc mcr_restart_p_w expression equals the RTL initializer
+OK  doc mcr_restart_p_w row has no PHC-step term and cites #602
+OK  doc media_rebase_p_w row says two references, names only the render reader, cites #602
+disagreements: 0
+rc=0

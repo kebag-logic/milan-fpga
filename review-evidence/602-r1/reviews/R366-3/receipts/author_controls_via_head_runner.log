@@ -1,0 +1,22 @@
+inventory: 20 controls, 15 gmstep, 5 option-off, 5 acceptance
+--- software settime is restored as an mr cause (leg option-off, stays_clean ['CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)'])
+[PASS] control caught: software settime is restored as an mr cause - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 2 check(s): CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+--- PHC adjtime is restored as an mr cause (leg option-off, stays_clean ['CLKV: the settime leaves mr unchanged (#602)'])
+[PASS] control caught: PHC adjtime is restored as an mr cause - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+--- both PHC restart causes are restored (leg option-off, stays_clean [])
+[PASS] control caught: both PHC restart causes are restored - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 3 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602); CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+--- PHC adjtime becomes an mr cause 16 cycles later (leg option-off, stays_clean ['CLKV: the settime leaves mr unchanged (#602)', 'CLKV: settime adds no MEDIA_RESET (#602)'])
+[PASS] control caught: PHC adjtime becomes an mr cause 16 cycles later - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+--- PHC adjtime becomes an mr cause 256 cycles later (leg option-off, stays_clean ['CLKV: the settime leaves mr unchanged (#602)', 'CLKV: settime adds no MEDIA_RESET (#602)'])
+[PASS] control caught: PHC adjtime becomes an mr cause 256 cycles later - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+--- a PHC step suppresses a coincident CRF restart (leg gmstep, stays_clean [])
+[PASS] control caught: a PHC step suppresses a coincident CRF restart - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+
+6/6 selected controls caught by the head's runner
+rc=0
