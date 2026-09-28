@@ -1,0 +1,51 @@
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 80 programs
+declaration fixture: crf_on.yaml
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 125.415 MB sources in 116 modules, into 12.021 MB in 22 C++ files needing 0.005 MB
+- Verilator: Walltime 14.188 s (elab=0.406, cvt=3.158, bld=10.164); cpu 4.160 s on 8 threads; allocated 866.734 MB
+=== milan_datapath + the protocol processor AS the control plane ===
+  [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+[H] maap adapter with NO allocator: refuse, never wedge
+  [PASS] KL_maap holds no block (MAAP_STAT1.addr_valid = 0) got=0x00000000 exp=0x00000000
+  [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+  [PASS] the processor ASKED and the shim ACCEPTED  ALLOC_DA taken
+  [PASS] every accepted request was ANSWERED        accepted == answered
+  [PASS] and every answer refused (ok = 0)          got=0x00000000 exp=0x00000000
+  [PASS] the DA gate stayed SHUT (acmp_declaring = 0) got=0x00000000 exp=0x00000000
+  [PASS] the ACMP PROBE_TX still reached the processor got=0x00000001 exp=0x00000001
+  [PASS] the plane KEEPS SERVING (side port still answers 'KLPP') got=0x4B4C5050 exp=0x4B4C5050
+  [PASS] a CONNECT_TX_RESPONSE came back            response on the wire
+  [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+[I] maap adapter with a claimed block: grant + first probe
+  [PASS] #403 declared output count                 got=0x00000002 exp=0x00000002
+  [PASS] #606 source 0 startup allocation was refused no block was valid at acceptance
+  [PASS] #606 source 1 startup allocation was refused no block was valid at acceptance
+  [PASS] #403 exact MAAP boot count readback        got=0x00000201 exp=0x00000201
+  [PASS] KL_maap reached ANNOUNCE (a block is claimed) addr_valid asserted
+  [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+  [PASS] every accepted request was ANSWERED        got=0x00000020 exp=0x00000020
+  [PASS] every response has its accepted source     got=0x00000000 exp=0x00000000
+  [PASS] #606 source 0 auto-acquired before first probe got=0x00000001 exp=0x00000001
+  [PASS] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+  [PASS] #606 first probe response arrived          bounded command service
+  [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+  [PASS] #606 first probe names the source SID      station MAC and source UID
+  [PASS] #606 first probe names the acquired destination real MAAP base plus source
+  [PASS] #606 first probe names the configured VID  got=0x00000002 exp=0x00000002
+  [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+FIRST_PROBE source=0 status=0 DA=91e0f0004f32
+  [PASS] #606 source 1 auto-acquired before first probe got=0x00000001 exp=0x00000001
+  [PASS] [I] source 1 grant equals MAAP base plus index accepted request identifies the response
+  [PASS] #606 first probe response arrived          bounded command service
+  [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+  [PASS] #606 first probe names the source SID      station MAC and source UID
+  [PASS] #606 first probe names the acquired destination real MAAP base plus source
+  [PASS] #606 first probe names the configured VID  got=0x00000002 exp=0x00000002
+  [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+FIRST_PROBE source=1 status=0 DA=91e0f0004f33
+  [PASS] the per-source DA GATE is OPEN (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+  [PASS] and it was held, not a one-cycle blip      gate held
+----------------------------------------------------------------
+pp_shadow: 37 checks, 0 failures
+RESULT: PASS

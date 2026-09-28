@@ -1,0 +1,39 @@
+mutant=shim-drops-source-offset file=hdl/milan/KL_pp_maap_shim.sv planted
+193c193
+<   assign off_w = blk_addr_i[15:0] + 16'(req_src_i);
+---
+>   assign off_w = blk_addr_i[15:0];
+mutant=shim-drops-source-offset make_rc=2
+completed_runs=1
+  [FAIL] [I] source 1 grant equals MAAP base plus index accepted request identifies the response
+  [FAIL] #606 first probe names the acquired destination real MAAP base plus source
+pp_shadow: 37 checks, 2 failures
+RESULT: FAIL
+mutant=stop-not-counted file=hdl/ieee1722/avtp/KL_talker_diag_ctx.sv planted
+275c275
+<           stop_r[c]    <= stop_r[c] + 32'd1;
+---
+>           stop_r[c]    <= stop_r[c];
+mutant=stop-not-counted make_rc=2
+completed_runs=1
+  [FAIL] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000000 exp=0x00000001
+  [FAIL] #608 hold creates no duplicate STREAM_STOP got=0x00000000 exp=0x00000001
+  [FAIL] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000000 exp=0x00000001
+  [FAIL] #608 hold creates no duplicate STREAM_STOP got=0x00000000 exp=0x00000001
+  [FAIL] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000000 exp=0x00000001
+  [FAIL] #608 hold creates no duplicate STREAM_STOP got=0x00000000 exp=0x00000001
+  [FAIL] #608 three withdrawals count three stops   got=0x00000000 exp=0x00000003
+pp_shadow: 31 checks, 7 failures
+RESULT: FAIL
+mutant=crf-ignores-licence file=hdl/milan/milan_datapath.sv planted
+5680c5680
+<     .enable_i      (crft_emit_en_w),
+---
+>     .enable_i      (cfg_crft_en),
+mutant=crf-ignores-licence make_rc=2
+completed_runs=1
+  [FAIL] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000004 exp=0x00000000
+  [FAIL] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000004 exp=0x00000000
+  [FAIL] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000004 exp=0x00000000
+pp_shadow: 31 checks, 3 failures
+RESULT: FAIL

@@ -1,0 +1,90 @@
+== old-16be6768 first-probe
+  [FAIL] #606 source 0 auto-acquired before first probe got=0x00000000 exp=0x00000001
+  [FAIL] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+  [FAIL] #606 first probe after acquisition bound succeeds got=0x00000003 exp=0x00000000
+  [FAIL] #606 first probe names the source SID      station MAC and source UID
+  [FAIL] #606 first probe names the acquired destination real MAAP base plus source
+  [FAIL] #606 first probe names the configured VID  got=0x00000000 exp=0x00000002
+  [FAIL] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000000
+FIRST_PROBE source=0 status=3 DA=000000000000
+  [FAIL] #606 source 1 auto-acquired before first probe got=0x00000000 exp=0x00000001
+  [FAIL] [I] source 1 grant equals MAAP base plus index accepted request identifies the response
+  [FAIL] #606 first probe after acquisition bound succeeds got=0x00000003 exp=0x00000000
+  [FAIL] #606 first probe names the source SID      station MAC and source UID
+  [FAIL] #606 first probe names the acquired destination real MAAP base plus source
+  [FAIL] #606 first probe names the configured VID  got=0x00000000 exp=0x00000002
+  [FAIL] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000000
+FIRST_PROBE source=1 status=3 DA=000000000000
+pp_shadow: 37 checks, 14 failures
+RESULT: FAIL
+make: *** [Makefile:160: run-crf] Error 1
+== old-16be6768 crf-stop
+CRF_STOP phase=ordinary-IN withdrawal_cycle=351970 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=0 stop_after=1
+  [FAIL] #608 timer expiry preserves IN until own transmit action got=0x00000002 exp=0x00000001
+CRF_STOP own_deadline_ms=10001 withdrawal_ms=10002 registrar=2
+  [FAIL] #608 withdrawal closes the CRF licence within one PDU got=0x00000001 exp=0x00000000
+  [FAIL] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000001 exp=0x00000002
+  [FAIL] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000004 exp=0x00000000
+  [FAIL] #608 hold creates no duplicate STREAM_STOP got=0x00000001 exp=0x00000002
+CRF_STOP phase=own-expiry-before-transmit withdrawal_cycle=1000232 period_cycles=49152 late_frames=4 tail_frames=1 stop_before=1 stop_after=1
+CRF_STOP phase=reconnected-IN withdrawal_cycle=1397252 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=1 stop_after=2
+  [FAIL] #608 three withdrawals count three stops   got=0x00000002 exp=0x00000003
+pp_shadow: 31 checks, 6 failures
+RESULT: FAIL
+== only608-97bd3786 first-probe
+  [FAIL] #606 source 0 auto-acquired before first probe got=0x00000000 exp=0x00000001
+  [FAIL] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+  [FAIL] #606 first probe after acquisition bound succeeds got=0x00000003 exp=0x00000000
+  [FAIL] #606 first probe names the source SID      station MAC and source UID
+  [FAIL] #606 first probe names the acquired destination real MAAP base plus source
+  [FAIL] #606 first probe names the configured VID  got=0x00000000 exp=0x00000002
+  [FAIL] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000000
+FIRST_PROBE source=0 status=3 DA=000000000000
+  [FAIL] #606 source 1 auto-acquired before first probe got=0x00000000 exp=0x00000001
+  [FAIL] [I] source 1 grant equals MAAP base plus index accepted request identifies the response
+  [FAIL] #606 first probe after acquisition bound succeeds got=0x00000003 exp=0x00000000
+  [FAIL] #606 first probe names the source SID      station MAC and source UID
+  [FAIL] #606 first probe names the acquired destination real MAAP base plus source
+  [FAIL] #606 first probe names the configured VID  got=0x00000000 exp=0x00000002
+  [FAIL] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000000
+FIRST_PROBE source=1 status=3 DA=000000000000
+pp_shadow: 37 checks, 14 failures
+RESULT: FAIL
+make: *** [Makefile:160: run-crf] Error 1
+== only608-97bd3786 crf-stop
+CRF_STOP phase=ordinary-IN withdrawal_cycle=351970 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=0 stop_after=1
+CRF_STOP own_deadline_ms=10001 withdrawal_ms=10002 registrar=1
+CRF_STOP phase=own-expiry-before-transmit withdrawal_cycle=1000232 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=1 stop_after=2
+CRF_STOP phase=reconnected-IN withdrawal_cycle=1397252 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=2 stop_after=3
+pp_shadow: 31 checks, 0 failures
+RESULT: PASS
+== only606-8eefb7b first-probe
+FIRST_PROBE source=0 status=0 DA=91e0f0004f32
+FIRST_PROBE source=1 status=0 DA=91e0f0004f33
+pp_shadow: 37 checks, 0 failures
+RESULT: PASS
+== only606-8eefb7b crf-stop
+CRF_STOP phase=ordinary-IN withdrawal_cycle=351970 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=0 stop_after=1
+  [FAIL] #608 timer expiry preserves IN until own transmit action got=0x00000002 exp=0x00000001
+CRF_STOP own_deadline_ms=10001 withdrawal_ms=10002 registrar=2
+  [FAIL] #608 withdrawal closes the CRF licence within one PDU got=0x00000001 exp=0x00000000
+  [FAIL] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000001 exp=0x00000002
+  [FAIL] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000004 exp=0x00000000
+  [FAIL] #608 hold creates no duplicate STREAM_STOP got=0x00000001 exp=0x00000002
+CRF_STOP phase=own-expiry-before-transmit withdrawal_cycle=1000232 period_cycles=49152 late_frames=4 tail_frames=1 stop_before=1 stop_after=1
+CRF_STOP phase=reconnected-IN withdrawal_cycle=1397252 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=1 stop_after=2
+  [FAIL] #608 three withdrawals count three stops   got=0x00000002 exp=0x00000003
+pp_shadow: 31 checks, 6 failures
+RESULT: FAIL
+== new-c951a9ff first-probe
+FIRST_PROBE source=0 status=0 DA=91e0f0004f32
+FIRST_PROBE source=1 status=0 DA=91e0f0004f33
+pp_shadow: 37 checks, 0 failures
+RESULT: PASS
+== new-c951a9ff crf-stop
+CRF_STOP phase=ordinary-IN withdrawal_cycle=351970 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=0 stop_after=1
+CRF_STOP own_deadline_ms=10001 withdrawal_ms=10002 registrar=1
+CRF_STOP phase=own-expiry-before-transmit withdrawal_cycle=1000232 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=1 stop_after=2
+CRF_STOP phase=reconnected-IN withdrawal_cycle=1397252 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=2 stop_after=3
+pp_shadow: 31 checks, 0 failures
+RESULT: PASS

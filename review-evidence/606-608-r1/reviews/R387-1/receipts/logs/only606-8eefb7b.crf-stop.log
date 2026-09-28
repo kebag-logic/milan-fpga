@@ -1,0 +1,40 @@
+=== milan_datapath + the protocol processor AS the control plane ===
+[CRF_STOP] #608 IN withdrawal, own LeaveAll expiry and restart
+  [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+  [PASS] #608 real MAAP block claimed               got=0x00000001 exp=0x00000001
+  [PASS] #608 no Listener means no CRF licence      got=0x00000000 exp=0x00000000
+  [PASS] #608 CRF actually transmits before withdrawal at least two complete tagged CRF PDUs
+  [PASS] #608 CRF licence is active                 got=0x00000001 exp=0x00000001
+  [PASS] #608 observed CRF cadence equals one PDU period independent 512 * 96 audio-clock cadence
+  [PASS] #608 withdrawal closes the CRF licence within one PDU got=0x00000000 exp=0x00000000
+  [PASS] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000001 exp=0x00000001
+  [PASS] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000000 exp=0x00000000
+  [PASS] #608 at most one in-flight PDU completes   a started PDU may drain without truncation
+  [PASS] #608 hold creates no duplicate STREAM_STOP got=0x00000001 exp=0x00000001
+CRF_STOP phase=ordinary-IN withdrawal_cycle=351970 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=0 stop_after=1
+  [PASS] #608 CRF actually transmits before withdrawal at least two complete tagged CRF PDUs
+  [PASS] #608 CRF licence is active                 got=0x00000001 exp=0x00000001
+  [PASS] #608 observed CRF cadence equals one PDU period independent 512 * 96 audio-clock cadence
+  [PASS] #608 own LeaveAll deadline is still ahead  deadline captured before its timer fires
+  [PASS] #608 expiry-window stimulus reaches deadline + 1 ms got=0x00002712 exp=0x00002712
+  [FAIL] #608 timer expiry preserves IN until own transmit action got=0x00000002 exp=0x00000001
+CRF_STOP own_deadline_ms=10001 withdrawal_ms=10002 registrar=2
+  [FAIL] #608 withdrawal closes the CRF licence within one PDU got=0x00000001 exp=0x00000000
+  [FAIL] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000001 exp=0x00000002
+  [FAIL] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000004 exp=0x00000000
+  [PASS] #608 at most one in-flight PDU completes   a started PDU may drain without truncation
+  [FAIL] #608 hold creates no duplicate STREAM_STOP got=0x00000001 exp=0x00000002
+CRF_STOP phase=own-expiry-before-transmit withdrawal_cycle=1000232 period_cycles=49152 late_frames=4 tail_frames=1 stop_before=1 stop_after=1
+  [PASS] #608 CRF actually transmits before withdrawal at least two complete tagged CRF PDUs
+  [PASS] #608 CRF licence is active                 got=0x00000001 exp=0x00000001
+  [PASS] #608 observed CRF cadence equals one PDU period independent 512 * 96 audio-clock cadence
+  [PASS] #608 withdrawal closes the CRF licence within one PDU got=0x00000000 exp=0x00000000
+  [PASS] #608 STREAM_STOP counts this withdrawal exactly once got=0x00000002 exp=0x00000002
+  [PASS] #608 no CRF frame after the one-PDU withdrawal bound got=0x00000000 exp=0x00000000
+  [PASS] #608 at most one in-flight PDU completes   a started PDU may drain without truncation
+  [PASS] #608 hold creates no duplicate STREAM_STOP got=0x00000002 exp=0x00000002
+CRF_STOP phase=reconnected-IN withdrawal_cycle=1397252 period_cycles=49152 late_frames=0 tail_frames=0 stop_before=1 stop_after=2
+  [FAIL] #608 three withdrawals count three stops   got=0x00000002 exp=0x00000003
+----------------------------------------------------------------
+pp_shadow: 31 checks, 6 failures
+RESULT: FAIL

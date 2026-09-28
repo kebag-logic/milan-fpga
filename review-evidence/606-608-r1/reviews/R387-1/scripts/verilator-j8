@@ -1,0 +1,16 @@
+#!/bin/sh
+# Forward to the pinned Verilator 5.050, capping --build parallelism at 8
+# (the recipe passes -j 0, meaning one job per host thread). No other
+# argument is changed.
+: "${PINNED_VERILATOR:?set PINNED_VERILATOR to the pinned verilator wrapper}"
+n=$#
+i=0
+prev=
+for a in "$@"; do
+    i=$((i + 1))
+    if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=8; fi
+    set -- "$@" "$a"
+    prev=$a
+done
+shift "$n"
+exec "$PINNED_VERILATOR" "$@"
