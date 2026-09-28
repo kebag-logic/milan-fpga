@@ -1,0 +1,13 @@
+PASS: dispatch removal caught by continuous backing and per-line checks
+PASS: dispatch removal caught by continuous backing and per-line checks
+none                                                       PASS :: dispatch_controls=pass(4); service_controls=pass(17)
+per-line oracle removed                                    KILLED :: dispatch_controls=RAISED(per-line dispatch omission escaped); service_controls=RAISED(per-line dispatch omission escaped)
+PASS: dispatch removal caught by continuous backing and per-line checks
+PASS: dispatch removal caught by continuous backing and per-line checks
+per-line oracle limited to queued-builtins (round-2 scope) PASS :: dispatch_controls=pass(4); service_controls=pass(17)
+PASS: dispatch removal caught by continuous backing and per-line checks
+PASS: dispatch removal caught by continuous backing and per-line checks
+verdict per-line requirement removed (round-2 verdict)     KILLED :: dispatch_controls=RAISED(dispatch verdict accepted backing loss without per-line finding); service_controls=RAISED(dispatch verdict accepted backing loss without per-line finding)
+per-line oracle fires on every row (over-eager)            KILLED :: dispatch_controls=RAISED(serviced console line refused); service_controls=RAISED(serviced console line refused)
+RESULT: FAIL ['per-line oracle limited to queued-builtins (round-2 scope)']
+rc=1

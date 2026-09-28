@@ -1,0 +1,49 @@
+litex pristine a1e1c3652ec2f1346ebaea7663d2867f393ae2c4 (git show, read-only)
+Checking patch litex/soc/cores/cpu/vexiiriscv/core.py...
+Hunk #3 succeeded at 574 (offset -1 lines).
+Applied patch litex/soc/cores/cpu/vexiiriscv/core.py cleanly.
+applied 0004-vexiiriscv-baremetal-variant.patch rc=0
+Checking patch litex/soc/software/bios/main.c...
+Applied patch litex/soc/software/bios/main.c cleanly.
+applied 0006-bios-dispatch-hook.patch rc=0
+0006 reverse-check ok
+applied main.c identical to shared install main.c
+f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f  $REVIEWS/r369-3-590/sw/litex/patches/0006-bios-dispatch-hook.patch
+
+	printf("No boot medium found\n");
+}
+#endif
+
+/* Product service opportunity for every line, before parsing or dispatch.
+ * The default keeps upstream BIOS behavior when no product overrides it. */
+void command_dispatch_hook(void);
+void bios_dispatch_hook_required(void);
+
+/* Strong link marker required by product firmware using this hook. */
+void bios_dispatch_hook_required(void)
+{
+}
+
+void __attribute__((weak)) command_dispatch_hook(void)
+{
+}
+
+__attribute__((__used__)) int main(int i, char **c)
+{
+#ifndef BIOS_CONSOLE_DISABLE
+	char buffer[CMD_LINE_BUFFER_SIZE];
+	char *params[MAX_PARAM];
+	char *command;
+	struct command_struct *cmd;
+#if !defined(BIOS_CONSOLE_LITE) && !defined(BIOS_CONSOLE_NO_HISTORY)
+	hist_init();
+#endif
+	printf("\n%s", PROMPT);
+	while(1) {
+		readline(buffer, CMD_LINE_BUFFER_SIZE);
+		command_dispatch_hook();
+		printf("\n");
+		if (buffer[0] != 0) {
+			nb_params = get_param(buffer, &command, params);
+			/* Ignore whitespace-only lines */
+			if (*command != 0) {

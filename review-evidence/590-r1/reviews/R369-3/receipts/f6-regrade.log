@@ -1,0 +1,32 @@
+archive manifest: author-r3 files checked=224
+artifacts=135 stored-verified=62 raw-fallback-verified=23 path-redacted-with-original-hash-bound=50
+service receipts: 15
+service-1x1-all                              mutation=none            lines=17    ticked=17    per-line=0     unbacked=0           hb_gap_ms=264.64718 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-1x1-device-wait                      mutation=none            lines=2     ticked=2     per-line=0     unbacked=0           hb_gap_ms=250.61836 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-1x1-queued-builtins                  mutation=none            lines=1051  ticked=1051  per-line=0     unbacked=0           hb_gap_ms=269.2148 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-1x1-queued-input                     mutation=none            lines=13    ticked=13    per-line=0     unbacked=0           hb_gap_ms=269.07972 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-1x1-queued-short                     mutation=none            lines=350   ticked=350   per-line=0     unbacked=0           hb_gap_ms=257.66458 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-1x1-uart-paced                       mutation=none            lines=17    ticked=17    per-line=0     unbacked=0           hb_gap_ms=252.70784 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-8x8-all                              mutation=none            lines=17    ticked=17    per-line=0     unbacked=0           hb_gap_ms=322.47884 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-8x8-device-wait                      mutation=none            lines=2     ticked=2     per-line=0     unbacked=0           hb_gap_ms=275.4817 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-8x8-queued-builtins                  mutation=none            lines=1051  ticked=1051  per-line=0     unbacked=0           hb_gap_ms=258.41092 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-8x8-queued-input                     mutation=none            lines=13    ticked=13    per-line=0     unbacked=0           hb_gap_ms=322.47884 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-8x8-queued-short                     mutation=none            lines=350   ticked=350   per-line=0     unbacked=0           hb_gap_ms=257.6652 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-8x8-uart-paced                       mutation=none            lines=17    ticked=17    per-line=0     unbacked=0           hb_gap_ms=295.45834 findings=0 verdict='PASS: measurement evidence; budget findings: 0' OK
+service-late-sample-all                      mutation=late-sample     lines=17    ticked=17    per-line=0     unbacked=0           hb_gap_ms=264.10428 findings=1 verdict='PASS: late MDIO sampling caught by target negotiation check' OK
+   late-sample named finding present: True
+service-remove-dispatch-queued-builtins      mutation=remove-dispatch lines=1051  ticked=0     per-line=1051  unbacked=623935512   hb_gap_ms=8238.99253 findings=1055 verdict='PASS: dispatch removal caught by continuous backing and per-line checks' OK
+   remove-dispatch sample findings: ['over-budget duty: maximum_heartbeat_gap', 'continuous backing lost'] | first per-line: console line lacks a dispatch opportunity: mem_read 0x40000000 128
+service-remove-dispatch-queued-short         mutation=remove-dispatch lines=350   ticked=0     per-line=350   unbacked=77058554    hb_gap_ms=2770.22295 findings=354 verdict='PASS: dispatch removal caught by continuous backing and per-line checks' OK
+   remove-dispatch sample findings: ['over-budget duty: maximum_heartbeat_gap', 'continuous backing lost'] | first per-line: console line lacks a dispatch opportunity: milan_status
+no-publish control: OK | PASS: missing publication caught by target simulation
+capture-1x1-50-on      rows=16 max_ms=3.88779 firmware= OK
+capture-1x1-50-off     rows=16 max_ms=3.84214 firmware= OK
+capture-8x8-50-on      rows=16 max_ms=13.23352 firmware= OK
+capture-8x8-50-off     rows=16 max_ms=13.06923 firmware= OK
+capture-8x8-100-on     rows=16 max_ms=9.954640000000001 firmware= OK
+capture-8x8-100-off    rows=16 max_ms=9.940940000000001 firmware= OK
+byte-only: min_ms=24.3031 max_ms=24.30446 ratio=1.83648 grade_byte_only=PASS baseline_bound=True
+captures regraded: 96
+RESULT: PASS
+rc=0

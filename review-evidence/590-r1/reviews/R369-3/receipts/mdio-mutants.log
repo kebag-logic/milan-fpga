@@ -1,0 +1,8 @@
+none                                 PASS(PHY_OK)
+one-turnaround                       KILLED rc=-6 69-3-590/sw/firmware/nvm_hosttest/phy_host.c:45: milan_mac_phy_mdio_w_write: Assertion `!(value & 2u)' failed.
+three-turnaround                     KILLED rc=-6 /r369-3-590/sw/firmware/nvm_hosttest/phy_host.c:36: milan_mac_phy_mdio_w_write: Assertion `value & 2u' failed.
+ack-ignored                          KILLED rc=-6 ws/r369-3-590/sw/firmware/nvm_hosttest/phy_host.c:98: expect_poll: Assertion `status_word == expected' failed.
+fifteen-data                         KILLED rc=-6 69-3-590/sw/firmware/nvm_hosttest/phy_host.c:45: milan_mac_phy_mdio_w_write: Assertion `!(value & 2u)' failed.
+read-opcode-write                    KILLED rc=-6 irmware/nvm_hosttest/phy_host.c:46: milan_mac_phy_mdio_w_write: Assertion `(command_bits >> 10) == 6u' failed.
+sample-without-settle(equivalent)    PASS(PHY_OK)
+rc=0

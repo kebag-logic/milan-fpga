@@ -1,0 +1,85 @@
+{
+ "date": "2026-09-28",
+ "base": "26a26e1f39feeebaebb0f450d7cbe2b63429c252",
+ "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
+ "soc_component_revisions": {
+  "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
+  "migen": "4c2ae8dfeea37f235b52acb8166f12acaaae4f7c",
+  "litedram": "f9b75e0347fc43267d083f7ff5965170fe8f9a58",
+  "liteeth": "276c9e37fb4d92a5c0f30d39a51c20f42a59cf93",
+  "litespi": "02d5a209bc0010d33ddb506ba18e736636d4109a",
+  "litex-boards": "9ac53c7a11f2571ba2c9f165f468ae021a4f9bda",
+  "pythondata-cpu-vexiiriscv": "15cfab529a17c473d0fc75edf3f409eb374cef35"
+ },
+ "cpu_generator_revision": "235753e24f2d960e49a0852205bae1400bf22c19",
+ "cpu_generator_note": "Existing product patches retained; generated netlist hashes below identify their output.",
+ "simulator": "Verilator 5.052",
+ "network": "disabled; offline dependency resolution",
+ "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
+ "product_firmware_sha256": "89c0360ed2eb63566d0413e9c721aee05aae4581f23d3897a1ae853b46a10070",
+ "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
+ "python_hash_seed": "0",
+ "phase": "CPU rising edges aligned with sys; audio starts at half-period",
+ "hold_floor_ms": 49,
+ "measured_for": {
+  "endstation_ax7101_8x8": {
+   "raw_bytes": 12634,
+   "records": 156,
+   "cpu_hz": 50000000,
+   "configured_cpu_hz": 50000000,
+   "sys_hz": 100000000
+  },
+  "endstation_ax7101_1x1_tdm8": {
+   "raw_bytes": 3218,
+   "records": 53,
+   "cpu_hz": 50000000,
+   "configured_cpu_hz": 50000000,
+   "sys_hz": 100000000
+  }
+ },
+ "harness_sha256": {
+  "firmware.py": "772ffdc689f08a3dc59889d87a72ce7559230dff739d4ebe1caf2aca3fc892c8",
+  "soc.py": "9fc7aebe4e969643b75ff9d793712eb9ee04dc736278ce6e2b7f986d128534f5",
+  "sim_main.cpp": "a4bc36e60bcba79bc3b9e31412058b12b891d719b5664d608a89d37dae8b028d",
+  "recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
+  "probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
+  "run.py": "f80afdba407f73c750cdd633419ee51977fab211dc23f7cc7bd577ea5a7a289d"
+ },
+ "maxima": [
+  {
+   "shape": "endstation_ax7101_1x1_tdm8",
+   "cpu_hz": 50000000,
+   "maximum_ms": 3.88779,
+   "margin": 12.60356140635168
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "cpu_hz": 50000000,
+   "maximum_ms": 13.23352,
+   "margin": 3.702718551073335
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "cpu_hz": 100000000,
+   "maximum_ms": 9.954640000000001,
+   "margin": 4.92232767834899
+  }
+ ],
+ "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172",
+ "processor_pins": {
+  "protocol-processor": "16be6768f710e79450aace277abacd6c2c3336e5",
+  "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+  "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+ },
+ "tree": "1ced48e23609180f2d09a19352837c00317429fe",
+ "reproduction_environment": {
+  "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, withou
+head firmware sha256 89c0360ed2eb63566d0413e9c721aee05aae4581f23d3897a1ae853b46a10070
+26a26e1f3 tree 1ced48e23609180f2d09a19352837c00317429fe
+HEAD tree 439a972bb34677e0bb9b25965ef53cbd8c6bb564
+endstation_ax7101_1x1_tdm8 50000000 on n= 16 max 3.88779 floor_ratio None {'shape': 'endstation_ax7101_1x1_tdm8', 'cpu_netlist_sha256': 'c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d', 'instrumented_firmware_sha256': 'ae0f11b88ec4d8c0d1dc2d0bac9ca0a00c2749941aff78a21759160fa2aaf1fc', 'bios_sha256': '3fd81de3397e30ee865515252f9424e2f8895869eb0aac9a5bb224259709a50b', 'gptp_ucode_sha256': '78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b', 'config_sha256': 'd2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807'}
+endstation_ax7101_1x1_tdm8 50000000 off n= 16 max 3.84214 floor_ratio None {'shape': 'endstation_ax7101_1x1_tdm8', 'cpu_netlist_sha256': 'c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d', 'instrumented_firmware_sha256': '9706b691a169448d8b19624c63b5751058b34a17a5cd69d3f3976aac1a4e7f4e', 'bios_sha256': '68393ca5ac49704ff8c48f942c581342ff7fa112a54e266cf17a627be1e04f26', 'gptp_ucode_sha256': '78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b', 'config_sha256': 'd2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807'}
+endstation_ax7101_8x8 50000000 on n= 16 max 13.23352 floor_ratio None {'shape': 'endstation_ax7101_8x8', 'cpu_netlist_sha256': 'c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d', 'instrumented_firmware_sha256': 'ae0f11b88ec4d8c0d1dc2d0bac9ca0a00c2749941aff78a21759160fa2aaf1fc', 'bios_sha256': 'dbc54523ed5a08bd69b9e9b45e3f681db06fe245fcecd3fff4e05a277fc7654e', 'gptp_ucode_sha256': '78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b', 'config_sha256': 'ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e'}
+endstation_ax7101_8x8 50000000 off n= 16 max 13.06923 floor_ratio None {'shape': 'endstation_ax7101_8x8', 'cpu_netlist_sha256': 'c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d', 'instrumented_firmware_sha256': '9706b691a169448d8b19624c63b5751058b34a17a5cd69d3f3976aac1a4e7f4e', 'bios_sha256': '29b8052a8ab13aa4848b12ff568203e685a7edc56d2139f59057a68ebfabf1cf', 'gptp_ucode_sha256': '78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b', 'config_sha256': 'ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e'}
+endstation_ax7101_8x8 100000000 on n= 16 max 9.954640000000001 floor_ratio None {'shape': 'endstation_ax7101_8x8', 'cpu_netlist_sha256': 'c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d', 'instrumented_firmware_sha256': 'ae0f11b88ec4d8c0d1dc2d0bac9ca0a00c2749941aff78a21759160fa2aaf1fc', 'bios_sha256': 'dbc54523ed5a08bd69b9e9b45e3f681db06fe245fcecd3fff4e05a277fc7654e', 'gptp_ucode_sha256': '78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b', 'config_sha256': 'ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e'}
+endstation_ax7101_8x8 100000000 off n= 16 max 9.940940000000001 floor_ratio None {'shape': 'endstation_ax7101_8x8', 'cpu_netlist_sha256': 'c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d', 'instrumented_firmware_sha256': '9706b691a169448d8b19624c63b5751058b34a17a5cd69d3f3976aac1a4e7f4e', 'bios_sha256': '29b8052a8ab13aa4848b12ff568203e685a7edc56d2139f59057a68ebfabf1cf', 'gptp_ucode_sha256': '78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b', 'config_sha256': 'ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e'}
