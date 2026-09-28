@@ -27794,6 +27794,14 @@ def test_nvm_firmware_shapes() -> None:
          "--self-test"], check=True, cwd=ROOT, timeout=600)
 
 
+def test_clock_crossing_constraints() -> None:
+    """Run shipping elaborations, scoped exceptions and implementation-log controls."""
+    python = _litex_or_skip("607 clock constraints")
+    if python is not None:
+        subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+                       check=True, cwd=ROOT, timeout=2700)
+
+
 def test_commercial_timing_grade() -> None:
     """Pin the release conditions and prove that the real platform consumes them."""
     from test_timing_grade import test_platform_hooks, test_pll_grade, test_timing_grade_contract
@@ -27816,7 +27824,8 @@ if __name__ == "__main__":
         sys.exit(0)
     for fn in (test_commercial_timing_grade,
                test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
-               test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
+               test_declaration_contracts, test_clock_crossing_constraints,
+               test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
                test_qspi_owner_transition_completed_write_prefixes,

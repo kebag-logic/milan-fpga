@@ -16,6 +16,7 @@ from typing import Any
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
+from clock_constraints import BoundedEthVivadoToolchain
 from platforms.ax7101_timing import TIMING_GRADE, configure_commands
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -297,6 +298,10 @@ class Platform(Xilinx7SeriesPlatform):
         # The board marking is industrial; #395 declares a commercial release.
         Xilinx7SeriesPlatform.__init__(self, TIMING_GRADE["part"], _io, _connectors,
                                        toolchain=toolchain)
+        if toolchain == "vivado":
+            # Replace before adding any hooks; state on the old toolchain
+            # would be discarded. Keep all hook configuration below this.
+            self.toolchain = BoundedEthVivadoToolchain()
         for command in configure_commands():
             # LiteX formats these strings once while writing the build Tcl.
             self.toolchain.pre_placement_commands.append(
