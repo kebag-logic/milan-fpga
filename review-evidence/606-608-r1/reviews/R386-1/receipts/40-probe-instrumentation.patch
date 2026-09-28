@@ -1,0 +1,61 @@
+diff --git a/tb/verilator/pp_shadow/recovery_probes.vlt b/tb/verilator/pp_shadow/recovery_probes.vlt
+index fa693aa10..210a93609 100644
+--- a/tb/verilator/pp_shadow/recovery_probes.vlt
++++ b/tb/verilator/pp_shadow/recovery_probes.vlt
+@@ -5,3 +5,4 @@ public_flat_rd -module "KL_srp_top" -var "cad_dl_r"
+ public_flat_rd -module "protocol_processor_top" -var "now_ms_w"
+ public_flat_rd -module "KL_srp_talker_fsm" -var "reg_r"
+ public_flat_rd -module "milan_datapath" -var "pp_maap_req_src_w"
++public_flat_rd -module "milan_datapath" -var "maap_addr_valid"
+diff --git a/tb/verilator/pp_shadow/sim_main.cpp b/tb/verilator/pp_shadow/sim_main.cpp
+index 9994c6a6f..75d1f3fb4 100644
+--- a/tb/verilator/pp_shadow/sim_main.cpp
++++ b/tb/verilator/pp_shadow/sim_main.cpp
+@@ -271,6 +271,7 @@ class PpShadowHarness {
+             if (rp->milan_datapath__DOT__pp_maap_rsp_ok_w) {
+                 mo.granted++;
+                 if (mo.response_pending && mo.pending_source < mo.source_grants.size()) {
++                    printf("PROBE_GRANT src=%u cycle=%llu\n", mo.pending_source, (unsigned long long)cycle_count);
+                     ++mo.source_grants[mo.pending_source];
+                     mo.source_da[mo.pending_source] = rp->milan_datapath__DOT__pp_maap_rsp_da_w;
+                 } else {
+@@ -284,6 +285,9 @@ class PpShadowHarness {
+             mo.response_pending = false;
+         }
+         if (rp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u) mo.declaring_cycles++;
++        { static bool av = false; bool now = rp->milan_datapath__DOT__maap_addr_valid;
++          if (now != av) printf("PROBE_ADDR_VALID %d cycle=%llu\n", (int)now, (unsigned long long)cycle_count);
++          av = now; }
+ 
+         if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+             if (!tx_open) { tx_frames.push_back(TxFrame()); tx_open = true; }
+@@ -1980,6 +1984,7 @@ class PpShadowHarness {
+         ck_true("KL_maap reached ANNOUNCE (a block is claimed)", announced,
+                 announced ? "addr_valid asserted" : "TIMED OUT - check MAAP_CLK_HZ_P");
+         const uint32_t maap_off = axi_read(A_MAAP_STAT0) & 0xFFFF;
++        printf("PROBE_ANNOUNCE_SEEN cycle=%llu bound=%d\n", (unsigned long long)cycle_count, kAcquisitionCycles);
+         run_idle(kAcquisitionCycles);
+         drain_maap_response();
+         ck("every accepted request was ANSWERED", mo.answered - i0.answered,
+@@ -1987,6 +1992,7 @@ class PpShadowHarness {
+         ck("every response has its accepted source", mo.unpaired_responses, 0);
+         for (unsigned source = 0; source < outputs; ++source) {
+             char label[128];
++            printf("PROBE_I_CHECK src=%u cycle=%llu\n", source, (unsigned long long)cycle_count);
+             snprintf(label, sizeof label, "#606 source %u auto-acquired before first probe", source);
+             ck(label, mo.source_grants[source] - i0.source_grants[source], 1);
+             const uint64_t expected_da = MAAP_POOL_BASE | ((maap_off + source) & 0xffff);
+@@ -2184,6 +2190,13 @@ class PpShadowHarness {
+         crf_start_and_measure();
+         crf_withdraw_and_grade("reconnected-IN");
+         ck("#608 three withdrawals count three stops", crf_stream_stops(), 3);
++        for (const auto& f : tx_frames) {
++            const auto& b = f.bytes;
++            if (b.size() >= 21 && get_be(b, 12, 2) == 0x22ea)
++                printf("PROBE_MSRP_TX cycle=%llu ms~%llu attrtype=%u leaveall=%u\n",
++                       (unsigned long long)f.end_cycle, (unsigned long long)(f.end_cycle / PP_MS_CYCLES),
++                       b[15], (b[19] >> 5) & 7);
++        }
+ #else
+         ck_true("#608 requires the CRF-output fixture", false, "use run-crf");
+ #endif

@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 193d74be5..820fb2a5e 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3078,7 +3078,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! different exact widths and the ternary form lints as trunc+expand)
+   wire [ACMP_SRC_C-1:0] tkd_streaming_w;
+   generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+-    assign tkd_streaming_w = {crft_emit_en_w, aaf_stream_en_w};
++    assign tkd_streaming_w = {crft_emit_en_w & 1'b0, aaf_stream_en_w};
+   end else begin : g_tkd_nocrf
+     assign tkd_streaming_w = aaf_stream_en_w;
+   end endgenerate

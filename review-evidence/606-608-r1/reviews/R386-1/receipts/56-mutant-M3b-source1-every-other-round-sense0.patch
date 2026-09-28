@@ -1,0 +1,37 @@
+diff --git a/hdl/acmp/KL_acmp_talker.sv b/hdl/acmp/KL_acmp_talker.sv
+index c410514..1b3e0d3 100644
+--- a/hdl/acmp/KL_acmp_talker.sv
++++ b/hdl/acmp/KL_acmp_talker.sv
+@@ -446,7 +446,9 @@ module KL_acmp_talker
+   //! work coalesces across rounds; the rotating picker prevents a refusing
+   //! low index from monopolising the single-outstanding allocator.
+   localparam logic [31:0] DA_RETRY_MS_C = 32'd100;
++  localparam bit MUT_PAR_SENSE_P = 1'b0;
+   logic [31:0] retry_t0_r;
++  logic mut_par_r;
+   logic retry_tick_w;
+   logic [N_STREAM_OUT_P-1:0] retry_wait_r, init_ready_w;
+   logic [SRC_W_C-1:0] retry_next_r, init_src_w;
+@@ -886,12 +888,14 @@ module KL_acmp_talker
+     if (!rst_n) begin
+       retry_t0_r   <= now_ms_i;
+       retry_wait_r <= '0;
++      mut_par_r    <= 1'b0;
+       retry_next_r <= '0;
+       txn_turn_r   <= 1'b1;
+     end else begin
+       if (retry_tick_w) begin
+         retry_t0_r   <= now_ms_i;
+         retry_wait_r <= '0;
++        mut_par_r    <= ~mut_par_r;
+       end
+       // A new configuration lifetime or conflict starts a new acquisition.
+       for (int i = 0; i < int'(N_STREAM_OUT_P); i++) begin
+@@ -1120,6 +1124,7 @@ module KL_acmp_talker
+     set_tmr_w      = '0;
+     set_lsn_w      = '0;
+     set_init_w     = retry_tick_w ? cfg_src_en_i : '0;
++    if (MUT_PAR_SENSE_P ? mut_par_r : !mut_par_r) set_init_w[N_STREAM_OUT_P-1] = 1'b0;
+     set_off_w      = '0;
+     set_rel_w      = '0;
+     clr_disp_w     = '0;

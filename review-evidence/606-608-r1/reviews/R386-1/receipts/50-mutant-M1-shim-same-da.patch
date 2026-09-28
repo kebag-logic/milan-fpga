@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/KL_pp_maap_shim.sv b/hdl/milan/KL_pp_maap_shim.sv
+index b12c5edbd..1e82a14b4 100644
+--- a/hdl/milan/KL_pp_maap_shim.sv
++++ b/hdl/milan/KL_pp_maap_shim.sv
+@@ -190,7 +190,7 @@ module KL_pp_maap_shim #(
+   //! cannot name an address outside the MAAP pool.
+   logic [15:0] off_w;
+   logic [47:0] da_w;
+-  assign off_w = blk_addr_i[15:0] + 16'(req_src_i);
++  assign off_w = blk_addr_i[15:0] + 16'(req_src_i & 1'b0);
+   assign da_w  = {blk_addr_i[47:16], off_w};
+ 
+   //! a request is taken whenever no response is already in flight
