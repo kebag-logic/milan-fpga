@@ -45,6 +45,7 @@ structurally unable to follow anything else. Two consequences:
 | 7 | **A wild trim saturates** | 2× past the clamp equals the clamp, to 1e-3 ppm |
 | 8 | **A live trim change is glitchless** | two mid-flight trim steps, period bounds hold throughout |
 | 9 | **The servo path: sign, scale, gate** | 13 servo commands × 2 clock shapes against an independently-written oracle |
+| 10 | **A trim may move on any cycle** (#617) | every move of the period's end (lent, nominal, borrowed; up and down, one and two cycles), landing on each cycle from three before the terminal count to the next period's first, both shapes: one tick in a period the old or the new trim sets, the count never past the higher end, the accumulator booking the trim in force on the period's last cycle |
 
 Check 5 deserves a note: the *exact* proof of the LSB is check 2 at `trim = ±1`,
 which is integer-exact and needs no statistics. The ppm secant is the
@@ -111,6 +112,7 @@ the clamp interaction is covered too.
 | drop the servo negation | yes — 30 fail |
 | `>>> 3` instead of `>>> 4` (wrong rescale) | yes — 18 fail |
 | ignore `servo_en_i` | yes — 104 fail |
+| terminal compare back to `==` (#617, the `377d1ac3` grid) | yes — 10 fail, all check 10 (a 3,089-clock period at 50 MHz); kept as a committed mutant in `tb/verilator/capture_coherence/mutants.py`, leg `nco` |
 
 ## Two shapes, deliberately
 

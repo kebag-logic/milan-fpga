@@ -4,6 +4,7 @@
 # Verilator verification of KL_media_nco.sv - the steerable media sample grid.
 #
 #   make        - build and run the self-checking harness
+#   make build  - build it alone
 #   make clean  - remove build artifacts
 #
 # Requires: verilator (>= 5.0), a C++17 compiler. No Xilinx tools needed.
@@ -19,16 +20,23 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/common \
          -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
 
-SRCS = media_nco_wrap.sv $(RTL_DIR)/ieee1722/crf/KL_media_nco.sv
+# NCO_SRC and MDIR are overridable so tb/verilator/capture_coherence's
+# mutation arm builds a MUTATED COPY of the grid through this exact recipe,
+# into its own directory.
+NCO_SRC ?= $(RTL_DIR)/ieee1722/crf/KL_media_nco.sv
+MDIR    ?= obj_dir
+SRCS = media_nco_wrap.sv $(NCO_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run clean
+.PHONY: all build run clean
 all: run
 
-run:
-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmedia_nco_sim
+build:
+	$(VERILATOR) $(VFLAGS) --Mdir $(MDIR) $(SRCS) $(CPP) -o Vmedia_nco_sim
+
+run: build
 	@echo "======================================================================"
-	./obj_dir/Vmedia_nco_sim
+	./$(MDIR)/Vmedia_nco_sim
 
 clean:
 	rm -rf obj_dir
