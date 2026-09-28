@@ -1,0 +1,96 @@
+dev 7390b4362 tree 702a78ea93c7519566a903f8d0dbb2205f21c58b
+C395 0ba810fea tree 702a78ea93c7519566a903f8d0dbb2205f21c58b
+## files #607 source changes vs dev
+docs/integration/BUILDING.md
+docs/litex/CLOCK_DOMAINS.md
+docs/litex/LITEX_SOC.md
+docs/testing/RUNNING_TESTS.md
+sw/builder/test_builder.py
+sw/builder/test_clock_constraints.py
+sw/builder/test_shipping_clock_constraints.py
+sw/litex/clock_constraints.py
+sw/litex/clock_constraints.tcl
+sw/litex/milan_soc.py
+sw/litex/platforms/alinx_ax7101.py
+sw/litex/sweep.sh
+## files predecessors (#595,#602) change vs dev
+CHANGELOG.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/TIME_SYNC.md
+docs/ENDSTATION_BUILDER.md
+docs/findings/394_387_E1_SWITCH_CYCLES.md
+docs/fpga/FPGA_DESIGN.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/MILAN_V12_ROADMAP.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/REGISTER_MAP.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+hdl/ieee1722/avtp/KL_media_clock_restart.sv
+hdl/milan/milan_datapath.sv
+REQUIREMENTS.md
+sw/builder/endstation_builder.py
+sw/builder/README-parameters.md
+sw/builder/test_builder.py
+sw/builder/test_declarations.py
+tb/verilator/milan_dp/gmstep_mutants.py
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_gmstep.cpp
+tb/verilator/milan_dp/sim_main.cpp
+tb/verilator/tkdiag/mcr_mutants.py
+tb/verilator/tkdiag/sim_main.cpp
+## intersection
+sw/builder/test_builder.py
+## files candidate changes vs C602
+docs/integration/BUILDING.md
+docs/litex/CLOCK_DOMAINS.md
+docs/litex/LITEX_SOC.md
+docs/testing/RUNNING_TESTS.md
+sw/builder/test_builder.py
+sw/builder/test_clock_constraints.py
+sw/builder/test_shipping_clock_constraints.py
+sw/litex/clock_constraints.py
+sw/litex/clock_constraints.tcl
+sw/litex/milan_soc.py
+sw/litex/platforms/alinx_ax7101.py
+sw/litex/sweep.sh
+## files candidate changes vs source
+candidate-vs-source == predecessors-vs-dev (file set)
+## per-file content equality for non-overlapping files
+SAME docs/integration/BUILDING.md
+SAME docs/litex/CLOCK_DOMAINS.md
+SAME docs/litex/LITEX_SOC.md
+SAME docs/testing/RUNNING_TESTS.md
+SAME sw/builder/test_clock_constraints.py
+SAME sw/builder/test_shipping_clock_constraints.py
+SAME sw/litex/clock_constraints.py
+SAME sw/litex/clock_constraints.tcl
+SAME sw/litex/milan_soc.py
+SAME sw/litex/platforms/alinx_ax7101.py
+SAME sw/litex/sweep.sh
+SAME-as-C602 CHANGELOG.md
+SAME-as-C602 docs/design/GM_LOSS_RECOVERY.md
+SAME-as-C602 docs/design/TIME_SYNC.md
+SAME-as-C602 docs/ENDSTATION_BUILDER.md
+SAME-as-C602 docs/findings/394_387_E1_SWITCH_CYCLES.md
+SAME-as-C602 docs/fpga/FPGA_DESIGN.md
+SAME-as-C602 docs/integration/BAREMETAL_FIRMWARE.md
+SAME-as-C602 docs/MILAN_V12_ROADMAP.md
+SAME-as-C602 docs/reference/MILAN_COMPLIANCE_MATRIX.md
+SAME-as-C602 docs/reference/REGISTER_MAP.md
+SAME-as-C602 docs/testing/CI_WORKFLOWS.md
+SAME-as-C602 docs/testing/TESTING.md
+SAME-as-C602 hdl/ieee1722/avtp/KL_media_clock_restart.sv
+SAME-as-C602 hdl/milan/milan_datapath.sv
+SAME-as-C602 REQUIREMENTS.md
+SAME-as-C602 sw/builder/endstation_builder.py
+SAME-as-C602 sw/builder/README-parameters.md
+SAME-as-C602 sw/builder/test_declarations.py
+SAME-as-C602 tb/verilator/milan_dp/gmstep_mutants.py
+SAME-as-C602 tb/verilator/milan_dp/Makefile
+SAME-as-C602 tb/verilator/milan_dp/README.md
+SAME-as-C602 tb/verilator/milan_dp/sim_gmstep.cpp
+SAME-as-C602 tb/verilator/milan_dp/sim_main.cpp
+SAME-as-C602 tb/verilator/tkdiag/mcr_mutants.py
+SAME-as-C602 tb/verilator/tkdiag/sim_main.cpp

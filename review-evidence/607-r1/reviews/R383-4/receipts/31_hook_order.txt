@@ -1,0 +1,24 @@
+== src-f5f4-ax7101_1x1_tdm8-e1-alinx_ax7101.tcl.norm
+258:synth_design -directive default -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {<TREE>/configs/generated/endstation_ax7101_1x1_
+269:source {<TREE>/sw/litex/clock_constraints.tcl}
+270:kl_quasi_static_constraints
+271:milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio
+275:opt_design -directive default
+279:source {<TREE>/sw/litex/timing_grade.tcl}
+280:kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+284:place_design -directive ExtraTimingOpt
+303:route_design -directive AggressiveExplore
+314:kl_timing_grade_reports alinx_ax7101_signoff
+325:write_bitstream -force alinx_ax7101.bit 
+== src-f5f4-ax7101_8x8-e2-alinx_ax7101.tcl.norm
+258:synth_design -directive default -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {<TREE>/configs/generated/endstation_ax7101_8x8 
+269:source {<TREE>/sw/litex/clock_constraints.tcl}
+270:kl_quasi_static_constraints
+271:milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio
+275:opt_design -directive default
+279:source {<TREE>/sw/litex/timing_grade.tcl}
+280:kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+284:place_design -directive ExtraTimingOpt
+303:route_design -directive AggressiveExplore
+314:kl_timing_grade_reports alinx_ax7101_signoff
+325:write_bitstream -force alinx_ax7101.bit 

@@ -1,0 +1,85 @@
+diff --git a/hdl/ieee1722/avtp/KL_media_clock_restart.sv b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+index 11425d65d..c0b5efc24 100644
+--- a/hdl/ieee1722/avtp/KL_media_clock_restart.sv
++++ b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+@@ -60,8 +60,8 @@
+                 the stream's previous toggle, and then, once the stream has
+                 adopted the new level, the time until its first PDU at that
+                 level. Until that PDU no listener has seen the toggle, so a
+-                second request landing anywhere in the window (a PHC step on
+-                top of a CRF disruption, say) asks for what the first
++                second request landing anywhere in the window (a source
++                change after a CRF disruption, say) asks for what the first
+                 already asked for, and the two merge: the stream puts
+                 exactly ONE toggle on the wire, and its MEDIA_RESET counts
+                 it. A request therefore does not flip a target; it sets the
+@@ -102,6 +102,12 @@
+                 (10.4.3: only the mr bit of the stream a Listener recovers
+                 its media clock from is valid).
+ 
++                #602 ruling 5859297355: a PHC-only render re-base is not
++                a restart request in the INTERNAL/CRF architecture. The
++                integration signals it through tu and holdover instead.
++                Only genuine source changes and selected-CRF causes reach
++                this engine; a coincident PHC step does not alter them.
++
+                 THE SOURCE-CHANGE TRIGGER. 4.4.4.3's PRIMARY case is a change
+                 of the media clock SOURCE (its S/PDIF A->B example), and PICS
+                 Table F.7 AAF-5 makes it AAF:M MANDATORY. clk_src_i carries the
+@@ -162,8 +168,8 @@ module KL_media_clock_restart #(
+   //! media-clock restart request: one cycle per restart event. The
+   //! integration ORs every trigger but the source change here: a disruption
+   //! of the CRF stream our media clock is slaved to, that stream's own mr
+-  //! toggle, and a PHC step (#387); the source-change trigger has its own
+-  //! clk_src_i below.
++  //! toggle. PHC-only steps are excluded by #602; the source-change
++  //! trigger has its own clk_src_i below.
+   input  wire                    restart_p_i,
+   //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
+   //! CHANGE of this value is 4.4.4.3's PRIMARY restart trigger (the clause's
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 193d74be5..d47b4206a 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3094,8 +3094,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //
+   //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
+   //  an internal media clock there is no CRF stream to be disrupted, so
+-  //  toggling mr would be a false alarm to every listener. A PHC step is not
+-  //  a CRF request and is not gated (#387, below).
++  //  toggling mr would be a false alarm to every listener. A PHC-only
++  //  re-base is not a restart request (#602, below).
+   // --------------------------------------------------------------------------
+   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+   //! the selected media clock source. The clause's OTHER mandatory trigger, a
+@@ -3121,20 +3121,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+   //! clock and must not toggle mr on our streams; with the CRF source
+   //! selected, it is exactly the mandatory trigger, now reachable.
+-  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
+-  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
+-  //! software's adjtime when the plane is off) or a software settime moves
+-  //! every presentation time this talker stamps, so it restarts the media
+-  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
+-  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
+-  //! while another restart is still pending (a CRF disruption, say) merges
+-  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
+-  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
+-  //! below.
++  //! #602 ruling 5859297355 supersedes #387's PHC-step restart cause.
++  //! A PHC-only re-base changes presentation time, not the INTERNAL/CRF
++  //! media-clock source. It keeps mr and MEDIA_RESET unchanged; tu and
++  //! its holdover still signal the gPTP discontinuity (4.4.4.7/10.4.5).
++  //! Keep the re-base pulse for the render recentre below. Real source
++  //! changes and selected-CRF disruption/mr propagation still request a
++  //! restart (4.4.4.3/10.4.3), even alongside a PHC step. The restart
++  //! engine retains its per-stream eight-PDU hold and pending merge.
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+-  wire mcr_restart_p_w = (crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++  wire mcr_restart_p_w = crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
