@@ -1,0 +1,10 @@
+R377-2 independent pass notes (written before reading any prior review text on PR #129)
+1. RTL head: set_* declarations now precede retry_round (878 < 898); moved lines are bare declarations, no initialisers (xelab 10-9171 class not applicable).
+2. Committed campaign reproduces: 56 killed, 4 equivalence controls, 50/50 retry assertion sites witnessed.
+3. Lockstep: 4 stated equivalents + removed !en_q_r term show no divergence (16 seeds x 3M cycles, focused churn); control diverges 12/16.
+4. Survivors of the committed suite that DO change behaviour (lockstep diverges):
+   elig_drop_conflict / elig_drop_pcp / elig_drop_tmr / elig_drop_lsn  -> commands can starve these event classes (documented alternation, 05 6bis) -- candidate finding (Tests/Robustness/RTL?)
+   turn_not_on_grant, tick_sets_all, init_ready_no_en, t0_reset_zero -> judged benign / within documented bounds.
+5. Unstated observational equivalents: EVC_INIT maap-busy else branch (dead since dispatch requires maap_avail_w), kill_w pe_off term, accept-side single terms (subsumed by stated accept_kill_zero).
+6. Public evidence folder pp128-r1 is round-1 (9476898b); exact-head manager evidence is the PR comment 5862432079 only.
+7. Requested scoped simulator path absent; used byte-identical sibling wrapper (5.050).

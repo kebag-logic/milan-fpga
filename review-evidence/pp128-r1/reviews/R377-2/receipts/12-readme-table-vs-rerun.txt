@@ -1,0 +1,61 @@
+OK  no_round: README 22 failures vs rerun 22; named assertion present in rerun: True
+OK  early_round: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  late_round: README 21 failures vs rerun 21; named assertion present in rerun: True
+OK  retry_wrap: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  no_pacing: README 36 failures vs rerun 36; named assertion present in rerun: True
+OK  fixed_priority: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  command_monopoly: README 5 failures vs rerun 5; named assertion present in rerun: True
+OK  retry_monopoly: README 60 failures vs rerun 60; named assertion present in rerun: True
+OK  disabled_alloc: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  no_accept_bound: README 50 failures vs rerun 50; named assertion present in rerun: True
+OK  short_accept_bound: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  refusal_is_grant: README 62 failures vs rerun 62; named assertion present in rerun: True
+OK  obsolete_grant: README 19 failures vs rerun 19; named assertion present in rerun: True
+OK  obsolete_release_lost: README 11 failures vs rerun 11; named assertion present in rerun: True
+OK  no_response_bound: README 16 failures vs rerun 16; named assertion present in rerun: True
+OK  response_wrap: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  no_stale_swallow: README 9 failures vs rerun 9; named assertion present in rerun: True
+OK  no_stale_capacity: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  no_stale_drain: README 16 failures vs rerun 16; named assertion present in rerun: True
+OK  backoff_bypass: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  reallocate_owned: README 119 failures vs rerun 119; named assertion present in rerun: True
+OK  half_backoff: README 6 failures vs rerun 6; named assertion present in rerun: True
+OK  fresh_forever: README 93 failures vs rerun 93; named assertion present in rerun: True
+OK  declare_without_demand: README 150 failures vs rerun 150; named assertion present in rerun: True
+OK  source_alias: README 166 failures vs rerun 166; named assertion present in rerun: True
+OK  gate_without_ownership: README 47 failures vs rerun 47; named assertion present in rerun: True
+OK  no_requests: README 206 failures vs rerun 206; named assertion present in rerun: True
+OK  no_command_ready: README 541 failures vs rerun 541; named assertion present in rerun: True
+OK  busy_tracker_blocks_commands: README 62 failures vs rerun 62; named assertion present in rerun: True
+OK  no_conflict_wait_clear: README 3 failures vs rerun 3; named assertion present in rerun: True
+OK  wait_on_release: README 48 failures vs rerun 48; named assertion present in rerun: True
+OK  tick_no_rearm: README 40 failures vs rerun 40; named assertion present in rerun: True
+OK  no_rotate_advance: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  no_sticky_gp_window: equivalent control; rerun tally '1172 checks: 1172 PASS, 0 FAIL'
+OK  grant_kill_reg_only: README 3 failures vs rerun 3; named assertion present in rerun: True
+OK  accept_kill_zero: equivalent control; rerun tally '1172 checks: 1172 PASS, 0 FAIL'
+OK  kill_no_pending_conflict: equivalent control; rerun tally '1172 checks: 1172 PASS, 0 FAIL'
+OK  kill_no_live_conflict: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  kill_no_disable: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  init_elig_no_avail: README 15 failures vs rerun 15; named assertion present in rerun: True
+OK  no_turn_restore: README 57 failures vs rerun 57; named assertion present in rerun: True
+OK  elig_drop_rel: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  elig_drop_off: README 4 failures vs rerun 4; named assertion present in rerun: True
+OK  ready_ignores_turn: README 89 failures vs rerun 89; named assertion present in rerun: True
+OK  init_ignores_off_conflict: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  retry_period_200: README 21 failures vs rerun 21; named assertion present in rerun: True
+OK  tick_ge_to_gt: README 21 failures vs rerun 21; named assertion present in rerun: True
+OK  kill_no_conflict_at_all: README 10 failures vs rerun 10; named assertion present in rerun: True
+OK  kill_no_disable_at_all: README 9 failures vs rerun 9; named assertion present in rerun: True
+OK  kill_sticky_off: README 10 failures vs rerun 10; named assertion present in rerun: True
+OK  no_probe_initset: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  no_lsn_initset: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  no_conflict_daok_initset: README 39 failures vs rerun 39; named assertion present in rerun: True
+OK  no_backoff_exit_initset: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  no_enable_wait_clear: README 2 failures vs rerun 2; named assertion present in rerun: True
+OK  eligible_only_init: README 4 failures vs rerun 4; named assertion present in rerun: True
+OK  accept_kill_no_disable: equivalent control; rerun tally '1172 checks: 1172 PASS, 0 FAIL'
+OK  init_no_enable_check: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  eligible_ignores_init: README 1 failures vs rerun 1; named assertion present in rerun: True
+OK  tick_keeps_wait: README 31 failures vs rerun 31; named assertion present in rerun: True
+rows 60: 60 consistent, 0 mismatched

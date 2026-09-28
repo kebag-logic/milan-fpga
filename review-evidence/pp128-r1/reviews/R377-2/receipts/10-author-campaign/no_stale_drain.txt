@@ -1,0 +1,18 @@
+return code: 2
+1150 checks: 1134 PASS, 16 FAIL
+FAIL: K7 src2 declares with ITS OWN DA: gate strobe missing
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x3a
+FAIL: K8 the abandoned source retries: maap request missing
+FAIL: K8 abandoned source recovers with a FRESH DA: gate strobe missing
+FAIL: K8 final gates, got 0x3a
+FAIL: L0 src7 ALLOC now PARKS the face: maap request missing
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face: maap request missing
+FAIL: L2 offered exactly once, got 0
+FAIL: L3 a TAKEN release is never re-offered, got 0
+FAIL: L4 src0 release takes the free face: maap request missing
+FAIL: L4 src3's owed release, lowest index first: maap request missing
+FAIL: L4 src5's owed release follows: maap request missing
+FAIL: L4 final gates, got 0x10
+FAIL: R5 retry response src0 status/tuple
+FAIL: R5 stale drain releases capacity for another source

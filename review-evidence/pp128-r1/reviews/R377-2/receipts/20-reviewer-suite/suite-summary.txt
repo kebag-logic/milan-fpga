@@ -1,0 +1,24 @@
+identity                           SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+ctl_kill_no_live_conflict          KILLED    1172 checks: 1170 PASS, 2 FAIL     FAIL: R13 cancellation kind0 edge3 never publishes obsolete grant
+eq_no_sticky_gp_window             SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+eq_accept_kill_zero                SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+eq_accept_kill_no_disable          SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+eq_kill_no_pending_conflict        SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+readd_en_q_clear                   SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+elig_drop_conflict                 SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+elig_drop_pcp                      SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+elig_drop_tmr                      SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+elig_drop_lsn                      SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+elig_unmasked_init                 KILLED    1172 checks: 1100 PASS, 72 FAIL    FAIL: R2 repeated probe src0 consumed
+init_busy_else_removed             SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+kill_w_no_off                      SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+accept_kill_no_pending_conflict    SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+accept_kill_no_live_conflict       SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+rotate_from_pointer                KILLED    1172 checks: 1164 PASS, 8 FAIL     FAIL: K5 THE REGRESSION: another source allocates again maap src got 6
+turn_not_on_grant                  SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+tick_sets_all                      SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+init_ready_no_en                   SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+disp_init_no_avail                 KILLED    1172 checks: 1139 PASS, 33 FAIL    FAIL: A maap src got 2
+wait_on_visit                      KILLED    1172 checks: 1171 PASS, 1 FAIL     FAIL: R12 demand arc 2 allocates inside round
+turn_clear_on_dispatch             SURVIVED  1172 checks: 1172 PASS, 0 FAIL     
+t0_reset_zero                      SURVIVED  1172 checks: 1172 PASS, 0 FAIL     

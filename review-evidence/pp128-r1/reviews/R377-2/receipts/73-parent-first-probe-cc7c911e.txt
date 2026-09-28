@@ -1,0 +1,13 @@
+talker rev cc7c911e933aed4bfc9324eb5da473ae73bef618
+0175cfc6bcc79019ac65c34a274f627f4a7b963541285994d439ffe9d369ac06  b/KL_acmp_talker_core.sv
+965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e  b/KL_pp_maap_shim.sv
+9a195388127df6145d54d4b32b14b9b4f5b832e24dea9185a47dd5fca5eceffa  b/reproduce_first_probe.cpp
+20a12a7c4ef6f0a36f3b9c4b719702c271ad383a18bd13e5cd867255b8a34328  b/first_probe_wrap.sv
+renamed module lines: 1
+build rc=0
+FIRST_PROBE setup: boot ALLOC refused for 8 sources; block later valid; retry interval and bounded sweep elapsed
+FIRST_PROBE fixed: status=0, DA=91e0f0006818, source SID and VID valid; no probe-triggered ALLOC
+SECOND_PROBE control: status=0, DA=91e0f0006818, source SID valid; no LeaveAll input exists on this path
+WARM_DA control: first probe status=0 even though no Talker Advertise before probe
+PASS: late availability recovered within the acquisition bound; peer retry delay and bench allocator history are not modeled
+harness rc=0

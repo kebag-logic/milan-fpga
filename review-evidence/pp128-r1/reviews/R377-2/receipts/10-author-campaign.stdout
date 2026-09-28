@@ -1,0 +1,61 @@
+KILLED no_round: rc=2, 22 assertion failures
+KILLED early_round: rc=2, 2 assertion failures
+KILLED late_round: rc=2, 21 assertion failures
+KILLED retry_wrap: rc=2, 2 assertion failures
+KILLED no_pacing: rc=2, 36 assertion failures
+KILLED fixed_priority: rc=2, 1 assertion failures
+KILLED command_monopoly: rc=2, 5 assertion failures
+KILLED retry_monopoly: rc=2, 60 assertion failures
+KILLED disabled_alloc: rc=2, 2 assertion failures
+KILLED no_accept_bound: rc=2, 50 assertion failures
+KILLED short_accept_bound: rc=2, 2 assertion failures
+KILLED refusal_is_grant: rc=2, 62 assertion failures
+KILLED obsolete_grant: rc=2, 19 assertion failures
+KILLED obsolete_release_lost: rc=2, 11 assertion failures
+KILLED no_response_bound: rc=2, 16 assertion failures
+KILLED response_wrap: rc=2, 1 assertion failures
+KILLED no_stale_swallow: rc=2, 9 assertion failures
+KILLED no_stale_capacity: rc=2, 2 assertion failures
+KILLED no_stale_drain: rc=2, 16 assertion failures
+KILLED backoff_bypass: rc=2, 2 assertion failures
+KILLED reallocate_owned: rc=2, 119 assertion failures
+KILLED half_backoff: rc=2, 6 assertion failures
+KILLED fresh_forever: rc=2, 93 assertion failures
+KILLED declare_without_demand: rc=2, 150 assertion failures
+KILLED source_alias: rc=2, 166 assertion failures
+KILLED gate_without_ownership: rc=2, 47 assertion failures
+KILLED no_requests: rc=2, 206 assertion failures
+KILLED no_command_ready: rc=2, 541 assertion failures
+KILLED busy_tracker_blocks_commands: rc=2, 62 assertion failures
+KILLED no_conflict_wait_clear: rc=2, 3 assertion failures
+KILLED wait_on_release: rc=2, 48 assertion failures
+KILLED tick_no_rearm: rc=2, 40 assertion failures
+KILLED no_rotate_advance: rc=2, 1 assertion failures
+EQUIVALENT no_sticky_gp_window: baseline behavior retained
+KILLED grant_kill_reg_only: rc=2, 3 assertion failures
+EQUIVALENT accept_kill_zero: baseline behavior retained
+EQUIVALENT kill_no_pending_conflict: baseline behavior retained
+KILLED kill_no_live_conflict: rc=2, 2 assertion failures
+KILLED kill_no_disable: rc=2, 1 assertion failures
+KILLED init_elig_no_avail: rc=2, 15 assertion failures
+KILLED no_turn_restore: rc=2, 57 assertion failures
+KILLED elig_drop_rel: rc=2, 1 assertion failures
+KILLED elig_drop_off: rc=2, 4 assertion failures
+KILLED ready_ignores_turn: rc=2, 89 assertion failures
+KILLED init_ignores_off_conflict: rc=2, 2 assertion failures
+KILLED retry_period_200: rc=2, 21 assertion failures
+KILLED tick_ge_to_gt: rc=2, 21 assertion failures
+KILLED kill_no_conflict_at_all: rc=2, 10 assertion failures
+KILLED kill_no_disable_at_all: rc=2, 9 assertion failures
+KILLED kill_sticky_off: rc=2, 10 assertion failures
+KILLED no_probe_initset: rc=2, 1 assertion failures
+KILLED no_lsn_initset: rc=2, 1 assertion failures
+KILLED no_conflict_daok_initset: rc=2, 39 assertion failures
+KILLED no_backoff_exit_initset: rc=2, 1 assertion failures
+KILLED no_enable_wait_clear: rc=2, 2 assertion failures
+KILLED eligible_only_init: rc=2, 4 assertion failures
+EQUIVALENT accept_kill_no_disable: baseline behavior retained
+KILLED init_no_enable_check: rc=2, 1 assertion failures
+KILLED eligible_ignores_init: rc=2, 1 assertion failures
+KILLED tick_keeps_wait: rc=2, 31 assertion failures
+PASS: 56 mutants killed; 4 equivalence controls; baseline and restored rc 0

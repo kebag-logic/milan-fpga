@@ -1,0 +1,5 @@
+identity                           SURVIVED  1193 checks: 1193 PASS, 0 FAIL     
+elig_drop_conflict                 KILLED    1193 checks: 1192 PASS, 1 FAIL     FAIL: P7 conflict event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_pcp                      KILLED    1193 checks: 1192 PASS, 1 FAIL     FAIL: P7 pcp event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_tmr                      KILLED    1193 checks: 1192 PASS, 1 FAIL     FAIL: P7 freshness event served under continuous commands (gates 0x02 want 0x00)
+elig_drop_lsn                      KILLED    1193 checks: 1192 PASS, 1 FAIL     FAIL: P7 listener event served under continuous commands (gates 0x02 want 0x06)
