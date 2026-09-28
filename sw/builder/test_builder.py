@@ -27229,6 +27229,149 @@ def test_audio_unit_shipping_rates() -> None:
         print(f"  [gate 36a] {name}: image advertises {got}, offset {offset}")
 
 
+# ================================================================ gate 36b ===
+def _image_contract_cases(blob: bytes) -> list[tuple[str, int, bytes, str | None]]:
+    """Independent IEEE 7.2.3/7.2.32 fixtures; no constructor constants imported."""
+    au = bytearray(image_descriptor(blob, 0x0002)[:144])
+    cd = bytearray(image_descriptor(blob, 0x0024)[:76])
+
+    def _rates(words):
+        body = bytearray(au)
+        struct.pack_into(">HH", body, 140, 144, len(words))
+        return bytes(body) + struct.pack(f">{len(words)}I", *words)
+
+    def _sources(indices):
+        body = bytearray(cd)
+        struct.pack_into(">HH", body, 72, 76, len(indices))
+        return bytes(body) + struct.pack(f">{len(indices)}H", *indices)
+
+    def _field(body, offset, value):
+        changed = bytearray(body)
+        struct.pack_into(">H", changed, offset, value)
+        return bytes(changed)
+
+    # Full words include a pull-bearing value. These synthetic packed lists
+    # establish structural acceptance, not new YAML or runtime rate support.
+    eight = [192000, 96000, 44100, 88200, 176400, 32000, 0x2000BB80, 48000]
+    one = _rates([48000])
+    identity = _sources([0, 1])
+    return [
+        ("one rate", 0x0002, one, None),
+        ("eight rates", 0x0002, _rates(eight), None),
+        ("identity sources", 0x0024, identity, None),
+        ("one source", 0x0024, _sources([0]), None),
+        ("wrong offset", 0x0002, _field(one, 140, 143), "L10_OFFSET"),
+        ("ninth rate", 0x0002, _rates(eight + [22050]), "L10_COUNT"),
+        ("count exceeds extent", 0x0002, _field(one, 142, 2), "L10_COUNT_EXTENT"),
+        ("one byte short", 0x0002, one[:-1], "L10_PARTIAL_WORD"),
+        ("one word extra", 0x0002, one + struct.pack(">I", 96000), "L10_EXTRA_WORDS"),
+        ("reversed sources", 0x0024, _sources([1, 0]), "L6_ORDER"),
+        ("source gap", 0x0024, _sources([0, 2]), "L6_GAP"),
+        ("duplicate source", 0x0024, _sources([0, 0]), "L6_DUPLICATE"),
+        ("short audio header", 0x0002, one[:143], "L10_HEADER"),
+        ("short domain header", 0x0024, identity[:75], "L6_HEADER"),
+        ("empty sources", 0x0024, _sources([]), "L6_EMPTY"),
+        ("short source list", 0x0024, identity[:-1], "L6_EXTENT"),
+        ("source list in header", 0x0024, _field(identity, 72, 70), "L6_EXTENT"),
+    ]
+
+
+def _assert_image_contract_case(cfg, overlay, case):
+    """Plant after successful loading; require the image emitter's named verdict."""
+    from unittest.mock import patch
+    import gen_desc_image as packer
+
+    label, dtype, body, reason = case
+    original_build = packer.build
+    emitted = []
+
+    def _pack_changed(document, *args, **kwargs):
+        changed = copy.deepcopy(document)
+        rows = [d for d in changed["descriptors"] if d["type"] == dtype and d["index"] == 0]
+        assert len(rows) == 1, f"{label}: target descriptor not found"
+        rows[0]["bytes"] = body.hex()
+        blob, report = original_build(changed, *args, **kwargs)
+        assert image_descriptor(blob, dtype) == body, f"{label}: fault did not reach packed bytes"
+        emitted.append(blob)
+        return blob, report
+
+    with patch.object(packer, "build", side_effect=_pack_changed):
+        try:
+            result = eb._entity_model_image(cfg, overlay)
+        except eb.ConfigError as exc:
+            assert reason is not None and str(exc).startswith(f"aem_desc.bin: {reason}:"), \
+                f"{label}: wrong refusal {exc}"
+            verdict = reason
+        else:
+            assert reason is None, f"gate 36b: {label} accepted; missing {reason}"
+            assert result["aem_desc.bin"] == emitted[0], f"{label}: checked bytes were replaced"
+            verdict = "accepted"
+    assert len(emitted) == 1, f"{label}: no packed-image evidence"
+    print(f"  [gate 36b] {label}: {verdict}")
+
+
+def test_shipping_image_contract() -> None:
+    """Gate 36b: L6/L10 boundaries and individual refusals after packing."""
+    for name, path in CONFIGS.items():
+        cfg = eb.load_config(path)
+        blob = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
+        au = image_descriptor(blob, 0x0002)
+        cd = image_descriptor(blob, 0x0024)
+        rate_offset, rate_count = struct.unpack_from(">HH", au, 140)
+        source_offset, source_count = struct.unpack_from(">HH", cd, 72)
+        assert rate_offset == 144 and len(au) == 144 + 4 * rate_count
+        assert list(struct.unpack_from(f">{source_count}H", cd, source_offset)) == list(range(source_count))
+        print(f"  [gate 36b] {name}: rates {rate_offset}/{rate_count}/{len(au)}, "
+              f"sources {source_offset}/{source_count}/{len(cd)} accepted")
+    cfg = eb.load_config(CONFIGS["arty_current"])
+    overlay = eb.emit_aem_overlay(cfg)
+    pristine = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+    for case in _image_contract_cases(pristine):
+        _assert_image_contract_case(cfg, overlay, case)
+
+
+def test_shipping_image_contract_index_walk() -> None:
+    """Gate 36b: use row locations, unpadded lengths and every run member."""
+    import gen_desc_image as packer
+
+    cfg = eb.load_config(CONFIGS["arty_current"])
+    pristine = eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"]
+    cases = _image_contract_cases(pristine)
+    one, eight = cases[0][2], cases[1][2]
+    identity = cases[2][2]
+    # Same-length members exercise stride; unequal lengths exercise repeated
+    # type rows. A second configuration catches readers fixed at config zero.
+    rows = []
+    for config in (0, 1):
+        for dtype, bodies in ((0x0002, (one, one, eight)), (0x0024, (identity, identity))):
+            for index, data in enumerate(bodies):
+                body = bytearray(data)
+                struct.pack_into(">H", body, 2, index)
+                rows.append(dict(configuration=config, type=dtype, index=index, bytes=body.hex()))
+    document = dict(format="kl-aem-image", version=1, descriptors=rows)
+    blob, _ = packer.build(document, 576)
+    eb.aem_image_checks.validate_shipping_image(blob)
+    for row in rows:
+        changed = copy.deepcopy(document)
+        victim = changed["descriptors"][rows.index(row)]
+        body = bytearray.fromhex(victim["bytes"])
+        if row["type"] == 0x0002:
+            struct.pack_into(">H", body, 140, 143)
+            reason = "L10_OFFSET"
+        else:
+            struct.pack_into(">HH", body, 76, 1, 0)
+            reason = "L6_ORDER"
+        victim["bytes"] = body.hex()
+        damaged, _ = packer.build(changed, 576)
+        try:
+            eb.aem_image_checks.validate_shipping_image(damaged)
+        except eb.aem_image_checks.ImageCheckError as exc:
+            assert str(exc).startswith(reason + ":"), str(exc)
+        else:
+            raise AssertionError(f"gate 36b: skipped configuration/type/index {row}")
+    print(f"  [gate 36b] all {len(rows)} descriptors checked across configurations, strides and runs")
+
+
 def _assert_pp_shadow_audio_unit_rates(source: str, rates: list[int]) -> None:
     """Compare the deliberate literal C++ array with its YAML authority."""
     code = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
@@ -27636,6 +27779,7 @@ if __name__ == "__main__":
                test_gptp_latency_corrections_are_declared_and_carried,
                test_audio_unit_rates_loader_contract,
                test_audio_unit_shipping_rates,
+               test_shipping_image_contract, test_shipping_image_contract_index_walk,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device):
         print(f"{fn.__name__}:")

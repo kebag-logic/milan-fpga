@@ -69,6 +69,7 @@ ROOT = HERE.parent.parent
 # Keep the capture receipt's hashed recipe as the single clock authority.
 sys.path.insert(0, str(ROOT))
 from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # noqa: E402
+from sw.builder import aem_image_checks  # noqa: E402
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
@@ -2304,6 +2305,11 @@ def _entity_model_image(cfg, overlay):
     blob, report = _img.build(
         _join.model_to_document(model, _join.identity_from_overlay(overlay)),
         576)
+    # Check the packed bytes served by the store, after every producer ran.
+    try:
+        aem_image_checks.validate_shipping_image(blob)
+    except aem_image_checks.ImageCheckError as exc:
+        raise ConfigError(f"aem_desc.bin: {exc}") from exc
     base = int(cfg["platform"]["pp_mem_phys"])
     manifest = {
         "desc_base": base,
