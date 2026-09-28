@@ -1,0 +1,8 @@
+# git grep literal submodule path in test_declarations.py at head
+HEAD:sw/builder/test_declarations.py:236:                if re.search(r"^\s*package\s+pp_adp_pkg\s*;", source, re.M)]
+HEAD:sw/builder/test_declarations.py:237:    assert len(packages) == 1, "expected one pp_adp_pkg in derived processor sources"
+# PROSE_OK diff 44d3ae3b..HEAD and 1fa2357f..HEAD -- scripts/pp_srcs.py (expect empty)
+
+# builder/config/hdl/avdecc/gitlink diff 44d3ae3b..HEAD (expect empty)
+
+# end
