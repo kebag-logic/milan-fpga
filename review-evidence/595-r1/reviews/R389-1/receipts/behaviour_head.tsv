@@ -1,0 +1,91 @@
+platform.mac_address	020000000002	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	"020000000002"	ACCEPTED mac=02:00:00:00:00:02
+platform.mac_address	10:20:30:40:50:02	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	"10:20:30:40:50:02"	ACCEPTED mac=10:20:30:40:50:02
+platform.mac_address	02:00:00:00:00:02	ACCEPTED mac=02:00:00:00:00:02
+platform.mac_address	"02-00-00-00-00-02"	ACCEPTED mac=02:00:00:00:00:02
+platform.mac_address	0x020000000002	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	0b101	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	yes	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	no	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	on	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	off	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	true	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	1:30.5	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	.inf	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	1.5	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	~	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address		REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	[]	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	{}	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	!!str 020000000002	ACCEPTED mac=02:00:00:00:00:02
+platform.mac_address	!!binary AAECAwQF	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	2002-12-14	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	08	ACCEPTED mac=00:00:00:00:00:08
+platform.mac_address	123456	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	"123456"	ACCEPTED mac=00:00:00:12:34:56
+platform.mac_address	"0x123456"	ACCEPTED mac=00:00:00:12:34:56
+platform.mac_address	0x123456	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+platform.mac_address	"001BC5"	ACCEPTED mac=00:00:00:00:1b:c5
+platform.mac_address	001BC5	ACCEPTED mac=00:00:00:00:1b:c5
+platform.mac_address	[1, 2]	REFUSED platform.mac_address: quote the hexadecimal value as a YAML string
+entity.vendor_oui	020000000002	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	"020000000002"	REFUSED entity.vendor_oui: '020000000002' is outside 24 bits
+entity.vendor_oui	10:20:30:40:50:02	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	"10:20:30:40:50:02"	REFUSED entity.vendor_oui: '10:20:30:40:50:02' is not a hex integer
+entity.vendor_oui	02:00:00:00:00:02	REFUSED entity.vendor_oui: '02:00:00:00:00:02' is not a hex integer
+entity.vendor_oui	"02-00-00-00-00-02"	REFUSED entity.vendor_oui: '02-00-00-00-00-02' is not a hex integer
+entity.vendor_oui	0x020000000002	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	0b101	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	yes	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	no	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	on	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	off	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	true	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	1:30.5	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	.inf	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	1.5	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	~	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui		REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	[]	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	{}	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	!!str 020000000002	REFUSED entity.vendor_oui: '020000000002' is outside 24 bits
+entity.vendor_oui	!!binary AAECAwQF	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	2002-12-14	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	08	ACCEPTED oui=0x000008
+entity.vendor_oui	123456	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	"123456"	ACCEPTED oui=0x123456
+entity.vendor_oui	"0x123456"	ACCEPTED oui=0x123456
+entity.vendor_oui	0x123456	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.vendor_oui	"001BC5"	ACCEPTED oui=0x001BC5
+entity.vendor_oui	001BC5	ACCEPTED oui=0x001BC5
+entity.vendor_oui	[1, 2]	REFUSED entity.vendor_oui: quote the hexadecimal value as a YAML string
+entity.entity_capabilities	~	REFUSED entity.entity_capabilities: quote the hexadecimal value as a YAML string
+entity.entity_capabilities		REFUSED entity.entity_capabilities: quote the hexadecimal value as a YAML string
+entity.entity_capabilities	true	REFUSED entity.entity_capabilities: quote the hexadecimal value as a YAML string
+entity.entity_capabilities	1.5	REFUSED entity.entity_capabilities: quote the hexadecimal value as a YAML string
+entity.entity_capabilities	0	REFUSED entity.entity_capabilities: quote the hexadecimal value as a YAML string
+entity.entity_capabilities	"0"	REFUSED entity.entity_capabilities 0x00000000 diverges from ADP_ENTITY_CAPS_C = 0x0000C588 at protocol-processor/hdl/adp/pp_adp_pkg.sv:53: the ADP engine advert
+entity.entity_capabilities	[]	REFUSED entity.entity_capabilities: quote the hexadecimal value as a YAML string
+streams.talkers[0].formats	"0x0205022000806000"	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats	0x0205022000806000	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats	yes	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats	~	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats		REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats	[]	ACCEPTED formats=0x0205022000806000
+streams.talkers[0].formats	["0x0205022000806000"]	ACCEPTED formats=0x0205022000806000
+streams.talkers[0].formats	[0x0205022000806000]	REFUSED streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+streams.talkers[0].formats	!!set {a}	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats	{}	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.talkers[0].formats	0	REFUSED streams.talkers[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	"0x0205022000806000"	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	0x0205022000806000	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	yes	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	~	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats		REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	[]	ACCEPTED n=2 first=0x0205022002006000
+streams.listeners[0].formats	["0x0205022000806000"]	ACCEPTED n=2 first=0x0205022000806000
+streams.listeners[0].formats	[0x0205022000806000]	REFUSED streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+streams.listeners[0].formats	!!set {a}	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	{}	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings
+streams.listeners[0].formats	0	REFUSED streams.listeners[0].formats: must be a list of quoted hexadecimal strings

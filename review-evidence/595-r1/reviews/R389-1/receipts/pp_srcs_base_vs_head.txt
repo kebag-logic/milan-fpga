@@ -1,0 +1,16 @@
+== 1fa2357fcb9b83ad7d6cbeab0c7cc0eb957cdd3a pp=16be6768f710e79450aace277abacd6c2c3336e5 dirty=0
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+rc=0
+== 44d3ae3b15a0d058abb837c655ad24bd9b64c6e8 pp=16be6768f710e79450aace277abacd6c2c3336e5 dirty=0
+  - sw/builder/test_declarations.py: names submodule source(s) literally that are not permitted prose: protocol-processor/hdl/adp/pp_adp_pkg.sv. A build input must derive the list with this script. If this really is prose, add the exact literal to PROSE_OK with the reason.
+
+A build input names a stale set of submodule sources. This is what a
+submodule bump breaks and what nothing used to catch: the copies are
+correct against the pin they were written for and go stale the moment it
+moves. Derive the list with this script rather than editing the copy.
+rc=1
