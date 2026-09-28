@@ -1,0 +1,25 @@
+## processor pin: 16be6768f710e79450aace277abacd6c2c3336e5
+## D3 / FASTCONNECT statements (head 816c3b742940b9ac8d160ff03e05553a47e5e66d)
+docs/design/SAVED_STATE_MATERIALIZATION.md:297:3. **Triggers are the live writes, never the commit marks**: the µCPU's
+docs/design/SAVED_STATE_MATERIALIZATION.md:423:Command-completion marks remain notification effects, without record-selection authority.
+docs/design/SAVED_STATE_MATERIALIZATION.md:530:| Change snoop | the µCPU's accepted write: `st_req AND st_we AND region 1 AND dyn_ready`, with `st_addr[15:3]` the selector and `desc_index`; a name write: `st_name AND st_we AND store_ready`, with `st_addr[15:6]` the name ordinal | the writer's trigger for the dynamic-state records and the names, tapped on the µCPU's side of the 2:1 selection so a restore write is never a change. Selector 7 and an out-of-range index set nothing |
+docs/design/SAVED_STATE_FASTCONNECT.md:1422:Live writes select records; marks retain command-completion meaning.
+## section 15.2 rows naming gen_ucode.py:
+1
+## section 15.2 06_aecp_engine row:
+| [docs/architecture/06_aecp_engine.md] | 4/5 state/name/format/map interfaces; 6.2.1, lines 341-344; 6.4 SET_NAME chain, line 365; 6.5, lines 421-425 | Restate naming and mapping mark claims explicitly: marks stay as completion notifications, never persistence triggers. Accepted name-lane writes and phase-5 map commits select records under section 3.1. Document command-side snooping, dispatch ownership from reset, coherent name capture, real map read/apply faces and shared semantic validation. Exclude restore writes and IDENTIFY values. Distinguish persisted CONTROL names. |
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1364  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1439  u('NVM_MARK', imm=1),                        # §5.3.11.1: persist it
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1582  # No NVM_MARK: §5.3.12 keeps this value volatile, so committing it to flash
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1583  # would both violate the clause and burn erase cycles on a blinking front
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1675  u('NVM_MARK', imm=1),                        # es-5.1 item 1: persist it
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1791  u('NVM_MARK', imm=6),                        # persist changed map state
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:1925  u('NVM_MARK', imm=1),                    # §5.3.5.1: persist it
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:2002  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+sweep-miss  hdl/aecp/ucode/gen_ucode.py:2091  u('NVM_MARK', imm=7),                       # naming persistence trigger
+sweep-miss  docs/architecture/06_aecp_engine.md:342  name, and emits the naming persistence and notification triggers. Repeating the
+sweep-miss  docs/architecture/06_aecp_engine.md:343  same value performs no write and emits no trigger. The persistence consumer is
+sweep-miss  docs/architecture/06_aecp_engine.md:344  tracked separately; the trigger alone does not make the update survive power loss.
+sweep-miss  docs/architecture/06_aecp_engine.md:423  marks the mapping persistence class dirty. A confirmed no-op succeeds without
+sweep-miss  docs/architecture/06_aecp_engine.md:424  a notification or dirty mark. The current NVM backend does not retain the
+sweep-miss  docs/00_MILAN_COMPLIANCE_REVIEW.md:208  emit the persistence trigger, but replay after power loss remains in GAP-09.

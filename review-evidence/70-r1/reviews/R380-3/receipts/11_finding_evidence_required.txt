@@ -1,0 +1,38 @@
+## parent head 816c3b742940b9ac8d160ff03e05553a47e5e66d
+## processor 16be6768f710e79450aace277abacd6c2c3336e5
+## sweep as written in D3 15.2: rg -n -U -i -C 2 'NVM_MARK|persist|dirty[[:space:]]+mark|aecp_dyn_dirty_o|nvm_unflushed_o|d3_unflushed_o|restore_(done|fail|blank)_o|T-NVM|RETRY_MAX_P|RETRY_BACKOFF_CYC_P|DEB_TICKS_P|entity_enable|Nothing[[:space:]]+in[[:space:]]+the[[:space:]]+processor|groups[[:space:]]+6[[:space:]]+and[[:space:]]+7|integrating[[:space:]/]*platform|platform.s[[:space:]]+saved-state|never[[:space:]]+delay|asynchronous[[:space:]]+to[[:space:]]+protocol' docs hdl tb
+## 15.2 rows: 37 files: 29
+## sweep matched lines: 464 context-only lines: 1415
+## required locations
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1364  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1439  u('NVM_MARK', imm=1),                        # §5.3.11.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1582  # No NVM_MARK: §5.3.12 keeps this value volatile, so committing it to flash
+  CONTEXT ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1583  # would both violate the clause and burn erase cycles on a blinking front
+  CONTEXT ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1584  # panel.
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1675  u('NVM_MARK', imm=1),                        # es-5.1 item 1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1791  u('NVM_MARK', imm=6),                        # persist changed map state
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1925  u('NVM_MARK', imm=1),                    # §5.3.5.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:2002  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:2091  u('NVM_MARK', imm=7),                       # naming persistence trigger
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:341  name. A successful change writes all eight 64-bit lanes, returns the new current
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:342  name, and emits the naming persistence and notification triggers. Repeating the
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:343  same value performs no write and emits no trigger. The persistence consumer is
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:344  tracked separately; the trigger alone does not make the update survive power loss.
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:365  | SET_NAME | configuration valid, descriptor exists, semantic name index valid, lock, compare all 64 bytes, th
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:421  - Every successful ADD or REMOVE that changes the mapping sends the same
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:422  unsolicited response to every registered controller except the requester and
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:423  marks the mapping persistence class dirty. A confirmed no-op succeeds without
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:424  a notification or dirty mark. The current NVM backend does not retain the
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:425  dirty class across reset; issue #70 tracks that remaining work.
+  CONTEXT ROW-CITED     docs/00_MILAN_COMPLIANCE_REVIEW.md:206  The static descriptor image, per-configuration index map, writable name table,
+  CONTEXT ROW-CITED     docs/00_MILAN_COMPLIANCE_REVIEW.md:207  and coherent READ_DESCRIPTOR name patching are implemented. Name updates now
+  MATCH   ROW-CITED     docs/00_MILAN_COMPLIANCE_REVIEW.md:208  emit the persistence trigger, but replay after power loss remains in GAP-09.
+  MATCH   ROW-CITED     docs/architecture/03_packet_engine.md:236  - **(d)** NVM commits are asynchronous and never delay responses.
+  MATCH   ROW-CITED     docs/architecture/02_interfaces.md:492  free. Long busy periods expected; commits are asynchronous to protocol responses
+  CONTEXT ROW-CITED     docs/architecture/02_interfaces.md:493  ([03 §6](03_packet_engine.md) ordering rule d).
+  CONTEXT ROW-CITED     hdl/top/protocol_processor_top.sv:2448  //! the binding manager is manager 0 of KL_pp_nvm_mgr_arb, which drains a
+  CONTEXT ROW-CITED     hdl/top/protocol_processor_top.sv:2449  //! read the manager abandons at its deadline so the late response reaches
+  MATCH   ROW-CITED     hdl/top/protocol_processor_top.sv:2450  //! nobody (issue #93, S3). Manager 1 is the platform's saved-state writer;
+  CONTEXT ROW-CITED     hdl/top/protocol_processor_top.sv:2451  //! until it lands here that face is tied idle.
+  MATCH   ROW-CITED     tb/acmp_nvm/README.md:15  manager 1 is a harness face, as the platform's saved-state writer will be), the
+## RESULT PASS

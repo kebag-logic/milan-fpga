@@ -1,0 +1,34 @@
+## head 816c3b742940b9ac8d160ff03e05553a47e5e66d
+## F1 (R380-1 F1 / R381-1 F1): named locations -> matching 15.2 rows (count)
+integrator.md:334 pending composition                      1
+integrator.md:336 groups 6/7 writer                        1
+integrator.md params table / check script                  1
+diagram 21 parameter inventory                             1
+operator.md restore table / unbound claim                  1
+01_overview.md:170 F01.5 P-NVM-RS-TMO-CYC                  1
+02_interfaces.md:532-536 boot paragraph                    0
+KL_acmp_nvm_shadow immediate retry (DR2c)                  1
+## F2 (R381-1 F2): FASTCONNECT pin/wiring lines
+  stale present-tense pin/wiring text: none
+119:| The processor frames and streams one record class | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owns BINDING records through manager 0 of `KL_pp_nvm_mgr_arb`. In [the processor top](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/top/protocol_processor_top.sv), the arbiter starts at line 2523; manager 1 is tied idle at lines 2540-2546. No non-binding writer is connected |
+131:**Reconciliation pin.** Parent `c0723222` pins processor
+136:**Historical completion repair.** Root issue #424 adopted
+## F2 (R380-1 F2): debounce presented as open
+  none in the four pages
+2596:| `sw/firmware/milan_baremetal/milan_baremetal.c:340` | Replace the open debounce citation with ruled DR2a: 500 ms producer and 1,000 ms firmware first-dirty windows. |
+2597:| `scripts/nvm_shape.py:146` | Replace the provisional firmware debounce citation with DR2a's ruled 1,000 ms first-dirty window. |
+## F3 (R380-1 F3): writer FSM vs DR2c
+  unspaced retry rows: none
+310:   DR2c permits at most three attempts, including the initial write.
+653:| STREAM or WAIT | attempt 1 or 2 ends with port err | BACKOFF; retain dirty, `own` 0; start the 500 ms wait |
+654:| BACKOFF | 500 ms have elapsed since that err | ACQUIRE again for a fresh latch; retain the attempt count |
+655:| STREAM or WAIT | the third attempt ends with err | RUN with the sticky alarm; give up under section 7's clear rule |
+691:attempts'   = RUN selects a record ? 0
+695:giveup      = write_err AND attempts = 1 + RETRY_MAX_P
+697:retry_ready = BACKOFF AND 500 ms elapsed since the failed attempt ended
+698:retry_ready => ACQUIRE with attempts unchanged; never retry directly on err
+## R381-1 S1 / S2
+1575:      Every lost change was reported at the cut.
+1576:      Its reporter was producer pending or `nvm_dirty`.
+594:   lines 1450 and 1220-1221 at parent `c0723222`).
+595:   The calls at lines 1453-1454 follow the first comment.

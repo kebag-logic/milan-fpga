@@ -1,0 +1,11 @@
+strict  : NVM_MARK|persist|dirty[[:space:]]+mark|aecp_dyn_dirty_o|nvm_unflushed_o|d3_unflushed_o|restore_(done|fail|blank)_o|T-NVM|RETRY_MAX_P|RETRY_BACKOFF_CYC_P|DEB_TICKS_P|entity_enable|Nothing[[:space:]]+in[[:space:]]+the[[:space:]]+processor|groups[[:space:]]+6[[:space:]]+and[[:space:]]+7|integrating[[:space:]/]*platform|platform.s[[:space:]]+saved-state|never[[:space:]]+delay|asynchronous[[:space:]]+to[[:space:]]+protocol
+tolerant: NVM_MARK|persist|dirty(?:[[:space:]]|//!?|#|\*)+mark|aecp_dyn_dirty_o|nvm_unflushed_o|d3_unflushed_o|restore_(done|fail|blank)_o|T-NVM|RETRY_MAX_P|RETRY_BACKOFF_CYC_P|DEB_TICKS_P|entity_enable|Nothing(?:[[:space:]]|//!?|#|\*)+in(?:[[:space:]]|//!?|#|\*)+the(?:[[:space:]]|//!?|#|\*)+processor|groups(?:[[:space:]]|//!?|#|\*)+6(?:[[:space:]]|//!?|#|\*)+and(?:[[:space:]]|//!?|#|\*)+7|integrating(?:[[:space:]]|//!?|#|\*)+platform|platform.s(?:[[:space:]]|//!?|#|\*)+saved-state|never(?:[[:space:]]|//!?|#|\*)+delay|asynchronous(?:[[:space:]]|//!?|#|\*)+to(?:[[:space:]]|//!?|#|\*)+protocol
+## A. synthetic wrapped fixtures (count of matching lines)
+  a.sv  strict=0 tolerant=1  '// NVM commits are asynchronous and never\n// delay a response\n'
+  b.sv  strict=0 tolerant=1  "//! Manager 1 is the platform's\n//! saved-state writer; tied idle\n"
+  c.py  strict=0 tolerant=1  '# groups 6\n# and 7 have no processor writer\n'
+  d.sv  strict=0 tolerant=1  '//! owned by the integrating\n//! platform\n'
+  e.md  strict=1 tolerant=1  'commits are asynchronous\nto protocol responses\n'
+  f.sv  strict=0 tolerant=1  '// sets the dirty\n// mark for the NVM class\n'
+  g.md  strict=1 tolerant=1  "Manager 1 is the platform's\nsaved-state writer\n"
+## B. pinned processor tree: strict matched lines 464, tolerant 464, added by tolerance 0

@@ -1,0 +1,66 @@
+## A_pending_composition :: aecp_dyn_dirty_o|OR it with|dirty.{0,40}(pending|unflushed)
+  ROW      1 docs/guides/integrator.md
+  ROW      2 hdl/acmp/KL_acmp_nvm_shadow.sv
+  NO-ROW   1 hdl/aecp/KL_aecp_notify.sv
+  ROW      4 hdl/top/protocol_processor_top.sv
+  NO-ROW   1 tb/pp_top/pp_top_wrap.sv
+## B_groups67_owner :: groups? 6 (and|or) 7|Nothing in the processor|integrating platform|no record writer|record writer exists
+  ROW      2 docs/architecture/02_interfaces.md
+  ROW      1 docs/guides/integrator.md
+  ROW      2 hdl/top/protocol_processor_top.sv
+## C_future_manager :: lands in P4|NVM-manager suite \(P4\)|second record writer|writer is not present|saved-state writer
+  ROW      1 docs/architecture/02_interfaces.md
+  ROW      1 hdl/acmp/KL_acmp_nvm_shadow.sv
+  NO-ROW   2 hdl/packet_engine/KL_pp_normalizer.sv
+  ROW      3 hdl/packet_engine/KL_pp_nvm_mgr_arb.sv
+  ROW      1 hdl/packet_engine/KL_pp_nvm_port.sv
+  ROW      2 hdl/top/protocol_processor_top.sv
+  NO-ROW   2 tb/acmp_nvm/acmp_nvm_wrap.sv
+  ROW      1 tb/acmp_nvm/README.md
+  NO-ROW   1 tb/nvm_port/README.md
+## D_restore_verdicts :: restore_(done|fail|blank)_o
+  ROW      4 docs/architecture/05_acmp_engine.md
+  ROW      4 docs/architecture/07_memory_maps.md
+  ROW      7 docs/guides/integrator.md
+  ROW      2 docs/guides/operator.md
+  ROW     10 hdl/acmp/KL_acmp_nvm_shadow.sv
+  NO-ROW   3 hdl/acmp/KL_pp_acmp_lsn_admit.sv
+  ROW     11 hdl/top/protocol_processor_top.sv
+  NO-ROW   7 tb/acmp_nvm/acmp_nvm_wrap.sv
+  ROW      5 tb/acmp_nvm/README.md
+  NO-ROW   9 tb/pp_top/pp_top_wrap.sv
+  ROW      6 tb/pp_top/README.md
+## E_boot_enable :: defaults.{0,40}then.{0,40}(release|enable)|releases? .?entity_enable|enable gated on
+  ROW      1 docs/architecture/02_interfaces.md
+  ROW      2 docs/architecture/05_acmp_engine.md
+  ROW      2 docs/architecture/07_memory_maps.md
+  ROW      1 hdl/top/protocol_processor_top.sv
+## F_retry :: RETRY_MAX_P|bounded (commit )?retr|retried
+  ROW      1 docs/architecture/02_interfaces.md
+  ROW      2 docs/architecture/03_packet_engine.md
+  ROW      4 docs/architecture/05_acmp_engine.md
+  ROW      2 docs/architecture/07_memory_maps.md
+  NO-ROW   1 docs/architecture/11_maap_engine.md
+  NO-ROW   1 docs/diagrams/wavedrom/fig-02-nvmwave.svg
+  NO-ROW   1 docs/diagrams/wavedrom/fig-07-sinkrec.svg
+  ROW      9 hdl/acmp/KL_acmp_nvm_shadow.sv
+  NO-ROW   3 hdl/acmp/KL_pp_acmp_listener.sv
+  NO-ROW   2 hdl/acmp/pp_acmp_pkg.sv
+  NO-ROW   8 hdl/packet_engine/KL_pp_originator.sv
+  NO-ROW   1 tb/acmp_listener/README.md
+  NO-ROW   2 tb/acmp_nvm/acmp_nvm_wrap.sv
+  ROW      1 tb/acmp_nvm/README.md
+  NO-ROW   1 tb/originator/README.md
+## G_marks_as_persistence :: persistence trigger|persist it|persist changed|COMMIT \+ NVM_MARK|NVM_MARK.{0,40}(dirty|persist)|marks? the .{0,30}persistence class dirty
+  ROW      1 docs/00_MILAN_COMPLIANCE_REVIEW.md
+  ROW      1 docs/architecture/06_aecp_engine.md
+  ROW      1 docs/architecture/07_memory_maps.md
+  ROW      7 hdl/aecp/ucode/gen_ucode.py
+## H_dyn_dirty_drives :: dirty.{0,60}NVM manager|drives the NVM|NVM manager.{0,60}dirty
+  ROW      1 hdl/aecp/KL_aecp_dyn_state.sv
+## I_debounce :: T-NVM-DEBOUNCE|DEB_TICKS_P
+  ROW      2 docs/architecture/07_memory_maps.md
+  ROW      2 docs/architecture/08_timing.md
+  ROW      6 hdl/acmp/KL_acmp_nvm_shadow.sv
+  NO-ROW   2 tb/acmp_nvm/acmp_nvm_wrap.sv
+  ROW      2 tb/acmp_nvm/README.md

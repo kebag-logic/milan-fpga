@@ -1,0 +1,349 @@
+## parent head 816c3b742940b9ac8d160ff03e05553a47e5e66d
+## processor 16be6768f710e79450aace277abacd6c2c3336e5
+## sweep as written in D3 15.2: rg -n -U -i -C 2 'NVM_MARK|persist|dirty[[:space:]]+mark|aecp_dyn_dirty_o|nvm_unflushed_o|d3_unflushed_o|restore_(done|fail|blank)_o|T-NVM|RETRY_MAX_P|RETRY_BACKOFF_CYC_P|DEB_TICKS_P|entity_enable|Nothing[[:space:]]+in[[:space:]]+the[[:space:]]+processor|groups[[:space:]]+6[[:space:]]+and[[:space:]]+7|integrating[[:space:]/]*platform|platform.s[[:space:]]+saved-state|never[[:space:]]+delay|asynchronous[[:space:]]+to[[:space:]]+protocol' docs hdl tb
+## 15.2 rows: 37 files: 29
+## sweep matched lines: 464 context-only lines: 1415
+## required locations
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1364  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1439  u('NVM_MARK', imm=1),                        # §5.3.11.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1582  # No NVM_MARK: §5.3.12 keeps this value volatile, so committing it to flash
+  CONTEXT ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1583  # would both violate the clause and burn erase cycles on a blinking front
+  CONTEXT ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1584  # panel.
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1675  u('NVM_MARK', imm=1),                        # es-5.1 item 1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1791  u('NVM_MARK', imm=6),                        # persist changed map state
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:1925  u('NVM_MARK', imm=1),                    # §5.3.5.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:2002  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+  MATCH   ROW-CITED     hdl/aecp/ucode/gen_ucode.py:2091  u('NVM_MARK', imm=7),                       # naming persistence trigger
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:341  name. A successful change writes all eight 64-bit lanes, returns the new current
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:342  name, and emits the naming persistence and notification triggers. Repeating the
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:343  same value performs no write and emits no trigger. The persistence consumer is
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:344  tracked separately; the trigger alone does not make the update survive power loss.
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:365  | SET_NAME | configuration valid, descriptor exists, semantic name index valid, lock, compare all 64 bytes, th
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:421  - Every successful ADD or REMOVE that changes the mapping sends the same
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:422  unsolicited response to every registered controller except the requester and
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:423  marks the mapping persistence class dirty. A confirmed no-op succeeds without
+  MATCH   ROW-CITED     docs/architecture/06_aecp_engine.md:424  a notification or dirty mark. The current NVM backend does not retain the
+  CONTEXT ROW-CITED     docs/architecture/06_aecp_engine.md:425  dirty class across reset; issue #70 tracks that remaining work.
+  CONTEXT ROW-CITED     docs/00_MILAN_COMPLIANCE_REVIEW.md:206  The static descriptor image, per-configuration index map, writable name table,
+  CONTEXT ROW-CITED     docs/00_MILAN_COMPLIANCE_REVIEW.md:207  and coherent READ_DESCRIPTOR name patching are implemented. Name updates now
+  MATCH   ROW-CITED     docs/00_MILAN_COMPLIANCE_REVIEW.md:208  emit the persistence trigger, but replay after power loss remains in GAP-09.
+  MATCH   ROW-CITED     docs/architecture/03_packet_engine.md:236  - **(d)** NVM commits are asynchronous and never delay responses.
+  MATCH   ROW-CITED     docs/architecture/02_interfaces.md:492  free. Long busy periods expected; commits are asynchronous to protocol responses
+  CONTEXT ROW-CITED     docs/architecture/02_interfaces.md:493  ([03 §6](03_packet_engine.md) ordering rule d).
+  CONTEXT ROW-CITED     hdl/top/protocol_processor_top.sv:2448  //! the binding manager is manager 0 of KL_pp_nvm_mgr_arb, which drains a
+  CONTEXT ROW-CITED     hdl/top/protocol_processor_top.sv:2449  //! read the manager abandons at its deadline so the late response reaches
+  MATCH   ROW-CITED     hdl/top/protocol_processor_top.sv:2450  //! nobody (issue #93, S3). Manager 1 is the platform's saved-state writer;
+  CONTEXT ROW-CITED     hdl/top/protocol_processor_top.sv:2451  //! until it lands here that face is tied idle.
+  MATCH   ROW-CITED     tb/acmp_nvm/README.md:15  manager 1 is a harness face, as the platform's saved-state writer will be), the
+## probe P1_mark_semantics :: nvm.?mark|dirty.{0,20}(class|bit).{0,60}(nvm|flash|commit|record)|(mark|flag)s?.{0,40}dirty|trigger  (217 lines)
+  MISS    ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:163  trigger set = every successful state-changing command + non-ATDECC changes while
+  MISS    ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:164  unlocked + async triggers of Table 5.22 with **≤ 1 notification per descriptor per
+  MISS    ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:176  sequence emission walk, successful state-changing command triggers with requester
+  MATCH   ROW-CITED docs/00_MILAN_COMPLIANCE_REVIEW.md:208  emit the persistence trigger, but replay after power loss remains in GAP-09.
+  MISS    ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:281  periodic/triggered ADP, listener PROBE_TX commands (with exact-duplicate retry),
+  MATCH   ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:361  | REQ-AEM-011 | Milan §5.4.2.11/.12 | SET/GET_NAME for all names of implemented descriptors; persisted | shall | C | liv
+  MISS    ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:393  | REQ-NOT-002 | Milan §5.4.5.2 | Triggers: every successful state-changing command; equivalent non-ATDECC changes while 
+  MISS    ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:394  | REQ-NOT-003 | Milan Table 5.22 | Async triggers: GET_STREAM_INFO/GET_AVB_INFO/GET_AS_PATH field changes; GET_COUNTERS 
+  MISS    NO-ROW    docs/10_RESOURCE_AND_EFFORT.md:401  2. **Notification fan-out.** 16 controllers × eleven trigger classes: the
+  MISS    ROW-FILE  docs/architecture/01_overview.md:110  ([03 §4](03_packet_engine.md)); every state commit can trigger notifications.
+  MISS    ROW-FILE  docs/architecture/01_overview.md:159  | P-NOTIF-QUEUE-DEPTH | 16 | — | notification triggers |
+  MISS    ROW-FILE  docs/architecture/02_interfaces.md:277  grant arriving after the `PROBE_TX` that triggered it has gone stale cannot open
+  MISS    ROW-FILE  docs/architecture/02_interfaces.md:430  | `pbsta[sink]` / `acmpsta[sink]` | 3 / 5 | ACMP listener record (internal) | committed record RAM write; acmpsta zero o
+  MISS    ROW-FILE  docs/architecture/02_interfaces.md:527  "head": {"text": "err instead of done triggers bounded retry then side-port alarm"}}
+  MATCH   ROW-CITED docs/architecture/02_interfaces.md:548  | `aecp_nvm_stb_o` / `aecp_nvm_mark_o` | out | 1 / 8 | one `clk_i` cycle per committed command that carries the µCPU's `
+  MISS    ROW-FILE  docs/architecture/03_packet_engine.md:190  turns the Table 5.22 subset into triggers.
+  MISS    ROW-FILE  docs/architecture/03_packet_engine.md:229  - **(a)** commit → solicited-response enqueue → notification-trigger enqueue
+  MISS    ROW-FILE  docs/architecture/05_acmp_engine.md:26  triggers on every committed state change.
+  MISS    ROW-FILE  docs/architecture/05_acmp_engine.md:261  notification triggers of [§11-x](#10-milan-deltas) via the global commit rule):
+  MISS    ROW-FILE  docs/architecture/05_acmp_engine.md:266  | A2 | store binding {controller EID, talker EID, talker unique_id, STREAMING_WAIT}; NVM mark |
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:18  triggers; snapshot reads of ACMP sink records ([05 §5](05_acmp_engine.md)) and the
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:21  the originator; entity-model overlay writes + NVM marks; `avtp`/`mclk`/`srp` class-B
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:109  ucpu --> notifq["notification trigger queue"]
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:132  RESPOND --> NOTIFY: triggers enqueued, requester excluded
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:171  | 0x000F | GET_STREAM_INFO | shall | Milan 80-B form §6.2 | RO | — | yes | — | async triggers | 80 B |
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:172  | 0x0010 | SET_NAME | shall | every named descriptor; ENTITY indices 0 and 1, all others index 0 | NAME_WR | yes | - | -
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:185  | 0x0027 | GET_AVB_INFO | shall | gather §6.2 | RO | — | **no** | **yes** | async triggers | 44 + msrp mappings |
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:186  | 0x0028 | GET_AS_PATH | shall | gather §6.2 | RO | — | **no** | **yes** | async trigger | 28 + 8·count |
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:245  STREAM_INPUT trigger set and its one-frame rule are stated once, in
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:301  | stream_format | integrator face word 1, folding the published SET_STREAM_FORMAT row when valid | - | SET_STREAM_FORMAT
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:317  Every such change is itself a notification trigger whose pending bit is set
+  MATCH   ROW-CITED docs/architecture/06_aecp_engine.md:342  name, and emits the naming persistence and notification triggers. Repeating the
+  MATCH   ROW-CITED docs/architecture/06_aecp_engine.md:343  same value performs no write and emits no trigger. The persistence consumer is
+  CONTEXT ROW-CITED docs/architecture/06_aecp_engine.md:344  tracked separately; the trigger alone does not make the update survive power loss.
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:354  | SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come f
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:361  | SET_CONFIGURATION | any input bound ∨ any output streaming ⇒ `STREAM_IS_RUNNING` (**at dispatch, so it outranks the lo
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:362  | SET_STREAM_FORMAT (**implemented**, Milan §5.4.2.7) | length (cdl 24 and the walked payload) → type ∈ {STREAM_INPUT, S
+  MATCH   ROW-CITED docs/architecture/06_aecp_engine.md:365  | SET_NAME | configuration valid, descriptor exists, semantic name index valid, lock, compare all 64 bytes, then commit 
+  MATCH   ROW-CITED docs/architecture/06_aecp_engine.md:423  marks the mapping persistence class dirty. A confirmed no-op succeeds without
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:764  AECP->>NOTIF: trigger {SET_SAMPLING_RATE resp, exclude=CTRL}
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:765  NOTIF->>NOTIF: coalesce same-key pending triggers
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:768  Note over NOTIF: counters-class triggers additionally gated by T-CTR-NOTIF
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:771  Trigger classes: (1) every successful state-changing command (regenerated as the
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:777  **STREAM_INPUT triggers** (`protocol_processor_top` `stri_events`): the
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:794  Coalescing merges same-key pending triggers (safe: notifications carry current full
+  MATCH   ROW-FILE  docs/architecture/06_aecp_engine.md:859  | Effects | `COMMIT`, `NVM_MARK`, `NOTIFY_ENQ` | commit is the atomicity point |
+  MATCH   ROW-FILE  docs/architecture/06_aecp_engine.md:874  SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate
+  MISS    ROW-FILE  docs/architecture/07_memory_maps.md:237  an RGN_NCFG read arriving while invalid TRIGGERS the header probe and stalls through
+  MATCH   ROW-CITED docs/architecture/07_memory_maps.md:452  chg["committed state change (COMMIT + NVM_MARK)"] --> dirty["set record dirty bit"]
+  MISS    NO-ROW    docs/architecture/10_srp_engine.md:212  stay frozen, §6.2), and (on PCP change) triggers the talker withdraw →
+  MATCH   ROW-CITED docs/guides/integrator.md:336  | `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a d
+  MATCH   ROW-FILE  hdl/acmp/KL_acmp_nvm_shadow.sv:38  //                and only a DIFFERING persisted field marks dirty — so
+  MISS    NO-ROW    hdl/acmp/KL_acmp_talker.sv:51  //                the timer expiry is only a RE-EVALUATION TRIGGER, and any
+  MISS    NO-ROW    hdl/acmp/KL_acmp_talker.sv:208  input  wire                          srp_pcp_change_i,    //! DOMAIN_CHANGE strobe: SR-class PCP changed (backoff trigge
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:26  //                discovery arm/disarm toward ADP (04 §6.2), NVM mark/clear,
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:27  //                and the per-commit notification trigger. GET_RX_STATE is
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:194  output logic                         act_notify_o,    //! committed-change trigger (05 §6.3 rule)
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:211  //! unsolicited notification, and this is that trigger.
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:221  //! here so this trigger is not mistaken for covering it.
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:322  //! naming them, which is what a trigger keyed on the request alone missed.
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:327  //! CHANGES and must not push Table 5.22's trigger; the pbsta change of the
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:341  //! raising this trigger.
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:1042  //! owns the rest of the trigger SET; this one is here because it did
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:1043  //! not exist to be triggered until this command landed.
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:1176  5'(ACT_A2_C): begin        // store binding + NVM mark
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:1397  act_notify_o <= cellmut_r;     // committed change -> trigger
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:1408  //! ...and the Table 5.22 started/stopped trigger, on a REAL change
+  MISS    NO-ROW    hdl/acmp/pp_acmp_pkg.sv:80  localparam int unsigned ACT_A2_C  = 1;   // store binding + NVM mark
+  MISS    ROW-FILE  hdl/aecp/KL_aecp_desc_store.sv:60  //                invalid-image locate TRIGGERS the header probe and stalls
+  MISS    ROW-FILE  hdl/aecp/KL_aecp_desc_store.sv:386  //! locate ever runs to trigger the old locate-only re-arm).
+  MATCH   ROW-CITED hdl/aecp/KL_aecp_engine.sv:536  output logic  [7:0] eff_nvm_mark_o,
+  MATCH   ROW-FILE  hdl/aecp/KL_aecp_engine.sv:1582  .eff_nvm_mark_o     (eff_nvm_mark_o),
+  MISS    NO-ROW    hdl/aecp/KL_aecp_notify.sv:76  //                     trigger (Milan SS5.4.5.2 sends only for a command
+  MISS    NO-ROW    hdl/aecp/KL_aecp_notify.sv:127  //                COMMAND TRIGGERS retain the opcode-specific response kind,
+  MATCH   NO-ROW    hdl/aecp/KL_aecp_ucpu.sv:106  output logic  [7:0] eff_nvm_mark_o,
+  MATCH   NO-ROW    hdl/aecp/KL_aecp_ucpu.sv:435  eff_nvm_stb_o      = advance_e_w && (uop_e_r.op == OP_NVM_MARK);
+  MATCH   NO-ROW    hdl/aecp/KL_aecp_ucpu.sv:436  eff_nvm_mark_o     = uop_e_r.imm[7:0];
+  MATCH   ROW-FILE  hdl/aecp/ucode/gen_ucode.py:27  'COMMIT': 21, 'NVM_MARK': 22, 'NOTIFY_ENQ': 23,
+  MATCH   ROW-FILE  hdl/aecp/ucode/gen_ucode.py:472  u('NVM_MARK', imm=0x21),                     # sampling_rate record
+  MISS    ROW-FILE  hdl/aecp/ucode/gen_ucode.py:1143  # lock check, the NVM mark or a notification — which is exactly why they land
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:1364  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:1439  u('NVM_MARK', imm=1),                        # §5.3.11.1: persist it
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:1582  # No NVM_MARK: §5.3.12 keeps this value volatile, so committing it to flash
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:1675  u('NVM_MARK', imm=1),                        # es-5.1 item 1: persist it
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:1791  u('NVM_MARK', imm=6),                        # persist changed map state
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:1925  u('NVM_MARK', imm=1),                    # §5.3.5.1: persist it
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:2002  u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+  MATCH   ROW-CITED hdl/aecp/ucode/gen_ucode.py:2091  u('NVM_MARK', imm=7),                       # naming persistence trigger
+  CONTEXT ROW-FILE  hdl/aecp/ucode/gen_ucode.py:2092  u('NOTIFY_ENQ', imm=7),                     # naming notification trigger
+  MATCH   NO-ROW    hdl/aecp/ucpu_pkg.sv:79  OP_NVM_MARK   = 5'd22,
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:414  //! link triggers are derived internally; this pin covers the remainder,
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:415  //! and tying it 0 just narrows the Table 5.22 trigger set to what the
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:420  //! This is the sole GET_AS_PATH trigger: gm_change_i also covers a domain
+  MATCH   ROW-CITED hdl/top/protocol_processor_top.sv:657  //! record group a committed command changed (KL_aecp_ucpu OP_NVM_MARK:
+  MATCH   ROW-CITED hdl/top/protocol_processor_top.sv:668  output logic  [7:0]                  aecp_nvm_mark_o,     //! that group's mark code, valid with the strobe
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:1758  //! unsolicited notification. Issue #69 owns the trigger SET; this is the
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:1759  //! one trigger that only exists because START/STOP_STREAMING landed.
+  MATCH   ROW-FILE  hdl/top/protocol_processor_top.sv:3471  .eff_nvm_mark_o     (aecp_nvm_mark_o),
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:3542  //! Table 5.22 GET_STREAM_INFO triggers this fabric OBSERVES: for a
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:3553  //! Table 5.22 GET_AVB_INFO triggers: the grandmaster changed, the
+  MISS    NO-ROW    tb/acmp_listener/README.md:66  Re-bind started/stopped trigger (RV8, issues #43/#49): a BIND_NEW onto a bound
+  MISS    NO-ROW    tb/acmp_listener/README.md:71  2026-09-24 in a scratch copy: excluding walks that run A2 from the trigger
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:537  //! Milan Table 5.22's started/stopped trigger, counted separately from the
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:757  void check_started_trigger_fires_once_per_transition(int sk);
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:761  void check_rebind_raises_no_duplicate_trigger();
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1363  void ListenerWalk::check_started_trigger_fires_once_per_transition(int sk) {
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1369  "S1i: a real STOP raises the Table 5.22 trigger once (got %d)",
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1377  "S1j: a repeated STOP raises NO trigger (got %d)",
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1402  // a trigger keyed on the AECP request alone missed this path entirely.
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1415  "S1l: ...and it raises the Table 5.22 trigger (got %d)",
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1422  "S1m: a re-bind that changes nothing raises no trigger (got %d)",
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1519  void ListenerWalk::check_rebind_raises_no_duplicate_trigger() {
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1523  // PRB_W_RESP the committed pbsta/acmpsta stay ACTIVE/0, so this trigger
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1541  "RV8b: ...and raised the started/stopped trigger exactly once "
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1555  "raises no started/stopped trigger (got %d)", h.col.strt_chgs);
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1660  check_started_trigger_fires_once_per_transition(sk);
+  MISS    NO-ROW    tb/acmp_listener/sim_main.cpp:1664  check_rebind_raises_no_duplicate_trigger();
+  MISS    NO-ROW    tb/acmp_nvm/acmp_nvm_wrap.sv:159  output logic                     lsn_notify_o,    //! committed-change trigger
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:378  //! per-cycle hooks, each dropped once it returns true (a case's trigger)
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:916  CHECK((d->dbg_dirty_o >> 2) & 1, "B2 change marked dirty");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1074  "F17 a clean restore triggers no NVM write-back at all");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1272  // KL_acmp_nvm_shadow's engine states the triggers key on (its hstate_e)
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1451  CHECK(hooks.empty(), "%s: the case's trigger fired", tag);
+  MISS    NO-ROW    tb/desc_store/sim_main.cpp:905  //  load must now trigger the walk, stall through it, and SERVE.)
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:88  void mark_dirty_only_for_persisted_fields();
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:211  void DynStateHarness::mark_dirty_only_for_persisted_fields() {
+  MISS    NO-ROW    tb/dyn_state/sim_main.cpp:219  "E: a volatile IDENTIFY write marked the store dirty");
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:222  "E: a persisted clock-source write did NOT mark the store dirty");
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:342  mark_dirty_only_for_persisted_fields();
+  MISS    ROW-FILE  tb/pp_top/README.md:31  ordering before the unchanged group-7 NVM mark are checked too.
+  MISS    ROW-FILE  tb/pp_top/README.md:118  | Latency trigger disconnected from `stri_events` | `GI LATENCY-CHANGE: exactly one unsolicited response` |
+  MISS    ROW-FILE  tb/pp_top/README.md:133  | Re-bind started/stopped trigger removed (bind walks excluded again) | `GI REBIND-SW: exactly one unsolicited response`
+  MATCH   ROW-FILE  tb/pp_top/README.md:247  `aecp_nvm_mark_o` export (issue #90) on this face and the name store: a
+  MISS    ROW-FILE  tb/pp_top/README.md:325  - **V** **GET_AVB_INFO / GET_AS_PATH and their Table 5.22 triggers**: both
+  MISS    ROW-FILE  tb/pp_top/README.md:689  graded at the dynamic store's write counter, the NVM-mark and notify
+  MISS    NO-ROW    tb/pp_top/gsi_mutants.py:20  ("latency-trigger-removed", top,
+  MISS    NO-ROW    tb/pp_top/gsi_mutants.py:69  ("rebind-started-trigger-removed", lstn,
+  MISS    NO-ROW    tb/pp_top/pp_top_wrap.sv:323  //! the row already holds, an NVM mark and a notification enqueue all
+  MATCH   NO-ROW    tb/pp_top/pp_top_wrap.sv:326  //! OP_NVM_MARK strobe and the OP_NOTIFY_ENQ strobe (06 section 8). The
+  MATCH   NO-ROW    tb/pp_top/pp_top_wrap.sv:331  output logic  [7:0] aecp_nvm_mark_o,
+  MATCH   NO-ROW    tb/pp_top/pp_top_wrap.sv:435  .aecp_nvm_mark_o       (aecp_nvm_mark_o),
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1027  uint64_t nvm_marks = 0;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1035  uint8_t  nvm_mark_last = 0;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1036  uint64_t nvm_marks_cls6 = 0;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1037  uint64_t nvm_marks_cls7 = 0;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1179  if (d->aecp_nvm_mark_o == 7) name_mark_cycle = t;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1180  ++nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1181  nvm_mark_last = d->aecp_nvm_mark_o;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1182  if (d->aecp_nvm_mark_o == 6) ++nvm_marks_cls6;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1183  if (d->aecp_nvm_mark_o == 7) ++nvm_marks_cls7;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1616  nvm_marks = 0; notify_enqs = 0;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:1618  nvm_marks_cls6 = 0; nvm_marks_cls7 = 0; nvm_mark_last = 0;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3793  // R21: THE EXPORT (issue #90). aecp_nvm_stb_o / aecp_nvm_mark_o carry the
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3794  // uCPU's OP_NVM_MARK effect out of the top, and the mark is the micro-op
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3804  const uint64_t m0 = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3805  const uint64_t c6_0 = h.nvm_marks_cls6;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3809  CHECK(h.nvm_marks == m0 + 1 && h.nvm_marks_cls6 == c6_0 + 1
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3810  && h.nvm_mark_last == 6,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3813  static_cast<unsigned>(h.nvm_marks - m0),
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3814  static_cast<unsigned>(h.nvm_mark_last));
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3817  const uint64_t m1 = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3820  CHECK(h.nvm_marks == m1,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3822  static_cast<unsigned>(h.nvm_marks - m1));
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3828  const uint64_t m2 = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3829  const uint64_t c7_0 = h.nvm_marks_cls7;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3834  CHECK(h.nvm_marks == m2 + 1 && h.nvm_marks_cls7 == c7_0 + 1
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3835  && h.nvm_mark_last == 7,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3838  static_cast<unsigned>(h.nvm_marks - m2),
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:3839  static_cast<unsigned>(h.nvm_mark_last));
+  MISS    NO-ROW    tb/pp_top/sim_main.cpp:4521  //! GET_STREAM_INFO trigger since the P3 stage, and this block's job is
+  MISS    NO-ROW    tb/pp_top/sim_main.cpp:4868  // one G7/G7b already grade. This block is what catches a trigger that
+  MISS    NO-ROW    tb/pp_top/sim_main.cpp:4884  "(a started/stopped trigger that fires on bind duplicates it)");
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6703  // or notified" has no wire shape at all: an NVM_MARK and a NOTIFY_ENQ
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6707  // WRITE_ST that KL_aecp_dyn_state took), the OP_NVM_MARK strobe
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6708  // (aecp_nvm_stb_o, counted in H::step as nvm_marks) and the
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6738  const uint64_t m0 = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6742  const uint64_t mb = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6757  CHECK(h.nvm_marks == mb,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6758  "W10j5: the refusal of %u raised OP_NVM_MARK %u times, want 0",
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6759  bad, static_cast<unsigned>(h.nvm_marks - mb));
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6794  CHECK(h.nvm_marks == m0 + 1,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6795  "W10j11: the accepted SET raised OP_NVM_MARK %u times, want 1",
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:6796  static_cast<unsigned>(h.nvm_marks - m0));
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7649  // OP_NVM_MARK and OP_NOTIFY_ENQ strobes, and a second controller
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7675  const uint64_t m0 = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7680  const uint64_t mb = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7694  CHECK(h.nvm_marks == mb,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7695  "W9k5: the refusal of 0x%08X raised OP_NVM_MARK %u times, "
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7696  "want 0", bad, static_cast<unsigned>(h.nvm_marks - mb));
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7719  CHECK(h.nvm_marks == m0 + 1,
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7720  "W9k11: the accepted SET raised OP_NVM_MARK %u times, want 1",
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7721  static_cast<unsigned>(h.nvm_marks - m0));
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7801  const uint64_t m0 = h.nvm_marks;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7812  CHECK(d->dbg_dyn_writes_o == w0 && h.nvm_marks == m0
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:7816  static_cast<unsigned>(h.nvm_marks - m0),
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:9620  const auto marks = h.nvm_marks_cls7;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:9628  CHECK(h.nvm_marks_cls7 == marks + (changed ? 1 : 0),
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:9722  const auto marks = h.nvm_marks_cls7;
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:9738  CHECK(h.nvm_marks_cls7 == marks, "NW ABORT: no group-7 completion mark");
+  MATCH   NO-ROW    tb/ucpu/README.md:32  chain (state write-back strobes, COMMIT, NVM_MARK, NOTIFY_ENQ — and their
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:112  std::vector<uint8_t> nvm_marks;
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:387  if (dut->eff_nvm_stb_o) nvm_marks.push_back(dut->eff_nvm_mark_o);
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:426  stw.clear(); commits = 0; nvm_marks.clear(); notify_classes.clear();
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:559  CHECK(h.commits == 0 && h.nvm_marks.empty() && h.notify_classes.empty(),
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:630  CHECK(h.nvm_marks.size() == 1 && h.nvm_marks[0] == 0x21,
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:631  "P7 NVM_MARK 0x21");
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:639  CHECK(h.commits == 0 && h.nvm_marks.empty() && h.notify_classes.empty(),
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:668  CHECK(h.stw.empty() && h.commits == 0 && h.nvm_marks.empty() &&
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:719  CHECK(h.commits == 1 && h.nvm_marks.size() == 1 &&
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:720  h.nvm_marks[0] == 7 && h.notify_classes.size() == 1 &&
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:731  CHECK(h.commits == 0 && h.nvm_marks.empty() && h.notify_classes.empty(),
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:741  CHECK(h.stw.empty() && h.commits == 0 && h.nvm_marks.empty() &&
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:956  CHECK(h.commits == 0 && h.nvm_marks.empty() && h.notify_classes.empty(),
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:1059  CHECK(h.commits == 0 && h.nvm_marks.empty() && h.notify_classes.empty(),
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:1324  CHECK(h.nvm_marks.size() == 1 && h.nvm_marks[0] == 1,
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:1348  CHECK(h.stw.empty() && h.nvm_marks.empty(),
+  MATCH   NO-ROW    tb/ucpu/sim_main.cpp:1418  CHECK(h.nvm_marks.size() == 1 && h.nvm_marks[0] == 1,
+## probe P2_platform_writer :: platform.{0,60}(writer|nvm|record|persist|manager)|(writer|nvm|persist).{0,60}platform|integrator.{0,60}(writer|persist|record|group)|outside the processor  (10 lines)
+  MISS    NO-ROW    docs/10_RESOURCE_AND_EFFORT.md:113  The reference platform's area records enforce rules that this analysis inherits.
+  MATCH   NO-ROW    docs/README.md:51  | System integrator | steps 2 and 3, then persistence, then the side-port | [07 persistence](architecture/07_memory_maps
+  MATCH   ROW-CITED docs/architecture/02_interfaces.md:551  Groups 6 and 7 have none: an integrator that persists them owns both the record
+  MATCH   ROW-CITED docs/architecture/02_interfaces.md:563  kept for a second record writer (the integrating platform's saved-state writer) and is
+  MISS    ROW-FILE  hdl/top/protocol_processor_top.sv:360  //! and descriptor existence. The integrator validates every record before
+  MATCH   ROW-CITED hdl/top/protocol_processor_top.sv:664  //! for groups 6 and 7, so an integrator that persists those groups has
+  MATCH   ROW-CITED hdl/top/protocol_processor_top.sv:2450  //! nobody (issue #93, S3). Manager 1 is the platform's saved-state writer;
+  MATCH   ROW-CITED tb/acmp_nvm/README.md:15  manager 1 is a harness face, as the platform's saved-state writer will be), the
+  MATCH   NO-ROW    tb/acmp_nvm/acmp_nvm_wrap.sv:13  //                is a harness face, as the platform's saved-state writer
+  MISS    ROW-FILE  tb/pp_top/README.md:709  used to leave it unbound, so nothing outside the processor could drive the
+## probe P3_response_delay :: (nvm|flash|commit|persist).{0,80}(never|not|no).{0,30}(delay|block|stall|hold)|asynchronous.{0,40}(response|protocol|dispatch)  (5 lines)
+  MATCH   ROW-CITED docs/architecture/02_interfaces.md:492  free. Long busy periods expected; commits are asynchronous to protocol responses
+  MATCH   ROW-CITED docs/architecture/03_packet_engine.md:236  - **(d)** NVM commits are asynchronous and never delay responses.
+  MATCH   ROW-CITED docs/architecture/05_acmp_engine.md:189  are released and the listener answers, so persistence that wedges never holds ACMP
+  MATCH   ROW-CITED docs/architecture/08_timing.md:43  | T-NVM-RS-DEADLINE | `P-NVM-RS-TMO-CYC` clocks without progress (default 20 ms) | NVM mgr | the boot restore walk's rea
+  MATCH   ROW-FILE  hdl/packet_engine/KL_pp_nvm_port.sv:25  //                asynchronous to protocol responses (03 §6 ordering rule d)
+## probe P4_future_manager :: (P4|future|later|will be).{0,60}(nvm|manager|writer|persist)|(nvm|manager|writer).{0,40}(P4|lands|not yet|future)  (13 lines)
+  MATCH   ROW-CITED docs/architecture/02_interfaces.md:546  | `nvm_unflushed_o` | out | `P-N-STREAM-IN` | bit k is 1 from the cycle the manager ACCEPTS a changed binding for sink k
+  MATCH   ROW-CITED docs/architecture/02_interfaces.md:572  | The drain ends **only** on that operation's own `done` or `err`. | never on time. A device that never ends the abandon
+  MISS    ROW-FILE  docs/architecture/07_memory_maps.md:222  The future D3 writer must hold restorable owners while this debt is set and end
+  MATCH   NO-ROW    docs/diagrams/01-top-level.svg:3  <svg xmlns="http://www.w3.org/2000/svg" style="background: transparent; background-color: transparent; color-scheme: lig
+  MISS    NO-ROW    docs/diagrams/03-shared-datapath.svg:3  <svg xmlns="http://www.w3.org/2000/svg" style="background: transparent; background-color: transparent; color-scheme: lig
+  MATCH   ROW-CITED docs/guides/integrator.md:334  | `nvm_unflushed_o` | per-sink binding state the manager has accepted and not yet committed. 1 from the accepted change 
+  CONTEXT ROW-CITED hdl/acmp/KL_acmp_nvm_shadow.sv:14  //                full multi-record NVM manager lands in P4; this block IS
+  MISS    NO-ROW    hdl/acmp/KL_pp_acmp_listener.sv:179  //! ---- lock-manager face (A1; level status, 06 §6.8 not yet landed) ---
+  MISS    ROW-CITED hdl/aecp/KL_aecp_desc_mem_guard.sv:20  //                the D3 interface: the future writer must hold its restorable
+  MATCH   ROW-FILE  tb/acmp_nvm/README.md:151  issued only after the drain ended, and a later change persists. **N5c**: the
+  MATCH   NO-ROW    tb/acmp_nvm/sim_main.cpp:2165  "%s: the later change persists and the saved records stay", tag);
+  MISS    NO-ROW    tb/nvm_port/README.md:45  and must be caught by the NVM-manager suite (P4). The byte order of the 16-bit
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:9310  // it; a later BIND then persists, and the next reset restores that.
+## probe P5_identify_exclusion :: identify.{0,80}(volatile|nvm|persist|flash)|(volatile|nvm|persist|flash).{0,80}identify  (10 lines)
+  CONTEXT ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:216  (§5.3.13). Explicitly volatile: lock state, controller registry, identify (reset to 0).
+  CONTEXT ROW-FILE  docs/00_MILAN_COMPLIANCE_REVIEW.md:419  | REQ-PER-002 | Milan §5.3.4.1/.2, §5.3.12 | Volatile: lock state; controller registry; identify = 0 after reset | shall
+  MISS    ROW-FILE  docs/architecture/06_aecp_engine.md:915  | 0x0018 / 0x0019 SET/GET_CONTROL | real volatile Identify control with values 0 and 255 |
+  MISS    ROW-FILE  hdl/aecp/KL_aecp_dyn_state.sv:275  //! IDENTIFY value is one of the three things §5.3.4 keeps VOLATILE
+  MATCH   ROW-FILE  hdl/aecp/KL_aecp_dyn_state.sv:289  //! cycle" EXCEPT the IDENTIFY value, so only the persisted set marks
+  CONTEXT ROW-FILE  hdl/aecp/KL_aecp_dyn_state.sv:290  //! the store dirty. Raising it for IDENTIFY would commit flash on a
+  MISS    ROW-FILE  hdl/aecp/ucode/gen_ucode.py:1550  # VOLATILE with 0 ("not identifying") as its state after reset, and §5.3.4
+  MISS    NO-ROW    tb/dyn_state/sim_main.cpp:22  // source), 5.3.12 (IDENTIFY, volatile, 0 after reset), 5.4.2.5 (current
+  CONTEXT NO-ROW    tb/dyn_state/sim_main.cpp:209  // IDENTIFY value volatile. Raising dirty for IDENTIFY would commit flash
+  MISS    NO-ROW    tb/dyn_state/sim_main.cpp:219  "E: a volatile IDENTIFY write marked the store dirty");
+## probe P6_dyn_dirty :: dyn.?dirty|dirty_o  (50 lines)
+  MATCH   ROW-CITED docs/guides/integrator.md:334  | `nvm_unflushed_o` | per-sink binding state the manager has accepted and not yet committed. 1 from the accepted change 
+  MISS    ROW-FILE  hdl/acmp/KL_acmp_nvm_shadow.sv:177  output logic [N_SINKS_P-1:0]       dbg_dirty_o,    //! per-sink dirty (unflushed change)
+  MISS    ROW-FILE  hdl/acmp/KL_acmp_nvm_shadow.sv:926  assign dbg_dirty_o    = dirty_r;
+  CONTEXT ROW-CITED hdl/aecp/KL_aecp_dyn_state.sv:68  //                raises `dirty_o` so the NVM manager knows a commit is owed.
+  MATCH   ROW-CITED hdl/aecp/KL_aecp_dyn_state.sv:123  output logic        dirty_o,           //! a persisted field was written
+  MISS    ROW-FILE  hdl/aecp/KL_aecp_dyn_state.sv:266  dirty_o    <= 1'b0;
+  MISS    ROW-FILE  hdl/aecp/KL_aecp_dyn_state.sv:292  if (sel_w != 13'(SEL_IDENT_C)) dirty_o <= 1'b1;
+  MATCH   ROW-CITED hdl/aecp/KL_aecp_engine.sv:579  output logic        dyn_dirty_o          //! a persisted field was written
+  MISS    ROW-FILE  hdl/aecp/KL_aecp_engine.sv:1690  .dirty_o         (dyn_dirty_o),
+  MATCH   ROW-CITED hdl/top/protocol_processor_top.sv:452  //! with aecp_dyn_dirty_o; without it a binding taken inside the
+  MATCH   ROW-CITED hdl/top/protocol_processor_top.sv:647  output logic                         aecp_dyn_dirty_o,    //! a persisted field moved
+  MATCH   ROW-FILE  hdl/top/protocol_processor_top.sv:2508  .dbg_dirty_o      (nvm_unflushed_o),
+  MATCH   ROW-FILE  hdl/top/protocol_processor_top.sv:3506  .dyn_dirty_o        (aecp_dyn_dirty_o)
+  MISS    ROW-FILE  tb/acmp_nvm/README.md:280  - **M7** `dbg_dirty_o` hard-wired to `'0` — the pin issue #90 exports:
+  MISS    NO-ROW    tb/acmp_nvm/acmp_nvm_wrap.sv:197  output logic [N_SINKS_P-1:0]     dbg_dirty_o,     //! shadow dirty bits
+  MISS    NO-ROW    tb/acmp_nvm/acmp_nvm_wrap.sv:289  .dbg_dirty_o     (dbg_dirty_o),
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:906  CHECK(d->dbg_dirty_o == 0, "A5 nothing dirty after restore");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:916  CHECK((d->dbg_dirty_o >> 2) & 1, "B2 change marked dirty");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:932  CHECK(d->dbg_dirty_o == 0, "B8 dirty cleared after the burst");
+  CONTEXT NO-ROW    tb/acmp_nvm/sim_main.cpp:940  CHECK(d->dbg_dirty_o == 0, "C1 volatile-field write-back never dirties");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:962  return count_ops(OP_WRITE, REC_BASE + 1) >= 2 && !d->dbg_dirty_o;
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:974  CHECK(d->dbg_dirty_o == 0, "E5 given-up record drops dirty (no livelock)");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:980  return count_ops(OP_WRITE, REC_BASE + 4) >= 1 && !d->dbg_dirty_o;
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1070  CHECK(d->dbg_dirty_o == 0,
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1108  return count_ops(OP_WRITE, REC_BASE + 0) >= 1 && !d->dbg_dirty_o;
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1158  && !d->dbg_dirty_o;
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1178  CHECK(run_until([&] { return d->dbg_dirty_o == 0; }, 6000),
+  CONTEXT NO-ROW    tb/acmp_nvm/sim_main.cpp:1187  // ===================== X: dbg_dirty_o IS the unflushed-state contract
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1202  CHECK(d->dbg_dirty_o == 0, "X0b nothing unflushed before the change");
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1208  CHECK(run_until([&] { return d->dbg_dirty_o != 0; }, 20),
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1210  CHECK(d->dbg_dirty_o == (1u << 3),
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1212  unsigned(d->dbg_dirty_o));
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1225  if (!(d->dbg_dirty_o & (1u << 3))) {
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1244  CHECK(run_until([&] { return (d->dbg_dirty_o >> 5) & 1; }, 20),
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1250  if (!((d->dbg_dirty_o >> 5) & 1)) {
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:1318  run_until([&] { return d->dbg_dirty_o == 0 && d_st == 0 && !d_busy; }, 8000);
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:2080  CHECK(d->arb_drain_o && ((d->dbg_dirty_o >> 2) & 1) && count_ops(OP_WRITE) == 0
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:2155  run_until([&] { return d->dbg_dirty_o == 0 && first_erase >= 0; }, 8 * RS_TMO);
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:2188  const bool pending = d->arb_drain_o && ((d->dbg_dirty_o >> 2) & 1)
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:2193  run_until([&] { return d->dbg_dirty_o == 0 && first_erase >= 0; }, 8 * RS_TMO);
+  MISS    NO-ROW    tb/acmp_nvm/sim_main.cpp:2376  CHECK(l_nvm_untouched(why) && d->dbg_dirty_o == 0,
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:88  void mark_dirty_only_for_persisted_fields();
+  MISS    NO-ROW    tb/dyn_state/sim_main.cpp:155  CHECK(d->dirty_o == 0, "A: dirty is clear before any write");
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:211  void DynStateHarness::mark_dirty_only_for_persisted_fields() {
+  CONTEXT NO-ROW    tb/dyn_state/sim_main.cpp:213  CHECK(d->dirty_o == 0, "E: dirty is clear after reset");
+  MISS    NO-ROW    tb/dyn_state/sim_main.cpp:218  CHECK(d->dirty_o == 0,
+  CONTEXT NO-ROW    tb/dyn_state/sim_main.cpp:221  CHECK(d->dirty_o == 1,
+  MATCH   NO-ROW    tb/dyn_state/sim_main.cpp:342  mark_dirty_only_for_persisted_fields();
+  MATCH   NO-ROW    tb/pp_top/pp_top_wrap.sv:432  .aecp_dyn_dirty_o      (),
+  MATCH   NO-ROW    tb/pp_top/sim_main.cpp:9147  //! this vector ORed with aecp_dyn_dirty_o, so the port has to carry the
+## RESULT PASS
