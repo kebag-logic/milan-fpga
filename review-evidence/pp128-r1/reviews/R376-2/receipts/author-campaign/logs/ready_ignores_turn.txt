@@ -1,0 +1,91 @@
+return code: 2
+1148 checks: 1059 PASS, 89 FAIL
+FAIL: B4 re-ping: timer arm missing
+FAIL: B4: response missing
+FAIL: B4 msg_type got 0 want 1
+FAIL: B4 stream_id got 0000000000000000
+FAIL: B4 controller_eid got 0000000000000000
+FAIL: B4 talker_eid got 0000000000000000
+FAIL: B4 listener_eid got 0000000000000000
+FAIL: B4 talker_uid got 0
+FAIL: B4 listener_uid got 0
+FAIL: B4 dest_mac got 000000000000
+FAIL: B4 sequence_id got 0
+FAIL: B4 flags got 0000 want 000a
+FAIL: B4 vlan got 0
+FAIL: D4 ping: timer arm missing
+FAIL: D4 re-declare: gate strobe missing
+FAIL: D4: response missing
+FAIL: D4 msg_type got 0 want 1
+FAIL: D4 stream_id got 0000000000000000
+FAIL: D4 controller_eid got 0000000000000000
+FAIL: D4 talker_eid got 0000000000000000
+FAIL: D4 listener_eid got 0000000000000000
+FAIL: D4 talker_uid got 0
+FAIL: D4 listener_uid got 0
+FAIL: D4 dest_mac got 000000000000
+FAIL: D4 sequence_id got 0
+FAIL: D4 flags got 0000 want 0002
+FAIL: D4 vlan got 0
+FAIL: E1 conflict withdraw: gate strobe missing
+FAIL: E1 draw kind 3
+FAIL: E1 leaveall2: timer arm missing
+FAIL: E2 backoff probe status got 0 want 3
+FAIL: E2 backoff probe stream_id got ab00000000000003
+FAIL: E2 backoff probe dest_mac got 91e0f0000108
+FAIL: E2 backoff probe vlan got 2
+FAIL: E2 no DAFRESH arm while BACKOFF holds the slot
+FAIL: E: leftovers resp=0 gate=0 arm=1 mreq=0
+FAIL: E7: leftovers resp=0 gate=0 arm=1 mreq=0
+FAIL: F2 leaveall2 src0 arm slot got 20
+FAIL: F2 leaveall2 src0 arm owner got 53
+FAIL: F2 leaveall2 src0 arm deadline got 65000 want 114000
+FAIL: F2 leaveall2 src1 arm slot got 17
+FAIL: F2 leaveall2 src1 arm owner got 50
+FAIL: F2 leaveall2 src3 arm slot got 18
+FAIL: F2 leaveall2 src3 arm owner got 51
+FAIL: F3 no DAFRESH arm while BACKOFF holds the slot
+FAIL: F4 remaining freshness arm slot got 20
+FAIL: F4 remaining freshness arm owner got 53
+FAIL: F4 remaining freshness arm deadline got 114000 want 105000
+FAIL: F6 src0 exits backoff without declaring
+FAIL: F: leftovers resp=0 gate=0 arm=1 mreq=0
+FAIL: G2a: response missing
+FAIL: G2a declare: gate strobe missing
+FAIL: G2a ping arm slot got 18
+FAIL: G2a ping arm owner got 51
+FAIL: G2a ping arm deadline got 105000 want 215000
+FAIL: G2 stateless: identical probe = identical bytes
+FAIL: G2 content sane
+FAIL: G: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: H1 src6 was not declaring: no withdraw
+FAIL: H: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: I1 no DECLARE_TALKER on a refusal
+FAIL: I3 no DECLARE_TALKER without a DA
+FAIL: I4 grant declares open src got 4
+FAIL: I4 grant declares open sid got ab00000000000004
+FAIL: I4 grant declares open da got 91e0f0000104 want 91e0f000010a
+FAIL: I: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: J1 withdraw on removal expected close, got open
+FAIL: J1 withdraw on removal close src got 6
+FAIL: J7 grant re-declares expected open, got close
+FAIL: J7 grant re-declares open da got 000000000000 want 91e0f000010b
+FAIL: J: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: K0 withdraw on removal expected close, got open
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb
+FAIL: K: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: L0: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face close src got 6
+FAIL: L4 src3 withdraws at once close src got 1
+FAIL: L4 src5 withdraws at once close src got 3
+FAIL: L: leftovers resp=0 gate=1 arm=0 mreq=0

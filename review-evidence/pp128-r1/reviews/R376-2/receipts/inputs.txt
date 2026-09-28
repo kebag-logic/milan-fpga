@@ -1,0 +1,22 @@
+# public inputs read by this review (sha256)
+cd1aa5e9c9ea7ccebb4a71d1d4a94cf469bf7a61519feff5d97597178d12c24c  input:github/issue128_comments.json
+1c0db4327cb059523c84bd712f4ff80c2620573fae15cef44394db512d3ca62e  input:github/issue128.json
+2503ecdeaa937623401cb88c84b5ca71f065036ab36bd4b6bc2b2e838ab8f51d  input:github/pr129_comments.json
+5f934dcf9316a74f509db340d0e0986a49e74309bea76487a47bebdfbbb542bc  input:github/pr129.json
+4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945  input:github/pr129_review_comments.json
+4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945  input:github/pr129_reviews.json
+# round-1 author evidence (milan-fpga b367df5d:review-evidence/pp128-r1), MANIFEST verified 48/48
+0adca78216aff01b2d8ea3a2dbe6bce158e22b13bf9ae48dc4b617da32128567  input:evidence/MANIFEST.json
+# round-2 author evidence (milan-fpga 938a9bcb:review-evidence/pp128-r1/author-r2), 93/93 entries verified against MANIFEST.json
+001917dd151bb8ddd6fcc2f3bb3fb9559d48c809049d5502d564dbd42ff5e385  input:evidence-r2-MANIFEST.json
+6a8fce9036a7e26c9d7e7bbe0d2e5be31d4dc5000740495f203ae544a2dbffa5  input:evidence-r2/HANDOFF.md
+e3b559f1e01346a6a06d2338ee96e1b79a429a8fb5c8f492172cc08b18605c73  input:evidence-r2/PR-BODY.md
+ea45b3252aecfc2d3e9f09b68844bcde4e53510ba7a8e4872211dd992cd64162  input:evidence-r2/run_parent_probe.py
+3ee740c066b468c5f2c7160927391425c231649808e0f610cb389ddc63124358  input:evidence-r2/original-run_first_probe.py
+8706f209f65099864d02fe3a430edd69d12c6ab9e585f2f9f182d65bbcbd8557  input:evidence-r2/original-reproduce_first_probe.cpp
+# own R376-1 packet (milan-fpga 938a9bcb:review-evidence/pp128-r1/reviews/R376-1), MANIFEST.sha256 verified
+36e0c2ef7cb6e0e748ad4e978ebe8f32c280b067a31ddfb586dfd0ae1db876db  R376-1/MANIFEST.sha256
+0e08fe9cf679b546c667698b8f3c7b2ec8c0eeaaab8512e002a4f9e3c8178e7f  R376-1/REPORT.md
+# parent sources read at 931f396e
+965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e  parent@931f396e:hdl/milan/KL_pp_maap_shim.sv
+c9062587341be0b8543805f6b67b8b773c07900deceb12f8028508faa97b5a35  parent@931f396e:tb/verilator/pp_shadow/sim_main.cpp

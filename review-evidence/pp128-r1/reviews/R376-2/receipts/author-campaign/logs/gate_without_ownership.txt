@@ -1,0 +1,49 @@
+return code: 2
+1172 checks: 1125 PASS, 47 FAIL
+FAIL: B1 gate level, got 0xff
+FAIL: D2 declaring_o[3] OBSERVED 1 -> 0
+FAIL: D2 only src3's gate closed, got 0xff
+FAIL: I0 gates carried in from A-H, got 0xff
+FAIL: I1 refused alloc: gate stays shut
+FAIL: I3 listener registered + alloc REFUSED: the gate is still shut
+FAIL: I4 declaring_o[6] OBSERVED 0 -> 1 on the grant
+FAIL: I4 only src6 moved, got 0xff
+FAIL: J1 declaring_o[4] OBSERVED 1 -> 0
+FAIL: J5 no gate without a DA
+FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+FAIL: J7 final gates, got 0xff
+FAIL: K0 gates after removal, got 0xff
+FAIL: K2 no gate can open, got 0xff
+FAIL: K3 no gate without a DA
+FAIL: K5 accepted is not granted: src2's gate is still shut
+FAIL: K6 stale response changed the gate level to 0xff
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0xff
+FAIL: K8 final gates, got 0xff
+FAIL: L1 the gate is shut in that cycle
+FAIL: L4 final gates, got 0xff
+FAIL: R1 acquired addresses neither declare nor borrow timer slots
+FAIL: R1 freshness expiry still withdraws every source
+FAIL: R2 no declaration without ownership
+FAIL: R2 no declaration without ownership
+FAIL: R2 no declaration without ownership
+FAIL: R3 absent allocator never declares
+FAIL: R4 obsolete grant cannot declare
+FAIL: R4 obsolete grant cannot declare
+FAIL: R5 stale drain does not grant ownership
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 backoff expiry redeclares with fresh demand
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 backoff expiry redeclares with fresh demand
+FAIL: R7 count growth does not create demand
+FAIL: R7 only in-block sources declare
+FAIL: R11 disable withdraws under continuous commands
+FAIL: R11 disable withdraws under continuous commands
+FAIL: R13 cancellation kind0 edge0 never publishes obsolete grant
+FAIL: R13 cancellation kind0 edge1 never publishes obsolete grant
+FAIL: R13 cancellation kind0 edge2 never publishes obsolete grant
+FAIL: R13 cancellation kind0 edge3 never publishes obsolete grant
+FAIL: R13 cancellation kind1 edge0 never publishes obsolete grant
+FAIL: R13 cancellation kind1 edge1 never publishes obsolete grant
+FAIL: R13 cancellation kind1 edge2 never publishes obsolete grant
+FAIL: R13 cancellation kind1 edge3 never publishes obsolete grant

@@ -1,0 +1,3 @@
+m18_no_round: pp_top:NO-TALLY rc=2 no-tally nfail=2 first=FAIL: S10: exactly one ALLOC_DA for every enabled source | FAIL: MP3: first PROBE_TX_RESPONSE succeeds after acquisition bound
+m27_wait_only_on_accept: pp_top:SURVIVED rc=0 7751 checks: 7751 PASS, 0 FAIL nfail=0 first=
+# note: pp_top prints per-binary tallies as '== <label>: checks: N   failures: M ==' and aggregates only on success; m18 rc=2 with named S10/MP3 FAIL lines = killed by named assertions

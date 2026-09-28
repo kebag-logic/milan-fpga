@@ -1,0 +1,50 @@
+retry_cases.hpp:32: retry_monopoly, no_command_ready, busy_tracker_blocks_commands, init_elig_no_avail
+retry_cases.hpp:34: retry_monopoly, no_command_ready, busy_tracker_blocks_commands, init_elig_no_avail
+retry_cases.hpp:36: no_round, late_round, retry_monopoly, refusal_is_grant, obsolete_grant, no_response_bound, no_stale_swallow, no_stale_drain, backoff_bypass, reallocate_owned, declare_without_demand, source_alias, no_requests, no_command_ready, busy_tracker_blocks_commands, init_elig_no_avail, retry_period_200, tick_ge_to_gt, kill_no_conflict_at_all, kill_no_disable_at_all, kill_sticky_off, tick_keeps_wait
+retry_cases.hpp:54: no_requests
+retry_cases.hpp:56: early_round, no_requests
+retry_cases.hpp:58: no_round, late_round, refusal_is_grant, no_requests, retry_period_200, tick_ge_to_gt, tick_keeps_wait
+retry_cases.hpp:59: declare_without_demand, gate_without_ownership
+retry_cases.hpp:63: no_round, late_round, source_alias, no_requests, retry_period_200, tick_ge_to_gt, tick_keeps_wait
+retry_cases.hpp:66: fresh_forever, gate_without_ownership
+retry_cases.hpp:67: refusal_is_grant, reallocate_owned, source_alias, no_requests, tick_keeps_wait
+retry_cases.hpp:81: no_round, late_round, no_pacing, refusal_is_grant, no_requests, tick_no_rearm, retry_period_200, tick_ge_to_gt, tick_keeps_wait
+retry_cases.hpp:88: no_round, no_pacing, tick_no_rearm
+retry_cases.hpp:89: refusal_is_grant, gate_without_ownership
+retry_cases.hpp:95: disabled_alloc
+retry_cases.hpp:127: fixed_priority, command_monopoly, no_accept_bound, no_requests, no_rotate_advance, eligible_ignores_init
+retry_cases.hpp:129: retry_monopoly, no_accept_bound, no_turn_restore
+retry_cases.hpp:131: no_accept_bound, short_accept_bound, no_requests
+retry_cases.hpp:132: gate_without_ownership
+retry_cases.hpp:143: no_requests
+retry_cases.hpp:151: obsolete_grant, gate_without_ownership, kill_no_conflict_at_all, kill_no_disable_at_all, kill_sticky_off
+retry_cases.hpp:152: obsolete_grant, obsolete_release_lost, no_requests, kill_no_conflict_at_all, kill_no_disable_at_all, kill_sticky_off
+retry_cases.hpp:156: obsolete_grant, obsolete_release_lost, no_requests, kill_no_conflict_at_all, kill_no_disable_at_all, kill_sticky_off
+retry_cases.hpp:173: response_wrap, no_requests
+retry_cases.hpp:175: no_round, no_response_bound, no_requests, tick_keeps_wait
+retry_cases.hpp:187: no_response_bound, no_stale_capacity, no_requests
+retry_cases.hpp:190: no_response_bound, no_stale_swallow, no_stale_capacity, no_stale_drain, no_requests
+retry_cases.hpp:191: gate_without_ownership
+retry_cases.hpp:205: half_backoff, no_requests
+retry_cases.hpp:210: backoff_bypass, reallocate_owned, gate_without_ownership
+retry_cases.hpp:216: gate_without_ownership, no_requests
+retry_cases.hpp:217: reallocate_owned, no_requests
+retry_cases.hpp:231: no_command_ready
+retry_cases.hpp:232: no_round, late_round, declare_without_demand, source_alias, no_requests, no_command_ready, retry_period_200, tick_ge_to_gt
+retry_cases.hpp:240: declare_without_demand, gate_without_ownership
+retry_cases.hpp:249: no_round, no_pacing, tick_no_rearm
+retry_cases.hpp:250: refusal_is_grant, declare_without_demand, source_alias, gate_without_ownership, no_requests
+retry_cases.hpp:262: early_round, retry_wrap, no_requests
+retry_cases.hpp:264: no_round, late_round, retry_wrap, refusal_is_grant, no_requests, tick_no_rearm, retry_period_200, tick_ge_to_gt, tick_keeps_wait
+retry_cases.hpp:273: no_requests
+retry_cases.hpp:290: refusal_is_grant, declare_without_demand, source_alias, no_requests, no_conflict_wait_clear, no_conflict_daok_initset, no_enable_wait_clear
+retry_cases.hpp:305: no_command_ready, busy_tracker_blocks_commands
+retry_cases.hpp:311: busy_tracker_blocks_commands
+retry_cases.hpp:312: command_monopoly, gate_without_ownership, elig_drop_off, eligible_only_init
+retry_cases.hpp:313: command_monopoly, source_alias, no_requests, elig_drop_rel, elig_drop_off, eligible_only_init
+retry_cases.hpp:336: refusal_is_grant, no_requests, no_conflict_wait_clear, no_probe_initset, no_lsn_initset, no_backoff_exit_initset
+retry_cases.hpp:353: obsolete_grant, gate_without_ownership, grant_kill_reg_only, kill_no_live_conflict, kill_no_disable, kill_no_conflict_at_all, kill_no_disable_at_all
+retry_cases.hpp:355: obsolete_grant, obsolete_release_lost, no_requests, grant_kill_reg_only, kill_no_live_conflict, kill_no_conflict_at_all
+retry_cases.hpp:373: disabled_alloc, init_ignores_off_conflict, init_no_enable_check
+retry_cases.hpp:385: no_requests
+retry_cases.hpp:388: no_requests, wait_on_release, no_enable_wait_clear

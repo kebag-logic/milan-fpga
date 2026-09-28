@@ -1,0 +1,31 @@
+m01_conflict_keeps_wait: acmp_talker:KILLED rc=2 1172 checks: 1169 PASS, 3 FAIL nfail=3 first=FAIL: R10 conflict immediately restarts acquisition | FAIL: R12 demand arc 0 allocates inside round
+m02_enable_keeps_wait: acmp_talker:KILLED rc=2 1172 checks: 1170 PASS, 2 FAIL nfail=2 first=FAIL: R10 re-enable immediately restarts acquisition | FAIL: R15 release does not consume re-enabled lifetime allocation attempt
+m03_no_accept_kill: acmp_talker:SURVIVED rc=0 1172 checks: 1172 PASS, 0 FAIL nfail=0 first=
+m04_grant_kill_reg_only: acmp_talker:KILLED rc=2 1172 checks: 1169 PASS, 3 FAIL nfail=3 first=FAIL: R13 cancellation kind0 edge3 never publishes obsolete grant | FAIL: R13 cancellation kind0 edge3 releases obsolete grant
+m05_init_ignores_pending_off_conflict: acmp_talker:KILLED rc=2 1172 checks: 1170 PASS, 2 FAIL nfail=2 first=FAIL: R14 cancellation kind0 prevents obsolete allocation offer | FAIL: R14 cancellation kind1 prevents obsolete allocation offer
+m06_turn_never_returns: acmp_talker:KILLED rc=2 1163 checks: 1106 PASS, 57 FAIL nfail=57 first=FAIL: J3 THE REGRESSION: a command is still consumed with maap hung | FAIL: J3 served inside the accept window (4096 cycles)
+m07_eligible_ignores_rel: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R11 owed release serviced under continuous commands
+m08_release_sets_wait: acmp_talker:KILLED rc=2 1165 checks: 1117 PASS, 48 FAIL nfail=48 first=FAIL: J7 ...and only then does the rejoin allocate: maap request missing | FAIL: J7 grant re-declares: gate strobe missing
+m09_ready_ignores_turn: acmp_talker:KILLED rc=2 1148 checks: 1059 PASS, 89 FAIL nfail=89 first=FAIL: B4 re-ping: timer arm missing | FAIL: B4: response missing
+m10_kill_ignores_conflict_strobe: acmp_talker:KILLED rc=2 1172 checks: 1170 PASS, 2 FAIL nfail=2 first=FAIL: R13 cancellation kind0 edge3 never publishes obsolete grant | FAIL: R13 cancellation kind0 edge3 releases obsolete grant
+m11_kill_ignores_disable: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R13 cancellation kind1 edge3 never publishes obsolete grant
+m12_sticky_kill_off: acmp_talker:KILLED rc=2 1172 checks: 1162 PASS, 10 FAIL nfail=10 first=FAIL: R4 obsolete grant rejected src0 status/tuple | FAIL: R4 obsolete grant cannot declare
+m13_init_no_enable_check: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R14 cancellation kind2 prevents obsolete allocation offer
+m14_round_skips_rotation: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R3 every source gets an attempt under continuous commands
+m15_eligible_ignores_init: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R3 every source gets an attempt under continuous commands
+m16_tick_keeps_wait: acmp_talker:KILLED rc=2 1152 checks: 1121 PASS, 31 FAIL nfail=31 first=FAIL: I3 listener retries the alloc: maap request missing | FAIL: I4 retry alloc: maap request missing
+m17_eligible_only_init: acmp_talker:KILLED rc=2 1172 checks: 1168 PASS, 4 FAIL nfail=4 first=FAIL: R11 disable withdraws under continuous commands | FAIL: R11 immediate release serviced under continuous commands
+m18_no_round: acmp_talker:KILLED rc=2 1172 checks: 1150 PASS, 22 FAIL nfail=22 first=FAIL: R1 automatic bounded acquisition | FAIL: R1 first probe after bound src0 status/tuple
+m19_init_elig_no_avail: acmp_talker:KILLED rc=2 1172 checks: 1157 PASS, 15 FAIL nfail=15 first=FAIL: R9 consecutive command during silent allocation src1 consumed | FAIL: R9 consecutive command during silent allocation src1 response budget
+m20_no_probe_initset: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R12 demand arc 0 allocates inside round
+m21_no_lsn_initset: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R12 demand arc 1 allocates inside round
+m22_no_backoff_exit_initset: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R12 demand arc 2 allocates inside round
+m23_turn_never_cleared: acmp_talker:KILLED rc=2 1172 checks: 1167 PASS, 5 FAIL nfail=5 first=FAIL: R3 every source gets an attempt under continuous commands | FAIL: R11 disable withdraws under continuous commands
+m24_rotate_restarts_at_last: acmp_talker:KILLED rc=2 1172 checks: 1163 PASS, 9 FAIL nfail=9 first=FAIL: K5 THE REGRESSION: another source allocates again maap src got 6 | FAIL: K7 src2 declares with ITS OWN DA open src got 6
+m25_init_ignores_pending_off: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R14 cancellation kind1 prevents obsolete allocation offer
+m26_init_ignores_pending_conflict: acmp_talker:KILLED rc=2 1172 checks: 1171 PASS, 1 FAIL nfail=1 first=FAIL: R14 cancellation kind0 prevents obsolete allocation offer
+m27_wait_only_on_accept: acmp_talker:SURVIVED rc=0 1172 checks: 1172 PASS, 0 FAIL nfail=0 first=
+m28_init_ready_drops_enable: acmp_talker:SURVIVED rc=0 1172 checks: 1172 PASS, 0 FAIL nfail=0 first=
+m29_sticky_kill_ignores_accept: acmp_talker:SURVIVED rc=0 1172 checks: 1172 PASS, 0 FAIL nfail=0 first=
+m30_probe_sets_all: acmp_talker:SURVIVED rc=0 1172 checks: 1172 PASS, 0 FAIL nfail=0 first=
+m31_round_restarts_on_init: acmp_talker:KILLED rc=2 1172 checks: 1166 PASS, 6 FAIL nfail=6 first=FAIL: R2 demand cannot bypass retry pacing | FAIL: R2 one attempt per enabled source per round

@@ -1,0 +1,59 @@
+# excerpts of manager receipts at <VALIDATION_STORAGE>/pp128-manager-cc7c911e (read-only), sha256 of source files:
+7fde9f1367104b7e56f4e5d9018e56aa1471a4530b5ae2927639e33c415d8e89  <VALIDATION_STORAGE>/pp128-manager-cc7c911e/parent-consumer/03.log
+a9f33bff67d2934ca26c651286a268951cee4dcdf58ce64a20570add7b79bd9a  <VALIDATION_STORAGE>/pp128-manager-cc7c911e/parent-consumer/07.log
+e300d16c7ea910f3af32ff4f8ffbf58a7f7a44e04605466974ccc0f68ee1a44a  <VALIDATION_STORAGE>/pp128-manager-cc7c911e/parent-consumer/10.log
+0fb57ecfd4778b4399fed625655e372df4be7d7585e4134448886ae4048a1f66  <VALIDATION_STORAGE>/pp128-manager-cc7c911e/parent-consumer/complete.json
+d11fb414562aa7c7a544e4011bcb0bc1167f453263b323819647d0e27bf8aab1  <VALIDATION_STORAGE>/pp128-manager-cc7c911e/donor-full/complete.json
+## parent-consumer 03 (xvlog_gate --check) tail
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 4 finding(s)
+    protocol-processor:hdl/aecp/KL_aecp_notify.sv:502  [VRFC 10-3380] 'pd_ix_w'  identifier 'pd_ix_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:821  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+## parent-consumer 10 (measure_test_evidence --check) tail
+runner evidence contract: OK
+
+FAIL: 1 unexplained DUT-source reader(s) > ratchet 0; stale dispositions: []
+## parent-consumer 07 (pp_shadow) FAIL lines
+152:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+610:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+1027:RESULT: PASS
+1375:RESULT: FAIL
+1466:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+1480:  [FAIL] granted DA == KL_maap base + source index  address disagrees with the engine
+2018:RESULT: FAIL
+2312:RESULT: FAIL
+## complete.json
+{
+  "head": "72569d0b8cbeed347f496f9b5f66225d42b8ef9b",
+  "exit_code": 1,
+  "finished": "2026-09-28T04:54:07.883838+02:00"
+}
+
+{
+  "head": "cc7c911e933aed4bfc9324eb5da473ae73bef618",
+  "exit_code": 0,
+  "finished": "2026-09-28T04:49:13.582975+02:00"
+}
+## parent-consumer 07 (pp_shadow) per-build results and failing checks
+1026:pp_shadow: 295 checks, 0 failures
+1027:RESULT: PASS
+1374:pp_shadow: 591 checks, 1 failures
+1375:RESULT: FAIL
+2017:pp_shadow: 591 checks, 1 failures
+2018:RESULT: FAIL
+2311:pp_shadow: 591 checks, 2 failures
+2312:RESULT: FAIL
+152:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+610:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+1466:  [FAIL] the processor ASKED and the shim ACCEPTED  no request seen - is a source enabled?
+1480:  [FAIL] granted DA == KL_maap base + source index  address disagrees with the engine
+150:[H] maap adapter with NO allocator: refuse, never wedge
+160:[I] maap adapter with a claimed block: grant + DA gate
+608:[H] maap adapter with NO allocator: refuse, never wedge
+618:[I] maap adapter with a claimed block: grant + DA gate
+1464:[H] maap adapter with NO allocator: refuse, never wedge
+1474:[I] maap adapter with a claimed block: grant + DA gate

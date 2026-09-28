@@ -1,0 +1,82 @@
+== head (rc=0) seeds=300
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+PROBE-PASS P7: absent allocator: one offer per enabled source per round
+BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+PROBE-PASS P9: absent allocator: same-round probes do not re-offer an abandoned source
+PROBES-OK: 0 probe failures
+== m03_no_accept_kill (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== A_no_sticky_gp_window (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== A_accept_kill_zero (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== A_kill_no_pending_conflict (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m27_wait_only_on_accept (rc=1) trace-differs-from-head in 155/300 seeds first=[3, 4, 8, 9, 11]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 3
+   PROBE-FAIL P9: absent allocator: same-round probes do not re-offer an abandoned source
+== m28_init_ready_drops_enable (rc=0) trace-differs-from-head in 298/300 seeds first=[1, 2, 3, 4, 5]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m29_sticky_kill_ignores_accept (rc=0) trace-differs-from-head in 0/300 seeds
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m30_probe_sets_all (rc=0) trace-differs-from-head in 192/300 seeds first=[2, 3, 4, 6, 8]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 1
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m01_conflict_keeps_wait (rc=1) trace-differs-from-head in 208/300 seeds first=[2, 3, 4, 6, 9]
+   PROBE-FAIL P1: DA_OK conflict reallocates without waiting for the next round
+   PROBE-FAIL P3b: the owed release is offered while commands are continuous
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m02_enable_keeps_wait (rc=1) trace-differs-from-head in 244/300 seeds first=[2, 3, 4, 5, 6]
+   PROBE-FAIL P2: re-enabled source allocates without waiting for the next round
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m07_eligible_ignores_rel (rc=1) trace-differs-from-head in 0/300 seeds
+   PROBE-FAIL P3b: the owed release is offered while commands are continuous
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m17_eligible_only_init (rc=1) trace-differs-from-head in 299/300 seeds first=[1, 2, 3, 4, 5]
+   PROBE-FAIL P3b: the owed release is offered while commands are continuous
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m19_init_elig_no_avail (rc=1) trace-differs-from-head in 299/300 seeds first=[1, 2, 3, 4, 5]
+   PROBE-FAIL P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m04_grant_kill_reg_only (rc=0) trace-differs-from-head in 21/300 seeds first=[29, 76, 114, 132, 136]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 0R 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0
+== m12_sticky_kill_off (rc=0) trace-differs-from-head in 31/300 seeds first=[18, 35, 40, 64, 85]
+   BEHAVIOR P7: offers in first window=8, further offers in the same round=0, offers in the next round=8
+   BEHAVIOR P8: requests before the src1 probe: 0A 1A ; new src0 ALLOC caused by a src1 probe inside the round = 0
+   BEHAVIOR P9: offers in first window=8; offers caused by 3 same-round probes to src0 = 0

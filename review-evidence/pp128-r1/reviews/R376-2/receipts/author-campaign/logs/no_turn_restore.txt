@@ -1,0 +1,59 @@
+return code: 2
+1163 checks: 1106 PASS, 57 FAIL
+FAIL: J3 THE REGRESSION: a command is still consumed with maap hung
+FAIL: J3 served inside the accept window (4096 cycles)
+FAIL: J3 answer unaffected by the hung request: response missing
+FAIL: J3 answer unaffected by the hung request msg_type got 0 want 5
+FAIL: J3 answer unaffected by the hung request stream_id got 0000000000000000
+FAIL: J3 answer unaffected by the hung request controller_eid got 0000000000000000
+FAIL: J3 answer unaffected by the hung request talker_eid got 0000000000000000
+FAIL: J3 answer unaffected by the hung request talker_uid got 0
+FAIL: J3 answer unaffected by the hung request dest_mac got 000000000000
+FAIL: J3 answer unaffected by the hung request sequence_id got 0
+FAIL: J3 answer unaffected by the hung request vlan got 0
+FAIL: J5 consumed
+FAIL: J5 abandoned alloc = the refused-alloc state: response missing
+FAIL: J5 abandoned alloc = the refused-alloc state msg_type got 0 want 1
+FAIL: J5 abandoned alloc = the refused-alloc state status got 0 want 3
+FAIL: J5 abandoned alloc = the refused-alloc state controller_eid got 0000000000000000
+FAIL: J5 abandoned alloc = the refused-alloc state talker_eid got 0000000000000000
+FAIL: J5 abandoned alloc = the refused-alloc state listener_eid got 0000000000000000
+FAIL: J5 abandoned alloc = the refused-alloc state talker_uid got 0
+FAIL: J5 abandoned alloc = the refused-alloc state listener_uid got 0
+FAIL: J5 abandoned alloc = the refused-alloc state sequence_id got 0
+FAIL: J5 abandoned alloc = the refused-alloc state flags got 0000 want 0002
+FAIL: J5 ping still arms freshness: timer arm missing
+FAIL: J7 grant re-declares: gate strobe missing
+FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+FAIL: J7 final gates, got 0x6a
+FAIL: J: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: K0 withdraw on removal expected close, got open
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb
+FAIL: K: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: L0: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face close src got 6
+FAIL: L1 consumed
+FAIL: L1 the removed source answers at once: response missing
+FAIL: L1 the removed source answers at once msg_type got 0 want 1
+FAIL: L1 the removed source answers at once status got 0 want 2
+FAIL: L1 the removed source answers at once controller_eid got 0000000000000000
+FAIL: L1 the removed source answers at once talker_eid got 0000000000000000
+FAIL: L1 the removed source answers at once listener_eid got 0000000000000000
+FAIL: L1 the removed source answers at once talker_uid got 0
+FAIL: L1 the removed source answers at once listener_uid got 0
+FAIL: L1 the removed source answers at once sequence_id got 0
+FAIL: L1 the removed source answers at once flags got 0000 want 0002
+FAIL: L4 src3 withdraws at once close src got 1
+FAIL: L4 src5 withdraws at once close src got 3
+FAIL: L: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: R3 commands never starve behind retries (gap=0)
