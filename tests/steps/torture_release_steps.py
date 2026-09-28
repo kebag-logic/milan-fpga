@@ -113,7 +113,8 @@ def step_tp_release_soak_defaults(context: Context) -> None:
     assert args["interval_s"] == 60
     assert args["sample_at_start"] and args["sample_at_end"]
     assert args["continuous_evidence"] == ["asCapable_transitions", "tu_intervals",
-                                           "stream_flow", "uptime"]
+                                           "stream_flow", "uptime", "mr_pdus", "media_clock_events",
+                                           "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes"]
 
 
 @then("power repeats 160 idle and 40 journal-commit cold cuts")
@@ -265,7 +266,9 @@ def step_tp_release_tu_bound(context: Context) -> None:
     assert args["tu_holdover_bound_s"] == 0.5
     assert args["tu_time_origin"] == "last recorded discontinuity before tu clears"
     assert args["tu_event_window"] == "[observed_start - observation_resolution_s, clear)"
-    assert args["tu_discontinuity_kinds"] == ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"]
+    assert args["tu_discontinuity_kinds"] == [
+        "PHC settime/adjtime", "fabric discontinuity", "GM-identity edge",
+        "GM time-source change", "other detected gPTP discontinuity"]
     assert args["tu_uncorrelated"] == "fail"
     assert args["tu_observation_resolution"] == \
         "record wire-capture and correlated event-timestamp resolution in seconds"
@@ -276,7 +279,7 @@ def step_tp_release_tu_chain(context: Context, seconds: float, verdict: str) -> 
     """L3 #396 round 4: GM edge at zero, followed by PHC step at 0.2 s."""
     actual, evidence = tp.check_release_tu(
         (0, seconds), [0, 0.2], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
-        observation_resolution_s=0.001, capture_complete=True)
+        observation_resolution_s=0.001, capture_complete=True, gm_changes_s=[0])
     assert actual == verdict, evidence
 
 
@@ -285,7 +288,7 @@ def step_tp_release_tu_no_event(context: Context) -> None:
     """L3 #396 round 4: complete capture cannot excuse uncorrelated tu."""
     actual, evidence = tp.check_release_tu(
         (0, 0.62), [], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
-        observation_resolution_s=0.001, capture_complete=True)
+        observation_resolution_s=0.001, capture_complete=True, gm_changes_s=[])
     assert actual == "FAIL", evidence
 
 
@@ -294,5 +297,20 @@ def step_tp_release_tu_start(context: Context, event_s: float, resolution_s: flo
     """L3 #396 round 5: the observed interval is [0, 0.4) seconds."""
     actual, evidence = tp.check_release_tu(
         (0, 0.4), [event_s], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
-        observation_resolution_s=resolution_s, capture_complete=True)
+        observation_resolution_s=resolution_s, capture_complete=True, gm_changes_s=[])
     assert actual == verdict, evidence
+
+
+@then("the planned uncertainty oracle rejects missing holds for every GM change")
+def step_tp_release_tu_history(context: Context) -> None:
+    """A later unserved GM edge cannot hide behind an earlier valid interval."""
+    name = context.tp_plan[0].args["tu_oracle"]
+    assert name == "check_release_tu_history"
+    oracle = getattr(tp, name)
+    for intervals, gm, expected in (([], [0], "FAIL"), (None, [0], "NOT RUN"),
+                                    ([(0, 0.3)], [0, 0.3], "FAIL"),
+                                    ([(0, 0.3)], [0, 0.35], "FAIL"),
+                                    ([(0, 0.3), (1, 1.3)], [0, 1], "PASS")):
+        verdict, evidence = oracle(intervals, [], gm_changes_s=gm,
+                                   observation_resolution_s=0.001, capture_complete=True)
+        assert verdict == expected, evidence
