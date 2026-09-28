@@ -1,0 +1,17 @@
+command: python3 scripts/check_sh_idiom.py
+head: a3f95a4cea1faa3470b65b4ffc8a9bb3dc1b0c9c
+tree: 289ab42c1ba974b27ac35b6891f2a9d25b80be25
+start: 2026-09-28T11:36:01Z
+----
+sh idiom: 23 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+----
+end: 2026-09-28T11:36:01Z
+seconds: 0
+rc: 0

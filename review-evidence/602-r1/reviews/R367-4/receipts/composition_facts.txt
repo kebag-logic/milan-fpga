@@ -1,0 +1,33 @@
+candidate a3f95a4cea1faa3470b65b4ffc8a9bb3dc1b0c9c tree 289ab42c1ba974b27ac35b6891f2a9d25b80be25 parents 1a3c716f6e9fbc1c3227bce0a287ac943944fcbb d09c72ea2b0be1a2df3e18e77774f14f6df3242c
+recomputed merge-tree(1a3c716f6e9fbc1c3227bce0a287ac943944fcbb,d09c72ea2b0be1a2df3e18e77774f14f6df3242c): 289ab42c1ba974b27ac35b6891f2a9d25b80be25 rc=0
+merge-base(train,source) 0eff6d2ee3818a6d2b1f1fdcd0084d81b28f247a
+live dev 7a7582f03ce5ba7863a90ac342c21be18d90db0b tree cd7ae9561bdb16aec3d422241ad8ec5de2aaf24e; #70 train step c08becbbf tree cd7ae9561bdb16aec3d422241ad8ec5de2aaf24e
+train first-parent steps after live dev:
+  1a3c716f6 Validate issue 595 merge-train candidate
+  0ba810fea Validate issue 395 merge-train candidate
+  7d29909da Validate issue 577 merge-train candidate
+  2180c73e1 Validate issue 606-608 merge-train candidate
+files changed by both train (0eff6d2ee3818a6d2b1f1fdcd0084d81b28f247a..1a3c716f6e9fbc1c3227bce0a287ac943944fcbb) and source (0eff6d2ee3818a6d2b1f1fdcd0084d81b28f247a..d09c72ea2b0be1a2df3e18e77774f14f6df3242c):
+  docs/integration/BAREMETAL_FIRMWARE.md
+  sw/builder/test_builder.py
+per-train-step touches of the shared files:
+  1a3c716f6 Validate issue 595 merge-train candidate: sw/builder/test_builder.py 
+  0ba810fea Validate issue 395 merge-train candidate: sw/builder/test_builder.py 
+  7d29909da Validate issue 577 merge-train candidate: sw/builder/test_builder.py 
+  c08becbbf Validate issue 70 merge-train candidate: docs/integration/BAREMETAL_FIRMWARE.md 
+  1304205cf Validate issue 582 merge-train candidate: docs/integration/BAREMETAL_FIRMWARE.md sw/builder/test_builder.py 
+  3ef7ed1b2 Validate issue 397 merge-train candidate: docs/integration/BAREMETAL_FIRMWARE.md 
+  dab01daf2 Validate issue 565 merge-train candidate: docs/integration/BAREMETAL_FIRMWARE.md 
+hunk ranges, train vs source, in shared files (old-side line numbers at merge-base):
+  docs/integration/BAREMETAL_FIRMWARE.md train:  @@ -1905 @@ -1917,0 
+  docs/integration/BAREMETAL_FIRMWARE.md source: @@ -1475 @@ -1477 
+  sw/builder/test_builder.py train:  @@ -25546,0 @@ -25728 @@ -25731 @@ -25735 @@ -25737 @@ -25739 @@ -25741 @@ -25743 @@ -25801 @@ -25808 @@ -27231,0 @@ -27556,0 @@ -27566 @@ -27638,0 
+  sw/builder/test_builder.py source: @@ -10717,3 @@ -10767 @@ -10777,2 @@ -10780 @@ -12481,2 @@ -12503,2 @@ -15103 @@ -15115 @@ -16654,4 
+patch equivalence: diff(MB..S) vs diff(P..H), ignoring index lines:
+  IDENTICAL
+gitlinks: candidate / train parent / source
+  protocol-processor c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 / c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 / 16be6768f710e79450aace277abacd6c2c3336e5
+  gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d / 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d / 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+  third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce / 48ff7a7e2ef782cf778d47910cf85835c64b1bce / 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+  external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 / efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 / efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+hdl/ changed by train: 0 file(s)
