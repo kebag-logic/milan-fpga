@@ -1,0 +1,18 @@
+C1_revert_to_literal	pp_srcs_check_rc=1	  - sw/builder/test_declarations.py: names submodule source(s) literally that are not permitted prose: protocol-processor/hdl/adp/pp_adp_pkg.sv. A build input must derive the list with this script. If this really is prose, add the exact literal to PROSE_OK wit
+C1_revert_to_literal	test_declarations_rc=0	[gate 40] 26 refusals; 3 header mutants per config
+C2_package_dropped_from_derived_list	pp_srcs_check_rc=0	  excluded pp_adp_pkg: control
+C2_package_dropped_from_derived_list	test_declarations_rc=1	AssertionError: expected one pp_adp_pkg in derived processor sources
+C3_package_renamed	pp_srcs_check_rc=0	  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+C3_package_renamed	test_declarations_rc=1	AssertionError: expected one pp_adp_pkg in derived processor sources
+C4_authority_value_changed	pp_srcs_check_rc=0	  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+C4_authority_value_changed	test_declarations_rc=1	gen_desc_image.ImageError: ADP advertises entity_capabilities 0x0000C580 with AEM_SUPPORTED clear (Table 6-3), so this image is an entity model no controller will ever ask for
+C4b_authority_value_changed_legal	pp_srcs_check_rc=0	  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+C4b_authority_value_changed_legal	test_declarations_rc=0	[gate 40] 26 refusals; 3 header mutants per config
+C4c_authority_value_changed_legal	pp_srcs_check_rc=0	  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+C4c_authority_value_changed_legal	test_declarations_rc=0	[gate 40] 26 refusals; 3 header mutants per config
+C5_constant_duplicated	pp_srcs_check_rc=0	  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+C5_constant_duplicated	test_declarations_rc=1	AssertionError
+C6_frozen_value_with_C4b	pp_srcs_check_rc=0	  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+C6_frozen_value_with_C4b	test_declarations_rc=1	endstation_builder.ConfigError: entity.entity_capabilities 0x0000C588 diverges from ADP_ENTITY_CAPS_C = 0x0000C589 at protocol-processor/hdl/adp/pp_adp_pkg.sv:53: the ADP engine advertises that constant and the image's ENTITY descriptor repeats it (1722.1-2021
+C7_submodule_absent	pp_srcs_check_rc=1	$PACKET/scratch/C7_submodule_absent/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an
+C7_submodule_absent	test_declarations_rc=2	  git submodule update --init protocol-processor

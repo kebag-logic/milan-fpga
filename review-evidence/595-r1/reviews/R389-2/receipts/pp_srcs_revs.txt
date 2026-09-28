@@ -1,0 +1,15 @@
+clone $PACKET/scratch/pp-1fa2357f at 1fa2357fcb9b83ad7d6cbeab0c7cc0eb957cdd3a tree c1497bf2f635b759e4c9ed7ab6f6001d36eec0af
+  protocol-processor HEAD=16be6768f710e79450aace277abacd6c2c3336e5 gitlink=16be6768f710e79450aace277abacd6c2c3336e5
+pp source list: 45 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+rc=0 at 1fa2357fcb9b83ad7d6cbeab0c7cc0eb957cdd3a
+clone $PACKET/scratch/pp-44d3ae3b at 44d3ae3b15a0d058abb837c655ad24bd9b64c6e8 tree 47a89d188ea29c1b02da4919a448423c04acb2eb
+  protocol-processor HEAD=16be6768f710e79450aace277abacd6c2c3336e5 gitlink=16be6768f710e79450aace277abacd6c2c3336e5
+A build input names a stale set of submodule sources. This is what a
+submodule bump breaks and what nothing used to catch: the copies are
+correct against the pin they were written for and go stale the moment it
+moves. Derive the list with this script rather than editing the copy.
+rc=1 at 44d3ae3b15a0d058abb837c655ad24bd9b64c6e8
+clone $PACKET/scratch/pp-11e4e1f2 at 11e4e1f2876c99e8f136d869c70674e077ddcf94 tree b78b64a0b7fd34797c7e06ece302675f7045cf49
+  protocol-processor HEAD=16be6768f710e79450aace277abacd6c2c3336e5 gitlink=16be6768f710e79450aace277abacd6c2c3336e5
+pp source list: 45 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+rc=0 at 11e4e1f2876c99e8f136d869c70674e077ddcf94
