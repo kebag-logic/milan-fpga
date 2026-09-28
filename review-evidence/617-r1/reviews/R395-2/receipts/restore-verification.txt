@@ -1,0 +1,21 @@
+HEAD 377d1ac3658feb8d544e6ed1005b186b67127f35 tree 1707f6897f5c1824e7ec4f1e6f40c9be62d4fc7d
+index-sha256 076211a28c74829694f93c554a04461ca4c95ea52f15c4342b64e01e234698f7
+status (porcelain, incl. ignored):
+!! abc.history  (a 0-byte synthesis-tool history file written into the working directory by the reviewer OOC run; removed, see below)
+diff-vs-HEAD-quiet rc: 0
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor (v2.0-290-gc951a9f)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+worktree blob check (hash-object of every tracked regular file vs index):
+missing: 0
+blob mismatches: 0
+mode check done
+after removal: git status --porcelain --ignored -> '' (empty = clean)
+note: during probing, two reviewer probe sources (probe_fine.cpp, probe_bench.hpp) and a probe build directory (obj_fine) were written by mistake into tb/verilator/capture_coherence of this clone (untracked/ignored); they were removed before this verification and are not part of any graded run.

@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv	2026-09-28 23:53:28.452000000 +0200
++++ rm5_milan_datapath.sv	2026-09-29 00:03:41.454000000 +0200
+@@ -5705,7 +5705,7 @@
+   //! no keep-off could clear a 149-cycle transient anyway
+   localparam int unsigned MGA_SAMPLE_CYC_C  = MILAN_CLK_FREQ_HZ / 48_000;
+   localparam int unsigned MGA_KEEPOFF_CYC_C = (MGA_SAMPLE_CYC_C / 4 < 256)
+-                                            ? MGA_SAMPLE_CYC_C / 4 : 256;
++                                            ? MGA_SAMPLE_CYC_C / 4 : 128;
+   logic media_tick_q_r;                  //! media_tick_p, one cycle late
+   always_ff @(posedge axis_clk) begin : mga_tick_delay
+     if (!axis_resetn) media_tick_q_r <= 1'b0;

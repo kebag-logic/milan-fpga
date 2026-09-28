@@ -1,0 +1,13 @@
+diff --git ahdl/ieee1722/crf/KL_media_nco.sv b/hdl/ieee1722/crf/KL_media_nco.sv
+index e371cfc..1303459 100644
+--- ahdl/ieee1722/crf/KL_media_nco.sv
++++ b/hdl/ieee1722/crf/KL_media_nco.sv
+@@ -213,7 +213,7 @@ module KL_media_nco #(
+       frac_r <= '0;
+       tick_o <= 1'b0;
+     end
+-    else if (32'(cnt_r) == end_w) begin
++    else if (32'(cnt_r) >= end_w) begin
+       cnt_r  <= '0;
+       frac_r <= ov_w ? FRACW_C'(sum_w - SUMW_C'(signed'(DEN_C)))
+               : un_w ? FRACW_C'(sum_w + SUMW_C'(signed'(DEN_C)))

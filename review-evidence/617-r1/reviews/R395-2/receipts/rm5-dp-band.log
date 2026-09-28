@@ -1,0 +1,21 @@
+=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617), --band: the placed sweep alone ===
+
+  [i]  calibration, true 391/1591 plan: with the TDM clock unheld the first close under CRF lands 13 cycles after its tick
+
+[DP-band-true] milan_datapath, CRF, true 391/1591 plan, engagement placed every 2 cycles from -20 to +4 of the crossing, 1500 columns each
+  [i]  DP-band-true-20: engaged -20 cycles from the crossing; tail: tick 40 cycles after the fsync edge, +0..+11 (spread 11); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-18: engaged -19 cycles from the crossing; tail: tick 39 cycles after the fsync edge, +0..+11 (spread 11); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-16: engaged -16 cycles from the crossing; tail: tick 36 cycles after the fsync edge, +0..+12 (spread 12); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-14: engaged -15 cycles from the crossing; tail: tick 36 cycles after the fsync edge, +0..+12 (spread 12); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-12: engaged -12 cycles from the crossing; tail: tick 33 cycles after the fsync edge, +0..+13 (spread 13); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-10: engaged -11 cycles from the crossing; tail: tick 32 cycles after the fsync edge, +0..+13 (spread 13); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-8: engaged -8 cycles from the crossing; tail: tick 30 cycles after the fsync edge, +0..+13 (spread 13); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-6: engaged -7 cycles from the crossing; tail: tick 29 cycles after the fsync edge, +0..+13 (spread 13); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-4: engaged -4 cycles from the crossing; tail: tick 27 cycles after the fsync edge, +0..+13 (spread 13); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-2: engaged -3 cycles from the crossing; tail: tick 26 cycles after the fsync edge, +0..+14 (spread 14); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true+0: engaged +0 cycles from the crossing; tail: tick 23 cycles after the fsync edge, +0..+15 (spread 15); 1 repeats, 1 skips; SLIP_TDM 1 dups, 1 skips
+  [i]  DP-band-true+2: engaged +1 cycles from the crossing; tail: tick 1018 cycles after the fsync edge, -27..+0 (spread 27); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true+4: engaged +4 cycles from the crossing; tail: tick 1015 cycles after the fsync edge, -26..+1 (spread 27); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true: 13 engagements landed from -20 to +4, widest gap 3 cycles
+== capture_coherence_dp: checks: 185   failures: 0 ==
+RESULT: PASS
