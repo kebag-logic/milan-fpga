@@ -1,0 +1,127 @@
+Python 3.12.13
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: $PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+Cloning into '$PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv'...
+HEAD is now at 235753e Merge pull request #143 from project-inochi/litex/isamap
+Submodule 'ext/NaxSoftware' (https://github.com/SpinalHDL/NaxSoftware.git) registered for path 'ext/NaxSoftware'
+Submodule 'ext/SpinalHDL' (https://github.com/SpinalHDL/SpinalHDL.git) registered for path 'ext/SpinalHDL'
+Submodule 'ext/riscv-isa-sim' (https://github.com/SpinalHDL/riscv-isa-sim.git) registered for path 'ext/riscv-isa-sim'
+Submodule 'ext/rvls' (https://github.com/SpinalHDL/rvls.git) registered for path 'ext/rvls'
+Cloning into '$PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/NaxSoftware'...
+Cloning into '$PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL'...
+Cloning into '$PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/riscv-isa-sim'...
+Cloning into '$PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/rvls'...
+Submodule path 'ext/NaxSoftware': checked out 'ae0c08016d0581b9ac79a4feb166e7a532369bd4'
+Submodule path 'ext/SpinalHDL': checked out '1097c1df52f6b4ac532e42ff35a9c610f8e9a07c'
+Submodule 'tester/src/test/python/cocotblib' (https://github.com/SpinalHDL/CocotbLib.git) registered for path 'ext/SpinalHDL/tester/src/test/python/cocotblib'
+Cloning into '$PACKET/scratch/pins-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/tester/src/test/python/cocotblib'...
+Submodule path 'ext/SpinalHDL/tester/src/test/python/cocotblib': checked out 'a98830423924fc89bfebae84cb802fc90d352602'
+Submodule path 'ext/riscv-isa-sim': checked out '924941a37ba7e591a1e87542cc0466262f476a4e'
+Submodule path 'ext/rvls': checked out '94f850e5f7c9a36e5aceb3810d658fffae55b497'
+VexiiRiscv ready at 235753e24f2d960e49a0852205bae1400bf22c19
+[patches] 0002-liteeth-gmii-tx-clk-invert.patch -> $PACKET/scratch/pins-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0004-vexiiriscv-baremetal-variant.patch -> $PACKET/scratch/pins-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0005-vexiiriscv-cacheless-litex.patch -> $PACKET/scratch/pins-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] series applied (3 patches).
+test_archive_root (__main__.InstallerTests.test_archive_root)
+An authenticated archive with another root is still not extracted. ... SDK archive verified: /tmp/rv32-installer-test-34q7zi9a/wrong-root.tar.xz sha256=b3ce71c0410d8dcc6cbe90b9c9759417141612319da2214f6f26241d0e90a6e3
+ok
+test_bad_archive (__main__.InstallerTests.test_bad_archive)
+A wrong offline --archive never reaches tar or creates an installation. ... ok
+test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+Explicit offline inputs are checked even beside a valid cache. ... ok
+test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run. ... ok
+test_download_path (__main__.InstallerTests.test_download_path)
+The hosted path, with no --archive, installs what the pin names. ... ok
+test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+A wrong download is refused before tar reads it or anything runs. ... ok
+test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+A compiler whose realpath leaves the prefix is never executed. ... ok
+test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed. ... ok
+test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit. ... ok
+test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+Deletion, replacement, mode change and extra files all refuse. ... ok
+test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance. ... ok
+test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK. ... ok
+test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured. ... ok
+test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently. ... ok
+test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift. ... ok
+test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs. ... ok
+test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree. ... ok
+test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache. ... ok
+test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result. ... SDK argv: ["/tmp/rv32-installer-test-s3ey1oaw/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-s3ey1oaw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-s3ey1oaw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-s3ey1oaw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+The fixed x86-64 archive cannot silently adopt another host. ... ok
+test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix. ... ok
+test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt. ... SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-7jobovu_/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... SDK argv: ["/tmp/rv32-installer-test-6433v_w7/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-6433v_w7/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-6433v_w7/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-6433v_w7/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 1.173s
+
+OK
+SDK download: https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+SDK archive verified: /tmp/milan-rv32-download-m5onidaq/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz sha256=d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/relocate-sdk.sh"]
+Relocating the buildroot SDK from /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1 to $PACKET/scratch/pinshome/br-milan-rv32/host ...
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$PACKET/scratch/pinshome/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$PACKET/scratch/pinshome/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$PACKET/scratch/pinshome/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "$PACKET/scratch/pinshome/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+SDK fresh installation: verified
+picolibc: None
+compiler_rt: None

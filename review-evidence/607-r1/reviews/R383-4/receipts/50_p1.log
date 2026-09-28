@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/src-f5f4/sw/builder/test_shipping_clock_constraints.py", line 124, in <module>
+    test_shipping_constraints()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/src-f5f4/sw/builder/test_shipping_clock_constraints.py", line 106, in test_shipping_constraints
+    assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "$PACKET/scratch/src-f5f4/sw/builder/test_shipping_clock_constraints.py", line 122, in <module>
+    elaborate_shipping(args.config, args.port, args.output_dir)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/src-f5f4/sw/builder/test_shipping_clock_constraints.py", line 39, in elaborate_shipping
+    eb.build(cfg, ROOT / "sw/builder/out")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/src-f5f4/sw/builder/endstation_builder.py", line 5806, in build
+    art = _derive_artifacts(config_path)
+  File "$PACKET/scratch/src-f5f4/sw/builder/endstation_builder.py", line 5641, in _derive_artifacts
+    cfg = load_config(config_path)
+  File "$PACKET/scratch/src-f5f4/sw/builder/endstation_builder.py", line 4344, in load_config
+    platform = load_platform(cfg.get("platform"))
+  File "$PACKET/scratch/src-f5f4/sw/builder/endstation_builder.py", line 3315, in load_platform
+    mac = _mac48(p["mac_address"], "platform.mac_address")
+  File "$PACKET/scratch/src-f5f4/sw/builder/endstation_builder.py", line 3193, in _mac48
+    raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
+endstation_builder.ConfigError: platform.mac_address: quote the hexadecimal value as a YAML string
+

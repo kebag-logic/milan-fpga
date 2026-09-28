@@ -1,0 +1,11 @@
+P0 control shipping arm rc=0 (expect 0)
+ configs/endstation_ax7101_1x1_tdm8.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+P1 unquoted shipping mac_address -> shipping arm rc=1 (expect nonzero); refusal: quote the hexadecimal value as a YAML string
+ hdl/ieee1722/avtp/KL_media_clock_restart.sv | 14 ++++----------
+ hdl/milan/milan_datapath.sv                 | 27 +++++++++++++++------------
+ 2 files changed, 19 insertions(+), 22 deletions(-)
+P2 #602 RTL reverted rc=0 control rc=0 alinx_ax7101.tcl: reverted=464b4fd3d415cbfa candidate=464b4fd3d415cbfa SAME
+P2 #602 RTL reverted rc=0 control rc=0 alinx_ax7101.xdc: reverted=81bbf89c34dd0e91 candidate=81bbf89c34dd0e91 SAME
+P3 mutated run list: duplicates=['test_clock_crossing_constraints'] missing_595_arm=True (expect both flagged)
+restored: 0 modified paths

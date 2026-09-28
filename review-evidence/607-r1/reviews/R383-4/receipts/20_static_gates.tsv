@@ -1,0 +1,34 @@
+docs_check	0	5s	fcade68199603ee7	$PACKET/scratch/md-venv/bin/python scripts/docs_check.py
+em_dash_base_C602	0	3s	8edff6d315083b62	$PACKET/scratch/md-venv/bin/python scripts/check_em_dash.py --base a3f95a4cea1faa3470b65b4ffc8a9bb3dc1b0c9c
+em_dash_base_dev	0	3s	b9972625ba6f8802	$PACKET/scratch/md-venv/bin/python scripts/check_em_dash.py --base 7390b43627032c71c470e2aa8d0845eb5b740663
+gen_toc_selftest	0	0s	d7fd5f6ebcdd25e6	$PACKET/scratch/md-venv/bin/python scripts/gen_toc.py --selftest
+gen_toc_verify_anchors	0	2s	961ebf6ef6809b17	$PACKET/scratch/md-venv/bin/python scripts/gen_toc.py --verify-anchors
+gen_toc_check	0	3s	86bb9d40303db07f	$PACKET/scratch/md-venv/bin/python scripts/gen_toc.py --check
+doc_style	0	0s	1491d3f6bec03b92	$PACKET/scratch/md-venv/bin/python scripts/check_doc_style.py
+doc_style_selftest	0	0s	0acc8195c60dd145	$PACKET/scratch/md-venv/bin/python scripts/check_doc_style.py --selftest
+gptp_docs	0	0s	d8a77a32600566f0	$PACKET/scratch/md-venv/bin/python scripts/check_gptp_docs.py
+doc_map_check	0	1s	74408f0fbcdfc1c7	$PACKET/scratch/md-venv/bin/python docs/DOC_MAP.gen.py --check
+solution_docs	0	0s	48ac84ddbd532247	$PACKET/scratch/md-venv/bin/python scripts/check_solution_docs.py
+submodule_docs	0	0s	dffc750855c2574e	$PACKET/scratch/md-venv/bin/python scripts/check_submodule_docs.py
+diagram_pngs	0	1s	05e0fcfa26a97494	$PACKET/scratch/md-venv/bin/python scripts/check_diagram_pngs.py
+baremetal_only	0	15s	5019571b9e2799b5	$PACKET/scratch/md-venv/bin/python scripts/check_baremetal_only.py --check
+soc_sources	0	0s	136eb537ae03b4d5	$PACKET/scratch/md-venv/bin/python scripts/check_soc_sources.py
+soc_sources_selftest	0	0s	d877c9fa9a5d1db2	$PACKET/scratch/md-venv/bin/python scripts/check_soc_sources.py --selftest
+rtl_source_lists	0	1s	1dd83081ba29241f	$PACKET/scratch/md-venv/bin/python scripts/check_rtl_source_lists.py
+measure_naming	0	1s	7eca83e6def78a50	$PACKET/scratch/md-venv/bin/python scripts/measure_naming.py --check
+port_contracts	0	2s	8cdf5dbee5943410	$PACKET/scratch/md-venv/bin/python scripts/check_port_contracts.py
+measure_fail_fast	0	2s	0e6607fe32fafebe	$PACKET/scratch/md-venv/bin/python scripts/measure_fail_fast.py --check
+todo_ownership	0	1s	5d6ec1e649af4ed1	$PACKET/scratch/md-venv/bin/python scripts/check_todo_ownership.py
+measure_test_evidence	0	5s	02b91ce2d5607aa9	$PACKET/scratch/md-venv/bin/python scripts/measure_test_evidence.py --check
+hygiene	0	1s	567bd4aa4f792341	$PACKET/scratch/md-venv/bin/python scripts/check_hygiene.py --check
+sv_idiom	0	0s	f593c2c09ec9ad32	$PACKET/scratch/md-venv/bin/python scripts/check_sv_idiom.py
+cpp_idiom	0	1s	7110c5112adbaf65	$PACKET/scratch/md-venv/bin/python scripts/check_cpp_idiom.py
+py_idiom	0	4s	8ff1619845f3c53a	$PACKET/scratch/md-venv/bin/python scripts/check_py_idiom.py
+sh_idiom	0	0s	6562e98a67676ec4	$PACKET/scratch/md-venv/bin/python scripts/check_sh_idiom.py
+ci_events_check	0	0s	2c2f0fa6752c33d6	$PACKET/scratch/md-venv/bin/python scripts/ci_events.py --check
+ci_events_selftest	0	15s	886bef0d386f45de	$PACKET/scratch/md-venv/bin/python scripts/ci_events.py --selftest
+archive	0	1s	69d45782911c2958	$PACKET/scratch/md-venv/bin/python scripts/check_archive.py
+feature_status	0	0s	802f5eeb2f0aa147	$PACKET/scratch/md-venv/bin/python scripts/check_feature_status.py
+nvm_record_space	0	2s	cf6813f2dd61aa65	$PACKET/scratch/md-venv/bin/python scripts/check_nvm_record_space.py
+wire_accountability_self	0	1s	bd97b8b53304baf2	$PACKET/scratch/md-venv/bin/python scripts/check_wire_accountability.py --self-test
+iob_pack_selftest	0	2s	55e0892061877857	$PACKET/scratch/md-venv/bin/python sw/litex/iob_pack_selftest.py
