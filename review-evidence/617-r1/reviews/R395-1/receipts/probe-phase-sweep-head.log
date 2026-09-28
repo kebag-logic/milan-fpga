@@ -1,0 +1,20 @@
+%Warning-IMPLICITSTATIC: $REVIEWS/617-r395-1-packet/scripts/probe_phase_sweep/tb_probe.sv:158:13: Variable's lifetime implicitly set to static (IEEE 1800-2023 6.21)
+                                                                                                           : ... The initializer value will only be set once
+                                                                                                           : ... Suggest use 'static' before variable declaration'
+  158 |         bit nb = 1;
+      |             ^~
+                         ... For warning description see https://verilator.org/warn/IMPLICITSTATIC?v=5.050
+                         ... Use "/* verilator lint_off IMPLICITSTATIC */" and lint_on around source to disable this message.
+%Warning-IMPLICITSTATIC: $REVIEWS/617-r395-1-packet/scripts/probe_phase_sweep/tb_probe.sv:164:11: Variable's lifetime implicitly set to static (IEEE 1800-2023 6.21)
+                                                                                                           : ... The initializer value will only be set once
+                                                                                                           : ... Suggest use 'static' before variable declaration'
+  164 |       int lb = -1;
+      |           ^~
+[i] u4: a close strobed at tick+0..tick+5 reaches that walk; tick+6..tick+130 waits for the next (transitions=1)
+== probe: checks: 1447 failures: 0 ==
+RESULT: PASS
+- $REVIEWS/617-r395-1-packet/scripts/probe_phase_sweep/tb_probe.sv:196: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 323ns; walltime 0.014 s; speed 23.469 us/s
+- Verilator: cpu 0.014 s on 1 threads; allocated 7 MB
+rc=0

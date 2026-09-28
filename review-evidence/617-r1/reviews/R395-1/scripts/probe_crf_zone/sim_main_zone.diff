@@ -1,0 +1,42 @@
+--- ../capture_coherence/sim_main.cpp	2026-09-28 19:04:27.169333397 +0200
++++ sim_main.cpp	2026-09-28 19:31:06.717129570 +0200
+@@ -349,6 +349,9 @@
+     grade(sc);
+     bench_.print_table();
+     print_ages();
++    std::printf("  [i]  R395: tail slips %ld (repeats %ld, skips %ld total), junction counters dup %u skip %u\n",
++                bench_.tally().tail_slips, bench_.tally().dups, bench_.tally().skips,
++                static_cast<unsigned>(dut_->tdm_dup_cnt_o), static_cast<unsigned>(dut_->tdm_skip_cnt_o));
+ }
+ 
+ void JunctionHarness::grade(const Scenario& sc) {
+@@ -412,23 +415,14 @@
+ //! `quick` (the mutation arm's runs) leaves out the one long scenario, the
+ //! true plan's whole beat; the +/-1000 ppm sweeps cross the same phases.
+ std::vector<Scenario> scenarios(bool quick) {
++    (void)quick;
+     std::vector<Scenario> list;
+-    //! one beat of the true plan is 1 / 10.64e-6 = 93,990 frames
+-    if (!quick) list.push_back({"INT-true", true_plan(), false, 0, 96'000, true});
+-    list.push_back({"INT-slow", ppm_plan(-1000), false, 0, 3'200, true});
+-    list.push_back({"INT-fast", ppm_plan(+1000), false, 0, 3'200, true});
+-    //! a TDM frame is 512 x 2 x 1591/391 = 4166.7 steps: sixteen offsets
+-    for (int k = 0; k < 16; k++) {
++    //! R395 probe: CRF locks on the true plan whose frame close lands within a
++    //! few cycles of the walk snapshot (tick-to-close phase ~1030..1041, 0..4)
++    for (long d = 4050; d <= 4140; d += 2) {
+         char name[24];
+-        std::snprintf(name, sizeof name, "CRF-true-%02d", k);
+-        list.push_back({name, true_plan(), true, k * 4167L / 16, 2'000, false});
+-    }
+-    for (const int ppm : {-50, +50}) {
+-        for (int k = 0; k < 4; k++) {
+-            char name[24];
+-            std::snprintf(name, sizeof name, "CRF%+d-%d", ppm, k);
+-            list.push_back({name, ppm_plan(ppm), true, k * 4167L / 4 + 130, 6'000, false});
+-        }
++        std::snprintf(name, sizeof name, "ZONE-%ld", d);
++        list.push_back({name, true_plan(), true, d, 4'000, false});
+     }
+     return list;
+ }

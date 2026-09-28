@@ -1,0 +1,29 @@
+--- ../capture_coherence/sim_dp.cpp	2026-09-28 19:04:27.169333397 +0200
++++ sim_dp.cpp	2026-09-28 19:38:17.451708254 +0200
+@@ -250,6 +250,8 @@
+     bench_.finish();
+     grade(sc);
+     bench_.print_table();
++    std::printf("  [i]  R395: tail slips %ld (repeats %ld, skips %ld total), torn %ld\n", bench_.tally().tail_slips,
++                bench_.tally().dups, bench_.tally().skips, bench_.tally().torn);
+ }
+ 
+ void DatapathHarness::grade(const Scenario& sc) {
+@@ -283,12 +285,12 @@
+ //! frames), then CRF locks an eighth of a frame apart.
+ std::vector<Scenario> scenarios() {
+     std::vector<Scenario> list;
+-    list.push_back({"DP-INT-slow", ppm_plan(-1000), false, 0, 2'200, true});
+-    list.push_back({"DP-INT-fast", ppm_plan(+1000), false, 0, 2'200, true});
+-    for (int k = 0; k < 8; k++) {
++    //! R395 probe: CRF locks on the true plan at 64 TDM-clock offsets, 1/64
++    //! frame (about 16 axis cycles) apart, so the snapshot-crossing band is hit
++    for (int k = 0; k < 64; k++) {
+         char name[24];
+-        std::snprintf(name, sizeof name, "DP-CRF-%d", k);
+-        list.push_back({name, true_plan(), true, k * 4167L / 8, 1'500, false});
++        std::snprintf(name, sizeof name, "DPZ-%02d", k);
++        list.push_back({name, true_plan(), true, k * 4167L / 64, 1'500, false});
+     }
+     return list;
+ }

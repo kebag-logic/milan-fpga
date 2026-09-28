@@ -1,0 +1,12 @@
+RM1 frame length ignored: close on the bucket's last pair (N_TDM_PAIRS_C-1), not TDM_FRAME_PAIRS_P-1
+    junction: rc=0 fail_lines=0 tally=['== capture_coherence: checks: 456   failures: 0 ==']
+    chmap_capture: rc=0 fail_lines=0 tally=['KL_chan_map_capture: 254 checks, 0 failures']
+RM2 frame closed by the second-to-last pair
+    junction: rc=1 fail_lines=54 tally=['== capture_coherence: checks: 456   failures: 54 ==']
+    chmap_capture: rc=1 fail_lines=21 tally=['KL_chan_map_capture: 254 checks, 21 failures']
+RM3 walk snapshot one cycle late (on slot 0's inject edge)
+    junction: rc=1 fail_lines=54 tally=['== capture_coherence: checks: 456   failures: 54 ==']
+    chmap_capture: rc=0 fail_lines=0 tally=['KL_chan_map_capture: 254 checks, 0 failures']
+RM4 closing pair not bypassed: FRAME copies STAGE only (last pair one frame old)
+    junction: rc=1 fail_lines=54 tally=['== capture_coherence: checks: 456   failures: 54 ==']
+    chmap_capture: rc=1 fail_lines=12 tally=['KL_chan_map_capture: 254 checks, 12 failures']

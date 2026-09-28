@@ -1,0 +1,11 @@
+[PASS] the unmutated RTL still passes the junction harness
+[PASS] the unmutated RTL still passes the dp harness
+[PASS] mutant caught: the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught: no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught: the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught: the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the newest frame closed by the tick"
+[PASS] mutant caught: the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught: milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+
+8 checks: 8 PASS, 0 FAIL
+rc=0

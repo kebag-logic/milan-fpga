@@ -1,0 +1,561 @@
+verilator --cc --exe --build -j 0 --top-module coherence_wrap -GCLK_HZ_P=50000000 -GN_TALKERS_P=1 -GWIRE_CHANS_P=8 -GTDM_SLOTS_P=8 -GLB_STREAMS_P=1 -GLB_CH_P=8 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8" --Mdir obj_dir ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv coherence_wrap.sv sim_main.cpp -o Vcoherence_sim
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+make[1]: Entering directory '$REVIEWS/r395-1-617/tb/verilator/r395_probe_crf/obj_dir'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050-src/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o verilated_dpi.o $VALIDATION_TOOLS/verilator-v5.050-src/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050-src/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050-src/bin/verilator_includer -DVL_INCLUDE_OPT=include Vcoherence_wrap.cpp Vcoherence_wrap___024root__0.cpp Vcoherence_wrap__Dpi.cpp Vcoherence_wrap___024root__Slow.cpp Vcoherence_wrap___024root__0__Slow.cpp Vcoherence_wrap__Syms__Slow.cpp > Vcoherence_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o Vcoherence_wrap__ALL.o Vcoherence_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vcoherence_wrap__ALL.a    -pthread -lpthread -latomic   -o Vcoherence_sim
+rm Vcoherence_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/r395-1-617/tb/verilator/r395_probe_crf/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.497 MB sources in 8 modules, into 0.319 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.100 s (elab=0.009, cvt=0.033, bld=5.039); cpu 0.068 s on 8 threads; allocated 68.082 MB
+======================================================================
+./obj_dir/Vcoherence_sim
+=== TDM capture junction: AAF column coherence (#617) ===
+
+[ZONE-4050] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4050 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1040 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4050] [C] slips while the CRF lock held got=85 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 43 repeats, 42 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1122.0  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 861.6  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 601.2  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 340.7  max 1036 axis cycles
+  [i]  R395: tail slips 85 (repeats 43, skips 42 total), junction counters dup 0 skip 0
+
+[ZONE-4052] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4052 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1041 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4052] [C] slips while the CRF lock held got=91 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 46 repeats, 45 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1082.3  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 821.9  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 561.5  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 301.1  max 1036 axis cycles
+  [i]  R395: tail slips 91 (repeats 46, skips 45 total), junction counters dup 0 skip 0
+
+[ZONE-4054] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4054 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1040 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4054] [C] slips while the CRF lock held got=83 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 42 repeats, 41 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1121.7  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 861.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 600.9  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 340.5  max 1036 axis cycles
+  [i]  R395: tail slips 83 (repeats 42, skips 41 total), junction counters dup 0 skip 0
+
+[ZONE-4056] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4056 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1040 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4056] [C] slips while the CRF lock held got=83 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 42 repeats, 41 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1133.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 872.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 612.3  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 351.9  max 1036 axis cycles
+  [i]  R395: tail slips 83 (repeats 42, skips 41 total), junction counters dup 0 skip 0
+
+[ZONE-4058] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4058 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1038 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4058] [C] slips while the CRF lock held got=79 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 40 repeats, 39 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1215.7  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 955.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 694.8  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 434.4  max 1036 axis cycles
+  [i]  R395: tail slips 79 (repeats 40, skips 39 total), junction counters dup 0 skip 0
+
+[ZONE-4060] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4060 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1039 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4060] [C] slips while the CRF lock held got=81 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 41 repeats, 40 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1181.5  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 921.0  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 660.6  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 400.2  max 1036 axis cycles
+  [i]  R395: tail slips 81 (repeats 41, skips 40 total), junction counters dup 0 skip 0
+
+[ZONE-4062] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4062 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1038 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4062] [C] slips while the CRF lock held got=79 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 40 repeats, 39 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1215.4  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 955.0  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 694.6  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 434.2  max 1036 axis cycles
+  [i]  R395: tail slips 79 (repeats 40, skips 39 total), junction counters dup 0 skip 0
+
+[ZONE-4064] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4064 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1038 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4064] [C] slips while the CRF lock held got=79 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 40 repeats, 39 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1226.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 966.4  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 706.0  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 445.6  max 1036 axis cycles
+  [i]  R395: tail slips 79 (repeats 40, skips 39 total), junction counters dup 0 skip 0
+
+[ZONE-4066] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4066 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1036 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4066] [C] slips while the CRF lock held got=34 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 36 repeats, 35 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1298.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1038.5  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 778.1  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 517.7  max 1036 axis cycles
+  [i]  R395: tail slips 34 (repeats 36, skips 35 total), junction counters dup 0 skip 0
+
+[ZONE-4068] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4068 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1037 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4068] [C] slips while the CRF lock held got=71 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 36 repeats, 35 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1269.1  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1008.7  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 748.3  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 487.9  max 1036 axis cycles
+  [i]  R395: tail slips 71 (repeats 36, skips 35 total), junction counters dup 0 skip 0
+
+[ZONE-4070] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4070 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1036 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4070] [C] slips while the CRF lock held got=34 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 36 repeats, 35 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1298.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1038.5  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 778.1  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 517.7  max 1036 axis cycles
+  [i]  R395: tail slips 34 (repeats 36, skips 35 total), junction counters dup 0 skip 0
+
+[ZONE-4072] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4072 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1036 cycles after the frame close, -10..+0 (spread 10)
+  [FAIL] [ZONE-4072] [C] slips while the CRF lock held got=5 exp=0
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 36 repeats, 35 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1310.4  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1049.9  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 789.5  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 529.1  max 1036 axis cycles
+  [i]  R395: tail slips 5 (repeats 36, skips 35 total), junction counters dup 0 skip 0
+
+[ZONE-4074] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4074 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1034 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 33 repeats, 32 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1374.6  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1114.2  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 853.8  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 593.3  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 33, skips 32 total), junction counters dup 0 skip 0
+
+[ZONE-4076] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4076 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1035 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 35 repeats, 34 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1349.0  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1088.6  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 828.1  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 567.7  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 35, skips 34 total), junction counters dup 0 skip 0
+
+[ZONE-4078] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4078 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1034 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 33 repeats, 32 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1373.8  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1113.4  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 853.0  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 592.6  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 33, skips 32 total), junction counters dup 0 skip 0
+
+[ZONE-4080] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4080 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1034 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 33 repeats, 32 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1385.3  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1124.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 864.4  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 604.0  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 33, skips 32 total), junction counters dup 0 skip 0
+
+[ZONE-4082] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4082 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1032 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 29 repeats, 28 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1443.8  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1183.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 922.9  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 662.5  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 29, skips 28 total), junction counters dup 0 skip 0
+
+[ZONE-4084] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4084 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1033 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 30 repeats, 29 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1421.5  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1161.1  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 900.7  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 640.3  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 30, skips 29 total), junction counters dup 0 skip 0
+
+[ZONE-4086] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4086 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1032 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 28 repeats, 27 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1443.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1182.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 922.4  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 662.0  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 28, skips 27 total), junction counters dup 0 skip 0
+
+[ZONE-4088] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4088 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1032 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 28 repeats, 27 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1454.7  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1194.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 933.8  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 673.4  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 28, skips 27 total), junction counters dup 0 skip 0
+
+[ZONE-4090] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4090 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1031 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 28 repeats, 27 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1476.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1216.5  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 956.1  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 695.7  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 28, skips 27 total), junction counters dup 0 skip 0
+
+[ZONE-4092] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4092 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1030 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 31 repeats, 30 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1519.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1259.5  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 999.1  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 738.7  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 31, skips 30 total), junction counters dup 0 skip 0
+
+[ZONE-4094] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4094 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1030 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 30 repeats, 29 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1508.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1247.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 987.4  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 727.0  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 30, skips 29 total), junction counters dup 0 skip 0
+
+[ZONE-4096] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4096 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1030 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 30 repeats, 29 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1519.7  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1259.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 998.8  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 738.4  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 30, skips 29 total), junction counters dup 0 skip 0
+
+[ZONE-4098] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4098 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1029 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 30 repeats, 29 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1538.5  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1278.1  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1017.7  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 757.3  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 30, skips 29 total), junction counters dup 0 skip 0
+
+[ZONE-4100] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4100 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1028 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 25 repeats, 24 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1579.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1318.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1058.3  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 797.9  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 25, skips 24 total), junction counters dup 0 skip 0
+
+[ZONE-4102] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4102 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1028 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 27 repeats, 26 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1567.5  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1307.1  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1046.7  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 786.2  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 27, skips 26 total), junction counters dup 0 skip 0
+
+[ZONE-4104] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4104 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1028 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 27 repeats, 26 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1578.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1318.5  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1058.1  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 797.7  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 27, skips 26 total), junction counters dup 0 skip 0
+
+[ZONE-4106] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4106 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1027 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 21 repeats, 20 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1596.5  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1336.1  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1075.6  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 815.2  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 21, skips 20 total), junction counters dup 0 skip 0
+
+[ZONE-4108] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4108 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1026 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 29 repeats, 28 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1636.4  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1375.9  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1115.5  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 855.1  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 29, skips 28 total), junction counters dup 0 skip 0
+
+[ZONE-4110] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4110 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1026 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 29 repeats, 28 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1624.4  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1364.0  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1103.6  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 843.2  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 29, skips 28 total), junction counters dup 0 skip 0
+
+[ZONE-4112] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4112 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1026 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 29 repeats, 28 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1635.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1375.4  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1115.0  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 854.6  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 29, skips 28 total), junction counters dup 0 skip 0
+
+[ZONE-4114] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4114 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1025 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1649.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1388.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1128.4  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 868.0  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4116] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4116 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1024 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 29 repeats, 28 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1689.4  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1428.9  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1168.5  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 908.1  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 29, skips 28 total), junction counters dup 0 skip 0
+
+[ZONE-4118] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4118 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1024 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 28 repeats, 27 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1677.7  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1417.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1156.8  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 896.4  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 28, skips 27 total), junction counters dup 0 skip 0
+
+[ZONE-4120] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4120 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1024 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 28 repeats, 27 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1689.1  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1428.7  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1168.3  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 907.9  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 28, skips 27 total), junction counters dup 0 skip 0
+
+[ZONE-4122] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4122 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1023 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1702.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1441.8  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1181.4  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 921.0  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4124] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4124 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1022 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1736.6  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1476.2  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1215.8  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 955.4  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4126] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4126 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1022 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1724.7  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1464.3  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1203.9  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 943.4  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4128] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4128 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1022 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1736.1  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1475.7  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1215.3  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 954.9  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4130] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4130 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1021 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1747.2  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1486.7  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1226.3  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 965.9  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4132] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4132 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1020 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1781.6  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1521.1  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1260.7  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 1000.3  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 20, skips 19 total), junction counters dup 0 skip 0
+
+[ZONE-4134] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4134 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1020 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 21 repeats, 20 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1769.9  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1509.5  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1249.0  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 988.6  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 21, skips 20 total), junction counters dup 0 skip 0
+
+[ZONE-4136] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4136 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1020 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 21 repeats, 20 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1781.3  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1520.9  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1260.5  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 1000.1  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 21, skips 20 total), junction counters dup 0 skip 0
+
+[ZONE-4138] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4138 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1019 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4001 columns in 667 PDUs, 0 torn (0.0%), 18 repeats, 17 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4001 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 776  mean 1797.0  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 515  mean 1536.6  max 1557 axis cycles
+  [i]    pair 2 sample age at the tick: min 255  mean 1276.2  max 1297 axis cycles
+  [i]    pair 3 sample age at the tick: min -5  mean 1015.8  max 1036 axis cycles
+  [i]  R395: tail slips 0 (repeats 18, skips 17 total), junction counters dup 0 skip 0
+
+[ZONE-4140] CRF (aligner engaged), true 391/1591 plan, TDM clock held 4140 steps, 4000 columns
+  [i]  front end: 4001 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 1018 cycles after the frame close, -10..+0 (spread 10)
+  [i]  4000 columns in 667 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       4000 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 1789  mean 1800.4  max 1817 axis cycles
+  [i]    pair 1 sample age at the tick: min 1529  mean 1540.0  max 1556 axis cycles
+  [i]    pair 2 sample age at the tick: min 1269  mean 1279.6  max 1296 axis cycles
+  [i]    pair 3 sample age at the tick: min 1008  mean 1019.2  max 1035 axis cycles
+  [i]  R395: tail slips 0 (repeats 0, skips 0 total), junction counters dup 0 skip 0
+== capture_coherence: checks: 782   failures: 12 ==
+RESULT: FAIL
+make: *** [Makefile:67: run] Error 1
+rc=2

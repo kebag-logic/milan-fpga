@@ -1,0 +1,64 @@
+=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617) ===
+
+[DP-INT-slow] milan_datapath, INTERNAL, -1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [FAIL] [DP-INT-slow] [A] AAF columns mixing two TDM frames got=1483 exp=0
+  [i]  2202 columns in 367 PDUs, 1483 torn (67.3%), 2 repeats, 0 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        719 columns   32.7%  coherent
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1        583 columns   26.5%  torn
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1        450 columns   20.4%  torn
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1        450 columns   20.4%  torn
+
+[DP-INT-fast] milan_datapath, INTERNAL, +1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [FAIL] [DP-INT-fast] [A] AAF columns mixing two TDM frames got=1350 exp=0
+  [i]  2202 columns in 367 PDUs, 1350 torn (61.3%), 0 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        852 columns   38.7%  coherent
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1        450 columns   20.4%  torn
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1        450 columns   20.4%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1        450 columns   20.4%  torn
+
+[DP-CRF-0] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 0 steps, 1500 columns
+  [i]  CRF tail: tick 1029 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1500 columns in 250 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1500 columns  100.0%  coherent
+
+[DP-CRF-1] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 520 steps, 1500 columns
+  [FAIL] [DP-CRF-1] [A] AAF columns mixing two TDM frames got=1505 exp=0
+  [i]  CRF tail: tick 900 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1505 columns in 251 PDUs, 1505 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       1505 columns  100.0%  torn
+
+[DP-CRF-2] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1041 steps, 1500 columns
+  [FAIL] [DP-CRF-2] [A] AAF columns mixing two TDM frames got=1505 exp=0
+  [i]  CRF tail: tick 769 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1505 columns in 251 PDUs, 1505 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       1505 columns  100.0%  torn
+
+[DP-CRF-3] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1562 steps, 1500 columns
+  [FAIL] [DP-CRF-3] [A] AAF columns mixing two TDM frames got=1505 exp=0
+  [i]  CRF tail: tick 640 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1505 columns in 251 PDUs, 1505 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       1505 columns  100.0%  torn
+
+[DP-CRF-4] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2083 steps, 1500 columns
+  [FAIL] [DP-CRF-4] [A] AAF columns mixing two TDM frames got=1505 exp=0
+  [i]  CRF tail: tick 508 cycles after the fsync edge, -6..+1 (spread 7)
+  [i]  1505 columns in 251 PDUs, 1505 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       1505 columns  100.0%  torn
+
+[DP-CRF-5] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2604 steps, 1500 columns
+  [FAIL] [DP-CRF-5] [A] AAF columns mixing two TDM frames got=1505 exp=0
+  [i]  CRF tail: tick 379 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1505 columns in 251 PDUs, 1505 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1       1505 columns  100.0%  torn
+
+[DP-CRF-6] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3125 steps, 1500 columns
+  [i]  CRF tail: tick 248 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-7] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3646 steps, 1500 columns
+  [i]  CRF tail: tick 119 cycles after the fsync edge, -7..+0 (spread 7)
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+== capture_coherence_dp: checks: 118   failures: 7 ==
+RESULT: FAIL

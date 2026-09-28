@@ -1,0 +1,11 @@
+--- $REVIEWS/r395-1-617/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-09-28 19:04:27.125586947 +0200
++++ $REVIEWS/617-r395-1-packet/scratch/rm/rm3/KL_chan_map_capture.sv	2026-09-28 19:24:48.845298577 +0200
+@@ -1015,7 +1015,7 @@
+   //! for the whole walk, so a frame that closes mid-walk waits for the next
+   //! tick instead of tearing this one (TDM FRAME HANDOFF)
+   logic [47:0] tdm_walk_r [N_TDM_PAIRS_C];
+-  wire tdm_snap_w = (st_r == CM_POP_S) && (32'(pop_idx_r) == LB_PAIRS_C);
++  wire tdm_snap_w = (st_r == CM_STEP_S) && (slot_r == '0);
+ 
+   always_ff @(posedge clk_i) begin : tdm_walk_snapshot
+     if (!rst_n) begin

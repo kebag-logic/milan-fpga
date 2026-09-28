@@ -1,0 +1,20 @@
+--- $REVIEWS/r395-1-617/hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-09-28 19:04:27.125586947 +0200
++++ $REVIEWS/617-r395-1-packet/scratch/rm/rm2/KL_chan_map_capture.sv	2026-09-28 19:23:25.750721698 +0200
+@@ -542,7 +542,7 @@
+                             (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C);
+   //! the frame's last pair: its strobe closes and publishes the frame
+   wire        tdm_close_w = tdm_pair_valid_i &&
+-                            (32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);
++                            (32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 2);
+ 
+   always_ff @(posedge clk_i) begin : source_latch
+     if (!rst_n) begin
+@@ -559,7 +559,7 @@
+       //! (the select is an elaboration constant per bank entry, no mux)
+       if (tdm_close_w) begin
+         for (int t = 0; t < N_TDM_PAIRS_C; t++)
+-          tdm_frame_r[t] <= (t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w
++          tdm_frame_r[t] <= (t == int'(TDM_FRAME_PAIRS_P) - 2) ? tdm_pair_w
+                                                                : tdm_stage_r[t];
+       end
+     end

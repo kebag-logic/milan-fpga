@@ -1,0 +1,374 @@
+verilator --cc --exe --build -j 0 --top-module coherence_wrap -GCLK_HZ_P=50000000 -GN_TALKERS_P=1 -GWIRE_CHANS_P=8 -GTDM_SLOTS_P=8 -GLB_STREAMS_P=1 -GLB_CH_P=8 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8" --Mdir obj_dir ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv $REVIEWS/617-r395-1-packet/scratch/base-rtl/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv coherence_wrap.sv sim_main.cpp -o Vcoherence_sim
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+make[1]: Entering directory '$REVIEWS/r395-1-617/tb/verilator/r395_probe_base/obj_dir'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050-src/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o verilated_dpi.o $VALIDATION_TOOLS/verilator-v5.050-src/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050-src/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050-src/bin/verilator_includer -DVL_INCLUDE_OPT=include Vcoherence_wrap.cpp Vcoherence_wrap___024root__0.cpp Vcoherence_wrap__Dpi.cpp Vcoherence_wrap___024root__Slow.cpp Vcoherence_wrap___024root__0__Slow.cpp Vcoherence_wrap__Syms__Slow.cpp > Vcoherence_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050-src/include -I$VALIDATION_TOOLS/verilator-v5.050-src/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -c -o Vcoherence_wrap__ALL.o Vcoherence_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vcoherence_wrap__ALL.a    -pthread -lpthread -latomic   -o Vcoherence_sim
+rm Vcoherence_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/r395-1-617/tb/verilator/r395_probe_base/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.510 MB sources in 8 modules, into 0.313 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.046 s (elab=0.009, cvt=0.032, bld=4.987); cpu 0.067 s on 8 threads; allocated 68.082 MB
+======================================================================
+./obj_dir/Vcoherence_sim
+=== TDM capture junction: AAF column coherence (#617) ===
+
+[INT-true] INTERNAL (free-running grid), true 391/1591 plan, TDM clock held 0 steps, 96000 columns
+  [i]  front end: 95999 whole frames captured, 0 not matching the pattern
+  [FAIL] [INT-true] [A] AAF columns mixing two TDM frames got=63456 exp=0
+  [FAIL] [INT-true] [W] walks reading two TDM frames got=63456 exp=0
+  [FAIL] [INT-true] [W] walks reading a frame closed after their first inject got=8950 exp=0
+  [i]  1.02 beat crossings predicted, 1 slip clusters seen
+  [i]  96000 columns in 16000 PDUs, 63456 torn (66.1%), 20 repeats, 19 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0      32544 columns   33.9%  coherent
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1      21152 columns   22.0%  torn
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1      21152 columns   22.0%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1      21152 columns   22.0%  torn
+  [i]    pair 0 sample age at the tick: min -6  mean 519.4  max 1035 axis cycles
+  [i]    pair 1 sample age at the tick: min -32  mean 488.5  max 1009 axis cycles
+  [i]    pair 2 sample age at the tick: min -58  mean 457.6  max 983 axis cycles
+  [i]    pair 3 sample age at the tick: min -84  mean 426.7  max 957 axis cycles
+
+[INT-slow] INTERNAL (free-running grid), -1000 ppm plan, TDM clock held 0 steps, 3200 columns
+  [i]  front end: 3201 whole frames captured, 0 not matching the pattern
+  [FAIL] [INT-slow] [A] AAF columns mixing two TDM frames got=2160 exp=0
+  [FAIL] [INT-slow] [W] walks reading two TDM frames got=2160 exp=0
+  [FAIL] [INT-slow] [W] walks reading a frame closed after their first inject got=285 exp=0
+  [i]  3.20 beat crossings predicted, 3 slip clusters seen
+  [i]  3204 columns in 534 PDUs, 2160 torn (67.4%), 3 repeats, 0 skips, 3 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1044 columns   32.6%  coherent
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1        810 columns   25.3%  torn
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1        675 columns   21.1%  torn
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1        675 columns   21.1%  torn
+  [i]    pair 0 sample age at the tick: min -6  mean 523.9  max 1036 axis cycles
+  [i]    pair 1 sample age at the tick: min -32  mean 483.3  max 1010 axis cycles
+  [i]    pair 2 sample age at the tick: min -58  mean 442.7  max 984 axis cycles
+  [i]    pair 3 sample age at the tick: min -84  mean 446.1  max 958 axis cycles
+
+[INT-fast] INTERNAL (free-running grid), +1000 ppm plan, TDM clock held 0 steps, 3200 columns
+  [i]  front end: 3207 whole frames captured, 0 not matching the pattern
+  [FAIL] [INT-fast] [A] AAF columns mixing two TDM frames got=2025 exp=0
+  [FAIL] [INT-fast] [W] walks reading two TDM frames got=2025 exp=0
+  [FAIL] [INT-fast] [W] walks reading a frame closed after their first inject got=222 exp=0
+  [i]  3.20 beat crossings predicted, 3 slip clusters seen
+  [i]  3204 columns in 534 PDUs, 2025 torn (63.2%), 0 repeats, 3 skips, 3 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1179 columns   36.8%  coherent
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1        675 columns   21.1%  torn
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1        675 columns   21.1%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1        675 columns   21.1%  torn
+  [i]    pair 0 sample age at the tick: min -6  mean 536.4  max 1034 axis cycles
+  [i]    pair 1 sample age at the tick: min -32  mean 495.9  max 1008 axis cycles
+  [i]    pair 2 sample age at the tick: min -58  mean 455.4  max 982 axis cycles
+  [i]    pair 3 sample age at the tick: min -84  mean 414.9  max 956 axis cycles
+
+[CRF-true-00] CRF (aligner engaged), true 391/1591 plan, TDM clock held 0 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-00] [W] walks reading a frame closed after their first inject got=1998 exp=0
+  [i]  CRF tail: tick 1018 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2004 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2004 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 750  mean 758.4  max 768 axis cycles
+  [i]    pair 1 sample age at the tick: min 490  mean 498.0  max 508 axis cycles
+  [i]    pair 2 sample age at the tick: min 229  mean 237.6  max 247 axis cycles
+  [i]    pair 3 sample age at the tick: min -31  mean -22.8  max -13 axis cycles
+
+[CRF-true-01] CRF (aligner engaged), true 391/1591 plan, TDM clock held 260 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-01] [A] AAF columns mixing two TDM frames got=1307 exp=0
+  [FAIL] [CRF-true-01] [W] walks reading two TDM frames got=1307 exp=0
+  [FAIL] [CRF-true-01] [W] walks reading a frame closed after their first inject got=691 exp=0
+  [i]  CRF tail: tick 954 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2004 columns in 334 PDUs, 1307 torn (65.2%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       1307 columns   65.2%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        697 columns   34.8%  coherent
+  [i]    pair 0 sample age at the tick: min 686  mean 694.5  max 704 axis cycles
+  [i]    pair 1 sample age at the tick: min 426  mean 434.0  max 444 axis cycles
+  [i]    pair 2 sample age at the tick: min 165  mean 173.6  max 183 axis cycles
+  [i]    pair 3 sample age at the tick: min -84  mean 594.6  max 957 axis cycles
+
+[CRF-true-02] CRF (aligner engaged), true 391/1591 plan, TDM clock held 520 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-02] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-02] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 888 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 620  mean 628.4  max 638 axis cycles
+  [i]    pair 1 sample age at the tick: min 360  mean 368.0  max 378 axis cycles
+  [i]    pair 2 sample age at the tick: min 99  mean 107.6  max 117 axis cycles
+  [i]    pair 3 sample age at the tick: min 881  mean 888.9  max 898 axis cycles
+
+[CRF-true-03] CRF (aligner engaged), true 391/1591 plan, TDM clock held 781 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-03] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-03] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 824 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 556  mean 564.0  max 574 axis cycles
+  [i]    pair 1 sample age at the tick: min 295  mean 303.6  max 313 axis cycles
+  [i]    pair 2 sample age at the tick: min 35  mean 43.2  max 53 axis cycles
+  [i]    pair 3 sample age at the tick: min 816  mean 824.4  max 834 axis cycles
+
+[CRF-true-04] CRF (aligner engaged), true 391/1591 plan, TDM clock held 1041 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-04] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-04] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 758 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 490  mean 498.0  max 508 axis cycles
+  [i]    pair 1 sample age at the tick: min 229  mean 237.6  max 247 axis cycles
+  [i]    pair 2 sample age at the tick: min -31  mean -22.8  max -13 axis cycles
+  [i]    pair 3 sample age at the tick: min 750  mean 758.4  max 768 axis cycles
+
+[CRF-true-05] CRF (aligner engaged), true 391/1591 plan, TDM clock held 1302 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-05] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-05] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 694 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 426  mean 433.8  max 443 axis cycles
+  [i]    pair 1 sample age at the tick: min 165  mean 173.4  max 183 axis cycles
+  [i]    pair 2 sample age at the tick: min 946  mean 954.7  max 964 axis cycles
+  [i]    pair 3 sample age at the tick: min 686  mean 694.2  max 704 axis cycles
+
+[CRF-true-06] CRF (aligner engaged), true 391/1591 plan, TDM clock held 1562 steps, 2000 columns
+  [i]  front end: 2004 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-06] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-06] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 628 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 360  mean 367.8  max 377 axis cycles
+  [i]    pair 1 sample age at the tick: min 99  mean 107.4  max 117 axis cycles
+  [i]    pair 2 sample age at the tick: min 880  mean 888.7  max 898 axis cycles
+  [i]    pair 3 sample age at the tick: min 620  mean 628.2  max 638 axis cycles
+
+[CRF-true-07] CRF (aligner engaged), true 391/1591 plan, TDM clock held 1823 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-07] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-07] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 563 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 295  mean 303.6  max 313 axis cycles
+  [i]    pair 1 sample age at the tick: min 35  mean 43.2  max 53 axis cycles
+  [i]    pair 2 sample age at the tick: min 816  mean 824.5  max 834 axis cycles
+  [i]    pair 3 sample age at the tick: min 556  mean 564.1  max 574 axis cycles
+
+[CRF-true-08] CRF (aligner engaged), true 391/1591 plan, TDM clock held 2083 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-08] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-08] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 497 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 229  mean 237.6  max 247 axis cycles
+  [i]    pair 1 sample age at the tick: min -31  mean -22.8  max -13 axis cycles
+  [i]    pair 2 sample age at the tick: min 750  mean 758.5  max 768 axis cycles
+  [i]    pair 3 sample age at the tick: min 490  mean 498.0  max 508 axis cycles
+
+[CRF-true-09] CRF (aligner engaged), true 391/1591 plan, TDM clock held 2343 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-09] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-09] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 433 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 165  mean 173.6  max 183 axis cycles
+  [i]    pair 1 sample age at the tick: min 947  mean 954.9  max 964 axis cycles
+  [i]    pair 2 sample age at the tick: min 686  mean 694.5  max 704 axis cycles
+  [i]    pair 3 sample age at the tick: min 426  mean 434.1  max 444 axis cycles
+
+[CRF-true-10] CRF (aligner engaged), true 391/1591 plan, TDM clock held 2604 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-10] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-10] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 367 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 99  mean 107.4  max 117 axis cycles
+  [i]    pair 1 sample age at the tick: min 880  mean 888.7  max 898 axis cycles
+  [i]    pair 2 sample age at the tick: min 620  mean 628.3  max 638 axis cycles
+  [i]    pair 3 sample age at the tick: min 360  mean 367.9  max 377 axis cycles
+
+[CRF-true-11] CRF (aligner engaged), true 391/1591 plan, TDM clock held 2864 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-true-11] [A] AAF columns mixing two TDM frames got=2003 exp=0
+  [FAIL] [CRF-true-11] [W] walks reading two TDM frames got=1998 exp=0
+  [i]  CRF tail: tick 303 cycles after the frame close, -7..+1 (spread 8)
+  [i]  2003 columns in 334 PDUs, 2003 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1       2003 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 35  mean 43.5  max 53 axis cycles
+  [i]    pair 1 sample age at the tick: min 816  mean 824.7  max 834 axis cycles
+  [i]    pair 2 sample age at the tick: min 556  mean 564.3  max 574 axis cycles
+  [i]    pair 3 sample age at the tick: min 296  mean 303.9  max 313 axis cycles
+
+[CRF-true-12] CRF (aligner engaged), true 391/1591 plan, TDM clock held 3125 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 237 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 1011  mean 1018.8  max 1028 axis cycles
+  [i]    pair 1 sample age at the tick: min 750  mean 758.3  max 768 axis cycles
+  [i]    pair 2 sample age at the tick: min 490  mean 497.9  max 508 axis cycles
+  [i]    pair 3 sample age at the tick: min 229  mean 237.5  max 247 axis cycles
+
+[CRF-true-13] CRF (aligner engaged), true 391/1591 plan, TDM clock held 3385 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 173 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 947  mean 954.8  max 964 axis cycles
+  [i]    pair 1 sample age at the tick: min 686  mean 694.4  max 704 axis cycles
+  [i]    pair 2 sample age at the tick: min 426  mean 433.9  max 444 axis cycles
+  [i]    pair 3 sample age at the tick: min 165  mean 173.5  max 183 axis cycles
+
+[CRF-true-14] CRF (aligner engaged), true 391/1591 plan, TDM clock held 3646 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 107 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 880  mean 888.6  max 898 axis cycles
+  [i]    pair 1 sample age at the tick: min 620  mean 628.2  max 638 axis cycles
+  [i]    pair 2 sample age at the tick: min 359  mean 367.7  max 377 axis cycles
+  [i]    pair 3 sample age at the tick: min 99  mean 107.3  max 117 axis cycles
+
+[CRF-true-15] CRF (aligner engaged), true 391/1591 plan, TDM clock held 3906 steps, 2000 columns
+  [i]  front end: 2003 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 43 cycles after the frame close, -8..+0 (spread 8)
+  [i]  2003 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2003 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 816  mean 824.6  max 834 axis cycles
+  [i]    pair 1 sample age at the tick: min 556  mean 564.2  max 574 axis cycles
+  [i]    pair 2 sample age at the tick: min 296  mean 303.7  max 313 axis cycles
+  [i]    pair 3 sample age at the tick: min 35  mean 43.3  max 53 axis cycles
+
+[CRF-50-0] CRF (aligner engaged), -50 ppm plan, TDM clock held 130 steps, 6000 columns
+  [i]  front end: 6000 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-50-0] [A] AAF columns mixing two TDM frames got=5179 exp=0
+  [FAIL] [CRF-50-0] [W] walks reading two TDM frames got=5179 exp=0
+  [FAIL] [CRF-50-0] [W] walks reading a frame closed after their first inject got=815 exp=0
+  [i]  CRF tail: tick 889 cycles after the frame close, -38..+1 (spread 39)
+  [i]  6000 columns in 1000 PDUs, 5179 torn (86.3%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       5179 columns   86.3%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        821 columns   13.7%  coherent
+  [i]    pair 0 sample age at the tick: min 590  mean 640.1  max 735 axis cycles
+  [i]    pair 1 sample age at the tick: min 330  mean 379.7  max 475 axis cycles
+  [i]    pair 2 sample age at the tick: min 69  mean 119.3  max 214 axis cycles
+  [i]    pair 3 sample age at the tick: min -84  mean 758.9  max 957 axis cycles
+
+[CRF-50-1] CRF (aligner engaged), -50 ppm plan, TDM clock held 1171 steps, 6000 columns
+  [i]  front end: 6005 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-50-1] [A] AAF columns mixing two TDM frames got=6005 exp=0
+  [FAIL] [CRF-50-1] [W] walks reading two TDM frames got=6000 exp=0
+  [i]  CRF tail: tick 630 cycles after the frame close, -38..+1 (spread 39)
+  [i]  6005 columns in 1001 PDUs, 6005 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       5732 columns   95.5%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1        273 columns    4.5%  torn
+  [i]    pair 0 sample age at the tick: min 331  mean 381.0  max 476 axis cycles
+  [i]    pair 1 sample age at the tick: min 71  mean 120.6  max 215 axis cycles
+  [i]    pair 2 sample age at the tick: min -58  mean 855.3  max 983 axis cycles
+  [i]    pair 3 sample age at the tick: min 592  mean 641.4  max 736 axis cycles
+
+[CRF-50-2] CRF (aligner engaged), -50 ppm plan, TDM clock held 2213 steps, 6000 columns
+  [i]  front end: 6005 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF-50-2] [A] AAF columns mixing two TDM frames got=6005 exp=0
+  [FAIL] [CRF-50-2] [W] walks reading two TDM frames got=6000 exp=0
+  [i]  CRF tail: tick 370 cycles after the frame close, -39..+0 (spread 39)
+  [i]  6005 columns in 1001 PDUs, 6005 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1       6005 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 70  mean 120.2  max 215 axis cycles
+  [i]    pair 1 sample age at the tick: min 852  mean 901.5  max 997 axis cycles
+  [i]    pair 2 sample age at the tick: min 591  mean 641.1  max 736 axis cycles
+  [i]    pair 3 sample age at the tick: min 331  mean 380.6  max 476 axis cycles
+
+[CRF-50-3] CRF (aligner engaged), -50 ppm plan, TDM clock held 3255 steps, 6000 columns
+  [i]  front end: 6005 whole frames captured, 0 not matching the pattern
+  [i]  CRF tail: tick 109 cycles after the frame close, -38..+1 (spread 39)
+  [i]  6005 columns in 1001 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       6005 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 852  mean 901.9  max 997 axis cycles
+  [i]    pair 1 sample age at the tick: min 592  mean 641.4  max 736 axis cycles
+  [i]    pair 2 sample age at the tick: min 331  mean 381.0  max 476 axis cycles
+  [i]    pair 3 sample age at the tick: min 71  mean 120.6  max 215 axis cycles
+
+[CRF+50-0] CRF (aligner engaged), +50 ppm plan, TDM clock held 130 steps, 6000 columns
+  [i]  front end: 6000 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF+50-0] [W] walks reading a frame closed after their first inject got=792 exp=0
+  [i]  CRF tail: tick 60 cycles after the frame close, +0..+39 (spread 39)
+  [i]  6000 columns in 1000 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       6000 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 736  mean 830.7  max 880 axis cycles
+  [i]    pair 1 sample age at the tick: min 476  mean 570.3  max 620 axis cycles
+  [i]    pair 2 sample age at the tick: min 216  mean 309.9  max 359 axis cycles
+  [i]    pair 3 sample age at the tick: min -45  mean 49.5  max 99 axis cycles
+
+[CRF+50-1] CRF (aligner engaged), +50 ppm plan, TDM clock held 1171 steps, 6000 columns
+  [i]  front end: 6006 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF+50-1] [A] AAF columns mixing two TDM frames got=6005 exp=0
+  [FAIL] [CRF+50-1] [W] walks reading two TDM frames got=6000 exp=0
+  [i]  CRF tail: tick 841 cycles after the frame close, +0..+38 (spread 38)
+  [i]  6005 columns in 1001 PDUs, 6005 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 -1       6005 columns  100.0%  torn
+  [i]    pair 0 sample age at the tick: min 475  mean 569.7  max 619 axis cycles
+  [i]    pair 1 sample age at the tick: min 215  mean 309.3  max 359 axis cycles
+  [i]    pair 2 sample age at the tick: min -46  mean 48.9  max 98 axis cycles
+  [i]    pair 3 sample age at the tick: min 735  mean 830.1  max 879 axis cycles
+
+[CRF+50-2] CRF (aligner engaged), +50 ppm plan, TDM clock held 2213 steps, 6000 columns
+  [i]  front end: 6006 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF+50-2] [A] AAF columns mixing two TDM frames got=6005 exp=0
+  [FAIL] [CRF+50-2] [W] walks reading two TDM frames got=6000 exp=0
+  [i]  CRF tail: tick 581 cycles after the frame close, +0..+39 (spread 39)
+  [i]  6005 columns in 1001 PDUs, 6005 torn (100.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 -1 -1       5760 columns   95.9%  torn
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1        245 columns    4.1%  torn
+  [i]    pair 0 sample age at the tick: min 216  mean 309.9  max 359 axis cycles
+  [i]    pair 1 sample age at the tick: min -32  mean 91.2  max 1009 axis cycles
+  [i]    pair 2 sample age at the tick: min 736  mean 830.7  max 880 axis cycles
+  [i]    pair 3 sample age at the tick: min 476  mean 570.3  max 620 axis cycles
+
+[CRF+50-3] CRF (aligner engaged), +50 ppm plan, TDM clock held 3255 steps, 6000 columns
+  [i]  front end: 6005 whole frames captured, 0 not matching the pattern
+  [FAIL] [CRF+50-3] [A] AAF columns mixing two TDM frames got=5161 exp=0
+  [FAIL] [CRF+50-3] [W] walks reading two TDM frames got=5161 exp=0
+  [i]  CRF tail: tick 321 cycles after the frame close, -1..+38 (spread 39)
+  [i]  6005 columns in 1001 PDUs, 5161 torn (85.9%), 6 repeats, 7 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: -1 -1 -1       5161 columns   85.9%  torn
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        844 columns   14.1%  coherent
+  [i]    pair 0 sample age at the tick: min -6  mean 194.8  max 1035 axis cycles
+  [i]    pair 1 sample age at the tick: min 735  mean 830.3  max 880 axis cycles
+  [i]    pair 2 sample age at the tick: min 475  mean 569.9  max 620 axis cycles
+  [i]    pair 3 sample age at the tick: min 214  mean 309.5  max 359 axis cycles
+== capture_coherence: checks: 456   failures: 47 ==
+RESULT: FAIL
+make: *** [Makefile:67: run] Error 1
+rc=2
