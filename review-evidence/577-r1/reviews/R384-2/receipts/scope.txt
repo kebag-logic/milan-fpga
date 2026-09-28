@@ -1,0 +1,26 @@
+files base..head:
+M	docs/ENDSTATION_BUILDER.md
+M	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+A	sw/builder/aem_image_checks.py
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+M	sw/litex/milan_soc.py
+files r1..head:
+M	docs/ENDSTATION_BUILDER.md
+M	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+M	sw/builder/aem_image_checks.py
+M	sw/builder/test_builder.py
+M	sw/litex/milan_soc.py
+gitlinks 54ce877371: efeb541ae5:external 5dce647ab5:gptp-processor 16be6768f7:protocol-processor
+gitlinks be6b48c140: efeb541ae5:external 5dce647ab5:gptp-processor 16be6768f7:protocol-processor
+submodule/avdecc paths changed base..head: none
+_load_clocking: base b57488956f2cea54 head b57488956f2cea54 UNCHANGED
+_validate_output_clock_sources: base ac37158551472a2d head ac37158551472a2d UNCHANGED
+load_config: base 93cdb51deff83d00 head 93cdb51deff83d00 UNCHANGED
+emit_aem_overlay: base 4040ebf1ff04e058 head 4040ebf1ff04e058 UNCHANGED
+milan_soc.py hunks base..head: 2 ; lines + 6 - 0
+build_desc_image: pack at +35, check at +39, return at +42; order pack<check<return: True
+blob assignments in build_desc_image: ['blob, report = _img.build(']
+main(): assignments binding _desc_blob: ['_desc_blob = _desc_report = _desc_overlay = None', '_desc_blob, _desc_report, _desc_overlay = build_desc_image(']
+main(): build_desc_image call precedes CRC32 and write_bytes: True
+rc=0

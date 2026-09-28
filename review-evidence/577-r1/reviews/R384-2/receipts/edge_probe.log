@@ -1,0 +1,29 @@
+-- round-1 lines
+control: one rate + [0,1]: ACCEPTED
+rate count 0, length 144 (Milan 5.3.3.3: current rate must be listed): REFUSED L10_EMPTY
+current_sampling_rate 44100 not in list [48000]: REFUSED L10_CURRENT
+clock_sources_offset 78 with 2 pad bytes (IEEE Table 7-61: 76): REFUSED L6_OFFSET
+CLOCK_DOMAIN identity [0,1] with trailing extra bytes: ACCEPTED
+index rows retyped so no AUDIO_UNIT/CLOCK_DOMAIN row exists ([1,0] in body): REFUSED L10_MISSING
+truncated blob, 14 bytes: REFUSED IMAGE_STRUCTURE
+truncated blob, 3 bytes: REFUSED IMAGE_STRUCTURE
+pristine arty_current image: ACCEPTED
+-- round-2 lines
+rate count 0 with current 0 (nothing to be a member of): REFUSED L10_EMPTY
+current differs only in pull bits (0x2000BB80 vs 48000): REFUSED L10_CURRENT
+current is last of eight: ACCEPTED
+clock_sources_offset 74 (overlaps count field): REFUSED L6_OFFSET
+clock_sources_offset 76, one source [0]: ACCEPTED
+image with AUDIO_UNIT only: REFUSED L6_MISSING
+image with CLOCK_DOMAIN only: REFUSED L10_MISSING
+control: two configurations, both complete: ACCEPTED
+two configurations, header n_config forced to 1 (row cfg 1 outside): REFUSED IMAGE_STRUCTURE
+one configuration, header n_config forced to 2: REFUSED L10_MISSING
+header n_config 65535, rows for configuration 0 only: REFUSED L10_MISSING
+header n_config 0: REFUSED IMAGE_CONFIGS
+index_off beyond image end: REFUSED IMAGE_STRUCTURE
+row count larger than index: REFUSED IMAGE_STRUCTURE
+layout version 2: REFUSED IMAGE_STRUCTURE
+duplicate rate words [48000,48000] (loader-owned, not L10 image scope): ACCEPTED
+clock_source_index 5 with list [0,1] (outside frozen L6 scope): ACCEPTED
+rc=0

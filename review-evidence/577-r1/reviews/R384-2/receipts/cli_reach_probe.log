@@ -1,0 +1,9 @@
+1. PR reproduction, checker intact: rc=0
+   gate 36b lines: 56
+2. PR reproduction, checker forced to raise: rc=1
+   PROBE_REACHED lines: 3
+   last line: endstation_builder.ConfigError: aem_desc.bin: PROBE_REACHED: checker was called
+3. builder CLI, checker forced: rc=0
+   PROBE_REACHED lines in CLI output: 0
+   aem_desc* files emitted by CLI: 0
+rc=0
