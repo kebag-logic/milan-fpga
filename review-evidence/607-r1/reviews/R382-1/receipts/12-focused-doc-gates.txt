@@ -1,0 +1,13 @@
+rc=0 python3 -B scripts/check_baremetal_only.py --check
+rc=0 python3 -B scripts/docs_check.py
+rc=0 python3 -B scripts/check_doc_paths.py
+rc=2 python3 -B scripts/check_em_dash.py --base 54ce877371ee6e8878cf67294e86c2a8481b62f6
+rc=0 python3 -B scripts/check_doc_style.py
+rc=2 python3 -B scripts/gen_toc.py --check
+rc=2 python3 -B scripts/gen_toc.py --verify-anchors
+rc=0 python3 -B scripts/check_py_idiom.py
+rc=0 python3 -B scripts/check_hygiene.py --check
+rc=0 git diff --check base..HEAD
+rc=2 (build venv) python3 -B scripts/check_em_dash.py --base 54ce877371ee6e8878cf67294e86c2a8481b62f6 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/mar
+rc=2 (build venv) python3 -B scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/m
+rc=2 (build venv) python3 -B scripts/gen_toc.py --verify-anchors :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/m

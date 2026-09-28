@@ -1,0 +1,57 @@
+=== asl
+0
+4218:CONSTRAINTS: quasi_static cells=112 setup=4 hold=3
+4220:CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000
+4221:CONSTRAINTS: MultiReg eth=12 part=198 other=0
+6:set_param general.maxThreads 16
+258:synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/607-xdc-clock-names/configs/generated/endstation_ax7101_1x1_tdm8 $LANES/607-xdc-clock-names/configs/generated/endstation_ax7101_1x1_tdm8/gen $LANES/607-xdc-clock-names/hdl/common $LANES/607-xdc-clock-names/hdl/ieee8021q/ts $LANES/607-xdc-clock-names/hdl/ieee8021as/ptp_timestamp $LANES/607-xdc-clock-names/hdl/ieee17221/adp $LANES/607-xdc-clock-names/hdl/common/csr $LANES/607-xdc-clock-names/hdl/common/eth_event_counter $LANES/607-xdc-clock-names/hdl/ieee1722/avtp}
+275:opt_design -directive ExploreArea
+282:place_design -directive AltSpreadLogic_high
+283:phys_opt_design -directive AggressiveExplore
+301:route_design -directive AggressiveExplore
+302:phys_opt_design -directive AggressiveExplore
+6061-
+6062-    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+6063-    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+6064-      0.034        0.000                      0               175935        0.022        0.000                      0               175854        0.264        0.000                       0                 62387  
+write_bitstream: Time (s): cpu = 00:01:13 ; elapsed = 00:00:44 . Memory (MB): peak = 7408.281 ; gain = 0.000 ; free physical = 5648 ; free virtual = 70377
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 11:07:57 2026...
+=== eto
+0
+4216:CONSTRAINTS: quasi_static cells=112 setup=4 hold=3
+4218:CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000
+4219:CONSTRAINTS: MultiReg eth=12 part=198 other=0
+6:set_param general.maxThreads 16
+258:synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/607-xdc-clock-names/configs/generated/endstation_ax7101_1x1_tdm8 $LANES/607-xdc-clock-names/configs/generated/endstation_ax7101_1x1_tdm8/gen $LANES/607-xdc-clock-names/hdl/common $LANES/607-xdc-clock-names/hdl/ieee8021q/ts $LANES/607-xdc-clock-names/hdl/ieee8021as/ptp_timestamp $LANES/607-xdc-clock-names/hdl/ieee17221/adp $LANES/607-xdc-clock-names/hdl/common/csr $LANES/607-xdc-clock-names/hdl/common/eth_event_counter $LANES/607-xdc-clock-names/hdl/ieee1722/avtp}
+275:opt_design -directive ExploreArea
+282:place_design -directive ExtraTimingOpt
+283:phys_opt_design -directive AggressiveExplore
+301:route_design -directive AggressiveExplore
+302:phys_opt_design -directive AggressiveExplore
+6245-
+6246-    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+6247-    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+6248-      0.268        0.000                      0               175935        0.022        0.000                      0               175854        0.264        0.000                       0                 62387  
+write_bitstream: Time (s): cpu = 00:01:10 ; elapsed = 00:00:43 . Memory (MB): peak = 7407.707 ; gain = 0.000 ; free physical = 8753 ; free virtual = 77958
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 11:43:38 2026...
+=== eppo
+0
+4217:CONSTRAINTS: quasi_static cells=112 setup=4 hold=3
+4219:CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000
+4220:CONSTRAINTS: MultiReg eth=12 part=198 other=0
+6:set_param general.maxThreads 16
+258:synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {$LANES/607-xdc-clock-names/configs/generated/endstation_ax7101_1x1_tdm8 $LANES/607-xdc-clock-names/configs/generated/endstation_ax7101_1x1_tdm8/gen $LANES/607-xdc-clock-names/hdl/common $LANES/607-xdc-clock-names/hdl/ieee8021q/ts $LANES/607-xdc-clock-names/hdl/ieee8021as/ptp_timestamp $LANES/607-xdc-clock-names/hdl/ieee17221/adp $LANES/607-xdc-clock-names/hdl/common/csr $LANES/607-xdc-clock-names/hdl/common/eth_event_counter $LANES/607-xdc-clock-names/hdl/ieee1722/avtp}
+275:opt_design -directive ExploreArea
+282:place_design -directive ExtraPostPlacementOpt
+283:phys_opt_design -directive AggressiveExplore
+301:route_design -directive AggressiveExplore
+302:phys_opt_design -directive AggressiveExplore
+6018-
+6019-    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+6020-    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+6021-      0.105        0.000                      0               175935        0.036        0.000                      0               175854        0.264        0.000                       0                 62387  
+write_bitstream: Time (s): cpu = 00:01:13 ; elapsed = 00:00:45 . Memory (MB): peak = 7409.410 ; gain = 0.000 ; free physical = 4912 ; free virtual = 74044
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 12:13:36 2026...

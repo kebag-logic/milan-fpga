@@ -1,0 +1,79 @@
+asl: impl-log WNS=+0.034 TNS=0.000 WHS=+0.022 THS=0.000 critical_warnings=0 12-4739/20-1307/12-5201=0
+  Slow  0C WNS=+0.034 TNS=0.000 WHS=+0.123 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.597 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+6.742 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+6.293 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+6.664 requirements=['8.000']
+  Slow 85C WNS=+0.034 TNS=0.000 WHS=+0.123 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.597 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+6.742 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+6.293 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+6.664 requirements=['8.000']
+  Fast  0C WNS=+1.567 TNS=0.000 WHS=+0.022 THS=0.000
+    eth_sys   paths=13 worst_slack=+7.218 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+7.260 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+7.107 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+7.264 requirements=['8.000']
+  Fast 85C WNS=+1.567 TNS=0.000 WHS=+0.022 THS=0.000
+    eth_sys   paths=13 worst_slack=+7.218 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+7.260 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+7.107 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+7.264 requirements=['8.000']
+  interaction eth_clocks0_rx -> eth_clocks0_rx: lean                Partial False Path
+  interaction eth_clocks0_rx -> milansoc_crg_clkout0: Max Delay Datapath Only
+  interaction eth_clocks0_rx -> milansoc_crg_clkout1: Max Delay Datapath Only
+  interaction milansoc_crg_clkout0 -> eth_clocks0_rx: Max Delay Datapath Only
+  interaction milansoc_crg_clkout1 -> eth_clocks0_rx: Max Delay Datapath Only
+eto: impl-log WNS=+0.268 TNS=0.000 WHS=+0.022 THS=0.000 critical_warnings=0 12-4739/20-1307/12-5201=0
+  Slow  0C WNS=+0.268 TNS=0.000 WHS=+0.126 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.290 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+6.773 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+6.477 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+6.655 requirements=['8.000']
+  Slow 85C WNS=+0.268 TNS=0.000 WHS=+0.126 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.290 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+6.773 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+6.477 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+6.655 requirements=['8.000']
+  Fast  0C WNS=+1.299 TNS=0.000 WHS=+0.022 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.933 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+7.265 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+7.232 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+7.264 requirements=['8.000']
+  Fast 85C WNS=+1.299 TNS=0.000 WHS=+0.022 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.933 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+7.265 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+7.232 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+7.264 requirements=['8.000']
+  interaction eth_clocks0_rx -> eth_clocks0_rx: lean                Partial False Path
+  interaction eth_clocks0_rx -> milansoc_crg_clkout0: Max Delay Datapath Only
+  interaction eth_clocks0_rx -> milansoc_crg_clkout1: Max Delay Datapath Only
+  interaction milansoc_crg_clkout0 -> eth_clocks0_rx: Max Delay Datapath Only
+  interaction milansoc_crg_clkout1 -> eth_clocks0_rx: Max Delay Datapath Only
+eppo: impl-log WNS=+0.105 TNS=0.000 WHS=+0.036 THS=0.000 critical_warnings=0 12-4739/20-1307/12-5201=0
+  Slow  0C WNS=+0.105 TNS=0.000 WHS=+0.102 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.232 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+6.603 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+6.365 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+6.471 requirements=['8.000']
+  Slow 85C WNS=+0.105 TNS=0.000 WHS=+0.102 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.232 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+6.603 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+6.365 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+6.471 requirements=['8.000']
+  Fast  0C WNS=+1.516 TNS=0.000 WHS=+0.036 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.977 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+7.217 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+7.041 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+7.176 requirements=['8.000']
+  Fast 85C WNS=+1.516 TNS=0.000 WHS=+0.036 THS=0.000
+    eth_sys   paths=13 worst_slack=+6.977 requirements=['8.000']
+    sys_eth   paths=12 worst_slack=+7.217 requirements=['8.000']
+    eth_milan paths=50 worst_slack=+7.041 requirements=['8.000']
+    milan_eth paths=6 worst_slack=+7.176 requirements=['8.000']
+  interaction eth_clocks0_rx -> eth_clocks0_rx: lean                Partial False Path
+  interaction eth_clocks0_rx -> milansoc_crg_clkout0: Max Delay Datapath Only
+  interaction eth_clocks0_rx -> milansoc_crg_clkout1: Max Delay Datapath Only
+  interaction milansoc_crg_clkout0 -> eth_clocks0_rx: Max Delay Datapath Only
+  interaction milansoc_crg_clkout1 -> eth_clocks0_rx: Max Delay Datapath Only
+ALL ACCEPTANCE-4 CHECKS PASS

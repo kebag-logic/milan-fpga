@@ -1,0 +1,4 @@
+endstation_ax7101_8x8: elab rc=0 argv-has-eth-port=eth-port e1 hook=1 qs=1 xdc_mr_ff=0 xdc_if=0 xdc_crg_clkout=0
+milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw 
+endstation_ax7101_1x1_tdm8: elab rc=0 argv-has-eth-port=eth-port e1 hook=1 qs=1 xdc_mr_ff=0 xdc_if=0 xdc_crg_clkout=0
+milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milans
