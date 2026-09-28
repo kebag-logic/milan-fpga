@@ -1,0 +1,24 @@
+# public evidence read (read-only API): branch 602-review-evidence at 438763a3907805ff0b2a338a47bb16480bb3fd3d, review-evidence/602-r1/author-r3
+== builder-rv32.json
+{'head': '6b2ebd1c435136966f84ffc16d28a80c7d6b9387', 'command': ['python3', 'sw/builder/test_builder.py', '--require-rv32'], 'rc': 0, 'seconds': 756.82, 'sha256': 'd14c5f09bb6fc176a53a44b19f32cdd8bfd0fcb73ebad356d70652f59bfe9c10'}
+== builder-absent.json
+{'head': '6b2ebd1c435136966f84ffc16d28a80c7d6b9387', 'command': ['python3', '$MANAGEMENT/2026-09-23/602-a397/builder_absent.py'], 'rc': 0, 'seconds': 550.53, 'sha256': '3d386adba5188ff6c2c2eeba373ab1e2033eb0bdde7e81e1a1bda7f577f44a51'}
+== gmstep-mutants.json
+{'head': '6b2ebd1c435136966f84ffc16d28a80c7d6b9387', 'command': ['make', '-C', '$LANES/602-phc-step-mr/tb/verilator/milan_dp', 'gmstep-mutants'], 'rc': 0, 'seconds': 911.89, 'sha256': '5b01c3e684df0bc0066e67d9888bd8cd7b9260d49fd92bd410cd147bd2b015a1'}
+== milan-dp.json
+{'head': '6b2ebd1c435136966f84ffc16d28a80c7d6b9387', 'command': ['make', '-C', '$LANES/602-phc-step-mr/tb/verilator/milan_dp', 'run'], 'rc': 0, 'seconds': 1444.77, 'sha256': '04c8f41d70c971e204c9b5ff05eceb286e5ec02aefd1a4a272528df591710b0a'}
+== tkdiag.json
+{'head': '6b2ebd1c435136966f84ffc16d28a80c7d6b9387', 'command': ['make', '-C', '$LANES/602-phc-step-mr/tb/verilator/tkdiag'], 'rc': 0, 'seconds': 21.26, 'sha256': 'fa8284253a6db464de61d951a8efa75f0eb65e4f5cf807c17cf10087444404c3'}
+== artifact-identity.json
+{'head': '6b2ebd1c435136966f84ffc16d28a80c7d6b9387', 'command': ['python3', '$MANAGEMENT/2026-09-23/602-a397/check_artifact_identity.py'], 'rc': 0, 'seconds': 0.54, 'sha256': 'b609e7afe8e518acd9e8fff772f11b8cb630fb0c8fe843751dc6f59f1fa80559'}
+== builder-rv32.log (NOT RUN arms and verdict)
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibrat
+ALL GATES PASS EXCEPT 1 NOT RUN
+== builder-absent.log (NOT RUN arms and verdict)
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibrat
+ALL GATES PASS EXCEPT 2 NOT RUN
+== gmstep-mutants.log verdict
+22 checks: 22 PASS, 0 FAIL
