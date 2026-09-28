@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""#607: inspect constraints emitted by complete shipping AX7101 elaborations."""
+"""#607: inspect constraints emitted by real shipping AX7101 elaborations."""
 
 import argparse
+import importlib.abc
 import json
 import os
 from pathlib import Path
@@ -15,8 +16,21 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "sw/litex"))
 
 
+class FirmwareDataRefused(importlib.abc.MetaPathFinder):
+    """Refuse LiteX's firmware data packages, which the pinned elaborate install lacks."""
+
+    def find_spec(self, name: str, path: Any = None, target: Any = None) -> None:
+        """Fail any pythondata_software_* import and defer every other module."""
+        if name.startswith("pythondata_software_"):
+            raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
+        return None
+
+
 def elaborate_shipping(config: str, port: str, output: Path) -> None:
-    """Run the real main/Builder path, observing its namespace and generated files."""
+    """Run the real main/Builder path without firmware inputs, observing its generated files."""
+    # The hosted elaborate job installs only sw/litex/litex_pins.txt, so this
+    # probe must not reach a firmware data package on any interpreter (#607 F2).
+    sys.meta_path.insert(0, FirmwareDataRefused())
     import endstation_builder as eb
     import milan_soc
     from litex.build.xilinx.vivado import XilinxVivadoToolchain
@@ -29,13 +43,23 @@ def elaborate_shipping(config: str, port: str, output: Path) -> None:
              "--eth-port", port, "--no-compile-software", "--no-compile-gateware",
              "--vivado-max-threads", "16", "--output-dir", str(output)]
     observed = []
+    includes = []
 
     class InspectBuilder(milan_soc.Builder):
+        def _generate_includes(self, with_bios: bool = True) -> None:
+            """Write the SoC headers, omitting only the firmware make inputs."""
+            # LiteX resolves the picolibc and compiler-rt data packages for the
+            # BIOS make variables before it writes the gateware. No firmware is
+            # built here, and the gateware Tcl/XDC do not read those files.
+            includes.append(with_bios)
+            super()._generate_includes(with_bios=False)
+
         def build(self, **kwargs: Any) -> Any:
             """Inspect the namespace and files returned by the actual builder."""
             assert kwargs.get("run") is False, "shipping probe must not run implementation"
             assert not self.compile_software, "shipping probe must not compile firmware"
             namespace = super().build(**kwargs)
+            assert includes == [True], f"builder bypassed the probed include step: {includes}"
             # Use the actual main-PLL output objects, independently of the
             # hook's eth_bounded_clocks list and of generated name spellings.
             clocks = [namespace.get_name(self.soc.crg.pll.clkouts[i].clk) for i in (0, 1)]
