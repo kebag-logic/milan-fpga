@@ -1,0 +1,80 @@
+[
+  {
+    "command": [
+      "verilator",
+      "--cc",
+      "--exe",
+      "--build",
+      "-j",
+      "4",
+      "--top-module",
+      "carrier_probe",
+      "--Mdir",
+      "$VALIDATION_STORAGE/pp131-a418/replay/obj",
+      "-Wall",
+      "-Wno-fatal",
+      "-Wno-PINCONNECTEMPTY",
+      "-Wno-UNUSEDSIGNAL",
+      "-Wno-UNUSEDPARAM",
+      "-CFLAGS",
+      "-std=c++17 -O2 -Wall -Wextra -I$LANES/pp131-d3-core/tb/common",
+      "$LANES/pp131-d3-core/hdl/common/pp_pkg.sv",
+      "$LANES/pp131-d3-core/hdl/acmp/pp_acmp_pkg.sv",
+      "$LANES/pp131-d3-core/hdl/acmp/KL_acmp_nvm_shadow.sv",
+      "$LANES/pp131-d3-core/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv",
+      "$LANES/pp131-d3-core/hdl/packet_engine/KL_pp_nvm_port.sv",
+      "$LANES/trusted-dev-20260928-7a7582f0/hdl/milan/KL_nvm_backend.sv",
+      "$MANAGEMENT/2026-09-23/pp131-a418/carrier_probe.sv",
+      "$MANAGEMENT/2026-09-23/pp131-a418/carrier_probe.cpp"
+    ],
+    "cwd": "$VALIDATION_STORAGE/pp131-a418/replay",
+    "rc": 0,
+    "log": "$VALIDATION_STORAGE/pp131-a418/replay/build.log",
+    "bytes": 3477,
+    "sha256": "05dce7de083c34fe02eb9721245501fa73e8b43dc3073e893c11a5bc3f099af7"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/pp131-a418/replay/obj/Vcarrier_probe",
+      "golden"
+    ],
+    "cwd": "$VALIDATION_STORAGE/pp131-a418/replay",
+    "rc": 0,
+    "log": "$VALIDATION_STORAGE/pp131-a418/replay/0-golden.log",
+    "bytes": 1780,
+    "sha256": "b0dde8641663c67a5f45b81c57d3cc1611de1a392524bee13846988d3c80d416"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/pp131-a418/replay/obj/Vcarrier_probe",
+      "require-carrier"
+    ],
+    "cwd": "$VALIDATION_STORAGE/pp131-a418/replay",
+    "rc": 1,
+    "log": "$VALIDATION_STORAGE/pp131-a418/replay/1-require-carrier.log",
+    "bytes": 1861,
+    "sha256": "8975d2cf2c1c6a09a17542189aba2c06de717039df049785ca0338d8238df355"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/pp131-a418/replay/obj/Vcarrier_probe",
+      "stall-window"
+    ],
+    "cwd": "$VALIDATION_STORAGE/pp131-a418/replay",
+    "rc": 0,
+    "log": "$VALIDATION_STORAGE/pp131-a418/replay/2-stall-window.log",
+    "bytes": 275,
+    "sha256": "1553e36e2a709b97805d50ca022bff7fe35ca8005fbc578fe203cbd7b08c24da"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/pp131-a418/replay/obj/Vcarrier_probe",
+      "golden"
+    ],
+    "cwd": "$VALIDATION_STORAGE/pp131-a418/replay",
+    "rc": 0,
+    "log": "$VALIDATION_STORAGE/pp131-a418/replay/3-golden.log",
+    "bytes": 1780,
+    "sha256": "b0dde8641663c67a5f45b81c57d3cc1611de1a392524bee13846988d3c80d416"
+  }
+]

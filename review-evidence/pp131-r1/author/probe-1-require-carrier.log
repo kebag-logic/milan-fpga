@@ -1,0 +1,30 @@
+  [ ok ] BOOT: blank binding walk reaches RUN
+  [ ok ] CAPTURE: producer pending rose
+  [ ok ] WINDOW: exactly one record WRITE         got=1 exp=1
+  [ ok ] WINDOW: producer retired before slot ACK got=0 exp=0
+  [ ok ] WINDOW: backend owns unsaved work        got=1 exp=1
+  [ ok ] WINDOW: no slot ACK issued               got=0 exp=0
+  [ ok ] WINDOW: producer clear follows device completion
+TRACE window_device_done=179 port_done=180 producer_clear=180 slot_acks=0
+  [ ok ] CAPTURE: open, valid and attested before START got=0xd0000 exp=0xd0000
+  [ ok ] FAILURE: backend retains unsaved work    got=1 exp=1
+  [ ok ] FAILURE: stale reports the loss          got=1 exp=1
+  [ ok ] FAILURE: record producer remains retired got=0 exp=0
+TRACE attempt=1 cycle=2053 pending=0 backend_dirty=1 stale=1 alarm=0
+  [ ok ] CAPTURE: open, valid and attested before START got=0xd0000 exp=0xd0000
+  [ ok ] FAILURE: backend retains unsaved work    got=1 exp=1
+  [ ok ] FAILURE: stale reports the loss          got=1 exp=1
+  [ ok ] FAILURE: record producer remains retired got=0 exp=0
+TRACE attempt=2 cycle=12066 pending=0 backend_dirty=1 stale=1 alarm=0
+  [ ok ] CAPTURE: open, valid and attested before START got=0xd0000 exp=0xd0000
+  [ ok ] FAILURE: backend retains unsaved work    got=1 exp=1
+  [ ok ] FAILURE: stale reports the loss          got=1 exp=1
+  [ ok ] FAILURE: record producer remains retired got=0 exp=0
+TRACE attempt=3 cycle=22079 pending=0 backend_dirty=1 stale=1 alarm=0
+  [ ok ] FAILURE: no slot ACK issued              got=0 exp=0
+  [ ok ] FAILURE: no producer retry triggered     got=1 exp=1
+  [ ok ] FAILURE: no producer alarm               got=0 exp=0
+  [FAIL] DR2C-CARRIER-3: failed slot leaves record producer un-ACKed got=0 exp=1
+  [ ok ] SCOPE: no unsupported memory read used   got=0 exp=0
+== carrier-probe: checks: 24   failures: 1 ==
+RESULT: FAIL

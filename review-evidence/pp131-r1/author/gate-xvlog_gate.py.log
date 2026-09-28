@@ -1,0 +1,8 @@
+XVLOG SETUP: REFUSED - a source tree this gate analyses is not the revision this commit pins, so the finding set would not be the pinned population:
+  gptp-processor  (the 802.1AS engine milan_datapath elaborates via KL_gptp_shadow)
+      state:    registered, but nothing is checked out at the path (no directory, or an empty one)
+      expected: 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d   <- the superproject gitlink for this path
+      actual:   (nothing usable)
+      fix:      git submodule update --init gptp-processor
+  A fresh clone or `git worktree add` inherits no submodules, and a standalone clone dropped at the path is NOT one.
+  Refused rather than counted: over a tree that is not the pinned one the gate would print a finding set the pin does not stand behind - smaller (#186's trap) or simply different - and a default run would then rewrite the ratchet from it (#236).
