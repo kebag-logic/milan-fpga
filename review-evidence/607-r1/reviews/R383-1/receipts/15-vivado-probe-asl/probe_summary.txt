@@ -1,0 +1,16 @@
+clocks eth=eth_clocks0_rx sys=milansoc_crg_clkout0 milan=milansoc_crg_clkout1 all=clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+corner=Slow WNS=0.034 from=milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[5]/C to=milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[0]/D req=20.000
+corner=Slow WHS=0.123
+corner=Fast WNS=1.567 from=FDPE_16/C to=FDPE_17/D req=2.000
+corner=Fast WHS=0.022
+bound eth_sys paths=13 non8req=0 worst=6.597
+bound sys_eth paths=12 non8req=0 worst=6.742
+bound eth_milan paths=50 non8req=0 worst=6.293
+bound milan_eth paths=6 non8req=0 worst=6.664
+after_generic_mask bound eth_sys paths=13 non8req=13 worst=
+after_generic_mask bound sys_eth paths=16 non8req=16 worst=
+after_generic_mask bound eth_milan paths=50 non8req=0 worst=6.293
+after_generic_mask bound milan_eth paths=6 non8req=0 worst=6.664
+hook wrong_port rc=1 msg=CONSTRAINTS: expected one clock on port eth_clocks9_rx, got 
+hook wrong_net rc=1 msg=CONSTRAINTS: expected one clock on net crg_clkout0, got 
+hook wrong_other rc=1 msg=CONSTRAINTS: expected one clock on net crg_clkout4, got 

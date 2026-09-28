@@ -1,0 +1,16 @@
+BASELINE rc=0 [constraints] implementation-log diagnostics, missing log and common build wiring PASS
+M1 retain generic MultiReg mask: KILLED rc=1 AssertionError
+M2 bound 8 -> 80 ns: KILLED rc=1 bound missing
+M3 eth MultiRegs excluded from wrong class: KILLED rc=1 eth scope wrong
+M4 log gate ignores CRITICAL WARNING: KILLED rc=1 AssertionError: accepted Vivado 12-4739
+M5 log gate ignores 20-1307: KILLED rc=1 AssertionError: accepted Designutils 20-1307
+M6 eth hook call deleted: KILLED rc=1 AssertionError
+M7 eth hook gated to the wrong board: SURVIVED rc=0 [constraints] implementation-log diagnostics, missing log and common build wiring PASS
+M8 eth hook passes the wrong port: SURVIVED rc=0 [constraints] implementation-log diagnostics, missing log and common build wiring PASS
+M9 idelay clock moved into bounded class: KILLED rc=1 AssertionError
+M10 log check before build: KILLED rc=1 StopIteration
+M11 quasi-static hold 3 -> 0: KILLED rc=1 hold missing
+M12 hold false path dropped sys->eth: KILLED rc=1 unexpected constraints
+M13 async group dropped: KILLED rc=1 unexpected constraints
+M14 asynchronous-input exception dropped: KILLED rc=1 unexpected constraints
+M15 ambiguous MultiReg clock accepted: KILLED rc=1 ambiguous clock accepted

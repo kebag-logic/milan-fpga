@@ -1,0 +1,81 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Sep 28 12:26:15 2026
+| Host         : <build-host> running 64-bit unknown
+| Command      : report_timing -delay_type max -max_paths 1 -significant_digits 6 -file probe_Fast_wns_6digit.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             1.567ns  (required time - arrival time)
+  Source:                 FDPE_16/C
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            FDPE_17/D
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Fast Process Corner)
+  Requirement:            2.000ns  (MaxDelay Path 2.000ns)
+  Data Path Delay:        0.371ns  (logic 0.175ns (47.158%)  route 0.196ns (52.842%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    2.777ns
+    Source Clock Delay      (SCD):    3.455ns
+    Clock Pessimism Removal (CPR):    0.678ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+  Timing Exception:       MaxDelay Path 2.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG/O
+                         net (fo=7293, routed)        0.859     3.455    sys_clk
+    SLICE_X5Y72          FDPE                                         r  FDPE_16/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y72          FDPE (Prop_fdpe_C_Q)         0.175     3.630 r  FDPE_16/Q
+                         net (fo=1, routed)           0.196     3.826    impl_xilinxasyncresetsynchronizerimpl8_rst_meta
+    SLICE_X5Y72          FDPE                                         r  FDPE_17/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    2.000     2.000    <hidden>
+    R4                                                0.000     2.000 r  clk200_p
+                         net (fo=0)                   0.000     2.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     2.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     3.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.027     3.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     3.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.050     3.650 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           0.510     4.160    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.026     4.186 r  BUFG/O
+                         net (fo=7293, routed)        0.591     4.777    sys_clk
+    SLICE_X5Y72          FDPE                                         r  FDPE_17/C
+                         clock pessimism              0.678     5.455    <hidden>
+                         clock uncertainty           -0.058     5.397    <hidden>
+    SLICE_X5Y72          FDPE (Setup_fdpe_C_D)       -0.004     5.393    FDPE_17
+  -------------------------------------------------------------------
+                         required time                          5.393    <hidden>
+                         arrival time                          -3.826    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.567    <hidden>
+
+
+
+

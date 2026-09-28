@@ -1,0 +1,21 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Sep 28 12:26:30 2026
+| Host         : <build-host> running 64-bit unknown
+| Command      : report_exceptions -from [get_clocks -of_objects [get_ports eth_clocks0_rx]] -to [list [get_clocks -of_objects [get_nets sys_clk]] [get_clocks -of_objects [get_nets milan_clk]]] -file probe_exc_eth_to_part.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Exceptions Report
+
+Position  From                                                 Through         To                                                        Setup           Hold            Status           
+--------  ---------------------------------------------------  --------------  --------------------------------------------------------  --------------  --------------  -----------------
+17        [get_clocks -of_objects [get_ports eth_clocks0_rx]]  *               [get_clocks -of_objects [get_nets milansoc_crg_clkout0]]  -               false           
+18        [get_clocks -of_objects [get_ports eth_clocks0_rx]]  *               [get_clocks -of_objects [get_nets milansoc_crg_clkout0]]  max_dpo=8       -               
+21        [get_clocks -of_objects [get_ports eth_clocks0_rx]]  *               [get_clocks -of_objects [get_nets milansoc_crg_clkout1]]  -               false           
+22        [get_clocks -of_objects [get_ports eth_clocks0_rx]]  *               [get_clocks -of_objects [get_nets milansoc_crg_clkout1]]  max_dpo=8       -               
+

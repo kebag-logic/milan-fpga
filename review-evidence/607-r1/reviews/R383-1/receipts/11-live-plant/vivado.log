@@ -1,0 +1,84 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 12:32:14 2026
+# Process ID         : 2595066
+# Current directory  : $REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw
+# Command line       : vivado -mode batch -source $REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/plant.tcl
+# Log file           : $REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/vivado.log
+# Journal file       : $REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/vivado.jou
+# Running On         : <build-host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.350 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 83505 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/plant.tcl
+# set_param general.maxThreads 16
+# open_checkpoint {$REVIEWS/607-r383-1-packet/scratch/vivado-asl/route.dcp}
+Command: open_checkpoint $REVIEWS/607-r383-1-packet/scratch/vivado-asl/route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1450.707 ; gain = 7.938 ; free physical = 1575 ; free virtual = 78676
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.26 ; elapsed = 00:00:00.27 . Memory (MB): peak = 1983.621 ; gain = 0.000 ; free physical = 2041 ; free virtual = 79151
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2138.746 ; gain = 0.000 ; free physical = 2482 ; free virtual = 79647
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 2879.449 ; gain = 8.977 ; free physical = 3129 ; free virtual = 78976
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2881.449 ; gain = 2.000 ; free physical = 3121 ; free virtual = 78968
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2881.449 ; gain = 0.000 ; free physical = 3121 ; free virtual = 78968
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2959.738 ; gain = 78.289 ; free physical = 2242 ; free virtual = 78095
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2959.738 ; gain = 0.000 ; free physical = 2241 ; free virtual = 78094
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.53 . Memory (MB): peak = 2983.738 ; gain = 24.000 ; free physical = 2473 ; free virtual = 78329
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2983.738 ; gain = 113.266 ; free physical = 2469 ; free virtual = 78324
+Restored from archive | CPU: 4.300000 secs | Memory: 86.191376 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2983.738 ; gain = 113.266 ; free physical = 2468 ; free virtual = 78324
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3012.793 ; gain = 0.000 ; free physical = 2464 ; free virtual = 78323
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:28 ; elapsed = 00:00:19 . Memory (MB): peak = 3016.828 ; gain = 1579.027 ; free physical = 2451 ; free virtual = 78311
+# read_xdc wrong.xdc
+Parsing XDC File [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc]
+WARNING: [Vivado 12-627] No clocks matched 'wrong_clock_607'. [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc:1]
+INFO: [Vivado 12-626] No clocks found. Please use 'create_clock' or 'create_generated_clock' command to create clocks. [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc:1]
+CRITICAL WARNING: [Vivado 12-4739] set_max_delay:No valid object(s) found for '-from [get_clocks wrong_clock_607]'. [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc:1]
+Resolution: Check if the specified object(s) exists in the current design. If it does, ensure that the correct design hierarchy was specified for the object. If you are working with clocks, make sure create_clock was used to create the clock object before it is referenced.
+CRITICAL WARNING: [Designutils 20-1307] Command 'if' is not supported in the xdc constraint file. [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc:2]
+Finished Parsing XDC File [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc]
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 12:32:35 2026...

@@ -1,0 +1,27 @@
+== xdc checks (asl)
+crg_clkout         0
+mr_ff              0
+if {               0
+set_max_delay      1
+set_clock_groups   4
+set_false_path     1
+quasi_static       0
+== xdc exception lines
+542:set_multicycle_path 2 -setup -through [get_nets sys_rst]
+544:set_multicycle_path 1 -hold  -through [get_nets sys_rst]
+566:set_false_path -quiet -to [get_pins -filter {REF_PIN_NAME == PRE} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]]
+568:set_max_delay 2 -quiet -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE}]] -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {ars_ff2 == TRUE}]]
+570:set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets milan_clk]] -asynchronous
+572:set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets audio_clk]] -asynchronous
+574:set_clock_groups -group [get_clocks -of [get_nets sys_clk]] -group [get_clocks -of [get_nets milansoc_crg_clkin_signal]] -asynchronous
+576:set_clock_groups -group [get_clocks -of [get_nets milan_clk]] -group [get_clocks -of [get_nets audio_clk]] -asynchronous
+== tcl pre-optimize section
+# Add pre-optimize commands
+
+source {$LANES/607-xdc-clock-names/sw/litex/clock_constraints.tcl}
+kl_quasi_static_constraints
+milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]
+
+# Optimize design
+317:report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+318:report_exceptions -file alinx_ax7101_exceptions.rpt

@@ -1,0 +1,255 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 12:25:41 2026
+# Process ID         : 2533822
+# Current directory  : $REVIEWS/607-r383-1-packet/scratch/vivado-asl
+# Command line       : vivado -mode batch -nojournal -log probe.log -source $REVIEWS/607-r383-1-packet/probe_checkpoint.tcl -tclargs route.dcp probe $REVIEWS/r383-1-607/sw/litex/clock_constraints.tcl
+# Log file           : $REVIEWS/607-r383-1-packet/scratch/vivado-asl/probe.log
+# Journal file       : 
+# Running On         : <build-host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.350 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 82727 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $REVIEWS/607-r383-1-packet/probe_checkpoint.tcl
+# set_param general.maxThreads 8
+# lassign $argv checkpoint prefix hook
+# open_checkpoint $checkpoint
+Command: open_checkpoint route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1451.637 ; gain = 8.906 ; free physical = 3597 ; free virtual = 77852
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.28 . Memory (MB): peak = 1983.551 ; gain = 0.000 ; free physical = 3149 ; free virtual = 77512
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.14 . Memory (MB): peak = 2137.676 ; gain = 0.000 ; free physical = 2489 ; free virtual = 76856
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.09 . Memory (MB): peak = 2814.348 ; gain = 8.977 ; free physical = 542 ; free virtual = 74933
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2816.348 ; gain = 2.000 ; free physical = 525 ; free virtual = 74916
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2816.348 ; gain = 0.000 ; free physical = 524 ; free virtual = 74915
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2894.637 ; gain = 78.289 ; free physical = 401 ; free virtual = 74491
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2894.637 ; gain = 0.000 ; free physical = 401 ; free virtual = 74491
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.59 . Memory (MB): peak = 2919.637 ; gain = 25.000 ; free physical = 651 ; free virtual = 74578
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2919.637 ; gain = 114.266 ; free physical = 625 ; free virtual = 74551
+Restored from archive | CPU: 3.600000 secs | Memory: 86.191612 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2919.637 ; gain = 114.266 ; free physical = 620 ; free virtual = 74547
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2947.691 ; gain = 0.000 ; free physical = 442 ; free virtual = 74040
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:26 ; elapsed = 00:00:20 . Memory (MB): peak = 2955.727 ; gain = 1514.996 ; free physical = 860 ; free virtual = 74458
+# set out [open ${prefix}_summary.txt w]
+# proc say {msg} { global out; puts $out $msg; puts "PROBE: $msg" }
+# set eth [get_clocks -of_objects [get_ports eth_clocks0_rx]]
+# set sys [get_clocks -of_objects [get_nets sys_clk]]
+# set milan [get_clocks -of_objects [get_nets milan_clk]]
+# say "clocks eth=$eth sys=$sys milan=$milan all=[lsort [get_clocks]]"
+PROBE: clocks eth=eth_clocks0_rx sys=milansoc_crg_clkout0 milan=milansoc_crg_clkout1 all=clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+# foreach corner {Slow Fast} {
+#     foreach c {Slow Fast} {
+#         config_timing_corners -corner $c -delay_type [expr {$c eq $corner ? "min_max" : "none"}]
+#     }
+#     update_timing -full
+#     set s [lindex [get_timing_paths -delay_type max -max_paths 1] 0]
+#     set h [lindex [get_timing_paths -delay_type min -max_paths 1] 0]
+#     say "corner=$corner WNS=[get_property SLACK $s] from=[get_property STARTPOINT_PIN $s] to=[get_property ENDPOINT_PIN $s] req=[get_property REQUIREMENT $s]"
+#     say "corner=$corner WHS=[get_property SLACK $h]"
+#     report_timing -delay_type max -max_paths 1 -significant_digits 6 -file ${prefix}_${corner}_wns_6digit.rpt
+# }
+update_timing: Time (s): cpu = 00:00:29 ; elapsed = 00:00:06 . Memory (MB): peak = 3164.410 ; gain = 208.684 ; free physical = 2839 ; free virtual = 75426
+PROBE: corner=Slow WNS=0.034 from=milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[5]/C to=milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[0]/D req=20.000
+PROBE: corner=Slow WHS=0.123
+WARNING: [Vivado 12-2333] specified value '6' for -significant_digits is out of range, valid range is 0-3. This value will be ignored and value of 3 will be assumed.
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+PROBE: corner=Fast WNS=1.567 from=FDPE_16/C to=FDPE_17/D req=2.000
+PROBE: corner=Fast WHS=0.022
+WARNING: [Vivado 12-2333] specified value '6' for -significant_digits is out of range, valid range is 0-3. This value will be ignored and value of 3 will be assumed.
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+# foreach c {Slow Fast} {config_timing_corners -corner $c -delay_type min_max}
+# update_timing -full
+# report_cdc -from $eth -to [list $sys $milan] -details -file ${prefix}_cdc_eth_to_part.rpt
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# report_cdc -from [list $sys $milan] -to $eth -details -file ${prefix}_cdc_part_to_eth.rpt
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# report_cdc -details -file ${prefix}_cdc_all.rpt
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# report_clock_interaction -delay_type min_max -file ${prefix}_interaction.rpt
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -from $eth -to [list $sys $milan] -file ${prefix}_exc_eth_to_part.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:31 ; elapsed = 00:00:07 . Memory (MB): peak = 3269.785 ; gain = 14.875 ; free physical = 1859 ; free virtual = 75087
+# report_exceptions -from [list $sys $milan] -to $eth -file ${prefix}_exc_part_to_eth.rpt
+# check_timing -verbose -file ${prefix}_check_timing.rpt
+# proc bounded {from to} {
+#     set paths [get_timing_paths -from $from -to $to -delay_type max -max_paths 100000 -nworst 1 -unique_pins]
+#     set n [llength $paths]; set bad 0; set worst 1e9
+#     foreach p $paths {
+#         if {[get_property REQUIREMENT $p] != 8.0} {incr bad}
+#         set sl [get_property SLACK $p]
+#         if {$sl < $worst} {set worst $sl}
+#     }
+#     return "paths=$n non8req=$bad worst=$worst"
+# }
+# foreach {label from to} [list eth_sys $eth $sys sys_eth $sys $eth eth_milan $eth $milan milan_eth $milan $eth] {
+#     say "bound $label [bounded $from $to]"
+# }
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+get_timing_paths: Time (s): cpu = 00:00:22 ; elapsed = 00:00:05 . Memory (MB): peak = 3273.754 ; gain = 3.969 ; free physical = 2553 ; free virtual = 76123
+PROBE: bound eth_sys paths=13 non8req=0 worst=6.597
+PROBE: bound sys_eth paths=12 non8req=0 worst=6.742
+PROBE: bound eth_milan paths=50 non8req=0 worst=6.293
+PROBE: bound milan_eth paths=6 non8req=0 worst=6.664
+# set_false_path -quiet -to [get_cells -hierarchical -filter {mr_ff == TRUE}]
+# update_timing -full
+# foreach {label from to} [list eth_sys $eth $sys sys_eth $sys $eth eth_milan $eth $milan milan_eth $milan $eth] {
+#     say "after_generic_mask bound $label [bounded $from $to]"
+# }
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+PROBE: after_generic_mask bound eth_sys paths=13 non8req=13 worst=
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+PROBE: after_generic_mask bound sys_eth paths=16 non8req=16 worst=
+PROBE: after_generic_mask bound eth_milan paths=50 non8req=0 worst=6.293
+PROBE: after_generic_mask bound milan_eth paths=6 non8req=0 worst=6.664
+# report_clock_interaction -delay_type min_max -file ${prefix}_interaction_after_generic_mask.rpt
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+# source $hook
+## proc kl_quasi_static_constraints {} {
+##     set cells [get_cells -hierarchical -quiet -filter {quasi_static == "yes"}]
+##     if {[llength $cells]} {
+##         set_multicycle_path 4 -setup -from $cells
+##         set_multicycle_path 3 -hold -from $cells
+##     }
+##     puts "CONSTRAINTS: quasi_static cells=[llength $cells] setup=4 hold=3"
+## }
+## proc kl_net_clock {name} {
+##     set clocks [get_clocks -of_objects [get_nets $name]]
+##     if {[llength $clocks] != 1} {
+##         error "CONSTRAINTS: expected one clock on net $name, got $clocks"
+##     }
+##     return $clocks
+## }
+## proc milan_eth_constraints {eth_port part_nets other_nets} {
+##     set eth [get_clocks -of_objects [get_ports $eth_port]]
+##     if {[llength $eth] != 1} {
+##         error "CONSTRAINTS: expected one clock on port $eth_port, got $eth"
+##     }
+##     set part {}
+##     foreach net $part_nets {lappend part [kl_net_clock $net]}
+##     set other {}
+##     foreach net $other_nets {lappend other [kl_net_clock $net]}
+## 
+##     # Restore LiteX's MultiReg exception everywhere except the bounded pairs.
+##     # Destination classes follow the register clock, including reset-extended
+##     # aliases. No hierarchy spelling or per-register waiver selects a crossing.
+##     set eth_mr {}; set part_mr {}; set other_mr {}
+##     foreach cell [get_cells -hierarchical -quiet -filter {mr_ff == TRUE}] {
+##         set clocks [get_clocks -of_objects [get_pins -of_objects $cell -filter {IS_CLOCK == 1}]]
+##         if {[llength $clocks] != 1} {
+##             error "CONSTRAINTS: expected one MultiReg clock for $cell, got $clocks"
+##         }
+##         if {$clocks in $eth} {
+##             lappend eth_mr $cell
+##         } elseif {$clocks in $part} {
+##             lappend part_mr $cell
+##         } else {
+##             lappend other_mr $cell
+##         }
+##     }
+##     foreach {targets excluded} [list $eth_mr $part $part_mr $eth] {
+##         if {![llength $targets]} {continue}
+##         set sources {}
+##         foreach clock [get_clocks] {
+##             if {$clock ni $excluded} {lappend sources $clock}
+##         }
+##         if {[llength $sources]} {set_false_path -from $sources -to $targets}
+##         # Asynchronous board inputs retain the original synchronizer exception.
+##         set inputs [all_inputs]
+##         if {[llength $inputs]} {set_false_path -from $inputs -to $targets}
+##     }
+##     if {[llength $other_mr]} {set_false_path -to $other_mr}
+## 
+##     # Keep LiteX's PRE-pin asynchronous-assert exceptions and its 2 ns
+##     # inter-stage reset bound. The 8 ns budget covers data crossings, not
+##     # asynchronous reset assertion. Hold has no phase meaning on either pair.
+##     # An unbounded Ethernet synchronizer route previously caused a warm-die
+##     # receive failure; #607 makes that placement-dependent delay visible to STA.
+##     foreach clock $part {
+##         set_false_path -hold -from $eth -to $clock
+##         set_max_delay 8.000 -datapath_only -from $eth -to $clock
+##         set_false_path -hold -from $clock -to $eth
+##         set_max_delay 8.000 -datapath_only -from $clock -to $eth
+##     }
+##     if {[llength $other]} {
+##         set_clock_groups -asynchronous -group $eth -group $other
+##     }
+##     puts "CONSTRAINTS: eth=$eth bounded=$part async=$other budget_ns=8.000"
+##     puts "CONSTRAINTS: MultiReg eth=[llength $eth_mr] part=[llength $part_mr] other=[llength $other_mr]"
+## }
+# foreach {label cmd} {
+#     wrong_port {milan_eth_constraints eth_clocks9_rx [list milansoc_crg_clkout0] [list]}
+#     wrong_net  {milan_eth_constraints eth_clocks0_rx [list crg_clkout0] [list]}
+#     wrong_other {milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0] [list crg_clkout4]}
+# } {
+#     set rc [catch $cmd msg]
+#     say "hook $label rc=$rc msg=[string range $msg 0 200]"
+# }
+WARNING: [Vivado 12-584] No ports matched 'eth_clocks9_rx'.
+WARNING: [Vivado 12-1008] No clocks found for command 'get_clocks -of_objects [get_ports eth_clocks9_rx]'.
+Resolution: Verify the create_clock command was called to create the clock object before it is referenced.
+INFO: [Vivado 12-626] No clocks found. Please use 'create_clock' or 'create_generated_clock' command to create clocks.
+PROBE: hook wrong_port rc=1 msg=CONSTRAINTS: expected one clock on port eth_clocks9_rx, got 
+WARNING: [Vivado 12-507] No nets matched 'crg_clkout0'.
+WARNING: [Vivado 12-1008] No clocks found for command 'get_clocks -of_objects [get_nets crg_clkout0]'.
+Resolution: Verify the create_clock command was called to create the clock object before it is referenced.
+INFO: [Vivado 12-626] No clocks found. Please use 'create_clock' or 'create_generated_clock' command to create clocks.
+PROBE: hook wrong_net rc=1 msg=CONSTRAINTS: expected one clock on net crg_clkout0, got 
+WARNING: [Vivado 12-507] No nets matched 'crg_clkout4'.
+WARNING: [Vivado 12-1008] No clocks found for command 'get_clocks -of_objects [get_nets crg_clkout4]'.
+Resolution: Verify the create_clock command was called to create the clock object before it is referenced.
+INFO: [Vivado 12-626] No clocks found. Please use 'create_clock' or 'create_generated_clock' command to create clocks.
+PROBE: hook wrong_other rc=1 msg=CONSTRAINTS: expected one clock on net crg_clkout4, got 
+# close $out
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 12:26:45 2026...

@@ -1,0 +1,13 @@
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+[constraints] $REVIEWS/607-r383-1-packet/scratch/tmp/constraint-log-fuoag28g/vivado.log: no 12-4739 or 20-1307 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+constraint application failed (#607):
+$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/vivado.log:79: CRITICAL WARNING: [Vivado 12-4739] set_max_delay:No valid object(s) found for '-from [get_clocks wrong_clock_607]'. [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc:1]
+$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/vivado.log:81: CRITICAL WARNING: [Designutils 20-1307] Command 'if' is not supported in the xdc constraint file. [$REVIEWS/607-r383-1-packet/scratch/tmp/constraint-live-sogwr7nw/wrong.xdc:2]
+[constraints] live wrong clock and unsupported XDC control: vendor rc=0, build gate REFUSED

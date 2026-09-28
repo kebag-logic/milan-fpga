@@ -1,0 +1,38 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Sep 28 12:26:21 2026
+| Host         : <build-host> running 64-bit unknown
+| Command      : report_cdc -from [list [get_clocks -of_objects [get_nets sys_clk]] [get_clocks -of_objects [get_nets milan_clk]]] -to [get_clocks -of_objects [get_ports eth_clocks0_rx]] -details -file probe_cdc_part_to_eth.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CDC Report
+
+ID      Severity  Count  Description
+------  --------  -----  --------------------------------------------------
+CDC-10  Critical      6  Combinational logic detected before a synchronizer
+
+Source Clock: milansoc_crg_clkout0
+Destination Clock: eth_clocks0_rx
+CDC Type: No Common Primary Clock
+
+Row  ID      Severity  Description                                         Depth  Exception   Source (From)                     Destination (To)
+---  ------  --------  --------------------------------------------------  -----  ----------  --------------------------------  ----------------
+  1  CDC-10  Critical  Combinational logic detected before a synchronizer      2  False Path  milansoc_phy_reset_storage_reg/C  FDPE_12/PRE
+  2  CDC-10  Critical  Combinational logic detected before a synchronizer      2  False Path  milansoc_phy_reset_storage_reg/C  FDPE_14/PRE
+
+Source Clock: milansoc_crg_clkout1
+Destination Clock: eth_clocks0_rx
+CDC Type: No Common Primary Clock
+
+Row  ID      Severity  Description                                         Depth  Exception   Source (From)                              Destination (To)
+---  ------  --------  --------------------------------------------------  -----  ----------  -----------------------------------------  ----------------
+  1  CDC-10  Critical  Combinational logic detected before a synchronizer      2  False Path  milan_datapath/link_guard/eth_rst_r_reg/C  FDPE_12/PRE
+  2  CDC-10  Critical  Combinational logic detected before a synchronizer      2  False Path  milan_datapath/link_guard/eth_rst_r_reg/C  FDPE_14/PRE
+  3  CDC-10  Critical  Combinational logic detected before a synchronizer      2  False Path  milan_datapath/link_guard/eth_rst_r_reg/C  FDPE_18/PRE
+  4  CDC-10  Critical  Combinational logic detected before a synchronizer      2  False Path  milan_datapath/link_guard/eth_rst_r_reg/C  FDPE_20/PRE
+
