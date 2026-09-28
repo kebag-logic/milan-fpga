@@ -1281,10 +1281,11 @@ UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
 scope D2 landed. Issue #502 makes accepted live writes sticky instead.
 They still lack a writer, which is the same UNRESOLVED 1.
 
-A writer for every NONE row is proposed on its own page,
-[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500,
-PROPOSED): one processor-side record writer behind the same port, so this
-contract applies to its records unchanged.
+The non-binding writer contract is accepted under #70 lane 0.
+[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) owns its live-write groups and retirement.
+It uses one processor-side writer behind the same port.
+This snapshot contract applies unchanged to those records.
+SUID/MCR reservations stay erased; implementation remains open.
 
 ## 12. The section 9.2 revocation discrepancy
 
@@ -1400,14 +1401,13 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   [section 12.1](SAVED_STATE_FASTCONNECT.md#121-the-inventory-derived-from-the-donor)
   of the saved-state page.
 
-**D3, materialization of the non-binding fields. STILL OPEN** -- the only
-donor dependency of this contract that is. Not settled here and not
-only an interface: a record writer must exist for every NONE row of section
-11 before those fields can reach a slot at all. Whether it is a donor-side
-manager per group or a parent-side writer behind a second device-face
-initiator is its own scope: UNRESOLVED 1. Its proposal, one donor-side
-writer for every group behind the one port, is
-[Saved-state materialization, section 3](SAVED_STATE_MATERIALIZATION.md#3-decision).
+**D3, materialization: ACCEPTED contract; implementation STILL OPEN.**
+The [D3 decision](SAVED_STATE_MATERIALIZATION.md#3-decision) chooses one processor-side writer.
+It shares the existing port with the binding manager.
+Its [trigger table](SAVED_STATE_MATERIALIZATION.md#31-accepted-live-write-groups) supersedes mark-based selection.
+Its [retirement rule](SAVED_STATE_MATERIALIZATION.md#7-the-clear-rule) replaces sticky sources stage by stage.
+Neither adoption nor pending reporting proves those fields persist.
+Reserved SUID/MCR spans remain erased, without a mutable source.
 
 **No donor dependency** for the hold (KL_pp_nvm_port holds dev_req_o until
 dev_gnt_i by its own stated contract and has no grant timeout; EXECUTED with
@@ -1753,8 +1753,9 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    sampling rate, clock source, stream formats, presentation time offset,
    channel maps or names at the current source; only bindings have a writer.
    The pending bit reports the dynamic-state fields truthfully (1 until
-   reset); making them durable needs scope D3, which is proposed in
-   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500).
+   reset); making them durable needs the accepted D3 contract in
+   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md), under #70.
+   Its implementation remains open; its policy register awaits rulings.
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
    `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
