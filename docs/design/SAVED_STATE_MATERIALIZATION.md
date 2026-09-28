@@ -12,8 +12,8 @@
 > the clock source, the stream formats in and out, the presentation time
 > offset, the channel maps and the user names into NVM records, and how they
 > come back at boot. Adoption supplies no implementation evidence.
-> Section 15 records choices awaiting manager rulings.
-> Affected implementation work waits for those rulings.
+> Section 15 records the manager's selected policies.
+> DR3a requires measured deadline ratification before lane 2 implements.
 > Section 18 defines the subsequent child contracts.
 >
 > **Revision d** answers the round-three contract reviews of this page at
@@ -65,7 +65,7 @@ names are the ones the run script grades.
 Explicit #502 notes describe the current reporting correction.
 Sections 3 through 13 define the accepted D3 architecture.
 Prototype measurements retain their historical source and limitations.
-Section 15 separates accepted rules from proposed policy values.
+Section 15 records ruled policies and remaining measurement obligations.
 Section 17 assigns each acceptance line its normative home.
 
 The reconciliation baseline is parent `c07232228c12b72805dd20e6852bf93f25794da0`.
@@ -135,7 +135,7 @@ number is this page's.
 - **[12. Cost](#12-cost)** -- Measured area, derived latency and time.
 - **[13. Consequences](#13-consequences)** -- What the decision changes and costs.
 - **[14. The executable model and its omissions](#14-the-executable-model-and-its-omissions)** -- What is real, what is a model, the process controls, the totals.
-- **[15. UNRESOLVED](#15-unresolved)** -- Current prerequisite dispositions, proposed manager rulings and processor documentation edits.
+- **[15. UNRESOLVED](#15-unresolved)** -- Current prerequisite dispositions, manager rulings and processor documentation edits.
 - **[16. Traceability](#16-traceability)** -- Milan clauses, the saved-state acceptance, issue #500's items, the review findings.
 - **[17. Acceptance reconciliation](#17-acceptance-reconciliation)** -- Every FASTCONNECT acceptance line, its authority and remaining evidence.
 - **[18. Child-lane contracts](#18-child-lane-contracts)** -- Lanes 1-5: acceptance, negative controls, dependencies and physical results.
@@ -421,10 +421,10 @@ Command-completion marks remain notification effects, without record-selection a
 Their historical inventory remains FASTCONNECT section 12.1.
 
 An accepted storage change must always become pending.
-Unchanged writes raise the separate wear-policy question DR2b.
+DR2b permits suppressing only proven unchanged persisted projections.
 The phase-5 event identifies where map changes become accountable.
-It does not settle whether unchanged commits cause redundant writes.
-No implementation may choose that policy privately.
+DR2b requires equality evidence before suppressing unchanged commits.
+Its negative control must detect a lost real change.
 Existing #502 reporting remains until each replacement proves equivalent coverage.
 Prototype observation tolerances do not relax accepting-edge reporting.
 
@@ -718,7 +718,7 @@ bind_end    = NOT own_lsn   (live ACMP work; the D3 walk's go; restore_done)
 
 The prototype uses a first-change debounce window of `DEB_TICKS_P`.
 Its close arms one burst that drains every eligible record.
-DR2a governs the product policy and its unratified values.
+DR2a governs the ruled product windows and required measurements.
 
 ### 6.4 Two managers, one port
 
@@ -1376,6 +1376,13 @@ writer holds the state bus only across on-chip faces (section 12's latch
 windows), and a flush that waits on the port holds nothing but its record's
 dirty bit.
 
+**Product acceptance.** DR3a sets the initial product budget candidates.
+Lane 1 measures the per-wait and aggregate intervals.
+The manager ratifies or revises both before lane 2 implements.
+The aggregate includes both walks and rollback to a terminal.
+Section 15.1 owns the values and required measurement evidence.
+These budgets never permit early enable or unsafe port reuse.
+
 **The abandoned read.** An abort while the port serves the writer's read
 raises `m_abort`, and the binding manager's deadline raises `m0_abort`; the
 arbiter DRAINS that read (section 6.4). Its bytes and its ending reach no
@@ -1743,7 +1750,8 @@ Its decision-register gates govern activation of those lanes.
   The historical K16 evidence below exercised the old allocation.
   Permanent pending still does not satisfy persistence.
 - **Work permitted before release:** the contract supports stages 1 and 2.
-  Implementation waits for the affected section 15.1 rulings.
+  Section 15.1 records the manager's rulings.
+  DR3a still gates lane 2 on measured deadline ratification.
   Their release preserves the landed #502 reporting correction.
   Map design evidence may proceed at 1x1.
   Its 17-entry record fits all 16 legal stream channels.
@@ -1779,7 +1787,10 @@ Stage 3 transfers maps and removes both remaining terms.
 
 Each lane owes its own area comparison under DR4.
 Section 12 measures historical prototypes, not stage implementation budgets.
-The older both-shape post-place obligation remains open pending ruling.
+Shipping area acceptance is now limited to 1x1 TDM8.
+The 8x8 retains synthesis diagnostics and its post-place obligation.
+That obligation remains open and blocked, never waived.
+The 8x8 remains non-shipping until it fits (#584/#229).
 
 The T1-T9 labels above name historical design ticket drafts.
 T5/#501 and T6/#502 landed through #557 and #579.
@@ -1787,7 +1798,7 @@ T8 became processor #92/#93, implemented by #109.
 T9 became processor #94, implemented by #110.
 Do not create duplicate prerequisite implementations from those drafts.
 Section 18 defines the current five implementation lanes.
-Section 15 retains the separate #15/#20 disposition and area questions.
+Section 15 records #15/#20 dispositions and the ruled area scope.
 
 ## 11. Alternatives rejected
 
@@ -2107,10 +2118,10 @@ DR2a and DR3a require measured, explicitly scoped product budgets.
 ## 15. UNRESOLVED
 
 The [status audit](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328) requires these rulings.
-The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) permits proposed defaults here.
-Adoption settles architecture, without selecting these remaining policies.
-No proposed default below is an implementation authorization.
-Affected child work stays blocked until its ruling is public.
+The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) required proposed defaults.
+The [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862405632) now selects those defaults.
+Implementation and evidence obligations below remain open.
+DR3a retains deadline ratification before lane 2 implements.
 
 Existing numbered references retain these dispositions:
 
@@ -2123,27 +2134,30 @@ Existing numbered references retain these dispositions:
 3. **RESOLVED: reporting under #502.** #579 landed accepting-edge reporting.
    Names and actual map writes remain sticky until reset.
    Section 10 transfers that responsibility only with materialization.
-4. **OPEN: processor #15 reusable-port acceptance.** DR1 requires manager disposition.
+4. **OPEN: processor #15 reusable-port acceptance.** DR1a requires full-closure evidence.
+   Contract work and lanes 1-4 may proceed meanwhile.
    Quarantine supplies containment, never evidence that reuse works.
 5. **Landed prerequisites, incomplete integration.** Processor #109 supplies S1/S3/S4.
    Processor #110 supplies S2's descriptor memory guard.
    Both are contained in processor pin `16be6768`.
    D3 still needs the guard's debt and ownership connections.
    Processor #20 remains open despite the landed cause distinction.
-   Its issue text and exact-head tests require reconciliation under DR1.
-6. **OPEN: debounce, coalescing and loss policy.** See DR2a.
+   Its issue text and exact-head tests require reconciliation under DR1b.
+6. **RULED: debounce, coalescing and loss policy.** DR2a requires measurements.
 7. **Implementation owed: value-rule parity.** Section 8.3 owns replay validation.
    Reuse the SET rules or prove independent parity tests.
    Replacing this architecture with command replay needs another decision.
-8. **OPEN: measured boot and recovery deadlines.** See DR3a/DR3b.
+8. **OPEN: measured deadline ratification.** DR3a assigns lane 1 measurement.
+   Both numbers need manager ratification before lane 2 implements.
+   DR3b selects coupled resets until O4 is physically proven.
    A no-progress timeout is not a whole-boot deadline.
-9. **OPEN: stage budgets and comparison scope.** See DR4.
+9. **RULED: stage budgets and comparison scope.** See DR4.
    Prototype area is not an integrated delta.
 10. **Reserved inventory stays erased.** SUID/MCR have no mutable source.
     DR5 covers future inventory and migration choices.
-11. **OPEN: identical writes and unchanged map beats.** See DR2b.
-    #502's actual-change reporting does not settle D3 wear policy.
-12. **OPEN: retry/backoff and alarm recovery.** See DR2c.
+11. **RULED: identical writes and unchanged map beats.** See DR2b.
+    Suppress only proven unchanged persisted projections.
+12. **RULED: retry/backoff and alarm recovery.** See DR2c.
     The accepted safety rule always revokes backing on abandonment.
 13. **Accepted command holds.** Sections 8.1/8.8 own the release rules.
     Their product-time acceptance awaits DR3a's measured budgets.
@@ -2159,23 +2173,26 @@ Existing numbered references retain these dispositions:
 
 ### 15.1 Manager decision register
 
-Every row is **PROPOSED - awaiting manager ruling**.
-A ruling must name its selected option and affected lanes.
-Record measurable limits before those lanes enter implementation.
-Existing requirements remain binding while proposals await that ruling.
+Every row is **RULED** by the [manager decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862405632).
+The selected-option column reproduces that ruling exactly.
+The manager adopted each proposed default, subject to stated qualifications.
+The rulings apply to lanes 1-5 unless stated otherwise.
+DR3a requires lane 1 measurements before lane 2 implements.
+The manager must then ratify or revise both deadline numbers.
+Existing requirements and outstanding implementation evidence remain binding.
 
-| ID and status | Options and consequences | Proposed default and required evidence |
-|---|---|---|
-| DR1a: #15 closure prerequisite. **PROPOSED - awaiting manager ruling** | Require reusable service after silence: needs acknowledged cancellation/reset. Alternatively, explicitly accept reset-required persistence failure for #70. That leaves processor #15 open and requires a public acceptance amendment. | Require #15's unchanged criterion before full #70 closure. Independent contract work may continue. Demonstrate bounded error, busy release, and a later successful operation; reject late-response reassignment. Never equate DEFAULTS service with reusable persistence. |
-| DR1b: #20 reconciliation. **PROPOSED - awaiting manager ruling** | Reconcile the existing issue against landed DEVICE/UNFRAMED semantics. Alternatively, implement its original manager-only err/done split, which misclassifies erased headers. | Retain the landed cause interface. Have the processor reviewer reconcile #20 and rerun its acceptance at the selected pin. Prove zero-byte DEVICE failure, clean blank defaults, and existing A2/F4/G2 behavior. Keep #20 open until its own review and containment. |
-| DR2a: debounce and loss. **PROPOSED - awaiting manager ruling** | A first-change window bounds coalescing under continued traffic. Restarting a quiet-period timer coalesces longer bursts but can postpone saving indefinitely. Per-command writes increase wear. | Start with 500 ms producer and 1,000 ms firmware first-dirty windows. Drain one eligible burst per producer window. Measure command sweeps, final-value convergence and erases. Cuts before verified promotion may lose unsaved changes; the last verified snapshot survives. Publish measured normal-load acceptance-to-durable time, separately from failure/backpressure. No unconditional 1.5-second durability promise. |
-| DR2b: identical writes. **PROPOSED - awaiting manager ruling** | Conservative live-write/phase-5 triggers can rewrite identical values. Change-qualified triggers suppress wear but need exact comparisons, including validity and full name/map content. | Suppress only proven unchanged persisted projections. A default-valued scalar becoming valid still changes that projection. Preserve every actual accepted write, including writes before a later command abort. Prove repeated identical names/maps/scalars cause no new flash erase after convergence; mutate the comparison to lose a real change. |
-| DR2c: retries and alarms. **PROPOSED - awaiting manager ruling** | Bounded immediate retries minimize recovery delay but repeat pressure. Backoff lowers pressure but lengthens the loss window. Automatic forgiveness risks clearing evidence of an abandoned change. | Propose at most three write attempts per record, relatching each time, separated by 500 ms. Specify attempts versus retries explicitly. Propose at most three firmware transaction attempts per unchanged captured work set, separated by 1,000 ms. After exhaustion, keep the alarm until reset. Never ACK a failed slot or forgive producer loss on heartbeat. These limits do not solve an operation that never ends; DR1a governs that case. Measure error bursts and erase amplification. |
-| DR3a: boot/recovery budgets. **PROPOSED - awaiting manager ruling** | Reuse a 20 ms per-wait prototype value without measurement, or derive clocks from worst supported product latency and impose a separate aggregate budget. Only the latter measures whole-boot service. | Use 20 ms as the initial per-wait candidate, then prove it exceeds the image walk and largest record transaction. Record `ceil(core_hz * timeout_ms / 1000)` and clock ratios. Propose a 1,000 ms aggregate budget from accepted `PP_CTRL[1]` to COMPLETE, DEFAULTS or CLOSED, including rollback. Ratify or revise from product measurements before implementation. Firmware's wait never overrides fabric enable. Release deadlines remain REQUIREMENTS section 8, including the provisional 30-second restoration ceiling. |
-| DR3b: boot failures and restart premise. **PROPOSED - awaiting manager ruling** | Prove CPU-only restart retains the window and ownership under O4, or couple every CPU reset to a fabric reset. The former needs physical retention evidence; the latter loses live volatile state and reruns cold initialization. | Prefer coupled resets until O4 is physically proven. Preserve O1's sole control writer, O2's fabric-to-CPU reset, and O3's admission order. Load and CRC-check AEM before descriptor-dependent restore. On a shape failure, disable persistence but start the failure/default walk when fabric identity is valid. On an unprovable AEM image, reach CLOSED. Prove all cold paths reach a terminal; never bypass restore on a firmware timeout. No runtime reload may erase producer ownership. |
-| DR4: area and comparison. **PROPOSED - awaiting manager ruling** | Retain both-shape post-place acceptance, which blocks 8x8 delivery until it fits; or explicitly narrow shipping acceptance to 1x1 while retaining 8x8 synthesis diagnostics and its blocked placement obligation. | Propose the stage budgets below and the latter scope, subject to an explicit manager amendment. The existing both-shape obligation remains open meanwhile. Measure matched before/after heads, generated inventory, clocks, device, directives, seeds and corrected #607 constraints. Include LUTRAM, FF, BRAM, DSP, WNS and firmware size. The historical 781-LUT backend figure is not a D3 budget. |
-| DR5: inventory and migration. **PROPOSED - awaiting manager ruling** | Reject incompatible old images with explicit defaults, or implement a versioned migration with an independently verified converter. Silent reinterpretation can restore another field's bytes. | Retain the current exact inventory and flat IDs. Keep SUID/MCR spans deliberately erased. Preserve compatible binding-plus-erased images without a layout change. Refuse incompatible identity, shape or layout by existing KLJ2 rules; never erase old slots merely on refusal. A future added source, descriptor/name growth or layout change needs a public migration/default decision and new goldens. #584 remains separately parked. |
-| DR6: final-image sequencing. **PROPOSED - awaiting manager ruling** | Compose merged dependencies before measurement, or measure intermediate heads and repeat all affected evidence later. The latter costs reruns and cannot qualify the final image. | Follow the manager's lane order 1 through 5. Lanes 2-5 follow firmware PR #609, #602/PR #603, #607 and the selected merged processor #129/#130 revisions. Record the actual merge/pin identities before integration. Reconcile any exclusion publicly; open PR heads are not prerequisites satisfied. Final service, capture, area and cold-cycle evidence all name the same composed image. |
+| ID and status | Options and consequences | Selected option (manager ruling) | Adopted default and required evidence |
+|---|---|---|---|
+| DR1a: #15 closure prerequisite. **RULED** | Require reusable service after silence: needs acknowledged cancellation/reset. Alternatively, explicitly accept reset-required persistence failure for #70. That leaves processor #15 open and requires a public acceptance amendment. | #15's unchanged criterion (bounded error, busy release, a later successful operation; late responses never reassigned) is required before **full** #70 closure. Contract work and lanes 1-4 may proceed meanwhile. DEFAULTS service is never counted as reusable persistence. | Require #15's unchanged criterion before full #70 closure. Contract work and lanes 1-4 may proceed meanwhile. Demonstrate bounded error, busy release, and a later successful operation; reject late-response reassignment. Never equate DEFAULTS service with reusable persistence. |
+| DR1b: #20 reconciliation. **RULED** | Reconcile the existing issue against landed DEVICE/UNFRAMED semantics. Alternatively, implement its original manager-only err/done split, which misclassifies erased headers. | Keep the landed cause interface. The processor reviewer reconciles #20 at the selected pin, and #20 stays open until its own review. | Retain the landed cause interface. Have the processor reviewer reconcile #20 and rerun its acceptance at the selected pin. Prove zero-byte DEVICE failure, clean blank defaults, and existing A2/F4/G2 behavior. Keep #20 open until its own review and containment. |
+| DR2a: debounce and loss. **RULED** | A first-change window bounds coalescing under continued traffic. Restarting a quiet-period timer coalesces longer bursts but can postpone saving indefinitely. Per-command writes increase wear. | 500 ms producer and 1,000 ms firmware first-dirty windows. Each lane that implements a writer publishes a measured acceptance-to-durable time under normal load. No unconditional durability promise. | Use 500 ms producer and 1,000 ms firmware first-dirty windows. Drain one eligible burst per producer window. Measure command sweeps, final-value convergence and erases. Cuts before verified promotion may lose unsaved changes; the last verified snapshot survives. Each lane implementing a writer publishes measured normal-load acceptance-to-durable time, separately from failure/backpressure. No unconditional 1.5-second durability promise. |
+| DR2b: identical writes. **RULED** | Conservative live-write/phase-5 triggers can rewrite identical values. Change-qualified triggers suppress wear but need exact comparisons, including validity and full name/map content. | Suppress only proven unchanged persisted projections. Every real accepted write persists, and a mutant that loses a real change is killed. | Suppress only proven unchanged persisted projections. A default-valued scalar becoming valid still changes that projection. Preserve every actual accepted write, including writes before a later command abort. Prove repeated identical names/maps/scalars cause no new flash erase after convergence; mutate the comparison to lose a real change. |
+| DR2c: retries and alarms. **RULED** | Bounded immediate retries minimize recovery delay but repeat pressure. Backoff lowers pressure but lengthens the loss window. Automatic forgiveness risks clearing evidence of an abandoned change. | At most 3 write attempts per record, 500 ms apart, and at most 3 firmware transaction attempts per work set, 1,000 ms apart. The alarm stays until reset; a failed slot is never ACKed. | Use at most three write attempts per record, relatching each time, separated by 500 ms. Specify attempts versus retries explicitly. Use at most three firmware transaction attempts per unchanged captured work set, separated by 1,000 ms. After exhaustion, keep the alarm until reset. Never ACK a failed slot or forgive producer loss on heartbeat. These limits do not solve an operation that never ends; DR1a governs that case. Measure error bursts and erase amplification. |
+| DR3a: boot/recovery budgets. **RULED** | Reuse a 20 ms per-wait prototype value without measurement, or derive clocks from worst supported product latency and impose a separate aggregate budget. Only the latter measures whole-boot service. | 20 ms per wait as the initial candidate and a 1,000 ms aggregate from `PP_CTRL[1]` to a terminal state. Lane 1 measures; **the manager ratifies or revises both numbers before lane 2 implements**. | Use 20 ms as the initial per-wait candidate, then prove it exceeds the image walk and largest record transaction. Record `ceil(core_hz * timeout_ms / 1000)` and clock ratios. Use an initial 1,000 ms aggregate budget from accepted `PP_CTRL[1]` to COMPLETE, DEFAULTS or CLOSED, including rollback. Lane 1 measures; the manager ratifies or revises both numbers before lane 2 implements. Firmware's wait never overrides fabric enable. Release deadlines remain REQUIREMENTS section 8, including the provisional 30-second restoration ceiling. |
+| DR3b: boot failures and restart premise. **RULED** | Prove CPU-only restart retains the window and ownership under O4, or couple every CPU reset to a fabric reset. The former needs physical retention evidence; the latter loses live volatile state and reruns cold initialization. | Coupled CPU and fabric resets until O4 retention is physically proven. AEM is loaded and CRC-checked before descriptor-dependent restore, and every cold path reaches a terminal state. | Couple CPU and fabric resets until O4 retention is physically proven. Preserve O1's sole control writer, O2's fabric-to-CPU reset, and O3's admission order. Load and CRC-check AEM before descriptor-dependent restore. On a shape failure, disable persistence but start the failure/default walk when fabric identity is valid. On an unprovable AEM image, reach CLOSED. Prove all cold paths reach a terminal; never bypass restore on a firmware timeout. No runtime reload may erase producer ownership. |
+| DR4: area and comparison. **RULED** | Retain both-shape post-place acceptance, which blocks 8x8 delivery until it fits; or explicitly narrow shipping acceptance to 1x1 while retaining 8x8 synthesis diagnostics and its blocked placement obligation. | **Shipping area acceptance for D3 is narrowed to the 1x1 TDM8.** It uses the stage budgets, the matched-head method and #607's corrected constraints. The 8x8 keeps synthesis diagnostics, and its post-place obligation stays open and blocked. It is **not waived**: the 8x8 remains non-shipping until it fits (#584/#229). | Use the stage budgets below for 1x1 TDM8 shipping area acceptance. Retain 8x8 synthesis diagnostics; its post-place obligation remains open and blocked, not waived. The 8x8 remains non-shipping until it fits (#584/#229). Measure matched before/after heads, generated inventory, clocks, device, directives, seeds and corrected #607 constraints. Include LUTRAM, FF, BRAM, DSP, WNS and firmware size. The historical 781-LUT backend figure is not a D3 budget. |
+| DR5: inventory and migration. **RULED** | Reject incompatible old images with explicit defaults, or implement a versioned migration with an independently verified converter. Silent reinterpretation can restore another field's bytes. | Keep the current exact inventory and flat IDs; SUID/MCR spans stay deliberately erased. Incompatible images are refused under KLJ2 rules, and any future growth needs a public migration decision. | Retain the current exact inventory and flat IDs. Keep SUID/MCR spans deliberately erased. Preserve compatible binding-plus-erased images without a layout change. Refuse incompatible identity, shape or layout by existing KLJ2 rules; never erase old slots merely on refusal. A future added source, descriptor/name growth or layout change needs a public migration/default decision and new goldens. #584 remains separately parked. |
+| DR6: final-image sequencing. **RULED** | Compose merged dependencies before measurement, or measure intermediate heads and repeat all affected evidence later. The latter costs reruns and cannot qualify the final image. | Lane order 1 to 5. Lanes 2-5 follow PR #609, PR #603, #607 and the merged revisions of processor PRs #129/#130, with actual merge and pin identities recorded. Final evidence names one composed image. | Follow the manager's lane order 1 through 5. Lanes 2-5 follow firmware PR #609, #602/PR #603, #607 and the selected merged processor #129/#130 revisions. Record the actual merge/pin identities before integration. Reconcile any exclusion publicly; open PR heads are not prerequisites satisfied. Final service, capture, area and cold-cycle evidence all name the same composed image. |
 
 DR3b's source evidence is at parent `c0723222`:
 
@@ -2212,7 +2229,7 @@ Shipping models may have only one legal scalar value.
 Such rows require cleared-first validity proof as well as readback.
 No synthetic alternative value becomes a shipping declaration.
 
-Proposed D3 planning ceilings, all awaiting the DR4 ruling:
+Ruled D3 stage ceilings for 1x1 TDM8 shipping area acceptance:
 
 | Stage / lanes | Incremental LUT-equivalents / FF | Cumulative LUT-equivalents / FF | New BRAM / DSP |
 |---|---|---|---|
@@ -2220,13 +2237,15 @@ Proposed D3 planning ceilings, all awaiting the DR4 ruling:
 | Names / 3 | 750 / 400 | 3,250 / 1,800 | 0 / 0 |
 | Maps / 4 | 1,250 / 600 | 4,500 / 2,400 | 0 / 0 |
 
-These are proposed stop-and-review ceilings, not measured affordability.
+These stop-and-review ceilings require measured affordability.
 They reserve integration margin above section 12's historical full prototype.
 Already-landed prerequisite costs belong in the before baseline.
 Each comparison includes processor and parent glue costs together.
 Firmware text/data/bss growth is reported separately against image capacity.
 A budget exceedance needs a ruling, never an unexplained allowance.
-No 8x8 placement success or release eligibility is claimed.
+The 8x8 retains synthesis diagnostics.
+Its post-place obligation stays open and blocked, not waived.
+It remains non-shipping until it fits (#584/#229).
 
 ### 15.2 Processor F07.9 edit table
 
@@ -2243,7 +2262,7 @@ Apply them before or with the scalar implementation's reviewed pin.
 | [docs/architecture/02_interfaces.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/02_interfaces.md) | 8.1/8.2, lines 538-572 | Assign manager 1 to the processor D3 writer. Replace integrator-owned group wording. Document D3 unflushed, combined alarms/verdicts, owner/rollback/debt and image-valid interfaces. Marks remain completion notifications. Retain the one device initiator and drain rule. |
 | [docs/architecture/06_aecp_engine.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/06_aecp_engine.md) | 4/5 and state/name/format/map interfaces | Document command-side snooping, dispatch ownership from reset, coherent name capture, real map read/apply faces and shared semantic validation. Exclude restore writes and IDENTIFY values. Distinguish persisted CONTROL names. |
 | [docs/architecture/05_acmp_engine.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/05_acmp_engine.md) | 5.1 boot admission | Cross-reference the D3 order without reimplementing #109. Preserve saved bindings after failed walks and read-only polling. D3 rollback never resets the listener or its admission gate. |
-| [docs/architecture/08_timing.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/08_timing.md) | 2, T-NVM-DEBOUNCE and T-NVM-RS-DEADLINE | Separate producer debounce, firmware debounce, per-wait clocks, aggregate restore budget and media deadlines. Add only ratified DR2/DR3 values and their measurement anchors. Never claim quarantine satisfies #15. |
+| [docs/architecture/08_timing.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/08_timing.md) | 2, T-NVM-DEBOUNCE and T-NVM-RS-DEADLINE | Separate producer debounce, firmware debounce, per-wait clocks, aggregate restore budget and media deadlines. Record ruled DR2 values and their measurement anchors. Label DR3a's numbers initial candidates until lane 1 measures and the manager ratifies or revises both before lane 2 implements. Never claim quarantine satisfies #15. |
 | [docs/architecture/09_verification.md](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/docs/architecture/09_verification.md) | 3, NVM; 8, suite evidence | Add cleared-first checks, nine trigger/replay controls, volatile exclusions, transport/value distinction, debt and rollback faults, and real-command integration. Reconcile existing #18/#19/#21 tests before adding missing cases. |
 
 F07.9 is inline Mermaid in the memory-map document.
@@ -2346,14 +2365,14 @@ No checkbox changes merely because the contract is accepted.
 | Status 7: late verified completion | FASTCONNECT 9.2 | Snapshot identity decides retirement. A late slot never restores backing by itself. |
 | Status 8: legal flash operation and heartbeat | FASTCONNECT 9.4 | Lanes 2/5 refresh service and physical timing on the composed firmware. |
 | Status 9: timeout at erase/program/readback | FASTCONNECT 9.2/9.4 | Lane 5 injects each phase separately and checks its verdict. |
-| Status 10: cut during either debounce | D3 7.1/7.2 | Producer pending covers unmaterialized work; backend dirty covers committable work. DR2a remains open. |
+| Status 10: cut during either debounce | D3 7.1/7.2 | Producer pending covers unmaterialized work; backend dirty covers committable work. DR2a sets both windows and requires measured normal-load durability. |
 | Status 11: blank restore is honest | D3 8.7 | Combined blank requires done, no failure, and neither walk validating a record. Host blank evidence is not physical proof. |
 | Saved set 1: eight items and complete binding state | D3 8.2/18 | Clear stores first; restore values and valid flags; read every generated index. Lane 2 adds restored-PTOF consumers; lane 5 closes the complete physical inventory. |
 | Saved set 2: volatile exclusions | D3 9 | Lock and owner clear, registry empties, IDENTIFY becomes zero. Populate them before the same save/reset/restore cycle. |
 | Saved set 3: cut at every commit stage | FASTCONNECT 7 | Snapshot ownership protects the captured image. Lane 5 accepts complete old/new committed snapshots, never mixed restored state. |
 | Trigger 1: former eight-mark deletion line | D3 3.1/7.2/8.2 | Nine independent live-trigger and replay deletions. Separate input/output formats and maps; all user names share one group. |
 | Trigger 2: former SET_CONTROL mark-absence line | D3 3.1/9 | Add IDENTIFY to persistence and require failure. Completion-mark presence is not the persistence oracle. |
-| Area 1: both-shape post-place comparison | FASTCONNECT 8.3/16 | DR4 proposes stage budgets and scope reconciliation. Existing obligation remains open; 781 LUT is historical backend evidence only. |
+| Area 1: 1x1 shipping area; blocked 8x8 post-place | D3 15.1 DR4; FASTCONNECT 8.3/16 | Apply stage budgets, matched heads and corrected #607 constraints to 1x1 TDM8. Retain 8x8 synthesis diagnostics; post-place remains open and blocked, not waived. The 8x8 stays non-shipping until it fits (#584/#229). The 781-LUT figure is historical backend evidence only. |
 
 The following accepted rules complete the materialization contract:
 
@@ -2364,7 +2383,7 @@ The following accepted rules complete the materialization contract:
 | Store-local rollback and hard-reset-only debt | Section 8.6 | Sections 10/16 |
 | Combined enable and three distinct service releases | Section 8.1 | Sections 9.3/10/16 |
 | Per-wait deadline; DEFAULTS versus CLOSED; no timed port reuse | Section 8.8 | Sections 9.3/10/16 |
-| Product deadline values and operational choices | Section 15.1, pending ruling | Sections 14/15/16 |
+| Product deadline values and operational choices | Section 15.1, RULED; DR3a measurement/ratification still required | Sections 14/15/16 |
 
 ## 18. Child-lane contracts
 
@@ -2372,7 +2391,16 @@ These are reviewable contracts, not new assignments or issues.
 The manager assigns an executor and independent reviewers before activation.
 Each repository gets its own issue, branch and review object.
 The [lane order](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328) is mandatory.
-Open DR rows block the affected implementation, not lane-0 reconciliation.
+Section 15.1 records the manager's rulings for all five lanes.
+DR3a requires lane 1 to measure both deadline candidates.
+The manager ratifies or revises both before lane 2 implements.
+Later lanes inherit those ratified limits and remeasure changed paths.
+DR4 limits shipping area acceptance to 1x1 TDM8.
+Each lane retains 8x8 synthesis diagnostics.
+The 8x8 post-place obligation remains open and blocked, not waived.
+The 8x8 remains non-shipping until it fits (#584/#229).
+Every writer lane measures normal-load acceptance-to-durable time under DR2a.
+DR2b/DR2c require unchanged-projection controls, bounded attempts and sticky alarms.
 
 Every lane publishes exact heads, commands, exits and input identities.
 Required repository gates remain mandatory for its actual change scope.
@@ -2390,6 +2418,11 @@ Implement both passes, semantic validation and combined restore outputs.
 Stage 1 rolls back dynamic and descriptor stores together.
 Debt survives local rollback; watchdog recovery precedes the re-LOCATE.
 Apply the processor documentation table in section 15.2.
+Measure DR3a's initial 20 ms per-wait candidate.
+Measure its 1,000 ms aggregate from accepted `PP_CTRL[1]`.
+Include both walks and rollback to COMPLETE, DEFAULTS or CLOSED.
+Record product clocks, worst supported latency and cycle conversions.
+Submit both numbers for manager ratification before lane 2 implements.
 
 **Validation.** Extend processor [tb/pp_top](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/tree/16be6768f710e79450aace277abacd6c2c3336e5/tb/pp_top) with real AECP commands.
 Exercise all declared scalar indices through retained-media reset and readback.
@@ -2405,8 +2438,12 @@ Collapse DEVICE into blank; omit descriptor rollback or debt hold.
 Release AECP/ADP early; release quarantine by time alone.
 Exercise zero, boundary, corrupt, refused and indefinitely delayed inputs.
 
-**Prerequisites and physical remainder.** DR1, DR2 and DR3 require rulings.
-DR4 supplies the budget before implementation; DR5 freezes inventory.
+**Prerequisites and physical remainder.** Apply the ruled DR1-DR5 choices.
+DR1a permits lanes 1-4 before #15's full-closure evidence.
+DR1b retains the cause interface and processor-reviewer reconciliation of #20.
+Report lane 1's contribution to DR4's scalar-stage budget.
+Lane 2 completes the matched 1x1 post-place comparison.
+Retain 8x8 synthesis diagnostics and its blocked post-place obligation.
 Coordinate shared processor tests/docs with #129/#130.
 No processor-only test closes product cold-cycle or PTOF acceptance.
 Lane 2 owns that targeted scalar physical proof.
@@ -2419,7 +2456,9 @@ Wire D3 ownership, verdicts and pending into the real parent.
 Retire scalar sticky pending only after its record owner accounts.
 Implement the three firmware boot changes in section 5.3.
 Exercise shape mismatch, bad AEM and disabled-writer boot paths.
-Validate O1-O4 or implement the ratified restart restriction.
+Preserve O1-O3; couple CPU and fabric resets under DR3b.
+CPU-only restart requires physical proof of O4 retention.
+Grade every cold path against DR3a's manager-ratified deadlines.
 Update actual boot/status documentation when implementation changes it.
 
 Save legal PTOF values, including zero and a non-default offset.
@@ -2444,6 +2483,10 @@ Suppress scalar pending while materialization is unfinished.
 Each must fail a named value, ordering or durability assertion.
 
 **Dependencies and physical result.** Follow DR6 and lane 1.
+Wait for manager ratification or revision of both DR3a numbers.
+That ruling must precede lane 2 implementation.
+Complete DR4's scalar-stage 1x1 TDM8 area acceptance.
+Retain 8x8 diagnostics; its post-place obligation stays open and blocked.
 Observe #602's final media-reset rule when grading timestamps.
 Use #607's corrected constraints for timing evidence.
 Prove one targeted 1x1 cold cycle covering every scalar group.
@@ -2474,7 +2517,10 @@ Clear pending while another name remains unsaved.
 Require each control to fail its named name-value assertion.
 
 **Dependencies and physical result.** Follow lanes 1-2 and DR6.
-DR2b and DR5 must settle equality and inventory before implementation.
+Apply DR2b's unchanged-projection rule and DR5's fixed inventory.
+Remeasure changed restore paths against the ratified DR3a budgets.
+Meet DR4's names-stage 1x1 TDM8 area ceilings.
+Retain 8x8 diagnostics and its open, blocked post-place obligation.
 Any #584 name growth needs its separate authorization and new measurements.
 Cold-cycle all writable names, including both ENTITY names and empty names.
 This targeted proof does not close lane 5's combined campaign.
@@ -2505,15 +2551,24 @@ Suppress actual-change pending or invent changes from refused edits.
 Require value, routing and ownership failures, not timeout-only detection.
 
 **Dependencies and physical result.** Follow lanes 1-3 and DR6.
-DR2b governs unchanged edits; DR4/DR5 govern area and inventory.
+DR2b governs unchanged edits; DR5 preserves the inventory.
+Remeasure both passes and rollback against ratified DR3a budgets.
+Meet DR4's maps-stage 1x1 TDM8 area ceilings.
+Retain 8x8 synthesis diagnostics.
 Cold-cycle ADD/REMOVE results on both mutable directions.
 Verify GET_AUDIO_MAP and actual audio routing after automatic restore.
-An unavailable 8x8 placement remains an explicit blocked obligation.
+The 8x8 post-place obligation remains open and blocked, not waived.
 Lane 5 still owes the combined saved-set fault campaign.
 
 ### 18.5 Lane 5: complete fault campaign and release bench
 
-**Acceptance.** Close every line in section 17 with executable evidence.
+**Acceptance.** Prove section 17's shipping obligations with executable evidence.
+Use DR4's 1x1 TDM8 area scope and cumulative ceilings.
+Retain 8x8 synthesis diagnostics and the open, blocked post-place obligation.
+It is not waived; 8x8 stays non-shipping until it fits.
+Verify the composed image against manager-ratified DR3a budgets.
+Record lane 1 measurements and the pre-lane-2 ratification ruling.
+Follow lanes 1-4 and DR6's merged-dependency sequence.
 Inventory every generated persisted field and index, including applicable CRF.
 Include bound/unbound state, source/talker/controller parameters and started/stopped state.
 Populate lock, locking owner, registrations and IDENTIFY before reset.

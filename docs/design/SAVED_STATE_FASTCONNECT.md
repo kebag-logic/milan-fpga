@@ -962,6 +962,11 @@ That is a build-time obligation on the module that actually lands, not a
 precondition for the decision this page records: work item 1 asked for the area
 to be measured before committing, and it is measured above.
 
+[D3 DR4](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) now narrows shipping area acceptance to 1x1 TDM8.
+The 8x8 retains synthesis diagnostics and its post-place obligation.
+That obligation stays open and blocked, not waived.
+The 8x8 remains non-shipping until it fits (#584/#229).
+
 **Reproduce it:**
 
 ```sh
@@ -1407,17 +1412,15 @@ D3 remains unimplemented; contract adoption supplies no persistence evidence.
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that
   price honest rather than hidden.
-- **The debounce window is a data-loss window.** The processor already debounces
-  commits (`T-NVM-DEBOUNCE`, coalescing) and the mapping compliance sequence
-  issues a dozen SETs in a row, so a commit per command would burn erase cycles
-  for nothing. The firmware holds a commit for 1,000 ms after `nvm_dirty`
-  first reports, as a PROVISIONAL value: a power cut inside that second loses
-  exactly the changes `nvm_dirty` was reporting and nothing older, because the
-  authoritative slot is never touched until the new one has verified. The
-  value is not the bench-measured one section 14 asks for.
+- **The debounce window is a data-loss window.** DR2a rules both first-dirty windows.
+  The [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns their values and measurements.
+  Cuts before verified promotion may lose unsaved changes.
+  The last verified snapshot survives.
+  Every writer lane must measure normal-load acceptance-to-durable time.
+  No unconditional durability promise follows from adding the windows.
 - **Processor recovery remains incomplete.** #15 still requires reusable-port recovery.
   #109 adds DEVICE/UNFRAMED classification, bounded binding restore and admission.
-  #20 still needs the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) disposition.
+  #20 still needs processor-reviewer reconciliation under the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
   The earlier PR #32 fixed unowned completion.
   The unchecked region remains load-bearing: section
   4's blocks are enforced by the manager and by
@@ -1436,10 +1439,12 @@ D3 remains unimplemented; contract adoption supplies no persistence evidence.
 
 ## 14. What this page does NOT decide
 
-The [D3 decision register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns remaining materialization choices.
-It records options, consequences and defaults awaiting manager rulings.
+The [D3 decision register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns materialization policy decisions.
+It records options, consequences and the manager's selected defaults.
 These include wear/retry, boot/recovery, stage budgets, inventory and sequencing.
-The firmware's 1,000 ms debounce remains provisional.
+DR2a settles debounce policy; measured durability evidence remains required.
+DR3a requires lane 1 to measure both deadline candidates.
+The manager ratifies or revises both before lane 2 implements.
 Section 9.4's existing media deadlines remain binding.
 
 The control addresses have landed in the
@@ -1457,7 +1462,8 @@ D3 adoption does not replace that evidence or its operational obligations.
 The [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328) supersedes the historical #69 wait.
 D3 is accepted as a contract; its implementation remains open.
 The [child contracts](SAVED_STATE_MATERIALIZATION.md#18-child-lane-contracts) define lanes 1-5.
-Their affected work waits for the decision register's rulings.
+The decision register records the manager's rulings.
+DR3a's measured deadline ratification still precedes lane 2 implementation.
 Final integration follows the manager's stated shared-file sequence.
 No open dependency is counted as landed by this page.
 
@@ -1468,6 +1474,9 @@ Materialization rules have their normative home on that page.
 [D3 section 7](SAVED_STATE_MATERIALIZATION.md#7-the-clear-rule) owns dirty retirement.
 [D3 section 8](SAVED_STATE_MATERIALIZATION.md#8-restore) owns the boot transaction and rollback.
 That includes AEM availability, debt isolation, combined enable and CLOSED.
+[D3 DR3a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) governs the product deadline acceptance.
+Lane 1 measures both candidates.
+The manager ratifies or revises both before lane 2 implements.
 The checklist's unchecked obligations remain open after contract adoption.
 
 **The record namespace**
@@ -1540,7 +1549,7 @@ The checklist's unchecked obligations remain open after contract adoption.
       [D3 section 7.1](SAVED_STATE_MATERIALIZATION.md#71-what-clears-and-when).
       Producer pending reports unmaterialized changes; backend dirty reports committable work.
       The last verified snapshot survives; unsaved changes may be lost.
-      Timing and coalescing await D3's DR2a ruling.
+      Timing, coalescing and measured durability follow D3's ruled DR2a.
 - [x] A restore walk over blank flash reports "nothing restored", never success:
       on the host model `blank=1 fail=0 backed=1`, the register map's second
       row; the bench reading is still owed.
@@ -1570,15 +1579,16 @@ The checklist's unchecked obligations remain open after contract adoption.
 
 **The area**
 
-D3's DR4 proposes stage budgets and shipping-scope reconciliation.
-It does not waive the existing comparison below.
+[D3 DR4](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) owns stage budgets and shipping area scope.
+The [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862405632) narrows shipping area acceptance to 1x1 TDM8.
 The 781-LUT figure prices the historical backend, not D3.
 
-- [ ] `scripts/area_baseline.py --compare` post-place at both
-      `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`, against the
-      section 8.3 OOC bound. The OOC figure is an upper bound and the in-context
-      delta should come in under it; a post-place delta ABOVE 781 LUT means the
-      shipping module diverged from the candidate that was priced, and the
-      divergence has to be explained rather than absorbed. Distributed RAM
-      counts: `ooc.sh`'s `LUT_TOT` column exists because 128 LUT6 of SLICEM were
-      being priced at zero.
+- [ ] `scripts/area_baseline.py --compare` post-place at
+      `endstation_ax7101_1x1_tdm8` meets D3's DR4 stage budgets.
+      Use matched heads and #607's corrected constraints.
+      Include distributed RAM and every DR4 measurement field.
+      Explain historical backend-bound divergence separately from D3's incremental cost.
+
+Retain synthesis diagnostics for `endstation_ax7101_8x8`.
+Its post-place obligation remains open and blocked, not waived.
+The 8x8 remains non-shipping until it fits (#584/#229).

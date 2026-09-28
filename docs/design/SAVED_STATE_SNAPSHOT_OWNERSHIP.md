@@ -1755,7 +1755,8 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    The pending bit reports the dynamic-state fields truthfully (1 until
    reset); making them durable needs the accepted D3 contract in
    [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md), under #70.
-   Its implementation remains open; its policy register awaits rulings.
+   Its implementation remains open; its policy register records manager rulings.
+   DR3a still requires measured deadline ratification before lane 2 implements.
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
    `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
@@ -1793,8 +1794,9 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    These measurements do not establish a general contention bound.
    Instruction/access cost factors and the blanket twofold penalty are retired.
    Physical memory-port ordering remains unmeasured under section 19.
-   Debounce remains open under
-   [section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide).
+   Debounce policy is ruled under
+   [D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
+   Each writer lane still owes measured normal-load durability.
 7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
    exhaustion holds nvm_backed at 0 and nvm_stale at 1 until reset, even
    after the same sink is later rewritten and committed (section 12). That
@@ -1841,6 +1843,9 @@ Physical timing and memory ordering remain UNRESOLVED 6.
     backend accepted the load, so a boot that validated nothing no longer
     re-attaches at all; a boot that DID accept its load still re-attaches over
     a window this page cannot prove survived the restart.
+    [D3 DR3b](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) selects coupled CPU and fabric resets.
+    That restriction remains until O4 retention is physically proven.
+    Implementation and physical evidence remain owed by lane 2.
 
 11. **A record closed across a refused load's fill stays closed until a
     producer rewrites it or the fabric is reset** (revision d, from the second
