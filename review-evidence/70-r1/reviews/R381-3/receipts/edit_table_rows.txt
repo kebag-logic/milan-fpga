@@ -1,0 +1,41 @@
+processor HEAD 16be6768f710e79450aace277abacd6c2c3336e5 pin match
+rows 37
+[OK] docs/architecture/07_memory_maps.md (pin link ok, exists True, 574 lines) section: 5.3, F07.9 runtime, lines 447-458
+[OK] docs/architecture/07_memory_maps.md (pin link ok, exists True, 574 lines) section: 5.3, F07.9 boot, lines 459-475
+[OK] docs/architecture/07_memory_maps.md (pin link ok, exists True, 574 lines) section: 5.3 failure table and following paragraphs
+[OK] docs/architecture/07_memory_maps.md (pin link ok, exists True, 574 lines) section: 5.1/5.2/5.4, F07.8 inventory and open choices
+[OK] docs/architecture/02_interfaces.md (pin link ok, exists True, 578 lines) section: 8 asynchronous-response claim, lines 492-493; boot paragraph and 8.1/8.2, lines 532-572
+[OK] docs/architecture/06_aecp_engine.md (pin link ok, exists True, 1257 lines) section: 4/5 state/name/format/map interfaces; 6.2.1, lines 341-344; 6.4 SET_NAME chain, line 365; 6.5, lines 421-425
+[OK] docs/architecture/05_acmp_engine.md (pin link ok, exists True, 525 lines) section: 5.1 boot admission, lines 160-196
+[OK] docs/architecture/08_timing.md (pin link ok, exists True, 160 lines) section: 2, T-NVM-DEBOUNCE/T-NVM-RS-DEADLINE (lines 42-43), and 5 timer allocation
+[OK] docs/architecture/09_verification.md (pin link ok, exists True, 169 lines) section: 3, NVM; 8, suite evidence
+[OK] docs/architecture/01_overview.md (pin link ok, exists True, 243 lines) section: 5 operational model, lines 100-107; 7, F01.5, P-NVM-RS-TMO-CYC at line 170
+[OK] docs/guides/integrator.md (pin link ok, exists True, 393 lines) section: 2 complete top-parameter inventory, lines 47-105
+[OK] docs/guides/integrator.md (pin link ok, exists True, 393 lines) section: 6 level controls; 7 optional faces, lines 261-293
+[OK] docs/guides/integrator.md (pin link ok, exists True, 393 lines) section: 8 status rows, lines 334-336
+[OK] docs/guides/integrator.md (pin link ok, exists True, 393 lines) section: 9 bring-up order, lines 355-377
+[OK] docs/guides/operator.md (pin link ok, exists True, 293 lines) section: 6 control window and verdict table, lines 197-227; 8 operation, lines 245-268
+[OK] docs/diagrams/21-integration-faces.svg (pin link ok, exists True, 134 lines) section: editable master: integration-parameters group, lines 31-46; external faces and tie-off behavior
+[OK] docs/diagrams/20-rtl-dataflow.svg (pin link ok, exists True, 187 lines) section: AECP/store/guard interior and shared NVM chain, lines 97-128 and 179
+[OK] docs/diagrams/23-bringup-decision.svg (pin link ok, exists True, 127 lines) section: ADP bring-up checks, lines 32-40
+[OK] docs/diagrams/24-adp-acmp-states.svg (pin link ok, exists True, 115 lines) section: ADP enable labels, lines 39-58; restored-binding operation, line 114
+[OK] hdl/top/protocol_processor_top.sv (pin link ok, exists True, 4335 lines) section: parameter header, lines 124-130; NVM/status/effect contracts, lines 424-454 and 647-668
+[OK] hdl/top/protocol_processor_top.sv (pin link ok, exists True, 4335 lines) section: manager ownership banner, lines 2448-2451; binding release/arbiter wiring, lines 2513-2546; ADP enable at line
+[OK] hdl/acmp/KL_acmp_nvm_shadow.sv (pin link ok, exists True, 932 lines) section: banner and parameters, lines 14, 30-31 and 117-122; H_FL_STREAM/H_FL_WAIT, lines 865-895
+[OK] hdl/packet_engine/KL_pp_nvm_mgr_arb.sv (pin link ok, exists True, 187 lines) section: manager ownership banner, lines 11-54
+[OK] hdl/aecp/KL_aecp_engine.sv (pin link ok, exists True, 3393 lines) section: state-store wiring and dispatch; map/format faces, lines 380-426; effect/dynamic exports, lines 533-579
+[OK] hdl/aecp/KL_aecp_dyn_state.sv (pin link ok, exists True, 334 lines) section: persistence/dirty banner, lines 47-68; dirty output at line 123; reset/write logic
+[OK] hdl/aecp/KL_aecp_desc_store.sv (pin link ok, exists True, 1050 lines) section: memory-guard banner, state/name face, image-valid export and reset/watchdog contracts
+[OK] hdl/aecp/KL_aecp_desc_mem_guard.sv (pin link ok, exists True, 82 lines) section: hard-reset/debt contract, lines 18-21 and debt_o at line 54
+[OK] tb/acmp_nvm/README.md (pin link ok, exists True, 283 lines) section: manager-1 harness/platform comparison, line 15; debounce, bounded retry, alarm and group X pending
+[OK] tb/pp_top/README.md (pin link ok, exists True, 779 lines) section: BW0-BW4 boot-walk coverage and limitations; S9 pending; D3 integration additions
+[OK] docs/traceability/MODULE_MATRIX.md (pin link ok, exists True, 53 lines) section: generated rows for changed top, stores and new writer
+[OK] docs/architecture/04_adp_engine.md (pin link ok, exists True, 232 lines) section: boot gate rule, line 159
+[OK] docs/architecture/07_memory_maps.md (pin link ok, exists True, 574 lines) section: 3.3.1 descriptor memory/guard; 3.4 overlay; 4 dynamic-state ownership
+[OK] docs/guides/hdl-engineer.md (pin link ok, exists True, 250 lines) section: module-to-authority table around line 137; diagram 20
+[OK] docs/00_MILAN_COMPLIANCE_REVIEW.md (pin link ok, exists True, 520 lines) section: GAP-08 naming claim, lines 206-208; GAP-09; REQ-AEM-011/013/021 and REQ-PER-001/002/003
+[OK] hdl/packet_engine/KL_pp_nvm_port.sv (pin link ok, exists True, 454 lines) section: manager banner, lines 9-12
+[OK] hdl/aecp/ucode/gen_ucode.py (pin link ok, exists True, 2139 lines) section: NVM_MARK comments at lines 1364, 1439, 1675, 1791, 1925, 2002 and 2091; IDENTIFY rationale at lines 1582-1584
+[OK] docs/architecture/03_packet_engine.md (pin link ok, exists True, 344 lines) section: 6 ordering rule (d), line 236
+distinct files 29
+bad rows 0

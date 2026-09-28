@@ -1,0 +1,234 @@
+[R381] POSITIVE - exact head 816c3b742940b9ac8d160ff03e05553a47e5e66d
+
+# R381-3: external re-review of PR #610 (issue #70 lane 0, D3 contract adoption), round 3
+
+## Scope
+
+- **Head under review:** `816c3b742940b9ac8d160ff03e05553a47e5e66d`, tree `d6f5b20fc823db88139e70653bb5e3c2e9a416bf`. At fetch time (07:12Z) this was also the published PR head, marked ready, not draft. Clone integrity is in `receipts/integrity.txt`.
+- **Delta reviewed:** `e796c68a..816c3b74`. It is one commit, [A407]'s `docs: complete D3 contract sweep and alarm carrier ruling`, with a one-line subject and no body or trailers.
+- **Whole-PR base:** `c07232228c12b72805dd20e6852bf93f25794da0`.
+- **Processor pin:** `16be6768f710e79450aace277abacd6c2c3336e5`. The submodule checkout is clean at that commit.
+- **Authorities, in the order read:**
+  1. AGENTS.md and CONTRIBUTING.md.
+  2. docs/README.md.
+  3. The issue #70 body.
+  4. Issue #70 comments:
+     - the status audit 5862191328;
+     - the lane-0 assignment 5862193501;
+     - rulings DR1a-DR6 5862405632 (fixed, not re-opened);
+     - the DR2c-carrier ruling 5863247772 (fixed, not re-opened);
+     - the round-3 assignment 5863263971;
+     - [A407] TAKEN and REVIEW READY.
+  5. The four changed pages at the head.
+  6. The processor tree at the pin.
+  7. The delta and the history.
+  8. Public evidence: the tree `review-evidence/70-r1` at `6cf46c2a` and the exact-head hosted checks.
+- **Inputs, and when they were read:**
+  - My round-2 packet was a read-only input. Its `finding_evidence.sh` was re-run unchanged.
+  - R380-2's public findings were read only after my own pass over the diff and the processor tree.
+  - No other reviewer's round-3 material was read.
+
+**Result:**
+
+- Every item the round-3 assignment requires is met at this head.
+- R381-2 F1 and F2 are resolved, and so are R380-2 F1, S1 and S2.
+- Only the four assigned documents changed.
+- The register, every ruling and all 26 acceptance checkbox states are unchanged.
+- I found three non-blocking suggestions and no finding at MINOR or above. All five lenses are covered clean at this head.
+
+## Round-3 focus items, checked independently
+
+### 1. Section 15.2 completeness, the sweep and the mark exemption: met
+
+- **The table.** Section 15.2 has 37 rows over 29 files. Every row links the pin, every path exists there, and every cited line range lies inside its file: 0 bad rows (`scripts/check_edit_table.py`, `receipts/edit_table_rows.txt`).
+- **Coverage of both round-2 lists.** `scripts/finding_evidence_r3.sh` (`receipts/finding_evidence_r3.txt`, exit 0, "ALL COVERED") checks 24 source lines. It confirms three things for each:
+  - a row exists for the file;
+  - a row cites the line;
+  - the named sweep, extracted verbatim from the head, reaches it.
+
+  The lines checked:
+
+  | Location at the pin | Row (D3 line) | Sweep |
+  |---|---|---|
+  | `gen_ucode.py` `NVM_MARK` comments `:1364`, `:1439`, `:1675`, `:1791`, `:1925`, `:2002`, `:2091` | new `gen_ucode.py` row (`:2356`) | match |
+  | `gen_ucode.py` IDENTIFY rationale `:1582-1584` | same row | `:1582` match; `:1583-1584` context, which D3 `:2375` requires to be read |
+  | 06 §6.2.1 `:342-343`, §6.4 `:365`, §6.5 `:423-424` | 06 row extended (`:2326`) | match |
+  | GAP-08 `00_MILAN_COMPLIANCE_REVIEW.md:208` | 00 row extended (`:2354`) | match |
+  | 03 ordering rule (d) `:236` | new 03 row (`:2357`) | match |
+  | `02_interfaces.md:492-493` | 02 row extended (`:2325`) | `:492` match, `:493` context |
+  | `protocol_processor_top.sv:2450-2451` | top row extended (`:2340`) | `:2450` match |
+  | `tb/acmp_nvm/README.md:15` | README row extended (`:2348`) | match |
+  | arbiter banner `KL_pp_nvm_mgr_arb.sv:15-16`, which wraps across a `//` line break | arbiter row (`:2343`, lines 11-54) | match (multiline) |
+
+- **Mark rows.** All four mark rows now say the marks stay but stop being persistence triggers: 02 `:2325`, 06 `:2326`, 00 `:2354` and `gen_ucode.py` `:2356`. The `gen_ucode.py` row also moves IDENTIFY's volatility onto the selector-7 snoop exclusion. That matches D3 rule 3 (`:300`: "Selector 7, IDENTIFY, is never a trigger").
+- **Exemption.** The old text is gone: "microprogram marks stay valid ... do not need rewriting". D3 `:2381-2385` now keeps only the mark instructions and their completion effects. It says the exemption "never covers comments describing marks as persistence triggers" and requires "a stated, location-specific scope reason" for every omitted match. So a trigger-describing comment cannot shelter under it.
+- **Sweep behaviour.** The round-2 pattern matches none of the probe statements. The new pattern matches the Markdown wraps and the `//`-wrapped arbiter banner (`scripts/sweep_probe.sh`, `receipts/sweep_probe.txt`). Its reach across other comment prefixes is narrower than D3 `:2373` states; see S2.
+- **My own search of the pinned tree.** I ran the named sweep and listed the 54 matched files with their row counts. I reviewed every match in the 29 files that have no row. I also ran a separate semantic search for trigger, manager-1, saved-state-writer, never-delay and asynchronous claims. The results:
+  - Two statements D3 falsifies still have no cited row: `tb/acmp_nvm/acmp_nvm_wrap.sv:12-13` and the `gen_ucode.py:472` exemplar comment, with its 06 §8 counterpart `:874`. The sweep finds both, and D3 `:2365` and `:2385` oblige lane 1 to reconcile them or state a reason. So they are **S1**, not a finding.
+  - Everything else I reviewed is still true under D3:
+    - `KL_pp_nvm_port.sv:24-26`: media commits stay asynchronous at the port;
+    - top `:2540` and `:2555`: the idle manager-1 comments, which the top row replaces with the implementation;
+    - the side-port, ADP and admission `entity_enable` and `restore_done_o` comments;
+    - the "persist" edge in diagram 01, which runs from the store to the NVM manager;
+    - the `tb/*` harness sources.
+
+### 2. The DR2c-carrier ruling on all four pages: met
+
+- **Pages and links.** All four pages carry the ruling link and a working link to FASTCONNECT 9.2 (`receipts/finding_evidence_r3.txt` F2 section; `receipts/delta_anchors.txt`, 8 links, 0 bad):
+  - FASTCONNECT `:1129-1143`;
+  - D3 `:766-776`, lane 2 `:2583-2590`, and the negative control `:2621-2625`;
+  - SNAPSHOT `:1097-1104` and `:1818-1823`;
+  - BAREMETAL `:1916-1925`.
+- **Content, on every page:**
+  - `nvm_alarm` is the only reset-sticky alarm, and no status bit is added;
+  - firmware exhaustion is a `VD_*` verdict loss that sets `nvm_stale`, and the failed slot is never ACKed;
+  - if the un-ACKed producer record exhausts its three attempts, 500 ms apart, `nvm_alarm` rises until reset;
+  - a later successful commit clears `nvm_stale` under 9.2's condition and never clears `nvm_alarm`.
+
+  The old wording is gone ("Exhaustion keeps the alarm", "reset-only alarm", "Clear an exhausted alarm"). The only remaining "firmware alarm" phrases say that none exists (D3 `:2586`, SNAPSHOT `:1097`).
+- **Agreement with the 9.2 next-state function** (FASTCONNECT `:1179-1181`):
+  - While `nvm_alarm` is asserted it is a level `loss_event`, so `stale'` stays 1 and "producer abandonment keeps revocation until reset" (`:1143`) is exact.
+  - With no alarm, the recovery arm `backed' AND NOT dirty'` clears the latch, so "firmware loss alone can heal" is exact.
+  - The earlier 9.2 text (`:1122-1127`: "one exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1 until reset, even after a later successful commit") refers to `nvm_alarm` and remains consistent.
+- **The lane-2 oracles no longer conflict:**
+  - The lane-2 negative control (D3 `:2621-2622`) kills a mutant that clears `nvm_alarm` on a heartbeat or a later success, after driving producer exhaustion.
+  - Clearing `nvm_stale` after a firmware-only loss is required (`:2624`) and is "not a negative control" (`:2625`).
+  - FASTCONNECT's Recovery line (`:1553-1555`) and healed-outage line (`:1556-1559`) require that same clearing.
+  - Lane 1's control (`:2558`: "forgive an exhausted alarm") refers to the producer alarm, which is `nvm_alarm`.
+- **Ruling item 6.** The ruling requires FASTCONNECT 9.2 to name firmware exhaustion as a verdict loss. It does: `:1133`, "Firmware transaction exhaustion is a `VD_*` verdict loss without ACK".
+
+### 3. R380-2 S1, the BACKOFF time base: met
+
+- **The parameter.** D3 5.1 adds `RETRY_BACKOFF_CYC_P` to the parameter row (`:544`). Its definition (`:546-552`) gives:
+  - the unit: processor `clk_i` cycles from the error;
+  - the product value: `ceil(processor_clock_hz * 500 / 1000)`;
+  - two worked examples: 50,000,000 cycles at 100 MHz and 25,000,000 at 50 MHz;
+  - that neither debounce ticks nor firmware time is used;
+  - that lane 1 exposes it through the top's clock parameter;
+  - that both producers use it.
+- **Verification.**
+  - Both examples are arithmetically correct (`receipts/backoff_width_probe.txt`).
+  - The top's clock parameter exists: `CLK_HZ_P`, default 100 MHz (`protocol_processor_top.sv:91`). The parent passes its own `CLK_HZ_P` through (`KL_pp_shadow.sv:975`).
+  - The definition agrees with 6.3's `retry_ready` (`:697`).
+  - The 08 and 01 rows carry the conversion (`:2328`, `:2330`).
+- **Hazard.** A literal 32-bit transcription of the formula wraps; see S3.
+
+### 4. Change-set limits: met
+
+- **Files.** The delta touches exactly four files, all documentation (`receipts/delta_files.txt`). The whole PR still touches five documentation files, and all four gitlinks are unchanged from the base.
+- **Register.** The D3 15.1 register section has the same digest at `e796c68a` and at the head (`673f120f...`). All ten selected-option cells are byte-equal to ruling 5862405632 (`receipts/register_checklist.txt`).
+- **Checkboxes.**
+  - The FASTCONNECT section 16 checkbox lines have the same digest at `e796c68a` and at the head (`0e10cc17...`).
+  - There are 26 checkboxes, 5 checked, with the same sequence.
+  - Their text differs from the base only through rounds 0-2, which reconciled `:1545` as lane 0 assigned and which round 2 already reviewed. States are unchanged throughout.
+
+## Findings
+
+No `BLOCKER`, `MAJOR` or `MINOR` finding is open at this head.
+
+### S1: SUGGESTION (Conformance, RTL, Docs): two more stale statements the sweep finds but no 15.2 row cites
+
+- **Where.** Both are in the processor tree at `16be6768`. D3 15.2 is at `:2309-2386`.
+  - `tb/acmp_nvm/acmp_nvm_wrap.sv:12-13` says "manager 1 is a harness face, as the platform's saved-state writer will be". This is the same claim as `tb/acmp_nvm/README.md:15`, which now has a row. This file has none.
+  - `hdl/aecp/ucode/gen_ucode.py:472` (`NVM_MARK imm=0x21  # sampling_rate record`) is in the E_SETSR exemplar. Its counterpart is `docs/architecture/06_aecp_engine.md:874` (`COMMIT; NVM_MARK sampling_rate`). Both describe a mark that names a record. D3 3.1 says marks have no record-selection authority. The `gen_ucode.py` row lists only lines 1364-2091.
+- **Evidence.** `receipts/finding_evidence_r3.txt`, "independent residuals": the rows are 0, 1 and 1, and the sweep matches all three.
+- **Why this is not blocking.**
+  - The named sweep matches all three.
+  - D3 requires every omitted match to carry a location-specific reason (`:2385`), and lane 1 to reconcile every affected statement (`:2365`).
+  - 06 labels the §8 programs as target exemplars.
+  - So the contract already forces a disposition, and no row is needed for the contract to be complete.
+- **Suggested outcome.** Extend the `tb/acmp_nvm` row to cover the wrap banner, and the `gen_ucode.py` and 06 rows to cover the exemplar comment and diagram. Alternatively, give the exemplar an explicit scope reason.
+
+### S2: SUGGESTION (Tests, Docs): the sweep's comment-prefix claim is broader than the pattern
+
+- **Where.** D3 `:2373`: "Multiline matching includes wrapped prose and intervening comment prefixes".
+- **Evidence.** `scripts/sweep_probe.sh`, `receipts/sweep_probe.txt`.
+  - Only the `integrating[[:space:]/]*platform` alternative tolerates a comment prefix, and only `//`.
+  - The other multi-word alternatives accept whitespace only. That includes `platform.s[[:space:]]+saved-state`, `never[[:space:]]+delay` and `asynchronous[[:space:]]+to[[:space:]]+protocol`.
+  - So the sweep misses these statements when they wrap with `//`, `//!` (the top's banner style) or `#`.
+  - Every statement cited at the pin is still found.
+- **Why this is not blocking.**
+  - The obligation (`:2365`) does not depend on the pattern.
+  - Every known location has a row.
+  - The single-word `persist` and `NVM_MARK` alternatives catch every trigger claim, however it is wrapped.
+- **Suggested outcome.** Widen the separator in the multi-word alternatives, for example `[[:space:]/!#*]+`, or narrow the sentence to what the pattern does.
+
+### S3: SUGGESTION (RTL): the 32-bit transcription of the BACKOFF formula
+
+- **Where.** D3 `:547`: `ceil(processor_clock_hz * 500 / 1000)`.
+- **Evidence.** `receipts/backoff_width_probe.txt`.
+  - `CLK_HZ_P` is a 32-bit `int unsigned`. Written literally as `CLK_HZ_P * 500 / 1000`, the product is evaluated at 32 bits under IEEE 1800 11.6.1 and wraps.
+  - At 100 MHz that gives 2,755,359 cycles (27.6 ms), not 500 ms. At 125 MHz it gives 19.0 ms.
+  - The page's value and examples are correct.
+  - The existing top derives `NVM_RS_TMO_CYC_P` as `CLK_HZ_P / 32'd50`, dividing first.
+- **Why this is not blocking.** The page states the numeric value, and lane 1's DR2c timing assertion (`:2559`) would fail on the wrapped value.
+- **Suggested outcome.** Add a note that the conversion must not overflow, for example `(CLK_HZ_P + 1) / 2` or a 64-bit intermediate.
+
+## Prior public review findings: disposition at this head
+
+| Finding | Disposition at `816c3b74` | Evidence |
+|---|---|---|
+| R381-2 F1 (MINOR; Conformance, RTL, Docs) | **Resolved.** Every listed statement has a row citing it, the sweep finds each, including the wrapped arbiter banner, the mark rows say "stay, never persistence triggers", and the exemption is narrowed | focus item 1; `receipts/finding_evidence_r3.txt` |
+| R381-2 F2 (MINOR; Conformance, Robustness, Tests, Docs) | **Resolved** by applying ruling 5863247772 on all four pages with 9.2 links. The lane-2 control and the Recovery line no longer conflict | focus item 2 |
+| R380-2 F1 (MINOR; Conformance, RTL, Docs) | **Resolved.** Its locations are a subset of R381-2 F1's: `gen_ucode.py`, 06 6.2.1/6.5 and 00 `:208` | focus item 1 |
+| R380-2 S1 (SUGGESTION) | **Taken and resolved** | focus item 3 |
+| R380-2 S2 (SUGGESTION) | **Resolved** by the carrier ruling: `nvm_alarm` is the observable | focus item 2 |
+| R380-2 S3 (SUGGESTION) | Not taken by the round-3 assignment. Not re-assessed here | - |
+| R381-1 and R380-1 findings | Resolved at round 2. The delta touched none of their resolutions: the pin lines, debounce and producer DR2c text are unchanged except for the `nvm_alarm` naming at `:638` | round-2 report; `git diff e796c68a 816c3b74` |
+
+## Executed checks (exact head, foreground)
+
+| Check | Result | Receipt |
+|---|---|---|
+| `docs_check.py`, `check_doc_paths.py`, `check_doc_style.py`, `gen_toc.py --check`, `check_em_dash.py --base c0723222`, `check_baremetal_only.py --check`, `ci_scope.py --selftest`, `check_feature_status.py`, `git diff --check`, `git diff --check c0723222 HEAD` | all exit 0, using hash-locked Markdown dependencies and PyYAML 6.0.3 in a disposable environment | `scripts/run_gates.sh`, `receipts/gates.txt` |
+| 15.2 rows: pin links, paths, line ranges | 37 rows, 29 files, 0 bad | `scripts/check_edit_table.py`, `receipts/edit_table_rows.txt` |
+| Register against the ruling; checkbox states | 10/10 byte-equal; digests identical at `e796c68a` and the head | `scripts/check_register_and_checklist.py`, `receipts/register_checklist.txt` (input `receipts/issue70_comments.json`) |
+| Relative links added by the delta | 8 links, 0 unresolved | `scripts/check_delta_anchors.py`, `receipts/delta_anchors.txt` |
+| Round-2 `finding_evidence.sh`, re-run unchanged | It reproduces round-2 state only. Its document reads are fixed to `e796c68a`, so its output is historical | `receipts/finding_evidence_r2_script_unchanged.txt` |
+| Round-3 finding evidence at the head | F1: all 24 locations covered; F2: carrier on four pages; exit 0 | `scripts/finding_evidence_r3.sh`, `receipts/finding_evidence_r3.txt` |
+| Sweep probe on synthetic wraps | new pattern: Markdown and `//` arbiter wrap found; `//!`, `#` and `//` multi-word wraps missed; old pattern: 0 of 9 found | `scripts/sweep_probe.sh`, `receipts/sweep_probe.txt` |
+| BACKOFF arithmetic | examples correct; a 32-bit literal transcription wraps | `scripts/backoff_width_probe.py`, `receipts/backoff_width_probe.txt` |
+| Hosted checks at the exact head (read-only) | see the limits below | `receipts/hosted_checks.txt` |
+| Clone integrity after all checks | HEAD and tree equal; the index digest (mode, blob, path) equals HEAD's; 0 porcelain entries; 4 gitlinks unchanged; processor clean at the pin | `scripts/integrity.sh`, `receipts/integrity.txt` |
+
+No probe edited the clone. Synthetic probe files lived only under the packet's `scratch/`.
+
+## Reviewer-owned lens ledger
+
+| Lens | Result | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Round-3 items 1-4 against D3 15.2 `:2309-2386`, 5.1 `:544-552`, 6.1 `:638`, 6.3 `:763-777`, 18.1 `:2536-2538,2558-2559`, 18.2 `:2583-2590` and `:2618-2625`. Ruling 5862405632 against 15.1 (`receipts/register_checklist.txt`). The DR2c-carrier ruling 5863247772 items 1-6 against FASTCONNECT `:1122-1143`, SNAPSHOT `:1097-1104` and `:1818-1823`, and BAREMETAL `:1916-1925`. Processor tree at `16be6768` (`receipts/finding_evidence_r3.txt`). S1 only | R381-3 | `816c3b742940b9ac8d160ff03e05553a47e5e66d` |
+| RTL | CLEAN | Pinned sources behind the rows: `gen_ucode.py:472,1364-2091,1582-1584`; `protocol_processor_top.sv:91,129,2448-2451,2513-2555`; `KL_pp_nvm_mgr_arb.sv:11-54`; `KL_pp_nvm_port.sv:9-26`; `acmp_nvm_wrap.sv:8-16`; `KL_aecp_ucpu.sv:106,435-436`. The `RETRY_BACKOFF_CYC_P` unit against `CLK_HZ_P` and 6.3 `retry_ready` `:697`, with 32-bit width (`receipts/backoff_width_probe.txt`). S1 and S3 only | R381-3 | `816c3b742940b9ac8d160ff03e05553a47e5e66d` |
+| Robustness | CLEAN | FASTCONNECT 9.2 next-state `:1106-1111,1179-1181` against firmware-only loss (it heals), producer exhaustion (alarm level, stale held until reset), a later success and a heartbeat. D3 6.1 BACKOFF from the error, with no bus or port held (`:633-640`). D3 6.3 firmware transaction bound (3 attempts, 1,000 ms) against producer attempts (3, 500 ms). Capture refusal before START distinct from a media attempt (D3 `:777`, SNAPSHOT `:1105`) | R381-3 | `816c3b742940b9ac8d160ff03e05553a47e5e66d` |
+| Tests | CLEAN | Lane-2 negative controls D3 `:2618-2625` against FASTCONNECT 16 Recovery `:1553-1555` and healed-outage `:1556-1559`: no opposite oracle remains. Lane-1 DR2c controls `:2558-2559`. The named sweep as an inventory tool, probed for fail-ability (`receipts/sweep_probe.txt`: the old pattern finds 0 of 9, the new one finds the required forms). 26-line checkbox digest unchanged. Ten gates exit 0 (`receipts/gates.txt`). S2 only | R381-3 | `816c3b742940b9ac8d160ff03e05553a47e5e66d` |
+| Docs | CLEAN | The four changed pages at the head (`receipts/delta_files.txt`). New ruling and 9.2 anchors (`receipts/delta_anchors.txt`). Docs gates including em-dash and style (`receipts/gates.txt`). The 15.2 table text and sweep prose `:2363-2386`. Processor documents and diagrams at the pin (06 `:339-346,361-367,419-427,850-880`; 00 `:204-210`; 03 `:234-238`; 02 `:490-494,560-572`; diagrams 01 top-level and system-context). S1 and S2 only | R381-3 | `816c3b742940b9ac8d160ff03e05553a47e5e66d` |
+
+## Real limits
+
+- **Manager bank receipts.**
+  - The assignment says the manager's source static/builder and native banks passed at this head.
+  - I could not locate those receipts in public state at 07:12Z. The evidence tree `6cf46c2a:review-evidence/70-r1` holds only round-1 author logs (`receipts/hosted_checks.txt`).
+  - No manager evidence comment for this head was on #70 or #610 at fetch time.
+  - I did not run those banks, which is outside this review's allowance, and this verdict does not rely on them.
+- **Hosted checks at the exact head, at 07:12Z.**
+  - Succeeded: `bdd-conformance`, `changes`, `docs-check-no-git`, `full-ci-gate`, `verilator-lint`, `wire-accountability` and Yosys shards 0-3.
+  - Still in progress: `docs-check`, `elaborate`, `yosys-elaboration` and Verilator shards 0-4. The `rtl-fast`, `rtl-full`, `docs` and `elaborate` workflow runs were in progress.
+  - Skipped, not executed, and not evidence: `Physical gPTP`.
+  - The manager owns hosted and act acceptance.
+- **Scoped simulator.** The scoped Verilator path `$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator` did not exist at 07:13Z (`receipts/backoff_width_probe.txt`). No simulator was used. S3 rests on the language's width rule and an arithmetic model, not on a simulation. No RTL is under review.
+- **Clause texts.** The Milan v1.2 and IEEE clause texts were not re-read. The delta introduces no new clause interpretation.
+- **Historical claims.** The historical EXECUTED claims in D3 were not re-run. The delta does not change them.
+- **Current-dev candidate.** Live `dev` has moved past the source base (`54ce8773` per the assignment). This review covers the source head only, not the final current-dev candidate.
+- **No hardware.** Physical calibration was NOT RUN, and field skips are not hardware proof.
+
+## Pending manager duties
+
+- Publish this report and obtain R380-3's verdict. Merge still needs both positives and the full completion bar.
+- Optionally route S1-S3 to a later round or to lane 1. They do not affect coverage.
+- Publish the static/builder and native bank receipts for this head, and confirm that the in-progress hosted contexts succeed at the exact head. Own hosted and act acceptance.
+- At the merge turn, build and validate the final current-dev candidate (source base `c0723222`, live dev `54ce8773` or later), then prove post-merge containment.
+- After merge, not this lane:
+  - DR3a ratification or revision, after lane 1 measures and before lane 2 implements;
+  - #70 stays open.
+
+R381-3 FINISHED

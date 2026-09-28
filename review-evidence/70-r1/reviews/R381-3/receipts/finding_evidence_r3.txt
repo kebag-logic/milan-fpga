@@ -1,0 +1,89 @@
+warning: unable to find all commit-graph files
+processor HEAD 16be6768f710e79450aace277abacd6c2c3336e5 (pin 16be6768f710e79450aace277abacd6c2c3336e5); porcelain 0
+named sweep (verbatim from D3 at head): rg -n -U -i -C 2 'NVM_MARK|persist|dirty[[:space:]]+mark|aecp_dyn_dirty_o|nvm_unflushed_o|d3_unflushed_o|restore_(done|fail|blank)_o|T-NVM|RETRY_MAX_P|RETRY_BACKOFF_CYC_P|DEB_TICKS_P|entity_enable|Nothing[[:space:]]+in[[:space:]]+the[[:space:]]+processor|groups[[:space:]]+6[[:space:]]+and[[:space:]]+7|integrating[[:space:]/]*platform|platform.s[[:space:]]+saved-state|never[[:space:]]+delay|asynchronous[[:space:]]+to[[:space:]]+protocol' docs hdl tb
+sweep output lines: 2195; match lines: 464
+
+== F1: every cited statement: 15.2 row for the file, location cited in a row, sweep match (':') or context ('-')
+hdl/aecp/ucode/gen_ucode.py:1364 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+hdl/aecp/ucode/gen_ucode.py:1439 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=1),                        # §5.3.11.1: persist it
+hdl/aecp/ucode/gen_ucode.py:1675 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=1),                        # es-5.1 item 1: persist it
+hdl/aecp/ucode/gen_ucode.py:1791 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=6),                        # persist changed map state
+hdl/aecp/ucode/gen_ucode.py:1925 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=1),                    # §5.3.5.1: persist it
+hdl/aecp/ucode/gen_ucode.py:2002 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=1),                        # §5.3.5.1: persist it
+hdl/aecp/ucode/gen_ucode.py:2091 | rows 1 | line cited 1 | sweep MATCH | u('NVM_MARK', imm=7),                       # naming persistence trigger
+hdl/aecp/ucode/gen_ucode.py:1582 | rows 1 | line cited 1 | sweep MATCH | # No NVM_MARK: §5.3.12 keeps this value volatile, so committing it to flash
+hdl/aecp/ucode/gen_ucode.py:1583 | rows 1 | line cited 1 | sweep context | # would both violate the clause and burn erase cycles on a blinking front
+hdl/aecp/ucode/gen_ucode.py:1584 | rows 1 | line cited 1 | sweep context | # panel.
+docs/architecture/06_aecp_engine.md:342 | rows 1 | line cited 1 | sweep MATCH | name, and emits the naming persistence and notification triggers. Repeating the
+docs/architecture/06_aecp_engine.md:343 | rows 1 | line cited 1 | sweep MATCH | same value performs no write and emits no trigger. The persistence consumer is
+docs/architecture/06_aecp_engine.md:365 | rows 1 | line cited 1 | sweep MATCH | | SET_NAME | configuration valid, descriptor exists, semantic name index valid, lock, compare all 64 bytes, th
+docs/architecture/06_aecp_engine.md:423 | rows 1 | line cited 1 | sweep MATCH | marks the mapping persistence class dirty. A confirmed no-op succeeds without
+docs/architecture/06_aecp_engine.md:424 | rows 1 | line cited 1 | sweep MATCH | a notification or dirty mark. The current NVM backend does not retain the
+docs/00_MILAN_COMPLIANCE_REVIEW.md:208 | rows 1 | line cited 1 | sweep MATCH | emit the persistence trigger, but replay after power loss remains in GAP-09.
+docs/architecture/03_packet_engine.md:236 | rows 1 | line cited 1 | sweep MATCH | - **(d)** NVM commits are asynchronous and never delay responses.
+docs/architecture/02_interfaces.md:492 | rows 1 | line cited 1 | sweep MATCH | free. Long busy periods expected; commits are asynchronous to protocol responses
+docs/architecture/02_interfaces.md:493 | rows 1 | line cited 1 | sweep context | ([03 §6](03_packet_engine.md) ordering rule d).
+hdl/top/protocol_processor_top.sv:2450 | rows 2 | line cited 1 | sweep MATCH | //! nobody (issue #93, S3). Manager 1 is the platform's saved-state writer;
+hdl/top/protocol_processor_top.sv:2451 | rows 2 | line cited 1 | sweep context | //! until it lands here that face is tied idle.
+tb/acmp_nvm/README.md:15 | rows 1 | line cited 1 | sweep MATCH | manager 1 is a harness face, as the platform's saved-state writer will be), the
+hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:15 | rows 1 | line cited 1 | sweep MATCH | //                (manager 1, the saved-state writer of the integrating
+hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:16 | rows 1 | line cited 1 | sweep MATCH | //                platform's contract; tied idle until it lands) in front of
+F1 location check: ALL COVERED
+
+-- R381-3 independent residuals (not in either round-2 list): row for file, sweep status
+tb/acmp_nvm/acmp_nvm_wrap.sv:12 | rows 0 | sweep context | //                KL_pp_nvm_mgr_arb (the shadow is its manager 0; manager 1
+tb/acmp_nvm/acmp_nvm_wrap.sv:13 | rows 0 | sweep MATCH | //                is a harness face, as the platform's saved-state writer
+hdl/aecp/ucode/gen_ucode.py:472 | rows 1 | sweep MATCH | u('NVM_MARK', imm=0x21),                     # sampling_rate record
+docs/architecture/06_aecp_engine.md:874 | rows 1 | sweep MATCH | SEND_RESPONSE; END                    COMMIT; NVM_MARK sampling_rate
+hdl/packet_engine/KL_pp_nvm_port.sv:25 | rows 1 | sweep MATCH | //                asynchronous to protocol responses (03 §6 ordering rule d)
+
+-- gen_ucode.py: every NVM_MARK site at the pin versus the row's cited list
+472: u('NVM_MARK', imm=0x21), # sampling_rate record
+1364: u('NVM_MARK', imm=1), # §5.3.5.1: persist it
+1439: u('NVM_MARK', imm=1), # §5.3.11.1: persist it
+1675: u('NVM_MARK', imm=1), # es-5.1 item 1: persist it
+1791: u('NVM_MARK', imm=6), # persist changed map state
+1925: u('NVM_MARK', imm=1), # §5.3.5.1: persist it
+2002: u('NVM_MARK', imm=1), # §5.3.5.1: persist it
+2091: u('NVM_MARK', imm=7), # naming persistence trigger
+
+-- mark rows: 'stay' and 'never/stop being persistence triggers' wording
+2325:| [docs/architecture/02_interfaces.md] | 8 asynchronous-response claim, lines 492-493; boot paragraph and 8.1/8.2, lines 532-572 | Qualify the reference to 03 ordering rule (d): media commits sta
+2326:| [docs/architecture/06_aecp_engine.md] | 4/5 state/name/format/map interfaces; 6.2.1, lines 341-344; 6.4 SET_NAME chain, line 365; 6.5, lines 421-425 | Restate naming and mapping mark claims exp
+2354:| [docs/00_MILAN_COMPLIANCE_REVIEW.md] | GAP-08 naming claim, lines 206-208; GAP-09; REQ-AEM-011/013/021 and REQ-PER-001/002/003 | Replace the naming persistence-trigger claim: marks stay as comp
+2356:| [hdl/aecp/ucode/gen_ucode.py] | NVM_MARK comments at lines 1364, 1439, 1675, 1791, 1925, 2002 and 2091; IDENTIFY rationale at lines 1582-1584 | Keep the mark instructions and their completion e
+
+-- exemption text at head (must not cover trigger-describing comments)
+2382:Microprogram mark instructions and their completion effects stay valid.
+2383:That exemption never covers comments describing marks as persistence triggers.
+2385:Every omitted match needs a stated, location-specific scope reason.
+
+== F2: DR2c-carrier on all four pages
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_FASTCONNECT.md: ruling link 1 | 9.2 anchor links 1 | 'only reset-sticky' 1 | never clears nvm_alarm 1 | stale-clears-on-success 1
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_MATERIALIZATION.md: ruling link 1 | 9.2 anchor links 2 | 'only reset-sticky' 2 | never clears nvm_alarm 3 | stale-clears-on-success 3
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md: ruling link 1 | 9.2 anchor links 8 | 'only reset-sticky' 1 | never clears nvm_alarm 2 | stale-clears-on-success 2
+warning: unable to find all commit-graph files
+docs/integration/BAREMETAL_FIRMWARE.md: ruling link 1 | 9.2 anchor links 1 | 'only reset-sticky' 1 | never clears nvm_alarm 1 | stale-clears-on-success 1
+-- residual un-carried alarm wording (expect none):
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_MATERIALIZATION.md:2586:It creates no firmware alarm or new status bit.
+warning: unable to find all commit-graph files
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1097:The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) adds no firmware alarm or status bit.
+warning: unable to find all commit-graph files
+-- lane-2 negative control and required recovery (D3 18.2):
+2621:Clear `nvm_alarm` on heartbeat or later success.
+2622:Drive producer exhaustion before checking those `nvm_alarm` controls.
+2624:For firmware loss alone, require later verified recovery to clear `nvm_stale`.
+2625:That required recovery is not a negative control.
+-- FASTCONNECT 9.2 recovery rule and section 16 Recovery line (unchanged normative oracle):
+warning: unable to find all commit-graph files
+1106:**Clears** on any of: `T-NVM-WRITER-ALIVE` expiring; a commit not acknowledged
+1179:backed'  = loss ? 0 : heartbeat ? 1 : backed
+1181:stale'   = loss ? 1 : (backed' AND NOT dirty') ? 0 : stale
+1553:- [ ] **Recovery**: after a writer is lost with data outstanding and then comes
+1556:- [ ] **A healed outage does not contaminate later commits**: after a loss with
+exit 0
