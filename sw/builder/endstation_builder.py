@@ -66,6 +66,10 @@ except ImportError:  # pragma: no cover
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 
+# Keep the capture receipt's hashed recipe as the single clock authority.
+sys.path.insert(0, str(ROOT))
+from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # noqa: E402
+
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
 EUI64_MAX = (1 << 64) - 1
@@ -4289,10 +4293,14 @@ def _load_soc(cfg, cons):
         raise ConfigError("soc.xlen must be 32 or 64")
     soc["xlen"] = int(soc["xlen"])
     if soc["software_profile"] == "baremetal":
+        if cons["milan_clk_hz"] != BAREMETAL_CLK_HZ:
+            raise ConfigError(
+                f"baremetal clock: milan_clk_hz must be {BAREMETAL_CLK_HZ} Hz "
+                "(docs/integration/BAREMETAL_FIRMWARE.md build contract)")
         if soc["cpu"] != "vexiiriscv" or soc["xlen"] != 32 or soc["cpu_count"] != 1:
             raise ConfigError("baremetal SoC requires VexiiRiscv RV32 and one hart")
         if cons["l2_bytes"] != 0 or soc["scala_args"]:
-            raise ConfigError("baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args")
+            raise ConfigError("baremetal SoC requires l2_bytes: 0 and no scala_args overrides")
         if cons["flashboot"] not in ("baremetal", "none"):
             raise ConfigError("baremetal SoC requires flashboot: baremetal (or none)")
     return soc
