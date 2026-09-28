@@ -235,6 +235,8 @@ module KL_pp_shadow #(
     parameter int unsigned N_SPORT_OUT_P       = 8,
     parameter int unsigned N_AUDIO_UNIT_P      = 1,
     parameter int unsigned N_CLK_DOM_P         = 1,
+    //! CONTROL descriptors in the same entity model; sizes processor state.
+    parameter int unsigned N_CONTROL_P         = 1,
     //! derived source-index width for the maap face — do not override.
     //! CLAMPED exactly as protocol_processor_top clamps its own SRC_IDX_W_C,
     //! because the shipping board elaborates this at N_STREAM_OUT_P = 1 and
@@ -1054,6 +1056,10 @@ module KL_pp_shadow #(
   protocol_processor_top #(
       .N_STREAM_IN_P  (N_STREAM_IN_P),
       .N_STREAM_OUT_P (N_STREAM_OUT_P),
+      //! Dynamic-state rows share the generated descriptor census.
+      .N_AUDIO_UNIT_P (N_AUDIO_UNIT_P),
+      .N_CLK_DOMAIN_P (N_CLK_DOM_P),
+      .N_CONTROL_P    (N_CONTROL_P),
       .SRP_DOM_DEF_VID_P (SRP_DOM_DEF_VID_P),
       .CLK_HZ_P       (CLK_HZ_P),
       .TIM_DIV_US_P   (TIM_DIV_US_P),
