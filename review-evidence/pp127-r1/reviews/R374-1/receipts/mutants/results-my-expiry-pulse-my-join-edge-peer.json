@@ -1,0 +1,73 @@
+{
+ "my-expiry-pulse": {
+  "build": true,
+  "tally": [
+   "1914 checks: 1826 PASS, 88 FAIL"
+  ],
+  "suite_exit": [
+   "EXIT=2"
+  ],
+  "fail_lines": 88,
+  "failed_names": [
+   "K11",
+   "K12",
+   "K2",
+   "K4",
+   "K5",
+   "L2",
+   "M10",
+   "M7",
+   "N1",
+   "N11",
+   "N2"
+  ],
+  "probes": {
+   "r374r3": [
+    0,
+    [
+     "R374_R3 first=14096 second=25342 pending_after_second=1 actions=1",
+     "1 checks: 1 PASS, 0 FAIL"
+    ]
+   ],
+   "r374r4": [
+    0,
+    [
+     "R374_R4 delta=-1 peer_minus_joinclk=-1 actions=0 la_frames=0",
+     "R374_R4 delta=0 peer_minus_joinclk=0 actions=0 la_frames=0",
+     "R374_R4 delta=1 peer_minus_joinclk=1 actions=0 la_frames=0",
+     "2 checks: 2 PASS, 0 FAIL"
+    ]
+   ]
+  }
+ },
+ "my-join-edge-peer": {
+  "build": true,
+  "tally": [
+   "1914 checks: 1914 PASS, 0 FAIL"
+  ],
+  "suite_exit": [
+   "EXIT=0"
+  ],
+  "fail_lines": 0,
+  "failed_names": [],
+  "probes": {
+   "r374r3": [
+    0,
+    [
+     "R374_R3 first=14096 second=25342 pending_after_second=1 actions=1",
+     "1 checks: 1 PASS, 0 FAIL"
+    ]
+   ],
+   "r374r4": [
+    1,
+    [
+     "R374_R4 delta=-1 peer_minus_joinclk=-1 actions=0 la_frames=0",
+     "R374_R4 delta=0 peer_minus_joinclk=0 actions=1 la_frames=1",
+     "FAIL: R4: peer on/after the join clock but before sLA supersedes rel=0",
+     "R374_R4 delta=1 peer_minus_joinclk=1 actions=0 la_frames=0",
+     "2 checks: 1 PASS, 1 FAIL"
+    ]
+   ]
+  }
+ }
+}
