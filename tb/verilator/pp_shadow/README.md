@@ -18,7 +18,7 @@ The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 - **[Two traps this suite exists to not fall into](#two-traps-this-suite-exists-to-not-fall-into)** -- The tvalid-only monitor tap (gh #65) and the false green a silently-skipped build produces
 - **[Time compression — and why this suite carries the control-plane coverage](#time-compression--and-why-this-suite-carries-the-control-plane-coverage)** -- Why the timer prescalers are compressed for simulation, and why this is now the only suite exercising 1722.1/SRP behaviour end to end
 - **[Note on group B's frame (corrected 2026-08-12)](#note-on-group-bs-frame-corrected-2026-08-12)** -- A correction to the frame this group injects, kept as a record of what the earlier version measured and why it was wrong
-- **[Note on group I's third probe (2026-08-13)](#note-on-group-is-third-probe-2026-08-13)** -- Why the third probe in group I behaves differently from the first two, recorded so it is not mistaken for a flake
+- **[Processor recovery regressions (#606 and #608)](#processor-recovery-regressions-606-and-608)** -- Acquisition and CRF withdrawal checks.
 
 ## Run it
 
@@ -132,7 +132,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 | F | **the ADPDU, decoded byte-exact** | the `ENTITY_AVAILABLE` that egresses is rebuilt from the `0x600` CSR identity group (entity_id, entity_model_id, capabilities, the RO `0x618`/`0x61C` shape words, the gPTP pair) and compared **octet for octet**; `available_index` is graded separately for strict growth |
 | G | the **class-D fabric face** is reachable *and live* | `adp_next_avail_index_o` reads 0 before the first advertisement and has advanced after it |
 | H | the **MAAP adapter refuses safely** | with no claimed block, every request is still accepted **and answered** (`ok = 0`), the DA gate stays shut, the plane keeps serving — and the refusal is visible on the wire as `TALKER_DEST_MAC_FAILED(3)` |
-| I | the **MAAP adapter grants** | with `KL_maap` in ANNOUNCE the request returns `ok = 1` with `base + source_index` (checked against `MAAP_STAT0`), `acmp_declaring_o` goes HIGH, and the next `PROBE_TX` is answered **SUCCESS** naming `{station MAC, uid}` and the granted `stream_dest_mac` |
+| I | the **MAAP adapter grants** | with `KL_maap` in ANNOUNCE the request returns `ok = 1` with `base + source_index` (checked against `MAAP_STAT0`), `acmp_declaring_o` goes HIGH, and the first `PROBE_TX` after the acquisition bound is answered **SUCCESS** naming `{station MAC, uid}` and the granted `stream_dest_mac` |
 | L | **the device ANSWERS AECP** | `READ_DESCRIPTOR` returns `SUCCESS` with `configuration_index`/`reserved`/the descriptor **byte-exact against the image**; a locate miss returns `NO_SUCH_DESCRIPTOR`, graded once for an index beyond a present type's count (L3, `AUDIO_UNIT[7]`) and once for a type the image does not carry (L3t, `STREAM_PORT_OUTPUT`), and a bad configuration index `BAD_ARGUMENTS`, all with the IEEE Section 7.4.5 4-byte `{type, index}` stub; `GET_COUNTERS` and `GET_AUDIO_MAP` are answered from this repository's own faces (the Table 7-157 mux; the render map RAM under the 0x001C index law, cross-read through `CHMAP_LOOP`); an unimplemented opcode returns a conformant `NOT_IMPLEMENTED` **echo**; `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`; and the two cases the standard allows to be ignored are ignored *without wedging* |
 | M | **no descriptor memory** | with the memory model withdrawn, the failed header probe exposes zero configurations and `READ_DESCRIPTOR` degrades to a well-formed `BAD_ARGUMENTS` rather than hanging the µCPU; the store serves again once memory returns |
 | K | **the shared control lane** | both legs of `ctl_tx_mux` transmitted, every frame is well formed, and no TX-trunk arbiter aborted or stalled. AECP responses are in that census, so a response that was well formed in isolation but corrupted by the shared lane fails here |
@@ -383,12 +383,60 @@ the processor **accepted**. What exposed it was group G: a level that only moves
 when the ADP engine actually transmits cannot be satisfied by a frame the ADP
 engine never took.
 
-## Note on group I's third probe (2026-08-13)
+## Processor recovery regressions (#606 and #608)
 
-The allocation is asynchronous to the answer. A `PROBE_TX` against a source in
-`GS_NO_DA` **issues** the `ALLOC_DA` and is answered `TALKER_DEST_MAC_FAILED` in
-the same walk, because the walker must not park waiting for the allocator
-(`KL_pp_maap_shim`'s decision 1 — parking it would make the whole talker half of
-ACMP deaf for 1024 cycles per attempt). So the probe that *triggers* the grant
-still gets a refusal, and the first `SUCCESS` is the **next** probe. Grading the
-triggering probe would have been grading the race.
+Group H allows one 100 ms retry round plus a bounded sweep.
+It still requires accepted requests, refusals, closed gates and command service.
+A probe during an attempted round need not cause another allocation.
+The bound adds 1,088 clocks per enabled source.
+That covers the 1,024-clock accept guard and walker overhead.
+
+Group I counts grants from MAAP enable, including ANNOUNCE polling.
+Each response belongs to its previously accepted request's source.
+Every enabled source must receive exactly one base-plus-index grant.
+After the acquisition bound, its first probe must succeed.
+The response must name its SID, destination and configured VID.
+No additional allocation may be needed by that probe.
+
+This promotes #606's first-probe reproduction into the full parent datapath.
+Startup refusal and late block availability remain the stimulus sequence.
+The real MAAP engine replaces the analysis harness's block-valid input.
+The real shim and processor remain connected through production wiring.
+The CRF fixture checks both AAF source 0 and CRF source 1.
+
+The CRF_STOP group runs in the default CRF fixture.
+It injects Listener Ready and Leave through MAC RX.
+It counts complete tagged CRF frames at MAC TX.
+It reads the actual Table 5.4 STREAM_STOP context for source 1.
+Ordinary withdrawal, the own-expiry race and reconnect must each stop once.
+No CRF frame may complete beyond one PDU period after withdrawal.
+One already-started PDU may finish within that bound.
+The two-second protocol hold must remain silent without another stop.
+
+The race uses the actual own LeaveAll deadline plus one millisecond.
+It never waits for LV as a stimulus condition.
+Timer expiry must retain IN before the accepted transmit action.
+That follows the #608 decision and Milan 4.2.7.2.2.
+Genuine LV + rLv behavior remains the processor's unchanged contract.
+Two setup probes isolate this regression from the old allocation defect.
+
+Read-only probes expose the timer, registrar and accepted request index.
+The harness never forces internal state.
+Audio and axis clocks coincide in this suite.
+One CRF period is therefore 512 * 96 = 49,152 clocks.
+Protocol time remains compressed to 100 clocks per millisecond.
+These checks prove ordering and a cycle bound, not physical latency.
+
+Focused replay commands:
+
+```sh
+make -C tb/verilator/pp_shadow run-crf SIM_ARGS=--first-probe-only
+make -C tb/verilator/pp_shadow run-crf SIM_ARGS=--crf-stop-only
+```
+
+Both regressions fail at processor `16be6768`.
+Both pass at processor `c951a9ff`.
+The old-pin comparison uses a separate scratch export.
+The first probe returns status 3 at the old pin.
+The old expiry race continues CRF without counting a stop.
+Bench re-measurement follows on the next image.
