@@ -178,7 +178,7 @@ def host_firmware(text: str, fences: int) -> str:
 
 #: the writer's file-scope state and its initial value: what a CPU-only reset
 #: gives back (the C start-up zeroes .bss and reloads .data)
-WRITER_STATICS = {"nvm_ready": "0", "nvm_retired": "0", "nvm_in_commit": "0", "nvm_seq": "0",
+WRITER_STATICS = {"nvm_started": "0", "nvm_ready": "0", "nvm_retired": "0", "nvm_in_commit": "0", "nvm_seq": "0",
                   "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
                   "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
                   "nvm_commits_failed": "0", "nvm_captures_refused": "0",
