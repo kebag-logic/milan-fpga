@@ -1,0 +1,255 @@
+[
+  {
+    "gate": "ci-scope-selftest",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 2.6,
+    "log": "receipts/gates/ci-scope-selftest.log",
+    "sha256": "ca1e05049a07662ce0e7a175af17fb7f24ac0e8b3eaa94b2c97830d12edcf628"
+  },
+  {
+    "gate": "docs",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "<md-venv-40cdefe08ebd>/bin/python",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "returncode": 0,
+    "seconds": 4.37,
+    "log": "receipts/gates/docs.log",
+    "sha256": "6705dc5b05ee1e9128e79bb386889fc2f9ec73ee150cad0eab91d8a8d03ffa27"
+  },
+  {
+    "gate": "doc-paths",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "<md-venv-40cdefe08ebd>/bin/python",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.07,
+    "log": "receipts/gates/doc-paths.log",
+    "sha256": "2a8ae8165ad323d3280f2be6969096fa8de57683e9629fc59279ba6bdef9b05a"
+  },
+  {
+    "gate": "toc",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "<md-venv-40cdefe08ebd>/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 2.97,
+    "log": "receipts/gates/toc.log",
+    "sha256": "86bb9d40303db07f7a191e72dbd7992847891ccaf8ef4aea28c6fd36c0c91da0"
+  },
+  {
+    "gate": "em-dash-vs-base",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "<md-venv-40cdefe08ebd>/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "8bc97021f28fb7f729418d3a00851c84ea0b50fd"
+    ],
+    "returncode": 0,
+    "seconds": 2.93,
+    "log": "receipts/gates/em-dash-vs-base.log",
+    "sha256": "7c4f8cc73310b859775d89f24b8b4b8b591db102c0ecfc4e9f64c3353b1ecb9d"
+  },
+  {
+    "gate": "em-dash-vs-dev",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "<md-venv-40cdefe08ebd>/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "1fa2357fcb9b83ad7d6cbeab0c7cc0eb957cdd3a"
+    ],
+    "returncode": 0,
+    "seconds": 2.86,
+    "log": "receipts/gates/em-dash-vs-dev.log",
+    "sha256": "127c6be06570c02076221742f4d4c8d189cd4aee7c098902661287e87f30b1e6"
+  },
+  {
+    "gate": "feature-status",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "seconds": 0.69,
+    "log": "receipts/gates/feature-status.log",
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+  },
+  {
+    "gate": "doc-style",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.05,
+    "log": "receipts/gates/doc-style.log",
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "gate": "doc-style-selftest",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 0.04,
+    "log": "receipts/gates/doc-style-selftest.log",
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+  },
+  {
+    "gate": "solution-docs",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_solution_docs.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.11,
+    "log": "receipts/gates/solution-docs.log",
+    "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+  },
+  {
+    "gate": "python-idiom",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "returncode": 0,
+    "seconds": 3.39,
+    "log": "receipts/gates/python-idiom.log",
+    "sha256": "37b6e127d1dc4da172d0f4927819cbd90733a949c75590503384f46858481a81"
+  },
+  {
+    "gate": "python-idiom-selftest",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 3.35,
+    "log": "receipts/gates/python-idiom-selftest.log",
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+  },
+  {
+    "gate": "baremetal-only-check",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 15.18,
+    "log": "receipts/gates/baremetal-only-check.log",
+    "sha256": "399a05ed6f181b16de1922e3234026188f34dcef14fbf94d2e4b806eee2ee3d8"
+  },
+  {
+    "gate": "baremetal-only-selftest",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 5.54,
+    "log": "receipts/gates/baremetal-only-selftest.log",
+    "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8"
+  },
+  {
+    "gate": "diff-check-vs-base",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "8bc97021f28fb7f729418d3a00851c84ea0b50fd",
+      "895be30712acf8dd80956a5b954690859b080d87"
+    ],
+    "returncode": 0,
+    "seconds": 0.03,
+    "log": "receipts/gates/diff-check-vs-base.log",
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c"
+  },
+  {
+    "gate": "diff-check-vs-dev",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "1fa2357fcb9b83ad7d6cbeab0c7cc0eb957cdd3a",
+      "895be30712acf8dd80956a5b954690859b080d87"
+    ],
+    "returncode": 0,
+    "seconds": 0.03,
+    "log": "receipts/gates/diff-check-vs-dev.log",
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c"
+  },
+  {
+    "gate": "diff-check-vs-branch",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "3b5603e3d16a164c35329efeb633800fe4fe9f95",
+      "895be30712acf8dd80956a5b954690859b080d87"
+    ],
+    "returncode": 0,
+    "seconds": 0.03,
+    "log": "receipts/gates/diff-check-vs-branch.log",
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c"
+  },
+  {
+    "gate": "report-script-generation",
+    "head": "895be30712acf8dd80956a5b954690859b080d87",
+    "argv": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "report_timing_grade.py",
+      "<packet>/scratch/report-gen/input/dummy_route.dcp",
+      "<packet>/scratch/report-gen/out"
+    ],
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "receipts/gates/report-script-generation.log",
+    "sha256": "75616855ab783115f4294a4135faf00d4f8d011c90398b3efec36aae5ae1bf56"
+  }
+]

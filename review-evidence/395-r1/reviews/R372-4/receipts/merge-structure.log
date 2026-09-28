@@ -1,0 +1,23 @@
+ok   checkout HEAD is 895be30712acf8dd80956a5b954690859b080d87
+ok   tree aaf64510
+ok   parents are 3b5603e3 (branch) and 1fa2357f (dev)
+ok   merge base is 8bc97021
+ok   every single-sided or untouched path (incl. modes and gitlinks) equals its source side: []
+ok   paths changed on both sides: ['docs/findings/README.md', 'sw/builder/test_builder.py', 'sw/litex/milan_soc.py']
+ok   protocol-processor gitlink 16be6768 (dev's)
+ok   git merge-tree recomputation conflicts exactly in ['docs/findings/README.md', 'sw/builder/test_builder.py']
+ok   recomputed merge differs from the published merge only in the two conflict files: ['docs/findings/README.md', 'sw/builder/test_builder.py']
+ok   milan_soc.py equals the clean auto-merge
+ok   findings rows = union of both sides, no duplicate
+ok   findings: branch relative row order preserved
+ok   findings: dev relative row order preserved
+ok   findings: both new current records lead the unchanged base rows (newest-first block)
+ok   findings README = dev + exactly one inserted row
+ok   test_builder: only dev's loop-head line was re-flowed: ['    for fn in (test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,']
+ok   test_builder: inserted lines = the branch's added lines + dev's four entries re-flowed
+ok   test_builder: 91 loop entries, no duplicate
+ok   test_builder: loop = union of both sides' entries
+ok   test_builder: branch entry first (as on branch), dev's four next (as on dev), common tail unchanged
+ok   test_builder: test_commercial_timing_grade defined once
+RESULT PASS failures=0
+rc=0

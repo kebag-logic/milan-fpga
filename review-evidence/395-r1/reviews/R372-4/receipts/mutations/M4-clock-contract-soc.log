@@ -1,0 +1,38 @@
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+[clock contract] 5 tap conversions and presence declarations match configurations
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/M4/sw/builder/test_clock_contract.py", line 115, in _soc_clock_case
+    soc.main()
+    ~~~~~~~~^^
+  File "<packet>/scratch/mut/M4/sw/litex/milan_soc.py", line 3737, in main
+    board_audio_routing.assert_front_end_routed(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        args.board, args.audio_interface,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        audio_if_master=getattr(args, "audio_interface_master", False))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+_soc_clock_case.<locals>.BeforePlatform
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/M4/sw/builder/test_clock_contract.py", line 228, in <module>
+    test_soc_clock_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/M4/sw/builder/test_clock_contract.py", line 138, in test_soc_clock_contract
+    _soc_clock_case(milan_soc, bad_argv, True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/M4/sw/builder/test_clock_contract.py", line 117, in _soc_clock_case
+    assert not refused, f"clock accepted before platform: {argv}"
+           ^^^^^^^^^^^
+AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-wire-chans', '4', '--fabric-gptp', '--cpu', 'vexiiriscv', '--software-profile', 'baremetal', '--xlen', '32', '--full', '--with-spiflash', '--flashboot', 'baremetal', '--timing-opt', '--l2-bytes', '0', '--uart-baudrate', '115200', '--cpu-count', '1', '--entity-gen-dir', '<packet>/scratch/mut/M4/configs/generated/endstation_arty_4x4']

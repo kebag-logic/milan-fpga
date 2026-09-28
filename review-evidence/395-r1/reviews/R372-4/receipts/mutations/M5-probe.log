@@ -1,0 +1,12 @@
+recipe CPU_HZ=40000000 builder BAREMETAL_CLK_HZ=40000000 TIMING_GRADE={'part': 'xc7a100t-fgg484-2', 'grade': 'commercial', 'junction_min_c': 0, 'junction_max_c': 85, 'corners': ('Slow', 'Fast')}
+  ok   5 tracked configurations
+Traceback (most recent call last):
+  File "<packet>/probe_composition.py", line 153, in <module>
+    cfg = eb.load_config(path)
+  File "<packet>/scratch/mut/M5/sw/builder/endstation_builder.py", line 4324, in load_config
+    soc = _load_soc(cfg, cons)
+  File "<packet>/scratch/mut/M5/sw/builder/endstation_builder.py", line 4297, in _load_soc
+    raise ConfigError(
+        f"baremetal clock: milan_clk_hz must be {BAREMETAL_CLK_HZ} Hz "
+        "(docs/integration/BAREMETAL_FIRMWARE.md build contract)")
+endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 40000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)

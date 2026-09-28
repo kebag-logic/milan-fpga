@@ -1,0 +1,89 @@
+recipe CPU_HZ=50000000 builder BAREMETAL_CLK_HZ=50000000 TIMING_GRADE={'part': 'xc7a100t-fgg484-2', 'grade': 'commercial', 'junction_min_c': 0, 'junction_max_c': 85, 'corners': ('Slow', 'Fast')}
+  ok   5 tracked configurations
+[endstation_arty_4x4] configured pair sys=83333000 milan=50000000
+[endstation_arty_4x4] argv clock options: ['--sys-clk-freq', '83.333e6', '--milan-clk-freq', '50e6']
+  ok   endstation_arty_4x4: real CLI reaches _CRG (crg: )
+  ok   endstation_arty_4x4: effective Milan/CPU clock 5e+07 == recipe CPU_HZ 50000000 == builder 50000000
+  ok   endstation_arty_4x4: parsed milan 5e+07 == configured 50000000
+  ok   endstation_arty_4x4: parsed sys 8.3333e+07 == configured 83333000
+  ok   endstation_arty_4x4: _CRG got sys=8.3333e+07 milan=50000000.0 board=arty
+  OBSERVATION endstation_arty_4x4: out-of-scope board PLL plan does not solve at margin 0: No PLL config found (ClkIn=100.00MHz, ClkOut0=83.33MHz, ClkOut1=25.00MHz, ClkOut2=50.00MHz, ClkOut3=333.33MHz, ClkOut4=333.33MHz, ClkOut5=200.00MHz).
+[endstation_arty_8ch] configured pair sys=83333000 milan=50000000
+[endstation_arty_8ch] argv clock options: ['--sys-clk-freq', '83.333e6', '--milan-clk-freq', '50e6']
+  ok   endstation_arty_8ch: real CLI reaches _CRG (crg: )
+  ok   endstation_arty_8ch: effective Milan/CPU clock 5e+07 == recipe CPU_HZ 50000000 == builder 50000000
+  ok   endstation_arty_8ch: parsed milan 5e+07 == configured 50000000
+  ok   endstation_arty_8ch: parsed sys 8.3333e+07 == configured 83333000
+  ok   endstation_arty_8ch: _CRG got sys=8.3333e+07 milan=50000000.0 board=arty
+  OBSERVATION endstation_arty_8ch: out-of-scope board PLL plan does not solve at margin 0: No PLL config found (ClkIn=100.00MHz, ClkOut0=83.33MHz, ClkOut1=25.00MHz, ClkOut2=50.00MHz, ClkOut3=333.33MHz, ClkOut4=333.33MHz, ClkOut5=200.00MHz).
+[endstation_arty_current] configured pair sys=83333000 milan=50000000
+[endstation_arty_current] argv clock options: ['--sys-clk-freq', '83.333e6', '--milan-clk-freq', '50e6']
+  ok   endstation_arty_current: real CLI reaches _CRG (crg: )
+  ok   endstation_arty_current: effective Milan/CPU clock 5e+07 == recipe CPU_HZ 50000000 == builder 50000000
+  ok   endstation_arty_current: parsed milan 5e+07 == configured 50000000
+  ok   endstation_arty_current: parsed sys 8.3333e+07 == configured 83333000
+  ok   endstation_arty_current: _CRG got sys=8.3333e+07 milan=50000000.0 board=arty
+  OBSERVATION endstation_arty_current: out-of-scope board PLL plan does not solve at margin 0: No PLL config found (ClkIn=100.00MHz, ClkOut0=83.33MHz, ClkOut1=25.00MHz, ClkOut2=50.00MHz, ClkOut3=333.33MHz, ClkOut4=333.33MHz, ClkOut5=200.00MHz).
+[endstation_ax7101_1x1_tdm8] configured pair sys=100000000 milan=50000000
+[endstation_ax7101_1x1_tdm8] argv clock options: ['--milan-clk-freq', '50e6']
+  ok   endstation_ax7101_1x1_tdm8: real CLI reaches _CRG (crg: )
+  ok   endstation_ax7101_1x1_tdm8: effective Milan/CPU clock 5e+07 == recipe CPU_HZ 50000000 == builder 50000000
+  ok   endstation_ax7101_1x1_tdm8: parsed milan 5e+07 == configured 50000000
+  ok   endstation_ax7101_1x1_tdm8: parsed sys 1e+08 == configured 100000000
+  ok   endstation_ax7101_1x1_tdm8: _CRG got sys=1e+08 milan=50000000.0 board=ax7101
+  ok   endstation_ax7101_1x1_tdm8: PLL clkout0 requested 1e+08 solved 1e+08 margin 0
+  ok   endstation_ax7101_1x1_tdm8: PLL clkout1 requested 5e+07 solved 5e+07 margin 0
+  ok   endstation_ax7101_1x1_tdm8: PLL clkout2 requested 4e+08 solved 4e+08 margin 0
+  ok   endstation_ax7101_1x1_tdm8: PLL clkout3 requested 4e+08 solved 4e+08 margin 0
+  ok   endstation_ax7101_1x1_tdm8: PLL clkout4 requested 2e+08 solved 2e+08 margin 0
+  ok   endstation_ax7101_1x1_tdm8: sys and Milan clocks are PLL outputs ([50000000.0, 100000000, 200000000.0, 400000000])
+  info endstation_ax7101_1x1_tdm8: vco=1.6e+09 vco_range=(800000000.0, 1866000000.0) device=xc7a100t-fgg484-2
+  ok   endstation_ax7101_1x1_tdm8: platform part xc7a100t-fgg484-2 == declared xc7a100t-fgg484-2
+  ok   endstation_ax7101_1x1_tdm8: PLL VCO range (800000000.0, 1866000000.0) == S7PLL(speedgrade=-2)
+  ok   endstation_ax7101_1x1_tdm8: pre-placement == configure_commands()
+  ok   endstation_ax7101_1x1_tdm8: grade setup carries no clock literal
+  ok   endstation_ax7101_1x1_tdm8: corner-report hook first (kl_timing_grade_reports candidate_signoff)
+[endstation_ax7101_8x8] configured pair sys=100000000 milan=50000000
+[endstation_ax7101_8x8] argv clock options: ['--milan-clk-freq', '50e6']
+  ok   endstation_ax7101_8x8: real CLI reaches _CRG (crg: )
+  ok   endstation_ax7101_8x8: effective Milan/CPU clock 5e+07 == recipe CPU_HZ 50000000 == builder 50000000
+  ok   endstation_ax7101_8x8: parsed milan 5e+07 == configured 50000000
+  ok   endstation_ax7101_8x8: parsed sys 1e+08 == configured 100000000
+  ok   endstation_ax7101_8x8: _CRG got sys=1e+08 milan=50000000.0 board=ax7101
+  ok   endstation_ax7101_8x8: PLL clkout0 requested 1e+08 solved 1e+08 margin 0
+  ok   endstation_ax7101_8x8: PLL clkout1 requested 5e+07 solved 5e+07 margin 0
+  ok   endstation_ax7101_8x8: PLL clkout2 requested 4e+08 solved 4e+08 margin 0
+  ok   endstation_ax7101_8x8: PLL clkout3 requested 4e+08 solved 4e+08 margin 0
+  ok   endstation_ax7101_8x8: PLL clkout4 requested 2e+08 solved 2e+08 margin 0
+  ok   endstation_ax7101_8x8: sys and Milan clocks are PLL outputs ([50000000.0, 100000000, 200000000.0, 400000000])
+  info endstation_ax7101_8x8: vco=1.6e+09 vco_range=(800000000.0, 1866000000.0) device=xc7a100t-fgg484-2
+  ok   endstation_ax7101_8x8: platform part xc7a100t-fgg484-2 == declared xc7a100t-fgg484-2
+  ok   endstation_ax7101_8x8: PLL VCO range (800000000.0, 1866000000.0) == S7PLL(speedgrade=-2)
+  ok   endstation_ax7101_8x8: pre-placement == configure_commands()
+  ok   endstation_ax7101_8x8: grade setup carries no clock literal
+  ok   endstation_ax7101_8x8: corner-report hook first (kl_timing_grade_reports candidate_signoff)
+[sweep.sh ax7101 (shipping)] argv clock options: ['--milan-clk-freq', '50e6']
+  ok   sweep.sh ax7101 (shipping): real CLI reaches _CRG (crg: )
+  ok   sweep.sh ax7101 (shipping): effective Milan/CPU clock 5e+07 == recipe CPU_HZ 50000000 == builder 50000000
+  ok   sweep.sh ax7101 (shipping): parsed milan 5e+07 == configured 50000000
+  ok   sweep.sh ax7101 (shipping): parsed sys 1e+08 == configured 100000000
+  ok   sweep.sh ax7101 (shipping): _CRG got sys=1e+08 milan=50000000.0 board=ax7101
+  ok   sweep.sh ax7101 (shipping): PLL clkout0 requested 1e+08 solved 1e+08 margin 0
+  ok   sweep.sh ax7101 (shipping): PLL clkout1 requested 5e+07 solved 5e+07 margin 0
+  ok   sweep.sh ax7101 (shipping): PLL clkout2 requested 4e+08 solved 4e+08 margin 0
+  ok   sweep.sh ax7101 (shipping): PLL clkout3 requested 4e+08 solved 4e+08 margin 0
+  ok   sweep.sh ax7101 (shipping): PLL clkout4 requested 2e+08 solved 2e+08 margin 0
+  ok   sweep.sh ax7101 (shipping): sys and Milan clocks are PLL outputs ([50000000.0, 100000000, 200000000.0, 400000000])
+  info sweep.sh ax7101 (shipping): vco=1.6e+09 vco_range=(800000000.0, 1866000000.0) device=xc7a100t-fgg484-2
+  ok   sweep.sh ax7101 (shipping): platform part xc7a100t-fgg484-2 == declared xc7a100t-fgg484-2
+  ok   sweep.sh ax7101 (shipping): PLL VCO range (800000000.0, 1866000000.0) == S7PLL(speedgrade=-2)
+  ok   sweep.sh ax7101 (shipping): pre-placement == configure_commands()
+  ok   sweep.sh ax7101 (shipping): grade setup carries no clock literal
+  ok   sweep.sh ax7101 (shipping): corner-report hook first (kl_timing_grade_reports candidate_signoff)
+[negative controls: each must be refused before _CRG]
+  FAIL N1 recipe clock 40 MHz: crg {'args': Namespace(xlen=32, cpu_count=1, cpu='vexiiriscv', software_profile='baremetal', with_fpu=False, scala_args=[], sys_clk_freq=100000000.0, board='ax7101', l2_bytes=0.0, milan_clk_freq=50000000.0, num_streams=1, fabric_gptp=True, gptp_ingress_lat_ns=656, gptp_egress_lat_ns=219, no_render_lpf=True, no_media_clock_servo=False, no_latency_taps=False, no_maap=False, no_i2s_playback=True, entity_gen_dir='<packet>/scratch/mut/M4/configs/generated/endstation_ax7101_1x1_tdm8', no_datapath_probes=False, no_rx_mac_filter=False, loopback_lane=True, pps=False, audio_interface='tdm8', audio_interface_master=True, audio_interface_render=8, audio_fs_hz=48000, audio_word_bits=32, talker_wire_chans=8, main_ram_size=32768, no_milan=False, with_mac=False, with_dram=False, bus_standard='wishbone', with_spiflash=True, flashboot='baremetal', full=True, eth_port='e1', gtx_tx_invert=True, rgmii_tx_delay=2e-09, rgmii_rx_delay=0.0, uart_baudrate=115200, build=False, load=False, vivado_max_threads=32, place_directive=None, synth_directive=None, opt_directive=None, route_directive=None, area_flow=False, timing_opt=True, floorplan=True, output_dir=None, gateware_dir=None, software_dir=None, include_dir=None, generated_dir=None, build_backend='litex', build_log=True, no_compile=False, no_compile_software=False, no_compile_gateware=False, soc_csv=None, soc_json=None, soc_svd=None, memory_x=None, doc=False, hierarchical_verilog=False, build_bundle=False, bundle_root=[], bundle_include=[], bundle_pythonpath_root=[], bundle_auto_pythonpath=False, bundle_strict='warn', bios_lto=False, bios_format='integer', bios_console='full', bios_no_ansi=False, bios_stack_margin=None, libc_mode='minimal', no_integrated_rom_auto_size=False), 'platform': <alinx_ax7101.Platform object at 0x7fb4743ed350>, 'sys': 100000000, 'kw': {'with_dram': True, 'with_eth': True, 'milan_clk_freq': 50000000.0, 'board': 'ax7101', 'audio_tdm_hz': None}, 'crg': <milan_soc._CRG object at 0x7fb4742145f0>}
+  FAIL N2 --milan-clk-freq 100e6: crg {'args': Namespace(xlen=32, cpu_count=1, cpu='vexiiriscv', software_profile='baremetal', with_fpu=False, scala_args=[], sys_clk_freq=100000000.0, board='ax7101', l2_bytes=0.0, milan_clk_freq=100000000.0, num_streams=1, fabric_gptp=True, gptp_ingress_lat_ns=656, gptp_egress_lat_ns=219, no_render_lpf=True, no_media_clock_servo=False, no_latency_taps=False, no_maap=False, no_i2s_playback=True, entity_gen_dir='<packet>/scratch/mut/M4/configs/generated/endstation_ax7101_1x1_tdm8', no_datapath_probes=False, no_rx_mac_filter=False, loopback_lane=True, pps=False, audio_interface='tdm8', audio_interface_master=True, audio_interface_render=8, audio_fs_hz=48000, audio_word_bits=32, talker_wire_chans=8, main_ram_size=32768, no_milan=False, with_mac=False, with_dram=False, bus_standard='wishbone', with_spiflash=True, flashboot='baremetal', full=True, eth_port='e1', gtx_tx_invert=True, rgmii_tx_delay=2e-09, rgmii_rx_delay=0.0, uart_baudrate=115200, build=False, load=False, vivado_max_threads=32, place_directive=None, synth_directive=None, opt_directive=None, route_directive=None, area_flow=False, timing_opt=True, floorplan=True, output_dir=None, gateware_dir=None, software_dir=None, include_dir=None, generated_dir=None, build_backend='litex', build_log=True, no_compile=False, no_compile_software=False, no_compile_gateware=False, soc_csv=None, soc_json=None, soc_svd=None, memory_x=None, doc=False, hierarchical_verilog=False, build_bundle=False, bundle_root=[], bundle_include=[], bundle_pythonpath_root=[], bundle_auto_pythonpath=False, bundle_strict='warn', bios_lto=False, bios_format='integer', bios_console='full', bios_no_ansi=False, bios_stack_margin=None, libc_mode='minimal', no_integrated_rom_auto_size=False), 'platform': <alinx_ax7101.Platform object at 0x7fb4743ed810>, 'sys': 100000000, 'kw': {'with_dram': True, 'with_eth': True, 'milan_clk_freq': 100000000.0, 'board': 'ax7101', 'audio_tdm_hz': None}, 'crg': <milan_soc._CRG object at 0x7fb474214170>}
+  FAIL N3 --milan-clk-freq 0: crg {'args': Namespace(xlen=32, cpu_count=1, cpu='vexiiriscv', software_profile='baremetal', with_fpu=False, scala_args=[], sys_clk_freq=100000000.0, board='ax7101', l2_bytes=0.0, milan_clk_freq=0.0, num_streams=1, fabric_gptp=True, gptp_ingress_lat_ns=656, gptp_egress_lat_ns=219, no_render_lpf=True, no_media_clock_servo=False, no_latency_taps=False, no_maap=False, no_i2s_playback=True, entity_gen_dir='<packet>/scratch/mut/M4/configs/generated/endstation_ax7101_1x1_tdm8', no_datapath_probes=False, no_rx_mac_filter=False, loopback_lane=True, pps=False, audio_interface='tdm8', audio_interface_master=True, audio_interface_render=8, audio_fs_hz=48000, audio_word_bits=32, talker_wire_chans=8, main_ram_size=32768, no_milan=False, with_mac=False, with_dram=False, bus_standard='wishbone', with_spiflash=True, flashboot='baremetal', full=True, eth_port='e1', gtx_tx_invert=True, rgmii_tx_delay=2e-09, rgmii_rx_delay=0.0, uart_baudrate=115200, build=False, load=False, vivado_max_threads=32, place_directive=None, synth_directive=None, opt_directive=None, route_directive=None, area_flow=False, timing_opt=True, floorplan=True, output_dir=None, gateware_dir=None, software_dir=None, include_dir=None, generated_dir=None, build_backend='litex', build_log=True, no_compile=False, no_compile_software=False, no_compile_gateware=False, soc_csv=None, soc_json=None, soc_svd=None, memory_x=None, doc=False, hierarchical_verilog=False, build_bundle=False, bundle_root=[], bundle_include=[], bundle_pythonpath_root=[], bundle_auto_pythonpath=False, bundle_strict='warn', bios_lto=False, bios_format='integer', bios_console='full', bios_no_ansi=False, bios_stack_margin=None, libc_mode='minimal', no_integrated_rom_auto_size=False), 'platform': <alinx_ax7101.Platform object at 0x7fb4742160f0>, 'sys': 100000000, 'kw': {'with_dram': True, 'with_eth': True, 'milan_clk_freq': 0.0, 'board': 'ax7101', 'audio_tdm_hz': None}, 'crg': <milan_soc._CRG object at 0x7fb474216450>}
+[positive control P1: changed declared part reaches the PLL]
+  ok   P1: part -1 -> VCO range (800000000.0, 1600000000.0)
+RESULT FAIL failures=3
