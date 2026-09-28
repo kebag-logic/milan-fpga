@@ -1,0 +1,83 @@
+test_audio_unit_shipping_rates:
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+RESULT test_audio_unit_shipping_rates PASS
+test_shipping_image_contract:
+  [gate 36b] arty_current: rates 144/3/156, sources 76/2/80 accepted
+  [gate 36b] arty_4x4: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] arty_8ch: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] ax7101_8x8: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] ax7101_1x1_tdm8: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10_EMPTY
+  [gate 36b] unlisted current rate: L10_CURRENT
+  [gate 36b] current pull mismatch: L10_CURRENT
+  [gate 36b] wrong offset: L10_OFFSET
+  [gate 36b] ninth rate: L10_COUNT
+  [gate 36b] count exceeds extent: L10_COUNT_EXTENT
+  [gate 36b] one byte short: L10_PARTIAL_WORD
+  [gate 36b] one word extra: L10_EXTRA_WORDS
+  [gate 36b] reversed sources: L6_ORDER
+  [gate 36b] source gap: L6_GAP
+  [gate 36b] duplicate source: L6_DUPLICATE
+  [gate 36b] short audio header: L10_HEADER
+  [gate 36b] short domain header: L6_HEADER
+  [gate 36b] empty sources: L6_EMPTY
+  [gate 36b] short source list: L6_EXTENT
+  [gate 36b] source list in header: L6_OFFSET
+  [gate 36b] padded source offset: L6_OFFSET
+RESULT test_shipping_image_contract PASS
+test_shipping_image_contract_index_walk:
+  [gate 36b] all 10 descriptors checked across configurations, strides and runs
+RESULT test_shipping_image_contract_index_walk PASS
+test_soc_shipping_image_contract:
+  [gate 36b] arty_current: SoC/builder images identical
+  [gate 36b] arty_4x4: SoC/builder images identical
+  [gate 36b] arty_8ch: SoC/builder images identical
+  [gate 36b] ax7101_8x8: SoC/builder images identical
+  [gate 36b] ax7101_1x1_tdm8: SoC/builder images identical
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10_EMPTY
+  [gate 36b] unlisted current rate: L10_CURRENT
+  [gate 36b] current pull mismatch: L10_CURRENT
+  [gate 36b] wrong offset: L10_OFFSET
+  [gate 36b] ninth rate: L10_COUNT
+  [gate 36b] count exceeds extent: L10_COUNT_EXTENT
+  [gate 36b] one byte short: L10_PARTIAL_WORD
+  [gate 36b] one word extra: L10_EXTRA_WORDS
+  [gate 36b] reversed sources: L6_ORDER
+  [gate 36b] source gap: L6_GAP
+  [gate 36b] duplicate source: L6_DUPLICATE
+  [gate 36b] short audio header: L10_HEADER
+  [gate 36b] short domain header: L6_HEADER
+  [gate 36b] empty sources: L6_EMPTY
+  [gate 36b] short source list: L6_EXTENT
+  [gate 36b] source list in header: L6_OFFSET
+  [gate 36b] padded source offset: L6_OFFSET
+RESULT test_soc_shipping_image_contract PASS
+test_shipping_image_contract_presence:
+  [gate 36b] absent row, configuration 0: L10_MISSING
+  [gate 36b] zero row count, configuration 0: L10_MISSING
+  [gate 36b] absent row, configuration 0: L6_MISSING
+  [gate 36b] zero row count, configuration 0: L6_MISSING
+  [gate 36b] absent row, configuration 1: L10_MISSING
+  [gate 36b] zero row count, configuration 1: L10_MISSING
+  [gate 36b] absent row, configuration 1: L6_MISSING
+  [gate 36b] zero row count, configuration 1: L6_MISSING
+  [gate 36b] header configuration count 0: IMAGE_CONFIGS
+  [gate 36b] header configuration count 3: L10_MISSING
+RESULT test_shipping_image_contract_presence PASS
+rc=0

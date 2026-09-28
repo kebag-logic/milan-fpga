@@ -1,0 +1,17 @@
+F2 count 0, no words, current 0/48000: L10_EMPTY L10_EMPTY
+F2 count 0 with one trailing word: L10_EMPTY
+F2 count 0 at wrong offset (offset checked first): L10_OFFSET
+current at each position of 8: ['ACCEPT', 'ACCEPT', 'ACCEPT', 'ACCEPT', 'ACCEPT', 'ACCEPT', 'ACCEPT', 'ACCEPT']
+current absent (1..8 entries): ['L10_CURRENT', 'L10_CURRENT', 'L10_CURRENT', 'L10_CURRENT', 'L10_CURRENT', 'L10_CURRENT', 'L10_CURRENT', 'L10_CURRENT']
+pull: current P vs [48000]: L10_CURRENT current 48000 vs [P]: L10_CURRENT P vs [P]: ACCEPT
+current matches only a word beyond count (count 1, 2 words): L10_EXTRA_WORDS
+current 0 vs [0]: ACCEPT  0xFFFFFFFF vs [0xFFFFFFFF]: ACCEPT
+L6 offsets accepted: [76]  others all L6_OFFSET: True
+L6 offset 76 count 0: L6_EMPTY  offset 70 count 0: L6_OFFSET
+L6 identity + trailing 2 bytes (unadopted suggestion, expected ACCEPT): ACCEPT
+arty_current n_config=1 AU/CD rows={(0, 2): 1, (0, 36): 1} {'pristine': 'ACCEPT', 'n_config 0': 'IMAGE_CONFIGS', 'n_config +1': 'L10_MISSING', 'AU row count 0': 'L10_MISSING', 'CD row count 0': 'L6_MISSING', 'AU row retyped 0x0003': 'L10_MISSING', 'CD row retyped 0x0025': 'L6_MISSING', 'AU row cfg -> n_config': 'IMAGE_STRUCTURE', 'row0 (ENTITY) cfg -> n_config': 'IMAGE_STRUCTURE'}
+arty_4x4 n_config=1 AU/CD rows={(0, 2): 1, (0, 36): 1} {'pristine': 'ACCEPT', 'n_config 0': 'IMAGE_CONFIGS', 'n_config +1': 'L10_MISSING', 'AU row count 0': 'L10_MISSING', 'CD row count 0': 'L6_MISSING', 'AU row retyped 0x0003': 'L10_MISSING', 'CD row retyped 0x0025': 'L6_MISSING', 'AU row cfg -> n_config': 'IMAGE_STRUCTURE', 'row0 (ENTITY) cfg -> n_config': 'IMAGE_STRUCTURE'}
+arty_8ch n_config=1 AU/CD rows={(0, 2): 1, (0, 36): 1} {'pristine': 'ACCEPT', 'n_config 0': 'IMAGE_CONFIGS', 'n_config +1': 'L10_MISSING', 'AU row count 0': 'L10_MISSING', 'CD row count 0': 'L6_MISSING', 'AU row retyped 0x0003': 'L10_MISSING', 'CD row retyped 0x0025': 'L6_MISSING', 'AU row cfg -> n_config': 'IMAGE_STRUCTURE', 'row0 (ENTITY) cfg -> n_config': 'IMAGE_STRUCTURE'}
+ax7101_8x8 n_config=1 AU/CD rows={(0, 2): 1, (0, 36): 1} {'pristine': 'ACCEPT', 'n_config 0': 'IMAGE_CONFIGS', 'n_config +1': 'L10_MISSING', 'AU row count 0': 'L10_MISSING', 'CD row count 0': 'L6_MISSING', 'AU row retyped 0x0003': 'L10_MISSING', 'CD row retyped 0x0025': 'L6_MISSING', 'AU row cfg -> n_config': 'IMAGE_STRUCTURE', 'row0 (ENTITY) cfg -> n_config': 'IMAGE_STRUCTURE'}
+ax7101_1x1_tdm8 n_config=1 AU/CD rows={(0, 2): 1, (0, 36): 1} {'pristine': 'ACCEPT', 'n_config 0': 'IMAGE_CONFIGS', 'n_config +1': 'L10_MISSING', 'AU row count 0': 'L10_MISSING', 'CD row count 0': 'L6_MISSING', 'AU row retyped 0x0003': 'L10_MISSING', 'CD row retyped 0x0025': 'L6_MISSING', 'AU row cfg -> n_config': 'IMAGE_STRUCTURE', 'row0 (ENTITY) cfg -> n_config': 'IMAGE_STRUCTURE'}
+rc=0

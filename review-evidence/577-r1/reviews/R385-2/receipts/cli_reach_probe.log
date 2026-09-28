@@ -1,0 +1,4 @@
+1 verbatim repro at head: rc=0; gate 36b lines=56; SoC identity lines=5; stderr tail=''
+2 instrumented repro: rc=0; checker calls by immediate caller: {'_entity_model_image': 35, 'build_desc_image': 28}
+3 forced-refusal repro: rc=1 (must be nonzero); last line ['endstation_builder.ConfigError: aem_desc.bin: L6_ORDER: forced sentinel refusal']
+rc=0
