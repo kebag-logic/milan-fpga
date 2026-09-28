@@ -105,11 +105,12 @@ The offset is local time minus grandmaster time.
 - The CRF servo holds through the entire indicated correction.
 - One step is one `phc_step_we_o` pulse.
 - That pulse carries the measured offset, negated.
-- Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+- Each step is one counted [render re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
 
 | Source | Record |
 |---|---|
-| Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+| Step-threshold decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+| PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
 | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
 | Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md#step-versus-slew-policy) |
 
@@ -251,6 +252,14 @@ Clause `10.4.5` maps CRF's bit.
 
 The separate `mr` restart follows `4.4.4.3` and `10.4.3`.
 
+The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) keeps PHC-only re-base separate.
+
+Only source changes and selected-CRF restart causes request `mr`.
+
+PHC steps retain `tu`, holdover and the counted render re-base.
+
+A coincident step never suppresses a required media-clock restart.
+
 Held `tu` permits recovery after 256 clean timestamp intervals.
 
 Sequence gaps also restart that history.
@@ -342,7 +351,7 @@ The constant is independent of the audio interface.
 | Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
 | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
 | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
-| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a step is also one `mr` toggle ([media re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step)) |
+| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) |
 | Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
 | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
 | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |

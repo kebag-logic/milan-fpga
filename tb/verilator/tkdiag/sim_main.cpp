@@ -647,28 +647,28 @@ void TkdiagHarness::all_five_counters_wrap_on_their_normal_events() {
 // ---------------------------------------------------------------------
 //  T17: a request that lands on a PENDING restart merges with it (#387,
 //  ruling 5802264260 item 2): the stream puts exactly one toggle on the
-//  wire, never none, and its MEDIA_RESET counts that toggle. The ruling's
-//  example is a CRF disruption plus a PHC step; milan_datapath ORs both
-//  onto restart_p_i, so here they are two restart_p_i pulses.
+//  wire, never none, and its MEDIA_RESET counts that toggle. Two genuine
+//  causes, a CRF disruption and a received CRF mr toggle, reach
+//  restart_p_i. A PHC-only step supplies no request (#602).
 //
 //  Pending is per stream, and it lasts until a PDU at the new level has
 //  gone out on that stream (ruling 5818091077). So the case runs two
-//  talkers, one in each part of that window, when the step arrives:
+//  talkers, one in each part of that window, when the request arrives:
 //   - talker 1 has sent 3 of its 8 PDUs, so the disruption waits for its
-//     hold. The step merges: one toggle once the hold completes;
+//     hold. The request merges: one toggle once the hold completes;
 //   - talker 0 has sent all 8, so it adopts the disruption at once, but
-//     no PDU carries that level before the step lands, a whole
+//     no PDU carries that level before the request lands, a whole
 //     observation interval later. Its listeners have not seen the toggle,
-//     so the step merges there too: one toggle, one MEDIA_RESET.
+//     so the request merges there too: one toggle, one MEDIA_RESET.
 //  The harness plays both packetizers (send_at_level), and MEDIA_RESET
 //  reads the wire those PDUs made. T18 grades the other side of the
-//  boundary: after the first PDU at the adopted level, a step is a new
+//  boundary: after the first PDU at the adopted level, a request is a new
 //  restart.
 //
 //  BITES the pre-#387 engine, one shared target flipped per request: the
-//  step flips it back, talker 1's pending restart is cancelled, and
+//  request flips it back, talker 1's pending restart is cancelled, and
 //  talker 1 sends no toggle at all. BITES an engine whose window ends at
-//  the adoption (the a9636e0f engine): talker 0 then puts the step on the
+//  the adoption (the a9636e0f engine): talker 0 then puts the request on the
 //  wire as a second toggle. mcr_mutants.py plants both.
 // ---------------------------------------------------------------------
 void TkdiagHarness::a_request_on_a_pending_restart_merges() {
@@ -693,7 +693,7 @@ void TkdiagHarness::a_request_on_a_pending_restart_merges() {
     ck("T17 ... and is pending on talker 1 (3 of its 8 PDUs sent)",
        (dut->mcr_mr_o >> 1) & 1, 1);
     interval();                              // no PDU on either talker
-    restart_request();                       // the PHC step, on top of it
+    restart_request();                       // the received CRF toggle, on top of it
     send_at_level(1, 4);
     ck("T17 the merged restart still waits for talker 1's eighth PDU",
        (dut->mcr_mr_o >> 1) & 1, 1);
@@ -708,7 +708,7 @@ void TkdiagHarness::a_request_on_a_pending_restart_merges() {
     interval(); interval();
     send_at_level(0, kMrHoldPdus);           // and nothing follows it
     interval(); interval();
-    ck("T17 talker 0 sent no PDU at the adopted level: the step merges, ONE toggle",
+    ck("T17 talker 0 sent no PDU at the adopted level: the request merges, ONE toggle",
        wire_toggles[0], 1);
     ck("T17 ... and talker 0's MEDIA_RESET counts that one",
        snap(0).mreset - c0.mreset, 1);
@@ -719,17 +719,17 @@ void TkdiagHarness::a_request_on_a_pending_restart_merges() {
 //  T18: the other side of the wire boundary (#387, ruling 5818091077).
 //  Once a PDU at the adopted level has gone out, that stream's listeners
 //  have seen the toggle, so a request is a NEW restart: a second toggle
-//  once the first has held eight PDUs, counted separately. The same step
+//  once the first has held eight PDUs, counted separately. The same request
 //  still merges on a stream whose restart is waiting for its hold, which
 //  is why the case keeps two talkers:
 //   - talker 0 adopts the disruption at once and sends ONE PDU at it
-//     before the step: the step is its second toggle;
-//   - talker 1 has sent 3 of its 8 PDUs: the step merges, one toggle.
+//     before the request: the request is its second toggle;
+//   - talker 1 has sent 3 of its 8 PDUs: the request merges, one toggle.
 //
 //  BITES a shared target that merges whenever ANY stream is pending:
-//  talker 0 then gets no toggle for the step. BITES an engine that keeps
+//  talker 0 then gets no toggle for the request. BITES an engine that keeps
 //  the window open until the whole hold is done rather than the first
-//  PDU: the step merges on talker 0 as well. mcr_mutants.py plants both.
+//  PDU: the request merges on talker 0 as well. mcr_mutants.py plants both.
 // ---------------------------------------------------------------------
 void TkdiagHarness::a_request_after_the_first_pdu_is_a_new_restart() {
     printf("[T18] a request after the first PDU at the adopted level is a new restart\n");
@@ -751,21 +751,21 @@ void TkdiagHarness::a_request_after_the_first_pdu_is_a_new_restart() {
     send_at_level(0, 1);                     // its level reaches talker 0's wire
     ck("T18 talker 0's first PDU at the adopted level carried the toggle",
        wire_toggles[0], 1);
-    restart_request();                       // the PHC step, after that PDU
-    ck("T18 the step waits for the hold of talker 0's toggle",
+    restart_request();                       // the received CRF toggle, after that PDU
+    ck("T18 the request waits for the hold of talker 0's toggle",
        dut->mcr_mr_o & 1, 0);
     send_at_level(1, 4 + 1 + kMrHoldPdus);   // talker 1's hold, then its toggle
     interval(); interval();
-    ck("T18 talker 1 was still waiting for its hold: the step merges, ONE toggle",
+    ck("T18 talker 1 was still waiting for its hold: the request merges, ONE toggle",
        wire_toggles[1], 1);
     ck("T18 ... and talker 1's MEDIA_RESET counts that one",
        snap(1).mreset - c1.mreset, 1);
 
     send_at_level(0, kMrHoldPdus - 1);       // the disruption's level holds 8
     interval(); interval();
-    send_at_level(0, kMrHoldPdus);           // then the step's toggle goes out
+    send_at_level(0, kMrHoldPdus);           // then the request's toggle goes out
     interval(); interval();
-    ck("T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle",
+    ck("T18 talker 0 had put the disruption on the wire: the request is its 2nd toggle",
        wire_toggles[0], 2);
     ck("T18 ... and talker 0's MEDIA_RESET counts both",
        snap(0).mreset - c0.mreset, 2);

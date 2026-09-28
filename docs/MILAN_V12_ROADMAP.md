@@ -357,8 +357,9 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 > `media_clk_resolve` turns the stored index into the one registered verdict
 > that arms `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain
 > and the CRF triggers of the 4.4.4.3 `mr` machinery.
-> A PHC step toggles `mr` whatever the clock-source selection.
-> Every running Stream Output counts that toggle in MEDIA_RESET.
+> A PHC-only re-base preserves `mr` ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
+> It adds no MEDIA_RESET under INTERNAL or CRF selection.
+> Source changes and selected-CRF causes still request restarts.
 > The INTERNAL selection constant is gone.
 
 ### P2.4 — dynamic audio mappings
