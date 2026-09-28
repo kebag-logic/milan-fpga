@@ -1,0 +1,7 @@
+control srp_top phases: rc=0 PASS
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+5 checks: 5 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=178

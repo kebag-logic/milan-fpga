@@ -1,0 +1,73 @@
+## git diff --check 16be6768 0404675d
+rc=0
+## git diff --check 00b5c6c9 0404675d
+rc=0
+## git diff --check 16be6768 00b5c6c9 (previous head, expect nonzero)
+rc=0
+## git -c core.attributesFile=/dev/null diff --check with in-tree attrs ignored via GIT_ATTR_NOSYSTEM
+## check-attr on all tracked files: whitespace attribute set
+tb/srp_top/mutations/action-omitted.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/already-full-missed.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/bad-listener-length.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/before-slot.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/canceled-content-never-drains.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/empty-canceled-pdu.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/encoder-peer-ignored.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/expiry-congestion.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/expiry-event.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/expiry-outranks-peer.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/full-drain-missing.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/leaveall-expiry-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/listener-lost-txla.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/listener-no-expiry.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/listener-no-own.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/listener-no-renewal.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/listener-sid-ignored.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/listener-strict-lv.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/missing-registrar-edge.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/mvrp-supersedes-msrp.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-cancel-eats-new-intent.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-drop-join-during-wait.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-edge-cancel-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-expiry-pulse.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-join-edge-peer.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-la-outranks-leave.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-no-walk-at-sLA.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/own-flags-missing.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/peer-restarts-timer.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/pending-peer-ignored.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/preparation-before-slot.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-accept-edge-drain-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-cancel-consumes-new-intent.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-cancel-latch-dropped.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-collect-blocks-pushes.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-expiry-pulse-restored.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-join-coalesce-dropped.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-join-start-guard-dropped.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-la-only-emission-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-mvrp-start-during-prepare.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-reuse-without-action.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/r-sink-receive-priority-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/receive-priority-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/renewal-congestion.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/repeated-action.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/repeated-expiry-queued.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/reserved-slot-not-reused.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/reset-retains-intent.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/round-completion-lost.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/table-one-short.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/talker-lost-txla.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/talker-no-expiry.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/talker-no-own.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/talker-no-renewal.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/talker-strict-lv.patch: whitespace: -blank-at-eol,-blank-at-eof
+---count
+56
+## patch files count
+56
+## any other files under mutations
+## any other .gitattributes
+.gitattributes
+## core.whitespace config
+rc=1

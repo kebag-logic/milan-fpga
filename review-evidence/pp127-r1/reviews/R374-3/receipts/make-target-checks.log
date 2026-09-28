@@ -1,0 +1,32 @@
+## make -n (default goal)
+make: Entering directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/r374-3-pp127/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+./obj_dir/Vsrp_top_sim 
+make: Leaving directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+rc=0
+## make -n run
+make: Entering directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/r374-3-pp127/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+./obj_dir/Vsrp_top_sim 
+## make -n mutants
+make: Entering directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+python3 mutants.py --output "/tmp/srp-leaveall-mutants"
+make: Leaving directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+rc=0
+## make -n mutants MUTANT_OUTPUT='/tmp/a b'
+make: Entering directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+python3 mutants.py --output "/tmp/a b"
+make: Leaving directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+## make -n mutants with env MUTANT_OUTPUT
+make: Entering directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+python3 mutants.py --output "/tmp/envdir"
+make: Leaving directory '$REVIEWS/r374-3-pp127/tb/srp_top'
+## default goal via make -p
+.DEFAULT_GOAL := run
+## run_suites.sh references to srp_top / mutants
+## other callers of mutants target
+./.github/workflows/hdl.yml:58:          make -C tb/srp_top mutants
+./tb/srp_top/Makefile:4:MUTANT_OUTPUT ?= /tmp/srp-leaveall-mutants
+./tb/srp_top/Makefile:28:mutants:
+./tb/srp_top/Makefile:29:	python3 mutants.py --output "$(MUTANT_OUTPUT)"
+./tb/srp_top/Makefile:34:.PHONY: run mutants clean

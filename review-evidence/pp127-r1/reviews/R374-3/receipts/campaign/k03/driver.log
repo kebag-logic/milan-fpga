@@ -1,0 +1,8 @@
+control srp_top congestion: rc=0 PASS
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+6 checks: 6 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=92

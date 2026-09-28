@@ -1,0 +1,8 @@
+control srp_top peer: rc=0 PASS
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+leaveall-expiry-lost: rc=2 failures=18 KILLED tags=M1,M10,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+preparation-before-slot: rc=2 failures=22 KILLED tags=M1,M10,M11,M12,M5,M6,M8
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+6 checks: 6 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=141

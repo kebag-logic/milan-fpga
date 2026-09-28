@@ -1,0 +1,8 @@
+control srp_top phases: rc=0 PASS
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+6 checks: 6 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=215

@@ -1,0 +1,51 @@
+make: Entering directory '$REVIEWS/pp127-r374-3-packet/scratch/prop-survivor/tb/srp_top'
+python3 mutants.py --output "$REVIEWS/pp127-r374-3-packet/receipts/propagation/prop-survivor"
+control srp_top phases: rc=0 PASS
+bad-listener-length: rc=0 failures=0 UNPROVEN tags=
+t_ms=40 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=0 offset_ms=80 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=0 offset_ms=120 active=1 actions=1
+LEAVEALL_PHASE fp=2 source=0 offset_ms=199 active=1 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=-50 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=-1 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=1 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=40 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=80 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=120 active=1 actions=1
+LEAVEALL_PHASE fp=2 source=3 offset_ms=199 active=1 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=-50 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=-1 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=1 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=40 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=80 active=0 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=120 active=1 actions=1
+LEAVEALL_PHASE fp=2 source=7 offset_ms=199 active=1 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=-50 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=-1 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=1 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=40 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=80 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=120 active=1 actions=1
+LEAVEALL_PHASE fp=3 source=0 offset_ms=199 active=1 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=-50 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=-1 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=1 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=40 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=80 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=120 active=1 actions=1
+LEAVEALL_PHASE fp=3 source=3 offset_ms=199 active=1 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=-50 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=-1 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=1 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=40 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=80 active=0 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=120 active=1 actions=1
+LEAVEALL_PHASE fp=3 source=7 offset_ms=199 active=1 actions=1
+217 checks: 217 PASS, 0 FAIL
+make[1]: Leaving directory '$REVIEWS/pp127-r374-3-packet/scratch/tmp/srp-leaveall-ltcuiy83/tb/srp_top'
+
+assertion coverage: 0/49; missing=['K1', 'K10', 'K11', 'K12', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'L1', 'L2', 'L3', 'L4', 'M1', 'M10', 'M11', 'M12', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'N1', 'N10', 'N11', 'N12', 'N13', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7', 'O8']
+3 checks: 1 PASS, 2 FAIL
+make: *** [Makefile:29: mutants] Error 1
+make: Leaving directory '$REVIEWS/pp127-r374-3-packet/scratch/prop-survivor/tb/srp_top'
+STEP_RC=2

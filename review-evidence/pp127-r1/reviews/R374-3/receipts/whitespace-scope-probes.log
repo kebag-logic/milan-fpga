@@ -1,0 +1,36 @@
+## old head checkout (no .gitattributes): diff --check 16be6768 HEAD
++ 
+tb/srp_top/mutations/talker-no-own.patch:6: trailing whitespace.
++ 
+rc=2
+26
+5
+23
+## new head checkout: diff --check 16be6768 HEAD
+rc=0
+## patch-file bytes identical between 00b5c6c9 and 0404675d
+rc=0
+## scope probe A: trailing whitespace added outside mutations must still fail
+tb/srp_top/README.md:333: trailing whitespace.
++x 
+rc=2
+## scope probe B: nested dir under mutations not exempt
+tb/srp_top/mutations/sub/x.patch:1: trailing whitespace.
++a 
+rc=2
+## scope probe C: non-.patch file in mutations not exempt
+tb/srp_top/mutations/x.txt:1: trailing whitespace.
++a 
+rc=2
+## scope probe D: space-before-tab inside a patch file still fails (only two classes exempted)
+rc=0
+## scope probe E: trailing blank + blank at EOF in a patch file is exempt
+rc=0
+## scope probe F: same-named patch in another tb dir not exempt
+tb/srp_top/x.patch:1: trailing whitespace.
++a 
+rc=2
+## scope probe D2: line beginning space-then-tab (space-before-tab) inside a patch file
+tb/srp_top/mutations/action-omitted.patch:12: space before tab in indent.
++ 	foo
+rc=2

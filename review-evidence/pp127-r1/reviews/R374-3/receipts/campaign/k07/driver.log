@@ -1,0 +1,8 @@
+control srp_top peer: rc=0 PASS
+peer-restarts-timer: rc=2 failures=8 KILLED tags=M4
+pending-peer-ignored: rc=2 failures=14 KILLED tags=M1,M10,M2,M3
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp: rc=2 failures=6 KILLED tags=M1,M2,M3
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+6 checks: 6 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=142

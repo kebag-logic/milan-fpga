@@ -1,0 +1,10 @@
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+8 checks: 8 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=86

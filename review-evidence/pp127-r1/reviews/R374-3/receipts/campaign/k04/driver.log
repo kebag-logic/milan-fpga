@@ -1,0 +1,9 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+7 checks: 7 PASS, 0 FAIL
+DRIVER_RC=0 ELAPSED_S=148

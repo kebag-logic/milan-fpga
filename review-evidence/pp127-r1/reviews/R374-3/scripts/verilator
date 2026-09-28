@@ -1,0 +1,9 @@
+#!/bin/sh
+# Pinned-simulator shim placed first on PATH, the way CI prepends ~/verilator/bin.
+# REAL_VERILATOR: pinned 5.050 wrapper. VJOBS: replaces "-j 0" to cap compile jobs.
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=${VJOBS:-4}; fi
+  prev=$a; set -- "$@" "$a"; shift
+done
+exec "${REAL_VERILATOR:?set REAL_VERILATOR}" "$@"
