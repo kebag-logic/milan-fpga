@@ -1,0 +1,3 @@
+MUTANT(pass1_read_not_drained+judge_wait_unwatched) R391-P3b after the device ends the abandoned read: SET ok 1, WRITEs of 0x50 0, unflushed 1
+MUTANT(pass1_read_not_drained+judge_wait_unwatched) R391-P3 pass-1 silent read: done 21642 closed -1 fail 1 rb 1 cause 3 rows_cleared 0 own 0 img_valid 1
+MUTANT(pass1_read_not_drained+judge_wait_unwatched) R391-P4 judge silent: done -123 closed -1 fail 0 rb 0 cause 0 rows_cleared 0 own 1

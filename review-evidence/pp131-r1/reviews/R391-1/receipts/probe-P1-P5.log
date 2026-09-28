@@ -1,0 +1,11 @@
+R391-P1 CLOSED n_aecp=0 closed=1 acmp_before=168 acmp_after=168 acmp_after2=168 aecp_responses=0
+R391-P1 CLOSED n_aecp=3 closed=1 acmp_before=168 acmp_after=168 acmp_after2=168 aecp_responses=0
+R391-P1 CLOSED n_aecp=4 closed=1 acmp_before=168 acmp_after=-1 acmp_after2=-1 aecp_responses=0
+R391-P1 CLOSED n_aecp=5 closed=1 acmp_before=168 acmp_after=-1 acmp_after2=-1 aecp_responses=0
+R391-P1 CLOSED n_aecp=6 closed=1 acmp_before=168 acmp_after=-1 acmp_after2=-1 aecp_responses=0
+R391-P1 CLOSED n_aecp=8 closed=1 acmp_before=168 acmp_after=-1 acmp_after2=-1 aecp_responses=0
+R391-P2 WALK n_aecp=0 release=122 asked 0 cycles after the release, acmp_latency=168 d3_done_now=1 restore_fail=0 held_aecp_answered=0 acmp_after_terminal=168
+R391-P2 WALK n_aecp=8 release=122 asked 512 cycles after the release, acmp_latency=-1 d3_done_now=1 restore_fail=0 held_aecp_answered=4 acmp_after_terminal=168
+R391-P3 pass-1 silent read: done 21642 closed -1 fail 1 rb 1 cause 3 rows_cleared 1 own 0 img_valid 1
+R391-P4 judge silent: done 21454 closed -1 fail 1 rb 1 cause 3 rows_cleared 1 own 0
+R391-P5 slow-but-inside device: 64 D3 reads each held 19800 cycles; terminal 1268895 cycles after the release = 63.4 x RS_TMO (the ratified aggregate is 50 x the per-wait candidate); fail 0 cause 0
