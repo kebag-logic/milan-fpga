@@ -1,0 +1,16 @@
+## F07.9 edit-table rows (file column)
+      1 [docs/architecture/02_interfaces.md]
+      1 [docs/architecture/05_acmp_engine.md]
+      1 [docs/architecture/06_aecp_engine.md]
+      4 [docs/architecture/07_memory_maps.md]
+      1 [docs/architecture/08_timing.md]
+      1 [docs/architecture/09_verification.md]
+## processor doc text at 16be6768 that states the superseded contract, absent from the table
+334:| `nvm_unflushed_o` | per-sink binding state the manager has accepted and not yet committed. 1 from the accepted change until its record commits with `done`, or until the retries are exhausted and `nvm_alarm_o` rises on the same cycle. OR it with `aecp_dyn_dirty_o` for a "saved state pending" bit; without it a binding taken inside the commit debounce reads durable. |
+336:| `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a dynamic-state field, 6 channel maps, 7 user names. Nothing in the processor writes a record for 6 or 7. This completion mark retains its timing; use `aecp_name_wr_o` for the earlier name writes and `amap_edit_req_o` with `amap_edit_phase_o == 5` for live map writes. |
+85:| `NVM_RS_TMO_CYC_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-NVM-RS-TMO-CYC`; [F08.1](../architecture/08_timing.md#fig-08-constants), `T-
+104:compares this table and diagram 21's parameter inventory with the top's declarations.
+224:`restore_blank_o` is the third pin: set when the walk validated zero records, a failed
+225:walk included. It is what separates the first two rows. Whether there is any media
+170:| P-NVM-RS-TMO-CYC | P-CLK-HZ / 50 (20 ms) | above the slowest single record read the NVM device face can take (`NVM_RS_TMO_CYC_P`) | boot restore walk's read deadline, `T-NVM-RS-DEADLINE` ([07 §5
+42:NVM_RS_TMO_CYC_P

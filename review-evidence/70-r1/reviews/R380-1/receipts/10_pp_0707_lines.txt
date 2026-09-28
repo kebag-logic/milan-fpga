@@ -1,0 +1,99 @@
+## protocol-processor 16be6768f710e79450aace277abacd6c2c3336e5 docs/architecture/07_memory_maps.md lines 445-520
+   445	### 5.3 Commit / restore flows
+   446	
+   447	<a id="fig-07-nvmflow"></a>**F07.9 — Runtime commit and boot restore**
+   448	
+   449	```mermaid
+   450	flowchart TB
+   451	  subgraph runtime ["runtime commit"]
+   452	    chg["committed state change (COMMIT + NVM_MARK)"] --> dirty["set record dirty bit"]
+   453	    dirty --> deb["debounce T-NVM-DEBOUNCE (coalesce bursts)"]
+   454	    deb --> ser["serialize record + crc16"] --> port["class-F port write (F02.8)"]
+   455	    port --> ok{"done?"}
+   456	    ok -- err --> retry["bounded retry, then side-port alarm - responses were never blocked"]
+   457	    ok -- done --> clr["clear dirty"]
+   458	  end
+   459	  subgraph boot ["boot restore (before entity_enable)"]
+   460	    rd["read all records"] --> crc{"magic+version+crc ok?"}
+   461	    crc -- no --> defs["vendor defaults for that record"]
+   462	    crc -- yes --> apply["apply to overlay / sink shadows"]
+   463	    defs --> apply
+   464	    apply --> preload["saved binding present? preload listener SM to PRB_W_AVAIL (05)"]
+   465	    preload --> en["release entity_enable (ADP may start - Milan 5.6.1)"]
+   466	  end
+   467	```
+   468	
+   469	The binding walk owns the ACMP listener from reset until its last preload has been
+   470	written and armed: commands, talker events, START/STOP requests and timer expiries wait
+   471	at their producers until then, and `restore_done_o` marks that end
+   472	([05 §5.1](05_acmp_engine.md#sec-05-boot-admission)). A read-only command that arrives
+   473	during the walk is answered afterwards, from the restored image or, if the walk failed,
+   474	from the vendor defaults, and it changes nothing here either way.
+   475	
+   476	**How a binding walk ends** (`KL_acmp_nvm_shadow`, processor issue #93). A walk is a
+   477	transaction: a transport failure anywhere ends it with **every** sink not captured live at
+   478	its vendor default, `restore_fail_o` and no preload, never with part of the image. It
+   479	rejects the image, not the media: every saved record stays in the device as it was.
+   480	
+   481	| The record read… | Result | `restore_cause_o` |
+   482	|---|---|---|
+   483	| delivers a whole record that passes crc, layout_version, record_id and length | that sink's saved binding is stored and later preloaded | 0 |
+   484	| delivers a whole record that fails one of those | **that record's** vendor default; the walk continues | 0 |
+   485	| ends with nothing forwarded because the device answered with something that is not a record: a clean `done`, or an `err` the port names UNFRAMED ([02 §8](02_interfaces.md#fig-02-nvmwave)) | **that record's** vendor default; the walk continues | 0 |
+   486	| ends after at least one forwarded byte and short of the record (torn) | the **whole walk** fails | 1 |
+   487	| ends with nothing forwarded on an `err` the port names DEVICE (a device error, or a header read the device ended short) | the **whole walk** fails: a failing device is not an empty record | 2 |
+   488	| waits `P-NVM-RS-TMO-CYC` consecutive clocks without progress (`T-NVM-RS-DEADLINE`): for the port idle before a read, or for a byte, `done` or `err` during it | the **whole walk** fails, and a read already issued is abandoned to the arbiter, which drains it ([02 §8.2](02_interfaces.md#82-two-record-managers-one-port)) | 3 |
+   489	
+   490	Progress is the awaited event itself, so a device that is slow but moving never trips the
+   491	deadline, and the deadline bounds only the read phase: the preload phase is bounded by
+   492	the listener's admission ([05 §5.1](05_acmp_engine.md#sec-05-boot-admission)). A failed
+   493	walk still reaches its terminal, the listener is released and answers on the defaults,
+   494	and an enable gated on `restore_done_o` follows. A walk that validated no record reports
+   495	`restore_blank_o`, a failed one included. What the deadline does **not** do: it gives the
+   496	port no deadline of its own and releases nothing on time. A device that ends the
+   497	abandoned read late ends the drain and the port serves the next operation; a device that
+   498	never ends it leaves the port quarantined until reset.
+   499	
+   500	**A failed walk keeps the saved records** (processor issue #92). After the atomic reject
+   501	the listener runs on its defaults, and it writes its record back for every command it
+   502	serves, a read-only `GET_RX_STATE` included. The shadow commits only a record that differs
+   503	from what it holds, and **two unbound records never differ**, whatever their other fields:
+   504	an unbound record carries no binding (Milan v1.2 5.3.8.3 clears the binding parameters on
+   505	unbind), and no walk preloads one. So a command that leaves a sink unbound writes nothing
+   506	after a failed walk, whether it is a `GET_RX_STATE` held from the boot window, a later
+   507	poll, or an `UNBIND` of a sink the failed walk left unbound, and the next walk on a
+   508	healthy device restores every saved binding. A `BIND` does bind the sink: it replaces
+   509	that sink's record, as it would after any walk. Graded for all three causes in
+   510	[`tb/acmp_nvm`](../../tb/acmp_nvm/README.md) (N8) and at the top in
+   511	[`tb/pp_top`](../../tb/pp_top/README.md) (BW3).
+   512	
+   513	### 5.4 Open decisions
+   514	
+   515	Recorded in [review §8](../00_MILAN_COMPLIANCE_REVIEW.md): configuration-index
+   516	persistence is a design decision (Milan silent). The earlier system_unique_id
+   517	and MCR persistence plans are deferred under [06 §6.9](06_aecp_engine.md#69-mvu-commands).
+   518	Wear management (write coalescing beyond `T-NVM-DEBOUNCE`) is device-dependent
+   519	and out of contract.
+   520	
+## 02_interfaces.md section 8.1/8.2 headings
+538:### 8.1 What the integrator reads while a commit is outstanding
+559:### 8.2 Two record managers, one port
+574:## 9. Parameterization
+## 08_timing.md NVM rows
+42:| T-NVM-DEBOUNCE | ≈ 500 ms (design) | NVM mgr | commit coalescing | design | |
+43:| T-NVM-RS-DEADLINE | `P-NVM-RS-TMO-CYC` clocks without progress (default 20 ms) | NVM mgr | the boot restore walk's read phase: expiry fails the whole walk and abandons an issued read ([07 §5.3](0
+## 09_verification.md NVM row
+56:| **NVM** | power-cut/restore: cut at randomized commit points, verify CRC fallback + restored bindings enter `PRB_W_AVAIL`; persisted-set completeness per REQ-PER-001 | every record type cut ≥ onc
+## 05_acmp_engine.md boot admission
+138:### <a id="sec-05-boot-admission"></a>5.1 Boot restore ownership of the listener
+## landed seams in the pin
+16be676 Merge PR #126: state the descriptor ownership contract and keep the Milan cluster minimum
+e04234e docs: align descriptor rule authority with parent contract
+1d249e6 docs: state descriptor ownership and preserve Milan cluster minimum
+hdl/acmp/KL_pp_acmp_lsn_admit.sv
+hdl/aecp/KL_aecp_desc_mem_guard.sv
+hdl/packet_engine/KL_pp_nvm_mgr_arb.sv
+2540:      // The saved-state writer is not present yet; keep manager 1's request,
+## merges #109/#110 reachable from the pin
+939c143 Merge PR #110: hold the descriptor store's next request while an abandoned burst is still owed
+008edbb Merge PR #109: keep a saved binding through boot restore, name NVM error causes and bound the binding walk

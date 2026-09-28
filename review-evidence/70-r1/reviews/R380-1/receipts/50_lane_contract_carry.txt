@@ -1,0 +1,14 @@
+## lane sections: DR3a / DR4 / negative controls / physical
+lane 1: ratif=2 DR4=1 8x8_open_blocked=1 negctl=1 physical=3
+lane 2: ratif=2 DR4=1 8x8_open_blocked=1 negctl=1 physical=3
+lane 3: ratif=1 DR4=1 8x8_open_blocked=1 negctl=1 physical=2
+lane 4: ratif=1 DR4=1 8x8_open_blocked=1 negctl=1 physical=2
+lane 5: ratif=2 DR4=1 8x8_open_blocked=2 negctl=1 physical=3
+## section 18 preamble (applies to all lanes)
+8:DR3a requires lane 1 to measure both deadline candidates.
+11:DR4 limits shipping area acceptance to 1x1 TDM8.
+12:Each lane retains 8x8 synthesis diagnostics.
+13:The 8x8 post-place obligation remains open and blocked, not waived.
+14:The 8x8 remains non-shipping until it fits (#584/#229).
+15:Every writer lane measures normal-load acceptance-to-durable time under DR2a.
+16:DR2b/DR2c require unchanged-projection controls, bounded attempts and sticky alarms.

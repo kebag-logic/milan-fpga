@@ -1,0 +1,9 @@
+## ruled debounce vs remaining 'open/provisional' statements
+docs/design/SAVED_STATE_FASTCONNECT.md:1415:- **The debounce window is a data-loss window.** DR2a rules both first-dirty windows.
+docs/design/SAVED_STATE_FASTCONNECT.md:1445:DR2a settles debounce policy; measured durability evidence remains required.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1797:   Debounce policy is ruled under
+1281:`T-NVM-DEBOUNCE` is a different quantity and is still open; section 14 says so
+docs/integration/BAREMETAL_FIRMWARE.md:1899:window (1,000 ms, the provisional value section 14 leaves open) with no record
+sw/firmware/milan_baremetal/milan_baremetal.c:340: * debounce is the provisional value section 14 leaves open: a power cut
+146:    # 14: T-NVM-DEBOUNCE is not decided there, being a wear-versus-loss trade
+1919:its provisional 1,000 ms debounce, and a commit takes at most 3.07 s at 1x1

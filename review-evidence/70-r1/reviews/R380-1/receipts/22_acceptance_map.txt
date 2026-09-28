@@ -1,0 +1,94 @@
+## FASTCONNECT section 16 checklist, base c07232228
+3:**The record namespace**
+5:- [ ] `scripts/check_nvm_record_space.py` passes for every shipped config, and
+9:- [ ] Every user name of the largest shipped shape is encoded by one
+12:- [ ] A mutation that makes the record index and the name ordinal disagree is
+14:- [ ] A user name SET to the EMPTY string survives a power cycle as the empty
+16:- [ ] The manager emits records at the section 4.2 ids, and a record whose id is
+19:**The container**
+21:- [x] A pinned golden image per shape, byte for byte, with its CRC, produced by
+26:- [x] One refused case per verdict code in section 6.2, each proving **zero**
+32:- [ ] Records are emitted in ascending `record_id` (section 6.1), and a decoder
+35:- [ ] Deleting each mandatory record in turn from a CRC-RECOMPUTED image is
+38:**The status bits**
+40:- [ ] `nvm_backed` reports the truth on a build with and without a writer,
+42:- [ ] A writer that answers once and then stops drives `nvm_backed` to 0 and
+45:- [x] A failed erase, a failed program and a failed read-back-verify each revoke
+48:- [ ] **Every reachable row of the section 9.3 table is produced**, and the one
+51:- [ ] **Recovery**: after a writer is lost with data outstanding and then comes
+54:- [ ] **A healed outage does not contaminate later commits**: after a loss with
+58:- [ ] **A late-but-valid completion** -- a commit that finishes after
+61:- [x] **A legal flash operation is never declared stale early**: a commit taking
+66:- [ ] A timeout injected during each of erase, program and read-back produces
+69:- [ ] A power cut inside the debounce window loses exactly the marked changes,
+71:- [x] A restore walk over blank flash reports "nothing restored", never success:
+75:**The saved set**
+77:- [ ] All eight Milan items plus the bound state, the binding parameters and
+81:- [ ] The volatile set does NOT survive: after restore the lock is clear, the
+83:- [ ] A commit interrupted at every stage leaves a complete image in one slot.
+85:**The marks**
+87:- [ ] Each of the **eight** marks in section 12.1 is graded end to end: deleting
+91:- [ ] Deleting the mark's **absence** at `SET_CONTROL`, that is adding one, must
+94:**The area**
+96:- [ ] `scripts/area_baseline.py --compare` post-place at both
+## FASTCONNECT section 16 checklist, head 6029890c8
+13:**The record namespace**
+15:- [ ] `scripts/check_nvm_record_space.py` passes for every shipped config, and
+19:- [ ] Every user name of the largest shipped shape is encoded by one
+22:- [ ] A mutation that makes the record index and the name ordinal disagree is
+24:- [ ] A user name SET to the EMPTY string survives a power cycle as the empty
+26:- [ ] The manager emits records at the section 4.2 ids, and a record whose id is
+29:**The container**
+31:- [x] A pinned golden image per shape, byte for byte, with its CRC, produced by
+36:- [x] One refused case per verdict code in section 6.2, each proving **zero**
+42:- [ ] Records are emitted in ascending `record_id` (section 6.1), and a decoder
+45:- [ ] Deleting each mandatory record in turn from a CRC-RECOMPUTED image is
+48:**The status bits**
+50:- [ ] `nvm_backed` reports the truth on a build with and without a writer,
+52:- [ ] A writer that answers once and then stops drives `nvm_backed` to 0 and
+55:- [x] A failed erase, a failed program and a failed read-back-verify each revoke
+58:- [ ] **Every reachable row of the section 9.3 table is produced**, and the one
+61:- [ ] **Recovery**: after a writer is lost with data outstanding and then comes
+64:- [ ] **A healed outage does not contaminate later commits**: after a loss with
+68:- [ ] **A late-but-valid completion** -- a commit that finishes after
+71:- [x] **A legal flash operation is never declared stale early**: a commit taking
+76:- [ ] A timeout injected during each of erase, program and read-back produces
+79:- [ ] Cuts inside either debounce obey
+84:- [x] A restore walk over blank flash reports "nothing restored", never success:
+88:**The saved set**
+93:- [ ] All eight Milan items plus the bound state, the binding parameters and
+97:- [ ] The volatile set does NOT survive: after restore the lock is clear, the
+99:- [ ] A commit interrupted at every stage leaves a complete image in one slot.
+101:**The live-write triggers**
+103:- [ ] Every group satisfies [D3 section 3.1](SAVED_STATE_MATERIALIZATION.md#31-accepted-live-write-groups).
+107:- [ ] Adding IDENTIFY to persistence fails D3's exclusion control.
+111:**The area**
+117:- [ ] `scripts/area_baseline.py --compare` post-place at
+## D3 section 17 acceptance rows
+ Namespace 1: complete record-space gate | FASTCONNECT 4.2/4.4 
+ Namespace 2: every writable-name ordinal encoded/decoded | FASTCONNECT 4.2 
+ Namespace 3: index/ordinal disagreement mutation | FASTCONNECT 16, namespace 
+ Namespace 4: empty name survives | D3 8.3/8.5 
+ Namespace 5: IDs inside their group blocks | FASTCONNECT 4.2 
+ Container 1: independent golden images | FASTCONNECT 6.3 
+ Container 2: each refusal applies zero records | FASTCONNECT 6.2 
+ Container 3: ascending IDs and offset agreement | FASTCONNECT 6.1 
+ Container 4: omitted mandatory record refused | FASTCONNECT 6.2, rule 12 
+ Status 1: backed with/without writer | FASTCONNECT 9.1/9.2 
+ Status 2: answered once, then stops | FASTCONNECT 9.2/9.4 
+ Status 3: erase/program/verify failure | FASTCONNECT 9.2 
+ Status 4: reachable status combinations | FASTCONNECT 9.3; snapshot 6.1 
+ Status 5: recovery with outstanding work | FASTCONNECT 9.2 
+ Status 6: healed outage and later commit | FASTCONNECT 9.2 
+ Status 7: late verified completion | FASTCONNECT 9.2 
+ Status 8: legal flash operation and heartbeat | FASTCONNECT 9.4 
+ Status 9: timeout at erase/program/readback | FASTCONNECT 9.2/9.4 
+ Status 10: cut during either debounce | D3 7.1/7.2 
+ Status 11: blank restore is honest | D3 8.7 
+ Saved set 1: eight items and complete binding state | D3 8.2/18 
+ Saved set 2: volatile exclusions | D3 9 
+ Saved set 3: cut at every commit stage | FASTCONNECT 7 
+ Trigger 1: former eight-mark deletion line | D3 3.1/7.2/8.2 
+ Trigger 2: former SET_CONTROL mark-absence line | D3 3.1/9 
+ Area 1: 1x1 shipping area; blocked 8x8 post-place | D3 15.1 DR4; FASTCONNECT 8.3/16 
+rows: 26

@@ -1,0 +1,7 @@
+## DR2c ruling vs D3 writer state machine
+2190:| DR2c: retries and alarms. **RULED** | Bounded immediate retries minimize recovery delay but repeat pressure. Backoff lowers pressure but lengthens the loss window. Automatic forgiveness risks clearing evidence of an abandoned change. | At most 3 write attempts per record, 500 ms apart, and at most 3 firmware transaction attempts per work set, 1,000 ms apart. The alarm stays until reset; a f
+310:   `RETRY_MAX_P` failed writes, which raises the sticky alarm that revokes
+626:| STREAM or WAIT | the port pulses err | ACQUIRE again (a fresh latch), or RUN with the alarm after `RETRY_MAX_P` retries |
+662:giveup      = port err AND retries = RETRY_MAX_P
+## any backoff/spacing state in sections 6.1-6.3:
+none
