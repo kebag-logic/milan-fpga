@@ -3355,6 +3355,7 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
     import gen_aem_store as _aem
     import gen_desc_image as _img
     import gen_aemi_image as _join
+    from sw.builder import aem_image_checks
 
     with open(overlay, encoding="utf-8") as fh:
         ovl = json.load(fh)
@@ -3364,6 +3365,11 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
     # coming. Passed explicitly rather than defaulted so the two move together.
     blob, report = _img.build(
         _join.model_to_document(model, _join.identity_from_overlay(ovl)), 576)
+    # Validate exactly what main() CRC-binds and writes as aem_desc.bin.
+    try:
+        aem_image_checks.validate_shipping_image(blob)
+    except aem_image_checks.ImageCheckError as exc:
+        raise RuntimeError(f"aem_desc.bin: {exc}") from exc
     return blob, report, overlay
 
 

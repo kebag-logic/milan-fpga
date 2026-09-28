@@ -134,10 +134,11 @@ processor's `ACMP_SINKS_C` / `ACMP_SRC_C` are sized from that same header.
 The third member of that sentence has moved out of the gateware entirely:
 **the descriptor set a controller enumerates is no longer compiled in at all.**
 The processor's AECP uCPU answers `READ_DESCRIPTOR` from an image in DRAM.
-During an explicit deployment ownership transfer, `--write-fragment` or
-`--write-rtl` generates the paired image beside the bitstream, and the bare-metal
-boot verifies and copies it from QSPI before entity enable. An ordinary builder run does not
-touch the deployment set.
+`--write-fragment` and `--write-rtl` select the generated configuration artifacts.
+The SoC's `build_desc_image()` packs and checks the deployed image.
+The SoC writes it beside the bitstream.
+Bare-metal boot verifies and copies it before entity enable.
+An ordinary builder run leaves the deployment set unchanged.
 `--write-rtl` is explicit rather than automatic because `build()` runs on
 throwaway config variants during testing and a shape nobody chose must never
 end up in the tree; `sw/litex/build.sh` and `sweep.sh` REFUSE to launch unless
@@ -209,8 +210,8 @@ consumes them. Everything else is regenerated into
 | Artefact | What it carries | Read by | Gate in [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) |
 |---|---|---|---|
 | `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags), and `_source_config`, the config that wrote it | [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py); [`sw/litex/build.sh`](../sw/litex/build.sh), which regenerates and reads it on every launch and refuses one that is missing, unreadable or another config's (#402) | 2 - argv equals `sweep.sh`'s design flags for arty *and* ax7101; [`scripts/check_sweep_shape.py`](../scripts/check_sweep_shape.py) - the artefact each `build.sh` recipe read is that config's current emission |
-| `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay`; `_entity_model_image()` consumes it only during an explicit deployment ownership transfer | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (the former tracked-ROM identity gate), 15–17 (CRF output, dynamic maps), plus image identity and directory-shape gates |
-| `aem_desc.bin` + `aem_desc.json` + `aem_desc.map` | flat processor image, paired manifest with derived base and identity, and readable directory report | generated beside the bitstream only by `--write-fragment` or `--write-rtl`; bare-metal firmware verifies and copies the raw QSPI image before entity enable | image identity, image/manifest pairing, directory shape, and builder artifact gates; root wire `READ_DESCRIPTOR` coverage grades the served result |
+| `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay`; `milan_soc.build_desc_image()` consumes it for deployment; `_entity_model_image()` consumes it for tests and audits | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (the former tracked-ROM identity gate), 15–17 (CRF output, dynamic maps), plus image identity and directory-shape gates |
+| `aem_desc.bin` + `aem_desc.json` + `aem_desc.map` | flat processor image, paired manifest with derived base and identity, and readable directory report | the SoC generates these beside the bitstream; bare-metal firmware verifies and copies the raw QSPI image before entity enable | image identity, image/manifest pairing, directory shape, and builder artifact gates; root wire `READ_DESCRIPTOR` coverage grades the served result |
 | `lwsrp_table.json` + `lwsrp_table.svh` | SR class, fixed timer assertions, build-time bandwidth budget and legacy table rows | **the lwSRP RTL tree is DELETED (2026-08-13)** -- the engine `.svh` no longer lands anywhere; the JSON is still emitted as a reference/budget artifact; it does not provision processor timers or TSpec | 18a–18d covered emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column. The RTL-symbol leg has no target any more; the CSR legs still bite through `lwsrp_csr_defaults.svh` |
 | `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
 | `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11), both capability words, and `TALKER_WIRE_CHANS_C` — the **emitted** channel width (roadmap item 00) | `` `include ``-d by **both** [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (the RO `0x618`/`0x61C` words) and [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) (the ACMP source/sink context array sizing) | [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py) — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh`; [`scripts/check_wire_accountability.py`](../scripts/check_wire_accountability.py) — the advertised width against the **fabric that has to produce it** (expected red until roadmap item 5) |
@@ -575,12 +576,15 @@ boot supply chain is implemented.** The processor's descriptor store is the
 read-only fetch master: the whole entity model lives in main memory at a
 **compile-time** base. `milan_datapath` surfaces it as `o_desc_mem_*` /
 `i_desc_mem_*`, and the LiteX SoC bridges it to the reserved top 1 MiB of
-`main_ram`. `_entity_model_image()` feeds the builder overlay through
-`avdecc/gen_aemi_image.py` and the processor's own `gen_desc_image.py`, then
-emits `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`. An explicit
-deployment ownership transfer installs that set beside the bitstream. The
-bare-metal boot copies it from QSPI after verification and before it programs identity and enables
-advertisement.
+`main_ram`.
+`milan_soc.build_desc_image()` packs the builder overlay using both generators:
+`avdecc/gen_aemi_image.py` and the processor's `gen_desc_image.py`.
+It checks the final bytes with `validate_shipping_image()`.
+The SoC CRC-binds those bytes into firmware constants.
+It writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` beside gateware.
+`_entity_model_image()` independently packs and checks test and audit images.
+Gate 36b tests both emitters and their packed-byte refusals.
+Bare-metal boot verifies the image before copying and enabling advertisement.
 
 The bare-metal boot checks the generated image length and CRC before copying
 it to the fixed DRAM window and enabling the entity. It does not verify the D4
