@@ -330,11 +330,13 @@ The live per-channel entry is 13 bits:
 
 The I2S input and the pilot tone are latest-sample sources. The TDM input is
 frame-atomic (#617): a TDM frame reaches the walk only once its last pair has
-arrived, and each walk reads one snapshot of the newest complete frame, so the
-channels of one Talker sample event come from one TDM frame. An earlier pair
-waits for the rest of its frame;
+arrived, and each walk reads one snapshot, taken in its media tick's cycle, of
+the newest complete frame, so the channels of one Talker sample event come
+from one TDM frame. An earlier pair waits for the rest of its frame. Under CRF
+the grid aligner keys on that frame close and holds every lock 256 cycles off
+the walk's crossing, so no lock phase repeats or skips a frame;
 [Talker capture handoff](design/TIME_SYNC.md#talker-capture-handoff) tables
-that delay. AAF loopback is bursty, so it uses a per-pair elastic queue
+the delay and the guard. AAF loopback is bursty, so it uses a per-pair elastic queue
 instead of a latest-only latch. The
 queue primes after the first complete PDU, pops one sample event per media
 tick, drops the oldest event on overflow, repeats the last event on underflow,

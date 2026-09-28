@@ -255,7 +255,7 @@ this table whenever `hdl/` changes shape.
 | `KL_aaf_packetizer` | shared NxN AAF talker packetizer |
 | `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sink |
 | `KL_aes3_rx` / `KL_aes3_tx` | AES3 / S-PDIF biphase-mark receiver and transmitter (item-4 front-end family) |
-| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds, and since #617 its TDM bucket hands each walk one whole TDM frame |
+| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds, and since #617 its TDM bucket hands each walk one whole TDM frame, snapshotted in the media tick's cycle, and the detector counts that walk's own repeated and skipped frames |
 | `KL_chan_map_render` | 64 stream-channel → physical render crossbar |
 | `KL_i2s_feed_mux` | DAC feed selector: the legacy listener render tap, or the render crossbar paced by the 48 kHz media tick |
 | `KL_i2s_playback` | I2S DAC serializer, clean-clocked (wire-order S32BE interleave) |
@@ -289,7 +289,7 @@ this table whenever `hdl/` changes shape.
 |---|---|
 | `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) -- parses, counts and reports; since #74 its measurements steer the servo chain whenever the CRF source is selected (Section 1.2) |
 | `KL_crf_tx` | Milan CRF Media Clock Output engine (talker half), on the data lane |
-| `KL_media_grid_align` | the #74 packet-grid alignment loop: a cycle-resolution phase detector on the front-end frame marker plus an overdamped PI that holds `KL_media_nco`'s tick to the physical fsync grid under a CRF selection |
+| `KL_media_grid_align` | the #74 packet-grid alignment loop: a cycle-resolution phase detector on the front-end frame marker plus an overdamped PI that holds `KL_media_nco`'s tick to the physical fsync grid under a CRF selection; `milan_datapath` keys it on the TDM frame close with the tick one cycle late and a 256-cycle keep-off (#617), guarding the capture walk's crossing |
 | `KL_media_nco` | the steerable media-clock sample grid — free-running bit-exact at INTERNAL; under a selected CRF clock it follows the physical fsync grid through `KL_media_grid_align` (#74) |
 | `KL_mmcm_drp_servo` | the audio-MMCM recovery ACTUATOR — engaged by the live clock-source resolve since #74; at the INTERNAL power-on state `A_MCSRV_STAT` (`0x8F8`) reads its idle honestly |
 

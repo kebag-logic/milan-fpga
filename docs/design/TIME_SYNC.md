@@ -173,9 +173,9 @@ Each link has exactly one master.
 | MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A policy slew uses its separate overlap guard (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | MMCM servo on a policy slew | Every overlapping window discarded and counted; integrator, trim and LOCKED held. Clean windows resume directly (#545) | `KL_mmcm_drp_servo.phc_slew_active_i`, `MCSRV_STAT[15:10]` |
 | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
-| Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
+| Grid-aligner error | Frame-marker phase at one-clock resolution; the marker is the TDM frame close since #617 | `KL_media_grid_align`, bound in `milan_datapath` |
 | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
-| Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
+| Grid-aligner lock target | Engagement phase, the frame close kept 256 cycles off the capture walk's crossing ([Talker capture handoff](#talker-capture-handoff)); the module default is 1/128 sample | `KL_media_grid_align`, `milan_datapath` `MGA_KEEPOFF_CYC_C` |
 
 A slew discard restarts the four-trip guard streak.
 
@@ -397,7 +397,7 @@ The command is a real `SET_CLOCK_SOURCE` on `CLOCK_DOMAIN` 0.
 | Selected source | `phi` walk, measured | Closed form |
 |---|---|---|
 | INTERNAL | `+10.6844` ppm over 3.74 M axis cycles | `+10.6394` ppm, the divider plan |
-| CRF, aligner engaged | `-0.8009` ppm over 3.75 M axis cycles | zero, the aligner holding both grids |
+| CRF, aligner engaged | `-0.5339` ppm over 3.75 M axis cycles (`-0.8009` with the pre-#617 slot-0 marker) | zero, the aligner holding both grids |
 
 A walk divides two intervals of one clock. The rate is rate-free; the window
 is model-clock time.
@@ -460,36 +460,104 @@ Every channel of one sample event is one TDM frame.
 |---|---|---|
 | Frame complete | the strobe of the frame's last pair: pair 3 on TDM8 | `KL_tdm_capture_master` strobes pair k at the end of slot 2k+1 |
 | Published | on that strobe's edge, all pairs at once | `KL_chan_map_capture` `TDM_FRAME_PAIRS_P`, set by `milan_datapath` `CMAP_TDM_FRAME_PAIRS_C` |
-| Read | the walk snapshot, `LB_PAIRS_C` + 3 axis cycles after the tick: 7 on the 1x1 shape | the pre-walk's last cycle, before slot 0's inject; held for the whole walk |
-| Column | the newest frame complete at the snapshot | IEEE 1722-2016 7.3.5: the channels of one event are one instant |
-| Frame age at the tick | -5 to 1036 axis cycles: one frame, uniform over a beat | MEASURED over one beat of the true plan on the 1x1 TDM8 shape at 50 MHz |
+| Read | the walk snapshot, in the media tick's own cycle, held for the whole walk | a tick queued behind an overrunning walk snapshots when that walk starts |
+| Column | the frame the tick takes: the newest closed before the tick cycle, or one closing on it when none is pending | the junction counters' coincidence law (#74 item 2); IEEE 1722-2016 7.3.5 makes one event one instant |
+| Frame age at the tick, INTERNAL | 0 to 1042 axis cycles: one frame, uniform over a beat | MEASURED over one beat of the true plan, 1x1 TDM8 shape, 50 MHz |
+| Frame age at the tick, CRF | 256 to 785 axis cycles, fixed for a lock | the aligner holds the close 256 cycles off the crossing (below) |
 | Pair p | the frame's age plus (3 - p) pair periods of 5.208 us | the order the front end delivers pairs |
-| Beat at INTERNAL | one whole-frame slip every 1.958 s | the loop table's rate, unchanged; CRF holds the phase |
+| Beat at INTERNAL | one whole-frame slip every 1.958 s, counted once on `SLIP_TDM` | the loop table's rate, unchanged |
+| CRF | no slip at any lock phase | the guarded crossing, below |
 
 The per-pair holds this replaced had no frame boundary.
 
 Each pair was read at its own slot's inject.
 
-| Pair | Mean age before, axis cycles | Mean age after, axis cycles | Change |
-|---|---|---|---|
-| 0 | 519.4 | 1307.1 | +787.7 cycles, +15.75 us |
-| 1 | 488.5 | 1046.7 | +558.2 cycles, +11.16 us |
-| 2 | 457.6 | 786.3 | +328.7 cycles, +6.57 us |
-| 3 | 426.7 | 525.8 | +99.1 cycles, +1.98 us |
+Each change below is exact, not a sampled mean.
 
-Pair 3 already carried the frame's last sample.
+| Pair | Read at `ce550952` | Frame atomicity | Guarded crossing | Change |
+|---|---|---|---|---|
+| 0 | its strobe, by tick + 6 cycles | +782.3 cycles | +5 cycles | +787.3 cycles, +15.75 us |
+| 1 | its strobe, by tick + 32 cycles | +547.8 cycles | +5 cycles | +552.8 cycles, +11.06 us |
+| 2 | its strobe, by tick + 58 cycles | +313.4 cycles | +5 cycles | +318.4 cycles, +6.37 us |
+| 3 | its strobe, by tick + 84 cycles | +79.0 cycles | +5 cycles | +84.0 cycles, +1.68 us |
 
-Its change is the read moving to slot 0's instant.
+| Term | Value | Derivation |
+|---|---|---|
+| Frame atomicity | (6 + 26p) - 5 + (3 - p) x 260.4 cycles | slot p injects 26 cycles after slot p - 1; pair p's frame closes (3 - p) pair periods after it; the round-1 snapshot read a close by tick + 5 |
+| Guarded crossing | + `LB_PAIRS_C` + 1 cycles: 5 on the 1x1 shape, 2 on the 8x8 product shape | the read moves from the pre-walk's last cycle to the tick cycle |
+| Check | pair 0 to 3 minimum ages -6, -32, -58, -84 cycles before; 781, 520, 260, 0 after | MEASURED, `capture_coherence` INT-true at `ce550952` and at the head |
 
-The earlier pairs wait for their frame to complete.
+Pair 3 carries the frame's last sample.
 
-That wait is what atomicity requires, and no more.
+Its change is the read moving to the tick.
+
+The earlier pairs also wait for their frame to complete.
+
+That wait is what atomicity requires.
+
+The guard adds 0.1 us.
 
 Before, one column could span a frame of sampling instants.
 
-The listener render tables above are unchanged.
+On the Arty blend the I2S pair is pair 0.
 
-Digital proof: `tb/verilator/capture_coherence`, measured in INTERNAL and under CRF.
+It waits for the TDM close: at most a frame.
+
+#### The guarded crossing
+
+A walk has one crossing: the close against the tick.
+
+Under CRF the grid aligner holds every lock off it.
+
+| Aligner input (`milan_datapath`) | Value | Why |
+|---|---|---|
+| Frame marker | the frame close | the event the walk and `SLIP_TDM` cross |
+| Tick | `media_tick_p`, one cycle late | puts the lock-target split on the walk's crossing, so no engagement is pulled across it |
+| Keep-off | `MGA_KEEPOFF_CYC_C` = 256 cycles, capped at a quarter sample on a compressed test clock | clears the acquisition transient (next table); the module default is 1/128 sample |
+
+| Source rate error | Acquisition transient | Evidence |
+|---|---|---|
+| -10.64 ppm (the divider plan) | the close moves 18 cycles within 2000 frames | MEASURED, `capture_coherence` CRF-true |
+| +/-50 ppm (Milan v1.2 7.4's media clock tolerance) | 149 cycles, furthest near column 7100 of a 9000-column run | MEASURED, `capture_coherence` CRF-50-1/2 and CRF+50-1/2, engagements the keep-off does not pull |
+
+Keyed on slot 0, the keep-off guarded the wrong instant.
+
+That instant sat three pair periods from the crossing.
+
+A lock could park the close on the snapshot.
+
+The talker then repeated and skipped frames while `SLIP_TDM` stayed static.
+
+The 1/128-sample default protected a settled lock only.
+
+The transient still carried the close across for nearby engagements.
+
+| Sweep (`capture_coherence`) | Engagements | Result |
+|---|---|---|
+| True plan, every cycle across +/-32 of the crossing | 65 | 0 torn; no slip in any tail |
+| True plan, every 16 cycles round the frame | 65 | 0 torn, 0 slips |
+| -50 ppm, every 4 cycles from -176 to +32 | 53 | 0 torn, 0 slips |
+| +50 ppm, every 4 cycles from -32 to +176 | 53 | 0 torn, 0 slips |
+| Whole datapath, true plan, every 2 cycles from -20 to +4 | 13 | 0 torn, 0 slips |
+
+An engagement landing on the crossing is the exception.
+
+It may repeat and skip one frame, then clear.
+
+That happens within 64 columns and nets zero on `SLIP_TDM`.
+
+Removing any guard part reproduces slips (the mutation arm).
+
+| Engagement cost | Value | Derivation |
+|---|---|---|
+| Capture within 256 cycles of the tick | pulled out to 256 cycles, at up to 64 ppm of NCO trim | the aligner's proportional term, 4 cycles per ppm |
+| Share of engagements pulled | half at 50 MHz, a quarter at 100 MHz | 512 of 1041 or 2083 cycles |
+| #386 settled-grid trigger | waits for the pull, as for any aligner movement | its 32768-tick ceiling still bounds it |
+| Render path | unchanged; under CRF a lock's `phi` takes only the phases the keep-off leaves | `milan_dp_render` T30 and `milan_dp` aclk pass unchanged |
+
+The listener render law above is unchanged.
+
+Digital proof: `tb/verilator/capture_coherence`, in INTERNAL and under CRF.
 
 The next #451 bench capture is the silicon proof.
 

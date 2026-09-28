@@ -41,9 +41,16 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A frame publishes whole when its last pair lands.
 - Each media-tick walk reads one snapshot of it.
 - Earlier pairs wait for their frame to complete.
-- [Talker capture handoff](docs/design/TIME_SYNC.md#talker-capture-handoff) tables the added delay.
+- Pair delay grows by 1.68 to 15.75 us.
+- [Talker capture handoff](docs/design/TIME_SYNC.md#talker-capture-handoff) tables the exact change.
+- The walk and `SLIP_TDM` share one crossing: close against tick.
+- The grid aligner now keys on that frame close.
+- It sees the tick one cycle late; keep-off 256 cycles.
+- No CRF lock phase repeats or skips a frame.
+- `SLIP_TDM` counts the talker's own repeated and skipped frames.
 - The render path and channel-map semantics are unchanged.
 - `tb/verilator/capture_coherence` grades drift in INTERNAL and CRF.
+- It sweeps CRF engagement phases densely through the crossing.
 - VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - processor pin 16be6768
