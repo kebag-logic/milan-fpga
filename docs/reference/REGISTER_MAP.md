@@ -1832,8 +1832,8 @@ Listener/depacketizer counters, I2S status, and pin-level evidence instead.
 capture crossbar: the physical front-end grid (fsync, `clk_audio/512`) and the
 packet grid (`media_tick_p`). `KL_chan_map_capture` counts every slip at each
 junction - the LOOP bucket's elastic queue (pushed at the upstream talker's
-rate, popped on the media tick) and the TDM latest-sample holds (written on
-fsync, read on the media tick) - and until `0x0058` those counts reached only
+rate, popped on the media tick) and the TDM frame bank (whole frames published
+on fsync, read on the media tick) - and until `0x0058` those counts reached only
 a simulation tap. At the INTERNAL clock source the free-running grids slip one
 sample every 1.958 s on the shipping divider plan (-10.64 ppm: the standing
 free-run rule, slips accepted, and now readable); under a CRF selection the

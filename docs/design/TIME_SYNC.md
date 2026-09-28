@@ -450,6 +450,49 @@ Digital proof: `tb/verilator/render_setpoint` and the `milan_dp` true-ratio leg.
 
 Silicon proof at the TDM frame pin rides #117.
 
+### Talker capture handoff
+
+The capture crossbar hands the talker whole TDM frames (#617).
+
+Every channel of one sample event is one TDM frame.
+
+| Term | Value | Derivation |
+|---|---|---|
+| Frame complete | the strobe of the frame's last pair: pair 3 on TDM8 | `KL_tdm_capture_master` strobes pair k at the end of slot 2k+1 |
+| Published | on that strobe's edge, all pairs at once | `KL_chan_map_capture` `TDM_FRAME_PAIRS_P`, set by `milan_datapath` `CMAP_TDM_FRAME_PAIRS_C` |
+| Read | the walk snapshot, `LB_PAIRS_C` + 3 axis cycles after the tick: 7 on the 1x1 shape | the pre-walk's last cycle, before slot 0's inject; held for the whole walk |
+| Column | the newest frame complete at the snapshot | IEEE 1722-2016 7.3.5: the channels of one event are one instant |
+| Frame age at the tick | -5 to 1036 axis cycles: one frame, uniform over a beat | MEASURED over one beat of the true plan on the 1x1 TDM8 shape at 50 MHz |
+| Pair p | the frame's age plus (3 - p) pair periods of 5.208 us | the order the front end delivers pairs |
+| Beat at INTERNAL | one whole-frame slip every 1.958 s | the loop table's rate, unchanged; CRF holds the phase |
+
+The per-pair holds this replaced had no frame boundary.
+
+Each pair was read at its own slot's inject.
+
+| Pair | Mean age before, axis cycles | Mean age after, axis cycles | Change |
+|---|---|---|---|
+| 0 | 519.4 | 1307.1 | +787.7 cycles, +15.75 us |
+| 1 | 488.5 | 1046.7 | +558.2 cycles, +11.16 us |
+| 2 | 457.6 | 786.3 | +328.7 cycles, +6.57 us |
+| 3 | 426.7 | 525.8 | +99.1 cycles, +1.98 us |
+
+Pair 3 already carried the frame's last sample.
+
+Its change is the read moving to slot 0's instant.
+
+The earlier pairs wait for their frame to complete.
+
+That wait is what atomicity requires, and no more.
+
+Before, one column could span a frame of sampling instants.
+
+The listener render tables above are unchanged.
+
+Digital proof: `tb/verilator/capture_coherence`, measured in INTERNAL and under CRF.
+
+The next #451 bench capture is the silicon proof.
+
 ## Presentation validity
 
 The PHC dates AAF and CRF packets.

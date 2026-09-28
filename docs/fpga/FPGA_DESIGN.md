@@ -255,7 +255,7 @@ this table whenever `hdl/` changes shape.
 | `KL_aaf_packetizer` | shared NxN AAF talker packetizer |
 | `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sink |
 | `KL_aes3_rx` / `KL_aes3_tx` | AES3 / S-PDIF biphase-mark receiver and transmitter (item-4 front-end family) |
-| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds |
+| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds, and since #617 its TDM bucket hands each walk one whole TDM frame |
 | `KL_chan_map_render` | 64 stream-channel → physical render crossbar |
 | `KL_i2s_feed_mux` | DAC feed selector: the legacy listener render tap, or the render crossbar paced by the 48 kHz media tick |
 | `KL_i2s_playback` | I2S DAC serializer, clean-clocked (wire-order S32BE interleave) |
