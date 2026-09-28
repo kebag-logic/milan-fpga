@@ -63,6 +63,13 @@ The [8x8 shape](../../configs/endstation_ax7101_8x8.yaml) also declares 50 MHz (
 That declaration states the target, without claiming timing closure.
 No cacheless 8x8 placement or routing record exists.
 
+The [service-budget decision](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046) retains one cacheless hart.
+Every duty must provide heartbeat opportunities within its service allowance.
+The 500 ms heartbeat limit includes the 250 ms phase.
+UART blocking and PHY management consume the remaining allowance.
+[Measured duty intervals](../findings/397_SERVICE_BUDGET.md) constrain each placement.
+New duties require measurements against that same shared allowance.
+
 Build through the checked configuration entry point:
 
 ```console
@@ -1886,18 +1893,18 @@ verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
 `backed` bits, so a blank board reads `blank=1 fail=0 backed=1`, the register
 map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 
-**Runtime.** The idle hook runs while the console waits for a key, so a
-console command that itself runs for more than the 2,000 ms liveness deadline
-lets `nvm_backed` lapse until the prompt returns; with nothing outstanding the
-next heartbeat heals it, with a change outstanding `nvm_stale` records the gap.
-Queued input also suppresses the idle hook between commands.
-Several short commands can therefore exceed that same liveness deadline.
-[The service-budget measurements](../findings/397_SERVICE_BUDGET.md) reproduce this at both shapes.
-[Issue #590](https://github.com/kebag-logic/milan-fpga/issues/590) owns dispatch and long-walk tick opportunities.
-The hook heartbeats every 250 ms, half the section 9.4
-maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
+**Runtime.** Every registered Milan command begins with a heartbeat opportunity.
+This services chained commands while queued input suppresses idle service.
+CRC walks also yield every 256 bytes after writer initialization.
+Record-validation walks yield every sixteen records.
+Wipe yields between its two slot-erase verification walks.
+These placements service single long commands, including 8x8 slot status.
+The existing heartbeat rate limit remains 250 ms.
+The idle hook supplies opportunities while the console awaits input.
+This interval is half the section 9.4 maximum.
+When `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
 window (1,000 ms, the provisional value section 14 leaves open) with no record
-operation and no commit bracket in flight, it commits: the container is sealed
+operation and no commit bracket in flight, the idle hook commits: the container is sealed
 under the next sequence, validated in memory (a torn record defers the commit
 rather than opening a bracket over it), the bracket is opened, the
 non-authoritative slot is erased, programmed page by page and read back, and
@@ -1908,6 +1915,30 @@ deadline lapse. A failed erase, program or read-back publishes `VD_ERASE`,
 `VD_PROGRAM` or `VD_VERIFY` through the store's verdict nibble and withholds
 the acknowledgement, so the commit deadline revokes the durability claim
 instead of the firmware asserting one.
+
+Capture copies use aligned 32-bit loads and stores within records.
+Unaligned edges retain byte accesses.
+No access crosses the next record's boundary.
+Open records retain their previously verified staged bytes.
+The [capture receipt](../../tb/verilator/nvm_capture_cpu/measurements.json) binds firmware and processor identities.
+
+Firmware also publishes PHY state through the existing MDIO window.
+Clause-22 reads obtain link, negotiated speed and duplex.
+BMSR latch handling publishes a latched loss, then resolves current state in the same poll.
+A second MDIO read separates the loss and recovery publications across the CDC.
+Repeated stable readings leave the fabric edge counters unchanged.
+Missing acknowledgements and incomplete negotiation publish link down.
+Discovery probes one PHY address per service opportunity.
+The link-status CSR feeds MAC_STATUS and the existing fabric consumers.
+The stated maximum publication period is 250 ms for the measured duties.
+The poll trigger is 125 ms, half that allowance.
+The other half covers the longest measured duty stretch, UART blocking and a poll charge.
+That charge is the measured complete poll plus nine maximum measured MDIO transactions.
+Nine reads bound discovery and the longest negotiation fallback.
+Using the complete poll as bookkeeping allowance deliberately counts transaction time twice.
+The service harness grades this derived publication bound against 250 ms.
+The findings page records transaction and complete-poll timings on the target CPU.
+[Issue #599](https://github.com/kebag-logic/milan-fpga/issues/599) retains the physical switch-cycle rerun.
 
 **What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`
 compiles this translation unit unchanged against stub headers and a host

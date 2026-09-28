@@ -74,7 +74,19 @@ python3 tb/verilator/nvm_capture_cpu/run.py \
   --build-dir /tmp/nvm-capture-no-traffic
 ```
 
-Each returns zero only when its named defect is detected.
+The word-copy timing control forces the existing byte path:
+
+```sh
+python3 tb/verilator/nvm_capture_cpu/run.py \
+  --shape endstation_ax7101_8x8 --captures 2 --mutation byte-only \
+  --build-dir /tmp/nvm-capture-byte-only
+```
+
+It retains the byte, ownership, traffic and timing oracles.
+Compare its measured interval with the optimized capture receipt.
+The slower interval proves the word path's timing contribution.
+
+The two negative controls return zero only when their named defects are detected.
 Skipping stores must leave every raw byte poisoned.
 Disabling traffic must preserve copying while zeroing all traffic counters.
 That control also grades the copy's elapsed time.

@@ -4,13 +4,14 @@ This is the measurement harness for [issue #397](https://github.com/kebag-logic/
 It runs unchanged firmware on the shipping cacheless CPU.
 The CPU runs at 50 MHz; the system runs at 100 MHz.
 [Findings](../../../docs/findings/397_SERVICE_BUDGET.md) separate duties, schedules and liveness.
-The firmware fix belongs to [#590](https://github.com/kebag-logic/milan-fpga/issues/590).
+The service checks cover [#590](https://github.com/kebag-logic/milan-fpga/issues/590) and PHY publication under [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
 
 ## Contents
 
 - **[Run and reproduce](#run-and-reproduce)** -- Build prerequisites, named command plans, supported device waits and receipt handling.
 - **[Markers and heartbeat opportunities](#markers-and-heartbeat-opportunities)** -- External duty boundaries, passive tick observation and schedule-dependent liveness evidence.
 - **[Timing limits and controls](#timing-limits-and-controls)** -- Clock conversion, deadlines, substitution bias and mutation-sensitive controls.
+- **[PHY publication and firmware controls](#phy-publication-and-firmware-controls)** -- Clause-22 pin transactions, real status readback, fabric counters and mutation-sensitive service controls.
 
 ## Run and reproduce
 
@@ -46,7 +47,8 @@ The named plans are:
 | --- | --- |
 | `all` | Immediate UART handshakes; all 17 command cases, two commits and wipe |
 | `uart-paced` | Same cases; both UART directions use 115,200 baud, 8N1 spacing |
-| `queued-input` | Immediate command succession; NVM status repeated twelve times at 1x1 (public 133-byte P3) and three times at 8x8 (public PD), followed by status |
+| `queued-input` | Twelve NVM status commands, then status: 133 bytes on both shapes |
+| `queued-short` | 350 consecutive status commands; isolates dispatch service from inner walks |
 | `device-wait` | One commit, then status; isolates erase/page WIP behavior |
 
 `queued-input` models continuously available input at each returned prompt.
@@ -89,7 +91,21 @@ The repository retains summary tables and portable oracle fixtures only.
 `--regrade` checks the bound log and build before regenerating analysis.
 Use identical scenario arguments with `--regrade`.
 
-The default refuses any measured budget finding after recording evidence.
+Use `--enforce-service` for the firmware lane's required verdict.
+It checks each duty's tick allowance and actual deadlines.
+PHY publication reserves a 125 ms trigger phase plus the duty stretch,
+UART allowance and a conservative poll charge within 250 ms.
+The charge adds nine maximum measured transactions to the measured complete poll.
+Nine reads cover discovery and the longest negotiation fallback.
+This deliberately counts observed transaction time twice.
+Startup AEM and restore report isolated service-plus-poll costs without a trigger phase.
+Those costs exclude intervening startup work.
+Observed gaps between status readbacks independently grade startup and runtime within 250 ms.
+It also requires continuous backing after the first armed cycle.
+Ordinary UART response duration remains a reported historical comparison.
+A long handler can satisfy service through its internal ticks.
+
+The default retains the original measurement-only duration comparisons.
 `--record-budget-findings` prints every refusal and permits measurement completion.
 Its success never approves a missed budget.
 Commands run in the foreground; malformed evidence always fails.
@@ -128,8 +144,9 @@ The plan-dependent heartbeat row includes the final, right-censored tail.
 Receipts name its start, end, plan and both deadline margins.
 It is not a per-duty worst-case bound.
 UART `backed` and `PP_STAT[6]` observations retain liveness evidence.
-They sample state; they do not prove continuous backing between samples.
-Queued commands can accumulate gaps without a finite service-period bound.
+The native observer also samples the backend's backing register every cycle.
+It counts any loss after that register first asserts.
+`--enforce-service` requires zero such cycles and all-positive console samples.
 
 ## Timing limits and controls
 
@@ -154,7 +171,7 @@ One deterministic clock phase is exercised.
 
 Service time subtracts configured WIP from measured elapsed time.
 Polling consumes CPU during WIP; subtraction does not measure spare capacity.
-Future update writing, fault logging, PHY management and temperature remain unmeasured.
+Future update writing, fault logging and temperature remain unmeasured.
 Physical timing, the architecture decision and bench torture remain open.
 
 The self-test pins complete rows and findings from three fixed traces:
@@ -167,3 +184,43 @@ The paced trace checks UART reconstruction across interleaved observations.
 Device controls separately exercise busy refusal with WEL already true.
 That predicate control deliberately uses explicit nonmonotonic test times.
 It is not presented as a physical flash command sequence.
+
+## PHY publication and firmware controls
+
+The harness provides a Clause-22 peer at simulated MDIO pins.
+The firmware performs every bit-bang transaction and status publication.
+Simulation CSRs reproduce the product register and synchronizer semantics.
+The product datapath receives the existing link-status inputs.
+A separate bus reader reads the real MAC_STATUS register.
+The observer reads actual fabric LINK_UP and LINK_DOWN counters.
+Every published link transition must increment its corresponding counter once.
+Repeated publications must leave both counters unchanged.
+The peer drops link from 1.5 through 1.8 seconds.
+At 2.4 seconds it changes negotiation to 100 Mb/s.
+Both queued plans and `device-wait` require one completed down/up cycle.
+Host tests separately cover discovery, errors and speed/duplex modes.
+They require a latched brief loss and its recovered state to publish in one poll.
+A mutation restoring the old second-poll delay must fail that current-state check.
+
+Target timestamps cover each transaction and the complete poll.
+The poll envelope begins at the retired heartbeat entry.
+It includes clock acquisition, MDIO, resolution and publication bookkeeping.
+The console and NVM duties therefore include PHY polling cost.
+The pin boundary replaces physical Ethernet transport and PHY timing.
+It cannot establish the deferred board acceptance.
+
+Explicit controls use scratch firmware with checked substitution anchors:
+
+```sh
+python3 -B tb/verilator/fw_service_budget/run.py \
+  --shape endstation_ax7101_1x1_tdm8 --build-dir /tmp/service-no-dispatch \
+  --populated --plan queued-short --enforce-service --mutation remove-dispatch
+python3 -B tb/verilator/fw_service_budget/run.py \
+  --shape endstation_ax7101_1x1_tdm8 --build-dir /tmp/service-no-publish \
+  --populated --plan all --enforce-service --mutation no-publish
+```
+
+Dispatch removal must fail the continuous-backing check.
+Publication removal must fail the target publication-evidence check.
+The ordinary firmware serves as each control's positive arm.
+Portable fixtures reject one-cycle service overruns and duplicate link edges.

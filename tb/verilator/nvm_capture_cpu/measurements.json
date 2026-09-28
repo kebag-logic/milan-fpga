@@ -1,6 +1,6 @@
 {
   "date": "2026-09-28",
-  "base": "7eae38744b41dec62b9398323bb0c58de5c84695",
+  "base": "5e8edc86822a5cd2ba11da41dec0df7397d76da0",
   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
   "soc_component_revisions": {
     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
@@ -16,7 +16,7 @@
   "simulator": "Verilator 5.052",
   "network": "disabled; offline dependency resolution",
   "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
-  "product_firmware_sha256": "8aecd259e82b2913d312e627a4850e4e23beea4208369d2f7cddf4a12dd65971",
+  "product_firmware_sha256": "91d6ca57937530e429985e08e687b4e6949e074a7b75f38bfdf47c554430be7d",
   "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
   "python_hash_seed": "0",
   "phase": "CPU rising edges aligned with sys; audio starts at half-period",
@@ -256,7 +256,7 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir /tmp/capture-1x1-50-on",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "a943d08c42332b644b0b27e7a9c8bf9c6e3c8aeb56909965482ea2db211e1f17",
+      "instrumented_firmware_sha256": "20641a20c1b286bfdd636bbbd54d81e5860b8090955729c023f48e5cc3c70363",
       "bios_sha256": "85147878b1ef640a280818dae57fae7b815986acde5cef47d49b900999e78dc6",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "d2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807"
@@ -471,7 +471,7 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir /tmp/capture-1x1-50-off",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "5bb9f438eab9a4f065f2efce19dbacb69ee69db8b5779187a13d2b283a0be3cf",
+      "instrumented_firmware_sha256": "a33fbba3cabc73138a7a42e796801d01478e9e860a17dd086001b4f87d4b5023",
       "bios_sha256": "aff97aa8fc7518ef6142afcb7cfae4947cff6cbcbd681a11bb7a50d6e7826c9f",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "d2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807"
@@ -686,7 +686,7 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir /tmp/capture-8x8-50-on",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "a943d08c42332b644b0b27e7a9c8bf9c6e3c8aeb56909965482ea2db211e1f17",
+      "instrumented_firmware_sha256": "20641a20c1b286bfdd636bbbd54d81e5860b8090955729c023f48e5cc3c70363",
       "bios_sha256": "c7f892f7f37046e6bdcc3bf7544b0eddd7042da5d430ab6f337c3700ed7defca",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e"
@@ -901,7 +901,7 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir /tmp/capture-8x8-50-off",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "5bb9f438eab9a4f065f2efce19dbacb69ee69db8b5779187a13d2b283a0be3cf",
+      "instrumented_firmware_sha256": "a33fbba3cabc73138a7a42e796801d01478e9e860a17dd086001b4f87d4b5023",
       "bios_sha256": "2e4a6c1461d263f12c90e24ad2f8d0d8d61f3671bab6173758b40d124f821b8f",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e"
@@ -1116,7 +1116,7 @@
       "clock_role": "non-contract comparison",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir /tmp/capture-8x8-100-on",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "a943d08c42332b644b0b27e7a9c8bf9c6e3c8aeb56909965482ea2db211e1f17",
+      "instrumented_firmware_sha256": "20641a20c1b286bfdd636bbbd54d81e5860b8090955729c023f48e5cc3c70363",
       "bios_sha256": "c7f892f7f37046e6bdcc3bf7544b0eddd7042da5d430ab6f337c3700ed7defca",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e"
@@ -1331,7 +1331,7 @@
       "clock_role": "non-contract comparison",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir /tmp/capture-8x8-100-off",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "5bb9f438eab9a4f065f2efce19dbacb69ee69db8b5779187a13d2b283a0be3cf",
+      "instrumented_firmware_sha256": "a33fbba3cabc73138a7a42e796801d01478e9e860a17dd086001b4f87d4b5023",
       "bios_sha256": "2e4a6c1461d263f12c90e24ad2f8d0d8d61f3671bab6173758b40d124f821b8f",
       "gptp_ucode_sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
       "config_sha256": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e"
@@ -1363,7 +1363,7 @@
     "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
   },
-  "tree": "7279b8fdbd6cde27034ab2b975c0442d18d66537",
+  "tree": "8d017a282288c9fe94c0c39cde64aa2b0ce1d55d",
   "reproduction_environment": {
     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
     "PYTHONHASHSEED": "0",

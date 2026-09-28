@@ -369,7 +369,11 @@ def service_findings(result: dict, raw: str) -> list[str]:
                              'max_poll_sys_cycles', 'down_edges', 'up_edges'), map(int, timing.groups())))
     # The 125 ms trigger interval leaves another 125 ms for service jitter.
     # Startup rows compare isolated service cost; actual read gaps include intervening work.
-    poll_ms = int(timing[4]) / 100_000
+    # Nine reads cover discovery and the longest negotiation fallback. Use
+    # the whole observed poll as bookkeeping allowance, counting MDIO twice.
+    charge_cycles = int(timing[4]) + 9 * int(timing[3])
+    result['phy']['scheduling_charge_sys_cycles'] = charge_cycles
+    poll_ms = charge_cycles / 100_000
     for row in result['rows']:
         if row['duty'] in ('boot_to_entity_enabled', 'maximum_heartbeat_gap'):
             continue
@@ -437,7 +441,7 @@ def service_controls() -> int:
     require(service_findings(result, raw) == ['over-budget tick stretch: milan_nvm',
                                             'over-budget PHY service stretch: milan_nvm'],
             'one cycle past service allowance escaped')
-    row['period_bound_ms'] = 374.9991
+    row['period_bound_ms'] = 374.9982
     require(service_findings(result, raw) == [], 'PHY service boundary changed')
     row['period_bound_ms'] += 0.00001
     require(service_findings(result, raw) == ['over-budget PHY service stretch: milan_nvm'],
