@@ -1,0 +1,597 @@
+[
+  {
+    "name": "bad-listener-length",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "K12"
+    ],
+    "required_assertion": "K12:",
+    "log": "/tmp/pp127-mutants-release/bad-listener-length.log",
+    "bytes": 12265,
+    "sha256": "546d173d736b0d4f40c3eab2300e404da2b1bd89ee89abc26792acf566f8a505"
+  },
+  {
+    "name": "peer-restarts-timer",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 8,
+    "tags": [
+      "M4"
+    ],
+    "required_assertion": "M4:",
+    "log": "/tmp/pp127-mutants-release/peer-restarts-timer.log",
+    "bytes": 10587,
+    "sha256": "9fe6f13e943017d6708876cc009f1b26ad04d482cf1cc18e1f01e05cdedc7a0a"
+  },
+  {
+    "name": "repeated-action",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 5,
+    "tags": [
+      "N10",
+      "N12",
+      "N13",
+      "N4",
+      "N8"
+    ],
+    "required_assertion": "N4:",
+    "log": "/tmp/pp127-mutants-release/repeated-action.log",
+    "bytes": 9949,
+    "sha256": "c1d341cfe62f7c16bbf26529a5cb64580f38ceaa977ea49bd8ac4fab794cbea1"
+  },
+  {
+    "name": "expiry-event",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 81,
+    "tags": [
+      "K1",
+      "K11",
+      "K12",
+      "K2",
+      "K4",
+      "K5",
+      "K9"
+    ],
+    "required_assertion": "K2:",
+    "log": "/tmp/pp127-mutants-release/expiry-event.log",
+    "bytes": 16585,
+    "sha256": "4d7b5e235182e636095b2b6d55216a0f1e7612554f635fdecbc62a9025e1c7d3"
+  },
+  {
+    "name": "before-slot",
+    "suite": "srp_top",
+    "group": "edge",
+    "rc": 2,
+    "failing_checks": 30,
+    "tags": [
+      "L1",
+      "L4"
+    ],
+    "required_assertion": "L1:",
+    "log": "/tmp/pp127-mutants-release/before-slot.log",
+    "bytes": 12531,
+    "sha256": "04a72d959d53389ea4b017ee42234d230fddf71657a132b90d111272a80dafe6"
+  },
+  {
+    "name": "talker-no-own",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 25,
+    "tags": [
+      "K2",
+      "K4",
+      "K8"
+    ],
+    "required_assertion": "K2:",
+    "log": "/tmp/pp127-mutants-release/talker-no-own.log",
+    "bytes": 13705,
+    "sha256": "0788e3984750cab6daf9d3105199e0a4e2455506474d4f63987172e741f9cc5a"
+  },
+  {
+    "name": "listener-no-own",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 13,
+    "tags": [
+      "K11",
+      "K6"
+    ],
+    "required_assertion": "K11:",
+    "log": "/tmp/pp127-mutants-release/listener-no-own.log",
+    "bytes": 12807,
+    "sha256": "36b6a60db110a1fbf441a73438f66f089219265816fbbd97c31a20137d336362"
+  },
+  {
+    "name": "talker-lost-txla",
+    "suite": "srp_stream_fsms",
+    "group": "",
+    "rc": 2,
+    "failing_checks": 12,
+    "tags": [
+      "T AN x txLA!",
+      "T AO x txLA!",
+      "T LA txla=2",
+      "T LA x txLA!",
+      "T LO txla=2",
+      "T LO x txLA!",
+      "T QA txla=2",
+      "T QO x txLA!",
+      "T QP txla=2",
+      "T QP x txLA!",
+      "T VO x txLA!",
+      "T VP txla=2"
+    ],
+    "required_assertion": "T QA txla=2:",
+    "log": "/tmp/pp127-mutants-release/talker-lost-txla.log",
+    "bytes": 10089,
+    "sha256": "7728582164dba2a8f7453c0c900be689d0d7f480cd5f8381120e02e00f4742bd"
+  },
+  {
+    "name": "listener-lost-txla",
+    "suite": "srp_stream_fsms",
+    "group": "",
+    "rc": 2,
+    "failing_checks": 12,
+    "tags": [
+      "L AN x txLA!",
+      "L AO x txLA!",
+      "L LA txla=2",
+      "L LA x txLA!",
+      "L LO txla=2",
+      "L LO x txLA!",
+      "L QA txla=2",
+      "L QO x txLA!",
+      "L QP txla=2",
+      "L QP x txLA!",
+      "L VO x txLA!",
+      "L VP txla=2"
+    ],
+    "required_assertion": "L QA txla=2:",
+    "log": "/tmp/pp127-mutants-release/listener-lost-txla.log",
+    "bytes": 10089,
+    "sha256": "62881f7059ed76e3d2b9f11ca80c24141ae195537df5aa5b8fd188096d244669"
+  },
+  {
+    "name": "talker-strict-lv",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 24,
+    "tags": [
+      "K2",
+      "K4"
+    ],
+    "required_assertion": "K2:",
+    "log": "/tmp/pp127-mutants-release/talker-strict-lv.log",
+    "bytes": 13653,
+    "sha256": "5cd9ce8abd8016df89b63053f37117d5dd25dfe97d1b5cbd476e389032e75f84"
+  },
+  {
+    "name": "listener-strict-lv",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 13,
+    "tags": [
+      "K11",
+      "K6"
+    ],
+    "required_assertion": "K11:",
+    "log": "/tmp/pp127-mutants-release/listener-strict-lv.log",
+    "bytes": 12807,
+    "sha256": "e55dae4dfca4bb671509b3919be577d5a9f40096477bed2ee0d0efa300e5426b"
+  },
+  {
+    "name": "listener-sid-ignored",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 33,
+    "tags": [
+      "K12",
+      "K3",
+      "K5",
+      "K8"
+    ],
+    "required_assertion": "K5:",
+    "log": "/tmp/pp127-mutants-release/listener-sid-ignored.log",
+    "bytes": 13572,
+    "sha256": "3e4e116e63d5ec5ab88b32cbd64df42afc1ac956a0511c77e32d3feb70e0b1c7"
+  },
+  {
+    "name": "talker-no-renewal",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "K7"
+    ],
+    "required_assertion": "K7:",
+    "log": "/tmp/pp127-mutants-release/talker-no-renewal.log",
+    "bytes": 12263,
+    "sha256": "3f56e649f52cce8ce9ee300074935a0d3460cb8f7da494063af17b23b75db3f6"
+  },
+  {
+    "name": "listener-no-renewal",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "K7"
+    ],
+    "required_assertion": "K7:",
+    "log": "/tmp/pp127-mutants-release/listener-no-renewal.log",
+    "bytes": 12263,
+    "sha256": "40690e7387b021952e3348a49f13186e4fbe1ff5e2033d44dd25aace0e6af9f6"
+  },
+  {
+    "name": "talker-no-expiry",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "K8"
+    ],
+    "required_assertion": "K8:",
+    "log": "/tmp/pp127-mutants-release/talker-no-expiry.log",
+    "bytes": 12252,
+    "sha256": "11b475cb79bd4c5da97cf82047c1ff9d54d82863e6e4b703cfb3c2c4c81f1378"
+  },
+  {
+    "name": "listener-no-expiry",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "K8"
+    ],
+    "required_assertion": "K8:",
+    "log": "/tmp/pp127-mutants-release/listener-no-expiry.log",
+    "bytes": 12252,
+    "sha256": "96c222d2d92df2e83a29d6606295e26d3abdb712b82ced5911a00e8d1e5e86e3"
+  },
+  {
+    "name": "pending-peer-ignored",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 14,
+    "tags": [
+      "M1",
+      "M10",
+      "M2",
+      "M3"
+    ],
+    "required_assertion": "M1:",
+    "log": "/tmp/pp127-mutants-release/pending-peer-ignored.log",
+    "bytes": 10844,
+    "sha256": "f6198b69ca3f32dcb1d8655080633b522b6bfe8ca91589cc8f876eb7ca485b9b"
+  },
+  {
+    "name": "encoder-peer-ignored",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 20,
+    "tags": [
+      "M1",
+      "M11",
+      "M12",
+      "M2",
+      "M3",
+      "M6",
+      "M7"
+    ],
+    "required_assertion": "M6:",
+    "log": "/tmp/pp127-mutants-release/encoder-peer-ignored.log",
+    "bytes": 11232,
+    "sha256": "8f6d71fa58beca0c6d62bdbcdc7c999256d8fedd9f11b2fa8f2ac261ae6a38fd"
+  },
+  {
+    "name": "mvrp-supersedes-msrp",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 6,
+    "tags": [
+      "M1",
+      "M2",
+      "M3"
+    ],
+    "required_assertion": "M1:",
+    "log": "/tmp/pp127-mutants-release/mvrp-supersedes-msrp.log",
+    "bytes": 10397,
+    "sha256": "c07962ba8b8c4a04dc03098f1f6377c7878fcc3990ef314f571c395b932fc57a"
+  },
+  {
+    "name": "reset-retains-intent",
+    "suite": "srp_top",
+    "group": "phases",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "K10"
+    ],
+    "required_assertion": "K10:",
+    "log": "/tmp/pp127-mutants-release/reset-retains-intent.log",
+    "bytes": 12260,
+    "sha256": "cf02750e910c277e2953da84034cba48beba034d278cacdba8ea9631cd395b92"
+  },
+  {
+    "name": "full-drain-missing",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 7,
+    "tags": [
+      "N10",
+      "N13",
+      "N3",
+      "N4",
+      "N5",
+      "N6",
+      "N8"
+    ],
+    "required_assertion": "N6:",
+    "log": "/tmp/pp127-mutants-release/full-drain-missing.log",
+    "bytes": 10060,
+    "sha256": "81cbcd565bcd65a084cf379818a4c3d62cd0c1215ba97892726529f8d388b465"
+  },
+  {
+    "name": "already-full-missed",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "N10"
+    ],
+    "required_assertion": "N10:",
+    "log": "/tmp/pp127-mutants-release/already-full-missed.log",
+    "bytes": 9689,
+    "sha256": "81390fd470a736ef6e13b9d13838279c38c5dd70c8f78d72afeb422f54d8d993"
+  },
+  {
+    "name": "round-completion-lost",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "N13"
+    ],
+    "required_assertion": "N13:",
+    "log": "/tmp/pp127-mutants-release/round-completion-lost.log",
+    "bytes": 9705,
+    "sha256": "ca5ff59b388c4a5c841eef877dfb8b225df2cab7685cfeba2bd4abf14e65a460"
+  },
+  {
+    "name": "own-flags-missing",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 4,
+    "tags": [
+      "N10",
+      "N12",
+      "N5",
+      "N6"
+    ],
+    "required_assertion": "N5:",
+    "log": "/tmp/pp127-mutants-release/own-flags-missing.log",
+    "bytes": 9886,
+    "sha256": "ee9f76f9db1c4c24b4f696377bb78b74e220eeaaea74a9fdbfc0ab5736e6dc0d"
+  },
+  {
+    "name": "expiry-congestion",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 5,
+    "tags": [
+      "N1",
+      "N11",
+      "N12",
+      "N2",
+      "N9"
+    ],
+    "required_assertion": "N1:",
+    "log": "/tmp/pp127-mutants-release/expiry-congestion.log",
+    "bytes": 10133,
+    "sha256": "e83670bd771917ace8dd963799b6dc6a97f052b2e83f10df326fe42f8cf05d53"
+  },
+  {
+    "name": "missing-registrar-edge",
+    "suite": "srp_top",
+    "group": "edge",
+    "rc": 2,
+    "failing_checks": 38,
+    "tags": [
+      "L2",
+      "L3"
+    ],
+    "required_assertion": "L3:",
+    "log": "/tmp/pp127-mutants-release/missing-registrar-edge.log",
+    "bytes": 13295,
+    "sha256": "e5bf6fa485c920031132afc9b2b4f1253e30d6a2338d3f732258087eb0fc3833"
+  },
+  {
+    "name": "empty-canceled-pdu",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "M11"
+    ],
+    "required_assertion": "M11:",
+    "log": "/tmp/pp127-mutants-release/empty-canceled-pdu.log",
+    "bytes": 10140,
+    "sha256": "f47cdc54c63d11d1b5e117e52e578445e133aaac8a2209962e9e1215a52121ec"
+  },
+  {
+    "name": "reserved-slot-not-reused",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "M12"
+    ],
+    "required_assertion": "M12:",
+    "log": "/tmp/pp127-mutants-release/reserved-slot-not-reused.log",
+    "bytes": 10142,
+    "sha256": "4173a72b394fd7fc2348dd3bf862febd1401c814ae86e96211945628e5b6e797"
+  },
+  {
+    "name": "renewal-congestion",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "N7"
+    ],
+    "required_assertion": "N7:",
+    "log": "/tmp/pp127-mutants-release/renewal-congestion.log",
+    "bytes": 9691,
+    "sha256": "cfc83420dc3f99fde39e1316837602b17210ce936192935d0d323179ed1a7b60"
+  },
+  {
+    "name": "leaveall-expiry-lost",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 18,
+    "tags": [
+      "M1",
+      "M10",
+      "M12",
+      "M2",
+      "M3",
+      "M5",
+      "M8",
+      "M9"
+    ],
+    "required_assertion": "M9:",
+    "log": "/tmp/pp127-mutants-release/leaveall-expiry-lost.log",
+    "bytes": 10799,
+    "sha256": "c5a9b584094b0ed54230b4309ddc09684941afb6aa024e83f35a1596f11fa7ec"
+  },
+  {
+    "name": "expiry-outranks-peer",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "M10"
+    ],
+    "required_assertion": "M10:",
+    "log": "/tmp/pp127-mutants-release/expiry-outranks-peer.log",
+    "bytes": 10137,
+    "sha256": "fd8f01cebb14c8945f324124812f050864ea4bfc115e2f987b64e84d1165ebdb"
+  },
+  {
+    "name": "repeated-expiry-queued",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 1,
+    "tags": [
+      "N12"
+    ],
+    "required_assertion": "N12:",
+    "log": "/tmp/pp127-mutants-release/repeated-expiry-queued.log",
+    "bytes": 9699,
+    "sha256": "056179e3fc0a856d902c7db716e082a549ec8e37355f9c43cc24fb756c61e5d8"
+  },
+  {
+    "name": "receive-priority-lost",
+    "suite": "srp_top",
+    "group": "edge",
+    "rc": 2,
+    "failing_checks": 2,
+    "tags": [
+      "L2"
+    ],
+    "required_assertion": "L2:",
+    "log": "/tmp/pp127-mutants-release/receive-priority-lost.log",
+    "bytes": 11254,
+    "sha256": "c9d2b5e6ee6b4ec326a2d5657ae4a4d409497558dd82fc30d59738671cb77d1f"
+  },
+  {
+    "name": "action-omitted",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 6,
+    "tags": [
+      "N10",
+      "N12",
+      "N13",
+      "N3",
+      "N4",
+      "N8"
+    ],
+    "required_assertion": "N3:",
+    "log": "/tmp/pp127-mutants-release/action-omitted.log",
+    "bytes": 10004,
+    "sha256": "e1a13cc15c9a94269643de34980b59392aee70fcccaa4fb4361b3d9e386d03cf"
+  },
+  {
+    "name": "preparation-before-slot",
+    "suite": "srp_top",
+    "group": "peer",
+    "rc": 2,
+    "failing_checks": 22,
+    "tags": [
+      "M1",
+      "M10",
+      "M11",
+      "M12",
+      "M5",
+      "M6",
+      "M8"
+    ],
+    "required_assertion": "M5:",
+    "log": "/tmp/pp127-mutants-release/preparation-before-slot.log",
+    "bytes": 11460,
+    "sha256": "3c01de5b84399ee7950761a1f5a1a0802bb47fa3b1c4513860b05fd0dc8e982d"
+  },
+  {
+    "name": "table-one-short",
+    "suite": "srp_top",
+    "group": "congestion",
+    "rc": 2,
+    "failing_checks": 8,
+    "tags": [
+      "N10",
+      "N13",
+      "N3",
+      "N4",
+      "N5",
+      "N6",
+      "N8",
+      "N9"
+    ],
+    "required_assertion": "N9:",
+    "log": "/tmp/pp127-mutants-release/table-one-short.log",
+    "bytes": 10122,
+    "sha256": "d10ee095464ae0bdb10692df416ad72febb9af953a1e6770a67824805bd317db"
+  }
+]

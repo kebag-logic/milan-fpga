@@ -1,0 +1,527 @@
+
+bad-listener-length
+FAIL: K12: malformed Listener Leave cannot withdraw registration
+217 checks: 216 PASS, 1 FAIL
+
+peer-restarts-timer
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+FAIL: M4: peer supersession leaves the timer deadline unchanged
+67 checks: 59 PASS, 8 FAIL
+
+repeated-action
+FAIL: N4: delayed TX acceptance never repeats sLA
+FAIL: N8: completing queued ticks never replays the own action
+FAIL: N10: already-full table drains and both walks complete
+FAIL: N12: repeated pending expiries coalesce into one accepted action
+FAIL: N13: asymmetric walks preserve completion across blocked cadence ticks
+13 checks: 8 PASS, 5 FAIL
+
+expiry-event
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=1
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=40
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=80
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=1
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=40
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=80
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=1
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=40
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=80
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=1
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=40
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=80
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=1
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=40
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=80
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=1
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=40
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K1: phase has the expected sLA count
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=80
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K5: mismatched SID cannot withdraw registration
+FAIL: K12: malformed Listener Leave cannot withdraw registration
+FAIL: K9: allocation backpressure keeps sLA pending
+217 checks: 136 PASS, 81 FAIL
+
+before-slot
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L4: acceptance sweep covers -1, 0 and +1 clocks
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L1: one sLA and one valid decoded Lv
+FAIL: L4: acceptance sweep covers -1, 0 and +1 clocks
+86 checks: 56 PASS, 30 FAIL
+
+talker-no-own
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K8: missing rejoin expires both stream planes
+217 checks: 192 PASS, 25 FAIL
+
+listener-no-own
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K6: genuine sink LV plus rLv retains both types
+217 checks: 204 PASS, 13 FAIL
+
+talker-lost-txla
+FAIL: T VO x txLA!: dut VO want LO
+FAIL: T VP txla=2: one msg code 4
+FAIL: T AN x txLA!: dut AA want QA
+FAIL: T QA txla=2: one msg code 3
+FAIL: T LA x txLA!: dut VO want LO
+FAIL: T LA txla=2: no message, got 1
+FAIL: T AO x txLA!: dut AO want LO
+FAIL: T QO x txLA!: dut QO want LO
+FAIL: T QP x txLA!: dut QP want QA
+FAIL: T QP txla=2: one msg code 3
+FAIL: T LO x txLA!: dut VO want LO
+FAIL: T LO txla=2: no message, got 1
+1203 checks: 1191 PASS, 12 FAIL
+
+listener-lost-txla
+FAIL: L VO x txLA!: dut VO want LO
+FAIL: L VP txla=2: one msg code 4
+FAIL: L AN x txLA!: dut AA want QA
+FAIL: L QA txla=2: one msg code 3
+FAIL: L LA x txLA!: dut VO want LO
+FAIL: L LA txla=2: no message, got 1
+FAIL: L AO x txLA!: dut AO want LO
+FAIL: L QO x txLA!: dut QO want LO
+FAIL: L QP x txLA!: dut QP want QA
+FAIL: L QP txla=2: one msg code 3
+FAIL: L LO x txLA!: dut VO want LO
+FAIL: L LO txla=2: no message, got 1
+1211 checks: 1199 PASS, 12 FAIL
+
+talker-strict-lv
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=0 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=3 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=2 src=7 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=0 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=3 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=120
+FAIL: K4: phase result holds for the two-second disconnect
+FAIL: K2: phase Lv follows IN/LV policy fp=3 src=7 offset=199
+FAIL: K4: phase result holds for the two-second disconnect
+217 checks: 193 PASS, 24 FAIL
+
+listener-strict-lv
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K11: sink phase Lv follows IN/LV policy
+FAIL: K6: genuine sink LV plus rLv retains both types
+217 checks: 204 PASS, 13 FAIL
+
+listener-sid-ignored
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K3: another source remains active
+FAIL: K5: mismatched SID cannot withdraw registration
+FAIL: K12: malformed Listener Leave cannot withdraw registration
+FAIL: K8: missing rejoin expires both stream planes
+217 checks: 184 PASS, 33 FAIL
+
+talker-no-renewal
+FAIL: K7: rejoin cancels own LeaveTime without an interruption
+217 checks: 216 PASS, 1 FAIL
+
+listener-no-renewal
+FAIL: K7: rejoin cancels own LeaveTime without an interruption
+217 checks: 216 PASS, 1 FAIL
+
+talker-no-expiry
+FAIL: K8: missing rejoin expires both stream planes
+217 checks: 216 PASS, 1 FAIL
+
+listener-no-expiry
+FAIL: K8: missing rejoin expires both stream planes
+217 checks: 216 PASS, 1 FAIL
+
+pending-peer-ignored
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M10: peer supersession respects expiry ordering delta=0
+FAIL: M10: peer supersession respects expiry ordering delta=1
+67 checks: 53 PASS, 14 FAIL
+
+encoder-peer-ignored
+FAIL: M11: quiet canceled round emits valid content and recovers
+FAIL: M12: a later own action reuses an empty canceled reservation
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=0
+FAIL: M7: peer boundary agrees with both registrar planes
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=-1
+FAIL: M7: peer boundary agrees with both registrar planes
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=-2
+FAIL: M7: peer boundary agrees with both registrar planes
+67 checks: 47 PASS, 20 FAIL
+
+mvrp-supersedes-msrp
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+67 checks: 61 PASS, 6 FAIL
+
+reset-retains-intent
+FAIL: K10: reset discards the pending action and registrars
+217 checks: 216 PASS, 1 FAIL
+
+full-drain-missing
+FAIL: N3: pending round accepts sLA after backpressure
+FAIL: N4: delayed TX acceptance never repeats sLA
+FAIL: N5: full-table recovery emits one flagged round
+FAIL: N6: full-table drain preserves all types and all live declarations
+FAIL: N8: completing queued ticks never replays the own action
+FAIL: N10: already-full table drains and both walks complete
+FAIL: N13: asymmetric walks preserve completion across blocked cadence ticks
+13 checks: 6 PASS, 7 FAIL
+
+already-full-missed
+FAIL: N10: already-full table drains and both walks complete
+13 checks: 12 PASS, 1 FAIL
+
+round-completion-lost
+FAIL: N13: asymmetric walks preserve completion across blocked cadence ticks
+13 checks: 12 PASS, 1 FAIL
+
+own-flags-missing
+FAIL: N5: full-table recovery emits one flagged round
+FAIL: N6: full-table drain preserves all types and all live declarations
+FAIL: N10: already-full table drains and both walks complete
+FAIL: N12: repeated pending expiries coalesce into one accepted action
+13 checks: 9 PASS, 4 FAIL
+
+expiry-congestion
+FAIL: N1: blocked previous TX keeps both registrar arrays IN
+FAIL: N2: both planes honor Lv while encoder is blocked
+FAIL: N9: pending table is already full before sLA acceptance
+FAIL: N11: two timer expiries remain pending under allocation backpressure
+FAIL: N12: repeated pending expiries coalesce into one accepted action
+13 checks: 8 PASS, 5 FAIL
+
+missing-registrar-edge
+FAIL: L2: decoded Lv at acceptance boundary delta=5
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=4
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=3
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=2
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=1
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=5
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=4
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=3
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=2
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L2: decoded Lv at acceptance boundary delta=1
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+FAIL: L3: accepted sLA reaches every unaffected registrar
+86 checks: 48 PASS, 38 FAIL
+
+empty-canceled-pdu
+FAIL: M11: quiet canceled round emits valid content and recovers
+67 checks: 66 PASS, 1 FAIL
+
+reserved-slot-not-reused
+FAIL: M12: a later own action reuses an empty canceled reservation
+67 checks: 66 PASS, 1 FAIL
+
+renewal-congestion
+FAIL: N7: every renewed stream survives the old leave deadline
+13 checks: 12 PASS, 1 FAIL
+
+leaveall-expiry-lost
+FAIL: M12: a later own action reuses an empty canceled reservation
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M2: supersession agrees with the wire flags
+FAIL: M3: superseded action never re-ages a peer rejoin
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M8: peer boundary covers -1, 0 and +1 clocks
+FAIL: M9: peer and real timer expiry have the requested phase
+FAIL: M10: peer supersession respects expiry ordering delta=-1
+FAIL: M9: peer and real timer expiry have the requested phase
+FAIL: M9: peer and real timer expiry have the requested phase
+55 checks: 37 PASS, 18 FAIL
+
+expiry-outranks-peer
+FAIL: M10: peer supersession respects expiry ordering delta=0
+67 checks: 66 PASS, 1 FAIL
+
+repeated-expiry-queued
+FAIL: N12: repeated pending expiries coalesce into one accepted action
+13 checks: 12 PASS, 1 FAIL
+
+receive-priority-lost
+FAIL: L2: decoded Lv at acceptance boundary delta=0
+FAIL: L2: decoded Lv at acceptance boundary delta=0
+86 checks: 84 PASS, 2 FAIL
+
+action-omitted
+FAIL: N3: pending round accepts sLA after backpressure
+FAIL: N4: delayed TX acceptance never repeats sLA
+FAIL: N8: completing queued ticks never replays the own action
+FAIL: N10: already-full table drains and both walks complete
+FAIL: N12: repeated pending expiries coalesce into one accepted action
+FAIL: N13: asymmetric walks preserve completion across blocked cadence ticks
+13 checks: 7 PASS, 6 FAIL
+
+preparation-before-slot
+FAIL: M11: quiet canceled round emits valid content and recovers
+FAIL: M12: a later own action reuses an empty canceled reservation
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M1: only an MSRP peer supersedes pending own sLA
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=5844
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=5844
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=5844
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=5844
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=5844
+FAIL: M5: one allocation acceptance and one peer LeaveAll
+FAIL: M6: peer at acceptance cancels only an unaccepted sLA delta=5844
+FAIL: M8: peer boundary covers -1, 0 and +1 clocks
+FAIL: M10: peer supersession respects expiry ordering delta=-1
+67 checks: 45 PASS, 22 FAIL
+
+table-one-short
+FAIL: N3: pending round accepts sLA after backpressure
+FAIL: N4: delayed TX acceptance never repeats sLA
+FAIL: N5: full-table recovery emits one flagged round
+FAIL: N6: full-table drain preserves all types and all live declarations
+FAIL: N8: completing queued ticks never replays the own action
+FAIL: N9: pending table is already full before sLA acceptance
+FAIL: N10: already-full table drains and both walks complete
+FAIL: N13: asymmetric walks preserve completion across blocked cadence ticks
+13 checks: 5 PASS, 8 FAIL

@@ -1,0 +1,68 @@
+[
+  {
+    "gate": "suites",
+    "command": [
+      "./scripts/run_suites.sh"
+    ],
+    "rc": 0,
+    "bytes": 1643,
+    "sha256": "c1edda90f570c6c7fc25a3a1973ff8a7db301a89529a712cb0dbb8c374a6420f",
+    "scratch_log": "/tmp/pp127-gates/suites.log"
+  },
+  {
+    "gate": "lint",
+    "command": [
+      "./scripts/lint_hdl.sh"
+    ],
+    "rc": 0,
+    "bytes": 1028,
+    "sha256": "49e02975050b914de0f152ef79f6d82cbbd0cd4c13e18e3ae0d090437526ccf2",
+    "scratch_log": "/tmp/pp127-gates/lint.log"
+  },
+  {
+    "gate": "check",
+    "command": [
+      "make",
+      "check"
+    ],
+    "rc": 0,
+    "bytes": 225,
+    "sha256": "23dff2062a7cd4b893ef21fc2ee977e7b47845ef3c7bdbfa299be28740ac68a7",
+    "scratch_log": "/tmp/pp127-gates/check.log"
+  },
+  {
+    "gate": "matrix",
+    "command": [
+      "python3",
+      "scripts/gen_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "bytes": 33,
+    "sha256": "98e5ebd5eedcc618fa1273c1646e196072153b437de9ccbfb403f31ff6f9d03e",
+    "scratch_log": "/tmp/pp127-gates/matrix.log"
+  },
+  {
+    "gate": "nvm-figures",
+    "command": [
+      "make",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ],
+    "rc": 2,
+    "bytes": 6852,
+    "sha256": "39fabf2a69109051f6c97ee6995b46d4f3a4d8b8022cfc6dbf72aa33776a9cd2",
+    "scratch_log": "/tmp/pp127-gates/nvm-figures.log"
+  },
+  {
+    "gate": "portability",
+    "command": [
+      "./syn/yosys/run.sh"
+    ],
+    "rc": 0,
+    "bytes": 25185,
+    "sha256": "4ec7b3a418f674e31f00ce16de225e55a35e959b49001d25f27ba74bbee68bf3",
+    "scratch_log": "/tmp/pp127-gates/portability.log"
+  }
+]

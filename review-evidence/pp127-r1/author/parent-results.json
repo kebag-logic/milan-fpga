@@ -1,0 +1,100 @@
+{
+  "head": "cf4e5c63ab12442c6c63d2bfe2bb64902674d55e",
+  "scratch": "/tmp/pp127-head-cf4e5c63ab12",
+  "results": [
+    {
+      "name": "parent-original-oracle",
+      "command": [
+        "python3",
+        "/tmp/pp127-head-cf4e5c63ab12/original/run_reproduction.py",
+        "$LANES/pp127-srp-leaveall",
+        "/tmp/pp127-head-cf4e5c63ab12/original/build"
+      ],
+      "rc": 1,
+      "expected_rc": 1,
+      "bytes": 1129,
+      "sha256": "64192ec486e56fd9ea0b1566da5a05f279f45e9be7acca5bd66ca45af0979b56"
+    },
+    {
+      "name": "parent-fixed-oracle",
+      "command": [
+        "/tmp/pp127-head-cf4e5c63ab12/original/build/obj/reproduce",
+        "deferred"
+      ],
+      "rc": 0,
+      "expected_rc": 0,
+      "bytes": 1382,
+      "sha256": "c79e89c382a114f84005bc36fe02c89e16d86c7b19e3e29a2b8beaa1182b9a30"
+    },
+    {
+      "name": "parent-expiry-oracle",
+      "command": [
+        "python3",
+        "/tmp/pp127-head-cf4e5c63ab12/expiry/run_reproduction.py",
+        "$LANES/pp127-srp-leaveall",
+        "/tmp/pp127-head-cf4e5c63ab12/expiry/build"
+      ],
+      "rc": 0,
+      "expected_rc": 0,
+      "bytes": 1646,
+      "sha256": "7b9527be1263247cbd7b7585d114592d60d8f5c7821daba700a5e04de95a4198"
+    }
+  ],
+  "files": [
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/original/reproduce.cpp",
+      "bytes": 7711,
+      "sha256": "a509453e76d47cb004cbdae263c6f0cc859b318dda07cd5b64360d9b7a2b7b1b"
+    },
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/original/run_reproduction.py",
+      "bytes": 2479,
+      "sha256": "d7ecb4cef397a6e53b8a6287ef05ff1b956619ec25556e0c4f94e4a3934a3a1c"
+    },
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/expiry/reproduce.cpp",
+      "bytes": 6736,
+      "sha256": "a3ee0057719c7032a5d30e9af82c8709397c5b45b7d2a125d144cb0f1aeffe9f"
+    },
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/original/build/obj/reproduce",
+      "bytes": 564848,
+      "sha256": "29e19799dae0d8bb695991d40660ece0677305e767de6494d5e2a9c9ec9f72fa"
+    },
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/expiry/build/obj/reproduce",
+      "bytes": 564672,
+      "sha256": "ce187af0f333b837157849a9f070ff3d4914e9c4c6e411478cca1e5e88c2905b"
+    },
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/original/build/build.log",
+      "bytes": 8141,
+      "sha256": "3044c7f3a531a46d6bc88e0e4cae507a9afe5228fc0eb267b15f4a55d2b7b4d3"
+    },
+    {
+      "path": "/tmp/pp127-head-cf4e5c63ab12/expiry/build/build.log",
+      "bytes": 8135,
+      "sha256": "2f5c98064b1a3b36773eed66fb942b28af994ebce16ecf2742427be5a8b4d3a6"
+    },
+    {
+      "path": "$LANES/pp127-srp-leaveall/hdl/srp/KL_srp_top.sv",
+      "bytes": 53669,
+      "sha256": "acbb88e7b0a3219f7f50ee7a7990aaf2ecf564a691d7c97e4e7230689a60c8cc"
+    },
+    {
+      "path": "$LANES/pp127-srp-leaveall/hdl/srp/KL_srp_encoder.sv",
+      "bytes": 35356,
+      "sha256": "f34813e36fd34e0865667bfb1b50982366552fa67bf22e5a4967c9726b8a9848"
+    },
+    {
+      "path": "$LANES/pp127-srp-leaveall/hdl/srp/KL_srp_talker_fsm.sv",
+      "bytes": 36169,
+      "sha256": "4bca3767c1438d6326da5a0900b5cea529ec907b16f8114b4d305b0a3784db61"
+    },
+    {
+      "path": "$LANES/pp127-srp-leaveall/hdl/srp/KL_srp_listener_fsm.sv",
+      "bytes": 38018,
+      "sha256": "39669fedf972e7996a623e785fd28a56447194840df05e48418ad1a817af54a1"
+    }
+  ]
+}
