@@ -1,0 +1,17 @@
+m01_conflict_keeps_wait: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m02_enable_keeps_wait: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m03_no_accept_kill: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m04_grant_kill_reg_only: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m05_init_ignores_pending_off_conflict: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m06_turn_never_returns: acmp_talker:KILLED rc=2 1098 checks: 1041 PASS, 57 FAIL FAIL: J3 THE REGRESSION: a command is still consumed with maap hung | FAIL: J3 served inside the accept window (4096 cycles) | FAIL: J3 answer unaffected by the hung request: response missing
+m07_eligible_ignores_rel: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m08_release_sets_wait: acmp_talker:KILLED rc=2 1100 checks: 1053 PASS, 47 FAIL FAIL: J7 ...and only then does the rejoin allocate: maap request missing | FAIL: J7 grant re-declares: gate strobe missing | FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+m09_ready_ignores_turn: acmp_talker:KILLED rc=2 1083 checks: 994 PASS, 89 FAIL FAIL: B4 re-ping: timer arm missing | FAIL: B4: response missing | FAIL: B4 msg_type got 0 want 1
+m10_kill_ignores_conflict_strobe: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m11_kill_ignores_disable: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m12_sticky_kill_off: acmp_talker:KILLED rc=2 1107 checks: 1097 PASS, 10 FAIL FAIL: R4 obsolete grant rejected src0 status/tuple | FAIL: R4 obsolete grant cannot declare | FAIL: R4 obsolete successful allocation released before retry
+m13_init_no_enable_check: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 
+m14_round_skips_rotation: acmp_talker:KILLED rc=2 1107 checks: 1106 PASS, 1 FAIL FAIL: R3 every source gets an attempt under continuous commands
+m15_eligible_ignores_init: acmp_talker:KILLED rc=2 1107 checks: 1106 PASS, 1 FAIL FAIL: R3 every source gets an attempt under continuous commands
+m16_tick_keeps_wait: acmp_talker:KILLED rc=2 1087 checks: 1056 PASS, 31 FAIL FAIL: I3 listener retries the alloc: maap request missing | FAIL: I4 retry alloc: maap request missing | FAIL: I4 grant declares: gate strobe missing
+m17_eligible_only_init: acmp_talker:SURVIVED rc=0 1107 checks: 1107 PASS, 0 FAIL 

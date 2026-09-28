@@ -1,0 +1,3 @@
+m20_no_probe_initset: acmp_talker:KILLED rc=2 821 checks: 808 PASS, 13 FAIL FAIL: I4 retry alloc: maap request missing | FAIL: I4 grant declares: gate strobe missing | FAIL: I4 declaring_o[6] OBSERVED 0 -> 1 on the grant
+m21_no_lsn_initset: acmp_talker:KILLED rc=2 837 checks: 836 PASS, 1 FAIL FAIL: I3 listener retries the alloc: maap request missing
+m22_no_backoff_exit_initset: acmp_talker:KILLED rc=2 817 checks: 794 PASS, 23 FAIL FAIL: E3 re-alloc: maap request missing | FAIL: E3 re-declare new DA: gate strobe missing | FAIL: E4 new DA answered dest_mac got 000000000000

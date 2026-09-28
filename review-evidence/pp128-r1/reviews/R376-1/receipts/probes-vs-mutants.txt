@@ -1,0 +1,110 @@
+== m01_conflict_keeps_wait (rc=1)
+PROBE-FAIL P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-FAIL P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-FAILED: 2 probe failures
+== m02_enable_keeps_wait (rc=1)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-FAIL P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-FAILED: 1 probe failures
+== m07_eligible_ignores_rel (rc=1)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-FAIL P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-FAILED: 1 probe failures
+== m17_eligible_only_init (rc=1)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-FAIL P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-FAILED: 1 probe failures
+== m19_init_elig_no_avail (rc=1)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-FAIL P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-FAILED: 1 probe failures
+== m03_no_accept_kill (rc=0)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-OK: 0 probe failures
+== m04_grant_kill_reg_only (rc=0)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-OK: 0 probe failures
+== m05_init_ignores_pending_off_conflict (rc=0)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-OK: 0 probe failures
+== m10_kill_ignores_conflict_strobe (rc=0)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-OK: 0 probe failures
+== m11_kill_ignores_disable (rc=0)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-OK: 0 probe failures
+== m13_init_no_enable_check (rc=0)
+PROBE-PASS P1: DA_OK conflict reallocates without waiting for the next round
+PROBE-PASS P2: re-enabled source allocates without waiting for the next round
+PROBE-PASS P3-seed: seed command consumed
+PROBE-PASS P3a: commands kept being answered
+PROBE-PASS P3b: the owed release is offered while commands are continuous
+PROBE-PASS P5: three consecutive commands served while an accepted allocation is unanswered and retries are pending
+BEHAVIOR P4: probe consumed=1 status=3; ALLOC_DA requests caused within 4000 cycles of the same round = 0
+BEHAVIOR P4: after one T-ACMP-DA-RETRY round, total new ALLOC_DA requests = 8
+PROBES-OK: 0 probe failures
