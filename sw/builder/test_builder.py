@@ -27792,6 +27792,17 @@ def test_nvm_firmware_shapes() -> None:
          "--self-test"], check=True, cwd=ROOT, timeout=600)
 
 
+def test_commercial_timing_grade() -> None:
+    """Pin the release conditions and prove that the real platform consumes them."""
+    from test_timing_grade import test_platform_hooks, test_pll_grade, test_timing_grade_contract
+
+    test_timing_grade_contract()
+    python = _litex_or_skip("timing grade platform")
+    if python is not None:
+        test_platform_hooks(python)
+        test_pll_grade(python)
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
@@ -27801,7 +27812,8 @@ if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
+    for fn in (test_commercial_timing_grade,
+               test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
                test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,

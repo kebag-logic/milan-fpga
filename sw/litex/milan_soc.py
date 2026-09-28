@@ -217,7 +217,8 @@ class _CRG(LiteXModule):
         self.cd_sys = ClockDomain()
 
         # Board clocking: AX7101 = 200 MHz differential + active-low reset button,
-        # speedgrade -2. Arty A7-100 = 100 MHz single-ended + cpu_reset button,
+        # speed grade derived from the declared part. Arty A7-100 uses
+        # 100 MHz single-ended + cpu_reset button,
         # speedgrade -1, and the DP83848 MII PHY needs a 25 MHz reference OUT
         # (eth_ref_clk pin -> PHY X1), produced below when with_eth.
         if board == "arty":
@@ -225,7 +226,7 @@ class _CRG(LiteXModule):
             self.pll = pll = S7PLL(speedgrade=-1)
         else:
             clkin, clkin_freq = platform.request("clk200"), 200e6
-            self.pll = pll = S7PLL(speedgrade=-2)
+            self.pll = pll = S7PLL(speedgrade=-int(platform.device.rsplit("-", 1)[1]))
         rst_n = platform.request("cpu_reset_n")
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clkin, clkin_freq)
