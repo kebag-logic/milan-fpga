@@ -1126,7 +1126,21 @@ status reads durable over a lost controller change. It is sticky in the donor
 until reset, so one exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1
 until reset, even after a later successful commit.
 [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) rules that alarm lifetime.
-Neither a heartbeat nor later success forgives exhausted work.
+The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) names only this `nvm_alarm`.
+It is the only reset-sticky alarm; no status bit is added.
+Neither a heartbeat nor later success clears `nvm_alarm`.
+
+Firmware transaction exhaustion is a `VD_*` verdict loss without ACK.
+Its limit remains three attempts per unchanged captured work set.
+Failed attempts remain separated by 1,000 ms under DR2c.
+It sets `nvm_stale`; firmware has no alarm of its own.
+The failed slot never receives ACK, leaving its producer record un-ACKed.
+If that exhausts three producer attempts, `nvm_alarm` rises until reset.
+Producer attempts remain separated by 500 ms.
+A later successful commit clears `nvm_stale` under this section's recovery condition.
+It never clears `nvm_alarm`; an asserted alarm remains a loss level.
+The [section 9.2 recovery rule](#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) remains unchanged.
+Firmware loss alone can heal; producer abandonment keeps revocation until reset.
 The JEDEC cause still has no reporter:
 the writer performs no identity check.
 

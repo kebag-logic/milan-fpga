@@ -1094,7 +1094,14 @@ D3 adds a transaction retry policy to this ownership sequence.
 [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) permits at most three attempts per unchanged captured work set.
 That count includes the first START and two further STARTs.
 Failed transactions wait 1,000 ms before another transaction attempt.
-Exhaustion keeps the alarm until reset; failed slots never receive ACK.
+The [DR2c-carrier ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5863247772) adds no firmware alarm or status bit.
+Only the port's `nvm_alarm` is reset-sticky.
+Firmware transaction exhaustion reports `VD_*` loss and never ACKs failure.
+[FASTCONNECT section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) owns the resulting `nvm_stale=1` and recovery.
+The producer record remains un-ACKed; exhausting its attempts raises `nvm_alarm`.
+Its limit remains three attempts, separated by 500 ms.
+A later successful commit clears `nvm_stale` under section 9.2's condition.
+It never clears `nvm_alarm`; its asserted level retains loss.
 Capture refusals before START remain distinct from media transaction failures.
 Their next-service retry does not authorize another media transaction.
 Lane 2 implements the bound; this historical sequence does not prove it.
@@ -1808,9 +1815,11 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    Debounce policy is ruled under
    [D3 DR2a](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
    Each writer lane still owes measured normal-load durability.
-7. **RULED: alarm lifetime.** [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) keeps the alarm until reset.
-   Exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1.
-   A later successful commit or heartbeat cannot forgive it.
+7. **RULED: alarm lifetime.** [D3 DR2c](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) keeps `nvm_alarm` until reset.
+   Producer exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1.
+   A later successful commit or heartbeat never clears `nvm_alarm`.
+   Firmware exhaustion alone is verdict loss without ACK, not another alarm.
+   [FASTCONNECT section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven) clears `nvm_stale` after successful recovery.
    Section 12's revocation remains binding.
 8. A writer disabled for a SHAPE or TAG mismatch (section 14) keeps
    heartbeating, so it reads as a live writer that never commits: (backed 1,
