@@ -46,11 +46,19 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The walk and `SLIP_TDM` share one crossing: close against tick.
 - The grid aligner now keys on that frame close.
 - It sees the tick one cycle late; keep-off 256 cycles.
-- No CRF lock phase repeats or skips a frame.
+- No settled CRF lock repeats or skips a frame.
+- That is measured to +/-100 ppm relative rate.
+- The rate is the TDM frame against the local clock.
+- Only acquisition may repeat and skip, net zero.
+- [The guarded crossing](docs/design/TIME_SYNC.md#the-guarded-crossing) states the measured envelope.
 - `SLIP_TDM` counts the talker's own repeated and skipped frames.
+- `KL_media_nco` now ends a period at or past its end.
+- A trim update on any cycle no longer loses ticks.
+- A late update is a one-cycle phase step instead.
 - The render path and channel-map semantics are unchanged.
 - `tb/verilator/capture_coherence` grades drift in INTERNAL and CRF.
 - It sweeps CRF engagement phases densely through the crossing.
+- It binds the datapath's own keep-off declaration.
 - VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - processor pin 16be6768

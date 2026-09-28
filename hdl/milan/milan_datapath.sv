@@ -5668,17 +5668,27 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //     one on it pulled late) on the walk's crossing, so no engagement is
   //     pulled across it;
   //   - the keep-off is MGA_KEEPOFF_CYC_C, which holds the close clear of
-  //     the crossing through the loop's whole acquisition, not only at the
-  //     lock. The proportional term sits 4 cycles of phase per ppm of rate
-  //     error (u = 4 x err at 1/16 ppm per LSB, at any clock), and on its way
-  //     to the lock the phase peaks at 149 cycles for a 50 ppm source (Milan
-  //     v1.2 7.4's media clock tolerance), measured at 50 MHz; 256 cycles
-  //     clears that and the -10.64 ppm divider plan beside it. The 1/128
-  //     sample default (8 cycles at 50 MHz) protected a settled lock but not
-  //     that transient: a CRF engagement within the transient's reach
-  //     slipped frames as its phase crossed, some of them inside the lock
-  //     window (tb/verilator/capture_coherence's mutation arm keeps that
-  //     measurable).
+  //     the crossing at every settled lock, and through acquisition inside
+  //     an envelope of RELATIVE rate: the TDM frame against the local axis
+  //     clock, which a +/-50 ppm Milan source does not bound (the local
+  //     oscillator may run +/-100 ppm off). The proportional term sits 4
+  //     cycles of phase per ppm of rate (u = 4 x err at 1/16 ppm per LSB,
+  //     at any clock), so a raced engagement, pulled at 64 ppm toward a
+  //     target a keep-off away, keeps 256 - 4 x the rate cycles of margin:
+  //     56 at 50 ppm, none at the pull (the on-crossing limit, measured at
+  //     about 63 ppm below nominal and 67 above). An unpulled engagement's
+  //     transient peaks at about 3 cycles per ppm, 149 at 50 ppm, measured
+  //     at 50 MHz, and reaches 256 at about 86 ppm (the transient limit).
+  //     Past either limit an engagement is carried across the crossing and
+  //     back as it acquires - one repeat and one skip, both counted - and
+  //     the settled lock still holds, measured to +/-100 ppm
+  //     (docs/design/TIME_SYNC.md, The guarded crossing). The 1/128 sample
+  //     default (8 cycles at 50 MHz) protected a settled lock but not
+  //     acquisition: a CRF engagement within the transient's reach slipped
+  //     frames as its phase crossed, some of them inside the lock window
+  //     (tb/verilator/capture_coherence's mutation arm keeps that
+  //     measurable, and its junction leg binds this constant's own
+  //     declaration, copied out of this file).
   //  Keyed on the slot-0 strobe, as it was, the keep-off guarded an instant
   //  three TDM8 pair periods from the crossing, and a lock could park the
   //  close on the snapshot: whole-frame repeat/skip for as long as it held,

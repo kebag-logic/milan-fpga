@@ -92,11 +92,18 @@
                 against the snapshot - so they count the talker's own
                 repeated and skipped frames. milan_datapath keys the grid
                 aligner on the same close, with the tick one cycle late and
-                a 256-cycle keep-off, so no CRF lock and no acquisition
-                transient within a 50 ppm source brings the close onto it
-                (#617 round 2: keyed on the slot-0 strobe, a lock could sit
-                on the crossing, repeating and skipping frames while the
-                counters read static).
+                a 256-cycle keep-off, so no settled CRF lock brings the close
+                onto it - measured to +/-100 ppm of relative rate, the TDM
+                frame against the local axis clock. Acquisition can: an
+                engagement landing on the crossing repeats and skips one
+                frame, net zero, by column 57 within +/-50 ppm; past about
+                63 ppm (the pull is 64) a raced engagement, and past about
+                86 ppm an unpulled one's transient, is carried across and
+                back, one repeat and one skip, both counted
+                (docs/design/TIME_SYNC.md, The guarded crossing). #617 round
+                2: keyed on the slot-0 strobe, a lock could sit on the
+                crossing, repeating and skipping frames while the counters
+                read static.
                 LATENCY. A walk reads the newest frame complete at its tick,
                 and no frame is complete before its last pair, so pair p is
                 published (TDM_FRAME_PAIRS_P-1-p) pair periods after it

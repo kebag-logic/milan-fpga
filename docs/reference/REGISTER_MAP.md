@@ -1941,19 +1941,35 @@ skip.
 frame close this word counts as its marker, `media_tick_p` one cycle late as
 its tick - which puts the lock-target split on the walk's crossing, so no
 engagement is pulled across it - and a keep-off of `MGA_KEEPOFF_CYC_C` = 256
-cycles (a quarter sample on a compressed-clock test elaboration). The default 1/128 sample would hold a settled lock off the crossing,
-but not the loop's acquisition transient: the close moves up to 149 cycles
-before the lock settles against a 50 ppm source (Milan v1.2 7.4's media clock
-tolerance), which carried nearby engagements across the crossing. With the
-guard, `tb/verilator/capture_coherence` places the engagement every cycle
-across +/-32 of the crossing and every 4 cycles across the +/-50 ppm
-acquisition band and sees no slip in any lock. Keyed on the slot-0 strobe, as
-it was before #617, the keep-off guarded an instant three TDM8 pair periods
-from the crossing: a lock could sit on the crossing and repeat and skip frames
-for as long as it held, while this word, keyed on that same slot-0 strobe,
-read static. The one exception is an engagement whose close lands on the
-crossing itself: it may count one dup and one skip while the aligner pulls it
-clear, within 64 columns, net zero.
+cycles (a quarter sample on a compressed-clock test elaboration). The default
+1/128 sample would hold a settled lock off the crossing, but not the loop's
+acquisition: an unpulled engagement's transient moves the close about 3 cycles
+per ppm of relative rate (149 at 50 ppm), and a raced one, pulled a keep-off
+away at 64 ppm, sits 4 cycles per ppm short of its target, a margin of
+256 - 4 x the rate. That rate is the TDM frame against the local axis clock,
+which a +/-50 ppm Milan source does not bound (the local oscillator may run
++/-100 ppm off). With the guard, `tb/verilator/capture_coherence` sees no slip
+in any settled lock, measured to +/-100 ppm. What this word counts while an
+engagement acquires, by relative rate
+([the guarded crossing](../design/TIME_SYNC.md#the-guarded-crossing)):
+
+- within the on-crossing limit, about 63 ppm below nominal and 67 above: only
+  an engagement whose close lands on the crossing itself, one dup and one
+  skip - by column 57 within +/-50 ppm (every sub-cycle phase measured), later
+  as the rate nears the 64 ppm pull (column 181 at 60 ppm);
+- past it: an engagement near the crossing is carried across and back while
+  the integrator settles, one dup and one skip (by column 6,300 at 80 ppm);
+- past the transient limit, about 86 ppm: also an engagement up to 256 cycles
+  off, as its transient crosses and returns (by column 13,100 at 100 ppm).
+
+Each counts once and nets zero, and the settled lock then counts nothing. Keyed
+on the slot-0 strobe, as it was before #617, the keep-off guarded an instant
+three TDM8 pair periods from the crossing: a lock could sit on the crossing and
+repeat and skip frames for as long as it held, while this word, keyed on that
+same slot-0 strobe, read static. Until #617 round 3 the media NCO could also
+lose two ticks when an aligner trim update landed on its terminal count, which
+an engagement dwelling on the crossing makes likely; `KL_media_nco`'s monotone
+terminal compare removed that.
 
 **Reading them** (the lane established, a loopback pair fed and mapped, the
 listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
@@ -1962,7 +1978,7 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
-| static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock. Under CRF a static `SLIP_TDM` is a talker that repeats and skips no TDM frame: the aligner holds the frame close 256 cycles off the walk's crossing at every lock phase (the guarded crossing above); an engagement landing on the crossing itself may add one dup and one skip once |
+| static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock. Under CRF a static `SLIP_TDM` is a talker that repeats and skips no TDM frame: the aligner holds the frame close 256 cycles off the walk's crossing at every settled lock phase (the guarded crossing above); an engagement's acquisition may add one dup and one skip, once |
 | dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
