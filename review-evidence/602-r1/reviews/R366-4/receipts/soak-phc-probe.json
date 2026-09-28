@@ -1,0 +1,19 @@
+{
+ "name": "soak-phc-probe",
+ "head": "6c5ca18f12191a252447ec7c7c75363b851f2771",
+ "cwd": "$REVIEWS/r366-4-602",
+ "cmd": [
+  "python3",
+  "-B",
+  "$REVIEWS/602-r366-4-packet/soak_phc_probe.py",
+  "$REVIEWS/r366-4-602",
+  "$REVIEWS/602-r366-4-packet/receipts/gmstep-clean.log"
+ ],
+ "env_overrides": {},
+ "timeout_s": 300,
+ "rc": 0,
+ "elapsed_s": 0.1,
+ "log_bytes": 827,
+ "log_sha256": "d264455f496f5111fc24922583cc7a088c940406f8e580cff2ba18fb5d0b5180",
+ "log": "receipts/soak-phc-probe.log"
+}

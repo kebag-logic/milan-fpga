@@ -1,0 +1,20 @@
+[INFO] control 6: the grandmaster identity re-bases the render stage as well as the step (leg gmstep)
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+[INFO] control 7: the step does not re-centre the render stage (leg gmstep)
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+[INFO] control 8: the render re-base is keyed to the identity, not the step (leg gmstep)
+[PASS] control caught: the render re-base is keyed to the identity, not the step - breaks "render: every counted re-base lands at a PDU end right after the step"
+    it broke 1 check(s): render: every counted re-base lands at a PDU end right after the step
+[INFO] control 9: tu reaches the talkers four cycles late (leg gmstep)
+[PASS] control caught: tu reaches the talkers four cycles late - breaks "tu: set in the first cycle the bank names GM B"
+    it broke 1 check(s): tu: set in the first cycle the bank names GM B
+[INFO] control 10: the plane's step does not re-arm the holdover (leg gmstep)
+[PASS] control caught: the plane's step does not re-arm the holdover - breaks "tu: held at least the 0.25 s holdover after the step"
+    it broke 1 check(s): tu: held at least the 0.25 s holdover after the step
+[INFO] control 11: tu stops the talker (leg gmstep)
+[PASS] control caught: tu stops the talker - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 6 check(s): tu: talker PDUs graded inside the hold; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: a PHC-only step adds no MEDIA_RESET; coincident: PDUs bracket every trial and complete the hold; coincident: a PHC step does not suppress the CRF restart
+
+chunk ['6', '11']: 6 items: 6 PASS, 0 FAIL (inventory size 20)

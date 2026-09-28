@@ -1,0 +1,20 @@
+[INFO] control 0: the policy level is tied low at the servo (leg gmstep)
+[PASS] control caught: the policy level is tied low at the servo - breaks "slew path: the actual servo receives the level"
+    it broke 2 check(s): slew path: the actual servo receives the level; slew path: every staged sample covers the PHC tail
+[INFO] control 1: the policy level omits the applied-rate tail (leg gmstep)
+[PASS] control caught: the policy level omits the applied-rate tail - breaks "slew path: every staged sample covers the PHC tail"
+    it broke 1 check(s): slew path: every staged sample covers the PHC tail
+[INFO] control 2: the policy level misses an extra addend stage (leg gmstep)
+[PASS] control caught: the policy level misses an extra addend stage - breaks "slew path: every staged sample covers the PHC tail"
+    it broke 1 check(s): slew path: every staged sample covers the PHC tail
+[INFO] control 3: the PHC re-base restart term is restored (leg gmstep)
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 2 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+[INFO] control 4: the source-change term is removed (leg gmstep)
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+[INFO] control 5: selected CRF mr propagation is removed (leg gmstep)
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+    it broke 2 check(s): CRF control: selected CRF mr propagates exactly once; coincident: a PHC step does not suppress the CRF restart
+
+chunk ['0', '5']: 6 items: 6 PASS, 0 FAIL (inventory size 20)
