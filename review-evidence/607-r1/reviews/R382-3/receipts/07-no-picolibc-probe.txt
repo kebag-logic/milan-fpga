@@ -1,0 +1,21 @@
+== round-2 no_picolibc_probe.sh, unchanged, bench interpreter, head a9f5e34f
+shim active: ImportError: shadowed for probe: not installed by sw/litex/litex_pins.txt
+migen/litex/litex_boards still importable: yes
+test_clock_constraints.py without picolibc: rc=0
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milan
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milan
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_c
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_c
+same copy with picolibc importable: rc=0
+
+== same script, pins-only interpreter
+shim active: ImportError: shadowed for probe: not installed by sw/litex/litex_pins.txt
+migen/litex/litex_boards still importable: yes
+test_clock_constraints.py without picolibc: rc=0
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milan
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milan
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_c
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_c
+same copy with picolibc importable: rc=0

@@ -1,0 +1,45 @@
+Snapshot 2026-09-28T13:49:15Z. Exact head a9f5e34faf51e01c9ecf95807d4a7e695b3eb1c3 check runs (name, status, conclusion, id):
+bdd-conformance	completed	success	108949299749
+changes	completed	success	108949299967
+docs-check	completed	success	108949296292
+docs-check-no-git	completed	success	108949296100
+elaborate	completed	success	108949299150
+full-ci-gate	completed	success	108949297008
+Physical gPTP (nightly and manual)	completed	skipped	108949444918
+rtl-fast	completed	success	108953262013
+verilator-lint	completed	success	108949446366
+Verilator shard 0/5	completed	success	108949443690
+Verilator shard 1/5	in_progress	null	108949443404
+Verilator shard 2/5	completed	success	108949443473
+Verilator shard 3/5	completed	success	108949443554
+Verilator shard 4/5	in_progress	null	108949443522
+wire-accountability	completed	success	108949296072
+yosys-elaboration	completed	success	108949446383
+Yosys shard 0/4	completed	success	108949443694
+Yosys shard 1/4	completed	success	108949443530
+Yosys shard 2/4	completed	success	108949443879
+Yosys shard 3/4	completed	success	108949443611
+
+Hosted elaborate: run 36428786466 job 108949299150, head_sha a9f5e34faf51e01c9ecf95807d4a7e695b3eb1c3, conclusion success
+step 16 'Elaboration gates': completed success 2026-09-28T13:28:53Z -> 2026-09-28T13:44:34Z
+arm headers in log: 91
+--- excerpt (timestamps stripped) ---
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 mi
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 mi
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 m
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 m
+test_clock_crossing_constraints:
+  [gate 1b] compiler argv[0]=<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+3 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effe
+  - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 53 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run
+  - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 3 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 3 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+ImportError/Traceback lines in the log: 0
+
+Previous head 350af5dc elaborate job 108884247537 (success) verdict for comparison:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the e
+  - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 53 RTL mutation variants counted as structur
+  - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_
+ALL GATES PASS EXCEPT 3 NOT RUN

@@ -1,0 +1,45 @@
+== M33 (bench) log tail
+  File "$HOME/litex-milan/litex/litex/soc/integration/builder.py", line 260, in _get_variables_contents
+    picolibc_directory    = remap_path(get_data_mod("software", "picolibc").data_location)
+                                       ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$HOME/litex-milan/litex/litex/__init__.py", line 30, in get_data_mod
+            raise ImportError("""\
+    ...<5 lines>...
+    """.format(dt=data_type, dn=data_name, e=e)) from None
+ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+pythondata_software_picolibc: sw/litex/litex_pins.txt installs no firmware data package
+
+You can install this by running;
+ pip3 install git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
+
+== M33 (pins) log tail
+    variables_contents = self._get_variables_contents()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 260, in _get_variables_contents
+    picolibc_directory    = remap_path(get_data_mod("software", "picolibc").data_location)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/__init__.py", line 30, in get_data_mod
+    raise ImportError("""\
+ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+pythondata_software_picolibc: sw/litex/litex_pins.txt installs no firmware data package
+
+You can install this by running;
+ pip3 install git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
+
+== round-2 head arm in pins env (receipt 03) tail
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 260, in _get_variables_contents
+    picolibc_directory    = remap_path(get_data_mod("software", "picolibc").data_location)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/__init__.py", line 30, in get_data_mod
+    raise ImportError("""\
+ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+No module named 'pythondata_software_picolibc'
+
+You can install this by running;
+ pip3 install git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
+
+rc=1

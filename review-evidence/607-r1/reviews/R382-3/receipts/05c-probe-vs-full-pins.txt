@@ -1,0 +1,50 @@
+== pins-only interpreter; full run gets a PYTHONPATH shim exposing the two firmware data packages, the probe does not
+python: Python 3.12.13  shim: <PKT>/scratch/fwdata-shim
+== ax7101_1x1_tdm8 e1: probe rc=0 (1 PASS line), full rc=0
+  alinx_ax7101.tcl probe vs full: IDENTICAL  sha256(probe,normalised)=1fb0596a079d90e4
+  alinx_ax7101.xdc probe vs full: DIFFERS (8 lines)  sha256(probe,normalised)=db2d905bece13581
+  alinx_ax7101.v probe vs full: DIFFERS (88 lines)  sha256(probe,normalised)=2f0a28e9b3eac219
+  files only in full output: ./software/include/generated/output_format.ld ./software/include/generated/regions.ld ./software/include/generated/variables.mak 
+  files only in probe output: 
+  common files: 19
+  software/include/generated/csr.h: DIFFERS
+  software/include/generated/soc.h: DIFFERS
+  software/include/generated/mem.h: DIFFERS
+  csr.json: IDENTICAL
+== ax7101_1x1_tdm8 e2: probe rc=0 (1 PASS line), full rc=0
+  alinx_ax7101.tcl probe vs full: IDENTICAL  sha256(probe,normalised)=dd3236b2398b6232
+  alinx_ax7101.xdc probe vs full: DIFFERS (8 lines)  sha256(probe,normalised)=a777c04e9d08b778
+  alinx_ax7101.v probe vs full: DIFFERS (86 lines)  sha256(probe,normalised)=39eb4416af4ecf01
+  files only in full output: ./software/include/generated/output_format.ld ./software/include/generated/regions.ld ./software/include/generated/variables.mak 
+  files only in probe output: 
+  common files: 19
+  software/include/generated/csr.h: DIFFERS
+  software/include/generated/soc.h: DIFFERS
+  software/include/generated/mem.h: DIFFERS
+  csr.json: IDENTICAL
+== ax7101_8x8 e1: probe rc=0 (1 PASS line), full rc=0
+  alinx_ax7101.tcl probe vs full: IDENTICAL  sha256(probe,normalised)=0d968b6500c82ec3
+  alinx_ax7101.xdc probe vs full: DIFFERS (14 lines)  sha256(probe,normalised)=e17f1a100d87a523
+  alinx_ax7101.v probe vs full: DIFFERS (96 lines)  sha256(probe,normalised)=343c9549af698610
+  files only in full output: ./software/include/generated/output_format.ld ./software/include/generated/regions.ld ./software/include/generated/variables.mak 
+  files only in probe output: 
+  common files: 19
+  software/include/generated/csr.h: DIFFERS
+  software/include/generated/soc.h: DIFFERS
+  software/include/generated/mem.h: DIFFERS
+  csr.json: IDENTICAL
+== ax7101_8x8 e2: probe rc=0 (1 PASS line), full rc=0
+  alinx_ax7101.tcl probe vs full: IDENTICAL  sha256(probe,normalised)=b5c59de33ae819d1
+  alinx_ax7101.xdc probe vs full: DIFFERS (14 lines)  sha256(probe,normalised)=458b1a01521f6ae0
+  alinx_ax7101.v probe vs full: DIFFERS (94 lines)  sha256(probe,normalised)=40a1df5c2a50c332
+  files only in full output: ./software/include/generated/output_format.ld ./software/include/generated/regions.ld ./software/include/generated/variables.mak 
+  files only in probe output: 
+  common files: 19
+  software/include/generated/csr.h: DIFFERS
+  software/include/generated/soc.h: DIFFERS
+  software/include/generated/mem.h: DIFFERS
+  csr.json: IDENTICAL
+ax7101_1x1_tdm8-e1 .v code (all comments stripped) probe vs full: IDENTICAL sha256=9808a39d5690ec67 lines=29374
+ax7101_1x1_tdm8-e2 .v code (all comments stripped) probe vs full: IDENTICAL sha256=f27a0fe0325b475c lines=29374
+ax7101_8x8-e1 .v code (all comments stripped) probe vs full: IDENTICAL sha256=a58f03e5d5bb0d33 lines=29415
+ax7101_8x8-e2 .v code (all comments stripped) probe vs full: IDENTICAL sha256=092d1c36bf4bcc14 lines=29415

@@ -1,0 +1,18 @@
+== bench interpreter (carries both firmware data packages), head a9f5e34f, M00 + M07/M16/M21 + M33-M44, 8 jobs
+Mon Sep 28 01:45:48 PM UTC 2026
+M00-control-unmutated: SURVIVED
+M07-hook-wrong-board: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M16-no-async-group: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M21-call-deleted-in-guard: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M33-forward-bios-includes: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M34-include-override-removed: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M35-guard-not-installed: SURVIVED
+M36-guard-not-installed-and-forward-bios: SURVIVED
+M37-guard-wrong-prefix-and-forward-bios: SURVIVED
+M38-guard-appended-last-and-forward-bios: SURVIVED
+M39-include-step-skipped: SURVIVED
+M40-includes-assert-dropped: SURVIVED
+M41-includes-assert-dropped-and-step-skipped: SURVIVED
+M42-probe-bypasses-real-build: KILLED (rc=1) AssertionError: builder bypassed the probed include step: []
+M44-include-override-removed-and-guard-not-installed: KILLED (rc=1) AssertionError: builder bypassed the probed include step: []
+Mon Sep 28 01:46:00 PM UTC 2026

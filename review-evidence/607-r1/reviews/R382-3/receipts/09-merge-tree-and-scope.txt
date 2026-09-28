@@ -1,0 +1,23 @@
+live dev tip (gh api, 2026-09-28T13:48:01Z): 7a7582f03ce5ba7863a90ac342c21be18d90db0b
+delta f3bd6b66..a9f5e34f:
+ sw/builder/test_shipping_clock_constraints.py | 28 +++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+merge-tree a9f5e34f with dev 7a7582f0:
+5d0af2c574a79582d837f8c56113e88bb9fa728d
+rc=0
+files touched by dev since base that PR also touches:
+REQUIREMENTS.md                                   |   45 +-
+ docs/README.md                                    |    4 +-
+ docs/design/GM_LOSS_RECOVERY.md                   |    2 +-
+ docs/design/SAVED_STATE_FASTCONNECT.md            |  268 +++--
+ docs/design/SAVED_STATE_MATERIALIZATION.md        |  924 +++++++++++----
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md     |   74 +-
+ docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md | 1287 +++++++++++++++++++++
+ docs/findings/README.md                           |    1 +
+ docs/integration/BAREMETAL_FIRMWARE.md            |   17 +-
+ docs/testing/TESTING.md                           |  119 +-
+ tb/tools/torture_campaign.py                      |  769 +++++++++++-
+ tb/tools/torture_release_mutants.py               |  526 ++++++++-
+ tests/features/torture_campaign_plan.feature      |    5 +
+ tests/steps/torture_release_steps.py              |   28 +-
+ 14 files changed, 3668 insertions(+), 401 deletions(-)

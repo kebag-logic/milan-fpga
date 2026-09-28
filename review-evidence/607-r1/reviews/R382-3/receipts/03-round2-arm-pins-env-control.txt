@@ -1,0 +1,83 @@
+== shipping arm alone at f3bd6b66 (round-2 head), pins-only env
+Traceback (most recent call last):
+  File "<PKT>/scratch/prev/sw/builder/test_shipping_clock_constraints.py", line 100, in <module>
+    test_shipping_constraints()
+  File "<PKT>/scratch/prev/sw/builder/test_shipping_clock_constraints.py", line 82, in test_shipping_constraints
+    assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+wrote <PKT>/scratch/prev/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+<PKT>/scratch/prev/configs/generated/ucode.hex: 2048 words, 80 programs
+VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+SRStorage) [Gen]
+│    │    ├── csrstorage_12 (CSRStorage) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstorage_13 (CSRStorage) [Gen]
+│    │    ├── csrstorage_14 (CSRStorage) [Gen]
+│    │    ├── csrstorage_15 (CSRStorage) [Gen]
+│    │    ├── csrstorage_16 (CSRStorage) [Gen]
+│    │    └── csrstatus_3 (CSRStatus) [Gen]
+│    ├── csrbank_5 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_6 (CSRStorage) [Gen]
+│    ├── csrbank_6 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_7 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<PKT>/scratch/prev/sw/builder/test_shipping_clock_constraints.py", line 98, in <module>
+    elaborate_shipping(args.config, args.port, args.output_dir)
+  File "<PKT>/scratch/prev/sw/builder/test_shipping_clock_constraints.py", line 66, in elaborate_shipping
+    milan_soc.main()
+  File "<PKT>/scratch/prev/sw/litex/milan_soc.py", line 3955, in main
+    builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/prev/sw/builder/test_shipping_clock_constraints.py", line 38, in build
+    namespace = super().build(**kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 521, in build
+    return self._build(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 563, in _build
+    self._generate_includes(with_bios=with_bios)
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 301, in _generate_includes
+    variables_contents = self._get_variables_contents()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/soc/integration/builder.py", line 260, in _get_variables_contents
+    picolibc_directory    = remap_path(get_data_mod("software", "picolibc").data_location)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PKT>/scratch/pins-venv/lib/python3.12/site-packages/litex/__init__.py", line 30, in get_data_mod
+    raise ImportError("""\
+ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+No module named 'pythondata_software_picolibc'
+
+You can install this by running;
+ pip3 install git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
+
+rc=1

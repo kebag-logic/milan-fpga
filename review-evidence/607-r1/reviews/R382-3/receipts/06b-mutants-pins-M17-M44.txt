@@ -1,0 +1,30 @@
+== pins-only env, head a9f5e34f, batch M17-M44, 8 jobs
+Mon Sep 28 01:45:27 PM UTC 2026
+M17-drop-inputs-fp: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M18-ambiguous-accepted: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M19-no-template-refusal: SURVIVED
+M20-drop-tdm-async: KILLED (rc=1) AssertionError
+M21-call-deleted-in-guard: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M22-guard-and-not-mac: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M23-guard-board-arty: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M24-hook-only-port-e1: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M25-hook-duplicated: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: ['milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list mila
+M26-bounded-sys-only: KILLED (rc=1) AssertionError
+M27-hook-after-place: KILLED (rc=1) AssertionError
+M28-drop-5201-gate: KILLED (rc=1) AssertionError: accepted Vivado 12-5201
+M29-no-quarantine: KILLED (rc=1) AssertionError: refused bitstream remains discoverable
+M30-quarantine-not-on-missing-log: KILLED (rc=1) AssertionError: missing log left discoverable bitstream
+M31-quarantine-wrong-dir: KILLED (rc=1) AssertionError: refused bitstream remains discoverable
+M32-toolchain-swap-dropped-late: KILLED (rc=1) RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+M33-forward-bios-includes: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M34-include-override-removed: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M35-guard-not-installed: SURVIVED
+M36-guard-not-installed-and-forward-bios: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M37-guard-wrong-prefix-and-forward-bios: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M38-guard-appended-last-and-forward-bios: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+M39-include-step-skipped: SURVIVED
+M40-includes-assert-dropped: SURVIVED
+M41-includes-assert-dropped-and-step-skipped: SURVIVED
+M42-probe-bypasses-real-build: KILLED (rc=1) AssertionError: builder bypassed the probed include step: []
+M44-include-override-removed-and-guard-not-installed: KILLED (rc=1) ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+Mon Sep 28 01:45:39 PM UTC 2026

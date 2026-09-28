@@ -1,0 +1,26 @@
+which python3/sv2v/verilator/yosys:
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/javah': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/orbd': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/pack200': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/rmic': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/rmid': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/schemagen': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/servertool': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/tnameserv': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/unpack200': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/wsgen': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/wsimport': File exists
+ln: failed to create symbolic link '<PKT>/scratch/sysbin/xjc': File exists
+<PKT>/scratch/pins-venv/bin/python3
+<PKT>/scratch/bin/sv2v
+<PKT>/scratch/sysbin/sbt
+<PKT>/scratch/sysbin/java
+Python 3.12.13
+HOME=<PKT>/scratch/home
+== shipping arm alone, pins-only env
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+elapsed 89.25 s
+rc=0

@@ -1,0 +1,20 @@
+== pins-only env, head a9f5e34f, batch M00-M16, 8 jobs
+Mon Sep 28 01:45:04 PM UTC 2026
+M00-control-unmutated: SURVIVED
+M01-keep-generic-mask: KILLED (rc=1) AssertionError
+M02-bound-80ns: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M03-swap-exclusions: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M04-drop-hold-fp: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M05-regex-no-critical: KILLED (rc=1) AssertionError: accepted Vivado 12-4739
+M06-drop-log-check: KILLED (rc=1) AssertionError
+M07-hook-wrong-board: KILLED (rc=1) AssertionError: shipping Ethernet hook missing or duplicated: []
+M08-hook-fixed-port0: KILLED (rc=1) litex.build.generic_platform.ConstraintError: Resource not found: eth_clocks:0
+M09-milan-wrong-clkout: KILLED (rc=1) AssertionError
+M10-drop-idelay-async: KILLED (rc=1) AssertionError
+M11-platform-no-subclass: KILLED (rc=1) RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+M12-unguarded-qs: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M13-drop-other-fp: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M14-hook-after-opt: KILLED (rc=1) AssertionError
+M15-no-datapath-only: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M16-no-async-group: KILLED (rc=1) AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+Mon Sep 28 01:45:12 PM UTC 2026
