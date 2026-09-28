@@ -1,0 +1,21 @@
+{
+ "quarter_tick_cycles": 131072,
+ "seconds_per_cycle": 1.9073486328125e-06,
+ "gm_edge_s": 13.76565361,
+ "step_s": 14.071075439,
+ "tu_rise_s": 13.765651703,
+ "tu_fall_s": 14.500030518,
+ "tu_after_step_s": 0.428955078,
+ "tu_after_gm_s": 0.734376907,
+ "talker_interval_cycles": 642.0,
+ "pdus": 1959,
+ "resolution_s": 0.001
+}
+[ok] A post-602 wire, no cause: PASS (want PASS) 
+[ok] B post-602 wire, PHC record offered as cause: PASS (want PASS) 
+[ok] C pre-602 wire, PHC step and GM edge only: FAIL (want FAIL) mr toggle without a recorded media-clock cause
+[ok] D pre-602 wire excused by a genuine CRF toggle: PASS (want PASS) 
+[ok] E tu with PHC step recorded: PASS (want PASS) 
+[ok] F tu with GM edge only: FAIL (want FAIL) 
+[ok] G tu with no recorded discontinuity: FAIL (want FAIL) uncorrelated tu fails
+7 cases, 0 unexpected

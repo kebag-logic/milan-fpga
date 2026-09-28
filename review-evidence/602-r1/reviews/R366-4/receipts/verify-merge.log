@@ -1,0 +1,99 @@
+[ok] clone HEAD is the reviewed head
+[ok] head tree is 90653220
+[ok] merge parents = lane, dev
+[ok] merge base is the lane base 6d5ebd73
+[ok] history is merge -> 45e6cf1a -> head, linear
+[ok] b2f48e0c message is one line with no trailers: 'Merge dev into 602-phc-step-mr'
+[ok] 45e6cf1a message is one line with no trailers: 'Document post-602 PHC-only re-base soak contract'
+[ok] 6c5ca18f message is one line with no trailers: 'Align PHC-only re-base requirements with the 602 ruling'
+[ok] reproduced merge conflicts only in docs/design/GM_LOSS_RECOVERY.md: ['docs/design/GM_LOSS_RECOVERY.md']
+[ok] merge tree differs from the automatic merge only there: ['docs/design/GM_LOSS_RECOVERY.md']
+[ok] conflict resolved to the lane's (#602) text byte for byte
+[ok] dev changed exactly one row of the recovery doc
+[ok] that dev row is the pre-602 'current image still toggles' wording
+[ok] after the merge only the two authorised files change: ['REQUIREMENTS.md', 'docs/testing/TESTING.md']
+[ok] 45e6cf1a touches only docs/testing/TESTING.md
+[ok] 45e6cf1a replaces exactly the three stale lines with the three post-602 lines
+[ok] 45e6cf1a is one hunk
+[ok] 6c5ca18f touches only REQUIREMENTS.md
+[ok] 6c5ca18f replaces exactly the three stale lines with the three post-602 lines
+[ok] 6c5ca18f is one hunk
+lane-only 13, dev-only 49, both 7: ['CHANGELOG.md', 'docs/design/GM_LOSS_RECOVERY.md', 'docs/integration/BAREMETAL_FIRMWARE.md', 'docs/testing/CI_WORKFLOWS.md', 'docs/testing/TESTING.md', 'hdl/milan/milan_datapath.sv', 'sw/builder/test_builder.py']
+[ok] dev-only path equals dev at head: configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+[ok] dev-only path equals dev at head: configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+[ok] dev-only path equals dev at head: configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+[ok] dev-only path equals dev at head: configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+[ok] dev-only path equals dev at head: configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+[ok] dev-only path equals dev at head: docs/AAF_LATENCY_TAPS.md
+[ok] dev-only path equals dev at head: docs/ENDSTATION_BUILDER.md
+[ok] dev-only path equals dev at head: docs/design/SAVED_STATE_MATERIALIZATION.md
+[ok] dev-only path equals dev at head: docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+[ok] dev-only path equals dev at head: docs/diagrams/PNG_MANIFEST.json
+[ok] dev-only path equals dev at head: docs/diagrams/submodule_boundaries.drawio
+[ok] dev-only path equals dev at head: docs/diagrams/submodule_boundaries.png
+[ok] dev-only path equals dev at head: docs/diagrams/submodule_boundaries.svg
+[ok] dev-only path equals dev at head: docs/findings/117_GPTP_SILICON_EVIDENCE.md
+[ok] dev-only path equals dev at head: docs/findings/394_387_E1_SWITCH_CYCLES.md
+[ok] dev-only path equals dev at head: docs/findings/397_SERVICE_BUDGET.md
+[ok] dev-only path equals dev at head: docs/findings/README.md
+[ok] dev-only path equals dev at head: docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+[ok] dev-only path equals dev at head: docs/reference/SUBMODULES.md
+[ok] dev-only path equals dev at head: hdl/common/gen/adp_shape_defaults.svh
+[ok] dev-only path equals dev at head: hdl/milan/KL_pp_shadow.sv
+[ok] dev-only path equals dev at head: protocol-processor
+[ok] dev-only path equals dev at head: scripts/check_entity_shape.py
+[ok] dev-only path equals dev at head: scripts/check_solution_docs.py
+[ok] dev-only path equals dev at head: scripts/ci_scope.py
+[ok] dev-only path equals dev at head: scripts/entity_shape_selftest.py
+[ok] dev-only path equals dev at head: scripts/measure_test_evidence.py
+[ok] dev-only path equals dev at head: sw/builder/README-parameters.md
+[ok] dev-only path equals dev at head: sw/builder/endstation_builder.py
+[ok] dev-only path equals dev at head: sw/builder/test_clock_contract.py
+[ok] dev-only path equals dev at head: sw/litex/milan_soc.py
+[ok] dev-only path equals dev at head: sw/litex/sweep_extra.sh
+[ok] dev-only path equals dev at head: sw/litex/test_pp_mem_bridge.py
+[ok] dev-only path equals dev at head: syn/yosys/rom_digests.tsv
+[ok] dev-only path equals dev at head: tb/tools/torture_campaign.py
+[ok] dev-only path equals dev at head: tb/tools/torture_release_mutants.py
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/Makefile
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/README.md
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/build.py
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/flash.hpp
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/flash_test.cpp
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/observe.vlt
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/oracle.json
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/run.py
+[ok] dev-only path equals dev at head: tb/verilator/fw_service_budget/sim_main.cpp
+[ok] dev-only path equals dev at head: tb/verilator/nvm_capture_cpu/measurements.json
+[ok] dev-only path equals dev at head: tests/features/torture_campaign_plan.feature
+[ok] dev-only path equals dev at head: tests/steps/torture_release_steps.py
+[ok] lane-only path equals lane at head: docs/MILAN_V12_ROADMAP.md
+[ok] lane-only path equals lane at head: docs/design/TIME_SYNC.md
+[ok] lane-only path equals lane at head: docs/fpga/FPGA_DESIGN.md
+[ok] lane-only path equals lane at head: docs/reference/MILAN_COMPLIANCE_MATRIX.md
+[ok] lane-only path equals lane at head: docs/reference/REGISTER_MAP.md
+[ok] lane-only path equals lane at head: hdl/ieee1722/avtp/KL_media_clock_restart.sv
+[ok] lane-only path equals lane at head: tb/verilator/milan_dp/Makefile
+[ok] lane-only path equals lane at head: tb/verilator/milan_dp/README.md
+[ok] lane-only path equals lane at head: tb/verilator/milan_dp/gmstep_mutants.py
+[ok] lane-only path equals lane at head: tb/verilator/milan_dp/sim_gmstep.cpp
+[ok] lane-only path equals lane at head: tb/verilator/milan_dp/sim_main.cpp
+[ok] lane-only path equals lane at head: tb/verilator/tkdiag/mcr_mutants.py
+[ok] lane-only path equals lane at head: tb/verilator/tkdiag/sim_main.cpp
+[ok] shared path equals the automatic three-way merge at head: CHANGELOG.md
+[ok] shared path equals the automatic three-way merge at head: docs/integration/BAREMETAL_FIRMWARE.md
+[ok] shared path equals the automatic three-way merge at head: docs/testing/CI_WORKFLOWS.md
+[ok] shared path equals the automatic three-way merge at head: hdl/milan/milan_datapath.sv
+[ok] shared path equals the automatic three-way merge at head: sw/builder/test_builder.py
+[ok] #593 soak file unchanged from dev: tb/tools/torture_campaign.py
+[ok] #593 soak file unchanged from dev: tb/tools/torture_release_mutants.py
+[ok] #593 soak file unchanged from dev: tests/features/torture_campaign_plan.feature
+[ok] #593 soak file unchanged from dev: tests/steps/torture_release_steps.py
+[ok] gitlink equals dev: 160000 commit 16be6768f710e79450aace277abacd6c2c3336e5	protocol-processor
+[ok] gitlink equals dev: 160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+[ok] gitlink equals dev: 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+[ok] gitlink equals dev: 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+[ok] 10 committed generated files equal dev's: []
+[ok] head differs from dev only on lane paths: []
+
+0 failed assertion(s)

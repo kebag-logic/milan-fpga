@@ -1,0 +1,39 @@
+== docs/findings/394_387_E1_SWITCH_CYCLES.md at 6c5ca18f
+That row is #117 outage-recovery context, not #387's bound.
+
+#387 item 2 records the [media re-base contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+
+The [step policy](../design/TIME_SYNC.md#step-policy) identifies the triggering PHC steps.
+
+The contract requires one counted event per step.
+
+Licensed streams keep running.
+
+One `mr` toggle and one MEDIA_RESET record that event.
+
+It specifies no step-to-relocked-media time bound.
+#387 acceptance 4 remains NOT MET: its condition was not exercised.
+
+A grandmaster change must occur while locked CRF keeps running.
+
+That measurement must observe the step's counted media event.
+
+== introduced by (dev history)
+6f2cdab6f 2026-09-27T21:29:54+02:00 Correct ten-cycle acceptance claims and public evidence locator
+fddc58e43 2026-09-27T20:12:04+02:00 docs: record ten e1 switch cycles for #394 and #387
+== present at lane parent 6b2ebd1c?
+no
+== linked authority GM_LOSS_RECOVERY.md:142-150 at 6c5ca18f
+### Media re-base on a PHC step
+
+Each step of the [step policy](TIME_SYNC.md#step-policy) is one counted event.
+
+Issue #387 decided its render re-base and continuity behavior.
+
+The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) supersedes its PHC-step restart obligation.
+
+A PHC-only re-base preserves the INTERNAL/CRF media-clock source.
+== docs/findings/README.md:3-5
+This directory contains current hardware findings that still inform the
+shipping Milan v1.2 design. Superseded target-runtime campaigns and operational
+logs are preserved in Git history, not in the checked-out product tree (#259).

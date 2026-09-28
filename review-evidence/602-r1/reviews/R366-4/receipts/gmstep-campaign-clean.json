@@ -1,0 +1,22 @@
+{
+ "name": "gmstep-campaign-clean",
+ "head": "6c5ca18f12191a252447ec7c7c75363b851f2771",
+ "cwd": "$REVIEWS/r366-4-602/tb/verilator/milan_dp",
+ "cmd": [
+  "python3",
+  "$REVIEWS/602-r366-4-packet/gmstep_chunk.py",
+  "$REVIEWS/r366-4-602",
+  "clean"
+ ],
+ "env_overrides": {
+  "VERILATOR": "$REVIEWS/602-r366-4-packet/scratch/bin/verilator",
+  "MAKEFLAGS": "",
+  "VERILATOR_JOBS": "8"
+ },
+ "timeout_s": 590,
+ "rc": 0,
+ "elapsed_s": 50.4,
+ "log_bytes": 182,
+ "log_sha256": "9382dbfc020cf43fd97c7604026476b185c963cb1a5c1512c773f0eaaa3e212d",
+ "log": "receipts/gmstep-campaign-clean.log"
+}

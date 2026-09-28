@@ -1,0 +1,17 @@
+[INFO] control 12: the grandmaster change stops the talker for good (leg gmstep)
+[PASS] control caught: the grandmaster change stops the talker for good - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 8 check(s): tu: talker PDUs graded inside the hold; tu: talker PDUs graded after tu clears; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; CRF control: outgoing PDUs bracket the received toggle; CRF control: selected CRF mr propagates exactly once; coincident: PDUs bracket every trial and complete the hold; coincident: a PHC step does not suppress the CRF restart
+[INFO] control 13: the step's re-centre snaps one event off the setpoint (leg gmstep)
+[PASS] control caught: the step's re-centre snaps one event off the setpoint - breaks "render: every PDU push leaves the target fill across the event"
+    it broke 1 check(s): render: every PDU push leaves the target fill across the event
+[INFO] control 14: software settime is restored as an mr cause (leg option-off)
+[PASS] control caught: software settime is restored as an mr cause - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 2 check(s): CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+[INFO] control 15: PHC adjtime is restored as an mr cause (leg option-off)
+[PASS] control caught: PHC adjtime is restored as an mr cause - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+[INFO] control 16: both PHC restart causes are restored (leg option-off)
+[PASS] control caught: both PHC restart causes are restored - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 3 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602); CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+
+chunk ['12', '16']: 5 items: 5 PASS, 0 FAIL (inventory size 20)

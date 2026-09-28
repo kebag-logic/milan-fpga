@@ -1,0 +1,11 @@
+[INFO] control 17: PHC adjtime becomes an mr cause 16 cycles later (leg option-off)
+[PASS] control caught: PHC adjtime becomes an mr cause 16 cycles later - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+[INFO] control 18: PHC adjtime becomes an mr cause 256 cycles later (leg option-off)
+[PASS] control caught: PHC adjtime becomes an mr cause 256 cycles later - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 1 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+[INFO] control 19: a PHC step suppresses a coincident CRF restart (leg gmstep)
+[PASS] control caught: a PHC step suppresses a coincident CRF restart - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+
+chunk ['17', '19']: 3 items: 3 PASS, 0 FAIL (inventory size 20)
