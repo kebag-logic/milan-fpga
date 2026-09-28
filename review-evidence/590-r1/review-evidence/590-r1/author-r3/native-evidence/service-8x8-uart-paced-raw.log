@@ -1,0 +1,782 @@
+
+[1m        __   _ __      _  __[0m
+[1m       / /  (_) /____ | |/_/[0m
+[1m      / /__/ / __/ -_)>  <[0m
+[1m     /____/_/\__/\__/_/|_|[0m
+[1m   Build your hardware, easily![0m
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+
+ LiteX git sha1: a1e1c36
+
+--================ [1mSoC[0m =================--
+[1mCPU[0m:		VexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz
+[1mBUS[0m:		wishbone 32-bit data/32-bit addr
+[1mCSR[0m:		32-bit data big ordering
+[1mROM[0m:		128.0KiB
+[1mSRAM[0m:		8.0KiB
+[1mFLASH[0m:		16.0MiB
+[1mSDRAM[0m:		1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)
+[1mMAIN RAM[0m:	1.0GiB
+
+--=========== [1mInitialization[0m ===========--
+Initializing SDRAM @0x40000000...
+Switching SDRAM to software control.
+Switching SDRAM to hardware control.
+
+Initializing n25q128a13 SPI Flash @0x01000000...
+Memspeed at 0x1000000 (Sequential, 4.0KiB)...
+   Read speed: 1020.4KiB/s
+Memspeed at 0x1000000 (Random, 4.0KiB)...
+   Read speed: 353.7KiB
+EVENT cycle=8813599 kind=write address=2336 value=0 requests=0 responses=0 errors=0
+/s
+
+Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.
+
+EVENT cycle=97013097 kind=write address=2364 value=64 requests=0 responses=0 errors=0
+
+EVENT cycle=97014165 kind=write address=2336 value=2 requests=0 responses=0 errors=0
+
+EVENT cycle=97078747 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=97078891 kind=ticks first=97014286 last=97014286 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=97078891 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=97079545 kind=write address=2336 value=0 requests=32 responses=32 errors=0
+Milan NVM: slot A VD_OK seq 1, slot B 
+EVENT cycle=97409979 kind=aem_read
+VD_OK seq 1; offered A seq 1 (VD_OK), 12680 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1.
+Milan baremetal: AEM 18288 B copied QSP
+EVENT cycle=111113449 kind=write address=2336 value=1 requests=32 responses=32 errors=0
+I +0x00400000 -> 0x7f700000, CRC 823b739f.
+
+EVENT cycle=111492831 kind=phy_read status=13 up=1 down=0
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+--============== [1mConsole[0m ===============--
+
+[92;1mlitex[0m> 
+EVENT cycle=112679462 kind=ticks first=111433180 last=112678224 count=573 max_gap=60690 gap_start=111433180
+
+EVENT cycle=112679462 kind=boot_prompt
+
+EVENT cycle=112679463 kind=command_start index=0 tx_bytes=1459
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded
+GPTP_GM=0000000000000000 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=0 AS_PATH_GEN=0 CLKV_STAT=00000001 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db
+TAI_NS=0x0000000043e9c56c
+[92;1mlitex[0m> 
+EVENT cycle=115577360 kind=ticks first=112688116 last=115577284 count=606 max_gap=1529592 gap_start=112801492
+
+EVENT cycle=115577360 kind=command_end index=0 erases=0 programs=0 bytes=0 tx_bytes=1787
+
+EVENT cycle=115577361 kind=command_start index=1 tx_bytes=1787
+milan_gettime
+TAI_NS=0x0000000044fa0430
+[92;1mlitex[0m> 
+EVENT cycle=116108566 kind=ticks first=115605280 last=116107362 count=147 max_gap=135708 gap_start=115707122
+
+EVENT cycle=116108566 kind=command_end index=1 erases=0 programs=0 bytes=0 tx_bytes=1847
+
+EVENT cycle=116108567 kind=command_start index=2 tx_bytes=1847
+milan_nvm
+
+EVENT cycle=122225899 kind=ticks first=116117244 last=122225058 count=21 max_gap=374726 gap_start=116229532
+
+EVENT cycle=122225899 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=124145063 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=145039661 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=148966943 kind=ticks first=122599826 last=148966102 count=40 max_gap=8585894 gap_start=136407410
+
+EVENT cycle=148966943 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=157849901 kind=phy_read status=0 up=1 down=1
+
+EVENT cycle=157859077 kind=phy_read status=0 up=1 down=1
+
+EVENT cycle=170617997 kind=phy_read status=0 up=1 down=1
+
+EVENT cycle=173990683 kind=ticks first=150929704 last=173989842 count=51 max_gap=1964532 gap_start=152893884
+
+EVENT cycle=173990683 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=185151455 kind=phy_read status=13 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 
+EVENT cycle=198381257 kind=phy_read status=13 up=2 down=1
+load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed
+EVENT cycle=198991691 kind=ticks first=174364610 last=198990850 count=298 max_gap=8585894 gap_start=176510154
+
+EVENT cycle=198991691 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=199567838 kind=ticks first=198992574 last=199566722 count=287 max_gap=3592 gap_start=199418994
+
+EVENT cycle=199567838 kind=command_end index=2 erases=0 programs=0 bytes=0 tx_bytes=2218
+
+EVENT cycle=199567839 kind=command_start index=3 tx_bytes=2218
+milan_nvm commit
+
+EVENT cycle=207594269 kind=ticks first=199578302 last=199724530 count=6 max_gap=34508 gap_start=199604594
+
+EVENT cycle=207594269 kind=write address=2364 value=8 requests=32 responses=32 errors=0
+
+EVENT cycle=208894411 kind=write address=2364 value=16 requests=32 responses=32 errors=0
+
+EVENT cycle=211017325 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=223591669 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=224051433 kind=ticks first=208903122 last=224050592 count=67 max_gap=275480 gap_start=210970968
+
+EVENT cycle=224051433 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=238290083 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=245480301 kind=ticks first=224280392 last=244541542 count=43 max_gap=5566378 gap_start=232677348
+
+EVENT cycle=245480301 kind=write address=2364 value=4 requests=32 responses=32 errors=0
+
+EVENT cycle=245482946 kind=flash opcode=216 wait_cycles=0
+
+EVENT cycle=252934295 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253001235 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=253001441 kind=ticks first=252936728 last=252936728 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253001441 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=253127321 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253256479 kind=ticks first=253129754 last=253129754 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253256479 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253385637 kind=ticks first=253258912 last=253258912 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253385637 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253514799 kind=ticks first=253388070 last=253388070 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253514799 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253643921 kind=ticks first=253517232 last=253517232 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253643921 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253773079 kind=ticks first=253646354 last=253646354 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253773079 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=253902237 kind=ticks first=253775512 last=253775512 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=253902237 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254031395 kind=ticks first=253904670 last=253904670 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254031395 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254160517 kind=ticks first=254033828 last=254033828 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254160517 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254289675 kind=ticks first=254162950 last=254162950 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254289675 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254418837 kind=ticks first=254292108 last=254292108 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254418837 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254547995 kind=ticks first=254421270 last=254421270 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254547995 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254677117 kind=ticks first=254550428 last=254550428 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254677117 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254806229 kind=ticks first=254679550 last=254679550 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254806229 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=254935387 kind=ticks first=254808662 last=254808662 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=254935387 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255064509 kind=ticks first=254937820 last=254937820 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255064509 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255193667 kind=ticks first=255066942 last=255066942 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255193667 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255322829 kind=ticks first=255196100 last=255196100 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255322829 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255451987 kind=ticks first=255325262 last=255325262 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255451987 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255581109 kind=ticks first=255454420 last=255454420 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255581109 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255710221 kind=ticks first=255583542 last=255583542 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255710221 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255839379 kind=ticks first=255712654 last=255712654 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255839379 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=255968501 kind=ticks first=255841812 last=255841812 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=255968501 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256097659 kind=ticks first=255970934 last=255970934 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256097659 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256226821 kind=ticks first=256100092 last=256100092 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256226821 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256355979 kind=ticks first=256229254 last=256229254 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256355979 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256485101 kind=ticks first=256358412 last=256358412 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256485101 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256614213 kind=ticks first=256487534 last=256487534 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256614213 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256743371 kind=ticks first=256616646 last=256616646 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256743371 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=256872493 kind=ticks first=256745804 last=256745804 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=256872493 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257001651 kind=ticks first=256874926 last=256874926 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257001651 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257130813 kind=ticks first=257004084 last=257004084 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257130813 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257259971 kind=ticks first=257133246 last=257133246 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257259971 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257389093 kind=ticks first=257262404 last=257262404 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257389093 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257518205 kind=ticks first=257391526 last=257391526 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257518205 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257647363 kind=ticks first=257520638 last=257520638 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257647363 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257776485 kind=ticks first=257649796 last=257649796 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257776485 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=257905643 kind=ticks first=257778918 last=257778918 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=257905643 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258034805 kind=ticks first=257908076 last=257908076 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258034805 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258163963 kind=ticks first=258037238 last=258037238 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258163963 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258293085 kind=ticks first=258166396 last=258166396 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258293085 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258422197 kind=ticks first=258295518 last=258295518 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258422197 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258551355 kind=ticks first=258424630 last=258424630 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258551355 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258680477 kind=ticks first=258553788 last=258553788 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258680477 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258809635 kind=ticks first=258682910 last=258682910 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258809635 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=258938797 kind=ticks first=258812068 last=258812068 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=258938797 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=259067955 kind=ticks first=258941230 last=258941230 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=259067955 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=259197077 kind=ticks first=259070388 last=259070388 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=259197077 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=259268449 kind=ticks first=259199510 last=259199510 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=259268449 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=265715259 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=278713803 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=278714009 kind=ticks first=259270882 last=278649290 count=53 max_gap=733024 gap_start=277916266
+
+EVENT cycle=278714009 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=292117887 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=307419643 kind=ticks first=279201366 last=298009518 count=8 max_gap=8585894 gap_start=279540408
+
+EVENT cycle=307419643 kind=write address=2364 value=65538 requests=32 responses=32 errors=0
+Milan NVM: commit (console) se
+EVENT cycle=307675815 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=307676021 kind=ticks first=307592348 last=307592348 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=307676021 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+q 2 -> slot B, 12680 B, capture 1 acknowledged.
+[92;1mlitex[0m> 
+EVENT cycle=308254648 kind=ticks first=307676904 last=308254392 count=289 max_gap=3592 gap_start=307975982
+
+EVENT cycle=308254648 kind=command_end index=3 erases=1 programs=50 bytes=12680 tx_bytes=2333
+
+EVENT cycle=308254649 kind=command_start index=4 tx_bytes=2333
+milan_nvm commit
+
+EVENT cycle=316280447 kind=ticks first=308280682 last=308410532 count=5 max_gap=41106 gap_start=308369426
+
+EVENT cycle=316280447 kind=write address=2364 value=8 requests=32 responses=32 errors=0
+
+EVENT cycle=317580681 kind=write address=2364 value=16 requests=32 responses=32 errors=0
+
+EVENT cycle=320181345 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=332773783 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=332773989 kind=ticks first=317589392 last=332709276 count=67 max_gap=293574 gap_start=320116838
+
+EVENT cycle=332773989 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=347030475 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=354220529 kind=ticks first=333002958 last=353281770 count=43 max_gap=5566378 gap_start=341399590
+
+EVENT cycle=354220529 kind=write address=2364 value=4 requests=32 responses=32 errors=0
+
+EVENT cycle=354223174 kind=flash opcode=216 wait_cycles=0
+
+EVENT cycle=361674523 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=361741463 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=361741669 kind=ticks first=361676956 last=361676956 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=361741669 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=361867549 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=361996707 kind=ticks first=361869982 last=361869982 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=361996707 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362125865 kind=ticks first=361999140 last=361999140 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362125865 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362255027 kind=ticks first=362128298 last=362128298 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362255027 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362384149 kind=ticks first=362257460 last=362257460 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362384149 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362513307 kind=ticks first=362386582 last=362386582 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362513307 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362642465 kind=ticks first=362515740 last=362515740 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362642465 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362771623 kind=ticks first=362644898 last=362644898 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362771623 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=362900745 kind=ticks first=362774056 last=362774056 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=362900745 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363029903 kind=ticks first=362903178 last=362903178 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363029903 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363159065 kind=ticks first=363032336 last=363032336 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363159065 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363288223 kind=ticks first=363161498 last=363161498 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363288223 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363417345 kind=ticks first=363290656 last=363290656 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363417345 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363546457 kind=ticks first=363419778 last=363419778 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363546457 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363675615 kind=ticks first=363548890 last=363548890 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363675615 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363804737 kind=ticks first=363678048 last=363678048 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363804737 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=363933895 kind=ticks first=363807170 last=363807170 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=363933895 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364063057 kind=ticks first=363936328 last=363936328 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364063057 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364192215 kind=ticks first=364065490 last=364065490 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364192215 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364321337 kind=ticks first=364194648 last=364194648 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364321337 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364450449 kind=ticks first=364323770 last=364323770 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364450449 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364579607 kind=ticks first=364452882 last=364452882 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364579607 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364708729 kind=ticks first=364582040 last=364582040 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364708729 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364837887 kind=ticks first=364711162 last=364711162 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364837887 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=364967049 kind=ticks first=364840320 last=364840320 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=364967049 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365096207 kind=ticks first=364969482 last=364969482 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365096207 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365225329 kind=ticks first=365098640 last=365098640 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365225329 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365354441 kind=ticks first=365227762 last=365227762 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365354441 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365483599 kind=ticks first=365356874 last=365356874 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365483599 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365612721 kind=ticks first=365486032 last=365486032 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365612721 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365741879 kind=ticks first=365615154 last=365615154 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365741879 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=365871041 kind=ticks first=365744312 last=365744312 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=365871041 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366000199 kind=ticks first=365873474 last=365873474 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366000199 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366129321 kind=ticks first=366002632 last=366002632 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366129321 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366258433 kind=ticks first=366131754 last=366131754 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366258433 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366387591 kind=ticks first=366260866 last=366260866 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366387591 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366516713 kind=ticks first=366390024 last=366390024 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366516713 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366645871 kind=ticks first=366519146 last=366519146 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366645871 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366775033 kind=ticks first=366648304 last=366648304 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366775033 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=366904191 kind=ticks first=366777466 last=366777466 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=366904191 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367033313 kind=ticks first=366906624 last=366906624 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367033313 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367162425 kind=ticks first=367035746 last=367035746 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367162425 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367291583 kind=ticks first=367164858 last=367164858 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367291583 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367420705 kind=ticks first=367294016 last=367294016 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367420705 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367549863 kind=ticks first=367423138 last=367423138 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367549863 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367679025 kind=ticks first=367552296 last=367552296 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367679025 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367808183 kind=ticks first=367681458 last=367681458 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367808183 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=367937305 kind=ticks first=367810616 last=367810616 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=367937305 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=368008677 kind=ticks first=367939738 last=367939738 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=368008677 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=374455487 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=387454031 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=387454237 kind=ticks first=368011110 last=387389518 count=53 max_gap=733024 gap_start=386656494
+
+EVENT cycle=387454237 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=400858115 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=416159871 kind=ticks first=387941594 last=406749746 count=8 max_gap=8585894 gap_start=388280636
+
+EVENT cycle=416159871 kind=write address=2364 value=131074 requests=32 responses=32 errors=0
+Milan NVM: commit (console) se
+EVENT cycle=416416065 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=416416271 kind=ticks first=416332574 last=416332574 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=416416271 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+q 3 -> slot A, 12680 B, capture 2 acknowledged.
+[92;1mlitex[0m> 
+EVENT cycle=416994876 kind=ticks first=416417154 last=416994572 count=289 max_gap=3584 gap_start=416759212
+
+EVENT cycle=416994876 kind=command_end index=4 erases=2 programs=100 bytes=25360 tx_bytes=2448
+
+EVENT cycle=416994877 kind=command_start index=5 tx_bytes=2448
+milan_nvm
+
+EVENT cycle=429170613 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=445961879 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=445962105 kind=ticks first=417020852 last=445897356 count=58 max_gap=8585914 gap_start=437311442
+
+EVENT cycle=445962105 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=458826727 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=471192693 kind=ticks first=447924338 last=471191852 count=43 max_gap=1964532 gap_start=453816124
+
+EVENT cycle=471192693 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=471631127 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=486173637 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 3, slot B VD_OK seq 2, authoritative A, image seq 3, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 lo
+EVENT cycle=499425375 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=499425581 kind=ticks first=471566620 last=499343782 count=23 max_gap=8585894 gap_start=477523236
+
+EVENT cycle=499425581 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+ad_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=500590022 kind=ticks first=499426464 last=500588544 count=561 max_gap=3586 gap_start=499495246
+
+EVENT cycle=500590022 kind=command_end index=5 erases=2 programs=100 bytes=25360 tx_bytes=2819
+
+EVENT cycle=500590023 kind=command_start index=6 tx_bytes=2819
+milan_nvm wipe
+
+EVENT cycle=500750962 kind=ticks first=500591924 last=500729908 count=6 max_gap=32800 gap_start=500591924
+
+EVENT cycle=500750962 kind=flash opcode=216 wait_cycles=0
+
+EVENT cycle=508080168 kind=ticks first=508076596 last=508076596 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=508080168 kind=flash opcode=216 wait_cycles=0
+NVM: slot A erased, slot B 
+EVENT cycle=515638969 kind=phy_read status=11 up=2 down=1
+erased; the staged image is unchanged, reboot to observe a blank boot.
+[92;1mlitex[0m> 
+EVENT cycle=516414228 kind=ticks first=515557404 last=516413460 count=381 max_gap=82606 gap_start=515557404
+
+EVENT cycle=516414228 kind=command_end index=6 erases=4 programs=100 bytes=25360 tx_bytes=2952
+
+EVENT cycle=516414229 kind=command_start index=7 tx_bytes=2952
+milan_nvm
+NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0, authoritative -, image seq 3, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=519746136 kind=ticks first=516431542 last=519746060 count=605 max_gap=1989438 gap_start=516510448
+
+EVENT cycle=519746136 kind=command_end index=7 erases=4 programs=100 bytes=25360 tx_bytes=3329
+
+EVENT cycle=519746137 kind=command_start index=8 tx_bytes=3329
+milan_nvm invalid
+milan_nvm [commit|wipe]
+[92;1mlitex[0m> 
+EVENT cycle=520296252 kind=ticks first=519774056 last=520294750 count=170 max_gap=71580 gap_start=519912080
+
+EVENT cycle=520296252 kind=command_end index=8 erases=4 programs=100 bytes=25360 tx_bytes=3391
+
+EVENT cycle=520296253 kind=command_start index=9 tx_bytes=3391
+milan_settime 0 0
+TAI_NS=0x0000000000
+EVENT cycle=520665725 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=520665871 kind=ticks first=520298114 last=520582284 count=7 max_gap=121464 gap_start=520460820
+
+EVENT cycle=520665871 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+000320
+[92;1mlitex[0m> 
+EVENT cycle=520889050 kind=ticks first=520666752 last=520888280 count=123 max_gap=3584 gap_start=520688962
+
+EVENT cycle=520889050 kind=command_end index=9 erases=4 programs=100 bytes=25360 tx_bytes=3455
+
+EVENT cycle=520889051 kind=command_start index=10 tx_bytes=3455
+milan_settime 18446744073 709551615
+TAI_NS=0x0000000000
+EVENT cycle=521566269 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=521566435 kind=ticks first=520906362 last=521482824 count=12 max_gap=272440 gap_start=521210384
+
+EVENT cycle=521566435 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+00031f
+[92;1mlitex[0m> 
+EVENT cycle=521789590 kind=ticks first=521567316 last=521788828 count=123 max_gap=3580 gap_start=521641112
+
+EVENT cycle=521789590 kind=command_end index=10 erases=4 programs=100 bytes=25360 tx_bytes=3537
+
+EVENT cycle=521789591 kind=command_start index=11 tx_bytes=3537
+milan_settime 18446744073 709551616
+milan_settime <tai-seconds> [nanoseconds]
+[92;1mlitex[0m> 
+EVENT cycle=522812246 kind=ticks first=521806914 last=522811588 count=238 max_gap=255602 gap_start=522110928
+
+EVENT cycle=522812246 kind=command_end index=11 erases=4 programs=100 bytes=25360 tx_bytes=3635
+
+EVENT cycle=522812247 kind=command_start index=12 tx_bytes=3635
+milan_settime invalid
+milan_settime <tai-seconds> [nanoseconds]
+[92;1mlitex[0m> 
+EVENT cycle=523552600 kind=ticks first=522831374 last=523551942 count=234 max_gap=94754 gap_start=523012130
+
+EVENT cycle=523552600 kind=command_end index=12 erases=4 programs=100 bytes=25360 tx_bytes=3719
+
+EVENT cycle=523552601 kind=command_start index=13 tx_bytes=3719
+milan_utc 0 0 37
+UTC applied with TAI-UTC=37 s; T
+EVENT cycle=524041599 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=524041819 kind=ticks first=523571728 last=523959992 count=7 max_gap=250240 gap_start=523709752
+
+EVENT cycle=524041819 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+AI_NS=0x000000089d665b70
+[92;1mlitex[0m> 
+EVENT cycle=524415208 kind=ticks first=524044598 last=524414004 count=192 max_gap=3586 gap_start=524214678
+
+EVENT cycle=524415208 kind=command_end index=13 erases=4 programs=100 bytes=25360 tx_bytes=3813
+
+EVENT cycle=524415209 kind=command_start index=14 tx_bytes=3813
+milan_utc 18446744073709551615 0 1
+milan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>
+[92;1mlitex[0m> 
+EVENT cycle=525628356 kind=ticks first=524423886 last=525628302 count=280 max_gap=365970 gap_start=524727920
+
+EVENT cycle=525628356 kind=command_end index=14 erases=4 programs=100 bytes=25360 tx_bytes=3922
+
+EVENT cycle=525628357 kind=command_start index=15 tx_bytes=3922
+milan_utc invalid 0 0
+milan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>
+[92;1mlitex[0m> 
+EVENT cycle=526473348 kind=ticks first=525656304 last=526472384 count=276 max_gap=109092 gap_start=525828808
+
+EVENT cycle=526473348 kind=command_end index=15 erases=4 programs=100 bytes=25360 tx_bytes=4018
+
+EVENT cycle=526473349 kind=command_start index=16 tx_bytes=4018
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded
+GPTP_GM=0000000000000000 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=0 AS_PATH_GEN=0 CLKV_STAT=00000009 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db
+TAI_NS=0x000000089fbd1634
+[92;1mlitex[0m> 
+EVENT cycle=529371542 kind=ticks first=526483976 last=529369876 count=605 max_gap=1529598 gap_start=526595674
+
+EVENT cycle=529371542 kind=command_end index=16 erases=4 programs=100 bytes=25360 tx_bytes=4346
+
+PHY_TIMING transactions=213 publications=35 max_transaction_cycles=12457 max_poll_cycles=83375 down_edges=1 up_edges=1
+BACKING armed=1 unbacked_cycles=0
+== fw_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS

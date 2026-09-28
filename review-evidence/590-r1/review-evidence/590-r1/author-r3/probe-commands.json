@@ -1,0 +1,71 @@
+[
+  {
+    "name": "phase-probe",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "python3",
+      "-B",
+      "$REVIEWS/590-r369-2-packet/scripts/probe_mdio_phase.py",
+      "$LANES/590-592-599-firmware",
+      "$VALIDATION_STORAGE/590-a411/phase-probe"
+    ],
+    "rc": 0,
+    "seconds": 1.37,
+    "sha256": "4890501093e71d811e72c154e6c7088ba38845ea32021d9db6348099e9cd2190",
+    "size": 463
+  },
+  {
+    "name": "disabled-writer-probe",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "python3",
+      "-B",
+      "$REVIEWS/590-r368-2-packet/probes/disabled_writer_probe.py",
+      "$LANES/590-592-599-firmware",
+      "$VALIDATION_STORAGE/590-a411/disabled-probe"
+    ],
+    "rc": 0,
+    "seconds": 8.78,
+    "sha256": "adffe7b6cddf80a1ec64dbc7899f47652bb7cd693857ba2b9d8fea3301d6d172",
+    "size": 4176
+  },
+  {
+    "name": "weak-link-probe",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "sh",
+      "$REVIEWS/590-r369-2-packet/scripts/weak_link_probe.sh",
+      "$VALIDATION_STORAGE/590-a411/weak-link"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "sha256": "3c038d6376be3e8bb8632a68e972d890ddae8198073463d2a3ea8997bbef4db7",
+    "size": 90
+  },
+  {
+    "name": "dispatch-oracle-probe",
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "1800",
+      "python3",
+      "-B",
+      "$REVIEWS/590-r369-2-packet/scripts/builtin_oracle_probe.py",
+      "$LANES/590-592-599-firmware"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "sha256": "511a9c6eed812138bec9a70c289bad5bc2628cbba126fffc64da6ca90a1196e0",
+    "size": 333
+  }
+]

@@ -1,0 +1,1 @@
+The first native wrapper attempt failed before simulation: the restricted PATH omitted the command proxy. The wrapper now uses its absolute executable path. Product builds succeeded; no timing STOP condition was observed. The native manifests describe the subsequent complete attempt.
