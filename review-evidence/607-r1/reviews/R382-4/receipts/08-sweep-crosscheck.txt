@@ -1,0 +1,94 @@
+rom_check: {'ltn_rom.hex': True, 'ucode.hex': True}
+  PASS generated ROMs equal the c951a9ff digest rows
+| Seed | WNS | TNS | WHS | THS | eth->sys | sys->eth | eth->milan | milan->eth | CW | 12-4739/20-1307/12-5201 |
+== asl AltSpreadLogic_high
+  PASS summary and results name the exact head
+  PASS build rc 0 and report rc 0
+  PASS 16-thread cap in the recorded command
+  PASS directive matches command
+  PASS four declared corners [('Fast', 0), ('Fast', 85), ('Slow', 0), ('Slow', 85)]
+  PASS WNS >= +0.030 at every corner (worst +0.312)
+  PASS WHS >= 0 at every corner (worst +0.036)
+  PASS TNS = THS = 0, no negative paths
+  PASS eth_clocks0_rx->milansoc_crg_clkout0: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS milansoc_crg_clkout0->eth_clocks0_rx: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS eth_clocks0_rx->milansoc_crg_clkout1: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS milansoc_crg_clkout1->eth_clocks0_rx: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS seed_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Fast_0C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Fast_85C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Slow_0C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Slow_85C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS alinx_ax7101_clock_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS alinx_ax7101_signoff_clock_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seven interaction reports (7)
+  PASS zero critical warnings
+  PASS zero errors
+  PASS zero 12-4739/20-1307/12-5201
+  PASS build gate accepted; unquarantined bitstream
+  PASS hook applied (112 quasi-static cells, 8 ns budget)
+  PASS emitted Tcl order {'synth_design': 258, 'milan_eth_constraints': 271, 'opt_design': 275, 'kl_timing_grade_configure': 280, 'place_design': 284, 'route_design': 303, 'kl_timing_grade_reports': 314, 'report_clock_interaction': 320, 'write_bitstream': 325}
+  PASS collector margin_ok and bound_ok
+  PASS published prose table row equals JSON-derived row
+| asl | +0.312 | 0 | +0.036 | 0 | +6.141 | +6.644 | +6.465 | +6.591 | 0 | 0 |
+== eto ExtraTimingOpt
+  PASS summary and results name the exact head
+  PASS build rc 0 and report rc 0
+  PASS 16-thread cap in the recorded command
+  PASS directive matches command
+  PASS four declared corners [('Fast', 0), ('Fast', 85), ('Slow', 0), ('Slow', 85)]
+  PASS WNS >= +0.030 at every corner (worst +0.309)
+  PASS WHS >= 0 at every corner (worst +0.014)
+  PASS TNS = THS = 0, no negative paths
+  PASS eth_clocks0_rx->milansoc_crg_clkout0: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS milansoc_crg_clkout0->eth_clocks0_rx: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS eth_clocks0_rx->milansoc_crg_clkout1: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS milansoc_crg_clkout1->eth_clocks0_rx: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS seed_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Fast_0C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Fast_85C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Slow_0C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Slow_85C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS alinx_ax7101_clock_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS alinx_ax7101_signoff_clock_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seven interaction reports (7)
+  PASS zero critical warnings
+  PASS zero errors
+  PASS zero 12-4739/20-1307/12-5201
+  PASS build gate accepted; unquarantined bitstream
+  PASS hook applied (112 quasi-static cells, 8 ns budget)
+  PASS emitted Tcl order {'synth_design': 258, 'milan_eth_constraints': 271, 'opt_design': 275, 'kl_timing_grade_configure': 280, 'place_design': 284, 'route_design': 303, 'kl_timing_grade_reports': 314, 'report_clock_interaction': 320, 'write_bitstream': 325}
+  PASS collector margin_ok and bound_ok
+  PASS published prose table row equals JSON-derived row
+| eto | +0.309 | 0 | +0.014 | 0 | +6.279 | +6.719 | +6.583 | +6.591 | 0 | 0 |
+== eppo ExtraPostPlacementOpt
+  PASS summary and results name the exact head
+  PASS build rc 0 and report rc 0
+  PASS 16-thread cap in the recorded command
+  PASS directive matches command
+  PASS four declared corners [('Fast', 0), ('Fast', 85), ('Slow', 0), ('Slow', 85)]
+  PASS WNS >= +0.030 at every corner (worst +0.063)
+  PASS WHS >= 0 at every corner (worst +0.036)
+  PASS TNS = THS = 0, no negative paths
+  PASS eth_clocks0_rx->milansoc_crg_clkout0: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS milansoc_crg_clkout0->eth_clocks0_rx: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS eth_clocks0_rx->milansoc_crg_clkout1: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS milansoc_crg_clkout1->eth_clocks0_rx: 4 corner rows, 8.000 ns requirement, positive slack
+  PASS seed_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Fast_0C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Fast_85C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Slow_0C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seed_Slow_85C_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS alinx_ax7101_clock_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS alinx_ax7101_signoff_clock_interaction.rpt: 4 pairs Max Delay Datapath Only at 8.00, no unsafe
+  PASS seven interaction reports (7)
+  PASS zero critical warnings
+  PASS zero errors
+  PASS zero 12-4739/20-1307/12-5201
+  PASS build gate accepted; unquarantined bitstream
+  PASS hook applied (112 quasi-static cells, 8 ns budget)
+  PASS emitted Tcl order {'synth_design': 258, 'milan_eth_constraints': 271, 'opt_design': 275, 'kl_timing_grade_configure': 280, 'place_design': 284, 'route_design': 303, 'kl_timing_grade_reports': 314, 'report_clock_interaction': 320, 'write_bitstream': 325}
+  PASS collector margin_ok and bound_ok
+  PASS published prose table row equals JSON-derived row
+| eppo | +0.063 | 0 | +0.036 | 0 | +6.136 | +6.826 | +6.443 | +6.691 | 0 | 0 |
+SWEEP PASS

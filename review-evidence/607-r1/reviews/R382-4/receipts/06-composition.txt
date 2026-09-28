@@ -1,0 +1,53 @@
+== $REVIEWS/607-r382-4-packet/scratch/compose-ax7101_1x1_tdm8/gateware
+  synth_design                 [233]
+  source {                     [238, 242, 252]
+  kl_quasi_static_constraints  [239]
+  milan_eth_constraints        [240]
+  opt_design                   [241]
+  kl_timing_grade_configure    [243]
+  place_design                 [244]
+  route_design                 [254]
+  kl_timing_grade_reports      [262]
+  report_clock_interaction     [268]
+  report_exceptions            [269]
+  write_bitstream              [270]
+  395 prefix=alinx_ax7101_signoff; 607 files=['alinx_ax7101_clock_interaction.rpt', 'alinx_ax7101_exceptions.rpt']
+  PASS each hook once
+  PASS synth < eth < first opt
+  PASS synth < quasi_static < first opt
+  PASS grade_configure < place
+  PASS grade_configure after eth
+  PASS route < grade_reports < write_bitstream
+  PASS route < 607 reports < write_bitstream
+  PASS no mr_ff in XDC
+  PASS no if in XDC
+  PASS no crg_clkout hand name in XDC
+  PASS 607 report names disjoint from 395 set (17)
+  PASS 607 report names unique in Tcl
+== $REVIEWS/607-r382-4-packet/scratch/compose-ax7101_8x8/gateware
+  synth_design                 [233]
+  source {                     [238, 242, 252]
+  kl_quasi_static_constraints  [239]
+  milan_eth_constraints        [240]
+  opt_design                   [241]
+  kl_timing_grade_configure    [243]
+  place_design                 [244]
+  route_design                 [254]
+  kl_timing_grade_reports      [262]
+  report_clock_interaction     [268]
+  report_exceptions            [269]
+  write_bitstream              [270]
+  395 prefix=alinx_ax7101_signoff; 607 files=['alinx_ax7101_clock_interaction.rpt', 'alinx_ax7101_exceptions.rpt']
+  PASS each hook once
+  PASS synth < eth < first opt
+  PASS synth < quasi_static < first opt
+  PASS grade_configure < place
+  PASS grade_configure after eth
+  PASS route < grade_reports < write_bitstream
+  PASS route < 607 reports < write_bitstream
+  PASS no mr_ff in XDC
+  PASS no if in XDC
+  PASS no crg_clkout hand name in XDC
+  PASS 607 report names disjoint from 395 set (17)
+  PASS 607 report names unique in Tcl
+COMPOSITION PASS

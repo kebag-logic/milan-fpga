@@ -1,0 +1,12 @@
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+control: timing_grade rc=0 shipping_probe rc=0 composition rc=0 | grade: [] | ship: ['[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS']
+MA swap after all #395 hooks: timing_grade rc=1 shipping_probe rc=0 composition rc=1 | grade: ['AssertionError: []'] | ship: ['[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS']
+MB swap between pre-placement and bitstream hooks: timing_grade rc=1 shipping_probe rc=0 composition rc=1 | grade: ['AssertionError: []'] | ship: ['[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS']
+MC swap deleted: timing_grade rc=0 shipping_probe rc=1 composition rc=no-tcl | grade: [] | ship: ['RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain']
+MD 607 hook overwrites bitstream_commands: timing_grade rc=0 shipping_probe rc=0 composition rc=1 | grade: [] | ship: ['[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS']
+ME 607 hook overwrites pre_placement_commands: timing_grade rc=0 shipping_probe rc=0 composition rc=1 | grade: [] | ship: ['[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS']
