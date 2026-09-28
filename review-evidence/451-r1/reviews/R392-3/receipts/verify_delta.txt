@@ -1,0 +1,41 @@
+OK   head
+OK   tree
+OK   head parent is the merge
+OK   merge parents lane,dev
+OK   merge base is the lane base
+-- (1) conflict set and resolution
+OK   only conflicted path
+OK   merge differs from automatic merge only in the index
+OK   merge vs dev: page and index only
+OK   page blob unchanged by merge
+OK   merged rows = union of both sides
+OK   no duplicate row
+OK   no conflict marker
+OK   dev rows keep dev order below the new row
+OK   #451 row first (newest-first practice)
+OK   index unchanged after merge
+   index rows: 10
+OK   index: 3 cells in every table line
+OK   matrix lines 195-215: 3 cells
+-- (2) gitlinks
+   6d5ebd7357c1e468e446f18a61527c5be6118a04 external=efeb541a gptp-processor=5dce647a protocol-processor=870ff88a 
+   335e55c4135979a554dc0281d6980ac1e2158aee external=efeb541a gptp-processor=5dce647a protocol-processor=870ff88a 
+   7390b43627032c71c470e2aa8d0845eb5b740663 external=efeb541a gptp-processor=5dce647a protocol-processor=c951a9ff 
+   f4bb2bd71fff5bec778f1281db1183f0c154ca16 external=efeb541a gptp-processor=5dce647a protocol-processor=c951a9ff 
+   HEAD external=efeb541a gptp-processor=5dce647a protocol-processor=c951a9ff 
+OK   protocol-processor = dev c951a9ff
+OK   all gitlinks equal dev
+OK   lane (pre-merge) touches docs only
+-- (3) rewording commit
+OK   reword touches two files
+OK   reword is one line per file
+-- The example configuration exposes capture, not physical TDM rendering.
++- The example configuration exposes capture and physical TDM rendering. [TDM8 first light](../findings/451_TDM8_FIRST_LIGHT.md) carried both on hardware (#451).
+-| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; SILICON latency = presentation offset was measured on the I2S shape BEFORE #386: every in-tree I2S shape now renders its DAC through the render setpoint stage (8 media ticks more, constant), so that figure predates the shipped gateware and a re-measurement rides #117's bench; the accept-to-render constant is digital-proven in `tb/verilator/milan_dp` (the true-ratio leg, #386); the TDM render lane is not clocked on any shipping build, its silicon figure rides #117 |
++| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; SILICON latency = presentation offset was measured on the I2S shape BEFORE #386: every in-tree I2S shape now renders its DAC through the render setpoint stage (8 media ticks more, constant), so that figure predates the shipped gateware and a re-measurement rides #117's bench; the accept-to-render constant is digital-proven in `tb/verilator/milan_dp` (the true-ratio leg, #386); the TDM render lane is clocked on the shipping AX7101 1x1 TDM8 shape (#447), and [TDM8 first light](../findings/451_TDM8_FIRS
+OK   head message one line
+OK   merge message one line
+-- (4) net change against dev
+ 4 files changed, 441 insertions(+), 2 deletions(-)
+OK   four files differ from dev
+rc=0

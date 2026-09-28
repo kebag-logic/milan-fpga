@@ -1,0 +1,141 @@
+== S1 issue/page references (#451 #448 #617 first light)
+docs/findings/README.md:11:| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continu
+docs/litex/CLOCK_DOMAINS.md:140:- The example configuration exposes capture and physical TDM rendering. [TDM8 first light](../findings/451_TDM8_FIRST_LIGHT.md) carried both on hardware (#451).
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:207:| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; SILICON latency = presentation offset was measured on the I2S shape BEFORE #386: every in-tree I2S shape now renders its
+== S2 bench-link vocabulary (PocketBeagle, McASP, AM62, J11, USB Audio)
+CHANGELOG.md:428:- On the AX7101 it is J11 pin 35, ball `C17`.
+configs/endstation_ax7101_1x1_tdm8.yaml:146:    capture: 8                       # the TDM8 bus on J11.3-J11.8, driven as
+configs/endstation_ax7101_1x1_tdm8.yaml:151:                                     # true before the item-4 J11 header, and
+configs/endstation_ax7101_1x1_tdm8.yaml:162:                                     # J11.5 (tdm.dout). What was missing was
+docs/CHANNEL_MAP_64.md:134:  FOLLOWS it - a one-bit data delay, which is a TI McASP at `RDATDLY = 1`.
+docs/CHANNEL_MAP_64.md:267:| 0 / c | 0 | 0 | 0 | `TDM8 Out FL` | 2 (`7'h42`) | TDM lane 0, slot 0 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:268:| 0 / c | 0 | 1 | 1 | `TDM8 Out FR` | 3 (`7'h43`) | TDM lane 0, slot 1 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:269:| 0 / c | 0 | 2 | 2 | `TDM8 Out FC` | 4 (`7'h44`) | TDM lane 0, slot 2 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:270:| 0 / c | 0 | 3 | 3 | `TDM8 Out LFE` | 5 (`7'h45`) | TDM lane 0, slot 3 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:271:| 0 / c | 0 | 4 | 4 | `TDM8 Out RL` | 6 (`7'h46`) | TDM lane 0, slot 4 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:272:| 0 / c | 0 | 5 | 5 | `TDM8 Out RR` | 7 (`7'h47`) | TDM lane 0, slot 5 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:273:| 0 / c | 0 | 6 | 6 | `TDM8 Out SL` | 8 (`7'h48`) | TDM lane 0, slot 6 | J11.5, ball A20 |
+docs/CHANNEL_MAP_64.md:274:| 0 / c | 0 | 7 | 7 | `TDM8 Out SR` | 9 (`7'h49`) | TDM lane 0, slot 7 | J11.5, ball A20 |
+docs/findings/README.md:11:| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continu
+docs/integration/BUILDING.md:170:#### The J11 expansion header  -  what is claimed, and by what
+docs/integration/BUILDING.md:172:J11 is the board's only 40-pin expansion header (`FPGA 40 PIN External IO`,
+docs/integration/BUILDING.md:178:| J11 pin | Ball | Signal | Emitted when |
+docs/integration/BUILDING.md:190:the J11 table. Pins 1, 37 and 38 are drawn as ground symbols and carry no text
+docs/integration/BUILDING.md:191:label, so a text search of the PDF misses them. J11 is a 20x2 header numbered
+docs/integration/BUILDING.md:192:in pairs, so J11.37 (ground) is the contact directly beside the PPS pin along
+docs/integration/BUILDING.md:193:the odd row - a probe ground return with no flying lead. J11.36 is not between
+docs/integration/BUILDING.md:194:them physically: it faces J11.35 across the two rows and is the PPS net's
+docs/integration/BUILDING.md:289:Unlike the AX7101 J11 resource, it has no `lrclk`: that signal is an optional
+docs/integration/BUILDING.md:368:| 2026-09-17 | `--audio-interface-render` | `deploy.sh` kept its own copy of the shape and the copy had drifted: no render flag, so a deploy-built bitstream elaborated `AUDIO_IF_RENDER_SLOTS_P = 0`, took `milan_datapath`'s `g_t
+docs/reference/FR_NFR.md:155:| **FR-CLK-03/04** (select the media clock among INTERNAL and the CRF sink's source; recover it from CRF) | **MET AT THE ROOT INTEGRATION (#74); advertised set made truthful (#389); bench probe open** | The processor stores `SET_CL
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:180:| 7.2.2 | media clock inputs — the CRF sink can drive the media clock | implemented — #74: the stored selection arms `KL_mmcm_drp_servo` (rate half) and `KL_media_grid_align` holds the packet grid on the physical f
+tb/verilator/README.md:69:| [`tdm/`](tdm) | `KL_tdm_capture.sv` + `KL_tdm_capture_master.sv` + `KL_aaf_packetizer.sv` | Item-4 TDM front-end family: TDM16 slave deserializer slot alignment under BOTH documented frame-sync modes (1-bclk pulse + data delay 1, 50
+tb/verilator/media_nco/README.md:138:  *silicon* is a bench measurement (J11.8 vs J11.9), not a simulation one.
+== S3 TDM/DOUT/DIN/render with negative-proof wording (docs)
+docs/integration/BUILDING.md:389:emission, and that a config declaring a TDM render lane never launches
+docs/litex/LITEX_SOC.md:72:listeners feed the render map and physical I2S/TDM outputs. These paths never
+docs/reference/REGISTER_MAP.md:1905:once the first frame has been seen: a front end that never frames (a TDM slave
+hdl/ieee1722/aaf/doc/audio_frontend_family.md:95:  the same "never trust a level as an edge" arming rule the TDM fsync
+tb/verilator/media_grid_align/README.md:9:`tdm_dup_cnt_o`/`tdm_skip_cnt_o`), never an internal signal. Arms G7-G9
+tb/verilator/milan_dp/README.md:41:Blocked stdout never delays cancellation, descendant cleanup, or shutdown.
+tb/verilator/milan_dp/README.md:165:| TDM master | FSYNC cadence and captured-pair counters measured; serial input silent |
+== S4 TDM near silicon/hardware/bench/physical (md, yaml, py, sh)
+configs/endstation_arty_4x4.yaml:36:# here, 16 of 32 there). No TDM8 device is on the bench yet: until one is
+configs/endstation_arty_8ch.yaml:71:# No TDM8 device is on the bench yet: until one is
+configs/endstation_ax7101_8x8.yaml:6:# 8 AAF listener + 8 AAF talker streams, 8ch each, TDM16 physical audio
+docs/AAF_LATENCY_TAPS.md:117:  Rail and underrun events do not raise `STREAM_INTERRUPTED`. The silicon figure at the TDM frame pin (the inline tap's
+docs/CHANNEL_MAP_64.md:113:the lane and drives `tdm_dout_o` low, a nonzero width on a MASTER bus
+docs/CHANNEL_MAP_64.md:212:physical projection. `tb/verilator/milan_dp_render/gen_tdm8r_multi_shape.py` writes a
+docs/ENDSTATION_BUILDER.md:685:| `physical` | `audio_interface.physical_channels.{capture,render}` | both directions; the RENDER count is additionally bounded by the render LANE (#447), and it also selects `AUDIO_IF_RENDER_SLOTS_P` when the lane is the TDM bus
+docs/ENDSTATION_BUILDER.md:775:| `physical` | `"<IFACE> Out <n>"` / `"<IFACE> In <n>"` — e.g. `I2S Out 0`, `TDM16 In 3` |
+docs/design/TIME_SYNC.md:165:| Physical sample grid | `100 MHz * 391/1591 / 512` = 47,999.4893 Hz | `KL_tdm_capture_master` frame divider after the `milan_soc.py` PLAN A MMCM |
+docs/design/TIME_SYNC.md:451:Silicon proof at the TDM frame pin rides #117.
+docs/diagrams/audio_stream_path.gen.py:248:        (BLUE,   "physical audio I/O (ADC/DAC/TDM) + receive loopback"),
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:70:The DUT runs build `build_ax7101_asl_tdm8devede8d48e`: dev
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:73:`configs/endstation_ax7101_1x1_tdm8.yaml`, seed `asl` (routed WNS +0.194 ns),
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:555:Build `build_ax7101_eto_tdm8dev9e9954e9` matches the assignment's SHA-256 hashes:
+docs/findings/README.md:11:| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continu
+docs/fpga/DATAPLANE_WALKTHROUGH.md:171:| 7b | **mapped physical render** | `KL_chan_map_render` → `i2s_feed_mux` / `KL_tdm_render_master` (master bus) or `KL_tdm_render` (codec-driven bus) | an accepted-beat clone is de-interleaved by each PDU's own channel co
+docs/integration/BUILDING.md:391:`AUDIO_IF_RENDER_SLOTS_P = 0`, the parked arm, and `tdm_dout_o` tied low.
+docs/litex/CLOCK_DOMAINS.md:140:- The example configuration exposes capture and physical TDM rendering. [TDM8 first light](../findings/451_TDM8_FIRST_LIGHT.md) carried both on hardware (#451).
+docs/litex/LITEX_SOC.md:34:- physical I2S/TDM capture and render pins.
+docs/litex/LITEX_SOC.md:72:listeners feed the render map and physical I2S/TDM outputs. These paths never
+docs/overview/SYSTEM_DOMAIN_MAP.md:25:| **Milan datapath  -  RTL** | SystemVerilog | FPGA fabric | The TSN logic in **milan-fpga** `hdl/`: `milan_datapath`, `milan_csr` (the register contract), the PTP hardware clock, 1722 AVTP + AVDECC processing, the stand-a
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:207:| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; SILICON latency = presentation offset was measured on the I2S shape BEFORE #386: every in-tree I2S shape now renders its
+docs/reference/REGISTER_MAP.md:1850:| `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a media tick with no fresh frame marker), `[31:16]` TDM-junction skips (a frame marker over an unread one). One event per frame, gated on the first physical fra
+docs/reference/REGISTER_MAP.md:1904:`SLIP_TDM` counts on every shape with a physical capture front end, but only
+sw/builder/endstation_builder.py:159:#:              audio input AT ALL and a "TDM16" physical pool on it would be
+sw/builder/endstation_builder.py:960:    2026-07-28), the bench analog loop - and the TDM pairs follow at slots
+sw/builder/endstation_builder.py:1047:      tdm   no DAC, but the config declares a TDM bus, so the physical render
+sw/builder/test_builder.py:18881:    # physical input clusters project onto the render crossbar's TDM lane -
+sw/litex/deploy.sh:82:# processor, and the TDM8 bus master in BOTH directions - physical capture off
+sw/litex/milan_soc.py:706:    decide whether the Arty TDM/I2S blend is physically routed.
+sw/litex/milan_soc.py:2699:        # bench-measured DAC numbers) stays selected. Only TDM16/TDM32 need
+sw/litex/milan_soc.py:3587:                         "pruned, tdm_dout_o is driven low and the build is "
+sw/litex/platforms/alinx_ax7101.py:371:        # render lane drives tdm_dout low from a constant, so its dout has no
+sw/litex/platforms/board_audio_routing.py:101:#  device is on the bench yet; until one is plugged into pmodb the TDM pairs
+tb/verilator/milan_dp/README.md:85:| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, 50 MHz | Physical timer cadence, independent scheduled peer, eight-channel diagnostic loopback, loss/recovery/reset and stalls |
+== S5 capture frame coherence / atomicity claims
+docs/ENDSTATION_BUILDER.md:668:  as talker sources — same media-clock domain, so coherent). This is a
+docs/design/SAVED_STATE_MATERIALIZATION.md:2650:**Acceptance.** Add coherent eight-lane capture and replay after image readiness.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1160:| Capture validity and the producer hold are not re-checked before the flash write | The attestation is computed by the backend at ATTEST from the valid flag, which any mutating grant after the arm clears, and
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1162:| An expired hold admits a new ERASE while an old ownership mask is in use | That ERASE can only be granted after the hold lapsed, and its grant voids the capture, so the stale mask can never be attested; RELE
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1196:| Capture inside the ERASE-to-WRITE gap, ERASE granted before the arm | C1g | real | capture_inside_erase_write_gap:0x21, never_torn_or_erased@after:0x21 | n/a |
+docs/findings/README.md:11:| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continu
+docs/guides/gptp/TEST_DEVELOPER.md:100:| A3 | `TxtsHarness::exchange` builds the isolated and queued stimulus; `check_backpressure_holds_the_lane`, `check_burst_never_laps_the_stamp_ring` and `check_torn_frame_is_discarded_and_counted` carry the stall, occupan
+docs/guides/gptp/TEST_DEVELOPER.md:108:| B8 | `check_backpressure_holds_the_lane`, and the cancellation grading inside `check_torn_frame_is_discarded_and_counted` | `make -C tb/verilator/gptp_shadow` |
+docs/integration/QSPI_FLASHBOOT.md:8:- **[Usage](#usage)** — Build and flash the pair, the explicit non-atomic escape kept for lab recovery, and the JTAG iteration loop that skips the flash write.
+docs/reference/REGISTER_MAP.md:1447:selector - and each 32-bit read is coherent for the pair it carries. Reset
+docs/reference/TRACE_EVENTS.md:13:compression/rotation and torn captures) see
+tb/verilator/media_grid_align/README.md:10:read the counters of a REAL `KL_chan_map_capture`, wired on the same frame
+tb/verilator/milan_dp/README.md:77:| `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty
+== S6 TDM junction slip semantics
+CHANGELOG.md:433:- `SLIP_LB` (`0x8D4`) and `SLIP_TDM` (`0x8D8`) expose the media-boundary slip counters (#390).
+CHANGELOG.md:434:- `SLIP_LB` counts the loopback ring; `SLIP_TDM` counts the TDM junction.
+CHANGELOG.md:456:- INTERNAL remains bit-exact free-run with slips accepted and now counted. Since 0x0002_0058 they read at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`).
+CHANGELOG.md:457:- `KL_chan_map_capture` gains TDM junction slip counters.
+docs/CHANNEL_MAP_64.md:230:the capture junction already publishes. What the pins show at each beat is not
+docs/design/TIME_SYNC.md:167:| Free-running offset | -10.64 ppm; one sample slips every 1.9582 s | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
+docs/fpga/FPGA_DESIGN.md:258:| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds |
+docs/reference/REGISTER_MAP.md:133:   read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
+docs/reference/REGISTER_MAP.md:202:  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction
+docs/reference/REGISTER_MAP.md:241:| `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
+docs/reference/REGISTER_MAP.md:1829:### 0x8D4  -  media-boundary slip counters  `(SLIP, KL_chan_map_capture)`
+docs/reference/REGISTER_MAP.md:1833:packet grid (`media_tick_p`). `KL_chan_map_capture` counts every slip at each
+docs/reference/REGISTER_MAP.md:1849:| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The u
+docs/reference/REGISTER_MAP.md:1850:| `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a media tick with no fresh frame marker), `[31:16]` TDM-junction skips (a frame marker over an unread one). One event per frame, gated on the first physical fra
+docs/reference/REGISTER_MAP.md:1866:| event | `SLIP_LB` dups | `SLIP_TDM` dups |
+docs/reference/REGISTER_MAP.md:1871:| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
+docs/reference/REGISTER_MAP.md:1901:fed, and 1, 1, 0 on `obj_prune` beside the `SLIP_LB` zero above, so the pair
+docs/reference/REGISTER_MAP.md:1904:`SLIP_TDM` counts on every shape with a physical capture front end, but only
+docs/reference/REGISTER_MAP.md:1906:with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
+docs/reference/REGISTER_MAP.md:1938:| `SLIP_LB` | `SLIP_TDM` | verdict |
+docs/reference/REGISTER_MAP.md:1943:| `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the presen
+docs/reference/REGISTER_MAP_CLASSES.md:106:| `0x8D4–0x8D8` | SLIP (loopback-ring and TDM-junction dup/skip counters) | **optional** | live | Field observability of the media boundary through a validated CSR session: static below the ceiling = one grid (a half 
+tb/verilator/README.md:69:| [`tdm/`](tdm) | `KL_tdm_capture.sv` + `KL_tdm_capture_master.sv` + `KL_aaf_packetizer.sv` | Item-4 TDM front-end family: TDM16 slave deserializer slot alignment under BOTH documented frame-sync modes (1-bclk pulse + data delay 1, 50
+tb/verilator/media_grid_align/README.md:8:junction pend/consume law (the same law behind `KL_chan_map_capture`'s
+tb/verilator/media_grid_align/README.md:37:| G7  | #74 item 2: the engaging frame lands ON a tick, then every marker arrives 0 or 1 edge late (the root's capture FIFO pop). The real junction counters stay at zero over eight 0.2 s windows after 0.6 s of settlin
+tb/verilator/media_grid_align/README.md:53:  locks on its raw engagement capture. [G7] must fail on its junction
+== S7 frame-rate offset figures
+docs/AAF_LATENCY_TAPS.md:104:  per 11.75 s against a talker on the -10.64 ppm physical grid) and the rail
+docs/CHANNEL_MAP_64.md:229:The INTERNAL row is the accepted free-run, not a defect: the same `10.64` ppm
+docs/design/TIME_SYNC.md:165:| Physical sample grid | `100 MHz * 391/1591 / 512` = 47,999.4893 Hz | `KL_tdm_capture_master` frame divider after the `milan_soc.py` PLAN A MMCM |
+docs/design/TIME_SYNC.md:167:| Free-running offset | -10.64 ppm; one sample slips every 1.9582 s | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
+docs/design/TIME_SYNC.md:354:That is six events at the -10.64 ppm offset.
+docs/design/TIME_SYNC.md:365:| TDM8 frame pin, slot k | + the bank walk and frame commit, MEASURED at 9 axis cycles, which is 180 ns on the shipping AX7101 (its `milan` axis clock is 50 MHz) and 90 ns on the leg's 100 MHz model axis clock, + the adopt wait `ph
+docs/litex/CLOCK_DOMAINS.md:119:| Plan A: I2S or TDM8 | `100 MHz × 23 / (2 × 37)` | `×34 /43` | `audio = 24,575,738.529 Hz`, about -10.64 ppm |
+docs/reference/REGISTER_MAP.md:1838:sample every 1.958 s on the shipping divider plan (-10.64 ppm: the standing
+docs/reference/REGISTER_MAP.md:1856:the upstream talker is slow by 10.64 ppm or has stopped: an upstream pause, a
+docs/reference/REGISTER_MAP.md:1871:| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
+docs/reference/REGISTER_MAP.md:1941:| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds
+docs/reference/REGISTER_MAP.md:2011:> which is what actually removes the -10.64 ppm divider drift a mirrored
+docs/testing/TESTING.md:515:| [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-f
+tb/verilator/media_grid_align/README.md:14:47,999.4893 Hz`, the -10.6393 ppm Plan A that slips one sample every
+tb/verilator/media_grid_align/README.md:15:1.9582 s free-running (the [media boundary](../../../docs/design/TIME_SYNC.md#media-boundary)
+tb/verilator/media_grid_align/README.md:32:| G2  | select at Plan A: engage, acquire with the phase never past 300 cycles (0.14 sample), ZERO junction slips through acquisition, u settles ~-170 LSB (= -10.64 ppm in 1/16 ppm units), locked ticks count with fram
+tb/verilator/media_grid_align/README.md:33:| G3  | the mirrored +10.64 ppm feed: zero slips, u flips to ~+170 |
+tb/verilator/milan_dp/README.md:74:| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids align
+== S8 front-end member status table
+| `KL_aaf_capture_i2s` | RTL, silicon-proven | pair 0 only | stereo I2S master for the Pmod I2S2 (CS5343), pilot-tone override |
+| `KL_tdm_capture` | RTL | `SLOTS_P/2` pairs (TDM8/16/32) | TDM slave: pulse or 50%-duty fsync (edge-armed), data delay 0/1, 32/24/16-bclk words, MSB first; `tdm_mclk_o` = clk_audio/2 convenience MCLK
+rc=0

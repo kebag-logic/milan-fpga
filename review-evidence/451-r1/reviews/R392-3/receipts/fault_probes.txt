@@ -1,0 +1,16 @@
+baseline_rowcheck                  rc=0   probe-expect=pass AS-EXPECTED
+baseline_docs_check                rc=0   probe-expect=pass AS-EXPECTED
+F1_marker_rowcheck                 rc=1   probe-expect=fail AS-EXPECTED
+F1_marker_docs_check               rc=0   probe-expect=fail GATE-BLIND
+F1_marker_gen_toc                  rc=0   probe-expect=fail GATE-BLIND
+F1_marker_git_diff_check           rc=2   probe-expect=fail AS-EXPECTED
+F2_duplicate_row_rowcheck          rc=1   probe-expect=fail AS-EXPECTED
+F2_duplicate_row_docs_check        rc=0   probe-expect=fail GATE-BLIND
+F3_lost_row_rowcheck               rc=1   probe-expect=fail AS-EXPECTED
+F4_long_sentence_doc_style         rc=1   probe-expect=fail AS-EXPECTED
+F5_em_dash                         rc=1   probe-expect=fail AS-EXPECTED
+F6_broken_link_docs_check          rc=1   probe-expect=fail AS-EXPECTED
+F6_broken_link_doc_paths           rc=0   probe-expect=fail GATE-BLIND
+F7_extra_cell_docs_check           rc=0   probe-expect=fail GATE-BLIND
+final head 0e5ae9c82bbdb5abc3feba84f07d0e6481254906 status [0 lines]
+rc=0

@@ -1,0 +1,6 @@
+$ ci_scope.py $(git diff --no-renames --name-only 7390b436 HEAD)
+false
+rc=0
+$ ci_scope.py $(git diff --no-renames --name-only 6d5ebd73 HEAD) [source base; includes dev delta]
+true
+rc=0
