@@ -161,13 +161,20 @@ puts {scoped exception and wrong-name controls PASS}
 
 
 def test_log_gate() -> None:
-    """Both IDs and severities refuse, including an actual wrong-name command's diagnostic."""
+    """All rejected-constraint IDs quarantine bitstreams at every emitted severity."""
     with tempfile.TemporaryDirectory(prefix="constraint-log-") as tmp:
         path = Path(tmp) / "vivado.log"
+        bits = [Path(tmp) / f"{board}.bit" for board in ("alinx_ax7101", "digilent_arty")]
+        for bit in bits:
+            bit.write_bytes(b"accepted build")
         path.write_text("# set_msg_config -id {Vivado 12-4739}\nINFO: build complete\n")
         check_implementation_log(path)
+        assert all(bit.read_bytes() == b"accepted build" for bit in bits)
         for severity in ("WARNING", "CRITICAL WARNING", "ERROR"):
-            for diagnostic in ("Vivado 12-4739", "Designutils 20-1307"):
+            for diagnostic in ("Vivado 12-4739", "Designutils 20-1307", "Vivado 12-5201"):
+                payload = f"refused {severity} {diagnostic}".encode()
+                for bit in bits:
+                    bit.write_bytes(payload)
                 path.write_text(f"{severity}: [{diagnostic}] planted refusal\n")
                 try:
                     check_implementation_log(path)
@@ -175,6 +182,10 @@ def test_log_gate() -> None:
                     assert diagnostic in str(exc)
                 else:
                     raise AssertionError(f"accepted {diagnostic}")
+                assert not list(Path(tmp).glob("*.bit")), "refused bitstream remains discoverable"
+                assert all(bit.with_suffix(".bit.rejected").read_bytes() == payload for bit in bits)
+        for bit in bits:
+            bit.write_bytes(b"unverifiable build")
         path.unlink()
         try:
             check_implementation_log(path)
@@ -182,6 +193,15 @@ def test_log_gate() -> None:
             pass
         else:
             raise AssertionError("missing implementation log accepted")
+        assert not list(Path(tmp).glob("*.bit")), "missing log left discoverable bitstream"
+        assert all(bit.with_suffix(".bit.rejected").read_bytes() == b"unverifiable build"
+                   for bit in bits)
+        # An accepted retry keeps its new bitstream even with older rejected bytes.
+        path.write_text("INFO: build complete\n")
+        for bit in bits:
+            bit.write_bytes(b"accepted retry")
+        check_implementation_log(path)
+        assert all(bit.read_bytes() == b"accepted retry" for bit in bits)
     # The log gate must dominate manifest publication for every build entry.
     tree = ast.parse((ROOT / "sw/litex/milan_soc.py").read_text())
     main = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "main")
@@ -198,18 +218,18 @@ def test_log_gate() -> None:
                  and any(item is check for item in ast.walk(node)))
     assert ast.unparse(guard.test) == "args.build", "log check is not common to every board"
     assert "gateware_dir" in ast.unparse(check) and "vivado.log" in ast.unparse(check)
-    assert any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-               and node.func.id == "add_eth_constraints" for node in ast.walk(tree))
     print("[constraints] implementation-log diagnostics, missing log and common build wiring PASS")
 
 
 def test_live_wrong_name(vivado: str, checkpoint: Path, evidence_dir: Path | None) -> None:
-    """Plant both rejected XDC commands on a read-only checkpoint in a fresh run."""
+    """Plant rejected XDC commands on a read-only checkpoint in a fresh run."""
     with tempfile.TemporaryDirectory(prefix="constraint-live-") as tmp:
         work = Path(tmp)
         (work / "wrong.xdc").write_text(
             "set_max_delay 8 -datapath_only -from [get_clocks wrong_clock_607] "
             "-to [get_clocks -of_objects [get_nets sys_clk]]\n"
+            "set_clock_groups -asynchronous -group [get_clocks wrong_clock_607] "
+            "-group [get_clocks -of_objects [get_nets sys_clk]]\n"
             "if {1} {set_false_path -from [get_clocks wrong_clock_607]}\n")
         script = work / "plant.tcl"
         script.write_text("set_param general.maxThreads 16\nopen_checkpoint {" + str(checkpoint.resolve()) +
@@ -225,10 +245,12 @@ def test_live_wrong_name(vivado: str, checkpoint: Path, evidence_dir: Path | Non
                 (evidence_dir / name).write_bytes((work / name).read_bytes())
             (evidence_dir / "exit-code.txt").write_text(f"{result.returncode}\n")
         assert "[Vivado 12-4739]" in emitted and "[Designutils 20-1307]" in emitted
+        assert "[Vivado 12-5201]" in emitted
         try:
             check_implementation_log(log)
         except RuntimeError as exc:
             assert "12-4739" in str(exc) and "20-1307" in str(exc)
+            assert "12-5201" in str(exc)
             print(str(exc))
         else:
             raise AssertionError("live planted wrong clock name accepted")
@@ -245,6 +267,8 @@ if __name__ == "__main__":
     test_generated_constraints()
     test_scoped_exceptions()
     test_log_gate()
+    from test_shipping_clock_constraints import test_shipping_constraints
+    test_shipping_constraints()
     if args.vivado or args.checkpoint:
         if not (args.vivado and args.checkpoint):
             parser.error("--vivado and --checkpoint are required together")

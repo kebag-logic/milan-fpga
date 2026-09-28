@@ -61,11 +61,20 @@ def add_eth_constraints(platform: Any, crg: Any, eth_rx: Any) -> None:
 def check_implementation_log(path: Path) -> None:
     """Refuse missing logs and emitted constraint-application diagnostics on every board."""
     pattern = re.compile(r"^(?:CRITICAL WARNING|WARNING|ERROR):\s+"
-                         r"\[(?:Vivado 12-4739|Designutils 20-1307)\]")
-    with path.open(encoding="utf-8", errors="replace") as stream:
-        findings = [(number, line.strip()) for number, line in enumerate(stream, 1)
-                    if pattern.match(line)]
-    if findings:
-        details = "\n".join(f"{path}:{number}: {line}" for number, line in findings)
-        raise RuntimeError("constraint application failed (#607):\n" + details)
-    print(f"[constraints] {path}: no 12-4739 or 20-1307 diagnostics")
+                         r"\[(?:Vivado 12-(?:4739|5201)|Designutils 20-1307)\]")
+    try:
+        with path.open(encoding="utf-8", errors="replace") as stream:
+            findings = [(number, line.strip()) for number, line in enumerate(stream, 1)
+                        if pattern.match(line)]
+        if findings:
+            details = "\n".join(f"{path}:{number}: {line}" for number, line in findings)
+            raise RuntimeError("constraint application failed (#607):\n" + details)
+    except (OSError, RuntimeError):
+        # write_bitstream has already run. Keep refused bytes for diagnosis,
+        # outside deploy.sh's newest-*.bit discovery, including on a rebuild.
+        for bitstream in path.parent.glob("*.bit"):
+            rejected = bitstream.with_suffix(".bit.rejected")
+            bitstream.replace(rejected)
+            print(f"[constraints] quarantined {bitstream} as {rejected}")
+        raise
+    print(f"[constraints] {path}: no 12-4739, 20-1307 or 12-5201 diagnostics")

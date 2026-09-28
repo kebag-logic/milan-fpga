@@ -27555,11 +27555,11 @@ def test_nvm_firmware_shapes() -> None:
 
 
 def test_clock_crossing_constraints() -> None:
-    """Run the generated-clock, scoped-exception and implementation-log controls."""
+    """Run shipping elaborations, scoped exceptions and implementation-log controls."""
     python = _litex_or_skip("607 clock constraints")
     if python is not None:
         subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
-                       check=True, cwd=ROOT, timeout=120)
+                       check=True, cwd=ROOT, timeout=2700)
 
 
 if __name__ == "__main__":

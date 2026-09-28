@@ -1,7 +1,10 @@
 #!/bin/bash
 # 3-seed Vivado place-directive sweep (bench rule: saturate the box, max 3
 # parallel instances at 32 threads). Usage: sweep.sh <arty|ax7101> <tag>
-# Bits land in $WORK/build_<board>_{asl,eto,eppo}_<tag>; pick by WNS:
+# Bits land in $WORK/build_<board>_{asl,eto,eppo}_<tag>. Exclude refused seeds:
+# require a successful launch log, flashboot_layout.json and an unquarantined
+# .bit before comparing WNS. Rejected constraints leave only .bit.rejected.
+# Inspect timing only among accepted seeds (BUILDING.md section 5):
 #   grep -A6 "Design Timing Summary" build_*_<tag>/gateware/vivado.log
 #
 # Shape override (a non-default end-station config for this board):

@@ -342,6 +342,10 @@ See the [register map](../reference/REGISTER_MAP.md) and
 
 Inspect generated constraints for the exact configuration and dependencies.
 Clock labels alone do not establish safe data transfer.
+Ethernet bounds live in the generated build Tcl, outside XDC.
+Inspect `milan_eth_constraints` between `synth_design` and `opt_design`.
+See [BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
+for exception scope and required implementation evidence.
 
 - `_CRG` requests exact main-PLL output ratios with `margin=0`.
 - It false-paths `sys`↔`milan` and selected audio crossings.

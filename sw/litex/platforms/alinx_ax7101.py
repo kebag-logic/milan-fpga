@@ -298,6 +298,8 @@ class Platform(Xilinx7SeriesPlatform):
         Xilinx7SeriesPlatform.__init__(self, "xc7a100t-fgg484-2", _io, _connectors,
                                        toolchain=toolchain)
         if toolchain == "vivado":
+            # Replace before adding any hooks; state on the old toolchain
+            # would be discarded. Keep all hook configuration below this.
             self.toolchain = BoundedEthVivadoToolchain()
         self.toolchain.bitstream_commands = [
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]",

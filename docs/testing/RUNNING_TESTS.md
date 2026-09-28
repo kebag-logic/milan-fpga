@@ -158,9 +158,15 @@ margin and run the configured placement-directive sweep; an elaboration or
 out-of-context estimate is not a substitute for the placed design.
 
 Issue #607's constraint tests run in the complete builder bank.
-They check namespace-derived clocks, scoped MultiReg exceptions, conditional
-quasi-static constraints, and implementation-log refusal on `12-4739` and
-`20-1307`. A live planted wrong clock name can also be checked against a
+They elaborate both shipping AX7101 configurations with either GMII port.
+The real build Tcl must carry the namespace-derived clock hook.
+It must run between synthesis and optimization.
+The generated XDC must omit the generic MultiReg false path.
+These elaborations compile no firmware and run no vendor implementation.
+Other controls check exception scope and conditional quasi-static constraints.
+Log controls refuse `12-4739`, `20-1307` and `12-5201`.
+Refused bitstreams must become `*.bit.rejected`, outside automatic discovery.
+A live planted wrong clock name can also be checked against a
 read-only routed checkpoint, using an interpreter with the build packages:
 
 ```sh

@@ -516,8 +516,13 @@ are not required. Bench roles as of 2026-09-06:
 
 Every completed implementation is checked for rejected constraints (#607).
 `milan_soc.py` reads `gateware/vivado.log` before publishing the flash manifest.
-An emitted `12-4739` or `20-1307` diagnostic fails the build on every board.
+Emitted `12-4739`, `20-1307` and `12-5201` diagnostics fail every board's build.
 An absent log also fails. All launchers use this same check.
+Refusal renames adjacent `*.bit` files to `*.bit.rejected`.
+This also applies when the implementation log cannot be read.
+Rejected bytes remain available for diagnosis, outside automatic bitstream discovery.
+Only compare seeds whose launch succeeded and flash manifest exists.
+Require an unquarantined bitstream too; timing summaries alone cannot qualify.
 
 AX7101 Ethernet data crossings to and from the system and Milan clocks have
 an 8 ns datapath-only bound. Clock selections derive from the SoC signals.

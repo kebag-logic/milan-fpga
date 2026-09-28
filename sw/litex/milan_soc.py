@@ -1497,10 +1497,9 @@ class MilanMAC(LiteXModule):
         # review). MII: the DP83848 drives BOTH pad clocks at 25 MHz. GMII:
         # the RTL8211E drives RXC at 125 MHz and liteeth forwards the TX
         # domain off the same clock (gtx = rxc), so the one constraint
-        # propagates to both. Each PHY clock is its own asynchronous group:
-        # the crossings into sys/milan are gray-coded AsyncFIFOs whose
-        # synchronizers LiteX already false-paths, and without the group
-        # Vivado would time those crossings as same-PLL related paths.
+        # propagates to both. MII retains asynchronous clock groups. GMII
+        # data crossings into sys/milan carry an 8 ns datapath-only bound;
+        # the SoC hook scopes LiteX's MultiReg false paths off those pairs.
         eth_clk_groups = ["eth_clocks%d_rx" % phy_index]
         if phy_model == "mii":
             platform.add_period_constraint(clk_pads.rx, 1e9/25e6)
