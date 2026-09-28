@@ -1,0 +1,18 @@
+
+### 2026-09-28T16:01:14+0200 timeout=30.0
+
+# printf '%s_READY\n' A403_271713
+A403_271713_READY
+# printf '%s_B\n' A403_271713; cat /proc/uptime; grep -E '^ *(125|143):' /proc/innterrupts; grep hw_ptr /proc/asound/card0/pcm0c/sub0/status; sleep 5; cat /proc/uuptime; grep -E '^ *(125|143):' /proc/interrupts; grep hw_ptr /proc/asound/card0//pcm0c/sub0/status; printf '\n%s_E rc=%s\n' A403_271713 $?
+A403_271713_B
+10026.27 28877.77
+125:    2156811          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:      53829          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+hw_ptr      : 4056
+10031.29 28891.33
+125:    2158065          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:      53860          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+hw_ptr      : 6620
+
+A403_271713_E rc=0
+# 

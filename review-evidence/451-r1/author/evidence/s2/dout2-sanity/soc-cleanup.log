@@ -1,0 +1,11 @@
+
+### 2026-09-28T16:21:00+0200 timeout=30.0
+
+# printf '%s_READY\n' A403_245233
+A403_245233_READY
+# printf '%s_B\n' A403_245233; rm -f /tmp/a403-dout2-sanity.raw; ls /tmp; printf  '\n%s_E rc=%s\n' A403_245233 $?
+A403_245233_B
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+
+A403_245233_E rc=0
+# 

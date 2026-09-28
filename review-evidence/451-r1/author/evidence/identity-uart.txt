@@ -1,0 +1,84 @@
+### 2026-09-28T12:03:58.819737Z cmd='milan_status' elapsed=0.032s
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded
+GPTP_GM=<grandmaster-id> GPTP_PARENT=<grandmaster-id> PDELAY_NS=385 AS_PATH_COUNT=1 AS_PATH_GEN=1 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 TU=0 GPTP_LAT=029000db
+TAI_NS=0x00003ad0c044c2e3
+[92;1mlitex[0m> 
+### 2026-09-28T12:03:58.851612Z cmd='mem_list' elapsed=0.041s
+mem_list
+Available memory regions:
+Region    Origin     End        Size 
+PLIC      0xf0c00000 0xf0ffffff 0x400000 
+CLINT     0xf0010000 0xf001ffff 0x10000 
+ROM       0x00000000 0x0001ffff 0x20000 
+SRAM      0x10000000 0x10001fff 0x2000 
+MAIN_RAM  0x40000000 0x7fffffff 0x40000000 
+SPIFLASH  0x01000000 0x01ffffff 0x1000000 
+MILAN_CSR 0x90000000 0x9000ffff 0x10000 
+CSR       0xf0000000 0xf000ffff 0x10000 
+[92;1mlitex[0m> 
+### 2026-09-28T12:03:58.892232Z cmd='crc 0x00000000 52216' elapsed=0.061s
+crc 0x00000000 52216
+CRC32: 9b6576a9
+[92;1mlitex[0m> 
+### 2026-09-28T12:03:58.953582Z cmd='crc 0x01000000 3825788' elapsed=23.424s
+crc 0x01000000 3825788
+CRC32: 3c18c276
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.377240Z cmd='crc 0x01400000 7352' elapsed=0.053s
+crc 0x01400000 7352
+CRC32: 93742dd2
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.430114Z cmd='mem_read 0x90000654 12' elapsed=0.014s
+mem_read 0x90000654 12
+Memory dump:
+0x90000654  01 00 02 00 01 fe 00 f0 e0 91 00 00              ............    
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.444501Z cmd='mem_read 0x900006a4 4' elapsed=0.014s
+mem_read 0x900006a4 4
+Memory dump:
+0x900006a4  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.458782Z cmd='mem_read 0x900006b8 20' elapsed=0.021s
+mem_read 0x900006b8 20
+Memory dump:
+0x900006b8  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x900006c8  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.480181Z cmd='mem_read 0x900006cc 12' elapsed=0.014s
+mem_read 0x900006cc 12
+Memory dump:
+0x900006cc  01 02 00 00 0a 3f 00 00 06 00 00 00              .....?......    
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.494560Z cmd='mem_read 0x90000788 4' elapsed=0.014s
+mem_read 0x90000788 4
+Memory dump:
+0x90000788  02 00 03 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.508915Z cmd='mem_read 0x900008b4 44' elapsed=0.028s
+mem_read 0x900008b4 44
+Memory dump:
+0x900008b4  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x900008c4  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x900008d4  00 00 00 00 ba 29 00 00 00 01 00 00              .....)......    
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.537196Z cmd='mem_read 0x900008d4 12' elapsed=0.014s
+mem_read 0x900008d4 12
+Memory dump:
+0x900008d4  00 00 00 00 ba 29 00 00 00 01 00 00              .....)......    
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.551564Z cmd='mem_read 0x90000900 4' elapsed=0.014s
+mem_read 0x90000900 4
+Memory dump:
+0x90000900  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.565849Z cmd='mem_read 0x900006dc 4' elapsed=0.014s
+mem_read 0x900006dc 4
+Memory dump:
+0x900006dc  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-09-28T12:04:22.580128Z cmd='mem_read 0x90000694 8' elapsed=0.014s
+mem_read 0x90000694 8
+Memory dump:
+0x90000694  00 00 00 00 00 00 00 00                          ........        
+[92;1mlitex[0m> 

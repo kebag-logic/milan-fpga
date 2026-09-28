@@ -1,0 +1,45 @@
+
+### 2026-09-28T16:06:02+0200 timeout=130.0
+
+# printf '%s_READY\n' A403_442619
+A403_442619_READY
+# printf '%s_B\n' A403_442619; cat /proc/uptime; grep -E '^ *(95|107):' /proc/intterrupts; while cat /tmp/a403-din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c  8 -f S32_LE -r 48000 -d 70; echo aplay_rc=$?; cat /proc/uptime; grep -E '^ *(95||107):' /proc/interrupts; ls /tmp; df -k /tmp | tail -1; printf '\n%s_E rc=%s\n'  A403_442619 $?
+A403_442619_B
+10314.53 29682.45
+ 95:       2288          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         24          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+Playing raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : PLAYBACK
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 16384
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+aplay_rc=0
+10384.59 29960.24
+ 95:       3936          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         26          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+[0;0ma403-din.raw[m  [1;34mdbus[m          [0;0mmessages[m      [0;0mmessages.0[m
+tmpfs                   209560      2296    207264   1% /tmp
+
+A403_442619_E rc=0
+# 

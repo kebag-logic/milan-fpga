@@ -1,0 +1,49 @@
+
+### 2026-09-28T14:21:33+0200 timeout=63.0
+
+# printf '%s_READY\n' A403_313279
+A403_313279_READY
+# printf '%s_B\n' A403_313279; cat /proc/uptime; arecord -v -D hw:0,0 -c 8 -f S32
+2_LE -r 48000 -t raw -d 3 /tmp/a403-dout-pre1.raw; echo arecord_rc=$?; cat /proc/
+/uptime; ls -l /tmp/a403-dout-pre1.raw; sha256sum /tmp/a403-dout-pre1.raw; if wge
+et -q -O - --post-file /tmp/a403-dout-pre1.raw http://<ecm-host>:18403/dout-pre1
+1.raw; then rm -f /tmp/a403-dout-pre1.raw; fi; ls /tmp; df -k /tmp | tail -1; pri
+intf '\n%s_E rc=%s\n' A403_313279 $?
+A403_313279_B
+4045.52 11069.60
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '/tmp/a403-dout-pre1.raw' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+arecord_rc=0
+4048.57 11081.61
+-rw-r--r--    1 root     root       4608000 Jan  1 01:07 [0;0m/tmp/a403-dout-pre1.raw[m
+cb228af4065a8be95006792a8199172366d0b63a4d39ce365f9591246861db16  /tmp/a403-dout-pre1.raw
+OK
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+tmpfs                   209560       360    209200   0% /tmp
+
+A403_313279_E rc=0
+# 

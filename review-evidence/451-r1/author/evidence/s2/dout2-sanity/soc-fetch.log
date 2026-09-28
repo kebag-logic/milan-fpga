@@ -1,0 +1,24 @@
+
+### 2026-09-28T16:15:56+0200 timeout=150.0
+
+# printf '%s_READY\n' A403_500906
+A403_500906_READY
+# printf '%s_B\n' A403_500906; printf 'XF%s\n' ER_BEGIN; xz -3 -c /tmp/a403-dout22-sanity.raw | base64; printf 'XF%s\n' ER_END; printf '\n%s_E rc=%s\n' A403_5009006 $?
+A403_500906_B
+XFER_BEGIN
+xz: invalid option -- '3'
+BusyBox v1.38.0 (2026-09-16 14:56:54 CEST) multi-call binary.
+
+Usage: xz -d [-cfk] [FILE]...
+
+Decompress FILEs (or stdin)
+
+	-d	Decompress
+	-c	Write to stdout
+	-f	Force
+	-k	Keep input files
+	-t	Test integrity
+XFER_END
+
+A403_500906_E rc=0
+# 

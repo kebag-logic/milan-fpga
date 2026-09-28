@@ -1,0 +1,12 @@
+
+### 2026-09-28T16:16:22+0200 timeout=30.0
+
+# printf '%s_READY\n' A403_940384
+A403_940384_READY
+# printf '%s_B\n' A403_940384; busybox --list | grep -E '^(bzip2|gzip|lzop|lzma|xxz|unxz|uuencode|base64|od|hexdump|awk)$' | tr '\n' ' '; echo; ls -l /tmp/a403-doout2-sanity.raw; printf '\n%s_E rc=%s\n' A403_940384 $?
+A403_940384_B
+awk base64 gzip hexdump lzma od unxz uuencode xz 
+-rw-r--r--    1 root     root       4608000 Jan  1 03:01 [0;0m/tmp/a403-dout2-sanity.raw[m
+
+A403_940384_E rc=0
+# 

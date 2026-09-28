@@ -1,0 +1,20 @@
+
+### 2026-09-28T16:04:11+0200 timeout=180.0
+
+# printf '%s_READY\n' A403_457560
+A403_457560_READY
+# printf '%s_B\n' A403_457560; cat /proc/uptime; awk 'BEGIN{for(n=0;n<65536;n++){{h=sprintf("00%02x%02x",n%256,int(n/256));s="";for(c=1;c<=8;c++)s=s h sprintf("%002x",c);print s}}' | xxd -r -p > /tmp/a403-din.raw; echo build_rc=$?; cat /proc/uuptime; stat -c %s /tmp/a403-din.raw; echo 'b6a92e9724e945354c3f8fc5178cec7bb8fd00e62d52bd9ee7f13ed5347bfa97c  /tmp/a403-din.raw' | sha256sum -c; echo check_rc=$??; od -A d -t x1 /tmp/a403-din.raw | head -3; rm -f /tmp/a403-din.raw; ls /tmp; pprintf '\n%s_E rc=%s\n' A403_457560 $?
+A403_457560_B
+10203.33 29356.29
+build_rc=0
+10207.64 29362.68
+-bash: stat: command not found
+/tmp/a403-din.raw: OK
+check_rc=0
+0000000 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04
+0000016 00 00 00 05 00 00 00 06 00 00 00 07 00 00 00 08
+0000032 00 01 00 01 00 01 00 02 00 01 00 03 00 01 00 04
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+
+A403_457560_E rc=0
+# 

@@ -1,0 +1,49 @@
+
+### 2026-09-28T14:28:12+0200 timeout=130.0
+
+# printf '%s_READY\n' A403_191969
+A403_191969_READY
+# printf '%s_B\n' A403_191969; cat /proc/uptime; arecord -v -D hw:0,0 -c 8 -f S32
+2_LE -r 48000 -t raw -d 70 /tmp/a403-dout-long.raw; echo arecord_rc=$?; cat /proc
+c/uptime; ls -l /tmp/a403-dout-long.raw; sha256sum /tmp/a403-dout-long.raw; if tf
+ftp -p -b 1428 -l /tmp/a403-dout-long.raw -r dout-long.raw <ecm-host> 18403; the
+en echo tftp_ok; rm -f /tmp/a403-dout-long.raw; fi; ls /tmp; df -k /tmp | tail -1
+1; printf '\n%s_E rc=%s\n' A403_191969 $?
+A403_191969_B
+4444.32 12661.26
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '/tmp/a403-dout-long.raw' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+arecord_rc=0
+4514.36 12936.82
+-rw-r--r--    1 root     root     107520000 Jan  1 01:15 [0;0m/tmp/a403-dout-long.raw[m
+b025b92f13104386edc8897555f7fe2765945ab915683b3e4f27f861efc5963d  /tmp/a403-dout-long.raw
+tftp_ok
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+tmpfs                   209560       396    209164   0% /tmp
+
+A403_191969_E rc=0
+# 

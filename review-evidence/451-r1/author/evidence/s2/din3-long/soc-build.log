@@ -1,0 +1,15 @@
+
+### 2026-09-28T16:11:16+0200 timeout=180.0
+
+# printf '%s_READY\n' A403_191617
+A403_191617_READY
+# printf '%s_B\n' A403_191617; cat /proc/uptime; awk 'BEGIN{for(n=0;n<65536;n++){{h=sprintf("00%02x%02x",n%256,int(n/256));s="";for(c=1;c<=8;c++)s=s h sprintf("%002x",c);print s}}' | xxd -r -p > /tmp/a403-din.raw; echo build_rc=$?; cat /proc/uuptime; wc -c < /tmp/a403-din.raw; echo 'b6a92e9724e945354c3f8fc5178cec7bb8fd0e622d52bd9ee7f13ed5347bfa97c  /tmp/a403-din.raw' | sha256sum -c; printf '\n%s_E rc=%%s\n' A403_191617 $?
+A403_191617_B
+10628.75 30935.56
+build_rc=0
+10633.05 30947.49
+2097152
+/tmp/a403-din.raw: OK
+
+A403_191617_E rc=0
+# 

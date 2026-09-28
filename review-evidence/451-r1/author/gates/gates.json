@@ -1,0 +1,63 @@
+{
+ "head": "361d1f47fe29ada509f99813001369188217eaaa",
+ "base": "6d5ebd7357c1e468e446f18a61527c5be6118a04",
+ "cwd": "$LANES/451-tdm8-first-light (physical path)",
+ "interpreters": "system python3 3.14 with pyyaml for gates 1, 2, 5, 6, 7; a throwaway venv holding tools/markdown/requirements.txt (pinned renderer) for gates 3 and 4",
+ "piped": false,
+ "gates": [
+  {
+   "n": 1,
+   "command": "python3 scripts/docs_check.py",
+   "rc": 0,
+   "log": "gates/gate-1.txt"
+  },
+  {
+   "n": 2,
+   "command": "python3 scripts/check_doc_style.py",
+   "rc": 0,
+   "log": "gates/gate-2.txt"
+  },
+  {
+   "n": 3,
+   "command": "<pinned-markdown-venv>/bin/python3 scripts/gen_toc.py --check",
+   "rc": 0,
+   "log": "gates/gate-3.txt"
+  },
+  {
+   "n": 4,
+   "command": "<pinned-markdown-venv>/bin/python3 scripts/check_em_dash.py --base 6d5ebd73",
+   "rc": 0,
+   "log": "gates/gate-4.txt"
+  },
+  {
+   "n": 5,
+   "command": "python3 scripts/check_doc_paths.py",
+   "rc": 0,
+   "log": "gates/gate-5.txt"
+  },
+  {
+   "n": 6,
+   "command": "python3 scripts/ci_scope.py --selftest",
+   "rc": 0,
+   "log": "gates/gate-6.txt"
+  },
+  {
+   "n": 7,
+   "command": "python3 scripts/check_baremetal_only.py --check",
+   "rc": 0,
+   "log": "gates/gate-7.txt"
+  },
+  {
+   "n": 8,
+   "command": "git diff --check",
+   "rc": 0,
+   "log": "gates/gate-8.txt"
+  },
+  {
+   "n": 9,
+   "command": "git diff --check 6d5ebd73 HEAD",
+   "rc": 0,
+   "log": "gates/gate-9.txt"
+  }
+ ]
+}

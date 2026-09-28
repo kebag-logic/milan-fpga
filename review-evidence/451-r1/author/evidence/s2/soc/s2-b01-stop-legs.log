@@ -1,0 +1,30 @@
+
+### 2026-09-28T16:05:33+0200 timeout=60.0
+
+# printf '%s_READY\n' A403_574160
+A403_574160_READY
+printf '%s_B\n' A403_574160; A=$(tr '\0' ' ' < /proc/911/cmdline# printf '%s_B\n' A403_574160; A=$(tr '\0' ' ' < /proc/911/cmdline); B=$(tr '\0'  ' ' < /proc/912/cmdline); echo "911: $A"; echo "912: $B"; if [ "$A" = 'alsaloop  -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z ' ] && [ "$$B" = 'alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S sampleratee -z ' ]; then kill 911 912; echo KILLED; else echo MISMATCH_NOT_KILLED; fi; sleeep 2; ls -d /proc/911 /proc/912 2>&1; for s in /proc/asound/card*/pcm*/sub0/statuus; do echo "$s: $(head -1 $s)"; done; tdm8-uac2.sh status | sed -n '/bridge/,/PCCM/p'; grep -E '^ *(95|107|125|143):' /proc/interrupts; cat /proc/uptime; dmesg || tail -2; printf '\n%s_E rc=%s\n' A403_574160 $?
+A403_574160_B
+911: alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+912: alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+KILLED
+ls: /proc/911: No such file or directory
+ls: /proc/912: No such file or directory
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+--- bridge ---
+from-host: DEAD
+to-host: DEAD
+--- PCM state ---
+ 95:       2288          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         24          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:    2221617          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:      55450          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+10288.22 29582.89
+[    7.141153] configfs-gadget.g gadget.0: MAC 6a:65:62:6f:6f:20
+[   17.379613] ti_sci_pm_domains 44043000.system-controller:power-controller: sync_state() pending due to fd00000.gpu
+
+A403_574160_E rc=0
+# 

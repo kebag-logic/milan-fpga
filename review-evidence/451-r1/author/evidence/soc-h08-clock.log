@@ -1,0 +1,90 @@
+
+### 2026-09-28T14:12:04+0200 timeout=60.0
+
+# printf '%s_READY\n' A403_832367
+A403_832367_READY
+# printf '%s_B\n' A403_832367; cat /proc/uptime; grep -E '^ *(125|143|95|107|473|
+|474):' /proc/interrupts; cat /proc/uptime; sleep 20; cat /proc/uptime; grep -E '
+'^ *(125|143|95|107|473|474):' /proc/interrupts; cat /proc/uptime; sed -n '180,24
+40p' $(command -v tdm8-uac2.sh); printf '\n%s_E rc=%s\n' A403_832367 $?
+A403_832367_B
+3475.96 9487.39
+ 95:        248          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         16          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:     851010          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:      21226          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+473:          0          0          0          0    GICv3 267 Level     2b00000.audio-controller_rx
+474:          0          0          0          0    GICv3 268 Level     2b00000.audio-controller_tx
+3475.97 9487.41
+3495.98 9541.39
+ 95:        248          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         16          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:     856007          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:      21351          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+473:          0          0          0          0    GICv3 267 Level     2b00000.audio-controller_rx
+474:          0          0          0          0    GICv3 268 Level     2b00000.audio-controller_tx
+3496.00 9541.41
+
+	mkdir -p "$G/configs/c.1/strings/0x409"
+	echo "TDM8 ${TDM8_CHANNELS}ch @ ${TDM8_RATE} Hz" > "$G/configs/c.1/strings/0x409/configuration"
+	echo 250 > "$G/configs/c.1/MaxPower"
+	ln -sf "$f" "$G/configs/c.1/"
+	if [ "$TDM8_ECM" = yes ]; then ln -sf "$G/functions/ecm.usb0" "$G/configs/c.1/"; fi
+
+	if command -v udevadm >/dev/null 2>&1; then udevadm settle -t 5 || true; fi
+	echo "$udc" > "$G/UDC"
+
+	if [ "$TDM8_ECM" = yes ] && [ -n "$TDM8_USB0_IP" ]; then
+		ip addr add "$TDM8_USB0_IP" dev usb0 2>/dev/null || true
+		ip link set usb0 up || true
+	fi
+
+	echo "tdm8-uac2: gadget bound to $udc" \
+	     "(p_chmask=$p_chmask c_chmask=$c_chmask, dir=$TDM8_DIRECTION," \
+	     "${TDM8_RATE} Hz, ${ssize}-byte samples, OUT sync=async)"
+}
+
+# ---------------------------------------------------------------- bridge ----
+
+loop_start() { # <tag> <capture dev> <playback dev>
+	tag=$1; capt=$2; play=$3
+	command -v alsaloop >/dev/null 2>&1 \
+		|| die "alsaloop is missing (BR2_PACKAGE_ALSA_UTILS_ALSALOOP)"
+	alsaloop -C "$capt" -P "$play" \
+		 -c "$TDM8_CHANNELS" -r "$TDM8_RATE" -f "$TDM8_FORMAT" \
+		 -t "$TDM8_LATENCY_US" -S "$TDM8_SYNC" -z \
+		 >/dev/null 2>&1 &
+	echo $! > "$RUN/$tag.pid"
+	echo "tdm8-uac2: $tag $capt -> $play (pid $!)"
+}
+
+loop_stop() {
+	for p in "$RUN"/*.pid; do
+		[ -f "$p" ] || continue
+		pid=$(cat "$p")
+		kill "$pid" 2>/dev/null || true
+		rm -f "$p"
+	done
+}
+
+bridge_up() {
+	mkdir -p "$RUN"
+	loop_stop
+
+	# eudev normally modprobes these off the DT modalias; do it explicitly
+	# too so a missing uevent does not turn into a 20-second timeout
+	for m in snd-soc-davinci-mcasp snd-soc-kl-tdm8-dummy snd-soc-simple-card; do
+		modprobe "$m" 2>/dev/null || true
+	done
+
+	# only wait for the card(s) the enabled direction(s) actually need
+	case "$TDM8_DIRECTION" in
+	duplex)   need="$TDM8_CARD_ID_RX $TDM8_CARD_ID_TX" ;;
+	capture)  need="$TDM8_CARD_ID_RX" ;;
+	playback) need="$TDM8_CARD_ID_TX" ;;
+	*)        die "unsupported TDM8_DIRECTION=$TDM8_DIRECTION" ;;
+	esac
+	for c in $need; do
+
+A403_832367_E rc=0
+# 

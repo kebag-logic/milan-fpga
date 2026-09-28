@@ -1,0 +1,44 @@
+
+### 2026-09-28T14:37:52+0200 timeout=68.0
+
+# printf '%s_READY\n' A403_866370
+A403_866370_READY
+printf '%s_B\n' A403_866370; cat# printf '%s_B\n' A403_866370; cat /proc/uptime; wget -q -O - http://<ecm-host> 
+:18404/din-pattern.raw | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 8; 
+ echo aplay_rc=$?; cat /proc/uptime; ls /tmp; df -k /tmp | tail -1; printf '\n%s_
+_E rc=%s\n' A403_866370 $?
+A403_866370_B
+5024.27 14954.05
+Playing raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : PLAYBACK
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 16384
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+aplay_rc=0
+5032.36 14985.47
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+tmpfs                   209560       236    209324   0% /tmp
+
+A403_866370_E rc=0
+# 

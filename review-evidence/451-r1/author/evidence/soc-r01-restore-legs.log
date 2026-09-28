@@ -1,0 +1,54 @@
+
+### 2026-09-28T14:43:01+0200 timeout=60.0
+
+# printf '%s_READY\n' A403_132390
+A403_132390_READY
+printf '%s_B\n' A403_132390; ls # printf '%s_B\n' A403_132390; ls -la /tmp; for s in /proc/asound/card*/pcm*/sub0
+0/status; do echo "$s: $(head -1 $s)"; done; ps -o pid,args | grep [a]lsaloop; cd
+d /; nohup alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S sample
+erate -z >/dev/null 2>&1 </dev/null & echo $! > /run/tdm8/to-host.pid; nohup alsa
+aloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z >/dev/
+/null 2>&1 </dev/null & echo $! > /run/tdm8/from-host.pid; disown -a; sleep 3; ca
+at /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p' | grep -E 'running|DE
+EAD|state|owner'; cat /run/tdm8/to-host.pid /run/tdm8/from-host.pid; ps -o pid,ar
+rgs | grep [a]lsaloop; cat /sys/class/udc/*/state; echo BAD=$(dmesg | grep -ciE '
+'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Ca
+all trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; dmesg | tail -2; printf '\n%
+%s_E rc=%s\n' A403_132390 $?
+A403_132390_B
+total 256
+drwxrwxrwt    3 root     root           100 Jan  1 01:18 [1;34m.[m
+drwxr-xr-x   15 root     root          4096 Jan  1 00:00 [1;34m..[m
+drwxr-xr-x    2 root     root            60 Jan  1 00:00 [1;34mdbus[m
+-rw-r--r--    1 root     root         48664 Jan  1 01:29 [0;0mmessages[m
+-rw-r--r--    1 root     root        204823 Jan  1 01:18 [0;0mmessages.0[m
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+[1] 911
+[2] 912
+5337.03 16191.10
+from-host: running (pid 912)
+to-host: running (pid 911)
+--- PCM state ---
+state: RUNNING
+owner_pid   : 911
+state: XRUN
+owner_pid   : 912
+state: RUNNING
+owner_pid   : 912
+state: RUNNING
+owner_pid   : 911
+911
+912
+  911 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+  912 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+configured
+BAD=0
+0
+[    7.141153] configfs-gadget.g gadget.0: MAC 6a:65:62:6f:6f:20
+[   17.379613] ti_sci_pm_domains 44043000.system-controller:power-controller: sync_state() pending due to fd00000.gpu
+
+A403_132390_E rc=0
+# 

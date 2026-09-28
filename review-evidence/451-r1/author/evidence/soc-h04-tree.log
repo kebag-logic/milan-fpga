@@ -1,0 +1,48 @@
+
+### 2026-09-28T14:03:44+0200 timeout=60.0
+
+# printf '%s_READY\n' A403_530109
+A403_530109_READY
+# printf '%s_B\n' A403_530109; B=/sys/firmware/devicetree/base; find $B -name '*2
+2b00000*' -o -name 'sound*' | head; D=$(find $B -type d -name 'audio-controller@2
+2b00000' | head -1); echo D=$D; for p in status op-mode tdm-slots serial-dir tx-n
+num-evt rx-num-evt pinctrl-names; do printf '%s: ' $p; [ -e $D/$p ] && hexdump -v
+v -e '4/1 "%02x" " "' $D/$p; echo; done; for S in $(find $B -maxdepth 1 -name 'so
+ound*'); do echo SND $S; for f in $(find $S -type f); do printf '%s: ' ${f#$S/}; 
+ hexdump -v -e '16/1 "%02x" " "' $f; echo; done; done; printf '\n%s_E rc=%s\n' A4
+403_530109 $?
+A403_530109_B
+/sys/firmware/devicetree/base/sound-tdm8
+/sys/firmware/devicetree/base/sound-tdm8/simple-audio-card,cpu/sound-dai
+/sys/firmware/devicetree/base/sound-tdm8/simple-audio-card,codec/sound-dai
+/sys/firmware/devicetree/base/bus@f0000/bus@b00000/watchdog@2b000000
+/sys/firmware/devicetree/base/bus@f0000/audio-controller@2b00000
+/sys/firmware/devicetree/base/__symbols__/sound_tdm8
+D=/sys/firmware/devicetree/base/bus@f0000/audio-controller@2b00000
+status: 6f6b6179 00       
+op-mode: 00000000 
+tdm-slots: 00000008 
+serial-dir: 00000001 00000002 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+tx-num-evt: 00000020 
+rx-num-evt: 00000020 
+pinctrl-names: 64656661 756c7400 
+SND /sys/firmware/devicetree/base/sound-tdm8
+simple-audio-card,bitclock-master: 00000041                         
+simple-audio-card,name: 54444d3800                       
+simple-audio-card,format: 6473705f6100                     
+compatible: 73696d706c652d617564696f2d636172 6400                             
+simple-audio-card,cpu/dai-tdm-slot-num: 00000008                         
+simple-audio-card,cpu/sound-dai: 00000042                         
+simple-audio-card,cpu/dai-tdm-slot-width: 00000020                         
+simple-audio-card,cpu/name: 73696d706c652d617564696f2d636172 642c63707500                     
+simple-audio-card,codec/dai-tdm-slot-num: 00000008                         
+simple-audio-card,codec/phandle: 00000041                         
+simple-audio-card,codec/sound-dai: 00000043                         
+simple-audio-card,codec/dai-tdm-slot-width: 00000020                         
+simple-audio-card,codec/name: 73696d706c652d617564696f2d636172 642c636f64656300                 
+phandle: 000000cd                         
+simple-audio-card,frame-master: 00000041                         
+name: 736f756e642d74646d3800           
+
+A403_530109_E rc=0
+# 

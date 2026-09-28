@@ -1,0 +1,130 @@
+
+### 2026-09-28T16:00:09+0200 timeout=60.0
+
+# printf '%s_READY\n' A403_663859
+A403_663859_READY
+printf '%s_B\n' A403_663859; cat# printf '%s_B\n' A403_663859; cat /proc/uptime; uname -a; cat /proc/cmdline; tdmm8-uac2.sh status; echo PIDFILES; cat /run/tdm8/*.pid; ps -o pid,args | grep [a]llsaloop; echo UDC=$(cat /sys/class/udc/*/state); for s in /proc/asound/card*/pcm**/sub0/status; do echo "== $s"; head -2 $s; done; cat /proc/asound/cards; df -k //tmp | tail -1; free -k | head -2; echo BAD=$(dmesg | grep -ciE 'self-detected|rccu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Ooops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg  | grep -iE 'gadget|udc|usb' | tail -8; which awk base64 gzip gunzip xz xxd head  tr cmp; cat /proc/uptime; printf '\n%s_E rc=%s\n' A403_663859 $?
+A403_663859_B
+9962.10 28704.69
+Linux buildroot 7.1.0-tdm8-pb2 #6 SMP PREEMPT Mon Sep 28 11:59:54 CEST 2026 aarch64 GNU/Linux
+console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02800000,115200n8 no-console-suspend root=/dev/mmcblk1p2 ro rootfstype=ext4 rootwait net.ifnames=0 sysctl.kernel.panic_on_rcu_stall=1 panic=10 rcupdate.rcu_cpu_stall_cputime=1
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: running (pid 912)
+to-host: running (pid 911)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 911
+trigger_time: 9962.076445600
+tstamp      : 0.000000000
+delay       : 1304
+avail       : 1304
+avail_max   : 1537
+-----
+hw_ptr      : 7640
+appl_ptr    : 6336
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 912
+trigger_time: 5334.046432565
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 912
+trigger_time: 5334.038690885
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 911
+trigger_time: 5334.038741750
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 96
+-----
+hw_ptr      : 672
+appl_ptr    : 2208
+PIDFILES
+912
+911
+  911 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+  912 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+UDC=configured
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 911
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 912
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 912
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 911
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+tmpfs                   209560       216    209344   0% /tmp
+              total        used        free      shared  buff/cache   available
+Mem:         419124       46364      317488         352       55272      361748
+BAD=0
+0
+ 95:       2288          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         24          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:    2140859          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:      53430          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+[    0.301369] usbhid: USB HID core driver
+[    0.636341] xhci-hcd xhci-hcd.3.auto: new USB bus registered, assigned bus number 1
+[    0.644157] xhci-hcd xhci-hcd.3.auto: USB0 root hub has no ports
+[    0.666666] hub 1-0:1.0: USB hub found
+[    7.109294] configfs-gadget.g gadget.0: FS Playback: Req. wMaxPacketSize 1568 at bInterval 1 > max ISOC 1023, may drop data!
+[    7.120633] configfs-gadget.g gadget.0: FS Capture: Req. wMaxPacketSize 1568 at bInterval 1 > max ISOC 1023, may drop data!
+[    7.134746] configfs-gadget.g gadget.0: HOST MAC 6a:65:62:6c:6f:22
+[    7.141153] configfs-gadget.g gadget.0: MAC 6a:65:62:6f:6f:20
+/usr/bin/awk
+/usr/bin/base64
+/usr/bin/gzip
+/usr/bin/gunzip
+/usr/bin/xz
+/usr/bin/xxd
+/usr/bin/head
+/usr/bin/tr
+/usr/bin/cmp
+9962.36 28705.08
+
+A403_663859_E rc=0
+# 

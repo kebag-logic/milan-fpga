@@ -1,0 +1,441 @@
+{
+ "file": "din3-long.pcap",
+ "bytes": 189720730,
+ "sha256": "2ab93c0bc7e6c1710b3a2212e0b833d933b5b09529e32e28eae9aebedd5da66d",
+ "stream_id": "0200000000010000",
+ "pdus": 758870,
+ "frames": 4553220,
+ "sequence_gaps": 0,
+ "header_mismatch": 0,
+ "region": {
+  "first_frame": 150490,
+  "last_frame": 3510524,
+  "frames": 3360035,
+  "seconds_at_48k": 70.001,
+  "wall_span_s": 70.000958
+ },
+ "incomplete_frames_in_region": 0,
+ "per_channel": [
+  {
+   "stream_channel": 0,
+   "expected_tag": 1,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358647,
+    "0": 711,
+    "+2": 676
+   }
+  },
+  {
+   "stream_channel": 1,
+   "expected_tag": 2,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358647,
+    "0": 711,
+    "+2": 676
+   }
+  },
+  {
+   "stream_channel": 2,
+   "expected_tag": 3,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358598,
+    "0": 736,
+    "+2": 700
+   }
+  },
+  {
+   "stream_channel": 3,
+   "expected_tag": 4,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358598,
+    "0": 736,
+    "+2": 700
+   }
+  },
+  {
+   "stream_channel": 4,
+   "expected_tag": 5,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358602,
+    "0": 734,
+    "+2": 698
+   }
+  },
+  {
+   "stream_channel": 5,
+   "expected_tag": 6,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358602,
+    "0": 734,
+    "+2": 698
+   }
+  },
+  {
+   "stream_channel": 6,
+   "expected_tag": 7,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358602,
+    "0": 734,
+    "+2": 698
+   }
+  },
+  {
+   "stream_channel": 7,
+   "expected_tag": 8,
+   "words": {
+    "own_tag": 3360035
+   },
+   "steps": {
+    "+1": 3358602,
+    "0": 734,
+    "+2": 698
+   }
+  }
+ ],
+ "left_right_mismatch_per_pair": [
+  0,
+  0,
+  0,
+  0
+ ],
+ "pair_offset_vs_pair0": {
+  "[0, 0, 0]": 1092167,
+  "[0, 0, -1]": 761510,
+  "[0, -1, -1]": 761459,
+  "[-1, -1, -1]": 744899
+ },
+ "offset_state_runs": {
+  "changes": 5687,
+  "transitions": {
+   "[0, -1, -1]->[-1, -1, -1]": 736,
+   "[0, 0, 0]->[0, 0, -1]": 734,
+   "[0, 0, -1]->[0, -1, -1]": 734,
+   "[-1, -1, -1]->[0, 0, 0]": 711,
+   "[-1, -1, -1]->[0, -1, -1]": 700,
+   "[0, 0, -1]->[0, 0, 0]": 698,
+   "[0, -1, -1]->[0, 0, -1]": 698,
+   "[0, 0, 0]->[-1, -1, -1]": 676
+  },
+  "runs": {
+   "[0, 0, 0]": {
+    "count": 1410,
+    "min": 1,
+    "max": 30477,
+    "mean": 774.6
+   },
+   "[0, 0, -1]": {
+    "count": 1432,
+    "min": 1,
+    "max": 21096,
+    "mean": 531.8
+   },
+   "[0, -1, -1]": {
+    "count": 1434,
+    "min": 1,
+    "max": 21096,
+    "mean": 531.0
+   },
+   "[-1, -1, -1]": {
+    "count": 1412,
+    "min": 1,
+    "max": 21096,
+    "mean": 527.5
+   }
+  }
+ },
+ "step_clusters": [
+  {
+   "stream_channel": 0,
+   "events": 1387,
+   "clusters": 35,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 35
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 237364,
+     "last_frame": 237421,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 331357,
+     "last_frame": 331414,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 425347,
+     "last_frame": 425404,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 1,
+   "events": 1387,
+   "clusters": 35,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 35
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 237364,
+     "last_frame": 237421,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 331357,
+     "last_frame": 331414,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 425347,
+     "last_frame": 425404,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 2,
+   "events": 1436,
+   "clusters": 36,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 36
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 216211,
+     "last_frame": 216271,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    },
+    {
+     "first_frame": 310204,
+     "last_frame": 310261,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 404194,
+     "last_frame": 404254,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 3,
+   "events": 1436,
+   "clusters": 36,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 36
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 216211,
+     "last_frame": 216271,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    },
+    {
+     "first_frame": 310204,
+     "last_frame": 310261,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 404194,
+     "last_frame": 404254,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 4,
+   "events": 1432,
+   "clusters": 36,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 36
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 195061,
+     "last_frame": 195118,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 289051,
+     "last_frame": 289111,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    },
+    {
+     "first_frame": 383044,
+     "last_frame": 383101,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 5,
+   "events": 1432,
+   "clusters": 36,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 36
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 195061,
+     "last_frame": 195118,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 289051,
+     "last_frame": 289111,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    },
+    {
+     "first_frame": 383044,
+     "last_frame": 383101,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 6,
+   "events": 1432,
+   "clusters": 36,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 36
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 173908,
+     "last_frame": 173965,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 267898,
+     "last_frame": 267958,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    },
+    {
+     "first_frame": 361891,
+     "last_frame": 361948,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    }
+   ]
+  },
+  {
+   "stream_channel": 7,
+   "events": 1432,
+   "clusters": 36,
+   "cluster_gap_min": 93990,
+   "cluster_gap_max": 93993,
+   "net_skips_minus_repeats_per_cluster": {
+    "-1": 36
+   },
+   "other_steps": 0,
+   "first_clusters": [
+    {
+     "first_frame": 173908,
+     "last_frame": 173965,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    },
+    {
+     "first_frame": 267898,
+     "last_frame": 267958,
+     "repeats": 21,
+     "skips": 20,
+     "other": 0
+    },
+    {
+     "first_frame": 361891,
+     "last_frame": 361948,
+     "repeats": 20,
+     "skips": 19,
+     "other": 0
+    }
+   ]
+  }
+ ]
+}

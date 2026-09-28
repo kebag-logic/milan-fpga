@@ -1,0 +1,44 @@
+
+### 2026-09-28T16:15:52+0200 timeout=63.0
+
+# printf '%s_READY\n' A403_769612
+A403_769612_READY
+# printf '%s_B\n' A403_769612; cat /proc/uptime; arecord -v -D hw:0,0 -c 8 -f S322_LE -r 48000 -t raw -d 3 /tmp/a403-dout2-sanity.raw; echo arecord_rc=$?; cat /prroc/uptime; wc -c < /tmp/a403-dout2-sanity.raw; sha256sum /tmp/a403-dout2-sanity..raw; ls /tmp; df -k /tmp | tail -1; printf '\n%s_E rc=%s\n' A403_769612 $?
+A403_769612_B
+10904.31 32028.79
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '/tmp/a403-dout2-sanity.raw' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+arecord_rc=0
+10907.37 32040.79
+4608000
+0fce03df6de3a48609c4d5637acf230924581af28ccfd58038f92587b33a2f8a  /tmp/a403-dout2-sanity.raw
+[0;0ma403-dout2-sanity.raw[m  [0;0mmessages[m
+[1;34mdbus[m                   [0;0mmessages.0[m
+tmpfs                   209560      4788    204772   2% /tmp
+
+A403_769612_E rc=0
+# 

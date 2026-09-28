@@ -1,0 +1,159 @@
+
+### 2026-09-28T14:03:03+0200 timeout=60.0
+
+# printf '%s_READY\n' A403_250991
+A403_250991_READY
+# printf '%s_B\n' A403_250991; cat /proc/uptime; uname -a; date -u; cat /proc/cmd
+dline; tdm8-uac2.sh status; echo PIDFILES; cat /run/tdm8/*.pid; ps -o pid,args | 
+ grep [a]lsaloop; cat /sys/class/udc/*/state; for s in /proc/asound/card*/pcm*/su
+ub0/status; do echo "== $s"; cat $s; done; cat /proc/asound/cards; df -k /tmp /ru
+un / 2>/dev/null; free -k; echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preemp
+pt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); ca
+at /sys/kernel/rcu_stall_count /proc/sys/kernel/tainted; which python3 python nc 
+ socat sox arecord aplay od hexdump sha256sum md5sum dd; cat /proc/uptime; printf
+f '\n%s_E rc=%s\n' A403_250991 $?
+A403_250991_B
+2935.47 8029.83
+Linux buildroot 7.1.0-tdm8-pb2 #6 SMP PREEMPT Mon Sep 28 11:59:54 CEST 2026 aarch64 GNU/Linux
+Thu Jan  1 00:49:02 UTC 1970
+console=ttyS3,115200n8 earlycon=ns16550a,mmio32,0x02800000,115200n8 no-console-suspend root=/dev/mmcblk1p2 ro rootfstype=ext4 rootwait net.ifnames=0 sysctl.kernel.panic_on_rcu_stall=1 panic=10 rcupdate.rcu_cpu_stall_cputime=1
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: running (pid 404)
+to-host: running (pid 403)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 403
+trigger_time: 2935.483144735
+tstamp      : 0.000000000
+delay       : 324
+avail       : 324
+avail_max   : 1536
+-----
+hw_ptr      : 6660
+appl_ptr    : 6336
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 404
+trigger_time: 437.861053230
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 404
+trigger_time: 437.853307295
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 403
+trigger_time: 437.853363745
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+PIDFILES
+404
+403
+  403 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+  404 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+configured
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 403
+trigger_time: 2935.647559135
+tstamp      : 0.000000000
+delay       : 87
+avail       : 84
+avail_max   : 1536
+-----
+hw_ptr      : 992
+appl_ptr    : 908
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 404
+trigger_time: 437.861053230
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 404
+trigger_time: 437.853307295
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 403
+trigger_time: 437.853363745
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+Filesystem           1K-blocks      Used Available Use% Mounted on
+tmpfs                   209560       272    209288   0% /tmp
+tmpfs                   209560       136    209424   0% /run
+/dev/root              1272572    143760   1045920  12% /
+              total        used        free      shared  buff/cache   available
+Mem:         419124       46364      330692         408       42068      361748
+Swap:             0           0           0
+BAD=0
+0
+0
+/usr/bin/arecord
+/usr/bin/aplay
+/usr/bin/od
+/usr/bin/hexdump
+/usr/bin/sha256sum
+/usr/bin/md5sum
+/usr/bin/dd
+2935.73 8030.23
+
+A403_250991_E rc=0
+# 
