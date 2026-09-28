@@ -1,0 +1,35 @@
+## git diff --check 16be6768 0404675d (worktree attributes at exact head)
+rc=0
+## git diff --check 00b5c6c9 0404675d
+rc=0
+## mutation patches unchanged since 00b5c6c9 (name-status, expect empty)
+rc=0
+## hdl unchanged since 00b5c6c9 and since cf4e5c63 (expect empty)
+rc=0
+## files changed in 00b5c6c9..0404675d
+A	.gitattributes
+M	.github/workflows/hdl.yml
+M	tb/srp_top/Makefile
+M	tb/srp_top/README.md
+## .gitattributes bytes
+0000160   b   l   a   n   k   -   a   t   -   e   o   l   ,   -   b   l
+0000200   a   n   k   -   a   t   -   e   o   f  \n
+0000213
+100644 blob f6810c44251871e6a68bea626dce4c7004060f98	.gitattributes
+## check-attr whitespace
+tb/srp_top/mutations/talker-no-own.patch: whitespace: -blank-at-eol,-blank-at-eof
+tb/srp_top/mutations/sub/x.patch: whitespace: unspecified
+tb/srp_top/x.patch: whitespace: unspecified
+tb/srp_top/mutations/x.diff: whitespace: unspecified
+tb/srp_top/mutants.py: whitespace: unspecified
+tb/srp_top/sim_main.cpp: whitespace: unspecified
+hdl/srp/KL_srp_top.sv: whitespace: unspecified
+tb/srp_top/mutations/README.md: whitespace: unspecified
+docs/x.patch: whitespace: unspecified
+## patch count / + lines with trailing whitespace (expect 0)
+56
+grep_rc=1
+## - lines with trailing whitespace
+grep_rc=1
+## space-before-tab anywhere in patches
+grep_rc=1

@@ -1,0 +1,8 @@
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+7 checks: 7 PASS, 0 FAIL

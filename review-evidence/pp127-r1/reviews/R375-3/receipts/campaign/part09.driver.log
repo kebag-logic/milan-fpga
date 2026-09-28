@@ -1,0 +1,8 @@
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top phases: rc=0 PASS
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+7 checks: 7 PASS, 0 FAIL

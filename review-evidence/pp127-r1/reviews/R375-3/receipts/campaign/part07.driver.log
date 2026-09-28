@@ -1,0 +1,8 @@
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+7 checks: 7 PASS, 0 FAIL

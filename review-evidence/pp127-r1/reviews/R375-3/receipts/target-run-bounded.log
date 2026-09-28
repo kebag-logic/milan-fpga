@@ -1,0 +1,27 @@
+2026-09-28T04:18:30Z
+make: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/head/tb/srp_top'
+python3 mutants.py --output "$REVIEWS/pp127-r375-3-packet/scratch/target-run-out"
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+peer-restarts-timer: rc=2 failures=8 KILLED tags=M4
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+expiry-event: rc=2 failures=81 KILLED tags=K1,K11,K12,K2,K4,K5,K9
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+make: *** [Makefile:29: mutants] Terminated
+rc=124 (124 = bounded by the reviewer's 570 s foreground limit) seconds=570

@@ -1,0 +1,25 @@
+## P0 control: exact head, rc expected 0
+rc=0
+## P1 exemption removed from the worktree (attribute absent): rc expected 2
+rc=2
+hits: 26 trailing-whitespace, 5 blank-at-EOF, files: 23, outside mutations/: 0
+## P2 space-before-tab inserted into a mutation patch: still flagged (rc expected 2)
+tb/srp_top/mutations/talker-no-own.patch:12: space before tab in indent.
++ 	space-before-tab
+rc=2
+## P3 trailing whitespace in a non-patch file beside the patches: flagged (rc expected 2)
+tb/srp_top/README.md:333: trailing whitespace.
++x 
+rc=2
+## P4 trailing whitespace in a nested .patch below mutations/: flagged (rc expected 2)
+tb/srp_top/mutations/sub/x.patch:1: trailing whitespace.
++x 
+rc=2
+## P5 trailing whitespace on a new mutation-patch line: exempt by design (rc expected 0)
+rc=0
+## P6 git apply --check of every patch against the head hdl tree (outside any repo)
+apply --check: 56 accepted, 0 rejected
+## P7 git apply --check of every patch at the scratch clone root (in-repo; attribute present)
+apply --check in repo: 56 accepted, 0 rejected
+## final state
+0404675dcd8788d29cb15a831a8c182438bf1c92

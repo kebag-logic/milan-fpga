@@ -1,0 +1,9 @@
+control srp_encoder : rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+8 checks: 8 PASS, 0 FAIL

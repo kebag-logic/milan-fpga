@@ -1,0 +1,9 @@
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+preparation-before-slot: rc=2 failures=22 KILLED tags=M1,M10,M11,M12,M5,M6,M8
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+8 checks: 8 PASS, 0 FAIL

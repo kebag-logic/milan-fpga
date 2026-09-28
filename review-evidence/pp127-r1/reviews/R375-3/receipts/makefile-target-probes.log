@@ -1,0 +1,21 @@
+## make -n (default goal)
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp127-r375-3-packet/scratch/head-pure/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+./obj_dir/Vsrp_top_sim 
+rc=0
+## default goal from database
+.DEFAULT_GOAL := run
+## make -n mutants
+python3 mutants.py --output "/tmp/srp-leaveall-mutants"
+rc=0
+## make -n mutants MUTANT_OUTPUT=/some/dir with spaces
+python3 mutants.py --output "/some/dir with spaces"
+rc=0
+## MUTANT_OUTPUT from the environment
+python3 mutants.py --output "/env/dir"
+rc=0
+## make -n clean
+rm -rf obj_dir
+## top-level Makefile / run_suites.sh reference to mutants (expect none: suites stay positive)
+grep_rc=1
+## run_suites.sh invocation of each suite
+30:  if (cd "$d" && make) >"$log" 2>&1; then

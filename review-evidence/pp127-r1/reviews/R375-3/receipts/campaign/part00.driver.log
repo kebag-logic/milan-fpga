@@ -1,0 +1,7 @@
+control srp_top congestion: rc=0 PASS
+control srp_top phases: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,8 @@
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+7 checks: 7 PASS, 0 FAIL

@@ -1,0 +1,39 @@
+## F1 committed target, VERILATOR overridden on the make command line to a missing binary: inner suite builds must fail and the target must exit nonzero
+make: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/probe-fail/tb/srp_top'
+python3 mutants.py --output "$REVIEWS/pp127-r375-3-packet/scratch/probe-fail-out1"
+control srp_encoder : rc=2 FAIL
+make[1]: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-rsxhmjh2/tb/srp_encoder'
+/nonexistent/verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-rsxhmjh2/tb/srp_encoder -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv srp_tb_wrap.sv sim_main.cpp -o Vsrp_sim
+/bin/sh: line 1: /nonexistent/verilator: No such file or directory
+make[1]: *** [Makefile:19: run] Error 127
+make[1]: Leaving directory '$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-rsxhmjh2/tb/srp_encoder'
+
+assertion coverage: 0/49; missing=['K1', 'K10', 'K11', 'K12', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'L1', 'L2', 'L3', 'L4', 'M1', 'M10', 'M11', 'M12', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'N1', 'N10', 'N11', 'N12', 'N13', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7', 'O8']
+2 checks: 0 PASS, 2 FAIL
+make: *** [Makefile:29: mutants] Error 1
+make: Leaving directory '$REVIEWS/pp127-r375-3-packet/scratch/probe-fail/tb/srp_top'
+make_rc=2
+--- first control receipt head:
+make[1]: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-rsxhmjh2/tb/srp_encoder'
+/nonexistent/verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-rsxhmjh2/tb/srp_encoder -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv srp_tb_wrap.sv sim_main.cpp -o Vsrp_sim
+/bin/sh: line 1: /nonexistent/verilator: No such file or directory
+## F2 PATH without any verilator (no override): target must exit nonzero
+make: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/probe-fail/tb/srp_top'
+python3 mutants.py --output "$REVIEWS/pp127-r375-3-packet/scratch/probe-fail-out2"
+control srp_encoder : rc=2 FAIL
+make[1]: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-k8o1cyek/tb/srp_encoder'
+verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-k8o1cyek/tb/srp_encoder -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv srp_tb_wrap.sv sim_main.cpp -o Vsrp_sim
+/bin/sh: line 1: verilator: command not found
+make[1]: *** [Makefile:19: run] Error 127
+make[1]: Leaving directory '$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-k8o1cyek/tb/srp_encoder'
+
+assertion coverage: 0/49; missing=['K1', 'K10', 'K11', 'K12', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8', 'K9', 'L1', 'L2', 'L3', 'L4', 'M1', 'M10', 'M11', 'M12', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'N1', 'N10', 'N11', 'N12', 'N13', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7', 'O8']
+2 checks: 0 PASS, 2 FAIL
+make: *** [Makefile:29: mutants] Error 1
+make: Leaving directory '$REVIEWS/pp127-r375-3-packet/scratch/probe-fail/tb/srp_top'
+make_rc=2
+--- first control receipt head:
+make[1]: Entering directory '$REVIEWS/pp127-r375-3-packet/scratch/tmp/srp-leaveall-k8o1cyek/tb/srp_encoder'
+verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$VALIDATION_STORAGE/
+/bin/sh: line 1: verilator: command not found
+make[1]: *** [Makefile:19: run] Error 127

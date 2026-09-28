@@ -1,0 +1,103 @@
+part00.driver.log: control srp_top congestion: rc=0 PASS
+part00.driver.log: control srp_top phases: rc=0 PASS
+part01.driver.log: control srp_top guards: rc=0 PASS
+part01.driver.log: control srp_top peer: rc=0 PASS
+part01.driver.log: control srp_top phases: rc=0 PASS
+part02.driver.log: control srp_top congestion: rc=0 PASS
+part02.driver.log: control srp_top peer: rc=0 PASS
+part02.driver.log: control srp_top phases: rc=0 PASS
+part03.driver.log: control srp_top congestion: rc=0 PASS
+part03.driver.log: control srp_top guards: rc=0 PASS
+part03.driver.log: control srp_top peer: rc=0 PASS
+part03.driver.log: control srp_top phases: rc=0 PASS
+part04.driver.log: control srp_top edge: rc=0 PASS
+part04.driver.log: control srp_top guards: rc=0 PASS
+part04.driver.log: control srp_top peer: rc=0 PASS
+part05.driver.log: control srp_top congestion: rc=0 PASS
+part05.driver.log: control srp_top guards: rc=0 PASS
+part05.driver.log: control srp_top phases: rc=0 PASS
+part06.driver.log: control srp_top congestion: rc=0 PASS
+part06.driver.log: control srp_top guards: rc=0 PASS
+part06.driver.log: control srp_top peer: rc=0 PASS
+part06.driver.log: control srp_top phases: rc=0 PASS
+part07.driver.log: control srp_stream_fsms : rc=0 PASS
+part07.driver.log: control srp_top congestion: rc=0 PASS
+part07.driver.log: control srp_top guards: rc=0 PASS
+part08.driver.log: control srp_stream_fsms : rc=0 PASS
+part08.driver.log: control srp_top congestion: rc=0 PASS
+part08.driver.log: control srp_top peer: rc=0 PASS
+part08.driver.log: control srp_top phases: rc=0 PASS
+part09.driver.log: control srp_top congestion: rc=0 PASS
+part09.driver.log: control srp_top guards: rc=0 PASS
+part09.driver.log: control srp_top phases: rc=0 PASS
+part10.driver.log: control srp_top congestion: rc=0 PASS
+part10.driver.log: control srp_top guards: rc=0 PASS
+part10.driver.log: control srp_top phases: rc=0 PASS
+part11.driver.log: control srp_top edge: rc=0 PASS
+part11.driver.log: control srp_top peer: rc=0 PASS
+part11.driver.log: control srp_top phases: rc=0 PASS
+part12.driver.log: control srp_encoder : rc=0 PASS
+part12.driver.log: control srp_top edge: rc=0 PASS
+part12.driver.log: control srp_top peer: rc=0 PASS
+part12.driver.log: control srp_top phases: rc=0 PASS
+part13.driver.log: control srp_top guards: rc=0 PASS
+part13.driver.log: control srp_top peer: rc=0 PASS
+part13.driver.log: control srp_top phases: rc=0 PASS
+bad-listener-length	srp_top	phases	required=K12	KILLED	failures=1	tags=K12
+peer-restarts-timer	srp_top	peer	required=M4	KILLED	failures=8	tags=M4
+repeated-action	srp_top	congestion	required=N4	KILLED	failures=5	tags=N10,N12,N13,N4,N8
+expiry-event	srp_top	phases	required=K2	KILLED	failures=81	tags=K1,K11,K12,K2,K4,K5,K9
+before-slot	srp_top	edge	required=L1	KILLED	failures=30	tags=L1,L4
+talker-no-own	srp_top	phases	required=K2	KILLED	failures=25	tags=K2,K4,K8
+listener-no-own	srp_top	phases	required=K11	KILLED	failures=13	tags=K11,K6
+talker-lost-txla	srp_stream_fsms	-	required=T QA txla=2	KILLED	failures=12	tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla	srp_stream_fsms	-	required=L QA txla=2	KILLED	failures=12	tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv	srp_top	phases	required=K2	KILLED	failures=24	tags=K2,K4
+listener-strict-lv	srp_top	phases	required=K11	KILLED	failures=13	tags=K11,K6
+listener-sid-ignored	srp_top	phases	required=K5	KILLED	failures=33	tags=K12,K3,K5,K8
+talker-no-renewal	srp_top	phases	required=K7	KILLED	failures=1	tags=K7
+listener-no-renewal	srp_top	phases	required=K7	KILLED	failures=1	tags=K7
+talker-no-expiry	srp_top	phases	required=K8	KILLED	failures=1	tags=K8
+listener-no-expiry	srp_top	phases	required=K8	KILLED	failures=1	tags=K8
+pending-peer-ignored	srp_top	peer	required=M1	KILLED	failures=14	tags=M1,M10,M2,M3
+encoder-peer-ignored	srp_top	peer	required=M6	KILLED	failures=20	tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp	srp_top	peer	required=M1	KILLED	failures=6	tags=M1,M2,M3
+reset-retains-intent	srp_top	phases	required=K10	KILLED	failures=1	tags=K10
+full-drain-missing	srp_top	congestion	required=N6	KILLED	failures=7	tags=N10,N13,N3,N4,N5,N6,N8
+already-full-missed	srp_top	congestion	required=N10	KILLED	failures=1	tags=N10
+round-completion-lost	srp_top	congestion	required=N13	KILLED	failures=1	tags=N13
+own-flags-missing	srp_top	congestion	required=N5	KILLED	failures=4	tags=N10,N12,N5,N6
+expiry-congestion	srp_top	congestion	required=N1	KILLED	failures=5	tags=N1,N11,N12,N2,N9
+missing-registrar-edge	srp_top	edge	required=L3	KILLED	failures=38	tags=L2,L3
+empty-canceled-pdu	srp_top	peer	required=M11	KILLED	failures=1	tags=M11
+reserved-slot-not-reused	srp_top	peer	required=M12	KILLED	failures=1	tags=M12
+renewal-congestion	srp_top	congestion	required=N7	KILLED	failures=1	tags=N7
+leaveall-expiry-lost	srp_top	peer	required=M9	KILLED	failures=18	tags=M1,M10,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer	srp_top	peer	required=M10	KILLED	failures=1	tags=M10
+repeated-expiry-queued	srp_top	congestion	required=N12	KILLED	failures=1	tags=N12
+receive-priority-lost	srp_top	edge	required=L2	KILLED	failures=2	tags=L2
+action-omitted	srp_top	congestion	required=N3	KILLED	failures=6	tags=N10,N12,N13,N3,N4,N8
+preparation-before-slot	srp_top	peer	required=M5	KILLED	failures=22	tags=M1,M10,M11,M12,M5,M6,M8
+table-one-short	srp_top	congestion	required=N9	KILLED	failures=8	tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-expiry-pulse	srp_top	phases	required=K2	KILLED	failures=62	tags=K11,K12,K2,K4,K5
+my-join-edge-peer	srp_top	guards	required=O3	KILLED	failures=2	tags=O3,O4
+my-cancel-eats-new-intent	srp_top	guards	required=O2	KILLED	failures=1	tags=O2
+my-edge-cancel-lost	srp_top	peer	required=M6	KILLED	failures=2	tags=M6,M7
+my-la-outranks-leave	srp_top	edge	required=L2	KILLED	failures=2	tags=L2
+my-drop-join-during-wait	srp_top	guards	required=O6	KILLED	failures=1	tags=O6
+my-no-walk-at-sLA	srp_top	congestion	required=N6	KILLED	failures=5	tags=N10,N12,N13,N5,N6
+my-reuse-flags-ignore-cancel	srp_top	guards	required=O4	KILLED	failures=1	tags=O4
+r-expiry-pulse-restored	srp_top	phases	required=K2	KILLED	failures=62	tags=K11,K12,K2,K4,K5
+r-cancel-latch-dropped	srp_top	guards	required=O1	KILLED	failures=1	tags=O1
+r-cancel-consumes-new-intent	srp_top	guards	required=O2	KILLED	failures=1	tags=O2
+r-join-start-guard-dropped	srp_top	guards	required=O3	KILLED	failures=2	tags=O3,O4
+r-sink-receive-priority-lost	srp_top	guards	required=O5	KILLED	failures=2	tags=O5
+r-join-coalesce-dropped	srp_top	guards	required=O6	KILLED	failures=1	tags=O6
+r-la-only-emission-lost	srp_top	peer	required=M12	KILLED	failures=1	tags=M12
+r-collect-blocks-pushes	srp_top	congestion	required=N6	KILLED	failures=4	tags=N12,N13,N5,N6
+r-accept-edge-drain-lost	srp_top	congestion	required=N10	KILLED	failures=1	tags=N10
+r-reuse-without-action	srp_top	peer	required=M12	KILLED	failures=1	tags=M12
+r-mvrp-start-during-prepare	srp_encoder	-	required=O8	KILLED	failures=5	tags=B1-vlan,O8
+canceled-content-never-drains	srp_top	guards	required=O7	KILLED	failures=1	tags=O7
+arms: 56/56 KILLED; controls: 45/45 PASS; family coverage 49/49 missing=[]
+summary_rc=0
