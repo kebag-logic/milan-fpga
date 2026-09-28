@@ -1,0 +1,100 @@
+## processor 16be6768f710e79450aace277abacd6c2c3336e5
+=== docs/architecture/02_interfaces.md:532,536p
+Boot restore is the mirror image (`we = 0`): the boot sequencer reads every record,
+CRC-validates, falls back to vendor defaults on failure, **then** releases
+`entity_enable` ([07 §5.3](07_memory_maps.md)). Which failures are one record's
+default and which fail the whole walk is [07 §5.3](07_memory_maps.md#fig-07-nvmflow)'s
+table.
+=== docs/architecture/05_acmp_engine.md:160,161p
+| The faces are **released once**, when the binding walk has drained. | the shadow's terminal (`restore_done_o`, failed or not), no preload presented, the listener idle a
+| The release is **the binding walk's end**. | the top's `restore_done_o` is the shadow's terminal AND the release, and `restore_busy_o` covers the cycles between them, s
+=== docs/architecture/08_timing.md:42,43p
+| T-NVM-DEBOUNCE | ≈ 500 ms (design) | NVM mgr | commit coalescing | design | |
+| T-NVM-RS-DEADLINE | `P-NVM-RS-TMO-CYC` clocks without progress (default 20 ms) | NVM mgr | the boot restore walk's read phase: expiry fails the whole walk and abandons 
+=== docs/architecture/01_overview.md:100,107p;170p
+- **Initialization** — boot sequencer order: (1) load/validate descriptor image and
+  identity registers (side-port or ROM); (2) NVM restore of the persisted set
+  ([07 §5](07_memory_maps.md)); (3) preload engine state — a restored binding puts that
+  sink's listener SM in `PRB_W_AVAIL`, and the listener takes no other work until the
+  last preload is written and armed ([05 §5.1](05_acmp_engine.md#sec-05-boot-admission));
+  (4) adapters report ready; (5) assert
+  `entity_enable` — only now may ADP advertise (Milan §5.6.1), because the entity must
+  already accept AECP commands and bind/probe requests.
+| P-NVM-RS-TMO-CYC | P-CLK-HZ / 50 (20 ms) | above the slowest single record read the NVM device face can take (`NVM_RS_TMO_CYC_P`) | boot restore walk's read deadline, `
+=== docs/architecture/04_adp_engine.md:159p
+| Held in DOWN until `entity_enable` (boot gate) | Milan §5.6.1 |
+=== docs/guides/integrator.md:334,336p
+| `nvm_unflushed_o` | per-sink binding state the manager has accepted and not yet committed. 1 from the accepted change until its record commits with `done`, or until the
+| `aecp_name_wr_o` | one `clk_i` cycle at each accepted live 64-bit name-lane write into the descriptor store. A multi-lane `SET_NAME` pulses once per written lane; uncha
+| `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a dynamic-state field, 6 channel maps, 7 user names. 
+=== docs/guides/integrator.md:355p;377p
+## 9. Bring-up order
+5. Assert `entity_enable_i`. Only now may the entity advertise.
+=== docs/guides/operator.md:202,206p
+`restore_fail_o` means the whole boot restore was abandoned — deliberately, so a partial
+set of bindings is never preloaded: a read-back torn mid-record, a device error on a
+record read, or a device that stopped answering for the read deadline. Every sink then
+starts unbound, and the listener still answers. The saved bindings are not lost with it:
+nothing is written over them until a controller binds that sink again, so polling a sink,
+=== docs/diagrams/21-integration-faces.svg:31p
+  <text x="464" y="342" font-size="12.5" font-weight="bold" fill="#16181d">Complete parameter inventory — fixed at elaboration</text>
+=== docs/diagrams/24-adp-acmp-states.svg:114p
+  <text x="24" y="744" font-size="11.5" fill="#4a5058">Bindings survive a power cycle. On boot a restored binding starts in PRB_W_AVAIL and re-probes — it does not resume
+=== hdl/top/protocol_processor_top.sv:124,130p;1645p;2523p;2540,2546p;4200p
+    //! T-NVM-RS-DEADLINE (F08.1), P-NVM-RS-TMO-CYC (F01.5): the boot restore
+    //! walk's read phase fails whole after this many clocks without
+    //! progress. Size it above the slowest single record read your NVM
+    //! device face can take; a silent device then ends the walk here instead
+    //! of holding the listener (and an enable gated on restore_done_o) for ever.
+    parameter int unsigned NVM_RS_TMO_CYC_P    = CLK_HZ_P / 32'd50,
+    //! IEEE §7.4.37.2's 300 s TIME_LIMITED registration window and IEEE
+      .entity_enable_i       (entity_enable_i),
+  KL_pp_nvm_mgr_arb u_nvm_arb (
+      // The saved-state writer is not present yet; keep manager 1's request,
+      // payload and handshakes idle so only the binding manager uses the port.
+      .m1_req_i       (1'b0),
+      .m1_we_i        (1'b0),
+      .m1_rid_i       (8'd0),
+      .m1_wvalid_i    (1'b0),
+      .m1_wdata_i     (8'd0),
+      .entity_enable_i (entity_enable_i),
+=== hdl/acmp/KL_acmp_nvm_shadow.sv:14p;30,31p;119,120p;864,873p;885,893p
+//                full multi-record NVM manager lands in P4; this block IS
+//                (T-NVM-DEBOUNCE via tick_i, F07.9 coalescing) and retried
+//                RETRY_MAX_P times before the sticky side-port alarm; the
+    //! bounded commit retries before the side-port alarm (F07.9)
+    parameter int unsigned RETRY_MAX_P   = 2,
+        // ----------------------------------------------------- H_FL_STREAM
+        H_FL_STREAM: begin
+          if (nvm_err_i) begin
+            if (fl_retry_r >= RETRY_MAX_P) begin
+              hs_r <= H_RUN;                   // give up: alarm + dirty drop
+            end else begin
+              fl_retry_r <= fl_retry_r + 32'd1;
+              hs_r       <= H_FL_RD;           // bounded retry, fresh read
+            end
+          end else if (nvm_wready_i) begin
+            hs_r <= H_RUN;                     // dirty cleared in flags_ff
+          end else if (nvm_err_i) begin
+            if (fl_retry_r >= RETRY_MAX_P) begin
+              hs_r <= H_RUN;                   // give up: alarm + dirty drop
+            end else begin
+              fl_retry_r <= fl_retry_r + 32'd1;
+              hs_r       <= H_FL_RD;           // bounded retry, fresh read
+            end
+          end
+=== hdl/packet_engine/KL_pp_nvm_port.sv:9,12p
+//
+//  Description : Class-F NVM port — the seam between the NVM manager
+//                (07 §5.3 runtime commit / boot restore, lands in P4) and
+//                the physical NVM device behind the side-port/management
+=== hdl/aecp/KL_aecp_desc_mem_guard.sv:18,21p;54p
+//                Only the HARD reset clears debt without a terminal beat.
+//                Never wire a store-only or D3 rollback reset here. debt_o is
+//                the D3 interface: the future writer must hold its restorable
+//                owners until debt drains, bounded by its own deadline.
+    output logic        debt_o           //! D3: accepted burst still owes a terminal beat
+=== hdl/aecp/KL_aecp_dyn_state.sv:123p
+    output logic        dirty_o,           //! a persisted field was written
+=== docs/guides/hdl-engineer.md:137p
+| ACMP | [`KL_pp_acmp_listener`](../../hdl/acmp/KL_pp_acmp_listener.sv), [`KL_acmp_talker`](../../hdl/acmp/KL_acmp_talker.sv), [`KL_acmp_nvm_shadow`](../../hdl/acmp/KL_ac
