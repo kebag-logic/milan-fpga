@@ -20,6 +20,7 @@ holdover, continuity, render-law and slew controls, and restores either PHC
 cause separately on the INTERNAL option-off leg.
 It also restores both PHC causes together and vetoes a genuine CRF request
 on the very cycle a software settime re-bases the PHC.
+Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
 
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
@@ -58,6 +59,7 @@ from suite_tally import log_reports_failure  # noqa: E402
 #: #386 and #447 render runners plant their clock-source control on
 RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
 RESTART_TRIGGER = "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);"
+RESTART_DECL = "  wire mcr_restart_p_w = crf_clk_selected_r\n" + RESTART_TRIGGER
 TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
 
 
@@ -194,10 +196,33 @@ CONTROLS = [
             RESTART_TRIGGER,
             RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
             "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
+    Control("PHC adjtime becomes an mr cause 16 cycles later", "datapath",
+            RESTART_DECL,
+            "  logic [15:0] probe_adj_sr_r;\n"
+            "  always_ff @(posedge axis_clk) begin : probe_adj_delay\n"
+            "    if (!axis_resetn) probe_adj_sr_r <= '0;\n"
+            "    else probe_adj_sr_r <= {probe_adj_sr_r[14:0], eff_ptp_adjust_w};\n"
+            "  end : probe_adj_delay\n" +
+            RESTART_DECL[:-1] + " | probe_adj_sr_r[15];",
+            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
+                           "CLKV: settime adds no MEDIA_RESET (#602)")),
+    Control("PHC adjtime becomes an mr cause 256 cycles later", "datapath",
+            RESTART_DECL,
+            "  logic [8:0] probe_adj_cnt_r;\n"
+            "  always_ff @(posedge axis_clk) begin : probe_adj_count\n"
+            "    if (!axis_resetn) probe_adj_cnt_r <= '0;\n"
+            "    else if (eff_ptp_adjust_w) probe_adj_cnt_r <= 9'd256;\n"
+            "    else if (probe_adj_cnt_r != 9'd0) probe_adj_cnt_r <= probe_adj_cnt_r - 9'd1;\n"
+            "  end : probe_adj_count\n" +
+            RESTART_DECL[:-1] + " | (probe_adj_cnt_r == 9'd1);",
+            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
+                           "CLKV: settime adds no MEDIA_RESET (#602)")),
     Control("a PHC step suppresses a coincident CRF restart", "datapath",
             RESTART_TRIGGER,
             RESTART_TRIGGER[:-1] + " & ~media_rebase_p_w;",
-            "coincident: a PHC step neither adds nor suppresses the CRF restart", False),
+            "coincident: a PHC step does not suppress the CRF restart", False),
 ]
 
 

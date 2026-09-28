@@ -106,6 +106,8 @@ class MilanDatapathHarness {
     long checks = 0;
     long fails = 0;
     long skipped = 0;
+    //! Keep the adjtime baseline until the settle interval before settime.
+    bool adjtime_mr_before = false;
 
     void ck(const char* what, unsigned long got, unsigned long exp) {
         bool ok = (got == exp);
@@ -571,13 +573,11 @@ class MilanDatapathHarness {
             uint64_t t4 = snap();
             axi_write(A_PTP_OFLO, 100000);
             axi_write(A_PTP_OFHI, 0);
-            const bool adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
+            adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
             axi_write(A_PTP_CMD2, 0x2);
             uint64_t t5 = snap();
             ck("PHC adjtime hops the counter",
                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
-            ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
-               dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1, adjtime_mr_before);
             axi_write(A_PTP_ADJ, 0);
         }
     }
@@ -1059,6 +1059,10 @@ class MilanDatapathHarness {
         for (int c = 0; c < kCountSettleCyc; ++c) step();
         const uint32_t media_resets0 = talker0_media_resets();
         const bool settime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
+        // Grade adjtime through settling, before settime takes over: a delayed
+        // restart must fail here instead of disappearing into the next baseline.
+        ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
+           settime_mr_before, adjtime_mr_before);
         axi_write(A_PTP_CMD, 0x1);
         ck("CLKV: PHC step arms holdover",
            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);

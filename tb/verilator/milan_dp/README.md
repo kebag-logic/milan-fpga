@@ -658,6 +658,10 @@ CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issue
 | Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
 | Coincident restart | 32 delays between a received CRF toggle and software settime; at least one observed same-cycle overlap of the received pulse and PHC re-base pulse; every trial actually steps the PHC and emits exactly one outgoing toggle, with more than eight outgoing PDUs and the selected sink still locked |
 
+The coincident check grades suppression of the CRF restart.
+An extra request inside its pending window merges with that restart.
+The isolated PHC-step checks grade the exclusion of an added request.
+
 **The counted event is the step's, not the commit's.** The render re-base
 must be counted at a PDU end within two AAF periods (500 cycles) after the
 plane's step pulse. Outgoing `mr` stays unchanged throughout the window.
@@ -677,7 +681,9 @@ accept, so it moves with the feed's start phase (9 or 10 events here).
 **Start phase.** The binary's optional second argument, `GMSTEP_FEED_DELAY`
 through `make`, idles that many fabric cycles before the peer's media feed
 starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
-accept phase. The #387 run passed at all 42; later counts require re-measurement.
+accept phase. At head `471892a9`, both round-2 reviews measured 103 checks
+and zero failures at all 42 delays ([R366-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861287085),
+[R367-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861301512)).
 
 **It runs in the default sweep, with its negative controls.**
 `run` invokes `gmstep_mutants.py` after the clean leg.
@@ -702,23 +708,28 @@ Each control must fail its named check:
 | software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | both PHC restart causes are restored | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
-| a PHC step suppresses a coincident CRF restart | datapath | coincident: a PHC step neither adds nor suppresses the CRF restart | `gmstep-mutants` |
+| PHC adjtime becomes an `mr` cause 16 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| PHC adjtime becomes an `mr` cause 256 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| a PHC step suppresses a coincident CRF restart | datapath | coincident: a PHC step does not suppress the CRF restart | `gmstep-mutants` |
 
 Each control costs one datapath elaboration.
 The sweep carries five controls named by the two acceptances.
 
-The explicit `make gmstep-mutants` target runs all eighteen controls.
+The explicit `make gmstep-mutants` target runs all twenty controls.
 The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
 
-It includes the fifteen tabulated above, plus three #545 controls.
+It includes the seventeen tabulated above, plus three #545 controls.
 The additions cover the policy level and applied-rate tail.
 
 See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
-Three controls grade the option-off leg (`sim_main.cpp`, rebuilt through
+Five controls grade the option-off leg (`sim_main.cpp`, rebuilt through
 `option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
 media clock, where the harness issues a CLKV adjtime and then a software
 settime: neither changes `mr`, and settime adds no MEDIA_RESET.
 Each event compares its preceding `mr` level with its resulting level.
+The adjtime verdict uses the level after the settle interval, immediately
+before the settime baseline. The 16-cycle and 256-cycle delayed causes
+must fail the adjtime check alone.
 The adjtime-only control must leave the settime check clean.
 The settime-only control must leave the adjtime check clean.
 Restoring both causes must still fail the settime check.
@@ -971,7 +982,7 @@ No count is inferred for their merged tree.
 Rows dated 2026-09-24 UTC were re-measured for #508, in one sweep at its head.
 These dated counts are historical, not re-measured for #602 here.
 The #602 gmstep run below was measured on 2026-09-27 UTC.
-Its controls now total eighteen, five in the default sweep.
+Its controls now total twenty, five in the default sweep.
 
 | leg | before (measured) | #508 round 1 (measured; date noted below) | note | dev c266432d record / later dated measurement |
 |---|---|---|---|---|
@@ -987,7 +998,7 @@ Its controls now total eighteen, five in the default sweep.
 | `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** (2026-09-24 UTC) | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) | **33 / 0** |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **140 / 0** (2026-09-24 UTC) | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 | **139 / 0** |
-| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, eighteen in `gmstep-mutants` (three option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
+| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, twenty in `gmstep-mutants` (five option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
 | `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in | same |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule

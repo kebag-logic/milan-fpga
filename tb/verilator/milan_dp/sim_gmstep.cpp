@@ -1095,6 +1095,8 @@ void GmStepHarness::check_crf_restart() {
 //! receive pulse and CSR load must overlap on at least one observed cycle,
 //! so a one-cycle PHC veto cannot survive merely by missing the stimulus.
 //! Each trial allows more than eight outgoing AAF PDUs before the next one.
+//! Pending requests merge, so these trials grade suppression. The isolated
+//! PHC-step checks grade an added restart request.
 void GmStepHarness::check_coincident_restart() {
     constexpr unsigned kPhases = 32;
     constexpr uint64_t kTrialCyc = 4 * kCrfPeriodCyc;
@@ -1138,7 +1140,7 @@ void GmStepHarness::check_coincident_restart() {
                 coincident_pulses_ > overlap0);
     check_.dec("coincident: PDUs bracket every trial and complete the hold", short_windows, 0);
     check_.dec("coincident: the selected CRF sink stays locked", unlocked, 0);
-    check_.dec("coincident: a PHC step neither adds nor suppresses the CRF restart", wrong_toggles, 0);
+    check_.dec("coincident: a PHC step does not suppress the CRF restart", wrong_toggles, 0);
 }
 
 //! Wire-driven policy verdict from the real engine through the actual

@@ -233,9 +233,11 @@ The accept-timed buffer cannot exhibit PHC-step-induced fill drift.
 
 `make gmstep-mutants` plants the whole inventory.
 
-Three controls restore PHC-only causes on the INTERNAL option-off leg.
+Five controls restore PHC-only causes on the INTERNAL option-off leg.
 
 They restore settime, adjtime, or both together.
+
+Two delay the adjtime cause by 16 and 256 cycles.
 
 Another control suppresses a genuine restart during a PHC re-base.
 
