@@ -1,0 +1,56 @@
+manifest: 135 artifacts; {'exact': 62, 'redacted_chain': 50, 'gz_via_raw': 23}; mismatches=0
+raw-dir regrade-service-1x1-queued-builtins.log: manifest-equal
+raw-dir regrade-service-1x1-queued-short.log: manifest-equal
+raw-dir regrade-service-8x8-queued-builtins.log: manifest-equal
+raw-dir regrade-service-8x8-queued-short.log: manifest-equal
+raw-dir regrade-service-remove-dispatch-queued-builtins.log: manifest-equal
+raw-dir regrade-service-remove-dispatch-queued-short.log: manifest-equal
+raw-dir service-1x1-queued-builtins-raw.log: manifest-equal
+raw-dir service-1x1-queued-builtins-receipt.json: manifest-equal
+raw-dir service-1x1-queued-builtins.log: manifest-equal
+raw-dir service-1x1-queued-short-raw.log: manifest-equal
+raw-dir service-1x1-queued-short-receipt.json: manifest-equal
+raw-dir service-1x1-queued-short.log: manifest-equal
+raw-dir service-8x8-queued-builtins-raw.log: manifest-equal
+raw-dir service-8x8-queued-builtins-receipt.json: manifest-equal
+raw-dir service-8x8-queued-builtins.log: manifest-equal
+raw-dir service-8x8-queued-short-raw.log: manifest-equal
+raw-dir service-8x8-queued-short-receipt.json: manifest-equal
+raw-dir service-8x8-queued-short.log: manifest-equal
+raw-dir service-remove-dispatch-queued-builtins-raw.log: manifest-equal
+raw-dir service-remove-dispatch-queued-builtins-receipt.json: manifest-equal
+raw-dir service-remove-dispatch-queued-builtins.log: manifest-equal
+raw-dir service-remove-dispatch-queued-short-receipt.json: manifest-equal
+raw-dir service-remove-dispatch-queued-short.log: manifest-equal
+native command heads: ['26a26e1f39feeebaebb0f450d7cbe2b63429c252']
+service-1x1-all: mutation=none plan=all bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=17 ticked=17 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-1x1-device-wait: mutation=none plan=device-wait bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=2 ticked=2 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-1x1-queued-builtins: mutation=none plan=queued-builtins bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=1051 ticked=1051 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-1x1-queued-input: mutation=none plan=queued-input bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=13 ticked=13 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-1x1-queued-short: mutation=none plan=queued-short bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=350 ticked=350 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-1x1-uart-paced: mutation=none plan=uart-paced bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=17 ticked=17 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-8x8-all: mutation=none plan=all bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=17 ticked=17 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-8x8-device-wait: mutation=none plan=device-wait bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=2 ticked=2 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-8x8-queued-builtins: mutation=none plan=queued-builtins bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=1051 ticked=1051 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-8x8-queued-input: mutation=none plan=queued-input bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=13 ticked=13 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-8x8-queued-short: mutation=none plan=queued-short bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=350 ticked=350 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-8x8-uart-paced: mutation=none plan=uart-paced bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=0 per_line=0 lines=17 ticked=17 verdict=PASS PASS: measurement evidence; budget findings: 0
+service-late-sample-all: mutation=late-sample plan=all bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=1 per_line=0 lines=17 ticked=17 verdict=PASS PASS: late MDIO sampling caught by target negotiation check
+service-remove-dispatch-queued-builtins: mutation=remove-dispatch plan=queued-builtins bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=1055 per_line=1051 lines=1051 ticked=0 verdict=PASS PASS: dispatch removal caught by continuous backing and per-line checks
+     over-budget duty: maximum_heartbeat_gap
+     continuous backing lost
+service-remove-dispatch-queued-short: mutation=remove-dispatch plan=queued-short bind=True inputs_eq_head=True rows_eq=True findings_eq=True findings=354 per_line=350 lines=350 ticked=0 verdict=PASS PASS: dispatch removal caught by continuous backing and per-line checks
+     over-budget duty: maximum_heartbeat_gap
+     continuous backing lost
+no-publish named failure present: True
+capture-1x1-50-on: captures=16 max_ms=3.88779 regrade_eq_kept_and_receipt=True
+capture-1x1-50-off: captures=16 max_ms=3.84214 regrade_eq_kept_and_receipt=True
+capture-8x8-50-on: captures=16 max_ms=13.23352 regrade_eq_kept_and_receipt=True
+capture-8x8-50-off: captures=16 max_ms=13.06923 regrade_eq_kept_and_receipt=True
+capture-8x8-100-on: captures=16 max_ms=9.954640000000001 regrade_eq_kept_and_receipt=True
+capture-8x8-100-off: captures=16 max_ms=9.940940000000001 regrade_eq_kept_and_receipt=True
+byte-only: captures=2 min_ms=24.3031 max_ms=24.30446 ratio=1.83648 (>1.5 required; grade_byte_only passed)
+capture-skip-copy artifacts: ['capture-skip-copy-capture.log', 'capture-skip-copy-sources.json', 'capture-skip-copy.log']
+capture-no-traffic artifacts: ['capture-no-traffic-capture.log', 'capture-no-traffic-measurement.json', 'capture-no-traffic-sources.json', 'capture-no-traffic.log']
+total captures regraded=96; overall problems=0
+rc=0

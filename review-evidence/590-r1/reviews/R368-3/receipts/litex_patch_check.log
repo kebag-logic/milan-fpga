@@ -1,0 +1,18 @@
+LiteX a1e1c3652ec2f1346ebaea7663d2867f393ae2c4 (pristine: 0 changed files)
+0006 sha256 f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f
+Checking patch litex/soc/cores/cpu/vexiiriscv/core.py...
+Hunk #3 succeeded at 574 (offset -1 lines).
+0004 applied
+Checking patch litex/soc/software/bios/main.c...
+0006 applied
+0006 reverse-check OK
+hook call site:
+360:		readline(buffer, CMD_LINE_BUFFER_SIZE);
+361-		command_dispatch_hook();
+marker definition:
+181:void bios_dispatch_hook_required(void)
+182-{
+183-}
+init section:
+10:    __attribute__((__section__(".bios_init"))) = f
+51:		KEEP(*(.bios_init))

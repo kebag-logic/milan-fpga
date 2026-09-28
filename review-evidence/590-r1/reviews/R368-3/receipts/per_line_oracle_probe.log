@@ -1,0 +1,21 @@
+service-1x1-queued-builtins: console rows=1051 clean findings=0
+   plant row 3 ('mem_read 0x40000000 128'): findings=['console line lacks a dispatch opportunity: mem_read 0x40000000 128'] exact=True verdict_none=refused
+   plant row 528 ('mem_read 0x40000000 128'): findings=['console line lacks a dispatch opportunity: mem_read 0x40000000 128'] exact=True verdict_none=refused
+   plant row 1053 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+service-8x8-queued-builtins: console rows=1051 clean findings=0
+   plant row 3 ('mem_read 0x40000000 128'): findings=['console line lacks a dispatch opportunity: mem_read 0x40000000 128'] exact=True verdict_none=refused
+   plant row 528 ('mem_read 0x40000000 128'): findings=['console line lacks a dispatch opportunity: mem_read 0x40000000 128'] exact=True verdict_none=refused
+   plant row 1053 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+service-1x1-queued-short: console rows=350 clean findings=0
+   plant row 3 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+   plant row 178 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+   plant row 352 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+service-8x8-queued-short: console rows=350 clean findings=0
+   plant row 3 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+   plant row 178 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+   plant row 352 ('milan_status'): findings=['console line lacks a dispatch opportunity: milan_status'] exact=True verdict_none=refused
+service-8x8-queued-input: console rows=13 clean findings=0
+   plant row 3 ('milan_nvm'): findings=[] exact=False verdict_none=ACCEPTED
+   plant row 9 ('milan_nvm'): findings=[] exact=False verdict_none=ACCEPTED
+   plant row 15 ('milan_status'): findings=[] exact=False verdict_none=ACCEPTED
+rc=0

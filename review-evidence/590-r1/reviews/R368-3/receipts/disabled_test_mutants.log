@@ -1,0 +1,32 @@
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; hb=0 backed=0 stale=0
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; hb=0 backed=0 stale=0
+variant=head: findings=0 states_failed=[]
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; FAIL
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; FAIL
+variant=round2-c64f8cd8: findings=36 states_failed=['identity', 'shape']
+    disabled writer shape answered '' after 0 ms
+    disabled writer shape answered '' after 2500 ms
+    disabled writer shape answered 'unknown_command' after 0 ms
+    disabled writer shape answered 'unknown_command' after 2500 ms
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; FAIL
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; FAIL
+variant=guard-in-hook-only: findings=4 states_failed=['identity', 'shape']
+    disabled writer shape answered 'milan_nvm wipe' after 0 ms
+    disabled writer shape answered 'milan_nvm wipe' after 2500 ms
+    disabled writer identity answered 'milan_nvm wipe' after 0 ms
+    disabled writer identity answered 'milan_nvm wipe' after 2500 ms
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; FAIL
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; hb=0 backed=0 stale=0
+variant=admit-before-shape: findings=18 states_failed=['shape']
+    disabled writer shape answered '' after 0 ms
+    disabled writer shape answered '' after 2500 ms
+    disabled writer shape answered 'unknown_command' after 0 ms
+    disabled writer shape answered 'unknown_command' after 2500 ms
+disabled-writer endstation_ax7101_1x1_tdm8 shape: 18 console cases; FAIL
+disabled-writer endstation_ax7101_1x1_tdm8 identity: 18 console cases; FAIL
+variant=admit-in-init: findings=36 states_failed=['identity', 'shape']
+    disabled writer shape answered '' after 0 ms
+    disabled writer shape answered '' after 2500 ms
+    disabled writer shape answered 'unknown_command' after 0 ms
+    disabled writer shape answered 'unknown_command' after 2500 ms
+rc=0

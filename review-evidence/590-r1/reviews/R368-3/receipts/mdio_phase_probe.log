@@ -1,0 +1,10 @@
+ARM reader=head peer_std=1 publishes13=True expect13=True as-expected :: PROBE peer_std=1 found=1 address=1 published=13 expected=13 bmsr_read=0x796d bmsr_true=0x796d
+ARM reader=head peer_std=0 publishes13=False expect13=False as-expected :: PROBE peer_std=0 found=0 address=1 published=0 expected=13 bmsr_read=0xffff bmsr_true=0x796d
+ARM reader=late-sample peer_std=1 publishes13=False expect13=False as-expected :: PROBE peer_std=1 found=1 address=1 published=0 expected=13 bmsr_read=0xf2db bmsr_true=0x796d
+ARM reader=late-sample peer_std=0 publishes13=True expect13=True as-expected :: PROBE peer_std=0 found=1 address=1 published=13 expected=13 bmsr_read=0x796d bmsr_true=0x796d
+ARM reader=one-ta-clock peer_std=1 publishes13=False expect13=False as-expected :: PROBE peer_std=1 found=0 address=1 published=0 expected=13 bmsr_read=0xffff bmsr_true=0x796d
+ARM reader=one-ta-clock peer_std=0 publishes13=False expect13=False as-expected :: PROBE peer_std=0 found=0 address=1 published=0 expected=13 bmsr_read=0xffff bmsr_true=0x796d
+ARM reader=three-ta-clocks peer_std=1 publishes13=False expect13=False as-expected :: PROBE peer_std=1 found=0 address=1 published=0 expected=13 bmsr_read=0xffff bmsr_true=0x796d
+ARM reader=three-ta-clocks peer_std=0 publishes13=False expect13=False as-expected :: PROBE peer_std=0 found=0 address=1 published=0 expected=13 bmsr_read=0xffff bmsr_true=0x796d
+MDIO PHASE PROBE: PASS
+rc=0

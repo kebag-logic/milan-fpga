@@ -1,0 +1,14 @@
+== scripts/check_doc_paths.py
+doc path gate: OK (849 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== scripts/check_em_dash.py --base c64f8cd896a4462bd42c4b90b32861ac7fd35176
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== git diff --check c64f8cd8..HEAD
+rc=0

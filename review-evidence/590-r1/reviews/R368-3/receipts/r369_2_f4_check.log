@@ -1,0 +1,14 @@
+== R369-2 F4 verification: rg '24\.30246|0\.19754|6\.60642|19\.79024' docs/design
+HEAD:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1614:The historical pre-word-copy maximum was 24.30246 ms.
+rc=0
+== CHANGELOG capture lines (R369-1 S4 context)
+HEAD:CHANGELOG.md:11:- **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
+HEAD:CHANGELOG.md:36:## Unreleased - processor pin 16be6768
+HEAD:CHANGELOG.md:38:- Issue #580 adopts processor `16be6768`.
+HEAD:CHANGELOG.md:46:- The capture was re-measured at the adopted processor pin.
+HEAD:CHANGELOG.md:48:- Each of the six traffic arms contains 16 captures.
+HEAD:CHANGELOG.md:316:- The acknowledgement quotes the capture identity word.
+HEAD:CHANGELOG.md:322:- A boot accepting no load opens no capture.
+HEAD:CHANGELOG.md:330:- A 2-bit capture identity must alias.
+HEAD:CHANGELOG.md:332:- A capture identity that wraps to 0 is ordinary.
+HEAD:CHANGELOG.md:457:- `KL_chan_map_capture` gains TDM junction slip counters.
