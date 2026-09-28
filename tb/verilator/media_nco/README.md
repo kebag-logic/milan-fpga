@@ -112,7 +112,7 @@ the clamp interaction is covered too.
 | drop the servo negation | yes — 30 fail |
 | `>>> 3` instead of `>>> 4` (wrong rescale) | yes — 18 fail |
 | ignore `servo_en_i` | yes — 104 fail |
-| terminal compare back to `==` (#617, the `377d1ac3` grid) | yes — 10 fail, all check 10 (a 3,089-clock period at 50 MHz); kept as a committed mutant in `tb/verilator/capture_coherence/mutants.py`, leg `nco` |
+| terminal compare back to `==` (#617, the `377d1ac3` grid) | yes: 10 fail, all check 10 (a 3,089-clock period at 50 MHz); kept as a committed mutant in `tb/verilator/capture_coherence/mutants.py`, leg `nco` |
 
 ## Two shapes, deliberately
 
