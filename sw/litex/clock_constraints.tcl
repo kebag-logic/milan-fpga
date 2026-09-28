@@ -18,7 +18,7 @@ proc kl_net_clock {name} {
     return $clocks
 }
 
-proc kl_eth_constraints {eth_port part_nets other_nets} {
+proc milan_eth_constraints {eth_port part_nets other_nets} {
     set eth [get_clocks -of_objects [get_ports $eth_port]]
     if {[llength $eth] != 1} {
         error "CONSTRAINTS: expected one clock on port $eth_port, got $eth"

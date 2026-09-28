@@ -65,10 +65,10 @@ def test_generated_constraints() -> None:
             platform.build(module, build_dir=str(directory), run=False, vivado_max_threads=16)
             tcl = (directory / "top.tcl").read_text()
             xdc = (directory / "top.xdc").read_text()
-            assert f"kl_eth_constraints eth_clocks{port}_rx [list system_{suffix}" in tcl
+            assert f"milan_eth_constraints eth_clocks{port}_rx [list system_{suffix}" in tcl
             assert (f"datapath_{suffix}" in tcl) == milan
             assert tcl.index("synth_design") < tcl.index("kl_quasi_static_constraints")
-            assert tcl.index("kl_eth_constraints") < tcl.index("opt_design")
+            assert tcl.index("milan_eth_constraints") < tcl.index("opt_design")
             assert "report_clock_interaction -delay_type min_max" in tcl
             assert "mr_ff" not in xdc and "if {" not in xdc
             assert "ars_ff1" in xdc and "set_max_delay 2" in xdc
@@ -128,7 +128,7 @@ require {[lsearch -exact $emitted {set_multicycle_path 3 -hold -from boot_settin
 set qs {}; set emitted {}
 kl_quasi_static_constraints
 require {![llength $emitted]} "empty class emitted constraints"
-kl_eth_constraints rx {system datapath} {audio}
+milan_eth_constraints rx {system datapath} {audio}
 foreach clock {sys milan} {
     foreach {from to} [list eth $clock $clock eth] {
         set bound [list set_max_delay 8.000 -datapath_only -from $from -to $to]
@@ -143,14 +143,14 @@ require {[lsearch -exact $emitted {set_false_path -to to_audio}] >= 0} "other do
 require {[lsearch -exact $emitted {set_false_path -from reset_button -to to_eth}] >= 0} "input exception lost"
 require {[lsearch -exact $emitted {set_clock_groups -asynchronous -group eth -group audio}] >= 0} "audio group missing"
 require {[llength $emitted] == 14} "unexpected constraints"
-foreach command {{kl_eth_constraints wrong_port {system datapath} {audio}}
-                 {kl_eth_constraints rx {wrong_clock datapath} {audio}}
-                 {kl_eth_constraints rx {system datapath} {wrong_audio}}} {
+foreach command {{milan_eth_constraints wrong_port {system datapath} {audio}}
+                 {milan_eth_constraints rx {wrong_clock datapath} {audio}}
+                 {milan_eth_constraints rx {system datapath} {wrong_audio}}} {
     require {[catch $command message]} "missing clock accepted"
     require {[string match *expected*clock* $message]} "wrong refusal"
 }
 set cell_clock(to_sys) {sys milan}
-require {[catch {kl_eth_constraints rx {system datapath} {audio}} message]} "ambiguous clock accepted"
+require {[catch {milan_eth_constraints rx {system datapath} {audio}} message]} "ambiguous clock accepted"
 puts {scoped exception and wrong-name controls PASS}
 '''
     result = subprocess.run(["tclsh"], input=script, text=True, capture_output=True, timeout=30)

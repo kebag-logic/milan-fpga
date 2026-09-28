@@ -51,7 +51,7 @@ def add_eth_constraints(platform: Any, crg: Any, eth_rx: Any) -> None:
     part_nets = " ".join("{clk%d}" % n for n in range(len(clocks)))
     other_nets = " ".join("{clk%d}" % n for n in range(len(clocks), len(clocks) + len(other)))
     toolchain.pre_optimize_commands.add(
-        "kl_eth_constraints {eth} [list " + part_nets + "] [list " + other_nets + "]", **signals)
+        "milan_eth_constraints {eth} [list " + part_nets + "] [list " + other_nets + "]", **signals)
     toolchain.bitstream_commands.append(
         "report_clock_interaction -delay_type min_max -file {build_name}_clock_interaction.rpt")
     toolchain.bitstream_commands.append(
