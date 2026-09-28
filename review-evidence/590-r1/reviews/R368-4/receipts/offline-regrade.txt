@@ -1,0 +1,18 @@
+1x1-all                                  OK  rc0    findings=    0 per_line=    0 gap=264.64718 mdio=0.08658 poll=0.64304 edges=(0, 0) phybound=178.54711
+1x1-device-wait                          OK  rc0    findings=    0 per_line=    0 gap=250.61836 mdio=0.08658 poll=0.64391 edges=(1, 1) phybound=164.89812
+1x1-queued-builtins                      OK  rc0    findings=    0 per_line=    0 gap=269.21480 mdio=0.08658 poll=0.64413 edges=(1, 1) phybound=205.83606
+1x1-queued-input                         OK  rc0    findings=    0 per_line=    0 gap=269.07972 mdio=0.08658 poll=0.64391 edges=(1, 1) phybound=178.72950
+1x1-queued-short                         OK  rc0    findings=    0 per_line=    0 gap=257.66458 mdio=0.08658 poll=0.64397 edges=(1, 1) phybound=162.30995
+1x1-uart-paced                           OK  rc0    findings=    0 per_line=    0 gap=252.70784 mdio=0.12451 poll=0.64306 edges=(1, 0) phybound=183.54164
+8x8-all                                  OK  rc0    findings=    0 per_line=    0 gap=322.47884 mdio=0.08711 poll=0.64407 edges=(1, 1) phybound=244.49186
+8x8-device-wait                          OK  rc0    findings=    0 per_line=    0 gap=275.48170 mdio=0.08711 poll=0.64407 edges=(1, 1) phybound=231.91192
+8x8-queued-builtins                      OK  rc0    findings=    0 per_line=    0 gap=258.41092 mdio=0.08711 poll=0.64413 edges=(1, 1) phybound=206.29703
+8x8-queued-input                         OK  rc0    findings=    0 per_line=    0 gap=322.47884 mdio=0.08711 poll=0.64407 edges=(1, 1) phybound=244.49186
+8x8-queued-short                         OK  rc0    findings=    0 per_line=    0 gap=257.66520 mdio=0.08711 poll=0.64397 edges=(1, 1) phybound=162.31472
+8x8-uart-paced                           OK  rc0    findings=    0 per_line=    0 gap=295.45834 mdio=0.12457 poll=0.83375 edges=(1, 1) phybound=245.01888
+late-sample-all                          OK  rc0    findings=    1 per_line=    0 gap=264.10428 mdio=0.08818 poll=0.28417 edges=(0, 0) phybound=177.93284
+remove-dispatch-queued-builtins          OK  rc0    findings= 1055 per_line= 1051 gap=8238.99253 mdio=0.08658 poll=0.64304 edges=(0, 0) phybound=207.56262
+remove-dispatch-queued-short             OK  rc0    findings=  354 per_line=  350 gap=2770.22295 mdio=0.08658 poll=0.64304 edges=(0, 0) phybound=162.65471
+no-publish-all named simulation finding present: True
+AGGREGATE {'positive_runs': 12, 'positive_findings': 0, 'largest_gap_ms': 322.47884, 'largest_mdio_ms': 0.12457, 'largest_poll_ms': 0.83375}
+RESULT PASS

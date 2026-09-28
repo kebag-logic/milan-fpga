@@ -1,0 +1,10 @@
+host-selftest|timeout 3600 python3 -B sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+service-selftest|timeout 3600 python3 -B tb/verilator/fw_service_budget/run.py --self-test
+ci-scope-selftest|timeout 1800 python3 -B scripts/ci_scope.py --selftest
+clock-contract|timeout 1800 python3 -B sw/builder/test_clock_contract.py
+em-dash|timeout 1800 $MD_PY -B scripts/check_em_dash.py --base 7a7582f03ce5ba7863a90ac342c21be18d90db0b
+docs-check|timeout 1800 $MD_PY -B scripts/docs_check.py
+solution-docs|timeout 1800 python3 -B scripts/check_solution_docs.py
+feature-status|timeout 1800 python3 -B scripts/check_feature_status.py
+diff-check|git -c core.pager=cat diff --check 7a7582f03ce5ba7863a90ac342c21be18d90db0b 1f039cfe86d5337f5c9b7248696dba1c4bdda67e
+diff-check-lane|git -c core.pager=cat diff --check 20aa4eabf310a43b654e0c74c5374c3a0458fd4b 1f039cfe86d5337f5c9b7248696dba1c4bdda67e

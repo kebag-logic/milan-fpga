@@ -1,0 +1,22 @@
+== docs/integration/BAREMETAL_FIRMWARE.md
+P1->M == B->P2: EQUAL (8 vs 8 edit blocks)
+P2->M == B->P1: EQUAL (5 vs 5 edit blocks)
+rc=0
+== docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+P1->M == B->P2: EQUAL (9 vs 9 edit blocks)
+P2->M == B->P1: EQUAL (12 vs 12 edit blocks)
+rc=0
+== sw/builder/test_builder.py
+P1->M == B->P2: EQUAL (4 vs 4 edit blocks)
+P2->M == B->P1: EQUAL (5 vs 5 edit blocks)
+rc=0
+== three-way reconstruction of BAREMETAL_FIRMWARE.md conflicts (git merge-file markers)
+2
+== merge parents and messages
+9e3df3edc025f73278894ff021a2011e46e2575e parents=93262f2512054166ae753eda24d76c99f2ea6714 7a7582f03ce5ba7863a90ac342c21be18d90db0b subject=Merge dev into 590-592-599-firmware body_bytes=
+1f039cfe86d5337f5c9b7248696dba1c4bdda67e parents=9e3df3edc025f73278894ff021a2011e46e2575e subject=Reword stale PHY publisher and service-budget index statements body_bytes=
+== paths conflicting per git merge-tree
+docs/integration/BAREMETAL_FIRMWARE.md
+== evil-merge check: git merge-tree --write-tree 93262f251 7a7582f03 -> 091aa64b6d85d14c3816e11a1f2ed78921751e99
+paths differing from recorded merge tree:
+docs/integration/BAREMETAL_FIRMWARE.md

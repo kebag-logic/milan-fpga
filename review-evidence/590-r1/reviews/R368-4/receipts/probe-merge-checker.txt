@@ -1,0 +1,12 @@
+PROBE drop-dr2c-line rc=1
+P1->M == B->P2: DIFFERENT (8 vs 8 edit blocks)
+  first differing block 7
+PROBE revert-dr2a rc=1
+P1->M == B->P2: DIFFERENT (8 vs 8 edit blocks)
+  first differing block 6
+PROBE drop-lane-phy-line rc=1
+P1->M == B->P2: DIFFERENT (9 vs 8 edit blocks)
+  first differing block 7
+PROBE control-exact-merge-tree rc=0
+P1->M == B->P2: EQUAL (8 vs 8 edit blocks)
+P2->M == B->P1: EQUAL (5 vs 5 edit blocks)

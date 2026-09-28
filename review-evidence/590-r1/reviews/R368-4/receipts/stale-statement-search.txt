@@ -1,0 +1,88 @@
+== references to #590/#592/#599 outside history
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1612:The [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172) requires this firmware remeasurement.
+docs/findings/394_387_E1_SWITCH_CYCLES.md:187:Nothing in this build writes it ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+docs/findings/394_387_E1_SWITCH_CYCLES.md:282:MAC_STATUS remains at its unwritten reset value, `0x0d` ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+docs/findings/394_387_E1_SWITCH_CYCLES.md:298:| AVB_INTERFACE LINK_UP / LINK_DOWN | `+0 / +0`; expected increments absent; publication defect #599 |
+docs/findings/397_SERVICE_BUDGET.md:3:The firmware repairs for [#590](https://github.com/kebag-logic/milan-fpga/issues/590),
+docs/findings/397_SERVICE_BUDGET.md:4:[#592](https://github.com/kebag-logic/milan-fpga/issues/592) and the simulated portion of
+docs/findings/397_SERVICE_BUDGET.md:5:[#599](https://github.com/kebag-logic/milan-fpga/issues/599) retain one cacheless hart.
+docs/findings/397_SERVICE_BUDGET.md:7:This refresh follows the [combined assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5859537529)
+docs/findings/397_SERVICE_BUDGET.md:8:[merged-pin correction](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5859930453),
+docs/findings/397_SERVICE_BUDGET.md:9:and [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172).
+docs/findings/README.md:12:| [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Sim
+docs/integration/BAREMETAL_FIRMWARE.md:1979:[Issue #599](https://github.com/kebag-logic/milan-fpga/issues/599) retains the physical switch-cycle rerun.
+docs/integration/BOARD_PORTING_AX7101.md:110:  acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:192:| 7.4.42.2 | counter tables: AVB_INTERFACE Table 7-152, CLOCK_DOMAIN 7-154, STREAM_INPUT 7-156, STREAM_OUTPUT 7-158 | partial -- served per Milan's sets (
+docs/reference/REGISTER_MAP.md:417:Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+tb/verilator/fw_service_budget/README.md:7:The service checks cover [#590](https://github.com/kebag-logic/milan-fpga/issues/590) and PHY publication under [#599](https://github.com/kebag-logic/milan-f
+== MAC_STATUS / PHY publisher statements
+.github/workflows/rtl-fast.yml:225:      # runs live, and a read-only seed is read but never written.
+avdecc/aem_descriptors.py:129:#! order matters: FORMATS[0] is the RESET default of the dynamic store.
+avdecc/aem_maps.py:213:    #! - the reset default - carrying TWO channels, while its 8-cluster port
+configs/endstation_arty_current.yaml:194:      # `channels`: 2ch-first is the deployed reset default: an 8ch default
+docs/MILAN_V12_ROADMAP.md:299:re-graded in `protocol-processor/tb/pp_top` Section W through both arms (unwritten → image, written →
+docs/MILAN_V12_ROADMAP.md:320:dynamic state: Milan Section 5.3.12 makes it 0 or 255 with 0 the reset default, and
+docs/design/MAAP_FABRIC.md:182:skipped record cannot expose unwritten response-buffer bytes.
+docs/design/SAVED_STATE_FASTCONNECT.md:65:> because a record the processor has never written has no frame, and the
+docs/design/SAVED_STATE_MATERIALIZATION.md:366:9. **An output map set its record cannot hold** is never written in part
+docs/design/SAVED_STATE_MATERIALIZATION.md:1754:| The IDENTIFY value | 5.3.12: "0 = not identifying" is the reset default (`KL_aecp_dyn_state`'s banner) | `KL_aecp_dyn_state` selector 7 | the trigger 
+docs/design/SAVED_STATE_MATERIALIZATION.md:1756:| System unique id, media clock reference | allocated as design-affirmative items | nothing writes them | no trigger and no slot in the writer | they st
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1289:| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from t
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1290:| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1469:| Dirty from accepted bytes instead of a record close | A record whose bytes all moved before the arm but whose completion lands after it is retired 
+docs/development/CODE_QUALITY.md:1693:temporary directory, so a mutated source is never written into the tree. And
+docs/diagrams/diag_ts_modular_ring.py:43:PRES_OFS_NS = 2_000_000                 # 2 ms  - talker transit_ns_i reset default
+docs/findings/394_387_E1_SWITCH_CYCLES.md:187:Nothing in this build writes it ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+docs/findings/394_387_E1_SWITCH_CYCLES.md:282:MAC_STATUS remains at its unwritten reset value, `0x0d` ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+docs/reference/REGISTER_MAP.md:609:Reset defaults (`milan_csr` `CBS_*_RST`, mirroring `ethernet_packet_pkg.sv`).
+docs/reference/REGISTER_MAP.md:1008:| `0x614` | `ADP_ENTITY_CAPS` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH**: entity_capabilities (e.g. `0xC588` for a Milan PAAD). Stored and read back; the ADPDU carries t
+docs/reference/REGISTER_MAP.md:1601:Reset default: stream 0 = `0b10`, others `0b00`.
+hdl/common/csr/doc/milan_csr.md:33:- **[Processes](#processes)** — Five named processes and what each owns. The ordering inside the write path is the part worth reading: reset defaults, then hardware 
+hdl/common/csr/doc/milan_csr.md:154:  synchronous reset defaults, hardware event latching (before W1C), AXI-Lite
+hdl/common/csr/milan_csr.sv:1529:  //! Register file write path: synchronous reset defaults, hardware event
+hdl/common/ethernet_packet_pkg.sv:265://! These are the *reset defaults* only: at runtime the shaper is reprogrammed
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:31:                CONSUMED for every talker (t0 included; reset default =
+hdl/ieee1722/aaf/KL_chan_map_capture.sv:129:                    no reset - the per-pair pointers make unwritten words
+hdl/ieee1722/aaf/KL_i2s_feed_mux.sv:17:                DIRECT TAP (sel_render_i = 0, reset default): the selected
+hdl/ieee1722/aaf/aaf_talker_i2s.sv:50:    input  wire [31:0]  transit_ns_i,      //! presentation offset added to the PHC timestamp (SET_STREAM_INFO msrp_acc_lat; reset default 2 ms)
+hdl/ieee1722/avtp/KL_stream_table.sv:94:  //! (ovr_armed) so the reset default stays the pure ACMP alias - since
+hdl/milan/milan_datapath.sv:1116:  //  cfg_chmap_enable = 0 (reset default) selects the front-end pair stream
+hdl/milan/milan_datapath.sv:7435:      //! ahead of their consumers ON PURPOSE: they read a reset default until
+scripts/check_hygiene.py:465:    ck("a project-submodule file is reported upstream and never written",
+scripts/check_nvm_record_space.py:271:    is applied as 'never written' instead of being refused."""
+scripts/check_nvm_record_space.py:545:    A record the processor has never written is its span of ERASED bytes at
+scripts/nvm_contract.py:98:#: A record the processor has never written since the media was blank holds
+scripts/nvm_klj2.py:78:    has never written it: header and payload all ERASED (section 6.1, the
+scripts/nvm_klj2.py:128:    never written since the media was blank is its span of ERASED bytes at
+sw/builder/endstation_builder.py:272:# 0x680 CSR reset defaults in hdl/common/csr/milan_csr.sv.
+sw/builder/endstation_builder.py:2204:    no `srp:` section these are EXACTLY the hand-written reset defaults in
+sw/builder/test_builder.py:17317:    #: ...and the stream it reads is read, never written, by the MAC around
+sw/firmware/milan_baremetal/milan_baremetal.c:144: * never written is its span of 0xFF (section 6.1, the erased-record rule).
+sw/firmware/milan_baremetal/milan_baremetal.c:644:			/* never written since the media was blank: the next
+sw/firmware/milan_baremetal/milan_baremetal.c:1135:	/* The result is RETURNED, never written through a pointer: the
+syn/yosys/README.md:147:read-only trusted seed, looked up second and never written. In CI (#350, on
+syn/yosys/ooc.sh:664:  # absence means the netlist was never written, whatever the log says), and
+syn/yosys/result_cache.py:322:    defect is refused rather than trusted; the seed is read, never written."""
+syn/yosys/result_cache.py:367:    # the seed is read second and never written
+syn/yosys/run.sh:50:                         never written (syn/yosys/result_cache.py)
+tb/verilator/avtp_stream/sim_table.cpp:127:      ck("unwritten sid still miss", r.matched?1:0, 0); }
+tb/verilator/cbs/README.md:89:twice over. It was the reset default of **q0 back when q0 was the highest
+tb/verilator/chmap_capture/sim_main.cpp:994:  a_map_wr(2, ent_lb(1, 1, 1));    // t1 pair1 <- s1 pair1 (never written)
+tb/verilator/cls/sim_main.cpp:80:// milan_csr reset defaults (docs/reference/REGISTER_MAP.md)
+tb/verilator/crf_rx/sim_main.cpp:65:// parameters — the sum is never written down as a literal on either side
+tb/verilator/crf_rx/sim_main.cpp:81:    // static-storage one did, even though no read reaches an unwritten slot
+tb/verilator/csr/sim_main.cpp:1021:  ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
+tb/verilator/csr/sim_win.cpp:611:  uint32_t v3 = chmap_snap(0x106);            // index 6, never written
+tb/verilator/milan_dp/sim_nxn.cpp:3230:        //      0x900[0] never written - the "in-circuit by construction" law.
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp:777:    //! Built before any traffic and never written again.
+tb/verilator/render_setpoint/mutants.py:94:    ("straddled even lane never written to an odd row",
+tb/verilator/shaper_core/sim_main.cpp:49:// milan_csr CBS reset defaults for the 5-queue map, INDEXED BY QUEUE:
+tb/verilator/tsn_fuzz/fuzz_ptp_responder.py:358:        # portNumber is DERIVED from the plane's own, never written
+tb/verilator/tsn_fuzz/fuzz_ptp_responder.py:483:            # DERIVED from the plane's own portNumber, never written
+tests/steps/chmap_capture_steps.py:97:        """The 12-bit entry a slot holds. An unwritten slot reads 0, which is
+== heartbeat/copy statements
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1798:   The word-copy remedy gains 11.06894 ms over historical byte copying.
+docs/integration/BAREMETAL_FIRMWARE.md:1909:This services chained commands while queued input suppresses idle service.
+sw/firmware/milan_baremetal/milan_baremetal.c:948:/* ---- the LiteSPI command master, one byte at a time, 1x mode ---------- */
+tb/verilator/fw_service_budget/README.md:100:The BIOS dispatch hook covers their boundaries, including queued input.
+tb/verilator/nvm_capture_cpu/run.py:88:    The previous byte loop was about 1.84x at 8x8/50 MHz. The 1.5x

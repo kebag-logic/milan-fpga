@@ -1,0 +1,6 @@
+PROBE regrade planted unbacked_cycles=7 in 8x8-queued-short rc=1 (expect 1)
+8x8-queued-short                         BAD REFUSED: budget findings require disposition findings=    1 per_line=    0 gap=257.66520 mdio=0.08711 poll=0.64397 edges=(1, 1) phybound=162.31472
+RESULT FAIL 8x8-queued-short
+PROBE capture receipt row sys_cycles+1 (measurement index 2, row 5) rc=1 (expect 1)
+8x8-50-on: receipt-equal=False captures=16 rows_ok=True min=13.21274 max=13.23352 sources=118 changed-RTL={'hdl/milan/KL_pp_shadow.sv': True, 'hdl/milan/milan_datapath.sv': True}
+RESULT FAIL
