@@ -2033,9 +2033,10 @@ The first option-on experiment kept both the system and Milan planes at
 | `ExtraTimingOpt` | -3.897 | -9,278.585 | +0.057 |
 | `ExtraPostPlacementOpt` | -3.762 | -12,239.650 | +0.020 |
 
-That result is why the cacheless CPU and 64-bit Milan plane run at 50 MHz;
-3.2 Gb/s still exceeds the 1 Gb/s wire rate while the LiteX system and audio
-recipe remain at 100 MHz.
+That result is why the cacheless CPU and 64-bit Milan plane run at the
+[contract clock](#build-contract). At the 50 MHz this cell measured, the
+plane's 3.2 Gb/s still exceeds the 1 Gb/s wire rate while the LiteX system
+and audio recipe remain at 100 MHz.
 
 Post-synthesis resource accounting also proves the intended buy-back. The
 #114 plane-off baseline used 59,497 LUT, 63,092 registers, 126 BRAM

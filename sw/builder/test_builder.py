@@ -17097,7 +17097,7 @@ def test_baremetal_profile_contract() -> None:
           "place a CSR store can live, and no instrument here reads it")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
-          "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
+          "1024-word ROM; VexiiRiscv RV32I at the contract clock through its supported "
           "decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache "
           "args, retired audio-ring surfaces or host clusters; deploy keeps "
           "the plane option on")
@@ -27816,7 +27816,8 @@ def test_commercial_timing_grade() -> None:
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
-        test_baremetal_clock_contract, test_extra_sweep_clocks, test_gptp_rom_clock, test_tap_clock_docs,
+        test_baremetal_clock_contract, test_extra_sweep_clocks, test_gptp_rom_clock, test_sim_clock,
+        test_tap_clock_docs,
     )
 
     if "--write-cluster-golden" in sys.argv:
@@ -27824,6 +27825,7 @@ if __name__ == "__main__":
         sys.exit(0)
     for fn in (test_commercial_timing_grade,
                test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
+               test_sim_clock,
                test_declaration_contracts, test_clock_crossing_constraints,
                test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,

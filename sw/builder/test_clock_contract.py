@@ -219,10 +219,42 @@ def test_tap_clock_docs() -> None:
     print(f"[clock contract] {len(CONFIGS)} tap conversions and presence declarations match configurations")
 
 
+def _ax_gptp_dry_run(recipe: Path | None) -> subprocess.CompletedProcess:
+    """The commands `make ax1x1gptp` would run, expanded by make itself."""
+    command = ["make", "-s", "-n", "-B", "-C", str(ROOT / "tb/verilator/milan_dp"), "ax1x1gptp"]
+    if recipe is not None:
+        command.append(f"CLOCK_RECIPE={recipe}")
+    return subprocess.run(command, text=True, capture_output=True, timeout=120)
+
+
+def test_sim_clock() -> None:
+    """The AX 1x1 physical-rate simulation takes every clock use from the contract."""
+    with tempfile.TemporaryDirectory(prefix="sim-clock-") as tmp:
+        planted = Path(tmp) / "recipe.py"
+        planted_hz = eb.BAREMETAL_CLK_HZ + 1
+        planted.write_text(f"CPU_HZ = {planted_hz}\n")
+        # The planted recipe proves derivation: a literal would keep the contract value.
+        for recipe, hz in ((None, eb.BAREMETAL_CLK_HZ), (planted, planted_hz)):
+            result = _ax_gptp_dry_run(recipe)
+            assert result.returncode == 0, result.stderr
+            for use in (f"--clk-hz {hz} ", f"-GMILAN_CLK_FREQ_HZ={hz} ", f"-DMILAN_CLK_HZ_TB={hz} "):
+                assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}"
+        absent = _ax_gptp_dry_run(Path(tmp) / "absent.py")
+        assert absent.returncode != 0 and "did not yield CPU_HZ" in absent.stderr, absent.stderr
+    source = (ROOT / "tb/verilator/milan_dp/sim_ax1x1gptp.cpp").read_text()
+    assert "constexpr uint64_t kHz = MILAN_CLK_HZ_TB;" in source, "harness clock is not the Makefile's"
+    for spelling in (str(eb.BAREMETAL_CLK_HZ), f"{eb.BAREMETAL_CLK_HZ / 1e6:g} MHz"):
+        assert spelling not in source, f"sim_ax1x1gptp.cpp restates the contract clock as {spelling!r}"
+    print("[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow "
+          "the contract and a planted recipe; an unreadable recipe is refused; the harness "
+          "restates no clock")
+
+
 if __name__ == "__main__":
     test_baremetal_clock_contract()
     test_gptp_rom_clock()
     test_extra_sweep_clocks()
     test_tap_clock_docs()
+    test_sim_clock()
     if "--soc" in sys.argv:
         test_soc_clock_contract()
