@@ -1,0 +1,980 @@
+[
+  {
+    "seed": "asl",
+    "directive": "AltSpreadLogic_high",
+    "head": "350af5dcf0aab9fc8ad8d6c6cde3552c63e26a75",
+    "timing": [
+      {
+        "temperature_C": 0,
+        "corner": "Slow",
+        "WNS": 0.034,
+        "TNS": 0.0,
+        "WHS": 0.123,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 0,
+        "corner": "Fast",
+        "WNS": 1.567,
+        "TNS": 0.0,
+        "WHS": 0.022,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 85,
+        "corner": "Slow",
+        "WNS": 0.034,
+        "TNS": 0.0,
+        "WHS": 0.123,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 85,
+        "corner": "Fast",
+        "WNS": 1.567,
+        "TNS": 0.0,
+        "WHS": 0.022,
+        "THS": 0.0
+      }
+    ],
+    "crossings": [
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.597,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.366,
+        "startpoint": "milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C",
+        "endpoint": "impl_xilinxmultiregimpl140_reg/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.742,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.048,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[1]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[1]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 6.293,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.499,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[9]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[9]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.664,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.277,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 7.218,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.74,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C",
+        "endpoint": "impl_xilinxmultiregimpl130_reg[2]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.26,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.63,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[1]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[1]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 7.107,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.801,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[9]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[9]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.264,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.717,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.597,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.366,
+        "startpoint": "milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C",
+        "endpoint": "impl_xilinxmultiregimpl140_reg/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.742,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.048,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[1]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[1]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 6.293,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.499,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[9]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[9]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.664,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.277,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 7.218,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.74,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C",
+        "endpoint": "impl_xilinxmultiregimpl130_reg[2]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.26,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.63,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[1]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[1]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 7.107,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.801,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[9]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[9]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.264,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.717,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D"
+      }
+    ],
+    "interactions": [
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_asl_350af5dcf/acceptance/seed_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.60     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.29     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.74     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.86     0.00            0         1658             8.00  rise - rise     0.08     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.60     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.29     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.74     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_asl_350af5dcf/acceptance/seed_Fast_0C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     7.22     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.11     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     1.59     0.00            0         1658             2.00  rise - rise     0.08     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     7.22     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.11     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_asl_350af5dcf/acceptance/seed_Fast_85C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     7.22     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.11     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     1.59     0.00            0         1658             2.00  rise - rise     0.08     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     7.22     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.11     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_asl_350af5dcf/acceptance/seed_Slow_0C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.60     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.29     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.74     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.86     0.00            0         1658             8.00  rise - rise     0.16     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.60     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.29     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.74     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_asl_350af5dcf/acceptance/seed_Slow_85C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.60     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.29     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.74     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.86     0.00            0         1658             8.00  rise - rise     0.16     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.60     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.29     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.74     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      }
+    ],
+    "critical_warnings": [],
+    "warning_counts": {
+      "12-4739": 0,
+      "20-1307": 0,
+      "12-5201": 0
+    },
+    "application": [
+      {
+        "line": 4218,
+        "text": "CONSTRAINTS: quasi_static cells=112 setup=4 hold=3"
+      },
+      {
+        "line": 4220,
+        "text": "CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000"
+      },
+      {
+        "line": 4221,
+        "text": "CONSTRAINTS: MultiReg eth=12 part=198 other=0"
+      }
+    ],
+    "emitted_severity_counts": {
+      "WARNING": 878,
+      "CRITICAL WARNING": 0,
+      "ERROR": 0
+    },
+    "margin_ok": true,
+    "bound_ok": true
+  },
+  {
+    "seed": "eto",
+    "directive": "ExtraTimingOpt",
+    "head": "350af5dcf0aab9fc8ad8d6c6cde3552c63e26a75",
+    "timing": [
+      {
+        "temperature_C": 0,
+        "corner": "Slow",
+        "WNS": 0.268,
+        "TNS": 0.0,
+        "WHS": 0.126,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 0,
+        "corner": "Fast",
+        "WNS": 1.299,
+        "TNS": 0.0,
+        "WHS": 0.022,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 85,
+        "corner": "Slow",
+        "WNS": 0.268,
+        "TNS": 0.0,
+        "WHS": 0.126,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 85,
+        "corner": "Fast",
+        "WNS": 1.299,
+        "TNS": 0.0,
+        "WHS": 0.022,
+        "THS": 0.0
+      }
+    ],
+    "crossings": [
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.29,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.635,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl130_reg[0]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.773,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.154,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[3]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[3]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 6.477,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.319,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[9]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[9]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.655,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.298,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.933,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.024,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl130_reg[0]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.265,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.693,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[3]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[3]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 7.232,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.74,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[5]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[5]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.264,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.717,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.29,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.635,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl130_reg[0]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.773,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.154,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[3]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[3]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 6.477,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.319,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[9]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[9]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.655,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.298,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.933,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.024,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl130_reg[0]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.265,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.693,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[3]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[3]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 7.232,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.74,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[5]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[5]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.264,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.717,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D"
+      }
+    ],
+    "interactions": [
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eto_350af5dcf/acceptance/seed_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.29     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.48     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.77     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.75     0.00            0         1658             8.00  rise - rise     0.11     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.29     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.48     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.77     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eto_350af5dcf/acceptance/seed_Fast_0C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.93     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.23     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     1.59     0.00            0         1658             2.00  rise - rise     0.11     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.93     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.23     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eto_350af5dcf/acceptance/seed_Fast_85C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.93     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.23     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     1.59     0.00            0         1658             2.00  rise - rise     0.11     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.93     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.23     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.26     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.26     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eto_350af5dcf/acceptance/seed_Slow_0C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.29     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.48     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.77     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.75     0.00            0         1658             8.00  rise - rise     0.20     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.29     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.48     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.77     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eto_350af5dcf/acceptance/seed_Slow_85C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.29     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.48     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.77     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.75     0.00            0         1658             8.00  rise - rise     0.20     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.29     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.48     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.77     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.66     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      }
+    ],
+    "critical_warnings": [],
+    "warning_counts": {
+      "12-4739": 0,
+      "20-1307": 0,
+      "12-5201": 0
+    },
+    "application": [
+      {
+        "line": 4216,
+        "text": "CONSTRAINTS: quasi_static cells=112 setup=4 hold=3"
+      },
+      {
+        "line": 4218,
+        "text": "CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000"
+      },
+      {
+        "line": 4219,
+        "text": "CONSTRAINTS: MultiReg eth=12 part=198 other=0"
+      }
+    ],
+    "emitted_severity_counts": {
+      "WARNING": 878,
+      "CRITICAL WARNING": 0,
+      "ERROR": 0
+    },
+    "margin_ok": true,
+    "bound_ok": true
+  },
+  {
+    "seed": "eppo",
+    "directive": "ExtraPostPlacementOpt",
+    "head": "350af5dcf0aab9fc8ad8d6c6cde3552c63e26a75",
+    "timing": [
+      {
+        "temperature_C": 0,
+        "corner": "Slow",
+        "WNS": 0.105,
+        "TNS": 0.0,
+        "WHS": 0.102,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 0,
+        "corner": "Fast",
+        "WNS": 1.516,
+        "TNS": 0.0,
+        "WHS": 0.036,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 85,
+        "corner": "Slow",
+        "WNS": 0.105,
+        "TNS": 0.0,
+        "WHS": 0.102,
+        "THS": 0.0
+      },
+      {
+        "temperature_C": 85,
+        "corner": "Fast",
+        "WNS": 1.516,
+        "TNS": 0.0,
+        "WHS": 0.036,
+        "THS": 0.0
+      }
+    ],
+    "crossings": [
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.232,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.693,
+        "startpoint": "milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C",
+        "endpoint": "impl_xilinxmultiregimpl140_reg/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.603,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.229,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[0]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 6.365,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.562,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[13]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[13]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.471,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.49,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.977,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.98,
+        "startpoint": "milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C",
+        "endpoint": "impl_xilinxmultiregimpl140_reg/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.217,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.694,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[0]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 7.041,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.917,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[13]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[13]/D"
+      },
+      {
+        "temperature_C": "0",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.176,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.816,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.232,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.693,
+        "startpoint": "milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C",
+        "endpoint": "impl_xilinxmultiregimpl140_reg/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.603,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.229,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[0]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 6.365,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.562,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[13]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[13]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Slow",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 6.471,
+        "requirement_ns": 8.0,
+        "datapath_ns": 1.49,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout0",
+        "slack_ns": 6.977,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.98,
+        "startpoint": "milansoc_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C",
+        "endpoint": "impl_xilinxmultiregimpl140_reg/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout0",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.217,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.694,
+        "startpoint": "milansoc_liteethmaccore_tx_cdc_cdc_graycounter0_q_reg[0]/C",
+        "endpoint": "impl_xilinxmultiregimpl120_reg[0]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "eth_clocks0_rx",
+        "to": "milansoc_crg_clkout1",
+        "slack_ns": 7.041,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.917,
+        "startpoint": "KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[13]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[13]/D"
+      },
+      {
+        "temperature_C": "85",
+        "corner": "Fast",
+        "from": "milansoc_crg_clkout1",
+        "to": "eth_clocks0_rx",
+        "slack_ns": 7.176,
+        "requirement_ns": 8.0,
+        "datapath_ns": 0.816,
+        "startpoint": "KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C",
+        "endpoint": "KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D"
+      }
+    ],
+    "interactions": [
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eppo_350af5dcf/acceptance/seed_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.23     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.37     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.60     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.47     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.92     0.00            0         1658             8.00  rise - rise     0.12     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.23     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.37     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.60     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.47     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eppo_350af5dcf/acceptance/seed_Fast_0C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.98     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.04     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.22     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.18     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     1.71     0.00            0         1658             2.00  rise - rise     0.12     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.98     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.04     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.22     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.18     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eppo_350af5dcf/acceptance/seed_Fast_85C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.98     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.04     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.22     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.18     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     1.71     0.00            0         1658             2.00  rise - rise     0.12     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.98     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     7.04     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     7.22     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.18     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eppo_350af5dcf/acceptance/seed_Slow_0C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.23     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.37     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.60     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.47     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.92     0.00            0         1658             8.00  rise - rise     0.24     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.23     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.37     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.60     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.47     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      },
+      {
+        "report": "$VALIDATION_STORAGE/607-a408-work/build_ax7101_eppo_350af5dcf/acceptance/seed_Slow_85C_interaction.rpt",
+        "pairs": [
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.23     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.37     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.60     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.47     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ],
+        "all_eth_pairs": [
+          "eth_clocks0_rx               eth_clocks0_rx               rise - rise     0.92     0.00            0         1658             8.00  rise - rise     0.24     0.00            0         1658             0.00  Clean                Partial False Path",
+          "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.23     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only",
+          "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.37     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.60     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only",
+          "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.47     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only"
+        ]
+      }
+    ],
+    "critical_warnings": [],
+    "warning_counts": {
+      "12-4739": 0,
+      "20-1307": 0,
+      "12-5201": 0
+    },
+    "application": [
+      {
+        "line": 4217,
+        "text": "CONSTRAINTS: quasi_static cells=112 setup=4 hold=3"
+      },
+      {
+        "line": 4219,
+        "text": "CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000"
+      },
+      {
+        "line": 4220,
+        "text": "CONSTRAINTS: MultiReg eth=12 part=198 other=0"
+      }
+    ],
+    "emitted_severity_counts": {
+      "WARNING": 877,
+      "CRITICAL WARNING": 0,
+      "ERROR": 0
+    },
+    "margin_ok": true,
+    "bound_ok": true
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "head": "350af5dcf0aab9fc8ad8d6c6cde3552c63e26a75",
+  "base": "54ce877371ee6e8878cf67294e86c2a8481b62f6",
+  "branch": "607-xdc-clock-names",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "worktree_clean": true,
+  "all_assertions_passed": true,
+  "final_gate_count": 81,
+  "completed_seed_count": 3,
+  "max_threads": 16,
+  "changed_files": [
+    "docs/integration/BUILDING.md",
+    "docs/litex/LITEX_SOC.md",
+    "docs/testing/RUNNING_TESTS.md",
+    "sw/builder/test_builder.py",
+    "sw/builder/test_clock_constraints.py",
+    "sw/litex/clock_constraints.py",
+    "sw/litex/clock_constraints.tcl",
+    "sw/litex/milan_soc.py",
+    "sw/litex/platforms/alinx_ax7101.py"
+  ],
+  "commits": [
+    {
+      "sha": "350af5dcf0aab9fc8ad8d6c6cde3552c63e26a75",
+      "subject": "Rename Ethernet constraint hook to avoid retired host interface token"
+    },
+    {
+      "sha": "712d319e7ed7bee0f3a223c56162b9114a5b7520",
+      "subject": "Fix clock-derived Ethernet constraints and reject dropped implementation exceptions"
+    }
+  ],
+  "read_only_inputs_unchanged": true,
+  "checked_at_utc": "2026-09-28T10:17:09.921807+00:00"
+}
