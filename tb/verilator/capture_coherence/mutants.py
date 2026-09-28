@@ -4,35 +4,48 @@
 """Mutation arm for the capture_coherence suite: prove its assertions can fail.
 
 Why this exists. `sim_main.cpp` asserts that every AAF column the talker
-emits carries one TDM frame, that every walk reads the newest frame complete
-at its tick and none completed after its first inject, and that columns step
-by one frame or by one slip at a beat crossing. A harness whose assertions
-never fail is indistinguishable from one that asserts nothing, and the first
-mutant below is the law the #451 bench measured: the walk reading per-pair
-latest-sample holds, as the crossbar did at ce550952.
+emits carries one TDM frame, that every walk reads exactly the frame its tick
+takes, that columns step by one frame or by one slip at a beat crossing,
+that the junction counters count each walk's slips, and that under CRF no
+lock phase repeats or skips a frame. A harness whose assertions never fail is
+indistinguishable from one that asserts nothing, and the first mutant below
+is the law the #451 bench measured: the walk reading per-pair latest-sample
+holds, as the crossbar did at ce550952.
 
 So the real RTL is mutated, one defect at a time, and the SAME harness is
-run against each mutant through the suite's own Makefile recipe, so the flag
-set is stated once: a crossbar mutant through `make build` (CMAP_SRC and MDIR
-overridden) against the junction harness, and a datapath mutant through
-`make dp-build` (DP_SRC and DP_MDIR overridden) against the milan_datapath
-leg, which is the only leg that can see the frame length milan_datapath hands
-the crossbar. Every mutant must make the harness FAIL by its OWN verdict (a `[FAIL]`
-line or a tally with failures, read by scripts/suite_tally.py) AND the
-failure must be the check the mutant names: a run that fails some other check
-proves nothing about that one. The unmutated build must still PASS. A crash
-or an abort is not a catch. Each pattern is REQUIRED to appear exactly once,
-so a refactor that moves the code fails here instead of silently skipping a
-mutant.
+run against each mutant through its suite's own Makefile recipe, so the flag
+set is stated once. Five legs:
+  junction  a crossbar mutant through `make build` (CMAP_SRC, MDIR) against
+            the junction harness, `--quick`;
+  band      a mutant of the wrapper's grid-aligner binding (WRAP_SRC) - the
+            round-2 guard: marker, delayed tick, keep-off - against the
+            junction harness's placed true-plan band, `--band`;
+  dp        a datapath mutant through `make dp-build` (DP_SRC, DP_MDIR)
+            against the milan_datapath leg's fixed scenarios, `--quick`: the
+            only leg that sees the frame length milan_datapath hands the
+            crossbar;
+  dp-band   a datapath mutant against that leg's placed band, `--band`: the
+            only leg that sees milan_datapath's own aligner binding;
+  chmap     a crossbar mutant through tb/verilator/chmap_capture's `make
+            build` (CMAP_SRC, MDIR): the only harness that elaborates the
+            one-pair TDM frame of the I2S-capture shapes.
+Every mutant must make the harness FAIL by its OWN verdict (a `[FAIL]` line
+or a tally with failures, read by scripts/suite_tally.py) AND the failure
+must be the check the mutant names: a run that fails some other check proves
+nothing about that one. Each leg's unmutated build must still PASS the same
+run. A crash or an abort is not a catch. Each pattern is REQUIRED to appear
+exactly once, so a refactor that moves the code fails here instead of
+silently skipping a mutant.
 
-The junction harness runs with `--quick`: every scenario but the true plan's
-whole beat, whose phases the +/-1000 ppm sweeps cross in 3,200 frames each.
-Each leg's clean control runs the same way as its mutants, so a mutant is
-graded against exactly the scenarios its control passed.
+`--quick` leaves out the junction's whole true-plan beat (whose phases the
++/-1000 ppm sweeps cross in 3,200 frames each) and every placed sweep;
+`--band` runs the true plan's placed band alone. Each leg's clean control
+runs the same way as its mutants, so a mutant is graded against exactly the
+scenarios its control passed.
 
 What bounds a livelocking mutant. This driver sets no host-time deadline on a
 run (rule 8's wall-clock ratchet, scripts/test_evidence.budget item 4). The
-harness is cycle-bounded by construction: each scenario runs until it has
+harnesses are cycle-bounded by construction: each scenario runs until it has
 decoded its columns or until a cycle guard fixed from its frame count, and no
 loop waits on a DUT output without that guard. The host-time bound is the
 sweep's: scripts/run_all_suites.sh runs this suite's `make` under its
@@ -41,7 +54,7 @@ never a pass or a fail. The SIGTERM handler in main() turns that kill into an
 exit that removes the temporary directory and the harness's process group.
 
 Usage: python3 mutants.py      (run from tb/verilator/capture_coherence)
-Exit 0 = every mutant was caught and the clean build still passes.
+Exit 0 = every mutant was caught and every clean build still passes.
 """
 
 import os
@@ -52,15 +65,33 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-#: the file each leg's mutants plant their defects in
-RTL = {
-    "junction": HERE / "../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv",
-    "dp": HERE / "../../../hdl/milan/milan_datapath.sv",
-}
+CHMAP = HERE / "../chmap_capture"
+CROSSBAR = HERE / "../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv"
+DATAPATH = HERE / "../../../hdl/milan/milan_datapath.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
 TORN = "[A] AAF columns mixing two TDM frames"
+MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
+LOCK_SLIP = "[C] slips while the CRF lock held"
+
+#: each leg's recipe: the suite directory, the build target, its source and
+#: objdir overrides, the file its mutants plant defects in, the executable it
+#: leaves and the arguments the harness runs with
+LEGS = {
+    "junction": (HERE, "build", "CMAP_SRC", "MDIR", CROSSBAR, "Vcoherence_sim", ("--quick",)),
+    "band": (HERE, "build", "WRAP_SRC", "MDIR", HERE / "coherence_wrap.sv", "Vcoherence_sim", ("--band",)),
+    "dp": (HERE, "dp-build", "DP_SRC", "DP_MDIR", DATAPATH, "Vcoherence_dp", ("--quick",)),
+    "dp-band": (HERE, "dp-build", "DP_SRC", "DP_MDIR", DATAPATH, "Vcoherence_dp", ("--band",)),
+    "chmap": (CHMAP, "build", "CMAP_SRC", "MDIR", CROSSBAR, "Vchmap_wrap", ()),
+}
+
+#: the wrapper's aligner binding and milan_datapath's, as round 2 writes them
+WRAP_KEEPOFF = ("    .FS_HZ_P            (FS_HZ_C),\n    .LOCK_KEEPOFF_CYC_P (256)",
+                "    .FS_HZ_P            (FS_HZ_C)")
+WRAP_TICK = ("    .tick_i (tick_q_r),", "    .tick_i (tick_w),")
+WRAP_MARKER = ("    .frame_ev_i (cap_pv_w && (32'(cap_slot_w) == TDM_SLOTS_P / 2 - 1)),",
+               "    .frame_ev_i (cap_pv_w && (cap_slot_w == 4'd0)),")
 
 #: (leg, name, ((pattern, replacement), ...), the check(s) this defect must
 #: break, spelled as the harness prints them)
@@ -84,34 +115,63 @@ MUTATIONS = [
        "(32'(tdm_pair_slot_i) == 0);"),
       ("(t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w",
        "1'b0 ? tdm_pair_w")),
-     "[W] walks older than the newest frame closed by the tick"),
+     "[W] walks older than the frame their tick takes"),
     ("junction", "the stage is never written (only the closing pair reaches the frame)",
      (("      if (tdm_stage_w) tdm_stage_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= tdm_pair_w;",
        "      if (1'b0) tdm_stage_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= tdm_pair_w;"),),
      #: no column ever carries its own tags, so the harness never goes live
      #: and the vacuity guard is the check that must refuse the run
      "[V] every requested column was decoded"),
+    ("junction", "the walk ignores the coincidence law: a close on the tick cycle always waits",
+     (("  wire         tdm_snap_take_w = tdm_snap_w && tdm_close_w && !tdm_frame_pend_r;",
+       "  wire         tdm_snap_take_w = 1'b0;"),),
+     (MISCOUNT, "[W] walks older than the frame their tick takes")),
+    ("junction", "the walk snapshot back on the pre-walk's last cycle (the round-1 instant)",
+     (("  wire tdm_snap_w = (st_r == CM_IDLE_S) && (tick_pend_r ? tick_late_r : tick_i);",
+       "  wire tdm_snap_w = (st_r == CM_POP_S) && (32'(pop_idx_r) == LB_PAIRS_C);"),),
+     "[W] walks newer than the frame their tick takes"),
+    ("junction", "the junction counters keyed on the slot-0 write against the tick (the round-1 law)",
+     (("      unique case ({tdm_close_w, tdm_snap_w})",
+       "      unique case ({tdm_pair_valid_i && (tdm_pair_slot_i == 4'd0), tick_i})"),),
+     MISCOUNT),
+    ("band", "the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off",
+     (WRAP_MARKER, WRAP_TICK, WRAP_KEEPOFF),
+     LOCK_SLIP),
+    ("band", "the aligner's keep-off back to its 1/128-sample default",
+     (WRAP_KEEPOFF,),
+     LOCK_SLIP),
+    ("band", "the aligner sees the tick itself, one cycle before the walk's crossing",
+     (WRAP_TICK,),
+     "[C] CRF slips net zero"),
     ("dp", "milan_datapath tells the crossbar a one-pair TDM frame",
      (("  localparam int CMAP_TDM_FRAME_PAIRS_C = (AIF_PAIRS_C < CMAP_TDM_SLOTS_C / 2)\n"
        "                                        ? AIF_PAIRS_C : CMAP_TDM_SLOTS_C / 2;",
        "  localparam int CMAP_TDM_FRAME_PAIRS_C = 1;"),),
      TORN),
+    ("dp-band", "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off",
+     (("    .FS_HZ_P            (48_000),\n    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)",
+       "    .FS_HZ_P            (48_000)"),
+      ("    .frame_ev_i (aafcap_pv_w &&\n"
+       "                 (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1)),\n"
+       "    .tick_i     (media_tick_q_r),",
+       "    .frame_ev_i (aafcap_pv_w && (aafcap_slot_w == 4'd0)),\n"
+       "    .tick_i     (media_tick_p),")),
+     LOCK_SLIP),
+    ("chmap", "the frame closes on the bucket's last pair whatever the frame length",
+     (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",
+       "(32'(tdm_pair_slot_i) == N_TDM_PAIRS_C - 1);"),
+      ("(t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w",
+       "(t == int'(N_TDM_PAIRS_C) - 1) ? tdm_pair_w")),
+     "F1: col 0 carries its own pair-0 frame (L)"),
 ]
-
-#: each leg's recipe: the build target, its source and objdir overrides, the
-#: executable it leaves and the arguments the harness runs with
-LEGS = {
-    "junction": ("build", "CMAP_SRC", "MDIR", "Vcoherence_sim", ("--quick",)),
-    "dp": ("dp-build", "DP_SRC", "DP_MDIR", "Vcoherence_dp", ()),
-}
 
 
 def build(leg: str, rtl_path: Path, workdir: Path, tag: str) -> Path | None:
     """Build `leg`'s harness against `rtl_path` through the suite's own recipe."""
-    target, src_var, mdir_var, exe_name, _ = LEGS[leg]
+    suite, target, src_var, mdir_var, _, exe_name, _ = LEGS[leg]
     mdir = workdir / f"obj_{tag}"
     out = subprocess.run(
-        ["make", "-s", "-C", str(HERE), target, f"{src_var}={rtl_path}", f"{mdir_var}={mdir}"],
+        ["make", "-s", "-C", str(suite), target, f"{src_var}={rtl_path}", f"{mdir_var}={mdir}"],
         capture_output=True, text=True, check=False)
     exe = mdir / exe_name
     if out.returncode != 0 or not exe.is_file():
@@ -120,12 +180,13 @@ def build(leg: str, rtl_path: Path, workdir: Path, tag: str) -> Path | None:
 
 
 def run_harness(leg: str, exe: Path) -> tuple[int, str]:
-    """(rc, stdout) of one harness run, from the suite directory (the datapath
+    """(rc, stdout) of one harness run, from its suite directory (the datapath
     leg's processor reads its ROM images by relative name), waited for with no
     host deadline: the harness is cycle-bounded (module docstring). The harness
     is its own session, so the sweep's kill reaches it only through the
     SIGTERM handler in main(), whose exit runs the kill below."""
-    proc = subprocess.Popen([str(exe), *LEGS[leg][4]], cwd=HERE, stdout=subprocess.PIPE,
+    suite, *_, args = LEGS[leg]
+    proc = subprocess.Popen([str(exe), *args], cwd=suite, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, text=True, start_new_session=True)
     try:
         out, _ = proc.communicate()
@@ -178,7 +239,8 @@ def mutate(src: str, edits: tuple[tuple[str, str], ...]) -> str | None:
 def grade_mutant(leg: str, work: Path, name: str, edits: tuple[tuple[str, str], ...],
                  breaks: str | tuple[str, ...]) -> bool:
     """Build and run one mutant; True when it was caught by its named check(s)."""
-    src = RTL[leg].read_text()
+    rtl = LEGS[leg][4]
+    src = rtl.read_text()
     mutated = mutate(src, edits)
     if mutated is None:
         counts = [src.count(p) for p, _ in edits]
@@ -187,8 +249,8 @@ def grade_mutant(leg: str, work: Path, name: str, edits: tuple[tuple[str, str], 
               f"mutant is no longer mutating anything - fix the pattern, "
               f"do not delete the arm.")
         return False
-    tag = "".join(c if c.isalnum() else "_" for c in name)[:60]
-    mpath = work / tag / RTL[leg].name
+    tag = "".join(c if c.isalnum() else "_" for c in f"{leg}_{name}")[:60]
+    mpath = work / tag / rtl.name
     mpath.parent.mkdir()
     mpath.write_text(mutated)
     exe = build(leg, mpath, work, tag)
@@ -200,26 +262,27 @@ def grade_mutant(leg: str, work: Path, name: str, edits: tuple[tuple[str, str], 
     shown = " and ".join(f'"{w}"' for w in wanted)
     answer = verdict(*run_harness(leg, exe), wanted)
     if answer == "caught":
-        print(f"[PASS] mutant caught: {name} - breaks {shown}")
+        print(f"[PASS] mutant caught ({leg}): {name} - breaks {shown}")
         return True
     if answer == "pass":
-        print(f"[FAIL] mutant SURVIVED: {name}. The harness does not prove {shown}.")
+        print(f"[FAIL] mutant SURVIVED ({leg}): {name}. The harness does not prove {shown}.")
     else:
-        print(f"[FAIL] mutant {name!r} {answer}")
+        print(f"[FAIL] mutant ({leg}) {name!r} {answer}")
     return False
 
 
 def clean_control(leg: str, work: Path) -> bool:
-    """The unmutated RTL through `leg`'s recipe must pass its harness."""
-    clean = work / f"clean_{leg}" / RTL[leg].name
+    """The unmutated source through `leg`'s recipe must pass its harness."""
+    rtl = LEGS[leg][4]
+    clean = work / f"clean_{leg}" / rtl.name
     clean.parent.mkdir()
-    clean.write_text(RTL[leg].read_text())
+    clean.write_text(rtl.read_text())
     exe = build(leg, clean, work, f"clean_{leg}")
     answer = verdict(*run_harness(leg, exe)) if exe else "did not compile"
     if answer == "pass":
-        print(f"[PASS] the unmutated RTL still passes the {leg} harness")
+        print(f"[PASS] the unmutated source still passes the {leg} harness")
         return True
-    print(f"[FAIL] the unmutated RTL does NOT pass the {leg} harness ({answer}) - "
+    print(f"[FAIL] the unmutated source does NOT pass the {leg} harness ({answer}) - "
           f"every {leg} mutant result is meaningless")
     return False
 

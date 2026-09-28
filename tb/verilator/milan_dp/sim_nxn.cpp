@@ -7871,8 +7871,11 @@ class NxnDatapathHarness {
         //  Until this round milan_datapath tied .tdm_pair_valid_i to 1'b0, so
         //  every capture pair landed in the SINGLE-pair I2S hold and a
         //  physical cluster past channel 1 could never be backed on any shape.
-        //  "tdm_hold_r changed from its reset value" is the sharpest available
-        //  proof that the feed exists: restore the tie-off and it stays 0.
+        //  The crossbar's TDM pair strobe (tdm_pair_valid_i) pulsing is the
+        //  sharpest available proof that the feed exists: restore the tie-off
+        //  and it never pulses. It is the port, not the frame bank behind it
+        //  (tdm_frame_r since #617): a bank written with zeros looks the same
+        //  whether or not a feed is wired.
         long tdm_written = 0;
 
         long ticks = 0;

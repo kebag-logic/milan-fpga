@@ -66,7 +66,7 @@ module chmap_wrap (
   //! per-lane slip evidence (saturating; ZERO with locked pacing)
   output wire [15:0]  a_dup_cnt_o,
   output wire [15:0]  a_skip_cnt_o,
-  //! #74 TDM junction slip detector (frame marker vs tick), lane A grades it
+  //! #74 TDM junction slip detector (frame close vs snapshot), lane A grades it
   output wire [15:0]  a_tdm_dup_cnt_o,
   output wire [15:0]  a_tdm_skip_cnt_o,
   output wire [15:0]  b_dup_cnt_o,

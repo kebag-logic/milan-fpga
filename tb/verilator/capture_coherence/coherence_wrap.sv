@@ -12,7 +12,8 @@
 //!                          pair stream in clk
 //!   KL_media_nco           the packet grid media_tick_p (INTERNAL free-run)
 //!   KL_media_grid_align    the #74 aligner: under a CRF selection it steers
-//!                          the NCO onto the front end's slot-0 marker
+//!                          the NCO onto the front end's frame close, the
+//!                          strobe of the pair that publishes a whole frame
 //!   KL_chan_map_capture    THE DEVICE UNDER TEST: the TDM bucket and the
 //!                          media-tick walk
 //!   KL_aaf_packetizer      one 8-channel talker, the AAF PDUs on AXIS
@@ -129,14 +130,25 @@ module coherence_wrap #(
     .phase_o ()
   );
 
+  //! milan_datapath's aligner binding (#617): the frame close as the marker
+  //! (pair TDM_SLOTS_P/2 - 1 on a solo TDM master), the tick one cycle late
+  //! so the lock-target split is the crossbar walk's crossing, and its
+  //! MGA_KEEPOFF_CYC_C keep-off
+  logic tick_q_r;
+  always_ff @(posedge clk) begin : align_tick_delay
+    if (!rst_n) tick_q_r <= 1'b0;
+    else        tick_q_r <= tick_w;
+  end : align_tick_delay
+
   KL_media_grid_align #(
-    .CLK_FREQ_HZ_P (CLK_HZ_P),
-    .FS_HZ_P       (FS_HZ_C)
+    .CLK_FREQ_HZ_P      (CLK_HZ_P),
+    .FS_HZ_P            (FS_HZ_C),
+    .LOCK_KEEPOFF_CYC_P (256)
   ) u_align (
     .clk_i (clk), .rst_n (rst_n),
     .sel_i (sel_crf_i),
-    .frame_ev_i (cap_pv_w && (cap_slot_w == 4'd0)),
-    .tick_i (tick_w),
+    .frame_ev_i (cap_pv_w && (32'(cap_slot_w) == TDM_SLOTS_P / 2 - 1)),
+    .tick_i (tick_q_r),
     .u_o (u_w),
     .engaged_o (engaged_o),
     .err_cyc_o ()

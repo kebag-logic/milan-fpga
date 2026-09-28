@@ -29,19 +29,32 @@
 // public_flat_rw tap tb/verilator/milan_dp/sim_aclk.cpp uses one hop
 // upstream of the command chain sim_nxn's AECP-FACE arms prove; the leg then
 // requires the root's resolved verdict and the aligner's engagement to
-// follow it. The INTERNAL scenarios run over two beats on +/-1000 ppm plans;
-// the CRF ones lock on the true plan at eight TDM-clock offsets an eighth of
-// a frame apart, so most of them lock in a region the pre-#617 crossbar tore.
+// follow it. The INTERNAL scenarios run over two beats on +/-1000 ppm plans.
+// The CRF ones, all on the true plan, 1,500 columns each:
+//   DP-CRF-0..7   eight TDM-clock offsets an eighth of a frame apart, so most
+//                 of them lock in a region the pre-#617 crossbar tore;
+//   DP-band-true  the aligner's engagement close PLACED (coherence_bench's
+//                 calibration) every 2 cycles from -20 to +4 cycles of the
+//                 capture walk's crossing: the band where milan_datapath's
+//                 aligner binding decides whether a lock repeats and skips
+//                 frames (#617 round 2). This leg is the only one that sees
+//                 that binding - the marker, the delayed tick, the keep-off.
 //
-// THE CHECKS are the column bench's ([A], [C], [V]), plus, from the pins and
-// the root's public taps: the INTERNAL drift visited every tick-to-fsync
-// phase bin, and under CRF the root saw the selection, the aligner engaged
-// and the second half of the run held its phase with no slip.
+// THE CHECKS are the column bench's ([A], [C], [V]; under CRF the CRF law:
+// slips only in an engagement's first columns, netting zero), plus, from the
+// pins and the root's public taps: the INTERNAL drift visited every
+// tick-to-fsync phase bin; under CRF the root saw the selection, the aligner
+// engaged, a placed engagement landed where it was placed, the second half
+// of the run held its phase with no slip, and SLIP_TDM counted exactly the
+// repeats and skips the columns show.
 
 #include "coherence_bench.hpp"
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
 #include "verilated.h"
+
+#include <cstdlib>
+#include <map>
 
 namespace {
 
@@ -72,6 +85,8 @@ struct Scenario {
     long start_delay_steps = 0; //! TDM clock held this long after reset
     long frames = 0;            //! columns to decode
     bool sweep = false;         //! INTERNAL: the tick must cross the frame
+    bool brief = false;         //! one [i] line unless a check fails
+    long placed = kUnplaced;    //! engagement close offset from the crossing
 };
 
 //! The harness: the datapath, the oscillator, the SoC and the column bench.
@@ -79,6 +94,7 @@ class DatapathHarness {
  public:
     explicit DatapathHarness(Vmilan_datapath* model) : dut_(model) {}
     void run(const Scenario& sc);
+    void run_sweep(const Sweep& sw);
     int report() { return check_.report(); }
 
  private:
@@ -97,6 +113,12 @@ class DatapathHarness {
     long lock_min_ = 0;
     long lock_max_ = 0;
     bool lock_seen_ = false;
+    long last_tick_ = -1;
+    std::uint64_t bank_prev_ = 0;   //! the crossbar's frame bank, pair 0
+    long engage_offset_ = 0;        //! the engagement close, cycles after its tick
+    bool engage_seen_ = false;
+    std::vector<long> placed_landed_;
+    std::map<std::string, long> unheld_;  //! calibrations, by plan name
 
     void restart(const Scenario& sc);
     void step();
@@ -107,6 +129,8 @@ class DatapathHarness {
     void program_the_talker();
     void select_crf(const std::string& n);
     void grade(const Scenario& sc);
+    void grade_crf(const Scenario& sc, const std::string& n);
+    long calibrate(const ClockPlan& plan);
 };
 
 void DatapathHarness::restart(const Scenario& sc) {
@@ -116,6 +140,9 @@ void DatapathHarness::restart(const Scenario& sc) {
     phase_hits_.fill(0);
     lock_ref_ = lock_min_ = lock_max_ = 0;
     lock_seen_ = false;
+    last_tick_ = -1;
+    bank_prev_ = 0;
+    engage_seen_ = false;
     osc_.restart(sc.plan, 0);
     dut_->axis_resetn = 0;
     dut_->gtx_resetn = 0;
@@ -163,7 +190,21 @@ void DatapathHarness::observe() {
     const int fsync = dut_->tdm_fsync_o;
     if (fsync && !fsync_prev_) last_fsync_ = cycle_;
     fsync_prev_ = fsync;
-    if (dut_->rootp->milan_datapath__DOT__media_tick_p) note_tick();
+    if (dut_->rootp->milan_datapath__DOT__media_tick_p) {
+        last_tick_ = cycle_;
+        note_tick();
+    }
+    //! the engagement close: the first frame the crossbar publishes once the
+    //! root resolves CRF, seen on its frame bank the cycle after the close.
+    //! It is read off the crossbar, not off the aligner, so a placement does
+    //! not depend on the aligner binding it is there to test.
+    const std::uint64_t bank = dut_->rootp->milan_datapath__DOT__chan_map_capture__DOT__tdm_frame_r[0];
+    if (bank != bank_prev_ && !engage_seen_ && last_tick_ >= 0 &&
+        dut_->rootp->milan_datapath__DOT__crf_clk_selected_r) {
+        engage_offset_ = (cycle_ - 1) - last_tick_;
+        engage_seen_ = true;
+    }
+    bank_prev_ = bank;
     if (dut_->m_axis_mac_tx_tvalid && dut_->m_axis_mac_tx_tready) {
         bench_.beat(dut_->m_axis_mac_tx_tdata, dut_->m_axis_mac_tx_tkeep, dut_->m_axis_mac_tx_tlast != 0);
     }
@@ -234,8 +275,10 @@ void DatapathHarness::select_crf(const std::string& n) {
 
 void DatapathHarness::run(const Scenario& sc) {
     const std::string n = "[" + sc.name + "] ";
-    std::printf("\n[%s] milan_datapath, %s, %s, TDM clock held %ld steps, %ld columns\n", sc.name.c_str(),
-                sc.crf ? "CRF selected" : "INTERNAL", sc.plan.name.c_str(), sc.start_delay_steps, sc.frames);
+    if (!sc.brief) {
+        std::printf("\n[%s] milan_datapath, %s, %s, TDM clock held %ld steps, %ld columns\n", sc.name.c_str(),
+                    sc.crf ? "CRF selected" : "INTERNAL", sc.plan.name.c_str(), sc.start_delay_steps, sc.frames);
+    }
     restart(sc);
     if (sc.crf) select_crf(n);
     program_the_talker();
@@ -248,13 +291,15 @@ void DatapathHarness::run(const Scenario& sc) {
         cycle(1024);
     }
     bench_.finish();
+    const std::uint64_t fails_before = check_.failures();
     grade(sc);
+    if (sc.brief && check_.failures() == fails_before) return;
     bench_.print_table();
 }
 
 void DatapathHarness::grade(const Scenario& sc) {
     const std::string n = "[" + sc.name + "] ";
-    bench_.grade(check_, n, sc.frames, sc.plan.ppm);
+    bench_.grade(check_, n, sc.frames, sc.plan.ppm, !sc.crf);
     if (!sc.crf) {
         check_.that((n + "[V] the root keeps the INTERNAL selection").c_str(),
                     dut_->rootp->milan_datapath__DOT__crf_clk_selected_r == 0);
@@ -266,29 +311,81 @@ void DatapathHarness::grade(const Scenario& sc) {
                    static_cast<std::uint64_t>(hit), kPhaseBins);
         check_.that((n + "[C] the drift crossed at least one beat").c_str(), bench_.tally().clusters >= 1);
     }
-    if (sc.crf) {
-        check_.that((n + "[V] the aligner engaged").c_str(),
-                    dut_->rootp->milan_datapath__DOT__mga_engaged_w != 0);
-        const long spread = lock_max_ - lock_min_;
-        std::printf("  [i]  CRF tail: tick %ld cycles after the fsync edge, %+ld..%+ld (spread %ld)\n", lock_ref_,
-                    lock_min_, lock_max_, spread);
-        check_.that((n + "[V] the CRF lock held its phase (spread under a quarter frame)").c_str(),
-                    lock_seen_ && spread < static_cast<long>(kTickCycles / 4));
-        check_.dec((n + "[C] slips while the CRF lock held").c_str(),
-                   static_cast<std::uint64_t>(bench_.tally().tail_slips), 0);
+    if (sc.crf) grade_crf(sc, n);
+}
+
+//! CRF: the aligner engaged where it was placed, the tail held its phase
+//! with no slip, and SLIP_TDM counted exactly what the columns show. Under
+//! CRF no slip falls in the in-flight walks at the end of a run, so the
+//! counters' totals since reset and the bench's are one count.
+void DatapathHarness::grade_crf(const Scenario& sc, const std::string& n) {
+    check_.that((n + "[V] the aligner engaged").c_str(), dut_->rootp->milan_datapath__DOT__mga_engaged_w != 0);
+    const long spread = lock_max_ - lock_min_;
+    const long landed = wrap_offset(static_cast<double>(engage_offset_));
+    const long rtl_dups = dut_->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
+    const long rtl_skips = dut_->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
+    std::printf("  [i]  %s: engaged %+ld cycles from the crossing; tail: tick %ld cycles after the fsync edge, "
+                "%+ld..%+ld (spread %ld); %ld repeats, %ld skips; SLIP_TDM %ld dups, %ld skips\n",
+                sc.name.c_str(), landed, lock_ref_, lock_min_, lock_max_, spread, bench_.tally().dups,
+                bench_.tally().skips, rtl_dups, rtl_skips);
+    if (sc.placed != kUnplaced) {
+        check_.that((n + "[V] the engagement close landed where the sweep placed it").c_str(),
+                    engage_seen_ && std::labs(landed - sc.placed) <= kPlaceTolerance);
+        placed_landed_.push_back(landed);
     }
+    check_.that((n + "[V] the CRF lock held its phase (spread under a quarter frame)").c_str(),
+                lock_seen_ && spread < static_cast<long>(kTickCycles / 4));
+    check_.dec((n + "[C] slips while the CRF lock held").c_str(),
+               static_cast<std::uint64_t>(bench_.tally().tail_slips), 0);
+    check_.that((n + "[C] SLIP_TDM counted the columns' repeats and skips").c_str(),
+                rtl_dups == bench_.tally().dups && rtl_skips == bench_.tally().skips);
+}
+
+//! Where the engagement close (the first after the CRF selection) lands
+//! against its tick with the TDM clock unheld, once per plan: the origin
+//! placed engagements are measured from (coherence_bench's PLACED CRF
+//! ENGAGEMENTS).
+long DatapathHarness::calibrate(const ClockPlan& plan) {
+    const auto known = unheld_.find(plan.name);
+    if (known != unheld_.end()) return known->second;
+    const Scenario sc{"calibrate", plan, true, 0, 0, false, true, kUnplaced};
+    restart(sc);
+    select_crf("[calibrate] ");
+    const long guard = cycle_ + 16 * 1100;
+    while (!engage_seen_ && cycle_ < guard) cycle(1);
+    check_.that(("[calibrate " + plan.name + "] [V] the engagement close was seen").c_str(), engage_seen_);
+    std::printf("\n  [i]  calibration, %s: with the TDM clock unheld the first close under CRF lands %ld cycles "
+                "after its tick\n", plan.name.c_str(), engage_offset_);
+    unheld_[plan.name] = engage_offset_;
+    return engage_offset_;
+}
+
+//! A placed sweep: calibrate its plan, run one brief scenario per offset,
+//! then require the engagements to have covered the window.
+void DatapathHarness::run_sweep(const Sweep& sw) {
+    const long unheld = calibrate(sw.plan);
+    std::printf("\n[%s] milan_datapath, CRF, %s, engagement placed every %ld cycles from %+ld to %+ld of the "
+                "crossing, %ld columns each\n", sw.tag.c_str(), sw.plan.name.c_str(), sw.step, sw.lo, sw.hi,
+                sw.frames);
+    placed_landed_.clear();
+    for (long off = sw.lo; off <= sw.hi; off += sw.step) {
+        char name[40];
+        std::snprintf(name, sizeof name, "%s%+ld", sw.tag.c_str(), off);
+        run({name, sw.plan, true, delay_for(unheld, off), sw.frames, false, true, off});
+    }
+    grade_window(check_, sw, placed_landed_);
 }
 
 //! Over two beats each way at INTERNAL (a beat of a 1000 ppm plan is 1000
 //! frames), then CRF locks an eighth of a frame apart.
 std::vector<Scenario> scenarios() {
     std::vector<Scenario> list;
-    list.push_back({"DP-INT-slow", ppm_plan(-1000), false, 0, 2'200, true});
-    list.push_back({"DP-INT-fast", ppm_plan(+1000), false, 0, 2'200, true});
+    list.push_back({"DP-INT-slow", ppm_plan(-1000), false, 0, 2'200, true, false, kUnplaced});
+    list.push_back({"DP-INT-fast", ppm_plan(+1000), false, 0, 2'200, true, false, kUnplaced});
     for (int k = 0; k < 8; k++) {
         char name[24];
         std::snprintf(name, sizeof name, "DP-CRF-%d", k);
-        list.push_back({name, true_plan(), true, k * 4167L / 8, 1'500, false});
+        list.push_back({name, true_plan(), true, k * 4167L / 8, 1'500, false, false, kUnplaced});
     }
     return list;
 }
@@ -299,7 +396,15 @@ int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     const milan::tb::Model<Vmilan_datapath> model;
     DatapathHarness harness(model.get());
-    std::printf("=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617) ===\n");
-    for (const Scenario& sc : scenarios()) harness.run(sc);
+    //! `--quick` runs the fixed scenarios alone and `--band` the placed sweep
+    //! alone: the mutation arm's two datapath recipes
+    const std::string arg = argc > 1 ? argv[1] : "";
+    std::printf("=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617)%s ===\n",
+                arg == "--quick" ? ", --quick: the placed sweep left out"
+                : arg == "--band" ? ", --band: the placed sweep alone" : "");
+    if (arg != "--band") {
+        for (const Scenario& sc : scenarios()) harness.run(sc);
+    }
+    if (arg != "--quick") harness.run_sweep({"DP-band-true", true_plan(), -20, 4, 2, 1'500});
     return harness.report();
 }

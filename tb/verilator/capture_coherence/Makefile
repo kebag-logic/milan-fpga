@@ -6,9 +6,13 @@
 # bound as milan_datapath binds them on the shipping AX7101 1x1 TDM8 shape,
 # with the #451 pattern shifted into the TDM data pin and every AAF column
 # the talker emits decoded. INTERNAL drift sweeps on the true 391/1591 plan
-# (one whole beat) and on +/-1000 ppm plans, then CRF locks at sixteen
-# phases on the true plan and at four on +/-50 ppm plans. A second leg runs
-# the same bench against the whole milan_datapath on the shipping shape.
+# (one whole beat) and on +/-1000 ppm plans, then CRF: locks at sixteen
+# phases on the true plan and at four on +/-50 ppm plans, and the aligner's
+# engagement PLACED against the capture walk's crossing - every cycle across
+# +/-32 of it and every 16 round the frame on the true plan, every 4 across
+# the +/-50 ppm acquisition band (sim_main.cpp's header lists them). A second
+# leg runs the same bench against the whole milan_datapath on the shipping
+# shape, with its own placed band.
 #   make         - both legs, then the mutation arm
 #   make run     - the junction harness alone
 #   make dp      - the milan_datapath leg alone
@@ -40,10 +44,12 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) $(GFLAGS) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra $(DFLAGS)"
-# CMAP_SRC and MDIR are overridable so the mutation arm builds a MUTATED COPY
-# of the crossbar with this exact flag set, into its own directory, through
-# the same recipe - one statement of how the harness is built.
+# CMAP_SRC, WRAP_SRC and MDIR are overridable so the mutation arm builds a
+# MUTATED COPY of the crossbar, or of the wrapper's aligner binding, with this
+# exact flag set, into its own directory, through the same recipe - one
+# statement of how the harness is built.
 CMAP_SRC ?= $(AAF)/KL_chan_map_capture.sv
+WRAP_SRC ?= coherence_wrap.sv
 MDIR     ?= obj_dir
 SRCS = $(RTL_DIR)/common/cdc_pair_fifo.sv \
        $(AAF)/KL_tdm_capture_master.sv \
@@ -51,7 +57,7 @@ SRCS = $(RTL_DIR)/common/cdc_pair_fifo.sv \
        $(CRF)/KL_media_grid_align.sv \
        $(CMAP_SRC) \
        $(AAF)/KL_aaf_packetizer.sv \
-       coherence_wrap.sv
+       $(WRAP_SRC)
 EXE  = Vcoherence_sim
 CPP  = sim_main.cpp
 

@@ -22,6 +22,8 @@
 
 #include <algorithm>
 #include <array>
+#include <climits>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <map>
@@ -51,6 +53,11 @@ constexpr int kPayloadOffset = 42;
 constexpr int kFrameBytes = kPayloadOffset + kEvents * kChans * 4;
 //! columns closer than this belong to one slip cluster
 constexpr long kClusterGap = 64;
+//! CRF: the columns in which an engagement landing within the close's
+//! one-cycle jitter of the walk's crossing may still repeat and skip, before
+//! the aligner's pull (0.07 cycles per frame at its 256-cycle keep-off) has
+//! carried the close two cycles clear
+constexpr long kEngageColumns = 64;
 
 //! A TDM clock as a fractional-N divider of the 200 MHz step rate: the clock
 //! toggles on every step at which `num` accumulated into `den` wraps.
@@ -173,6 +180,68 @@ class SocTransmitter {
     int data_ = 1;
 };
 
+// ---- PLACED CRF ENGAGEMENTS ------------------------------------------------ //
+// A CRF scenario engages the aligner on the first frame close it sees.
+// Holding the TDM clock D oscillator steps moves every TDM event, that close
+// included, D steps later against the packet grid, which the hold does not
+// touch. So a leg measures once, per plan, where that close lands with the
+// clock unheld (its CALIBRATION), and delay_for() then places an engagement
+// any chosen number of cycles from the walk's crossing (0 = the close on the
+// tick cycle, positive = after it).
+
+//! oscillator steps per axis cycle: a held TDM clock moves the frame by one
+//! cycle every this many steps
+constexpr long kStepsPerCycle = static_cast<long>(kStepHz) / kAxisHz;
+//! no placed engagement: the scenario keeps its held-clock offset
+constexpr long kUnplaced = LONG_MIN;
+//! a placed engagement lands 0 to 2 cycles before its linear placement: the
+//! front end's clock crossing and the tick grid's whole-cycle steps
+//! (measured over every placed scenario of both legs)
+constexpr long kPlaceTolerance = 2;
+
+//! A placed sweep: one CRF scenario per offset from `lo` to `hi` cycles from
+//! the crossing, `step` apart, each `frames` columns long.
+struct Sweep {
+    std::string tag;
+    ClockPlan plan;
+    long lo = 0;
+    long hi = 0;
+    long step = 1;
+    long frames = 0;
+};
+
+//! a cycle offset wrapped into one frame about zero, (-P/2, P/2]
+inline long wrap_offset(double cycles) {
+    double w = std::fmod(cycles, kTickCycles);
+    if (w > kTickCycles / 2) w -= kTickCycles;
+    if (w <= -kTickCycles / 2) w += kTickCycles;
+    return std::lround(w);
+}
+
+//! The held-clock steps that land the engagement close `offset` cycles from
+//! the crossing, given where it lands with the clock unheld.
+inline long delay_for(long unheld, long offset) {
+    const double frame_steps = kTickCycles * static_cast<double>(kStepsPerCycle);
+    double d = std::fmod(static_cast<double>(offset - unheld) * static_cast<double>(kStepsPerCycle), frame_steps);
+    if (d < 0) d += frame_steps;
+    return std::lround(d);
+}
+
+//! A sweep's engagements, sorted, must span its window with no gap wider
+//! than its step plus the placement tolerance: otherwise a band narrower
+//! than the gap could sit between two of them unseen.
+inline void grade_window(milan::tb::Checker& check, const Sweep& sw, std::vector<long> landed) {
+    std::sort(landed.begin(), landed.end());
+    long gap = landed.empty() ? LONG_MAX : 0;
+    for (size_t i = 1; i < landed.size(); i++) gap = std::max(gap, landed[i] - landed[i - 1]);
+    const long slack = sw.step + kPlaceTolerance;
+    const bool spans = !landed.empty() && landed.front() <= sw.lo + slack && landed.back() >= sw.hi - slack;
+    std::printf("  [i]  %s: %zu engagements landed from %+ld to %+ld, widest gap %ld cycles\n", sw.tag.c_str(),
+                landed.size(), landed.empty() ? 0 : landed.front(), landed.empty() ? 0 : landed.back(), gap);
+    check.that(("[" + sw.tag + "] [V] the engagements covered the window, no gap wider than its step").c_str(),
+               spans && gap <= slack);
+}
+
 //! Pair offsets of one column against pair 0: the #451 state key.
 using StateKey = std::array<int, kPairs - 1>;
 
@@ -190,6 +259,7 @@ struct ColumnTally {
     long clusters = 0;          //! slip clusters
     long bad_clusters = 0;      //! clusters not netting one slip
     long tail_slips = 0;        //! slips while the caller's tail flag is set
+    long last_slip_col = -1;    //! the column of the last slip
     std::map<StateKey, long> states;
 };
 
@@ -227,10 +297,14 @@ class ColumnBench {
     bool live() const { return live_; }
     const ColumnTally& tally() const { return t_; }
 
-    //! The column checks, prefixed with the scenario's name. `ppm` is the
-    //! TDM frame's offset against the grid: every slip cluster must net one
-    //! frame in its direction.
-    void grade(milan::tb::Checker& check, const std::string& n, long min_columns, double ppm) const {
+    //! The column checks, prefixed with the scenario's name. With `drift`
+    //! (INTERNAL) `ppm` is the TDM frame's offset against the grid and every
+    //! slip cluster must net one frame in its direction. Without it (CRF) the
+    //! grids are held together and there is no drift to net: a slip may come
+    //! only from an engagement landing on the walk's crossing, inside the
+    //! first kEngageColumns columns, and it nets zero - the aligner's pull
+    //! returns the close to the side it engaged on.
+    void grade(milan::tb::Checker& check, const std::string& n, long min_columns, double ppm, bool drift) const {
         check.dec((n + "[A] PDUs not the 8-channel AAF shape").c_str(), static_cast<std::uint64_t>(t_.bad_pdus), 0);
         check.that((n + "[V] every requested column was decoded").c_str(), t_.columns >= min_columns);
         check.dec((n + "[A] words not carrying their own channel tag").c_str(),
@@ -240,6 +314,12 @@ class ColumnBench {
         check.dec((n + "[A] AAF columns mixing two TDM frames").c_str(), static_cast<std::uint64_t>(t_.torn), 0);
         check.dec((n + "[C] continuity steps other than +1, one repeat or one skip").c_str(),
                   static_cast<std::uint64_t>(t_.bad_steps), 0);
+        if (!drift) {
+            check.that((n + "[C] CRF slips net zero").c_str(), t_.skips == t_.dups);
+            check.that((n + "[C] CRF slips only inside the engagement's first columns").c_str(),
+                       t_.last_slip_col < kEngageColumns);
+            return;
+        }
         check.dec((n + "[C] slip clusters not netting exactly one frame").c_str(),
                   static_cast<std::uint64_t>(t_.bad_clusters), 0);
         const long sign = ppm < 0 ? -1 : 1;
@@ -338,6 +418,7 @@ class ColumnBench {
             return;
         }
         if (tail_) t_.tail_slips++;
+        t_.last_slip_col = col;
         in_cluster_ = true;
         cluster_net_ += step - 1;
         last_slip_col_ = col;
