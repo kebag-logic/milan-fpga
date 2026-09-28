@@ -62,6 +62,12 @@ extern cmd_handler const nvm_host_cmd_milan_nvm;
 extern cmd_handler const nvm_host_cmd_milan_status;
 
 void set_idle_hook(void (*fptr)(void));
+void bios_dispatch_hook_required(void);
+
+/* The host replaces the BIOS, including its patch-0006 link marker. */
+void bios_dispatch_hook_required(void)
+{
+}
 unsigned int crc32(const unsigned char *buffer, unsigned int len);
 
 struct flash_model {
