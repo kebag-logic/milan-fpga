@@ -1,0 +1,19 @@
+{
+ "old_rows": 92,
+ "new_rows": 93,
+ "old_tables": 11,
+ "new_tables": 11,
+ "only_old": [
+  "| INTERNAL-source beat | 34 | 657 | 691 | TDM frame against media tick; spacing 93,989 to 93,992 frames (1.958 s); net one drop per crossing |",
+  "| DIN path: J11.7 to P1.02, SoC transmit pad and setup | Working: pattern decoded in all eight slots; idle line reads high |",
+  "| Electrical continuity check | NOT RUN here; the owner reported checking the wiring between the sessions |",
+  "| DIN frame coherence across channel pairs | NOT MET: a DUT capture-path property, for triage as a separate issue |"
+ ],
+ "only_new": [
+  "| INTERNAL-source beat, clear of any underrun | 34 | 657 | 691 | TDM frame against media tick; spacing 93,989 to 93,992 frames (1.958 s); net one drop per crossing |",
+  "| DIN path: J11.7 to P1.02, SoC transmit pad and setup | Working: pattern decoded in all eight slots |",
+  "| Electrical continuity check | NOT RUN here; the [owner report](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5872564358) records an end-to-end wiring check between the sessions, found correct |",
+  "| Identifiable samples in both directions through the USB Audio device (#451 checklist) | NOT RUN: both legs used McASP0 directly, without the SoC board's USB function |",
+  "| DIN frame coherence across channel pairs | NOT MET: a DUT capture-path defect, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617) |"
+ ]
+}

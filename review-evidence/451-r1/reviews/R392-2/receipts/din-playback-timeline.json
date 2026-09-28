@@ -1,0 +1,86 @@
+{
+ "din-long": {
+  "steps": [
+   "pattern",
+   "start",
+   "listener-started",
+   "before",
+   "streaming",
+   "play",
+   "after-play",
+   "listener-exit",
+   "pcap-copied",
+   "final",
+   "end"
+  ],
+  "first_packet_after_listener_start_s": 14.149,
+  "streaming_check_done_after_first_packet_s": 2.122,
+  "play_step_duration_s": 70.334,
+  "last_packet_after_play_step_s": 22.341,
+  "recording_s": 94.7975,
+  "recording_minus_play_step_s": 24.463,
+  "play_step_inside_recording": true,
+  "all_words_zero": true
+ },
+ "din2-long": {
+  "steps": [
+   "pattern-period",
+   "start",
+   "build",
+   "listener-started",
+   "before",
+   "streaming",
+   "play",
+   "after-play",
+   "listener-exit",
+   "pcap-copied",
+   "final",
+   "cleanup",
+   "end"
+  ],
+  "first_packet_after_listener_start_s": 16.097,
+  "streaming_check_done_after_first_packet_s": 0.174,
+  "play_step_duration_s": 70.303,
+  "last_packet_after_play_step_s": 24.407,
+  "recording_s": 94.884,
+  "recording_minus_play_step_s": 24.581,
+  "play_step_inside_recording": true,
+  "all_words_zero": true
+ },
+ "din3-long": {
+  "steps": [
+   "pattern-period",
+   "start",
+   "build",
+   "map-initial",
+   "map-add",
+   "listener-started",
+   "before",
+   "streaming",
+   "play",
+   "after-play",
+   "listener-exit",
+   "pcap-copied",
+   "map-remove",
+   "map-final",
+   "final",
+   "cleanup",
+   "end"
+  ],
+  "first_packet_after_listener_start_s": 13.843,
+  "streaming_check_done_after_first_packet_s": 2.429,
+  "play_step_duration_s": 70.302,
+  "last_packet_after_play_step_s": 22.128,
+  "recording_s": 94.8588,
+  "recording_minus_play_step_s": 24.557,
+  "play_step_inside_recording": true,
+  "all_words_zero": false
+ },
+ "din3_steps_not_in_din2": [
+  "map-initial",
+  "map-add",
+  "map-remove",
+  "map-final"
+ ],
+ "din2_steps_not_in_din3": []
+}

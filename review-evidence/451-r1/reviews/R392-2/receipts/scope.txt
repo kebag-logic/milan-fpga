@@ -1,0 +1,23 @@
+range 6d5ebd73..335e55c4 name-status:
+A	docs/findings/451_TDM8_FIRST_LIGHT.md
+M	docs/findings/README.md
+delta 6339479d..335e55c4 name-status:
+M	docs/findings/451_TDM8_FIRST_LIGHT.md
+M	docs/findings/README.md
+delta numstat:
+50	16	docs/findings/451_TDM8_FIRST_LIGHT.md
+1	0	docs/findings/README.md
+paths changed from image source 9e9954e9 to HEAD in hdl configs sw and the four gitlinks: 0
+commits 6d5ebd73..HEAD:
+  335e55c4135979a554dc0281d6980ac1e2158aee Correct the DIN stop-boundary record, link #617 and index the TDM8 first-light page
+  6339479d69830614d4267bd3170113737afbf8f4 Drop a retired-stack term from the TDM8 first-light DIN method
+  4f06bfc762724a71999371840a36fadfc1cf08d9 Record TDM8 DIN first light with the talker output map routed
+  361d1f47fe29ada509f99813001369188217eaaa Replace the TDM8 first-light attempt with the retry result
+  fba793c0885d091802c96313d5df3234900dce0d Record blocked TDM8 first-light attempt and restoration evidence
+335e55c4 message non-empty lines: 1; trailer lines: 0
+cited lines at HEAD:
+  hdl/ieee1722/aaf/KL_chan_map_capture.sv:       if (tdm_pair_valid_i && (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C))
+  hdl/ieee1722/aaf/KL_chan_map_capture.sv:         tdm_hold_r[tdm_pair_slot_i[TDMPW_C-1:0]] <= {tdm_l_i, tdm_r_i};
+  hdl/ieee1722/aaf/KL_chan_map_capture.sv:         SRC_TDM_C : pair_f = (32'(idx_f) < N_TDM_PAIRS_C)
+  hdl/ieee1722/aaf/KL_chan_map_capture.sv:                                ? tdm_hold_r[idx_f[TDMPW_C-1:0]] : 48'd0;
+  hdl/milan/milan_datapath.sv:   wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
