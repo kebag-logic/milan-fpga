@@ -1,0 +1,31 @@
+52c52
+<  input wire entity_enable_i, 
+---
+>  input wire entity_enable_i,
+94a95
+>  output logic [1:0] restore_cause_o,
+111a113
+>  output logic [2:0] rs_cause_o,
+142c144
+<  output logic aecp_dyn_dirty_o, 
+---
+>  output logic aecp_dyn_dirty_o,
+150a153
+>  output logic d3_unflushed_o,
+185c188
+<  output logic nvm_alarm_o, 
+---
+>  output logic nvm_alarm_o,
+193,195c196,199
+<  output logic restore_blank_o, 
+<  output logic restore_busy_o, 
+<  output logic restore_done_o, 
+---
+>  output logic restore_blank_o,
+>  output logic restore_busy_o,
+>  output logic restore_closed_o,
+>  output logic restore_done_o,
+196a201
+>  output logic restore_rb_o,
+217a223
+>  parameter int unsigned NVM_RETRY_BACKOFF_CYC_P 

@@ -1,0 +1,14 @@
+DR3a: cycles from restore_go_i; NVM model grants at once and streams a byte a cycle; RS_TMO 20000
+DR3a erased device, DRAM 31 cyc                     release     122  terminal     1286  COMPLETE cause 0  longest wait: binding     12 D3    405  longest D3 record op   12
+DR3a nine records saved, DRAM 31 cyc                release     122  terminal     1989  COMPLETE cause 0  longest wait: binding     12 D3    405  longest D3 record op   31
+DR3a image walk from reset, DRAM 31 cyc: 199 cycles
+DR3a erased device, DRAM 143 cyc                    release     122  terminal     1734  COMPLETE cause 0  longest wait: binding     12 D3    853  longest D3 record op   12
+DR3a nine records saved, DRAM 143 cyc               release     122  terminal     2661  COMPLETE cause 0  longest wait: binding     12 D3    853  longest D3 record op   31
+DR3a image walk from reset, DRAM 143 cyc: 535 cycles
+DR3a pass 0: DEVICE error on a header               release     122  terminal      813  DEFAULTS cause 2  longest wait: binding     12 D3    405  longest D3 record op   25
+DR3a pass 1: rule fetch error, roll-back            release     122  terminal     1554  DEFAULTS cause 6  longest wait: binding     12 D3    540  longest D3 record op   27
+DR3a pass 1: rule fetch 16000 late, roll-back on debt release     122  terminal    17539  DEFAULTS cause 6  longest wait: binding     12 D3  11920  longest D3 record op   27
+DR3a NVM device silent from its first read          release   20002  terminal    40004  DEFAULTS cause 3  longest wait: binding  19999 D3  19999  longest D3 record op    0
+DR3a descriptor image refused (magic)               release     122  terminal      164  CLOSED   cause 7  longest wait: binding     12 D3     39  longest D3 record op    0
+DR3a descriptor memory silent                       release     122  terminal     8188  CLOSED   cause 7  longest wait: binding     12 D3   8063  longest D3 record op    0
+DR2a one SET_STREAM_INFO: pending 50028 cycles, acceptance to the window's done (500 ticks of this bench's 100-cycle ms)

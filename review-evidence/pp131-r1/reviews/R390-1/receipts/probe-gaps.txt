@@ -1,0 +1,9 @@
+== head
+PROBE G1 blank-in-pass-0 then whole-in-pass-1: planted 1 done 1776 fail 1 cause 5 rolled back 1 applied 1 ptof0 valid 0 value 0
+PROBE G2 SET ok 1; first failed attempt err at 49755; a READ_DESCRIPTOR sent 1000 cycles into the backoff answered after 2299 cycles (own now 0)
+== mutant disagree_one_direction
+PROBE G1 blank-in-pass-0 then whole-in-pass-1: planted 1 done 1334 fail 0 cause 0 rolled back 0 applied 2 ptof0 valid 1 value 1500000
+PROBE G2 SET ok 1; first failed attempt err at 49755; a READ_DESCRIPTOR sent 1000 cycles into the backoff answered after 2299 cycles (own now 0)
+== mutant backoff_holds_dispatch
+PROBE G1 blank-in-pass-0 then whole-in-pass-1: planted 1 done 1776 fail 1 cause 5 rolled back 1 applied 1 ptof0 valid 0 value 0
+PROBE G2 SET ok 1; first failed attempt err at 49755; a READ_DESCRIPTOR sent 1000 cycles into the backoff answered after 51237 cycles (own now 1)
