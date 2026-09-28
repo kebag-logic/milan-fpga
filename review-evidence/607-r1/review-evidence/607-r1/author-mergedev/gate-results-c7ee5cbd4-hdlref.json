@@ -1,0 +1,33 @@
+[
+  {
+    "name": "gen_hdl_reference-selftest",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.21,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_hdl_reference-selftest.log",
+    "size": 409,
+    "sha256": "dd52d2af1b5114e1543f1fdbdf474b8f14fa5ede12b376350331221736bf0664"
+  },
+  {
+    "name": "gen_hdl_reference-output",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$VALIDATION_STORAGE/607-a427/hdl-reference-c7ee5cbd4"
+    ],
+    "rc": 0,
+    "elapsed_s": 1.52,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/gen_hdl_reference-output.log",
+    "size": 408,
+    "sha256": "419273db3284202f111a9cabf4ec7efdd8f4a7175540aa125aab0c4efddf933c"
+  }
+]

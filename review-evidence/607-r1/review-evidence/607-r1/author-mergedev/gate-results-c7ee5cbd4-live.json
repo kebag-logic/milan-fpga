@@ -1,0 +1,22 @@
+[
+  {
+    "name": "live-plant",
+    "head": "c7ee5cbd4ed6215b988f3811d5e9156e21aa55c5",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+      "-B",
+      "sw/builder/test_clock_constraints.py",
+      "--vivado",
+      "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+      "--checkpoint",
+      "$WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp",
+      "--evidence-dir",
+      "$VALIDATION_STORAGE/607-a427/live-plant-c7ee5cbd4"
+    ],
+    "rc": 0,
+    "elapsed_s": 32.63,
+    "log": "$VALIDATION_STORAGE/607-a427/gates-c7ee5cbd4/live-plant.log",
+    "size": 6885,
+    "sha256": "595af9085c8b21c96be98188c8d7af6a225e0ee282abbb5471bb9af5410ea451"
+  }
+]
