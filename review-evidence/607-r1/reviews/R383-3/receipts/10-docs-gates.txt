@@ -1,0 +1,9 @@
+# [R383] docs_gates.sh <tree> <pinned markdown venv python> at a9f5e34f
+rc=0 docs_check: 0 finding(s) across 172 md files + 922 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files] :: python3 -B scripts/docs_check.py
+rc=0 doc path gate: OK (853 cited paths all resolve; 0 line anchor(s) within their file) :: python3 -B scripts/check_doc_paths.py
+rc=0 TOC gate: OK (114 page(s) carry an annotated contents list, 17 below the 3-section threshold) :: md-venv/python3 -B scripts/gen_toc.py --check
+rc=0 anchor check: 198 existing cross-page fragment links reproduced :: md-venv/python3 -B scripts/gen_toc.py --verify-anchors
+rc=0 check_em_dash: 0 finding(s) over 68 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [54ce8773..HEAD] :: md-venv/python3 -B scripts/check_em_dash.py --base 54ce877371ee6e8878cf67294e86c2a8481b62f6
+rc=0 documentation style: OK (22 current documents) :: python3 -B scripts/check_doc_style.py
+rc=0 baremetal-only: OK (0 findings across 920 tracked first-party file(s)) :: python3 -B scripts/check_baremetal_only.py --check
+rc=0   over-long line: 0 <= 0 :: python3 -B scripts/check_py_idiom.py

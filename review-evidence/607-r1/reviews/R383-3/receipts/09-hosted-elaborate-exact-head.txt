@@ -1,0 +1,128 @@
+# [R383] Exact-head hosted elaborate (read-only via the GitHub API at 2026-09-28T13:50:27Z)
+## job
+{'id': 108949299150, 'run_id': 36428786466, 'name': 'elaborate', 'head_sha': 'a9f5e34faf51e01c9ecf95807d4a7e695b3eb1c3', 'status': 'completed', 'conclusion': 'success', 'started_at': '2026-09-28T13:27:52Z', 'completed_at': '2026-09-28T13:47:13Z'}
+  step success Set up job
+  step success Run actions/checkout@v4
+  step success Decide whether this head needs an elaboration
+  step success Fetch the source dependencies the elaboration reads
+  step success Install the pinned sv2v release
+  step success Run actions/setup-python@v5
+  step success Cache the pinned pip downloads
+  step success Install LiteX at the pinned revisions
+  step success Cache the Scala toolchain
+  step success Cache the generated CPU metadata
+  step success Install sbt
+  step success Place the VexiiRiscv source at the revision LiteX pins
+  step success Apply the toolchain patch series
+  step success Cache the pinned RV32 SDK
+  step success Install and verify the pinned RV32 SDK
+  step success Elaboration gates
+  step success Cache the pinned Verilator build
+  step skipped Build Verilator from source on cache miss
+  step success Put Verilator on PATH and prove the version
+  step success Standalone LiteX simulation aggregate
+  step success Keep the generated CPU netlist arguments for the next run
+  step success Post Cache the pinned Verilator build
+  step success Post Cache the pinned RV32 SDK
+  step success Post Cache the generated CPU metadata
+  step success Post Cache the Scala toolchain
+  step success Post Cache the pinned pip downloads
+  step success Post Run actions/setup-python@v5
+  step success Post Run actions/checkout@v4
+  step success Complete job
+run: event=pull_request head_sha=a9f5e34faf51e01c9ecf95807d4a7e695b3eb1c3 attempt=1 conclusion=success
+## log excerpt (timestamps stripped)
+HEAD is now at e2d153699 Merge a9f5e34faf51e01c9ecf95807d4a7e695b3eb1c3 into 7a7582f03ce5ba7863a90ac342c21be18d90db0b
+##[group]Run python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4
+test_clock_crossing_constraints:
+test_all_configs_build:
+3 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+  - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 53 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run
+  - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 3 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 3 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+## arm census over the hosted log
+registered arms: 91 unique: 91
+arms without a header line in the log: none
+headers in registration order: True
+607 arm position: 6
+shipping PASS markers: 4
+   [constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list mila ...
+   [constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list mila ...
+   [constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_ ...
+   [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_ ...
+verdict lines: ['ALL GATES PASS EXCEPT 3 NOT RUN', '--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 3 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them']
+## contrast: live dev 7a7582f0 push elaborate (run 36404911963, job 108871208492): success
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the e
+  - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 53 RTL mutation variants counted as structur
+  - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_
+ALL GATES PASS EXCEPT 3 NOT RUN
+arm headers in the dev log: 90 (dev has no #607 arm)
+## gh pr checks 615 at read time
+Verilator shard 0/5	pass	13m12s
+Verilator shard 2/5	pass	20m22s
+Verilator shard 3/5	pass	8m35s
+Yosys shard 0/4	pass	41s
+Yosys shard 1/4	pass	23s
+Yosys shard 2/4	pass	1m11s
+Yosys shard 3/4	pass	25s
+bdd-conformance	pass	13s
+changes	pass	19s
+docs-check	pass	20m12s
+docs-check-no-git	pass	13s
+elaborate	pass	19m21s
+Physical gPTP (nightly and manual)	skipping	0
+Verilator shard 1/5	pending	0
+full-ci-gate	pass	19s
+rtl-fast	pass	3s
+verilator-lint	pass	33s
+wire-accountability	pass	11s
+yosys-elaboration	pass	9m30s
+Verilator shard 4/5	pending	0
+
+## gh pr checks 615 re-read at 2026-09-28T13:53:46Z
+Verilator shard 0/5	pass	13m12s
+Verilator shard 2/5	pass	20m22s
+Verilator shard 3/5	pass	8m35s
+Yosys shard 0/4	pass	41s
+Yosys shard 1/4	pass	23s
+Yosys shard 2/4	pass	1m11s
+Yosys shard 3/4	pass	25s
+bdd-conformance	pass	13s
+changes	pass	19s
+docs-check	pass	20m12s
+docs-check-no-git	pass	13s
+elaborate	pass	19m21s
+Physical gPTP (nightly and manual)	skipping	0
+Verilator shard 1/5	pending	0
+full-ci-gate	pass	19s
+rtl-fast	pass	3s
+verilator-lint	pass	33s
+wire-accountability	pass	11s
+yosys-elaboration	pass	9m30s
+Verilator shard 4/5	pending	0
+check-run bdd-conformance head_sha=a9f5e34faf51 completed/success
+check-run changes head_sha=a9f5e34faf51 completed/success
+check-run docs-check head_sha=a9f5e34faf51 completed/success
+check-run docs-check-no-git head_sha=a9f5e34faf51 completed/success
+check-run elaborate head_sha=a9f5e34faf51 completed/success
+check-run full-ci-gate head_sha=a9f5e34faf51 completed/success
+check-run Physical gPTP (nightly and manual) head_sha=a9f5e34faf51 completed/skipped
+check-run rtl-fast head_sha=a9f5e34faf51 completed/success
+check-run verilator-lint head_sha=a9f5e34faf51 completed/success
+check-run Verilator shard 0/5 head_sha=a9f5e34faf51 completed/success
+check-run Verilator shard 1/5 head_sha=a9f5e34faf51 in_progress/null
+check-run Verilator shard 2/5 head_sha=a9f5e34faf51 completed/success
+check-run Verilator shard 3/5 head_sha=a9f5e34faf51 completed/success
+check-run Verilator shard 4/5 head_sha=a9f5e34faf51 in_progress/null
+check-run wire-accountability head_sha=a9f5e34faf51 completed/success
+check-run yosys-elaboration head_sha=a9f5e34faf51 completed/success
+check-run Yosys shard 0/4 head_sha=a9f5e34faf51 completed/success
+check-run Yosys shard 1/4 head_sha=a9f5e34faf51 completed/success
+check-run Yosys shard 2/4 head_sha=a9f5e34faf51 completed/success
+check-run Yosys shard 3/4 head_sha=a9f5e34faf51 completed/success

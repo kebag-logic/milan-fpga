@@ -1,0 +1,47 @@
+ax7101_1x1_tdm8 e1 head: rc=0 marker=PASS
+ax7101_1x1_tdm8 e1 prior: rc=0 marker=PASS
+   alinx_ax7101.tcl: head vs prior IDENTICAL sha256=709d5b8bc25b57a5
+   alinx_ax7101.xdc: head vs prior IDENTICAL sha256=81bbf89c34dd0e91
+   alinx_ax7101.v: head vs prior IDENTICAL sha256=c1238fd54ca9733e
+   files: head=19 prior=22
+   only in prior: ['software/include/generated/output_format.ld', 'software/include/generated/regions.ld', 'software/include/generated/variables.mak']
+   only in head: []
+   differing after normalization: []
+ax7101_1x1_tdm8 e2 head: rc=0 marker=PASS
+ax7101_1x1_tdm8 e2 prior: rc=0 marker=PASS
+   alinx_ax7101.tcl: head vs prior IDENTICAL sha256=4a38f7034c1914e0
+   alinx_ax7101.xdc: head vs prior IDENTICAL sha256=1dafe678286e1084
+   alinx_ax7101.v: head vs prior IDENTICAL sha256=33a1baa168e38157
+   files: head=19 prior=22
+   only in prior: ['software/include/generated/output_format.ld', 'software/include/generated/regions.ld', 'software/include/generated/variables.mak']
+   only in head: []
+   differing after normalization: []
+ax7101_8x8 e1 head: rc=0 marker=PASS
+ax7101_8x8 e1 prior: rc=0 marker=PASS
+   alinx_ax7101.tcl: head vs prior IDENTICAL sha256=3e2478595683bd27
+   alinx_ax7101.xdc: head vs prior IDENTICAL sha256=9fccc4fdee11c847
+   alinx_ax7101.v: head vs prior IDENTICAL sha256=5a612bf18b6a33be
+   files: head=19 prior=22
+   only in prior: ['software/include/generated/output_format.ld', 'software/include/generated/regions.ld', 'software/include/generated/variables.mak']
+   only in head: []
+   differing after normalization: []
+ax7101_8x8 e2 head: rc=0 marker=PASS
+ax7101_8x8 e2 prior: rc=0 marker=PASS
+   alinx_ax7101.tcl: head vs prior IDENTICAL sha256=5bcd8339aef701dd
+   alinx_ax7101.xdc: head vs prior IDENTICAL sha256=809169e284b70ef5
+   alinx_ax7101.v: head vs prior IDENTICAL sha256=979f5b5d792c85ab
+   files: head=19 prior=22
+   only in prior: ['software/include/generated/output_format.ld', 'software/include/generated/regions.ld', 'software/include/generated/variables.mak']
+   only in head: []
+   differing after normalization: []
+gateware differences=0
+
+# grep -c -E 'variables\.mak|regions\.ld|output_format\.ld|software/include|picolibc|compiler_rt' over every generated alinx_ax7101.tcl/.xdc of the prior (full-include) runs:
+  equiv-prior-ax7101_1x1_tdm8-e1 tcl: 0
+  equiv-prior-ax7101_1x1_tdm8-e1 xdc: 0
+  equiv-prior-ax7101_1x1_tdm8-e2 tcl: 0
+  equiv-prior-ax7101_1x1_tdm8-e2 xdc: 0
+  equiv-prior-ax7101_8x8-e1 tcl: 0
+  equiv-prior-ax7101_8x8-e1 xdc: 0
+  equiv-prior-ax7101_8x8-e2 tcl: 0
+  equiv-prior-ax7101_8x8-e2 xdc: 0

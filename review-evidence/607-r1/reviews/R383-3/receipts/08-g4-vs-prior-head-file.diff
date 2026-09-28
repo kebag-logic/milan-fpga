@@ -1,0 +1,25 @@
+2c2
+< """#607: inspect constraints emitted by complete shipping AX7101 elaborations."""
+---
+> """#607: inspect constraints emitted by real shipping AX7101 elaborations."""
+4a5
+> import importlib.abc
+17a19,28
+> class FirmwareDataRefused(importlib.abc.MetaPathFinder):
+>     """Refuse LiteX's firmware data packages, which the pinned elaborate install lacks."""
+> 
+>     def find_spec(self, name: str, path: Any = None, target: Any = None) -> None:
+>         """Fail any pythondata_software_* import and defer every other module."""
+>         if name.startswith("pythondata_software_"):
+>             raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
+>         return None
+> 
+> 
+19c30,32
+<     """Run the real main/Builder path, observing its namespace and generated files."""
+---
+>     """Run the real main/Builder path without firmware inputs, observing its generated files."""
+>     # The hosted elaborate job installs only sw/litex/litex_pins.txt, so this
+>     # probe must not reach a firmware data package on any interpreter (#607 F2).
+31a45
+>     includes = []

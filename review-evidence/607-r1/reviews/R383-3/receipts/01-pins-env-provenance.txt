@@ -1,0 +1,41 @@
+# [R383] Pins-only environment provenance (models .github/workflows/elaborate.yml)
+## head
+a9f5e34faf51e01c9ecf95807d4a7e695b3eb1c3
+b214ea78f574615b2c7f5ff9b78cd8e307e29a4c
+## interpreter
+<packet>/scratch/pinsenv/bin/python3
+Python 3.12.13
+HOME=<packet>/scratch/home
+PATH=<packet>/scratch/bin:<packet>/scratch/pinsenv/bin:/usr/local/bin:/usr/bin:/bin
+MILAN_LITEX_PYTHON=unset
+which: no vivado in (<packet>/scratch/bin:<packet>/scratch/pinsenv/bin:/usr/local/bin:/usr/bin:/bin)
+vivado: not on PATH
+sv2v v0.0.12
+## install commands, as elaborate.yml: pip install pyyaml; pip install -r sw/litex/litex_pins.txt; python3 scripts/ci_litex_env.py; sw/litex/patches/apply.sh; ci_rv32_sdk_selftest.py; ci_rv32_sdk.py --destination $HOME/br-milan-rv32/host (all rc 0)
+## pip freeze (full)
+certifi==2026.7.22
+charset-normalizer==3.5.1
+colorama==0.4.6
+idna==3.20
+litedram @ git+https://github.com/enjoy-digital/litedram.git@f9b75e0347fc43267d083f7ff5965170fe8f9a58
+liteeth @ git+https://github.com/enjoy-digital/liteeth.git@276c9e37fb4d92a5c0f30d39a51c20f42a59cf93
+liteiclink==2025.4
+litespi @ git+https://github.com/litex-hub/litespi.git@02d5a209bc0010d33ddb506ba18e736636d4109a
+litex @ git+https://github.com/enjoy-digital/litex.git@a1e1c3652ec2f1346ebaea7663d2867f393ae2c4
+litex-boards @ git+https://github.com/litex-hub/litex-boards.git@9ac53c7a11f2571ba2c9f165f468ae021a4f9bda
+migen @ git+https://github.com/m-labs/migen.git@4c2ae8dfeea37f235b52acb8166f12acaaae4f7c
+packaging==26.3
+pyserial==3.5
+pythondata-cpu-vexiiriscv @ git+https://github.com/litex-hub/pythondata-cpu-vexiiriscv.git@15cfab529a17c473d0fc75edf3f409eb374cef35
+PyYAML==6.0.3
+requests==2.34.2
+urllib3==2.8.0
+## pythondata_software_* packages installed: 0
+## import probes
+ModuleNotFoundError: No module named 'pythondata_software_picolibc'
+ModuleNotFoundError: No module named 'pythondata_software_compiler_rt'
+## patch series re-check
+[patches]   applied.
+[patches] series applied (3 patches).
+## RV32 SDK verify
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<packet>/scratch<home-path>/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer

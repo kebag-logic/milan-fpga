@@ -1,0 +1,9 @@
+# [R383] pins_env.sh scratch python3 pins_vs_local.py <tree> <scratch> ax7101_8x8 e1 <local head run>
+pins run 1: rc=0 ['[constraints] shipping ax7101_8x8 e1: milan_eth_constraints ']
+pins run 2: rc=0 ['[constraints] shipping ax7101_8x8 e1: milan_eth_constraints ']
+alinx_ax7101.tcl: pins1==pins2 True; pins1==local False; as sorted lines pins1==local False
+  milan_eth_constraints line identical pins1/pins2/local: True
+alinx_ax7101.xdc: pins1==pins2 True; pins1==local False; as sorted lines pins1==local False
+alinx_ax7101.v: pins1==pins2 True; pins1==local False; as sorted lines pins1==local False
+# XDC pins vs local: async clock-group pairs as unordered sets equal: True (7 pairs); all other lines identical in order: True
+# note: the local run used Python 3.14 (bench venv) and the pins runs Python 3.12; the Tcl differs only in the VexiiRiscv install path, the .v in migen-derived internal signal names, the XDC only in async clock-group line order/orientation. Both pins runs used PYTHONHASHSEED=0 (the probe's own child setting) and were byte-identical.

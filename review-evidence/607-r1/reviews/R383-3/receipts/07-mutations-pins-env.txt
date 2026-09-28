@@ -1,0 +1,38 @@
+# [R383] pins_env.sh scratch python3 mutate3.py <head extraction> <scratch> python3  (pins-only environment, no pythondata_software_*), head a9f5e34f
+BASELINE rc=0 [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_
+M07 hook gated to arty: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M07b hook gated to a nonexistent board: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M16 hook unreachable when a MAC exists: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M06d hook call deleted inside the guard: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M06 hook call and guard deleted: KILLED rc=1 AssertionError: shipping Ethernet hook missing or duplicated: []
+M08 hook passes the other port: KILLED rc=1 litex.build.generic_platform.ConstraintError: Resource not found: eth_clocks:1
+M01 retain generic MultiReg mask: KILLED rc=1 AssertionError
+M02 bound 8 -> 80 ns: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M03 eth MultiRegs excluded from wrong class: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M04 log gate ignores CRITICAL WARNING: KILLED rc=1 AssertionError: accepted Vivado 12-4739
+M05 log gate ignores 20-1307: KILLED rc=1 AssertionError: accepted Designutils 20-1307
+M09 idelay clock moved into bounded class: KILLED rc=1 AssertionError
+M10 log check before build: KILLED rc=1 StopIteration
+M11 quasi-static hold 3 -> 0: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M12 hold false path dropped sys->eth: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M13 async group dropped: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M14 asynchronous-input exception dropped: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M15 ambiguous MultiReg clock accepted: KILLED rc=1 AssertionError: CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+M17 bounded flag never set: KILLED rc=1 AssertionError
+M18 hook moved to pre-placement: KILLED rc=1 AssertionError
+M19 platform keeps stock toolchain: KILLED rc=1 RuntimeError: #607: bounded GMII needs the scoped MultiReg toolchain
+M20 Milan clock dropped from bounded pair: KILLED rc=1 AssertionError
+M21 hook bounds sys against itself instead of eth: KILLED rc=1 AssertionError
+M22 log gate ignores 12-5201: KILLED rc=1 AssertionError: accepted Vivado 12-5201
+M23 quarantine rename removed: KILLED rc=1 AssertionError: refused bitstream remains discoverable
+M24 quarantine copies instead of renaming: KILLED rc=1 AssertionError: refused bitstream remains discoverable
+M25 unreadable log does not quarantine: KILLED rc=1 AssertionError: missing log left discoverable bitstream
+M26 quarantine suffix still ends in .bit: KILLED rc=1 AssertionError: refused bitstream remains discoverable
+G1 include override removed: KILLED rc=1 ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+G2 override forwards with_bios: KILLED rc=1 ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+G3 import guard not installed: SURVIVED rc=0 [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_
+G4 guard, override and include assertion removed (round-2 shape): KILLED rc=1 ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+G4a override and include assertion removed, guard kept: KILLED rc=1 ImportError: pythondata-software-picolibc module not installed! Unable to use picolibc software.
+G5 guard defers every module: SURVIVED rc=0 [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_
+G6 override skips the include step entirely: SURVIVED rc=0 [constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_
+# rc=0 elapsed=23s
