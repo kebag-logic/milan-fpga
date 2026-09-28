@@ -75,24 +75,38 @@
                   * FRAME tdm_frame_r: the strobe of pair TDM_FRAME_PAIRS_P-1,
                     the frame's last, publishes that pair and the staged ones
                     in one edge - the newest COMPLETE frame.
-                  * WALK tdm_walk_r: loaded from FRAME on the pre-walk's last
-                    cycle, the edge before slot 0 reads it, and held for the
-                    whole walk, so a frame closing mid-walk waits for the
-                    next tick instead of tearing this one.
+                  * WALK tdm_walk_r: loaded from FRAME in the media tick's own
+                    cycle and held for the whole walk, so a frame closing
+                    mid-walk waits for the next tick instead of tearing this
+                    one. It takes the frame the tick takes: the newest closed
+                    before the tick cycle, or - with none pending - one
+                    closing on that cycle itself (loaded a cycle late).
                 The walk bank is required, not a convenience: at the 8x8
                 shape a walk (866 cycles) outlasts the two TDM slots between
                 a frame's last pair and the next frame's first (260 cycles at
                 50 MHz), so a publish deferred to the walk's end would find
                 the stage already overwritten.
-                LATENCY. A walk reads the newest frame complete at its
-                snapshot, and no frame is complete before its last pair, so
-                pair p is published (TDM_FRAME_PAIRS_P-1-p) pair periods after
-                it arrived: what atomicity costs, and no more. The last pair's
-                delay and the slip RATE are unchanged; a beat now slips one
-                whole frame where it used to slip each pair at its own phase
+                ONE CROSSING. The TDM frame and the packet grid now meet at
+                one instant, a frame's close against the tick cycle, and the
+                junction slip counters key on exactly that - the close
+                against the snapshot - so they count the talker's own
+                repeated and skipped frames. milan_datapath keys the grid
+                aligner on the same close, with the tick one cycle late and
+                a 256-cycle keep-off, so no CRF lock and no acquisition
+                transient within a 50 ppm source brings the close onto it
+                (#617 round 2: keyed on the slot-0 strobe, a lock could sit
+                on the crossing, repeating and skipping frames while the
+                counters read static).
+                LATENCY. A walk reads the newest frame complete at its tick,
+                and no frame is complete before its last pair, so pair p is
+                published (TDM_FRAME_PAIRS_P-1-p) pair periods after it
+                arrived: what atomicity costs. Reading at the tick rather than
+                at the walk's first inject costs LB_PAIRS_C + 1 cycles more,
+                the price of one crossing the aligner can guard. The slip
+                RATE is unchanged; a beat now slips one whole frame, counted
+                once, where it used to slip each pair at its own phase
                 (docs/design/TIME_SYNC.md, Talker capture handoff). The
-                junction slip counters keep their marker and their tick, and
-                the render direction does not pass through this module.
+                render direction does not pass through this module.
 
                 LOOP BUCKET (rx -> talker loopback). The other multi-channel
                 sources are the board's physical capture front-ends, and the
@@ -295,7 +309,7 @@
 //! (I2S capture / TDM / tone / RX-stream loopback / silence; source 3 is a
 //! reserved-zero ABI encoding);
 //! free-running source holds (the TDM bucket frame-atomic: whole frames are
-//! published at the frame's last pair and snapshotted before each walk),
+//! published at the frame's last pair and snapshotted at each walk's tick),
 //! per-tick low-to-high slot walk emitting the
 //! packetizer inject cadence (one pulse + GAP_CYC_P settle) on EVERY slot,
 //! unmapped ones carrying PCM silence so an unmapped channel never costs its
@@ -566,67 +580,6 @@ module KL_chan_map_capture #(
   end : source_latch
 
   // ---------------------------------------------------------------------- //
-  // TDM junction slip counters: a frequency-phase detector on the           //
-  // fsync-grid writes vs media-grid reads of the holds above. The frame     //
-  // marker is the slot-0 write (every TDM frame delivers slot 0 first);     //
-  // a tick consuming no marker is a dup, a marker landing on an unconsumed  //
-  // marker is a skip. Rate accounting only - which slots a walk maps does   //
-  // not matter, so this stays honest for every map. Counts gate on          //
-  // tdm_fed_r so a bench with no TDM feed reads 0/0 rather than a dup per   //
-  // tick forever. Saturating like the LOOP counters; with aligned grids     //
-  // both stay at ZERO - the #74 acceptance state.                           //
-  //                                                                         //
-  // COINCIDENCE (#74 item 2). A tick and a marker in the same cycle: the    //
-  // tick consumes the PENDING marker when there is one, and the coincident  //
-  // one takes its place, so pend carries over. The law until #74 item 2     //
-  // cleared pend instead, dropping a marker uncounted. A free-running grid  //
-  // dithering across the tick then counted about a dozen dups per real slip //
-  // and read a skip-direction slip as dups with no skip; a loop locked with //
-  // the marker on the tick chattered thousands of dups per 0.2 s (PR #323   //
-  // [R1]). Carried over, a passage whose marker dithers between two         //
-  // adjacent cycles counts once, in its direction                           //
-  // (tb/verilator/media_grid_align [G9]); a wider dither on the way through //
-  // adds balanced dup/skip pairs. What keeps the LOCK clean is the other    //
-  // half: KL_media_grid_align parks the marker a keep-off (1/128 sample)    //
-  // away from the tick, so a lock never dithers across it and a real step   //
-  // slip there counts exactly once ([G7]/[G8]).                             //
-  // ---------------------------------------------------------------------- //
-  wire tdm_frame_ev_w = tdm_pair_valid_i && (tdm_pair_slot_i == 4'd0);
-  logic tdm_fed_r        /* verilator public_flat_rd */;
-  logic tdm_frame_pend_r /* verilator public_flat_rd */;
-
-  always_ff @(posedge clk_i) begin : tdm_slip_count
-    if (!rst_n) begin
-      tdm_fed_r        <= 1'b0;
-      tdm_frame_pend_r <= 1'b0;
-      tdm_dup_cnt_o    <= 16'd0;
-      tdm_skip_cnt_o   <= 16'd0;
-    end
-    else begin
-      unique case ({tdm_frame_ev_w, tick_i})
-        2'b10: begin
-          tdm_fed_r        <= 1'b1;
-          tdm_frame_pend_r <= 1'b1;
-          if (tdm_frame_pend_r && tdm_skip_cnt_o != 16'hFFFF)
-            tdm_skip_cnt_o <= tdm_skip_cnt_o + 16'd1;
-        end
-        2'b01: begin
-          tdm_frame_pend_r <= 1'b0;
-          if (tdm_fed_r && !tdm_frame_pend_r && tdm_dup_cnt_o != 16'hFFFF)
-            tdm_dup_cnt_o <= tdm_dup_cnt_o + 16'd1;
-        end
-        2'b11: begin
-          //! the tick takes the pending marker, if any; the coincident one
-          //! pends in its place (the COINCIDENCE paragraph above)
-          tdm_fed_r        <= 1'b1;
-          tdm_frame_pend_r <= tdm_frame_pend_r;
-        end
-        default: ;
-      endcase
-    end
-  end : tdm_slip_count
-
-  // ---------------------------------------------------------------------- //
   // LOOP bucket stage 1: de-interleave the depacketizer payload clone into  //
   // complete {L, R} sample-event COMMITS, one per pair per event.           //
   //                                                                         //
@@ -853,6 +806,8 @@ module KL_chan_map_capture #(
   } cstate_t;
 
   cstate_t                st_r;
+  logic                   tick_pend_r;   //! one-deep tick queue
+  logic                   tick_late_r;   //! that tick queued behind a walk
   logic [LB_POPW_C-1:0]   pop_idx_r;     //! pre-walk pair cursor
   wire  [LBPW_C-1:0]      pop_pair_w = pop_idx_r[LBPW_C-1:0];
   wire pop_visit_w = (st_r == CM_POP_S) && (32'(pop_idx_r) < LB_PAIRS_C);
@@ -1010,19 +965,105 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   logic [SLOTW_C-1:0] slot_r;            //! walk pointer
 
-  //! WALK: the TDM frame this walk reads, loaded from the frame bank on the
-  //! pre-walk's last cycle (the edge before CM_STEP_S reads slot 0) and held
-  //! for the whole walk, so a frame that closes mid-walk waits for the next
-  //! tick instead of tearing this one (TDM FRAME HANDOFF)
+  //! the snapshot instant: a media tick that finds the walk idle, in its own
+  //! cycle; a tick queued behind a running walk (a walk-budget overrun),
+  //! when the walk it queued starts
+  wire tdm_snap_w = (st_r == CM_IDLE_S) && (tick_pend_r ? tick_late_r : tick_i);
+
+  // ---------------------------------------------------------------------- //
+  // TDM junction slip counters: a frequency-phase detector on the frame     //
+  // bank's publishes (fsync grid) vs the walk's snapshots (media grid).     //
+  // The frame marker is the frame close, the publish itself, and the        //
+  // consume is the snapshot, so the pair counts the walk's own slips: a     //
+  // snapshot finding no frame published since the last is a dup (the walk  //
+  // repeats a frame), a publish landing on an unread one is a skip (no walk //
+  // read that frame). Rate accounting only - which slots a walk maps does   //
+  // not matter, so this stays honest for every map. Counts gate on          //
+  // tdm_fed_r so a bench with no TDM feed reads 0/0 rather than a dup per   //
+  // tick forever. Saturating like the LOOP counters; with aligned grids     //
+  // both stay at ZERO - the #74 acceptance state. Until #617 the marker was //
+  // the slot-0 write and the consume the tick: the same rate, at an instant //
+  // three TDM8 pair periods from the one the walk crosses, so a lock parked //
+  // on the walk's crossing repeated and skipped frames while the pair read  //
+  // static.                                                                 //
+  //                                                                         //
+  // COINCIDENCE (#74 item 2). A snapshot and a close in the same cycle: the //
+  // snapshot takes the frame published before, when there is one, and the  //
+  // coincident close pends in its place - which is what the walk bank does  //
+  // on that edge. The law until #74 item 2 cleared pend instead, dropping a //
+  // marker uncounted. A free-running grid dithering across the tick then    //
+  // counted about a dozen dups per real slip and read a skip-direction slip //
+  // as dups with no skip; a loop locked with the marker on the tick         //
+  // chattered thousands of dups per 0.2 s (PR #323 [R1]). Carried over, a   //
+  // passage whose marker dithers between two adjacent cycles counts once,   //
+  // in its direction (tb/verilator/media_grid_align [G9]); a wider dither   //
+  // on the way through adds balanced dup/skip pairs. What keeps the LOCK    //
+  // clean is the other half: milan_datapath hands KL_media_grid_align this  //
+  // same close as its frame marker and the tick one cycle late, and the     //
+  // aligner parks the lock a keep-off (256 cycles) either side of the       //
+  // walk's crossing, so a lock never dithers across it and a real step      //
+  // slip there counts exactly once ([G7]/[G8] grade the default keep-off).  //
+  // ---------------------------------------------------------------------- //
+  logic tdm_fed_r        /* verilator public_flat_rd */;
+  logic tdm_frame_pend_r /* verilator public_flat_rd */;
+
+  always_ff @(posedge clk_i) begin : tdm_slip_count
+    if (!rst_n) begin
+      tdm_fed_r        <= 1'b0;
+      tdm_frame_pend_r <= 1'b0;
+      tdm_dup_cnt_o    <= 16'd0;
+      tdm_skip_cnt_o   <= 16'd0;
+    end
+    else begin
+      unique case ({tdm_close_w, tdm_snap_w})
+        2'b10: begin
+          tdm_fed_r        <= 1'b1;
+          tdm_frame_pend_r <= 1'b1;
+          if (tdm_frame_pend_r && tdm_skip_cnt_o != 16'hFFFF)
+            tdm_skip_cnt_o <= tdm_skip_cnt_o + 16'd1;
+        end
+        2'b01: begin
+          tdm_frame_pend_r <= 1'b0;
+          if (tdm_fed_r && !tdm_frame_pend_r && tdm_dup_cnt_o != 16'hFFFF)
+            tdm_dup_cnt_o <= tdm_dup_cnt_o + 16'd1;
+        end
+        2'b11: begin
+          //! the snapshot takes the pending frame, if any; the coincident
+          //! close pends in its place (the COINCIDENCE paragraph above)
+          tdm_fed_r        <= 1'b1;
+          tdm_frame_pend_r <= tdm_frame_pend_r;
+        end
+        default: ;
+      endcase
+    end
+  end : tdm_slip_count
+
+  //! WALK: the TDM frame this walk reads, loaded at the snapshot instant and
+  //! held for the whole walk, so a frame that closes mid-walk waits for the
+  //! next tick instead of tearing this one (TDM FRAME HANDOFF). It takes the
+  //! frame the junction counters above say the tick takes: the bank as it
+  //! stood before the snapshot edge, or - when a close lands on that very
+  //! cycle with no frame pending - that closing frame, loaded one cycle late
+  //! (the counters' COINCIDENCE law; the slot walk first reads the bank after
+  //! the LB_PAIRS_C + 1-cycle pre-walk, so the late load is always in time).
+  //! So the walk's one crossing is the close against the snapshot, between
+  //! the snapshot cycle and the next, and the counters count exactly the
+  //! walk's repeats and skips. milan_datapath keys the grid aligner's lock
+  //! target on that same crossing.
   logic [47:0] tdm_walk_r [N_TDM_PAIRS_C];
-  wire tdm_snap_w = (st_r == CM_POP_S) && (32'(pop_idx_r) == LB_PAIRS_C);
+  logic        tdm_snap_late_r;          //! load the frame that closed on the snapshot
+  wire         tdm_snap_take_w = tdm_snap_w && tdm_close_w && !tdm_frame_pend_r;
 
   always_ff @(posedge clk_i) begin : tdm_walk_snapshot
     if (!rst_n) begin
+      tdm_snap_late_r <= 1'b0;
       for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= '0;
     end
-    else if (tdm_snap_w) begin
-      for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= tdm_frame_r[t];
+    else begin
+      tdm_snap_late_r <= tdm_snap_take_w;
+      if ((tdm_snap_w && !tdm_snap_take_w) || tdm_snap_late_r) begin
+        for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= tdm_frame_r[t];
+      end
     end
   end : tdm_walk_snapshot
 
@@ -1072,7 +1113,6 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   // Emit walk FSM (pre-walk pop, then the slot walk)                        //
   // ---------------------------------------------------------------------- //
-  logic                       tick_pend_r;   //! one-deep tick queue
   logic [$clog2(GAP_CYC_P+1)-1:0] gap_r;
   wire  last_slot_w = (32'(slot_r) == N_SLOTS_P - 1);
 
@@ -1080,6 +1120,7 @@ module KL_chan_map_capture #(
     if (!rst_n) begin
       st_r         <= CM_IDLE_S;
       tick_pend_r  <= 1'b0;
+      tick_late_r  <= 1'b0;
       slot_r       <= '0;
       pop_idx_r    <= '0;
       gap_r        <= '0;
@@ -1147,8 +1188,14 @@ module KL_chan_map_capture #(
       endcase
 
       //! media-tick capture (after the case: a tick coincident with an
-      //! IDLE consume re-arms the one-deep queue instead of being dropped)
-      if (tick_i) tick_pend_r <= 1'b1;
+      //! IDLE consume re-arms the one-deep queue instead of being dropped).
+      //! A tick that finds the walk idle and nothing queued took its TDM
+      //! snapshot in its own cycle; any other one is late and takes it when
+      //! the walk it queued starts (tdm_snap_w)
+      if (tick_i) begin
+        tick_pend_r <= 1'b1;
+        tick_late_r <= (st_r != CM_IDLE_S) || tick_pend_r;
+      end
     end
   end : emit_engine
 

@@ -5650,11 +5650,46 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  A_MCSRV_STAT[31:16] (that slice is the MMCM's alone now - the CRF arm
   //  in tb/verilator/milan_dp grades it non-zero under CRF stimulus); the
   //  align loop consumes the FRAME MARKER the front-end already delivers in
-  //  this clock domain (aafcap slot-0, the same event the junction counters
-  //  key on) and holds the packet grid inside a fraction of a sample of the
-  //  physical one - proven closed-loop at the true 391/1591 ratio in
-  //  tb/verilator/media_grid_align, both rate directions, zero junction
-  //  slips.
+  //  this clock domain and holds the packet grid inside a fraction of a
+  //  sample of the physical one - proven closed-loop at the true 391/1591
+  //  ratio in tb/verilator/media_grid_align, both rate directions, zero
+  //  junction slips.
+  //
+  //  THE ALIGNER SEES THE CAPTURE WALK'S CROSSING (#617). The crossbar
+  //  publishes a TDM frame whole at its close, the strobe of pair
+  //  CMAP_TDM_FRAME_PAIRS_C - 1, and each media-tick walk reads the frame the
+  //  close left: one closed by the tick cycle is that walk's, one closed
+  //  after it is the next walk's, and the junction counters count that same
+  //  crossing. So:
+  //   - the marker is the frame close (on the I2S shapes the frame is one
+  //     pair, so it is still the slot-0 strobe);
+  //   - the tick is media_tick_p one cycle late, which puts the aligner's
+  //     lock-target split (a capture just before its tick is pulled early,
+  //     one on it pulled late) on the walk's crossing, so no engagement is
+  //     pulled across it;
+  //   - the keep-off is MGA_KEEPOFF_CYC_C, which holds the close clear of
+  //     the crossing through the loop's whole acquisition, not only at the
+  //     lock. The proportional term sits 4 cycles of phase per ppm of rate
+  //     error (u = 4 x err at 1/16 ppm per LSB, at any clock), and on its way
+  //     to the lock the phase peaks at 149 cycles for a 50 ppm source (Milan
+  //     v1.2 7.4's media clock tolerance), measured at 50 MHz; 256 cycles
+  //     clears that and the -10.64 ppm divider plan beside it. The 1/128
+  //     sample default (8 cycles at 50 MHz) protected a settled lock but not
+  //     that transient: a CRF engagement within the transient's reach
+  //     slipped frames as its phase crossed, some of them inside the lock
+  //     window (tb/verilator/capture_coherence's mutation arm keeps that
+  //     measurable).
+  //  Keyed on the slot-0 strobe, as it was, the keep-off guarded an instant
+  //  three TDM8 pair periods from the crossing, and a lock could park the
+  //  close on the snapshot: whole-frame repeat/skip for as long as it held,
+  //  with the counters static. tb/verilator/capture_coherence sweeps the
+  //  CRF engagement phase through that band.
+  //
+  //  The cost of the wider keep-off is at engagement only: a capture within
+  //  256 cycles of the tick (half the phases at 50 MHz, a quarter at
+  //  100 MHz) is pulled out to it, at up to 64 ppm of NCO trim, and the
+  //  #386 settled-grid trigger below waits for that pull as it waits for
+  //  any aligner movement. The lock itself is unchanged: bounded, slip-free.
   //
   //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media
   //  clock = free-run, slips accepted"): crf_clk_selected_r low disengages
@@ -5665,15 +5700,28 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // --------------------------------------------------------------------------
   wire        mga_engaged_w /* verilator public_flat_rd */;
   wire signed [15:0] mga_err_w /* verilator public_flat_rd */;
+  //! 256 cycles, capped at a quarter sample: a compressed-clock test
+  //! elaboration (2 MHz, 41 cycles a sample) has no room for 256, and there
+  //! no keep-off could clear a 149-cycle transient anyway
+  localparam int unsigned MGA_SAMPLE_CYC_C  = MILAN_CLK_FREQ_HZ / 48_000;
+  localparam int unsigned MGA_KEEPOFF_CYC_C = (MGA_SAMPLE_CYC_C / 4 < 256)
+                                            ? MGA_SAMPLE_CYC_C / 4 : 256;
+  logic media_tick_q_r;                  //! media_tick_p, one cycle late
+  always_ff @(posedge axis_clk) begin : mga_tick_delay
+    if (!axis_resetn) media_tick_q_r <= 1'b0;
+    else              media_tick_q_r <= media_tick_p;
+  end : mga_tick_delay
   KL_media_grid_align #(
-    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
-    .FS_HZ_P       (48_000)
+    .CLK_FREQ_HZ_P      (MILAN_CLK_FREQ_HZ),
+    .FS_HZ_P            (48_000),
+    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)
   ) media_grid_align (
     .clk_i      (axis_clk),
     .rst_n      (axis_resetn),
     .sel_i      (crf_clk_selected_r),
-    .frame_ev_i (aafcap_pv_w && (aafcap_slot_w == 4'd0)),
-    .tick_i     (media_tick_p),
+    .frame_ev_i (aafcap_pv_w &&
+                 (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1)),
+    .tick_i     (media_tick_q_r),
     .u_o        (mnco_servo_trim_w),
     .engaged_o  (mga_engaged_w),
     .err_cyc_o      (mga_err_w)
