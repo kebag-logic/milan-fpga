@@ -1,0 +1,8 @@
+256c256,258
+<       .RS_TMO_CYC_P (CLK_HZ_P / 32'd50)
+---
+>       .RS_TMO_CYC_P (CLK_HZ_P / 32'd50),
+>       //! reviewer scratch: the top's NVM_RETRY_BACKOFF_CYC_P derivation, ceil(CLK_HZ_P / 2)
+>       .RETRY_BACKOFF_CYC_P ((CLK_HZ_P / 32'd2) + (CLK_HZ_P % 32'd2))
+261a264
+>       .rs_agg_i         (1'b0),

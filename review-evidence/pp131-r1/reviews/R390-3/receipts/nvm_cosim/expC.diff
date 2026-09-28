@@ -1,0 +1,6 @@
+261a262
+>       .rs_agg_i         (1'b0),
+488c488
+<       idle(1500);                      // debounce, three attempts, give-up
+---
+>       idle(101000);                    // debounce, three attempts, give-up (reviewer scratch: 1500 -> 101000, past 500 + 2 x the donor default 50,000,000 clocks at 1 MHz)

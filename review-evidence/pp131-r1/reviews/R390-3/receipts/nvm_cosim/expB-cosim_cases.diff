@@ -1,0 +1,4 @@
+488c488
+<       idle(1500);                      // debounce, three attempts, give-up
+---
+>       idle(2000);                      // debounce, three attempts, give-up (reviewer scratch: 1500 -> 2000, past 500 + 2 x 500 ms)

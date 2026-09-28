@@ -1,0 +1,26 @@
+PROBE E1 calibrate-1: g 12000, hold 0; strobes 1 240047 480093 720139 960185; payload dones 240044 480090 720136 960182
+  agg_o first at c 1000000: strobe 0, m0_abort 1, arbiter owner 1 (0 none, 1 binding, 2 D3), binding state 3
+  terminal: done c 1000004, closed c -1, rs_cause 3, binding fail 1 cause 3; drain cycles 3005; at end owner 1, port state 13, binding state 9
+PROBE E1 calibrate-2: g 12422, hold 0; strobes 1 248487 496973 745459 993945; payload dones 248484 496970 745456 993942
+  agg_o first at c 1000000: strobe 0, m0_abort 1, arbiter owner 1 (0 none, 1 binding, 2 D3), binding state 3
+  terminal: done c 1000004, closed c -1, rs_cause 3, binding fail 1 cause 3; drain cycles 3005; at end owner 1, port state 13, binding state 9
+PROBE E1: lag done->next strobe 3, predicted strobe 4 at 993945, delta 6055 (per-wait 20001)
+PROBE E1 aligned?: g 12422, hold 6055; strobes 1 248487 496973 745459 1000000; payload dones 248484 496970 745456 999997
+  agg_o first at c 1000000: strobe 1, m0_abort 1, arbiter owner 0 (0 none, 1 binding, 2 D3), binding state 3
+  terminal: done c 1000004, closed c -1, rs_cause 3, binding fail 1 cause 3; drain cycles 3005; at end owner 1, port state 13, binding state 9
+PROBE E1 ALIGNED: binding READ 4 strobe on agg_o's first clock 1000000
+  after aligned: READ_DESCRIPTOR answered 1, AECP owned 0, ADP enable 1, SET ok 1; then 27 of 100000 cycles with the port not idle, 2 device ops, 1 WRITEs of 0x50, record persisted 1, d3_unflushed 0, nvm_alarm 0, owner 0, port state 0
+PROBE E1 strobe one clock BEFORE agg_o: g 12422, hold 6054; strobes 1 248487 496973 745459 999999; payload dones 248484 496970 745456 999996
+  agg_o first at c 1000000: strobe 0, m0_abort 1, arbiter owner 1 (0 none, 1 binding, 2 D3), binding state 3
+  terminal: done c 1000004, closed c -1, rs_cause 3, binding fail 1 cause 3; drain cycles 3005; at end owner 1, port state 13, binding state 9
+  after strobe one clock BEFORE agg_o: READ_DESCRIPTOR answered 1, AECP owned 0, ADP enable 1, SET ok 1; then 27 of 100000 cycles with the port not idle, 2 device ops, 1 WRITEs of 0x50, record persisted 1, d3_unflushed 0, nvm_alarm 0, owner 0, port state 0
+PROBE E1 strobe one clock AFTER agg_o: g 12422, hold 6056; strobes 1 248487 496973 745459; payload dones 248484 496970 745456 999998
+  agg_o first at c 1000000: strobe 0, m0_abort 0, arbiter owner 0 (0 none, 1 binding, 2 D3), binding state 2
+  terminal: done c 1000004, closed c -1, rs_cause 3, binding fail 1 cause 3; drain cycles 0; at end owner 0, port state 0, binding state 9
+  after strobe one clock AFTER agg_o: READ_DESCRIPTOR answered 1, AECP owned 0, ADP enable 1, SET ok 1; then 27 of 100000 cycles with the port not idle, 2 device ops, 1 WRITEs of 0x50, record persisted 1, d3_unflushed 0, nvm_alarm 0, owner 0, port state 0
+PROBE E2 calibrate-1: g 5800, hold 0; release c 928402, bound c 999999, proof c 928944 (proof - bound -71055, agg_o at the proof 0); done c 1000000, closed c -1; rs_cause 3, rolled back 0, image valid 1, AECP owned 0, ADP enable 1, binding cause 0; D3 record READs after the release 8
+PROBE E2 calibrate-2: g 6194, hold 0; release c 991442, bound c 999999, proof c 991984 (proof - bound -8015, agg_o at the proof 0); done c 1000000, closed c -1; rs_cause 3, rolled back 0, image valid 1, AECP owned 0, ADP enable 1, binding cause 0; D3 record READs after the release 2
+PROBE E2 proof - bound = 271: g 6194, hold 8286; release c 999728, bound c 999999, proof c 1000270 (proof - bound 271, agg_o at the proof 1); done c 1000271, closed c -1; rs_cause 3, rolled back 0, image valid 1, AECP owned 0, ADP enable 1, binding cause 0; D3 record READs after the release 0
+PROBE E2 proof - bound = 0: g 6194, hold 8015; release c 999457, bound c 999999, proof c 999999 (proof - bound 0, agg_o at the proof 0); done c 1000000, closed c -1; rs_cause 3, rolled back 0, image valid 1, AECP owned 0, ADP enable 1, binding cause 0; D3 record READs after the release 0
+PROBE E2 proof - bound = -1: g 6194, hold 8014; release c 999456, bound c 999999, proof c 999998 (proof - bound -1, agg_o at the proof 0); done c 1000001, closed c -1; rs_cause 3, rolled back 0, image valid 1, AECP owned 0, ADP enable 1, binding cause 0; D3 record READs after the release 2
+rc=0
