@@ -1,0 +1,9 @@
+control pp_top adp-config: rc=0 PASS
+cfg-frozen-at-top: rc=2 failures=3 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+cfg-overlay-only: rc=2 failures=2 named=2 KILLED
+    FAIL: AD1: first ENTITY_AVAILABLE carries the image configuration 1 (current_cfg_i, nothing set yet)
+    FAIL: AD1b: wire bytes 64..65 carry configuration 1, got 0
+3 checks: 3 PASS, 0 FAIL

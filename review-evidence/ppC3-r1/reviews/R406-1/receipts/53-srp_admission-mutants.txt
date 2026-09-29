@@ -1,0 +1,10 @@
+# reviewer cap: timeout 250 s; rc=124 means the cap stopped it (partial, NOT a result)
+control admission-2: rc=0 PASS
+control admission-8: rc=0 PASS
+control srp-top: rc=0 PASS
+stale-evaluation admission-2: rc=2 PASS
+stale-evaluation admission-8: rc=2 PASS
+stale-evaluation srp-top: rc=2 PASS
+pending-absent admission-2: rc=2 PASS
+pending-absent admission-8: rc=2 PASS
+rc=124

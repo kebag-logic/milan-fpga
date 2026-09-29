@@ -1,0 +1,14 @@
+# parent read-only inspection, milan-fpga dev 79c36963660c10e4c1c11a744fb5bff41a552b8b (blobless clone, no checkout, no edits)
+protocol-processor gitlink at dev: c951a9ff0cb5851fb159d33e966e5a2a9a188fe3
+hdl/common/csr/milan_csr.sv:319:  output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
+hdl/common/csr/milan_csr.sv:1586:      adp_idx0 <= 32'h0; adp_idx1 <= 32'h0; adp_aslo <= 32'h0; adp_ashi <= 32'h0;
+hdl/common/csr/milan_csr.sv:2819:  assign o_adp_current_config  = adp_idx0[15:0];
+hdl/milan/KL_pp_shadow.sv:259:    input  wire [15:0] current_cfg_i,      //! ADPDU current_configuration_index
+hdl/milan/KL_pp_shadow.sv:1102:      .current_cfg_i       (current_cfg_i),
+hdl/milan/milan_datapath.sv:2474:    .o_adp_current_config (cfg_adp_current_config),
+hdl/milan/milan_datapath.sv:7602:      .current_cfg_i     (cfg_adp_current_config),
+sw/builder/test_builder.py:25328:    assert _be_uint(ent, 308, 2) == 1, f"{name}: configurations_count != 1"
+parent hdl/ instantiations of KL_aecp_engine (non-comment): 0
+hdl/milan/milan_datapath.sv:1508:  wire [15:0] cfg_adp_current_config, cfg_adp_identify_index;
+hdl/milan/milan_datapath.sv:2474:    .o_adp_current_config (cfg_adp_current_config),
+hdl/milan/milan_datapath.sv:7602:      .current_cfg_i     (cfg_adp_current_config),
