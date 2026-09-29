@@ -1,0 +1,9 @@
+replace old[225:225] new[225:228]
+  -    The two lists touch no common parent file.
+  +    The two lists' code edits share no parent file. Their documentation updates meet in `tb/verilator/milan_dp/README.md`, which the adoption lane edits once for both (R398-3 F1):
+  +    - this lane's `:443` `[C]` row and `:528-530` sentence (section 4);
+  +    - `:633-637`, the walk-starter list, which gains the harnesses PR #132 adds the `PP_CTRL[1]` walk to (`gmstep`, `gptp`/`gptp-lat` and `ax1x1gptp`);
+  +    - `:877-883`, the `[AECP]` degrade-arm paragraph, rewritten for the two hold checks that replace that arm in every `sim_nxn.cpp` leg.
+changed regions: 1
+RESULT PASS: only item 1 changed
+rc=0
