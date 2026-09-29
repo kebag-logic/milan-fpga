@@ -132,8 +132,8 @@ Implementation and historical evidence remain explicitly distinguished below.
 `16be6768f710e79450aace277abacd6c2c3336e5`, matching D3's reconciliation baseline.
 Processor PR #109 supplies S1/S3/S4; #110 supplies S2.
 At that pin manager 1 was idle. #70 lane 2 adopts processor `d352bbaa`, where
-manager 1 is the D3 writer; the firmware's AEM-first boot order of D3 section
-5.3 remains owed.
+manager 1 is the D3 writer, and the firmware loads the AEM image before the
+walk (D3 section 5.3).
 
 **Historical completion repair.** Root issue #424 adopted
 `2faa5af8889d97616bda1369e4739a546da7b0f1`, merging

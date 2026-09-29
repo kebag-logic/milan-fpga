@@ -1665,11 +1665,15 @@ static void milan_init(void)
 	}
 	/* PHC and fabric gPTP are live from reset, independent of the AEM gate. */
 	configure_fabric();
-	/* Saved state is restored before the entity model is loaded and
-	 * long before the entity is advertised; the verifier's verdict then
-	 * flows straight into the choke point, with nothing between them. */
-	nvm_boot();
+	/* The AEM image is loaded and CRC-checked BEFORE the saved state is
+	 * restored (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3): the
+	 * restore judges every value against the image, and one started
+	 * without it cannot prove the image and ends CLOSED, holding AECP until
+	 * reset. nvm_boot() starts the walk on every path, a failed image
+	 * included (the binding walk still releases the listener), and the
+	 * verifier's verdict then flows straight into the choke point. */
 	aem_loaded = load_aem_image();
+	nvm_boot();
 	entity_advertise(aem_loaded);
 }
 

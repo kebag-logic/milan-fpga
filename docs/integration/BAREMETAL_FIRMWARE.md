@@ -116,12 +116,14 @@ this order:
    control plane disabled while the PHC and fabric gPTP plane remain active.
 2. Program the generated entity ID, model ID, station MAC, SR VID, stream
    counts, lwSRP policy, MAAP count and CRF/AAF controls.
-3. Validate the two journal slots, stage the newer accepted saved-state
+3. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
+   window and verify its CRC32, before the restore judges any saved value
+   against it.
+4. Validate the two journal slots, stage the newer accepted saved-state
    container in the reserved window (or an all-erased one when neither slot
    is accepted), hand the backing store its control tuple and run the
-   restore walk; see [Saved state](#saved-state-the-flash-writer) below.
-4. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
-   window and verify its CRC32.
+   restore walk, on every path, a failed image included; see
+   [Saved state](#saved-state-the-flash-writer) below.
 5. After the identity check and AEM verification succeed, set the
    `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits. The
    controls are ORed into one shared control-plane enable, so either bit alone
@@ -135,10 +137,10 @@ two steps here, or in the firmware, and the gate names both sequences.
 <!-- milan-feature-order:firmware_boot_order:start -->
 1. `configure_fabric()` — the fabric CSRs, with the PHC and the gPTP plane
    already live from the CSR reset.
-2. `nvm_boot()`: the saved-state slots, the backing store and the restore
-   walk, before the entity model is loaded and before the entity can be
-   advertised.
-3. `load_aem_image()`: copy from QSPI and verify the CRC32.
+2. `load_aem_image()`: copy from QSPI and verify the CRC32, before the
+   restore judges any saved value against the image.
+3. `nvm_boot()`: the saved-state slots, the backing store and the restore
+   walk, on every path, before the entity can be advertised.
 4. `entity_advertise()`: the enable bits, and only on a verified image.
 <!-- milan-feature-order:firmware_boot_order:end -->
 
@@ -1922,9 +1924,10 @@ until the walk ends ([#70](https://github.com/kebag-logic/milan-fpga/issues/70),
 verdicts, the offered sequence and the walk's `done`, `fail`, `blank`,
 `backed`, `closed` and `rolled_back` bits and both causes, so a blank board
 reads `blank=1 fail=0 backed=1`, the register map's "blank media behind a
-validated image" row, and no longer `0x5B00_008C`. The firmware still loads the
-AEM image after `nvm_boot()` (the order block above); the D3 page's section
-5.3 moves it ahead, and #70 records why that step is not yet taken.
+validated image" row, and no longer `0x5B00_008C`. The AEM image is loaded
+and CRC-checked before `nvm_boot()` (the order block above, the D3 page's
+section 5.3 change 1), so the walk can prove it; a walk started without the
+image ends CLOSED and holds AECP until reset.
 
 **Runtime.** The product BIOS calls `command_dispatch_hook` after each line.
 [Patch 0006](../../sw/litex/patches/0006-bios-dispatch-hook.patch) supplies the hook and required link marker.

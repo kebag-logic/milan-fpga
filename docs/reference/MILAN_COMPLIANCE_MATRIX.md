@@ -161,17 +161,18 @@ flash journal hold it, and a bind survives a cold power cycle on silicon
 (2026-09-21, #70). Since processor pin `d352bbaa` (#70 lane 2) the D3 writer
 writes and restores the scalar rows as well (the
 [D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), graded on the desk only:
-the firmware's AEM-first boot order, without which that restore ends CLOSED,
-and its cold-cycle proof remain open on #70. Channel maps and user names have
+the firmware loads and CRC-checks the AEM image before it starts the
+restore, which a walk started without the image ends CLOSED, and the
+cold-cycle proof on silicon remains open on #70. Channel maps and user names have
 no record writer yet.
 
 | Clause | State | Live (set/served) | Persisted |
 |---|---|---|---|
-| 5.3.5.1 | sampling rate per Audio Unit | implemented (adoption by the media plane open: B3) | partial: D3 writer since processor `d352bbaa` (desk); firmware boot order and cold cycle open (#70) |
+| 5.3.5.1 | sampling rate per Audio Unit | implemented (adoption by the media plane open: B3) | partial: D3 writer since processor `d352bbaa` (desk); cold cycle open (#70) |
 | 5.3.7.1 / 5.3.7.6 | Stream Output format · presentation-time offset (2 ms default) | implemented | partial: D3 writer (desk); restored offset on the wire and cold cycle open (#70) |
 | 5.3.8.1 / .2 / .3 / .7 | Stream Input format · bound state · binding params · started/stopped | implemented | partial: bound state and binding parameters survive a cold cycle on silicon; the format by the D3 writer (desk); the started-state restore is unproven on silicon (#70) |
 | 5.3.9.1 / 5.3.10.1 | channel mappings (both directions) | implemented | missing: no record writer (#70 lane 4) |
-| 5.3.11.1 | clock source per Clock Domain | implemented: `media_clk_resolve` consumes INTERNAL/CRF selection; PHC-only re-base preserves that source ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | partial: D3 writer (desk); firmware boot order and cold cycle open (#70) |
+| 5.3.11.1 | clock source per Clock Domain | implemented: `media_clk_resolve` consumes INTERNAL/CRF selection; PHC-only re-base preserves that source ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | partial: D3 writer (desk); cold cycle open (#70) |
 | 5.3.12 | Identify control (volatile by rule) | implemented | n/a — must NOT persist |
 | 5.3.13 | user names | implemented (0x0054) | missing: no record writer (#70 lane 3) |
 

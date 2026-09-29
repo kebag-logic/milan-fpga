@@ -140,7 +140,7 @@ hazard.
 Saved state is only partly persistent: a binding survives a cold power cycle,
 the scalar settings (configuration, sampling rate, stream formats, presentation
 offset, clock source) are written and restored since processor pin `d352bbaa`
-with their boot order and cold-cycle proof still open, and channel maps and
+with their silicon cold-cycle proof still open, and channel maps and
 user names are not persisted. This is a compliance blocker, not a
 documentation-only limitation.
 The Stream Input START/STOP path completes at the binding record (issue #97):

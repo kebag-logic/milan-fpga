@@ -412,9 +412,9 @@ firmware's A/B flash journal hold the bound state and binding parameters, and a
 bind survives a cold power cycle on silicon (2026-09-21, #70). Since processor
 pin `d352bbaa` (#70 lane 2) the D3 writer also writes and restores the current
 configuration, the sampling rates, both stream formats, the presentation
-offsets and the clock sources, proven on the desk; the firmware's AEM-first
-boot order that lets that restore complete, and its silicon cold cycle, remain
-open on #70. Channel mappings and user names have no record writer yet (#70
+offsets and the clock sources, proven on the desk, with the firmware loading
+the AEM image before the restore so that it completes; its silicon cold cycle
+remains open on #70. Channel mappings and user names have no record writer yet (#70
 lanes 3 and 4).
 
 Blocks **item 5.1 entirely**, and item 5.1 has **no "if the DUT does not implement

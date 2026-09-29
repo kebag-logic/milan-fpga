@@ -7,9 +7,9 @@
 > scalar records are in the processor at pin `d352bbaa`
 > ([processor PR #132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132),
 > lane 1), and #70 lane 2 adopts that pin with the parent glue of section 5.2.
-> The firmware's AEM-first boot order (section 5.3, change 1) is not yet
-> adopted; #70 records why. User names and channel maps (stages 2 and 3)
-> are not implemented.
+> The firmware's AEM-first boot order (section 5.3, change 1) is adopted
+> with it: `milan_init()` loads and CRC-checks the image before `nvm_boot()`.
+> User names and channel maps (stages 2 and 3) are not implemented.
 > Adoption follows the [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328).
 > The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) requires independent review.
 > This page decides scope D3 of the

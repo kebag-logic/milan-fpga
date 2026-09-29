@@ -59,7 +59,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A shape-mismatched record set runs it blind.
 - The restore wait ends on done or CLOSED.
 - `test_boot_walk.py` grades five boot paths per shape.
-- The AEM image still loads after `nvm_boot()`; #70 records why.
+- The AEM image loads and CRC-checks before `nvm_boot()`.
+- Gate 1b keeps the pinned verdict across that call.
 - Every harness that sends AECP starts the walk first.
 - VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
