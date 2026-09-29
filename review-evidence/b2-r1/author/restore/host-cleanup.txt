@@ -1,0 +1,26 @@
+LOCK 2026-09-29T07:20:57.810Z
+172836966609645d6e12adf19a8341a145a4dadc51edb81c6d29a23aae1fd75a  /tmp/b2a440_avdecc_ro.py
+29a3d493ba3c82b6618aef9dfd1a940057857230a7315d63a6cbf1c11a2beb51  /tmp/b2a440_controller.py
+3c86cf246fea8fd1736f42904dfff342d367eea98bcf302f328b75ca6b8d4b4c  /tmp/b2a440_reconnect.py
+ls: cannot access '/tmp/b2a440_*': No such file or directory
+13676 bash -c sha256sum /tmp/b2a440_*.py; rm -f /tmp/b2a440_avdecc_ro.py /tmp/b2a440_controller.py /tmp/b2a440_reconnect.py; rm -rf /tmp/__pycache__/b2a440_* ; ls /tmp/b2a440_* 2>&1; pgrep -a -f b2a440 || echo NO_PROCESS
+CONTROLLER_CLEANUP_RC=0
+2601b03e16c0caa7c13f170a7316d7262a9f9bc4cc265dcba881165364a1fb61  /tmp/b2a440_capture.py
+6d6a38e282913ec89757903030759a6da1b08a71a21f459d3d4b2c016618e56d  /tmp/b2-a440-tap-driver/<tap-module>.ko
+28351 bash -c sha256sum /tmp/b2a440_capture.py /tmp/b2-a440-tap-driver/<tap-module>.ko; rm -f /tmp/b2a440_capture.py; pgrep -a -f "b2a440|tcpdump" || echo NO_PROCESS; sudo -n rmmod <tap-module>; echo RMMOD_RC=$?; rm -rf /tmp/b2-a440-tap-driver; echo RM_RC=$?; ls /tmp/b2-a440-tap-driver 2>&1; lsmod | grep <tap-module> || echo NO_MODULE; ip -br link
+RMMOD_RC=0
+RM_RC=0
+ls: cannot access '/tmp/b2-a440-tap-driver': No such file or directory
+NO_MODULE
+lo               UNKNOWN        <host-mac> <LOOPBACK,UP,LOWER_UP> 
+<host-iface>           UP             <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+TAP_CLEANUP_RC=0
+  OUT0  ON
+  OUT1  OFF
+  OUT2  ON
+  OUT3  OFF
+  OUT4  ON
+  OUT5  ON
+  OUT6  ON
+PS_RC=0
+UNLOCK 2026-09-29T07:20:59.423Z

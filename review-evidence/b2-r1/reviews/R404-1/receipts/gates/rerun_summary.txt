@@ -1,0 +1,6 @@
+head c37f1d04e39be0344dfde77e793cdfa441bd4869 tree 44ffbf6fff19ac25b8916051bf9f14bf011b35a5 status-lines 0
+scripts/docs_check.py rc=0 :: docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+scripts/check_doc_style.py rc=0 :: documentation style: OK (22 current documents)
+scripts/gen_toc.py --check rc=0 :: TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102 rc=0 :: check_em_dash: 0 finding(s) over 802 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+scripts/check_doc_paths.py rc=0 :: doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)

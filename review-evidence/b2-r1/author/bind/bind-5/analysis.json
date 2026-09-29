@@ -1,0 +1,107 @@
+{
+  "name": "bind-5",
+  "mode": "bind",
+  "records": 2381,
+  "msrp_pdus": 35,
+  "msrp_events": 59,
+  "msrp_malformed": [],
+  "target_valid_pdus": 1789,
+  "target_invalid_or_misdirected": 0,
+  "capture_span_s": 20.977475252,
+  "reversals": 0,
+  "anchor_spread_s": 0.098028721,
+  "dut_out1_start_stop_before": [
+    15,
+    15
+  ],
+  "dut_out1_start_stop_after": [
+    16,
+    15
+  ],
+  "dut_out1_start_stop_delta": [
+    1,
+    0
+  ],
+  "crft_count_before_after": [
+    1096357,
+    1098225
+  ],
+  "rst_epoch_before_after": [
+    1,
+    1
+  ],
+  "pp_diag_before_after": [
+    1245905060,
+    1248592088
+  ],
+  "pre_window_s": 17.334082108,
+  "pre_dut_leaveall_pdus": 2,
+  "pre_dut_target_ta_events": {
+    "Mt": 3
+  },
+  "pre_dut_target_ta_declarations": 0,
+  "pre_dut_ta_declarations_any_stream": 0,
+  "pre_bridge_target_listener_declarations": 0,
+  "pre_target_pdus": 0,
+  "fresh": true,
+  "connect_command_s": 17.334082108,
+  "response_s": 17.342075776,
+  "probe_exchanges": [
+    {
+      "after_response_s": 8.1984e-05,
+      "mt": 0,
+      "sender": "bridge",
+      "status": 0,
+      "seq": 257
+    },
+    {
+      "after_response_s": 8.9072e-05,
+      "mt": 1,
+      "sender": "DUT",
+      "status": 0,
+      "seq": 257
+    }
+  ],
+  "first_probe_response_status": 0,
+  "first_probe_response_after_response_s": 8.9072e-05,
+  "first_dut_ta": {
+    "after_response_s": 0.000336881,
+    "event": "JoinMt"
+  },
+  "first_bridge_mrpdu": {
+    "after_response_s": 0.057989448,
+    "leaveall": false,
+    "content": [
+      [
+        "Listener",
+        "New"
+      ]
+    ]
+  },
+  "first_bridge_mrpdu_after_command_s": 0.057989448,
+  "first_bridge_ready": {
+    "after_response_s": 0.057989448,
+    "event": "New"
+  },
+  "bridge_leaveall_between_response_and_ready": 0,
+  "first_valid_pdu_s": 17.401427459,
+  "latency_s": 0.059351683,
+  "first_pair_progresses": true,
+  "first_pdu_src_ok": true,
+  "settled_listener_state": {
+    "conn_count": 1,
+    "sid": "0200000000010001",
+    "dmac": "91e0f000e512"
+  },
+  "first_pdu_dmac_ok": true,
+  "ready_to_first_pdu_s": 0.001362235,
+  "result": "PASS",
+  "msrp_pdus_by_sender": {
+    "DUT": 27,
+    "bridge": 8
+  },
+  "leaveall_pdus_by_sender": {
+    "DUT": 2,
+    "bridge": 1
+  }
+}

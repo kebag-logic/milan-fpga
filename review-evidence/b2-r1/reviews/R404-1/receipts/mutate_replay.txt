@@ -1,0 +1,9 @@
+control rc=0 125 lines; FAILS 0; first: 
+m1_restart_c44 rc=1 126 lines; FAILS 1; first: FAIL c44 page restart
+m2_class_c22 rc=1 126 lines; FAILS 1; first: FAIL c22 page class IN (inferred) vs LV
+m3_class_c7 rc=1 126 lines; FAILS 1; first: FAIL c7 page class IN (observed) vs IN-inferred
+m4_prebind_decl_b3 rc=1 126 lines; FAILS 1; first: FAIL b3 page LA/TA 1 / 1
+m5_firstpdu_b5 rc=1 126 lines; FAILS 1; first: FAIL b5 page first PDU
+m6_counter_c12 rc=1 126 lines; FAILS 1; first: FAIL c12 page START/STOP +0 / +1 vs (1, 1)
+m7_pkt_c22_own_leaveall_late rc=1 128 lines; FAILS 3; first: FAIL c22 page class LV vs IN-observed
+rc=0

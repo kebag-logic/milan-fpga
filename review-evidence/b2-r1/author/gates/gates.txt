@@ -1,0 +1,13 @@
+head c37f1d04e39be0344dfde77e793cdfa441bd4869
+$LANES/b2-bench-0929
+1 docs_check.py rc=0
+2 check_doc_style.py rc=0
+3 gen_toc.py --check rc=0
+4 check_em_dash.py --base 13eda870 rc=0
+5 check_doc_paths.py rc=0
+6 ci_scope.py --selftest rc=0
+7 check_baremetal_only.py --check rc=0
+8 check_feature_status.py --self-test rc=0
+9 git diff --check rc=0
+9b git diff --check 13eda870 HEAD rc=0
+status: 0 uncommitted entries

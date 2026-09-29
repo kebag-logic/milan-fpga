@@ -1,0 +1,157 @@
+[A440] REVIEW READY
+Commit: `c37f1d04e39be0344dfde77e793cdfa441bd4869` on `b2-bench-0929`, one commit on dev `13eda870`, local and not pushed.
+Changed: two new findings pages, no other change:
+- `docs/findings/606_FIRST_BIND_MEASUREMENT.md` (#606);
+- `docs/findings/608_75_WITHDRAWAL_AND_RESTART.md` (#608, #75).
+
+Validation: all nine assigned gates return rc 0 at this head, run in the foreground without pipes from the physical `/data` worktree:
+- with the pinned Markdown environment: `docs_check.py`, `check_doc_style.py`, `gen_toc.py --check`, `check_em_dash.py --base 13eda870` (802 added lines, 0 findings) and `check_doc_paths.py`;
+- `ci_scope.py --selftest`, `check_baremetal_only.py --check`, `check_feature_status.py --self-test` and `git diff --check`.
+
+Offline replay of all 112 captures reproduces every live interval. Every capture reports 0 packets dropped. The replay also found 0 timestamp reversals and 0 malformed MSRPDUs.
+
+Identity gate PASS before any bind:
+- VERSION `0x00020060`; ROM `acad92b9`, QSPI payload `d84bce7b` (seed `eto`), AEM `93742dd2`;
+- ENTITY and CONFIGURATION byte-exact to the AEM image; grader 10/10.
+
+Acceptance (operator measurements; the reviews decide):
+- #606 item 3, first bind: PASS, 5 of 5. From a state with no DUT Talker Advertise, the time to the first valid CRF PDU was 0.059-0.229 s. The first probe was SUCCESS every time, and the bridge's first MRPDU was Listener Ready (no LeaveAll).
+- #606 item 3, long-hold connect: PASS, 4 of 4 (binds 2-5, after 36.9-39.3 s unbound).
+- #608 item 3, stop within one PDU: two readings, which need a decision.
+  - Literal text (100 of 100): NOT MET, 99 of 100.
+  - Recorded reading (a withdrawal reaching an IN registrar): PASS, 99 of 99.
+  - Cycle 22 is the exception: the DUT's own LeaveAll crossed the tap 1.390 ms before the bridge's `Lv`. The registrar was LV, and the stream ran through the 2 s hold (1,005 PDUs, STREAM_START/STREAM_STOP +0/+0).
+- #608 item 3, STREAM_STOP counts each stop: PASS, 99 of 99. Non-stop holds: 1 of 100 (3 of 100 on `9e9954e9`).
+- #75: first valid AVTP PDU within 1 s: PASS for 99 of 99 demonstrated restarts, max 0.139247 s.
+- #75: no growth: PASS. The slope's 95% interval is [-0.000235, +0.000069] s/cycle.
+- #75: at least 100 talker restarts: NOT MET, 99 of 100.
+
+Restore PASS:
+- 18 of 18 stream states unbound; census 53 of 53 non-counter reads equal;
+- no CRF on the final tap; grader 10/10; reset epoch 1 throughout;
+- temporary scripts and capture module removed; outlets untouched; bench lock free.
+
+The DUT was never flashed, reset, rebooted or power-cycled.
+
+Open risks/questions:
+1. Decide which reading of #608 item 3 applies, given cycle 22.
+2. #75's talker count is one restart short. More cycles would need an assignment.
+3. #606's post-reset allocation path needs a DUT reset and is not exercised. PR #613's regression stays its evidence.
+4. When an LV registration expires is not measured, because the hold is only 2 s.
+5. Outlets were read at the end only. They match lane B1's recorded state, and none were switched.
+
+Per-bind table (seconds after the tapped `CONNECT_RX` response):
+
+| Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll PDUs / target TA declarations in it | First probe status | First DUT TA, s | First bridge MRPDU, s | Bridge Listener Ready, s | First valid PDU, s | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | more than 1,800 (lane B1's restore) | 17.315 | 2 / 0 | SUCCESS | 0.171413 (JoinMt) | 0.227724, Listener New | 0.227724 | 0.228304 | PASS |
+| 2 | 39.3 | 17.323 | 1 / 0 | SUCCESS | 0.068868 (JoinMt) | 0.125289, Listener New | 0.125289 | 0.126451 | PASS |
+| 3 | 36.9 | 17.341 | 1 / 0 | SUCCESS | 0.074340 (JoinMt) | 0.129176, Listener New | 0.129176 | 0.130400 | PASS |
+| 4 | 37.0 | 17.373 | 1 / 0 | SUCCESS | 0.172822 (JoinMt) | 0.227576, Listener New | 0.227576 | 0.229360 | PASS |
+| 5 | 36.9 | 17.334 | 2 / 0 | SUCCESS | 0.000337 (JoinMt) | 0.057989, Listener New | 0.057989 | 0.059352 | PASS |
+
+Per-cycle table (seconds on the tap clock after the `DISCONNECT_RX` response; "Last PDU minus Lv" in ms):
+
+| Cycle | Bridge Lv after disconnect, s | Registrar at Lv | Last PDU minus Lv, ms | Hold PDUs | START / STOP | DUT TA declared in hold | Restart, s | #608 stop | #75 restart |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 0.008466 | IN (inferred) | -0.525 | 4 | +1 / +1 | no | 0.105876 | PASS | PASS |
+| 2 | 0.009184 | IN (inferred) | -1.176 | 5 | +1 / +1 | yes | 0.014236 | PASS | PASS |
+| 3 | 0.009582 | IN (inferred) | -1.385 | 5 | +1 / +1 | yes | 0.012014 | PASS | PASS |
+| 4 | 0.009435 | IN (inferred) | -0.897 | 5 | +1 / +1 | no | 0.126519 | PASS | PASS |
+| 5 | 0.009216 | IN (observed) | -0.601 | 5 | +1 / +1 | yes | 0.013848 | PASS | PASS |
+| 6 | 0.009562 | IN (inferred) | -0.763 | 5 | +1 / +1 | yes | 0.012657 | PASS | PASS |
+| 7 | 0.008820 | IN (inferred) | -1.962 | 4 | +1 / +1 | yes | 0.012462 | PASS | PASS |
+| 8 | 0.009189 | IN (inferred) | -0.137 | 5 | +1 / +1 | yes | 0.013260 | PASS | PASS |
+| 9 | 0.009597 | IN (inferred) | -0.360 | 5 | +1 / +1 | yes | 0.013076 | PASS | PASS |
+| 10 | 0.009612 | IN (inferred) | -0.183 | 5 | +1 / +1 | yes | 0.012888 | PASS | PASS |
+| 11 | 0.009171 | IN (observed) | -1.678 | 4 | +1 / +1 | yes | 0.013670 | PASS | PASS |
+| 12 | 0.013235 | IN (observed) | -0.553 | 7 | +1 / +1 | yes | 0.014413 | PASS | PASS |
+| 13 | 0.008929 | IN (inferred) | -0.184 | 5 | +1 / +1 | yes | 0.012221 | PASS | PASS |
+| 14 | 0.009328 | IN (inferred) | -1.399 | 4 | +1 / +1 | yes | 0.014034 | PASS | PASS |
+| 15 | 0.008671 | IN (inferred) | -0.548 | 5 | +1 / +1 | yes | 0.011846 | PASS | PASS |
+| 16 | 0.008856 | IN (inferred) | -0.669 | 5 | +1 / +1 | yes | 0.011662 | PASS | PASS |
+| 17 | 0.026166 | IN (inferred) | -0.664 | 13 | +1 / +1 | yes | 0.013470 | PASS | PASS |
+| 18 | 0.009703 | IN (observed) | -0.138 | 5 | +1 / +1 | yes | 0.014279 | PASS | PASS |
+| 19 | 0.009080 | IN (observed) | -1.323 | 4 | +1 / +1 | yes | 0.013093 | PASS | PASS |
+| 20 | 0.009355 | IN (observed) | -0.537 | 5 | +1 / +1 | yes | 0.012903 | PASS | PASS |
+| 21 | 0.008708 | IN (observed) | -0.706 | 5 | +1 / +1 | yes | 0.013730 | PASS | PASS |
+| 22 | 0.010791 | LV | +1997.430 | 1005 | +0 / +0 | yes | none: no stop | LV window, no stop | NOT RESTART |
+| 23 | 0.009307 | IN (observed) | -0.048 | 5 | +1 / +1 | yes | 0.013361 | PASS | PASS |
+| 24 | 0.009690 | IN (inferred) | -0.245 | 5 | +1 / +1 | yes | 0.013176 | PASS | PASS |
+| 25 | 0.009062 | IN (inferred) | -1.425 | 4 | +1 / +1 | yes | 0.013987 | PASS | PASS |
+| 26 | 0.009425 | IN (observed) | -1.603 | 4 | +1 / +1 | yes | 0.013804 | PASS | PASS |
+| 27 | 0.009251 | IN (observed) | -0.357 | 5 | +1 / +1 | yes | 0.013016 | PASS | PASS |
+| 28 | 0.009478 | IN (observed) | -0.522 | 5 | +1 / +1 | yes | 0.012834 | PASS | PASS |
+| 29 | 0.009428 | IN (inferred) | -1.276 | 5 | +1 / +1 | yes | 0.014128 | PASS | PASS |
+| 30 | 0.008830 | IN (inferred) | -0.491 | 5 | +1 / +1 | yes | 0.011938 | PASS | PASS |
+| 31 | 0.009656 | IN (inferred) | -0.255 | 5 | +1 / +1 | yes | 0.013640 | PASS | PASS |
+| 32 | 0.009566 | IN (inferred) | -1.974 | 4 | +1 / +1 | yes | 0.013450 | PASS | PASS |
+| 33 | 0.008950 | IN (inferred) | -1.169 | 4 | +1 / +1 | yes | 0.013227 | PASS | PASS |
+| 34 | 0.009357 | IN (inferred) | -0.500 | 5 | +1 / +1 | yes | 0.013037 | PASS | PASS |
+| 35 | 0.098486 | IN (observed) | -1.450 | 49 | +1 / +1 | yes | 0.012844 | PASS | PASS |
+| 36 | 0.009333 | IN (observed) | -0.111 | 5 | +1 / +1 | yes | 0.012653 | PASS | PASS |
+| 37 | 0.009327 | IN (inferred) | -0.034 | 5 | +1 / +1 | yes | 0.013394 | PASS | PASS |
+| 38 | 0.008689 | IN (inferred) | -0.212 | 5 | +1 / +1 | yes | 0.012207 | PASS | PASS |
+| 39 | 0.009069 | IN (inferred) | -0.402 | 5 | +1 / +1 | yes | 0.012027 | PASS | PASS |
+| 40 | 0.009323 | IN (observed) | -0.594 | 5 | +1 / +1 | yes | 0.012802 | PASS | PASS |
+| 41 | 0.008713 | IN (observed) | -0.794 | 4 | +1 / +1 | yes | 0.011607 | PASS | PASS |
+| 42 | 0.009168 | IN (observed) | -1.059 | 5 | +1 / +1 | yes | 0.013442 | PASS | PASS |
+| 43 | 0.009451 | IN (inferred) | -1.271 | 5 | +1 / +1 | yes | 0.016165 | PASS | PASS |
+| 44 | 0.008967 | IN (observed) | -0.183 | 5 | +1 / +1 | no | 0.139247 | PASS | PASS |
+| 45 | 0.008790 | IN (observed) | -0.810 | 4 | +1 / +1 | yes | 0.013574 | PASS | PASS |
+| 46 | 0.009342 | IN (observed) | -1.173 | 5 | +1 / +1 | yes | 0.014273 | PASS | PASS |
+| 47 | 0.008519 | IN (inferred) | -0.292 | 5 | +1 / +1 | yes | 0.012084 | PASS | PASS |
+| 48 | 0.010018 | IN (inferred) | -1.598 | 5 | +1 / +1 | yes | 0.013863 | PASS | PASS |
+| 49 | 0.009335 | IN (inferred) | -1.852 | 4 | +1 / +1 | yes | 0.013587 | PASS | PASS |
+| 50 | 0.010345 | IN (observed) | -1.669 | 5 | +1 / +1 | yes | 0.012280 | PASS | PASS |
+| 51 | 0.009191 | IN (inferred) | -1.329 | 4 | +1 / +1 | yes | 0.013069 | PASS | PASS |
+| 52 | 0.009676 | IN (inferred) | -1.621 | 5 | +1 / +1 | yes | 0.011782 | PASS | PASS |
+| 53 | 0.008948 | IN (inferred) | -0.825 | 5 | +1 / +1 | yes | 0.013597 | PASS | PASS |
+| 54 | 0.011162 | IN (inferred) | -0.838 | 6 | +1 / +1 | yes | 0.014363 | PASS | PASS |
+| 55 | 0.009709 | IN (observed) | -0.338 | 5 | +1 / +1 | yes | 0.013110 | PASS | PASS |
+| 56 | 0.009082 | IN (observed) | -0.522 | 5 | +1 / +1 | yes | 0.081912 | PASS | PASS |
+| 57 | 0.009568 | IN (observed) | -1.814 | 4 | +1 / +1 | yes | 0.013605 | PASS | PASS |
+| 58 | 0.008813 | IN (inferred) | -0.998 | 4 | +1 / +1 | yes | 0.011382 | PASS | PASS |
+| 59 | 0.009083 | IN (inferred) | -0.205 | 5 | +1 / +1 | yes | 0.013195 | PASS | PASS |
+| 60 | 0.085791 | IN (observed) | -1.849 | 42 | +1 / +1 | yes | 0.013936 | PASS | PASS |
+| 61 | 0.009797 | IN (observed) | -1.789 | 5 | +1 / +1 | yes | 0.011733 | PASS | PASS |
+| 62 | 0.009195 | IN (inferred) | +0.001 | 5 | +1 / +1 | yes | 0.013428 | PASS | PASS |
+| 63 | 0.009404 | IN (inferred) | -0.147 | 5 | +1 / +1 | yes | 0.015254 | PASS | PASS |
+| 64 | 0.009701 | IN (inferred) | -1.375 | 5 | +1 / +1 | yes | 0.012037 | PASS | PASS |
+| 65 | 0.009125 | IN (inferred) | -0.613 | 5 | +1 / +1 | yes | 0.011839 | PASS | PASS |
+| 66 | 0.009334 | IN (inferred) | -0.763 | 5 | +1 / +1 | yes | 0.012665 | PASS | PASS |
+| 67 | 0.008673 | IN (inferred) | -0.030 | 5 | +1 / +1 | yes | 0.012370 | PASS | PASS |
+| 68 | 0.009701 | IN (observed) | -0.870 | 5 | +1 / +1 | yes | 0.012187 | PASS | PASS |
+| 69 | 0.009301 | IN (observed) | -1.410 | 4 | +1 / +1 | yes | 0.014001 | PASS | PASS |
+| 70 | 0.008739 | IN (inferred) | -0.652 | 5 | +1 / +1 | yes | 0.011782 | PASS | PASS |
+| 71 | 0.009255 | IN (inferred) | -0.109 | 5 | +1 / +1 | yes | 0.013502 | PASS | PASS |
+| 72 | 0.009444 | IN (inferred) | -0.106 | 5 | +1 / +1 | yes | 0.013312 | PASS | PASS |
+| 73 | 0.047490 | IN (observed) | -1.082 | 24 | +1 / +1 | yes | 0.014509 | PASS | PASS |
+| 74 | 0.009539 | IN (observed) | -1.068 | 5 | +1 / +1 | yes | 0.012334 | PASS | PASS |
+| 75 | 0.008913 | IN (inferred) | -1.253 | 4 | +1 / +1 | yes | 0.015142 | PASS | PASS |
+| 76 | 0.009172 | IN (inferred) | -1.449 | 4 | +1 / +1 | yes | 0.012948 | PASS | PASS |
+| 77 | 0.009661 | IN (observed) | -0.873 | 5 | +1 / +1 | yes | 0.012757 | PASS | PASS |
+| 78 | 0.008820 | IN (observed) | -0.844 | 4 | +1 / +1 | yes | 0.015567 | PASS | PASS |
+| 79 | 0.009175 | IN (inferred) | -0.137 | 5 | +1 / +1 | yes | 0.013266 | PASS | PASS |
+| 80 | 0.009483 | IN (inferred) | -0.377 | 5 | +1 / +1 | yes | 0.013048 | PASS | PASS |
+| 81 | 0.008858 | IN (inferred) | -0.565 | 5 | +1 / +1 | yes | 0.011778 | PASS | PASS |
+| 82 | 0.009700 | IN (inferred) | -1.338 | 5 | +1 / +1 | yes | 0.012085 | PASS | PASS |
+| 83 | 0.009205 | IN (observed) | -1.656 | 4 | +1 / +1 | yes | 0.013783 | PASS | PASS |
+| 84 | 0.008795 | IN (inferred) | -1.068 | 4 | +1 / +1 | yes | 0.013326 | PASS | PASS |
+| 85 | 0.009089 | IN (inferred) | -0.301 | 5 | +1 / +1 | yes | 0.012139 | PASS | PASS |
+| 86 | 0.009296 | IN (observed) | -0.450 | 5 | +1 / +1 | yes | 0.012952 | PASS | PASS |
+| 87 | 0.008618 | IN (observed) | -1.577 | 4 | +1 / +1 | yes | 0.012761 | PASS | PASS |
+| 88 | 0.008830 | IN (observed) | -1.852 | 4 | +1 / +1 | yes | 0.013567 | PASS | PASS |
+| 89 | 0.009413 | IN (observed) | -1.121 | 5 | +1 / +1 | yes | 0.014272 | PASS | PASS |
+| 90 | 0.009698 | IN (inferred) | -1.340 | 5 | +1 / +1 | yes | 0.012087 | PASS | PASS |
+| 91 | 0.009120 | IN (observed) | -0.573 | 5 | +1 / +1 | yes | 0.011862 | PASS | PASS |
+| 92 | 0.010473 | IN (observed) | -0.864 | 5 | +1 / +1 | yes | 0.013592 | PASS | PASS |
+| 93 | 0.008951 | IN (observed) | -1.150 | 4 | +1 / +1 | yes | 0.101353 | PASS | PASS |
+| 94 | 0.009105 | IN (inferred) | -1.243 | 4 | +1 / +1 | yes | 0.013109 | PASS | PASS |
+| 95 | 0.008945 | IN (inferred) | -1.008 | 4 | +1 / +1 | yes | 0.013400 | PASS | PASS |
+| 96 | 0.009328 | IN (inferred) | -1.204 | 5 | +1 / +1 | yes | 0.014195 | PASS | PASS |
+| 97 | 0.008826 | IN (observed) | -0.515 | 5 | +1 / +1 | yes | 0.011917 | PASS | PASS |
+| 98 | 0.008930 | IN (observed) | -1.679 | 4 | +1 / +1 | yes | 0.012731 | PASS | PASS |
+| 99 | 0.009393 | IN (observed) | -0.954 | 5 | +1 / +1 | yes | 0.014426 | PASS | PASS |
+| 100 | 0.008779 | IN (inferred) | -1.149 | 4 | +1 / +1 | yes | 0.011239 | PASS | PASS |
+

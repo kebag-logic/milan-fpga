@@ -1,0 +1,48 @@
+cycle 22, seconds after DISCONNECT_RX response:
+  MSRP -0.391721 bridge Listener LeaveAll None
+  MSRP -0.391721 bridge Listener JoinMt 0200000000010001
+  MSRP -0.391721 bridge Domain LeaveAll None
+  MSRP -0.391721 bridge Domain JoinMt None
+  MSRP -0.391721 bridge Domain JoinMt None
+  MSRP -0.391721 bridge TalkerAdvertise LeaveAll None
+  MSRP -0.391721 bridge TalkerFailed LeaveAll None
+  MSRP -0.390602 DUT Domain JoinIn None
+  MSRP -0.390602 DUT TalkerAdvertise JoinMt 0200000000010001
+  MSRP -0.390602 DUT Listener Mt <peer-stream-id>
+  MSRP -0.190603 DUT TalkerAdvertise JoinMt 0200000000010001
+  MSRP +0.009401 DUT Domain LeaveAll None
+  MSRP +0.009401 DUT Domain JoinIn None
+  MSRP +0.009401 DUT TalkerAdvertise LeaveAll None
+  MSRP +0.009401 DUT TalkerAdvertise JoinMt 0200000000010001
+  MSRP +0.009401 DUT TalkerFailed LeaveAll None
+  MSRP +0.009401 DUT Listener LeaveAll None
+  MSRP +0.010791 bridge Listener Lv 0200000000010001
+  MSRP +0.010791 bridge Domain JoinMt None
+  MSRP +0.010791 bridge Domain JoinIn None
+  MSRP +0.108285 bridge Domain JoinMt None
+  MSRP +0.108285 bridge Domain JoinIn None
+  MSRP +0.209399 DUT Domain JoinIn None
+  MSRP +0.209399 DUT TalkerAdvertise JoinMt 0200000000010001
+  MSRP +0.209399 DUT Listener Mt <peer-stream-id>
+  MSRP +1.209401 DUT Domain JoinIn None
+  MSRP +1.209401 DUT TalkerAdvertise JoinMt 0200000000010001
+  MSRP +2.020318 bridge Listener New 0200000000010001
+  ACMP -0.000593 bridge mt=10 status=0
+  ACMP -0.000498 bridge mt=11 status=0
+  ACMP -0.000366 bridge mt=8 status=0
+  ACMP +0.000000 bridge mt=9 status=0
+  ACMP +2.000278 bridge mt=6 status=0
+  ACMP +2.008674 bridge mt=7 status=0
+  ACMP +2.008700 bridge mt=0 status=0
+  ACMP +2.008708 DUT mt=1 status=0
+  own LeaveAll minus Lv, ms: -1.390731 types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed']
+  hold_pdus 1005 stopped False START/STOP delta [0, 0]
+bind PROBE timing after CONNECT_RX response (us):
+  bind 1: cmd 26.6 us, resp 33.7 us (+7.1), status 0, ready->pdu 0.580 ms, dmac 91e0f000e512
+  bind 2: cmd 36.4 us, resp 43.5 us (+7.1), status 0, ready->pdu 1.162 ms, dmac 91e0f000e512
+  bind 3: cmd 30.4 us, resp 37.5 us (+7.1), status 0, ready->pdu 1.224 ms, dmac 91e0f000e512
+  bind 4: cmd 83.2 us, resp 90.3 us (+7.1), status 0, ready->pdu 1.783 ms, dmac 91e0f000e512
+  bind 5: cmd 82.0 us, resp 89.1 us (+7.1), status 0, ready->pdu 1.362 ms, dmac 91e0f000e512
+baseline: span 15.991 s, DUT PDU spacing min/max 0.2/1.0, DUT TA events {'Mt': 2, 'LeaveAll': 1}, msrp_pdus=22, target_valid_pdus=0, target_invalid_or_misdirected=0, crft_count_before_after=[1071878, 1071878], pre_dut_leaveall_pdus=1, pre_dut_target_ta_events={'Mt': 2}, pre_dut_target_ta_declarations=0, pre_bridge_target_listener_declarations=0, pre_target_pdus=0, msrp_pdus_by_sender={'DUT': 19, 'bridge': 3}, leaveall_pdus_by_sender={'bridge': 1, 'DUT': 1}
+final: span 16.881 s, DUT PDU spacing min/max 0.2/1.0, DUT TA events {'Mt': 2, 'LeaveAll': 1}, msrp_pdus=22, target_valid_pdus=0, target_invalid_or_misdirected=0, crft_count_before_after=[1605897, 1605897], pre_dut_leaveall_pdus=1, pre_dut_target_ta_events={'Mt': 2}, pre_dut_target_ta_declarations=0, pre_bridge_target_listener_declarations=0, pre_target_pdus=0, msrp_pdus_by_sender={'DUT': 19, 'bridge': 3}, leaveall_pdus_by_sender={'bridge': 1, 'DUT': 1}
+rc=0

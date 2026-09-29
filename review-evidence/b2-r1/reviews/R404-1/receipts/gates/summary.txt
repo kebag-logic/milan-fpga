@@ -1,0 +1,10 @@
+docs_check.py rc=0
+check_doc_style.py rc=0
+gen_toc.py --check rc=0
+check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102 rc=0
+check_doc_paths.py rc=0
+ci_scope.py --selftest rc=0
+check_baremetal_only.py --check rc=0
+check_feature_status.py --self-test rc=0
+git diff --check 13eda870..HEAD rc=0
+docs_check.py (git-archive export, no .git, no submodules) rc=0
