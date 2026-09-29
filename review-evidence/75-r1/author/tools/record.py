@@ -10,7 +10,7 @@ t0=time.time();r=subprocess.run(command,capture_output=True,timeout=limit+2);t1=
 text=r.stdout.decode(errors="replace")+r.stderr.decode(errors="replace")
 for value in args:
  if value.startswith("<private-host-prefix>"):text=text.replace(value,"<remote-role>")
-text=text.replace("ens10","<controller-interface>")
+text=text.replace("<host-iface>","<controller-interface>")
 (p/name).write_text(text)
 with (p/"actions.jsonl").open("a") as f:f.write(json.dumps(dict(artifact=name,start=t0,end=t1,rc=r.returncode))+"\n")
 print(text);print("return code",r.returncode)
