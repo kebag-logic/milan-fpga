@@ -1,0 +1,110 @@
+{
+ "check": [
+  "python3",
+  "-c",
+  "import test_clock_contract as t; t.test_builder_clock_source()"
+ ],
+ "cwd": "sw/builder",
+ "timeout": 900,
+ "mutants": [
+  {
+   "name": "control builder",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "control SoC",
+   "expect": "pass",
+   "check": [
+    "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+    "-c",
+    "import test_clock_contract as t; t.test_soc_clock_contract()"
+   ],
+   "edits": []
+  },
+  {
+   "name": "BEFORE builder (eaa88a32 import)",
+   "edits": [
+    {
+     "path": "sw/builder/endstation_builder.py",
+     "base": "eaa88a32"
+    }
+   ]
+  },
+  {
+   "name": "BEFORE SoC (eaa88a32 import)",
+   "check": [
+    "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+    "-c",
+    "import test_clock_contract as t; t.test_soc_clock_contract()"
+   ],
+   "edits": [
+    {
+     "path": "sw/litex/milan_soc.py",
+     "base": "eaa88a32"
+    }
+   ]
+  },
+  {
+   "name": "B5 builder literal mirror",
+   "edits": [
+    {
+     "path": "sw/builder/endstation_builder.py",
+     "old": "BAREMETAL_CLK_HZ = runpy.run_path(ROOT / \"tb/verilator/nvm_capture_cpu/recipe.py\")[\"CPU_HZ\"]",
+     "new": "BAREMETAL_CLK_HZ = 50_000_000"
+    }
+   ]
+  },
+  {
+   "name": "S7 SoC literal mirror",
+   "check": [
+    "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+    "-c",
+    "import test_clock_contract as t; t.test_soc_clock_contract()"
+   ],
+   "edits": [
+    {
+     "path": "sw/litex/milan_soc.py",
+     "old": "BAREMETAL_CLK_HZ = runpy.run_path(REPO_ROOT / \"tb/verilator/nvm_capture_cpu/recipe.py\")[\"CPU_HZ\"]",
+     "new": "BAREMETAL_CLK_HZ = 50_000_000"
+    }
+   ]
+  },
+  {
+   "name": "B-ns builder namespace import",
+   "edits": [
+    {
+     "path": "sw/builder/endstation_builder.py",
+     "old": "BAREMETAL_CLK_HZ = runpy.run_path(ROOT / \"tb/verilator/nvm_capture_cpu/recipe.py\")[\"CPU_HZ\"]",
+     "new": "sys.path.insert(0, str(ROOT))\nfrom tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # noqa: E402"
+    }
+   ]
+  },
+  {
+   "name": "S-ns SoC namespace import",
+   "check": [
+    "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+    "-c",
+    "import test_clock_contract as t; t.test_soc_clock_contract()"
+   ],
+   "edits": [
+    {
+     "path": "sw/litex/milan_soc.py",
+     "old": "BAREMETAL_CLK_HZ = runpy.run_path(REPO_ROOT / \"tb/verilator/nvm_capture_cpu/recipe.py\")[\"CPU_HZ\"]",
+     "new": "sys.path.insert(0, str(REPO_ROOT))\nfrom tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ"
+    }
+   ]
+  },
+  {
+   "name": "B-lib builder loads by importlib (other path loader)",
+   "expect": "pass",
+   "edits": [
+    {
+     "path": "sw/builder/endstation_builder.py",
+     "old": "BAREMETAL_CLK_HZ = runpy.run_path(ROOT / \"tb/verilator/nvm_capture_cpu/recipe.py\")[\"CPU_HZ\"]",
+     "new": "import importlib.util as _u\n_s = _u.spec_from_file_location('r', ROOT / 'tb/verilator/nvm_capture_cpu/recipe.py'); _m = _u.module_from_spec(_s); _s.loader.exec_module(_m)\nBAREMETAL_CLK_HZ = _m.CPU_HZ"
+    }
+   ]
+  }
+ ]
+}

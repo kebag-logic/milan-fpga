@@ -1,0 +1,25 @@
+ok  control named tests: PASS rc=0 (expected PASS) :: [495 hex] 10 hex fields: 8 named shape rules and the width refused
+ok  control 595 pins: PASS rc=0 (expected PASS) :: [595 formats] all stream indices: list type, exact quoted values, defaults and element refusals
+ok  control gate 25b: PASS rc=0 (expected PASS) :: [gate 25b] 19 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+ok  BEFORE builder at 51ca45c7 (named tests): KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '+020000000002': sign
+ok  BEFORE builder at 51ca45c7 (595 pins, new zero/width refusals): KILLED rc=1 (expected KILLED) ::     assert field in str(exc) and rule in str(exc), (field, rule, str(exc)) | AssertionError: ('platform.mac_address', 'is the all-zero MAC-48', "platform.mac_address: '000000000000' out of MAC-48 range (or all-zero)")
+ok  BEFORE builder at 51ca45c7 (gate 25b sign row): KILLED rc=1 (expected KILLED) ::     assert reason in str(e), f"{label}: refused for another reason: {e}" | AssertionError: vendor_oui negative: refused for another reason: entity.vendor_oui: '-1' is outside 24 bits
+ok  M6a sign accepted by HEX_TEXT: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '+020000000002': sign
+ok  M6b hex whitespace stripped: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted ' 0x001BC50AC1000005': leading whitespace
+ok  M6c MAC whitespace stripped: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted ' 020000000002': leading or trailing whitespace
+ok  M6d any underscores in HEX_TEXT: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '_020000000002': leading, trailing or doubled underscore
+ok  M6e \d for 0-9 in HEX_TEXT (Unicode digits): KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '٠01BC50AC1000005': non-ASCII digit
+ok  M6f value width instead of digit count: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '0x0001BC50AC1000005': digits past the width
+ok  M6g MAC fewer than twelve digits accepted: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '02000000002': fewer than twelve digits
+ok  M6h MAC more than twelve digits accepted: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '0200000000002': more than twelve digits
+ok  M6i MAC unpadded octets (separators deleted, twelve digits counted): KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '2:000:00:00:00:02': short or unpadded octet
+ok  M6j MAC mixed separators (either separator deleted): KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '02:00-00:00:00:02': mixed separators
+ok  M6k MAC underscores deleted before the octet match: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '02:_00:00:00:00:02': separator next to an underscore
+ok  M6l MAC 0x prefix allowed on octets: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '0x02:00:00:00:00:02': prefix on octets
+ok  M6m stream DMAC parsed 64 bits wide: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '0x091E0F000FE01': digits past the width
+ok  M6n all-zero MAC accepted: KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted invalid {field}: {rule}") | AssertionError: accepted invalid platform.mac_address: is the all-zero MAC-48
+ok  M6o 0X prefix refused: KILLED rc=1 (expected KILLED) ::     raise ConfigError( | endstation_builder.ConfigError: entity.entity_model_id: '0X001BC50AC1000005' is not a hex EUI-64 (hex digits with an optional 0x and single underscores between digits; no sign or whitespace)
+ok  M6p _eui64 bypasses HEX_TEXT (lenient int): KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '+0x001BC50AC1000005': sign
+ok  M6q _declared_uint bypasses HEX_TEXT (lenient int): KILLED rc=1 (expected KILLED) ::     raise AssertionError(f"accepted {spelling!r}: {rule}") | AssertionError: accepted '+0x123456': sign
+worktree diff sha256 unchanged: e53fbd0a6de392a8b597c7f0fadcc8b7eaf005ce031a14829ecb28035e741157
+expectation mismatches: 0

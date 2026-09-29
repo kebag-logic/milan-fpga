@@ -1,0 +1,10 @@
+ok  control self-check: PASS rc=0 (expected PASS) ::   [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+ok  control entry-point probe EQ: PASS rc=0 (expected PASS) :: ALL GATES PASS EXCEPT 1 NOT RUN
+ok  BEFORE entry-point probe EQ (both files at eaa88a32): KILLED rc=1 (expected KILLED) :: ALL GATES PASS
+ok  M4a SKIP printed, not recorded: KILLED rc=1 (expected KILLED) ::     assert [(gate, kind) for gate, _why, kind in declined] == [("clock contract", "row")], declined | AssertionError: []
+ok  M4b bank wrapper drops the ledger: KILLED rc=1 (expected KILLED) ::     assert [(gate, kind) for gate, _why, kind in declined] == [("clock contract", "row")], declined | AssertionError: []
+ok  M4c run list runs the ROM contract bare: KILLED rc=1 (expected KILLED) ::     assert "test_rom_clock_contract" in runs and "test_gptp_rom_clock" not in runs, runs | AssertionError: ['test_commercial_timing_grade', 'test_baremetal_clock_contract', 'test_gptp_rom_clock', 'test_rom_clock_skip_reaches_the_ledger', 'test_extra_sweep_clocks', 'test_tap_clock_docs', 'test_sim_clock', 'test_extra_sweep_invocation', 'test_builder_clock_source', 'test_declaration_contracts', 'tes
+ok  M4c through the entry-point probe: KILLED rc=1 (expected KILLED) :: ALL GATES PASS
+ok  M4d equal-clock control not declined at all (condition inverted): KILLED rc=1 (expected KILLED) ::     assert expected_path.read_bytes() != expected, f"{path.stem}: ROM clock control is insensitive" | AssertionError: tmpv88reb_x: ROM clock control is insensitive
+worktree diff sha256 unchanged: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+expectation mismatches: 0

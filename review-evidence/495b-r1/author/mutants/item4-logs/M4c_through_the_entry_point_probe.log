@@ -1,0 +1,8 @@
+rc=1
+bank ROM-clock entries: ['test_gptp_rom_clock']
+test_gptp_rom_clock:
+  [clock contract] SKIP: tmp3l53m_a5: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 6 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+ALL GATES PASS
+
+--- stderr

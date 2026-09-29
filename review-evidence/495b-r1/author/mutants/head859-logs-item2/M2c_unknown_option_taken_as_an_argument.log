@@ -1,0 +1,12 @@
+rc=1
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_extra_sweep_clocks(); t.test_extra_sweep_invocation()
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 292, in test_extra_sweep_invocation
+    assert result.returncode == 2 and reason in result.stderr, (argv, result.stderr)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (['ax7101', 'order', '--dryrun'], 'sweep_extra: expected a board and a tag, got 3 argument(s); usage: sweep_extra.sh [--dry-run] <arty|ax7101> <tag>\n')

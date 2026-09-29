@@ -1,0 +1,14 @@
+rc=1
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  [clock contract] SKIP: tmpvyoynj91: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_builder as b; b.test_rom_clock_contract(); b.test_rom_clock_skip_reaches_the_ledger()
+                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_builder.py", line 27847, in test_rom_clock_skip_reaches_the_ledger
+    assert [(gate, kind) for gate, _why, kind in declined] == [("clock contract", "row")], declined
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: []

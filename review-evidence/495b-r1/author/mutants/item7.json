@@ -1,0 +1,174 @@
+{
+ "check": [
+  "python3",
+  "$MANAGEMENT/2026-09-23/495b-a433/run_ship_probe.py",
+  "$LANES/495-builder-residue"
+ ],
+ "cwd": ".",
+ "timeout": 1200,
+ "mutants": [
+  {
+   "name": "control",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "control 1x1 e2",
+   "expect": "pass",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/run_ship_probe.py",
+    "$LANES/495-builder-residue",
+    "ax7101_1x1_tdm8",
+    "e2"
+   ],
+   "edits": []
+  },
+  {
+   "name": "control 8x8 e1",
+   "expect": "pass",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/run_ship_probe.py",
+    "$LANES/495-builder-residue",
+    "ax7101_8x8",
+    "e1"
+   ],
+   "edits": []
+  },
+  {
+   "name": "BEFORE probe (eb23f044) under MD: gap",
+   "expect": "pass",
+   "edits": [
+    {
+     "path": "sw/builder/test_shipping_clock_constraints.py",
+     "base": "eb23f044"
+    },
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    toolchain.bitstream_commands = []\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "BEFORE probe (eb23f044) under ME: gap",
+   "expect": "pass",
+   "edits": [
+    {
+     "path": "sw/builder/test_shipping_clock_constraints.py",
+     "base": "eb23f044"
+    },
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    from litex.build.generic_toolchain import GenericToolchain  # noqa\n    toolchain.pre_placement_commands.__init__()\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "MD 607 hook overwrites bitstream_commands",
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    toolchain.bitstream_commands = []\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "ME 607 hook overwrites pre_placement_commands",
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    from litex.build.generic_toolchain import GenericToolchain  # noqa\n    toolchain.pre_placement_commands.__init__()\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "MD on 8x8 e2",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/run_ship_probe.py",
+    "$LANES/495-builder-residue",
+    "ax7101_8x8",
+    "e2"
+   ],
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    toolchain.bitstream_commands = []\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "ME on 8x8 e2",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/run_ship_probe.py",
+    "$LANES/495-builder-residue",
+    "ax7101_8x8",
+    "e2"
+   ],
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    from litex.build.generic_toolchain import GenericToolchain  # noqa\n    toolchain.pre_placement_commands.__init__()\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "MF configure moved after placement",
+   "edits": [
+    {
+     "path": "sw/litex/platforms/alinx_ax7101.py",
+     "old": "            self.toolchain.pre_placement_commands.append(",
+     "new": "            self.toolchain.pre_routing_commands.append("
+    }
+   ]
+  },
+  {
+   "name": "MG reports moved before routing",
+   "edits": [
+    {
+     "path": "sw/litex/platforms/alinx_ax7101.py",
+     "old": "            \"kl_timing_grade_reports {build_name}_signoff\",\n",
+     "new": ""
+    },
+    {
+     "path": "sw/litex/platforms/alinx_ax7101.py",
+     "old": "            \"set_property CONFIG_VOLTAGE 3.3 [current_design]\",\n        ]\n",
+     "new": "            \"set_property CONFIG_VOLTAGE 3.3 [current_design]\",\n        ]\n        self.toolchain.pre_routing_commands.append(\"kl_timing_grade_reports {build_name}_signoff\")\n"
+    }
+   ]
+  },
+  {
+   "name": "MI reports moved after write_bitstream",
+   "edits": [
+    {
+     "path": "sw/litex/platforms/alinx_ax7101.py",
+     "old": "            \"kl_timing_grade_reports {build_name}_signoff\",\n",
+     "new": ""
+    },
+    {
+     "path": "sw/litex/platforms/alinx_ax7101.py",
+     "old": "            \"set_property CONFIG_VOLTAGE 3.3 [current_design]\",\n        ]\n",
+     "new": "            \"set_property CONFIG_VOLTAGE 3.3 [current_design]\",\n        ]\n        self.toolchain.additional_commands.append(\"kl_timing_grade_reports {build_name}_signoff\")\n"
+    }
+   ]
+  },
+  {
+   "name": "MH configure duplicated by the 607 hook",
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    toolchain.pre_placement_commands.append(\"kl_timing_grade_configure {{dup}}\")\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  }
+ ]
+}

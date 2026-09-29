@@ -1,0 +1,4 @@
+ok  control: middle --dry-run at this head: PASS rc=0 (expected PASS) :: rc 0 stdout python3 $LANES/495-builder-residue/sw/litex/milan_soc.py --board ax71 stderr
+ok  BEFORE-ORDER: middle --dry-run against eaa88a32: KILLED rc=1 (expected KILLED) ::     assert r.returncode == 0, 'old invocation did not preview' | AssertionError: old invocation did not preview
+worktree diff sha256 unchanged: 3316052ceb7d090f433c35e97c136aebc0d934b9c20972c644c492720176ae89
+expectation mismatches: 0

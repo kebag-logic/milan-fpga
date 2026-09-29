@@ -1,0 +1,43 @@
+{
+ "check": [
+  "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+  "-B",
+  "sw/builder/test_timing_grade.py",
+  "$VALIDATION_STORAGE/a433/pins-venv/bin/python3"
+ ],
+ "cwd": ".",
+ "timeout": 1200,
+ "env": {
+  "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:/usr/bin:/bin",
+  "HOME": "$VALIDATION_STORAGE/a433/pins-home"
+ },
+ "mutants": [
+  {
+   "name": "#395 hook test control",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "#395 hook test under MD (misses it)",
+   "expect": "pass",
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    toolchain.bitstream_commands = []\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  },
+  {
+   "name": "#395 hook test under ME (misses it)",
+   "expect": "pass",
+   "edits": [
+    {
+     "path": "sw/litex/clock_constraints.py",
+     "old": "    toolchain.bitstream_commands.append(\n        \"report_clock_interaction",
+     "new": "    from litex.build.generic_toolchain import GenericToolchain  # noqa\n    toolchain.pre_placement_commands.__init__()\n    toolchain.bitstream_commands.append(\n        \"report_clock_interaction"
+    }
+   ]
+  }
+ ]
+}

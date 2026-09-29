@@ -1,0 +1,25 @@
+{
+ "check": [
+  "python3",
+  "-c",
+  "import test_clock_contract as t\nr = t._sweep('ax7101', argv=['ax7101', '--dry-run', 'order'])\nprint('rc', r.returncode, 'stdout', r.stdout.strip()[:80], 'stderr', r.stderr.strip()[-160:])\nassert r.returncode == 0, 'old invocation did not preview'\n"
+ ],
+ "cwd": "sw/builder",
+ "timeout": 300,
+ "mutants": [
+  {
+   "name": "control: middle --dry-run at this head",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "BEFORE-ORDER: middle --dry-run against eaa88a32",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "base": "eaa88a32"
+    }
+   ]
+  }
+ ]
+}

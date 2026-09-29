@@ -1,0 +1,53 @@
+no MAC/hex builder field: .github/ISSUE_TEMPLATE/task.yml
+no MAC/hex builder field: .github/workflows/docs.yml
+no MAC/hex builder field: .github/workflows/elaborate.yml
+no MAC/hex builder field: .github/workflows/rtl-fast.yml
+no MAC/hex builder field: .github/workflows/rtl.yml
+no MAC/hex builder field: sw/trace/milan_trace.yaml
+no MAC/hex builder field: tb/verilator/csr/fixtures/reset_bits.yaml
+no MAC/hex builder field: tb/verilator/pp_shadow/fixtures/crf_on.yaml
+no MAC/hex builder field: tb/verilator/pp_shadow/fixtures/pending.yaml
+no MAC/hex builder field: tb/verilator/pp_shadow/fixtures/vid73.yaml
+no MAC/hex builder field: tests/protocols/acmp/1722_1_acmp.yaml
+
+IN-TREE DECLARATIONS (head parsers)
+  configs/endstation_arty_4x4.yaml: platform.mac_address = '02:00:00:00:00:02' [MAC] -> accepted 020000000002
+  configs/endstation_arty_4x4.yaml: entity.entity_model_id = 'hash-derived' [64] -> selector
+  configs/endstation_arty_4x4.yaml: entity.entity_id = 'mac-derived' [64] -> selector
+  configs/endstation_arty_4x4.yaml: clocking.crf_output.format = '0x041060010000BB80' [64] -> accepted 41060010000BB80
+  configs/endstation_arty_4x4.yaml: srp.stream_dmac_base = '0x91E0F000FE01' [48] -> accepted 91E0F000FE01
+  configs/endstation_arty_8ch.yaml: platform.mac_address = '02:00:00:00:00:02' [MAC] -> accepted 020000000002
+  configs/endstation_arty_8ch.yaml: entity.entity_model_id = 'hash-derived' [64] -> selector
+  configs/endstation_arty_8ch.yaml: entity.entity_id = 'mac-derived' [64] -> selector
+  configs/endstation_arty_8ch.yaml: clocking.crf_output.format = '0x041060010000BB80' [64] -> accepted 41060010000BB80
+  configs/endstation_arty_8ch.yaml: srp.stream_dmac_base = '0x91E0F000FE01' [48] -> accepted 91E0F000FE01
+  configs/endstation_arty_current.yaml: platform.mac_address = '02:00:00:00:00:02' [MAC] -> accepted 020000000002
+  configs/endstation_arty_current.yaml: entity.entity_model_id = 'hash-derived' [64] -> selector
+  configs/endstation_arty_current.yaml: entity.model_id_pin = '0x001BC50AC1000005' [64] -> accepted 1BC50AC1000005
+  configs/endstation_arty_current.yaml: entity.entity_id = 'mac-derived' [64] -> selector
+  configs/endstation_arty_current.yaml: srp.stream_dmac_base = '0x91E0F000FE01' [48] -> accepted 91E0F000FE01
+  configs/endstation_arty_current.yaml: streams.listeners[0].formats[0] = '0x0205022000806000' [64] -> accepted 205022000806000
+  configs/endstation_ax7101_1x1_tdm8.yaml: platform.mac_address = '02:00:00:00:00:01' [MAC] -> accepted 020000000001
+  configs/endstation_ax7101_1x1_tdm8.yaml: entity.entity_model_id = 'hash-derived' [64] -> selector
+  configs/endstation_ax7101_1x1_tdm8.yaml: entity.entity_id = 'mac-derived' [64] -> selector
+  configs/endstation_ax7101_1x1_tdm8.yaml: clocking.crf_output.format = '0x041060010000BB80' [64] -> accepted 41060010000BB80
+  configs/endstation_ax7101_1x1_tdm8.yaml: srp.stream_dmac_base = '0x91E0F000FE01' [48] -> accepted 91E0F000FE01
+  configs/endstation_ax7101_8x8.yaml: platform.mac_address = '02:00:00:00:00:01' [MAC] -> accepted 020000000001
+  configs/endstation_ax7101_8x8.yaml: entity.entity_model_id = 'hash-derived' [64] -> selector
+  configs/endstation_ax7101_8x8.yaml: entity.entity_id = 'mac-derived' [64] -> selector
+  configs/endstation_ax7101_8x8.yaml: clocking.crf_output.format = '0x041060010000BB80' [64] -> accepted 41060010000BB80
+  configs/endstation_ax7101_8x8.yaml: srp.stream_dmac_base = '0x91E0F000FE01' [48] -> accepted 91E0F000FE01
+  SRP_DEFAULTS: srp.stream_dmac_base = '0x91E0F000FE01' [48] -> accepted 91E0F000FE01
+  CRF_FORMAT_DEFAULT: clocking.crf_format = '0x041060010000BB80' [64] -> accepted 41060010000BB80
+
+QUOTED DOCUMENTED EXAMPLES (head parsers)
+  ok  sw/builder/README-parameters.md:162: "0x001B_C50A_C100_0005" [64] documented accepted -> accepted 1BC50AC1000005
+  ok  sw/builder/README-parameters.md:163: "1234567890123456" [64] documented accepted -> accepted 1234567890123456
+  ok  sw/builder/README-parameters.md:170: "020000000002" [MAC] documented accepted -> accepted 020000000002
+  ok  sw/builder/README-parameters.md:170: "0x0200_0000_0002" [MAC] documented accepted -> accepted 020000000002
+  ok  sw/builder/README-parameters.md:170: "02:00:00:00:00:02" [MAC] documented accepted -> accepted 020000000002
+  ok  sw/builder/README-parameters.md:170: "02-00-00-00-00-02" [MAC] documented accepted -> accepted 020000000002
+  ok  sw/builder/README-parameters.md:171: "0:2" [MAC] documented refused -> REFUSED (mac: '0:2' is not a MAC-48 (six two-digit hex octets with one ':' or '-' separator, or twelve hex digits with an optional 0x and single underscores between digits))
+  ok  sw/builder/README-parameters.md:171: "2:0:0:0:0:2" [MAC] documented refused -> REFUSED (mac: '2:0:0:0:0:2' is not a MAC-48 (six two-digit hex octets with one ':' or '-' separator, or twelve hex digits with an optional 0x and single underscores between digits))
+
+MISMATCHES: 0

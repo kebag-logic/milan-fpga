@@ -1,0 +1,11 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_sim_clock()
+                                     ~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 353, in test_sim_clock
+    assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: make ax1x1gptp does not pass -GMILAN_CLK_FREQ_HZ=50000001

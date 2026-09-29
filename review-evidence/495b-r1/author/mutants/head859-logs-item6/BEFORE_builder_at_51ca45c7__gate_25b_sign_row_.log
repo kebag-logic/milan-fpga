@@ -1,0 +1,24 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "$LANES/495-builder-residue/sw/builder/test_builder.py", line 25795, in test_schema_12_refusals
+    eb.load_config(p)
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 4391, in load_config
+    oui = _vendor_oui(ent)
+          ^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 3694, in _vendor_oui
+    oui = _declared_uint(ent["vendor_oui"], 24, "entity.vendor_oui")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 3682, in _declared_uint
+    raise ConfigError(f"{ctx}: {v!r} is outside {bits} bits")
+endstation_builder.ConfigError: entity.vendor_oui: '-1' is outside 24 bits
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$LANES/495-builder-residue/sw/builder/test_builder.py", line 25797, in test_schema_12_refusals
+    assert reason in str(e), f"{label}: refused for another reason: {e}"
+           ^^^^^^^^^^^^^^^^
+AssertionError: vendor_oui negative: refused for another reason: entity.vendor_oui: '-1' is outside 24 bits

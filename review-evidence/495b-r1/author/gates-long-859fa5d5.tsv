@@ -1,0 +1,6 @@
+# head 859fa5d5b9ce6762c38eb683c8d3f5e565dbcff0 (after the run: 859fa5d5b9ce6762c38eb683c8d3f5e565dbcff0)
+name	command	rc	seconds	log_bytes	log_sha256
+builder-present	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B sw/builder/test_builder.py --require-rv32 --require-elaboration	0	489.8	95733	22e0bd1f74ca6202f31a61b3cafe193741fe04715b7f3816c0ead13ee43df735
+builder-absent	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B $MANAGEMENT/2026-09-23/495b-a433/run_builder_absent.py	0	350.1	97760	9db28b3e7608fd5a1d8ffd55e9e5bb9438d8aed468bb4eaed1ee0469f2f6792a
+firmware-compiler-selftest	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B sw/builder/test_firmware_compiler.py --selftest	0	1.5	138	f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7
+firmware-compiler-absent	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B sw/builder/test_firmware_compiler.py --absent --audit $VALIDATION_STORAGE/a433/rv32-absent.jsonl	0	213.0	50523	e9ca2131c4584dadf36d30ceb537f5f569cce4c07336b436b5577141d74fd717

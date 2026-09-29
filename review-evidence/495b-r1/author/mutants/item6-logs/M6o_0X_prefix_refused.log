@@ -1,0 +1,25 @@
+rc=1
+[495 MAC] 9 named shape rules, 30 spellings refused
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 340, in test_hex_shape_contract
+    _assert_hex_shape(raw, keys, field, legal, bits, Path(tmp))
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 328, in _assert_hex_shape
+    _load(_set(raw, keys, spelling), directory)
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 25, in _load
+    return eb.load_config(path)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 4419, in load_config
+    literal = None if raw == "hash-derived" else _model_id(raw, "entity.entity_model_id")
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 1373, in _model_id
+    number = _eui64(value, ctx)
+             ^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 1368, in _eui64
+    return _hex_text(v, EUI64_MAX.bit_length(), ctx, "a hex EUI-64")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 1356, in _hex_text
+    raise ConfigError(
+endstation_builder.ConfigError: entity.entity_model_id: '0X001BC50AC1000005' is not a hex EUI-64 (hex digits with an optional 0x and single underscores between digits; no sign or whitespace)

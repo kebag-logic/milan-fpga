@@ -1,0 +1,67 @@
+no MAC/hex builder field: .github/ISSUE_TEMPLATE/task.yml
+no MAC/hex builder field: .github/workflows/docs.yml
+no MAC/hex builder field: .github/workflows/elaborate.yml
+no MAC/hex builder field: .github/workflows/rtl-fast.yml
+no MAC/hex builder field: .github/workflows/rtl.yml
+no MAC/hex builder field: sw/trace/milan_trace.yaml
+no MAC/hex builder field: tb/verilator/csr/fixtures/reset_bits.yaml
+no MAC/hex builder field: tb/verilator/pp_shadow/fixtures/crf_on.yaml
+no MAC/hex builder field: tb/verilator/pp_shadow/fixtures/pending.yaml
+no MAC/hex builder field: tb/verilator/pp_shadow/fixtures/vid73.yaml
+no MAC/hex builder field: tests/protocols/acmp/1722_1_acmp.yaml
+
+IN-TREE DECLARATIONS
+  configs/endstation_arty_4x4.yaml:90: platform.mac_address = '02:00:00:00:00:02' [MAC] -> conforms; today accepted
+  configs/endstation_arty_4x4.yaml:46: entity.entity_model_id = 'hash-derived' [hex] -> selector (not a hex value); today refused (probe: 'hash-derived' is not a hex EUI-64)
+  configs/endstation_arty_4x4.yaml:51: entity.entity_id = 'mac-derived' [hex] -> selector (not a hex value); today refused (probe: 'mac-derived' is not a hex EUI-64)
+  configs/endstation_arty_4x4.yaml:104: clocking.crf_output.format = '0x041060010000BB80' [hex] -> conforms; today accepted
+  configs/endstation_arty_4x4.yaml:79: srp.stream_dmac_base = '0x91E0F000FE01' [hex] -> conforms; today accepted
+  configs/endstation_arty_8ch.yaml:126: platform.mac_address = '02:00:00:00:00:02' [MAC] -> conforms; today accepted
+  configs/endstation_arty_8ch.yaml:81: entity.entity_model_id = 'hash-derived' [hex] -> selector (not a hex value); today refused (probe: 'hash-derived' is not a hex EUI-64)
+  configs/endstation_arty_8ch.yaml:86: entity.entity_id = 'mac-derived' [hex] -> selector (not a hex value); today refused (probe: 'mac-derived' is not a hex EUI-64)
+  configs/endstation_arty_8ch.yaml:140: clocking.crf_output.format = '0x041060010000BB80' [hex] -> conforms; today accepted
+  configs/endstation_arty_8ch.yaml:114: srp.stream_dmac_base = '0x91E0F000FE01' [hex] -> conforms; today accepted
+  configs/endstation_arty_current.yaml:158: platform.mac_address = '02:00:00:00:00:02' [MAC] -> conforms; today accepted
+  configs/endstation_arty_current.yaml:23: entity.entity_model_id = 'hash-derived' [hex] -> selector (not a hex value); today refused (probe: 'hash-derived' is not a hex EUI-64)
+  configs/endstation_arty_current.yaml:28: entity.model_id_pin = '0x001BC50AC1000005' [hex] -> conforms; today accepted
+  configs/endstation_arty_current.yaml:74: entity.entity_id = 'mac-derived' [hex] -> selector (not a hex value); today refused (probe: 'mac-derived' is not a hex EUI-64)
+  configs/endstation_arty_current.yaml:124: srp.stream_dmac_base = '0x91E0F000FE01' [hex] -> conforms; today accepted
+  configs/endstation_arty_current.yaml:192: streams.listeners[0].formats[0] = '0x0205022000806000' [hex] -> conforms; today accepted
+  configs/endstation_ax7101_1x1_tdm8.yaml:67: platform.mac_address = '02:00:00:00:00:01' [MAC] -> conforms; today accepted
+  configs/endstation_ax7101_1x1_tdm8.yaml:22: entity.entity_model_id = 'hash-derived' [hex] -> selector (not a hex value); today refused (probe: 'hash-derived' is not a hex EUI-64)
+  configs/endstation_ax7101_1x1_tdm8.yaml:26: entity.entity_id = 'mac-derived' [hex] -> selector (not a hex value); today refused (probe: 'mac-derived' is not a hex EUI-64)
+  configs/endstation_ax7101_1x1_tdm8.yaml:136: clocking.crf_output.format = '0x041060010000BB80' [hex] -> conforms; today accepted
+  configs/endstation_ax7101_1x1_tdm8.yaml:58: srp.stream_dmac_base = '0x91E0F000FE01' [hex] -> conforms; today accepted
+  configs/endstation_ax7101_8x8.yaml:90: platform.mac_address = '02:00:00:00:00:01' [MAC] -> conforms; today accepted
+  configs/endstation_ax7101_8x8.yaml:16: entity.entity_model_id = 'hash-derived' [hex] -> selector (not a hex value); today refused (probe: 'hash-derived' is not a hex EUI-64)
+  configs/endstation_ax7101_8x8.yaml:21: entity.entity_id = 'mac-derived' [hex] -> selector (not a hex value); today refused (probe: 'mac-derived' is not a hex EUI-64)
+  configs/endstation_ax7101_8x8.yaml:154: clocking.crf_output.format = '0x041060010000BB80' [hex] -> conforms; today accepted
+  configs/endstation_ax7101_8x8.yaml:74: srp.stream_dmac_base = '0x91E0F000FE01' [hex] -> conforms; today accepted
+  sw/builder/endstation_builder.py SRP_DEFAULTS: srp.stream_dmac_base = '0x91E0F000FE01' [hex] -> conforms; today accepted
+  sw/builder/endstation_builder.py CRF_FORMAT_DEFAULT: clocking.crf_format = '0x041060010000BB80' [hex] -> conforms; today accepted
+
+DOCUMENTED EXAMPLES AND RULE STATEMENTS
+  docs/ENDSTATION_BUILDER.md:229: `ax7101_8x8` [MAC] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:356: `c705091` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:785: `0x001BC5AB73EC9D1D` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:785: `0x001BC565E07E0DD6` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:890: RULE STATEMENT: Quoted MAC strings retain colon, dash and underscore separators.
+  docs/ENDSTATION_BUILDER.md:891: RULE STATEMENT: Hexadecimal digits retain their value, with an optional `0x` prefix.
+  docs/ENDSTATION_BUILDER.md:973: `0x001BC5` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:1011: `2000000` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:1025: `0x0007` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  docs/ENDSTATION_BUILDER.md:1090: `0x041060010000BB80` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:132: `0x041060010000BB80` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:136: `2126000` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:138: `0xFFFFFFFF` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:141: `2000000` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:161: RULE STATEMENT: Hexadecimal text accepts an optional `0x` prefix and underscores.
+  sw/builder/README-parameters.md:162: `"1234567890123456"` [hex] -> conforms
+  sw/builder/README-parameters.md:165: RULE STATEMENT: MAC strings also accept colon and dash separators.
+  sw/builder/README-parameters.md:166: `"020000000002"` [MAC] -> WOULD BE REFUSED
+  sw/builder/README-parameters.md:167: `020000000002` [MAC] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:192: `0x001BC5` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+  sw/builder/README-parameters.md:207: `0x0007` [hex] -> bare (a YAML non-string or a prose value; the string rule applies)
+
+WOULD BE REFUSED: 1
+  sw/builder/README-parameters.md:166: documented example '020000000002'

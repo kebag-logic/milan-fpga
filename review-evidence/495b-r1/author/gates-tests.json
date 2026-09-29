@@ -1,0 +1,75 @@
+[
+ {
+  "name": "pins-test_clock_constraints",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "sw/builder/test_clock_constraints.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:/usr/bin:/bin",
+   "HOME": "$VALIDATION_STORAGE/a433/pins-home"
+  }
+ },
+ {
+  "name": "pins-test_timing_grade",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "sw/builder/test_timing_grade.py",
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:/usr/bin:/bin",
+   "HOME": "$VALIDATION_STORAGE/a433/pins-home"
+  }
+ },
+ {
+  "name": "pins-test_clock_contract-soc",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "sw/builder/test_clock_contract.py",
+   "--soc"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:/usr/bin:/bin",
+   "HOME": "$VALIDATION_STORAGE/a433/pins-home"
+  }
+ },
+ {
+  "name": "test_clock_contract",
+  "argv": [
+   "python3",
+   "-B",
+   "sw/builder/test_clock_contract.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ },
+ {
+  "name": "test_declarations",
+  "argv": [
+   "python3",
+   "-B",
+   "sw/builder/test_declarations.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ },
+ {
+  "name": "pins-test_pp_mem_bridge",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "test_pp_mem_bridge.py"
+  ],
+  "cwd": "sw/litex",
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:/usr/bin:/bin",
+   "HOME": "$VALIDATION_STORAGE/a433/pins-home"
+  }
+ }
+]

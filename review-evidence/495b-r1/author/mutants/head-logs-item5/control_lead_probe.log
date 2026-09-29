@@ -1,0 +1,5 @@
+rc=0
+lead: skips the Verilator and Yosys setup jobs. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated module reads (#444). A gated module is code under the six roots named below, other than the builder bank that `docs-check` runs whole. A page a gated module reads stays relevant even where `docs-check` runs the same check, as the tap page below does.
+PROBE PASS
+
+--- stderr

@@ -1,0 +1,106 @@
+{
+ "check": [
+  "python3",
+  "-c",
+  "import test_builder as b; b.test_rom_clock_contract(); b.test_rom_clock_skip_reaches_the_ledger()"
+ ],
+ "cwd": "sw/builder",
+ "timeout": 600,
+ "mutants": [
+  {
+   "name": "control self-check",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "control entry-point probe EQ",
+   "expect": "pass",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/probe_eq_verdict.py"
+   ],
+   "edits": []
+  },
+  {
+   "name": "BEFORE entry-point probe EQ (both files at eaa88a32)",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/probe_eq_verdict.py"
+   ],
+   "edits": [
+    {
+     "path": "sw/builder/test_clock_contract.py",
+     "base": "eaa88a32"
+    },
+    {
+     "path": "sw/builder/test_builder.py",
+     "base": "eaa88a32"
+    }
+   ]
+  },
+  {
+   "name": "M4a SKIP printed, not recorded",
+   "edits": [
+    {
+     "path": "sw/builder/test_clock_contract.py",
+     "old": "                skip(\"clock contract\", f\"{path.stem}:",
+     "new": "                _print_skip(\"clock contract\", f\"{path.stem}:"
+    }
+   ]
+  },
+  {
+   "name": "M4b bank wrapper drops the ledger",
+   "edits": [
+    {
+     "path": "sw/builder/test_builder.py",
+     "old": "    test_gptp_rom_clock(skip=skip)\n",
+     "new": "    test_gptp_rom_clock()\n"
+    }
+   ]
+  },
+  {
+   "name": "M4c run list runs the ROM contract bare",
+   "edits": [
+    {
+     "path": "sw/builder/test_builder.py",
+     "old": "        test_extra_sweep_invocation, test_sim_clock, test_tap_clock_docs,\n    )\n",
+     "new": "        test_extra_sweep_invocation, test_gptp_rom_clock, test_sim_clock, test_tap_clock_docs,\n    )\n"
+    },
+    {
+     "path": "sw/builder/test_builder.py",
+     "old": "test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,\n",
+     "new": "test_baremetal_clock_contract, test_gptp_rom_clock, test_rom_clock_skip_reaches_the_ledger,\n"
+    }
+   ]
+  },
+  {
+   "name": "M4c through the entry-point probe",
+   "check": [
+    "python3",
+    "$MANAGEMENT/2026-09-23/495b-a433/probe_eq_verdict.py"
+   ],
+   "edits": [
+    {
+     "path": "sw/builder/test_builder.py",
+     "old": "        test_extra_sweep_invocation, test_sim_clock, test_tap_clock_docs,\n    )\n",
+     "new": "        test_extra_sweep_invocation, test_gptp_rom_clock, test_sim_clock, test_tap_clock_docs,\n    )\n"
+    },
+    {
+     "path": "sw/builder/test_builder.py",
+     "old": "test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,\n",
+     "new": "test_baremetal_clock_contract, test_gptp_rom_clock, test_rom_clock_skip_reaches_the_ledger,\n"
+    }
+   ]
+  },
+  {
+   "name": "M4d equal-clock control not declined at all (condition inverted)",
+   "edits": [
+    {
+     "path": "sw/builder/test_clock_contract.py",
+     "old": "            if clocks[\"sys_clk_hz\"] == clocks[\"milan_clk_hz\"]:\n                skip(",
+     "new": "            if clocks[\"sys_clk_hz\"] != clocks[\"milan_clk_hz\"]:\n                skip("
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+rc=0
+bank ROM-clock entries: ['test_rom_clock_contract']
+test_rom_clock_contract:
+  [clock contract] SKIP: tmpgk43fd25: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 6 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  - [clock contract] tmpgk43fd25: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+ALL GATES PASS EXCEPT 1 NOT RUN
+
+--- stderr

@@ -1,0 +1,23 @@
+rc=1
+  [clock contract] SKIP: endstation_arty_4x4: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+  [clock contract] SKIP: endstation_arty_8ch: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+  [clock contract] SKIP: endstation_arty_current: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+  [clock contract] SKIP: endstation_ax7101_1x1_tdm8: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+  [clock contract] SKIP: endstation_ax7101_8x8: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_builder as b; b.test_rom_clock_contract(); b.test_rom_clock_skip_reaches_the_ledger()
+                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_builder.py", line 27840, in test_rom_clock_skip_reaches_the_ledger
+    test_rom_clock_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_builder.py", line 27825, in test_rom_clock_contract
+    test_gptp_rom_clock(skip=skip)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 158, in test_gptp_rom_clock
+    assert expected_path.read_bytes() != expected, f"{path.stem}: ROM clock control is insensitive"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: tmpm_z5a575: ROM clock control is insensitive

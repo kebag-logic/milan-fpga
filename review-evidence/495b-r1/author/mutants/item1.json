@@ -1,0 +1,99 @@
+{
+ "check": [
+  "python3",
+  "-c",
+  "import test_clock_contract as t; t.test_sim_clock()"
+ ],
+ "cwd": "sw/builder",
+ "timeout": 600,
+ "mutants": [
+  {
+   "name": "control",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "BEFORE (Makefile and harness at eaa88a32)",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/Makefile",
+     "base": "eaa88a32"
+    },
+    {
+     "path": "tb/verilator/milan_dp/sim_ax1x1gptp.cpp",
+     "base": "eaa88a32"
+    }
+   ]
+  },
+  {
+   "name": "M1a Makefile clock literal",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/Makefile",
+     "old": "AX_GPTP_HZ := $(shell python3 -I -c 'import runpy, sys; print(runpy.run_path(sys.argv[1])[\"CPU_HZ\"])' $(CLOCK_RECIPE))",
+     "new": "AX_GPTP_HZ := 50000000"
+    }
+   ]
+  },
+  {
+   "name": "M1b ROM generator literal",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/Makefile",
+     "old": "--clk-hz $(AX_GPTP_HZ)",
+     "new": "--clk-hz 50000000"
+    }
+   ]
+  },
+  {
+   "name": "M1c harness define dropped",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/Makefile",
+     "old": "\t  -CFLAGS \"-DMILAN_CLK_HZ_TB=$(AX_GPTP_HZ) -Wall -Wextra\" \\\n",
+     "new": ""
+    }
+   ]
+  },
+  {
+   "name": "M1d elaboration literal",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/Makefile",
+     "old": "-GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ)",
+     "new": "-GMILAN_CLK_FREQ_HZ=50000000"
+    }
+   ]
+  },
+  {
+   "name": "M1e harness clock literal",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/sim_ax1x1gptp.cpp",
+     "old": "constexpr uint64_t kHz = MILAN_CLK_HZ_TB;",
+     "new": "constexpr uint64_t kHz = 50000000;"
+    }
+   ]
+  },
+  {
+   "name": "M1f harness report literal",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/sim_ax1x1gptp.cpp",
+     "old": "clock_axis_hz=%llu",
+     "new": "clock_axis_hz=50000000 %llu"
+    }
+   ]
+  },
+  {
+   "name": "M1g recipe status not taken",
+   "edits": [
+    {
+     "path": "tb/verilator/milan_dp/Makefile",
+     "old": "ifneq ($(.SHELLSTATUS),0)\n$(error $(CLOCK_RECIPE)",
+     "new": "ifneq (0,0)\n$(error $(CLOCK_RECIPE)"
+    }
+   ]
+  }
+ ]
+}

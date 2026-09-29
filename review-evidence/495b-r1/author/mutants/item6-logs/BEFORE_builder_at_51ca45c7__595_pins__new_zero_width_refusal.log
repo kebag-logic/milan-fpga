@@ -1,0 +1,29 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 32, in _refused
+    _load(raw, directory)
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 25, in _load
+    return eb.load_config(path)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 4347, in load_config
+    platform = load_platform(cfg.get("platform"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 3318, in load_platform
+    mac = _mac48(p["mac_address"], "platform.mac_address")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/endstation_builder.py", line 3203, in _mac48
+    raise ConfigError(f"{ctx}: '{v}' out of MAC-48 range (or all-zero)")
+endstation_builder.ConfigError: platform.mac_address: '000000000000' out of MAC-48 range (or all-zero)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 241, in test_station_mac_string_contract
+    _refused(base, Path(tmp), field, rule)
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 34, in _refused
+    assert field in str(exc) and rule in str(exc), (field, rule, str(exc))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('platform.mac_address', 'is the all-zero MAC-48', "platform.mac_address: '000000000000' out of MAC-48 range (or all-zero)")

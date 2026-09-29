@@ -1,0 +1,12 @@
+rc=1
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_extra_sweep_clocks(); t.test_extra_sweep_invocation()
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 313, in test_extra_sweep_invocation
+    assert result.returncode == 0 and marker.exists(), "configuration not read by the build interpreter"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: configuration not read by the build interpreter

@@ -1,0 +1,8 @@
+rc=1
+lead: skips the Verilator and Yosys setup jobs. Documentation is a path that no gate the docs-only path skips reads without `docs-check` reading it too (#444): a top-level `*.md`, anything under `LICENSES/`, or a `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated module reads.
+FAIL lead still states the criterion that files the tap page as documentation
+FAIL lead does not cite the 6 gated roots
+FAIL lead names neither the builder-bank exemption nor the tap page
+PROBE FAIL
+
+--- stderr

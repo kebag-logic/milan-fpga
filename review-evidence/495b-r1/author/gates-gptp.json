@@ -1,0 +1,15 @@
+[
+ {
+  "name": "milan_dp_gptp-ax1x1gptp",
+  "argv": [
+   "make",
+   "-C",
+   "tb/verilator/milan_dp_gptp",
+   "VERILATOR_JOBS=4"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 7200
+ }
+]

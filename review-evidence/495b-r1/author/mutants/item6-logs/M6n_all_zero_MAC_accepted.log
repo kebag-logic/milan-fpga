@@ -1,0 +1,10 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 241, in test_station_mac_string_contract
+    _refused(base, Path(tmp), field, rule)
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 36, in _refused
+    raise AssertionError(f"accepted invalid {field}: {rule}")
+AssertionError: accepted invalid platform.mac_address: is the all-zero MAC-48

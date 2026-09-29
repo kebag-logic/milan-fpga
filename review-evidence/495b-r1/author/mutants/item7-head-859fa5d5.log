@@ -1,0 +1,15 @@
+ok  control: PASS rc=0 (expected PASS) :: probe rc=0
+ok  control 1x1 e2: PASS rc=0 (expected PASS) :: probe rc=0
+ok  control 8x8 e1: PASS rc=0 (expected PASS) :: probe rc=0
+ok  BEFORE probe (eb23f044) under MD: gap: PASS rc=0 (expected PASS) :: probe rc=0
+ok  BEFORE probe (eb23f044) under ME: gap: PASS rc=0 (expected PASS) :: probe rc=0
+ok  MD 607 hook overwrites bitstream_commands: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade reports missing or duplicated: []
+ok  ME 607 hook overwrites pre_placement_commands: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade configure missing or duplicated: []
+ok  MD on 8x8 e2: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade reports missing or duplicated: []
+ok  ME on 8x8 e2: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade configure missing or duplicated: []
+ok  MF configure moved after placement: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade configured after placement
+ok  MG reports moved before routing: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade reports outside routed pre-bitstream
+ok  MI reports moved after write_bitstream: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade reports outside routed pre-bitstream
+ok  MH configure duplicated by the 607 hook: KILLED rc=1 (expected KILLED) :: AssertionError: timing grade configure missing or duplicated: [243, 244]
+worktree diff sha256 unchanged: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+expectation mismatches: 0

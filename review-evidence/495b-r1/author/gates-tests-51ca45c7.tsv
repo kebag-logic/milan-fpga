@@ -1,0 +1,8 @@
+# head 51ca45c77699847fcf4634ad8f04c446f89ec0cc (after the run: 51ca45c77699847fcf4634ad8f04c446f89ec0cc)
+name	command	rc	seconds	log_bytes	log_sha256
+pins-test_clock_constraints	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B sw/builder/test_clock_constraints.py	0	8.0	4517	d2fbd2d81758abe689ada31dc7cc22b70290a15d086be78bc0bea5a278577f6e
+pins-test_timing_grade	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B sw/builder/test_timing_grade.py $VALIDATION_STORAGE/a433/pins-venv/bin/python3	0	0.4	407	e0283e02c362280e94fd2ae6eb9c077d274394de042a72df57792ebcc5dedac8
+pins-test_clock_contract-soc	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B sw/builder/test_clock_contract.py --soc	0	5.6	1209	3a1425e24d8f9a307958b344ee15fc1b2b372ba31e7af7bb7a70900f9444b49b
+test_clock_contract	python3 -B sw/builder/test_clock_contract.py	0	5.2	992	e34f004a2939adbbfe2702c78021e574c0660a95c7004027f7b3d4ef68d7a088
+test_declarations	python3 -B sw/builder/test_declarations.py	0	3.9	1389	1a74fff9cfb307166c19271164308102e80a4a265352369795ee5c056ab923d8
+pins-test_pp_mem_bridge	$VALIDATION_STORAGE/a433/pins-venv/bin/python3 -B test_pp_mem_bridge.py	0	7.4	8776	7b3e6b76611ce02437cb159622e72fd03b36981fb0266765ff7896c015d71c23

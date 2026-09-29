@@ -1,0 +1,94 @@
+rc=0
+MAC sign: '+020000000002' -> accepted 020000000002
+MAC sign: '-020000000002' -> accepted 020000000002
+MAC sign: '+02:00:00:00:00:02' -> accepted 020000000002
+MAC sign: '-2' -> accepted 000000000002
+MAC leading or trailing whitespace: ' 020000000002' -> accepted 020000000002
+MAC leading or trailing whitespace: '020000000002 ' -> accepted 020000000002
+MAC leading or trailing whitespace: '\t02:00:00:00:00:02' -> accepted 020000000002
+MAC leading or trailing whitespace: '02-00-00-00-00-02\n' -> accepted 020000000002
+MAC fewer than twelve digits: '02000000002' -> accepted 002000000002
+MAC fewer than twelve digits: '2' -> accepted 000000000002
+MAC fewer than twelve digits: '0' -> refused: mac: '0' out of MAC-48 range (or all-zero)
+MAC fewer than twelve digits: '0x2' -> accepted 000000000002
+MAC more than twelve digits: '0200000000002' -> accepted 200000000002
+MAC more than twelve digits: '1000000000000' -> refused: mac: '1000000000000' out of MAC-48 range (or all-zero)
+MAC more than twelve digits: '0x0200_0000_0000_2' -> accepted 200000000002
+MAC short or unpadded octet: '2:000:00:00:00:02' -> accepted 200000000002
+MAC short or unpadded octet: '0:2' -> accepted 000000000002
+MAC short or unpadded octet: '2:0:0:0:0:2' -> accepted 000000200002
+MAC short or unpadded octet: '02:00:00:00:02' -> accepted 000200000002
+MAC short or unpadded octet: '02:00:00:00:00:00:02' -> refused: mac: '02:00:00:00:00:00:02' out of MAC-48 range (or all-zero)
+MAC mixed separators: '02:00-00:00:00:02' -> accepted 020000000002
+MAC mixed separators: '02-00:00:00:00:02' -> accepted 020000000002
+MAC separator next to an underscore: '02:_00:00:00:00:02' -> accepted 020000000002
+MAC separator next to an underscore: '02_:00:00:00:00:02' -> accepted 020000000002
+MAC separator next to an underscore: '02-00-00-00-00_-02' -> accepted 020000000002
+MAC leading, trailing or doubled underscore: '_020000000002' -> accepted 020000000002
+MAC leading, trailing or doubled underscore: '020000000002_' -> accepted 020000000002
+MAC leading, trailing or doubled underscore: '0200__00000002' -> accepted 020000000002
+MAC leading, trailing or doubled underscore: '0x_020000000002' -> accepted 020000000002
+MAC prefix on octets: '0x02:00:00:00:00:02' -> accepted 020000000002
+hex24 sign: '+0x123456' -> accepted 123456
+hex24 sign: '+123456' -> accepted 123456
+hex24 sign: '-123456' -> refused: hex: '-123456' is outside 24 bits
+hex24 leading whitespace: ' 0x123456' -> accepted 123456
+hex24 leading whitespace: '\t123456' -> accepted 123456
+hex24 trailing whitespace: '0x123456 ' -> accepted 123456
+hex24 trailing whitespace: '123456\n' -> accepted 123456
+hex24 leading underscore: '_123456' -> refused: hex: '_123456' is not a hex integer
+hex24 leading underscore: '0x_123456' -> accepted 123456
+hex24 trailing underscore: '123456_' -> refused: hex: '123456_' is not a hex integer
+hex24 doubled underscore: '12__3456' -> refused: hex: '12__3456' is not a hex integer
+hex24 non-ASCII digit: '١23456' -> accepted 123456
+hex24 no digits: '0x' -> refused: hex: '0x' is not a hex integer
+hex24 past the width: '0x0123456' -> accepted 123456
+hex24 past the width: '0123456' -> accepted 123456
+hex32 sign: '+0x0205EA70' -> accepted 205EA70
+hex32 sign: '+0205EA70' -> accepted 205EA70
+hex32 sign: '-0205EA70' -> refused: hex: '-0205EA70' is outside 32 bits
+hex32 leading whitespace: ' 0x0205EA70' -> accepted 205EA70
+hex32 leading whitespace: '\t0205EA70' -> accepted 205EA70
+hex32 trailing whitespace: '0x0205EA70 ' -> accepted 205EA70
+hex32 trailing whitespace: '0205EA70\n' -> accepted 205EA70
+hex32 leading underscore: '_0205EA70' -> refused: hex: '_0205EA70' is not a hex integer
+hex32 leading underscore: '0x_0205EA70' -> accepted 205EA70
+hex32 trailing underscore: '0205EA70_' -> refused: hex: '0205EA70_' is not a hex integer
+hex32 doubled underscore: '02__05EA70' -> refused: hex: '02__05EA70' is not a hex integer
+hex32 non-ASCII digit: '٠205EA70' -> accepted 205EA70
+hex32 no digits: '0x' -> refused: hex: '0x' is not a hex integer
+hex32 past the width: '0x00205EA70' -> accepted 205EA70
+hex32 past the width: '00205EA70' -> accepted 205EA70
+hex48 sign: '+0x91E0F000FE01' -> accepted 91E0F000FE01
+hex48 sign: '+91E0F000FE01' -> accepted 91E0F000FE01
+hex48 sign: '-91E0F000FE01' -> refused: srp.stream_dmac_base: '-91E0F000FE01' out of EUI-64 range
+hex48 leading whitespace: ' 0x91E0F000FE01' -> accepted 91E0F000FE01
+hex48 leading whitespace: '\t91E0F000FE01' -> accepted 91E0F000FE01
+hex48 trailing whitespace: '0x91E0F000FE01 ' -> accepted 91E0F000FE01
+hex48 trailing whitespace: '91E0F000FE01\n' -> accepted 91E0F000FE01
+hex48 leading underscore: '_91E0F000FE01' -> refused: srp.stream_dmac_base: '_91E0F000FE01' is not a hex EUI-64
+hex48 leading underscore: '0x_91E0F000FE01' -> accepted 91E0F000FE01
+hex48 trailing underscore: '91E0F000FE01_' -> refused: srp.stream_dmac_base: '91E0F000FE01_' is not a hex EUI-64
+hex48 doubled underscore: '91__E0F000FE01' -> refused: srp.stream_dmac_base: '91__E0F000FE01' is not a hex EUI-64
+hex48 non-ASCII digit: '٩1E0F000FE01' -> accepted 91E0F000FE01
+hex48 no digits: '0x' -> refused: srp.stream_dmac_base: '0x' is not a hex EUI-64
+hex48 past the width: '0x091E0F000FE01' -> accepted 91E0F000FE01
+hex48 past the width: '091E0F000FE01' -> accepted 91E0F000FE01
+hex64 sign: '+0x001BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 sign: '+001BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 sign: '-001BC50AC1000005' -> refused: hex: '-001BC50AC1000005' out of EUI-64 range
+hex64 leading whitespace: ' 0x001BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 leading whitespace: '\t001BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 trailing whitespace: '0x001BC50AC1000005 ' -> accepted 1BC50AC1000005
+hex64 trailing whitespace: '001BC50AC1000005\n' -> accepted 1BC50AC1000005
+hex64 leading underscore: '_001BC50AC1000005' -> refused: hex: '_001BC50AC1000005' is not a hex EUI-64
+hex64 leading underscore: '0x_001BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 trailing underscore: '001BC50AC1000005_' -> refused: hex: '001BC50AC1000005_' is not a hex EUI-64
+hex64 doubled underscore: '00__1BC50AC1000005' -> refused: hex: '00__1BC50AC1000005' is not a hex EUI-64
+hex64 non-ASCII digit: '٠01BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 no digits: '0x' -> refused: hex: '0x' is not a hex EUI-64
+hex64 past the width: '0x0001BC50AC1000005' -> accepted 1BC50AC1000005
+hex64 past the width: '0001BC50AC1000005' -> accepted 1BC50AC1000005
+ACCEPTED: 67
+
+--- stderr

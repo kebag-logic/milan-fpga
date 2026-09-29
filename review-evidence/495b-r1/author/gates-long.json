@@ -1,0 +1,52 @@
+[
+ {
+  "name": "builder-present",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "sw/builder/test_builder.py",
+   "--require-rv32",
+   "--require-elaboration"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ },
+ {
+  "name": "builder-absent",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "$MANAGEMENT/2026-09-23/495b-a433/run_builder_absent.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ },
+ {
+  "name": "firmware-compiler-selftest",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "sw/builder/test_firmware_compiler.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ },
+ {
+  "name": "firmware-compiler-absent",
+  "argv": [
+   "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+   "-B",
+   "sw/builder/test_firmware_compiler.py",
+   "--absent",
+   "--audit",
+   "$VALIDATION_STORAGE/a433/rv32-absent.jsonl"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/pins-venv/bin:$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ }
+]

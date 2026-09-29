@@ -1,0 +1,11 @@
+ok  control: PASS rc=0 (expected PASS) :: [clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+ok  BEFORE (Makefile and harness at eaa88a32): KILLED rc=1 (expected KILLED) ::     assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}" | AssertionError: make ax1x1gptp does not pass -DMILAN_CLK_HZ_TB=50000000
+ok  M1a Makefile clock literal: KILLED rc=1 (expected KILLED) ::     assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}" | AssertionError: make ax1x1gptp does not pass --clk-hz 50000001
+ok  M1b ROM generator literal: KILLED rc=1 (expected KILLED) ::     assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}" | AssertionError: make ax1x1gptp does not pass --clk-hz 50000001
+ok  M1c harness define dropped: KILLED rc=1 (expected KILLED) ::     assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}" | AssertionError: make ax1x1gptp does not pass -DMILAN_CLK_HZ_TB=50000000
+ok  M1d elaboration literal: KILLED rc=1 (expected KILLED) ::     assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}" | AssertionError: make ax1x1gptp does not pass -GMILAN_CLK_FREQ_HZ=50000001
+ok  M1e harness clock literal: KILLED rc=1 (expected KILLED) ::     assert "constexpr uint64_t kHz = MILAN_CLK_HZ_TB;" in source, "harness clock is not the Makefile's" | AssertionError: harness clock is not the Makefile's
+ok  M1f harness report literal: KILLED rc=1 (expected KILLED) ::     assert spelling not in source, f"sim_ax1x1gptp.cpp restates the contract clock as {spelling!r}" | AssertionError: sim_ax1x1gptp.cpp restates the contract clock as '50000000'
+ok  M1g recipe status not taken: KILLED rc=1 (expected KILLED) :: AssertionError: Traceback (most recent call last): | FileNotFoundError: [Errno 2] No such file or directory: '/tmp/sim-clock-8zky6elx/absent.py'
+worktree diff sha256 unchanged: a1e04c078e23c7916e68f56f9b57fc9668bdffd4e48467827839fb5b4201f5fd
+expectation mismatches: 0

@@ -1,0 +1,28 @@
+{
+ "check": [
+  "$VALIDATION_STORAGE/a433/pins-venv/bin/python3",
+  "$MANAGEMENT/2026-09-23/495b-a433/probe_item6.py"
+ ],
+ "cwd": "sw/builder",
+ "timeout": 300,
+ "env": {
+  "PYTHONPATH": "."
+ },
+ "mutants": [
+  {
+   "name": "probe head",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "probe BEFORE 51ca45c7",
+   "expect": "pass",
+   "edits": [
+    {
+     "path": "sw/builder/endstation_builder.py",
+     "base": "51ca45c7"
+    }
+   ]
+  }
+ ]
+}

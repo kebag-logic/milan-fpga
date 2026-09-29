@@ -1,0 +1,14 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_extra_sweep_clocks(); t.test_extra_sweep_invocation()
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 252, in test_extra_sweep_clocks
+    _assert_sweep_clocks(_sweep(board), ROOT / "configs" / f"{name}.yaml")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 241, in _assert_sweep_clocks
+    assert argv.count("--entity-gen-dir") == 1, argv
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['python3', '$LANES/495-builder-residue/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '83333000', '--milan-clk-freq', '50000000', '--cpu', 'vexiiriscv', '--software-profile', 'baremetal', '--fabric-gptp', '--xlen', '32', '--full', '--with-spiflash', '--flashboot', 'baremetal', '--timing-opt', '--l2-bytes', '0', '--uart-baudrate', '115200', '--cpu-count', '1', '--vivado-max-threads', '32', '--build']

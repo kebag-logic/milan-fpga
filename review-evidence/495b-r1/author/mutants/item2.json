@@ -1,0 +1,110 @@
+{
+ "check": [
+  "python3",
+  "-c",
+  "import test_clock_contract as t; t.test_extra_sweep_clocks(); t.test_extra_sweep_invocation()"
+ ],
+ "cwd": "sw/builder",
+ "timeout": 900,
+ "mutants": [
+  {
+   "name": "control",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "BEFORE (sweep_extra.sh at eaa88a32)",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "base": "eaa88a32"
+    }
+   ]
+  },
+  {
+   "name": "M2a --entity-gen-dir dropped",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": ",\n      \"--entity-gen-dir\", gen, sep=\"\\n\")",
+     "new": ", sep=\"\\n\")"
+    }
+   ]
+  },
+  {
+   "name": "M2b old positional parse (--dry-run only third)",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "  parse_args \"$@\"\n",
+     "new": "  BOARD=${1:?board}; TAG=${2:?tag}; DRY=0; [ \"${3:-}\" = \"--dry-run\" ] && DRY=1\n"
+    }
+   ]
+  },
+  {
+   "name": "M2c unknown option taken as an argument",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "-*) usage \"unknown option $arg\";;",
+     "new": "-*) positional+=(\"$arg\");;"
+    }
+   ]
+  },
+  {
+   "name": "M2d extra arguments ignored",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "[ \"${#positional[@]}\" -eq 2 ]",
+     "new": "[ \"${#positional[@]}\" -ge 2 ]"
+    }
+   ]
+  },
+  {
+   "name": "M2e empty tag accepted",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "  [ -n \"$TAG\" ] || usage \"empty tag\"\n",
+     "new": ""
+    }
+   ]
+  },
+  {
+   "name": "M2f launch skips the entity-directory guard",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "    if built != gen:\n",
+     "new": "    if False:\n"
+    }
+   ]
+  },
+  {
+   "name": "M2g build interpreter exported after the configuration is read",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "  export PATH=\"$HOME/litex-milan/venv/bin:$PATH\"\n  case",
+     "new": "  case"
+    },
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "  mapfile -t -O",
+     "new": "  export PATH=\"$HOME/litex-milan/venv/bin:$PATH\"\n  mapfile -t -O"
+    }
+   ]
+  },
+  {
+   "name": "M2h launch line word-split again",
+   "edits": [
+    {
+     "path": "sw/litex/sweep_extra.sh",
+     "old": "printf -v preview '%q ' \"${BASE[@]}\"",
+     "new": "preview=\"${BASE[*]} \""
+    }
+   ]
+  }
+ ]
+}

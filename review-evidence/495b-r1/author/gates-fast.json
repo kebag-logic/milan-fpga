@@ -1,0 +1,662 @@
+[
+ {
+  "name": "md-docs_check",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/docs_check.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-docs_check-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/docs_check.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_em_dash-base",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_em_dash.py",
+   "--base",
+   "eaa88a32eb77adeba9c1c631198c7fb516a11095"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_em_dash-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_em_dash.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_doc_style",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_doc_style.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_doc_style-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_doc_style.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_doc_paths",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_doc_paths.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-gen_toc-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/gen_toc.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-gen_toc-verify-anchors",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/gen_toc.py",
+   "--verify-anchors"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-gen_toc-check",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/gen_toc.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-DOC_MAP-check",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "docs/DOC_MAP.gen.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-DOC_MAP-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "docs/DOC_MAP.gen.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_solution_docs",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_solution_docs.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_solution_docs-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_solution_docs.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_archive",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_archive.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_archive-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_archive.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-check_feature_status-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_feature_status.py",
+   "--self-test"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-gen_module_matrix-check",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "docs/traceability/gen_module_matrix.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "md-git-diff-check",
+  "argv": [
+   "git",
+   "diff",
+   "--check",
+   "eaa88a32eb77adeba9c1c631198c7fb516a11095",
+   "HEAD"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ },
+ {
+  "name": "cq-check_rtl_source_lists",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_rtl_source_lists.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_rtl_source_lists-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_rtl_source_lists.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_naming",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_naming.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_naming-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_naming.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_port_contracts",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_port_contracts.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_port_contracts-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_port_contracts.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_fail_fast",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_fail_fast.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_fail_fast-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_fail_fast.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_todo_ownership",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_todo_ownership.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_todo_ownership-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_todo_ownership.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_test_evidence",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_test_evidence.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_test_evidence-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_test_evidence.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_hygiene",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_hygiene.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_hygiene-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_hygiene.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_sv_idiom",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_sv_idiom.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_sv_idiom-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_sv_idiom.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_cpp_idiom",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_cpp_idiom.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_cpp_idiom-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_cpp_idiom.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_py_idiom",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_py_idiom.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_py_idiom-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_py_idiom.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_sh_idiom",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_sh_idiom.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-check_sh_idiom-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_sh_idiom.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_control_flow-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_control_flow.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "cq-measure_cohesion-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/measure_cohesion.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "ci_scope-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/ci_scope.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "ci_events-check",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/ci_events.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "ci_events-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/ci_events.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "pp_srcs-check-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/pp_srcs.py",
+   "--check",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_baremetal_only-check",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_baremetal_only.py",
+   "--check"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_baremetal_only-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_baremetal_only.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_nvm_capture",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_nvm_capture.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_soc_sources",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_soc_sources.py"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_soc_sources-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_soc_sources.py",
+   "--selftest"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_sweep_shape-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_sweep_shape.py",
+   "--self-test"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_deploy_shape-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_deploy_shape.py",
+   "--self-test"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "check_entity_shape-selftest",
+  "argv": [
+   "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+   "scripts/check_entity_shape.py",
+   "--self-test"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "timeout": 1800
+ },
+ {
+  "name": "bash-n-sweep_extra",
+  "argv": [
+   "bash",
+   "-n",
+   "sw/litex/sweep_extra.sh"
+  ],
+  "env": {
+   "PATH": "$VALIDATION_STORAGE/a433/tools/bin:$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin"
+  }
+ }
+]

@@ -1,0 +1,13 @@
+rc=1
+[495 MAC] 9 named shape rules, 30 spellings refused
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 340, in test_hex_shape_contract
+    _assert_hex_shape(raw, keys, field, legal, bits, Path(tmp))
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 323, in _assert_hex_shape
+    _shape_refused(raw, keys, spelling, directory, f"{field}: {spelling!r} is not ", rule)
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 284, in _shape_refused
+    raise AssertionError(f"accepted {spelling!r}: {rule}")
+AssertionError: accepted '+0x001BC50AC1000005': sign

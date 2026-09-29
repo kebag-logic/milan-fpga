@@ -1,0 +1,10 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 294, in test_mac_shape_contract
+    _shape_refused(base, keys, spelling, Path(tmp),
+  File "$LANES/495-builder-residue/sw/builder/test_declarations.py", line 284, in _shape_refused
+    raise AssertionError(f"accepted {spelling!r}: {rule}")
+AssertionError: accepted '02000000002': fewer than twelve digits

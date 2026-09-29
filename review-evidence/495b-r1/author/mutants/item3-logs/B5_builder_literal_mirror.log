@@ -1,0 +1,14 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_builder_clock_source()
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 118, in test_builder_clock_source
+    _assert_clock_source("endstation_builder", ROOT / "sw/builder")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 60, in _assert_clock_source
+    assert clock == planted, f"{module}: contract clock {clock} does not follow recipe.py's bytes"
+           ^^^^^^^^^^^^^^^^
+AssertionError: endstation_builder: contract clock 50000000 does not follow recipe.py's bytes

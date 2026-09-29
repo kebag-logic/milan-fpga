@@ -1,0 +1,24 @@
+{
+ "check": [
+  "python3",
+  "$MANAGEMENT/2026-09-23/495b-a433/probe_ci_lead.py"
+ ],
+ "cwd": ".",
+ "timeout": 120,
+ "mutants": [
+  {
+   "name": "control lead probe",
+   "expect": "pass",
+   "edits": []
+  },
+  {
+   "name": "BEFORE lead probe (CI_WORKFLOWS.md at eaa88a32)",
+   "edits": [
+    {
+     "path": "docs/testing/CI_WORKFLOWS.md",
+     "base": "eaa88a32"
+    }
+   ]
+  }
+ ]
+}

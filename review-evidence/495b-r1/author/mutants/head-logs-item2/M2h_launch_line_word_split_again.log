@@ -1,0 +1,14 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_extra_sweep_clocks(); t.test_extra_sweep_invocation()
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 262, in test_extra_sweep_clocks
+    _assert_sweep_clocks(_sweep(board, path), path)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 243, in _assert_sweep_clocks
+    assert gen.name == config.stem, (gen, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (PosixPath('$LANES/495-builder-residue/configs/generated/clock'), PosixPath('/tmp/sweep-clock-nnplg8oo/clock variant.yaml'))

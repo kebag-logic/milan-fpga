@@ -1,0 +1,11 @@
+rc=1
+
+--- stderr
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_sim_clock()
+                                     ~~~~~~~~~~~~~~~~^^
+  File "$LANES/495-builder-residue/sw/builder/test_clock_contract.py", line 359, in test_sim_clock
+    assert spelling not in source, f"sim_ax1x1gptp.cpp restates the contract clock as {spelling!r}"
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: sim_ax1x1gptp.cpp restates the contract clock as '50000000'
