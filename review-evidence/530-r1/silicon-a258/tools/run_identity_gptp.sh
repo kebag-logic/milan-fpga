@@ -25,7 +25,7 @@ timeout 90 python3 $PK/tools/console_poll.py $P $OUT/console.txt 60 5 milan_stat
   'mem_read 0x900007e8 4' 'mem_read 0x900007ec 4' 'mem_read 0x90000774 4' 'mem_read 0x90000720 4' \
   'mem_read 0x90000750 4' 'mem_read 0x90000764 4' 'mem_read 0x90000694 4' > $OUT/console-poll.stdout 2>&1 &
 CON=$!
-timeout 120 ssh -o BatchMode=yes $CTRL "sudo -n timeout 80 python3 /tmp/a258/avdecc_ro.py watch ens10 60 5 020000fffe000001=02:00:00:00:00:01 3cc0c60102030000=3c:c0:c6:01:02:03" > $OUT/controller-host-watch.jsonl 2>&1
+timeout 120 ssh -o BatchMode=yes $CTRL "sudo -n timeout 80 python3 /tmp/a258/avdecc_ro.py watch <host-iface> 60 5 020000fffe000001=02:00:00:00:00:01 3cc0c60102030000=3c:c0:c6:01:02:03" > $OUT/controller-host-watch.jsonl 2>&1
 echo "controller_host_rc=$?" >> $OUT/timeline.txt
 wait $CON; echo "console_rc=$?" >> $OUT/timeline.txt
 echo "end_local $(ts)" >> $OUT/timeline.txt

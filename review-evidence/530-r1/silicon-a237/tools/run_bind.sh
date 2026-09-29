@@ -29,7 +29,7 @@ echo "LOCK $(ts)"
 echo "start_local $(ts) PRE=$PRE WIN=$WIN POST=$POST" > "$OUT/timeline.txt"
 $SSH <bench-host-prefix>ubuntu-server "mkdir -p /tmp/a237 && sudo -n timeout $CAPMAX tcpdump -i $TAPIF -w /tmp/a237/tap-run.pcap" > "$OUT/tcpdump-tap.log" 2>&1 &
 CAP=$!
-$SSH <bench-host-prefix>pw1 "sudo -n timeout $CAPMAX tcpdump -i ens10 -w /tmp/a237/pw1-run.pcap ether proto 0x22f0" > "$OUT/tcpdump-pw1.log" 2>&1 &
+$SSH <bench-host-prefix>pw1 "sudo -n timeout $CAPMAX tcpdump -i <host-iface> -w /tmp/a237/pw1-run.pcap ether proto 0x22f0" > "$OUT/tcpdump-pw1.log" 2>&1 &
 CAP2=$!
 timeout $((CONDUR + 30)) python3 $PK/tools/console_poll.py $P $OUT/console.txt $CONDUR 0.5 milan_status \
   'mem_read 0x90000750 4' 'mem_read 0x90000764 4' 'mem_read 0x90000694 4' 'mem_read 0x9000066c 4' \
@@ -40,26 +40,26 @@ sleep 6
 S1=$(stat -c %s "$OUT/console.txt" 2>/dev/null || echo 0)
 sleep 2
 S2=$(stat -c %s "$OUT/console.txt" 2>/dev/null || echo 0)
-if ! grep -q "listening on $TAPIF" "$OUT/tcpdump-tap.log" || ! grep -q "listening on ens10" "$OUT/tcpdump-pw1.log" || [ "$S2" -le "$S1" ]; then
+if ! grep -q "listening on $TAPIF" "$OUT/tcpdump-tap.log" || ! grep -q "listening on <host-iface>" "$OUT/tcpdump-pw1.log" || [ "$S2" -le "$S1" ]; then
   tl "PREFLIGHT_FAIL tap=$(grep -c listening "$OUT/tcpdump-tap.log") pw1=$(grep -c listening "$OUT/tcpdump-pw1.log") console=$S1->$S2"
   kill $CON 2>/dev/null
   $SSH <bench-host-prefix>ubuntu-server "sudo -n pkill -INT -f '^tcpdump -i $TAPIF -w /tmp/a237/tap-run\.pcap$'"
-  $SSH <bench-host-prefix>pw1 "sudo -n pkill -INT -f '^tcpdump -i ens10 -w /tmp/a237/pw1-run\.pcap ether proto 0x22f0$'"
+  $SSH <bench-host-prefix>pw1 "sudo -n pkill -INT -f '^tcpdump -i <host-iface> -w /tmp/a237/pw1-run\.pcap ether proto 0x22f0$'"
   wait
   echo "UNLOCK $(ts)"
   exit 2
 fi
 tl "preflight_ok console=$S1->$S2"
-$SSH <bench-host-prefix>pw1 "sudo -n timeout $CTRDUR python3 /tmp/a237/a231_counters_poll.py ens10 $((CTRDUR - 20)) 1 \
+$SSH <bench-host-prefix>pw1 "sudo -n timeout $CTRDUR python3 /tmp/a237/a231_counters_poll.py <host-iface> $((CTRDUR - 20)) 1 \
   $DUT=$DMAC:6:1 $DUT=$DMAC:6:0 $PEER=$PMAC:5:8 > /tmp/a237/counters.jsonl 2>&1; echo CTR_RC=\$?" > "$OUT/counters-poll.rc" 2>&1 &
 CTR=$!
 sleep 10
 tl bind_window_start
-$SSH <bench-host-prefix>pw1 "sudo -n timeout -k 30 $((PRE + WIN + POST + 60)) python3 /tmp/a237/crf_bind_window.py ens10 $PRE $WIN $POST > /tmp/a237/bind.jsonl 2>&1; echo BIND_RC=\$?" > "$OUT/bind.rc" 2>&1
+$SSH <bench-host-prefix>pw1 "sudo -n timeout -k 30 $((PRE + WIN + POST + 60)) python3 /tmp/a237/crf_bind_window.py <host-iface> $PRE $WIN $POST > /tmp/a237/bind.jsonl 2>&1; echo BIND_RC=\$?" > "$OUT/bind.rc" 2>&1
 tl "bind_window_end rc=$(cat "$OUT/bind.rc" | tr '\n' ' ')"
 sleep 20
 $SSH <bench-host-prefix>ubuntu-server "sudo -n pkill -INT -f '^tcpdump -i $TAPIF -w /tmp/a237/tap-run\.pcap$'"; tl "tap_stop_rc=$?"
-$SSH <bench-host-prefix>pw1 "sudo -n pkill -INT -f '^tcpdump -i ens10 -w /tmp/a237/pw1-run\.pcap ether proto 0x22f0$'"; tl "pw1_stop_rc=$?"
+$SSH <bench-host-prefix>pw1 "sudo -n pkill -INT -f '^tcpdump -i <host-iface> -w /tmp/a237/pw1-run\.pcap ether proto 0x22f0$'"; tl "pw1_stop_rc=$?"
 $SSH <bench-host-prefix>pw1 "sudo -n pkill -TERM -f '^python3 /tmp/a237/a231_counters_poll\.py '"; tl "ctr_stop_rc=$?"
 wait $CAP; tl "capture_tap_rc=$?"
 wait $CAP2; tl "capture_pw1_rc=$?"
