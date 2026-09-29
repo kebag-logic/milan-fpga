@@ -1,0 +1,4 @@
+disabled_writer rc=0 0s :: python3 -B sw/firmware/nvm_hosttest/test_disabled_writer.py
+service_selftest rc=0 0s :: python3 -B tb/verilator/fw_service_budget/run.py --self-test
+phy_firmware rc=0 2s :: python3 -B sw/firmware/nvm_hosttest/test_phy_firmware.py
+host_selftest rc=0 57s :: python3 -B sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test

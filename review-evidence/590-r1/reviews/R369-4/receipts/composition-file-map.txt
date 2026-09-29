@@ -1,0 +1,47 @@
+# PR-lane files (b5c0f69d..4c2a30de): blob at 4c2a30de vs candidate
+IDENTICAL docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+IDENTICAL docs/findings/397_SERVICE_BUDGET.md
+IDENTICAL docs/findings/README.md
+IDENTICAL docs/integration/BAREMETAL_FIRMWARE.md
+IDENTICAL docs/integration/BOARD_PORTING_AX7101.md
+IDENTICAL docs/reference/MILAN_COMPLIANCE_MATRIX.md
+IDENTICAL docs/reference/REGISTER_MAP.md
+DIFFERS sw/builder/test_builder.py
+IDENTICAL sw/firmware/milan_baremetal/milan_baremetal.c
+IDENTICAL sw/firmware/nvm_hosttest/nvm_host.c
+IDENTICAL sw/firmware/nvm_hosttest/phy_host.c
+IDENTICAL sw/firmware/nvm_hosttest/README.md
+IDENTICAL sw/firmware/nvm_hosttest/test_disabled_writer.py
+IDENTICAL sw/firmware/nvm_hosttest/test_nvm_firmware.py
+IDENTICAL sw/firmware/nvm_hosttest/test_phy_firmware.py
+IDENTICAL sw/litex/patches/0006-bios-dispatch-hook.patch
+IDENTICAL sw/litex/patches/apply.sh
+IDENTICAL sw/litex/patches/README.md
+IDENTICAL tb/verilator/fw_service_budget/build.py
+IDENTICAL tb/verilator/fw_service_budget/phy.hpp
+IDENTICAL tb/verilator/fw_service_budget/phy.py
+IDENTICAL tb/verilator/fw_service_budget/README.md
+IDENTICAL tb/verilator/fw_service_budget/run.py
+IDENTICAL tb/verilator/fw_service_budget/sim_main.cpp
+IDENTICAL tb/verilator/nvm_capture_cpu/firmware.py
+IDENTICAL tb/verilator/nvm_capture_cpu/measurements.json
+IDENTICAL tb/verilator/nvm_capture_cpu/README.md
+IDENTICAL tb/verilator/nvm_capture_cpu/run.py
+IDENTICAL tb/verilator/nvm_cosim/cosim_host.c
+IDENTICAL tb/verilator/nvm_cosim/run_cases.py
+# #607-lane files (b5c0f69d..eaa88a32): blob at eaa88a32 vs candidate
+IDENTICAL docs/integration/BUILDING.md
+IDENTICAL docs/litex/CLOCK_DOMAINS.md
+IDENTICAL docs/litex/LITEX_SOC.md
+IDENTICAL docs/testing/RUNNING_TESTS.md
+DIFFERS sw/builder/test_builder.py
+IDENTICAL sw/builder/test_clock_constraints.py
+IDENTICAL sw/builder/test_shipping_clock_constraints.py
+IDENTICAL sw/litex/clock_constraints.py
+IDENTICAL sw/litex/clock_constraints.tcl
+IDENTICAL sw/litex/milan_soc.py
+IDENTICAL sw/litex/platforms/alinx_ax7101.py
+IDENTICAL sw/litex/sweep.sh
+# files changed by neither lane that differ between candidate and either parent
+# git merge-tree --write-tree eaa88a32 4c2a30de = b5038a41dbf936219243f246a7bc324aa384512b ; candidate tree = b5038a41dbf936219243f246a7bc324aa384512b
+# merge-base = b5c0f69d5d11f0ec4bc847a2cfdd13e89e199a8a
