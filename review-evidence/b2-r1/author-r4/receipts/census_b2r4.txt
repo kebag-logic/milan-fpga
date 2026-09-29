@@ -1,0 +1,67 @@
+jsonl files: 561; snapshot.jsonl byte copies of snapshot-after.jsonl: 112 of 112; events.jsonl (no commands): 112
+controller transcripts counted: 337 {'snapshot-after.jsonl': 112, 'snapshot-before.jsonl': 112, 'bind.jsonl': 5, 'unbind.jsonl': 5, 'cycle.jsonl': 100, 'identity-aecp.jsonl': 1, 'census-end.jsonl': 1, 'census-start.jsonl': 1}
+PASS all 112 snapshot.jsonl are byte copies and are left out
+against the archive manifest: 561 equal original_sha256, 112 equal published_sha256
+PASS all 561 jsonl files equal the archive manifest (original or published copy)
+PASS the DUT's GET_RX_STATE responses name one listener entity (the DUT)
+
+commands (paired ACMP wire records not counted twice): 3165
+  ACMP CONNECT_RX         to peer descriptor STREAM_INPUT     105
+  ACMP DISCONNECT_RX      to peer descriptor STREAM_INPUT     105
+  ACMP GET_RX_STATE       to dut  descriptor STREAM_INPUT     228
+  ACMP GET_RX_STATE       to peer descriptor STREAM_INPUT     359
+  ACMP GET_TX_STATE       to dut  descriptor STREAM_OUTPUT      4
+  ACMP GET_TX_STATE       to peer descriptor STREAM_OUTPUT      8
+  AECP GET_AVB_INFO       to dut  descriptor -                226
+  AECP GET_AVB_INFO       to peer descriptor -                226
+  AECP GET_CLOCK_SOURCE   to dut  descriptor -                  2
+  AECP GET_CLOCK_SOURCE   to peer descriptor -                  2
+  AECP GET_CONFIGURATION  to dut  descriptor -                  2
+  AECP GET_CONFIGURATION  to peer descriptor -                  2
+  AECP GET_COUNTERS       to dut  descriptor AVB_INTERFACE    226
+  AECP GET_COUNTERS       to dut  descriptor CLOCK_DOMAIN     226
+  AECP GET_COUNTERS       to dut  descriptor STREAM_INPUT     228
+  AECP GET_COUNTERS       to dut  descriptor STREAM_OUTPUT    228
+  AECP GET_COUNTERS       to peer descriptor AVB_INTERFACE    226
+  AECP GET_COUNTERS       to peer descriptor CLOCK_DOMAIN     226
+  AECP GET_COUNTERS       to peer descriptor STREAM_INPUT     244
+  AECP GET_COUNTERS       to peer descriptor STREAM_OUTPUT    232
+  AECP GET_SAMPLING_RATE  to dut  descriptor -                  2
+  AECP GET_SAMPLING_RATE  to peer descriptor -                  2
+  AECP READ_DESCRIPTOR    to dut  descriptor CLOCK_DOMAIN       2
+  AECP READ_DESCRIPTOR    to dut  descriptor CLOCK_SOURCE       4
+  AECP READ_DESCRIPTOR    to dut  descriptor CONFIGURATION      1
+  AECP READ_DESCRIPTOR    to dut  descriptor ENTITY             1
+  AECP READ_DESCRIPTOR    to dut  descriptor STREAM_INPUT       4
+  AECP READ_DESCRIPTOR    to dut  descriptor STREAM_OUTPUT      4
+  AECP READ_DESCRIPTOR    to peer descriptor CLOCK_DOMAIN       2
+  AECP READ_DESCRIPTOR    to peer descriptor CLOCK_SOURCE      10
+  AECP READ_DESCRIPTOR    to peer descriptor STREAM_INPUT      20
+  AECP READ_DESCRIPTOR    to peer descriptor STREAM_OUTPUT      8
+PASS 210 ACMP wire records {6: 105, 8: 105}, each the record of the preceding state-changing command
+PASS every ACMP command's role label matches the listener entity its response names
+
+== 1. no state-changing command addressed a DUT stream input
+state-changing commands: 210; to the DUT: 0; to a DUT stream input: 0
+PASS 0 state-changing commands addressed a DUT stream input
+PASS 0 state-changing commands addressed the DUT at all
+
+== 2. the state-changing commands: 105 CONNECT_RX and 105 DISCONNECT_RX to the reference peer
+by (command, target, listener unique id): {'CONNECT_RX to peer input 8': 105, 'DISCONNECT_RX to peer input 8': 105}
+PASS every state-changing command is an ACMP CONNECT_RX or DISCONNECT_RX
+PASS 105 CONNECT_RX and 105 DISCONNECT_RX, 210 in all, every one to the peer's Stream Input 8
+PASS every CONNECT_RX names DUT Stream Output 1 as talker
+PASS all 210 responses read status 0 (SUCCESS)
+
+== 3. every AECP command, to either entity, was a GET_ or READ_
+AECP commands by (command, target): {'GET_AVB_INFO to dut': 226, 'GET_AVB_INFO to peer': 226, 'GET_CLOCK_SOURCE to dut': 2, 'GET_CLOCK_SOURCE to peer': 2, 'GET_CONFIGURATION to dut': 2, 'GET_CONFIGURATION to peer': 2, 'GET_COUNTERS to dut': 908, 'GET_COUNTERS to peer': 928, 'GET_SAMPLING_RATE to dut': 2, 'GET_SAMPLING_RATE to peer': 2, 'READ_DESCRIPTOR to dut': 16, 'READ_DESCRIPTOR to peer': 40}
+PASS all 2356 AECP commands are GET_ or READ_
+
+== 4. the commands that addressed a DUT stream input were reads
+DUT stream-input commands by (protocol, command, input): {'ACMP GET_RX_STATE input 0': 2, 'ACMP GET_RX_STATE input 1': 226, 'AECP GET_COUNTERS input 0': 2, 'AECP GET_COUNTERS input 1': 226, 'AECP READ_DESCRIPTOR input 0': 2, 'AECP READ_DESCRIPTOR input 1': 2}
+totals: {'GET_COUNTERS': 228, 'GET_RX_STATE': 228, 'READ_DESCRIPTOR': 4} all: 460
+PASS 228 GET_RX_STATE, 228 GET_COUNTERS and 4 READ_DESCRIPTOR, 460 in all
+PASS GET_RX_STATE: 226 on Stream Input 1, 2 on Stream Input 0 (the polls the page counts)
+PASS all 460 are reads (0 state-changing)
+
+FAILURES 0
