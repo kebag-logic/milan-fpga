@@ -1095,10 +1095,10 @@ module KL_pp_shadow #(
       .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
       .RESP_BASE_P         (RESP_BASE_P)
-      //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (20 ms per restore
-      //! wait), NVM_RS_AGG_CYC_P (1,000 ms aggregate from restore_go_i) and
-      //! NVM_RETRY_BACKOFF_CYC_P (500 ms between record write attempts). The
-      //! processor derives all three from the CLK_HZ_P bound above, which is
+      //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (each restore wait's
+      //! deadline), NVM_RS_AGG_CYC_P (the whole restore's, from restore_go_i)
+      //! and NVM_RETRY_BACKOFF_CYC_P (the gap between record write attempts).
+      //! The processor derives all three from the CLK_HZ_P bound above, which is
       //! this wrapper's clk_i frequency, so they follow the parent clock. A
       //! value or formula restated here would be a second copy of the DR3a
       //! and DR2c rulings (docs/design/SAVED_STATE_MATERIALIZATION.md 5.1,
