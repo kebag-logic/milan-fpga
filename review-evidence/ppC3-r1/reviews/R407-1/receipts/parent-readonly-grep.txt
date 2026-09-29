@@ -1,0 +1,67 @@
+parent 79c36963660c10e4c1c11a744fb5bff41a552b8b (read-only git grep, no checkout)
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/MILAN_V12_ROADMAP.md:140:`KL_aecp_engine` out of context, yosys 0.66 `synth_xilinx -family xc7 -flatten`,
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/MILAN_V12_ROADMAP.md:178:`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing.
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/MILAN_V12_ROADMAP.md:283:  (`KL_aecp_engine.sv:966-1007`). The store module takes `desc_type_i` and
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/MILAN_V12_ROADMAP.md:285:- **Put it in its own module**, `KL_aecp_dyn_state.sv`, muxed onto the state
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/MAAP_FABRIC.md:160:[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a25b5cc9794b8e7f70f738548f4d674e9669b469/hdl/a
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:169:| `0x00` | configuration index | `KL_aecp_dyn_state` selector 0, flops with a valid flag | the store's `dirty_o`, sticky until reset
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:520:the implementation places the writer inside `KL_aecp_engine` or beside it
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:541:| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset i
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:1095:| presentation time offset | SET_STREAM_INFO: bit 31 of the latency is BAD_ARGUMENTS (`KL_aecp_engine.sv` line 3159) | the image de
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:1555:| A state-bus write, the apply | DERIVED from the pinned RTL: `KL_aecp_dyn_state` has no error output and takes a write in the cycl
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:1754:| The IDENTIFY value | 5.3.12: "0 = not identifying" is the reset default (`KL_aecp_dyn_state`'s banner) | `KL_aecp_dyn_state` sele
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:2352:| [hdl/aecp/KL_aecp_engine.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aa
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_MATERIALIZATION.md:2353:| [hdl/aecp/KL_aecp_dyn_state.sv](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e7945
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1280:| 0x00 | configuration index | KL_aecp_dyn_state, selector 0 | aecp_dyn_dirty_o, a sticky level set on any persisted-field write
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1282:| 0x02 to 0x09 | sampling rate | KL_aecp_dyn_state, selector 1 | the dynamic-state level | NONE | nvm_pend 1 until reset |
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1283:| 0x0A to 0x11 | clock source | KL_aecp_dyn_state, selector 2 | the dynamic-state level | NONE | nvm_pend 1 until reset |
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1286:| 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the dynamic-state level | NONE | nvm_pend 1 until reset (E1:
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1287:| 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the dynamic-state level | NONE | nvm_pend 1 until reset |
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1288:| 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the dynamic-state level | NONE | nvm_pend 1 until re
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1397:  `output logic [7:0] aecp_nvm_mark_o`, driven by KL_aecp_engine's
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1712:  and KL_aecp_dyn_state at 8f2f58fb, the backend (tracked file or the
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/development/CODE_QUALITY.md:380:`protocol-processor/hdl/aecp/KL_aecp_engine.sv:command_machine` read as 85
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json:265:          "path": "hdl/aecp/KL_aecp_dyn_state.sv",
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json:271:          "path": "hdl/aecp/KL_aecp_engine.sv",
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json:1997:          "path": "hdl/aecp/KL_aecp_dyn_state.sv",
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json:2003:          "path": "hdl/aecp/KL_aecp_engine.sv",
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/history/v1/SPEC_TRACEABILITY.md:289:| *(the AECP/AEM engine — this repository's is deleted; the replacement is the submodule's `protocol-processor/hdl/aecp/` — `KL_aecp_engin
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/history/v1/findings/PP_SHADOW_AREA_0812.md:483:**5,079 flip-flops** in `KL_aecp_engine`'s own glue. A buffer that shape wants
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:274:| SET/GET_NAME | `KL_aecp_engine`, `KL_aecp_ucpu`, `KL_aecp_desc_store`; generated AEM name table | Milan v1.2 5.4.2.11/5.4.
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/history/v1/traceability/ieee1722_1-2021.md:282:| CMD-8 | 7.4.17 / 7.4.18 | SET/GET_NAME per generated semantic name; persistence is tracked separately | `KL_aecp_engine`, `KL
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/history/v1/traceability/ieee1722_1-2021.md:283:| CMD-8a | 7.4.17.1 / 7.4.18.2 | **Every implemented SET/GET_NAME response carries the full 72-byte payload at cdl 84, includin
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/history/v1/traceability/milan-v12.md:216:| M-AECP-1 | 5.3.2 / 5.3.3.x | Descriptor tree shaped per Milan (mandatory descriptor set + per-descriptor field constraints) | the p
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/reference/FR_NFR.md:102:the `OP_*_C` table in `protocol-processor/hdl/aecp/KL_aecp_engine.sv`. The
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:91:| L8: IDENTIFY at one stable index; Milan 5.3.3.10 | Parent CONTROL/ADP CSR -> processor control lookup | Parent **C**: `D.d_control_i
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:108:| CSR | [milan_csr.sv](../../hdl/common/csr/milan_csr.sv): ADP_IDX0 reset and IDENTIFY index connection |
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/reference/REGISTER_MAP.md:1016:| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
+79c36963660c10e4c1c11a744fb5bff41a552b8b:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:171:[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a25b5cc9794b8e7f70f738548f4d67
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/common/csr/milan_csr.sv:319:  output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/common/csr/milan_csr.sv:320:  output wire [15:0]             o_adp_identify_index,//! identify_control_index (ADP_IDX0[31:16])
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/common/csr/milan_csr.sv:743:    A_ADP_IDX0    = 'h630, A_ADP_IDX1 = 'h634, A_ADP_ASLO = 'h638, A_ADP_ASHI  = 'h63C,
+gitlink:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+--- parent hdl/tb instantiation and current_cfg_i drive at 79c36963660c10e4c1c11a744fb5bff41a552b8b
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/milan/KL_pp_shadow.sv:219:    //! flops it measured 5,079 FF / 3,495 LUT inside KL_aecp_engine and it was
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/milan/KL_pp_shadow.sv:259:    input  wire [15:0] current_cfg_i,      //! ADPDU current_configuration_index
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/milan/KL_pp_shadow.sv:488:    //! buffer's watchdog voids the response and KL_aecp_engine answers a
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/milan/KL_pp_shadow.sv:1102:      .current_cfg_i       (current_cfg_i),
+79c36963660c10e4c1c11a744fb5bff41a552b8b:hdl/milan/milan_datapath.sv:7602:      .current_cfg_i     (cfg_adp_current_config),
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/litex/milan_soc.py:3033:            # void the response, and KL_aecp_engine answers a well-formed
+79c36963660c10e4c1c11a744fb5bff41a552b8b:tb/verilator/pp_shadow/sim_main.cpp:504:    // buffer's watchdog void EVERY response and KL_aecp_engine answer
+79c36963660c10e4c1c11a744fb5bff41a552b8b:tb/verilator/pp_shadow/sim_main.cpp:2608:    // repository's. KL_aecp_engine walks the AECPDU into ONE pair of
+79c36963660c10e4c1c11a744fb5bff41a552b8b:tb/verilator/pp_shadow/sim_main.cpp:3077:    // watchdog VOIDS the response and KL_aecp_engine answers a well-formed
+79c36963660c10e4c1c11a744fb5bff41a552b8b:tb/verilator/pp_shadow/waivers.vlt:74:// KL_aecp_engine grew mem_req_valid_o/mem_req_ready_i/... and
+--- configurations_count in parent image sources
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/endstation_builder.py:2306:GEN_CONFIG_DIR = "configs/generated"
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/endstation_builder.py:5789:    gen_dir = ROOT / GEN_CONFIG_DIR
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:350:CLUSTER_NAMES_GOLDEN_CONFIGS = ("ax7101_8x8", "ax7101_1x1_tdm8")
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:24812:    for name in CLUSTER_NAMES_GOLDEN_CONFIGS:
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:24888:    for name in CLUSTER_NAMES_GOLDEN_CONFIGS:
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:24905:    flat = [n for name in CLUSTER_NAMES_GOLDEN_CONFIGS
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:24915:          f"{pinned} cluster names across {len(CLUSTER_NAMES_GOLDEN_CONFIGS)} "
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:25326:    #! current_configuration: d_configuration emits configurations_count
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/builder/test_builder.py:25328:    assert _be_uint(ent, 308, 2) == 1, f"{name}: configurations_count != 1"
+79c36963660c10e4c1c11a744fb5bff41a552b8b:sw/litex/sweep_extra.sh:24:gen = eb.ROOT / eb.GEN_CONFIG_DIR / cfg["name"]

@@ -1,0 +1,21 @@
+protocol_processor_top hdl/top/protocol_processor_top.sv: header tokens base=978 head=978 identical=True
+rc=0
+KL_aecp_dyn_state hdl/aecp/KL_aecp_dyn_state.sv: header tokens base=114 head=114 identical=True
+rc=0
+KL_adp_engine hdl/adp/KL_adp_engine.sv: header tokens base=356 head=356 identical=True
+rc=0
+KL_aecp_engine hdl/aecp/KL_aecp_engine.sv: header tokens base=698 head=701 identical=False
+--- 
++++ 
+@@ -663,6 +663,9 @@
+ dyn_cur_config_o,
+ output
+ logic
++dyn_cur_config_v_o,
++output
++logic
+ [7:0]
+ dyn_identify_o,
+ output
+rc=1
+parent-instantiated modules diff above (empty = unchanged)
