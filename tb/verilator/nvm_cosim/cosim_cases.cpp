@@ -485,7 +485,7 @@ static void capture_cases() {
       base();
       fault(0x20, byte, 0, kind);      // every attempt fails at this byte
       bind(X2);
-      idle(1500);                      // debounce, three attempts, give-up
+      idle(2000);                      // debounce, three attempts 500 ms apart, give-up
       snap("gave_up");
       faults.clear();
       bind(Z2);
