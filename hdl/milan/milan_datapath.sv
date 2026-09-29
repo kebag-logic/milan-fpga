@@ -2240,6 +2240,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! validated nothing, and whether any persistent media exists at all
   logic        pp_restore_blank_w, pp_nvm_backed_w;
   logic        pp_nvm_alarm_w;
+  //! the D3 walk's CLOSED and roll-back terminals and both walks' causes
+  //! (SAVED_STATE_MATERIALIZATION.md 5.2), published at PP_STAT[22:16]
+  logic        pp_restore_closed_w, pp_restore_rb_w;
+  logic [2:0]  pp_rs_cause_w;
+  logic [1:0]  pp_restore_cause_w;
   //! the saved-state backend's control tuple (design page section 8.2) and
   //! its section 9 status: an indexed CSR face, never record data
   logic        pp_nvm_csr_sel_w, pp_nvm_csr_we_w;
@@ -2740,6 +2745,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_pp_restore_fail  (pp_restore_fail_w),
     .i_pp_nvm_backed    (pp_nvm_backed_w),
     .i_pp_nvm_blank     (pp_restore_blank_w),
+    .i_pp_restore_closed(pp_restore_closed_w),
+    .i_pp_restore_rb    (pp_restore_rb_w),
+    .i_pp_rs_cause      (pp_rs_cause_w),
+    .i_pp_restore_cause (pp_restore_cause_w),
     .i_pp_nvm_alarm     (pp_nvm_alarm_w),
     .i_pp_nvm_dirty     (pp_nvm_dirty_w),
     .i_pp_nvm_stale     (pp_nvm_stale_w),
@@ -7714,6 +7723,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .restore_fail_o    (pp_restore_fail_w),
       .nvm_backed_o      (pp_nvm_backed_w),
       .restore_blank_o   (pp_restore_blank_w),
+      .restore_closed_o  (pp_restore_closed_w),
+      .restore_rb_o      (pp_restore_rb_w),
+      .rs_cause_o        (pp_rs_cause_w),
+      .restore_cause_o   (pp_restore_cause_w),
       .nvm_alarm_o       (pp_nvm_alarm_w),
       .nvm_dirty_o       (pp_nvm_dirty_w),
       .nvm_stale_o       (pp_nvm_stale_w),
