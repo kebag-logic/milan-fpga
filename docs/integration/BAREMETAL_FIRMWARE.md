@@ -917,6 +917,22 @@ unit's own symbols and read back with `lw` before the next call is now a value,
 and every symbol slot is dropped at each call and at each store the resolver
 cannot place, so nothing survives a write it did not see.
 
+One slot crosses a call, and only under three pins (#70). The AEM-first boot
+order stores the verdict, calls `nvm_boot()` and reads the verdict back for the
+choke point, so the resolver keeps `aem_loaded` across a call while, on the
+source that was compiled, the unit writes it exactly once, as `aem_loaded =
+load_aem_image();`; its address is never taken; and it is a file-scope `static`
+of the one translation unit: declared once, emitted with internal linkage and
+named by no other unit the Makefile links. Then nothing anywhere writes it but
+that assignment, so no callee can. A static that fails a pin is dropped at a
+call as every other one is. Gate 1b builds an AEM-first base from the shipping
+source, which must pass only with the slot kept and must be refused with no
+pin read, and five planted breaks, each refused on the verdict with the pin it
+breaks named: `aem_loaded = 0;` inside `nvm_boot()`, `aem_loaded = 1;` in the
+UART status handler, `&aem_loaded` taken and written through inside
+`nvm_boot()`, the verdict declared without `static`, and a second translation
+unit that declares it.
+
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
 missing from the other, so a value stored on one incoming path of a diamond
@@ -1521,6 +1537,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
 | No indirect call and no tail transfer through a register, anywhere in the firmware | an instrument that cannot place a call edge must refuse it: a target it cannot resolve is exactly the one that could be the choke point. **Remedy:** call through a name, or model indirect targets and argument provenance completely, which is a data-flow change of its own |
 | The one call edge into `entity_advertise()` must come from `milan_init()` and hand it the value `load_aem_image()` returned | the value is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer, and an argument the resolver cannot resolve is refused rather than read as verified |
+| `aem_loaded` stays a file-scope `static` of the one translation unit, written only by `aem_loaded = load_aem_image();`, with its address never taken | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only under these three pins; with any one broken the choke point is entered with a verdict it cannot trace, and the refusal names the broken pin |
 | The AEM copy loop keeps a shape this range refinement can bound: a constant destination base indexed by the counter the emitted `bltu` compares | the copy store is PLACED as a bounded range inside the CRC'd buffer instead of declared as a count-keyed residual, and a loop the lattice cannot bound (`*dst++ = *src++`, a `memcpy`, a bound held in a variable) leaves a store the gate cannot place, which is a refusal. **Remedy:** keep the `dst[i] = src[i]` form, or extend the refinement to the new shape with its own degenerate-case controls |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |

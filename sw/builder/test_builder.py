@@ -1602,9 +1602,12 @@ def _rv32_step_store(state, mnem, ops, args):
 
 
 def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
-              tags: dict[str, Rv32Tag]) -> tuple[str, Any] | None:
+              tags: dict[str, Rv32Tag],
+              kept: frozenset[str] = frozenset()) -> tuple[str, Any] | None:
     """Interpret one instruction.  Returns an observation for the caller
-    (`store`, `stores`, `call`, `ret`, `branch`, `symstore`) or None."""
+    (`store`, `stores`, `call`, `ret`, `branch`, `symstore`) or None.
+    `kept` names the statics whose slots survive a call (the call rule
+    below says when that is sound)."""
     args = [part.strip() for part in ops.split(",")] if ops else []
     moved = _rv32_step_move(state, mnem, args)
     if moved is not _RV32_UNHANDLED:
@@ -1627,8 +1630,16 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
         handed = {reg: state.get(reg) for reg in
                   ("a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7")}
         #: A callee may write any static this unit holds, so the symbol
-        #: slots do not cross a call.
-        _rv32_forget_symbols(state)
+        #: slots do not cross a call -- except a `kept` one. A static is
+        #: kept only when three pins hold on the source that was compiled
+        #: (aem_verdict_pins()): the unit assigns it exactly once, and that
+        #: assignment is the verifier's; its address is never taken; and it
+        #: is a file-scope static of the firmware's one translation unit.
+        #: Then no code anywhere can write it except that one assignment, so
+        #: no callee can, and the word this function stored is still the
+        #: word it reads back after the call. A static that fails any pin
+        #: is forgotten here as every other one is.
+        _rv32_forget_symbols(state, kept)
         for reg in RV32_CALLER_SAVED:
             state.set(reg, None)
         state.set("a0", tags.get(callee, Rv32Tag(f"call:{callee}")))
@@ -1657,7 +1668,8 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
 def rv32_run(body: Rv32Body, data: dict[str, int],
              tags: dict[str, Rv32Tag] | None = None,
              entry_regs: dict[str, Rv32Value] | None = None,
-             cut: tuple[str, str] | None = None) -> dict[str, Any]:
+             cut: tuple[str, str] | None = None,
+             kept: frozenset[str] = frozenset()) -> dict[str, Any]:
     """Constant-propagate over one function's CFG to a fixpoint, then read
     the observations off the SETTLED states.
 
@@ -1670,6 +1682,8 @@ def rv32_run(body: Rv32Body, data: dict[str, int],
     `cut` removes one `(block, "taken"|"fall")` edge BEFORE the fixpoint,
     which is how this measures edge dominance: whatever is still reachable
     without that edge is exactly what the edge does not dominate.
+
+    `kept` names the statics whose slots survive a call (rv32_step()).
 
     A block's entry state is the MEET OVER ALL its predecessors' settled
     exit states, recomputed from scratch each time one of them moves, not a
@@ -1708,7 +1722,7 @@ def rv32_run(body: Rv32Body, data: dict[str, int],
         block = work.pop()
         state = states[block].copy()
         for mnem, ops in blocks[block]:
-            rv32_step(state, mnem, ops, data, tags or {})
+            rv32_step(state, mnem, ops, data, tags or {}, kept)
         exits[block] = state
         for succ, _kind in edges[block]:
             entering = joined(succ)
@@ -1726,7 +1740,7 @@ def rv32_run(body: Rv32Body, data: dict[str, int],
             continue
         state = states[block].copy()
         for mnem, ops in blocks[block]:
-            outcome = rv32_step(state, mnem, ops, data, tags or {})
+            outcome = rv32_step(state, mnem, ops, data, tags or {}, kept)
             if outcome is None:
                 continue
             kind, payload = outcome
@@ -1783,15 +1797,17 @@ RV32_REG_NAMES = frozenset(
     tuple(f"s{n}" for n in range(12)) + RV32_ARG_REGS)
 
 
-def _rv32_forget_symbols(state):
-    """Drop every symbol slot the state holds.
+def _rv32_forget_symbols(state, kept=frozenset()):
+    """Drop every symbol slot the state holds, except those of `kept`.
 
     Called wherever a write this resolver CANNOT place may have landed on
     one of this unit's statics: any call, and any store whose base did not
     resolve.  A resolved numeric address and a stack address are not in that
     class -- statics are symbolic in this model and the stack is a different
-    object -- so those two leave the slots alone."""
-    for key in [key for key in state.mem if key[0] == "sym"]:
+    object -- so those two leave the slots alone.  Only the call rule passes
+    `kept`; an unplaced store forgets every slot."""
+    for key in [key for key in state.mem
+                if key[0] == "sym" and key[1] not in kept]:
         del state.mem[key]
 
 
@@ -1876,8 +1892,10 @@ def rv32_call_seeds(runs: dict[str, dict[str, Any]],
     return seeds
 
 
-def rv32_unit(assembly: str) -> dict[str, Any]:
-    """Resolve the whole translation unit the census compiled.
+def rv32_unit(assembly: str,
+              kept: frozenset[str] = frozenset()) -> dict[str, Any]:
+    """Resolve the whole translation unit the census compiled, keeping the
+    slots of `kept` across calls (rv32_step()).
 
     Two passes: the first finds every static the code STORES through, the
     second resolves loads only from statics nothing writes.  A static the
@@ -1893,7 +1911,7 @@ def rv32_unit(assembly: str) -> dict[str, Any]:
     data, functions = rv32_data(assembly), rv32_functions(assembly)
     written = set()
     for body in functions.values():
-        written |= rv32_run(body, data)["symstores"]
+        written |= rv32_run(body, data, kept=kept)["symstores"]
     data = {name: value for name, value in data.items() if name not in written}
     exported = set(re.findall(r"^\s*\.globa?l\s+([\w.$]+)", assembly,
                               re.MULTILINE))
@@ -1903,7 +1921,8 @@ def rv32_unit(assembly: str) -> dict[str, Any]:
     seeds, runs, rounds = {}, None, 0
     while rounds < 8:
         rounds += 1
-        runs = {name: rv32_run(body, data, entry_regs=seeds.get(name))
+        runs = {name: rv32_run(body, data, entry_regs=seeds.get(name),
+                               kept=kept)
                 for name, body in functions.items()}
         found = rv32_call_seeds(runs, private)
         merged = {name: {reg: value
@@ -6493,10 +6512,110 @@ def test_baremetal_profile_contract() -> None:
         body, close = braced_span(code, found, "entity_advertise()")
         return found, body, close
 
+    #: The verdict's WRITES and its ADDRESS, one definition each: the source
+    #: rules in assert_boot_contract() refuse both, and aem_verdict_pins()
+    #: reads the same two to decide whether the resolver may keep the
+    #: verdict's slot across a call. Read/modify/write, increment and
+    #: compound-assignment spellings all override the verifier's verdict, so
+    #: the variable is pinned rather than one spelling.
+    verdict_write_re = re.compile(
+        r"(?:\+\+|--)\s*aem_loaded\b|"
+        r"\baem_loaded\b\s*(?:\+\+|--|(?:[-+*/%|&^]|<<|>>)?=(?!=))"
+        r"\s*([^;]*)", re.ASCII)
+
+    def verdict_is_the_verifiers(code: str) -> bool:
+        """True when `code` writes aem_loaded exactly once, and that write is
+        `aem_loaded = load_aem_image();`."""
+        writes = list(verdict_write_re.finditer(code))
+        return len(writes) == 1 and re.fullmatch(
+            r"\s*load_aem_image\s*\(\s*\)\s*", writes[0].group(1) or "",
+            re.ASCII) is not None
+
+    def verdict_address_taken(code: str) -> bool:
+        """True when `code` applies a UNARY `&` to aem_loaded; a binary `&`
+        follows an operand, which is what the lead character tells apart."""
+        for use in re.finditer(r"(?<!&)&(?!&)\s*aem_loaded\b", code,
+                               re.ASCII):
+            lead = code[:use.start()].rstrip()
+            if not (lead and (lead[-1].isalnum() or lead[-1] in "_)]")):
+                return True
+        return False
+
+    #: The three pins, each named, so a refusal says which one failed.
+    VERDICT_PIN_WRITE = (
+        "aem_loaded is written somewhere other than its one assignment from "
+        "load_aem_image()")
+    VERDICT_PIN_ADDRESS = "the address of aem_loaded is taken"
+    VERDICT_PIN_STATIC = (
+        "aem_loaded is not a file-scope static of the compiled unit")
+    VERDICT_PIN_UNIT = "aem_loaded is named in a second translation unit"
+
+    def other_units(makefile: str) -> dict[str, str | None]:
+        """The text of every translation unit the firmware Makefile links
+        beside the firmware's own, by file name: None for one this cannot
+        read, and one None entry when the OBJECTS list itself cannot be
+        read."""
+        objects = makefile_objects(makefile)
+        if objects is None:
+            return {"an OBJECTS list this gate cannot read": None}
+        units = {}
+        for name in objects:
+            if name == firmware_object:
+                continue
+            path = firmware_path.parent / (Path(name).stem + ".c")
+            units[path.name] = (path.read_text(encoding="utf-8",
+                                               errors="surrogateescape")
+                                if path.is_file() else None)
+        return units
+
+    def aem_verdict_pins(source: str, assembly: str,
+                         units: dict[str, str | None]) -> list[str]:
+        """The pins that FAIL for the resolver to keep aem_loaded's slot
+        across a call; an empty list keeps it (rv32_step()'s call rule).
+
+        `source` is the text compiled into `assembly` and `units` every
+        OTHER translation unit linked into the firmware, so all three pins
+        are read at the same head as the code the resolver walks:
+
+        1. the unit writes aem_loaded exactly once, `aem_loaded =
+           load_aem_image();`, the verifier's verdict;
+        2. its address is never taken, so no pointer writes it either;
+        3. it is a file-scope static of the one translation unit: declared
+           once as `static int aem_loaded;`, emitted with internal linkage,
+           and named in no other unit."""
+        code = blanked(source)
+        broken = []
+        if not verdict_is_the_verifiers(code):
+            broken.append(VERDICT_PIN_WRITE)
+        if verdict_address_taken(code):
+            broken.append(VERDICT_PIN_ADDRESS)
+        exported = re.search(r"(?m)^\s*\.globa?l\s+aem_loaded\s*$", assembly)
+        common = re.search(r"(?m)^\s*\.comm\s+aem_loaded\s*,", assembly)
+        local = re.search(r"(?m)^\s*\.local\s+aem_loaded\s*$", assembly)
+        if len(re.findall(r"(?m)^static int aem_loaded;$", code)) != 1 or \
+                "aem_loaded" not in rv32_defined(assembly) or exported or \
+                (common and not local):
+            broken.append(VERDICT_PIN_STATIC)
+        naming = sorted(name for name, text in units.items()
+                        if text is None or
+                        re.search(r"\baem_loaded\b", blanked(text)))
+        if naming:
+            broken.append(f"{VERDICT_PIN_UNIT} ({', '.join(naming)})")
+        return broken
+
     def assert_resolved_boot_flow(assembly: str, model: CsrModel,
                                   label: str = "firmware",
-                                  helper: str | None = None) -> dict[str, Any]:
+                                  helper: str | None = None,
+                                  source: str | None = None,
+                                  units: dict[str, str | None] | None = None
+                                  ) -> dict[str, Any]:
         """Answer the boot contract from the RESOLVED assembly.
+
+        `source` is the text the census compiled into `assembly`, and
+        `units` the firmware's other translation units (default: the ones
+        the tracked Makefile links). aem_loaded's slot crosses a call only
+        when aem_verdict_pins() finds all three pins holding on them; with
+        no source it never does.
 
         Five questions, each about a VALUE or an EDGE and none about a
         spelling:
@@ -6540,7 +6659,13 @@ def test_baremetal_profile_contract() -> None:
            value the one `crc32()` handed back, and does a non-zero verdict
            survive the removal of the CRC-equality edge?
         """
-        unit = rv32_unit(assembly)
+        broken = (["no compiled source was handed in"] if source is None
+                  else aem_verdict_pins(
+                      source, assembly,
+                      other_units(makefile_source) if units is None
+                      else units))
+        kept = frozenset() if broken else frozenset({"aem_loaded"})
+        unit = rv32_unit(assembly, kept)
         runs = unit["runs"]
         for needed in ("entity_advertise", "load_aem_image", "milan_write",
                        "milan_init"):
@@ -6627,7 +6752,7 @@ def test_baremetal_profile_contract() -> None:
             "function is ever handed"
         verdict_tag = Rv32Tag("load_aem_image")
         boot = rv32_run(unit["functions"]["milan_init"], unit["data"],
-                        tags={"load_aem_image": verdict_tag})
+                        tags={"load_aem_image": verdict_tag}, kept=kept)
         handed_verdict = [handed["a0"]
                           for _at, (callee, handed) in boot["calls"]
                           if callee == choke]
@@ -6639,7 +6764,10 @@ def test_baremetal_profile_contract() -> None:
             "emitted code, so an alias, a macro body or an assignment "\
             "between the verifier and the call does not change the answer " \
             "-- and an argument this resolver cannot resolve is a REFUSAL, " \
-            "never a default of verified"
+            "never a default of verified" + \
+            ("" if not broken else
+             ". aem_loaded's slot did not cross a call, because: " +
+             "; ".join(broken))
 
         # ---- 1. resolved stores into the control window ------------------
         #
@@ -6938,6 +7066,7 @@ def test_baremetal_profile_contract() -> None:
             "entrances": [f"{name}()" for name, _at in entrances],
             "calls": sum(len(run["calls"]) for run in runs.values()),
             "copied": repr(copy_range),
+            "kept": sorted(kept),
         }
 
     #: ---- the CFG join's own self-test ([R0] MAJOR on PR #241) ---------
@@ -11304,29 +11433,19 @@ def test_baremetal_profile_contract() -> None:
         unconditional(configure, "the fabric configuration step")
         unconditional(load, "the AEM verifier call")
         unconditional(guard, "the entity-advertise choke-point call")
-        # Read/modify/write, increment and compound-assignment spellings all
-        # override the verifier's verdict; pin the variable, not one spelling.
-        verdict_write = re.compile(
-            r"(?:\+\+|--)\s*aem_loaded\b|"
-            r"\baem_loaded\b\s*(?:\+\+|--|(?:[-+*/%|&^]|<<|>>)?=(?!=))"
-            r"\s*([^;]*)", re.ASCII)
-        assignments = list(verdict_write.finditer(firmware))
-        assert len(assignments) == 1 and re.fullmatch(
-            r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or "",
-            re.ASCII), \
+        # The verdict variable is pinned, not one spelling of a write to it
+        # (verdict_write_re).
+        assert verdict_is_the_verifiers(firmware), \
             "aem_loaded must contain only the image verifier's verdict"
         # ... and pinning the ASSIGNMENT only pins the spellings that name the
         # variable. A pointer to it writes the verdict with no `aem_loaded =`
         # anywhere, so the address of the verdict may not be taken at all --
         # which, for a file-scope static in a single translation unit, is the
         # only way to build such a pointer.
-        for use in re.finditer(r"(?<!&)&(?!&)\s*aem_loaded\b", firmware,
-                               re.ASCII):
-            lead = firmware[:use.start()].rstrip()
-            assert lead and (lead[-1].isalnum() or lead[-1] in "_)]"), \
-                "the address of aem_loaded must not be taken: a pointer " \
-                "to the verdict (or a memset through one) overwrites it " \
-                "without any assignment this gate can see"
+        assert not verdict_address_taken(firmware), \
+            "the address of aem_loaded must not be taken: a pointer " \
+            "to the verdict (or a memset through one) overwrites it " \
+            "without any assignment this gate can see"
         # Every rule from here on reads milan_write() call sites, so first
         # prove there is no OTHER way to store into a control register.
         assert_csr_store_closure(firmware)
@@ -11552,12 +11671,16 @@ def test_baremetal_profile_contract() -> None:
             #: not from the shipping firmware: rule 1c pins the one
             #: sanctioned consumer of that helper's return, and pinning it
             #: against a name a mutant may have moved would answer about the
-            #: wrong function.
+            #: wrong function. The verdict's pins are read on the same source
+            #: and the same Makefile's units.
             compiled_census_verdict["resolved"] = assert_resolved_boot_flow(
                 census_taken["text"], model,
                 helper=re.search(
                     r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
-                    r"\s*\(", firmware, re.ASCII).group(1))
+                    r"\s*\(", firmware, re.ASCII).group(1),
+                source=source,
+                units=other_units(makefile_source if makefile is None
+                                  else makefile))
         if preprocessed["ran"]:
             # Keep every established text, absence and resolver reason.
             assert_preprocessed_asm_allowlist(preprocessed["text"])
@@ -13760,7 +13883,8 @@ def test_baremetal_profile_contract() -> None:
             helper_store_census_blind += 1
             try:
                 assert_resolved_boot_flow(taken["text"], source_model,
-                                          f"exempted-helper store, {label}")
+                                          f"exempted-helper store, {label}",
+                                          source=mutation)
             except AssertionError as exc:
                 assert RESOLVER_STORE_PIN in str(exc), \
                     "the resolver refused the exempted-helper store for " \
@@ -13993,7 +14117,8 @@ def test_baremetal_profile_contract() -> None:
         _taken = census_take(helper_return_store, "helper-return store")
         try:
             assert_resolved_boot_flow(_taken["text"], source_model,
-                                      "helper-return store")
+                                      "helper-return store",
+                                      source=helper_return_store)
         except AssertionError as exc:
             assert RESOLVER_HELPER_PIN in str(exc), \
                 "the resolver refused the second consumer of the address " \
@@ -14006,6 +14131,96 @@ def test_baremetal_profile_contract() -> None:
                 "printed, the store address does not resolve and no text "
                 "rule recognises the spelling, so that shape would be open "
                 "on every instrument but the caller rule's regex")
+    #: ---- aem_loaded's slot across a call (#70, the AEM-first order) ----
+    #:
+    #: The AEM-first boot order stores the verdict, calls nvm_boot(), and
+    #: reads the verdict back for the choke point, so the resolver answers
+    #: it only by keeping aem_loaded's slot across that call, which it does
+    #: only under the three pins aem_verdict_pins() reads. Measured on an
+    #: AEM-first base built from the shipping source (the identity once the
+    #: shipping firmware is in that order): the base is ACCEPTED with the
+    #: slot kept; the same assembly with no source handed in, which is the
+    #: forget-on-call rule, is REFUSED; and every planted break of a pin is
+    #: REFUSED on the verdict with the broken pin named.
+    def aem_first(firmware: str) -> str:
+        """`firmware` with milan_init()'s nvm_boot() call moved to just
+        after the AEM verifier's call."""
+        start = firmware.index("static void milan_init(void)")
+        init = replace_once(firmware[start:], "\tnvm_boot();\n", "",
+                            "AEM-first boot order")
+        init = replace_once(
+            init, "\taem_loaded = load_aem_image();\n",
+            "\taem_loaded = load_aem_image();\n\tnvm_boot();\n",
+            "AEM-first boot order")
+        return firmware[:start] + init
+
+    aem_first_source = aem_first(firmware_source)
+    nvm_boot_open = "static void nvm_boot(void)\n{\n"
+    verdict_pin_breaks = (
+        ("a second assignment inside nvm_boot()", VERDICT_PIN_WRITE,
+         replace_once(aem_first_source, nvm_boot_open,
+                      nvm_boot_open + "\taem_loaded = 0;\n",
+                      "verdict cleared inside nvm_boot()"), None),
+        ("a second assignment in the UART status handler", VERDICT_PIN_WRITE,
+         replace_once(
+             aem_first_source,
+             "static void milan_status_handler(int nb_params, char **params)"
+             "\n{\n",
+             "static void milan_status_handler(int nb_params, char **params)"
+             "\n{\n\taem_loaded = 1;\n", "verdict set by the status handler"),
+         None),
+        ("&aem_loaded taken and written through inside nvm_boot()",
+         VERDICT_PIN_ADDRESS,
+         replace_once(aem_first_source, nvm_boot_open,
+                      nvm_boot_open +
+                      "\tint *clear_p = &aem_loaded;\n\n\t*clear_p = 0;\n",
+                      "verdict pointer inside nvm_boot()"), None),
+        ("aem_loaded given external linkage", VERDICT_PIN_STATIC,
+         replace_once(aem_first_source, "static int aem_loaded;",
+                      "int aem_loaded;", "verdict without static"), None),
+        ("aem_loaded declared in a second translation unit", VERDICT_PIN_UNIT,
+         aem_first_source,
+         {"milan_verdict.c": "extern int aem_loaded;\n\n"
+                             "void milan_verdict_clear(void)\n{\n"
+                             "\taem_loaded = 0;\n}\n"}),
+    )
+    verdict_pin_refused = []
+    if baseline_census_verdict["ran"]:
+        _taken = census_take(aem_first_source, "AEM-first base")
+        accepted = assert_resolved_boot_flow(
+            _taken["text"], source_model, "AEM-first base",
+            source=aem_first_source)
+        assert accepted["kept"] == ["aem_loaded"], \
+            "the AEM-first base passed without aem_loaded's slot kept, so " \
+            "the controls below would not measure the pins"
+        try:
+            assert_resolved_boot_flow(_taken["text"], source_model,
+                                      "AEM-first base, forget-on-call")
+        except AssertionError as exc:
+            assert RESOLVER_VERDICT_PIN in str(exc), \
+                "the forget-on-call rule refused the AEM-first base for " \
+                f"the wrong reason: {exc}"
+        else:
+            raise AssertionError(
+                "the resolver accepted the AEM-first base with no pin read, "
+                "so keeping aem_loaded's slot is not what these controls "
+                "measure")
+        for what, pin, planted, units in verdict_pin_breaks:
+            _taken = census_take(planted, what)
+            try:
+                assert_resolved_boot_flow(_taken["text"], source_model, what,
+                                          source=planted, units=units)
+            except AssertionError as exc:
+                assert RESOLVER_VERDICT_PIN in str(exc) and \
+                    pin in str(exc), \
+                    f"the resolver refused {what} without naming the " \
+                    f"broken pin ({pin}): {exc}"
+                verdict_pin_refused.append(what)
+            else:
+                raise AssertionError(
+                    f"the resolver accepted {what}: aem_loaded's slot "
+                    "crossed a call although a pin that makes that sound "
+                    "is broken")
     #: ... and the store-class mutants measured on the resolver ALONE, so
     #: the table entries below are known to exercise the class they name:
     #: where the census ISA declares the extension, the compiled mutant
@@ -14025,7 +14240,8 @@ def test_baremetal_profile_contract() -> None:
                 f"`{mnemonic}`: this control would not exercise the store " \
                 "class it is registered for"
             try:
-                assert_resolved_boot_flow(_taken["text"], source_model, label)
+                assert_resolved_boot_flow(_taken["text"], source_model, label,
+                                          source=mutation)
             except AssertionError as exc:
                 assert RESOLVER_STORE_PIN in str(exc), \
                     f"the resolver refused the {label} for the wrong " \
@@ -16413,6 +16629,12 @@ def test_baremetal_profile_contract() -> None:
             "compiled store-class mutants reached the resolver as "
             + ", ".join(store_class_compiled) +
             ", each refused on the resolved store address"
+            "; it kept the slot of "
+            f"{', '.join(_resolved['kept']) or 'no static'} across a call "
+            "under the verdict's three pins, accepted the AEM-first base "
+            "only with it kept, and refused "
+            f"{len(verdict_pin_refused)}/{len(verdict_pin_breaks)} planted "
+            "pin breaks on the verdict, each naming its pin"
             "; " + range_control_note + "; and " + join_control_note)
     else:
         helper_blind_note = (
