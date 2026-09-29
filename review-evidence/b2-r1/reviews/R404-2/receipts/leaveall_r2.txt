@@ -1,0 +1,11 @@
+# python3 -B scripts/leaveall_r2.py <archive 666d8897 review-evidence/b2-r1/author>
+captures with msrp.tsv: 112
+DUT LeaveAll PDU instants in all captures: 87
+DUT LeaveAll PDUs < 10 s after a received bridge LeaveAll: 67
+distinct captures carrying at least one such PDU: 64
+gap min / median / max s: 0.199564 / 1.997469 / 4.807277
+gaps under 1 s: 14
+gaps under 9.5 s (Milan Table 4.3 lower bound less tolerance): 67
+cycle-022 gaps: [0.401121]
+captures with more than one such PDU: [('bind-4', 2), ('unbind-2', 2), ('unbind-3', 2)]
+rc=0

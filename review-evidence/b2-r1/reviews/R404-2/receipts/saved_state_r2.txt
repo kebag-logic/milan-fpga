@@ -1,0 +1,24 @@
+# python3 -B scripts/saved_state_r2.py <archive 666d8897 review-evidence/b2-r1/author>
+at           start=2026-09-29T06:49:58.397376Z      end=2026-09-29T07:20:45.540950Z
+slots        start=229 / 230                        end=229 / 230
+image        start=230                              end=230
+records      start=53 records, 3264 B               end=53 records, 3264 B
+writer       start=live                             end=live
+PP_NVM_STAT  start=c34000e4                         end=c34000e4
+pend         start=1                                end=1
+commits      start=2 / 0                            end=2 / 0
+PP_STAT      start=5b000c44                         end=5b000c44
+start == end apart from time: True
+PP_NVM_STAT decode: tag c3 unres 0 pend 1 commit_busy 0 stale 0 dirty 0 img_valid 1 backed 1
+console .txt files: 226 milan_status samples: 226 distinct PP_STAT: {'5b000c44': 226}
+  5b000c44: alarm 0 backed 1 dirty 0 stale 0 img_valid 1 pend 1 verdict 0
+files carrying a milan_nvm read: ['identity/console-identity.txt', 'restore/console-final.txt']
+action samples: 224 first ('2026-09-29T06:53:46.585657Z', 'bind/baseline/console-before.txt') last ('2026-09-29T07:20:32.050673Z', 'bind/final/console-after.txt')
+snapshot.jsonl files byte-identical to snapshot-after.jsonl (excluded as duplicates): 112
+ACMP transactions (mt, listener_uid, status): {(6, 8, 0): 105, (8, 8, 0): 105}
+AECP command names (distinct records): {'GET_AVB_INFO': 452, 'GET_COUNTERS': 1836, 'READ_DESCRIPTOR': 56, 'GET_CLOCK_SOURCE': 4, 'GET_CONFIGURATION': 4, 'GET_SAMPLING_RATE': 4}
+non-GET/READ AECP commands: []
+DUT stream-input GET_RX_STATE records, all files: {'state-5-1': 338, 'state-5-0': 2} total 340
+DUT stream-input GET_RX_STATE records, duplicates excluded: {'state-5-1': 226, 'state-5-0': 2} total 228
+DUT stream-input records with conn_count != 0: none
+rc=0

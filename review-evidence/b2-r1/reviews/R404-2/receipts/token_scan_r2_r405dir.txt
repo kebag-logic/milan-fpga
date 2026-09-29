@@ -1,0 +1,13 @@
+# PRIVATE_TOKENS=<held outside the packet, 10 controller-host identity patterns> python3 -B scripts/token_scan_r2.py <clone> <archive dab86d7 review-evidence/b2-r1/reviews/R405-1> (run after this round's verdict and ledger were written)
+== pages at HEAD: 3 files; private patterns 10
+   private-pattern hits: 0 file-hits over 0 of 10 patterns
+   no hit in any class
+== root R405-1: 23 files; private patterns 10
+   private-pattern hits: 0 file-hits over 0 of 10 patterns
+   tmp path: 1 distinct, 1 files
+      /tmp/.vp.	1 files	e.g. scripts/verify_packet.sh
+rc=0
+# python3 -B scripts/archive_manifest_r2.py <archive dab86d7 review-evidence/b2-r1, complete>
+entries 1951: verified 1951 (of which redacted copies 456), mismatched 0, skipped 0 ()
+extracted files not listed: 0 []
+rc=0

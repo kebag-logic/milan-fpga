@@ -1,0 +1,38 @@
+# PRIVATE_TOKENS=<held outside the packet, 10 controller-host identity patterns> POSITIVE_CONTROL=<pre-redaction tree 2c9f3df2 author/cycles/cycle-001 + bind/baseline, scratch only> python3 -B scripts/token_scan_r2.py <clone at d7676373> <archive dab86d7b9060ada8819b10a72e5c6a05f03736c9 review-evidence/b2-r1, reviews/R405-1 excluded>
+== pages at HEAD: 3 files; private patterns 10
+   private-pattern hits: 0 file-hits over 0 of 10 patterns
+   no hit in any class
+== root b2-r1: 1929 files; private patterns 10
+   private-pattern hits: 0 file-hits over 0 of 10 patterns
+   eui64-from-mac: 1 distinct, 565 files
+      <16-hex fffe-form identifier>	565 files	e.g. author/bind/baseline/console-after.txt	tracked files at HEAD containing it: 2	fields: ['gm']
+   hex16-vendor: 3 distinct, 665 files
+      <16-hex vendor-prefix identifier>	560 files	e.g. author/bind/baseline/snapshot-after.jsonl	tracked files at HEAD containing it: 5	fields: ['listener', 'stream_id', 'talker']
+      <16-hex vendor-prefix identifier>	106 files	e.g. author/bind/baseline/msrp.tsv	tracked files at HEAD containing it: 0	fields: ['stream_id']
+      <16-hex vendor-prefix identifier>	1 files	e.g. author/identity/identity-aecp-comparison.txt	tracked files at HEAD containing it: 2	fields: -
+   iface: 1 distinct, 1 files
+      veth	1 files	e.g. reviews/R404-1/scripts/token_scan.py
+   ipv4: 1 distinct, 2 files
+      11.4.4.3	2 files	e.g. author/tools/wire_summary.py
+   tmp path: 11 distinct, 13 files
+      /tmp/b2-a440/raw	7 files	e.g. author/HANDOFF.md
+      /tmp/b2a440_reconnect.py	4 files	e.g. author/identity/controller-staged.txt
+      /tmp/b2-a440/raw/	4 files	e.g. author/tools/b2_action.py
+      /tmp/b2a440_avdecc_ro.py	3 files	e.g. author/identity/controller-staged.txt
+      /tmp/b2a440_controller.py	3 files	e.g. author/identity/controller-staged.txt
+      /tmp/b2a440_capture.py	3 files	e.g. author/restore/host-cleanup.txt
+      /tmp/milan-bench.lock	3 files	e.g. author/tools/identity_locked.sh
+      /tmp/b2a440_	2 files	e.g. author/restore/host-cleanup.txt
+      /tmp/__pycache__/b2a440_	2 files	e.g. author/restore/host-cleanup.txt
+      /tmp/b2-a440-tap-driver/	2 files	e.g. author/restore/host-cleanup.txt
+      /tmp/b2-a440-tap-driver	2 files	e.g. author/restore/host-cleanup.txt
+== POSITIVE CONTROL (pre-redaction tree, scratch only): 29 files; private patterns 10
+   private-pattern hits: 14 file-hits over 2 of 10 patterns
+   eui64-from-mac: 2 distinct, 11 files
+      <16-hex fffe-form identifier>	10 files	e.g. review-evidence/b2-r1/author/bind/baseline/console-after.txt	tracked files at HEAD containing it: 2	fields: ['gm']
+      <16-hex fffe-form identifier>	7 files	e.g. review-evidence/b2-r1/author/bind/baseline/snapshot-after.jsonl	tracked files at HEAD containing it: 0	fields: ['controller']
+   hex16-vendor: 2 distinct, 10 files
+      <16-hex vendor-prefix identifier>	8 files	e.g. review-evidence/b2-r1/author/bind/baseline/snapshot-after.jsonl	tracked files at HEAD containing it: 5	fields: ['listener']
+      <16-hex vendor-prefix identifier>	2 files	e.g. review-evidence/b2-r1/author/bind/baseline/msrp.tsv	tracked files at HEAD containing it: 0	fields: -
+   positive control: private patterns hit -> YES
+rc=0

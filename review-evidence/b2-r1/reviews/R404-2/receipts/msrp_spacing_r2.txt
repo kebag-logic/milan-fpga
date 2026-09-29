@@ -1,0 +1,11 @@
+# python3 -B scripts/msrp_spacing_r2.py <archive 666d8897 review-evidence/b2-r1/author>
+== baseline: 19 DUT PDUs, spacing min 0.199998 max 1.000003 s
+   off-grid 5.364649: reply
+   off-grid 6.364653: own LeaveAll
+   off-grid 6.564651: join after own LeaveAll
+== final: 19 DUT PDUs, spacing min 0.199999 max 1.000003 s
+   off-grid 8.865860: reply
+   off-grid 10.065864: own LeaveAll
+   on-grid  10.265863: also join after own LeaveAll
+unexplained off-grid DUT PDUs: 0
+rc=0

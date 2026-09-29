@@ -1,0 +1,11 @@
+# lane B1 page identity: PR #620 head 931c3edf vs live dev 79c36963 (read-only API fetch)
+at 931c3edf: 3ac7cea8796b94842decf499c1afb7317908e8632026e94ecc72b4d3d0f6f28e
+at 79c36963: 3ac7cea8796b94842decf499c1afb7317908e8632026e94ecc72b4d3d0f6f28e
+PR #620: MERGED merge=79c36963660c10e4c1c11a744fb5bff41a552b8b head=931c3edfced972e01356cd989b5092a1672de5a3
+saved-state rows (final restore column is the last cell):
+293:| NVM slots A / B, image sequence | 227 / 228, image 228 | 229 / 230, image 230 |
+294:| Commits ok / failed | 0 / 0 | 2 / 0 |
+295:| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000444`, 0 | `0x5b000c44`, 1 |
+296:| `PP_NVM_STAT` | `0xc30000e4`, pend 0 | `0xc34000e4`, pend 1 |
+321:Each SET_CLOCK_SOURCE write set the dynamic-state store's sticky level, one of `nvm_pend`'s sources.
+323:Only a reset clears that level, so returning to source 0 left it set.

@@ -1,0 +1,11 @@
+# scripts/mutate_r2.sh <packet> <archive 666d8897 author dir> <clone> <scratch/mut>
+control saved_state reproduces receipt: yes
+M1 dirty bit in one sample: KILLED :: console .txt files: 226 milan_status samples: 226 distinct PP_STAT: {'5b000c44': 225, '5b000d44': 1}
+M2 final commits 3/0: KILLED :: start == end apart from time: False
+M3 SET_CLOCK_SOURCE in a transcript: KILLED :: non-GET/READ AECP commands: ['SET_CLOCK_SOURCE']
+M4 DUT input bound in one poll: KILLED :: DUT stream-input records with conn_count != 0: [('cycles/cycle-030/snapshot-before.jsonl', 'state-5-1')]
+M5 cycle-22 own LeaveAll +10 s: KILLED :: DUT LeaveAll PDUs < 10 s after a received bridge LeaveAll: 66 cycle-022 gaps: [] 
+M6 off-grid DUT PDU: KILLED :: unexplained off-grid DUT PDUs: 1
+M7 one per-cycle cell changed: KILLED
+M8 one per-bind cell changed (page vs PR body): KILLED
+rc=0

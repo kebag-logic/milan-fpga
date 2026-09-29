@@ -1,0 +1,29 @@
+# scripts/clone_integrity_r2.sh <clone> (end of round)
+HEAD d76763733e088cd21bbdd587927c8cf2f26cc8b3 expected d76763733e088cd21bbdd587927c8cf2f26cc8b3
+tree 2e2dcd08dd16575aee614c8ff694a2c6c964b95c expected 2e2dcd08dd16575aee614c8ff694a2c6c964b95c
+parent c37f1d04e39be0344dfde77e793cdfa441bd4869 expected c37f1d04e39be0344dfde77e793cdfa441bd4869; grandparent 13eda870d1a6cf3f946fc228a98862366b08d102 expected 13eda870d1a6cf3f946fc228a98862366b08d102
+status --porcelain --ignored=no lines: 0
+worktree == HEAD: yes
+index == HEAD: yes
+index entries with assume-unchanged/skip-worktree flags: 0
+index records (mode, blob, path) == HEAD tree: yes
+diff --raw base..head:
+:000000 100644 000000000 dc12b5f2c A	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+:000000 100644 000000000 b0b60726d A	docs/findings/608_75_WITHDRAWAL_AND_RESTART.md
+:100644 100644 ca93a4552 01b2ecb17 M	docs/findings/README.md
+diff --raw round1..head:
+:100644 100644 c09fb9bac dc12b5f2c M	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+:100644 100644 57921a24d b0b60726d M	docs/findings/608_75_WITHDRAWAL_AND_RESTART.md
+:100644 100644 ca93a4552 01b2ecb17 M	docs/findings/README.md
+docs/findings/606_FIRST_BIND_MEASUREMENT.md worktree-blob dc12b5f2c9d0ffc6dca8605220078edb94e2cedc tree-blob dc12b5f2c9d0ffc6dca8605220078edb94e2cedc mode 100644 filemode 644
+docs/findings/608_75_WITHDRAWAL_AND_RESTART.md worktree-blob b0b60726d633695d1282dcdcec2fa089d7d3183c tree-blob b0b60726d633695d1282dcdcec2fa089d7d3183c mode 100644 filemode 644
+docs/findings/README.md worktree-blob 01b2ecb17a0379264b280f4d33313112c766faf2 tree-blob 01b2ecb17a0379264b280f4d33313112c766faf2 mode 100644 filemode 644
+gitlinks at head vs base:
+  external head efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 base efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+  gptp-processor head 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d base 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+  protocol-processor head c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 base c951a9ff0cb5851fb159d33e966e5a2a9a188fe3
+  third_party/verilog-axis head 48ff7a7e2ef782cf778d47910cf85835c64b1bce base 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor (v2.0-290-gc951a9f)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
