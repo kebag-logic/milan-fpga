@@ -1,0 +1,9 @@
+[A447] TAKEN
+Branch: `b2-bench-0929` at `d76763733e088cd21bbdd587927c8cf2f26cc8b3`, base `13eda870d1a6cf3f946fc228a98862366b08d102`. Round 3 of PR #622, docs only, one commit.
+Authoritative references: the [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/606#issuecomment-5888700643); [R404-2](https://github.com/kebag-logic/milan-fpga/pull/622#issuecomment-5888547222) and [R405-2](https://github.com/kebag-logic/milan-fpga/pull/622#issuecomment-5888695807) (F5, R404-2 S3); the redacted archive on branch `b2-review-evidence` (`review-evidence/b2-r1/author/` and `author-r2/`).
+Interpreted scope:
+1. F5: `docs/findings/606_FIRST_BIND_MEASUREMENT.md:265` and the PR body's Round 2 F2 bullet state the stream-input polls as recorded: Stream Input 1 in 226 distinct polls (before and after every action, and at both censuses), Stream Input 0 at the two censuses only. The `snapshot.jsonl` duplicates are left out of the count, and "no record written" rests on the command census and the unchanged commits and slots.
+2. R404-2 S3: the page names where the round-1 and round-2 packets live: branch `b2-review-evidence`, `review-evidence/b2-r1/author/` and `author-r2/`.
+3. The measurement tables stay byte-identical, proved with a diff. The PR body is prepared in the packet, not edited.
+Validation plan: `docs_check.py`, `check_doc_style.py`, `gen_toc.py --check`, `check_em_dash.py --base 13eda870`, `check_doc_paths.py` in the pinned Markdown environment, plus `ci_scope.py --selftest`, `check_baremetal_only.py --check`, `check_feature_status.py --self-test` and `git diff --check`, all rc 0, foreground, not piped. A distinct-poll count from the archived transcripts, a table diff against `d7676373`, and the reviewers' token scan over the packet.
+Blockers: none. No bench access in this round.

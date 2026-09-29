@@ -1,0 +1,30 @@
+# python3 -B scripts/poll_count_b2r3.py <round-1 author dir> <archive MANIFEST.json at 4fb092069a6bf9b1ecad3cc94f7cd03a400e6a01>
+# MANIFEST.json: 554276 bytes, sha256 5e472758594273a11b63c6c6e83f22d54b4e0b3a697cdaab8bd997f319a65772, git blob f3bfbdc9e7199a564d2ab268c08a2e3d0208edb4
+transcript files: 561
+
+== snapshot.jsonl against its siblings, per action directory
+action directories: 112 {'byte-identical to snapshot-after.jsonl': 112}
+PASS all 112 action directories: snapshot.jsonl is a byte copy of snapshot-after.jsonl
+
+== DUT GET_RX_STATE records
+records in every *.jsonl, by (input, file role): {(0, 'census-end'): 1, (0, 'census-start'): 1, (1, 'census-end'): 1, (1, 'census-start'): 1, (1, 'snapshot'): 112, (1, 'snapshot-after'): 112, (1, 'snapshot-before'): 112}
+  total: 340
+polls with the snapshot.jsonl copies left out, by (input, file role): {(0, 'census-end'): 1, (0, 'census-start'): 1, (1, 'census-end'): 1, (1, 'census-start'): 1, (1, 'snapshot-after'): 112, (1, 'snapshot-before'): 112}
+  total: 228
+distinct (input, timestamp) polls per input: {0: 2, 1: 226}
+values (input, status, conn_count): {(0, 0, 0): 2, (1, 0, 0): 226}
+PASS every *.jsonl gives 340 records, 112 of them in the snapshot.jsonl copies
+PASS Stream Input 1: 226 distinct polls
+PASS Stream Input 1 polled once before and once after each of the 112 actions
+PASS Stream Input 1 polled once at each census
+PASS Stream Input 0: 2 polls, one at each census and none elsewhere
+PASS no other DUT stream input was polled
+PASS every poll: status 0, connection count 0
+PASS 228 distinct polls in all
+
+== transcripts read against the archive MANIFEST.json (author/ prefix)
+files 561, original_sha256 equal 561, archived as redacted copies 449, absent from the manifest 0
+PASS every transcript read equals the archive's original_sha256
+
+FAILURES 0
+rc=0

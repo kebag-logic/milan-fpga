@@ -1,0 +1,32 @@
+# python3 -B tables_r2.py <clone> d76763733e088cd21bbdd587927c8cf2f26cc8b3 fb4a1b895e97bb808b624ea0b31c43d121723f36 PR-BODY.md
+# tables_r2.py: the R404-2 packet's script, unmodified, sha256 8f02e573ba3674c0f9211bf17cb2e0a768015ad98a0765380374223264931877
+# PR-BODY.md sha256 eeb3a30fcfd1170d29a344a73507361cd95087a8fd6e59cde9c3c1c9629538e9
+== docs/findings/606_FIRST_BIND_MEASUREMENT.md: 10 tables at old, 10 at new
+  IDENTICAL    7 lines  # First talker bind on the 13eda870 image | | #606 item | Verdict | Evidence |
+  IDENTICAL    9 lines  ## Identity and setup | | Identity check | Result |
+  IDENTICAL    3 lines  ## Identity and setup | | Binding | Talker output | Listener input | Format |
+  IDENTICAL    7 lines  ## Per-bind results | | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll 
+  IDENTICAL    6 lines  ## Per-bind results | | Unbind | After bind response, s | Bridge Listener Lv, s | 
+  IDENTICAL    7 lines  ## Comparison with the 9e9954e9 first bind | | Event after the `CONNECT_RX` response | `9e9954e9`, one bi
+  IDENTICAL    7 lines  ### Saved-state layer | | Saved-state field | Identity gate, 06:49:58Z | Final resto
+  IDENTICAL    6 lines  ## Artifact hashes | | Image artifact | Bytes | SHA-256 |
+  IDENTICAL   20 lines  ## Artifact hashes | | Tool | Role | SHA-256 |
+  IDENTICAL   14 lines  ## Artifact hashes | | Capture identifier | Bytes | SHA-256 |
+  table lines at old absent at new: 0
+== docs/findings/608_75_WITHDRAWAL_AND_RESTART.md: 11 tables at old, 11 at new
+  IDENTICAL   11 lines  # Listener withdrawal and reconnect restart on the 13eda870 image | | Issue item | Verdict | Evidence |
+  IDENTICAL    3 lines  ## Identity and setup | | Binding | Talker output | Listener input | Format |
+  IDENTICAL   10 lines  ## Withdrawal and stop | | Cycle | Own LeaveAll minus bridge Lv, s | Registrar at Lv 
+  IDENTICAL    9 lines  ## Cycle 22 | | Event | Time, s |
+  IDENTICAL    5 lines  ## Restart distribution and growth | | Population | Count | Below 1 s | Min, s | Median, s | p95,
+  IDENTICAL    3 lines  ## Restart distribution and growth | | First ten median, s | Last ten median, s | Slope, s per cy
+  IDENTICAL   12 lines  ## Restart distribution and growth | | Cycles | Demonstrated restarts | Median, s | Max, s | Comb
+  IDENTICAL  102 lines  ## Per-cycle results | | Cycle | Bridge Lv after disconnect, s | Registrar at Lv | 
+  IDENTICAL    8 lines  ## Counters and restore | | Point | START / STOP |
+  IDENTICAL    7 lines  ### Saved-state layer | | Saved-state field | Identity gate, 06:49:58Z | Final resto
+  IDENTICAL  102 lines  ## Artifact hashes | | Capture identifier | Bytes | SHA-256 |
+  table lines at old absent at new: 0
+== PR body tables against the pages at fb4a1b895e97bb808b624ea0b31c43d121723f36
+    10 lines  ## Verdicts (operator measurements; the reviews decide) | | Issue item | Verdict | Evidence |  -> identical on: NO PAGE TABLE
+     7 lines  ## Per-bind table (seconds after the tapped `CONNECT_RX` response) | | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll   -> identical on: ['docs/findings/606_FIRST_BIND_MEASUREMENT.md']
+rc=0
