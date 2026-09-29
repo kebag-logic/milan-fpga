@@ -1,0 +1,17 @@
+diff --git a/tb/verilator/milan_dp/sim_crf_licence.cpp b/tb/verilator/milan_dp/sim_crf_licence.cpp
+index 6f9d17b..44b88ef 100644
+--- a/tb/verilator/milan_dp/sim_crf_licence.cpp
++++ b/tb/verilator/milan_dp/sim_crf_licence.cpp
+@@ -950,10 +950,10 @@ void CrfLicenceHarness::phase_c(uint64_t t0) {
+     ck_true("the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)",
+             peer[kUidCrf].last_probe + ms(15000) + ms(45000) <= cyc);
+     printf("  [i]    %ld DUT and %ld switch LeaveAll MRPDUs in this phase\n", dut_la - la0, bridge_la - bla0);
+-    ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
++    ck_true("the DUT sent >= 3 LeaveAll MRPDUs", dut_la - la0 >= 3);
+     ck("every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20)",
+        static_cast<uint64_t>(dut_la_not_all_types), 0);
+-    ck_true("the switch sent >= 4 of its own, Listener JoinMt first", bridge_la - bla0 >= 4);
++    ck_true("the switch sent >= 3 of its own, Listener JoinMt first", bridge_la - bla0 >= 3);
+     ck("the Listener registration still reads Ready", lstn_reg(kUidCrf), 2);
+     const long n = pdus_after(crf_pdus, t_bound, cyc);
+     const uint64_t first = crf_pdus.empty() ? 0 : crf_pdus.front().cyc;

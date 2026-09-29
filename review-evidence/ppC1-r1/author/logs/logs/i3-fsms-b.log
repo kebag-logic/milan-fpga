@@ -1,0 +1,15 @@
+make: Entering directory '$LANES/ppC1-srp-mrp/tb/srp_stream_fsms'
+verilator --cc --exe --build -j 0 --top-module srp_stream_fsms_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$LANES/ppC1-srp-mrp/tb/srp_stream_fsms -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_stream_fsms_wrap.sv sim_main.cpp -o Vsrp_stream_fsms_sim
+make[1]: Entering directory '$LANES/ppC1-srp-mrp/tb/srp_stream_fsms/obj_dir'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/ppC1-srp-mrp/tb/srp_stream_fsms -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+../sim_main.cpp: In member function ‘void Hn::reset()’:
+../sim_main.cpp:248:68: error: ‘VID0’ was not declared in this scope
+  248 |     d->t_vid_sent_i = 0x3; d->t_vid_val_i = (static_cast<uint64_t>(VID0) << 12) | 5ull;
+      |                                                                    ^~~~
+make[1]: *** [Vsrp_stream_fsms_wrap.mk:63: sim_main.o] Error 1
+make[1]: Leaving directory '$LANES/ppC1-srp-mrp/tb/srp_stream_fsms/obj_dir'
+%Error: 'make -C obj_dir -f Vsrp_stream_fsms_wrap.mk -j 16' exited with 2
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+%Error: Command Failed ulimit -s unlimited 2>/dev/null; exec $VALIDATION_TOOLS/verilator-v5.050/bin/verilator_bin --cc --exe --build -j 0 --top-module srp_stream_fsms_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS -std=c++17\ -O2\ -I$LANES/ppC1-srp-mrp/tb/srp_stream_fsms\ -Wall\ -Wextra ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_stream_fsms_wrap.sv sim_main.cpp -o Vsrp_stream_fsms_sim
+make: *** [Makefile:19: run] Error 2
+make: Leaving directory '$LANES/ppC1-srp-mrp/tb/srp_stream_fsms'
