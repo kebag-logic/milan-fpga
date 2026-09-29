@@ -1,0 +1,307 @@
+  [ok]   I every shape-header consumer resolves = []
+  [ok]   H include resolution is unambiguous = []
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   pp_shadow: exactly one parameter map = 1
+  [ok]   pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C = ['AEM_N_AUDIO_UNIT_C']
+  [ok]   pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C = ['AEM_N_CLKDOM_C']
+  [ok]   pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C = ['AEM_N_CONTROL_C']
+  [ok]   u_pp: exactly one parameter map = 1
+  [ok]   u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P = ['N_AUDIO_UNIT_P']
+  [ok]   u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P = ['N_CLK_DOM_P']
+  [ok]   u_pp.N_CONTROL_P derives from N_CONTROL_P = ['N_CONTROL_P']
+  [ok]   milan_datapath includes the generated shape = True
+  [ok]   ACMP talker contexts sized by ADP_TALKER_SRC_C = True
+  [ok]   ACMP sink contexts sized by ADP_LISTENER_SINK_C = True
+  [ok]   no ADP shape threaded through the milan_csr port map = False
+  [ok]   milan_csr includes the generated shape = True
+  [ok]   0x618 word is built from ADP_TALKER_SRC_C = True
+  [ok]   0x61C word is built from ADP_LISTENER_SINK_C = True
+  [ok]   0x618 has a defaults-ROM arm = True
+  [ok]   0x61C has a defaults-ROM arm = True
+  [ok]   0x618 has NO write arm = False
+  [ok]   0x61C has NO write arm = False
+  [ok]   0x618 is NOT plain-RW = False
+  [ok]   0x61C is NOT plain-RW = False
+
+== endstation_arty_4x4  (4x4) ==
+  [ok]   endstation_arty_4x4: svh talker_stream_sources = 5
+  [ok]   endstation_arty_4x4: svh listener_stream_sinks = 5
+  [ok]   endstation_arty_4x4: svh talker_capabilities = '0x4801'
+  [ok]   endstation_arty_4x4: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_4x4: svh names its source config = 'configs/endstation_arty_4x4.yaml'
+  [ok]   endstation_arty_4x4: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census = [1]
+  [ok]   endstation_arty_4x4: AUDIO_UNIT has at least one descriptor = True
+  [ok]   endstation_arty_4x4: AEM_N_CLKDOM_C == CLOCK_DOMAIN census = [1]
+  [ok]   endstation_arty_4x4: CLOCK_DOMAIN has at least one descriptor = True
+  [ok]   endstation_arty_4x4: AEM_N_CONTROL_C == CONTROL census = [1]
+  [ok]   endstation_arty_4x4: CONTROL has at least one descriptor = True
+  [ok]   endstation_arty_4x4: overlay entity_counts.talker == STREAM_OUTPUT = 5
+  [ok]   endstation_arty_4x4: overlay entity_counts.listener == STREAM_INPUT = 5
+  [ok]   endstation_arty_4x4: advertised talker sources == STREAM_OUTPUT count = 5
+  [ok]   endstation_arty_4x4: advertised listener sinks == STREAM_INPUT count = 5
+  [ok]   endstation_arty_4x4: generated ROM AUDIO_UNIT descriptors = 1
+  [ok]   endstation_arty_4x4: generated ROM CLOCK_DOMAIN descriptors = 1
+  [ok]   endstation_arty_4x4: generated ROM CONTROL descriptors = 1
+  [ok]   endstation_arty_4x4: generated ROM STREAM_OUTPUT descriptors = 5
+  [ok]   endstation_arty_4x4: generated ROM STREAM_INPUT descriptors = 5
+  [ok]   endstation_arty_4x4: CRF talker uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_4x4: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_arty_4x4: CRF sink uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_4x4: configs/generated copy is current = True
+  [ok]   endstation_arty_4x4: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_arty_8ch  (4x4) ==
+  [ok]   endstation_arty_8ch: svh talker_stream_sources = 5
+  [ok]   endstation_arty_8ch: svh listener_stream_sinks = 5
+  [ok]   endstation_arty_8ch: svh talker_capabilities = '0x4801'
+  [ok]   endstation_arty_8ch: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_8ch: svh names its source config = 'configs/endstation_arty_8ch.yaml'
+  [ok]   endstation_arty_8ch: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census = [1]
+  [ok]   endstation_arty_8ch: AUDIO_UNIT has at least one descriptor = True
+  [ok]   endstation_arty_8ch: AEM_N_CLKDOM_C == CLOCK_DOMAIN census = [1]
+  [ok]   endstation_arty_8ch: CLOCK_DOMAIN has at least one descriptor = True
+  [ok]   endstation_arty_8ch: AEM_N_CONTROL_C == CONTROL census = [1]
+  [ok]   endstation_arty_8ch: CONTROL has at least one descriptor = True
+  [ok]   endstation_arty_8ch: overlay entity_counts.talker == STREAM_OUTPUT = 5
+  [ok]   endstation_arty_8ch: overlay entity_counts.listener == STREAM_INPUT = 5
+  [ok]   endstation_arty_8ch: advertised talker sources == STREAM_OUTPUT count = 5
+  [ok]   endstation_arty_8ch: advertised listener sinks == STREAM_INPUT count = 5
+  [ok]   endstation_arty_8ch: generated ROM AUDIO_UNIT descriptors = 1
+  [ok]   endstation_arty_8ch: generated ROM CLOCK_DOMAIN descriptors = 1
+  [ok]   endstation_arty_8ch: generated ROM CONTROL descriptors = 1
+  [ok]   endstation_arty_8ch: generated ROM STREAM_OUTPUT descriptors = 5
+  [ok]   endstation_arty_8ch: generated ROM STREAM_INPUT descriptors = 5
+  [ok]   endstation_arty_8ch: CRF talker uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_8ch: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_arty_8ch: CRF sink uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_8ch: configs/generated copy is current = True
+  [ok]   endstation_arty_8ch: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_arty_current  (1x1) ==
+  [ok]   endstation_arty_current: svh talker_stream_sources = 1
+  [ok]   endstation_arty_current: svh listener_stream_sinks = 2
+  [ok]   endstation_arty_current: svh talker_capabilities = '0x4001'
+  [ok]   endstation_arty_current: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_current: svh names its source config = 'configs/endstation_arty_current.yaml'
+  [ok]   endstation_arty_current: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census = [1]
+  [ok]   endstation_arty_current: AUDIO_UNIT has at least one descriptor = True
+  [ok]   endstation_arty_current: AEM_N_CLKDOM_C == CLOCK_DOMAIN census = [1]
+  [ok]   endstation_arty_current: CLOCK_DOMAIN has at least one descriptor = True
+  [ok]   endstation_arty_current: AEM_N_CONTROL_C == CONTROL census = [1]
+  [ok]   endstation_arty_current: CONTROL has at least one descriptor = True
+  [ok]   endstation_arty_current: overlay entity_counts.talker == STREAM_OUTPUT = 1
+  [ok]   endstation_arty_current: overlay entity_counts.listener == STREAM_INPUT = 2
+  [ok]   endstation_arty_current: advertised talker sources == STREAM_OUTPUT count = 1
+  [ok]   endstation_arty_current: advertised listener sinks == STREAM_INPUT count = 2
+  [ok]   endstation_arty_current: generated ROM AUDIO_UNIT descriptors = 1
+  [ok]   endstation_arty_current: generated ROM CLOCK_DOMAIN descriptors = 1
+  [ok]   endstation_arty_current: generated ROM CONTROL descriptors = 1
+  [ok]   endstation_arty_current: generated ROM STREAM_OUTPUT descriptors = 1
+  [ok]   endstation_arty_current: generated ROM STREAM_INPUT descriptors = 2
+  [ok]   endstation_arty_current: no CRF output -> no MEDIA_CLOCK_SOURCE claim = False
+  [ok]   endstation_arty_current: CRF sink uid 1 is inside the advertised range = True
+  [ok]   endstation_arty_current: configs/generated copy is current = True
+  [ok]   endstation_arty_current: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_ax7101_1x1_tdm8  (1x1) ==
+  [ok]   endstation_ax7101_1x1_tdm8: svh talker_stream_sources = 2
+  [ok]   endstation_ax7101_1x1_tdm8: svh listener_stream_sinks = 2
+  [ok]   endstation_ax7101_1x1_tdm8: svh talker_capabilities = '0x4801'
+  [ok]   endstation_ax7101_1x1_tdm8: svh listener_capabilities = '0x4801'
+  [ok]   endstation_ax7101_1x1_tdm8: svh names its source config = 'configs/endstation_ax7101_1x1_tdm8.yaml'
+  [ok]   endstation_ax7101_1x1_tdm8: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census = [1]
+  [ok]   endstation_ax7101_1x1_tdm8: AUDIO_UNIT has at least one descriptor = True
+  [ok]   endstation_ax7101_1x1_tdm8: AEM_N_CLKDOM_C == CLOCK_DOMAIN census = [1]
+  [ok]   endstation_ax7101_1x1_tdm8: CLOCK_DOMAIN has at least one descriptor = True
+  [ok]   endstation_ax7101_1x1_tdm8: AEM_N_CONTROL_C == CONTROL census = [1]
+  [ok]   endstation_ax7101_1x1_tdm8: CONTROL has at least one descriptor = True
+  [ok]   endstation_ax7101_1x1_tdm8: overlay entity_counts.talker == STREAM_OUTPUT = 2
+  [ok]   endstation_ax7101_1x1_tdm8: overlay entity_counts.listener == STREAM_INPUT = 2
+  [ok]   endstation_ax7101_1x1_tdm8: advertised talker sources == STREAM_OUTPUT count = 2
+  [ok]   endstation_ax7101_1x1_tdm8: advertised listener sinks == STREAM_INPUT count = 2
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM AUDIO_UNIT descriptors = 1
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM CLOCK_DOMAIN descriptors = 1
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM CONTROL descriptors = 1
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM STREAM_OUTPUT descriptors = 2
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM STREAM_INPUT descriptors = 2
+  [ok]   endstation_ax7101_1x1_tdm8: CRF talker uid 1 is inside the advertised range = True
+  [ok]   endstation_ax7101_1x1_tdm8: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_ax7101_1x1_tdm8: CRF sink uid 1 is inside the advertised range = True
+  [ok]   endstation_ax7101_1x1_tdm8: configs/generated copy is current = True
+  [ok]   endstation_ax7101_1x1_tdm8: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   endstation_ax7101_8x8: svh talker_stream_sources = 9
+  [ok]   endstation_ax7101_8x8: svh listener_stream_sinks = 9
+  [ok]   endstation_ax7101_8x8: svh talker_capabilities = '0x4801'
+  [ok]   endstation_ax7101_8x8: svh listener_capabilities = '0x4801'
+  [ok]   endstation_ax7101_8x8: svh names its source config = 'configs/endstation_ax7101_8x8.yaml'
+  [ok]   endstation_ax7101_8x8: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census = [1]
+  [ok]   endstation_ax7101_8x8: AUDIO_UNIT has at least one descriptor = True
+  [ok]   endstation_ax7101_8x8: AEM_N_CLKDOM_C == CLOCK_DOMAIN census = [1]
+  [ok]   endstation_ax7101_8x8: CLOCK_DOMAIN has at least one descriptor = True
+  [ok]   endstation_ax7101_8x8: AEM_N_CONTROL_C == CONTROL census = [1]
+  [ok]   endstation_ax7101_8x8: CONTROL has at least one descriptor = True
+  [ok]   endstation_ax7101_8x8: overlay entity_counts.talker == STREAM_OUTPUT = 9
+  [ok]   endstation_ax7101_8x8: overlay entity_counts.listener == STREAM_INPUT = 9
+  [ok]   endstation_ax7101_8x8: advertised talker sources == STREAM_OUTPUT count = 9
+  [ok]   endstation_ax7101_8x8: advertised listener sinks == STREAM_INPUT count = 9
+  [ok]   endstation_ax7101_8x8: generated ROM AUDIO_UNIT descriptors = 1
+  [ok]   endstation_ax7101_8x8: generated ROM CLOCK_DOMAIN descriptors = 1
+  [ok]   endstation_ax7101_8x8: generated ROM CONTROL descriptors = 1
+  [ok]   endstation_ax7101_8x8: generated ROM STREAM_OUTPUT descriptors = 9
+  [ok]   endstation_ax7101_8x8: generated ROM STREAM_INPUT descriptors = 9
+  [ok]   endstation_ax7101_8x8: CRF talker uid 8 is inside the advertised range = True
+  [ok]   endstation_ax7101_8x8: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_ax7101_8x8: CRF sink uid 8 is inside the advertised range = True
+  [ok]   endstation_ax7101_8x8: configs/generated copy is current = True
+  [ok]   endstation_ax7101_8x8: no deleted-plane artifact left in its gen/ include dir = []
+
+== tracked entity definition (what a build includes) ==
+  tracked shape source: configs/endstation_ax7101_1x1_tdm8.yaml
+  [ok]   tracked ADP shape names a source config = True
+  [ok]   tracked shape's source config exists (configs/endstation_ax7101_1x1_tdm8.yaml) = True
+  [ok]   tracked ADP shape == what that config generates = True
+  [ok]   owner's STREAM_OUTPUT descriptors == tracked advertised sources = 2
+  [ok]   owner's STREAM_INPUT descriptors == tracked advertised sinks = 2
+
+== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==
+  milan_csr VERSION: 0x0002_0060 -> major 2, minor 96
+  [ok]   endstation_arty_4x4: config declares no firmware_version = False
+  [ok]   endstation_arty_4x4: emitted firmware_version = '2.96.0'
+  [ok]   endstation_arty_8ch: config declares no firmware_version = False
+  [ok]   endstation_arty_8ch: emitted firmware_version = '2.96.0'
+  [ok]   endstation_arty_current: config declares no firmware_version = False
+  [ok]   endstation_arty_current: emitted firmware_version = '2.96.0'
+  [ok]   endstation_ax7101_1x1_tdm8: config declares no firmware_version = False
+  [ok]   endstation_ax7101_1x1_tdm8: emitted firmware_version = '2.96.0'
+  [ok]   endstation_ax7101_8x8: config declares no firmware_version = False
+  [ok]   endstation_ax7101_8x8: emitted firmware_version = '2.96.0'
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version field is 64 octets = 64
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version is zero padded past the string (7.2) = True
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version decodes as UTF-8 (7.2.1) = True
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version == the gateware's VERSION = '2.96.0'
+
+== self-test: a disagreeing shape must be REJECTED ==
+  [ok]   MUTATION rejected: a shape header beside its includer is ambiguous = True
+         (rejected by: H include resolution is unambiguous: got ['hdl/common/csr/milan_csr.sv `include "gen/adp_shape_defaults.svh" resolves to hdl/common/csr/gen/adp_shape_defaults.svh beside it, and to configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh, configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh, configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh, configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh, configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh, hdl/common/gen/adp_shape_defaults.svh on the include path'], expected [])
+  [ok]   MUTATION rejected: a build prerequisite left at the header's old path = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh -> hdl/common/csr/gen/adp_shape_defaults.svh'], expected [])
+  [ok]   MUTATION rejected: a make-function expression naming a dead path = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh -> hdl/common/csr/gen/adp_shape_defaults.svh'], expected [])
+  [ok]   MUTATION rejected: an above-repository prefix with an existing hdl tail = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(CURDIR)/../../../../hdl/common/gen/adp_shape_defaults.svh -> ../hdl/common/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected [])
+  [ok]   MUTATION rejected: a += append that splits the prerequisite = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(RTL_DIR)/common/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS'], expected [])
+  [ok]   MUTATION rejected: an immediate assignment through a later definition = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(LATE_DIR)/common/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS'], expected [])
+  [ok]   MUTATION rejected: an include that overrides the prefix = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(RTL_DIR)/common/gen/adp_shape_defaults.svh -> ../../../../nonexistent/common/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected [])
+  [ok]   MUTATION rejected: an immediate assignment fed by an include = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(LATE_DIR)/common/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS'], expected [])
+  [ok]   MUTATION rejected: an immediate assignment fed by an exported definition = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: $(LATE_DIR)/common/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS'], expected [])
+  [ok]   MUTATION rejected: a frozen rule prerequisite through a later definition = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/Makefile: /common/gen/adp_shape_defaults.svh -> ../../../../common/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected [])
+  [ok]   MUTATION rejected: a lowercase makefile naming a computed stale path = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/makefile: $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh -> hdl/common/csr/gen/adp_shape_defaults.svh'], expected [])
+  [ok]   MUTATION rejected: a .mak fragment carrying a frozen stale reference = True
+         (rejected by: I every shape-header consumer resolves: got ['tb/verilator/csr/shape_paths.mak: $(LATE_DIR)/common/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS'], expected [])
+  [ok]   I GNUmakefile selects the Make resolver = True
+  [ok]   distinct census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census = [2]
+  [ok]   distinct census: AUDIO_UNIT has at least one descriptor = True
+  [ok]   distinct census: AEM_N_CLKDOM_C == CLOCK_DOMAIN census = [3]
+  [ok]   distinct census: CLOCK_DOMAIN has at least one descriptor = True
+  [ok]   distinct census: AEM_N_CONTROL_C == CONTROL census = [4]
+  [ok]   distinct census: CONTROL has at least one descriptor = True
+  [ok]   MUTATION rejected: AEM_N_AUDIO_UNIT_C emitted literal = True
+         (rejected by: mutant census: AEM_N_AUDIO_UNIT_C == AUDIO_UNIT census: got [1], expected [2])
+  [ok]   MUTATION rejected: AUDIO_UNIT zero census = True
+         (rejected by: zero census: AUDIO_UNIT has at least one descriptor: got False, expected True)
+  [ok]   MUTATION rejected: AEM_N_CLKDOM_C emitted literal = True
+         (rejected by: mutant census: AEM_N_CLKDOM_C == CLOCK_DOMAIN census: got [1], expected [3])
+  [ok]   MUTATION rejected: CLOCK_DOMAIN zero census = True
+         (rejected by: zero census: CLOCK_DOMAIN has at least one descriptor: got False, expected True)
+  [ok]   MUTATION rejected: AEM_N_CONTROL_C emitted literal = True
+         (rejected by: mutant census: AEM_N_CONTROL_C == CONTROL census: got [1], expected [4])
+  [ok]   MUTATION rejected: CONTROL zero census = True
+         (rejected by: zero census: CONTROL has at least one descriptor: got False, expected True)
+  [ok]   MUTATION rejected: hop 0 N_AUDIO_UNIT_P unbound = True
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C'])
+  [ok]   MUTATION rejected: hop 0 N_AUDIO_UNIT_P literal = True
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['1'], expected ['AEM_N_AUDIO_UNIT_C'])
+  [ok]   MUTATION rejected: hop 0 N_AUDIO_UNIT_P/N_CLK_DOM_P swapped = True
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+  [ok]   MUTATION rejected: hop 0 N_CLK_DOM_P unbound = True
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got [], expected ['AEM_N_CLKDOM_C'])
+  [ok]   MUTATION rejected: hop 0 N_CLK_DOM_P literal = True
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C'])
+  [ok]   MUTATION rejected: hop 0 N_CLK_DOM_P/N_CONTROL_P swapped = True
+         (rejected by: pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C'])
+  [ok]   MUTATION rejected: hop 0 N_CONTROL_P unbound = True
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C'])
+  [ok]   MUTATION rejected: hop 0 N_CONTROL_P literal = True
+         (rejected by: pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1'], expected ['AEM_N_CONTROL_C'])
+  [ok]   MUTATION rejected: hop 0 N_CONTROL_P/N_AUDIO_UNIT_P swapped = True
+         (rejected by: pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C'])
+  [ok]   MUTATION rejected: hop 1 N_AUDIO_UNIT_P unbound = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+  [ok]   MUTATION rejected: hop 1 N_AUDIO_UNIT_P literal = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+  [ok]   MUTATION rejected: hop 1 N_AUDIO_UNIT_P/N_CLK_DOMAIN_P swapped = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+  [ok]   MUTATION rejected: hop 1 N_CLK_DOMAIN_P unbound = True
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+  [ok]   MUTATION rejected: hop 1 N_CLK_DOMAIN_P literal = True
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+  [ok]   MUTATION rejected: hop 1 N_CLK_DOMAIN_P/N_CONTROL_P swapped = True
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+  [ok]   MUTATION rejected: hop 1 N_CONTROL_P unbound = True
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+  [ok]   MUTATION rejected: hop 1 N_CONTROL_P literal = True
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+  [ok]   MUTATION rejected: hop 1 N_CONTROL_P/N_AUDIO_UNIT_P swapped = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   MUTATION rejected: builder's talker count excludes the CRF uid = True
+         (rejected by: endstation_ax7101_8x8: advertised talker sources == STREAM_OUTPUT count: got 8, expected 9)
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   MUTATION rejected: builder's sink count excludes the CRF sink = True
+         (rejected by: endstation_ax7101_8x8: advertised listener sinks == STREAM_INPUT count: got 8, expected 9)
+
+== endstation_arty_current  (1x1) ==
+  [ok]   MUTATION rejected: MEDIA_CLOCK_SOURCE claimed without a CRF output = True
+         (rejected by: endstation_arty_current: no CRF output -> no MEDIA_CLOCK_SOURCE claim: got True, expected False)
+
+== pre-build: tracked definition vs endstation_ax7101_8x8 ==
+  the tree currently carries configs/endstation_arty_4x4.yaml. Fix:
+    python3 sw/builder/endstation_builder.py $LANES/617-cand-manager-builder/configs/endstation_ax7101_8x8.yaml --write-rtl
+  [ok]   MUTATION rejected: the tree carries a DIFFERENT config's shape than the one being built = True
+         (rejected by: tracked ADP shape is endstation_ax7101_8x8's: got False, expected True)
+
+== tracked entity definition (what a build includes) ==
+  tracked shape source: configs/endstation_ax7101_1x1_tdm8.yaml
+  [ok]   MUTATION rejected: tracked shape is STALE against the config it names = True
+         (rejected by: tracked ADP shape == what that config generates: got False, expected True)
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   MUTATION rejected: milan_csr regained a write arm for 0x618 = True
+         (rejected by: 0x618 has NO write arm: got True, expected False)
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   MUTATION rejected: milan_datapath recomputes the talker context count = True
+         (rejected by: ACMP talker contexts sized by ADP_TALKER_SRC_C: got False, expected True)
+
+== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==
+  milan_csr VERSION: 0x0002_0003 -> major 2, minor 3
+  [ok]   MUTATION rejected: milan_csr VERSION moved out from under the entity model = True
+         (rejected by: endstation_arty_4x4: emitted firmware_version: got '2.96.0', expected '2.3.0')
+  [ok]   MUTATION rejected: a config declares its own firmware_version = True
+         (rejected by: ConfigError: entity.firmware_version: remove it. The firmware version is derived from the gateware's VERSION parameter (hdl/common/csr/milan_csr.sv), which is where it lives; this build derives '2.96.0'. For a firmware respin with no CSR-ABI change use entity.firmware_rev.)
+
+== short_listener  (7x8) ==
+  [ok]   MUTATION rejected: config edited without regenerating its shape include = True
+         (rejected by: short_listener: configs/generated copy is current: got False, expected True)
+----------------------------------------------------------------------
+checks: 219   failures: 0
+RESULT: PASS
