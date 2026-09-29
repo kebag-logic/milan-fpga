@@ -1,0 +1,18 @@
+R394-3 scratch tree provenance (disposable, unpublished; under scratch/head)
+
+- scratch/head = `git archive ddb0774779d10a9b0bd90a4822f4e5df9fdedb1b` of the clone (tree
+  8ed377b8eae84e92b00387b7ce377e6aaa763cd1): every tracked file byte-identical by construction.
+- Submodules: `git archive HEAD` of each checked-out gitlink in the clone: gptp-processor
+  5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d, protocol-processor c951a9ff0cb5851fb159d33e966e5a2a9a188fe3,
+  third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce (none has nested submodules).
+- scratch/head/protocol-processor only: a scratch-local `git init` + one commit of the archived files,
+  so scripts/pp_srcs.py (`git ls-files`) can derive the datapath source list; the clone's .git and
+  .git/modules were never written.
+- scratch/head/hdl/ieee1722/crf/KL_media_nco.sv was swapped to the 377d1ac3 copy for one ooc.sh attempt
+  (which refused the top) and restored; `cmp` against `git show ddb07747:` confirmed head bytes after.
+- Probe copies (cc_r394_*, cc_r395fine) sit beside the suite in scratch/head/tb/verilator; mutant and
+  mutation-arm work dirs under scratch/ (rm9/, mfwork/, tmp/). Nothing in the clone was edited, built
+  or executed in place.
+- 377d1ac3 NCO for the reproduction: `git show 377d1ac3:hdl/ieee1722/crf/KL_media_nco.sv`.
+- Hosted artifacts (suite-logs-1 of the 5546b976 and 377d1ac3 runs) downloaded read-only to
+  scratch/hosted-r1, scratch/hosted-r2; extracts quoted in receipts/hosted-*.txt.

@@ -1,0 +1,4 @@
+R394-3: what MAKEFLAGS a recipe inherits locally (GNU make 4.4.1); Makefile: all: @echo recipe MAKEFLAGS=[$$MAKEFLAGS]
+make -C mf  -> recipe MAKEFLAGS=[]
+cd mf; make -> recipe MAKEFLAGS=[]
+The hosted job runs 'make -C <suite>' (scripts/run_all_suites.sh:390) on ubuntu-24.04.

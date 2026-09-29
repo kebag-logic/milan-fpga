@@ -1,0 +1,41 @@
+snapshot 2026-09-29T01:26:49Z (final)
+yosys-portability	completed	success	2026-09-29T01:23:48Z	2026-09-29T01:23:54Z
+verilator-suites	completed	failure	2026-09-29T01:23:39Z	2026-09-29T01:23:46Z
+rtl-fast	completed	success	2026-09-29T00:31:17Z	2026-09-29T00:31:21Z
+Physical gPTP (nightly and manual)	completed	skipped	2026-09-29T00:20:55Z	2026-09-29T00:20:55Z
+Verilator shard 2/5	completed	success	2026-09-29T00:20:57Z	2026-09-29T00:39:49Z
+Verilator shard 3/5	completed	success	2026-09-29T00:20:57Z	2026-09-29T00:31:52Z
+Verilator shard 4/5	completed	success	2026-09-29T00:20:57Z	2026-09-29T01:07:11Z
+Verilator shard 1/5	completed	failure	2026-09-29T00:20:57Z	2026-09-29T01:23:37Z
+Yosys shard 2/4	completed	success	2026-09-29T00:20:57Z	2026-09-29T00:21:21Z
+Verilator shard 0/5	completed	success	2026-09-29T00:20:58Z	2026-09-29T00:34:18Z
+Yosys shard 3/4	completed	success	2026-09-29T00:20:57Z	2026-09-29T00:21:20Z
+Yosys shard 1/4	completed	success	2026-09-29T00:20:57Z	2026-09-29T00:21:29Z
+Yosys shard 0/4	completed	success	2026-09-29T00:20:57Z	2026-09-29T00:26:32Z
+verilator-lint	completed	success	2026-09-29T00:20:47Z	2026-09-29T00:21:20Z
+yosys-elaboration	completed	success	2026-09-29T00:20:48Z	2026-09-29T00:31:15Z
+bdd-conformance	completed	success	2026-09-29T00:20:29Z	2026-09-29T00:20:43Z
+changes	completed	success	2026-09-29T00:20:28Z	2026-09-29T00:20:45Z
+full-ci-gate	completed	success	2026-09-29T00:20:29Z	2026-09-29T00:20:55Z
+elaborate	completed	success	2026-09-29T00:20:28Z	2026-09-29T00:35:42Z
+docs-check	completed	success	2026-09-29T00:20:27Z	2026-09-29T00:37:06Z
+docs-check-no-git	completed	success	2026-09-29T00:20:27Z	2026-09-29T00:20:37Z
+wire-accountability	completed	success	2026-09-29T00:20:28Z	2026-09-29T00:20:38Z
+
+== Verilator shard 1/5 at ddb07747: job 109196809736 (run 36502597828), image and suite lines
+  2026-09-29T00:20:58.1518411Z Image: ubuntu-24.04
+  2026-09-29T00:22:54.6785691Z shard: 1/5   selected suites: 23
+  2026-09-29T00:23:11.3047339Z PASS     avtp_rxmon
+  2026-09-29T00:47:13.1399638Z FAIL     capture_coherence
+  2026-09-29T01:23:34.1283565Z suites: 23   passed: 22   failed: 1   timed out: 0
+  2026-09-29T01:23:34.3510095Z checks: 197045   in-suite failures: 4
+  2026-09-29T01:23:34.3566101Z failing suites: capture_coherence
+  capture_coherence hosted wall time: 00:23:11 -> 00:47:13 = 1,442 s (the four dp mutation builds failing fast)
+  artifact suite-logs-1 sha256 af77613629706b9dbc1c2557a68aaa86982108f9e2f8dd4ddcfd69e951d96b89, TARGET_SHA 7abe4d5261a91ee17aaa5dbffd6933bbd68ad64f (PR merge ref); capture_coherence.log extract:
+    1516:== capture_coherence: checks: 20832   failures: 0 ==
+    2087:== capture_coherence_dp: checks: 332   failures: 0 ==
+    2095:[FAIL] the unmutated source does NOT pass the dp harness (did not compile) - every dp mutant result is meaningless
+    2096:[FAIL] the unmutated source does NOT pass the dp-band harness (did not compile) - every dp-band mutant result is meaningless
+    2110:[FAIL] mutation 'milan_datapath tells the crossbar a one-pair TDM frame' did not compile; a mutant that cannot build proves nothing about the harness
+    2111:[FAIL] mutation "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off" did not compile; a mutant that cannot build proves nothing about the harness
+    2119:27 checks: 23 PASS, 4 FAIL

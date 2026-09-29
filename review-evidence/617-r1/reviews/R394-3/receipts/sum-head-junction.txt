@@ -1,0 +1,25 @@
+R394-3 summary of receipts/head-junction-full.log (capture_coherence junction leg, exact head ddb07747, make run)
+  == capture_coherence: checks: 20832   failures: 0 ==
+  rc=0 wall=253s
+  aligner line: [i]  aligner keep-off 256 cycles (milan_datapath's MGA_KEEPOFF_CYC_C), engagement pull 64.0 ppm
+  CRF-fine-50 engagements graded: 768
+  CRF-fine-50 engagements with a slip: 141; repeat/skip pairs per slipping engagement:
+        627 0 repeats, 0 skips
+        141 1 repeats, 1 skips
+  CRF-fine-50 max last-slip column: 57
+  CRF-settle engagements (engaged / moved / tail tick-after-close and spread / slips):
+    CRF-settle-80-256: engaged -257 cycles from the crossing, moved +0..+238 (furthest at column 7169); tail: tick 72 cycles after the frame close, +0..+126 (spread 126); 0 repeats, 0 skips
+    CRF-settle-80+0: engaged -1 cycles from the crossing, moved -212..+22 (furthest at column 29783); tail: tick 104 cycles after the frame close, +0..+109 (spread 109); 1 repeats, 1 skips
+    CRF-settle-80+0: last slip at column 6284; engagement window unbounded columns
+    CRF-settle+80+8: engaged +7 cycles from the crossing, moved -24..+207 (furthest at column 29842); tail: tick 936 cycles after the frame close, -109..+1 (spread 110); 1 repeats, 1 skips
+    CRF-settle+80+8: last slip at column 6056; engagement window unbounded columns
+    CRF-settle+80+264: engaged +263 cycles from the crossing, moved -238..+0 (furthest at column 7211); tail: tick 962 cycles after the frame close, -125..+1 (spread 126); 0 repeats, 0 skips
+    CRF-settle-100-256: engaged -257 cycles from the crossing, moved +0..+299 (furthest at column 7547); tail: tick 26 cycles after the frame close, -1..+158 (spread 159); 1 repeats, 1 skips
+    CRF-settle-100-256: last slip at column 13065; engagement window unbounded columns
+    CRF-settle-100+0: engaged -2 cycles from the crossing, moved -197..+69 (furthest at column 29963); tail: tick 58 cycles after the frame close, -1..+141 (spread 142); 1 repeats, 1 skips
+    CRF-settle-100+0: last slip at column 11036; engagement window unbounded columns
+    CRF-settle+100+8: engaged +8 cycles from the crossing, moved -73..+191 (furthest at column 29830); tail: tick 983 cycles after the frame close, -141..+0 (spread 141); 1 repeats, 1 skips
+    CRF-settle+100+8: last slip at column 10963; engagement window unbounded columns
+    CRF-settle+100+264: engaged +265 cycles from the crossing, moved -299..+0 (furthest at column 7649); tail: tick 1007 cycles after the frame close, -158..+1 (spread 159); 1 repeats, 1 skips
+    CRF-settle+100+264: last slip at column 12374; engagement window unbounded columns
+  FAIL lines: 0
