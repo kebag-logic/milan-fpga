@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -392,7 +392,7 @@
+   //! compare_MAC returns TRUE = we are numerically lower (reversed octets)
+   //! = no further processing (footnote d)
+   logic cmp_mac_true_w;
+-  assign cmp_mac_true_w = rev48_f(own_mac_i) < rev48_f(rxm_sa_r);
++  assign cmp_mac_true_w = own_mac_i[7:0] < rxm_sa_r[7:0];
+ 
+   //! B.3.6.6 conflict fields: intersection of OUR block with the requested
+   //! range (only evaluated when ovl_req_w holds, i.e. non-empty)

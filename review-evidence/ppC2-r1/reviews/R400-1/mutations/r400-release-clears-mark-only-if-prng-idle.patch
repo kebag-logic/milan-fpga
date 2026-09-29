@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -573,7 +573,7 @@
+             // walk, whose W_IVAL would wait forever for an answer already
+             // given: the next PortOperational! must still reach
+             // ReserveAddress! (Table B.7, B.3.5.9)
+-            draw_act_r <= 1'b0;
++            if (!prng_draw_busy_i) draw_act_r <= 1'b0;
+             w_st_r     <= W_OFF;
+           end else if (cfg_seed_valid_i && !seed_used_r) begin
+             // footnote a: a provisioned range skips generate_address; the

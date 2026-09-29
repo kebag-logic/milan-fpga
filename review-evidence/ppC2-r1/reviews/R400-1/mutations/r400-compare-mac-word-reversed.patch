@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -280,7 +280,7 @@
+   //! B.3.6.4: octet-wise REVERSE order — the least-significant wire octet
+   //! becomes the most significant comparison octet
+   function automatic logic [47:0] rev48_f(input logic [47:0] m);
+-    return {m[7:0], m[15:8], m[23:16], m[31:24], m[39:32], m[47:40]};
++    return {m[15:0], m[31:16], m[47:32]};
+   endfunction
+ 
+   // ------------------------------------------------------- protocol state

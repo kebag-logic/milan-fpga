@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -566,7 +566,7 @@
+ 
+         // ---- generate_address (B.3.6.1) ---------------------------------
+         W_ADDR: begin
+-          if (!eng_w) begin
++          if (!eng_w && !draw_act_r) begin
+             // Release!/link loss mid generate_address: nothing is armed yet.
+             // A draw still in flight is abandoned (its answer lands in
+             // W_OFF, unread), so its mark must not survive into the next

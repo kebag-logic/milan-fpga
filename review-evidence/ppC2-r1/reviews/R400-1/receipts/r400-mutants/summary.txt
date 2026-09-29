@@ -1,0 +1,76 @@
+r400-release-waits-for-draw maap/run rc=0 tally: 114 checks: 114 PASS, 0 FAIL
+r400-release-waits-for-draw (probes) maap/run rc=2 tally: 130 checks: 124 PASS, 6 FAIL
+    FAIL: P1: 11 s6 Release! re-arms the seed: next engagement probes 0x2000 (got 0x8ad6)
+    FAIL: P2: footnote c, no PDU after Release! (69 of 160 offsets sent one)
+    FAIL: P2: no claim published after Release! (70 of 160 offsets)
+    FAIL: P3: Release!+PortOperational! restart the walk (claim kept through the bounce)
+    FAIL: P4: a Release! before the kind-7 answer sends nothing (3 offsets)
+    FAIL: P5: the outage restarts the walk (claim kept through a 100 ms Release!)
+r400-release-clears-mark-only-if-prng-idle maap/run rc=2 tally: 114 checks: 113 PASS, 1 FAIL
+    FAIL: U17b: phase 2, the walk restarts after a Release! mid-redraw
+r400-seed-clamp-off-by-one maap/run rc=0 tally: 114 checks: 114 PASS, 0 FAIL
+r400-compare-mac-word-reversed maap/run rc=2 tally: 112 checks: 105 PASS, 7 FAIL
+    FAIL: U7: claim kept — compare_MAC TRUE takes no action
+    FAIL: U8: re-probe walk completed
+    FAIL: U9: compare_MAC TRUE — our probe walk continues unmoved
+    FAIL: U9: claim lands on the contested range we won
+    FAIL: U10: range re-randomized
+    FAIL: U20: compare_MAC TRUE — the claim stands, nothing sent
+    FAIL: U21: DEFEND state
+r400-compare-mac-word-reversed pp_top/maap-internal rc=2 tally: [build default, SRP_DOM_DEF_VID_P 0x0002] 33 checks, 5 failures
+    FAIL: MP4: the conflict fan-out closed the DA gate
+    FAIL: MP4: the contested claim was withdrawn
+    FAIL: MP4: one re-address counted
+    FAIL: MP4: fresh walk completed
+    FAIL: MP4: re-claimed on a fresh range (91e0f00026e3)
+r400-compare-mac-last-octet-only maap/run rc=0 tally: 114 checks: 114 PASS, 0 FAIL
+r400-compare-mac-last-octet-only pp_top/maap-internal rc=0 tally: [build default, SRP_DOM_DEF_VID_P 0x0002] 33 checks, 0 failures
+base-rtl (probes) maap/run rc=2 tally: 126 checks: 93 PASS, 33 FAIL
+    FAIL: U17b: phase 1, the walk restarts after a Release! mid-redraw
+    FAIL: U17b: phase 2, the walk restarts after a Release! mid-redraw
+    FAIL: U17b: phase 3, the walk restarts after a Release! mid-redraw
+    FAIL: U18: the seeded walk starts
+    FAIL: U18: the clamped block is claimed
+    FAIL: U18: the block's last source is granted 91:E0:F0:00:FD:FF (got 000000000000)
+    FAIL: U19: probing
+    FAIL: U19: yielded, one re-address counted (4 -> 4)
+    FAIL: U19: Restart! probes again
+    FAIL: U19: the range is re-randomized inside the pool (91e0f000fdf8 after 91e0f000fdf8)
+    FAIL: U20: DEFEND state
+    FAIL: U20: compare_MAC TRUE — the claim stands, nothing sent
+    FAIL: U21: DEFEND state
+    FAIL: U21: yielded, one re-address counted (4 -> 4)
+    FAIL: U21: Restart! probes again
+    FAIL: U21: the range is re-randomized inside the pool (91e0f000fdf8 after 91e0f000fdf8)
+    FAIL: U21: the withdrawn claim told all 8 sources (0)
+    FAIL: U22: probing (the walk U21 restarted)
+    FAIL: U22: yielded, one re-address counted (4 -> 4)
+    FAIL: U22: Restart! probes again
+    FAIL: U22: the range is re-randomized inside the pool (91e0f000fdf8 after 91e0f000fdf8)
+    FAIL: U22: the fresh range is claimed
+    FAIL: P1: premise, the seed 0x2000 is probed first
+    FAIL: P1: premise, the walker is redrawing (draws 0)
+    FAIL: P1: the next engagement probes
+      P1: first PROBE of the next engagement at offset 0xfdf8
+    FAIL: P1: 11 s6 Release! re-arms the seed: next engagement probes 0x2000 (got 0xfdf8)
+    FAIL: P1c: premise, the seed 0x2000 is probed first
+    FAIL: P1c: premise, the yield-walk probes a fresh range
+    FAIL: P1c: the next engagement probes
+      P1c: first PROBE of the next engagement at offset 0xfdf8
+    FAIL: P1c: 11 s6 Release! re-arms the seed: next engagement probes 0x2000 (got 0xfdf8)
+      P2: of 160 drop offsets, 0 put a PDU on the lane after Release! (first k=-1), 0 raised addr_valid_o after Release! (first k=-1)
+      P2: longest post-Release! addr_valid_o run: 0 cycles
+    FAIL: P3: premise, DEFEND state
+      P3: accepted=0; after a 5-cycle bounce inside sDefend: state_o=0 addr_valid_o=0 claim ever dropped=1 min state=0 conflicts 4->4 frames sent after the bounce=0
+      P4: k=0 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=1 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=2 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=3 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=4 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=5 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=6 draw_done_at_drop=0 pdus_after_release=0
+      P4: k=7 draw_done_at_drop=0 pdus_after_release=0
+      P4: 8 offsets before the draw completed (0 sent a PDU); 0 PDUs from offsets after it (F1 corner); 8 never probed again
+    FAIL: P4: the next engage probes (8 offsets stuck)
+    FAIL: P5: premise, DEFEND state
+      P5: after a 100 ms outage with the lane stalled: state_o=0 addr_valid_o=0 claim ever dropped=1 addr unchanged=1

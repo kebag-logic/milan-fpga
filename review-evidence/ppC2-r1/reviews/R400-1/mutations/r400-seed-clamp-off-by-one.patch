@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -578,7 +578,7 @@
+           end else if (cfg_seed_valid_i && !seed_used_r) begin
+             // footnote a: a provisioned range skips generate_address; the
+             // clamp keeps a mis-provisioned block inside the pool
+-            offset_r <= (cfg_seed_offset_i > (POOL_SIZE_C - {8'd0, cfg_count_i}))
++            offset_r <= (cfg_seed_offset_i > (POOL_SIZE_C - {8'd0, cfg_count_i} + 16'd1))
+                         ? (POOL_SIZE_C - {8'd0, cfg_count_i})
+                         : cfg_seed_offset_i;
+             seed_used_r  <= 1'b1;
