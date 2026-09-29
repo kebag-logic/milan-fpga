@@ -1,0 +1,13 @@
+## units 1,7,8,22,23,25,26,28 on 8 worker(s), taskset -c 0-7
+[r394] units [1, 7, 8, 22, 23, 25, 26, 28] on 8 worker(s)
+[i]  8 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: $REVIEWS/617-r394-4-packet/scratch/tmp/r394-arm-f2av4onz/build_break_dp/milan_datapath.sv:7824:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the chmap harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+[r394] 8 checks: 8 PASS, 0 FAIL; 89.6 s
+rc=0

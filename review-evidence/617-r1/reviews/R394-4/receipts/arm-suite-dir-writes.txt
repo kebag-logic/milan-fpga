@@ -1,0 +1,5 @@
+capture_coherence: extra files after the arm runs: tb/verilator/capture_coherence/ltn_rom.hex tb/verilator/capture_coherence/__pycache__/mutants.cpython-314.pyc tb/verilator/capture_coherence/ucode.hex 
+chmap_capture: extra files after the arm runs: 
+media_nco: extra files after the arm runs: 
+milan_dp: extra files after the arm runs: 
+(ltn_rom.hex / ucode.hex are the dp harness's ROM images, made once by rom_images_result before any build; the capture_coherence Makefile's clean target removes them)

@@ -1,0 +1,20 @@
+## R394-4 committed arm units 2,7,8,9-16,22,23,26,28 via committed run_units, taskset -c 0-7, make: GNU Make 4.4.1
+[r394] units [2, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 26, 28] on 8 worker(s)
+[i]  15 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the unmutated source still passes the junction harness
+[PASS] the unmutated source still passes the chmap harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+[r394] 15 checks: 15 PASS, 0 FAIL; 135.3 s
+rc=0

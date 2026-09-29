@@ -1,0 +1,12 @@
+## R394-4 clone integrity after probes (2026-09-29T05:17:33Z)
+HEAD 35f58b9cca1de9215f787872734e6a9040f82c19 tree 9c090dda1d69b1572a763a9fa7bf29218bfd5fdb
+removed probe byproducts: scripts/__pycache__/suite_tally.cpython-314.pyc, tb/verilator/capture_coherence/__pycache__/mutants.cpython-314.pyc (written by an early in-clone import of mutants.py; both ignored paths, now gone)
+## git status --porcelain --ignored (empty = clean):
+## git diff-index --stat HEAD (empty = index and worktree match HEAD):
+## tracked blobs re-hashed against the index:
+blobs checked: 953, mismatches: 0
+## submodule gitlinks (index) vs checked-out HEADs:
+external gitlink efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 checkout not-checked-out -
+gptp-processor gitlink 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d checkout 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d match
+protocol-processor gitlink c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 checkout c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 match
+third_party/verilog-axis gitlink 48ff7a7e2ef782cf778d47910cf85835c64b1bce checkout 48ff7a7e2ef782cf778d47910cf85835c64b1bce match

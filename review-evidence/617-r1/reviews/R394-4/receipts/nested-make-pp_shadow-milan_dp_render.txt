@@ -1,0 +1,17 @@
+## GNU Make 4.3: make -C <probe> -> recipe -> the nested make each explicit campaign's driver starts (parse only; nothing built)
+make: Entering directory '$REVIEWS/617-r394-4-packet/scratch/nested'
+recipe MAKEFLAGS=[w]
+make[1]: Entering directory '<head>/tb/verilator/pp_shadow'
+pp_shadow DP_SRCS starts: make[1]: Entering directory
+make[1]: Leaving directory '<head>/tb/verilator/pp_shadow'
+make[1]: Entering directory '<head>/tb/verilator/pp_shadow'
+pp_shadow (cwd, as pending_mutant.py runs make run-pending) DP_SRCS starts: make[1]: Entering directory
+make[1]: Leaving directory '<head>/tb/verilator/pp_shadow'
+make[1]: Entering directory '<head>/tb/verilator/milan_dp_render'
+milan_dp_render (as tdm8_render_mutants.build runs make -s -C) SRCS starts: make[1]: Entering directory
+make[1]: Leaving directory '<head>/tb/verilator/milan_dp_render'
+make: Leaving directory '$REVIEWS/617-r394-4-packet/scratch/nested'
+
+## the same parses at top level: make -C <suite> (what the sweep's default targets do)
+top-level pp_shadow DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv
+top-level milan_dp_render SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv

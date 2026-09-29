@@ -1,0 +1,11 @@
+## R394-4 committed arm units 0,1,6,20,21 (datapath) via committed run_units, taskset -c 0-7, make: GNU Make 4.4.1
+[r394] units [0, 1, 6, 20, 21] on 8 worker(s)
+[i]  5 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: $REVIEWS/617-r394-4-packet/scratch/tmp/r394-arm-b_klrh30/build_break_dp/milan_datapath.sv:7824:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the dp harness
+[PASS] the unmutated source still passes the dp-band harness
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[r394] 6 checks: 6 PASS, 0 FAIL; 225.1 s
+rc=0

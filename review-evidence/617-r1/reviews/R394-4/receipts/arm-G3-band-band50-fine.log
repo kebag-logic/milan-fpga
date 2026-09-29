@@ -1,0 +1,14 @@
+## R394-4 committed arm units 3,4,5,17,18,19,24,25,27 via committed run_units, taskset -c 0-7, make: GNU Make 4.4.1
+[r394] units [3, 4, 5, 17, 18, 19, 24, 25, 27] on 8 worker(s)
+[i]  9 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the unmutated source still passes the band harness
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the fine harness
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+[r394] 9 checks: 9 PASS, 0 FAIL; 61.4 s
+rc=0

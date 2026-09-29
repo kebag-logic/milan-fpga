@@ -1,0 +1,215 @@
+######## probe head_checks (make: GNU Make 4.4.1)
+== makeflags: PASS
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+== break: PASS
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-head_checks-q0b5zykm/build_break_dp/milan_datapath.sv:7824:15: syntax error, unexpected break, expecting ',' or ';'
+probe rc=0
+
+######## probe npd_srcs (make: GNU Make 4.4.1)
+edit Makefile: '-s --no-print-directory -C $(DP_DIR) print-srcs' -> '-s -C $(DP_DIR) print-srcs'
+== makeflags: FAIL
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.v
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.sv
+      |              ../../../hdl/common/make[1]:
+      |              ../../../hdl/common/make[1]:.v
+      |              ../../../hdl/common/make[1]:.sv
+      |              ../../../hdl/common/csr/make[1]:
+      |              ../../../hdl/common/csr/make[1]:.v
+      |              ../../../hdl/common/csr/make[1]:.sv
+      |              ../../../hdl/common/eth_event_counter/make[1]:
+      |              ../../../hdl/common/eth_event_counter/make[1]:.v
+      |              ../../../hdl/common/eth_event_counter/make[1]:.sv
+      |              ../../../hdl/ieee17221/adp/make[1]:
+      |              ../../../hdl/ieee17221/adp/make[1]:.v
+      |              ../../../hdl/ieee17221/adp/make[1]:.sv
+      |              ../../../hdl/ieee8021q/ts/make[1]:
+      |              ../../../hdl/ieee8021q/ts/make[1]:.v
+      |              ../../../hdl/ieee8021q/ts/make[1]:.sv
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.v
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.sv
+      |              ../../../third_party/verilog-axis/rtl/make[1]:
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.v
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.sv
+      |              make[1]:
+      |              make[1]:.v
+      |              make[1]:.sv
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_srcs-rr8wqllm/obj_makeflags_w/make[1]:
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_srcs-rr8wqllm/obj_makeflags_w/make[1]:.v
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_srcs-rr8wqllm/obj_makeflags_w/make[1]:.sv
+      |         ... With current working directory '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/cc_r394_npd_srcs'
+      | %Error: Cannot find file containing module: 'Entering'
+      | %Error: Cannot find file containing module: 'directory'
+      | %Error: Cannot find file containing module: '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/milan_dp'
+      | %Error: Cannot find file containing module: 'Leaving'
+      | %Error: Exiting due to 5 error(s)
+      | make: *** [Makefile:125: dp-build] Error 1
+      | make: Leaving directory '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/cc_r394_npd_srcs'
+probe rc=1
+
+######## probe npd_vflags (make: GNU Make 4.4.1)
+edit Makefile: '-s --no-print-directory -C $(DP_DIR) print-dp-vflags' -> '-s -C $(DP_DIR) print-dp-vflags'
+== makeflags: FAIL
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.v
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.sv
+      |              ../../../hdl/common/make[1]:
+      |              ../../../hdl/common/make[1]:.v
+      |              ../../../hdl/common/make[1]:.sv
+      |              ../../../hdl/common/csr/make[1]:
+      |              ../../../hdl/common/csr/make[1]:.v
+      |              ../../../hdl/common/csr/make[1]:.sv
+      |              ../../../hdl/common/eth_event_counter/make[1]:
+      |              ../../../hdl/common/eth_event_counter/make[1]:.v
+      |              ../../../hdl/common/eth_event_counter/make[1]:.sv
+      |              ../../../hdl/ieee17221/adp/make[1]:
+      |              ../../../hdl/ieee17221/adp/make[1]:.v
+      |              ../../../hdl/ieee17221/adp/make[1]:.sv
+      |              ../../../hdl/ieee8021q/ts/make[1]:
+      |              ../../../hdl/ieee8021q/ts/make[1]:.v
+      |              ../../../hdl/ieee8021q/ts/make[1]:.sv
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.v
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.sv
+      |              ../../../third_party/verilog-axis/rtl/make[1]:
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.v
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.sv
+      |              make[1]:
+      |              make[1]:.v
+      |              make[1]:.sv
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_vflags-ql6cvg0y/obj_makeflags_w/make[1]:
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_vflags-ql6cvg0y/obj_makeflags_w/make[1]:.v
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_vflags-ql6cvg0y/obj_makeflags_w/make[1]:.sv
+      |         ... With current working directory '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/cc_r394_npd_vflags'
+      | %Error: Cannot find file containing module: 'Entering'
+      | %Error: Cannot find file containing module: 'directory'
+      | %Error: Cannot find file containing module: '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/milan_dp'
+      | %Error: Cannot find file containing module: 'Leaving'
+      | %Error: Exiting due to 5 error(s)
+      | make: *** [Makefile:125: dp-build] Error 1
+      | make: Leaving directory '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/cc_r394_npd_vflags'
+probe rc=1
+
+######## probe npd_both_armfix (make: GNU Make 4.4.1)
+edit Makefile: '-s --no-print-directory -C $(DP_DIR) print-srcs' -> '-s -C $(DP_DIR) print-srcs'
+edit Makefile: '-s --no-print-directory -C $(DP_DIR) print-dp-vflags' -> '-s -C $(DP_DIR) print-dp-vflags'
+== makeflags: FAIL
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.v
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.sv
+      |              ../../../hdl/common/make[1]:
+      |              ../../../hdl/common/make[1]:.v
+      |              ../../../hdl/common/make[1]:.sv
+      |              ../../../hdl/common/csr/make[1]:
+      |              ../../../hdl/common/csr/make[1]:.v
+      |              ../../../hdl/common/csr/make[1]:.sv
+      |              ../../../hdl/common/eth_event_counter/make[1]:
+      |              ../../../hdl/common/eth_event_counter/make[1]:.v
+      |              ../../../hdl/common/eth_event_counter/make[1]:.sv
+      |              ../../../hdl/ieee17221/adp/make[1]:
+      |              ../../../hdl/ieee17221/adp/make[1]:.v
+      |              ../../../hdl/ieee17221/adp/make[1]:.sv
+      |              ../../../hdl/ieee8021q/ts/make[1]:
+      |              ../../../hdl/ieee8021q/ts/make[1]:.v
+      |              ../../../hdl/ieee8021q/ts/make[1]:.sv
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.v
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.sv
+      |              ../../../third_party/verilog-axis/rtl/make[1]:
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.v
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.sv
+      |              make[1]:
+      |              make[1]:.v
+      |              make[1]:.sv
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_both_armfix-1nlcnbsm/obj_makeflags_w/make[1]:
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_both_armfix-1nlcnbsm/obj_makeflags_w/make[1]:.v
+      |              $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-npd_both_armfix-1nlcnbsm/obj_makeflags_w/make[1]:.sv
+      |         ... With current working directory '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/cc_r394_npd_both_armfix'
+      | %Error: Cannot find file containing module: 'Entering'
+      | %Error: Cannot find file containing module: 'directory'
+      | %Error: Cannot find file containing module: '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/milan_dp'
+      | %Error: Cannot find file containing module: 'Leaving'
+      | %Error: Exiting due to 5 error(s)
+      | make: *** [Makefile:125: dp-build] Error 1
+      | make: Leaving directory '$REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/cc_r394_npd_both_armfix'
+== build_dp: PASS
+build('dp') with MAKEFLAGS='' -> built
+probe rc=1
+
+######## probe makefix_only (make: GNU Make 4.4.1)
+override BUILD_MAKEFLAGS = 'w'
+== build_dp: PASS
+build('dp') with MAKEFLAGS='w' -> built
+probe rc=0
+
+######## probe both_removed (make: GNU Make 4.4.1)
+edit Makefile: '-s --no-print-directory -C $(DP_DIR) print-srcs' -> '-s -C $(DP_DIR) print-srcs'
+edit Makefile: '-s --no-print-directory -C $(DP_DIR) print-dp-vflags' -> '-s -C $(DP_DIR) print-dp-vflags'
+override BUILD_MAKEFLAGS = 'w'
+== build_dp: FAIL
+build('dp') with MAKEFLAGS='w' -> None
+probe rc=1
+
+######## probe nolog (make: GNU Make 4.4.1)
+edit mutants.py: '    build_log(workdir, tag).write_text(out)\n' -> '    pass\n'
+== break: FAIL
+[FAIL] a planted build break in the dp leg did not print the compiler's error on the planted file (no such line in the tail below)
+      | (the build kept no output)
+probe rc=1
+
+######## probe nobreak (make: GNU Make 4.4.1)
+override PLANTED_BREAK = ''
+== break: FAIL
+[FAIL] a planted build break in the dp leg did not print the compiler's error on the planted file (it built)
+      |       |     ^~~~~~~~~~~~~~~~
+      | %Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+      |                                                                                                                                     : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+      |                                                                                                                                     : ... Location of variable initialization
+      |   213 | reg overflow_reg = 1'b0;
+      |       |                    ^~~~
+      |                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+      |                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+      |   262 |     overflow_reg <= 1'b0;
+      |       |     ^~~~~~~~~~~~
+      | %Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+      |                                                                                                                                     : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+      |                                                                                                                                     : ... Location of variable initialization
+      |   214 | reg bad_frame_reg = 1'b0;
+      |       |                     ^~~~
+      |                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+      |                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+      |   263 |     bad_frame_reg <= 1'b0;
+      |       |     ^~~~~~~~~~~~~
+      | %Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+      |                                                                                                                                     : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+      |                                                                                                                                     : ... Location of variable initialization
+      |   215 | reg good_frame_reg = 1'b0;
+      |       |                      ^~~~
+      |                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+      |                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+      |   264 |     good_frame_reg <= 1'b0;
+      |       |     ^~~~~~~~~~~~~~
+      | %Warning-SYNCASYNCNET: $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-nobreak-r98hepza/build_break_dp/milan_datapath.sv:452:15: Signal flopped as both synchronous and async: 'axis_resetn'
+      |                        $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-nobreak-r98hepza/build_break_dp/milan_datapath.sv:3390:10: ... Location of async usage
+      |  3390 |     if (!axis_resetn) begin
+      |       |          ^~~~~~~~~~~
+      |                        $REVIEWS/617-r394-4-packet/scratch/tmp/r394neg-nobreak-r98hepza/build_break_dp/milan_datapath.sv:758:10: ... Location of sync usage
+      |   758 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |       |          ^~~~~~~~~~~
+      |                        ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+      |                        ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+      | - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+      | - Verilator: Built from 135.711 MB sources in 116 modules, into 12.125 MB in 21 C++ files needing 0.005 MB
+      | - Verilator: Walltime 20.182 s (elab=0.429, cvt=2.905, bld=16.394); cpu 3.922 s on 8 threads; allocated 867.039 MB
+probe rc=1
+

@@ -1,0 +1,26 @@
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+hdl/ieee1722/aaf/KL_chan_map_capture.sv: ddb0774779d10a9b0bd90a4822f4e5df9fdedb1b..35f58b9cca1de9215f787872734e6a9040f82c19 comment/whitespace-only (preprocessed token streams identical, 506 lines)
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+hdl/milan/milan_datapath.sv: ddb0774779d10a9b0bd90a4822f4e5df9fdedb1b..35f58b9cca1de9215f787872734e6a9040f82c19 comment/whitespace-only (preprocessed token streams identical, 4229 lines)
+## files changed under hdl/ and any submodule gitlink change, ddb07747..35f58b9c:
+ hdl/ieee1722/aaf/KL_chan_map_capture.sv | 15 +++++++++------
+ hdl/milan/milan_datapath.sv             | 19 +++++++++++--------
+ 2 files changed, 20 insertions(+), 14 deletions(-)
+## round-4 diff files:
+M	CHANGELOG.md
+M	docs/design/TIME_SYNC.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/TESTING.md
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/milan/milan_datapath.sv
+M	tb/verilator/capture_coherence/Makefile
+M	tb/verilator/capture_coherence/coherence_bench.hpp
+M	tb/verilator/capture_coherence/mga_keepoff.py
+M	tb/verilator/capture_coherence/mutants.py
+M	tb/verilator/capture_coherence/sim_main.cpp
+M	tb/verilator/chmap_capture/Makefile
+M	tb/verilator/media_nco/Makefile
+sensitivity: planting 256->255 at the MGA_KEEPOFF_CYC_C declaration changes preprocessed line 3015 (detected)
+note: verilator -E reports the missing include ethernet_events.svh (no include path given) and continues; both sides equal, the file preprocesses to its final endmodule

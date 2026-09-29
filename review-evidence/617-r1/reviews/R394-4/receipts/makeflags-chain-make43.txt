@@ -1,0 +1,16 @@
+## R394-4 make-4.3 chain at 35f58b9c
+## make: GNU Make 4.3
+make: Entering directory '$REVIEWS/617-r394-4-packet/scratch/chain43/probe'
+python3 $REVIEWS/617-r394-4-packet/scripts/r394_chain.py $REVIEWS/617-r394-4-packet/scratch/head/tb/verilator/capture_coherence $REVIEWS/617-r394-4-packet/scratch/chain43/w
+inherited MAKEFLAGS='w'
+mutants.build('dp') -> built Vcoherence_dp
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+make: Leaving directory '$REVIEWS/617-r394-4-packet/scratch/chain43/probe'
+rc=0
+
+## r394_mf_repro.py under make 4.3
+MAKEFLAGS='': 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+MAKEFLAGS='': mutants.build('dp') -> built Vcoherence_dp
+MAKEFLAGS='w': 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+MAKEFLAGS='w': mutants.build('dp') -> built Vcoherence_dp
+rc=0

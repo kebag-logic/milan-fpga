@@ -1,0 +1,61 @@
+## make: GNU Make 4.4.1; timeout 90 s; taskset -c 0-7; TMPDIR=$REVIEWS/617-r394-4-packet/scratch/tmp
+timeout rc=124
+[i]  29 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+Traceback (most recent call last):
+SystemExit: 143
+Traceback (most recent call last):
+SystemExit: 143
+Traceback (most recent call last):
+OSError: [Errno 39] Directory not empty: '$REVIEWS/617-r394-4-packet/scratch/tmp/capture-coherence-mutants-ozb3pqev'
+make: *** [Makefile:140: mutants] Error 1
+## SystemExit count: 2
+## temp entries left in TMPDIR:
+  capture-coherence-mutants-ozb3pqev 16K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/capture-coherence-mutants-ozb3pqev:
+    obj_clean_chmap.log
+    obj_clean_nco.log
+    obj_junction_the_walk_reads_the_per_pair_stage__the_ce550952_lat.log
+  cc0nulDa.s 4.0K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cc0nulDa.s
+  cc1hC6Lv.s 100K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cc1hC6Lv.s
+  ccMcjHfz.s 0
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccMcjHfz.s
+  ccrr5ps4.s 476K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccrr5ps4.s
+  ccTIOgCt.s 0
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccTIOgCt.s
+  ccUE1zHV.s 132K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccUE1zHV.s
+  ccyTuznL.s 48K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccyTuznL.s
+  cczvXIRj.s 44K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cczvXIRj.s
+  GMfifo2580547 0
+    $REVIEWS/617-r394-4-packet/scratch/tmp/GMfifo2580547
+  GMfifo2580594 0
+    $REVIEWS/617-r394-4-packet/scratch/tmp/GMfifo2580594
+  GMfifo2580942 0
+    $REVIEWS/617-r394-4-packet/scratch/tmp/GMfifo2580942
+## surviving processes under the suite path: 0
+
+## make: GNU Make 4.3; timeout 150 s; taskset -c 0-7; TMPDIR=$REVIEWS/617-r394-4-packet/scratch/tmp
+timeout rc=124
+[i]  29 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+make: *** [Makefile:140: mutants] Error 143
+## SystemExit count: 0
+## temp entries left in TMPDIR:
+  cc0BlUVT.s 4.0K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cc0BlUVT.s
+  cc9RZF4b.s 164K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cc9RZF4b.s
+  cc9VkbU2.s 960K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cc9VkbU2.s
+  ccMEaQk3.s 48K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccMEaQk3.s
+  cctNz9nt.s 0
+    $REVIEWS/617-r394-4-packet/scratch/tmp/cctNz9nt.s
+  ccxHkR1Y.s 76K
+    $REVIEWS/617-r394-4-packet/scratch/tmp/ccxHkR1Y.s
+## surviving processes under the suite path: 0
+(process lines belonging to other checkouts on this shared host were removed from this receipt; the count line above is restricted to this packet's suite path)
