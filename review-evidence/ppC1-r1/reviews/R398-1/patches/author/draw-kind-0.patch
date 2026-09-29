@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1008,7 +1008,7 @@
+   assign la_rearm_w[1] = need_draw_r[1] || (dr_inflight_r && dr_app_r)
+                       || cad_pend_r[CAD_LA_MVRP_C];
+ 
+-  assign draw_kind_o = 3'd3;   // T-MRP-LEAVEALL range (F08.2)
++  assign draw_kind_o = 3'd0;   // T-MRP-LEAVEALL range (F08.2)
+ 
+   always_ff @(posedge clk_i) begin : timer_cadence_plane
+     if (!rst_n) begin

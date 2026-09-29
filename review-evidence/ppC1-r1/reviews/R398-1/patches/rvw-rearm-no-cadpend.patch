@@ -1,0 +1,14 @@
+--- a/hdl/srp/KL_srp_top.sv	2026-09-29 09:28:46.258698340 +0200
++++ b/hdl/srp/KL_srp_top.sv	2026-09-29 09:28:46.272747654 +0200
+@@ -1019,9 +1019,9 @@
+   // genuine expiry disarms the slot, so it never meets this condition.
+   logic [1:0] la_rearm_w;   // {MVRP, MSRP}
+   assign la_rearm_w[0] = need_draw_r[0] || (dr_inflight_r && !dr_app_r)
+-                      || cad_pend_r[CAD_LA_MSRP_C];
++;
+   assign la_rearm_w[1] = need_draw_r[1] || (dr_inflight_r && dr_app_r)
+-                      || cad_pend_r[CAD_LA_MVRP_C];
++;
+ 
+   assign draw_kind_o = 3'd3;   // T-MRP-LEAVEALL range (F08.2)
+ 

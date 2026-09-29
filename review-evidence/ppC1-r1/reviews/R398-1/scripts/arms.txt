@@ -1,0 +1,35 @@
+# id|patches (relative to this file's dir)|suite|group|expected FAIL substring|KILL/PASS
+# --- reviewer probes at the exact head (V1 must pass; V2 characterises) ---
+p-head-probes|../patches/rvw-probes.patch|srp_top|rvw|-|PASS
+# --- author arms of this lane, re-run by the reviewer ---
+a-expiry-only-redraw|../patches/author/expiry-only-redraw.patch|srp_top|restart|P1:|KILL
+a-mvrp-expiry-only-redraw|../patches/author/mvrp-expiry-only-redraw.patch|srp_top|restart|P2:|KILL
+a-stale-expiry-honoured|../patches/author/stale-expiry-honoured.patch|srp_top|peer|M10:|KILL
+a-mvrp-stale-expiry-honoured|../patches/author/mvrp-stale-expiry-honoured.patch|srp_top|restart|P6:|KILL
+a-mvrp-passive-lost|../patches/author/mvrp-passive-lost.patch|srp_top|restart|P4:|KILL
+a-mvrp-flag-at-expiry|../patches/author/mvrp-flag-at-expiry.patch|srp_top|restart|P5:|KILL
+a-join-ms-400|../patches/author/join-ms-400.patch|srp_top|timers|Q1:|KILL
+a-periodic-ms-3000|../patches/author/periodic-ms-3000.patch|srp_top|timers|Q2:|KILL
+a-draw-kind-0|../patches/author/draw-kind-0.patch|srp_top|timers|Q3:|KILL
+a-licence-ignores-join-top|../patches/author/licence-ignores-join.patch|srp_top|join|R1:|KILL
+a-licence-ignores-join-fsms|../patches/author/licence-ignores-join.patch|srp_stream_fsms||T not ACTIVE while the VID|KILL
+a-join-sent-at-handover-top|../patches/author/join-sent-at-handover.patch|srp_top|join|R1:|KILL
+a-join-sent-at-handover-enc|../patches/author/join-sent-at-handover.patch|srp_encoder||W2 New VID 7 handed over|KILL
+a-count-up-unsends-top|../patches/author/count-up-unsends.patch|srp_top|join|R2:|KILL
+a-count-up-unsends-enc|../patches/author/count-up-unsends.patch|srp_encoder||W4 a second user|KILL
+a-listener-lane-cut|../patches/author/listener-lane-cut.patch|srp_top|join|R4:|KILL
+a-tx-strobe-any-app|../patches/author/tx-strobe-any-app.patch|srp_encoder||W1 no strobe for an MSRP|KILL
+# --- reviewer-authored mutants against the full published suites ---
+r-licence-any-vid|../patches/rvw-licence-any-vid.patch|srp_top||R3:|KILL
+r-licence-any-vid-fsms|../patches/rvw-licence-any-vid.patch|srp_stream_fsms||:|KILL
+r-sent-survives-removal|../patches/rvw-sent-survives-removal.patch|srp_top||:|KILL
+r-sent-survives-removal-enc|../patches/rvw-sent-survives-removal.patch|srp_encoder||:|KILL
+r-sent-survives-removal-probe|../patches/rvw-sent-survives-removal.patch,../patches/rvw-probes.patch|srp_top|rvw|V1:|KILL
+r-sent-on-any-mvrp-tx|../patches/rvw-sent-on-any-mvrp-tx.patch|srp_top||:|KILL
+r-sent-on-any-mvrp-tx-enc|../patches/rvw-sent-on-any-mvrp-tx.patch|srp_encoder||:|KILL
+r-rearm-no-cadpend|../patches/rvw-rearm-no-cadpend.patch|srp_top||:|KILL
+r-rearm-no-inflight|../patches/rvw-rearm-no-inflight.patch|srp_top||:|KILL
+r-mvrp-restarts-msrp|../patches/rvw-mvrp-restarts-msrp.patch|srp_top||P3:|KILL
+r-msrp-restart-domain-only|../patches/rvw-msrp-restart-domain-only.patch|srp_top||P3:|KILL
+r-flag-rides-empty-drain|../patches/rvw-flag-rides-empty-drain.patch|srp_top||P5:|KILL
+r-flag-ignores-edge-peer|../patches/rvw-flag-ignores-edge-peer.patch|srp_top||P6:|KILL

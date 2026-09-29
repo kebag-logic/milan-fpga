@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv	2026-09-29 09:28:46.208909296 +0200
++++ b/hdl/srp/KL_srp_talker_fsm.sv	2026-09-29 09:28:46.221771149 +0200
+@@ -806,7 +806,7 @@
+     for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+       vid_ok_w[s] = 1'b0;
+       for (int unsigned e = 0; e < N_VIDS_P; e++) begin
+-        if (vid_sent_i[e] && (vid_val_i[e] == vid_r[s])) vid_ok_w[s] = 1'b1;
++        if (vid_sent_i[e]) vid_ok_w[s] = 1'b1;
+       end
+     end
+   end

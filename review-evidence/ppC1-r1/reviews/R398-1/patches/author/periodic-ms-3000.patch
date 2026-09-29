@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -96,7 +96,7 @@
+     //! T-MRP-JOIN in ms (F08.1: 200)
+     parameter int unsigned JOIN_MS_P     = 200,
+     //! T-MRP-PERIODIC in ms (F08.1: 1000)
+-    parameter int unsigned PERIODIC_MS_P = 1000,
++    parameter int unsigned PERIODIC_MS_P = 3000,
+     //! T-MRP-LEAVE in ms (F08.1: 5000, coupled to Δ13)
+     parameter int unsigned LEAVE_MS_P    = 5000,
+     //! default SR class A priority / VID (Milan §4.2.7.2.1)

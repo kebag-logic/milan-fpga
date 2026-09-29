@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv	2026-09-29 09:28:46.394137499 +0200
++++ b/hdl/srp/KL_srp_top.sv	2026-09-29 09:28:46.406776317 +0200
+@@ -1191,7 +1191,7 @@
+             // tx! for the pending MVRP LeaveAll: the flag rides a drain with
+             // content (an MVRP drain has no LeaveAll-only form); a peer
+             // LeaveAll on this edge wins, as it does for MSRP
+-            if (la_mvrp_pend_r && (enc_cnt_mvrp_w != '0) && !dec_la_mvrp_w) begin
++            if (la_mvrp_pend_r && (enc_cnt_mvrp_w != '0)) begin
+               enc_la_r[1]    <= 1'b1;
+               la_mvrp_pend_r <= 1'b0;
+             end

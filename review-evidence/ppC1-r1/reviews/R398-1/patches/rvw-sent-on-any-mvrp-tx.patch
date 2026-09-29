@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_vlan.sv	2026-09-29 09:28:46.419111910 +0200
++++ b/hdl/srp/KL_srp_vlan.sv	2026-09-29 09:28:46.432050869 +0200
+@@ -206,7 +206,7 @@
+       // started (the encoder holds MVRP pushes while that drain runs);
+       // per-entry writes below land after this and win.
+       if (mvrp_tx_i) begin
+-        sent_r   <= sent_r | queued_r;
++        sent_r   <= '1;
+         queued_r <= '0;
+       end
+ 

@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_top.sv	2026-09-29 09:28:46.311957699 +0200
++++ b/hdl/srp/KL_srp_top.sv	2026-09-29 09:28:46.324000000 +0200
+@@ -1228,6 +1228,7 @@
+       end
+       if (dec_la_mvrp_w) begin
+         need_draw_r[1] <= 1'b1;
++        need_draw_r[0] <= 1'b1;
+         la_mvrp_pend_r <= 1'b0;
+       end
+     end

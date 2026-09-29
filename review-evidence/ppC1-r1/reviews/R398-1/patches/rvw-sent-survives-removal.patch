@@ -1,0 +1,18 @@
+--- a/hdl/srp/KL_srp_vlan.sv	2026-09-29 09:28:46.233776297 +0200
++++ b/hdl/srp/KL_srp_vlan.sv	2026-09-29 09:28:46.246460022 +0200
+@@ -255,7 +255,6 @@
+             end else if (free_v_r) begin
+               active_r[free_ix_r] <= 1'b1;
+               queued_r[free_ix_r] <= 1'b0;         // nothing of this VID has left yet
+-              sent_r[free_ix_r]   <= 1'b0;
+               vid_q_r[free_ix_r]  <= op_vid_r;
+               ev_code_r <= EV_NEW_C;               // New, then JoinIn on cadence
+               ev_vid_r  <= {4'd0, op_vid_r};
+@@ -268,7 +267,6 @@
+             if (found_v_r && (found_cnt_r == CNT_ONE_C)) begin
+               active_r[found_ix_r] <= 1'b0;
+               queued_r[found_ix_r] <= 1'b0;
+-              sent_r[found_ix_r]   <= 1'b0;
+               ev_code_r <= EV_LV_C;                // last user gone: Lv (F10.3)
+               ev_vid_r  <= {4'd0, op_vid_r};
+               st_r      <= V_EV;

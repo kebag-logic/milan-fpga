@@ -1,0 +1,79 @@
+--- a/tb/srp_top/sim_main.cpp	2026-09-29 09:29:03.578862012 +0200
++++ b/tb/srp_top/sim_main.cpp	2026-09-29 09:34:57.368544987 +0200
+@@ -591,6 +591,7 @@
+     if (!*group || !strcmp(group,"restart")) check_received_leaveall_restarts_the_timer();
+     if (!*group || !strcmp(group,"timers")) check_mrp_timers_against_table_4_3();
+     if (!*group || !strcmp(group,"join")) check_mvrp_join_before_the_stream();
++    if (!strcmp(group,"rvw")) reviewer_probes();
+ 
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+     return fails ? 1 : 0;
+@@ -1627,6 +1628,60 @@
+     }
+   }
+ 
++  // ---- reviewer probes (R398-1): not part of the published suite ----------
++  void reviewer_probes() {
++    // V1: the VID's last user leaves (Lv on the wire), the same VID is
++    // re-declared and a Ready arrives at once: the licence must wait for
++    // the fresh MVRP New, not reuse the removed entry's "sent" state.
++    h.reset(); d->link_up_i = 1; h.idle(10);
++    h.op(OP_DECL_TK, 0, own_sid(0), 0x91e0f0010100ULL, 2, 29, 1);
++    listener_event(0, EV_NEW, DECL_READY);
++    const uint64_t r1 = await_active(0, 400);
++    CHECK(r1 != 0, "V1: first licence opens after the VID 2 New");
++    h.op(OP_WDRW_TK, 0);
++    auto lv = h.wait_frame(false, 400, [](const std::vector<uint8_t>& fr) {
++      return frame_has(fr, false, 1, 2, EV_LV); });
++    h.run_ms(3);
++    CHECK(!lv.empty() && d->dbg_vid_active_o == 0 && !h.active(0),
++          "V1: withdraw of the last user sends Lv VID 2 and closes the licence");
++    const size_t from = h.archive.size();
++    h.op(OP_DECL_TK, 0, own_sid(0), 0x91e0f0010100ULL, 2, 29, 1);
++    listener_event(0, EV_NEW, DECL_READY);
++    const bool held = !h.active(0);
++    const int lr = h.lstn_reg(0);
++    const uint64_t r2 = await_active(0, 400);
++    h.run_ms(5);
++    const int mv = mvrp_frame_with(2, EV_NEW, from);
++    printf("RVW V1 held=%d lstn=%d rise=%llu new_idx=%d new_accept=%llu\n", held, lr,
++           static_cast<unsigned long long>(r2), mv,
++           static_cast<unsigned long long>(mv < 0 ? 0 : h.archive_accept[mv]));
++    CHECK(held && r2 && mv >= 0 && r2 > h.archive_accept[mv],
++          "V1: a VID re-allocated after its Lv waits for its new New");
++
++    // V2: characterise a full VLAN table (N_VIDS_P = 4 entries held by four
++    // settled sinks on VIDs 3..6): the talker's VID 2 cannot be declared.
++    h.reset(); d->link_up_i = 1; h.idle(10);
++    for (int k = 0; k < 4; k++)
++      h.op(OP_DECL_LS, k, peer_sid(k), peer_da(k), 3 + k, 0, 0, DECL_READY);
++    h.run_ms(300);
++    const unsigned full = d->dbg_vid_active_o;
++    int errs = 0;
++    h.op(OP_DECL_TK, 0, own_sid(0), 0x91e0f0010100ULL, 2, 29, 1);
++    for (int i = 0; i < 400; i++) { if (d->dbg_vlan_err_o) errs++; h.cycle(); }
++    listener_event(0, EV_NEW, DECL_READY);
++    h.run_ms(1500);
++    const bool closed_full = !h.active(0);
++    printf("RVW V2 vids=0x%x vlan_err=%d src_reg=%d lstn=%d admitted=%d active=%d vid2_new=%d\n",
++           full, errs, source_reg(0), h.lstn_reg(0), static_cast<int>(d->sr_admitted_o & 1),
++           h.active(0) ? 1 : 0, mvrp_frame_with(2, EV_NEW));
++    h.op(OP_WDRW_LS, 0);                   // frees the VID 3 entry
++    h.run_ms(2500);
++    printf("RVW V2 after-free vids=0x%x active=%d vid2_new=%d\n", d->dbg_vid_active_o,
++           h.active(0) ? 1 : 0, mvrp_frame_with(2, EV_NEW));
++    CHECK(full == 0xF && errs >= 1 && closed_full,
++          "V2: characterisation: a full VLAN table refuses the talker VID and the licence stays closed");
++  }
++
+   void bring_up_the_port() {
+     h.reset();
+     d->link_up_i = 1;                     // seeds the PRNG + Domain declares
+@@ -2553,6 +2608,6 @@
+   if (*group && strcmp(group,"phases") && strcmp(group,"edge")
+       && strcmp(group,"peer") && strcmp(group,"congestion")
+       && strcmp(group,"guards") && strcmp(group,"restart")
+-      && strcmp(group,"timers") && strcmp(group,"join")) return 2;
++      && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"rvw")) return 2;
+   return harness.run(group);
+ }

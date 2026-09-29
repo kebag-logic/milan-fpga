@@ -1,0 +1,38 @@
+# Author evidence cross-check (public branch ppC1-review-evidence @ 95e6b511bffef4ff7d6b24ea7ff572cd33d753f7)
+## sha256 of downloaded published logs (compare MANIFEST.json published_sha256)
+a2f9dfbb5dc167dfc9acdee65ae71608ab75becb5d40f07b5dcfcaf36991d406  milan_dp.log
+688ae0e1097de89d3c8ac03bfef926c40dd3406880f99cb83dff02dc7ac864a2  crflic_base.log
+4234ac3c165a8905bdbd5fcdc0742f8715f4dc57d55f808a07899101a79b63ce  crflic_head_no_restart.log
+## milan_dp.log (processor at 81b8d6d, parent dev 13eda870): obj_crflic [C]
+6902:  [i]    3 DUT and 3 switch LeaveAll MRPDUs in this phase
+6903:  [FAIL] the DUT sent >= 4 LeaveAll MRPDUs
+6905:  [FAIL] the switch sent >= 4 of its own, Listener JoinMt first
+7371:checks: 415   failures: 2
+## crflic_base.log (processor at c951a9ff)
+509:  [i]    5 DUT and 5 switch LeaveAll MRPDUs in this phase
+979:checks: 415   failures: 0
+## crflic_head_no_restart.log (81b8d6d with only the MSRP restart reverted)
+505:  [i]    5 DUT and 5 switch LeaveAll MRPDUs in this phase
+975:checks: 415   failures: 0
+## attr-results.jsonl
+{"label": "crflic_base", "tree": "parent-attr", "cmd": "make -C tb/verilator/milan_dp crflic", "rc": 0, "seconds": 62.7, "log_bytes": 118390, "log_sha256": "8a04a39c1311e578b6e826fadd5635b0e92dbf4ccfed686cc0da114dca3ea5e8"}
+{"label": "crflic_head_no_restart", "tree": "parent-attr", "cmd": "make -C tb/verilator/milan_dp crflic", "rc": 0, "seconds": 61.1, "log_bytes": 118152, "log_sha256": "a3b5ee14ae30aa32a2b896569db4970fd615aa32183a5fb82340cd5ae128423e"}
+{"label": "milan_dp_declared_edit", "tree": "parent-attr", "cmd": "make -C tb/verilator/milan_dp -j8", "rc": 0, "seconds": 1408.3, "log_bytes": 2004783, "log_sha256": "41d29ab397fc0462db5310f5704aa1402dde248c980dc79db33688c8f40202bc"}
+## parent-declared-edit.diff
+diff --git a/tb/verilator/milan_dp/sim_crf_licence.cpp b/tb/verilator/milan_dp/sim_crf_licence.cpp
+index 6f9d17b..44b88ef 100644
+--- a/tb/verilator/milan_dp/sim_crf_licence.cpp
++++ b/tb/verilator/milan_dp/sim_crf_licence.cpp
+@@ -950,10 +950,10 @@ void CrfLicenceHarness::phase_c(uint64_t t0) {
+     ck_true("the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)",
+             peer[kUidCrf].last_probe + ms(15000) + ms(45000) <= cyc);
+     printf("  [i]    %ld DUT and %ld switch LeaveAll MRPDUs in this phase\n", dut_la - la0, bridge_la - bla0);
+-    ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
++    ck_true("the DUT sent >= 3 LeaveAll MRPDUs", dut_la - la0 >= 3);
+     ck("every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20)",
+        static_cast<uint64_t>(dut_la_not_all_types), 0);
+-    ck_true("the switch sent >= 4 of its own, Listener JoinMt first", bridge_la - bla0 >= 4);
++    ck_true("the switch sent >= 3 of its own, Listener JoinMt first", bridge_la - bla0 >= 3);
+     ck("the Listener registration still reads Ready", lstn_reg(kUidCrf), 2);
+     const long n = pdus_after(crf_pdus, t_bound, cyc);
+     const uint64_t first = crf_pdus.empty() ? 0 : crf_pdus.front().cyc;

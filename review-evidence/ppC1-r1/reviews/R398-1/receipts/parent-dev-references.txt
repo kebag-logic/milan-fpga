@@ -1,0 +1,25 @@
+# Parent dev 57b8c8676864e2564a1c867a2ee6623018a33002 (gitlink protocol-processor = c951a9ff), read-only via the public API
+## tb/verilator/milan_dp/README.md blob 3f05559f593d2f3b0aad632590ed257616714b6c
+443:| `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+   526	**What it cannot show.** The switch's timing is modelled from the Run B
+   527	capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed
+   528	LeaveAll period is not modelled. This station's leavealltimer does not
+   529	restart on a received LeaveAll (processor issue 108), and nothing here
+   530	measures that. The silicon rerun of #530 is the acceptance.
+## tb/verilator/milan_dp/sim_crf_licence.cpp
+   952	    printf("  [i]    %ld DUT and %ld switch LeaveAll MRPDUs in this phase\n", dut_la - la0, bridge_la - bla0);
+   953	    ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
+   954	    ck("every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20)",
+   955	       static_cast<uint64_t>(dut_la_not_all_types), 0);
+   956	    ck_true("the switch sent >= 4 of its own, Listener JoinMt first", bridge_la - bla0 >= 4);
+## docs/traceability/ieee8021q.md MRP-4..MRP-7 row heads
+122:| MRP-4 | 10.7.8 | Registrar SM: IN on Join, leave-timer to MT on Lv/LeaveAll | processor SRP stream FSMs (talker and listener directions) | 🔵 PROCESSOR: the registrar state this fabric reads is n
+123:| MRP-5 | 10.7.9 / 10.7.5.20 / 10.8.2.6 | LeaveAll: the LeaveAll timer is per application, but the LeaveAll message is per Attribute Type (802.1Q-2014 10.7.5.20 NOTE). An own LeaveAll MRPDU flags 
+124:| MRP-6 | 10.7.11 | Timer values: JoinTime ~200 ms, LeaveTime 600–1000 ms, LeaveAllTime ~10 s (+Milan tolerances 4.2.7.1.1) | processor timer service | 🔵 PROCESSOR — Milan Table 4.3 tightens these
+125:| MRP-7 | 10.7.10 | PeriodicTransmission SM (periodic re-Join stimulus) | processor timer service | 🟡 → 🔵 PROCESSOR — the periodic-transmission stimulus was implicit in the deleted applicant's dec
+## other references to the changed modules
+6:public_flat_rd -module "KL_srp_talker_fsm" -var "reg_r"
+110:protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:ev_value_i
+111:protocol-processor:hdl/srp/KL_srp_encoder.sv:KL_srp_encoder:wr_len_o
+  "measured_commit": "63fe4fb0164d798d44a6476001dc8b887cdd4609",
+    "protocol_processor": "0922e43408f891fc0b84a84691df86b4fd0f1c0d",

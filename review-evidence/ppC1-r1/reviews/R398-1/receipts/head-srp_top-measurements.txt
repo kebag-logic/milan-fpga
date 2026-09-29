@@ -1,0 +1,16 @@
+RESTART msrp peers=20 own_after_last_ms=11092
+RESTART lane=0 peer_ms=5564 deadline_ms=18792 own_ms=18801
+RESTART lane=1 peer_ms=5564 deadline_ms=19582 own_ms=19610
+RESTART lane=2 peer_ms=5564 deadline_ms=19582 own_ms=19610
+RESTART lane=3 peer_ms=5564 deadline_ms=19582 own_ms=19611
+RESTART lane=4 peer_ms=5564 deadline_ms=19582 own_ms=19611
+TIMER join ladder_ms=403,603,803 gaps=200-200
+TIMER periodic talker=9:1000-1000 domain=9:1000-1000 vid=9:1000-1000
+TIMER leaveall first_msrp=14206 first_mvrp=10601 msrp=4:10000-12800 mvrp=4:11000-13200
+TIMER after_peer msrp next_own=+11000
+TIMER after_peer mvrp next_own=+14495
+JOIN talker ready_ms=1 rise_ms=200 mvrp_accept=118350170 rise=118350171
+JOIN listener vid7_joinin=3 gaps=1000-1000
+2149 checks: 2149 PASS, 0 FAIL
+1219 checks: 1219 PASS, 0 FAIL
+581 checks: 581 PASS, 0 FAIL

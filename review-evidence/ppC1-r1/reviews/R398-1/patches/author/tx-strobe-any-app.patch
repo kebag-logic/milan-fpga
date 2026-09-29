@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -778,7 +778,7 @@
+   assign wr_len_o      = waddr_r;
+   assign txreq_valid_o = (st_r == E_TXREQ);
+   assign txreq_slot_o  = slot_r;
+-  assign tx_mvrp_o     = (st_r == E_TXREQ) && txreq_ready_i && (cur_app_r == APP_MVRP_C);
++  assign tx_mvrp_o     = (st_r == E_TXREQ) && txreq_ready_i;
+   assign dbg_cnt_msrp_o = cnt_msrp_r;
+   assign dbg_cnt_mvrp_o = cnt_mvrp_r;
+ 

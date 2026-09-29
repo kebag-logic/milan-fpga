@@ -1,0 +1,10 @@
+# Clone integrity after all probes (probes ran only in disposable copies under the packet scratch directory)
+HEAD=81b8d6d7c4e2d90c5ab0f2e772a0991166945c3b
+HEAD^{tree}=de5b0878d1846d1f0e478d11f2995429ef8da6d7
+index write-tree=de5b0878d1846d1f0e478d11f2995429ef8da6d7
+status --porcelain --ignored lines: 0
+worktree and index match HEAD: yes
+ls-files -s vs ls-tree -r (mode+blob+path) identical: yes
+tracked files re-hashed from disk equal to HEAD blobs: yes
+gitlinks (mode 160000) in HEAD: 0 (the repository has no submodules; nothing to verify)
+exec-mode files: 11
