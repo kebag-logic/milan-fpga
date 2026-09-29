@@ -1,0 +1,16 @@
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top restart: rc=0 PASS
+control srp_top timers: rc=0 PASS
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+pending-peer-ignored: rc=2 failures=15 KILLED tags=M1,M10,M2,M3
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+expiry-only-redraw: rc=2 failures=15 KILLED tags=P1,P3
+draw-kind-0: rc=2 failures=6 KILLED tags=Q1,Q2,Q3,Q4
+15 checks: 15 PASS, 0 FAIL

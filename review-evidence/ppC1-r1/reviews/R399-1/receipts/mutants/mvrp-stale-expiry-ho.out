@@ -1,0 +1,5 @@
+control srp_top restart: rc=0 PASS
+mvrp-stale-expiry-honoured: rc=2 failures=1 KILLED tags=P6
+mvrp-passive-lost: rc=2 failures=4 KILLED tags=P4,P5,P6
+mvrp-flag-at-expiry: rc=2 failures=6 KILLED tags=P4,P5,P6
+4 checks: 4 PASS, 0 FAIL

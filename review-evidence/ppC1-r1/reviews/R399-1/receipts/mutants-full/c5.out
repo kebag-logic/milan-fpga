@@ -1,0 +1,16 @@
+control srp_encoder : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+leaveall-expiry-lost: rc=2 failures=17 KILLED tags=M1,M12,M2,M3,M5,M8,M9
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+mvrp-flag-at-expiry: rc=2 failures=6 KILLED tags=P4,P5,P6
+tx-strobe-any-app: rc=2 failures=1 KILLED tags=W1 no strobe for an MSRP MRPDU
+15 checks: 15 PASS, 0 FAIL

@@ -1,0 +1,15 @@
+control srp_encoder : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top timers: rc=0 PASS
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+round-completion-lost: rc=2 failures=1 KILLED tags=N13
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+join-ms-400: rc=2 failures=2 KILLED tags=Q1,Q2
+14 checks: 14 PASS, 0 FAIL

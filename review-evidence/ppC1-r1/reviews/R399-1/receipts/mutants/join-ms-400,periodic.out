@@ -1,0 +1,5 @@
+control srp_top timers: rc=0 PASS
+join-ms-400: rc=2 failures=2 KILLED tags=Q1,Q2
+periodic-ms-3000: rc=2 failures=1 KILLED tags=Q2
+draw-kind-0: rc=2 failures=6 KILLED tags=Q1,Q2,Q3,Q4
+4 checks: 4 PASS, 0 FAIL

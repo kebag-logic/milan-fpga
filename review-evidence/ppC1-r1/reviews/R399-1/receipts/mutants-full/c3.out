@@ -1,0 +1,18 @@
+control srp_encoder : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+expiry-event: rc=2 failures=81 KILLED tags=K1,K11,K12,K2,K4,K5,K9
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+mvrp-stale-expiry-honoured: rc=2 failures=1 KILLED tags=P6
+count-up-unsends: rc=2 failures=3 KILLED tags=R2,R3
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+17 checks: 17 PASS, 0 FAIL

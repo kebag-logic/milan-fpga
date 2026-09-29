@@ -1,0 +1,19 @@
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+mvrp-expiry-only-redraw: rc=2 failures=6 KILLED tags=P2,P3,P6
+licence-ignores-join: rc=2 failures=3 KILLED tags=R1,R3
+licence-ignores-join: rc=2 failures=3 KILLED tags=T ACTIVE drops when the VID membership is gone,T not ACTIVE on another VID's transmitted join,T not ACTIVE while the VID's join is untransmitted
+18 checks: 18 PASS, 0 FAIL

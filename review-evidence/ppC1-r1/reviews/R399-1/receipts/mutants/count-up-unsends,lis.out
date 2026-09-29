@@ -1,0 +1,7 @@
+control srp_encoder : rc=0 PASS
+control srp_top join: rc=0 PASS
+count-up-unsends: rc=2 failures=3 KILLED tags=R2,R3
+listener-lane-cut: rc=2 failures=3 KILLED tags=R4
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+tx-strobe-any-app: rc=2 failures=1 KILLED tags=W1 no strobe for an MSRP MRPDU
+6 checks: 6 PASS, 0 FAIL

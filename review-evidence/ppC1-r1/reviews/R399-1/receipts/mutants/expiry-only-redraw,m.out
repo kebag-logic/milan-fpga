@@ -1,0 +1,6 @@
+control srp_top peer: rc=0 PASS
+control srp_top restart: rc=0 PASS
+expiry-only-redraw: rc=2 failures=15 KILLED tags=P1,P3
+mvrp-expiry-only-redraw: rc=2 failures=6 KILLED tags=P2,P3,P6
+stale-expiry-honoured: rc=2 failures=1 KILLED tags=M10
+5 checks: 5 PASS, 0 FAIL
