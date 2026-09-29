@@ -1,0 +1,2603 @@
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/docs_check.py
+docs_check: 0 finding(s) across 179 md files + 949 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/gen_toc.py --check
+TOC gate: OK (121 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/gen_toc.py --help
+TOC gate: OK (121 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_em_dash.py --base 79c36963660c10e4c1c11a744fb5bff41a552b8b
+check_em_dash: 0 finding(s) over 914 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [79c36963..HEAD]
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+check_em_dash: 0 finding(s) over 2548 added line(s) in 35 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (339 arm(s))
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_doc_paths.py
+doc path gate: OK (860 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_feature_status.py --self-test
+  PASS  clean
+  PASS  status conflict
+  PASS  duplicate identifier
+  PASS  unknown status
+  PASS  non-string status
+  PASS  unknown reference
+  PASS  header text in value
+  PASS  fenced claim ignored
+  PASS  fenced example ignored
+  PASS  unmarked claim rejected
+  PASS  operation inventory drift
+  PASS  missing operation inventory
+  PASS  obsolete banner
+  PASS  archive path
+  PASS  source facts
+  PASS  source version drift
+  PASS  source inventory drift
+  PASS  commented source ignored
+  PASS  version drift
+  PASS  version drift names every file
+  PASS  historic marker accepted
+  PASS  historic marker still needs a live claim
+  PASS  historic marker on the current value
+  PASS  retired major is history
+  PASS  minor-only spelling is history
+  PASS  version presence
+  PASS  count drift
+  PASS  numeral spelling accepted
+  PASS  mvu count drift
+  PASS  count in a fence ignored
+  PASS  an adjective is not a count
+  PASS  claim wrapped across lines
+  PASS  wrapped version claim still read
+  PASS  claim inside a block quote
+  PASS  count in a fact block ignored
+  PASS  documented order reversed
+  PASS  order block required
+  PASS  order block unregistered
+  PASS  boot order source tie
+  PASS  boot order reversed in firmware
+  PASS  boot step absent
+  PASS  commented boot call ignored
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_baremetal_only.py --check
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+rc=2
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/ci_scope.py --selftest
+  ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+  ok   ['README.md', 'AGENTS.md']: rtl=False
+  ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+  ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+  ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['docs/AAF_LATENCY_TAPS.md']: rtl=True
+  ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+  ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+  ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+  ok   ['docs/traceability/untested.budget']: rtl=True
+  ok   ['docs/notes.txt']: rtl=True
+  ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+  ok   ['hdl/ieee1722/aaf/doc/x.svg']: rtl=True
+  ok   ['cdc_census.drawio']: rtl=True
+  ok   ['cdc_census.svg']: rtl=True
+  ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=True
+  ok   ['hdl/milan/KL_pp_shadow.sv']: rtl=True
+  ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+  ok   ['LICENSE']: rtl=True
+  ok   ['notes.rst']: rtl=True
+  ok   ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=True
+  ok   ['requirements.txt']: rtl=True
+  ok   ['hdl/milan/milan_datapath.sv']: rtl=True
+  ok   ['scripts/lint_rtl.py']: rtl=True
+  ok   ['.github/workflows/rtl.yml']: rtl=True
+  ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+  ok   []: rtl=True
+  ok   ['gptp-processor']: rtl=True
+  ok   ['protocol-processor']: rtl=True
+  ok   ['external']: rtl=True
+  ok   ['third_party/verilog-axis']: rtl=True
+  ok   ['.gitmodules']: rtl=True
+  ok   ['docs/x.md', 'gptp-processor']: rtl=True
+  ok   submodule rule names protocol-processor
+  ok   submodule rule names gptp-processor
+  ok   submodule rule names external
+  ok   submodule rule names third_party/verilog-axis
+  ok   submodule rule names .gitmodules
+  ok   gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:321) is relevant
+  ok   gate-read page docs/reference/REGISTER_MAP.md (named at tb/tools/torture_campaign.py:3431) is relevant
+  ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+  ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+  ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+  ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a comment naming it names nothing
+  ok   a new reader spelt as a message naming it names nothing
+  ok   a new reader spelt as a reader docs-check runs too names nothing
+  ok   mutation: gptp-processor filed as docs-only is rejected
+  ok   mutation: protocol-processor filed as docs-only is rejected
+  ok   mutation: external filed as docs-only is rejected
+  ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+  ok   mutation: .gitmodules filed as docs-only is rejected
+  ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+  ok   mutation: LICENSE filed as docs-only is rejected
+  ok   mutation: .rst filed as docs-only is rejected
+  ok   mutation: docs/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+  ok   mutation: tb/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/AAF_LATENCY_TAPS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/AAF_LATENCY_TAPS.md once the table drops it
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+rc=0
+
+# pyyaml installed into the scratch venv: 6.0.3
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 947 tracked first-party file(s))
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (700 arm(s))
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/check_hygiene.py --help
+usage: check_hygiene.py [-h] [--check] [--fix] [--measure] [--selftest]
+
+Mechanical hygiene: the objective checks, measured before any was adopted.
+
+options:
+  -h, --help  show this help message and exit
+  --check     ratchet every check, per population
+  --fix       repair the mechanical findings
+  --measure   the six-candidate table, the rejected line-length one included
+  --selftest  run the fixture arms
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/gen_toc.py --verify-anchors
+anchor check: 270 existing cross-page fragment links reproduced
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/gen_toc.py --selftest
+TOC selftest: PASS (1501/1501 arm(s))
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1655 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/ci_events.py --selftest
+  ok   caught: rtl push on main, not dev
+  ok   caught: rtl no pull_request
+  ok   caught: rtl PR type missing
+  ok   caught: rtl PR type extra
+  ok   caught: rtl no workflow_dispatch
+  ok   caught: rtl dispatch with inputs
+  ok   caught: rtl no schedule
+  ok   caught: rtl two crons
+  ok   caught: rtl cron moved, page unchanged
+  ok   caught: rtl cron not daily
+  ok   caught: page states another time
+  ok   caught: page states another cron string
+  ok   caught: rtl cancel-in-progress false
+  ok   caught: rtl no concurrency block
+  ok   caught: rtl checkout overrides ref
+  ok   caught: rtl checkout ref via expression
+  ok   caught: rtl gate drops target_sha output
+  ok   caught: rtl gate prints nothing
+  ok   caught: rtl Verilator worker records nothing
+  ok   caught: rtl Yosys worker records nothing
+  ok   caught: rtl record written after the upload
+  ok   caught: rtl verilator-suites skips the verifier
+  ok   caught: rtl yosys-portability skips the verifier
+  ok   caught: rtl aggregate no longer needs the gate
+  ok   caught: rtl artifact aggregates can initialize concurrently
+  ok   caught: rtl default-branch step removed
+  ok   caught: rtl default-branch step without GH_TOKEN
+  ok   caught: rtl default-branch step reads nothing live
+  ok   caught: rtl default-branch step without the event
+  ok   caught: rtl default-branch step neutered by continue-on-error
+  ok   caught: rtl default-branch step neutered by || true
+  ok   caught: rtl default-branch decoy: observed=dev beside gh api in `if false`
+  ok   caught: rtl default-branch decoy: control flow around the live read
+  ok   caught: rtl default-branch literal observed=dev after the real call
+  ok   caught: rtl default-branch literal observed=dev after the real read
+  ok   caught: rtl default-branch gh api inside a comment only
+  ok   caught: rtl default-branch comment line in the script
+  ok   caught: rtl default-branch observed from a different command
+  ok   caught: rtl default-branch two observed assignments
+  ok   caught: rtl default-branch verifier called before the read
+  ok   caught: rtl default-branch script with an extra line
+  ok   caught: rtl default-branch script without set -euo pipefail
+  ok   caught: rtl verilator-suites drops --sha gate
+  ok   caught: rtl verilator-suites drops --sha run
+  ok   caught: rtl verilator-suites drops --sha checkout
+  ok   caught: rtl yosys-portability drops --sha gate
+  ok   caught: rtl yosys-portability drops --sha run
+  ok   caught: rtl yosys-portability drops --sha checkout
+  ok   caught: rtl verilator-suites passes an unknown --sha label
+  ok   caught: E9 assert step if: false
+  ok   caught: E10 assert step if: pull_request only
+  ok   caught: E11 assert step shell: bash -n
+  ok   caught: E12 full-ci-gate continue-on-error
+  ok   caught: E13 full-ci-gate if: not schedule
+  ok   caught: E14 assert step env GH_HOST
+  ok   caught: E14b assert step env GH_CONFIG_DIR
+  ok   caught: E17 full-ci-gate defaults.run.shell bash -n
+  ok   caught: workflow-level defaults.run.shell
+  ok   caught: assert step extra key working-directory
+  ok   caught: assert step continue-on-error
+  ok   caught: S8 verilator-suites verifier if: false
+  ok   caught: yosys-portability verifier if: pull_request only
+  ok   caught: verifier step shell: bash -n
+  ok   caught: verifier step continue-on-error
+  ok   caught: verifier step env GITHUB_SHA override
+  ok   caught: S5 verifier script reassigns GATE_SHA
+  ok   caught: R4 verifier --expect disagrees with the matrix
+  ok   caught: R4 verifier without --expect
+  ok   caught: R4 matrix grows, --expect stays
+  ok   caught: aggregate job if loosened
+  ok   caught: aggregate job if dropped
+  ok   caught: aggregate skips when its selector fails
+  ok   caught: aggregate job continue-on-error
+  ok   caught: aggregate job defaults.run.shell
+  ok   caught: O1 full-ci-gate needs a job that skips on schedule
+  ok   caught: O10 decision step if: false
+  ok   caught: O10b decision step if: pull_request only
+  ok   caught: O13 pin step if: false
+  ok   caught: O13b pin step continue-on-error
+  ok   caught: O14 assert step moved before the checkout
+  ok   caught: O6 a GITHUB_PATH step inserted before the assertion
+  ok   caught: gate pin step removed
+  ok   caught: gate pin and assert steps swapped
+  ok   caught: gate checkout without fetch-depth: 0
+  ok   caught: decision step shell: bash -n
+  ok   caught: decision step working-directory
+  ok   caught: decision step loses PR_BASE_SHA
+  ok   caught: O15 decision step PR_DRAFT forced true
+  ok   caught: O15b decision step PR_BASE_SHA rebound to this run's own SHA
+  ok   caught: O15c decision step EVENT_NAME hard-coded to pull_request
+  ok   caught: O15d assert step GH_TOKEN rebound to another token
+  ok   caught: O15e verifier step GATE_SHA rebound to its own run
+  ok   caught: O16 decision script publishes the no-op decision always
+  ok   caught: O16b decision script drops the selector's self-test
+  ok   caught: O11 full-ci-gate job env GH_HOST
+  ok   caught: O12 workflow-level env GH_HOST
+  ok   caught: O17 gate exports run_full as the literal 'false'
+  ok   caught: O17b gate stops exporting run_full at all
+  ok   caught: O17c gate exports run_full from the scope answer instead
+  ok   caught: O17d gate exports rtl as the literal 'false'
+  ok   caught: O17e gate stops exporting rtl
+  ok   caught: O17f gate exports target_sha from the run instead of the pin step
+  ok   caught: O17g gate exports no outputs map at all
+  ok   caught: O17h gate exports a surplus output
+  ok   caught: O18 a worker gates on an output nobody publishes
+  ok   caught: O18b a worker gates on if: false
+  ok   caught: O18c a worker compares the decision with a value it never takes
+  ok   caught: O18d a worker turns its own failure into a pass
+  ok   caught: O18e a worker reads the decision without needing the gate
+  ok   caught: O18f a worker parses every script instead of running it
+  ok   caught: O20 a new job depends on the gate and gates on nothing
+  ok   caught: O19 fast selector exports rtl as the literal 'false'
+  ok   caught: O19b fast selector stops exporting rtl
+  ok   caught: O19c a fast consumer gates on an output nobody publishes
+  ok   caught: O19d a fast consumer gates on if: false
+  ok   caught: O21 fast selector job if: false
+  ok   caught: O21b fast scope step if: false
+  ok   caught: O21c fast scope publishes literal rtl=false
+  ok   caught: O21d fast scope drops the selector self-test
+  ok   caught: O21e fast scope EVENT_NAME rebound to pull_request
+  ok   caught: O21f fast selector continue-on-error
+  ok   caught: O21g fast selector scope runs before checkout
+  ok   caught: O21h fast selector checkout is shallow
+  ok   caught: O21i fast workflow parses selector scripts instead of running
+  ok   caught: O22 bracket needs reference names an unpublished output
+  ok   caught: O22b all-bracket needs reference omits its dependency
+  ok   caught: O22c mixed needs reference names an unpublished output
+  ok   caught: O22d dynamic needs reference cannot evade static audit
+  ok   caught: O23 fast verdict step if: false
+  ok   caught: O23b fast verdict lint result rebound to the literal success
+  ok   caught: O23c fast verdict case widened to accept failure
+  ok   caught: O23d fast verdict step continue-on-error
+  ok   caught: O23e fast verdict step shell: bash -n
+  ok   caught: O24 fast aggregate drops bdd-conformance from its verdict
+  ok   caught: O24b a new fast job lands outside the aggregate's needs
+  ok   caught: O25 bdd-conformance job if: false
+  ok   caught: O25b bdd-conformance continue-on-error
+  ok   caught: O25c bdd-conformance defaults.run.shell bash -n
+  ok   caught: O26 a .result read from a job outside needs
+  ok   caught: O26b the bracket spelling of the same .result read
+  ok   caught: O27 verilator-lint renamed to the public name rtl-fast
+  ok   caught: O28 fast selector job-level env EVENT_NAME literal
+  ok   caught: O9 matrix total carrier is missing
+  ok   caught: O9a matrix total disagrees with the shard list
+  ok   caught: O9 verilator matrix grows, the denominator is a literal
+  ok   caught: O9b yosys denominator below its matrix size
+  ok   caught: O9c a worker name restates a stale denominator
+  ok   caught: O9d sharded matrix adds an include expansion
+  ok   caught: O9e sharded matrix excludes a worker
+  ok   caught: #444 the dedicated milan_dp worker leaves the matrix
+  ok   caught: #444 the matrix and total return to four, --expect stays
+  ok   caught: #444 ownership proof loses the dedicated milan_dp arm
+  ok   caught: #444 ownership proof widens the dedicated arm to membership
+  ok   caught: #444 the gate stops saying why the aggregates skip
+  ok   caught: rtl public name verilator-suites renamed
+  ok   caught: rtl public name yosys-portability renamed
+  ok   caught: fast push on main, not dev
+  ok   caught: fast PR type missing
+  ok   caught: fast cancel-in-progress false
+  ok   caught: fast public name rtl-fast renamed
+  ok   caught: #245 ooc.sh self-test step removed
+  ok   caught: #245 ooc.sh self-test neutralised
+  ok   caught: #245 ooc.sh self-test before the submodule fetch
+  ok   caught: #245 ooc.sh self-test fetch stops naming protocol-processor
+  ok   caught: #245 ooc.sh self-test fetch stops naming gptp-processor
+  ok   caught: #245 ooc.sh self-test disabled by if: false
+  ok   caught: #245 ooc.sh self-test failure swallowed by continue-on-error
+  ok   caught: #245 ooc.sh self-test reinterpreted by shell: bash -n
+  ok   caught: #444 the Verilator worker-result step only echoes
+  ok   caught: #444 the Verilator worker-result step also tolerates failure
+  ok   caught: #444 the Verilator worker-result step exits 0 on a failed worker
+  ok   caught: #444 the Verilator worker-result step judges workers 0 to 3 only
+  ok   caught: #444 the Verilator tally globs workers 0 to 3 only
+  ok   caught: #444 the Verilator tally is replaced by true
+  ok   caught: #444 the Yosys worker-result step only echoes
+  ok   caught: #444 the Yosys worker-result step also tolerates failure
+  ok   caught: #444 the Yosys reconcile step drops --require-structural
+  ok   caught: #444 the Verilator worker-result step carries a continuation inside its comparison
+  ok   caught: #444 the Verilator worker-result step carries a no-break space inside its comparison
+  ok   caught: #444 the Verilator worker-result step carries a line separator before its exit
+  ok   caught: #444 the Yosys worker-result step carries a continuation inside its comparison
+  ok   caught: #444 the Yosys worker-result step carries a no-break space inside its comparison
+  ok   caught: #444 the Yosys worker-result step carries a line separator before its exit
+  ok   caught: #444 the decision step carries a continuation inside its comparison
+  ok   caught: #444 the decision step carries a no-break space inside its comparison
+  ok   caught: #444 the decision step carries a line separator before its decision
+  ok   caught: #444 the decision step detects renames in its changed-path list
+  ok   caught: #444 the fast selector scope step detects renames in its changed-path list
+  ok   caught: #444 the elaborate scope step detects renames in its changed-path list
+  ok   caught: docs push on main, not dev
+  ok   caught: docs no pull_request
+  ok   caught: docs does not run --check
+  ok   caught: docs does not run --selftest
+  ok   caught: docs drops the local act runner self-test
+  ok   caught: docs disables the local act runner self-test
+  ok   caught: docs swallows a local act runner self-test failure
+  ok   caught: docs only parses the local act runner self-test
+  ok   caught: docs builder omits verilog-axis
+  ok   caught: docs builder omits protocol-processor
+  ok   caught: docs builder omits gptp-processor
+  ok   caught: docs builder initializes submodules after the call
+  ok   caught: docs builder initializes submodules before repository checkout
+  ok   caught: docs builder checkout overrides the event SHA
+  ok   caught: docs builder checkout is disabled
+  ok   caught: docs builder checkout action version drifts
+  ok   caught: docs builder replaced by env decoy
+  ok   caught: docs builder call continue-on-error
+  ok   caught: docs builder job defaults.run.shell bash -n
+  ok   caught: docs builder workflow defaults.run.shell bash -n
+  ok   caught: docs sv2v install dropped
+  ok   caught: docs sv2v version drifts off the pin
+  ok   caught: docs sv2v installed after the builder call
+  ok   caught: RV32 docs-check wrong cache digest
+  ok   caught: RV32 docs-check wrong cache OS
+  ok   caught: RV32 docs-check wrong cache architecture
+  ok   caught: RV32 docs-check wrong cache revision
+  ok   caught: RV32 docs-check wrong cache installer bytes
+  ok   caught: RV32 docs-check wrong cache fallback
+  ok   caught: RV32 docs-check wrong cache selector path
+  ok   caught: RV32 docs-check installation removed
+  ok   caught: RV32 docs-check verification skipped on cache hit
+  ok   caught: RV32 docs-check allows a stood-down compiler
+  ok   caught: RV32 elaborate wrong cache digest
+  ok   caught: RV32 elaborate wrong cache OS
+  ok   caught: RV32 elaborate wrong cache architecture
+  ok   caught: RV32 elaborate wrong cache revision
+  ok   caught: RV32 elaborate wrong cache installer bytes
+  ok   caught: RV32 elaborate wrong cache fallback
+  ok   caught: RV32 elaborate wrong cache selector path
+  ok   caught: RV32 elaborate installation removed
+  ok   caught: RV32 elaborate verification skipped on cache hit
+  ok   caught: RV32 elaborate allows a stood-down compiler
+  ok   caught: #261 `docs-check` job if: false
+  ok   caught: #261 `docs-check` job continue-on-error
+  ok   caught: #261 `docs-check` job needs a sibling
+  ok   caught: #261 a second job carries `docs-check`
+  ok   caught: #261 `docs-check` renamed
+  ok   caught: #261 `docs-check` renamed away while a stub takes the name
+  ok   caught: #261 `wire-accountability` job if: false
+  ok   caught: #261 `wire-accountability` job continue-on-error
+  ok   caught: #261 `wire-accountability` job needs a sibling
+  ok   caught: #261 `wire-accountability` job defaults.run.shell bash -n
+  ok   caught: #261 a second job carries `wire-accountability`
+  ok   caught: #261 `wire-accountability` renamed
+  ok   caught: #261 `wire-accountability` renamed away while a stub takes the name
+  ok   caught: #261 `docs-check-no-git` job if: false
+  ok   caught: #261 `docs-check-no-git` job continue-on-error
+  ok   caught: #261 `docs-check-no-git` job needs a sibling
+  ok   caught: #261 `docs-check-no-git` job defaults.run.shell bash -n
+  ok   caught: #261 a second job carries `docs-check-no-git`
+  ok   caught: #261 `docs-check-no-git` renamed
+  ok   caught: #261 `docs-check-no-git` renamed away while a stub takes the name
+  ok   caught: elaborate push on main, not dev
+  ok   caught: elaborate public name renamed
+  ok   caught: elaborate builder omits verilog-axis
+  ok   caught: elaborate builder omits protocol-processor
+  ok   caught: elaborate builder omits gptp-processor
+  ok   caught: elaborate builder initializes submodules before repository checkout
+  ok   caught: elaborate builder checkout overrides the event SHA
+  ok   caught: elaborate builder checkout is disabled
+  ok   caught: elaborate builder checkout moves the tree
+  ok   caught: elaborate builder replaced by env decoy
+  ok   caught: elaborate builder call continue-on-error
+  ok   caught: elaborate builder job defaults.run.shell bash -n
+  ok   caught: elaborate builder workflow defaults.run.shell bash -n
+  ok   caught: elaborate builder checkout and call both disabled
+  ok   caught: elaborate sv2v install dropped
+  ok   caught: elaborate sv2v version drifts off the pin
+  ok   caught: elaborate sv2v install disabled by if
+  ok   caught: #261 `elaborate` job if: false
+  ok   caught: #261 `elaborate` job continue-on-error
+  ok   caught: #261 `elaborate` job needs another job
+  ok   caught: #261 a second job carries `elaborate`
+  ok   caught: #261 `elaborate` renamed away while a stub takes the name
+  ok   caught: #261 docs decoy named by an expression
+  ok   caught: #261 elaborate decoy named by an expression
+  ok   caught: #261 rtl-fast decoy named by an expression
+  ok   caught: #261 rtl-full decoy named by an expression
+  ok   caught: #261 docs decoy renders a required name from its own matrix
+  ok   caught: #261 rtl-full decoy renders a required name from its own matrix
+  ok   caught: #261 docs decoy matrix value is itself an expression
+  ok   caught: #261 docs decoy name carries a `${{` the scan does not match
+  ok   caught: #261 rtl-full decoy matrix carries include
+  ok   caught: #261 elaborate decoy matrix is an expression
+  ok   caught: #261 rtl-fast decoy references a key its matrix lacks
+  ok   caught: #261 docs decoy matrix list is empty
+  ok   caught: #261 docs decoy renders another file's required name
+  ok   caught: #261 docs decoy literally named elaborate
+  ok   caught: #261 elaborate decoy literally named docs-check-no-git
+  ok   caught: #261 rtl-fast decoy literally named verilator-suites
+  ok   caught: #261 rtl-full decoy literally named docs-check
+  ok   caught: #261 a fifth workflow file carries docs-check
+  ok   caught: #261 a fifth workflow file's job id is elaborate
+  ok   caught: #261 a fifth workflow file names a job by an expression
+  ok   caught: #261 gate contract step removed
+  ok   caught: #261 gate contract step if: false
+  ok   caught: #261 gate contract step continue-on-error
+  ok   caught: #261 gate contract step swallows its exit status
+  ok   caught: #261 gate contract step moved after the decision
+  ok   caught: #261 docs-check job-level BASH_ENV
+  ok   caught: #261 wire-accountability job-level BASH_ENV
+  ok   caught: #261 elaborate job-level BASH_ENV
+  ok   caught: #261 full-ci-gate job-level BASH_ENV
+  ok   caught: #261 docs-check job-level env with a benign name
+  ok   caught: #261 docs.yml workflow-level BASH_ENV
+  ok   caught: #261 rtl.yml workflow-level BASH_ENV
+  ok   caught: #261 rtl-fast.yml workflow-level env with a benign name
+  ok   caught: #360 elaborate.yml Verilator pin drifts off the shared value
+  ok   caught: #360 rtl.yml Verilator pin drifts off the shared value
+  ok   caught: #360 rtl-fast.yml Verilator pin drifts off the shared value
+  ok   caught: #261 docs-check ci_events step-level BASH_ENV
+  ok   caught: #261 elaborate builder-call step-level BASH_ENV
+  ok   caught: #261 wire-accountability gate step-level BASH_ENV
+  ok   caught: #261 docs-check job container with BASH_ENV
+  ok   caught: #261 full-ci-gate job container with BASH_ENV
+  ok   caught: #261 elaborate job container image
+  ok   caught: #261 docs-check-no-git job services
+  ok   caught: #261 docs-check job Env spelled with a capital
+  ok   caught: #261 wire-accountability job benign key
+  ok   caught: #261 rtl-fast.yml workflow-level defaults
+  ok   caught: #261 docs-check-no-git single step shell
+  ok   caught: #261 docs-check step benign key
+  ok   caught: #261 docs-check inserted step writes GITHUB_ENV
+  ok   caught: #261 wire-accountability inserted step prepends GITHUB_PATH
+  ok   caught: #261 yosys-shards inserted step writes GITHUB_ENV
+  ok   caught: #261 docs-check existing step gains a GITHUB_ENV write
+  ok   caught: #261 docs-check inserted local action
+  ok   caught: #261 elaborate inserted third-party action
+  ok   caught: #261 rtl.yml recorded writer renamed
+  ok   caught: #261 docs.yml workflow-level env is not a mapping
+  ok   caught: #261 docs-check step env is not a mapping
+  ok   caught: #261 elaborate Install sbt script gains a PATH prepend
+  ok   caught: #261 elaborate added step under the recorded name Install sbt
+  ok   caught: #261 rtl.yml tsn-gen export rewritten to set BASH_ENV
+  ok   caught: #261 rtl-fast.yml lint step gains a hostile PATH prepend
+  ok   caught: #261 rtl.yml recorded writer duplicated
+  ok   caught: #261 wire-accountability checkout with ref
+  ok   caught: #261 docs-check-no-git checkout with repository
+  ok   caught: #261 docs-check job strategy
+  ok   caught: #261 wire-accountability job outputs
+  ok   caught: #261 rtl.yml standalone job with defaults
+  ok   caught: #261 docs.yml standalone job with defaults
+  ok   caught: #261 elaborate.yml standalone job with continue-on-error
+  ok   caught: #261 rtl-fast.yml standalone job with continue-on-error
+  ok   caught: #261 docs-check ci_events step working-directory
+  ok   caught: #261 behave step working-directory points at a decoy tree
+  ok   caught: #261 bdd-conformance other step working-directory
+  ok   caught: #295 docs ci_events gate step if: false
+  ok   caught: #295 docs ci_events gate step continue-on-error
+  ok   caught: #295 docs ci_events gate step shell
+  ok   caught: #295 docs ci_events gate step working-directory
+  ok   caught: #295 docs ci_events gate step --check || true
+  ok   caught: #295 docs ci_events gate step removed
+  ok   caught: #303 imported gPTP gate body replaced by true
+  ok   caught: #303 imported gPTP parent check removed
+  ok   caught: #303 imported gPTP donor build removed
+  ok   caught: #303 imported gPTP parent check swallows failure
+  ok   caught: #303 imported gPTP donor build swallows failure
+  ok   caught: #303 imported gPTP body moved under another name
+  ok   caught: #303 imported gPTP gate step if: false
+  ok   caught: #303 imported gPTP gate step continue-on-error
+  ok   caught: #303 imported gPTP gate step shell
+  ok   caught: #303 imported gPTP gate step working-directory
+  ok   caught: #378 em-dash gate body replaced by true
+  ok   caught: #378 em-dash gate judges from HEAD
+  ok   caught: #378 em-dash gate swallows failure
+  ok   caught: #378 em-dash gate judges from the frozen recorded base
+  ok   caught: #378 em-dash gate base branch fetch removed
+  ok   caught: #378 em-dash gate push base rewritten
+  ok   caught: #378 em-dash gate null-base refusal removed
+  ok   caught: #378 em-dash gate base fetch removed
+  ok   caught: #378 em-dash gate body moved under another name
+  ok   caught: #295 wire-accountability gate step if: false
+  ok   caught: #295 wire-accountability gate step continue-on-error
+  ok   caught: #295 wire-accountability gate step shell
+  ok   caught: #295 wire-accountability gate step working-directory
+  ok   caught: #295 wire-accountability gate step || true
+  ok   caught: #295 wire-accountability gate step removed
+  ok   caught: #295 docs-check-no-git single step if: false
+  ok   caught: #295 docs-check-no-git single step continue-on-error
+  ok   caught: #295 docs-check-no-git single step shell
+  ok   caught: #295 docs-check-no-git single step working-directory
+  ok   caught: #295 docs-check-no-git single step || true
+  ok   caught: #295 docs-check-no-git docs_check call replaced by true
+  ok   caught: #295 docs-check-no-git single step removed
+  ok   caught: #295 elaborate scope step if: false
+  ok   caught: #295 elaborate scope step continue-on-error
+  ok   caught: #295 elaborate scope step shell
+  ok   caught: #295 elaborate scope step working-directory
+  ok   caught: #295 elaborate scope step || true
+  ok   caught: #295 elaborate scope script publishes a literal rtl=false
+  ok   caught: #295 elaborate scope script drops the selector's self-test
+  ok   caught: #295 elaborate scope self-test runs after the answer is read
+  ok   caught: #295 elaborate scope step EVENT_NAME hard-coded
+  ok   caught: #295 elaborate scope step PR_BASE_SHA rebound to this run's SHA
+  ok   caught: #295 elaborate scope step removed
+  ok   caught: #295 docs-check body behind a stub of the required id
+  ok   caught: #295 wire-accountability body behind a stub of the required id
+  ok   caught: #295 docs-check-no-git body behind a stub of the required id
+  ok   caught: #295 elaborate body behind a stub of the required id
+  ok   caught: #295 duplicate docs-check mapping, last one wins
+  ok   caught: #295 duplicate wire-accountability mapping, last one wins
+  ok   caught: #295 duplicate docs-check-no-git mapping, last one wins
+  ok   caught: #295 duplicate elaborate mapping, last one wins
+  ok   caught: #295 docs-check inserted BASH_ENV writer breaks the sequence
+  ok   caught: #295 docs-check-no-git inserted BASH_ENV writer breaks the sequence
+  ok   caught: #295 wire-accountability inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #295 elaborate inserted third-party action breaks the sequence
+  ok   caught: #295 docs-check inserted step of benign content
+  ok   caught: #295 wire-accountability inserted step of benign content
+  ok   caught: #295 docs-check-no-git inserted step of benign content
+  ok   caught: #295 elaborate inserted step of benign content
+  ok   caught: #303 docs-check imported gPTP gate removed
+  ok   caught: #295 docs-check recognised step removed
+  ok   caught: #295 elaborate patch-series step removed
+  ok   caught: #295 docs-check recognised steps swapped
+  ok   caught: #295 elaborate scope and fetch steps swapped
+  ok   caught: #295 docs-check recognised step renamed
+  ok   caught: #295 docs-check non-gate step if: false
+  ok   caught: #559 capture measurement gate removed
+  ok   caught: #559 capture measurement gate reordered
+  ok   caught: #559 capture measurement gate renamed
+  ok   caught: #559 capture measurement gate if: false
+  ok   caught: #295 elaborate patch-series step if loosened
+  ok   caught: #295 elaborate metadata cache gains restore-keys
+  ok   caught: #295 docs upload step publishes another path
+  ok   caught: #378 em-dash gate step EVENT_NAME hard-coded
+  ok   caught: #378 em-dash gate step PR_BASE_REF rebound to the recorded oid
+  ok   caught: #378 em-dash gate step PUSH_BEFORE_SHA dropped
+  ok   caught: #378 em-dash gate step env gains BASH_ENV
+  ok   caught: #378 em-dash gate step if: false
+  ok   caught: #378 em-dash gate step removed
+  ok   caught: carrier-script-407 docs-check step 2 no-op
+  ok   caught: carrier-script-407 docs-check step 2 or-true
+  ok   caught: carrier-script-407 docs-check step 2 drop-command
+  ok   caught: carrier-script-407 docs-check step 2 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 2 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 2 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 2 append-command
+  ok   caught: carrier-script-407 docs-check step 2 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 2 drop-flag
+  ok   caught: carrier-script-407 docs-check step 2 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 4 no-op
+  ok   caught: carrier-script-407 docs-check step 4 or-true
+  ok   caught: carrier-script-407 docs-check step 4 append-command
+  ok   caught: carrier-script-407 docs-check step 4 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 6 no-op
+  ok   caught: carrier-script-407 docs-check step 6 or-true
+  ok   caught: carrier-script-407 docs-check step 6 append-command
+  ok   caught: carrier-script-407 docs-check step 6 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 7 no-op
+  ok   caught: carrier-script-407 docs-check step 7 or-true
+  ok   caught: carrier-script-407 docs-check step 7 drop-command
+  ok   caught: carrier-script-407 docs-check step 7 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 7 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 7 append-command
+  ok   caught: carrier-script-407 docs-check step 7 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 7 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 8 no-op
+  ok   caught: carrier-script-407 docs-check step 8 or-true
+  ok   caught: carrier-script-407 docs-check step 8 append-command
+  ok   caught: carrier-script-407 docs-check step 8 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 9 no-op
+  ok   caught: carrier-script-407 docs-check step 9 or-true
+  ok   caught: carrier-script-407 docs-check step 9 drop-command
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-4
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-5
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-6
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-7
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-8
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-9
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-10
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-11
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-12
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-13
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-14
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-15
+  ok   caught: carrier-script-407 docs-check step 9 or-true-line-16
+  ok   caught: carrier-script-407 docs-check step 9 append-command
+  ok   caught: carrier-script-407 docs-check step 9 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 9 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 10 no-op
+  ok   caught: carrier-script-407 docs-check step 10 or-true
+  ok   caught: carrier-script-407 docs-check step 10 drop-command
+  ok   caught: carrier-script-407 docs-check step 10 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 10 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 10 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 10 append-command
+  ok   caught: carrier-script-407 docs-check step 10 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 10 drop-flag
+  ok   caught: carrier-script-407 docs-check step 10 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 11 no-op
+  ok   caught: carrier-script-407 docs-check step 11 or-true
+  ok   caught: carrier-script-407 docs-check step 11 drop-command
+  ok   caught: carrier-script-407 docs-check step 11 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 11 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 11 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 11 append-command
+  ok   caught: carrier-script-407 docs-check step 11 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 11 drop-flag
+  ok   caught: carrier-script-407 docs-check step 11 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 12 no-op
+  ok   caught: carrier-script-407 docs-check step 12 or-true
+  ok   caught: carrier-script-407 docs-check step 12 drop-command
+  ok   caught: carrier-script-407 docs-check step 12 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 12 append-command
+  ok   caught: carrier-script-407 docs-check step 12 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 12 drop-flag
+  ok   caught: carrier-script-407 docs-check step 12 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 13 no-op
+  ok   caught: carrier-script-407 docs-check step 13 or-true
+  ok   caught: carrier-script-407 docs-check step 13 drop-command
+  ok   caught: carrier-script-407 docs-check step 13 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 13 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 13 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 13 append-command
+  ok   caught: carrier-script-407 docs-check step 13 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 13 drop-flag
+  ok   caught: carrier-script-407 docs-check step 13 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 14 no-op
+  ok   caught: carrier-script-407 docs-check step 14 or-true
+  ok   caught: carrier-script-407 docs-check step 14 drop-command
+  ok   caught: carrier-script-407 docs-check step 14 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 14 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 14 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 14 append-command
+  ok   caught: carrier-script-407 docs-check step 14 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 14 drop-flag
+  ok   caught: carrier-script-407 docs-check step 14 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 15 no-op
+  ok   caught: carrier-script-407 docs-check step 15 or-true
+  ok   caught: carrier-script-407 docs-check step 15 drop-command
+  ok   caught: carrier-script-407 docs-check step 15 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 15 append-command
+  ok   caught: carrier-script-407 docs-check step 15 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 15 drop-flag
+  ok   caught: carrier-script-407 docs-check step 15 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 16 no-op
+  ok   caught: carrier-script-407 docs-check step 16 or-true
+  ok   caught: carrier-script-407 docs-check step 16 append-command
+  ok   caught: carrier-script-407 docs-check step 16 drop-flag
+  ok   caught: carrier-script-407 docs-check step 16 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 17 no-op
+  ok   caught: carrier-script-407 docs-check step 17 or-true
+  ok   caught: carrier-script-407 docs-check step 17 append-command
+  ok   caught: carrier-script-407 docs-check step 17 drop-flag
+  ok   caught: carrier-script-407 docs-check step 17 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 18 no-op
+  ok   caught: carrier-script-407 docs-check step 18 or-true
+  ok   caught: carrier-script-407 docs-check step 18 append-command
+  ok   caught: carrier-script-407 docs-check step 18 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 19 no-op
+  ok   caught: carrier-script-407 docs-check step 19 or-true
+  ok   caught: carrier-script-407 docs-check step 19 drop-command
+  ok   caught: carrier-script-407 docs-check step 19 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 19 append-command
+  ok   caught: carrier-script-407 docs-check step 19 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 19 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 20 no-op
+  ok   caught: carrier-script-407 docs-check step 20 or-true
+  ok   caught: carrier-script-407 docs-check step 20 drop-command
+  ok   caught: carrier-script-407 docs-check step 20 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 20 append-command
+  ok   caught: carrier-script-407 docs-check step 20 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 20 drop-flag
+  ok   caught: carrier-script-407 docs-check step 20 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 21 no-op
+  ok   caught: carrier-script-407 docs-check step 21 or-true
+  ok   caught: carrier-script-407 docs-check step 21 drop-command
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-4
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-5
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-6
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-7
+  ok   caught: carrier-script-407 docs-check step 21 or-true-line-8
+  ok   caught: carrier-script-407 docs-check step 21 append-command
+  ok   caught: carrier-script-407 docs-check step 21 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 21 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 22 no-op
+  ok   caught: carrier-script-407 docs-check step 22 or-true
+  ok   caught: carrier-script-407 docs-check step 22 drop-command
+  ok   caught: carrier-script-407 docs-check step 22 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 22 append-command
+  ok   caught: carrier-script-407 docs-check step 22 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 22 drop-flag
+  ok   caught: carrier-script-407 docs-check step 22 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 24 no-op
+  ok   caught: carrier-script-407 docs-check step 24 or-true
+  ok   caught: carrier-script-407 docs-check step 24 drop-command
+  ok   caught: carrier-script-407 docs-check step 24 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 24 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 24 append-command
+  ok   caught: carrier-script-407 docs-check step 24 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 24 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 25 no-op
+  ok   caught: carrier-script-407 docs-check step 25 or-true
+  ok   caught: carrier-script-407 docs-check step 25 drop-command
+  ok   caught: carrier-script-407 docs-check step 25 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 25 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 25 append-command
+  ok   caught: carrier-script-407 docs-check step 25 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 25 drop-flag
+  ok   caught: carrier-script-407 docs-check step 25 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 26 no-op
+  ok   caught: carrier-script-407 docs-check step 26 or-true
+  ok   caught: carrier-script-407 docs-check step 26 drop-command
+  ok   caught: carrier-script-407 docs-check step 26 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 26 append-command
+  ok   caught: carrier-script-407 docs-check step 26 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 26 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 27 no-op
+  ok   caught: carrier-script-407 docs-check step 27 or-true
+  ok   caught: carrier-script-407 docs-check step 27 drop-command
+  ok   caught: carrier-script-407 docs-check step 27 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 27 append-command
+  ok   caught: carrier-script-407 docs-check step 27 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 27 drop-flag
+  ok   caught: carrier-script-407 docs-check step 27 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 28 no-op
+  ok   caught: carrier-script-407 docs-check step 28 or-true
+  ok   caught: carrier-script-407 docs-check step 28 append-command
+  ok   caught: carrier-script-407 docs-check step 28 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 29 no-op
+  ok   caught: carrier-script-407 docs-check step 29 or-true
+  ok   caught: carrier-script-407 docs-check step 29 append-command
+  ok   caught: carrier-script-407 docs-check step 29 drop-flag
+  ok   caught: carrier-script-407 docs-check step 29 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 30 no-op
+  ok   caught: carrier-script-407 docs-check step 30 or-true
+  ok   caught: carrier-script-407 docs-check step 30 drop-command
+  ok   caught: carrier-script-407 docs-check step 30 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 30 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 30 or-true-line-3
+  ok   caught: carrier-script-407 docs-check step 30 or-true-line-4
+  ok   caught: carrier-script-407 docs-check step 30 or-true-line-5
+  ok   caught: carrier-script-407 docs-check step 30 or-true-line-6
+  ok   caught: carrier-script-407 docs-check step 30 append-command
+  ok   caught: carrier-script-407 docs-check step 30 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 30 drop-flag
+  ok   caught: carrier-script-407 docs-check step 30 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 31 no-op
+  ok   caught: carrier-script-407 docs-check step 31 or-true
+  ok   caught: carrier-script-407 docs-check step 31 drop-command
+  ok   caught: carrier-script-407 docs-check step 31 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 31 append-command
+  ok   caught: carrier-script-407 docs-check step 31 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 31 drop-flag
+  ok   caught: carrier-script-407 docs-check step 31 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 32 no-op
+  ok   caught: carrier-script-407 docs-check step 32 or-true
+  ok   caught: carrier-script-407 docs-check step 32 drop-command
+  ok   caught: carrier-script-407 docs-check step 32 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 32 append-command
+  ok   caught: carrier-script-407 docs-check step 32 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 32 drop-flag
+  ok   caught: carrier-script-407 docs-check step 32 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 33 no-op
+  ok   caught: carrier-script-407 docs-check step 33 or-true
+  ok   caught: carrier-script-407 docs-check step 33 drop-command
+  ok   caught: carrier-script-407 docs-check step 33 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 33 append-command
+  ok   caught: carrier-script-407 docs-check step 33 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 33 drop-flag
+  ok   caught: carrier-script-407 docs-check step 33 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 34 no-op
+  ok   caught: carrier-script-407 docs-check step 34 or-true
+  ok   caught: carrier-script-407 docs-check step 34 drop-command
+  ok   caught: carrier-script-407 docs-check step 34 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 34 append-command
+  ok   caught: carrier-script-407 docs-check step 34 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 34 drop-flag
+  ok   caught: carrier-script-407 docs-check step 34 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 35 no-op
+  ok   caught: carrier-script-407 docs-check step 35 or-true
+  ok   caught: carrier-script-407 docs-check step 35 drop-command
+  ok   caught: carrier-script-407 docs-check step 35 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 35 append-command
+  ok   caught: carrier-script-407 docs-check step 35 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 35 drop-flag
+  ok   caught: carrier-script-407 docs-check step 35 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 36 no-op
+  ok   caught: carrier-script-407 docs-check step 36 or-true
+  ok   caught: carrier-script-407 docs-check step 36 drop-command
+  ok   caught: carrier-script-407 docs-check step 36 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 36 append-command
+  ok   caught: carrier-script-407 docs-check step 36 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 36 drop-flag
+  ok   caught: carrier-script-407 docs-check step 36 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 37 no-op
+  ok   caught: carrier-script-407 docs-check step 37 or-true
+  ok   caught: carrier-script-407 docs-check step 37 drop-command
+  ok   caught: carrier-script-407 docs-check step 37 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 37 append-command
+  ok   caught: carrier-script-407 docs-check step 37 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 37 drop-flag
+  ok   caught: carrier-script-407 docs-check step 37 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 38 no-op
+  ok   caught: carrier-script-407 docs-check step 38 or-true
+  ok   caught: carrier-script-407 docs-check step 38 drop-command
+  ok   caught: carrier-script-407 docs-check step 38 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 38 append-command
+  ok   caught: carrier-script-407 docs-check step 38 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 38 drop-flag
+  ok   caught: carrier-script-407 docs-check step 38 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 39 no-op
+  ok   caught: carrier-script-407 docs-check step 39 or-true
+  ok   caught: carrier-script-407 docs-check step 39 drop-command
+  ok   caught: carrier-script-407 docs-check step 39 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 39 append-command
+  ok   caught: carrier-script-407 docs-check step 39 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 39 drop-flag
+  ok   caught: carrier-script-407 docs-check step 39 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 40 no-op
+  ok   caught: carrier-script-407 docs-check step 40 or-true
+  ok   caught: carrier-script-407 docs-check step 40 drop-command
+  ok   caught: carrier-script-407 docs-check step 40 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 40 append-command
+  ok   caught: carrier-script-407 docs-check step 40 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 40 drop-flag
+  ok   caught: carrier-script-407 docs-check step 40 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 41 no-op
+  ok   caught: carrier-script-407 docs-check step 41 or-true
+  ok   caught: carrier-script-407 docs-check step 41 drop-command
+  ok   caught: carrier-script-407 docs-check step 41 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 41 append-command
+  ok   caught: carrier-script-407 docs-check step 41 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 41 drop-flag
+  ok   caught: carrier-script-407 docs-check step 41 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 42 no-op
+  ok   caught: carrier-script-407 docs-check step 42 or-true
+  ok   caught: carrier-script-407 docs-check step 42 drop-command
+  ok   caught: carrier-script-407 docs-check step 42 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 42 append-command
+  ok   caught: carrier-script-407 docs-check step 42 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 42 drop-flag
+  ok   caught: carrier-script-407 docs-check step 42 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 43 no-op
+  ok   caught: carrier-script-407 docs-check step 43 or-true
+  ok   caught: carrier-script-407 docs-check step 43 append-command
+  ok   caught: carrier-script-407 docs-check step 43 drop-flag
+  ok   caught: carrier-script-407 docs-check step 43 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 44 no-op
+  ok   caught: carrier-script-407 docs-check step 44 or-true
+  ok   caught: carrier-script-407 docs-check step 44 append-command
+  ok   caught: carrier-script-407 docs-check step 44 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 45 no-op
+  ok   caught: carrier-script-407 docs-check step 45 or-true
+  ok   caught: carrier-script-407 docs-check step 45 drop-command
+  ok   caught: carrier-script-407 docs-check step 45 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 45 append-command
+  ok   caught: carrier-script-407 docs-check step 45 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 45 drop-flag
+  ok   caught: carrier-script-407 docs-check step 45 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 46 no-op
+  ok   caught: carrier-script-407 docs-check step 46 or-true
+  ok   caught: carrier-script-407 docs-check step 46 drop-command
+  ok   caught: carrier-script-407 docs-check step 46 or-true-line-1
+  ok   caught: carrier-script-407 docs-check step 46 or-true-line-2
+  ok   caught: carrier-script-407 docs-check step 46 append-command
+  ok   caught: carrier-script-407 docs-check step 46 reorder-lines
+  ok   caught: carrier-script-407 docs-check step 46 drop-flag
+  ok   caught: carrier-script-407 docs-check step 46 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 47 no-op
+  ok   caught: carrier-script-407 docs-check step 47 or-true
+  ok   caught: carrier-script-407 docs-check step 47 append-command
+  ok   caught: carrier-script-407 docs-check step 47 drop-flag
+  ok   caught: carrier-script-407 docs-check step 47 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 48 no-op
+  ok   caught: carrier-script-407 docs-check step 48 or-true
+  ok   caught: carrier-script-407 docs-check step 48 append-command
+  ok   caught: carrier-script-407 docs-check step 48 drop-flag
+  ok   caught: carrier-script-407 docs-check step 48 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 49 no-op
+  ok   caught: carrier-script-407 docs-check step 49 or-true
+  ok   caught: carrier-script-407 docs-check step 49 append-command
+  ok   caught: carrier-script-407 docs-check step 49 drop-flag
+  ok   caught: carrier-script-407 docs-check step 49 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 50 no-op
+  ok   caught: carrier-script-407 docs-check step 50 or-true
+  ok   caught: carrier-script-407 docs-check step 50 append-command
+  ok   caught: carrier-script-407 docs-check step 50 drop-flag
+  ok   caught: carrier-script-407 docs-check step 50 continue-on-error
+  ok   caught: carrier-script-407 wire-accountability step 2 no-op
+  ok   caught: carrier-script-407 wire-accountability step 2 or-true
+  ok   caught: carrier-script-407 wire-accountability step 2 append-command
+  ok   caught: carrier-script-407 wire-accountability step 2 continue-on-error
+  ok   caught: carrier-script-407 wire-accountability step 3 no-op
+  ok   caught: carrier-script-407 wire-accountability step 3 or-true
+  ok   caught: carrier-script-407 wire-accountability step 3 drop-command
+  ok   caught: carrier-script-407 wire-accountability step 3 or-true-line-1
+  ok   caught: carrier-script-407 wire-accountability step 3 append-command
+  ok   caught: carrier-script-407 wire-accountability step 3 reorder-lines
+  ok   caught: carrier-script-407 wire-accountability step 3 drop-flag
+  ok   caught: carrier-script-407 wire-accountability step 3 continue-on-error
+  ok   caught: carrier-script-407 docs-check-no-git step 2 no-op
+  ok   caught: carrier-script-407 docs-check-no-git step 2 or-true
+  ok   caught: carrier-script-407 docs-check-no-git step 2 drop-command
+  ok   caught: carrier-script-407 docs-check-no-git step 2 or-true-line-1
+  ok   caught: carrier-script-407 docs-check-no-git step 2 or-true-line-2
+  ok   caught: carrier-script-407 docs-check-no-git step 2 append-command
+  ok   caught: carrier-script-407 docs-check-no-git step 2 reorder-lines
+  ok   caught: carrier-script-407 docs-check-no-git step 2 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 2 no-op
+  ok   caught: carrier-script-407 elaborate step 2 or-true
+  ok   caught: carrier-script-407 elaborate step 2 drop-command
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-3
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-4
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-5
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-6
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-7
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-8
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-9
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-10
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-11
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-12
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-13
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-14
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-15
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-16
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-17
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-18
+  ok   caught: carrier-script-407 elaborate step 2 or-true-line-19
+  ok   caught: carrier-script-407 elaborate step 2 append-command
+  ok   caught: carrier-script-407 elaborate step 2 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 2 drop-flag
+  ok   caught: carrier-script-407 elaborate step 2 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 3 no-op
+  ok   caught: carrier-script-407 elaborate step 3 or-true
+  ok   caught: carrier-script-407 elaborate step 3 append-command
+  ok   caught: carrier-script-407 elaborate step 3 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 4 no-op
+  ok   caught: carrier-script-407 elaborate step 4 or-true
+  ok   caught: carrier-script-407 elaborate step 4 drop-command
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-3
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-4
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-5
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-6
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-7
+  ok   caught: carrier-script-407 elaborate step 4 or-true-line-8
+  ok   caught: carrier-script-407 elaborate step 4 append-command
+  ok   caught: carrier-script-407 elaborate step 4 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 4 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 7 no-op
+  ok   caught: carrier-script-407 elaborate step 7 or-true
+  ok   caught: carrier-script-407 elaborate step 7 drop-command
+  ok   caught: carrier-script-407 elaborate step 7 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 7 append-command
+  ok   caught: carrier-script-407 elaborate step 7 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 7 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 10 no-op
+  ok   caught: carrier-script-407 elaborate step 10 or-true
+  ok   caught: carrier-script-407 elaborate step 10 drop-command
+  ok   caught: carrier-script-407 elaborate step 10 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 10 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 10 or-true-line-3
+  ok   caught: carrier-script-407 elaborate step 10 append-command
+  ok   caught: carrier-script-407 elaborate step 10 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 10 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 11 no-op
+  ok   caught: carrier-script-407 elaborate step 11 or-true
+  ok   caught: carrier-script-407 elaborate step 11 drop-command
+  ok   caught: carrier-script-407 elaborate step 11 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 11 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 11 append-command
+  ok   caught: carrier-script-407 elaborate step 11 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 11 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 12 no-op
+  ok   caught: carrier-script-407 elaborate step 12 or-true
+  ok   caught: carrier-script-407 elaborate step 12 append-command
+  ok   caught: carrier-script-407 elaborate step 12 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 14 no-op
+  ok   caught: carrier-script-407 elaborate step 14 or-true
+  ok   caught: carrier-script-407 elaborate step 14 drop-command
+  ok   caught: carrier-script-407 elaborate step 14 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 14 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 14 append-command
+  ok   caught: carrier-script-407 elaborate step 14 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 14 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 15 no-op
+  ok   caught: carrier-script-407 elaborate step 15 or-true
+  ok   caught: carrier-script-407 elaborate step 15 append-command
+  ok   caught: carrier-script-407 elaborate step 15 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 17 no-op
+  ok   caught: carrier-script-407 elaborate step 17 or-true
+  ok   caught: carrier-script-407 elaborate step 17 drop-command
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-3
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-4
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-5
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-6
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-7
+  ok   caught: carrier-script-407 elaborate step 17 or-true-line-8
+  ok   caught: carrier-script-407 elaborate step 17 append-command
+  ok   caught: carrier-script-407 elaborate step 17 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 17 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 18 no-op
+  ok   caught: carrier-script-407 elaborate step 18 or-true
+  ok   caught: carrier-script-407 elaborate step 18 drop-command
+  ok   caught: carrier-script-407 elaborate step 18 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 18 or-true-line-2
+  ok   caught: carrier-script-407 elaborate step 18 or-true-line-3
+  ok   caught: carrier-script-407 elaborate step 18 append-command
+  ok   caught: carrier-script-407 elaborate step 18 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 18 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 19 no-op
+  ok   caught: carrier-script-407 elaborate step 19 or-true
+  ok   caught: carrier-script-407 elaborate step 19 drop-command
+  ok   caught: carrier-script-407 elaborate step 19 or-true-line-1
+  ok   caught: carrier-script-407 elaborate step 19 append-command
+  ok   caught: carrier-script-407 elaborate step 19 reorder-lines
+  ok   caught: carrier-script-407 elaborate step 19 drop-flag
+  ok   caught: carrier-script-407 elaborate step 19 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 20 no-op
+  ok   caught: carrier-script-407 elaborate step 20 or-true
+  ok   caught: carrier-script-407 elaborate step 20 append-command
+  ok   caught: carrier-script-407 elaborate step 20 continue-on-error
+  ok   caught: rtl-script-439 full-ci-gate step 2 no-op
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true
+  ok   caught: rtl-script-439 full-ci-gate step 2 drop-command
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-1
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-2
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-3
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-4
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-5
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-6
+  ok   caught: rtl-script-439 full-ci-gate step 2 or-true-line-7
+  ok   caught: rtl-script-439 full-ci-gate step 2 append-command
+  ok   caught: rtl-script-439 full-ci-gate step 2 reorder-lines
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-1
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-1
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-2
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-2
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-3
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-3
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-4
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-4
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-5
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-5
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-6
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-6
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-7
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-7
+  ok   caught: rtl-script-439 full-ci-gate step 2 delete-line-8
+  ok   caught: rtl-script-439 full-ci-gate step 2 change-line-8
+  ok   caught: rtl-script-439 full-ci-gate step 2 drop-checkout-mismatch-assertion
+  ok   caught: rtl-script-439 full-ci-gate step 2 mismatch-exit-becomes-true
+  ok   caught: rtl-script-439 verilator-shards step 2 no-op
+  ok   caught: rtl-script-439 verilator-shards step 2 or-true
+  ok   caught: rtl-script-439 verilator-shards step 2 append-command
+  ok   caught: rtl-script-439 verilator-shards step 2 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 2 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 3 no-op
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true
+  ok   caught: rtl-script-439 verilator-shards step 3 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 3 or-true-line-8
+  ok   caught: rtl-script-439 verilator-shards step 3 append-command
+  ok   caught: rtl-script-439 verilator-shards step 3 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 3 delete-line-9
+  ok   caught: rtl-script-439 verilator-shards step 3 change-line-9
+  ok   caught: rtl-script-439 verilator-shards step 5 no-op
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true
+  ok   caught: rtl-script-439 verilator-shards step 5 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 5 or-true-line-8
+  ok   caught: rtl-script-439 verilator-shards step 5 append-command
+  ok   caught: rtl-script-439 verilator-shards step 5 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 5 delete-line-9
+  ok   caught: rtl-script-439 verilator-shards step 5 change-line-9
+  ok   caught: rtl-script-439 verilator-shards step 6 no-op
+  ok   caught: rtl-script-439 verilator-shards step 6 or-true
+  ok   caught: rtl-script-439 verilator-shards step 6 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 6 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 6 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 6 append-command
+  ok   caught: rtl-script-439 verilator-shards step 6 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 6 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 6 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 6 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 6 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 6 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 6 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 7 no-op
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true
+  ok   caught: rtl-script-439 verilator-shards step 7 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-8
+  ok   caught: rtl-script-439 verilator-shards step 7 or-true-line-9
+  ok   caught: rtl-script-439 verilator-shards step 7 append-command
+  ok   caught: rtl-script-439 verilator-shards step 7 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 7 drop-flag
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-9
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-9
+  ok   caught: rtl-script-439 verilator-shards step 7 delete-line-10
+  ok   caught: rtl-script-439 verilator-shards step 7 change-line-10
+  ok   caught: rtl-script-439 verilator-shards step 9 no-op
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true
+  ok   caught: rtl-script-439 verilator-shards step 9 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-8
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-9
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-10
+  ok   caught: rtl-script-439 verilator-shards step 9 or-true-line-11
+  ok   caught: rtl-script-439 verilator-shards step 9 append-command
+  ok   caught: rtl-script-439 verilator-shards step 9 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-9
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-9
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-10
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-10
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-11
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-11
+  ok   caught: rtl-script-439 verilator-shards step 9 delete-line-12
+  ok   caught: rtl-script-439 verilator-shards step 9 change-line-12
+  ok   caught: rtl-script-439 verilator-shards step 10 no-op
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true
+  ok   caught: rtl-script-439 verilator-shards step 10 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 10 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 10 append-command
+  ok   caught: rtl-script-439 verilator-shards step 10 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 10 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 10 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 11 no-op
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true
+  ok   caught: rtl-script-439 verilator-shards step 11 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 11 or-true-line-8
+  ok   caught: rtl-script-439 verilator-shards step 11 append-command
+  ok   caught: rtl-script-439 verilator-shards step 11 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 11 delete-line-9
+  ok   caught: rtl-script-439 verilator-shards step 11 change-line-9
+  ok   caught: rtl-script-439 verilator-shards step 12 no-op
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true
+  ok   caught: rtl-script-439 verilator-shards step 12 drop-command
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-1
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-2
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-3
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-4
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-5
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-6
+  ok   caught: rtl-script-439 verilator-shards step 12 or-true-line-7
+  ok   caught: rtl-script-439 verilator-shards step 12 append-command
+  ok   caught: rtl-script-439 verilator-shards step 12 reorder-lines
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-1
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-2
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-2
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-3
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-3
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-4
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-4
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-5
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-5
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-6
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-6
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-7
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-7
+  ok   caught: rtl-script-439 verilator-shards step 12 delete-line-8
+  ok   caught: rtl-script-439 verilator-shards step 12 change-line-8
+  ok   caught: rtl-script-439 verilator-shards step 13 no-op
+  ok   caught: rtl-script-439 verilator-shards step 13 or-true
+  ok   caught: rtl-script-439 verilator-shards step 13 append-command
+  ok   caught: rtl-script-439 verilator-shards step 13 delete-line-1
+  ok   caught: rtl-script-439 verilator-shards step 13 change-line-1
+  ok   caught: rtl-script-439 verilator-suites step 3 no-op
+  ok   caught: rtl-script-439 verilator-suites step 3 or-true
+  ok   caught: rtl-script-439 verilator-suites step 3 drop-command
+  ok   caught: rtl-script-439 verilator-suites step 3 or-true-line-1
+  ok   caught: rtl-script-439 verilator-suites step 3 or-true-line-2
+  ok   caught: rtl-script-439 verilator-suites step 3 append-command
+  ok   caught: rtl-script-439 verilator-suites step 3 reorder-lines
+  ok   caught: rtl-script-439 verilator-suites step 3 delete-line-1
+  ok   caught: rtl-script-439 verilator-suites step 3 change-line-1
+  ok   caught: rtl-script-439 verilator-suites step 3 delete-line-2
+  ok   caught: rtl-script-439 verilator-suites step 3 change-line-2
+  ok   caught: rtl-script-439 verilator-suites step 3 delete-line-3
+  ok   caught: rtl-script-439 verilator-suites step 3 change-line-3
+  ok   caught: rtl-script-439 verilator-suites step 4 no-op
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true
+  ok   caught: rtl-script-439 verilator-suites step 4 drop-command
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true-line-1
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true-line-2
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true-line-3
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true-line-4
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true-line-5
+  ok   caught: rtl-script-439 verilator-suites step 4 or-true-line-6
+  ok   caught: rtl-script-439 verilator-suites step 4 append-command
+  ok   caught: rtl-script-439 verilator-suites step 4 reorder-lines
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-1
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-1
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-2
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-2
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-3
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-3
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-4
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-4
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-5
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-5
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-6
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-6
+  ok   caught: rtl-script-439 verilator-suites step 4 delete-line-7
+  ok   caught: rtl-script-439 verilator-suites step 4 change-line-7
+  ok   caught: rtl-script-439 verilator-suites step 5 no-op
+  ok   caught: rtl-script-439 verilator-suites step 5 or-true
+  ok   caught: rtl-script-439 verilator-suites step 5 drop-command
+  ok   caught: rtl-script-439 verilator-suites step 5 or-true-line-1
+  ok   caught: rtl-script-439 verilator-suites step 5 or-true-line-2
+  ok   caught: rtl-script-439 verilator-suites step 5 or-true-line-3
+  ok   caught: rtl-script-439 verilator-suites step 5 or-true-line-4
+  ok   caught: rtl-script-439 verilator-suites step 5 append-command
+  ok   caught: rtl-script-439 verilator-suites step 5 reorder-lines
+  ok   caught: rtl-script-439 verilator-suites step 5 delete-line-1
+  ok   caught: rtl-script-439 verilator-suites step 5 change-line-1
+  ok   caught: rtl-script-439 verilator-suites step 5 delete-line-2
+  ok   caught: rtl-script-439 verilator-suites step 5 change-line-2
+  ok   caught: rtl-script-439 verilator-suites step 5 delete-line-3
+  ok   caught: rtl-script-439 verilator-suites step 5 change-line-3
+  ok   caught: rtl-script-439 verilator-suites step 5 delete-line-4
+  ok   caught: rtl-script-439 verilator-suites step 5 change-line-4
+  ok   caught: rtl-script-439 verilator-suites step 5 delete-line-5
+  ok   caught: rtl-script-439 verilator-suites step 5 change-line-5
+  ok   caught: rtl-script-439 yosys-shards step 2 no-op
+  ok   caught: rtl-script-439 yosys-shards step 2 or-true
+  ok   caught: rtl-script-439 yosys-shards step 2 append-command
+  ok   caught: rtl-script-439 yosys-shards step 2 delete-line-1
+  ok   caught: rtl-script-439 yosys-shards step 2 change-line-1
+  ok   caught: rtl-script-439 yosys-shards step 3 no-op
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true
+  ok   caught: rtl-script-439 yosys-shards step 3 drop-command
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-1
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-2
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-3
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-4
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-5
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-6
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-7
+  ok   caught: rtl-script-439 yosys-shards step 3 or-true-line-8
+  ok   caught: rtl-script-439 yosys-shards step 3 append-command
+  ok   caught: rtl-script-439 yosys-shards step 3 reorder-lines
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-1
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-1
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-2
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-2
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-3
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-3
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-4
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-4
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-5
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-5
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-6
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-6
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-7
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-7
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-8
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-8
+  ok   caught: rtl-script-439 yosys-shards step 3 delete-line-9
+  ok   caught: rtl-script-439 yosys-shards step 3 change-line-9
+  ok   caught: rtl-script-439 yosys-shards step 5 no-op
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true
+  ok   caught: rtl-script-439 yosys-shards step 5 drop-command
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-1
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-2
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-3
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-4
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-5
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-6
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-7
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-8
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-9
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-10
+  ok   caught: rtl-script-439 yosys-shards step 5 or-true-line-11
+  ok   caught: rtl-script-439 yosys-shards step 5 append-command
+  ok   caught: rtl-script-439 yosys-shards step 5 reorder-lines
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-1
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-1
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-2
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-2
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-3
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-3
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-4
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-4
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-5
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-5
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-6
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-6
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-7
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-7
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-8
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-8
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-9
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-9
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-10
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-10
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-11
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-11
+  ok   caught: rtl-script-439 yosys-shards step 5 delete-line-12
+  ok   caught: rtl-script-439 yosys-shards step 5 change-line-12
+  ok   caught: rtl-script-439 yosys-shards step 6 no-op
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true
+  ok   caught: rtl-script-439 yosys-shards step 6 drop-command
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-1
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-2
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-3
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-4
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-5
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-6
+  ok   caught: rtl-script-439 yosys-shards step 6 or-true-line-7
+  ok   caught: rtl-script-439 yosys-shards step 6 append-command
+  ok   caught: rtl-script-439 yosys-shards step 6 reorder-lines
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-1
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-1
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-2
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-2
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-3
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-3
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-4
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-4
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-5
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-5
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-6
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-6
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-7
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-7
+  ok   caught: rtl-script-439 yosys-shards step 6 delete-line-8
+  ok   caught: rtl-script-439 yosys-shards step 6 change-line-8
+  ok   caught: rtl-script-439 yosys-shards step 7 no-op
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true
+  ok   caught: rtl-script-439 yosys-shards step 7 drop-command
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-1
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-2
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-3
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-4
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-5
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-6
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-7
+  ok   caught: rtl-script-439 yosys-shards step 7 or-true-line-8
+  ok   caught: rtl-script-439 yosys-shards step 7 append-command
+  ok   caught: rtl-script-439 yosys-shards step 7 reorder-lines
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-1
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-1
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-2
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-2
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-3
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-3
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-4
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-4
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-5
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-5
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-6
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-6
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-7
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-7
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-8
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-8
+  ok   caught: rtl-script-439 yosys-shards step 7 delete-line-9
+  ok   caught: rtl-script-439 yosys-shards step 7 change-line-9
+  ok   caught: rtl-script-439 yosys-shards step 9 no-op
+  ok   caught: rtl-script-439 yosys-shards step 9 or-true
+  ok   caught: rtl-script-439 yosys-shards step 9 append-command
+  ok   caught: rtl-script-439 yosys-shards step 9 delete-line-1
+  ok   caught: rtl-script-439 yosys-shards step 9 change-line-1
+  ok   caught: rtl-script-439 yosys-portability step 3 no-op
+  ok   caught: rtl-script-439 yosys-portability step 3 or-true
+  ok   caught: rtl-script-439 yosys-portability step 3 drop-command
+  ok   caught: rtl-script-439 yosys-portability step 3 or-true-line-1
+  ok   caught: rtl-script-439 yosys-portability step 3 or-true-line-2
+  ok   caught: rtl-script-439 yosys-portability step 3 append-command
+  ok   caught: rtl-script-439 yosys-portability step 3 reorder-lines
+  ok   caught: rtl-script-439 yosys-portability step 3 delete-line-1
+  ok   caught: rtl-script-439 yosys-portability step 3 change-line-1
+  ok   caught: rtl-script-439 yosys-portability step 3 delete-line-2
+  ok   caught: rtl-script-439 yosys-portability step 3 change-line-2
+  ok   caught: rtl-script-439 yosys-portability step 3 delete-line-3
+  ok   caught: rtl-script-439 yosys-portability step 3 change-line-3
+  ok   caught: rtl-script-439 yosys-portability step 4 no-op
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true
+  ok   caught: rtl-script-439 yosys-portability step 4 drop-command
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-1
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-2
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-3
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-4
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-5
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-6
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-7
+  ok   caught: rtl-script-439 yosys-portability step 4 or-true-line-8
+  ok   caught: rtl-script-439 yosys-portability step 4 append-command
+  ok   caught: rtl-script-439 yosys-portability step 4 reorder-lines
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-1
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-1
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-2
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-2
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-3
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-3
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-4
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-4
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-5
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-5
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-6
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-6
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-7
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-7
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-8
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-8
+  ok   caught: rtl-script-439 yosys-portability step 4 delete-line-9
+  ok   caught: rtl-script-439 yosys-portability step 4 change-line-9
+  ok   caught: rtl-script-439 yosys-portability step 5 no-op
+  ok   caught: rtl-script-439 yosys-portability step 5 or-true
+  ok   caught: rtl-script-439 yosys-portability step 5 drop-command
+  ok   caught: rtl-script-439 yosys-portability step 5 or-true-line-1
+  ok   caught: rtl-script-439 yosys-portability step 5 or-true-line-2
+  ok   caught: rtl-script-439 yosys-portability step 5 or-true-line-3
+  ok   caught: rtl-script-439 yosys-portability step 5 or-true-line-4
+  ok   caught: rtl-script-439 yosys-portability step 5 append-command
+  ok   caught: rtl-script-439 yosys-portability step 5 reorder-lines
+  ok   caught: rtl-script-439 yosys-portability step 5 delete-line-1
+  ok   caught: rtl-script-439 yosys-portability step 5 change-line-1
+  ok   caught: rtl-script-439 yosys-portability step 5 delete-line-2
+  ok   caught: rtl-script-439 yosys-portability step 5 change-line-2
+  ok   caught: rtl-script-439 yosys-portability step 5 delete-line-3
+  ok   caught: rtl-script-439 yosys-portability step 5 change-line-3
+  ok   caught: rtl-script-439 yosys-portability step 5 delete-line-4
+  ok   caught: rtl-script-439 yosys-portability step 5 change-line-4
+  ok   caught: rtl-script-439 yosys-portability step 5 delete-line-5
+  ok   caught: rtl-script-439 yosys-portability step 5 change-line-5
+  ok   caught: rtl-script-439 verilator-lint step 2 no-op
+  ok   caught: rtl-script-439 verilator-lint step 2 or-true
+  ok   caught: rtl-script-439 verilator-lint step 2 append-command
+  ok   caught: rtl-script-439 verilator-lint step 2 delete-line-1
+  ok   caught: rtl-script-439 verilator-lint step 2 change-line-1
+  ok   caught: rtl-script-439 verilator-lint step 4 no-op
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true
+  ok   caught: rtl-script-439 verilator-lint step 4 drop-command
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-1
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-2
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-3
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-4
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-5
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-6
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-7
+  ok   caught: rtl-script-439 verilator-lint step 4 or-true-line-8
+  ok   caught: rtl-script-439 verilator-lint step 4 append-command
+  ok   caught: rtl-script-439 verilator-lint step 4 reorder-lines
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-1
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-1
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-2
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-2
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-3
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-3
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-4
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-4
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-5
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-5
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-6
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-6
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-7
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-7
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-8
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-8
+  ok   caught: rtl-script-439 verilator-lint step 4 delete-line-9
+  ok   caught: rtl-script-439 verilator-lint step 4 change-line-9
+  ok   caught: rtl-script-439 verilator-lint step 5 no-op
+  ok   caught: rtl-script-439 verilator-lint step 5 or-true
+  ok   caught: rtl-script-439 verilator-lint step 5 drop-command
+  ok   caught: rtl-script-439 verilator-lint step 5 or-true-line-1
+  ok   caught: rtl-script-439 verilator-lint step 5 or-true-line-2
+  ok   caught: rtl-script-439 verilator-lint step 5 or-true-line-3
+  ok   caught: rtl-script-439 verilator-lint step 5 append-command
+  ok   caught: rtl-script-439 verilator-lint step 5 reorder-lines
+  ok   caught: rtl-script-439 verilator-lint step 5 drop-flag
+  ok   caught: rtl-script-439 verilator-lint step 5 delete-line-1
+  ok   caught: rtl-script-439 verilator-lint step 5 change-line-1
+  ok   caught: rtl-script-439 verilator-lint step 5 delete-line-2
+  ok   caught: rtl-script-439 verilator-lint step 5 change-line-2
+  ok   caught: rtl-script-439 verilator-lint step 5 delete-line-3
+  ok   caught: rtl-script-439 verilator-lint step 5 change-line-3
+  ok   caught: rtl-script-439 verilator-lint step 5 delete-line-4
+  ok   caught: rtl-script-439 verilator-lint step 5 change-line-4
+  ok   caught: rtl-script-439 verilator-lint step 6 no-op
+  ok   caught: rtl-script-439 verilator-lint step 6 or-true
+  ok   caught: rtl-script-439 verilator-lint step 6 append-command
+  ok   caught: rtl-script-439 verilator-lint step 6 drop-flag
+  ok   caught: rtl-script-439 verilator-lint step 6 delete-line-1
+  ok   caught: rtl-script-439 verilator-lint step 6 change-line-1
+  ok   caught: rtl-script-439 bdd-conformance step 2 no-op
+  ok   caught: rtl-script-439 bdd-conformance step 2 or-true
+  ok   caught: rtl-script-439 bdd-conformance step 2 append-command
+  ok   caught: rtl-script-439 bdd-conformance step 2 delete-line-1
+  ok   caught: rtl-script-439 bdd-conformance step 2 change-line-1
+  ok   caught: rtl-script-439 bdd-conformance step 3 no-op
+  ok   caught: rtl-script-439 bdd-conformance step 3 or-true
+  ok   caught: rtl-script-439 bdd-conformance step 3 append-command
+  ok   caught: rtl-script-439 bdd-conformance step 3 delete-line-1
+  ok   caught: rtl-script-439 bdd-conformance step 3 change-line-1
+  ok   caught: rtl-script-439 bdd-conformance step 4 no-op
+  ok   caught: rtl-script-439 bdd-conformance step 4 or-true
+  ok   caught: rtl-script-439 bdd-conformance step 4 append-command
+  ok   caught: rtl-script-439 bdd-conformance step 4 delete-line-1
+  ok   caught: rtl-script-439 bdd-conformance step 4 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 2 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 2 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 2 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 2 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 2 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 4 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 4 drop-command
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-10
+  ok   caught: rtl-script-439 yosys-elaboration step 4 or-true-line-11
+  ok   caught: rtl-script-439 yosys-elaboration step 4 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 4 reorder-lines
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-10
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-10
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-11
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-11
+  ok   caught: rtl-script-439 yosys-elaboration step 4 delete-line-12
+  ok   caught: rtl-script-439 yosys-elaboration step 4 change-line-12
+  ok   caught: rtl-script-439 yosys-elaboration step 5 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 5 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 5 drop-command
+  ok   caught: rtl-script-439 yosys-elaboration step 5 or-true-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 5 or-true-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 5 or-true-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 5 or-true-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 5 or-true-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 5 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 5 reorder-lines
+  ok   caught: rtl-script-439 yosys-elaboration step 5 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 5 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 5 delete-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 5 change-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 5 delete-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 5 change-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 5 delete-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 5 change-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 5 delete-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 5 change-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 5 delete-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 5 change-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 6 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 6 drop-command
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 6 or-true-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 6 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 6 reorder-lines
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 6 delete-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 6 change-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 7 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 7 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 7 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 7 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 7 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 8 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 8 drop-command
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-10
+  ok   caught: rtl-script-439 yosys-elaboration step 8 or-true-line-11
+  ok   caught: rtl-script-439 yosys-elaboration step 8 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 8 reorder-lines
+  ok   caught: rtl-script-439 yosys-elaboration step 8 drop-flag
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-2
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-3
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-4
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-5
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-6
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-7
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-8
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-9
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-10
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-10
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-11
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-11
+  ok   caught: rtl-script-439 yosys-elaboration step 8 delete-line-12
+  ok   caught: rtl-script-439 yosys-elaboration step 8 change-line-12
+  ok   caught: rtl-script-439 yosys-elaboration step 9 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 9 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 9 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 9 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 9 change-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 10 no-op
+  ok   caught: rtl-script-439 yosys-elaboration step 10 or-true
+  ok   caught: rtl-script-439 yosys-elaboration step 10 append-command
+  ok   caught: rtl-script-439 yosys-elaboration step 10 delete-line-1
+  ok   caught: rtl-script-439 yosys-elaboration step 10 change-line-1
+  ok   caught: #406 full-ci-gate inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 full-ci-gate inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 full-ci-gate inserted third-party action breaks the sequence
+  ok   caught: #406 full-ci-gate inserted step of benign content breaks the sequence
+  ok   caught: #406 full-ci-gate recorded step removed
+  ok   caught: #406 full-ci-gate step appended after the recorded list
+  ok   caught: #406 full-ci-gate step gains a `shell`
+  ok   caught: #406 full-ci-gate recorded steps swapped
+  ok   caught: #406 full-ci-gate recorded step renamed
+  ok   caught: #406 full-ci-gate recorded env binding rebound
+  ok   caught: #406 full-ci-gate ungated step given if: false
+  ok   caught: #406 full-ci-gate action step `with` rewritten
+  ok   caught: #406 full-ci-gate recorded `id` changed
+  ok   caught: #406 verilator-shards inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 verilator-shards inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 verilator-shards inserted third-party action breaks the sequence
+  ok   caught: #406 verilator-shards inserted step of benign content breaks the sequence
+  ok   caught: #406 verilator-shards recorded step removed
+  ok   caught: #406 verilator-shards step appended after the recorded list
+  ok   caught: #406 verilator-shards step gains a `shell`
+  ok   caught: #406 verilator-shards recorded steps swapped
+  ok   caught: #406 verilator-shards recorded step renamed
+  ok   caught: #406 verilator-shards action step swapped under its recorded name
+  ok   caught: #406 verilator-shards recorded env binding rebound
+  ok   caught: #406 verilator-shards gated step `if` dropped
+  ok   caught: #406 verilator-shards action step `with` rewritten
+  ok   caught: #406 verilator-shards recorded `id` changed
+  ok   caught: #406 physical-gptp inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 physical-gptp inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 physical-gptp inserted third-party action breaks the sequence
+  ok   caught: #406 physical-gptp inserted step of benign content breaks the sequence
+  ok   caught: #406 physical-gptp recorded step removed
+  ok   caught: #406 physical-gptp step appended after the recorded list
+  ok   caught: #406 physical-gptp step gains a `shell`
+  ok   caught: #406 physical-gptp recorded steps swapped
+  ok   caught: #406 physical-gptp recorded step renamed
+  ok   caught: #406 physical-gptp action step swapped under its recorded name
+  ok   caught: #406 physical-gptp recorded env binding rebound
+  ok   caught: #406 physical-gptp gated step `if` dropped
+  ok   caught: #406 physical-gptp action step `with` rewritten
+  ok   caught: #406 physical-gptp recorded `id` changed
+  ok   caught: #406 verilator-suites inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 verilator-suites inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 verilator-suites inserted third-party action breaks the sequence
+  ok   caught: #406 verilator-suites inserted step of benign content breaks the sequence
+  ok   caught: #406 verilator-suites recorded step removed
+  ok   caught: #406 verilator-suites step appended after the recorded list
+  ok   caught: #406 verilator-suites step gains a `shell`
+  ok   caught: #406 verilator-suites recorded steps swapped
+  ok   caught: #406 verilator-suites recorded step renamed
+  ok   caught: #406 verilator-suites action step swapped under its recorded name
+  ok   caught: #406 verilator-suites recorded env binding rebound
+  ok   caught: #406 verilator-suites gated step `if` dropped
+  ok   caught: #406 verilator-suites action step `with` rewritten
+  ok   caught: #406 verilator-suites recorded `id` changed
+  ok   caught: #406 verilator-suites recorded `continue-on-error` changed
+  ok   caught: #406 yosys-shards inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 yosys-shards inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 yosys-shards inserted third-party action breaks the sequence
+  ok   caught: #406 yosys-shards inserted step of benign content breaks the sequence
+  ok   caught: #406 yosys-shards recorded step removed
+  ok   caught: #406 yosys-shards step appended after the recorded list
+  ok   caught: #406 yosys-shards step gains a `shell`
+  ok   caught: #406 yosys-shards recorded steps swapped
+  ok   caught: #406 yosys-shards recorded step renamed
+  ok   caught: #406 yosys-shards action step swapped under its recorded name
+  ok   caught: #406 yosys-shards recorded env binding rebound
+  ok   caught: #406 yosys-shards gated step `if` dropped
+  ok   caught: #406 yosys-shards action step `with` rewritten
+  ok   caught: #406 yosys-shards recorded `id` changed
+  ok   caught: #406 yosys-portability inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 yosys-portability inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 yosys-portability inserted third-party action breaks the sequence
+  ok   caught: #406 yosys-portability inserted step of benign content breaks the sequence
+  ok   caught: #406 yosys-portability recorded step removed
+  ok   caught: #406 yosys-portability step appended after the recorded list
+  ok   caught: #406 yosys-portability step gains a `shell`
+  ok   caught: #406 yosys-portability recorded steps swapped
+  ok   caught: #406 yosys-portability recorded step renamed
+  ok   caught: #406 yosys-portability action step swapped under its recorded name
+  ok   caught: #406 yosys-portability recorded env binding rebound
+  ok   caught: #406 yosys-portability gated step `if` dropped
+  ok   caught: #406 yosys-portability action step `with` rewritten
+  ok   caught: #406 yosys-portability recorded `id` changed
+  ok   caught: #406 yosys-portability recorded `continue-on-error` changed
+  ok   caught: #406 changes inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 changes inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 changes inserted third-party action breaks the sequence
+  ok   caught: #406 changes inserted step of benign content breaks the sequence
+  ok   caught: #406 changes recorded step removed
+  ok   caught: #406 changes step appended after the recorded list
+  ok   caught: #406 changes step gains a `shell`
+  ok   caught: #406 changes recorded steps swapped
+  ok   caught: #406 changes recorded step renamed
+  ok   caught: #406 changes recorded env binding rebound
+  ok   caught: #406 changes ungated step given if: false
+  ok   caught: #406 changes action step `with` rewritten
+  ok   caught: #406 changes recorded `id` changed
+  ok   caught: #406 verilator-lint inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 verilator-lint inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 verilator-lint inserted third-party action breaks the sequence
+  ok   caught: #406 verilator-lint inserted step of benign content breaks the sequence
+  ok   caught: #406 verilator-lint recorded step removed
+  ok   caught: #406 verilator-lint step appended after the recorded list
+  ok   caught: #406 verilator-lint step gains a `shell`
+  ok   caught: #406 verilator-lint recorded steps swapped
+  ok   caught: #406 verilator-lint recorded step renamed
+  ok   caught: #406 verilator-lint action step swapped under its recorded name
+  ok   caught: #406 verilator-lint step given an env binding
+  ok   caught: #406 verilator-lint gated step `if` dropped
+  ok   caught: #406 verilator-lint action step `with` rewritten
+  ok   caught: #406 verilator-lint recorded `id` changed
+  ok   caught: #406 bdd-conformance inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 bdd-conformance inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 bdd-conformance inserted third-party action breaks the sequence
+  ok   caught: #406 bdd-conformance inserted step of benign content breaks the sequence
+  ok   caught: #406 bdd-conformance recorded step removed
+  ok   caught: #406 bdd-conformance step appended after the recorded list
+  ok   caught: #406 bdd-conformance step gains a `shell`
+  ok   caught: #406 bdd-conformance recorded steps swapped
+  ok   caught: #406 bdd-conformance recorded step renamed
+  ok   caught: #406 bdd-conformance step given an env binding
+  ok   caught: #406 bdd-conformance ungated step given if: false
+  ok   caught: #406 bdd-conformance action step given a `with`
+  ok   caught: #406 bdd-conformance recorded `working-directory` changed
+  ok   caught: #406 yosys-elaboration inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 yosys-elaboration inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 yosys-elaboration inserted third-party action breaks the sequence
+  ok   caught: #406 yosys-elaboration inserted step of benign content breaks the sequence
+  ok   caught: #406 yosys-elaboration recorded step removed
+  ok   caught: #406 yosys-elaboration step appended after the recorded list
+  ok   caught: #406 yosys-elaboration step gains a `shell`
+  ok   caught: #406 yosys-elaboration recorded steps swapped
+  ok   caught: #406 yosys-elaboration recorded step renamed
+  ok   caught: #406 yosys-elaboration action step swapped under its recorded name
+  ok   caught: #406 yosys-elaboration step given an env binding
+  ok   caught: #406 yosys-elaboration gated step `if` dropped
+  ok   caught: #406 yosys-elaboration action step `with` rewritten
+  ok   caught: #406 yosys-elaboration recorded `id` changed
+  ok   caught: #406 rtl-fast inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 rtl-fast inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 rtl-fast inserted third-party action breaks the sequence
+  ok   caught: #406 rtl-fast inserted step of benign content breaks the sequence
+  ok   caught: #406 rtl-fast recorded step removed
+  ok   caught: #406 rtl-fast step appended after the recorded list
+  ok   caught: #406 rtl-fast step gains a `shell`
+  ok   caught: #406 rtl-fast recorded step renamed
+  ok   caught: #406 rtl-fast recorded env binding rebound
+  ok   caught: #406 rtl-fast ungated step given if: false
+  ok   caught: #406 rtl-fast run step given a `with`
+  ok   caught: #406 job appended to rtl.yml is recorded by no step list
+  ok   caught: #406 job appended to rtl-fast.yml is recorded by no step list
+  ok   caught: #406 step-pinned job respelt in its file
+  ok   caught: #406 step-pinned job also publishes the verdict's required name
+  ok   caught: #350 result cache restore step removed
+  ok   caught: #350 result cache path moved
+  ok   caught: #350 save key without the head SHA
+  ok   caught: #350 restore prefix wider than this worker's lineage
+  ok   caught: #350 restore step after the run step
+  ok   caught: #350 run step without --cache
+  ok   caught: #350 run step adds a second seed directory
+  ok   caught: #350 policy page silent on the result cache
+  ok   caught: physical job removed
+  ok   caught: physical job changed if ${{ false }}
+  ok   caught: physical job changed if ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+  ok   caught: physical job changed needs []
+  ok   caught: physical job changed timeout-minutes 180
+  ok   caught: physical job changed runs-on self-hosted
+  ok   caught: physical job changed continue-on-error True
+  ok   caught: physical step 0 changed with
+  ok   caught: physical step 1 changed run
+  ok   caught: physical step 2 changed run
+  ok   caught: physical step 4 changed run
+  ok   caught: physical step 5 changed run
+  ok   caught: physical step 6 changed run
+  ok   caught: physical step 7 changed if
+  ok   caught: physical step 7 changed run
+  ok   caught: physical step 7 changed env
+  ok   caught: physical step 8 changed with
+  ok   caught: physical version check loses pipefail
+  ok   caught: physical selection leaked into default shards
+  ok   caught: physical runs cancelled by pushes
+  ok   vacuity: a stub that finds nothing fails all 1873 arms
+  ok   cannot-run: missing rtl.yml
+  ok   cannot-run: unparseable rtl.yml
+  ok   cannot-run: scalar rtl.yml
+  ok   caught: #261 a fifth workflow file ON DISK (decoy.yml) carries docs-check
+  ok   cannot-run: unparseable extra workflow file (decoy.yml)
+  ok   caught: #261 a fifth workflow file ON DISK (decoy.yaml) carries docs-check
+  ok   cannot-run: unparseable extra workflow file (decoy.yaml)
+  ok   caught: #295 duplicate `wire-accountability:` mapping ON DISK in .github/workflows/docs.yml (last one wins)
+  ok   caught: #295 duplicate `elaborate:` mapping ON DISK in .github/workflows/elaborate.yml (last one wins)
+  ok   records: four matching records with --expect 4 pass
+  ok   records: three of four shard directories are refused
+  ok   records: a surplus shard directory is refused
+  ok   records: a missing --expect cannot run
+  ok   records: a missing record is refused and named
+  ok   records: a record for another tree is refused
+  ok   records: a malformed record is refused
+  ok   records: gate/run disagreement is refused
+  ok   records: an empty source SHA is refused
+  ok   records: no shard directory at all is refused, not skipped
+  ok   records: the empty placeholder directory is refused
+  ok   records: a dropped checkout source is refused
+  ok   records: a dropped gate source is refused
+  ok   records: a lone gate source is refused
+  ok   records: no source at all is refused
+  ok   records: an unknown source label is refused
+  ok   #406 pin plant: a job whose recorded list is dropped
+  ok   #406 pin plant: a recorded list truncated to its first two steps
+  ok   #406 pin plant: an entry with its recorded `env` dropped
+  ok   #406 pin plant: a list recorded for a job the file does not declare
+  ok   #406 pin plant: an appended job with its list recorded
+  ok   carrier-script-407 docs-check step 2 missing record
+  ok   carrier-script-407 docs-check step 4 missing record
+  ok   carrier-script-407 docs-check step 6 missing record
+  ok   carrier-script-407 docs-check step 7 missing record
+  ok   carrier-script-407 docs-check step 8 missing record
+  ok   carrier-script-407 docs-check step 9 missing record
+  ok   carrier-script-407 docs-check step 10 missing record
+  ok   carrier-script-407 docs-check step 11 missing record
+  ok   carrier-script-407 docs-check step 12 missing record
+  ok   carrier-script-407 docs-check step 13 missing record
+  ok   carrier-script-407 docs-check step 14 missing record
+  ok   carrier-script-407 docs-check step 15 missing record
+  ok   carrier-script-407 docs-check step 16 missing record
+  ok   carrier-script-407 docs-check step 17 missing record
+  ok   carrier-script-407 docs-check step 18 missing record
+  ok   carrier-script-407 docs-check step 19 missing record
+  ok   carrier-script-407 docs-check step 20 missing record
+  ok   carrier-script-407 docs-check step 21 missing record
+  ok   carrier-script-407 docs-check step 22 missing record
+  ok   carrier-script-407 docs-check step 24 missing record
+  ok   carrier-script-407 docs-check step 25 missing record
+  ok   carrier-script-407 docs-check step 26 missing record
+  ok   carrier-script-407 docs-check step 27 missing record
+  ok   carrier-script-407 docs-check step 28 missing record
+  ok   carrier-script-407 docs-check step 29 missing record
+  ok   carrier-script-407 docs-check step 30 missing record
+  ok   carrier-script-407 docs-check step 31 missing record
+  ok   carrier-script-407 docs-check step 32 missing record
+  ok   carrier-script-407 docs-check step 33 missing record
+  ok   carrier-script-407 docs-check step 34 missing record
+  ok   carrier-script-407 docs-check step 35 missing record
+  ok   carrier-script-407 docs-check step 36 missing record
+  ok   carrier-script-407 docs-check step 37 missing record
+  ok   carrier-script-407 docs-check step 38 missing record
+  ok   carrier-script-407 docs-check step 39 missing record
+  ok   carrier-script-407 docs-check step 40 missing record
+  ok   carrier-script-407 docs-check step 41 missing record
+  ok   carrier-script-407 docs-check step 42 missing record
+  ok   carrier-script-407 docs-check step 43 missing record
+  ok   carrier-script-407 docs-check step 44 missing record
+  ok   carrier-script-407 docs-check step 45 missing record
+  ok   carrier-script-407 docs-check step 46 missing record
+  ok   carrier-script-407 docs-check step 47 missing record
+  ok   carrier-script-407 docs-check step 48 missing record
+  ok   carrier-script-407 docs-check step 49 missing record
+  ok   carrier-script-407 docs-check step 50 missing record
+  ok   carrier-script-407 wire-accountability step 2 missing record
+  ok   carrier-script-407 wire-accountability step 3 missing record
+  ok   carrier-script-407 docs-check-no-git step 2 missing record
+  ok   carrier-script-407 elaborate step 2 missing record
+  ok   carrier-script-407 elaborate step 3 missing record
+  ok   carrier-script-407 elaborate step 4 missing record
+  ok   carrier-script-407 elaborate step 7 missing record
+  ok   carrier-script-407 elaborate step 10 missing record
+  ok   carrier-script-407 elaborate step 11 missing record
+  ok   carrier-script-407 elaborate step 12 missing record
+  ok   carrier-script-407 elaborate step 14 missing record
+  ok   carrier-script-407 elaborate step 15 missing record
+  ok   carrier-script-407 elaborate step 17 missing record
+  ok   carrier-script-407 elaborate step 18 missing record
+  ok   carrier-script-407 elaborate step 19 missing record
+  ok   carrier-script-407 elaborate step 20 missing record
+  ok   carrier-script-407 script and record updated together
+  ok   rtl-script-439 full-ci-gate step 2 missing record
+  ok   rtl-script-439 full-ci-gate step 2 empty record
+  ok   rtl-script-439 full-ci-gate step 2 blank record
+  ok   rtl-script-439 full-ci-gate step 2 wrong-type record
+  ok   rtl-script-439 full-ci-gate step 2 stale record
+  ok   rtl-script-439 full-ci-gate step 2 maintained record
+  ok   rtl-script-439 verilator-shards step 2 missing record
+  ok   rtl-script-439 verilator-shards step 2 empty record
+  ok   rtl-script-439 verilator-shards step 2 blank record
+  ok   rtl-script-439 verilator-shards step 2 wrong-type record
+  ok   rtl-script-439 verilator-shards step 2 stale record
+  ok   rtl-script-439 verilator-shards step 2 maintained record
+  ok   rtl-script-439 verilator-shards step 3 missing record
+  ok   rtl-script-439 verilator-shards step 3 empty record
+  ok   rtl-script-439 verilator-shards step 3 blank record
+  ok   rtl-script-439 verilator-shards step 3 wrong-type record
+  ok   rtl-script-439 verilator-shards step 3 stale record
+  ok   rtl-script-439 verilator-shards step 3 maintained record
+  ok   rtl-script-439 verilator-shards step 5 missing record
+  ok   rtl-script-439 verilator-shards step 5 empty record
+  ok   rtl-script-439 verilator-shards step 5 blank record
+  ok   rtl-script-439 verilator-shards step 5 wrong-type record
+  ok   rtl-script-439 verilator-shards step 5 stale record
+  ok   rtl-script-439 verilator-shards step 5 maintained record
+  ok   rtl-script-439 verilator-shards step 6 missing record
+  ok   rtl-script-439 verilator-shards step 6 empty record
+  ok   rtl-script-439 verilator-shards step 6 blank record
+  ok   rtl-script-439 verilator-shards step 6 wrong-type record
+  ok   rtl-script-439 verilator-shards step 6 stale record
+  ok   rtl-script-439 verilator-shards step 6 maintained record
+  ok   rtl-script-439 verilator-shards step 7 missing record
+  ok   rtl-script-439 verilator-shards step 7 empty record
+  ok   rtl-script-439 verilator-shards step 7 blank record
+  ok   rtl-script-439 verilator-shards step 7 wrong-type record
+  ok   rtl-script-439 verilator-shards step 7 stale record
+  ok   rtl-script-439 verilator-shards step 7 maintained record
+  ok   rtl-script-439 verilator-shards step 9 missing record
+  ok   rtl-script-439 verilator-shards step 9 empty record
+  ok   rtl-script-439 verilator-shards step 9 blank record
+  ok   rtl-script-439 verilator-shards step 9 wrong-type record
+  ok   rtl-script-439 verilator-shards step 9 stale record
+  ok   rtl-script-439 verilator-shards step 9 maintained record
+  ok   rtl-script-439 verilator-shards step 10 missing record
+  ok   rtl-script-439 verilator-shards step 10 empty record
+  ok   rtl-script-439 verilator-shards step 10 blank record
+  ok   rtl-script-439 verilator-shards step 10 wrong-type record
+  ok   rtl-script-439 verilator-shards step 10 stale record
+  ok   rtl-script-439 verilator-shards step 10 maintained record
+  ok   rtl-script-439 verilator-shards step 11 missing record
+  ok   rtl-script-439 verilator-shards step 11 empty record
+  ok   rtl-script-439 verilator-shards step 11 blank record
+  ok   rtl-script-439 verilator-shards step 11 wrong-type record
+  ok   rtl-script-439 verilator-shards step 11 stale record
+  ok   rtl-script-439 verilator-shards step 11 maintained record
+  ok   rtl-script-439 verilator-shards step 12 missing record
+  ok   rtl-script-439 verilator-shards step 12 empty record
+  ok   rtl-script-439 verilator-shards step 12 blank record
+  ok   rtl-script-439 verilator-shards step 12 wrong-type record
+  ok   rtl-script-439 verilator-shards step 12 stale record
+  ok   rtl-script-439 verilator-shards step 12 maintained record
+  ok   rtl-script-439 verilator-shards step 13 missing record
+  ok   rtl-script-439 verilator-shards step 13 empty record
+  ok   rtl-script-439 verilator-shards step 13 blank record
+  ok   rtl-script-439 verilator-shards step 13 wrong-type record
+  ok   rtl-script-439 verilator-shards step 13 stale record
+  ok   rtl-script-439 verilator-shards step 13 maintained record
+  ok   rtl-script-439 verilator-suites step 3 missing record
+  ok   rtl-script-439 verilator-suites step 3 empty record
+  ok   rtl-script-439 verilator-suites step 3 blank record
+  ok   rtl-script-439 verilator-suites step 3 wrong-type record
+  ok   rtl-script-439 verilator-suites step 3 stale record
+  ok   rtl-script-439 verilator-suites step 3 maintained record
+  ok   rtl-script-439 verilator-suites step 4 missing record
+  ok   rtl-script-439 verilator-suites step 4 empty record
+  ok   rtl-script-439 verilator-suites step 4 blank record
+  ok   rtl-script-439 verilator-suites step 4 wrong-type record
+  ok   rtl-script-439 verilator-suites step 4 stale record
+  ok   rtl-script-439 verilator-suites step 4 maintained record
+  ok   rtl-script-439 verilator-suites step 5 missing record
+  ok   rtl-script-439 verilator-suites step 5 empty record
+  ok   rtl-script-439 verilator-suites step 5 blank record
+  ok   rtl-script-439 verilator-suites step 5 wrong-type record
+  ok   rtl-script-439 verilator-suites step 5 stale record
+  ok   rtl-script-439 verilator-suites step 5 maintained record
+  ok   rtl-script-439 yosys-shards step 2 missing record
+  ok   rtl-script-439 yosys-shards step 2 empty record
+  ok   rtl-script-439 yosys-shards step 2 blank record
+  ok   rtl-script-439 yosys-shards step 2 wrong-type record
+  ok   rtl-script-439 yosys-shards step 2 stale record
+  ok   rtl-script-439 yosys-shards step 2 maintained record
+  ok   rtl-script-439 yosys-shards step 3 missing record
+  ok   rtl-script-439 yosys-shards step 3 empty record
+  ok   rtl-script-439 yosys-shards step 3 blank record
+  ok   rtl-script-439 yosys-shards step 3 wrong-type record
+  ok   rtl-script-439 yosys-shards step 3 stale record
+  ok   rtl-script-439 yosys-shards step 3 maintained record
+  ok   rtl-script-439 yosys-shards step 5 missing record
+  ok   rtl-script-439 yosys-shards step 5 empty record
+  ok   rtl-script-439 yosys-shards step 5 blank record
+  ok   rtl-script-439 yosys-shards step 5 wrong-type record
+  ok   rtl-script-439 yosys-shards step 5 stale record
+  ok   rtl-script-439 yosys-shards step 5 maintained record
+  ok   rtl-script-439 yosys-shards step 6 missing record
+  ok   rtl-script-439 yosys-shards step 6 empty record
+  ok   rtl-script-439 yosys-shards step 6 blank record
+  ok   rtl-script-439 yosys-shards step 6 wrong-type record
+  ok   rtl-script-439 yosys-shards step 6 stale record
+  ok   rtl-script-439 yosys-shards step 6 maintained record
+  ok   rtl-script-439 yosys-shards step 7 missing record
+  ok   rtl-script-439 yosys-shards step 7 empty record
+  ok   rtl-script-439 yosys-shards step 7 blank record
+  ok   rtl-script-439 yosys-shards step 7 wrong-type record
+  ok   rtl-script-439 yosys-shards step 7 stale record
+  ok   rtl-script-439 yosys-shards step 7 maintained record
+  ok   rtl-script-439 yosys-shards step 9 missing record
+  ok   rtl-script-439 yosys-shards step 9 empty record
+  ok   rtl-script-439 yosys-shards step 9 blank record
+  ok   rtl-script-439 yosys-shards step 9 wrong-type record
+  ok   rtl-script-439 yosys-shards step 9 stale record
+  ok   rtl-script-439 yosys-shards step 9 maintained record
+  ok   rtl-script-439 yosys-portability step 3 missing record
+  ok   rtl-script-439 yosys-portability step 3 empty record
+  ok   rtl-script-439 yosys-portability step 3 blank record
+  ok   rtl-script-439 yosys-portability step 3 wrong-type record
+  ok   rtl-script-439 yosys-portability step 3 stale record
+  ok   rtl-script-439 yosys-portability step 3 maintained record
+  ok   rtl-script-439 yosys-portability step 4 missing record
+  ok   rtl-script-439 yosys-portability step 4 empty record
+  ok   rtl-script-439 yosys-portability step 4 blank record
+  ok   rtl-script-439 yosys-portability step 4 wrong-type record
+  ok   rtl-script-439 yosys-portability step 4 stale record
+  ok   rtl-script-439 yosys-portability step 4 maintained record
+  ok   rtl-script-439 yosys-portability step 5 missing record
+  ok   rtl-script-439 yosys-portability step 5 empty record
+  ok   rtl-script-439 yosys-portability step 5 blank record
+  ok   rtl-script-439 yosys-portability step 5 wrong-type record
+  ok   rtl-script-439 yosys-portability step 5 stale record
+  ok   rtl-script-439 yosys-portability step 5 maintained record
+  ok   rtl-script-439 verilator-lint step 2 missing record
+  ok   rtl-script-439 verilator-lint step 2 empty record
+  ok   rtl-script-439 verilator-lint step 2 blank record
+  ok   rtl-script-439 verilator-lint step 2 wrong-type record
+  ok   rtl-script-439 verilator-lint step 2 stale record
+  ok   rtl-script-439 verilator-lint step 2 maintained record
+  ok   rtl-script-439 verilator-lint step 4 missing record
+  ok   rtl-script-439 verilator-lint step 4 empty record
+  ok   rtl-script-439 verilator-lint step 4 blank record
+  ok   rtl-script-439 verilator-lint step 4 wrong-type record
+  ok   rtl-script-439 verilator-lint step 4 stale record
+  ok   rtl-script-439 verilator-lint step 4 maintained record
+  ok   rtl-script-439 verilator-lint step 5 missing record
+  ok   rtl-script-439 verilator-lint step 5 empty record
+  ok   rtl-script-439 verilator-lint step 5 blank record
+  ok   rtl-script-439 verilator-lint step 5 wrong-type record
+  ok   rtl-script-439 verilator-lint step 5 stale record
+  ok   rtl-script-439 verilator-lint step 5 maintained record
+  ok   rtl-script-439 verilator-lint step 6 missing record
+  ok   rtl-script-439 verilator-lint step 6 empty record
+  ok   rtl-script-439 verilator-lint step 6 blank record
+  ok   rtl-script-439 verilator-lint step 6 wrong-type record
+  ok   rtl-script-439 verilator-lint step 6 stale record
+  ok   rtl-script-439 verilator-lint step 6 maintained record
+  ok   rtl-script-439 bdd-conformance step 2 missing record
+  ok   rtl-script-439 bdd-conformance step 2 empty record
+  ok   rtl-script-439 bdd-conformance step 2 blank record
+  ok   rtl-script-439 bdd-conformance step 2 wrong-type record
+  ok   rtl-script-439 bdd-conformance step 2 stale record
+  ok   rtl-script-439 bdd-conformance step 2 maintained record
+  ok   rtl-script-439 bdd-conformance step 3 missing record
+  ok   rtl-script-439 bdd-conformance step 3 empty record
+  ok   rtl-script-439 bdd-conformance step 3 blank record
+  ok   rtl-script-439 bdd-conformance step 3 wrong-type record
+  ok   rtl-script-439 bdd-conformance step 3 stale record
+  ok   rtl-script-439 bdd-conformance step 3 maintained record
+  ok   rtl-script-439 bdd-conformance step 4 missing record
+  ok   rtl-script-439 bdd-conformance step 4 empty record
+  ok   rtl-script-439 bdd-conformance step 4 blank record
+  ok   rtl-script-439 bdd-conformance step 4 wrong-type record
+  ok   rtl-script-439 bdd-conformance step 4 stale record
+  ok   rtl-script-439 bdd-conformance step 4 maintained record
+  ok   rtl-script-439 yosys-elaboration step 2 missing record
+  ok   rtl-script-439 yosys-elaboration step 2 empty record
+  ok   rtl-script-439 yosys-elaboration step 2 blank record
+  ok   rtl-script-439 yosys-elaboration step 2 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 2 stale record
+  ok   rtl-script-439 yosys-elaboration step 2 maintained record
+  ok   rtl-script-439 yosys-elaboration step 4 missing record
+  ok   rtl-script-439 yosys-elaboration step 4 empty record
+  ok   rtl-script-439 yosys-elaboration step 4 blank record
+  ok   rtl-script-439 yosys-elaboration step 4 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 4 stale record
+  ok   rtl-script-439 yosys-elaboration step 4 maintained record
+  ok   rtl-script-439 yosys-elaboration step 5 missing record
+  ok   rtl-script-439 yosys-elaboration step 5 empty record
+  ok   rtl-script-439 yosys-elaboration step 5 blank record
+  ok   rtl-script-439 yosys-elaboration step 5 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 5 stale record
+  ok   rtl-script-439 yosys-elaboration step 5 maintained record
+  ok   rtl-script-439 yosys-elaboration step 6 missing record
+  ok   rtl-script-439 yosys-elaboration step 6 empty record
+  ok   rtl-script-439 yosys-elaboration step 6 blank record
+  ok   rtl-script-439 yosys-elaboration step 6 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 6 stale record
+  ok   rtl-script-439 yosys-elaboration step 6 maintained record
+  ok   rtl-script-439 yosys-elaboration step 7 missing record
+  ok   rtl-script-439 yosys-elaboration step 7 empty record
+  ok   rtl-script-439 yosys-elaboration step 7 blank record
+  ok   rtl-script-439 yosys-elaboration step 7 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 7 stale record
+  ok   rtl-script-439 yosys-elaboration step 7 maintained record
+  ok   rtl-script-439 yosys-elaboration step 8 missing record
+  ok   rtl-script-439 yosys-elaboration step 8 empty record
+  ok   rtl-script-439 yosys-elaboration step 8 blank record
+  ok   rtl-script-439 yosys-elaboration step 8 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 8 stale record
+  ok   rtl-script-439 yosys-elaboration step 8 maintained record
+  ok   rtl-script-439 yosys-elaboration step 9 missing record
+  ok   rtl-script-439 yosys-elaboration step 9 empty record
+  ok   rtl-script-439 yosys-elaboration step 9 blank record
+  ok   rtl-script-439 yosys-elaboration step 9 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 9 stale record
+  ok   rtl-script-439 yosys-elaboration step 9 maintained record
+  ok   rtl-script-439 yosys-elaboration step 10 missing record
+  ok   rtl-script-439 yosys-elaboration step 10 empty record
+  ok   rtl-script-439 yosys-elaboration step 10 blank record
+  ok   rtl-script-439 yosys-elaboration step 10 wrong-type record
+  ok   rtl-script-439 yosys-elaboration step 10 stale record
+  ok   rtl-script-439 yosys-elaboration step 10 maintained record
+  ok   canonical pins are whitespace-invariant (assert step, decision step, ownership step, the aggregates' tally and worker-result steps, fast scope step, fast verdict step, verifier step, the four documentation gate steps and the elaborate scope step; carrier-script-407 every carrier body)
+  ok   rtl-script-439 every body accepts existing whitespace normalization
+  ok   default-branch: schedule on dev passes
+  ok   default-branch: dispatch on dev passes
+  ok   default-branch: schedule on main refuses, naming main
+  ok   default-branch: dispatch on main refuses
+  ok   default-branch: schedule with an unreadable value refuses
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (1655 contract items, 2206 arms)
+rc=0
+
+$ $REVIEWS/b2-r405-6-packet/scratch/mdenv/bin/python scripts/measure_test_evidence.py --check
+RTL suites with an executable mutation or negative arm: 21 of 96
+    58 under tb/verilator  (entry: scripts/run_all_suites.sh)
+    33 under protocol-processor/tb  (entry: protocol-processor/scripts/run_suites.sh, protocol-processor/.github/workflows/hdl.yml)
+     4 under gptp-processor/tb/verilator  (entry: gptp-processor/Makefile)
+
+armed suites, and the executed target that arms them (21):
+   gptp-processor/tb/tsngen: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/engine: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/gaskets: `mutants` driver mutants.py
+   protocol-processor/tb/nvm_port: `figures` driver measure_figures.py
+   protocol-processor/tb/srp_top: `mutants` driver mutants.py
+   tb/verilator/capture_coherence: `mutants` driver mutants.py
+   tb/verilator/crf_rx: `mutants` driver mutants.py
+   tb/verilator/gptp_shadow: `lifecycle` driver test_mutant_lifecycle.py
+   tb/verilator/gptp_txts: `mutants` driver mutants.py
+   tb/verilator/media_grid_align: `run` define +define+MGA_MUT_U_SIGN
+   tb/verilator/milan_dp: `run` driver render_mutants.py
+   tb/verilator/milan_dp_gptp: `all` driver verify_abort.py
+   tb/verilator/milan_dp_render: `run` driver tdm8_render_mutants.py
+   tb/verilator/nvm_backend: `run` table $(MUTANTS)
+   tb/verilator/nvm_cosim: `run` driver run_cases.py
+   tb/verilator/ptp_ts: `sva-campaign` driver sva_campaign.py
+   tb/verilator/render_setpoint: `mutants` driver mutants.py
+   tb/verilator/rx_filter: `binding-negative` driver binding_mutant.py
+   tb/verilator/tcam: `mutants` driver mutants.py
+   tb/verilator/tkdiag: `run` driver mcr_mutants.py
+   tb/verilator/tsn_fuzz: `graderself` driver test_grade_tx.py
+
+suites with none (75):
+   gptp-processor/tb/verilator/parser
+   gptp-processor/tb/verilator/ucpu
+   protocol-processor/tb/acmp_listener
+   protocol-processor/tb/acmp_nvm
+   protocol-processor/tb/acmp_talker
+   protocol-processor/tb/adp_engine
+   protocol-processor/tb/aecp_notify
+   protocol-processor/tb/ca_originator
+   protocol-processor/tb/desc_mem_guard
+   protocol-processor/tb/desc_store
+   protocol-processor/tb/dispatch
+   protocol-processor/tb/dyn_state
+   protocol-processor/tb/event_router
+   protocol-processor/tb/lsn_admit
+   protocol-processor/tb/maap
+   protocol-processor/tb/originator
+   protocol-processor/tb/pp_top
+   protocol-processor/tb/prng
+   protocol-processor/tb/release_merge
+   protocol-processor/tb/resp_buf
+   protocol-processor/tb/rx_slots
+   protocol-processor/tb/rx_validator
+   protocol-processor/tb/scoreboard
+   protocol-processor/tb/side_port
+   protocol-processor/tb/srp_admission
+   protocol-processor/tb/srp_decoder
+   protocol-processor/tb/srp_encoder
+   protocol-processor/tb/srp_stream_fsms
+   protocol-processor/tb/timer_map
+   protocol-processor/tb/timer_service
+   protocol-processor/tb/tx_arbiter
+   protocol-processor/tb/tx_slots
+   protocol-processor/tb/ucpu
+   tb/verilator/aaf
+   tb/verilator/aaf_audio_loop
+   tb/verilator/aaf_latency_tap_bank
+   tb/verilator/aaf_latency_taps
+   tb/verilator/adp_tx
+   tb/verilator/aes3
+   tb/verilator/avtp_parser
+   tb/verilator/avtp_rxmon
+   tb/verilator/avtp_stream
+   tb/verilator/cbs
+   tb/verilator/cdc
+   tb/verilator/chmap_capture
+   tb/verilator/chmap_render
+   tb/verilator/classifier
+   tb/verilator/clkvalid
+   tb/verilator/cls
+   tb/verilator/controller_rate
+   tb/verilator/crf_tx
+   tb/verilator/csr
+   tb/verilator/datapath
+   tb/verilator/eth_tx_reset
+   tb/verilator/fw_service_budget
+   tb/verilator/gptp_plane
+   tb/verilator/i2spb
+   tb/verilator/ifg
+   tb/verilator/lat_history_ring
+   tb/verilator/link_guard
+   tb/verilator/maap
+   tb/verilator/mac_rmon
+   tb/verilator/media_nco
+   tb/verilator/mmcm_servo
+   tb/verilator/mmcm_servo_autorepair
+   tb/verilator/pair_fill
+   tb/verilator/pcmlpf
+   tb/verilator/pp_shadow
+   tb/verilator/ptp
+   tb/verilator/ptp_sync
+   tb/verilator/queues
+   tb/verilator/shaper_core
+   tb/verilator/tcam_csr
+   tb/verilator/tdm
+   tb/verilator/tdm_render
+
+files that draw random values without recording a seed (10):
+   tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_alter_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_control_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_random_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_stream_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/itests/802_1q_traffic_shaper/tb_traffic_controller_802_1q.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/1722/kl-avtp-common-parser/tb_top.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/802_1q_traffic_shaper/tb_traffic_classifier.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ethernet_events/tb_ethernet_events.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ptp_timestamp/tb_ptp_ts_core.sv: $urandom/$random/randomize without srandom or a seed
+
+test programs that read production HDL (27):
+   gptp-processor/tb/check_phc_contract.py: structural boundary check; it asserts required/forbidden tokens, not behavior
+   gptp-processor/tb/tsngen/mutants.py: mutation campaign; it stages three engine defects and requires failure
+   protocol-processor/tb/acmp_talker/retry_mutants.py: mutation campaign; plants named defects in a scratch copy and requires named assertion failures from completed cycle-bounded simulations; reads no expected behavior from RTL
+   protocol-processor/tb/desc_mem_guard/mutate.py: mutation campaign; it removes the guard's two request holds in a copy and requires the completed late-byte assertion to fail
+   protocol-processor/tb/desc_store/test_gen_desc_image.py: unit test of the descriptor packer; it imports the generator by path to call build() and its CLI on synthetic models and reads no expectation from source
+   protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail
+   protocol-processor/tb/pp_top/gsi_mutants.py: mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table into an isolated copy and requires the named response check to fail
+   protocol-processor/tb/pp_top/name_wr_mutant.py: mutation campaign; removes the accepted name-write export in a copy and requires the named pulse check to fail
+   protocol-processor/tb/srp_admission/mutants.py: mutation campaign; it plants one admission defect into a temporary tree, requires the named check to fail, and runs clean controls first
+   tb/verilator/capture_coherence/mutants.py: mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, and requires a named failure from the junction, datapath or chmap_capture harness; no expected value is read from RTL
+   tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; no expectations read from RTL
+   tb/verilator/gptp_shadow/test_mutant_lifecycle.py: orchestration lifecycle fixture; it identifies the planted mutation and compares caller bytes/modes/index across interruption. Synthetic commands grade isolation and cleanup only; RTL behavior still requires the real suite
+   tb/verilator/milan_dp/crflic_mutants.py: mutation campaign; it plants one of three streaming-licence defects into a copy and requires a named failure. It is the explicit crflic-mutants target, outside the default sweep
+   tb/verilator/milan_dp/gmstep_mutants.py: mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls
+   tb/verilator/milan_dp/gsi_mutants.py: mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of the datapath or of the processor tree and requires a named failure. It is the explicit gsi-mutants target, outside the default sweep
+   tb/verilator/milan_dp/render_csr_controls.py: mutation campaign; the explicit render-csr-controls target plants wrong-fill and bit-9 selector defects into copies and requires named failures. Its absent-stage control removes the instance and requires structural zero despite accepted ingress; no expected value is derived from source text
+   tb/verilator/milan_dp/render_mutants.py: mutation campaign; it plants one of four render-law defects into a copy and requires a named failure
+   tb/verilator/milan_dp_render/tdm8_render_mutants.py: mutation campaign; it plants one render-lane defect from its own table into a copy or runs a leg-side defect arm, and requires the named check to fail. The suite's default target runs its --leg-defects arms; the gateware and shape mutants are the explicit tdm8render-mutants target
+   tb/verilator/mmcm_servo/slew_mutants.py: mutation campaign; copies the servo and requires named failures for discard removal, tied-low level, partial-tail trust, omitted tally, boundary step double counting, retained guard streak, streak increment on slew discard and slew discard counted as a guard trip; no expectations read from RTL
+   tb/verilator/nvm_backend/mutate.py: mutation campaign; it plants one of four backend defects into a copy and requires failure
+   tb/verilator/nvm_cosim/run_cases.py: co-simulation driver; it reads the SHIPPING backend and the SHIPPING writer because they ARE the pair under test -- it compiles that writer for the host and Verilates that backend behind it, planting a named defect through mutate.py or taking a pre-contract copy for the non-vacuity control. It grades nothing from the text: every verdict is a named check in cosim_checks.py over a dumped journal
+   tb/verilator/pp_shadow/pending_mutant.py: mutation campaign; restores the late mark trigger in a copy and requires both K10/K12 durability checks to fail
+   tb/verilator/ptp_ts/sva_campaign.py: mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a scratch copy and requires the named SVA property, or for one row the scoreboard, to fail; no expected value is read from the text
+   tb/verilator/render_setpoint/mutants.py: mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+   tb/verilator/tkdiag/mcr_mutants.py: mutation campaign; it plants one of four restart-engine defects against the #387 pending-restart merge and its wire boundary into a copy and requires a named failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 57 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+rc=0
+
+$ git diff --check 79c36963660c10e4c1c11a744fb5bff41a552b8b 61752396bbebf271fa3da6d872de54e7ae3e7049
+warning: unable to find all commit-graph files
+rc=0
+

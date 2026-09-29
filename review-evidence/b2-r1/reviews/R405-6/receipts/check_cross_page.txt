@@ -1,0 +1,30 @@
+OK  0x00020060
+OK  acad92b9
+OK  d84bce7b
+OK  93742dd2
+OK  bf44ccc9
+OK  809fcffa
+OK  690d87e407bbb7f7bba52bbe7a7e0dc85cd264df2db5eec87bfaf85f99bda24b
+OK  6597f7a601ddb3dbba1bf058c38716277e8feb1147fb89edcf1d39e755dc369f
+OK  9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404
+OK  7723d0b8129df7b77b3b49980366f18c91adb15f8c38526f48a5ebd32d1207a2
+OK  13eda870d1a6cf3f946fc228a98862366b08d102
+B1 599 final: [('NVM slots A / B, image sequence', '229 / 230, image 230 '), ('Commits ok / failed', '2 / 0 '), ('`PP_STAT`, `nvm_pend` (bit 11)', '`0x5b000c44`, 1 '), ('`PP_NVM_STAT`', '`0xc34000e4`, pend 1 ')]
+B1 387 final: [('NVM slots A / B, image sequence', '229 / 230, image 230 '), ('Commits ok / failed', '2 / 0 '), ('`PP_STAT`, `nvm_pend` (bit 11)', '`0x5b000c44`, 1 '), ('`PP_NVM_STAT`', '`0xc34000e4`, pend 1 ')]
+OK  606 NVM slots A / B, image sequence: start=229 / 230, image 230 end=229 / 230, image 230 B1final=229 / 230, image 230
+OK  606 Commits ok / failed: start=2 / 0 end=2 / 0 B1final=2 / 0
+OK  606 `PP_STAT`, `nvm_pend` (bit 11): start=`0x5b000c44`, 1 end=`0x5b000c44`, 1 B1final=`0x5b000c44`, 1
+OK  606 `PP_NVM_STAT`: start=`0xc34000e4`, pend 1 end=`0xc34000e4`, pend 1 B1final=`0xc34000e4`, pend 1
+606 and 608 saved-state tables equal: True
+599 and 387 final rows equal: True
+OK  12 / 11
+OK  LINK_UP 12, LINK_DOWN 11 and GPTP_GM_CHANGED 50
+OK  rose by 3 at nine edges and by 1 at one
+22 + 9*3 + 1 = 50
+OK  OUT1 and OUT3 OFF, the other five ON
+OK  configuration 1 at 48 kHz
+OK  They set a sticky pending source that only a reset clears
+OK  SET_CLOCK_SOURCE writes, whose sticky level only a DUT reset clears
+OK  uart smoke 13eda870 bc41ab03e64198b10a517124f960b9b59b77d7143661f728fe5666314e433886
+OK  uart smoke 61752396 bc41ab03e64198b10a517124f960b9b59b77d7143661f728fe5666314e433886
+RESULT PASS
