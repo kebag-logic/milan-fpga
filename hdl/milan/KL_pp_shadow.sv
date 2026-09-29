@@ -187,7 +187,9 @@
 module KL_pp_shadow #(
     //! MAC RX AXIS data width (the datapath's TDATA_WIDTH). 64 only.
     parameter int unsigned TDATA_WIDTH_P  = 64,
-    //! core clock, feeds the processor's timer prescaler
+    //! clk_i frequency in Hz. Feeds the processor's timer prescaler and its
+    //! saved-state times (NVM_RS_TMO_CYC_P, NVM_RS_AGG_CYC_P,
+    //! NVM_RETRY_BACKOFF_CYC_P), which it derives from this value
     parameter int unsigned CLK_HZ_P       = 100_000_000,
     //! processor sink/source array sizes (F01.5 P-N-STREAM-IN/OUT)
     parameter int unsigned N_STREAM_IN_P  = 8,
@@ -1093,6 +1095,14 @@ module KL_pp_shadow #(
       .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
       .RESP_BASE_P         (RESP_BASE_P)
+      //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (20 ms per restore
+      //! wait), NVM_RS_AGG_CYC_P (1,000 ms aggregate from restore_go_i) and
+      //! NVM_RETRY_BACKOFF_CYC_P (500 ms between record write attempts). The
+      //! processor derives all three from the CLK_HZ_P bound above, which is
+      //! this wrapper's clk_i frequency, so they follow the parent clock. A
+      //! value or formula restated here would be a second copy of the DR3a
+      //! and DR2c rulings (docs/design/SAVED_STATE_MATERIALIZATION.md 5.1,
+      //! 15.1) that a clock change would leave behind.
   ) u_pp (
       .clk_i               (clk_i),
       .rst_n               (rst_n),
