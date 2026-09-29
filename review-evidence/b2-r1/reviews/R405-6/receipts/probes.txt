@@ -1,0 +1,16 @@
+ARM broken-index-link
+  docs_check rc=1 docs_check: 1 finding(s) across 179 md files + 949 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-
+  check_doc_paths rc=0 doc path gate: OK (860 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+  gen_toc --verify-anchors rc=0 anchor check: 270 existing cross-page fragment links reproduced
+  git diff --check rc=0 
+ARM broken-cross-anchor
+  docs_check rc=0 docs_check: 0 finding(s) across 179 md files + 949 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-
+  check_doc_paths rc=0 doc path gate: OK (860 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+  gen_toc --verify-anchors rc=1 anchor check: 269 existing cross-page fragment links reproduced, 1 NOT reproduced
+  git diff --check rc=0 
+ARM conflict-residue
+  docs_check rc=0 docs_check: 0 finding(s) across 179 md files + 949 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-
+  check_doc_paths rc=0 doc path gate: OK (860 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+  gen_toc --verify-anchors rc=0 anchor check: 270 existing cross-page fragment links reproduced
+  git diff --check rc=2 docs/findings/README.md:11: leftover conflict marker
+restored: 0 dirty path(s); tree b4a1f5ed6a5b00ecde3dcba7781f45fb72480b59
