@@ -8,6 +8,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
 
 | Document | Scope | State |
 |---|---|---|
+| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
 | [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; three non-restarts tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); initial-bind exception tracked by #606; AAF unmeasured |
 | [COMMERCIAL_TIMING_395.md](COMMERCIAL_TIMING_395.md) | AX7101 commercial-grade timing at both fixed speed models for the `9e9954e9` shipping checkpoint (#395 items 1, 2 and 5) | Applied constraints meet the recorded margin; rejected constraints belong to #607; physical temperature and oscillator measurements remain open |
 | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
