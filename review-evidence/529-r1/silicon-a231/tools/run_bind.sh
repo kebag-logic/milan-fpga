@@ -18,7 +18,7 @@ R=<bench-host-prefix>pw1
 DUT=020000fffe000001; DMAC=02:00:00:00:00:01; PEER=3cc0c60102030000; PMAC=3c:c0:c6:01:02:03
 ts() { date -u +%FT%T.%3NZ; }
 echo "start_local $(ts)" > "$OUT/timeline.txt"
-ssh -o BatchMode=yes $R "mkdir -p /tmp/a231/enum-bind && rm -f /tmp/a231/enum-bind/*.json; sudo -n timeout 345 tcpdump -i ens10 -w /tmp/a231/bind.pcap ether proto 0x22f0" > "$OUT/tcpdump.log" 2>&1 &
+ssh -o BatchMode=yes $R "mkdir -p /tmp/a231/enum-bind && rm -f /tmp/a231/enum-bind/*.json; sudo -n timeout 345 tcpdump -i <host-iface> -w /tmp/a231/bind.pcap ether proto 0x22f0" > "$OUT/tcpdump.log" 2>&1 &
 CAP=$!
 timeout 340 python3 $PK/tools/console_poll.py $P $OUT/console.txt 320 5 milan_status \
   'mem_read 0x90000750 4' 'mem_read 0x90000764 4' 'mem_read 0x9000066c 4' 'mem_read 0x90000738 4' \
@@ -27,16 +27,16 @@ timeout 340 python3 $PK/tools/console_poll.py $P $OUT/console.txt 320 5 milan_st
 CON=$!
 sleep 3
 echo "enum_start_local $(ts)" >> "$OUT/timeline.txt"
-ssh -o BatchMode=yes $R "sudo -n timeout --signal=TERM 330 /tmp/a231/a200_enum ens10 300 /tmp/a231/enum-bind; echo ENUM_RC=\$?; sudo -n chown -R alex /tmp/a231/enum-bind" > "$OUT/a200-enum.log" 2>&1 &
+ssh -o BatchMode=yes $R "sudo -n timeout --signal=TERM 330 /tmp/a231/a200_enum <host-iface> 300 /tmp/a231/enum-bind; echo ENUM_RC=\$?; sudo -n chown -R alex /tmp/a231/enum-bind" > "$OUT/a200-enum.log" 2>&1 &
 ENUM=$!
 sleep 12
 echo "poll_start_local $(ts)" >> "$OUT/timeline.txt"
-ssh -o BatchMode=yes $R "sudo -n timeout 300 python3 /tmp/a231/a231_counters_poll.py ens10 285 5 \
+ssh -o BatchMode=yes $R "sudo -n timeout 300 python3 /tmp/a231/a231_counters_poll.py <host-iface> 285 5 \
   $DUT=$DMAC:5:0 $DUT=$DMAC:5:1 $DUT=$DMAC:6:0 $DUT=$DMAC:6:1 $DUT=$DMAC:9:0 $DUT=$DMAC:0x24:0 $PEER=$PMAC:5:8" > "$OUT/counters-poll.jsonl" 2>&1 &
 POLL=$!
 sleep 15
 echo "bind_window_start_local $(ts)" >> "$OUT/timeline.txt"
-ssh -o BatchMode=yes $R "sudo -n timeout -k 30 300 python3 /tmp/a231/crf_bind_window.py ens10 20 180 40" > "$OUT/pw1-bind.jsonl" 2>&1
+ssh -o BatchMode=yes $R "sudo -n timeout -k 30 300 python3 /tmp/a231/crf_bind_window.py <host-iface> 20 180 40" > "$OUT/pw1-bind.jsonl" 2>&1
 echo "bind_rc=$? bind_window_end_local $(ts)" >> "$OUT/timeline.txt"
 wait $POLL; echo "poll_rc=$?" >> "$OUT/timeline.txt"
 wait $ENUM; echo "enum_rc=$?" >> "$OUT/timeline.txt"

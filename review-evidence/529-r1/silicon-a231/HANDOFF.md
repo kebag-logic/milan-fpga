@@ -118,16 +118,16 @@ timeout 200 flock -w 60 /tmp/milan-bench.lock bash -c "python3 $PK/tools/console
 python3 $PK/tools/expected_crc.py $WORKSPACE_HOME/litex-milan/work/build_ax7101_{asl,eppo,eto}_tdm8dev50e78097 $WORKSPACE_HOME/litex-milan/work/build_ax7101_asl_tdm8devede8d48e
 # gPTP window (lock 03:15:07.326 to 03:16:07.348)
 flock ... python3 $PK/tools/console_poll.py $P $PK/bench/gptp/console.txt 60 5 milan_status 'mem_read 0x90000780 4' 'mem_read 0x900007e8 4' 'mem_read 0x900007ec 4' 'mem_read 0x90000774 4' 'mem_read 0x90000720 4' 'mem_read 0x900006f4 4' 'mem_read 0x90000750 4' 'mem_read 0x90000764 4'
-ssh <bench-host-prefix>pw1 "sudo -n timeout 80 python3 /tmp/a231/avdecc_ro.py watch ens10 60 5 020000fffe000001=02:00:00:00:00:01 3cc0c60102030000=3c:c0:c6:01:02:03"
-ssh <bench-host-prefix>pw1 'sudo -n timeout 15 python3 /tmp/a231/avdecc_ro.py discover ens10 6'
+ssh <bench-host-prefix>pw1 "sudo -n timeout 80 python3 /tmp/a231/avdecc_ro.py watch <host-iface> 60 5 020000fffe000001=02:00:00:00:00:01 3cc0c60102030000=3c:c0:c6:01:02:03"
+ssh <bench-host-prefix>pw1 'sudo -n timeout 15 python3 /tmp/a231/avdecc_ro.py discover <host-iface> 6'
 ssh <bench-host-prefix>pw1 'bash /tmp/a231/a231_census.sh'            # start 03:16:15, final 03:28:14
 # step 2 (lock 03:16:39.036 to 03:19:29.361)
-ssh <bench-host-prefix>pw1 'sudo -n timeout 170 tcpdump -i ens10 -w /tmp/a231/step2.pcap ether proto 0x22f0' &
-for e in 020000fffe000001 3cc0c60102030000; do ssh <bench-host-prefix>pw1 "sudo -n timeout --signal=TERM 35 $WORKSPACE_HOME/milan-bench/2026-09-08/controller-probe/target-counters-probe ens10 $e 20; echo PROBE_RC=\$?"; done
-ssh <bench-host-prefix>pw1 'sudo -n timeout --signal=TERM 70 /tmp/a231/a200_enum ens10 40 /tmp/a231/enum-step2; echo ENUM_RC=$?'
+ssh <bench-host-prefix>pw1 'sudo -n timeout 170 tcpdump -i <host-iface> -w /tmp/a231/step2.pcap ether proto 0x22f0' &
+for e in 020000fffe000001 3cc0c60102030000; do ssh <bench-host-prefix>pw1 "sudo -n timeout --signal=TERM 35 $WORKSPACE_HOME/milan-bench/2026-09-08/controller-probe/target-counters-probe <host-iface> $e 20; echo PROBE_RC=\$?"; done
+ssh <bench-host-prefix>pw1 'sudo -n timeout --signal=TERM 70 /tmp/a231/a200_enum <host-iface> 40 /tmp/a231/enum-step2; echo ENUM_RC=$?'
 # step 3 (lock 03:20:50.678 to 03:26:36.027)
 timeout 480 flock -w 60 /tmp/milan-bench.lock bash $PK/tools/run_bind.sh
-# final (lock 03:28:11.372 to 03:30:21.710): tcpdump 130 s, census, a200_enum ens10 40, console_read, grader
+# final (lock 03:28:11.372 to 03:30:21.710): tcpdump 130 s, census, a200_enum <host-iface> 40, console_read, grader
 python3 $PK/tools/a231_aecp_pcap.py <pcap> 020000fffe000001 --lines     # offline analysis
 ```
 
