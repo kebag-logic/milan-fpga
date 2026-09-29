@@ -1,0 +1,8 @@
+
+  [i]  calibration, -150 ppm plan: with the TDM clock unheld the first close lands 14 cycles after its tick
+
+[P-150] PROBE CRF, -150 ppm plan, every 256 cycles from -256 to -256, 1 quarter-cycle sub-placements, 150000 columns
+  [i]  P-150-256.0: engaged -258 cycles from the crossing, the close then moved -1..+448 (furthest at column 7625); tail: tick 256 cycles after the frame close, +0..+2 (spread 2); 1 repeats, 1 skips; last slip col 19513; tail slips 0
+  [i]  P-150-256.0: last slip at column 19513; engagement window unbounded columns
+== capture_coherence: checks: 21   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,27 @@
+A makeflags_result: check FAILS
+      [FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+            | %Error: Cannot find file containing module: 'Entering'
+            | %Error: Cannot find file containing module: 'directory'
+            | %Error: Cannot find file containing module: '$REVIEWS/r395-4-617/tb/verilator/milan_dp'
+            | %Error: Cannot find file containing module: 'Leaving'
+B makeflags_result: check FAILS
+      [FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+            | %Error: Cannot find file containing module: 'Entering'
+            | %Error: Cannot find file containing module: 'directory'
+            | %Error: Cannot find file containing module: '$REVIEWS/r395-4-617/tb/verilator/milan_dp'
+            | %Error: Cannot find file containing module: 'Leaving'
+C makeflags_result: check PASSES
+      [PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+D build_break_result with BUILD_TAIL_LINES=0: check PASSES  [VOID PROBE: lines[-0:] is the whole log, so 0 prints everything; see build-break-fault-probe2.txt]
+      [PASS] a planted build break fails the dp build, and the arm prints its error: %Error: $REVIEWS/617-r395-4-packet/scratch/faultprobe/D/build_break_dp/milan_datapath.sv:7824:15: syntax error, unexpected break, expecting ',' or ';'
+D2 build_break_result, committed constants (control): check PASSES
+      [PASS] a planted build break fails the dp build, and the arm prints its error: %Error: $REVIEWS/617-r395-4-packet/scratch/faultprobe/D2/build_break_dp/milan_datapath.sv:7824:15: syntax error, unexpected break, expecting ',' or ';
+E build('dp') with BUILD_MAKEFLAGS='w', Makefile=Makefile.committed: built
+F build('dp') with BUILD_MAKEFLAGS='', Makefile=Makefile.no_npd_both: built
+G build('dp') with BUILD_MAKEFLAGS='w', Makefile=Makefile.no_npd_both: FAILED
+            | %Error: Cannot find file containing module: 'directory'
+            | %Error: Cannot find file containing module: '$REVIEWS/r395-4-617/tb/verilator/milan_dp'
+            | %Error: Cannot find file containing module: 'Leaving'
+            | %Error: Exiting due to 5 error(s)
+            | make: *** [$REVIEWS/617-r395-4-packet/scratch/faultprobe/Makefile.no_npd_both:125: dp-build] Error 1
+            | make: Leaving directory '$REVIEWS/r395-4-617/tb/verilator/capture_coherence'

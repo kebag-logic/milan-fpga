@@ -1,0 +1,14 @@
+GNU Make 4.3
+pp_shadow          DP_SRCS    top-level make -C : [../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv]
+pp_shadow          DP_SRCS    inherited MAKEFLAGS=w: [make: Entering directory $REVIEWS/r395-4-617/tb/verilator/milan_dp]
+milan_dp_render    SRCS       top-level make -C : [../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv]
+milan_dp_render    SRCS       inherited MAKEFLAGS=w: [make: Entering directory $REVIEWS/r395-4-617/tb/verilator/milan_dp]
+milan_dp_render    DP_VFLAGS  top-level make -C : [--cc --exe --build -j]
+milan_dp_render    DP_VFLAGS  inherited MAKEFLAGS=w: [make: Entering directory $REVIEWS/r395-4-617/tb/verilator/milan_dp]
+capture_coherence  DP_SRCS    top-level make -C : [../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv]
+capture_coherence  DP_SRCS    inherited MAKEFLAGS=w: [../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv]
+capture_coherence  DP_VFLAGS  top-level make -C : [--cc --exe --build -j]
+capture_coherence  DP_VFLAGS  inherited MAKEFLAGS=w: [--cc --exe --build -j]
+-- pp_shadow/pending_mutant.py listing call, as a recipe-launched child would run it:
+make: Entering directory '$REVIEWS/r395-4-617/tb/verilator/milan_dp'
+../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/

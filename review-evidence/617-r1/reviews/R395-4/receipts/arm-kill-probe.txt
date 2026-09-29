@@ -1,0 +1,10 @@
+timeout rc=124 (124 = the guard fired)
+arm processes alive after the kill: 1
+<pid> (the probe's own invoking shell: its command line contains the search pattern; redacted)
+arm temp dirs before: 0  after: 1
+arm log at the kill (last lines):
+    os.rmdir(name, dir_fd=dirfd)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 39] Directory not empty: '$REVIEWS/617-r395-4-packet/scratch/tmp/capture-coherence-mutants-kjs9ldd_'
+make: *** [Makefile:140: mutants] Error 1
+# the count of 1 above is that invoking shell; no arm process of this run survived

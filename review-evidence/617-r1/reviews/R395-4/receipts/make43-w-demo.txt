@@ -1,0 +1,14 @@
+== GNU Make 4.3: $REVIEWS/617-r395-4-packet/scratch/make43/make-4.3/make -C <demo>
+make: Entering directory '$REVIEWS/617-r395-4-packet/scratch/mfdemo'
+recipe MAKEFLAGS=[w]
+nested: [make[1]: Entering directory '$REVIEWS/617-r395-4-packet/scratch/mfdemo/sub'
+X
+make[1]: Leaving directory '$REVIEWS/617-r395-4-packet/scratch/mfdemo/sub']
+nested with --no-print-directory: [X]
+make: Leaving directory '$REVIEWS/617-r395-4-packet/scratch/mfdemo'
+== GNU Make 4.4.1: /usr/bin/make -C <demo>
+make: Entering directory '$REVIEWS/617-r395-4-packet/scratch/mfdemo'
+recipe MAKEFLAGS=[]
+nested: [X]
+nested with --no-print-directory: [X]
+make: Leaving directory '$REVIEWS/617-r395-4-packet/scratch/mfdemo'

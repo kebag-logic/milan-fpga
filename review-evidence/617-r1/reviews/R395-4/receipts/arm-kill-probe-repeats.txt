@@ -1,0 +1,36 @@
+#### kill at 45s
+timeout rc=124 (124 = the guard fired)
+arm processes alive after the kill: 1
+2845278 python3 mutants.py --output /tmp/srp-leaveall-mutants
+arm temp dirs before: 0  after: 1
+arm log at the kill (last lines):
+    os.rmdir(name, dir_fd=dirfd)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 39] Directory not empty: '$REVIEWS/617-r395-4-packet/scratch/tmp/capture-coherence-mutants-yoqqwz4q'
+make: *** [Makefile:140: mutants] Error 1
+3
+make: *** [Makefile:140: mutants] Error 1
+216K	$REVIEWS/617-r395-4-packet/scratch/tmp/capture-coherence-mutants-yoqqwz4q
+#### kill at 150s
+timeout rc=124 (124 = the guard fired)
+arm processes alive after the kill: 2
+2845278 python3 mutants.py --output /tmp/srp-leaveall-mutants
+2854498 $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 mutants.py
+arm temp dirs before: 0  after: 0
+arm log at the kill (last lines):
+[PASS] the unmutated source still passes the band harness
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the fine harness
+make: *** [Makefile:140: mutants] Error 143
+0
+make: *** [Makefile:140: mutants] Error 143
+
+
+# note: the 'alive' matches in these runs are other lanes' processes (pattern 'python3 mutants.py'); their cwd:
+2845278 cwd=$VALIDATION_STORAGE/a435/pp-final/tb/srp_top
+2854498 cwd=$LANES/495b-cand-full-native/tb/verilator/gptp_shadow
+# none has a cwd or argv in this review's clone or TMPDIR; this run's own arm left no process
+# leftover dirs (moved to scratch for inspection):
+124K leftover-kill1: obj_clean_dp_dp_band.log obj_dp_band_milan_datapath_s_round_1_aligner_binding__slot_0_mar.log obj_junction_no_walk_snapshot__the_walk_reads_the_frame_bank_liv.log obj_junction_the_frame_is_closed_by_its_first_pair.log obj_junction_the_frame_is_published_whole_but_one_pair_late__at_.log obj_junction_the_stage_is_never_written__only_the_closing_pair_r.log 
+216K leftover-kill-45: obj_clean_chmap.log obj_clean_dp_dp_band.log obj_clean_nco.log obj_dp_band_milan_datapath_s_round_1_aligner_binding__slot_0_mar.log obj_dp_milan_datapath_tells_the_crossbar_a_one_pair_TDM_frame.log obj_makeflags_w.log 
+attempt 1: 3 tracebacks, make: *** [Makefile:140: mutants] Error 1, leftover=1

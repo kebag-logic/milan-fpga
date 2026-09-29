@@ -1,0 +1,10 @@
+binding lines at head:
+5730:    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)
+head                               rc=0  
+rm9_literal128                     rc=1  mga_keepoff.py: $REVIEWS/617-r395-4-packet/scratch/rm9/rm9_literal128.sv does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C exactly once (bindings found: ['128']); the wrapper binds that declaration, so every sweep w
+literal256                         rc=1  mga_keepoff.py: $REVIEWS/617-r395-4-packet/scratch/rm9/literal256.sv does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C exactly once (bindings found: ['256']); the wrapper binds that declaration, so every sweep would
+expr_plus0                         rc=1  mga_keepoff.py: $REVIEWS/617-r395-4-packet/scratch/rm9/expr_plus0.sv does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C exactly once (bindings found: ['MGA_KEEPOFF_CYC_C + 0']); the wrapper binds that declaration, so
+nested_parens                      rc=1  mga_keepoff.py: $REVIEWS/617-r395-4-packet/scratch/rm9/nested_parens.sv does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C exactly once (bindings found: []); the wrapper binds that declaration, so every sweep would g
+binding_removed                    rc=1  mga_keepoff.py: $REVIEWS/617-r395-4-packet/scratch/rm9/binding_removed.sv does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C exactly once (bindings found: []); the wrapper binds that declaration, so every sweep would
+commented_dup                      rc=1  mga_keepoff.py: $REVIEWS/617-r395-4-packet/scratch/rm9/commented_dup.sv does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C exactly once (bindings found: ['MGA_KEEPOFF_CYC_C', 'MGA_KEEPOFF_CYC_C']); the wrapper binds 
+defparam_override                  rc=0  

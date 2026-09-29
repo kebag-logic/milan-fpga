@@ -1,0 +1,72 @@
+make: Entering directory '$REVIEWS/r395-4-617/tb/verilator/capture_coherence'
+======================================================================
+python3 mutants.py
+[i]  29 builds on 8 worker(s), one per CPU this process may use; the datapath builds start first
+Traceback (most recent call last):
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 565, in run_units
+    for future in as_completed(futures):
+                  ~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 237, in as_completed
+    waiter.event.wait(wait_timeout)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/threading.py", line 670, in wait
+    signaled = self._cond.wait(timeout)
+  File "/usr/lib/python3.14/threading.py", line 369, in wait
+    waiter.acquire()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 314, in stop
+    sys.exit(128 + signum)
+    ~~~~~~~~^^^^^^^^^^^^^^
+SystemExit: 143
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 587, in main
+    verdicts = run_units(arm_units(Path(td)), len(os.sched_getaffinity(0)))
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 573, in run_units
+    pool.shutdown(wait=True, cancel_futures=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 273, in shutdown
+    t.join()
+    ~~~~~~^^
+  File "/usr/lib/python3.14/threading.py", line 1133, in join
+    self._os_thread_handle.join(timeout)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 314, in stop
+    sys.exit(128 + signum)
+    ~~~~~~~~^^^^^^^^^^^^^^
+SystemExit: 143
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 594, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/r395-4-617/tb/verilator/capture_coherence/mutants.py", line 582, in main
+    with tempfile.TemporaryDirectory(prefix="capture-coherence-mutants-") as td:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/tempfile.py", line 972, in __exit__
+    self.cleanup()
+    ~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/tempfile.py", line 976, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/tempfile.py", line 956, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/shutil.py", line 721, in _rmtree_safe_fd
+    _rmtree_safe_fd_step(stack, onexc)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/shutil.py", line 802, in _rmtree_safe_fd_step
+    onexc(func, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/shutil.py", line 753, in _rmtree_safe_fd_step
+    os.rmdir(name, dir_fd=dirfd)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 39] Directory not empty: '$REVIEWS/617-r395-4-packet/scratch/tmp/capture-coherence-mutants-epm41bcx'
+make: *** [Makefile:140: mutants] Error 1

@@ -1,0 +1,5 @@
+D1 build_break_result with BUILD_TAIL_LINES=1: check FAILS
+      [FAIL] a planted build break in the dp leg did not print the compiler's error on the planted file (no such line in the tail below)
+            | make: *** [Makefile:125: dp-build] Error 1
+D2 build_break_result with the build's output discarded: check FAILS
+      [FAIL] a planted build break in the dp leg did not print the compiler's error on the planted file (no such line in the tail below)
