@@ -1,0 +1,80 @@
+== C1 references to #606/#608/#75 pages or issues: tracked lines at OLDDEV vs DEV (dev added none)
+13eda870d1a6cf3f946fc228a98862366b08d102 41
+79c36963660c10e4c1c11a744fb5bff41a552b8b 41
+-- dev-added lines naming #75/#606/#608 or the pages:
++| #394 acceptance 2, e1 only | PASS | Ten of ten cycles recovered the reservation, both bindings, asCapable and MEDIA_LOCKED with no reboot and no re-bind. GET_COUNTERS showed LINK_DOWN, LINK_UP and MEDIA_UNLOCKED +1 each per cycle. gPTP recovered in 0.544-1.786 s against the 5 s bound. The restart time is recorded, not graded against #75. |
++Issue [#75](https://github.com/kebag-logic/milan-fpga/issues/75) times from CONNECT_RX success instead.
++- All of these exceed #75's one second; the trigger differs, so this is no #75 verdict.
+== C2 gitlinks OLDDEV vs DEV vs HEAD (processor pin c951a9ff unchanged, so '#133 pending adoption' stays true)
+13eda870d1a6cf3f946fc228a98862366b08d102 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor 
+79c36963660c10e4c1c11a744fb5bff41a552b8b efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor 
+d62b1e1a3a37283ebad039880163873698a011db efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor 
+== C3 image identity: B1 page (dev) vs 606 page (PR)
+0x00020060 B1=1 606=1
+acad92b9 B1=1 606=1
+d84bce7b B1=1 606=1
+93742dd2 B1=1 606=1
+690d87e407bbb7f7 B1=1 606=1
+9b077636b1d42aca B1=1 606=1
+7723d0b8129df7b7 B1=1 606=1
+020000fffe000001 B1=1 606=1
+f014c6f2bd80e462 B1=1 606=1
+bc41ab03e64198b1 B1=1 606=1
+== C4 saved state: B1 final restore vs B2 identity gate
+291:| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+293:| NVM slots A / B, image sequence | 227 / 228, image 228 | 229 / 230, image 230 |
+294:| Commits ok / failed | 0 / 0 | 2 / 0 |
+295:| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000444`, 0 | `0x5b000c44`, 1 |
+296:| `PP_NVM_STAT` | `0xc30000e4`, pend 0 | `0xc34000e4`, pend 1 |
+247:| Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z |
+249:| NVM slots A / B, image sequence | 229 / 230, image 230 | 229 / 230, image 230 |
+251:| Commits ok / failed | 2 / 0 | 2 / 0 |
+252:| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000c44`, 1 | `0x5b000c44`, 1 |
+253:| `PP_NVM_STAT` | `0xc34000e4`, pend 1 | `0xc34000e4`, pend 1 |
+== C5 timing: B1 restore unbind vs B2 first action sample (bind 1 claims > 1,800 s unbound)
+304:- The restore at 06:22:05Z issued the other three: SET_CLOCK_SOURCE to source 0 and both DISCONNECT_RX commands.
+259:- The two `milan_nvm` reads bracket every action: the action console samples run from 06:53:46Z to 07:20:32Z.
+164:| 1 | more than 1,800 (lane B1's restore) | 17.315 | 2 / 0 | SUCCESS | 0.171413 (JoinMt) | 0.227724, Listener New | 0.227724 | 0.228304 | PASS |
+06:22:05Z -> 06:53:46Z = 1901 s
+== C6 DUT outputs bound by B1 (606 says Output 0 was never bound in B2 and its MAAP address predates the lane)
+69:| DUT to reference peer | Output 1 to input 8 | CRF, `041060010000bb80` |
+70:| Reference peer to DUT | Output 2 to input 1 | Same CRF format |
+78:Both DUT Stream Outputs already held MAAP-range destinations.
+80:Output 0 (`91:e0:f0:00:e5:11`) was never bound in this lane.
+== C7 B1 disclaims a #75 verdict
+13:| #394 acceptance 2, e1 only | PASS | Ten of ten cycles recovered the reservation, both bindings, asCapable and MEDIA_LOCKED with no reboot and no re-bind. GET_COUNTERS showed LINK_DOWN, LINK_UP and MEDIA_UNLOCKED +1 each per cycle. gPTP recovered in 0.544-1.786 s against the 5 s bound. The restart time is recorded, not graded against #75. |
+157:Issue [#75](https://github.com/kebag-logic/milan-fpga/issues/75) times from CONNECT_RX success instead.
+228:- All of these exceed #75's one second; the trigger differs, so this is no #75 verdict.
+== C8 peer configuration and as-found stream state
+docs/findings/599_394_E1_LINK_CYCLES.md:57:All eighteen queried stream states were unbound.
+docs/findings/599_394_E1_LINK_CYCLES.md:61:The reference peer was in configuration 1 at 48 kHz, on INTERNAL.
+docs/findings/606_FIRST_BIND_MEASUREMENT.md:70:As found, all 18 queried stream states were unbound.
+docs/findings/606_FIRST_BIND_MEASUREMENT.md:74:The reference peer was in configuration 1 at 48 kHz, as PR #620 found.
+== C9 reset epoch
+docs/findings/599_394_E1_LINK_CYCLES.md:185:The DUT console answered throughout; its reset epoch stayed 1.
+docs/findings/599_394_E1_LINK_CYCLES.md:276:- Final console: sync 1, asCapable 1, `tu=0`, reset epoch 1, servo IDLE, CRF talker control `0x3`.
+docs/findings/606_FIRST_BIND_MEASUREMENT.md:54:| Reset epoch | 1, before and after every action |
+docs/findings/606_FIRST_BIND_MEASUREMENT.md:233:- The UART grader passed 10 of 10; the reset epoch read 1.
+docs/findings/608_75_WITHDRAWAL_AND_RESTART.md:409:- The UART grader passed 10 of 10; the reset epoch read 1 throughout.
+== C10 dev RTL touched (areas); PR pages measure the CRF talker bind/withdraw path on INTERNAL
+ hdl/common/README-tests.md                   |  10 +-
+ hdl/common/csr/README-tests.md               |   2 +-
+ hdl/common/eth_event_counter/README-tests.md |   4 +-
+ hdl/ieee1722/aaf/KL_chan_map_capture.sv      | 316 ++++++++++++++++++++-------
+ hdl/ieee1722/aaf/README-tests.md             |  36 +--
+ hdl/ieee1722/avtp/README-tests.md            |  10 +-
+ hdl/ieee1722/crf/KL_media_grid_align.sv      |  10 +-
+ hdl/ieee1722/crf/KL_media_nco.sv             |  39 +++-
+ hdl/ieee1722/crf/README-tests.md             |  10 +-
+ hdl/ieee1722/maap/README-tests.md            |   2 +-
+ hdl/ieee17221/adp/README-tests.md            |   2 +-
+ hdl/ieee8021as/gptp_plane/README-tests.md    |   6 +-
+ hdl/ieee8021as/ptp_timestamp/README-tests.md |   6 +-
+ hdl/ieee8021q/filtering/README-tests.md      |   4 +-
+ hdl/milan/README-tests.md                    |   8 +-
+ hdl/milan/milan_datapath.sv                  |  98 ++++++++-
+ 16 files changed, 408 insertions(+), 155 deletions(-)
+72:The DUT selected clock source 0, INTERNAL.
+231:- The DUT still selects INTERNAL; the peer is unchanged.
+== C11 VERSION unchanged by dev (identity rests on CRCs plus named source, not VERSION alone)
+46:+- VERSION remains `0x0002_0060`; the release step owns the minor bump.
