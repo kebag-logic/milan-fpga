@@ -42,7 +42,8 @@ The builder also restricts `flashboot` to `baremetal` or `none`.
 
 The clock's single definition is `CPU_HZ` in
 [`recipe.py`](../../tb/verilator/nvm_capture_cpu/recipe.py).
-Both tools import it and issue a named `baremetal clock` refusal.
+Both tools read it by its path and issue a named `baremetal clock` refusal.
+A `tb` package elsewhere on `sys.path` therefore cannot replace it.
 The builder checks `milan_clk_hz` before writing artifacts.
 The SoC checks the effective clock before constructing the platform.
 Without `--milan-clk-freq`, that clock is `--sys-clk-freq`.

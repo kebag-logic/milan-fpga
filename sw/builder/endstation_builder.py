@@ -47,6 +47,7 @@ import argparse
 import hashlib
 import json
 import re
+import runpy
 import subprocess
 import sys
 from collections.abc import Sequence
@@ -66,9 +67,11 @@ except ImportError:  # pragma: no cover
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 
-# Keep the capture receipt's hashed recipe as the single clock authority.
+# Keep the capture receipt's hashed recipe as the single clock authority. It
+# is run by its path: tb/ is a namespace package, so a regular `tb` package
+# anywhere on sys.path would win an import of it.
+BAREMETAL_CLK_HZ = runpy.run_path(ROOT / "tb/verilator/nvm_capture_cpu/recipe.py")["CPU_HZ"]
 sys.path.insert(0, str(ROOT))
-from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # noqa: E402
 from sw.builder import aem_image_checks  # noqa: E402
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"

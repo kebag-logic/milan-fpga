@@ -7,6 +7,7 @@ import io
 import os
 from pathlib import Path
 import re
+import runpy
 import shlex
 import subprocess
 import sys
@@ -18,6 +19,45 @@ import endstation_builder as eb
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIGS = sorted((ROOT / "configs").glob("endstation_*.yaml"))
+RECIPE = ROOT / "tb/verilator/nvm_capture_cpu/recipe.py"
+
+#: Import a tool with recipe.py's bytes replaced in memory, below a regular
+#: `tb` package that declares another clock. The import machinery and runpy
+#: both read source through open_code, so the plant reaches a load by path
+#: however it is written; an empty pycache prefix keeps a cached compilation of
+#: the real recipe out of the way. The last line proves the shadow is live.
+_PLANTED_IMPORT = """
+import _io, io, sys
+from pathlib import Path
+recipe, planted, module = Path(sys.argv[1]).resolve(), sys.argv[2].encode(), sys.argv[3]
+real_open_code = _io.open_code
+def open_code(path):
+    return _io.BytesIO(planted) if Path(path).resolve() == recipe else real_open_code(path)
+_io.open_code = io.open_code = open_code
+print(__import__(module).BAREMETAL_CLK_HZ)
+import tb.verilator.nvm_capture_cpu.recipe as shadow
+print(shadow.CPU_HZ)
+"""
+
+
+def _assert_clock_source(module: str, directory: Path) -> None:
+    """A tool's contract clock follows recipe.py's bytes, never a shadowing `tb` package."""
+    real = runpy.run_path(RECIPE)["CPU_HZ"]
+    planted, shadowed = real + 1, real + 2
+    with tempfile.TemporaryDirectory(prefix="clock-shadow-") as tmp:
+        package = Path(tmp) / "shadow/tb/verilator/nvm_capture_cpu"
+        package.mkdir(parents=True)
+        for level in (package, package.parent, package.parent.parent):
+            (level / "__init__.py").write_text("")
+        (package / "recipe.py").write_text(f"CPU_HZ = {shadowed}\n")
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(Path(tmp) / "shadow"), str(directory)]))
+        result = subprocess.run([sys.executable, "-B", "-X", f"pycache_prefix={Path(tmp) / 'pycache'}",
+                                 "-c", _PLANTED_IMPORT, str(RECIPE), f"CPU_HZ = {planted}\n", module],
+                                cwd=directory, env=env, text=True, capture_output=True, timeout=300)
+    assert result.returncode == 0, result.stderr
+    clock, shadow = (int(word) for word in result.stdout.split()[-2:])
+    assert shadow == shadowed, "the regular tb package did not shadow a namespace import"
+    assert clock == planted, f"{module}: contract clock {clock} does not follow recipe.py's bytes"
 
 
 def _refused(raw: dict, directory: Path, reason: str) -> None:
@@ -71,6 +111,12 @@ def test_baremetal_clock_contract() -> None:
             _refused(bad, directory, "no scala_args overrides")
     print(f"[clock contract] {len(CONFIGS)} configured positives; {refusals} named clock refusals; "
           "system-clock ordering and non-cache Scala refusals; no output on failure")
+
+
+def test_builder_clock_source() -> None:
+    """The builder reads the contract clock from recipe.py's file, whatever sys.path holds."""
+    _assert_clock_source("endstation_builder", ROOT / "sw/builder")
+    print("[clock contract] builder clock follows a planted recipe.py under a shadowing tb package")
 
 
 def test_gptp_rom_clock() -> None:
@@ -129,6 +175,7 @@ def test_soc_clock_contract() -> None:
     sys.path.insert(0, str(ROOT / "sw/litex"))
     import milan_soc
 
+    _assert_clock_source("milan_soc", ROOT / "sw/litex")
     for path in CONFIGS:
         cfg = eb.load_config(path)
         argv = eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / path.stem)]
@@ -152,7 +199,8 @@ def test_soc_clock_contract() -> None:
     for bad in (clock - 1, clock + 1, 80_000_000, 100_000_000):
         for option in ("--milan-clk-freq", "--sys-clk-freq"):
             _soc_clock_case(milan_soc, ["--no-milan", option, str(bad)], True)
-    print("[clock contract] SoC configured clocks, neighbours, 80/100 MHz, "
+    print("[clock contract] SoC clock follows a planted recipe.py under a shadowing tb package; "
+          "configured clocks, neighbours, 80/100 MHz, "
           "nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass")
 
 
@@ -307,6 +355,7 @@ def test_sim_clock() -> None:
 
 if __name__ == "__main__":
     test_baremetal_clock_contract()
+    test_builder_clock_source()
     test_gptp_rom_clock()
     test_extra_sweep_clocks()
     test_extra_sweep_invocation()
