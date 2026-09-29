@@ -1,0 +1,28 @@
+
+  [i]  calibration, -100 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-100/32] PROBE CRF, -100 ppm plan, every 64 cycles from -512 to +512, 1 quarter-cycle sub-placements, 100000 columns
+  [i]  P-100/32-512.0: engaged -512 cycles from the crossing, the close then moved -1..+298 (furthest at column 7391); tail: tick 501 cycles after the frame close, -1..+11 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32-448.0: engaged -449 cycles from the crossing, the close then moved -1..+298 (furthest at column 7391); tail: tick 438 cycles after the frame close, -1..+11 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32-384.0: engaged -385 cycles from the crossing, the close then moved -1..+298 (furthest at column 7391); tail: tick 374 cycles after the frame close, -1..+11 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32-320.0: engaged -320 cycles from the crossing, the close then moved -1..+298 (furthest at column 7391); tail: tick 309 cycles after the frame close, -1..+11 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32-256.0: engaged -256 cycles from the crossing, the close then moved -1..+299 (furthest at column 7523); tail: tick 245 cycles after the frame close, -1..+11 (spread 12); 1 repeats, 1 skips; last slip col 13150; tail slips 0; engage col -1
+  [i]  P-100/32-256.0: last slip at column 13150; engagement window unbounded columns
+  [i]  P-100/32-192.0: engaged -193 cycles from the crossing, the close then moved -63..+237 (furthest at column 6923); tail: tick 245 cycles after the frame close, -1..+11 (spread 12); 1 repeats, 1 skips; last slip col 12561; tail slips 0; engage col -1
+  [i]  P-100/32-192.0: last slip at column 12561; engagement window unbounded columns
+  [i]  P-100/32-128.0: engaged -129 cycles from the crossing, the close then moved -127..+176 (furthest at column 5879); tail: tick 246 cycles after the frame close, -1..+10 (spread 11); 1 repeats, 1 skips; last slip col 11998; tail slips 0; engage col -1
+  [i]  P-100/32-128.0: last slip at column 11998; engagement window unbounded columns
+  [i]  P-100/32-64.0: engaged -64 cycles from the crossing, the close then moved -192..+119 (furthest at column 73475); tail: tick 246 cycles after the frame close, +0..+10 (spread 10); 1 repeats, 1 skips; last slip col 11479; tail slips 0; engage col -1
+  [i]  P-100/32-64.0: last slip at column 11479; engagement window unbounded columns
+  [i]  P-100/32+0.0: engaged +0 cycles from the crossing, the close then moved -256..+68 (furthest at column 72755); tail: tick 247 cycles after the frame close, -1..+9 (spread 10); 1 repeats, 1 skips; last slip col 11025; tail slips 0; engage col -1
+  [i]  P-100/32+0.0: last slip at column 11025; engagement window unbounded columns
+  [i]  P-100/32+64.0: engaged +63 cycles from the crossing, the close then moved +0..+498 (furthest at column 8819); tail: tick 771 cycles after the frame close, +0..+14 (spread 14); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+128.0: engaged +128 cycles from the crossing, the close then moved +0..+430 (furthest at column 8471); tail: tick 771 cycles after the frame close, +0..+14 (spread 14); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+192.0: engaged +192 cycles from the crossing, the close then moved +0..+364 (furthest at column 8039); tail: tick 772 cycles after the frame close, +0..+13 (spread 13); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+256.0: engaged +255 cycles from the crossing, the close then moved +0..+300 (furthest at column 7403); tail: tick 773 cycles after the frame close, +0..+12 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+320.0: engaged +319 cycles from the crossing, the close then moved +0..+298 (furthest at column 7379); tail: tick 711 cycles after the frame close, +0..+12 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+384.0: engaged +384 cycles from the crossing, the close then moved +0..+298 (furthest at column 7379); tail: tick 646 cycles after the frame close, +0..+12 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+448.0: engaged +448 cycles from the crossing, the close then moved +0..+298 (furthest at column 7379); tail: tick 582 cycles after the frame close, +0..+12 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-100/32+512.0: engaged +511 cycles from the crossing, the close then moved +0..+298 (furthest at column 7379); tail: tick 519 cycles after the frame close, +0..+12 (spread 12); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 341   failures: 0 ==
+RESULT: PASS

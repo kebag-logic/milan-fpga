@@ -1,0 +1,47 @@
+# Hosted rtl-full run 36502597828, job 'Verilator shard 1/5' (id 109196809736), merge ref 7abe4d5261a91ee17aaa5dbffd6933bbd68ad64f = dev eaa88a32 + head ddb07747; fetched 2026-09-29T01:28:28Z
+2026-09-29T00:21:04.1937530Z   TARGET_SHA: 7abe4d5261a91ee17aaa5dbffd6933bbd68ad64f
+2026-09-29T00:22:54.6785691Z shard: 1/5   selected suites: 23
+2026-09-29T00:23:00.1026566Z PASS     aaf_latency_taps
+2026-09-29T00:23:11.3047339Z PASS     avtp_rxmon
+2026-09-29T00:47:13.1399638Z FAIL     capture_coherence
+2026-09-29T00:47:18.6782318Z PASS     cbs
+2026-09-29T00:47:23.9588868Z PASS     cdc
+2026-09-29T00:47:39.7352351Z PASS     clkvalid
+2026-09-29T00:47:47.5325197Z PASS     controller_rate
+2026-09-29T01:01:25.0250270Z PASS     crf_rx
+2026-09-29T01:01:30.7679499Z PASS     datapath
+2026-09-29T01:01:31.3837365Z PASS     fw_service_budget
+2026-09-29T01:01:39.7586589Z PASS     gptp_plane
+2026-09-29T01:07:17.9014553Z PASS     gptp_shadow
+2026-09-29T01:07:23.2298409Z PASS     lat_history_ring
+2026-09-29T01:07:28.6438582Z PASS     maap
+2026-09-29T01:07:39.3206798Z PASS     mac_rmon
+2026-09-29T01:07:55.9294290Z PASS     media_nco
+2026-09-29T01:08:01.7531353Z PASS     mmcm_servo_autorepair
+2026-09-29T01:19:46.4186815Z PASS     nvm_cosim
+2026-09-29T01:19:51.7522327Z PASS     pair_fill
+2026-09-29T01:19:57.0369919Z PASS     pcmlpf
+2026-09-29T01:22:34.1190578Z PASS     pp_shadow
+2026-09-29T01:22:39.5696601Z PASS     tcam_csr
+2026-09-29T01:23:34.1282298Z PASS     tsn_fuzz
+2026-09-29T01:23:34.1283565Z suites: 23   passed: 22   failed: 1   timed out: 0
+2026-09-29T01:23:34.3510095Z checks: 197045   in-suite failures: 4
+2026-09-29T01:23:34.3566101Z failing suites: capture_coherence
+2026-09-29T01:23:34.3814513Z ##[error]Process completed with exit code 1.
+
+# artifact suite-logs-1 / capture_coherence.log, verdict lines
+1516:== capture_coherence: checks: 20832   failures: 0 ==
+1517:RESULT: PASS
+2087:== capture_coherence_dp: checks: 332   failures: 0 ==
+2088:RESULT: PASS
+2091:[PASS] the unmutated source still passes the junction harness
+2092:[PASS] the unmutated source still passes the band harness
+2093:[PASS] the unmutated source still passes the band50 harness
+2094:[PASS] the unmutated source still passes the fine harness
+2095:[FAIL] the unmutated source does NOT pass the dp harness (did not compile) - every dp mutant result is meaningless
+2096:[FAIL] the unmutated source does NOT pass the dp-band harness (did not compile) - every dp-band mutant result is meaningless
+2097:[PASS] the unmutated source still passes the chmap harness
+2098:[PASS] the unmutated source still passes the nco harness
+2110:[FAIL] mutation 'milan_datapath tells the crossbar a one-pair TDM frame' did not compile; a mutant that cannot build proves nothing about the harness
+2111:[FAIL] mutation "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off" did not compile; a mutant that cannot build proves nothing about the harness
+2119:27 checks: 23 PASS, 4 FAIL

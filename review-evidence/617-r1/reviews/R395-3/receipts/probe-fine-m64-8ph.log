@@ -1,0 +1,134 @@
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 14 cycles after its tick
+
+[P-64/0] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/0+0.0: engaged -1 cycles from the crossing, the close then moved -111..+1 (furthest at column 11903); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/0+0.1: engaged -1 cycles from the crossing, the close then moved -111..+0 (furthest at column 11915); tail: tick 45 cycles after the frame close, -1..+67 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/0+0.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 279; tail slips 0; engage col -1
+  [i]  P-64/0+0.2: last slip at column 279; engagement window unbounded columns
+  [i]  P-64/0+0.3: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 460; tail slips 0; engage col -1
+  [i]  P-64/0+0.3: last slip at column 460; engagement window unbounded columns
+  [i]  P-64/0+1.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 596; tail slips 0; engage col -1
+  [i]  P-64/0+1.0: last slip at column 596; engagement window unbounded columns
+  [i]  P-64/0+1.1: engaged +1 cycles from the crossing, the close then moved -1..+460 (furthest at column 9724); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/0+1.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 279; tail slips 0; engage col -1
+  [i]  P-64/0+1.2: last slip at column 279; engagement window unbounded columns
+  [i]  P-64/0+1.3: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-64/16] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/16+0.0: engaged -1 cycles from the crossing, the close then moved -111..+1 (furthest at column 11903); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/16+0.1: engaged -1 cycles from the crossing, the close then moved -111..+1 (furthest at column 11921); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/16+0.2: engaged +0 cycles from the crossing, the close then moved -112..+0 (furthest at column 11903); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/16+0.3: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 279; tail slips 0; engage col -1
+  [i]  P-64/16+0.3: last slip at column 279; engagement window unbounded columns
+  [i]  P-64/16+1.0: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/16+1.1: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 562; tail slips 0; engage col -1
+  [i]  P-64/16+1.1: last slip at column 562; engagement window unbounded columns
+  [i]  P-64/16+1.2: engaged +2 cycles from the crossing, the close then moved -1..+459 (furthest at column 9766); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/16+1.3: engaged +2 cycles from the crossing, the close then moved +0..+459 (furthest at column 9766); tail: tick 627 cycles after the frame close, -46..+1 (spread 47); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-64/24] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/24+0.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 392; tail slips 0; engage col -1
+  [i]  P-64/24+0.0: last slip at column 392; engagement window unbounded columns
+  [i]  P-64/24+0.1: engaged -1 cycles from the crossing, the close then moved -112..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/24+0.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11987); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 615; tail slips 0; engage col -1
+  [i]  P-64/24+0.2: last slip at column 615; engagement window unbounded columns
+  [i]  P-64/24+0.3: engaged +0 cycles from the crossing, the close then moved -113..+0 (furthest at column 11999); tail: tick 45 cycles after the frame close, -1..+67 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/24+1.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 392; tail slips 0; engage col -1
+  [i]  P-64/24+1.0: last slip at column 392; engagement window unbounded columns
+  [i]  P-64/24+1.1: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 494; tail slips 0; engage col -1
+  [i]  P-64/24+1.1: last slip at column 494; engagement window unbounded columns
+  [i]  P-64/24+1.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 615; tail slips 0; engage col -1
+  [i]  P-64/24+1.2: last slip at column 615; engagement window unbounded columns
+  [i]  P-64/24+1.3: engaged +1 cycles from the crossing, the close then moved -1..+460 (furthest at column 9742); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-64/32] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/32+0.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 279; tail slips 0; engage col -1
+  [i]  P-64/32+0.0: last slip at column 279; engagement window unbounded columns
+  [i]  P-64/32+0.1: engaged -1 cycles from the crossing, the close then moved -111..+1 (furthest at column 11915); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/32+0.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 562; tail slips 0; engage col -1
+  [i]  P-64/32+0.2: last slip at column 562; engagement window unbounded columns
+  [i]  P-64/32+0.3: engaged +0 cycles from the crossing, the close then moved -112..+0 (furthest at column 11903); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/32+1.0: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/32+1.1: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/32+1.2: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/32+1.3: engaged +1 cycles from the crossing, the close then moved -1..+460 (furthest at column 9736); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-64/40] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/40+0.0: engaged +0 cycles from the crossing, the close then moved -113..+0 (furthest at column 11999); tail: tick 45 cycles after the frame close, -1..+67 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/40+0.1: engaged -1 cycles from the crossing, the close then moved -112..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/40+0.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11987); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 528; tail slips 0; engage col -1
+  [i]  P-64/40+0.2: last slip at column 528; engagement window unbounded columns
+  [i]  P-64/40+0.3: engaged -1 cycles from the crossing, the close then moved -112..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/40+1.0: engaged +1 cycles from the crossing, the close then moved -1..+460 (furthest at column 9742); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/40+1.1: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9748); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/40+1.2: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9760); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/40+1.3: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 615; tail slips 0; engage col -1
+  [i]  P-64/40+1.3: last slip at column 615; engagement window unbounded columns
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-64/48] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/48+0.0: engaged +0 cycles from the crossing, the close then moved -112..+0 (furthest at column 11903); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/48+0.1: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 279; tail slips 0; engage col -1
+  [i]  P-64/48+0.1: last slip at column 279; engagement window unbounded columns
+  [i]  P-64/48+0.2: engaged -1 cycles from the crossing, the close then moved -111..+1 (furthest at column 11915); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/48+0.3: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11993); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 562; tail slips 0; engage col -1
+  [i]  P-64/48+0.3: last slip at column 562; engagement window unbounded columns
+  [i]  P-64/48+1.0: engaged +0 cycles from the crossing, the close then moved -112..+0 (furthest at column 11903); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/48+1.1: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/48+1.2: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/48+1.3: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9754); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 12 cycles after its tick
+
+[P-64/56] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/56+0.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 615; tail slips 0; engage col -1
+  [i]  P-64/56+0.0: last slip at column 615; engagement window unbounded columns
+  [i]  P-64/56+0.1: engaged +0 cycles from the crossing, the close then moved -113..+0 (furthest at column 11999); tail: tick 45 cycles after the frame close, -1..+67 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/56+0.2: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 343; tail slips 0; engage col -1
+  [i]  P-64/56+0.2: last slip at column 343; engagement window unbounded columns
+  [i]  P-64/56+0.3: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 494; tail slips 0; engage col -1
+  [i]  P-64/56+0.3: last slip at column 494; engagement window unbounded columns
+  [i]  P-64/56+1.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 615; tail slips 0; engage col -1
+  [i]  P-64/56+1.0: last slip at column 615; engagement window unbounded columns
+  [i]  P-64/56+1.1: engaged +1 cycles from the crossing, the close then moved -1..+460 (furthest at column 9742); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/56+1.2: engaged +2 cycles from the crossing, the close then moved +0..+459 (furthest at column 9778); tail: tick 627 cycles after the frame close, -46..+1 (spread 47); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/56+1.3: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9760); tail: tick 628 cycles after the frame close, -48..+0 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS
+
+  [i]  calibration, -64 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[P-64/8] PROBE CRF, -64 ppm plan, every 1 cycles from +0 to +1, 4 quarter-cycle sub-placements, 12000 columns
+  [i]  P-64/8+0.0: engaged -1 cycles from the crossing, the close then moved -112..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/8+0.1: engaged -1 cycles from the crossing, the close then moved -112..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/8+0.2: engaged +0 cycles from the crossing, the close then moved -113..+0 (furthest at column 11999); tail: tick 45 cycles after the frame close, -1..+67 (spread 68); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/8+0.3: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9748); tail: tick 627 cycles after the frame close, -47..+1 (spread 48); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/8+1.0: engaged +0 cycles from the crossing, the close then moved -113..+1 (furthest at column 11999); tail: tick 44 cycles after the frame close, +0..+68 (spread 68); 1 repeats, 1 skips; last slip col 494; tail slips 0; engage col -1
+  [i]  P-64/8+1.0: last slip at column 494; engagement window unbounded columns
+  [i]  P-64/8+1.1: engaged +1 cycles from the crossing, the close then moved +0..+460 (furthest at column 9760); tail: tick 628 cycles after the frame close, -47..+0 (spread 47); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/8+1.2: engaged +2 cycles from the crossing, the close then moved -1..+459 (furthest at column 9772); tail: tick 627 cycles after the frame close, -46..+1 (spread 47); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+  [i]  P-64/8+1.3: engaged +2 cycles from the crossing, the close then moved +0..+459 (furthest at column 9778); tail: tick 627 cycles after the frame close, -46..+1 (spread 47); 0 repeats, 0 skips; last slip col -1; tail slips 0; engage col -1
+== capture_coherence: checks: 161   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,40 @@
+# Hosted rtl-full run 36487875476 (round-2 head 377d1ac3, merge ref), job 'Verilator shard 1/5'
+2026-09-28T21:44:52.2922789Z shard: 1/5   selected suites: 23
+2026-09-28T21:44:57.6907986Z PASS     aaf_latency_taps
+2026-09-28T21:45:09.0609486Z PASS     avtp_rxmon
+2026-09-28T22:02:31.3642992Z FAIL     capture_coherence
+2026-09-28T22:02:36.7247725Z PASS     cbs
+2026-09-28T22:02:41.9601607Z PASS     cdc
+2026-09-28T22:02:57.7482941Z PASS     clkvalid
+2026-09-28T22:03:06.0379900Z PASS     controller_rate
+2026-09-28T22:18:00.2505089Z PASS     crf_rx
+2026-09-28T22:18:06.1170007Z PASS     datapath
+2026-09-28T22:18:06.7576541Z PASS     fw_service_budget
+2026-09-28T22:18:15.4550624Z PASS     gptp_plane
+2026-09-28T22:24:46.3061826Z PASS     gptp_shadow
+2026-09-28T22:24:51.5271012Z PASS     lat_history_ring
+2026-09-28T22:24:56.8338370Z PASS     maap
+2026-09-28T22:25:07.2507852Z PASS     mac_rmon
+2026-09-28T22:25:23.4157184Z PASS     media_nco
+2026-09-28T22:25:29.2731767Z PASS     mmcm_servo_autorepair
+2026-09-28T22:38:00.8358682Z PASS     nvm_cosim
+2026-09-28T22:38:06.1468348Z PASS     pair_fill
+2026-09-28T22:38:11.5150316Z PASS     pcmlpf
+2026-09-28T22:40:57.8215389Z PASS     pp_shadow
+2026-09-28T22:41:03.1925455Z PASS     tcam_csr
+2026-09-28T22:42:02.6439050Z PASS     tsn_fuzz
+2026-09-28T22:42:02.6440031Z suites: 23   passed: 22   failed: 1   timed out: 0
+2026-09-28T22:42:02.8486906Z checks: 181262   in-suite failures: 4
+2026-09-28T22:42:02.8538953Z failing suites: capture_coherence
+2026-09-28T22:42:02.8848088Z ##[error]Process completed with exit code 1.
+
+# artifact suite-logs-1 / capture_coherence.log, verdict lines
+565:== capture_coherence: checks: 5240   failures: 0 ==
+566:RESULT: PASS
+1136:== capture_coherence_dp: checks: 311   failures: 0 ==
+1137:RESULT: PASS
+1142:[FAIL] the unmutated source does NOT pass the dp harness (did not compile) - every dp mutant result is meaningless
+1143:[FAIL] the unmutated source does NOT pass the dp-band harness (did not compile) - every dp-band mutant result is meaningless
+1156:[FAIL] mutation 'milan_datapath tells the crossbar a one-pair TDM frame' did not compile; a mutant that cannot build proves nothing about the harness
+1157:[FAIL] mutation "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off" did not compile; a mutant that cannot build proves nothing about the harness
+1160:19 checks: 15 PASS, 4 FAIL

@@ -1,0 +1,18 @@
+How the round-3 probe was built (all under the packet's scratch/, never in the review clone):
+
+  source scripts/env.sh                      # Verilator 5.050 wrapper, 4 build jobs
+  git -C <clone> archive HEAD | tar -x -C scratch/head   # exact head ddb07747
+  # submodules at the head's gitlinks copied in the same way, then the copy made a
+  # local git repo so tb/verilator/milan_dp's pp_srcs.py can list the processor sources
+  cd scratch/head/tb/verilator/capture_coherence
+  python3 <packet>/scripts/probe_crossing/make_probe.py sim_main.cpp probe_main.cpp
+  python3 <packet>/scripts/probe_crossing/make_probe_fine.py .
+  make build MDIR=obj_fine CPP=probe_fine.cpp   # the committed recipe, incl. mga_keepoff.py
+
+Runs:
+  run_fine8.sh PPM LO HI OUT            # = round-2 run_fine.sh (64 sub-step phases x 4 holds x LO..HI, 300 columns), 8 at a time
+  run_fine8_long.sh PPM LO HI FRAMES OUT
+  ./obj_fine/Vcoherence_sim --probe PPM LO HI STEP FRAMES SUBS NFRAC   # single placed sweep
+  summarize.sh LOG ; excursion.sh LOG...
+Mutation arm: scripts/mutants_subset.py <suite dir> <work dir> c:<leg>|m:<index> ... (imports the committed mutants.py unchanged)
+Merge tree: git fetch --depth 1 <origin> 7abe4d5261a91ee17aaa5dbffd6933bbd68ad64f into scratch/merge, same submodule inlining.

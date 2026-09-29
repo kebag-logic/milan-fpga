@@ -1,0 +1,11 @@
+simulator (review wrapper -> REAL_VERILATOR): Verilator 5.050 2026-07-01 rev v5.050
+REAL_VERILATOR=$VALIDATION_TOOLS/verilator-v5.050-src/bin/verilator
+verilator_bin sha256: 51910d8d47cfa29ee548a42eca10147e94b2f5b6014d68c110de1740274cc26a
+note: the assigned path $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator does not exist on this host (ls: No such file or directory)
+$REVIEWS/r395-3-617/.github/workflows/elaborate.yml:67:  VERILATOR_VERSION: v5.050
+$REVIEWS/r395-3-617/.github/workflows/rtl-fast.yml:18:  VERILATOR_VERSION: v5.050
+$REVIEWS/r395-3-617/.github/workflows/rtl.yml:27:  VERILATOR_VERSION: v5.050
+g++: g++ (GCC) 16.2.1 20260810
+python3: Python 3.14.7
+yosys: Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+sv2v: sv2v v0.0.13
