@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #582: enforce the clock contract and derive configured clock uses."""
 import contextlib
+from collections.abc import Callable
 import copy
 import io
 import os
@@ -119,8 +120,16 @@ def test_builder_clock_source() -> None:
     print("[clock contract] builder clock follows a planted recipe.py under a shadowing tb package")
 
 
-def test_gptp_rom_clock() -> None:
-    """Compare builder ROM bytes with an independent configured-clock run."""
+def _print_skip(gate: str, why: str) -> None:
+    """Report a declined arm where no ledger listens, as when this module runs alone."""
+    print(f"  [{gate}] SKIP: {why}")
+
+
+def test_gptp_rom_clock(skip: Callable[[str, str], None] = _print_skip) -> None:
+    """Compare builder ROM bytes with an independent configured-clock run.
+
+    `skip` records a control that cannot apply; the builder bank passes its ledger.
+    """
     generator = ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py"
     with tempfile.TemporaryDirectory(prefix="gptp-rom-clock-") as tmp:
         directory = Path(tmp)
@@ -140,8 +149,8 @@ def test_gptp_rom_clock() -> None:
             # Controls must change bytes, not merely the argv.
             wrong_clocks = [[]]
             if clocks["sys_clk_hz"] == clocks["milan_clk_hz"]:
-                print(f"[clock contract] {path.stem}: SKIP system-clock control: "
-                      "sys_clk_hz == milan_clk_hz")
+                skip("clock contract", f"{path.stem}: system-clock ROM control not applicable, "
+                     "sys_clk_hz == milan_clk_hz makes its ROM the configured one")
             else:
                 wrong_clocks.append(["--clk-hz", str(clocks["sys_clk_hz"])])
             for wrong_args in wrong_clocks:
