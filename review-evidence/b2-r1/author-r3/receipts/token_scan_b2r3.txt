@@ -1,0 +1,158 @@
+# SCAN_STAGE=<empty scratch> EXTRA_PRIVATE=<tool and model names, 12, on the command line> python3 -B scripts/token_scan_run_b2r3.py <clone at fb4a1b895e97bb808b624ea0b31c43d121723f36> <round-1 author dir> <archive MANIFEST.json> 4fb092069a6bf9b1ecad3cc94f7cd03a400e6a01 <R404-2 scripts> <R405-2 scripts> <this directory>
+controller: 3 redacted transcripts aligned, placeholders {'<controller-host-id>': 6}, distinct original tokens 1, patterns 7
+private patterns by class: {'controller': 7, 'host': 39, 'extra': 12} total 58
+positive control, controller class over the unredacted round-1 bind/ transcripts: 46 files hit of 58
+self-test, account and home patterns match their own source: True
+scan root files: 26 (excluded: receipts/token_scan_b2r3.txt)
+own private-pattern count over the scan root: 0 hits 
+
+### R404-2 token_scan.py (sha256 7528b5b6de1779c6eee61b1cdb158b37f094833d5df4d3d3f79d86d6fa0cef14): PRIVATE_TOKENS=<pipe, 58 patterns> token_scan.py <clone> <scan root>
+files scanned: 28 (2 pages + 26 packet files); private patterns: 58
+pages: no hit in any class
+rc=0
+
+### R405-2 r405_scan_tokens.py (sha256 3444b6c2480b36faaa4a2c3b5f58ddd2079a9e23ebaa840e58aae6518bdebdf2): SCAN_PRIVATE_PATTERNS=<pipe, 58 patterns> r405_scan_tokens.py <clone> 13eda870 -- <scan root> <two pages>
+categories: ['abs-path', 'eui64-fffe', 'hostname', 'iface', 'ipv4', 'mac-colon', 'private-0', 'private-1', 'private-10', 'private-11', 'private-12', 'private-13', 'private-14', 'private-15', 'private-16', 'private-17', 'private-18', 'private-19', 'private-2', 'private-20', 'private-21', 'private-22', 'private-23', 'private-24', 'private-25', 'private-26', 'private-27', 'private-28', 'private-29', 'private-3', 'private-30', 'private-31', 'private-32', 'private-33', 'private-34', 'private-35', 'private-36', 'private-37', 'private-38', 'private-39', 'private-4', 'private-40', 'private-41', 'private-42', 'private-43', 'private-44', 'private-45', 'private-46', 'private-47', 'private-48', 'private-49', 'private-5', 'private-50', 'private-51', 'private-52', 'private-53', 'private-54', 'private-55', 'private-56', 'private-57', 'private-6', 'private-7', 'private-8', 'private-9', 'serial']; private deny-list loaded: True
+scanned 28 files
+
+[ipv4] distinct 0
+
+[mac-colon] distinct 1
+  sha256:fec65a05285b kind=MAAP multicast stream destination files=1 e.g. 606_FIRST_BIND_MEASUREMENT.md/606_FIRST_BIND_MEASUREMENT.md
+
+[eui64-fffe] distinct 1
+  sha256:1f3e5f2dea1b kind=DUT (locally administered) files=1 e.g. 606_FIRST_BIND_MEASUREMENT.md/606_FIRST_BIND_MEASUREMENT.md
+
+[abs-path] distinct 0
+
+[hostname] distinct 0
+
+[iface] distinct 0
+
+[serial] distinct 0
+
+[private-0] distinct 0
+
+[private-1] distinct 0
+
+[private-2] distinct 0
+
+[private-3] distinct 0
+
+[private-4] distinct 0
+
+[private-5] distinct 0
+
+[private-6] distinct 0
+
+[private-7] distinct 0
+
+[private-8] distinct 0
+
+[private-9] distinct 0
+
+[private-10] distinct 0
+
+[private-11] distinct 0
+
+[private-12] distinct 0
+
+[private-13] distinct 0
+
+[private-14] distinct 0
+
+[private-15] distinct 0
+
+[private-16] distinct 0
+
+[private-17] distinct 0
+
+[private-18] distinct 0
+
+[private-19] distinct 0
+
+[private-20] distinct 0
+
+[private-21] distinct 0
+
+[private-22] distinct 0
+
+[private-23] distinct 0
+
+[private-24] distinct 0
+
+[private-25] distinct 0
+
+[private-26] distinct 0
+
+[private-27] distinct 0
+
+[private-28] distinct 0
+
+[private-29] distinct 0
+
+[private-30] distinct 0
+
+[private-31] distinct 0
+
+[private-32] distinct 0
+
+[private-33] distinct 0
+
+[private-34] distinct 0
+
+[private-35] distinct 0
+
+[private-36] distinct 0
+
+[private-37] distinct 0
+
+[private-38] distinct 0
+
+[private-39] distinct 0
+
+[private-40] distinct 0
+
+[private-41] distinct 0
+
+[private-42] distinct 0
+
+[private-43] distinct 0
+
+[private-44] distinct 0
+
+[private-45] distinct 0
+
+[private-46] distinct 0
+
+[private-47] distinct 0
+
+[private-48] distinct 0
+
+[private-49] distinct 0
+
+[private-50] distinct 0
+
+[private-51] distinct 0
+
+[private-52] distinct 0
+
+[private-53] distinct 0
+
+[private-54] distinct 0
+
+[private-55] distinct 0
+
+[private-56] distinct 0
+
+[private-57] distinct 0
+
+[identifier classification: EUI-64 (fffe form) and EUI-48 tokens]
+  sha256:1f3e5f2dea1b len=16 locally administered; DUT (locally administered); occurrences=1; exact token in public refs: ['13eda870d1a6']
+  sha256:77530459ff60 len=12 group (multicast); MAAP multicast stream destination; occurrences=1; exact token in public refs: NO
+
+[16-hex identifiers sharing a vendor OUI with a universally administered EUI-64 above (entity/stream IDs without fffe)]
+rc=0
+
+RESULT CLEAN
+rc=0
