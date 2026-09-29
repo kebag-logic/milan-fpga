@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `d352bbaa7cae0be2c6248f7869afe2a272ab014b` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `b2db3a970cedbbff2f8ba813acb96122c442bc58` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -80,11 +80,14 @@ Issues #606 and #608 adopted processor pin `c951a9ff`.
 - Parent regressions exercise MAAP acquisition and CRF STREAM_STOP.
 - Bench re-measurement follows on the next image.
 
-Issue #70 lane 2 adopts processor pin `d352bbaa`.
+Issue #70 lane 2 adopts processor pin `b2db3a97`.
 
-- [Processor PR 132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132) adds the scalar-record D3 writer.
+- [Processor PR 132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132) adds the scalar-record D3 writer (`d352bbaa`).
 - It holds AECP until the D3 restore's terminal.
 - `KL_pp_shadow` connects the combined restore status and the D3 pending.
+- [Processor PR 133](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/133) restarts the leavealltimer on a received LeaveAll.
+- Its talker licence waits for the stream VID's MVRP join.
+- It changes no port or parameter of the processor top.
 - The ROM generators' outputs match the `c951a9ff` rows.
 
 The ROM ledger records current and earlier pins.
