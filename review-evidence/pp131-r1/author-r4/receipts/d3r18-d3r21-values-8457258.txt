@@ -1,0 +1,13 @@
+PASS: D3R18: binding READ strobe 5 on agg_o's first clock 12398094 (strobe 1, abort 1, arbiter owner 0), the done before it held to 12398090 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)
+PASS: D3R18: the READ abandoned in its issue cycle is drained from the next clock (1, owner 1), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)
+PASS: D3R18: once the device ends the drained READ the port is idle (1), and a later SET persists (1 WRITEs, the port busy 26 of 100000 clocks, unflushed 0)
+PASS: D3R19 past the bound: no image at reset (1) nor at the D3 walk's start (0); the binding walk (longest wait 19002 of 20001) fails whole at the bound (cause 3), released 3 clocks after it, the LOCATE proves the image 542 clocks after the release
+PASS: D3R19 past the bound: DEFAULTS with no record READ; the restore ends DEFAULTS 546 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 0 D3 record READs
+PASS: D3R19 inside the LOCATE: the binding walk completes (0x27 done on its placed clock 1, longest wait 11328 of 20001), the LOCATE starts 271 clocks before the bound and proves the image 271 clocks after it (want 271 of 542; -1: never)
+PASS: D3R19 inside the LOCATE: DEFAULTS with no record READ; the restore ends DEFAULTS 272 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 0 D3 record READs
+PASS: D3R20 W_IMG: the binding walk completes (0x27 done on its placed clock 1, longest wait 11598 of 20001), the image valid at the D3 walk's start 1, proven 0 clocks after the bound (want 0; -1: never)
+PASS: D3R20 W_IMG: DEFAULTS with no record READ; the restore ends DEFAULTS 1 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 0 D3 record READs
+PASS: D3R20 W_IMGLOC: the binding walk completes (0x27 done on its placed clock 1, longest wait 11057 of 20001), the image valid at the D3 walk's start 0, proven 0 clocks after the bound (want 0; -1: never)
+PASS: D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 1 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 0 D3 record READs
+PASS: D3R21: a binding payload byte placed at the device 1 clocks before the bound (lag 1) is in the binding manager's hand on the bound's own clock (1), none on the next (1); longest wait 16812 of 20001
+PASS: D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered 2 clocks after the bound, want 2), and the restore ends DEFAULTS 5 clocks after the bound (cause 3)
