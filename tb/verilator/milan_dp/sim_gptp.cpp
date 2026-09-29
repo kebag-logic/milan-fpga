@@ -998,6 +998,26 @@ class GptpPlaneHarness {
            axi_read(dut, 0x7E4), asp_live_a);
   }
 
+  // The boot restore walk, as the firmware's nvm_boot() starts it on every
+  // boot. Since processor pin d352bbaa AECP is held from reset until the D3
+  // walk's terminal, and PP_CTRL[1] starts it; the shipping AEM image is
+  // served from reset, so the walk proves it and ends COMPLETE (done 1,
+  // CLOSED 0) before the first AECP command.
+  void start_the_boot_restore_walk(Vmilan_datapath *dut) {
+    constexpr uint16_t kPpCtrl = 0x920;
+    constexpr uint16_t kPpStat = 0x924;
+    constexpr uint32_t kDone = 1u << 2;
+    constexpr uint32_t kClosed = 1u << 16;
+    axi_write(dut, kPpCtrl, axi_read(dut, kPpCtrl) | 0x2u);
+    uint32_t stat = 0;
+    for (int r = 0; r < 400 && !(stat & (kDone | kClosed)); ++r) {
+      run(dut, 64);
+      stat = axi_read(dut, kPpStat);
+    }
+    expect("[BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)",
+           stat & (kDone | kClosed), kDone);
+  }
+
   // The same nonzero committed bank must traverse the processor's gather
   // face and the real AECP response buffer onto the shared MAC wire.
   void grade_the_committed_bank_on_the_aecp_wire(Vmilan_datapath *dut) {
@@ -1736,6 +1756,7 @@ int GptpPlaneHarness::run() {
   prove_the_boot_pdelay_req_reaches_the_mac(dut);
   answer_pdelay_until_ascapable_and_grade_the_delay(dut);
   publish_the_peer_announce_into_the_live_bank(dut);
+  start_the_boot_restore_walk(dut);
   grade_the_committed_bank_on_the_aecp_wire(dut);
   prove_uncertainty_stamps_both_media_wires(dut);
   prove_a_registered_controller_sees_no_retired_dirt(dut);

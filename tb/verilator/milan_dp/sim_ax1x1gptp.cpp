@@ -296,6 +296,7 @@ class Harness {
     Frame audio_frame();
     void grade_audio(const std::vector<uint8_t>& f);
     void reset();
+    void start_the_boot_restore_walk();
     void configure();
     void geometry_and_clocks();
     void publication(const char* arm, bool healthy);
@@ -686,7 +687,29 @@ void Harness::reset() {
     run_cycles(512);
 }
 
+//! The boot restore walk, as the firmware's nvm_boot() starts it on every
+//! boot. Since processor pin d352bbaa AECP is held from reset until the D3
+//! walk's terminal, and PP_CTRL[1] starts it. The built AEM image is served
+//! from reset, so the walk proves it and ends COMPLETE (done 1, CLOSED 0)
+//! before the first AECP command; configure() follows every reset, so each
+//! boot of this harness walks once.
+void Harness::start_the_boot_restore_walk() {
+    constexpr uint16_t kPpCtrl = 0x920;
+    constexpr uint16_t kPpStat = 0x924;
+    constexpr uint32_t kDone = 1u << 2;
+    constexpr uint32_t kClosed = 1u << 16;
+    write(kPpCtrl, read(kPpCtrl) | 0x2u);
+    uint32_t stat = 0;
+    for (int r = 0; r < 400 && !(stat & (kDone | kClosed)); ++r) {
+        run_cycles(64);
+        stat = read(kPpStat);
+    }
+    check.hex("[BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)",
+              stat & (kDone | kClosed), kDone);
+}
+
 void Harness::configure() {
+    start_the_boot_restore_walk();
     write(0x108, 0x00000002); write(0x10C, 0x00000100);
     write(0x608, 0x020000FF); write(0x604, 0xFE000001);
     check.hex("PHC reset increment is 20 ns", read(0x504), kPeriodNs << 24);
