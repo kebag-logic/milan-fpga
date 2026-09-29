@@ -1,0 +1,28 @@
+# python3 -B scripts/poll_census_r3.py <archive b2-review-evidence 9c992d5c review-evidence/b2-r1/author>
+transcript files: 561 byte-duplicate snapshot.jsonl: 112
+DUT GET_RX_STATE records, all files: {'state-5-1': 338, 'state-5-0': 2} total 340
+DUT GET_RX_STATE records, distinct: {'state-5-1': 226, 'state-5-0': 2} total 228
+  state-5-0 by file name: {'census-end.jsonl': 1, 'census-start.jsonl': 1}
+  state-5-1 by file name: {'snapshot-after.jsonl': 112, 'snapshot-before.jsonl': 112, 'census-end.jsonl': 1, 'census-start.jsonl': 1}
+distinct polls with status != 0 or conn_count != 0: none
+action directories: 112
+  before=['state-5-1'] after=['state-5-1']: 112 actions
+transcripts outside action directories: ['identity/identity-aecp.jsonl', 'restore/census-end.jsonl', 'restore/census-start.jsonl']
+distinct DUT-addressed records (command, descriptor type):
+  ACMP GET_RX_STATE    type   5: 228
+  ACMP GET_RX_STATE    type   6: 4
+  GET_AVB_INFO         type   -: 226
+  GET_CLOCK_SOURCE     type   -: 2
+  GET_CONFIGURATION    type   -: 2
+  GET_COUNTERS         type  36: 226
+  GET_COUNTERS         type   5: 228
+  GET_COUNTERS         type   6: 228
+  GET_COUNTERS         type   9: 226
+  GET_SAMPLING_RATE    type   -: 2
+  READ_DESCRIPTOR      type  10: 4
+  READ_DESCRIPTOR      type  36: 2
+  READ_DESCRIPTOR      type   5: 4
+  READ_DESCRIPTOR      type   6: 4
+DUT-addressed commands naming a STREAM_INPUT (type 5): 460
+of which state-changing: 0
+rc=0

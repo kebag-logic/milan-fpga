@@ -1,0 +1,75 @@
+# python3 -B scripts/tables_r2.py <clone> d76763733 fb4a1b895 receipts/pr_body_at_read.md
+== docs/findings/606_FIRST_BIND_MEASUREMENT.md: 10 tables at old, 10 at new
+  IDENTICAL    7 lines  # First talker bind on the 13eda870 image | | #606 item | Verdict | Evidence |
+  IDENTICAL    9 lines  ## Identity and setup | | Identity check | Result |
+  IDENTICAL    3 lines  ## Identity and setup | | Binding | Talker output | Listener input | Format |
+  IDENTICAL    7 lines  ## Per-bind results | | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll 
+  IDENTICAL    6 lines  ## Per-bind results | | Unbind | After bind response, s | Bridge Listener Lv, s | 
+  IDENTICAL    7 lines  ## Comparison with the 9e9954e9 first bind | | Event after the `CONNECT_RX` response | `9e9954e9`, one bi
+  IDENTICAL    7 lines  ### Saved-state layer | | Saved-state field | Identity gate, 06:49:58Z | Final resto
+  IDENTICAL    6 lines  ## Artifact hashes | | Image artifact | Bytes | SHA-256 |
+  IDENTICAL   20 lines  ## Artifact hashes | | Tool | Role | SHA-256 |
+  IDENTICAL   14 lines  ## Artifact hashes | | Capture identifier | Bytes | SHA-256 |
+  table lines at old absent at new: 0
+== docs/findings/608_75_WITHDRAWAL_AND_RESTART.md: 11 tables at old, 11 at new
+  IDENTICAL   11 lines  # Listener withdrawal and reconnect restart on the 13eda870 image | | Issue item | Verdict | Evidence |
+  IDENTICAL    3 lines  ## Identity and setup | | Binding | Talker output | Listener input | Format |
+  IDENTICAL   10 lines  ## Withdrawal and stop | | Cycle | Own LeaveAll minus bridge Lv, s | Registrar at Lv 
+  IDENTICAL    9 lines  ## Cycle 22 | | Event | Time, s |
+  IDENTICAL    5 lines  ## Restart distribution and growth | | Population | Count | Below 1 s | Min, s | Median, s | p95,
+  IDENTICAL    3 lines  ## Restart distribution and growth | | First ten median, s | Last ten median, s | Slope, s per cy
+  IDENTICAL   12 lines  ## Restart distribution and growth | | Cycles | Demonstrated restarts | Median, s | Max, s | Comb
+  IDENTICAL  102 lines  ## Per-cycle results | | Cycle | Bridge Lv after disconnect, s | Registrar at Lv | 
+  IDENTICAL    8 lines  ## Counters and restore | | Point | START / STOP |
+  IDENTICAL    7 lines  ### Saved-state layer | | Saved-state field | Identity gate, 06:49:58Z | Final resto
+  IDENTICAL  102 lines  ## Artifact hashes | | Capture identifier | Bytes | SHA-256 |
+  table lines at old absent at new: 0
+== PR body tables against the pages at fb4a1b895
+    10 lines  ## Verdicts (operator measurements; the reviews decide) | | Issue item | Verdict | Evidence |  -> identical on: NO PAGE TABLE
+     7 lines  ## Per-bind table (seconds after the tapped `CONNECT_RX` response) | | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll   -> identical on: ['docs/findings/606_FIRST_BIND_MEASUREMENT.md']
+rc=0
+
+# python3 -B scripts/tables_r2.py <clone> c37f1d04e fb4a1b895 receipts/pr_body_at_read.md
+== docs/findings/606_FIRST_BIND_MEASUREMENT.md: 9 tables at old, 10 at new
+  CHANGED   # First talker bind on the 13eda870 image | | #606 item | Verdict | Evidence |
+     - | 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP refresh stays at 1.000 s. A DUT LeaveAll crossed every pre-bind window. |
+     + | 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP kept 1.000 s periodic spacing, 0.2 s after a LeaveAll. A DUT LeaveAll crossed every pre-bind window. |
+  IDENTICAL    9 lines  ## Identity and setup | | Identity check | Result |
+  IDENTICAL    3 lines  ## Identity and setup | | Binding | Talker output | Listener input | Format |
+  IDENTICAL    7 lines  ## Per-bind results | | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll 
+  IDENTICAL    6 lines  ## Per-bind results | | Unbind | After bind response, s | Bridge Listener Lv, s | 
+  IDENTICAL    7 lines  ## Comparison with the 9e9954e9 first bind | | Event after the `CONNECT_RX` response | `9e9954e9`, one bi
+  IDENTICAL    6 lines  ## Artifact hashes | | Image artifact | Bytes | SHA-256 |
+  IDENTICAL   20 lines  ## Artifact hashes | | Tool | Role | SHA-256 |
+  IDENTICAL   14 lines  ## Artifact hashes | | Capture identifier | Bytes | SHA-256 |
+  ADDED        7 lines  ### Saved-state layer | | Saved-state field | Identity gate, 06:49:58Z | Final resto
+  table lines at old absent at new: 1
+     x | 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP refresh stays at 1.000 s. A DUT LeaveAll crossed every pre-bind window. |
+== docs/findings/608_75_WITHDRAWAL_AND_RESTART.md: 10 tables at old, 11 at new
+  CHANGED   # Listener withdrawal and reconnect restart on the 13eda870 image | | Issue item | Verdict | Evidence |
+     - | #608 item 3: stop within one PDU of the withdrawal, 100 of 100 | Two readings; see below | Literal text: NOT MET, 99 of 100. Recorded reading, a withdrawal that reaches an IN registrar: PASS, 99 of 
+     - | #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped, so it is not a restart. |
+     + | #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-f
+     + | #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart. The [#608 ruling]
+  IDENTICAL    3 lines  ## Identity and setup | | Binding | Talker output | Listener input | Format |
+  IDENTICAL   10 lines  ## Withdrawal and stop | | Cycle | Own LeaveAll minus bridge Lv, s | Registrar at Lv 
+  IDENTICAL    9 lines  ## Cycle 22 | | Event | Time, s |
+  IDENTICAL    5 lines  ## Restart distribution and growth | | Population | Count | Below 1 s | Min, s | Median, s | p95,
+  IDENTICAL    3 lines  ## Restart distribution and growth | | First ten median, s | Last ten median, s | Slope, s per cy
+  IDENTICAL   12 lines  ## Restart distribution and growth | | Cycles | Demonstrated restarts | Median, s | Max, s | Comb
+  IDENTICAL  102 lines  ## Per-cycle results | | Cycle | Bridge Lv after disconnect, s | Registrar at Lv | 
+  IDENTICAL    8 lines  ## Counters and restore | | Point | START / STOP |
+  IDENTICAL  102 lines  ## Artifact hashes | | Capture identifier | Bytes | SHA-256 |
+  ADDED        7 lines  ### Saved-state layer | | Saved-state field | Identity gate, 06:49:58Z | Final resto
+  table lines at old absent at new: 2
+     x | #608 item 3: stop within one PDU of the withdrawal, 100 of 100 | Two readings; see below | Literal text: NOT MET, 99 of 100. Recorded reading, a withdrawal th
+     x | #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped, so it is not a restart. |
+== PR body tables against the pages at fb4a1b895
+    10 lines  ## Verdicts (operator measurements; the reviews decide) | | Issue item | Verdict | Evidence |  -> identical on: NO PAGE TABLE
+     7 lines  ## Per-bind table (seconds after the tapped `CONNECT_RX` response) | | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll   -> identical on: ['docs/findings/606_FIRST_BIND_MEASUREMENT.md']
+rc=0
+
+# PR body table lines, round-2 body vs live body
+PR body: 17 table lines identical
+# changed lines in d7676373..fb4a1b89 that start with |:
+0

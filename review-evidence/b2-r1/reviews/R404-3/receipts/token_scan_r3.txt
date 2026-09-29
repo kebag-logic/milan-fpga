@@ -1,0 +1,9 @@
+# identifier-class scan over lines added in d7676373..fb4a1b89 and in the PR body r2->live diff
+added lines: 14
+class /[0-9a-fA-F]{16}/: 0 line(s)
+class /([0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}/: 0 line(s)
+class /[0-9a-fA-F]{12}/: 0 line(s)
+class /[0-9a-fA-F]{6}fffe/: 0 line(s)
+class //home/|/tmp/|/data//: 0 line(s)
+class /@[a-z0-9-]+\.[a-z]/: 0 line(s)
+class /\b(eth|enp|wlp|eno)[0-9a-z]*\b/: 0 line(s)
