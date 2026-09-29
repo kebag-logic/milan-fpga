@@ -1,0 +1,17 @@
+verilator --cc --exe --build -j 0 --top-module maap_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$LANES/ppC2-maap/tb/maap -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/maap/KL_pp_maap.sv maap_wrap.sv sim_main.cpp -o Vmaap_sim
+make[1]: Entering directory '$LANES/ppC2-maap/tb/maap/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/ppC2-maap/tb/maap -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vmaap_wrap__ALL.a    -pthread -lpthread -latomic   -o Vmaap_sim
+make[1]: Leaving directory '$LANES/ppC2-maap/tb/maap/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.267 s (elab=0.000, cvt=0.000, bld=1.257); cpu 0.001 s on 16 threads; allocated 6.113 MB
+./obj_dir/Vmaap_sim
+FAIL: U17b: phase 1, the walk restarts after a Release! mid-redraw
+FAIL: U17b: phase 2, the walk restarts after a Release! mid-redraw
+FAIL: U17b: phase 3, the walk restarts after a Release! mid-redraw
+FAIL: U18: the seeded walk starts
+FAIL: U18: the clamped block is claimed
+FAIL: U18: the block's last source is granted 91:E0:F0:00:FD:FF (got 000000000000)
+89 checks: 83 PASS, 6 FAIL
+make: *** [Makefile:23: run] Error 1

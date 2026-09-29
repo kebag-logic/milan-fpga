@@ -1,0 +1,65 @@
+make[1]: Entering directory '/tmp/maap-mutants-77pro26b/tb/rx_validator'
+verilator --cc --exe --build -j 0 --top-module KL_pp_rx_validator -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I/tmp/maap-mutants-77pro26b/tb/rx_validator -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv sim_main.cpp -o Vrxval_sim
+make[2]: Entering directory '/tmp/maap-mutants-77pro26b/tb/rx_validator/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/maap-mutants-77pro26b/tb/rx_validator -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/maap-mutants-77pro26b/tb/rx_validator -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/maap-mutants-77pro26b/tb/rx_validator -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_pp_rx_validator.cpp VKL_pp_rx_validator___024root__0.cpp VKL_pp_rx_validator___024root__Slow.cpp VKL_pp_rx_validator___024root__0__Slow.cpp VKL_pp_rx_validator__Syms__Slow.cpp > VKL_pp_rx_validator__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/maap-mutants-77pro26b/tb/rx_validator -Wall -Wextra   -c -o VKL_pp_rx_validator__ALL.o VKL_pp_rx_validator__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_pp_rx_validator__ALL.a    -pthread -lpthread -latomic   -o Vrxval_sim
+rm VKL_pp_rx_validator__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '/tmp/maap-mutants-77pro26b/tb/rx_validator/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.077 MB sources in 3 modules, into 0.150 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.363 s (elab=0.004, cvt=0.015, bld=5.333); cpu 0.035 s on 16 threads; allocated 17.973 MB
+./obj_dir/Vrxval_sim
+FAIL: F28a counters d/e/s/v/l got 0 0 0 1 0 want 0 0 0 0 0
+FAIL: F28a commits got 0 want 1
+FAIL: F28a aborts got 1 want 0
+FAIL: F28a hdr beats got 0 want 1
+FAIL: F28a slot bytes exact (got 56 want 28)
+FAIL: F28a protocol got 1 want 5
+FAIL: F28a msg_type got 0 want 1
+FAIL: F28a status got 0 want 2
+FAIL: F28a cdl got 44 want 16
+FAIL: F28a src_mac got 02aacc00dd02
+FAIL: F28a ctlr_eid got c0ffee00deadbeef want 91e0f00040000008
+FAIL: F28a target_eid got 06000000000600f0 want 0000000000000000
+FAIL: F28a seq got 0001 want 0000
+FAIL: F28a opcode got 0000 want 0001
+FAIL: F28a operands got 00000000000000f0 want 0000000000000000
+FAIL: F28a maap_version 2 accepted as MAAP, status lane 0
+FAIL: F28b counters d/e/s/v/l got 0 0 0 1 0 want 0 0 0 0 0
+FAIL: F28b commits got 0 want 1
+FAIL: F28b aborts got 1 want 0
+FAIL: F28b hdr beats got 0 want 1
+FAIL: F28b slot bytes exact (got 56 want 28)
+FAIL: F28b protocol got 1 want 5
+FAIL: F28b msg_type got 0 want 1
+FAIL: F28b cdl got 44 want 16
+FAIL: F28b src_mac got 02aacc00dd02
+FAIL: F28b ctlr_eid got c0ffee00deadbeef want 91e0f00040000008
+FAIL: F28b target_eid got 06000000000600f0 want 0000000000000000
+FAIL: F28b seq got 0001 want 0000
+FAIL: F28b opcode got 0000 want 0001
+FAIL: F28b operands got 00000000000000f0 want 0000000000000000
+FAIL: F28b maap_version 0 accepted as MAAP, status lane 0
+FAIL: F28c counters d/e/s/v/l got 0 0 0 1 0 want 0 0 0 0 0
+FAIL: F28c commits got 0 want 1
+FAIL: F28c aborts got 1 want 0
+FAIL: F28c hdr beats got 0 want 1
+FAIL: F28c slot bytes exact (got 56 want 28)
+FAIL: F28c protocol got 1 want 5
+FAIL: F28c msg_type got 0 want 1
+FAIL: F28c status got 0 want 31
+FAIL: F28c cdl got 44 want 16
+FAIL: F28c src_mac got 02aacc00dd02
+FAIL: F28c ctlr_eid got c0ffee00deadbeef want 91e0f00040000008
+FAIL: F28c target_eid got 06000000000600f0 want 0000000000000000
+FAIL: F28c seq got 0001 want 0000
+FAIL: F28c opcode got 0000 want 0001
+FAIL: F28c operands got 00000000000000f0 want 0000000000000000
+FAIL: F28c maap_version 31 accepted as MAAP, status lane 0
+453 checks: 406 PASS, 47 FAIL
+make[1]: *** [Makefile:18: run] Error 1
+make[1]: Leaving directory '/tmp/maap-mutants-77pro26b/tb/rx_validator'

@@ -1,0 +1,16 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+leaveall-expiry-lost: rc=2 failures=18 KILLED tags=M1,M10,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+preparation-before-slot: rc=2 failures=22 KILLED tags=M1,M10,M11,M12,M5,M6,M8
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+15 checks: 15 PASS, 0 FAIL

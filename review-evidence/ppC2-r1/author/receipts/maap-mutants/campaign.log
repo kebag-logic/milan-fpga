@@ -1,0 +1,51 @@
+make: Entering directory '$LANES/ppC2-maap/tb/maap'
+python3 mutants.py --output "$VALIDATION_STORAGE/ppC2-a439/head-maap-mutants"
+control maap run: rc=0 tally=(114, 0) PASS
+control pp_top maap-internal: rc=0 tally=(33, 0) PASS
+control rx_validator run: rc=0 tally=(453, 0) PASS
+fit-compare-forced-true [maap]: rc=2 tally=(114, 4) named=4 KILLED
+    FAIL: U17: draws 0xfdff and 0xfd02 overhang the pool and are redrawn (1 draws, want 3)
+    FAIL: U17: the claim is the first fitting draw, got 91e0f000fdff
+    FAIL: U17: the probed block ends at or below 91:E0:F0:00:FD:FF (ends 91e0f000fefd)
+fit-compare-off-by-one [maap]: rc=2 tally=(113, 7) named=3 KILLED
+    FAIL: U17: the widest block is probed
+    FAIL: U17: draws 0xfdff and 0xfd02 overhang the pool and are redrawn (1745 draws, want 3)
+    FAIL: U17: the claim is the first fitting draw, got 91e0f000985f
+seed-clamp-removed [maap]: rc=2 tally=(114, 4) named=4 KILLED
+    FAIL: U18: the seed is clamped to offset 0xfdf8, got 91e0f000ffff
+    FAIL: U18: PROBE byte-exact at the clamped offset
+    FAIL: U18: the clamped block is claimed
+release-keeps-draw-mark [maap]: rc=2 tally=(110, 22) named=3 KILLED
+    FAIL: U17b: phase 1, the walk restarts after a Release! mid-redraw
+    FAIL: U17b: phase 2, the walk restarts after a Release! mid-redraw
+    FAIL: U17b: phase 3, the walk restarts after a Release! mid-redraw
+validator-maap-version-1-only [rx_validator]: rc=2 tally=(453, 47) named=47 KILLED
+    FAIL: F28a counters d/e/s/v/l got 0 0 0 1 0 want 0 0 0 0 0
+    FAIL: F28a commits got 0 want 1
+    FAIL: F28a aborts got 1 want 0
+validator-maap-version-1-only [pp_top]: rc=2 tally=(33, 4) named=4 KILLED
+    FAIL: MP7: a maap_version 2 PROBE gets a byte-exact DEFEND
+    FAIL: MP7: maap_version 2 PROBE defended, claim kept
+    FAIL: MP7: a maap_version 0 PROBE gets a byte-exact DEFEND
+compare-mac-forward [maap]: rc=2 tally=(112, 9) named=1 KILLED
+    FAIL: U7: claim kept — compare_MAC TRUE takes no action
+compare-mac-forward [pp_top]: rc=2 tally=(33, 5) named=5 KILLED
+    FAIL: MP4: the conflict fan-out closed the DA gate
+    FAIL: MP4: the contested claim was withdrawn
+    FAIL: MP4: one re-address counted
+probe-rprobe-never-yields [maap]: rc=2 tally=(114, 2) named=2 KILLED
+    FAIL: U19: yielded, one re-address counted (4 -> 4)
+    FAIL: U19: the range is re-randomized inside the pool (91e0f000a31b after 91e0f000a31b)
+defend-rdefend-ignored [maap]: rc=2 tally=(112, 8) named=4 KILLED
+    FAIL: U21: yielded, one re-address counted (5 -> 5)
+    FAIL: U21: Restart! probes again
+    FAIL: U21: the range is re-randomized inside the pool (91e0f00081e8 after 91e0f00081e8)
+defend-rdefend-no-tiebreak [maap]: rc=2 tally=(114, 2) named=1 KILLED
+    FAIL: U20: compare_MAC TRUE — the claim stands, nothing sent
+probe-rannounce-tiebreak [maap]: rc=2 tally=(114, 5) named=2 KILLED
+    FAIL: U22: yielded, one re-address counted (5 -> 5)
+    FAIL: U22: the range is re-randomized inside the pool (91e0f000bad8 after 91e0f000bad8)
+yield-reuses-range [maap]: rc=2 tally=(114, 6) named=1 KILLED
+    FAIL: U19: the range is re-randomized inside the pool (91e0f000c123 after 91e0f000c123)
+16 checks: 16 PASS, 0 FAIL
+make: Leaving directory '$LANES/ppC2-maap/tb/maap'

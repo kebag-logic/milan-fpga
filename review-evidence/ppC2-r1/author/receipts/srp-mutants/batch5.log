@@ -1,0 +1,13 @@
+control srp_encoder : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+12 checks: 12 PASS, 0 FAIL
