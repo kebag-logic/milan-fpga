@@ -1,0 +1,32 @@
+## authority: docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1285 (section 11) at 5c579274
+| 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty on nvm_unflushed_o (donor scope D1, landed), then the record's own grant and completion in the backend | KL_acmp_nvm_shadow through KL_pp_nvm_port, the ONLY record writer | the whole contract, pending from the accept inside the manager's debounce |
+
+## processor at gitlink c951a9ff: hdl/acmp/KL_acmp_nvm_shadow.sv
+-- lines 283
+  assign cap_active_w = cap_wr_i && (hs_r != H_INIT);
+-- lines 305,306
+      c1_v_r    <= cap_active_w;
+      c1_sink_r <= cap_sink_i;
+-- lines 318,327
+  //! Two UNBOUND records are equal whatever their other fields hold: an
+  //! unbound record carries no binding (Milan v1.2 5.3.8.3 clears the
+  //! binding parameters on unbind) and no walk ever preloads one. The atomic
+  //! reject clears valid and leaves the rejected sinks' restored fields in
+  //! this RAM, so without this rule the listener's first write-back of its
+  //! default after a failed walk (a read-only GET_RX_STATE) compared unequal
+  //! and flushed an unbound record over the saved binding (issue #92).
+  assign c1_diff_w  = (c1_vld_r != valid_r[c1_sink_r])
+                    || (c1_vld_r && (SHW_W_C'(c1_proj_r) != cmp_data_w));
+  assign c1_wr_w    = c1_v_r && c1_diff_w;
+-- lines 612,618
+      if ((fl_done_w && !fl_taint_r) || fl_giveup_w) begin
+        dirty_r[fl_sink_r] <= 1'b0;   // a tainted commit keeps dirty: the
+      end                             // burst loop re-serializes fresh data
+      if (c1_wr_w) begin                           // capture wins
+        valid_r[c1_sink_r] <= c1_vld_r;
+        dirty_r[c1_sink_r] <= 1'b1;
+        if (rest_span_w) touched_r[c1_sink_r] <= 1'b1;
+-- protocol_processor_top.sv:2483-2485 (capture = listener record write-back)
+      .cap_wr_i         (lstn_recwr_w),
+      .cap_sink_i       (lstn_recwr_sink_w),
+      .cap_rec_i        (lstn_recwr_rec_w),
