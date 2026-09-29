@@ -1,0 +1,15 @@
+213a214,227
+> 
+> 
+> ## Composed head `99bfd4bc` (manager note, R399-3 F1)
+> 
+> This head is the round-2 head `412efeb7` merged with processor `main` `d352bbaa` (PR #132). At this head:
+> 
+> 1. **The pin-adoption edits** are PR #132's consolidated list ("Parent-visible for pin adoption: rounds 1-6, consolidated", in PR #132's description) plus section 4 above:
+>    - crflic `>= 3` at `sim_crf_licence.cpp:953,956`;
+>    - the `milan_dp/README.md` `[C]` row and "What it cannot show";
+>    - the parent documents.
+> 
+>    The two lists touch no common parent file.
+> 2. **Scope of section 4's claims.** "One consumer-gate expectation to re-base", "every other consumer command is rc 0 as is" and "no port, parameter or register changes" describe this lane's own commits only (`412efeb7` against `c951a9ff`). PR #132's ports, parameters and snapshot word 37 reach this head through the merge.
+> 3. **The manager's combined-edit parent consumer bank** at milan-fpga dev `79c36963`, with both lists applied: 16 of 16 commands rc 0 (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/133#issuecomment-5890073527).

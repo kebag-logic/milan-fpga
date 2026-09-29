@@ -1,0 +1,64 @@
+# hosted check-runs at 99bfd4bc3180bab97d47f63056513fb39eea6a37 (read-only, Tue Sep 29 12:23:30 PM UTC 2026)
+109373007243 suites status=completed conclusion=success started=2026-09-29T10:53:54Z completed=2026-09-29T11:56:11Z
+109373007070 docs-gates status=completed conclusion=success started=2026-09-29T10:53:54Z completed=2026-09-29T10:54:05Z
+109373006898 portability status=completed conclusion=success started=2026-09-29T10:53:54Z completed=2026-09-29T10:56:47Z
+109372983149 portability status=completed conclusion=success started=2026-09-29T10:53:50Z completed=2026-09-29T10:55:49Z
+109372983126 suites status=completed conclusion=success started=2026-09-29T10:53:50Z completed=2026-09-29T11:38:58Z
+109372982785 docs-gates status=completed conclusion=success started=2026-09-29T10:54:25Z completed=2026-09-29T10:54:35Z
+# workflow runs
+36558392722 hdl event=pull_request status=completed conclusion=success
+36558385720 hdl event=push status=completed conclusion=success
+# combined status
+state=pending contexts=0
+## run 36558392722
+job portability success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install yosys + sv2v: success
+  step 4 Elaborate every top off-vendor: success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+job docs-gates success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Link, matrix, parameter, wavedrom and staleness gates: success
+  step 6 Post Run actions/checkout@v4: success
+  step 7 Complete job: success
+job suites success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Cache the pinned Verilator build: success
+  step 4 Build Verilator v5.050: skipped
+  step 5 Lint (zero tolerance) + every suite: success
+  step 6 SRP LeaveAll mutation campaign: success
+  step 7 Traceability matrix no-drift + untested budget 0: success
+  step 8 nvm_port README figures agree with the tree: success
+  step 15 Post Cache the pinned Verilator build: success
+  step 16 Post Run actions/checkout@v4: success
+  step 17 Complete job: success
+## run 36558385720
+job docs-gates success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Link, matrix, parameter, wavedrom and staleness gates: success
+  step 6 Post Run actions/checkout@v4: success
+  step 7 Complete job: success
+job suites success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Cache the pinned Verilator build: success
+  step 4 Build Verilator v5.050: skipped
+  step 5 Lint (zero tolerance) + every suite: success
+  step 6 SRP LeaveAll mutation campaign: success
+  step 7 Traceability matrix no-drift + untested budget 0: success
+  step 8 nvm_port README figures agree with the tree: success
+  step 15 Post Cache the pinned Verilator build: success
+  step 16 Post Run actions/checkout@v4: success
+  step 17 Complete job: success
+job portability success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install yosys + sv2v: success
+  step 4 Elaborate every top off-vendor: success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success

@@ -1,0 +1,102 @@
+== live dev head now: 79c36963660c10e4c1c11a744fb5bff41a552b8b
+== parent ref 79c36963660c10e4c1c11a744fb5bff41a552b8b; protocol-processor gitlink: c951a9ff0cb5851fb159d33e966e5a2a9a188fe3
+== file names cited in PR #132 'Parent-visible for pin adoption: rounds 1-6, consolidated'
+      3 `cosim_top.sv`
+      1 `hdl/milan/KL_pp_shadow.sv`
+      2 `sim_aclk.cpp`
+      1 `sim_ax1x1gptp.cpp`
+      1 `sim_gmstep.cpp`
+      1 `sim_gptp.cpp`
+      1 `sim_main.cpp`
+      5 `sim_nxn.cpp`
+      1 `verify_abort.py`
+EXISTS blob 45aabe14f8ca6afb922a94688fa3dd871a6dfaef hdl/milan/KL_pp_shadow.sv | marker /KL_protocol_processor_top|protocol_processor_top/ x16 | #132:ports/params/glue
+EXISTS blob 7e49d84c67ef1f4fc3ab809d05ec003a6b1f4c03 scripts/measure_test_evidence.py | marker /DUT_READER_DISPOSITIONS/ x4 | #132:evidence-classifier
+EXISTS blob eaea6abde963415dd86ae50ec01e9eb0ecb6d326 tb/verilator/milan_dp/sim_aclk.cpp | marker /start_the_boot_restore_walk/ x2 | #132:image-less-aclk-walk-wait
+EXISTS blob 04d4a2ce4caaeed2630c0ac31ce77c9a45f279a5 tb/verilator/milan_dp/sim_ax1x1gptp.cpp | marker /configure/ x4 | #132:ax1x1gptp-walk
+EXISTS blob 6f9d17b1df0ada120f320abc1910d2c241ab1512 tb/verilator/milan_dp/sim_crf_licence.cpp | marker /LeaveAll.MRPDUs/ x2 | #133-s4:crflic>=3
+EXISTS blob c7c698cbd0aa4f063708440386cad5a8f611e062 tb/verilator/milan_dp/sim_gmstep.cpp | marker /PP_CTRL|pp_ctrl/ x0 | #132:gmstep-walk
+EXISTS blob ec75136a9f2712298e7a3422c5e495ff2a7b7c56 tb/verilator/milan_dp/sim_gptp.cpp | marker /PP_CTRL|pp_ctrl/ x0 | #132:gptp-walk
+EXISTS blob d653cd86e8894951a4d2921e81cd70a18415eb2b tb/verilator/milan_dp/sim_main.cpp | marker /PP_CTRL|pp_ctrl|restore/ x12 | #132:image-less-main/nolpf/ax1x1
+EXISTS blob 7b2b25f33527bbff30a55af57884a010fcdabb97 tb/verilator/milan_dp/sim_nxn.cpp | marker /prove_read_descriptor_degrades_with_no_descriptor_memory/ x2 | #132:nxn-legs
+EXISTS blob ff26a9b3fafdb4ccc1fe6d2dc5cd50fdcd730188 tb/verilator/milan_dp_render/sim_tdm8_render.cpp | marker /T8/ x9 | #132:render-T8-REMOVE
+EXISTS blob 6dd3a8dd95e5581c2ab2e7462bbe43b948503811 tb/verilator/nvm_cosim/cosim_cases.cpp | marker /B1|B4/ x3 | #132:B1-B4-window
+EXISTS blob 3f85dcdb171eca8ba29373c11887634f6fbe233f tb/verilator/nvm_cosim/cosim_top.sv | marker /KL_acmp_nvm_shadow/ x2 | #132:cosim_top-pins
+EXISTS blob 9994c6a6f5065c237e2fa8f993e6035c525564e7 tb/verilator/pp_shadow/sim_main.cpp | marker /K10|K12|M2|P3/ x44 | #132:pp_shadow-phases
+== crflic lines at the ref (C1 section 4 edit target)
+    ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
+    ck_true("the switch sent >= 4 of its own, Listener JoinMt first", bridge_la - bla0 >= 4);
+== locate files the consolidated list names that are not in the 13 (search by basename)
+measure_test_evidence.py -> scripts/measure_test_evidence.py 
+sim_tdm8_render.cpp -> tb/verilator/milan_dp_render/sim_tdm8_render.cpp 
+cosim_cases.cpp -> tb/verilator/nvm_cosim/cosim_cases.cpp 
+sim_main.cpp -> tb/verilator/aaf/sim_main.cpp tb/verilator/aaf_audio_loop/sim_main.cpp tb/verilator/aaf_latency_tap_bank/sim_main.cpp tb/verilator/aaf_latency_taps/sim_main.cpp tb/verilator/adp_tx/sim_main.cpp tb/verilator/aes3/sim_main.cpp tb/verilator/avtp_rxmon/sim_main.cpp tb/verilator/avtp_stream/sim_main.cpp tb/verilator/capture_coherence/sim_main.cpp tb/verilator/cbs/sim_main.cpp tb/verilator/cdc/sim_main.cpp tb/verilator/chmap_capture/sim_main.cpp tb/verilator/chmap_render/sim_main.cpp tb/verilator/classifier/sim_main.cpp tb/verilator/clkvalid/sim_main.cpp tb/verilator/cls/sim_main.cpp tb/verilator/controller_rate/sim_main.cpp tb/verilator/crf_rx/sim_main.cpp tb/verilator/crf_tx/sim_main.cpp tb/verilator/csr/sim_main.cpp tb/verilator/datapath/sim_main.cpp tb/verilator/eth_tx_reset/sim_main.cpp tb/verilator/fw_service_budget/sim_main.cpp tb/verilator/gptp_plane/sim_main.cpp tb/verilator/gptp_shadow/sim_main.cpp tb/verilator/gptp_txts/sim_main.cpp tb/verilator/i2spb/sim_main.cpp tb/verilator/ifg/sim_main.cpp tb/verilator/lat_history_ring/sim_main.cpp tb/verilator/link_guard/sim_main.cpp tb/verilator/maap/sim_main.cpp tb/verilator/mac_rmon/sim_main.cpp tb/verilator/media_grid_align/sim_main.cpp tb/verilator/media_nco/sim_main.cpp tb/verilator/milan_dp/sim_main.cpp tb/verilator/mmcm_servo/sim_main.cpp tb/verilator/nvm_backend/sim_main.cpp tb/verilator/nvm_capture_cpu/sim_main.cpp tb/verilator/pair_fill/sim_main.cpp tb/verilator/pcmlpf/sim_main.cpp tb/verilator/pp_shadow/sim_main.cpp tb/verilator/ptp/sim_main.cpp tb/verilator/ptp_sync/sim_main.cpp tb/verilator/ptp_ts/sim_main.cpp tb/verilator/queues/sim_main.cpp tb/verilator/render_setpoint/sim_main.cpp tb/verilator/rx_filter/sim_main.cpp tb/verilator/shaper_core/sim_main.cpp tb/verilator/tcam/sim_main.cpp tb/verilator/tcam_csr/sim_main.cpp tb/verilator/tdm/sim_main.cpp tb/verilator/tdm_render/sim_main.cpp tb/verilator/tkdiag/sim_main.cpp 
+KL_pp_nvm_mgr_arb.sv -> 
+== consumer-set build files under tb/verilator/nvm_cosim, milan_dp_render (which cpp holds B1/T8)
+tb/verilator/milan_dp_render/gen_tdm8r_multi_shape.py
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+tb/verilator/milan_dp_render/tdm8_render_mutants.py
+tb/verilator/nvm_cosim/cosim_bridge.cpp
+tb/verilator/nvm_cosim/cosim_case_map.py
+tb/verilator/nvm_cosim/cosim_cases.cpp
+tb/verilator/nvm_cosim/cosim_checks.py
+tb/verilator/nvm_cosim/cosim_host.c
+tb/verilator/nvm_cosim/cosim_oracle.py
+tb/verilator/nvm_cosim/cosim_top.sv
+tb/verilator/nvm_cosim/mutate.py
+tb/verilator/nvm_cosim/run_cases.py
+--- B1-B4 give-up window lives in cosim_cases.cpp (erase_fault_case), at the ref
+
+static void capture_cases() {
+  // B. CAPTURE, ERASE AND FAILED OPERATIONS -------------------------------
+  auto erase_fault_case = [](unsigned byte, int kind) {
+    return [byte, kind] {                                          // real
+      base();
+      fault(0x20, byte, 0, kind);      // every attempt fails at this byte
+      bind(X2);
+      idle(1500);                      // debounce, three attempts, give-up
+      snap("gave_up");
+      faults.clear();
+      bind(Z2);
+      idle(3000);
+      snap("end");
+    };
+  };
+  cases["B1_erase_error_full_span"] = erase_fault_case(27, 1);
+  cases["B2_erase_error_partial_span"] = erase_fault_case(6, 1);
+  cases["B3_erase_error_no_byte"] = erase_fault_case(0, 1);
+  cases["B4_write_error_after_erase"] = erase_fault_case(0, 2);
+  cases["B5_erase_then_no_write_yet"] = [] {                     // real + bfm
+--- T8 REMOVE lives in sim_tdm8_render.cpp, at the ref
+
+void TdmRenderHarness::prove_a_removal_silences_only_its_own_slots() {
+    // T8 REMOVE: two of the eight, and nothing else moves
+    const int drop_a = 2;
+    const int drop_b = 5;
+    check.dec("T8 REMOVE: two mappings removed",
+              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings,
+                                            {{kPerm[drop_a], drop_a},
+                                             {kPerm[drop_b], drop_b}})), 0);
+    check.dec("T8 REMOVE: their physical keys read disabled",
+              render_ram(kTdmBase + drop_a) | render_ram(kTdmBase + drop_b), 0);
+--- milan_dp/README.md at the ref: passages #132's list changes (retired [AECP] degrade arm, walk-starting harnesses)
+blob 3f05559f593d2f3b0aad632590ed257616714b6c tb/verilator/milan_dp/README.md
+**Every harness that binds a sink starts the restore walk.**
+Since the same pin, the processor holds its ACMP listener from reset.
+It releases it when the NVM binding walk ends.
+`PP_CTRL[1]` starts that walk, as the firmware's `nvm_boot()` does.
+`sim_main`, `sim_nxn`, `sim_aclk` and `milan_dp_render` now set it at boot.
+**This suite backs no descriptor memory, on purpose and on record.**
+`milan_datapath` exposes nine ports for the AEM image the store fetches
+(`o_desc_mem_req_valid` … `i_desc_mem_rsp_err`). Every leg here drives
+`i_desc_mem_req_ready` **low explicitly**, in the reset section, next to a
+comment that says what that means: it is `KL_aecp_desc_store`'s documented
+degrade path — the watchdog abandons the burst, the image never validates, and
+`READ_DESCRIPTOR` comes back well formed but empty-handed. A zero left at a port
+by accident and a zero driven by a decision look identical on a waveform, so it
+is stated. The `[AECP]` checks in `sim_nxn.cpp` grade that path: an answer
+arrives, it is an `AEM_RESPONSE`, its status is `BAD_ARGUMENTS` (an unvalidated
+image reports `configurations_count = 0`, and the µprogram range-checks the
+configuration index *before* it locates, so this is not
+`NO_SUCH_DESCRIPTOR`), it carries the Section 7.4.5 stub at `cdl = 20`, and it is
+padded to 60.
