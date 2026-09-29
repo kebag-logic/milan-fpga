@@ -1,0 +1,18 @@
+# pinned Markdown environment: private venv from tools/markdown/requirements.txt with --require-hashes
+$ python scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+check_em_dash: 0 finding(s) over 792 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+rc=0
+$ python scripts/gen_toc.py --check
+TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ python scripts/docs_check.py
+docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python scripts/check_doc_paths.py
+doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+# env: cmarkgfm     2025.10.22
+# env: html5lib     1.1

@@ -1,0 +1,15 @@
+# The archived, redacted R402-1 scripts/rederive.py (c0dfcb50) run against the public redacted round-1 packet author-r2/r1 (linked as <root>/author), repo root = this clone at 931c3edf
+## as archived
+FAIL gm01 console GM sequence switch -> host -> switch
+FAIL gm01 wire Announce: host GM priority1 240, stepsRemoved 1 
+FAIL gm02 console GM sequence switch -> host -> switch
+FAIL gm02 wire Announce: host GM priority1 240, stepsRemoved 1 
+FAIL gm03 console GM sequence switch -> host -> switch
+FAIL gm03 wire Announce: host GM priority1 240, stepsRemoved 1 
+FAIL gm04 console GM sequence switch -> host -> switch
+FAIL gm04 wire Announce: host GM priority1 240, stepsRemoved 1 
+FAIL gm05 console GM sequence switch -> host -> switch
+FAIL gm05 wire Announce: host GM priority1 240, stepsRemoved 1 
+TOTAL pass=473 fail=10
+## with only the HOST placeholder changed to the packet's own placeholder (1 line)
+TOTAL pass=483 fail=0
