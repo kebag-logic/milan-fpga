@@ -1,0 +1,31 @@
+--- a/litex/soc/software/bios/main.c
++++ b/litex/soc/software/bios/main.c
+@@ -172,6 +172,20 @@
+ }
+ #endif
+ 
++/* Product service opportunity for every line, before parsing or dispatch.
++ * The default keeps upstream BIOS behavior when no product overrides it. */
++void command_dispatch_hook(void);
++void bios_dispatch_hook_required(void);
++
++/* Strong link marker required by product firmware using this hook. */
++void bios_dispatch_hook_required(void)
++{
++}
++
++void __attribute__((weak)) command_dispatch_hook(void)
++{
++}
++
+ __attribute__((__used__)) int main(int i, char **c)
+ {
+ #ifndef BIOS_CONSOLE_DISABLE
+@@ -344,6 +358,7 @@
+ 	printf("\n%s", PROMPT);
+ 	while(1) {
+ 		readline(buffer, CMD_LINE_BUFFER_SIZE);
++		command_dispatch_hook();
+ 		printf("\n");
+ 		if (buffer[0] != 0) {
+ 			nb_params = get_param(buffer, &command, params);

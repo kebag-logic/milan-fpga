@@ -410,6 +410,13 @@ identity. [`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py)
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
 
+Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+It reads Clause-22 link, speed and duplex over bit-bang MDIO.
+The existing CDC carries this publication to MAC_STATUS.
+Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges.
+The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+
 **Link rate (REQ-MAC-03).** The effective `is_1g` follows the MAC's reported
 speed (`MAC_STATUS[2:1] == 2`) unless `MAC_CTRL[5]` is set. `MAC_CTRL[4]`'s
 reset value is 1, so before 2026-07-26 a 100 Mb/s port reported gigabit to every

@@ -89,11 +89,21 @@ def prepare(root: Path, destination: Path, mutation: str) -> Path:
         if source.count(before) != 1:
             raise RuntimeError('capture instrumentation anchor is not unique: ' + before)
         source = source.replace(before, after)
+    word_store = ('*(volatile nvm_word_t *)(MILAN_NVM_STAGE_BASE + KLJ2_HDR + i) =\n'
+                  '\t\t\t\t\t\t*(const volatile nvm_word_t *)(MILAN_NVM_LIVE_BASE + KLJ2_HDR + i);')
+    if mutation == 'byte-only':
+        branch = 'if ((i & 3u) == 0 && next - i >= 4u &&'
+        if source.count(branch) != 1:
+            raise RuntimeError('word-copy branch is not unique')
+        source = source.replace(branch, 'if (0 && next - i >= 4u &&')
     if mutation == 'skip-copy':
         store = 'NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];'
         if source.count(store) != 1:
             raise RuntimeError('copy mutation anchor is not unique')
         source = source.replace(store, '(void)NVM_IMG[KLJ2_HDR + i];')
+        if source.count(word_store) != 1:
+            raise RuntimeError('word-copy mutation anchor is not unique')
+        source = source.replace(word_store, '(void)NVM_IMG[KLJ2_HDR + i];')
     driver = DRIVER.replace('probe_enable_write(1);', 'probe_enable_write(0);') if mutation == 'no-traffic' else DRIVER
     (destination / 'milan_baremetal.c').write_text(source + driver)
     (destination / 'Makefile').write_bytes((root / 'sw/firmware/milan_baremetal/Makefile').read_bytes())

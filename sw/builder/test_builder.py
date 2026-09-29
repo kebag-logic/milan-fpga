@@ -13301,7 +13301,7 @@ def test_baremetal_profile_contract() -> None:
          if which.endswith("ifdef CSR_UART_BASE`: CSR_UART_BASE defined, "
                            "arm 1 of 1 taken")),
         None)
-    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \
+    assert len(split_digraph_selections) == 4 and split_digraph_product_arm, \
         "gate 1b's directive readers do not find the #ifdef a split `%:` " \
         "digraph spells in the UART handler, where the pinned GCC does: " \
         f"they read the selections {sorted(split_digraph_selections)}"
@@ -23294,7 +23294,7 @@ def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
 #  VexiiRiscv variant, which is the whole #120/#125 downgrade and the shipping
 #  AX profile, and the VexiiRiscv revision it pins does not accept the
 #  `--l2-down-pending` / `--l2-general-slots` four of the five configs pass.
-#  sw/litex/patches/ carries the six patches that close that, and apply.sh
+#  sw/litex/patches/ carries the four patches that close that, and apply.sh
 #  applies them.
 #
 #  NOTHING RAN IT. Measured 2026-08-21: the series had not applied cleanly for
@@ -23379,7 +23379,7 @@ def _mirror(tmp: Path, real: Path) -> Path:
     """Where `real` lives inside the scratch mirror.
 
     THE MIRROR IS KEYED BY ABSOLUTE REALPATH, and that is the whole fix for
-    the aliasing defect [R0] found on PR #189. Two of the six patches name
+    the aliasing defect [R0] found on PR #189. Two of the historical six patches name
     the SAME physical file through different roots: 0005 reaches
     `.../ext/VexiiRiscv/src/.../Soc.scala` as a path under the
     pythondata package, and the L2 patch reaches it as `src/.../Soc.scala`
@@ -26644,6 +26644,7 @@ uint8_t fabric_host_ram[0x30000];
 void fabric_host_write(unsigned int offset, uint32_t value);
 void fabric_host_configure(void);
 void set_idle_hook(void (*fptr)(void));
+void bios_dispatch_hook_required(void);
 
 void fabric_host_write(unsigned int offset, uint32_t value)
 {
@@ -26664,6 +26665,7 @@ unsigned int crc32(const unsigned char *b, unsigned int n)
     return 0u;
 }
 void set_idle_hook(void (*fptr)(void)) { (void)fptr; }
+void bios_dispatch_hook_required(void) { }
 
 int main(void)
 {

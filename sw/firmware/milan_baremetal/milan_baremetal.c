@@ -353,6 +353,8 @@ typedef char nvm_own_words_is_eight[(NVM_OWN_WORDS == 8u) ? 1 : -1];
 #define NVM_LOAD_TRIES         4u
 
 void set_idle_hook(void (*fptr)(void));
+void bios_dispatch_hook_required(void);
+void command_dispatch_hook(void);
 
 struct nvm_block {
 	uint8_t base;
@@ -413,6 +415,8 @@ static const char *const nvm_verdict_name[VD_COUNT] = {
 	"VD_PROGRAM", "VD_VERIFY",
 };
 
+/* Identity and shape must admit a writer before any service access. */
+static int nvm_started;
 static int nvm_ready;
 /* This writer has disabled itself for the rest of this reset and will never
  * commit again. It stops answering the liveness deadline, so the fabric
@@ -444,6 +448,9 @@ static uint64_t nvm_dirty_since;
  */
 #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
 #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+typedef uint32_t nvm_word_t;
+
+static void nvm_heartbeat_tick(void);
 
 static const volatile uint8_t *nvm_slot(uint32_t offset)
 {
@@ -464,6 +471,10 @@ static uint32_t nvm_crc32(const volatile uint8_t *p, uint32_t len)
 	unsigned int bit;
 
 	for (i = 0; i < len; ++i) {
+		/* A slot CRC can exceed the service window on the largest shape.
+		 * Boot validation precedes writer arming; runtime validation does not. */
+		if (nvm_ready && (i & 255u) == 0)
+			nvm_heartbeat_tick();
 		crc ^= p[i];
 		for (bit = 0; bit < 8; ++bit)
 			crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1u)));
@@ -624,6 +635,9 @@ static unsigned int nvm_validate(const volatile uint8_t *img)
 	for (i = 0; i < nrec; ++i) {
 		struct nvm_rec rec;
 
+		/* Bound the record-validation walk independently of the slot CRC. */
+		if (nvm_ready && (i & 15u) == 0)
+			nvm_heartbeat_tick();
 		if (pos + REC_HDR > end)
 			return VD_LEN;
 		if (nvm_all_erased(img + pos, REC_HDR)) {
@@ -752,12 +766,168 @@ static void nvm_publish(unsigned int verdict)
 	nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | (verdict & 0xfu));
 }
 
+/* The generated accessors are also declared for reduced-header validation
+ * builds. Product csr.h supplies their static inline definitions first. */
+void milan_mac_phy_mdio_w_write(uint32_t value);
+uint32_t milan_mac_phy_mdio_r_read(void);
+void milan_mac_link_status_write(uint32_t value);
+
+/* Half the 250 ms service allowance schedules PHY work; the other half
+ * accommodates a pending duty and the bounded Clause-22 transactions. */
+#define PHY_POLL_NS (NVM_HEARTBEAT_NS / 2u)
+#define PHY_MDC 1u
+#define PHY_OE  2u
+#define PHY_OUT 4u
+#define PHY_BMSR_LINK 4u
+#define PHY_BMSR_AN_DONE 0x20u
+#define PHY_BMSR_EXTENDED 0x100u
+#define PHY_BMCR_AN_ENABLE 0x1000u
+
+#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR
+static unsigned int phy_address;
+static int phy_found;
+static uint32_t phy_published;
+static uint64_t phy_last_poll;
+
+/* At least 32 CPU delay cycles per half-period, even at 100 MHz.
+ * IEEE 802.3 22.3.4: the PHY advances its output after each rising edge.
+ * Sample with MDC low before that edge, as LiteX libliteeth/mdio.c does. */
+static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
+{
+	uint32_t pins = (drive ? PHY_OE : 0u) | (bit ? PHY_OUT : 0u);
+	unsigned int value;
+
+	milan_mac_phy_mdio_w_write(pins);
+	cdelay(32);
+	value = milan_mac_phy_mdio_r_read() & 1u;
+	milan_mac_phy_mdio_w_write(pins | PHY_MDC);
+	cdelay(32);
+	milan_mac_phy_mdio_w_write(pins);
+	return value;
+}
+
+/* An absent turnaround acknowledgement is an error, never link-up. */
+static int phy_mdio_read(unsigned int reg)
+{
+	uint32_t command = (6u << 10) | (phy_address << 5) | reg;
+	unsigned int i;
+	unsigned int ack;
+	unsigned int value = 0;
+
+	for (i = 0; i < 32u; ++i)
+		phy_mdio_bit(1, 1);
+	for (i = 0; i < 14u; ++i)
+		phy_mdio_bit(1, (command >> (13u - i)) & 1u);
+	phy_mdio_bit(0, 0);
+	ack = phy_mdio_bit(0, 0);
+	for (i = 0; i < 16u; ++i)
+		value = (value << 1) | phy_mdio_bit(0, 0);
+	milan_mac_phy_mdio_w_write(0);
+	return ack ? -1 : (int)value;
+}
+
+/* Standard Clause-22 negotiation registers serve both board PHY families.
+ * Return only a resolved common mode; incomplete negotiation stays down. */
+static uint32_t phy_resolved_status(unsigned int bmsr)
+{
+	int control = phy_mdio_read(0);
+	int local;
+	int peer;
+	unsigned int common;
+
+	if (control < 0)
+		return 0;
+	if (!(control & PHY_BMCR_AN_ENABLE)) {
+		unsigned int speed = (control & 0x40u) ? 2u :
+				     ((control & 0x2000u) ? 1u : 0u);
+		return 1u | (speed << 1) | ((control & 0x100u) ? 8u : 0u);
+	}
+	if (!(bmsr & PHY_BMSR_AN_DONE))
+		return 0;
+	if (bmsr & PHY_BMSR_EXTENDED) {
+		int extended = phy_mdio_read(15);
+
+		if (extended < 0)
+			return 0;
+		if (extended & 0x3000u) {
+			local = phy_mdio_read(9);
+			peer = phy_mdio_read(10);
+			if (local < 0 || peer < 0 || (peer & 0x8000u))
+				return 0;
+			common = ((unsigned int)local << 2) & (unsigned int)peer;
+			if (common & 0x800u)
+				return 13u;
+			if (common & 0x400u)
+				return 5u;
+		}
+	}
+	local = phy_mdio_read(4);
+	peer = phy_mdio_read(5);
+	if (local < 0 || peer < 0)
+		return 0;
+	common = (unsigned int)local & (unsigned int)peer;
+	if (common & 0x100u)
+		return 11u;
+	if (common & 0x80u)
+		return 3u;
+	if (common & 0x40u)
+		return 9u;
+	return (common & 0x20u) ? 1u : 0u;
+}
+
+static void phy_link_tick(uint64_t now)
+{
+	int bmsr;
+	uint32_t status = 0;
+
+	if (phy_last_poll && now >= phy_last_poll &&
+	    now - phy_last_poll < PHY_POLL_NS)
+		return;
+	phy_last_poll = now;
+	if (!phy_found) {
+		int id = phy_mdio_read(2);
+
+		/* Probe one address per opportunity, with no blocking scan. */
+		if (id <= 0 || id == 0xffff) {
+			phy_address = (phy_address + 1u) & 31u;
+			phy_last_poll = 0;
+			milan_mac_link_status_write(0);
+			return;
+		}
+		phy_found = 1;
+	}
+	bmsr = phy_mdio_read(1);
+	/* Preserve a latched loss, then resolve current state in this poll.
+	 * The second MDIO read separates the publications across the CDC. */
+	if (bmsr >= 0 && !(bmsr & PHY_BMSR_LINK) && (phy_published & 1u)) {
+		milan_mac_link_status_write(0);
+		phy_published = 0;
+	}
+	if (bmsr >= 0 && !(phy_published & 1u))
+		bmsr = phy_mdio_read(1);
+	if (bmsr >= 0 && bmsr != 0xffff && (bmsr & PHY_BMSR_LINK))
+		status = phy_resolved_status((unsigned int)bmsr);
+	milan_mac_link_status_write(status);
+	phy_published = status;
+}
+#else
+static void phy_link_tick(uint64_t now)
+{
+	(void)now;
+}
+#endif
+
 /* Re-arm T-NVM-WRITER-ALIVE at most every NVM_HEARTBEAT_NS; the first
  * call answers at once, so the restore walk runs behind a live writer. */
 static void nvm_heartbeat_tick(void)
 {
-	uint64_t now = gettime_ns();
+	uint64_t now;
 
+	if (!nvm_started)
+		return;
+	now = gettime_ns();
+
+	phy_link_tick(now);
 	/* a retired writer answers no more: nvm_backed must fall */
 	if (nvm_retired)
 		return;
@@ -766,6 +936,13 @@ static void nvm_heartbeat_tick(void)
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_HB);
 		nvm_hb_last = now;
 	}
+}
+
+/* The product BIOS calls this before every line, including built-ins,
+ * unknown commands and empty lines. Do not start an idle auto-commit here. */
+void command_dispatch_hook(void)
+{
+	nvm_heartbeat_tick();
 }
 
 /* ---- the LiteSPI command master, one byte at a time, 1x mode ---------- */
@@ -1006,11 +1183,23 @@ static struct nvm_cap nvm_capture(void)
 		copy = !((own[rec.id >> 5] >> (rec.id & 31u)) & 1u);
 		next = off + REC_HDR + rec.plen;
 		if (copy) {
-			for (i = off; i < NVM_AREA_RAW; ++i) {
+			for (i = off; i < NVM_AREA_RAW;) {
 				if (i >= next) {
 					break;
 				}
-				NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
+				/* Both windows and the header are word aligned. Never
+				 * cross a record edge: its neighbour may be open. */
+				if ((i & 3u) == 0 && next - i >= 4u &&
+				    i <= NVM_AREA_RAW - 4u) {
+					*(volatile nvm_word_t *)(MILAN_NVM_STAGE_BASE + KLJ2_HDR + i) =
+						*(const volatile nvm_word_t *)(MILAN_NVM_LIVE_BASE + KLJ2_HDR + i);
+					i += 4u;
+				} else {
+					if (i < NVM_AREA_RAW) {
+						NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
+					}
+					++i;
+				}
 			}
 		}
 		off = next;
@@ -1251,10 +1440,13 @@ static void nvm_boot(void)
 	int loaded = 0;
 	int live = 0;			/* the window went live */
 
+	/* Patch 0006 supplies this symbol; an older BIOS must fail to link. */
+	bios_dispatch_hook_required();
 	if (!nvm_shape_consistent()) {
 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
 		return;
 	}
+	nvm_started = 1;
 	nvm_verdict_a = nvm_validate(nvm_slot(NVM_SLOT_A));
 	nvm_verdict_b = nvm_validate(nvm_slot(NVM_SLOT_B));
 	seq_a = (nvm_verdict_a == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_A)) : 0;
@@ -1573,7 +1765,11 @@ static void milan_nvm_handler(int nb_params, char **params)
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "wipe")) {
 		int a = nvm_slot_erase(NVM_SLOT_A);
-		int b = nvm_slot_erase(NVM_SLOT_B);
+		int b;
+
+		/* Two no-WIP verification walks otherwise chain past the PHY allowance. */
+		nvm_heartbeat_tick();
+		b = nvm_slot_erase(NVM_SLOT_B);
 
 		nvm_auth_slot = NVM_SLOT_NONE;
 		printf("NVM: slot A %s, slot B %s; the staged image is unchanged, reboot to observe a blank boot.\n",
