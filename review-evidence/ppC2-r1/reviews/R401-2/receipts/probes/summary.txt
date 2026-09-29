@@ -1,0 +1,51 @@
+probes r1 rc=0
+OBS: P1 after yield: state=0 conflicts=10 kind7-draws=49
+OBS: P1 first PROBE after Release! in W_ADDR: 91e0f0002000 (seed 91e0f0002000)
+OBS: P1c first PROBE after a W_IDLE Release!: 91e0f0002000
+OBS: P1c fresh range after the yield: 91e0f0004c1c
+OBS: P1c first PROBE after yield + W_IDLE Release!: 91e0f0002000
+OBS: P2 link low for 1 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P2 link low for 2 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P2 link low for 3 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P2 link low for 4 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P3 frames after a cfg_en fall 12 cycles into the walk: 1 (fall at 805151 ms); this walk's slot requests by the first fall cycle 1, after it 0
+OBS: P3 round-1 literal reading ('no PDU at all'): does not hold (the frame drains)
+209 checks: 209 PASS, 0 FAIL
+probes r2 rc=0
+OBS: Q3 expiries of the engine's timers during the 700 ms stalled drain: 1 (11 section 6: an expiry meanwhile meets INITIAL)
+OBS: Q3 fresh walk PROBE spacing 539 ms
+OBS: Q4 expiries of the engine's timers during the 700 ms stalled drain: 1 (11 section 6: an expiry meanwhile meets INITIAL)
+OBS: Q4 fresh walk PROBE spacing 569 ms
+OBS: Q1 cfg_en_i fall in W_ADDR (generate_address): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_IVAL (the first PROBE's interval draw): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_ALLOC (the first PROBE's slot request): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_GWAIT (the first PROBE's slot grant): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_WRITE (the first PROBE's byte writes): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_COMMIT (the first PROBE's commit): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_LANE (the first PROBE's lane request): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_POST (the first PROBE taken by the lane): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_IDLE (PROBE, parked): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_IDLE (PROBE, the expiry that sends the 4th PROBE latched): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_RX (PROBE, an ignored record): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_IVAL (probeCount!, the ANNOUNCE's interval draw): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_IDLE (DEFEND, parked): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_IDLE (DEFEND, an announce_timer expiry latched): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 cfg_en_i fall in W_RX (DEFEND, an rProbe! that sDefend would answer): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q1 covered walker-state mask 0x7fe
+OBS: Q2 cfg_count_i=0 fall in W_ADDR (generate_address): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_IVAL (the first PROBE's interval draw): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_ALLOC (the first PROBE's slot request): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_GWAIT (the first PROBE's slot grant): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_WRITE (the first PROBE's byte writes): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_COMMIT (the first PROBE's commit): owed 1, drained 1, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_LANE (the first PROBE's lane request): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_POST (the first PROBE taken by the lane): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_IDLE (PROBE, parked): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_IDLE (PROBE, the expiry that sends the 4th PROBE latched): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_RX (PROBE, an ignored record): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_IVAL (probeCount!, the ANNOUNCE's interval draw): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_IDLE (DEFEND, parked): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_IDLE (DEFEND, an announce_timer expiry latched): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 cfg_count_i=0 fall in W_RX (DEFEND, an rProbe! that sDefend would answer): owed 0, drained 0, reqs after 0, starts 0, expiries 0
+OBS: Q2 covered walker-state mask 0x7fe
+213 checks: 213 PASS, 0 FAIL

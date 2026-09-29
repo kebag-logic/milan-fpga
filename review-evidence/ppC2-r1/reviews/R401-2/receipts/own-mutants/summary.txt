@@ -1,0 +1,34 @@
+r401-release-clears-mark-after-request-only [15de8b5]: rc=2 191 checks, 2 FAIL named=1 KILLED
+    FAIL: U17b: phase 1, the walk restarts after a Release! mid-redraw
+    FAIL: U17c: the next PortOperational! probes the next fitting draw (1 offsets did not)
+r401-release-keeps-mark-on-coincident-answer [15de8b5]: rc=2 190 checks, 3 FAIL named=1 KILLED
+    FAIL: U17b: phase 3, the walk restarts after a Release! mid-redraw
+    FAIL: U17c: the next PortOperational! probes the next fitting draw (1 offsets did not)
+    FAIL: U27: the W_ADDR arc, the next engagement probes the seed first (got 91e0f0002000)
+r401-rx-serves-record-after-fall [4de2c60/d0acc9b]: rc=2 190 checks, 5 FAIL named=5 KILLED
+    FAIL: U26: W_RX, a 1-cycle Release! gives INITIAL
+    FAIL: U26: W_RX, a 1-cycle Release! is followed by a fresh walk's PROBE
+    FAIL: U28: no TX slot request follows the fall, in any walker state, for 33 s (1 of 17 falls)
+    FAIL: U28: at most the one frame requested before the fall drains (1 of 17 falls)
+r401-lane-not-latched [4de2c60]: rc=2 189 checks, 3 FAIL named=3 KILLED
+    FAIL: U25: the claim is withdrawn for the whole outage (1000 cycles valid, state 2)
+    FAIL: U25: an ALLOC during the outage is refused
+    FAIL: U25: the DEFEND drains and a fresh walk probes (1 frames, state 2)
+r401-post-ignores-a-fall-seen-in-post [4de2c60]: rc=2 191 checks, 1 FAIL named=1 KILLED
+    FAIL: U23: no claim is valid after the fall (1 of 80 offsets)
+r401-teardown-keeps-probe-timer [d0acc9b]: rc=2 191 checks, 1 FAIL named=1 KILLED
+    FAIL: U28: the timers are stopped: no expiry for 33 s after the fall (10 of 17 falls)
+r401-drain-one-cycle-late [4f6affc]: rc=2 191 checks, 1 FAIL named=1 KILLED
+    FAIL: U23: the drained ANNOUNCE reaches the lane within 63 cycles of the fall (1 of 75 offsets late)
+r401-ival-keeps-draw-mark [2c11d6f/4de2c60]: rc=2 191 checks, 2 FAIL named=2 KILLED
+    FAIL: U17c: the next PortOperational! probes the next fitting draw (3 offsets did not)
+    FAIL: U23: every walk reached its 4th PROBE (2 did not)
+r401-seed-rearmed-in-teardown-only [8ae76ee]: rc=2 191 checks, 2 FAIL named=2 KILLED
+    FAIL: U27: the W_ADDR arc, the next engagement probes the seed first (got 91e0f00026a4)
+    FAIL: U27: the W_ADDR arc, the seeded PROBE is byte-exact
+r401-seed-clamp-target-minus-one [fa21c58]: rc=2 191 checks, 6 FAIL named=6 KILLED
+    FAIL: U18: the seed is clamped to offset 0xfdf8, got 91e0f000fdf7
+    FAIL: U18: PROBE byte-exact at the clamped offset
+    FAIL: U18: the clamped block is claimed
+    FAIL: U18: the block's last source is granted 91:E0:F0:00:FD:FF (got 91e0f000fdfe)
+10 of 10 KILLED
