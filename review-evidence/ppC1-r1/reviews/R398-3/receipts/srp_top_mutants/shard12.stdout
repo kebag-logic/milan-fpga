@@ -1,0 +1,7 @@
+control srp_top guards: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+mvrp-flag-at-expiry: rc=2 failures=11 KILLED tags=P4,P5,P6,P7
+6 checks: 6 PASS, 0 FAIL

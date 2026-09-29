@@ -1,0 +1,6 @@
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+preparation-before-slot: rc=2 failures=21 KILLED tags=M1,M11,M12,M5,M6,M8
+stale-expiry-honoured: rc=2 failures=7 KILLED tags=M10
+5 checks: 5 PASS, 0 FAIL

@@ -1,0 +1,7 @@
+control srp_top armdelay: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top phases: rc=0 PASS
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+rearm-at-issue: rc=2 failures=8 KILLED tags=P8
+6 checks: 6 PASS, 0 FAIL

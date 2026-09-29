@@ -1,0 +1,8 @@
+control srp_top armdelay: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top peer: rc=0 PASS
+pending-peer-ignored: rc=2 failures=26 KILLED tags=M1,M10,M2,M3
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+r-rearm-no-deadline: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-deadline: rc=2 failures=8 KILLED tags=P8
+7 checks: 7 PASS, 0 FAIL

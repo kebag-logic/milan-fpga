@@ -1,0 +1,47 @@
+# parent milan-fpga at dev 79c36963660c10e4c1c11a744fb5bff41a552b8b, read through the public API
+tb/verilator/milan_dp/README.md git blob 3f05559f593d2f3b0aad632590ed257616714b6c
+--- README lines 443-443
+   443	| `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+--- README lines 527-530
+   527	capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed
+   528	LeaveAll period is not modelled. This station's leavealltimer does not
+   529	restart on a received LeaveAll (processor issue 108), and nothing here
+   530	measures that. The silicon rerun of #530 is the acceptance.
+--- README lines 633-637
+   633	**Every harness that binds a sink starts the restore walk.**
+   634	Since the same pin, the processor holds its ACMP listener from reset.
+   635	It releases it when the NVM binding walk ends.
+   636	`PP_CTRL[1]` starts that walk, as the firmware's `nvm_boot()` does.
+   637	`sim_main`, `sim_nxn`, `sim_aclk` and `milan_dp_render` now set it at boot.
+--- README lines 869-888
+   869	**This suite backs no descriptor memory, on purpose and on record.**
+   870	`milan_datapath` exposes nine ports for the AEM image the store fetches
+   871	(`o_desc_mem_req_valid` … `i_desc_mem_rsp_err`). Every leg here drives
+   872	`i_desc_mem_req_ready` **low explicitly**, in the reset section, next to a
+   873	comment that says what that means: it is `KL_aecp_desc_store`'s documented
+   874	degrade path — the watchdog abandons the burst, the image never validates, and
+   875	`READ_DESCRIPTOR` comes back well formed but empty-handed. A zero left at a port
+   876	by accident and a zero driven by a decision look identical on a waveform, so it
+   877	is stated. The `[AECP]` checks in `sim_nxn.cpp` grade that path: an answer
+   878	arrives, it is an `AEM_RESPONSE`, its status is `BAD_ARGUMENTS` (an unvalidated
+   879	image reports `configurations_count = 0`, and the µprogram range-checks the
+   880	configuration index *before* it locates, so this is not
+   881	`NO_SUCH_DESCRIPTOR`), it carries the Section 7.4.5 stub at `cdl = 20`, and it is
+   882	padded to 60.
+   883	
+   884	**The SERVED path lives in `tb/verilator/pp_shadow`**, which backs those ports
+   885	with a real `AEMI` image and grades `SUCCESS` with the descriptor bytes compared
+   886	octet for octet, the locate miss, the bad configuration index, the
+   887	`NOT_IMPLEMENTED` echo, the two silent-refusal cases, and the no-memory degrade
+   888	with recovery.
+tb/verilator/milan_dp/sim_nxn.cpp git blob 7b2b25f33527bbff30a55af57884a010fcdabb97
+2237:        start_the_boot_restore_walk();
+2310:    void start_the_boot_restore_walk() {
+2359:    void prove_read_descriptor_degrades_with_no_descriptor_memory() {
+2465:        grade_the_first_descriptors_on_the_wire();
+2534:    void grade_the_first_descriptors_on_the_wire() {
+8025:    start_the_boot_restore_walk();
+8026:    prove_read_descriptor_degrades_with_no_descriptor_memory();
+tb/verilator/milan_dp/sim_crf_licence.cpp git blob 6f9d17b1df0ada120f320abc1910d2c241ab1512
+   953	    ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
+   954	    ck_true("the switch sent >= 4 of its own, Listener JoinMt first", bridge_la - bla0 >= 4);

@@ -1,0 +1,9 @@
+control srp_encoder : rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top phases: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+tx-strobe-any-app: rc=2 failures=1 KILLED tags=W1 no strobe for an MSRP MRPDU
+8 checks: 8 PASS, 0 FAIL

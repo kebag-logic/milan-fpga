@@ -1,0 +1,394 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "issue_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs: 1 of the walk's 1 READs issued with it, none drained (from 423622), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "drain_misses_issue_cycle_m1",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle: the drain armed in the issue cycle (issued at 422951, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N10 a manager-1 READ abandoned in its issue cycle: the port is free again: the walk completes as saved and manager 1's next READ completes: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 430847, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_backoff_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E9 DR2c timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (43, 43)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_stale_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 428091, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fourth_attempt_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E8 DR2c count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E8 DR2c count: three attempts in all (4 started, 4 failed)",
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (642, 642)",
+   "E10 DR2c count: no fourth attempt (4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_ignores_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "alarm_forgiven_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E11 DR2c revocation"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E11 DR2c revocation: a later successful commit and time leave the alarm set"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owned_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423536), every byte taken (1 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owned_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cross_own_m1_drains_m0",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "validator_admits_held_aecp",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F28 held AECP",
+   "F28 rx_aecp_held counts both"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 rx_aecp_held counts both got 0",
+   "F28 nothing counted without the hold"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dispatch_not_held",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: without the walk the writer owns every cycle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O1: without the walk the writer owns every cycle (2000 of 2000), the engine runs nothing (1998 busy) and the command waits in its queue",
+   "D3O1: released at 122, terminal at 880, own fell at 880, the held command taken at 0, 880 busy cycles while owned",
+   "D3O2: CLOSED holds AECP (29998 busy cycles, the command still queued) and leaves the listener released",
+   "D3O5: one AECP command held, 5 dropped at the slot gate and counted, 0 answered",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "image_unproven_continues",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O2: CLOSED at",
+   "D3O3: CLOSED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O2: CLOSED at -1 after the release at 122, cause 0, own 0, 2 descriptor requests",
+   "D3O2: CLOSED holds AECP (185 busy cycles, the command still queued) and leaves the listener released",
+   "D3O3: CLOSED -123 cycles after the release, cause 0",
+   "D3O5: in CLOSED each GET_RX_STATE after each of 6 AECP commands is answered in 168 cycles, the idle latency (worst 246)",
+   "D3O5: one AECP command held, 0 dropped at the slot gate and counted, 6 answered",
+   "D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered",
+   "D3R14 image refused: CLOSED by clock 0, cause 3, AECP owned 0, ADP enabled 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "own_taken_at_the_walk",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R9: the held SET"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O1: without the walk the writer owns every cycle (0 of 2000), the engine runs nothing (1998 busy) and the command waits in its queue",
+   "D3O1: released at 122, terminal at 880, own fell at 0, the held command taken at 0, 0 busy cycles while owned",
+   "D3O4: an image loaded late is walked at the writer's LOCATE (0 requests from the release to the terminal), COMPLETE at 990",
+   "D3S1: no record outside the nine rows set (44 ops)",
+   "D3S4 taint: 2 WRITEs of 0x50, the first carrying the latched value, the last the change made during it",
+   "D3S5 premise: the change accepted at 359014, the WRITE's done at 360168",
+   "D3S6 group: 0x51 changed during 0x50's WRITE is written after it (1 WRITEs of 0x51)",
+   "D3S7: IDENTIFY set, 0 pending cycles, 62 NVM operations",
+   "D3R9: the held SET answered after the restore applied A, and its B is in force (row 1234567)",
+   "D3R9: the next flush saves B over the restored A"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "hold_released_at_go",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: released at"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O1: released at 122, terminal at 880, own fell at 123, the held command taken at 124, 0 busy cycles while owned",
+   "D3O2: CLOSED at 164 after the release at 122, cause 7, own 0, 1 descriptor requests",
+   "D3O2: CLOSED holds AECP (29998 busy cycles, the command still queued) and leaves the listener released",
+   "D3O5: one AECP command held, 5 dropped at the slot gate and counted, 0 answered",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (1 counted), none answered",
+   "D3S1: no record outside the nine rows set (36 ops)",
+   "D3S4 taint: 2 WRITEs of 0x50, the first carrying the latched value, the last the change made during it",
+   "D3S5 premise: the change accepted at 368271, the WRITE's done at 369209",
+   "D3S6 group: 0x51 changed during 0x50's WRITE is written after it (1 WRITEs of 0x51)",
+   "D3S7: IDENTIFY set, 0 pending cycles, 54 NVM operations",
+   "D3R12: the re-walk cannot prove the image: CLOSED 9425, cause 2, the entity held",
+   "D3R14 image refused: CLOSED by clock 1000045, cause 7, AECP owned 0, ADP enabled 0",
+   "D3R15 debt wait: CLOSED 0 clocks after the bound's own (want 0), cause 6, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0",
+   "D3R15 re-LOCATE: CLOSED 0 clocks after the bound's own (want 0), cause 2, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0",
+   "D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 0 fail 1 rolled back 0 closed 1 cause 2), 0 roll-back strobe cycles after the terminal, the rows kept"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "TRG_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 cfg"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S1 cfg: record 0x00 written once, byte-exact (0 writes)",
+   "D3R1: COMPLETE 1836 cycles after the release, applied 8 refused 0 blank 19 of 27",
+   "D3R1 cfg: configuration 1 restored with its valid flag, GET reads it"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "latch_ignores_program",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S9"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S5 same edge: the change on the done edge is written (6 WRITEs)",
+   "D3S11: the writer owned 3 cycles waiting for the running command, then wrote the SET's value",
+   "D3S9: 0 commands taken while owned, 10 latch cycles over a running program; the longest service ownership 3 cycles"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "TRG_rate",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 rate"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S1 rate: record 0x02 written once, byte-exact (0 writes)",
+   "D3R1: COMPLETE 1638 cycles after the release, applied 8 refused 0 blank 19 of 27",
+   "D3R1 rate: 48000 restored with its valid flag, GET reads it"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "TRG_clks",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 clks"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S1 clks: record 0x0a written once, byte-exact (0 writes)",
+   "D3S6 index: the clock source changed during 0x50's WRITE is written after it (0 WRITEs of 0x0A)",
+   "D3S8 validity: clock source 0 on the unset row is written (0)",
+   "D3R1: COMPLETE 1660 cycles after the release, applied 8 refused 0 blank 19 of 27",
+   "D3R1 clks: clock source 2 restored with its valid flag, GET reads it"
+  ],
+  "verdict": "KILLED"
+ }
+]

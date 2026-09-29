@@ -1,0 +1,6 @@
+control srp_top congestion: rc=0 PASS
+control srp_top peer: rc=0 PASS
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+5 checks: 5 PASS, 0 FAIL

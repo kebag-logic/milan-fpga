@@ -1,0 +1,7 @@
+control srp_encoder : rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,7 @@
+control srp_top congestion: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+mvrp-expiry-only-redraw: rc=2 failures=17 KILLED tags=P2,P3,P6
+6 checks: 6 PASS, 0 FAIL

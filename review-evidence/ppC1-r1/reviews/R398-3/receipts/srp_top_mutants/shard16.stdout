@@ -1,0 +1,7 @@
+control srp_top guards: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top restart: rc=0 PASS
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+r-flag-ignores-edge-peer: rc=2 failures=1 KILLED tags=P7
+6 checks: 6 PASS, 0 FAIL

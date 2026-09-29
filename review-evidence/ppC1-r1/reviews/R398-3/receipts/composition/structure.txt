@@ -1,0 +1,85 @@
+# composition receipts at 99bfd4bc3180bab97d47f63056513fb39eea6a37
+NOTE: two sections below ("every path ..." and "the #132 half ... (patch-id)") used a naive method: a deleted path reads as BOTH/OTHER, and a with-context patch-id changes when the other lane edits an adjacent line. structure2.txt supersedes both: 0 mismatches, and the zero-context patch-ids of each half are identical before and after the merge.
+## git merge-tree --write-tree 412efeb7 d352bbaa
+d8ec1053bf0968ed462d8a419a0cf859c41e9c3c
+published tree: d8ec1053bf0968ed462d8a419a0cf859c41e9c3c
+## merge-base
+c951a9ff0cb5851fb159d33e966e5a2a9a188fe3
+## files changed by C1 (c951..412efeb7) and by #132 (c951..d352bbaa), intersection:
+docs/architecture/08_timing.md
+docs/guides/integrator.md
+hdl/top/protocol_processor_top.sv
+## every path: merged blob equals the lane that changed it (excluding the intersection)
+BOTH/OTHER docs/architecture/08_timing.md
+BOTH/OTHER docs/guides/integrator.md
+BOTH/OTHER hdl/top/protocol_processor_top.sv
+BOTH/OTHER tb/srp_top/mutations/peer-restarts-timer.patch
+## the C1 half of each shared file survives verbatim: diff d352bbaa..99bfd4bc on shared files
+-| T-MRP-LEAVEALL | random 10–15 s | SRP engine (10) | leavealltimer per participant | Milan Table 4.3 | |
++| T-MRP-LEAVEALL | random 10–15 s | SRP engine (10) | leavealltimer per participant — a fresh draw at every start: Begin! (reset), its own expiry, and a received LeaveAll of that participant (802.1Q Table 10-5 rLA!, [10 §6.5](10_srp_engine.md#fig-10-leaveall)) | Milan Table 4.3 | |
+-| `srp_active_o` | declaring Advertise, a Listener is Ready/ReadyFailed, and optimistic or real admission. For confirmed admission use **ACTIVE AND `srp_sr_admitted_o`** (parent issue #551 decision). |
++| `srp_active_o` | declaring Advertise, a Listener is Ready/ReadyFailed, optimistic or real admission, and the stream VID's MVRP join has left through the TX arbiter (Milan §4.3.2; [10 §6.2](../architecture/10_srp_engine.md#sec-10-join-before-stream)). For confirmed admission use **ACTIVE AND `srp_sr_admitted_o`** (parent issue #551 decision). |
+-    //! real admission. For confirmed admission, gate with srp_active_o AND
++    //! real admission AND the stream VID's MVRP join transmitted (Milan
++    //! 4.3.2). For confirmed admission, gate with srp_active_o AND
+## the #132 half: diff 412efeb7..99bfd4bc on shared files equals c951..d352bbaa on them (patch-id)
+c951..d352bbaa: 3bd185345bbfd0e8590ab05768713e97ebe2ff2c 0000000000000000000000000000000000000000
+412efeb7..99bfd4bc: ca0787a5090665d8a2a3d7fa9daa150875030818 0000000000000000000000000000000000000000
+## #132 hunks in the top (new-file line ranges at d352bbaa)
+@@ -30,2 +30,3 @@
+@@ -110,5 +111,5 @@ module protocol_processor_top
+@@ -124,6 +125,27 @@ module protocol_processor_top
+@@ -193 +215,3 @@ module protocol_processor_top
+@@ -426,8 +450,18 @@ module protocol_processor_top
+@@ -435,7 +469,26 @@ module protocol_processor_top
+@@ -452,2 +505,3 @@ module protocol_processor_top
+@@ -454,0 +509,8 @@ module protocol_processor_top
+@@ -647 +709,4 @@ module protocol_processor_top
+@@ -663,4 +728,5 @@ module protocol_processor_top
+@@ -1107,0 +1174,4 @@ module protocol_processor_top
+@@ -1118,0 +1189 @@ module protocol_processor_top
+@@ -1148 +1219,2 @@ module protocol_processor_top
+@@ -1628,0 +1701,3 @@ module protocol_processor_top
+@@ -1645 +1720,4 @@ module protocol_processor_top
+@@ -2450,2 +2528,8 @@ module protocol_processor_top
+@@ -2457 +2541 @@ module protocol_processor_top
+@@ -2464,4 +2548,8 @@ module protocol_processor_top
+@@ -2470,2 +2558,3 @@ module protocol_processor_top
+@@ -2476,0 +2566 @@ module protocol_processor_top
+@@ -2479,4 +2569,4 @@ module protocol_processor_top
+@@ -2515,7 +2605,61 @@ module protocol_processor_top
+@@ -2540,17 +2684,15 @@ module protocol_processor_top
+@@ -3319,2 +3461,2 @@ module protocol_processor_top
+@@ -3333 +3475 @@ module protocol_processor_top
+@@ -3353 +3495,4 @@ module protocol_processor_top
+@@ -3470,0 +3616,34 @@ module protocol_processor_top
+@@ -4199,0 +4379,2 @@ module protocol_processor_top
+@@ -4269,0 +4451,2 @@ module protocol_processor_top
+@@ -4328,0 +4512,3 @@ module protocol_processor_top
+## base-top instance anchors (c951a9ff line numbers)
+797:  ) u_timer (
+871:  KL_pp_prng u_prng (
+2179:  KL_mrp_strip u_mrp_strip (
+2245:  ) u_srp (
+3871:  ) u_release_merge (
+3886:  ) u_tx_slots (
+4055:  ) u_tx_arbiter (
+## arm-queue / timer-arm / TX-arbiter / SRP identifiers touched by #132 in the top
++    //! At most three attempts per record, then the reset-sticky nvm_alarm_o.
+-    output logic        nvm_alarm_o,           //! sticky: commit retries exhausted
++    output logic        nvm_alarm_o,
++    //! nvm_alarm_o rises. From that done the backend's own dirty reports it.
++  logic        nvm_bind_alarm_w, d3_alarm_w;
+-      .alarm_o          (nvm_alarm_o),
++      .alarm_o          (nvm_bind_alarm_w),
++  assign nvm_alarm_o      = nvm_bind_alarm_w || d3_alarm_w;
++      .d3_alarm_o         (d3_alarm_w),
+## top port and parameter declarations: d352bbaa vs 99bfd4bc (code lines only)
+identical
+## KL_srp_top ports/params: 412efeb7 vs 99bfd4bc
+(empty = unchanged)
+## #132 RTL under hdl/srp, hdl/common, packet_engine TX/timer
+(empty = untouched)
+## C1 RTL outside hdl/srp
+ hdl/top/protocol_processor_top.sv | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
