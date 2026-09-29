@@ -1,0 +1,8 @@
+Author analysis at 053f979 (scratch only; no reviewer script or probe edited).
+R400's probes inserted verbatim with its insert_probes.py; the call to p2_release_inside_the_tx_path() replaced by a2_classify_p2(), which runs P2's loop step for step and also reads the harness's slot-request and grant counters.
+Verilator: the reviewers' pinned 5.050 wrapper.
+
+  P1: first PROBE of the next engagement at offset 0x2000
+  P1c: first PROBE of the next engagement at offset 0x2000
+A2: of 160 offsets, 64 put a frame on the lane after the fall; 64 of them had its TX slot requested by the first cycle the fall is seen; 0 offsets (0 with a frame) had any slot request after that cycle; the latest lane request came 63 cycles after the fall
+205 checks: 205 PASS, 0 FAIL

@@ -1,0 +1,13 @@
+probes rc=2
+OBS: P1 after yield: state=0 conflicts=10 kind7-draws=49
+OBS: P1 first PROBE after Release! in W_ADDR: 91e0f0002000 (seed 91e0f0002000)
+OBS: P1c first PROBE after a W_IDLE Release!: 91e0f0002000
+OBS: P1c fresh range after the yield: 91e0f0004c1c
+OBS: P1c first PROBE after yield + W_IDLE Release!: 91e0f0002000
+OBS: P2 link low for 1 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P2 link low for 2 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P2 link low for 3 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P2 link low for 4 cycle(s) seen in W_IDLE: re-probe=1 state=1
+OBS: P3 frames after a cfg_en fall 12 cycles into the walk: 1 (fall at 805151 ms)
+FAIL: P3: DOC11-6 'Release! ... no PDU': 1 frame(s) left after the engage fell
+208 checks: 207 PASS, 1 FAIL

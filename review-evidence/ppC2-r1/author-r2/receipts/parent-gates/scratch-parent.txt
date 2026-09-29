@@ -1,0 +1,14 @@
+scratch parent: git archive of milan-fpga dev 9e3ccbfb9c22d24db48787cbcfd574974edb5e42 (the trusted read-only checkout), committed into a scratch repository
+scratch HEAD: e491fc236f3670d24983e3da81903d18e6f017f2
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 ea79d8b70d4f2edd917570729635b7e6bef58a56 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule checkouts:
+  protocol-processor HEAD ea79d8b70d4f2edd917570729635b7e6bef58a56, status clean: yes
+  gptp-processor HEAD 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d, status clean: yes
+  third_party/verilog-axis HEAD 48ff7a7e2ef782cf778d47910cf85835c64b1bce, status clean: yes
+  external: uninitialised (SSH-only URL; read by no gate)
+non-gitlink tree vs 9e3ccbfb: identical
+sources: protocol-processor cloned from the lane checkout at ea79d8b; gptp-processor and verilog-axis cloned from their public GitHub URLs in .gitmodules

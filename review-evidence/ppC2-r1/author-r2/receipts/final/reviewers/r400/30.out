@@ -1,0 +1,17 @@
+maap/run rc=2 tally: 207 checks: 206 PASS, 1 FAIL
+  P1: first PROBE of the next engagement at offset 0x2000
+  P1c: first PROBE of the next engagement at offset 0x2000
+  P2: of 160 drop offsets, 64 put a PDU on the lane after Release! (first k=5), 0 raised addr_valid_o after Release! (first k=-1)
+  P2: longest post-Release! addr_valid_o run: 0 cycles
+FAIL: P2: footnote c, no PDU after Release! (64 of 160 offsets sent one)
+  P3: accepted=1; after a 5-cycle bounce inside sDefend: state_o=1 addr_valid_o=0 claim ever dropped=1 min state=0 conflicts 11->11 frames sent after the bounce=2
+  P4: k=0 draw_done_at_drop=0 pdus_after_release=0
+  P4: k=1 draw_done_at_drop=0 pdus_after_release=0
+  P4: k=2 draw_done_at_drop=0 pdus_after_release=0
+  P4: k=3 draw_done_at_drop=0 pdus_after_release=0
+  P4: k=4 draw_done_at_drop=0 pdus_after_release=0
+  P4: k=5 draw_done_at_drop=1 pdus_after_release=0
+  P4: k=6 draw_done_at_drop=1 pdus_after_release=0
+  P4: k=7 draw_done_at_drop=1 pdus_after_release=0
+  P4: 5 offsets before the draw completed (0 sent a PDU); 0 PDUs from offsets after it (F1 corner); 0 never probed again
+  P5: after a 100 ms outage with the lane stalled: state_o=1 addr_valid_o=0 claim ever dropped=1 addr unchanged=0

@@ -1,0 +1,29 @@
+control maap run: rc=0 tally=(191, 0) PASS
+control pp_top maap-internal: rc=0 tally=(33, 0) PASS
+control rx_validator run: rc=0 tally=(453, 0) PASS
+fit-compare-forced-true [maap]: rc=2 tally=(191, 5) named=4 KILLED
+fit-compare-off-by-one [maap]: rc=2 tally=(190, 7) named=3 KILLED
+seed-clamp-removed [maap]: rc=2 tally=(191, 6) named=4 KILLED
+release-keeps-draw-mark [maap]: rc=2 tally=(189, 9) named=3 KILLED
+validator-maap-version-1-only [rx_validator]: rc=2 tally=(453, 47) named=47 KILLED
+validator-maap-version-1-only [pp_top]: rc=2 tally=(33, 4) named=4 KILLED
+compare-mac-forward [maap]: rc=2 tally=(189, 9) named=1 KILLED
+compare-mac-forward [pp_top]: rc=2 tally=(33, 5) named=5 KILLED
+probe-rprobe-never-yields [maap]: rc=2 tally=(191, 2) named=2 KILLED
+defend-rdefend-ignored [maap]: rc=2 tally=(189, 8) named=4 KILLED
+defend-rdefend-no-tiebreak [maap]: rc=2 tally=(191, 2) named=1 KILLED
+probe-rannounce-tiebreak [maap]: rc=2 tally=(191, 7) named=2 KILLED
+yield-reuses-range [maap]: rc=2 tally=(191, 8) named=1 KILLED
+ival-sends-after-release [maap]: rc=2 tally=(191, 5) named=1 KILLED
+post-publishes-after-release [maap]: rc=2 tally=(189, 2) named=2 KILLED
+tx-path-absorbs-release [maap]: rc=2 tally=(185, 7) named=3 KILLED
+off-waits-for-an-edge [maap]: rc=2 tally=(184, 8) named=3 KILLED
+rx-release-returns-to-idle [maap]: rc=2 tally=(190, 3) named=2 KILLED
+seed-rearmed-on-idle-release-only [maap]: rc=2 tally=(191, 2) named=2 KILLED
+seed-clamp-off-by-one [maap]: rc=2 tally=(191, 2) named=2 KILLED
+release-waits-for-draw [maap]: rc=2 tally=(191, 1) named=1 KILLED
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(191, 3) named=3 KILLED
+teardown-keeps-announce-timer [maap]: rc=2 tally=(191, 1) named=1 KILLED
+drain-waits-for-the-link [maap]: rc=2 tally=(191, 5) named=2 KILLED
+27 checks: 27 PASS, 0 FAIL
+rc=0

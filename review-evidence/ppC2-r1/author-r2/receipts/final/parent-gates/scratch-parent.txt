@@ -1,0 +1,15 @@
+scratch parent: git archive of milan-fpga dev 9e3ccbfb9c22d24db48787cbcfd574974edb5e42 (the trusted read-only checkout), committed into a scratch repository
+scratch HEAD: fadfa1a83a5a46310768c87ba3b829f9259f3432
+gitlinks:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 053f979b9cfc84871ff2e107d43d20bf0e950db4	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule checkouts:
+  protocol-processor HEAD 053f979b9cfc84871ff2e107d43d20bf0e950db4, status clean: yes
+  gptp-processor HEAD 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d, status clean: yes
+  third_party/verilog-axis HEAD 48ff7a7e2ef782cf778d47910cf85835c64b1bce, status clean: yes
+  external: uninitialised (SSH-only URL; read by no gate)
+non-gitlink tree vs 9e3ccbfb: identical
+protocol-processor: the lane clone from the first session, fetched and checked out at 053f979; untracked and ignored files removed in every checkout before the gates
+trusted checkout: HEAD 9e3ccbfb9c22d24db48787cbcfd574974edb5e42; non-clean entries: !! scripts/__pycache__/ 

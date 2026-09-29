@@ -1,0 +1,8 @@
+Author analysis at 053f979 (scratch only; no reviewer script or probe edited).
+R401's probe_scenarios.inc inserted as its 04_probes.sh does, in a scratch copy whose P3 block also reads the walker state and the slot-request and grant counters around the fall (stepping unchanged: the fall lands at the same ms as in R401's own run).
+Walker state 6 is W_WRITE. Verilator: the reviewers' pinned 5.050 wrapper.
+
+OBS: P3i the fall is first seen in walker state 6; slot requests by that cycle: 1 (not yet on the lane: 1); slot requests after it: 0
+OBS: P3 frames after a cfg_en fall 12 cycles into the walk: 1 (fall at 805151 ms)
+FAIL: P3: DOC11-6 'Release! ... no PDU': 1 frame(s) left after the engage fell
+208 checks: 207 PASS, 1 FAIL

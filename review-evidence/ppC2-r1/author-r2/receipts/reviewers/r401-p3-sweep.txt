@@ -1,0 +1,10 @@
+R401 P3 variant: the probe's cfg_en_i fall moved from 12 cycles into the walk to 8..12 (scratch copy of probe_scenarios.inc only).
+fall after 8 cycles: OBS: P3 frames after a cfg_en fall the fall: 0 (fall at 200926 ms)
+fall after 9 cycles: OBS: P3 frames after a cfg_en fall the fall: 1 (fall at 200927 ms)
+fall after 10 cycles: OBS: P3 frames after a cfg_en fall the fall: 1 (fall at 200927 ms)
+fall after 11 cycles: OBS: P3 frames after a cfg_en fall the fall: 1 (fall at 200927 ms)
+fall after 12 cycles: OBS: P3 frames after a cfg_en fall the fall: 1 (fall at 200927 ms)
+
+Instrumented (slot request observed by the first cycle the fall is seen):
+fall after 8 cycles: OBS: P3 slot requested by the first cycle the fall is seen: 0 OBS: P3 frames after a cfg_en fall the fall: 0 (fall at 200927 ms) 
+fall after 9 cycles: OBS: P3 slot requested by the first cycle the fall is seen: 1 OBS: P3 frames after a cfg_en fall the fall: 1 (fall at 200927 ms) 
