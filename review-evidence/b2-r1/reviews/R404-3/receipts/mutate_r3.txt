@@ -1,0 +1,10 @@
+# scripts/mutate_r3.sh <packet> <archive 9c992d5c author> <clone>
+KILLED  M1 one action loses its before-poll :: > DUT GET_RX_STATE records, all files: {'state-5-1': 337, 'state-5-0': 2} total 339 > DUT GET_RX_STATE records, distinct: {'state-5-1': 225, 'state-5-0': 2} total 227 
+KILLED  M2 one snapshot.jsonl not a byte copy :: > transcript files: 561 byte-duplicate snapshot.jsonl: 111 > DUT GET_RX_STATE records, distinct: {'state-5-1': 227, 'state-5-0': 2} total 229 
+KILLED  M3 Stream Input 0 polled in an action :: > transcript files: 561 byte-duplicate snapshot.jsonl: 111 > DUT GET_RX_STATE records, all files: {'state-5-1': 338, 'state-5-0': 3} total 341 
+KILLED  M4 a Stream Input 1 poll reads connection count 1 :: > transcript files: 561 byte-duplicate snapshot.jsonl: 111 > DUT GET_RX_STATE records, distinct: {'state-5-1': 227, 'state-5-0': 2} total 229 
+KILLED  M5 a SET_ command to DUT Stream Input 1 :: >   SET_STREAM_FORMAT    type   5: 1 > DUT-addressed commands naming a STREAM_INPUT (type 5): 461 
+KILLED  M6 per-bind cell changed :: page table CHANGED and PR body table no longer identical
+control: unmutated archive reproduces receipt: yes
+killed 6 of 6
+rc=0
