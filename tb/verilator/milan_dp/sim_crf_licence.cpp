@@ -45,7 +45,10 @@
 //   [B2]   the AAF closing edge: a withdrawn Listener closes the AAF gate on
 //          the cycle ACTIVE falls, while the talker still declares.
 //   [C]    item 1: 76 s bound across the Run B LeaveAll exchange, the probe
-//          window long closed. No self-Leave, no licence drop.
+//          window long closed. No self-Leave, no licence drop. Each switch
+//          LeaveAll restarts the DUT's leavealltimer (802.1Q-2014 Table
+//          10-5 rLA!, processor issue 108), so the DUT's next LeaveAll comes
+//          at least LeaveAllTime after it and the phase holds three of each.
 //   [D]    a registered Asking Failed licenses nothing; Ready Failed does.
 //   [E]    the unbind: the licence closes when the Listener registration
 //          ends, not when the probe window does (the Run B last burst).
@@ -212,7 +215,10 @@ class CrfLicenceHarness {
     Peer peer[kSources];                           // per source uid
     uint64_t bridge_la_gen = 0;
     long bridge_la = 0;
+    uint64_t bridge_la_cyc = kNever;               // the switch's latest LeaveAll
     long dut_la = 0;
+    long dut_la_after_bridge = 0;                  // DUT LeaveAlls that follow one
+    uint64_t dut_la_lag_min = kNever;              // their shortest lag behind it
     long dut_la_not_all_types = 0;
     int dut_la_last_mask = 0;
     long timeline_lines = 0;
@@ -699,6 +705,10 @@ void CrfLicenceHarness::on_dut_leave_all(int mask) {
     if (corner_phase) return;
     dut_la_last_mask = mask;
     if (mask != 0xF) dut_la_not_all_types++;
+    if (bridge_la_cyc != kNever) {
+        dut_la_after_bridge++;
+        if (cyc - bridge_la_cyc < dut_la_lag_min) dut_la_lag_min = cyc - bridge_la_cyc;
+    }
     note("DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1)", -1, mask);
     if (mask & 0x4) {
         for (int s = 0; s < kSources; s++)
@@ -752,6 +762,7 @@ void CrfLicenceHarness::bridge_withdraw(int uid) {
 void CrfLicenceHarness::bridge_send_leave_all(uint64_t gen) {
     if (gen != bridge_la_gen) return;              // restarted by a later DUT LeaveAll
     bridge_la++;
+    bridge_la_cyc = cyc;
     rx_q.push_back(bridge_leave_all());
     note("switch LeaveAll MRPDU (Run B layout)", -1, bridge_la);
 }
@@ -940,6 +951,8 @@ void CrfLicenceHarness::phase_c(uint64_t t0) {
     const uint64_t t_bound = licence.first_rise;
     const long la0 = dut_la;
     const long bla0 = bridge_la;
+    dut_la_after_bridge = 0;
+    dut_la_lag_min = kNever;
     run_until(t0 + ms(80000));
     ck("the DUT sent no Talker Advertise Leave for its bound CRF output",
        static_cast<uint64_t>(peer[kUidCrf].dut_ta_leave), 0);
@@ -950,10 +963,15 @@ void CrfLicenceHarness::phase_c(uint64_t t0) {
     ck_true("the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)",
             peer[kUidCrf].last_probe + ms(15000) + ms(45000) <= cyc);
     printf("  [i]    %ld DUT and %ld switch LeaveAll MRPDUs in this phase\n", dut_la - la0, bridge_la - bla0);
-    ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
+    ck_true("the DUT sent >= 3 LeaveAll MRPDUs", dut_la - la0 >= 3);
     ck("every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20)",
        static_cast<uint64_t>(dut_la_not_all_types), 0);
-    ck_true("the switch sent >= 4 of its own, Listener JoinMt first", bridge_la - bla0 >= 4);
+    ck_true("the switch sent >= 3 of its own, Listener JoinMt first", bridge_la - bla0 >= 3);
+    printf("  [i]    %ld DUT LeaveAll MRPDUs followed a switch LeaveAll, the soonest %.2f ms after it\n",
+           dut_la_after_bridge, dut_la_after_bridge > 0 ? t_ms(dut_la_lag_min) : 0.0);
+    ck_true("each switch LeaveAll restarted the DUT's leavealltimer: every DUT LeaveAll came >= 10 s "
+            "after the switch's preceding one (802.1Q-2014 Table 10-5 rLA!)",
+            dut_la_after_bridge >= 2 && dut_la_lag_min >= ms(10000));
     ck("the Listener registration still reads Ready", lstn_reg(kUidCrf), 2);
     const long n = pdus_after(crf_pdus, t_bound, cyc);
     const uint64_t first = crf_pdus.empty() ? 0 : crf_pdus.front().cyc;

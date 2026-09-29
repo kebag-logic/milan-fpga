@@ -440,7 +440,7 @@ Advertise state are sampled on every cycle.
 | `[A]` | Run B's opening: both first probes are refused, MAAP grants, the DUT declares Talker Advertise and is admitted, and no Listener Ready exists. No CRF or AAF PDU leaves, `CRFT_COUNT` stays 0 and `CRFT_CTRL[6]`/`[7]` read 0 (item 2). |
 | `[B]` | The first Listener Ready opens each gate on the cycle ACTIVE rises. Every CRF PDU is C-tagged {PCP 3, VID 2} with the stream {MAC, uid 1} and the MAAP DA. |
 | `[B2]` | The AAF closing edge: a withdrawn Listener closes the AAF gate on the cycle ACTIVE falls, while the talker still declares and is admitted. |
-| `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+| `[C]` | Item 1: 76 s bound across at least three DUT and three switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. Each switch LeaveAll restarts the DUT's leavealltimer (802.1Q-2014 Table 10-5 rLA!, processor issue 108, since processor pin `b2db3a97`): every DUT LeaveAll comes at least 10 s after the switch's preceding one, which is why the phase holds three of each rather than five. |
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
 | `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
@@ -517,7 +517,8 @@ The #551 campaign additionally removes each real-grant term.
 | the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
 | the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore the pin of record | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passed at `990f9652`, the measurement pin. |
 | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
-| the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+| processor pin `424c688f` | by hand, one of the two arms that need a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+| the previous processor pin `d352bbaa` | by hand, the other: `git -C protocol-processor checkout d352bbaa`, `make crflic CRFLIC_MDIR=obj_crflic_prevpin`, then restore the pin | 1 of 416 fails, the restart check: a received LeaveAll does not restart the timer at that pin, so `[C]` holds five DUT and five switch LeaveAll MRPDUs and the soonest DUT LeaveAll comes 2,210 ms after the switch's (10,210 ms at `b2db3a97`) |
 
 The mutants remain an explicit campaign outside the default sweep.
 Six additional elaborations exercise both missing-term failure modes.
@@ -525,9 +526,10 @@ The normal licence leg remains part of the default sweep.
 
 **What it cannot show.** The switch's timing is modelled from the Run B
 capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed
-LeaveAll period is not modelled. This station's leavealltimer does not
-restart on a received LeaveAll (processor issue 108), and nothing here
-measures that. The silicon rerun of #530 is the acceptance.
+LeaveAll period is not modelled. Since processor pin `b2db3a97` this
+station's leavealltimer restarts on a received LeaveAll (processor docs 10
+section 6.5, its issue 108), and `[C]` measures that lag, not the draw's
+upper bound. The silicon rerun of #530 is the acceptance.
 
 ### FRAMES_TX is an interval count
 
