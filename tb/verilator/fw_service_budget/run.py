@@ -346,10 +346,32 @@ def grade(raw: str, media: dict) -> dict:
                 heartbeat=heartbeat, liveness=liveness_report(raw))
 
 
+def armed_bound(row: dict, events: list[dict]) -> float | None:
+    """The duty's service-stretch bound, charged from the writer's first
+    heartbeat opportunity; None when the duty ends before it.
+
+    The pre-heartbeat prefix precedes writer liveness arming and is boot's,
+    never an armed-writer gap. With the AEM image loaded before nvm_boot()
+    (#70), the AEM row begins inside that prefix, so its unarmed part is
+    recorded but not charged. A duty that starts armed keeps its whole span."""
+    armed = min((event['first'] for event in events if event['kind'] == 'ticks'), default=None)
+    if armed is None or row['start_sys_cycle'] >= armed:
+        return row['period_bound_ms']
+    row['armed_start_sys_cycle'] = armed
+    if row['end_sys_cycle'] <= armed:
+        return None
+    span = tick_span(events, armed, row['end_sys_cycle'])
+    row['armed_no_tick_ms'] = span['no_tick_ms']
+    row['armed_period_bound_ms'] = 250 + span['no_tick_ms'] + row['uart_tx_allowance_ms']
+    return row['armed_period_bound_ms']
+
+
 def service_findings(result: dict, raw: str) -> list[str]:
     """Apply the assigned service rule to opportunities, deadlines and backing."""
     findings = []
-    for row in result['rows']:
+    events = result.get('events', [])
+    bounds = {}
+    for index, row in enumerate(result['rows']):
         if result['media']['plan'] in ('queued-builtins', 'queued-short') and 'command_index' in row:
             if row['tick_calls'] == 0:
                 findings.append('console line lacks a dispatch opportunity: ' + row['duty'])
@@ -360,7 +382,8 @@ def service_findings(result: dict, raw: str) -> list[str]:
                            'wipe_erase_envelope', 'maximum_heartbeat_gap'):
             findings.extend(budget_findings([row]))
         if row['duty'] not in ('boot_to_entity_enabled', 'maximum_heartbeat_gap'):
-            if row['period_bound_ms'] > 500:
+            bounds[index] = armed_bound(row, events)
+            if bounds[index] is not None and bounds[index] > 500:
                 findings.append('over-budget tick stretch: ' + row['duty'])
     backing = re.search(r'BACKING armed=(\d+) unbacked_cycles=(\d+)', raw)
     require(backing is not None, 'no continuous backing observation')
@@ -381,11 +404,11 @@ def service_findings(result: dict, raw: str) -> list[str]:
     charge_cycles = int(timing[4]) + 9 * int(timing[3])
     result['phy']['scheduling_charge_sys_cycles'] = charge_cycles
     poll_ms = charge_cycles / 100_000
-    for row in result['rows']:
-        if row['duty'] in ('boot_to_entity_enabled', 'maximum_heartbeat_gap'):
+    for index, row in enumerate(result['rows']):
+        if row['duty'] in ('boot_to_entity_enabled', 'maximum_heartbeat_gap') or bounds[index] is None:
             continue
         phase_ms = 0 if row['duty'] in ('aem_copy_crc', 'restore_walk') else 125
-        publication_ms = phase_ms + row['period_bound_ms'] - 250 + poll_ms
+        publication_ms = phase_ms + bounds[index] - 250 + poll_ms
         row['phy_publication_bound_ms'] = publication_ms
         if publication_ms > 250 + 1e-9:
             findings.append('over-budget PHY service stretch: ' + row['duty'])
@@ -464,7 +487,37 @@ def service_controls() -> int:
                 'queued plan is not the full 133-byte schedule')
     require(sum(len(command) + 1 for command in command_plan('queued-builtins')) >= 133,
             'built-in queue is shorter than the required paste')
-    return 9 + publication_controls(result, raw) + dispatch_controls()
+    return 9 + publication_controls(result, raw) + dispatch_controls() + armed_controls(raw)
+
+
+def armed_controls(raw: str) -> int:
+    """An unarmed prefix is not charged; an armed stretch still is."""
+    # The AEM-first boot measured at 8x8: 1,015 ms before the first heartbeat
+    # opportunity, then serviced every 1 ms until the entity enable.
+    row = dict(interval('aem_copy_crc', 2_937_357, 104_914_647, None), uart_tx_allowance_ms=0.0)
+    row.update(tick_span([], row['start_sys_cycle'], row['end_sys_cycle']))
+    row['period_bound_ms'] = 250 + row['no_tick_ms']
+    ticks = [dict(kind='ticks', cycle=104_914_000, first=104_472_844, last=104_912_844, count=441,
+                  max_gap=100_000, gap_start=104_472_844)]
+    result = dict(rows=[row], media=dict(plan='all'), liveness=[dict(backed=1)], events=ticks)
+    require(service_findings(result, raw) == [], 'unarmed AEM prefix was charged as an armed gap')
+    require(row.get('armed_start_sys_cycle') == 104_472_844 and row.get('armed_period_bound_ms') == 251,
+            'armed bound not recorded')
+    # Armed at one heartbeat opportunity, then none for one cycle past 250 ms.
+    armed = [dict(kind='ticks', cycle=104_472_900, first=104_472_844, last=104_472_844, count=1,
+                  max_gap=0, gap_start=0)]
+    late = dict(interval('aem_copy_crc', 2_937_357, 104_472_844 + 25_000_001, None), uart_tx_allowance_ms=0.0)
+    late.update(tick_span([], late['start_sys_cycle'], late['end_sys_cycle']))
+    late['period_bound_ms'] = 250 + late['no_tick_ms']
+    require(service_findings(dict(result, rows=[late], events=armed), raw)
+            == ['over-budget tick stretch: aem_copy_crc', 'over-budget PHY service stretch: aem_copy_crc'],
+            'armed stretch past the allowance escaped')
+    armed_first = [dict(kind='ticks', cycle=2_000_000, first=1_000_000, last=1_000_000, count=1,
+                        max_gap=0, gap_start=0)]
+    require(service_findings(dict(result, rows=[dict(row)], events=armed_first), raw)
+            == ['over-budget tick stretch: aem_copy_crc', 'over-budget PHY service stretch: aem_copy_crc'],
+            'a duty that starts armed lost its whole-span bound')
+    return 3
 
 
 def dispatch_controls() -> int:

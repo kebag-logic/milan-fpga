@@ -145,6 +145,12 @@ Receipts conservatively allow serialization of the containing command's entire o
 Paced observations already include UART blocking; adding it again is conservative.
 Boot's pre-heartbeat prefix precedes writer liveness arming.
 The boot row must not be interpreted as an armed-writer gap.
+Every other duty is charged from the first heartbeat opportunity.
+A duty that starts armed keeps its whole span.
+The AEM image now loads before `nvm_boot()` (#70).
+So the AEM row begins inside the unarmed prefix.
+Its receipt records that arming cycle and the armed bound.
+Three self-test controls pin the rule and its boundary.
 
 The plan-dependent heartbeat row includes the final, right-censored tail.
 Receipts name its start, end, plan and both deadline margins.
