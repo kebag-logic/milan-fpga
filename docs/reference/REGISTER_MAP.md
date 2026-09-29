@@ -1840,13 +1840,17 @@ Listener/depacketizer counters, I2S status, and pin-level evidence instead.
 capture crossbar: the physical front-end grid (fsync, `clk_audio/512`) and the
 packet grid (`media_tick_p`). `KL_chan_map_capture` counts every slip at each
 junction - the LOOP bucket's elastic queue (pushed at the upstream talker's
-rate, popped on the media tick) and the TDM latest-sample holds (written on
-fsync, read on the media tick) - and until `0x0058` those counts reached only
-a simulation tap. At the INTERNAL clock source the free-running grids slip one
-sample every 1.958 s on the shipping divider plan (-10.64 ppm: the standing
-free-run rule, slips accepted, and now readable); under a CRF selection the
-align chain holds the packet grid on fsync and both pairs stop climbing
-(`tb/verilator/milan_dp` `obj_aclk`, the [RING-INT] / [RING-CRF] phases).
+rate, popped on the media tick) and the TDM frame bank (a whole frame published
+at each frame's close on the fsync grid, taken by the talker walk's snapshot in
+the media tick's cycle) - and until `0x0058` those counts reached only a
+simulation tap. Since #617 the TDM half keys on exactly those two events, so it
+counts the talker's own repeated and skipped TDM frames
+(`tb/verilator/capture_coherence` grades it walk by walk). At the INTERNAL
+clock source the free-running grids slip one sample every 1.958 s on the
+shipping divider plan (-10.64 ppm: the standing free-run rule, slips accepted,
+and now readable); under a CRF selection the align chain holds the packet grid
+on fsync and both pairs stop climbing (`tb/verilator/milan_dp` `obj_aclk`, the
+[RING-INT] / [RING-CRF] phases).
 Nothing clears them, so a pair that counted at INTERNAL before the selection
 reads a static NON-ZERO word under CRF, not a zero: the reading table below
 grades the pair static, never absolute.
@@ -1855,7 +1859,7 @@ These two words are that evidence on silicon.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing |
-| `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a media tick with no fresh frame marker), `[31:16]` TDM-junction skips (a frame marker over an unread one). One event per frame, gated on the first physical frame |
+| `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a walk snapshot with no frame closed since the last one: the talker repeats a TDM frame), `[31:16]` TDM-junction skips (a frame close over an unread frame: no talker walk reads it). One event per frame, gated on the first physical frame. The frame close is the strobe of the frame's last pair (`CMAP_TDM_FRAME_PAIRS_C`); before #617 the marker was the slot-0 strobe and the consume the tick |
 
 **The counting law, and the ceiling.** A loopback pair is *fed* by its first
 accepted beat and *primed* at its stream's first accepted `tlast`; both stay
@@ -1864,7 +1868,7 @@ pair counts one dup on **every** media tick that finds its queue empty, whether
 the upstream talker is slow by 10.64 ppm or has stopped: an upstream pause, a
 pulled cable or a talker that stops without an unbind counts `LB_PAIRS_C` x
 48000 dups per second. The TDM half has the same shape: once the first frame
-has been seen, every tick without a fresh frame marker is a dup, so a stopped
+has been seen, every snapshot without a fresh frame close is a dup, so a stopped
 front-end clock counts 48000 per second. Both halves saturate at `0xFFFF` and
 nothing but reset clears them; a bind wipe un-primes and un-feeds the pair
 without touching the count (`tb/verilator/chmap_capture` [SAT] ticks a
@@ -1912,13 +1916,15 @@ un-armed fails `obj_prune` instead of passing it.
 `SLIP_TDM` counts on every shape with a physical capture front end, but only
 once the first frame has been seen: a front end that never frames (a TDM slave
 with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
-evidence only beside proof that the front end frames. A frame marker and a
-media tick in the same cycle count nothing: the tick takes the marker already
-pending, if there is one, and the coincident marker pends in its place. From
-the first frame on and below the ceiling, dups minus skips therefore follows
-ticks minus frame markers to within the one pending marker, so the NET count
-is the slip count: +1 per slow free-running passage across the tick, -1 per
-fast one. Each half alone counts once per passage while the marker dithers
+evidence only beside proof that the front end frames. A frame close and a
+walk snapshot in the same cycle count nothing: the snapshot takes the frame
+already pending, if there is one, and the coincident close pends in its place;
+with none pending the snapshot takes the coincident frame, and the walk reads
+exactly that frame (its bank loads one cycle late). From the first frame on
+and below the ceiling, dups minus skips therefore follows snapshots minus
+closes to within the one pending frame, so the NET count is the slip count:
++1 per slow free-running passage across the tick, -1 per fast one. In this
+section "marker" is the frame close and "tick" the snapshot's cycle. Each half alone counts once per passage while the marker dithers
 between two adjacent cycles on its way across, which is what
 `tb/verilator/media_grid_align` [G9] grades (one dup slow, one skip fast, no
 delivery jitter). A wider dither on the way through, such as the one edge of
@@ -1929,14 +1935,55 @@ dithering across the tick counted about a dozen dups per slip, read a
 skip-direction slip as dups, and a CRF lock parked with the marker on the tick
 chattered thousands of dups per 0.2 s. Under a CRF selection the align loop
 now also clamps the engagement capture that becomes its lock target into
-[`LOCK_KEEPOFF_CYC_P`, `DIV_C - LOCK_KEEPOFF_CYC_P`] cycles after the tick
-(`KL_media_grid_align`; the default keep-off is `DIV_C/128`, 16 cycles at
-100 MHz, just under 1/128 sample). The marker then dithers around that target,
-so its clearance from every tick at lock is the keep-off less the lock's own
-dither and the delivery jitter: [G7] and [G8], engaged on the tick and just
-before it with one edge of delivery jitter, grade that clearance at 12 cycles
-or more and count no dup and no skip over their lock windows, and at the [G7]
-lock a held frame is exactly one dup and a surplus frame exactly one skip.
+[`LOCK_KEEPOFF_CYC_P`, `DIV_C - LOCK_KEEPOFF_CYC_P`] cycles after its tick
+(`KL_media_grid_align`; the module default keep-off is `DIV_C/128`, 16 cycles
+at 100 MHz, just under 1/128 sample). The marker then dithers around that
+target, so its clearance from every tick at lock is the keep-off less the
+lock's own dither and the delivery jitter: [G7] and [G8], engaged on the tick
+and just before it with one edge of delivery jitter, grade that clearance at
+12 cycles or more and count no dup and no skip over their lock windows, and at
+the [G7] lock a held frame is exactly one dup and a surplus frame exactly one
+skip.
+
+**The guarded crossing (#617).** `milan_datapath` hands the aligner the same
+frame close this word counts as its marker, `media_tick_p` one cycle late as
+its tick - which puts the lock-target split on the walk's crossing, so no
+engagement is pulled across it - and a keep-off of `MGA_KEEPOFF_CYC_C` = 256
+cycles (a quarter sample on a compressed-clock test elaboration). The default
+1/128 sample would hold a settled lock off the crossing, but not the loop's
+acquisition: an unpulled engagement's transient moves the close about 3 cycles
+per ppm of relative rate (149 at 50 ppm), and a raced one, pulled a keep-off
+away at 64 ppm, sits 4 cycles per ppm short of its target, a margin of
+256 - 4 x the rate. That rate is the TDM frame against the local axis clock,
+which a +/-50 ppm Milan source does not bound (the local oscillator may run
++/-100 ppm off). With the guard no settled lock slips:
+`tb/verilator/capture_coherence` sees no slip while the lock converges, to
++/-100 ppm, and recorded 150,000-column runs see none once it has converged,
+to +/-150 ppm. What this word counts while an engagement acquires, by
+relative rate
+([the guarded crossing](../design/TIME_SYNC.md#the-guarded-crossing)):
+
+- below the 64 ppm pull, and above nominal to about 67 ppm, where the pull
+  stops outrunning the rate: only an engagement whose close lands on the
+  crossing itself, one dup and one skip - by column 57 within +/-50 ppm (every
+  sub-cycle phase measured); above nominal by column 8 through 66 ppm, below
+  nominal later as the rate nears the pull (column 181 at 60 ppm, 426 at 63);
+- past it: above nominal an engagement near the crossing is carried across
+  and back while the integrator settles; below nominal there is no sharp
+  limit, and the same pair comes later with the rate (column 1,323 at 66 ppm,
+  2,918 at 70); on either side one dup and one skip (by column 6,300 at
+  80 ppm);
+- past the transient limit, about 86 ppm: also an engagement up to 256 cycles
+  off, as its transient crosses and returns (by column 13,100 at 100 ppm).
+
+Each counts once and nets zero, and the settled lock then counts nothing. Keyed
+on the slot-0 strobe, as it was before #617, the keep-off guarded an instant
+three TDM8 pair periods from the crossing: a lock could sit on the crossing and
+repeat and skip frames for as long as it held, while this word, keyed on that
+same slot-0 strobe, read static. Until #617 round 3 the media NCO could also
+lose two ticks when an aligner trim update landed on its terminal count, which
+an engagement dwelling on the crossing makes likely; `KL_media_nco`'s monotone
+terminal compare removed that.
 
 **Reading them** (the lane established, a loopback pair fed and mapped, the
 listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
@@ -1945,7 +1992,7 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
-| static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock |
+| static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock. Under CRF a static `SLIP_TDM` is a talker that repeats and skips no TDM frame: the aligner holds the frame close 256 cycles off the walk's crossing at every settled lock phase (the guarded crossing above); an engagement's acquisition may add one dup and one skip, once |
 | dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |

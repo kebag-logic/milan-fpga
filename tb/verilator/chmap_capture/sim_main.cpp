@@ -33,7 +33,21 @@
 //       sample on both channels and the AX7101 has no audio input at all).
 //   Lane B: chmap(32) -> packetizer(N=8, ALL 8ch = 32 pair slots). Exercises
 //     the widened pair_slot: talker 7 owns slots 28..31, so slot 31 = t7's
-//     4th pair - its payload proves the >15 slot path end to end.
+//     4th pair - its payload proves the >15 slot path end to end. Its TDM
+//     frame is one pair long (the I2S-capture shapes' frame, #617), so one
+//     pair-0 strobe publishes it: [F1] drives pair 0 alone, a new value per
+//     frame, and each walk must emit its own.
+//   [F] the TDM FRAME HANDOFF (#617) on lane A's four-pair frame, column by
+//     column in two PDUs: a partial frame is invisible to the walk, the last
+//     pair publishes the frame whole, a frame that closes between two of a
+//     walk's TDM slots waits for the next walk instead of tearing this one,
+//     and a frame closing on the tick cycle itself is that walk's when no
+//     frame is pending and the next walk's when one is (the junction
+//     counters' coincidence law, which the walk follows). A tick queued
+//     behind a running walk takes its frame when its own walk starts, never
+//     at the tick and never under the running walk. Every other lane A arm
+//     delivers whole frames, pair 0 first, as a front end does.
+//     tb/verilator/capture_coherence is the drift-level proof.
 //   [G] tone ONE-GRID contract (task #59): clk_audio drifts against clk at
 //     an incommensurate ratio; both tone shapes are sampled at the media-
 //     tick instants exactly as the crossbar's TONE bucket reads them. The
@@ -81,6 +95,8 @@ class ChanMapCaptureHarness {
   void b_tctx_wr(int t, int w, uint32_t v);
   void drv_i2s(uint32_t l, uint32_t r);
   void drv_tdm(int slot, uint32_t l, uint32_t r);
+  void drv_tdm_frame();
+  void drv_tdm_frame_tagged(int tag, int first_pair, int last_pair);
   void lb_set_chans(int s, int chans);
   void drv_lb_pdu(int s, int chans, int events, int e0);
   void a_tick();
@@ -112,6 +128,10 @@ class ChanMapCaptureHarness {
   void pin_mono_wire_rides_the_skid();
   void pin_all_32_pairs_concurrent();
   void pin_tone_one_grid_contract();
+  void pin_tdm_frame_handoff();
+  void pin_close_on_the_tick_cycle();
+  void pin_queued_tick_snapshots_at_its_walk();
+  void pin_one_pair_frame_publishes_on_pair_0();
   void pin_starved_pair_pegs_and_holds();
 
   const milan::tb::Model<Vchmap_wrap> model_;
@@ -123,6 +143,7 @@ class ChanMapCaptureHarness {
   Frame acur;
   Frame bcur;
   uint32_t lb_chans_word = 0;
+  long a_injects = 0;   //! lane A crossbar injects since reset
 };
 
 void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
@@ -132,6 +153,7 @@ void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
 }
 
 void ChanMapCaptureHarness::sample() {
+  if (dut->a_pv_o) a_injects++;
   if (dut->a_tvalid_o && dut->a_tready_i) {
     for (int i = 0; i < 8; i++) if ((dut->a_tkeep_o >> i) & 1)
       acur.push_back((dut->a_tdata_o >> (8 * i)) & 0xFF);
@@ -326,6 +348,20 @@ constexpr uint32_t I2S_R = 0x1A2222;
 constexpr uint32_t TONE  = 0x7A7A7A;
 uint32_t TDM_L(int p) { return 0x2B0000 | (p << 4); }
 uint32_t TDM_R(int p) { return 0x2BB000 | (p << 4); }
+//! [F]'s frames: frame `tag`, pair p, each half distinct
+uint32_t TDMF_L(int tag, int p) { return 0x300001 | (tag << 12) | (p << 4); }
+uint32_t TDMF_R(int tag, int p) { return 0x300002 | (tag << 12) | (p << 4); }
+//! [F1]'s one-pair frames on lane B: values no whole frame ever carried
+uint32_t ONE_L(int frame) { return 0x5A1000 | (frame << 4); }
+uint32_t ONE_R(int frame) { return 0x5A2000 | (frame << 4); }
+
+//! One whole TDM frame as a front end delivers it: pairs 0..3 in order, the
+//! last one closing the frame (#617: only a closed frame reaches the walk).
+void ChanMapCaptureHarness::drv_tdm_frame() {
+  for (int p = 0; p < 4; p++) drv_tdm(p, TDM_L(p), TDM_R(p)); }
+//! Pairs first_pair..last_pair of [F]'s frame `tag`.
+void ChanMapCaptureHarness::drv_tdm_frame_tagged(int tag, int first_pair, int last_pair) {
+  for (int p = first_pair; p <= last_pair; p++) drv_tdm(p, TDMF_L(tag, p), TDMF_R(tag, p)); }
 
 void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->rst_n = 0;
@@ -349,34 +385,37 @@ void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
   // ====================================================================== //
   // [T0] #74 TDM junction slip detector - graded FIRST, while the DUT is   //
   // virgin: the unfed gate needs a lane that has never seen a TDM write.   //
-  // Rate accounting on lane A (frame marker = slot-0 write, vs tick_i):    //
-  // dup = tick with no fresh frame (grid fast), skip = frame over an       //
-  // unread frame (grid slow), a same-cycle coincidence counts nothing and  //
-  // carries a pending frame over (#74 item 2), and a non-zero slot is not  //
-  // a frame marker. Later arms interleave frames and ticks freely, so      //
-  // nothing below re-reads these counters.                                 //
+  // Rate accounting on lane A (#617: frame marker = the frame close, the   //
+  // strobe of pair 3 on this four-pair frame, vs the walk's snapshot in    //
+  // tick_i's cycle): dup = tick with no fresh frame (grid fast), skip =    //
+  // frame over an unread frame (grid slow), a same-cycle coincidence       //
+  // counts nothing and carries a pending frame over (#74 item 2), and the  //
+  // pairs before the closing one are not frame markers. Later arms         //
+  // interleave frames and ticks freely, so nothing below re-reads these    //
+  // counters.                                                              //
   // ====================================================================== //
-  printf("\n[T0] TDM junction slip detector (frame marker vs tick)\n");
+  printf("\n[T0] TDM junction slip detector (frame close vs snapshot)\n");
   ck("T0: virgin dup",  dut->a_tdm_dup_cnt_o,  0);
   ck("T0: virgin skip", dut->a_tdm_skip_cnt_o, 0);
   for (int i = 0; i < 5; i++) a_tick();
   ck("T0: unfed lane ticks freely, no dup", dut->a_tdm_dup_cnt_o, 0);
-  drv_tdm(0, 0x111111, 0x222222);
-  for (int i = 0; i < 8; i++) { a_tick(); drv_tdm(0, 0x111111, 0x222222); }
+  drv_tdm(3, 0x111111, 0x222222);
+  for (int i = 0; i < 8; i++) { a_tick(); drv_tdm(3, 0x111111, 0x222222); }
   ck("T0: 1:1 alternation, no dup",  dut->a_tdm_dup_cnt_o,  0);
   ck("T0: 1:1 alternation, no skip", dut->a_tdm_skip_cnt_o, 0);
   for (int i = 0; i < 4; i++) a_tick();   // 1st consumes the pending frame
   ck("T0: 3 surplus ticks = 3 dups", dut->a_tdm_dup_cnt_o, 3);
-  for (int i = 0; i < 3; i++) drv_tdm(0, 0x131313, 0x141414); // 1st re-arms
+  for (int i = 0; i < 3; i++) drv_tdm(3, 0x131313, 0x141414); // 1st re-arms
   ck("T0: 2 surplus frames = 2 skips", dut->a_tdm_skip_cnt_o, 2);
-  for (int i = 0; i < 4; i++) drv_tdm(1, 0x151515, 0x161616);
-  ck("T0: non-zero slots are not frame markers (skip)",
+  for (int p = 0; p < 3; p++) drv_tdm(p, 0x151515, 0x161616);
+  drv_tdm(0, 0x151515, 0x161616);
+  ck("T0: pairs before the closing one are not frame markers (skip)",
      dut->a_tdm_skip_cnt_o, 2);
-  a_tick();                               // consumes the slot-0 pend
-  ck("T0: non-zero slots are not frame markers (dup)",
+  a_tick();                               // consumes the pending close
+  ck("T0: pairs before the closing one are not frame markers (dup)",
      dut->a_tdm_dup_cnt_o, 3);
-  const auto coincide = [this] {          // same-cycle frame + tick
-    dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 0;
+  const auto coincide = [this] {          // same-cycle close + tick
+    dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 3;
     dut->tdm_l_i = 0x171717; dut->tdm_r_i = 0x181818;
     dut->a_tick_i = 1; cyc();
     dut->tdm_pair_valid_i = 0; dut->a_tick_i = 0; cyc(WALK_C + 60);
@@ -391,14 +430,14 @@ void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
   // pending frame and the coincident one pends in its place; the law before
   // dropped it uncounted, so the next tick cried a dup and the next frame
   // hid its skip - the free-running miscount and the raced-lock chatter.
-  drv_tdm(0, 0x1B1B1B, 0x1C1C1C);         // pending
+  drv_tdm(3, 0x1B1B1B, 0x1C1C1C);         // pending
   coincide();                             // carried over, not dropped
   a_tick();                               // takes the carried frame
   ck("T0: a coincidence carries a pending frame (no dup after)",
      dut->a_tdm_dup_cnt_o, 4);
-  drv_tdm(0, 0x1B1B1B, 0x1C1C1C);         // pending
+  drv_tdm(3, 0x1B1B1B, 0x1C1C1C);         // pending
   coincide();                             // carried over
-  drv_tdm(0, 0x1D1D1D, 0x1E1E1E);         // lands on the carried frame
+  drv_tdm(3, 0x1D1D1D, 0x1E1E1E);         // lands on the carried frame
   ck("T0: a frame over a carried frame is a skip",
      dut->a_tdm_skip_cnt_o, 3);
   a_tick();                               // takes it, nothing left pending
@@ -443,8 +482,7 @@ void ChanMapCaptureHarness::pin_per_slot_source_routing() {
 
   dut->tone_smp_i = TONE;
   drv_i2s(I2S_L, I2S_R);
-  drv_tdm(0, TDM_L(0), TDM_R(0));
-  drv_tdm(1, TDM_L(1), TDM_R(1));
+  drv_tdm_frame();
   cyc(4);
 
   afr.clear();
@@ -1026,8 +1064,7 @@ void ChanMapCaptureHarness::pin_loopback_quarantine() {
   a_map_wr(4, ent(1, 4, 0));
   dut->tone_smp_i = TONE;
   drv_i2s(I2S_L, I2S_R);
-  drv_tdm(0, TDM_L(0), TDM_R(0));
-  drv_tdm(1, TDM_L(1), TDM_R(1));
+  drv_tdm_frame();
   cyc(4);
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();     // loopback AXIS IDLE
@@ -1396,12 +1433,226 @@ int ChanMapCaptureHarness::run() {
   pin_mono_wire_rides_the_skid();
   pin_all_32_pairs_concurrent();
   pin_tone_one_grid_contract();
+  pin_tdm_frame_handoff();
+  pin_close_on_the_tick_cycle();
+  pin_queued_tick_snapshots_at_its_walk();
+  pin_one_pair_frame_publishes_on_pair_0();
   pin_starved_pair_pegs_and_holds();
 
   printf("\n======================================================================\n");
   printf("KL_chan_map_capture: %ld checks, %ld failures\nRESULT: %s\n",
          checks, fails, fails ? "FAIL" : "PASS");
   return fails ? 1 : 0;
+}
+
+void ChanMapCaptureHarness::pin_tdm_frame_handoff() {
+  // ====================================================================== //
+  // [F] THE TDM FRAME HANDOFF (#617). One t1 PDU = six walks = six columns, //
+  // with lane A's t1 pairs 0..3 mapped to TDM pairs 0..3, and the frames   //
+  // delivered between (and once inside) the walks so each column has one   //
+  // right answer:                                                          //
+  //   col 0  frame A, delivered whole before the walk;                     //
+  //   col 1  still A: B's pairs 0..2 arrived, but B is not closed;         //
+  //   col 2  B, closed by its pair 3 before the walk;                      //
+  //   col 3  still B: C's pair 3 closes C AFTER this walk injected TDM     //
+  //          pairs 0 and 1 (a per-pair or unsnapshotted read tears here);  //
+  //   col 4  C, published by that mid-walk close for the next walk;        //
+  //   col 5  D, delivered whole.                                           //
+  // ====================================================================== //
+  printf("\n[F] TDM frame handoff: partial frames invisible, closes atomic\n");
+  for (int p = 0; p < 4; p++) a_map_wr(1 + p, ent(1, 2, p));   // t1 = TDM 0..3
+  dut->a_en_i = 0;              // a disarmed talker restarts its PDU at event 0
+  cyc(4);
+  dut->a_en_i = 2;                                              // t1 alone
+  drv_tdm_frame_tagged(0xA, 0, 3);
+  cyc(4);
+  afr.clear();
+  a_tick();                                                     // col 0
+  drv_tdm_frame_tagged(0xB, 0, 2);
+  a_tick();                                                     // col 1
+  drv_tdm_frame_tagged(0xB, 3, 3);
+  a_tick();                                                     // col 2
+  drv_tdm_frame_tagged(0xC, 0, 2);
+  //! col 3: tick, then close C once the walk has injected slots 0..2 (t1's
+  //! TDM pairs 0 and 1 are slots 1 and 2) and before slot 3
+  dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;
+  int injects = 0;
+  for (int g = 0; g < WALK_C && injects < 3; g++) { injects += dut->a_pv_o ? 1 : 0; cyc(); }
+  ck("F: the mid-walk close lands after slot 2's inject", injects, 3);
+  drv_tdm_frame_tagged(0xC, 3, 3);
+  cyc(WALK_C + 60);
+  a_tick();                                                     // col 4
+  drv_tdm_frame_tagged(0xD, 0, 3);
+  a_tick();                                                     // col 5
+  cyc(400);
+  const int f = find_len(afr, 234);
+  ck("F: one t1 PDU of six columns", f >= 0 && afr.size() == 1, 1);
+  if (f < 0) return;
+  const std::array<int, 6> want = {0xA, 0xA, 0xB, 0xB, 0xC, 0xD};
+  for (int col = 0; col < 6; col++) {
+    for (int p = 0; p < 4; p++) {
+      char what[64];
+      const int at = 42 + col * 32 + p * 8;
+      std::snprintf(what, sizeof what, "F: col %d pair %d L is frame %X", col, p, want[col]);
+      ck(what, be(afr[f], at, 3), TDMF_L(want[col], p));
+      std::snprintf(what, sizeof what, "F: col %d pair %d R is frame %X", col, p, want[col]);
+      ck(what, be(afr[f], at + 4, 3), TDMF_R(want[col], p));
+    }
+  }
+}
+
+void ChanMapCaptureHarness::pin_close_on_the_tick_cycle() {
+  // ====================================================================== //
+  // [F] continued: A CLOSE ON THE TICK CYCLE ITSELF. The walk takes the    //
+  // frame the junction counters say its tick takes (#74 item 2's           //
+  // coincidence law), so the two can never disagree. The next t1 PDU:      //
+  //   col 0  frame 1, delivered whole before the walk;                     //
+  //   col 1  frame 2, closing ON the tick cycle with nothing pending: the  //
+  //          tick takes it, so the walk does (its bank loads a cycle late);//
+  //   col 2  frame 3, whole before the tick, while frame 4 closes on it:   //
+  //          3 was pending, so the tick takes 3 and 4 waits;               //
+  //   col 3  frame 4, the one that waited;                                 //
+  //   cols 4, 5  frames 5 and 6, whole.                                    //
+  // The counters see no slip in the whole PDU: every frame is read once.   //
+  // A walk reading the bank as it stood before the edge would repeat      //
+  // frame 1 in col 1; one taking every coincident close would skip 3.     //
+  // ====================================================================== //
+  printf("\n[F] a close on the tick cycle: the walk takes what the tick takes\n");
+  const auto close_on_the_tick = [this](int tag) {
+    dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 3;
+    dut->tdm_l_i = TDMF_L(tag, 3); dut->tdm_r_i = TDMF_R(tag, 3);
+    dut->a_tick_i = 1; cyc();
+    dut->tdm_pair_valid_i = 0; dut->a_tick_i = 0; cyc(WALK_C + 60);
+  };
+  const long dup0 = dut->a_tdm_dup_cnt_o;
+  const long skip0 = dut->a_tdm_skip_cnt_o;
+  afr.clear();
+  drv_tdm_frame_tagged(1, 0, 3);
+  a_tick();                                                     // col 0
+  drv_tdm_frame_tagged(2, 0, 2);
+  close_on_the_tick(2);                                         // col 1
+  drv_tdm_frame_tagged(3, 0, 3);
+  drv_tdm_frame_tagged(4, 0, 2);
+  close_on_the_tick(4);                                         // col 2
+  a_tick();                                                     // col 3
+  drv_tdm_frame_tagged(5, 0, 3);
+  a_tick();                                                     // col 4
+  drv_tdm_frame_tagged(6, 0, 3);
+  a_tick();                                                     // col 5
+  cyc(400);
+  ck("F: the coincident closes cost the junction counters no dup",
+     static_cast<long>(dut->a_tdm_dup_cnt_o) - dup0, 0);
+  ck("F: ...and no skip", static_cast<long>(dut->a_tdm_skip_cnt_o) - skip0, 0);
+  const int f = find_len(afr, 234);
+  ck("F: one more t1 PDU of six columns", f >= 0 && afr.size() == 1, 1);
+  if (f < 0) return;
+  for (int col = 0; col < 6; col++) {
+    for (int p = 0; p < 4; p++) {
+      char what[72];
+      const int at = 42 + col * 32 + p * 8;
+      std::snprintf(what, sizeof what, "F: tick-cycle col %d pair %d L is frame %d", col, p, col + 1);
+      ck(what, be(afr[f], at, 3), TDMF_L(col + 1, p));
+      std::snprintf(what, sizeof what, "F: tick-cycle col %d pair %d R is frame %d", col, p, col + 1);
+      ck(what, be(afr[f], at + 4, 3), TDMF_R(col + 1, p));
+    }
+  }
+}
+
+void ChanMapCaptureHarness::pin_queued_tick_snapshots_at_its_walk() {
+  // ====================================================================== //
+  // [Q] A TICK QUEUED BEHIND A RUNNING WALK (#617, R394-2 S1). A tick that //
+  // lands while a walk runs waits in the one-deep queue, and its own walk  //
+  // snapshots the frame bank when it STARTS - the bank then, not the bank  //
+  // at the tick, and never a reload under the walk still running. The next//
+  // t1 PDU:                                                                //
+  //   col 0  frame 1, whole before its tick;                               //
+  //   col 1  frame 2, whole before its tick, and the walk runs on while    //
+  //          frame 3 closes, a second tick queues and frame 4 closes: it   //
+  //          keeps frame 2 on every pair;                                  //
+  //   col 2  frame 4: the queued tick's walk, snapshotting as it starts;   //
+  //   cols 3..5  frames 5, 6, 7, whole.                                    //
+  // Frame 3 is the one no walk reads: the junction counters count one skip //
+  // and no dup. A queued tick that took no snapshot would repeat frame 2;  //
+  // one that snapshotted at the tick would reload the running walk with    //
+  // frame 3 (col 1 torn) and hand its own walk frame 3.                    //
+  // ====================================================================== //
+  printf("\n[Q] a tick queued behind a running walk snapshots when its walk starts\n");
+  const long dup0 = dut->a_tdm_dup_cnt_o;
+  const long skip0 = dut->a_tdm_skip_cnt_o;
+  afr.clear();
+  drv_tdm_frame_tagged(1, 0, 3);
+  a_tick();                                                     // col 0
+  drv_tdm_frame_tagged(2, 0, 3);
+  const long inj0 = a_injects;
+  dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;                  // col 1's tick
+  for (int g = 0; g < WALK_C && a_injects - inj0 < 3; g++) cyc();
+  drv_tdm_frame_tagged(3, 0, 3);                                // closes mid-walk
+  dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;                  // col 2's tick, queued
+  drv_tdm_frame_tagged(4, 0, 3);                                // closes after it
+  ck("Q: frame 4 closed with col 1's walk still running (injects so far)",
+     a_injects - inj0 < 32, 1);
+  cyc(2 * WALK_C + 60);
+  ck("Q: the queued tick ran its own walk right after (32 + 32 injects)", a_injects - inj0, 64);
+  drv_tdm_frame_tagged(5, 0, 3);
+  a_tick();                                                     // col 3
+  drv_tdm_frame_tagged(6, 0, 3);
+  a_tick();                                                     // col 4
+  drv_tdm_frame_tagged(7, 0, 3);
+  a_tick();                                                     // col 5
+  cyc(400);
+  ck("Q: the junction counters: frame 3, read by no walk, is one skip",
+     static_cast<long>(dut->a_tdm_skip_cnt_o) - skip0, 1);
+  ck("Q: ...and no walk repeated a frame (no dup)", static_cast<long>(dut->a_tdm_dup_cnt_o) - dup0, 0);
+  const int f = find_len(afr, 234);
+  ck("Q: one more t1 PDU of six columns", f >= 0 && afr.size() == 1, 1);
+  if (f < 0) return;
+  const std::array<int, 6> want = {1, 2, 4, 5, 6, 7};
+  for (int col = 0; col < 6; col++) {
+    for (int p = 0; p < 4; p++) {
+      char what[72];
+      const int at = 42 + col * 32 + p * 8;
+      std::snprintf(what, sizeof what, "Q: col %d pair %d L is frame %d", col, p, want[col]);
+      ck(what, be(afr[f], at, 3), TDMF_L(want[col], p));
+      std::snprintf(what, sizeof what, "Q: col %d pair %d R is frame %d", col, p, want[col]);
+      ck(what, be(afr[f], at + 4, 3), TDMF_R(want[col], p));
+    }
+  }
+}
+
+void ChanMapCaptureHarness::pin_one_pair_frame_publishes_on_pair_0() {
+  // ====================================================================== //
+  // [F1] LANE B'S ONE-PAIR FRAME (#617, R395-1 F2). Lane B elaborates the  //
+  // frame length milan_datapath hands the crossbar on every I2S-capture    //
+  // shape, TDM_FRAME_PAIRS_P = 1, so every pair-0 strobe closes and        //
+  // publishes a frame. Pair 0 is driven ALONE here - no strobe of pair 3,  //
+  // which every other arm's whole frames carry - with a value no earlier   //
+  // frame held, one per walk: t7's pair 1, mapped to TDM idx 0, must emit  //
+  // each walk's own. A close that waited for pair N_TDM_P/2 - 1 whatever   //
+  // the frame length would publish nothing, and the walks would repeat the //
+  // last whole frame.                                                      //
+  // ====================================================================== //
+  printf("\n[F1] lane B's one-pair frame: every pair-0 strobe publishes\n");
+  dut->b_en_i = 0;              // a disarmed talker restarts its PDU at event 0
+  cyc(4);
+  b_map_wr(29, ent(1, 2, 0));   // t7 pair 1 = TDM idx 0
+  dut->b_en_i = 0x80;           // t7 alone
+  cyc(4);
+  bfr.clear();
+  for (int col = 0; col < 6; col++) {
+    drv_tdm(0, ONE_L(col), ONE_R(col));
+    b_tick();
+  }
+  cyc(600);
+  const int f = find_len(bfr, 234);
+  ck("F1: one t7 PDU of six columns", f >= 0 && bfr.size() == 1, 1);
+  if (f < 0) return;
+  for (int col = 0; col < 6; col++) {
+    char what[72];
+    std::snprintf(what, sizeof what, "F1: col %d carries its own pair-0 frame (L)", col);
+    ck(what, be(bfr[f], 42 + col * 32 + 8, 3), ONE_L(col));
+    std::snprintf(what, sizeof what, "F1: col %d carries its own pair-0 frame (R)", col);
+    ck(what, be(bfr[f], 42 + col * 32 + 12, 3), ONE_R(col));
+  }
 }
 
 void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {
@@ -1419,7 +1670,7 @@ void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {
   lb_set_chans(4, 2);
   drv_lb_pdu(4, 2, 2, 1);            // s4 p0 primed and fed with two events
   a_map_wr(1, ent_lb(1, 4, 0));
-  drv_tdm(0, 0x191919, 0x1A1A1A);    // the TDM half fed (one frame pending)
+  drv_tdm(3, 0x191919, 0x1A1A1A);    // the TDM half fed (one frame pending)
   cyc(4);
   for (int i = 0; i < 3 + 65536; i++) a_tick();   // 2 pops (1 frame), then starved
   ck("SAT: the LB dup half reads 0xFFFF after 65536 starved ticks",

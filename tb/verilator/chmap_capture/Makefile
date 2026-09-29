@@ -7,18 +7,24 @@
 # pair_slot up to slot 31.
 VERILATOR ?= verilator
 TOP = chmap_wrap
-SRCS = ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv \
+# CMAP_SRC and MDIR are overridable so tb/verilator/capture_coherence's
+# mutation arm builds a MUTATED COPY of the crossbar through this exact recipe
+# into its own directory ([F1] is the check it must break).
+CMAP_SRC ?= ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv
+MDIR     ?= obj_dir
+SRCS = $(CMAP_SRC) \
        ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv \
        ../../../hdl/ieee1722/aaf/KL_tone_gen.sv \
        chmap_wrap.sv
 all: run
-obj_dir/V$(TOP): $(SRCS) sim_main.cpp
-	$(VERILATOR) --cc --exe --build -j 0 --top-module $(TOP) \
+$(MDIR)/V$(TOP): $(SRCS) sim_main.cpp
+	$(VERILATOR) --cc --exe --build -j 0 --top-module $(TOP) --Mdir $(MDIR) \
 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
 	  -Wno-PINCONNECTEMPTY -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
 	  $(SRCS) sim_main.cpp
-run: obj_dir/V$(TOP)
-	./obj_dir/V$(TOP)
+build: $(MDIR)/V$(TOP)
+run: $(MDIR)/V$(TOP)
+	$(abspath $(MDIR))/V$(TOP)
 	$(MAKE) netcheck
 
 # [NC] NETLIST-level decode pin (t532 silicon 2026-08-09, the VERSION 0x0030
@@ -59,4 +65,4 @@ netcheck: obj_net/Vchmap_netcheck
 	./obj_net/Vchmap_netcheck
 
 clean: ; rm -rf obj_dir obj_net
-.PHONY: all run clean netcheck
+.PHONY: all build run clean netcheck

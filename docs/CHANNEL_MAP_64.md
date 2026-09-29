@@ -328,8 +328,16 @@ The live per-channel entry is 13 bits:
 [3:0]   IDX_LO   pair index within the selected source
 ```
 
-Physical inputs and the pilot tone are latest-sample sources. AAF loopback is
-bursty, so it uses a per-pair elastic queue instead of a latest-only latch. The
+The I2S input and the pilot tone are latest-sample sources. The TDM input is
+frame-atomic (#617): a TDM frame reaches the walk only once its last pair has
+arrived, and each walk reads one snapshot, taken in its media tick's cycle, of
+the newest complete frame, so the channels of one Talker sample event come
+from one TDM frame. An earlier pair waits for the rest of its frame. Under CRF
+the grid aligner keys on that frame close and holds every lock 256 cycles off
+the walk's crossing, so no lock phase repeats or skips a frame;
+[Talker capture handoff](design/TIME_SYNC.md#talker-capture-handoff) tables
+the delay and the guard. AAF loopback is bursty, so it uses a per-pair elastic queue
+instead of a latest-only latch. The
 queue primes after the first complete PDU, pops one sample event per media
 tick, drops the oldest event on overflow, repeats the last event on underflow,
 and flushes on bind loss or stream-table eviction. Saturating duplicate and
@@ -399,6 +407,9 @@ Digital coverage includes:
   atomic tick visibility, and readback;
 - all capture source buckets and channel halves, a full 64-channel identity
   walk, mono/odd shapes, byte-exact packet output, and reserved-source silence;
+- a TDM frame drifting against the media grid, in INTERNAL and under CRF, with
+  every Talker sample column carrying one TDM frame, through the junction and
+  through the whole datapath (`tb/verilator/capture_coherence`);
 - paced loopback replay, overflow/underflow accounting, flush on rebind, and
   negative controls that deliberately swap or invert channel identity; and
 - protocol-versus-CSR ownership and whole-command atomicity.
