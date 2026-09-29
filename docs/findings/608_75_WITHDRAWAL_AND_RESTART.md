@@ -447,6 +447,8 @@ The [#606 page](606_FIRST_BIND_MEASUREMENT.md#saved-state-layer) gives the deriv
 
 The author's bench packet holds scripts, transcripts, analyses and `MANIFEST.sha256`.
 
+Its redacted copy is `review-evidence/b2-r1/author/` on branch `b2-review-evidence`; the round-2 packet is `author-r2/` beside it.
+
 `RAW-ARTIFACTS.json` there indexes every raw capture by size and SHA-256.
 
 Raw captures stay outside the packet and the repository.

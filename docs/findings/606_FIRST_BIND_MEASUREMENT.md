@@ -254,6 +254,8 @@ The census compares AEM state only; the DUT's saved-state status read the same a
 
 The round-2 packet's `saved_state_b2.py` derives this from every console sample and controller transcript.
 
+That packet is `review-evidence/b2-r1/author-r2/` on branch `b2-review-evidence`.
+
 - The two `milan_nvm` reads bracket every action: the action console samples run from 06:53:46Z to 07:20:32Z.
 - Only those two reads carry `PP_NVM_STAT`, the slot sequences and the commit counts.
 - The 224 action console samples between them carry `PP_STAT` alone.
@@ -262,7 +264,9 @@ The round-2 packet's `saved_state_b2.py` derives this from every console sample 
 - The lane's only state-changing commands were 105 `CONNECT_RX` and 105 `DISCONNECT_RX`.
 - All went to the reference peer's Stream Input 8; every `CONNECT_RX` named DUT Stream Output 1.
 - Every AECP command, to either entity, was a GET_ or READ_ command.
-- The DUT's two stream inputs read connection count 0 in all 340 polls.
+- The DUT's Stream Input 1 read connection count 0 in 226 distinct polls: before and after every action, and at both censuses.
+- Its Stream Input 0 was polled at the two censuses only, and read connection count 0 both times.
+- Each action's `snapshot.jsonl` is a byte copy of its `snapshot-after.jsonl`, so it is not counted as a poll.
 
 Only the binding records, ids `0x20` to `0x2F`, have a record writer ([snapshot ownership, section 11](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)).
 
@@ -270,9 +274,11 @@ They are indexed by sink, the DUT's stream inputs ([record allocation](../design
 
 No record holds a stream output's connections.
 
-So none of the lane's binds, unbinds or cycles wrote a record, and no commit ran.
+No command in the lane addressed a DUT stream input: every state-changing command went to the reference peer, and every AECP command was a GET_ or READ_.
 
 The commit count stayed 2 / 0 and the slots stayed 229 / 230.
+
+So none of the lane's binds, unbinds or cycles wrote a record, and no commit ran.
 
 `nvm_pend` = 1 was inherited from lane B1.
 
@@ -285,6 +291,8 @@ The persisted records were not read back or compared with the found state.
 ## Artifact hashes
 
 The author's bench packet holds scripts, transcripts, analyses and `MANIFEST.sha256`.
+
+Its redacted copy is `review-evidence/b2-r1/author/` on branch `b2-review-evidence`; the round-2 packet is `author-r2/` beside it.
 
 `RAW-ARTIFACTS.json` there indexes every raw capture by size and SHA-256.
 
