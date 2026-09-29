@@ -58,8 +58,18 @@ uint8_t nvm_host_ddr[NVM_HOST_DDR_BYTES];
 extern init_func const nvm_host_init_milan_init;
 extern cmd_handler const nvm_host_cmd_milan_nvm;
 extern cmd_handler const nvm_host_cmd_milan_status;
+extern cmd_handler const nvm_host_cmd_milan_gettime;
+extern cmd_handler const nvm_host_cmd_milan_settime;
+extern cmd_handler const nvm_host_cmd_milan_utc;
 
 void set_idle_hook(void (*fptr)(void));
+void command_dispatch_hook(void);
+void bios_dispatch_hook_required(void);
+
+/* The host replaces the BIOS, including its patch-0006 link marker. */
+void bios_dispatch_hook_required(void)
+{
+}
 unsigned int crc32(const unsigned char *buffer, unsigned int len);
 
 struct backend {
@@ -85,8 +95,8 @@ struct backend {
 	/* The snapshot-ownership contract of
 	 * docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md, as far as a model
 	 * with NO DEVICE-FACE PRODUCER can carry it: the window load and the
-	 * capture handshake. There is no producer here, so no record ever
-	 * re-opens after an accepted RELOAD, no grant ever voids a capture
+	 * capture handshake. There is no producer here, so only explicit test stimuli
+	 * re-open records after an accepted RELOAD; no grant ever voids a capture
 	 * and the hold never has anything to defer; what this model grades is
 	 * the WRITER's sequence, and tb/verilator/nvm_cosim grades the rules
 	 * this model cannot reach against the real RTL and the real donor. */
@@ -103,6 +113,7 @@ struct backend {
 	int dirty_live;
 	int dirty_cap;
 	int unres;             /* at least one record is open */
+	uint32_t ownership[8]; /* independently driven partial ownership vector */
 	unsigned int arm_count;
 	unsigned int reload_count;
 	/* modelled disturbance: the next N window loads are refused, as a
@@ -207,6 +218,7 @@ static void strobes(uint32_t v)
 			be.ld_pend = 0;
 			be.ld_acc = 1;
 			be.unres = 0;          /* every record closed */
+			memset(be.ownership, 0, sizeof(be.ownership));
 			be.dirty_live = 0;
 			end_capture(1);
 		}
@@ -320,6 +332,7 @@ static void on_store(unsigned int offset, uint32_t v)
 static void rebase(void)
 {
 	be.unres = 1;
+	memset(be.ownership, 0xff, sizeof(be.ownership));
 	be.ld_ok = 1;
 	if (be.cap_open)
 		end_capture(0);
@@ -389,11 +402,10 @@ static uint32_t data_readback(void)
 		return ((uint32_t)be.img_valid << 4) | be.verdict;
 	if (be.sel == 5u)
 		return be.cap_id;
-	/* the ownership vector, words 8..15. With no producer here, every
-	 * record is open until the boot RELOAD is accepted and closed after
-	 * it, so the model answers the whole word from one flag. */
+	/* Test stimuli may leave one record open beside closed neighbours.
+	 * Device-side races remain the real-backend cosimulation's scope. */
 	if (be.sel >= 8u && be.sel < 16u)
-		return be.unres ? 0xffffffffu : 0u;
+		return be.ownership[be.sel - 8u];
 	if (be.sel < 5u)
 		return be.words[be.sel];
 	return 0;
@@ -630,12 +642,19 @@ static void run_uart(char *line)
 	char *cmd = strtok(line, " ");
 	char *tok;
 
+	command_dispatch_hook();
 	while ((tok = strtok(NULL, " ")) != NULL && nb < 8)
 		params[nb++] = tok;
 	if (cmd && strcmp(cmd, "milan_nvm") == 0)
 		nvm_host_cmd_milan_nvm(nb, params);
 	else if (cmd && strcmp(cmd, "milan_status") == 0)
 		nvm_host_cmd_milan_status(nb, params);
+	else if (cmd && strcmp(cmd, "milan_gettime") == 0)
+		nvm_host_cmd_milan_gettime(nb, params);
+	else if (cmd && strcmp(cmd, "milan_settime") == 0)
+		nvm_host_cmd_milan_settime(nb, params);
+	else if (cmd && strcmp(cmd, "milan_utc") == 0)
+		nvm_host_cmd_milan_utc(nb, params);
 	else
 		printf("HOST: unknown console command\n");
 	settle();
@@ -678,6 +697,7 @@ int main(int argc, char **argv)
 	/* the reset row of snapshot-ownership section 5.4: every allocated
 	 * record open, a boot window load still acceptable and none accepted */
 	be.unres = 1;
+	memset(be.ownership, 0xff, sizeof(be.ownership));
 	be.ld_pend = 1;
 	/* not word 0, so the writer's first re-base is a CHANGE this model's
 	 * diffing settle can see */
@@ -716,6 +736,13 @@ int main(int argc, char **argv)
 			strncpy(line, v, sizeof(line) - 1);
 			line[sizeof(line) - 1] = '\0';
 			run_uart(line);
+		} else if (strcmp(a, "--open-record") == 0 && v) {
+			unsigned long rid = strtoul(v, NULL, 0);
+
+			if (rid >= 256u || !be.ld_acc || be.cap_open)
+				return 2;
+			be.ownership[rid / 32u] |= 1u << (rid % 32u);
+			be.unres = 1;
 		} else if (strcmp(a, "--change") == 0 && v)
 			apply_change(v);
 		else if (strcmp(a, "--dirty") == 0) {
@@ -725,6 +752,8 @@ int main(int argc, char **argv)
 			run_idle(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--dump-ddr") == 0 && v)
 			dump_file(v, nvm_host_ddr + NVM_HOST_IMAGE_OFF, 0x10000u);
+		else if (strcmp(a, "--dump-stage") == 0 && v)
+			dump_file(v, nvm_host_ddr + NVM_HOST_IMAGE_OFF - 0x10000u, 0x10000u);
 		else if (strcmp(a, "--dump-slot-a") == 0 && v)
 			dump_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x10000u);
 		else if (strcmp(a, "--dump-slot-b") == 0 && v)

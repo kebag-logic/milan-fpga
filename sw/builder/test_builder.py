@@ -10714,9 +10714,9 @@ def test_baremetal_profile_contract() -> None:
                 #: effective adjtime strobe: initializer and ptp_sync port,
                 #: plus the same #387 media re-base OR term.
                 "eff_ptp_adjust_w": 3,
-                #: #387: initializer plus exactly the render and restart
-                #: readers. The restart net reaches only its engine port.
-                "media_rebase_p_w": 3,
+                #: #602: initializer plus exactly the render reader.
+                #: PHC re-base no longer contributes to a restart request.
+                "media_rebase_p_w": 2,
                 "mcr_restart_p_w": 2,
                 "gptp_adj_w": 4,
                 # The engine step strobe has its original declaration,
@@ -10764,7 +10764,7 @@ def test_baremetal_profile_contract() -> None:
             "effective PHC adjust strobe must select only gPTP or CSR "
             "control")
         #: #387: media re-base is the one extra reader of the PHC strobes.
-        #: Pin it and both consumers so the census admits only these reads.
+        #: #602 keeps only its render consumer; restart has separate causes.
         #: GM identity alone no longer re-centres the render stage; a step
         #: does so once, alongside the settled clock-source change (#386).
         direct_initializer(
@@ -10774,10 +10774,10 @@ def test_baremetal_profile_contract() -> None:
         direct_initializer(
             datapath, r"wire[ \t]+mcr_restart_p_w",
             "mcr_restart_p_w",
-            "(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
-            "| crf_mr_toggle_p_w)) | media_rebase_p_w",
+            "crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
+            "| crf_mr_toggle_p_w)",
             "media restart pulse must read only selected CRF disruption "
-            "and the ungated media re-base")
+            "and received mr propagation")
         restart_reason = (
             "media restart engine must consume mcr_restart_p_w directly")
         restart_ports = instance_ports(
@@ -12478,8 +12478,8 @@ def test_baremetal_profile_contract() -> None:
         "ADP-controlled media re-base term")
     mcr_restart_adp_term = replace_once(
         datapath_source,
-        "                       | media_rebase_p_w;",
-        "                       | media_rebase_p_w | cfg_adp_enable;",
+        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);",
+        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | cfg_adp_enable;",
         "ADP-controlled media restart term")
     mcr_restart_port_gated = gate_instance_port(
         datapath_source, "KL_media_clock_restart", "media_clock_restart",
@@ -12500,8 +12500,8 @@ def test_baremetal_profile_contract() -> None:
         "additional media re-base reader")
     mcr_restart_extra_reader = replace_once(
         datapath_source,
-        "                       | media_rebase_p_w;",
-        "                       | media_rebase_p_w;\n"
+        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);",
+        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);\n"
         "  wire extra_restart_reader_w = mcr_restart_p_w;",
         "additional media restart reader")
     phc_effective_adjust_gated_by_adp = replace_once(
@@ -13301,7 +13301,7 @@ def test_baremetal_profile_contract() -> None:
          if which.endswith("ifdef CSR_UART_BASE`: CSR_UART_BASE defined, "
                            "arm 1 of 1 taken")),
         None)
-    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \
+    assert len(split_digraph_selections) == 4 and split_digraph_product_arm, \
         "gate 1b's directive readers do not find the #ifdef a split `%:` " \
         "digraph spells in the UART handler, where the pinned GCC does: " \
         f"they read the selections {sorted(split_digraph_selections)}"
@@ -15100,7 +15100,7 @@ def test_baremetal_profile_contract() -> None:
         ("ADP term spliced into the media restart pulse", firmware_source,
          docs_source, csr_source,
          "media restart pulse must read only selected CRF disruption "
-         "and the ungated media re-base",
+         "and received mr propagation",
          MutantFiles(datapath=mcr_restart_adp_term)),
         ("media restart engine port gated by ADP", firmware_source,
          docs_source, csr_source,
@@ -15112,7 +15112,7 @@ def test_baremetal_profile_contract() -> None:
          MutantFiles(datapath=phc_crossing_extra_reader)),
         ("additional media re-base reader", firmware_source,
          docs_source, csr_source,
-         "media_rebase_p_w must have exactly 3 live references, found 4",
+         "media_rebase_p_w must have exactly 2 live references, found 3",
          MutantFiles(datapath=media_rebase_extra_reader)),
         ("additional media restart reader", firmware_source,
          docs_source, csr_source,
@@ -16651,10 +16651,10 @@ def test_baremetal_profile_contract() -> None:
           "clocks, resets, PHC "
           "controls and readback; "
           "the exact PHC-net census admits media_rebase_p_w as the shared "
-          "adjtime/settime read, feeding only render_recentre_p_w and "
-          "mcr_restart_p_w. Render combines it with the settled source "
-          "change, never GM identity; restart combines it ungated with "
-          "selected CRF disruption and feeds its engine port directly; "
+          "adjtime/settime read, feeding only render_recentre_p_w. "
+          "Render combines it with the settled source change, never GM "
+          "identity; restart takes only selected CRF disruption and "
+          "received mr propagation, feeding its engine port directly; "
           "external MAC RX "
           "traverses the pre-filter tap, both RXFILT_P arms and the "
           "fabric-gPTP "
@@ -23294,7 +23294,7 @@ def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
 #  VexiiRiscv variant, which is the whole #120/#125 downgrade and the shipping
 #  AX profile, and the VexiiRiscv revision it pins does not accept the
 #  `--l2-down-pending` / `--l2-general-slots` four of the five configs pass.
-#  sw/litex/patches/ carries the six patches that close that, and apply.sh
+#  sw/litex/patches/ carries the four patches that close that, and apply.sh
 #  applies them.
 #
 #  NOTHING RAN IT. Measured 2026-08-21: the series had not applied cleanly for
@@ -23379,7 +23379,7 @@ def _mirror(tmp: Path, real: Path) -> Path:
     """Where `real` lives inside the scratch mirror.
 
     THE MIRROR IS KEYED BY ABSOLUTE REALPATH, and that is the whole fix for
-    the aliasing defect [R0] found on PR #189. Two of the six patches name
+    the aliasing defect [R0] found on PR #189. Two of the historical six patches name
     the SAME physical file through different roots: 0005 reaches
     `.../ext/VexiiRiscv/src/.../Soc.scala` as a path under the
     pythondata package, and the L2 patch reaches it as `src/.../Soc.scala`
@@ -25544,6 +25544,8 @@ def _schema_12_config() -> Path:
     doc = yaml.safe_load(CONFIGS[SCHEMA_12_BASE].read_text())
     _setting(*SCHEMA_12_DECLARED.items(),
              ("entity.entity_capabilities", _adp_entity_caps()))(doc)
+    for key in ("vendor_oui", "entity_capabilities"):
+        doc["entity"][key] = f"0x{doc['entity'][key]:X}"
     path = OUT / "_schema_12" / "endstation_schema_12_declared.yaml"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(doc))
@@ -25725,22 +25727,22 @@ def _schema_12_refusal_cases(caps: int) -> list[tuple[str, str, Callable[[dict],
     base, pinned = SCHEMA_12_BASE, "arty_current"
     return [
         ("entity_capabilities diverges from the ADP constant", base,
-         _setting(("entity.entity_capabilities", caps ^ 0x4000)),
+         _setting(("entity.entity_capabilities", f"0x{caps ^ 0x4000:X}")),
          _adp_caps_line()),
         ("entity_capabilities past 32 bits", base,
-         _setting(("entity.entity_capabilities", 1 << 32)), "outside 32 bits"),
+         _setting(("entity.entity_capabilities", "0x100000000")), "outside 32 bits"),
         ("entity_capabilities not a number", base,
          _setting(("entity.entity_capabilities", "fast")), "not a hex integer"),
         ("vendor_oui past 24 bits", base,
-         _setting(("entity.vendor_oui", 0x1000000)), "outside 24 bits"),
+         _setting(("entity.vendor_oui", "0x1000000")), "outside 24 bits"),
         ("vendor_oui negative", base,
-         _setting(("entity.vendor_oui", -1)), "outside 24 bits"),
+         _setting(("entity.vendor_oui", "-1")), "outside 24 bits"),
         ("vendor_oui a bool", base,
-         _setting(("entity.vendor_oui", True)), "is not an integer"),
+         _setting(("entity.vendor_oui", True)), "quote the hexadecimal value as a YAML string"),
         ("vendor_oui with the I/G bit", base,
-         _setting(("entity.vendor_oui", 0x011BC5)), "I/G bit"),
+         _setting(("entity.vendor_oui", "0x011BC5")), "I/G bit"),
         ("vendor_oui the pin contradicts", pinned,
-         _setting(("entity.vendor_oui", 0x123456)), "contradicts the pin"),
+         _setting(("entity.vendor_oui", "0x123456")), "contradicts the pin"),
         ("locale empty", base, _setting(("entity.locale", "")), "non-empty"),
         ("locale past 64 bytes", base,
          _setting(("entity.locale", "x" * 65)), "exceeds 64 bytes"),
@@ -25798,14 +25800,14 @@ def test_schema_12_refusals() -> None:
         finally:
             p.unlink()
     agreed = _variant(CONFIGS["arty_current"],
-                      _setting(("entity.vendor_oui", 0x001BC5)))
+                      _setting(("entity.vendor_oui", "0x001BC5")))
     try:
         assert eb.load_config(agreed)["model_id"]["value"] == DEPLOYED_MODEL_ID
     finally:
         agreed.unlink()
     bad = caps ^ 0x4000
     p = _variant(CONFIGS[SCHEMA_12_BASE],
-                 _setting(("entity.entity_capabilities", bad)))
+                 _setting(("entity.entity_capabilities", f"0x{bad:X}")))
     real = eb._verify_entity_capabilities
     eb._verify_entity_capabilities = lambda ent: None
     try:
@@ -26642,6 +26644,7 @@ uint8_t fabric_host_ram[0x30000];
 void fabric_host_write(unsigned int offset, uint32_t value);
 void fabric_host_configure(void);
 void set_idle_hook(void (*fptr)(void));
+void bios_dispatch_hook_required(void);
 
 void fabric_host_write(unsigned int offset, uint32_t value)
 {
@@ -26662,6 +26665,7 @@ unsigned int crc32(const unsigned char *b, unsigned int n)
     return 0u;
 }
 void set_idle_hook(void (*fptr)(void)) { (void)fptr; }
+void bios_dispatch_hook_required(void) { }
 
 int main(void)
 {
@@ -27792,6 +27796,14 @@ def test_nvm_firmware_shapes() -> None:
          "--self-test"], check=True, cwd=ROOT, timeout=600)
 
 
+def test_clock_crossing_constraints() -> None:
+    """Run shipping elaborations, scoped exceptions and implementation-log controls."""
+    python = _litex_or_skip("607 clock constraints")
+    if python is not None:
+        subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+                       check=True, cwd=ROOT, timeout=2700)
+
+
 def test_commercial_timing_grade() -> None:
     """Pin the release conditions and prove that the real platform consumes them."""
     from test_timing_grade import test_platform_hooks, test_pll_grade, test_timing_grade_contract
@@ -27814,7 +27826,8 @@ if __name__ == "__main__":
         sys.exit(0)
     for fn in (test_commercial_timing_grade,
                test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
-               test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
+               test_declaration_contracts, test_clock_crossing_constraints,
+               test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
                test_qspi_owner_transition_completed_write_prefixes,

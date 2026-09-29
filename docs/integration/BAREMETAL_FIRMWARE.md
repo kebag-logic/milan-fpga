@@ -69,6 +69,13 @@ The [8x8 shape](../../configs/endstation_ax7101_8x8.yaml) also declares the cont
 That declaration states the target, without claiming timing closure.
 No cacheless 8x8 placement or routing record exists.
 
+The [service-budget decision](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046) retains one cacheless hart.
+Every duty must provide heartbeat opportunities within its service allowance.
+The 500 ms heartbeat limit includes the 250 ms phase.
+UART blocking and PHY management consume the remaining allowance.
+[Measured duty intervals](../findings/397_SERVICE_BUDGET.md) constrain each placement.
+New duties require measurements against that same shared allowance.
+
 Build through the checked configuration entry point:
 
 ```console
@@ -1472,9 +1479,9 @@ The rest are refusals, and each one costs a legitimate edit:
 |---|---|
 | `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and the `ptp_csr_sync`/`ts_counter` pair directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual PHC consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
 | `cfg_ptp_cmd_load` has exactly five references; `eff_ptp_adjust_w` has three | Their extra reader is now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`. Every other PHC-net census count stays unchanged |
-| `media_rebase_p_w` has exactly three references | Its initializer and two readers: `render_recentre_p_w` and `mcr_restart_p_w`. Another reader or driver is refused |
+| `media_rebase_p_w` has exactly two references | Its initializer and sole reader, `render_recentre_p_w`, under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355). Another reader or driver is refused |
 | `render_recentre_p_w` is exactly `media_rebase_p_w \| src_recentre_p_r` | The render stage receives the step and settled source change. GM identity alone contributes no second re-centre |
-| `mcr_restart_p_w` is exactly `(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)) \| media_rebase_p_w` | The step is ungated by clock selection. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
+| `mcr_restart_p_w` is exactly `crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
 | External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
 | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
@@ -1892,19 +1899,33 @@ verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
 `backed` bits, so a blank board reads `blank=1 fail=0 backed=1`, the register
 map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 
-**Runtime.** The idle hook runs while the console waits for a key, so a
-console command that itself runs for more than the 2,000 ms liveness deadline
-lets `nvm_backed` lapse until the prompt returns; with nothing outstanding the
-next heartbeat heals it, with a change outstanding `nvm_stale` records the gap.
-Queued input also suppresses the idle hook between commands.
-Several short commands can therefore exceed that same liveness deadline.
-[The service-budget measurements](../findings/397_SERVICE_BUDGET.md) reproduce this at both shapes.
-[Issue #590](https://github.com/kebag-logic/milan-fpga/issues/590) owns dispatch and long-walk tick opportunities.
-The hook heartbeats every 250 ms, half the section 9.4
-maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
+**Runtime.** The product BIOS calls `command_dispatch_hook` after each line.
+[Patch 0006](../../sw/litex/patches/0006-bios-dispatch-hook.patch) supplies the hook and required link marker.
+Firmware fails linking when that BIOS patch is absent.
+The hook precedes parsing, including built-ins, unknown and empty lines.
+Firmware supplies a heartbeat opportunity through this hook.
+Identity and shape checks must admit the writer first.
+Rejected startup paths cannot arm backing through any console command.
+This services chained commands while queued input suppresses idle service.
+CRC walks also yield every 256 bytes after writer initialization.
+Record-validation walks yield every sixteen records.
+Wipe yields between its two slot-erase verification walks.
+These placements service long Milan commands, including 8x8 slot status.
+Long BIOS built-ins remain a residual under the round-2 decision.
+Examples include `mem_test` and large-range `mem_read`.
+Their bodies provide no internal heartbeat or PHY service.
+They can exceed 500 ms heartbeats and 250 ms PHY publication.
+A built-in body can lapse backing after about 1,750 ms.
+The 2,000 ms deadline includes up to 250 ms beforehand.
+That phase can suppress the dispatch heartbeat write.
+The dispatch hook services their boundaries only.
+The existing heartbeat rate limit remains 250 ms.
+The idle hook supplies opportunities while the console awaits input.
+This interval is half the section 9.4 maximum.
+When `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
 window (1,000 ms, the first-dirty policy ruled by
 [D3 DR2a](../design/SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register)) with no record
-operation and no commit bracket in flight, it commits: the container is sealed
+operation and no commit bracket in flight, the idle hook commits: the container is sealed
 under the next sequence, validated in memory (a torn record defers the commit
 rather than opening a bracket over it), the bracket is opened, the
 non-authoritative slot is erased, programmed page by page and read back, and
@@ -1930,6 +1951,33 @@ A later successful commit clears `nvm_stale` under section 9.2's condition.
 It never clears `nvm_alarm`; an asserted alarm retains loss.
 [D3 lane 2](../design/SAVED_STATE_MATERIALIZATION.md#182-lane-2-parent-scalars-and-restored-ptof) owns that change and its controls.
 
+Capture copies use aligned 32-bit loads and stores within records.
+Unaligned edges retain byte accesses.
+No access crosses the next record's boundary.
+Open records retain their previously verified staged bytes.
+The [capture receipt](../../tb/verilator/nvm_capture_cpu/measurements.json) binds firmware and processor identities.
+
+Firmware also publishes PHY state through the existing MDIO window.
+Clause-22 reads obtain link, negotiated speed and duplex.
+MDIO sampling follows IEEE 802.3 section 22.3.4.
+Two turnaround clocks precede data sampling before each rising edge.
+This matches the pinned LiteX `libliteeth/mdio.c` reader.
+BMSR latch handling publishes a latched loss, then resolves current state in the same poll.
+A second MDIO read separates the loss and recovery publications across the CDC.
+Repeated stable readings leave the fabric edge counters unchanged.
+Missing acknowledgements and incomplete negotiation publish link down.
+Discovery probes one PHY address per service opportunity.
+The link-status CSR feeds MAC_STATUS and the existing fabric consumers.
+The stated maximum publication period is 250 ms for the measured duties.
+The poll trigger is 125 ms, half that allowance.
+The other half covers the longest measured duty stretch, UART blocking and a poll charge.
+That charge is the measured complete poll plus nine maximum measured MDIO transactions.
+Nine reads bound discovery and the longest negotiation fallback.
+Using the complete poll as bookkeeping allowance deliberately counts transaction time twice.
+The service harness grades this derived publication bound against 250 ms.
+The findings page records transaction and complete-poll timings on the target CPU.
+[Issue #599](https://github.com/kebag-logic/milan-fpga/issues/599) retains the physical switch-cycle rerun.
+
 **What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`
 compiles this translation unit unchanged against stub headers and a host
 model of the CSR face, the flash and the clock, and grades it per shipped
@@ -1937,7 +1985,9 @@ shape: the staged and committed containers equal the Python encoder's byte for
 byte, the verdict the firmware prints for every section 6.2 refusal equals
 `klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
 transaction failures and the heartbeat through a 3 s erase; `--self-test`
-plants four writer defects and requires each to be caught. What it cannot
+plants five writer defects and requires each to be caught. A partial ownership fixture protects an open record beside an unaligned edge.
+The edge-crossing word-copy control must fail that fixture.
+What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
 processor writing records into it. Today only the processor's binding records
 reach the store (the manager for the other seven Milan items is the donor's

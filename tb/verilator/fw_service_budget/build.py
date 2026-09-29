@@ -53,12 +53,27 @@ def build(args: argparse.Namespace) -> dict:
         kwargs['phy'] = soc.spiflash_phy
         return capture_soc.milan_soc.MilanSoC.add_spi_flash(soc, **kwargs)
 
+    from phy import PhyBoundary
+    original_ports = capture_soc.packet_ports
+    phy_boundary = None
+
+    def packet_ports(platform: object) -> tuple[dict, None]:
+        """Attach the peer to the same datapath status ports as MilanMAC."""
+        nonlocal phy_boundary
+        phy_boundary = PhyBoundary(platform)
+        ports, unused = original_ports(platform)
+        ports.update(phy_boundary.dp_ports)
+        return ports, unused
+
     original_constants = capture_soc._firmware_constants
 
     def constants(soc: object, options: argparse.Namespace, generated: Path,
                   blob: bytes, overlay_path: Path) -> None:
         """Retain build constants and observe completed product transactions."""
         original_constants(soc, options, generated, blob, overlay_path)
+        soc.milan_mac = phy_boundary
+        soc.csr.add('milan_mac')
+        soc.bus.add_master(name='phy_status_reader', master=phy_boundary.reader)
         (options.build_dir / 'aem_desc.bin').write_bytes(blob)
         # Observe the system-side boundary, including all product CDC latency.
         bus = soc.bus.slaves['milan_csr']
@@ -72,15 +87,48 @@ def build(args: argparse.Namespace) -> dict:
         pads = soc.platform.request('observe')
         soc.comb += [getattr(pads, n).eq(v) for n, v in values.items()]
 
-    firmware_path = ROOT / 'sw/firmware/milan_baremetal'
-    # No scratch C, instrumentation, fence removal, or alternative entry point.
+    def firmware_source(root: Path, destination: Path, mutation: str) -> Path:
+        """Adapt the shared capture callback to the explicit service control."""
+        return prepare_firmware(destination, args.mutation)
     with patch.object(capture_soc.ProductSimulation, 'add_spi_flash', add_flash), \
          patch.object(capture_soc, '_firmware_constants', constants), \
-         patch.object(capture_firmware, 'prepare', return_value=firmware_path):
+         patch.object(capture_soc, 'packet_ports', packet_ports), \
+         patch.object(capture_firmware, 'prepare', side_effect=firmware_source):
         capture_soc.build(args)
     spec = json.loads((args.build_dir / 'sources.json').read_text())
-    spec['firmware_sha256'] = hashlib.sha256((firmware_path / 'milan_baremetal.c').read_bytes()).hexdigest()
+    spec['firmware_sha256'] = hashlib.sha256(
+        (ROOT / 'sw/firmware/milan_baremetal/milan_baremetal.c').read_bytes()).hexdigest()
     return spec
+
+
+def prepare_firmware(destination: Path, mutation: str) -> Path:
+    """Retain production bytes except for explicit negative-control mutations."""
+    firmware_path = ROOT / 'sw/firmware/milan_baremetal'
+    if mutation == 'none':
+        return firmware_path
+    source = (firmware_path / 'milan_baremetal.c').read_text()
+    if mutation == 'remove-dispatch':
+        anchor = 'void command_dispatch_hook(void)\n{\n\tnvm_heartbeat_tick();'
+        if source.count(anchor) != 1:
+            raise RuntimeError('dispatch mutation anchor is not unique')
+        source = source.replace(anchor, anchor.removesuffix('\n\tnvm_heartbeat_tick();'))
+    elif mutation == 'late-sample':
+        anchor = ('\tvalue = milan_mac_phy_mdio_r_read() & 1u;\n'
+                  '\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n\tcdelay(32);')
+        if source.count(anchor) != 1:
+            raise RuntimeError('phase mutation anchor is not unique')
+        source = source.replace(anchor, '\tmilan_mac_phy_mdio_w_write(pins | PHY_MDC);\n'
+                                '\tcdelay(32);\n\tvalue = milan_mac_phy_mdio_r_read() & 1u;')
+    else:
+        anchor = '\tmilan_mac_link_status_write(status);'
+        if source.count(anchor) != 1:
+            raise RuntimeError('publication mutation anchor is not unique')
+        source = source.replace(anchor, '\t(void)status;')
+        source = source.replace('milan_mac_link_status_write(0);', '(void)0;')
+    destination.mkdir(parents=True, exist_ok=True)
+    (destination / 'milan_baremetal.c').write_text(source)
+    (destination / 'Makefile').write_bytes((firmware_path / 'Makefile').read_bytes())
+    return destination
 
 
 def compile_sim(build_dir: Path, spec: dict) -> None:

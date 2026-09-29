@@ -278,9 +278,9 @@ verified blocks outside the shipping datapath; the station-address rules
   A MEDIA_RESET decrease is a reset, requiring counter-walk investigation.
   Missing evidence for these checks is NOT RUN.
   The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
-  The current image still toggles `mr` on PHC steps.
-  A soak containing one therefore fails the step-only check.
-  This remains until #602's RTL change lands.
+  A PHC-only re-base leaves `mr` unchanged.
+  The existing `tu` path signals that gPTP discontinuity.
+  It adds no step-only MEDIA_RESET increment.
   Each `tu` interval contains at least one recorded discontinuity.
   Containment uses `[observed_start - observation_resolution_s, clear)`.
   The observed start is the first captured `tu=1` packet.

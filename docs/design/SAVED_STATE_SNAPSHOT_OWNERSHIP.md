@@ -1606,46 +1606,46 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. MEASURED on 2026-09-27 in the
+Timing. MEASURED on 2026-09-28 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
-The [round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs this measurement.
-The [clock assignment](https://github.com/kebag-logic/milan-fpga/issues/565#issuecomment-5848231174) set both configurations to the contract clock.
-The [pin-adoption assignment](https://github.com/kebag-logic/milan-fpga/issues/580#issuecomment-5857045698) requires this remeasurement.
-The measured parent commit is `499b15f97eb0a469b7cd1308fbba7af3c64d1851`.
-Its tree is `83b988d3b59a398a7d0cd1977194c50be92522da`.
-Its protocol-processor pin is `16be6768f710e79450aace277abacd6c2c3336e5`.
+The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
+The [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172) requires this firmware remeasurement.
+Measured commit: `26a26e1f39feeebaebb0f450d7cbe2b63429c252`.
+Measured tree: `1ced48e23609180f2d09a19352837c00317429fe`.
+Firmware SHA-256: `89c0360ed2eb63566d0413e9c721aee05aae4581f23d3897a1ae853b46a10070`.
+Protocol-processor pin: `16be6768f710e79450aace277abacd6c2c3336e5`.
+The receipt's BIOS patch digest is informational provenance.
+Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
 The [bare-metal contract](../integration/BAREMETAL_FIRMWARE.md#build-contract) specifies a 50 MHz CPU.
 Both shapes use that clock, with aligned system rising edges.
 The system timer remains at 100 MHz.
-Both configurations now declare the contract clock after
-[#565](https://github.com/kebag-logic/milan-fpga/issues/565).
 The 100 MHz 8x8 point is a non-contract comparison.
 
 The backend retains its nominal 50 ms hold.
 Its free-running millisecond tick gives a 49 ms guaranteed floor.
 The first tick can arrive immediately after ARM.
 The acceptance limit is therefore 24.5 ms, half that floor.
-**The worst 8x8 measurement is 24.30246 ms.**
-This gives 2.0163x margin against the guaranteed floor.
-It leaves 0.19754 ms below the assigned limit.
-The first remedy applies only while measured inputs remain unchanged.
-The product firmware is pinned in the refreshed receipt.
-Firmware and hold behavior are unchanged by this remeasurement.
+**The worst 8x8 measurement is 13.23352 ms.**
+Its floor ratio is 3.7027x.
+The margin to 24.5 ms is 11.26648 ms.
+The historical pre-word-copy maximum was 24.30246 ms.
+The word-copy remedy gains 11.06894 ms of margin.
+Firmware changed; hold behavior and the record census remain unchanged.
+The receipt binds the new firmware, including its startup guard.
 
 Each point contains 16 captures per traffic arm.
 The published maximum includes every capture in both arms.
-The 8x8 overall maximum also exceeds both non-contract arms.
-The 1x1 overall maximum is 6.60642 ms (7.4170x floor margin).
+The 1x1 maximum is 3.88779 ms (12.6036x floor ratio).
 
-| Shape | CPU / system MHz, basis | Traffic | System ticks, minimum to maximum | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
-|---|---|---|---|---|---|
-| 1x1 | 50 / 100, contract | ON | 659,814 to 660,642 | 6.59814 to 6.60642 | 7.4170x |
-| 1x1 | 50 / 100, contract | OFF | 658,554 to 658,857 | 6.58554 to 6.58857 | 7.4371x |
-| 8x8 | 50 / 100, contract | ON | 2,429,290 to 2,430,246 | 24.29290 to 24.30246 | 2.0163x |
-| 8x8 | 50 / 100, contract | OFF | 2,425,794 to 2,426,154 | 24.25794 to 24.26154 | 2.0197x |
-| 8x8 | 100 / 100, non-contract | ON | 1,899,012 to 1,900,433 | 18.99012 to 19.00433 | 2.5784x |
-| 8x8 | 100 / 100, non-contract | OFF | 1,978,694 to 1,979,024 | 19.78694 to 19.79024 | 2.4760x |
+| Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
+|---|---|---|---|---|
+| 1x1 | 50 / 100, contract | ON | 3.87674 to 3.88779 | 12.6036x |
+| 1x1 | 50 / 100, contract | OFF | 3.82856 to 3.84214 | 12.7533x |
+| 8x8 | 50 / 100, contract | ON | 13.21274 to 13.23352 | 3.7027x |
+| 8x8 | 50 / 100, contract | OFF | 13.04976 to 13.06923 | 3.7493x |
+| 8x8 | 100 / 100, non-contract | ON | 9.94138 to 9.95464 | 4.9223x |
+| 8x8 | 100 / 100, non-contract | OFF | 9.93764 to 9.94094 | 4.9291x |
 
 The full closed-record census is 3,218 bytes / 53 records at 1x1.
 At 8x8 it is 12,634 bytes / 156 records.
@@ -1669,12 +1669,8 @@ ON requires accepted requests, successful responses and shared-memory read ACKs.
 OFF requires zero traffic counts and still grades elapsed time.
 
 The offered load supplies no established worst-case stress bound.
-At 50 MHz, 8x8 ON exceeds OFF by 0.04092 ms.
-That is 0.169% between their maxima.
-The 1x1 difference is 0.01785 ms (0.271%).
-The observed effect is small but measurable.
-At 100 MHz, ON is 0.78591 ms faster than OFF.
-This is why both arms determine the maximum.
+Both traffic arms contribute to the measured maximum.
+Their differences describe these deterministic simulated scenarios only.
 
 The [harness README](../../tb/verilator/nvm_capture_cpu/README.md#run) provides the complete run matrix.
 The [receipt](../../tb/verilator/nvm_capture_cpu/measurements.json) contains all 96 captures and input hashes.
@@ -1792,18 +1788,18 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven)
    has no reporter at the current source.
 6. Physical timing remains unmeasured: capture hold, debounce and memory ordering.
-   [Section 18](#18-cost) replaces the copy model with product-CPU measurements.
+   [Section 18](#18-cost) gives the current receipt's identities and six maxima.
    Both shapes use the contract's 50 MHz CPU and aligned edges.
    Each has 16 captures per traffic arm, ON and OFF.
-   The [configuration remeasurement](#18-cost) covers the declared clock change.
-   The worst 8x8 copy is 24.30246 ms across both arms.
+   The worst 8x8 copy is 13.23352 ms across both arms.
    It covers 12,634 bytes and 156 records, including output maps.
-   Its margin against the guaranteed 49 ms floor is 2.0163x.
-   It meets 24.5 ms only under the measured conditions.
+   Its ratio to the guaranteed 49 ms floor is 3.7027x.
+   The 24.5 ms margin is 11.26648 ms.
+   The word-copy remedy gains 11.06894 ms over historical byte copying.
    The unchanged nominal 50 ms hold is retained conditionally.
-   The 1x1 maximum is 6.60642 ms (7.4170x floor margin).
+   The 1x1 maximum is 3.88779 ms (12.6036x floor ratio).
    Both intervals include the complete record walk and attestation.
-   The 100 MHz 8x8 comparison is non-contract: 19.79024 ms maximum.
+   The 100 MHz 8x8 comparison is non-contract: 9.95464 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.

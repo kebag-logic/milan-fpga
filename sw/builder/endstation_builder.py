@@ -1441,7 +1441,10 @@ def _streams(lst, ctx, direction, rate_hz=48000):
         # hand-copied encoding rots out of sight (endstation_arty_4x4 carried
         # a ut entry capped at 4 channels, so its Stream Inputs advertised
         # neither the 6- nor the 8-channel 48 kHz Base format).
-        fmts = s.get("formats") or [f"0x{aaf_pcm32(ch, rate_hz):016X}"]
+        fmts = s.get("formats", [])
+        if not isinstance(fmts, list):
+            raise ConfigError(f"{sctx}.formats: must be a list of quoted hexadecimal strings")
+        fmts = fmts or [f"0x{aaf_pcm32(ch, rate_hz):016X}"]
         fmts = [_fmt64(f, f"{sctx}.formats") for f in fmts]
         # IEEE 1722-2016 Annex I.2.4: "The ut field shall be set to zero (0)
         # when the stream format is the current format of the stream and when
@@ -3182,8 +3185,13 @@ def emit_interface_params(cfg: dict[str, Any]) -> dict[str, Any] | None:
 
 # ---------------------------------------------------------- platform -------
 def _mac48(v, ctx):
-    """'02:00:00:00:00:02' or 0x020000000002 -> int, unicast + non-zero."""
-    s = str(v).replace(":", "").replace("-", "").replace("_", "")
+    """Quoted hex, including colon/dash MAC strings; unicast and nonzero.
+
+    Non-strings must be quoted before YAML can reinterpret their digits.
+    """
+    if not isinstance(v, str):
+        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
+    s = v.replace(":", "").replace("-", "").replace("_", "")
     try:
         n = int(s, 16)
     except ValueError:
@@ -3302,7 +3310,7 @@ def load_platform(raw: dict[str, Any] | None) -> dict[str, Any]:
     p.update(raw)
     for key in ("pp_mem_phys",):
         p[key] = int(p[key])
-    if p["mac_address"] is None:
+    if "mac_address" not in raw:
         raise ConfigError("platform.mac_address is required")
     mac = _mac48(p["mac_address"], "platform.mac_address")
     p["mac_address"] = ":".join(
@@ -3660,13 +3668,11 @@ def _aem_string(v, ctx):
 
 
 def _declared_uint(v, bits, ctx):
-    """An unsigned field a config may spell as a YAML integer or a hex
-    string, refused outside `bits` bits. A bool is refused too: YAML reads
-    `yes` as True, and True == 1 would pass for a value."""
-    if isinstance(v, bool) or not isinstance(v, (int, str)):
-        raise ConfigError(f"{ctx}: {v!r} is not an integer")
+    """An unsigned quoted hex field, refused outside `bits` bits."""
+    if not isinstance(v, str):
+        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
     try:
-        n = v if isinstance(v, int) else int(v, 16)
+        n = int(v, 16)
     except ValueError:
         raise ConfigError(f"{ctx}: {v!r} is not a hex integer") from None
     if not 0 <= n < 1 << bits:
@@ -3680,10 +3686,9 @@ def _vendor_oui(ent):
     first octet is refused: an OUI never carries it, and D4
     (docs/ENDSTATION_BUILDER.md) records that 6.2.2.8 uses that bit of the
     EUI-64 for dynamically assigned ids, which this builder never emits."""
-    raw = ent.get("vendor_oui")
-    if raw is None:
+    if "vendor_oui" not in ent:
         return MODEL_ID_OUI
-    oui = _declared_uint(raw, 24, "entity.vendor_oui")
+    oui = _declared_uint(ent["vendor_oui"], 24, "entity.vendor_oui")
     if oui & 0x010000:
         raise ConfigError(
             f"entity.vendor_oui 0x{oui:06X} sets the I/G bit of its first "
@@ -3700,10 +3705,9 @@ def _verify_entity_capabilities(ent):
     ADPDU's), so a config may state that value and nothing else - the
     gptp_engine_pins rule for the Announce dataset. Absent, nothing changes:
     the image derives it as before. One parser: gen_aemi_image's."""
-    raw = ent.get("entity_capabilities")
-    if raw is None:
+    if "entity_capabilities" not in ent:
         return
-    declared = _declared_uint(raw, 32, "entity.entity_capabilities")
+    declared = _declared_uint(ent["entity_capabilities"], 32, "entity.entity_capabilities")
     desc = ROOT / "protocol-processor" / "hdl" / "aecp" / "desc"
     if not (desc / "gen_desc_image.py").is_file():
         raise ConfigError(

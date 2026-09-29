@@ -125,9 +125,10 @@ they are not discovered by surprise:
    shape's generated `AEM_CRF_CLKSRC_C` into one registered verdict gating
    `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
    CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
-   received toggle). A PHC step toggles `mr` on every running Stream
-   Output whatever the selection, and that output's Table 5.4 MEDIA_RESET
-   counts the toggle it transmits (#387). At the INTERNAL power-on state
+   received toggle). A PHC-only re-base preserves `mr` under either selection.
+   It adds no Table 5.4 MEDIA_RESET ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
+   Source changes and selected-CRF causes still request restarts.
+   At the INTERNAL power-on state
    `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
    by tie-off. Since `0x0058` the accepted slips are counted where software can
    read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
@@ -408,6 +409,13 @@ identity. [`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py)
 | `0x11C` | `PHY_RESET` | RW | `0x1` | `[0]` phy_reset_n (0 = hold PHY in reset) |
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
+
+Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+It reads Clause-22 link, speed and duplex over bit-bang MDIO.
+The existing CDC carries this publication to MAC_STATUS.
+Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges.
+The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
 
 **Link rate (REQ-MAC-03).** The effective `is_1g` follows the MAC's reported
 speed (`MAC_STATUS[2:1] == 2`) unless `MAC_CTRL[5]` is set. `MAC_CTRL[4]`'s

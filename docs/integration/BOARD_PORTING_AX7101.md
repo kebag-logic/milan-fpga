@@ -104,9 +104,11 @@ gateware** (exit 0):
   they are the reason PHY management is still open: `LiteEthPHYMDIO` is a **software
   bit-bang** register pair, not an autoneg-result register, and there is no hardware
   MDIO master anywhere in the design — so `MAC_STATUS` is software-published from the
-  `milan_mac_link_status` CSR and reports its reset default until a driver writes it.
-  Until then the
-  data path runs on the PHY power-on straps. Migration Section A.7.
+  `milan_mac_link_status` CSR. The bare-metal firmware reads Clause-22 link, speed
+  and duplex through that window and writes the CSR. It writes no PHY register, so
+  the PHY still negotiates from its power-on straps. Physical switch-cycle
+  acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+  Migration Section A.7.
 - **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
   support (the original dev host had only Spartan-7 installed). Earlier bitstreams
   were built and run on the board; those retired captures remain in Git history

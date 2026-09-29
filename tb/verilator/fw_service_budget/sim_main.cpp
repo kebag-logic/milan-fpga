@@ -5,6 +5,7 @@
 #include "verilator_harness.hpp"
 #include "flash.hpp"
 #include "retirement.hpp"
+#include "phy.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -31,7 +32,16 @@ public:
 
     void sample(Vsim& dut, bool cpu_rising) {
         ++cycle_;
-        if (cpu_rising && !dut.sys_reset && heartbeat_entry(dut)) tick_sample();
+        if (cpu_rising && !dut.sys_reset && heartbeat_entry(dut)) {
+            tick_sample();
+            phy_.tick_entry(cycle_);
+        }
+        phy_.sample(dut, cycle_);
+        if (!dut.sys_reset) {
+            const bool backed = dut.rootp->sim->__PVT__milan_datapath__DOT__pp_shadow__DOT__u_nvm__DOT__backed_r;
+            if (backed_seen_ && !backed) ++unbacked_cycles_;
+            backed_seen_ = backed_seen_ || backed;
+        }
         flash_sample(dut);
         bus_sample(dut);
         uart_sample(dut);
@@ -43,6 +53,7 @@ public:
     }
 
     void drive(Vsim& dut) const {
+        phy_.drive(dut);
         dut.flash_tx_ready = !pending_ && dut.flash_cs;
         dut.flash_rx_valid = pending_ && cycle_ >= response_at_;
         dut.flash_rx_data = response_;
@@ -53,8 +64,16 @@ public:
     }
 
     bool done() const { return finished_; }
+    void report_phy() const {
+        phy_.report();
+        std::printf("BACKING armed=%u unbacked_cycles=%llu\n", unsigned(backed_seen_),
+                    static_cast<unsigned long long>(unbacked_cycles_));
+    }
 
 private:
+    PhyPeer phy_;
+    bool backed_seen_ = false;
+    std::uint64_t unbacked_cycles_ = 0;
     void flash_sample(Vsim& dut) {
         if (last_cs_ && !dut.flash_cs) {
             const auto operation = flash_.deselect(cycle_);
@@ -256,6 +275,7 @@ int main(int argc, char** argv) {
                         std::string(argv[6]) == "1");
         simulate(dut, devices);
         check.that("all UART intervals completed", devices.done());
+        devices.report_phy();
     } catch (const std::exception& error) {
         std::fprintf(stderr, "FAIL: %s\n", error.what());
         check.that("simulation completed without boundary failures", false);

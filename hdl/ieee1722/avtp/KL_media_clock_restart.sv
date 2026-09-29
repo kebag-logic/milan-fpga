@@ -60,8 +60,8 @@
                 the stream's previous toggle, and then, once the stream has
                 adopted the new level, the time until its first PDU at that
                 level. Until that PDU no listener has seen the toggle, so a
-                second request landing anywhere in the window (a PHC step on
-                top of a CRF disruption, say) asks for what the first
+                second request landing anywhere in the window (a source
+                change after a CRF disruption, say) asks for what the first
                 already asked for, and the two merge: the stream puts
                 exactly ONE toggle on the wire, and its MEDIA_RESET counts
                 it. A request therefore does not flip a target; it sets the
@@ -101,6 +101,12 @@
                 stream's toggles, never its level against another stream's
                 (10.4.3: only the mr bit of the stream a Listener recovers
                 its media clock from is valid).
+
+                #602 ruling 5859297355: a PHC-only render re-base is not
+                a restart request in the INTERNAL/CRF architecture. The
+                integration signals it through tu and holdover instead.
+                Only genuine source changes and selected-CRF causes reach
+                this engine; a coincident PHC step does not alter them.
 
                 THE SOURCE-CHANGE TRIGGER. 4.4.4.3's PRIMARY case is a change
                 of the media clock SOURCE (its S/PDIF A->B example), and PICS
@@ -162,8 +168,8 @@ module KL_media_clock_restart #(
   //! media-clock restart request: one cycle per restart event. The
   //! integration ORs every trigger but the source change here: a disruption
   //! of the CRF stream our media clock is slaved to, that stream's own mr
-  //! toggle, and a PHC step (#387); the source-change trigger has its own
-  //! clk_src_i below.
+  //! toggle. PHC-only steps are excluded by #602; the source-change
+  //! trigger has its own clk_src_i below.
   input  wire                    restart_p_i,
   //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
   //! CHANGE of this value is 4.4.4.3's PRIMARY restart trigger (the clause's

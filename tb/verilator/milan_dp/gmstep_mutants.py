@@ -1,43 +1,26 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Negative controls for the #387 gmstep leg and its option-off checks: prove they can fail.
+"""Negative controls for the #387/#602 gmstep and option-off checks.
 
-sim_gmstep.cpp grades a grandmaster change that steps the PHC by 1.5 s while
-an AAF stream is bound and locked under CRF selection, against the #387
-decision: tu on the commit edge and a holdover after the step, the stream kept
-streaming, one counted render re-base, one mr toggle and one MEDIA_RESET, all
-of them the step's. Each control plants one defect into a private copy of the
-source that carries the property - the datapath, the clock-validity block or
-the render setpoint stage - and rebuilds the SAME leg through the Makefile's
-own recipe (`make gmstep-build` with DP_SRC, CLKV_SRC or RSP_SRC, and
-GMSTEP_MDIR, overridden) and runs it. Each control must make the leg FAIL by
-its OWN verdict (a `[FAIL]` line or a tally with failures, read by
-scripts/suite_tally.py), and the named check must be among the failures; a
-crash or an abort is not a catch. The positive control is the clean leg the
-sweep just built (obj_gmstep), re-run here; a binary older than any input of
-its recipe is stale (a direct run after a source edit) and is rebuilt instead
-of graded.
+The #602 ruling excludes PHC-only causes from outgoing mr and MEDIA_RESET.
+The clean gmstep leg must still grade tu holdover, continuous transport and
+one counted render re-base. Real source changes and selected-CRF received
+mr must still propagate. Each control rebuilds the same harness against a
+disposable source copy through the Makefile and must fail its named check.
+A compile error, crash or missing harness verdict is not a catch. The clean
+leg is rebuilt if older than its inputs and must pass first.
 
-Two controls plant into the datapath but grade the option-off leg
-(sim_main.cpp, `make option-off-build` with DP_SRC and OPTOFF_MDIR
-overridden), where the harness itself commands a CLKV adjtime and a software
-settime on an INTERNAL media clock: a settime that no longer toggles mr, and
-a step toggle gated by the CRF clock-source selection. Their positive
-control is that leg's clean build (obj_dir), under the same freshness rule.
-
-Two inventories. The default run, which `make run` ends with, plants the
-three controls issue #387's acceptance names: the step not toggling mr, the
-render stage re-basing twice (the grandmaster identity as well as the step),
-and the step not re-centring the render stage at all (ruling 5802264260
-item 1: disabling the re-centre must fail the one-counted-event check). Each
-costs one elaboration of the datapath, which is why the rest of the inventory
-is the explicit `make gmstep-mutants` target (`--all`), per
-docs/testing/TESTING.md's explicit-campaign rule; the option-off controls
-are in that explicit inventory too. The third arm the
-acceptance names, a pending restart that a step cancels, is in
-tb/verilator/tkdiag (T17, T18 and mcr_mutants.py), where the restart engine's
-holds can be driven PDU by PDU.
+The default inventory restores the PHC restart term, removes the source
+change or CRF propagation, adds an identity-driven render re-base, or removes
+the step-driven render re-base. Disabling re-base must fail the counted-event
+check: #387 ruling 5802264260 item 1 replaced the impossible drift claim for
+this accept-timed stage. The explicit --all campaign also grades the existing
+holdover, continuity, render-law and slew controls, and restores either PHC
+cause separately on the INTERNAL option-off leg.
+It also restores both PHC causes together and vetoes a genuine CRF request
+on the very cycle a software settime re-bases the PHC.
+Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
 
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
@@ -65,15 +48,18 @@ SOURCES = {
     "datapath": HERE / "../../../hdl/milan/milan_datapath.sv",
     "clkv": HERE / "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
     "stage": HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
+    "restart": HERE / "../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv",
 }
 #: the make variable that points the recipe at each source
-MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC"}
+MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC", "restart": "MCR_SRC"}
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
 #: the render stage's re-base trigger; its second line is also the anchor the
 #: #386 and #447 render runners plant their clock-source control on
 RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
+RESTART_TRIGGER = "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);"
+RESTART_DECL = "  wire mcr_restart_p_w = crf_clk_selected_r\n" + RESTART_TRIGGER
 TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
 
 
@@ -104,8 +90,9 @@ class Control(NamedTuple):
     anchor: str                 #: the text it replaces, exactly once
     replacement: str
     breaks: str                 #: the named check that must fail
-    acceptance: bool            #: named by #387's acceptance: runs by default
+    acceptance: bool            #: named by #387/#602 acceptance: runs by default
     leg: str = "gmstep"         #: a key of LEGS
+    stays_clean: tuple[str, ...] = ()  #: sibling checks this cause must not break
 
 
 # The counter input is delayed independently of the slew-level release.
@@ -140,10 +127,18 @@ CONTROLS = [
             "  end : probe_addend_delay\n" +
             COUNTER_ADDEND_PORT.replace("(phc_adj_ts_w)", "(probe_adj_r)"),
             "slew path: every staged sample covers the PHC tail", False),
-    Control("the step does not toggle mr", "datapath",
-            "                       | media_rebase_p_w;",
-            "                       ;",
-            "restart: the outgoing mr toggles exactly once", True),
+    Control("the PHC re-base restart term is restored", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            "restart: a PHC-only step leaves outgoing mr unchanged", True),
+    Control("the source-change term is removed", "restart",
+            "src_change_w = (clk_src_q_r != clk_src_i);",
+            "src_change_w = 1'b0;",
+            "source control: a real source change toggles mr once", True),
+    Control("selected CRF mr propagation is removed", "datapath",
+            RESTART_TRIGGER,
+            "                          & (tkd_crflk_q_r & ~crf_locked_w);",
+            "CRF control: selected CRF mr propagates exactly once", True),
     Control("the grandmaster identity re-bases the render stage as well as the step",
             "datapath", RENDER_TRIGGER,
             "       gm_recentre_p_r | media_rebase_p_w\n       | src_recentre_p_r;",
@@ -187,15 +182,47 @@ CONTROLS = [
             "                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : snap_rptr_w - 1'b1;\n"
             "                prefill_r[s] <= 1'b0;",
             "render: every PDU push leaves the target fill across the event", False),
-    Control("a software settime does not toggle mr", "datapath",
-            "                       | media_rebase_p_w;",
-            "                       | eff_ptp_adjust_w;",
-            "CLKV: the settime toggled mr once more (#387)", False, "option-off"),
-    Control("the step's mr toggle is gated by the CRF clock-source selection", "datapath",
-            "                       | media_rebase_p_w;",
-            "                       | (crf_clk_selected_r & media_rebase_p_w);",
-            "CLKV: its mr toggled once per PHC step issued so far (#387)", False,
-            "option-off"),
+    Control("software settime is restored as an mr cause", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " | cfg_ptp_cmd_load;",
+            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off",
+            ("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",)),
+    Control("PHC adjtime is restored as an mr cause", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " | eff_ptp_adjust_w;",
+            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",)),
+    Control("both PHC restart causes are restored", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
+    Control("PHC adjtime becomes an mr cause 16 cycles later", "datapath",
+            RESTART_DECL,
+            "  logic [15:0] probe_adj_sr_r;\n"
+            "  always_ff @(posedge axis_clk) begin : probe_adj_delay\n"
+            "    if (!axis_resetn) probe_adj_sr_r <= '0;\n"
+            "    else probe_adj_sr_r <= {probe_adj_sr_r[14:0], eff_ptp_adjust_w};\n"
+            "  end : probe_adj_delay\n" +
+            RESTART_DECL[:-1] + " | probe_adj_sr_r[15];",
+            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
+                           "CLKV: settime adds no MEDIA_RESET (#602)")),
+    Control("PHC adjtime becomes an mr cause 256 cycles later", "datapath",
+            RESTART_DECL,
+            "  logic [8:0] probe_adj_cnt_r;\n"
+            "  always_ff @(posedge axis_clk) begin : probe_adj_count\n"
+            "    if (!axis_resetn) probe_adj_cnt_r <= '0;\n"
+            "    else if (eff_ptp_adjust_w) probe_adj_cnt_r <= 9'd256;\n"
+            "    else if (probe_adj_cnt_r != 9'd0) probe_adj_cnt_r <= probe_adj_cnt_r - 9'd1;\n"
+            "  end : probe_adj_count\n" +
+            RESTART_DECL[:-1] + " | (probe_adj_cnt_r == 9'd1);",
+            "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
+            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
+                           "CLKV: settime adds no MEDIA_RESET (#602)")),
+    Control("a PHC step suppresses a coincident CRF restart", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " & ~media_rebase_p_w;",
+            "coincident: a PHC step does not suppress the CRF restart", False),
 ]
 
 
@@ -285,6 +312,9 @@ def run_control(control: Control, work: Path, tag: int) -> bool:
     answer = verdict(rc, out, control.breaks)
     if answer == "caught":
         broke = failed_checks(out)
+        if any(clean in failure for clean in control.stays_clean for failure in broke):
+            print(f"[FAIL] control {control.name!r} also broke an unrelated event check: {broke}")
+            return False
         print(f"[PASS] control caught: {control.name} - breaks \"{control.breaks}\"")
         print(f"    it broke {len(broke)} check(s): {'; '.join(broke)}")
         return True
