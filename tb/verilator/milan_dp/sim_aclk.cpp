@@ -1219,18 +1219,30 @@ class MediaGridAlignmentHarness {
     //! nothing from reset until the binding walk ends, and PP_CTRL[1] is what
     //! starts that walk. The firmware sets it on every boot before it enables
     //! the entity; a harness that binds a sink over ACMP owes the same step.
-    //! No image is configured, so the backend answers blank media and the
-    //! walk sequences in a few hundred cycles.
+    //! No NVM image is configured, so the backend answers blank media. Since
+    //! processor pin d352bbaa the D3 walk follows the binding walk and must
+    //! prove the AEM image first; this bench serves none, so it ends CLOSED
+    //! (PP_STAT[16]; busy 0, done 0, fail 1, D3 cause 7 at [20:18]), which
+    //! releases the listener and holds AECP. The wait ends on either terminal
+    //! and the checks name the one this bench reaches.
     void start_the_boot_restore_walk() {
         constexpr uint16_t A_PP_CTRL = 0x920;
         constexpr uint16_t A_PP_STAT = 0x924;
+        constexpr uint32_t kBusy = 1u << 1;
+        constexpr uint32_t kDone = 1u << 2;
+        constexpr uint32_t kFail = 1u << 3;
+        constexpr uint32_t kClosed = 1u << 16;
         axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
-        unsigned done = 0;
-        for (int r = 0; r < 400 && !done; r++) {
+        uint32_t st = 0;
+        for (int r = 0; r < 400 && !(st & (kDone | kClosed)); r++) {
             for (int c = 0; c < 64; c++) step();
-            done = (axi_read(A_PP_STAT) >> 2) & 1u;
+            st = axi_read(A_PP_STAT);
         }
-        ck("[RENDER-BIND] PP_STAT[2] the restore walk sequenced", done, 1);
+        ck("[RENDER-BIND] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, "
+           "done 0, fail 1)",
+           static_cast<unsigned long>((st & (kBusy | kDone | kFail | kClosed)) == (kFail | kClosed)), 1);
+        ck("[RENDER-BIND] PP_STAT[20:18] ...on the D3 cause of an unproven image (7)",
+           (st >> 18) & 7u, 7);
     }
 
     // =================================================================== //
