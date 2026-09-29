@@ -33,7 +33,7 @@ echo "LOCK $(ts)"
 echo "start_local $(ts) PRE=$PRE WIN=$WIN POST=$POST" > "$OUT/timeline.txt"
 $SSH $CAPSRV "mkdir -p /tmp/a258 && sudo -n timeout $CAPMAX tcpdump -i $TAPIF -w /tmp/a258/tap-run.pcap" > "$OUT/tcpdump-tap.log" 2>&1 &
 CAP=$!
-$SSH $CTRL "sudo -n timeout $CAPMAX tcpdump -i ens10 -w /tmp/a258/controller-host-run.pcap ether proto 0x22f0" > "$OUT/tcpdump-controller-host.log" 2>&1 &
+$SSH $CTRL "sudo -n timeout $CAPMAX tcpdump -i <host-iface> -w /tmp/a258/controller-host-run.pcap ether proto 0x22f0" > "$OUT/tcpdump-controller-host.log" 2>&1 &
 CAP2=$!
 timeout $((CONDUR + 30)) python3 $PK/tools/console_poll.py $P $OUT/console.txt $CONDUR 0.5 milan_status \
   'mem_read 0x90000750 4' 'mem_read 0x90000764 4' 'mem_read 0x90000694 4' 'mem_read 0x9000066c 4' \
@@ -44,26 +44,26 @@ sleep 6
 S1=$(stat -c %s "$OUT/console.txt" 2>/dev/null || echo 0)
 sleep 2
 S2=$(stat -c %s "$OUT/console.txt" 2>/dev/null || echo 0)
-if ! grep -q "listening on $TAPIF" "$OUT/tcpdump-tap.log" || ! grep -q "listening on ens10" "$OUT/tcpdump-controller-host.log" || [ "$S2" -le "$S1" ]; then
+if ! grep -q "listening on $TAPIF" "$OUT/tcpdump-tap.log" || ! grep -q "listening on <host-iface>" "$OUT/tcpdump-controller-host.log" || [ "$S2" -le "$S1" ]; then
   tl "PREFLIGHT_FAIL tap=$(grep -c listening "$OUT/tcpdump-tap.log") ctrl=$(grep -c listening "$OUT/tcpdump-controller-host.log") console=$S1->$S2"
   kill $CON 2>/dev/null
   $SSH $CAPSRV "sudo -n pkill -INT -f '^tcpdump -i $TAPIF -w /tmp/a258/tap-run\.pcap$'"
-  $SSH $CTRL "sudo -n pkill -INT -f '^tcpdump -i ens10 -w /tmp/a258/controller-host-run\.pcap ether proto 0x22f0$'"
+  $SSH $CTRL "sudo -n pkill -INT -f '^tcpdump -i <host-iface> -w /tmp/a258/controller-host-run\.pcap ether proto 0x22f0$'"
   wait
   echo "UNLOCK $(ts)"
   exit 2
 fi
 tl "preflight_ok console=$S1->$S2"
-$SSH $CTRL "sudo -n timeout $CTRDUR python3 /tmp/a258/a231_counters_poll.py ens10 $((CTRDUR - 20)) 1 \
+$SSH $CTRL "sudo -n timeout $CTRDUR python3 /tmp/a258/a231_counters_poll.py <host-iface> $((CTRDUR - 20)) 1 \
   $DUT=$DMAC:6:1 $DUT=$DMAC:6:0 $PEER=$PMAC:5:8 > /tmp/a258/counters.jsonl 2>&1; echo CTR_RC=\$?" > "$OUT/counters-poll.rc" 2>&1 &
 CTR=$!
 sleep 10
 tl bind_window_start
-$SSH $CTRL "sudo -n timeout -k 30 $((PRE + WIN + POST + 60)) python3 /tmp/a258/crf_bind_window.py ens10 $PRE $WIN $POST > /tmp/a258/bind.jsonl 2>&1; echo BIND_RC=\$?" > "$OUT/bind.rc" 2>&1
+$SSH $CTRL "sudo -n timeout -k 30 $((PRE + WIN + POST + 60)) python3 /tmp/a258/crf_bind_window.py <host-iface> $PRE $WIN $POST > /tmp/a258/bind.jsonl 2>&1; echo BIND_RC=\$?" > "$OUT/bind.rc" 2>&1
 tl "bind_window_end rc=$(cat "$OUT/bind.rc" | tr '\n' ' ')"
 sleep 20
 $SSH $CAPSRV "sudo -n pkill -INT -f '^tcpdump -i $TAPIF -w /tmp/a258/tap-run\.pcap$'"; tl "tap_stop_rc=$?"
-$SSH $CTRL "sudo -n pkill -INT -f '^tcpdump -i ens10 -w /tmp/a258/controller-host-run\.pcap ether proto 0x22f0$'"; tl "ctrl_stop_rc=$?"
+$SSH $CTRL "sudo -n pkill -INT -f '^tcpdump -i <host-iface> -w /tmp/a258/controller-host-run\.pcap ether proto 0x22f0$'"; tl "ctrl_stop_rc=$?"
 $SSH $CTRL "sudo -n pkill -TERM -f '^python3 /tmp/a258/a231_counters_poll\.py '"; tl "ctr_stop_rc=$?"
 wait $CAP; tl "capture_tap_rc=$?"
 wait $CAP2; tl "capture_ctrl_rc=$?"
