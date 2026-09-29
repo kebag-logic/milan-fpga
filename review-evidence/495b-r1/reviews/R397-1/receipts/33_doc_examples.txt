@@ -1,0 +1,9 @@
+sw/builder/README-parameters.md:162: '0x001B_C50A_C100_0005': MAC refuse(mac: '0x001B_C50A_C100_0005' is not a MAC-48 (six two-digit ); HEX64 accept
+sw/builder/README-parameters.md:163: '1234567890123456': MAC refuse(mac: '1234567890123456' is not a MAC-48 (six two-digit hex o); HEX64 accept
+sw/builder/README-parameters.md:170: '020000000002': MAC accept; HEX64 accept
+sw/builder/README-parameters.md:170: '0x0200_0000_0002': MAC accept; HEX64 accept
+sw/builder/README-parameters.md:170: '02:00:00:00:00:02': MAC accept; HEX64 refuse(hex: '02:00:00:00:00:02' is not a hex EUI-64 (hex digits wit)
+sw/builder/README-parameters.md:170: '02-00-00-00-00-02': MAC accept; HEX64 refuse(hex: '02-00-00-00-00-02' is not a hex EUI-64 (hex digits wit)
+sw/builder/README-parameters.md:171: '0:2': MAC refuse(mac: '0:2' is not a MAC-48 (six two-digit hex octets with on); HEX64 refuse(hex: '0:2' is not a hex EUI-64 (hex digits with an optional )
+sw/builder/README-parameters.md:171: '2:0:0:0:0:2': MAC refuse(mac: '2:0:0:0:0:2' is not a MAC-48 (six two-digit hex octets); HEX64 refuse(hex: '2:0:0:0:0:2' is not a hex EUI-64 (hex digits with an o)
+rc=0

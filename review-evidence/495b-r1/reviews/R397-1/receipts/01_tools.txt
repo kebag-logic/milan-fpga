@@ -1,0 +1,13 @@
+verilator (scoped wrapper -> container overlay 5.050):
+Verilator 5.050 2026-07-01 rev v5.050
+  verilator_bin sha256 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+host verilator on PATH without wrapper: Verilator 5.052 2026-09-05 rev v5.052
+sv2v host: sv2v v0.0.13 (bank runs); sv2v pinned in scratch: sv2v v0.0.12 (doc/code-quality gates)
+python host: Python 3.14.7 (bank, changed tests, probes)
+python pins venv: Python 3.12.13 (pins-only tests, hook and SoC mutants)
+python markdown venv: Python 3.12.13
+RV32 compiler (bank, compiler present): riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0
+riscv64-elf-gcc: riscv64-elf-gcc (Arch Linux Repositories) 15.2.0
+bank LiteX interpreter (bench venv): Python 3.14.7
+make: GNU Make 4.4.1
+bash: 5.3.20(1)-release

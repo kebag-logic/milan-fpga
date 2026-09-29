@@ -1,0 +1,618 @@
+{
+ "gates": [
+  {
+   "index": 0,
+   "name": "test_commercial_timing_grade",
+   "ok": true,
+   "seconds": 0.5
+  },
+  {
+   "index": 1,
+   "name": "test_baremetal_clock_contract",
+   "ok": true,
+   "seconds": 0.5
+  },
+  {
+   "index": 2,
+   "name": "test_rom_clock_contract",
+   "ok": true,
+   "seconds": 1.3
+  },
+  {
+   "index": 3,
+   "name": "test_rom_clock_skip_reaches_the_ledger",
+   "ok": true,
+   "seconds": 0.6
+  },
+  {
+   "index": 4,
+   "name": "test_extra_sweep_clocks",
+   "ok": true,
+   "seconds": 1.8
+  },
+  {
+   "index": 5,
+   "name": "test_tap_clock_docs",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 6,
+   "name": "test_sim_clock",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 7,
+   "name": "test_extra_sweep_invocation",
+   "ok": true,
+   "seconds": 0.8
+  },
+  {
+   "index": 8,
+   "name": "test_builder_clock_source",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 9,
+   "name": "test_declaration_contracts",
+   "ok": true,
+   "seconds": 5.2
+  },
+  {
+   "index": 10,
+   "name": "test_clock_crossing_constraints",
+   "ok": true,
+   "seconds": 8.5
+  },
+  {
+   "index": 11,
+   "name": "test_all_configs_build",
+   "ok": true,
+   "seconds": 0.4
+  },
+  {
+   "index": 12,
+   "name": "test_baremetal_profile_contract",
+   "ok": true,
+   "seconds": 395.9
+  },
+  {
+   "index": 13,
+   "name": "test_gptp_product_default_and_legacy_option",
+   "ok": true,
+   "seconds": 1.5
+  },
+  {
+   "index": 14,
+   "name": "test_gptp_launch_observer_seam",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 15,
+   "name": "test_qspi_owner_transition_completed_write_prefixes",
+   "ok": true,
+   "seconds": 8.6
+  },
+  {
+   "index": 16,
+   "name": "test_gptp_plane_reaches_the_instance",
+   "ok": true,
+   "seconds": 7.8
+  },
+  {
+   "index": 17,
+   "name": "test_gptp_plane_instance_gate_bites",
+   "ok": true,
+   "seconds": 6.0
+  },
+  {
+   "index": 18,
+   "name": "test_current_shape_matches_sweep_flags",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 19,
+   "name": "test_current_shape_matches_gen_aem_store",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 20,
+   "name": "test_capability_marks",
+   "ok": true,
+   "seconds": 0.4
+  },
+  {
+   "index": 21,
+   "name": "test_bad_configs_rejected",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 22,
+   "name": "test_port_layout_invariants",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 23,
+   "name": "test_both_policies_valid",
+   "ok": true,
+   "seconds": 0.7
+  },
+  {
+   "index": 24,
+   "name": "test_model_id_hashing",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 25,
+   "name": "test_sweep_opts_fragments",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 26,
+   "name": "test_gen_aem_store_consumes_overlay",
+   "ok": true,
+   "seconds": 0.4
+  },
+  {
+   "index": 27,
+   "name": "test_resource_calibration",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 28,
+   "name": "test_resource_determinism",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 29,
+   "name": "test_resource_verdicts",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 30,
+   "name": "test_milan_723_crf_output_rule",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 31,
+   "name": "test_crf_output_overlay_structure",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 32,
+   "name": "test_gen_aem_store_crf_output_overlay",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 33,
+   "name": "test_clock_sources_follow_the_fabric",
+   "ok": true,
+   "seconds": 0.7
+  },
+  {
+   "index": 34,
+   "name": "test_dynamic_map_topology_reaches_shape_header",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 35,
+   "name": "test_shipping_channel_map_table",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 36,
+   "name": "test_dynamic_audio_map_overlay",
+   "ok": true,
+   "seconds": 1.2
+  },
+  {
+   "index": 37,
+   "name": "test_lwsrp_reset_words_match_rtl",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 38,
+   "name": "test_lwsrp_class_constants_match_rtl",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 39,
+   "name": "test_lwsrp_tspec_and_params",
+   "ok": true,
+   "seconds": 0.6
+  },
+  {
+   "index": 40,
+   "name": "test_lwsrp_rejects",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 41,
+   "name": "test_platform_gateware_shape",
+   "ok": true,
+   "seconds": 0.5
+  },
+  {
+   "index": 42,
+   "name": "test_csr_defaults_header_consumed",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 43,
+   "name": "test_csr_defaults_rejects",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 44,
+   "name": "test_aes3_interface_switch",
+   "ok": true,
+   "seconds": 0.8
+  },
+  {
+   "index": 45,
+   "name": "test_aes3_rejects",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 46,
+   "name": "test_cbs_reset_table_single_source",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 47,
+   "name": "test_optional_blocks_default_present",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 48,
+   "name": "test_optional_block_gates_bite",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 49,
+   "name": "test_optional_block_prune_accounting",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 50,
+   "name": "test_optional_block_names_reach_the_rtl",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 51,
+   "name": "test_optional_block_consumption_gate_bites",
+   "ok": true,
+   "seconds": 0.4
+  },
+  {
+   "index": 52,
+   "name": "test_optional_blocks_reach_the_instance",
+   "ok": true,
+   "seconds": 6.3
+  },
+  {
+   "index": 53,
+   "name": "test_optional_block_instance_gate_bites",
+   "ok": true,
+   "seconds": 12.3
+  },
+  {
+   "index": 54,
+   "name": "test_clock_plan_reaches_the_instance",
+   "ok": true,
+   "seconds": 3.2
+  },
+  {
+   "index": 55,
+   "name": "test_clock_plan_instance_gate_bites",
+   "ok": true,
+   "seconds": 10.2
+  },
+  {
+   "index": 56,
+   "name": "test_every_recipe_elaborates",
+   "ok": true,
+   "seconds": 5.5
+  },
+  {
+   "index": 57,
+   "name": "test_recipe_smoke_gate_bites",
+   "ok": true,
+   "seconds": 2.4
+  },
+  {
+   "index": 58,
+   "name": "test_recipe_skip_classifier_bites",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 59,
+   "name": "test_build_sh_argv_follows_the_config",
+   "ok": true,
+   "seconds": 0.8
+  },
+  {
+   "index": 60,
+   "name": "test_build_sh_grades_its_own_bindings",
+   "ok": true,
+   "seconds": 4.6
+  },
+  {
+   "index": 61,
+   "name": "test_build_sh_dry_run_leaves_the_tracked_tree",
+   "ok": true,
+   "seconds": 0.5
+  },
+  {
+   "index": 62,
+   "name": "test_build_sh_refuses_a_preservation_it_cannot_complete",
+   "ok": true,
+   "seconds": 3.0
+  },
+  {
+   "index": 63,
+   "name": "test_toolchain_patches_are_applied",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 64,
+   "name": "test_toolchain_patch_gate_bites",
+   "ok": true,
+   "seconds": 0.5
+  },
+  {
+   "index": 65,
+   "name": "test_tdm_master_binding_reaches_the_pins",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 66,
+   "name": "test_tdm_master_binding_gate_bites",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 67,
+   "name": "test_front_end_routing_per_board",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 68,
+   "name": "test_front_end_routing_gate_bites",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 69,
+   "name": "test_i2s_pair_blend_binding",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 70,
+   "name": "test_i2s_pair_blend_gate_bites",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 71,
+   "name": "test_firmware_version_derived_from_rtl",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 72,
+   "name": "test_d8_role_pools",
+   "ok": true,
+   "seconds": 0.6
+  },
+  {
+   "index": 73,
+   "name": "test_d8_role_pools_reject",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 74,
+   "name": "test_prune_guard_hop_gate_bites",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 75,
+   "name": "test_d10_cluster_names",
+   "ok": true,
+   "seconds": 0.6
+  },
+  {
+   "index": 76,
+   "name": "test_d10_cluster_namer_paths",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 77,
+   "name": "test_d10_names_reach_the_rom",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 78,
+   "name": "test_gptp_domain_is_one_source",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 79,
+   "name": "test_gptp_dataset_matches_engine_announce",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 80,
+   "name": "test_pp_window_contract",
+   "ok": true,
+   "seconds": 0.4
+  },
+  {
+   "index": 81,
+   "name": "test_image_identity_is_baked",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 82,
+   "name": "test_image_name_table_matches_descriptors",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 83,
+   "name": "test_schema_12_keys_reach_the_image",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 84,
+   "name": "test_schema_12_refusals",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 85,
+   "name": "test_schema_11_configs_accepted_unchanged",
+   "ok": true,
+   "seconds": 0.2
+  },
+  {
+   "index": 86,
+   "name": "test_milan_base_formats_are_rate_complete",
+   "ok": true,
+   "seconds": 0.4
+  },
+  {
+   "index": 87,
+   "name": "test_per_row_format_facts_are_per_row",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 88,
+   "name": "test_builder_doc_key_map",
+   "ok": true,
+   "seconds": 0.3
+  },
+  {
+   "index": 89,
+   "name": "test_boot_policy_follows_the_declaration",
+   "ok": true,
+   "seconds": 5.9
+  },
+  {
+   "index": 90,
+   "name": "test_nvm_firmware_shapes",
+   "ok": true,
+   "seconds": 42.4
+  },
+  {
+   "index": 91,
+   "name": "test_gptp_latency_corrections_are_declared_and_carried",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 92,
+   "name": "test_audio_unit_rates_loader_contract",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 93,
+   "name": "test_audio_unit_shipping_rates",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 94,
+   "name": "test_shipping_image_contract",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 95,
+   "name": "test_shipping_image_contract_index_walk",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 96,
+   "name": "test_soc_shipping_image_contract",
+   "ok": true,
+   "seconds": 0.1
+  },
+  {
+   "index": 97,
+   "name": "test_shipping_image_contract_presence",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 98,
+   "name": "test_pp_shadow_audio_unit_rates_match_config",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "index": 99,
+   "name": "test_descriptor_fields_name_this_device",
+   "ok": true,
+   "seconds": 0.1
+  }
+ ],
+ "skipped": [
+  [
+   "gate 1b",
+   "the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what those instruments carry: a token-joining splice or a ## paste OUTSIDE the six boot-path bodies, a file beside the firmware, a cast, store or asm the resolver would place in the window, and the COMPILER half of the retired conditional-reach ban -- an arm only one build compiles whose defect no text rule reads, such as `0 &&` in the choke point's verdict test, is graded here by the text rules alone, which do not refuse it -- and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives: the splice and ## bans KEPT inside the six boot-path bodies, one #define per name (which is what refuses a read hidden in a second definition of the identity magic), the macro-body rule, the closed-grammar subset check S (the character allowlist, then the literal, digraph, trigraph, $, universal-character-name, __has_include, header-name, _Pragma and unterminated-comment refusals), read on the whole firmware before any reader, the directive readers as the two lexer corpora and the character-closure table recorded them (not re-measured), and the per-selection grading of each conditional (its text half); and the hosted builder jobs require this compiler",
+   "row"
+  ],
+  [
+   "gate 11",
+   "real report not on disk (<packet>/scratch/home_absent/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+   "row"
+  ]
+ ],
+ "total": 100,
+ "next": 100
+}

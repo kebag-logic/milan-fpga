@@ -1,0 +1,17 @@
+CONTROL ax7101_1x1_tdm8 e1: rc=0 PASS | INFO:SoC:--------------------------------------------------------------------------------
+CONTROL ax7101_8x8 e2: rc=0 PASS | INFO:SoC:--------------------------------------------------------------------------------
+H1-configure-dropped ax7101_1x1_tdm8 e1: rc=1 KILLED | AssertionError: timing grade configure missing or duplicated: []
+H1-configure-dropped ax7101_8x8 e2: rc=1 KILLED | AssertionError: timing grade configure missing or duplicated: []
+H2-configure-after-place ax7101_1x1_tdm8 e1: rc=1 KILLED | AttributeError: 'BoundedEthVivadoToolchain' object has no attribute 'post_placement_commands'. Did you mean: 'pre_placement_commands'?
+H2-configure-after-place ax7101_8x8 e2: rc=1 KILLED | AttributeError: 'BoundedEthVivadoToolchain' object has no attribute 'post_placement_commands'. Did you mean: 'pre_placement_commands'?
+H3-configure-pre-route ax7101_1x1_tdm8 e1: rc=1 KILLED | AssertionError: timing grade configured after placement
+H3-configure-pre-route ax7101_8x8 e2: rc=1 KILLED | AssertionError: timing grade configured after placement
+H4-reports-dropped ax7101_1x1_tdm8 e1: rc=1 KILLED | AssertionError: timing grade reports missing or duplicated: []
+H4-reports-dropped ax7101_8x8 e2: rc=1 KILLED | AssertionError: timing grade reports missing or duplicated: []
+H5-reports-duplicated ax7101_1x1_tdm8 e1: rc=1 KILLED | AssertionError: timing grade reports missing or duplicated: [262, 263]
+H5-reports-duplicated ax7101_8x8 e2: rc=1 KILLED | AssertionError: timing grade reports missing or duplicated: [262, 263]
+H6-reports-pre-route ax7101_1x1_tdm8 e1: rc=1 KILLED | AssertionError: timing grade reports outside routed pre-bitstream
+H6-reports-pre-route ax7101_8x8 e2: rc=1 KILLED | AssertionError: timing grade reports outside routed pre-bitstream
+H7-reports-after-place ax7101_1x1_tdm8 e1: rc=1 KILLED | AttributeError: 'BoundedEthVivadoToolchain' object has no attribute 'post_placement_commands'. Did you mean: 'pre_placement_commands'?
+H7-reports-after-place ax7101_8x8 e2: rc=1 KILLED | AttributeError: 'BoundedEthVivadoToolchain' object has no attribute 'post_placement_commands'. Did you mean: 'pre_placement_commands'?
+rc=0

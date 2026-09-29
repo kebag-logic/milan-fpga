@@ -1,0 +1,333 @@
+test_gptp_product_default_and_legacy_option:
+  [gate 1c] fabric ownership is the only product configuration
+test_gptp_launch_observer_seam:
+  [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+test_qspi_owner_transition_completed_write_prefixes:
+  [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O
+test_gptp_plane_reaches_the_instance:
+  [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+test_gptp_plane_instance_gate_bites:
+  [gate 1e mutation] 6/6 owner-carrier cuts rejected
+test_current_shape_matches_sweep_flags:
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+  [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (26 flags, --eth-port e1 == the config)
+test_current_shape_matches_gen_aem_store:
+  [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+test_capability_marks:
+  [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+  [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+  [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+test_both_policies_valid:
+  [gate 7] arty_4x4: all 3 cluster policies -> valid layouts
+  [gate 7] ax7101_8x8: all 3 cluster policies -> valid layouts
+  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s interface (32 clusters total)
+  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout expressible
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000005
+test_sweep_opts_fragments:
+  [gate 9] arty: generated OPTS/L2 byte-match sweep.sh inline table (322 chars)
+  [gate 9] ax7101: generated OPTS/L2 byte-match sweep.sh inline table (470 chars)
+  [gate 9] sh -n clean: sweep.sh + both fragments
+test_gen_aem_store_consumes_overlay:
+  [gate 10] ax7101_1x1_tdm8 overlay -> gen_aem_store --overlay: svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh (40979 B); no RTL destination touched; 4 stream descriptors in 1722.1-2021 Table 7-8 layout
+  [gate 10] gen_aem_store default path == arty_current overlay (refactor guard)
+test_resource_calibration:
+  [gate 11] SKIP: real report not on disk (<packet>/scratch/home_absent/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+test_resource_determinism:
+  [gate 12] resource estimate + plan deterministic across builds
+test_resource_verdicts:
+  [gate 13] arty_4x4: verdict OVER (worst LUT 84.9%, fits the part, shared-engine rows)
+  [gate 13] ax7101_8x8: verdict OVER (worst LUT 85.4%, fits the part, shared-engine rows)
+  [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current verdict OVER (worst LUT 81.7%), no upper-bound rows
+test_milan_723_crf_output_rule:
+  [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes rejected without crf_output (error cites 7.2.3); optional at 1 listener, format defaults to 0x041060010000BB80
+test_crf_output_overlay_structure:
+  [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] arty_current: no CRF output (deployed shape untouched)
+test_gen_aem_store_crf_output_overlay:
+  [gate 16] all 10 STREAM_INPUT/OUTPUT descriptors are 1722.1-2021 Table 7-8: formats_offset 138, redundant_offset 138+8N, R = 0, timing 0 with TIMING_FIELD_VALID clear
+  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM 6249 B structurally valid; STREAM_OUTPUT[4] = CRF (domain 0, flags 0x0003, 0x041060010000BB80), CONFIGURATION count 5, 4 output ports
+  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + 5-in/5-out reference + WB-addr arrays match the directory (CRF flags/formats in the right rows)
+test_clock_sources_follow_the_fabric:
+  [gate 33] 5/5 configs advertise INTERNAL + CRF only (overlay, header and model shape agree); input_stream refused by the config loader AND by spec_from_overlay (CLI included), crf-without-a-sink refused by the loader with internal-only accepted beside it, and the overlay arm bites
+test_dynamic_map_topology_reaches_shape_header:
+  [gate 16c] dynamic-map input keys, physical projections and output CSRC tables match both AX7101 entity models
+test_shipping_channel_map_table:
+  [gate 16d] 8 published channel-map rows match the generated shape header, the AEM overlay, the 2-based TDM lane table and the platform pin (J11.5, ball A20); a wrong key and a dropped row both refused
+test_dynamic_audio_map_overlay:
+  [gate 17] dynamic audio map: listeners[0] map_mode dynamic -> port n_maps=0, input AUDIO_MAP dropped (output renumbered to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=[2]
+  [gate 17] tracked entity definition is owned by endstation_ax7101_1x1_tdm8 (read from its own `Source : marker); it declares a dynamic port, so its svh must be `AEM_DYNMAP-bearing - and is
+  [gate 17] a Milan input owner requires `AEM_DYNMAP PRESENT and the candidate pair carries it
+  [gate 17] MUTATION rejected: owner declares a dynamic port, tracked ROM has no engine
+            (/tmp/tmp9kqcm7l_/broken.svh: `AEM_DYNMAP absent but its owner tmpupfjy6h0 (/tmp/tmpupfjy6h0.yaml) de)
+  [gate 17] MUTATION rejected: shape include names a config that does not exist
+            (/tmp/tmp9kqcm7l_/current/adp_shape_defaults.svh: `Source : configs/endstation_ghost.yaml` names no c)
+  [gate 17b] arty_4x4 ALL listeners dynamic (Milan 5.3.3.9): 4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases 0/4/8/12, CRF sink flagged unmappable
+  [gate 17c] AEM_DMAP_PHYS_C 10 == milan_datapath CHMAP_PHYS_C 10 = lanes {'i2s': (0, 2), 'tdm': (2, 8)}, mirrored by endstation_builder and aem_assemble; RPHYS validity and full-width physical-depth gates protect both render-map write arms
+  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28
+  [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), reserved source 3 absent (#259), loopback templates emitted fabric-disabled (13'h05xx) and protocol-mappable
+  [gate 17e] lane ON: loopback valid (13'h1500), primary_role/INIT move onto it (6'h21..6'h28) - declaring the lane hands the pool back
+  [gate 17f] dynamic legacy-policy output: explicit physical/virtual source pool accepted; missing/empty topology refused by descriptor, model, and ADP consumers
+  [gate 17] reject paths: static input, disagreeing input pages, mixed output map modes, and missing dynamic-output source topology raise ConfigError
+test_lwsrp_reset_words_match_rtl:
+  [gate 18a] arty_current lwSRP reset words == the generated lwsrp_csr_defaults.svh == the symbols milan_csr's reset block and csr_default table use == the REGISTER_MAP Reset column (6 registers, 6 offsets)
+test_lwsrp_class_constants_match_rtl:
+  [gate 18d] Milan 4.3.3.2 bandwidth recipe: the clamped CRF row and an unclamped 4ch AAF row both compose to the clause's kb/s, and the step-2 clamp bites (lwsrp_pkg.sv comparand DELETED)
+  [gate 18b] PriorityAndRank == the generated symbol milan_csr drives (emitter -> lwsrp_csr_defaults.svh -> RTL); the reference lwsrp_table.svh still carries the words the CSR subset was cut from, and no hdl/ieee8021q/srp tree was recreated
+test_lwsrp_tspec_and_params:
+  [gate 18c] arty_current: TSpec derived, 7360000 bps = 7.36% of the port (ceiling 75%), ctx rows 2 needed / 2 available
+  [gate 18c] arty_4x4: TSpec derived, 47360000 bps = 47.36% of the port (ceiling 75%), ctx rows 9 needed / 9 available
+  [gate 18c] ax7101_8x8: TSpec derived, 138240000 bps = 13.82% of the port (ceiling 75%), ctx rows 17 needed / 17 available
+  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) contexts) marked planned; 1x1 supported
+test_lwsrp_rejects:
+  [gate 18d] 7/7 contradictory reservations rejected with ConfigError (incl. a 213 Mb/s class-A request on a 100 Mb/s port)
+test_platform_gateware_shape:
+  [gate 19] 5 gateware memory reservations contain only pp_mem; unknown/retired/unaligned inputs are refused
+test_csr_defaults_header_consumed:
+  [gate 20a] milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh; 6 reset words + PriorityAndRank == the FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: 0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals left in the RTL, 7 constants agree with the emitted lwSRP table, 4 consumers carry the include dir
+test_csr_defaults_rejects:
+  [gate 20b] 3/3 malformed LWSRP_CTRL sources rejected with ConfigError; en+talker+q4 emits 0x00000013
+test_aes3_interface_switch:
+  [gate 21a] 6 aes3/spdif shapes: one core, CONSUMER_P picks the dialect, WORD_BITS_P 16/20/24, serial clock 128x4x rate = an exact PLL divide; RTL defaults (OVERSAMPLE_P=4, LOCK_BLOCKS_P=2, 192 frames/block) parsed from the modules themselves
+test_aes3_rejects:
+  [gate 21b] 3/3 unclockable AES3 shapes rejected with ConfigError; 48 kHz AES3 rides the shipping 24.576 MHz audio PLL exactly (divide 1)
+test_cbs_reset_table_single_source:
+  [gate 22] CBS reset table single-sourced: 5 queues, sum(IDLE_SLOPE_1G) = 725 Mb/s (72.5 % <= 75 %), SR A+B = 600 Mb/s; milan_csr CBS_*_RST == the package (credits re-derived, not copied), CBS_EN_RST = 5'b00000, and both REGISTER_MAP 0x400 and EGRESS_QUEUE_MAP agree row for row
+test_optional_blocks_default_present:
+  [gate 23a] 3 shipped configs: prune posture == the declared table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 spends render_lpf + latency_taps + i2s_playback), argv flags == declared prunes, and every estimate row follows its block's declared posture
+test_optional_block_gates_bite:
+  [gate 23b] 9/9 contradictory prune configs REFUSED with ConfigError; 3/3 honest prunes accepted and their --no-* flags reach the soc argv
+test_optional_block_prune_accounting:
+  [gate 23c] supported prunes, MAAP retained: estimate -4052 LUT / -10816 FF (banked rows -3727 LUT), plan names every block, its parameter, its flag and the re-measurement it forces, labelled ESTIMATE
+test_optional_block_names_reach_the_rtl:
+  [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+  [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+test_optional_block_consumption_gate_bites:
+  [gate 23d mutation] 7/7 disconnected --no-* handoffs rejected by block name
+  [gate 23d mutation] 6/6 dedicated keywords MilanSoC.__init__ never declares rejected by block name (LiteX warns and ignores; the bitstream ships unpruned)
+  [gate 23d chain] 10/10 cut links between main() and `dp_params[f"p_{param}"] = 0` rejected, the three that would prune an UNFLAGGED build included
+test_optional_blocks_reach_the_instance:
+  [gate 23f] 8 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8, the shipping AX shape, in 6 s: each of the 7 --no-* flags lands as p_<PARAM>=0 in the Instance("milan_datapath") parameters and moves NOTHING else, a build that prunes nothing passes none of them (16 parameters, byte-identical top .v). Fabric gPTP's product default is graded separately by gate 1e. This grades what elaboration HANDS the module, not what the module DOES with it (gate 23d) and not that the bitstream places or boots
+test_optional_block_instance_gate_bites:
+  [gate 23f mutation] 8/8 broken links of the argv -> Instance chain rejected in 12 s: a dropped CLI handoff, two dropped constructor keywords, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, and both prune polarities inverted; gate 1e separately owns the profile-aware gPTP chain
+test_clock_plan_reaches_the_instance:
+  [gate 23l] 4 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8 in 3 s: --audio-fs-hz and --audio-word-bits land as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P (2 x SLOTS x slot bits x fs) with them, singly and together, moving NOTHING else; at the declared shipping values both are ABSENT, so the tracked configs' top .v is byte-identical to the build before #399. This grades what elaboration HANDS the module, not that the bitstream places or boots
+test_clock_plan_instance_gate_bites:
+  [gate 23l mutation] 7/7 broken links of the declaration -> Instance chain rejected in 10 s: a dropped CLI handoff, a dropped constructor keyword, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, a bit clock that stopped following the declaration, and a parameter passed at the default
+test_every_recipe_elaborates:
+  [gate 23g] 5/5 shipped recipes reach Instance("milan_datapath") in 4 s, each with the flow tail its own launcher appends (--build included, the flag every shape gate excludes). This proves a recipe RUNS, not that it builds the SoC its config describes - that comparison is gate 1e's and #155 carries where the two disagree
+test_recipe_smoke_gate_bites:
+  [gate 23g mutation] 2/2 recipes stripped of --entity-gen-dir refused to elaborate, which is #156 item 1 replayed on the recipes that shipped it
+test_recipe_skip_classifier_bites:
+  [gate 23g classifier] 8/8 shaped results and 4/4 --require-elaboration verdicts graded as [R0] on PR #188 requires: a synthetic recorded Arty error and scopt's own refusal of an --l2-* argument are the only skip shapes, a stale #184 row and every other failure fail, and the toolchain skip fails --require-elaboration
+test_build_sh_argv_follows_the_config:
+  [gate 23i] --no-datapath-probes planted in a throwaway config reached the build.sh arty launch line at position 6 of 34 with build.sh unedited; the other 26 design tokens and the 5-token flow tail are the unplanted line's, verbatim
+test_build_sh_grades_its_own_bindings:
+  [gate 23i-b] 3 build.sh recipes keep their own bindings with BUILD_CFG=endstation_ax7101_8x8.yaml exported
+test_build_sh_dry_run_leaves_the_tracked_tree:
+  [gate 23j] a dry run whose builder run would rewrite lwsrp_csr_defaults.svh exited 2 with no launch line, left the tracked bytes as it found them and left no configs/generated/gate23j_planted behind
+test_build_sh_refuses_a_preservation_it_cannot_complete:
+  [gate 23k] over lwsrp_csr_defaults.svh: a refused temporary directory, a copy that failed, one short and loud, one short and silent, the first as a real launch, a failed put-back, one short and reporting success, and an absent file each refused with no launch line, no provenance line, the bytes on disk untouched or named with the copy kept for them, and no include directory left behind; and over adp_shape_defaults.svh the bound config's own absent include refused the same way, with its artefact not rewritten
+test_toolchain_patches_are_applied:
+  [gate 23h] the 3 patches in sw/litex/patches are the 3 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 3 installed files byte for byte, including 0 that two patches share and must therefore compose on ({}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+test_toolchain_patch_gate_bites:
+  [gate 23h mutation] 3/3 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 3 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+test_tdm_master_binding_reaches_the_pins:
+  [gate 24] TDM master L1 binding: 2 parameters name-matched into milan_datapath, KL_tdm_capture_master instantiated on clk_tdm_i, 5 signals RTL-port -> SoC -> AX7101 J11 ball, collision-free, loose-requested
+test_tdm_master_binding_gate_bites:
+  [gate 24b] 7/7 binding mutations REJECTED (name mismatch, wrong clock, slave-instead-of-master, unbound pad, unrouted pin, default-on, strict request)
+test_front_end_routing_per_board:
+  [gate 24c] per-board front-end routing: tdm routed {'arty': True, 'ax7101': True}; 3 configs checked at BOTH tdm_bus_wired() states; the refusal runs before the platform is built; o_i2s_mclk_o binds only to i2s_pads[0] (pmoda:4 D13) or tdm_pads
+test_front_end_routing_gate_bites:
+  [gate 24d] 9/9 routing mutations REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, refusal deleted / mis-keyed / late / undefended, a routed header losing its pins, a kind added on one side only, and the argv itself selecting TDM for the Arty in BOTH tree states)
+test_i2s_pair_blend_binding:
+  [gate 24e] 8.3b blend: 6 bindings held; arty_4x4 supplies 5 pairs (I2S at slot 0), AX7101 stays solo
+test_i2s_pair_blend_gate_bites:
+  [gate 24e-b] 6/6 blend-binding mutations REJECTED
+test_firmware_version_derived_from_rtl:
+  [gate 24] firmware_version DERIVED from milan_csr VERSION 0x0002_0060 -> '2.96.0': 3/3 configs derive it and declare none, it lands zero-padded at ENTITY+116 in all 3 ROMs (1722.1 7.2.1 Table 7-2), no entity_model_id moves with it (6.2.2.8 exclusion; arty_current still pinned 0x001BC50AC1000005), firmware_rev 7 -> 2.96.7 with the same id, 4/4 bad declarations refused
+test_d8_role_pools:
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+  [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough)
+  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, exceeds the 16-bit AEM store address space, is marked rather than emitted, and --write-rtl REFUSES it (D6 is the owner)
+  [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}
+test_d8_role_pools_reject:
+  [gate 24b] 8/8 contradictory pool configs REFUSED with ConfigError
+test_prune_guard_hop_gate_bites:
+  [gate 23d one-hop] 2 positive site(s) resolved, 4 mutations refused, inert else arm present at the followed site
+test_d10_cluster_names:
+  [gate 24c] every cluster named for its ROLE; renaming leaves entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a pool width moves it; pre-D8 hashes stay explicitly pinned to their current model
+test_d10_cluster_namer_paths:
+  [gate 24d] empty-rx loopback names by offset (and by source when a receive space exists), an unknown role is refused by name, every primary role in PRIMARY_ROLE_ORDER has a namer, and 97 cluster names across 2 configs match the tracked golden name for name
+test_d10_names_reach_the_rom:
+  [gate 24d] role names reach the descriptor bytes; the tracked shape include matches its OWNER (endstation_ax7101_1x1_tdm8) byte for byte (aem_golden.h comparand DELETED with the aecp suite)
+test_gptp_domain_is_one_source:
+  [gate 26] gptp.domain 3 REFUSED with the 802.1AS-2011 8.1 clause; legal domain 0 reaches fabric configuration; CSR readback and protocol output are structural 0 in both shapes; the chain reaches the advertising plane's gptp_domain_i
+test_gptp_dataset_matches_engine_announce:
+  [gate 26b] AVB_INTERFACE == wire Announce for all 5 configs: priority2 248, clockQuality 0xF8FE436A, log intervals -3/0/0; omitted keys fill from the engine; the parser refuses a missing or twice-declared constant ([R-parallel] on #228)
+test_pp_window_contract:
+  [gate 27] 5 processor-memory windows are single-sourced
+test_image_identity_is_baked:
+  [gate 28] ax7101_1x1_tdm8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC5C40236BA0E, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 2 source(s)/0x4801 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] arty_current: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC50AC1000005, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 1 source(s)/0x4001 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] arty_4x4: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC557FC6ABBC8, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 5 source(s)/0x4801 + 5 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] ax7101_8x8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC572F79BC5D1, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 9 source(s)/0x4801 + 9 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+test_image_name_table_matches_descriptors:
+  [gate 28b] arty_current: all 28 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_4x4: all 51 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] arty_8ch: all 83 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_8x8: all 99 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] ax7101_1x1_tdm8: all 38 writable names map byte-exactly to their READ_DESCRIPTOR fields
+  [gate 28b] schema_12_declared: all 38 writable names map byte-exactly to their READ_DESCRIPTOR fields
+test_schema_12_keys_reach_the_image:
+  [gate 25a] 5 tracked configs serve the pre-1.2 literals; all 10 schema 1.2 keys reach the image gen_aemi_image.py packs (id 0x001BC5C40236BA0E -> 0x123456C40236BA0E: OUI only); 10/10 single-key mutants named alone
+test_schema_12_refusals:
+  [gate 25b] 19 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+test_schema_11_configs_accepted_unchanged:
+  [gate 25c] 5 tracked configs declare 1.2.0 and load, re-declared 1.1.0, to the same argv, model id and image bytes; 2.0.0 refused
+test_milan_base_formats_are_rate_complete:
+  [gate 29] the builder's aaf_pcm32 derivation reproduces all 15 Milan Table 6.2 Base format strings (3 rates x 5 channel counts) and the AVTP I.2.4 ut bit of each
+  [gate 29] arty_current: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+  [gate 29] arty_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] arty_8ch: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_8x8: 8 Base Stream Input(s) complete at [48000] Hz (8 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_1x1_tdm8: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] longest STREAM descriptor 154 octets (ax7101_8x8 STREAM_INPUT[7] ('Stream In 7')), 422 clear of the 576-octet line buffer
+test_per_row_format_facts_are_per_row:
+test_builder_doc_key_map:
+  [gate 32] 112 loader keys == 112 keys across 64 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 18 untaken loader arms, where a key read is not recorded: endstation_builder.py:1529 endstation_builder.py:1609 endstation_builder.py:1613 endstation_builder.py:1976 endstation_builder.py:1980 endstation_builder.py:3248 endstation_builder.py:3337 endstation_builder.py:3439 endstation_builder.py:3671 endstation_builder.py:3680 endstation_builder.py:3717 endstation_builder.py:3736 endstation_builder.py:3773 endstation_builder.py:4127 endstation_builder.py:4223 endstation_builder.py:4250 endstation_builder.py:4419 endstation_builder.py:4425
+test_boot_policy_follows_the_declaration:
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+  [gate 35 transcript] arty_current: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] arty_current: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] arty_4x4: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=fc6abbc8 610=001bc557 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000501 750=00000003
+  [gate 35] arty_4x4: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] arty_8ch: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c86f4172 610=001bc507 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000501 750=00000003
+  [gate 35] arty_8ch: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_8x8: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=f79bc5d1 610=001bc572 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000901 750=00000003
+  [gate 35] ax7101_8x8: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_1x1_tdm8: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=0236ba0e 610=001bc5c4 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000201 750=00000003
+  [gate 35] ax7101_1x1_tdm8: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_1x1_tdm8, crf_output off: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=3e6c3999 610=001bc510 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] ax7101_1x1_tdm8, crf_output off: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 0: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 0: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 1: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 1: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 2: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 2: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 3: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 3: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35] 8/8 planted defects refused for the rule each breaks: the literal 3 back in CRFT_CTRL; a derivation that ignores the declaration; the 0x8588 ADP_CAPS write back; the LWSRP_VID write dropped; unconditional spare MAAP address; boot drops live SRP admission enable; boot drops live SRP declaration arm; boot silently enables station filtering
+test_nvm_firmware_shapes:
+endstation_arty_4x4          records= 84 image= 4520 B OK
+endstation_arty_8ch          records=116 image= 7080 B OK
+endstation_arty_current      records= 41 image= 2444 B OK
+endstation_ax7101_1x1_tdm8   records= 53 image= 3264 B OK
+endstation_ax7101_8x8        records=156 image=12680 B OK
+  self-test OK: no_ascending_check     caught by 1 finding(s); first: endstation_arty_4x4: parity: duplicate record id: firmware VD_OK, klj2_decode VD_REC
+  self-test OK: no_heartbeat_in_wait   caught by 1 finding(s); first: endstation_arty_4x4: the heartbeat was not serviced through a 3 s erase: {'hb': 2, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 18, 'max_hb_gap_ms': 3016, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4476, 'losses': 1, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'now_ms': 3036}
+  self-test OK: verify_skipped         caught by 3 finding(s); first: endstation_arty_4x4: a failed verify was not published as VD_VERIFY unacknowledged: {'hb': 37, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 18, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4476, 'losses': 0, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'now_ms': 9056}
+  self-test OK: erased_header_only     caught by 1 finding(s); first: endstation_arty_4x4: parity: erased header, live payload: firmware VD_OK, klj2_decode VD_REC
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+test_gptp_latency_corrections_are_declared_and_carried:
+test_audio_unit_rates_loader_contract:
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+test_audio_unit_shipping_rates:
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+test_shipping_image_contract:
+  [gate 36b] arty_current: rates 144/3/156, sources 76/2/80 accepted
+  [gate 36b] arty_4x4: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] arty_8ch: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] ax7101_8x8: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] ax7101_1x1_tdm8: rates 144/1/148, sources 76/2/80 accepted
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10_EMPTY
+  [gate 36b] unlisted current rate: L10_CURRENT
+  [gate 36b] current pull mismatch: L10_CURRENT
+  [gate 36b] wrong offset: L10_OFFSET
+  [gate 36b] ninth rate: L10_COUNT
+  [gate 36b] count exceeds extent: L10_COUNT_EXTENT
+  [gate 36b] one byte short: L10_PARTIAL_WORD
+  [gate 36b] one word extra: L10_EXTRA_WORDS
+  [gate 36b] reversed sources: L6_ORDER
+  [gate 36b] source gap: L6_GAP
+  [gate 36b] duplicate source: L6_DUPLICATE
+  [gate 36b] short audio header: L10_HEADER
+  [gate 36b] short domain header: L6_HEADER
+  [gate 36b] empty sources: L6_EMPTY
+  [gate 36b] short source list: L6_EXTENT
+  [gate 36b] source list in header: L6_OFFSET
+  [gate 36b] padded source offset: L6_OFFSET
+test_shipping_image_contract_index_walk:
+  [gate 36b] all 10 descriptors checked across configurations, strides and runs
+test_soc_shipping_image_contract:
+  [gate 36b] arty_current: SoC/builder images identical
+  [gate 36b] arty_4x4: SoC/builder images identical
+  [gate 36b] arty_8ch: SoC/builder images identical
+  [gate 36b] ax7101_8x8: SoC/builder images identical
+  [gate 36b] ax7101_1x1_tdm8: SoC/builder images identical
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10_EMPTY
+  [gate 36b] unlisted current rate: L10_CURRENT
+  [gate 36b] current pull mismatch: L10_CURRENT
+  [gate 36b] wrong offset: L10_OFFSET
+  [gate 36b] ninth rate: L10_COUNT
+  [gate 36b] count exceeds extent: L10_COUNT_EXTENT
+  [gate 36b] one byte short: L10_PARTIAL_WORD
+  [gate 36b] one word extra: L10_EXTRA_WORDS
+  [gate 36b] reversed sources: L6_ORDER
+  [gate 36b] source gap: L6_GAP
+  [gate 36b] duplicate source: L6_DUPLICATE
+  [gate 36b] short audio header: L10_HEADER
+  [gate 36b] short domain header: L6_HEADER
+  [gate 36b] empty sources: L6_EMPTY
+  [gate 36b] short source list: L6_EXTENT
+  [gate 36b] source list in header: L6_OFFSET
+  [gate 36b] padded source offset: L6_OFFSET
+test_shipping_image_contract_presence:
+  [gate 36b] absent row, configuration 0: L10_MISSING
+  [gate 36b] zero row count, configuration 0: L10_MISSING
+  [gate 36b] absent row, configuration 0: L6_MISSING
+  [gate 36b] zero row count, configuration 0: L6_MISSING
+  [gate 36b] absent row, configuration 1: L10_MISSING
+  [gate 36b] zero row count, configuration 1: L10_MISSING
+  [gate 36b] absent row, configuration 1: L6_MISSING
+  [gate 36b] zero row count, configuration 1: L6_MISSING
+  [gate 36b] header configuration count 0: IMAGE_CONFIGS
+  [gate 36b] header configuration count 3: L10_MISSING
+test_pp_shadow_audio_unit_rates_match_config:
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+CHUNK start=13 next=100 of 100 rc=0 elapsed=136s
+
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what those instruments carry: a token-joining splice or a ## paste OUTSIDE the six boot-path bodies, a file beside the firmware, a cast, store or asm the resolver would place in the window, and the COMPILER half of the retired conditional-reach ban -- an arm only one build compiles whose defect no text rule reads, such as `0 &&` in the choke point's verdict test, is graded here by the text rules alone, which do not refuse it -- and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives: the splice and ## bans KEPT inside the six boot-path bodies, one #define per name (which is what refuses a read hidden in a second definition of the identity magic), the macro-body rule, the closed-grammar subset check S (the character allowlist, then the literal, digraph, trigraph, $, universal-character-name, __has_include, header-name, _Pragma and unterminated-comment refusals), read on the whole firmware before any reader, the directive readers as the two lexer corpora and the character-closure table recorded them (not re-measured), and the per-selection grading of each conditional (its text half); and the hosted builder jobs require this compiler
+  - [gate 11] real report not on disk (<packet>/scratch/home_absent/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 2 NOT RUN
+rc=0

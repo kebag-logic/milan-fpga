@@ -1,0 +1,43 @@
+== job 109244340878
+elaborate	Elaboration gates	[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_a
+elaborate	Elaboration gates	[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_a
+elaborate	Elaboration gates	[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_
+elaborate	Elaboration gates	[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_
+elaborate	Elaboration gates	  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+elaborate	Elaboration gates	[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+elaborate	Elaboration gates	[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter rea
+elaborate	Elaboration gates	[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+elaborate	Elaboration gates	[495 MAC] 9 named shape rules, 30 spellings refused
+elaborate	Elaboration gates	[495 hex] 10 hex fields: 8 named shape rules and the width refused
+elaborate	Elaboration gates	test_baremetal_profile_contract:
+elaborate	Elaboration gates	  [gate 1b] shipping AX: fabric gPTP option on with config-derived 1024-word ROM; VexiiRiscv RV32I at the contract clock through its supported decoupled clock, one hart, L2=0, bare-metal flash, no Scala
+elaborate	Elaboration gates	3 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+elaborate	Elaboration gates	  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. N
+elaborate	Elaboration gates	  - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 53 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the e
+elaborate	Elaboration gates	  - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+elaborate	Elaboration gates	ALL GATES PASS EXCEPT 3 NOT RUN
+== job 109244340834
+docs-check	Compiler-absent firmware controls	  [gate 1b] shipping AX: fabric gPTP option on with config-derived 1024-word ROM; VexiiRiscv RV32I at the contract clock through its supported decoupled clock, one hart, L2=0, bare-meta
+docs-check	End-station builder gates	  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+docs-check	End-station builder gates	[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+docs-check	End-station builder gates	[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interp
+docs-check	End-station builder gates	[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+docs-check	End-station builder gates	[495 MAC] 9 named shape rules, 30 spellings refused
+docs-check	End-station builder gates	[495 hex] 10 hex fields: 8 named shape rules and the width refused
+docs-check	End-station builder gates	test_baremetal_profile_contract:
+docs-check	End-station builder gates	  [gate 1b] shipping AX: fabric gPTP option on with config-derived 1024-word ROM; VexiiRiscv RV32I at the contract clock through its supported decoupled clock, one hart, L2=0, bare-metal flash,
+docs-check	End-station builder gates	15 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+docs-check	End-station builder gates	  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to 
+docs-check	End-station builder gates	  - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 53 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that pro
+docs-check	End-station builder gates	  - [gate 1e] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_li
+docs-check	End-station builder gates	  - [gate 1e mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scri
+docs-check	End-station builder gates	  - [gate 11] real report not on disk (<home-path>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+docs-check	End-station builder gates	  - [gate 23f] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_l
+docs-check	End-station builder gates	  - [gate 23f mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scr
+docs-check	End-station builder gates	  - [gate 23l] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_l
+docs-check	End-station builder gates	  - [gate 23l mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scr
+docs-check	End-station builder gates	  - [gate 23g] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_l
+docs-check	End-station builder gates	  - [gate 23g mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scr
+docs-check	End-station builder gates	  - [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_l
+docs-check	End-station builder gates	  - [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scr
+docs-check	End-station builder gates	ALL GATES PASS EXCEPT 15 NOT RUN
