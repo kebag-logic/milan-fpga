@@ -1,0 +1,8 @@
+evidence-commit blobs checked: 1858, mismatches: 0
+outer MANIFEST.json entries: 1857 published-hash mismatches: 0 unlisted: []
+path-redacted entries (author hash differs by design): ['author/capture/capture-load.txt', 'author/capture/capture-preflight.txt', 'author/gates/gates.txt', 'author/restore/host-cleanup.txt']
+author MANIFEST.sha256 failures (expected: exactly the redacted files):
+./capture/capture-load.txt: FAILED
+./capture/capture-preflight.txt: FAILED
+./gates/gates.txt: FAILED
+./restore/host-cleanup.txt: FAILED

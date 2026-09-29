@@ -1,0 +1,30 @@
+M1 re-declaration before cycle-22 Lv: DETECTED (11 FAIL lines)
+     FAIL cycle 22: registrar class IN (observed) matches replay LV
+     FAIL 42 IN observed, 57 IN inferred, 1 LV
+     FAIL 99 stops within one PDU, exactly the 100 IN-registrar cycles
+M2 IN cycle keeps streaming: DETECTED (3 FAIL lines)
+     FAIL 99 stops within one PDU, exactly the 99 IN-registrar cycles
+     FAIL stopped: last PDU after disconnect 0.006858-0.097036, median 0.008360
+     FAIL page row cycle 5
+M3 page restart cell: DETECTED (1 FAIL lines)
+     FAIL page row cycle 50
+M4 cycle-22 own LeaveAll removed: DETECTED (11 FAIL lines)
+     FAIL cycle 22: registrar class IN (observed) matches replay LV
+     FAIL 42 IN observed, 57 IN inferred, 1 LV
+     FAIL 99 stops within one PDU, exactly the 100 IN-registrar cycles
+M5 STREAM_STOP uncounted: DETECTED (4 FAIL lines)
+     FAIL cycle 50: counter delta (1, 0) decoded from raw payload
+     FAIL page row cycle 50
+     FAIL each action's after-counters equal the next action's before-counters
+M6 pre-bind TA declaration: DETECTED (1 FAIL lines)
+     FAIL bind 3 row reproduces; pre-bind window fresh
+M7 606 page latency cell: DETECTED (1 FAIL lines)
+     FAIL bind 2 row reproduces; pre-bind window fresh
+M8 block median cell: DETECTED (1 FAIL lines)
+     FAIL 608 page row present: | 41-50 | 10 | 0.013580 | 0.139247 | 2.068 |
+M9 near-table class: DETECTED (1 FAIL lines)
+     FAIL 608 page row present: | 35 | -0.099666 | IN (observed) | stop within one PDU |
+M10 growth interval: DETECTED (1 FAIL lines)
+     FAIL 608 page row present: | 0.013168 | 0.013255 | -0.000082801 | [-0.000234887, +0.000069285] | 97 |
+
+10 of 10 planted defects detected

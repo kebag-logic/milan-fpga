@@ -1,0 +1,44 @@
+categories: ['abs-path', 'account', 'eui64-fffe', 'hostname', 'hostname-private', 'iface', 'ipv4', 'mac-colon', 'serial', 'vendor-instrument']; private deny-list loaded: True
+scanned 1860 files
+
+[ipv4] distinct 1
+  sha256:01974d9ab993 kind=dotted number files=1 e.g. b2-r1/author/tools/wire_summary.py
+
+[mac-colon] distinct 2
+  sha256:fec65a05285b kind=MAAP multicast stream destination files=2 e.g. 606_FIRST_BIND_MEASUREMENT.md/606_FIRST_BIND_MEASUREMENT.md
+  sha256:0e6ed8ee11e3 kind=MAAP multicast stream destination files=1 e.g. b2-r1/author/tools/avdecc_ro.py
+
+[eui64-fffe] distinct 3
+  sha256:1f3e5f2dea1b kind=DUT (locally administered) files=566 e.g. 606_FIRST_BIND_MEASUREMENT.md/606_FIRST_BIND_MEASUREMENT.md
+  sha256:6804fb3e7fad kind=other files=565 e.g. b2-r1/author/bind/baseline/console-after.txt
+  sha256:66a7cdc0edbc kind=other files=449 e.g. b2-r1/author/bind/baseline/snapshot-after.jsonl
+
+[abs-path] distinct 0
+
+[hostname] distinct 0
+
+[iface] distinct 0
+
+[serial] distinct 0
+
+[hostname-private] distinct 0
+
+[vendor-instrument] distinct 0
+
+[account] distinct 1
+  sha256:7fa5de93a443 kind=other files=4 e.g. 606_FIRST_BIND_MEASUREMENT.md/606_FIRST_BIND_MEASUREMENT.md
+
+[identifier classification: EUI-64 (fffe form) and EUI-48 tokens]
+  sha256:1f3e5f2dea1b len=16 locally administered; DUT (locally administered); occurrences=1614; exact token in public refs: ['13eda870d1a6', '7af405df9491']
+  sha256:41f2033b1234 len=12 group (multicast); MAAP multicast stream destination; occurrences=427; exact token in public refs: NO
+  sha256:645d219fdca2 len=12 group (multicast); MAAP multicast stream destination; occurrences=2; exact token in public refs: NO
+  sha256:66a7cdc0edbc len=16 universally administered (vendor OUI); other; occurrences=1244; exact token in public refs: ['7af405df9491']
+  sha256:6804fb3e7fad len=16 universally administered (vendor OUI); other; occurrences=1130; exact token in public refs: ['13eda870d1a6', '7af405df9491']
+  sha256:6deda8e57a59 len=12 universally administered (vendor OUI); other; occurrences=2; exact token in public refs: ['13eda870d1a6', '7af405df9491']
+  sha256:75a3d3d23d49 len=12 group (multicast); MAAP multicast stream destination; occurrences=2; exact token in public refs: ['13eda870d1a6', '7af405df9491']
+  sha256:77530459ff60 len=12 group (multicast); MAAP multicast stream destination; occurrences=4; exact token in public refs: NO
+  sha256:b4d21713c69f len=12 group (multicast); MAAP multicast stream destination; occurrences=2; exact token in public refs: NO
+
+[16-hex identifiers sharing a vendor OUI with a universally administered EUI-64 above (entity/stream IDs without fffe)]
+  sha256:9614725b6a1d OUI-sha256:bf1a921cecf1; occurrences=1763; exact token in public refs: ['13eda870d1a6', '7af405df9491']
+  sha256:bfa8f3d69d2c OUI-sha256:bf1a921cecf1; occurrences=176; exact token in public refs: ['7af405df9491']

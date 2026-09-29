@@ -1,0 +1,32 @@
+head c37f1d04e39be0344dfde77e793cdfa441bd4869 python Python 3.14.7 cmarkgfm ? 
+== scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102 rc=0
+check_em_dash: 0 finding(s) over 802 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+== scripts/check_em_dash.py --selftest rc=0
+check_em_dash selftest: PASS (339 arm(s))
+== scripts/gen_toc.py --check rc=0
+TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+== scripts/check_doc_style.py rc=0
+documentation style: OK (22 current documents)
+== scripts/check_doc_style.py --selftest rc=0
+documentation style selftest: OK
+== scripts/check_doc_paths.py rc=0
+doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+== scripts/check_gptp_docs.py rc=0
+gPTP documentation: OK (8 current pages)
+== docs/DOC_MAP.gen.py --check rc=0
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+== scripts/check_feature_status.py --self-test rc=0
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+== scripts/check_baremetal_only.py --check rc=0
+baremetal-only: OK (0 findings across 936 tracked first-party file(s))
+== scripts/ci_scope.py --selftest rc=0
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+== git diff --check 13eda870..HEAD rc=0

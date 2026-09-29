@@ -1,0 +1,44 @@
+# saved-state layer (milan_nvm) reads
+  2026-09-29T06:49:58.397376Z identity/console-identity.txt
+     NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+     NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+  2026-09-29T07:20:45.540950Z restore/console-final.txt
+     NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+     NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+OK   2 milan_nvm reads found
+OK   first and last saved-state reads identical (slots, sequences, records, pend, commit counts)
+  nvm pend values: ['1', '1']
+  PP_STAT reads: 226, distinct: ['0x5b000c44'], nvm_pend bit11 values: [1]
+OK   PP_STAT nvm_pend bit constant over every console sample
+# reset epoch and console predicate
+OK   reset epoch over every action before/after: [1]
+OK   every console sample reads SYNC=1 ASCAPABLE=1 TU=0 (0 exceptions)
+# census start/end
+OK   same 75 census keys
+  non-counter reads 53, differing []; GET_AVB_INFO pdelay start/end: 379 / 383 ns
+OK   53 non-counter census reads equal
+OK   18 stream states at end, all connection count 0
+OK   all 18 stream states also unbound at start
+# host-clock intervals
+  unbind 1: command 25.7496 s after bind 1 response; bind 2: 39.3 s unbound
+  unbind 2: command 7.9009 s after bind 2 response; bind 3: 36.9 s unbound
+  unbind 3: command 7.9302 s after bind 3 response; bind 4: 37.0 s unbound
+  unbind 4: command 8.0504 s after bind 4 response; bind 5: 36.9 s unbound
+OK   unbind 'after bind response' column
+OK   bind 'unbound before' column
+# DUT MSRP spacing (baseline/final)
+  baseline: 19 DUT MRPDUs, gaps [0.2, 0.4, 0.6, 1.0]
+  final: 19 DUT MRPDUs, gaps [0.2, 0.4, 0.6, 0.8, 1.0]
+OK   final capture: no target CRF PDU and the DUT CRF transmit count did not move
+OK   restore unbind stopped within one PDU, STOP +1
+
+FAILURES: 0
+# DUT MRPDU cadence detail
+  baseline: off-grid DUT MRPDUs [5.365, 6.365, 6.565]
+  baseline: LeaveAll PDUs at [5.36, 6.365]; phases of all DUT MRPDUs mod 1 s [0.0, 0.6, 0.8]; short gaps [(4.765, 0.6), (5.365, 0.4), (5.765, 0.6), (6.365, 0.2), (6.565, 0.2)]; every off-grid DUT MRPDU is a LeaveAll or within one join period (0.25 s) after one, either sender: True
+OK   baseline: DUT refresh on a 1.000 s grid; off-grid MRPDUs only in LeaveAll rounds
+  baseline: MRPDUs on the 1.000 s grid: 16 of 19
+  final: off-grid DUT MRPDUs [8.866, 10.066]
+  final: LeaveAll PDUs at [8.859, 10.066]; phases of all DUT MRPDUs mod 1 s [0.0, 0.6, 0.8]; short gaps [(8.266, 0.6), (8.866, 0.4), (9.266, 0.8), (10.066, 0.2)]; every off-grid DUT MRPDU is a LeaveAll or within one join period (0.25 s) after one, either sender: True
+OK   final: DUT refresh on a 1.000 s grid; off-grid MRPDUs only in LeaveAll rounds
+  final: MRPDUs on the 1.000 s grid: 17 of 19
