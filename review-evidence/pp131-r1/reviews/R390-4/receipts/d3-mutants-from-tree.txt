@@ -1,0 +1,100 @@
+# in-tree tb/pp_top/d3_mutants.py at 84572585, from a git-archive copy, 8 jobs, three --only chunks (names 1-26, 27-51, 52-76 in MUTANTS order); TMPDIR under the packet scratch
+## chunk 1
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "TRG_rate", "verdict": "KILLED", "missing": []}
+{"mutant": "TRG_clks", "verdict": "KILLED", "missing": []}
+{"mutant": "image_unproven_continues", "verdict": "KILLED", "missing": []}
+{"mutant": "TRG_cfg", "verdict": "KILLED", "missing": []}
+{"mutant": "hold_released_at_go", "verdict": "KILLED", "missing": []}
+{"mutant": "own_taken_at_the_walk", "verdict": "KILLED", "missing": []}
+{"mutant": "dispatch_not_held", "verdict": "KILLED", "missing": []}
+{"mutant": "latch_ignores_program", "verdict": "KILLED", "missing": []}
+{"mutant": "taint_ignored", "verdict": "KILLED", "missing": []}
+{"mutant": "clear_wins_same_edge", "verdict": "KILLED", "missing": []}
+{"mutant": "TRG_ptof", "verdict": "KILLED", "missing": []}
+{"mutant": "TRG_fmti", "verdict": "KILLED", "missing": []}
+{"mutant": "TRG_fmto", "verdict": "KILLED", "missing": []}
+{"mutant": "clear_by_group", "verdict": "KILLED", "missing": []}
+{"mutant": "identify_is_a_change", "verdict": "KILLED", "missing": []}
+{"mutant": "clear_by_index", "verdict": "KILLED", "missing": []}
+{"mutant": "unchanged_compare_ignores_validity", "verdict": "KILLED", "missing": []}
+{"mutant": "RPL_cfg", "verdict": "KILLED", "missing": []}
+{"mutant": "RPL_fmti", "verdict": "KILLED", "missing": []}
+{"mutant": "RPL_clks", "verdict": "KILLED", "missing": []}
+{"mutant": "RPL_rate", "verdict": "KILLED", "missing": []}
+{"mutant": "RPL_ptof", "verdict": "KILLED", "missing": []}
+{"mutant": "RPL_fmto", "verdict": "KILLED", "missing": []}
+{"mutant": "rule_ignored", "verdict": "KILLED", "missing": []}
+{"mutant": "passes_may_disagree", "verdict": "KILLED", "missing": []}
+{"mutant": "device_error_reads_as_blank", "verdict": "KILLED", "missing": []}
+D3 mutations: 26 of 26 KILLED by their named checks; goldens PASS
+## chunk 2
+{"mutant": "golden-acmp_nvm", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "done_without_d3", "verdict": "KILLED", "missing": []}
+{"mutant": "unframed_reads_as_device_error", "verdict": "KILLED", "missing": []}
+{"mutant": "desc_error_is_a_refusal", "verdict": "KILLED", "missing": []}
+{"mutant": "no_restore_watchdog", "verdict": "KILLED", "missing": []}
+{"mutant": "enable_not_released_by_restore", "verdict": "KILLED", "missing": []}
+{"mutant": "blank_ignores_d3", "verdict": "KILLED", "missing": []}
+{"mutant": "store_not_cleared", "verdict": "KILLED", "missing": []}
+{"mutant": "restore_writes_are_changes", "verdict": "KILLED", "missing": []}
+{"mutant": "valid_not_cleared", "verdict": "KILLED", "missing": []}
+{"mutant": "quarantine_released_by_time", "verdict": "KILLED", "missing": []}
+{"mutant": "closed_releases_the_entity", "verdict": "KILLED", "missing": []}
+{"mutant": "no_backoff_d3", "verdict": "KILLED", "missing": []}
+{"mutant": "store_not_rolled_back", "verdict": "KILLED", "missing": []}
+{"mutant": "no_rollback", "verdict": "KILLED", "missing": []}
+{"mutant": "dyn_not_rolled_back", "verdict": "KILLED", "missing": []}
+{"mutant": "rollback_ignores_debt", "verdict": "KILLED", "missing": []}
+{"mutant": "alarm_forgiven_binding", "verdict": "KILLED", "missing": []}
+{"mutant": "no_backoff_binding", "verdict": "KILLED", "missing": []}
+{"mutant": "fourth_attempt_binding", "verdict": "KILLED", "missing": []}
+{"mutant": "fourth_attempt", "verdict": "KILLED", "missing": []}
+{"mutant": "alarm_forgiven_by_success", "verdict": "KILLED", "missing": []}
+{"mutant": "backoff_derivation", "verdict": "KILLED", "missing": []}
+{"mutant": "disagree_one_direction", "verdict": "KILLED", "missing": []}
+{"mutant": "backoff_holds_dispatch", "verdict": "KILLED", "missing": []}
+{"mutant": "rollback_one_cycle", "verdict": "KILLED", "missing": []}
+D3 mutations: 25 of 25 KILLED by their named checks; goldens PASS
+## chunk 3
+{"mutant": "golden-acmp_nvm", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-rx_validator", "verdict": "PASS"}
+{"mutant": "rate_walk_stuck_on_first_lane", "verdict": "KILLED", "missing": []}
+{"mutant": "per_wait_floor", "verdict": "KILLED", "missing": []}
+{"mutant": "no_aggregate_deadline", "verdict": "KILLED", "missing": []}
+{"mutant": "aggregate_from_the_walk", "verdict": "KILLED", "missing": []}
+{"mutant": "rate_walk_unbounded", "verdict": "KILLED", "missing": []}
+{"mutant": "pass1_read_not_drained", "verdict": "KILLED", "missing": []}
+{"mutant": "judge_wait_unwatched", "verdict": "KILLED", "missing": []}
+{"mutant": "aggregate_mirrored", "verdict": "KILLED", "missing": []}
+{"mutant": "drain_misses_issue_cycle_m1", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_reads_records_past_bound", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_not_stopped_at_terminal", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_closes_before_proof", "verdict": "KILLED", "missing": []}
+{"mutant": "binding_walk_ignores_aggregate", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_fires_with_event_in_hand", "verdict": "KILLED", "missing": []}
+{"mutant": "drain_misses_issue_cycle", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_not_in_rollback", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_closes_during_proof", "verdict": "KILLED", "missing": []}
+{"mutant": "validator_admits_held_aecp", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_past_bound_needs_fired", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_past_needs_fire", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_default_only_from_img", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_o_pulse", "verdict": "KILLED", "missing": []}
+{"mutant": "resident_never_returned", "verdict": "KILLED", "missing": []}
+{"mutant": "held_drop_uncounted", "verdict": "KILLED", "missing": []}
+{"mutant": "aecp_hold_unbounded", "verdict": "KILLED", "missing": []}
+D3 mutations: 25 of 25 KILLED by their named checks; goldens PASS
+## round-4 controls re-run alone (first run)
+{"mutant": "golden-acmp_nvm", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "drain_misses_issue_cycle_m1", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_o_pulse", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_past_needs_fire", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_default_only_from_img", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_closes_during_proof", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_past_bound_needs_fired", "verdict": "KILLED", "missing": []}
+{"mutant": "drain_misses_issue_cycle", "verdict": "KILLED", "missing": []}
+D3 mutations: 7 of 7 KILLED by their named checks; goldens PASS

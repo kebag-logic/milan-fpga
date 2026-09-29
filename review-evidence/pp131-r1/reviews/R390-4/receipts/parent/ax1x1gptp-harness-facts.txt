@@ -1,0 +1,57 @@
+# parent dev eaa88a32: tb/verilator/milan_dp/sim_ax1x1gptp.cpp (target ax1x1gptp, run by tb/verilator/milan_dp_gptp) - code facts, read-only
+## writes to PP_CTRL (0x920) / PP_STAT (0x924) / any restore-walk helper: 0 lines
+## every CSR write in the harness
+672:    write(0x108, 0x00000002); write(0x10C, 0x00000100);
+673:    write(0x608, 0x020000FF); write(0x604, 0xFE000001);
+677:    write(0x778, 0x85); write(0x6E4, 777); // inert legacy health writes
+680:    write(0x654, 0x00020001);
+682:    write(0x800, 0); write(0x814, uint32_t(kSid)); write(0x818, kSid >> 32);
+683:    write(0x824, 0x02006000); write(0x828, 0x02050220); write(0x810, 1);
+685:    write(0x900, 1);
+687:        write(0x904, 0x100 | ch);
+688:        write(0x908, 0xD000 | ((ch & 1) << 8) | (ch / 2));
+690:    write(0x654, test_control_ == TestControl::NoTx ? 0x00020001 : 0x00020003);
+716:    write(0x520, 4); run_cycles(32);
+719:    run_cycles(10000); write(0x520, 4); run_cycles(32);
+930:            write(0x654, 0x00020001);
+## the AEM image it serves
+359:    dut->i_desc_mem_req_ready = !desc_busy;
+918:        std::ifstream image("obj_ax1x1gptp/aemi.bin", std::ios::binary);
+## the AECP answers it grades
+774:    check.dec("GET_AVB_INFO length", avb.size(), 62);
+775:    check.dec("GET_AVB_INFO status SUCCESS", avb.size() > 16 ? avb[16] >> 3 : 255, 0);
+776:    check.hex("GET_AVB_INFO coherent GM", be(avb, 42, 8), kGm);
+777:    check.dec("GET_AVB_INFO delay equals CSR bank", be(avb, 50, 4), delay);
+778:    check.that("GET_AVB_INFO asCapable agrees with CSR", avb.size() > 55 && (avb[55] & 1));
+780:    check.dec("GET_AS_PATH Ethernet minimum length", path.size(), 60);
+781:    check.dec("GET_AS_PATH status SUCCESS", path.size() > 16 ? path[16] >> 3 : 255, 0);
+782:    check.dec("GET_AS_PATH control data length excludes padding", be(path, 16, 2) & 0x7FF, 32);
+783:    check.dec("GET_AS_PATH padding bytes are zero", be(path, 58, 2), 0);
+784:    check.dec("GET_AS_PATH two ordered identities", be(path, 38, 4), 2);
+785:    check.hex("GET_AS_PATH GM", be(path, 42, 8), kGm);
+786:    check.hex("GET_AS_PATH parent", be(path, 50, 8), kPeer);
+936:        check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
+937:        check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
+938:        check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
+## where it runs
+9:	$(MAKE) -C ../milan_dp ax1x1gptp
+13:	$(MAKE) -C ../milan_dp ax1x1gptp-extended
+366:          test "$selected" = milan_dp_gptp
+document clocks, independent peer events, assertions, exclusions, and measured timings.
+
+The default sweep excludes this directory.
+The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+Physical regressions report nightly, outside the required PR aggregate.
+The suite retains every transition, physical rate, timer, and threshold.
+## not in the default milan_dp sweep (run target builds): 0 mentions
+## other processor-consuming harnesses (walk-start lines / AECP lines)
+tb/verilator/milan_dp/sim_aclk.cpp            walk:4 aecp:5
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp       walk:0 aecp:9
+tb/verilator/milan_dp/sim_crf_licence.cpp     walk:2 aecp:0
+tb/verilator/milan_dp/sim_gmstep.cpp          walk:0 aecp:10
+tb/verilator/milan_dp/sim_gptp.cpp            walk:0 aecp:44
+tb/verilator/milan_dp/sim_main.cpp            walk:4 aecp:8
+tb/verilator/milan_dp/sim_nxn.cpp             walk:8 aecp:405
+tb/verilator/milan_dp/sim_prune.cpp           walk:0 aecp:0
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp walk:8 aecp:39
+tb/verilator/pp_shadow/sim_main.cpp           walk:7 aecp:146

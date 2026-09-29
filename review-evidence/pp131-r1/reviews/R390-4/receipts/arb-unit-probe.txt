@@ -1,0 +1,24 @@
+## head arbiter (84572585)
+PASS: A m0 READ strobe + m0 abort in the issue cycle: issued 1, drain from issue+1, 6 drain cycles, m0 took 0 bytes 0 dones, port ended 1, idle after 1
+PASS: B m0 WRITE strobe + m0 abort: issued we 1, 0 drain cycles, m0 wready 5, m0 done 1
+PASS: C m1 READ grant + m1 abort in the issue cycle: drain from issue+1, 6 drain cycles, m1 took 0 bytes 0 dones, idle after 1
+PASS: D m1 WRITE grant + m1 abort: 0 drain cycles, m1 wready 5, m1 done 1
+PASS: E m0 READ strobe + m1 abort only: 0 drain cycles, m0 took 5 bytes 1 dones
+PASS: F m1 READ grant + m0 abort only: 0 drain cycles, m1 took 5 bytes 1 dones
+PASS: G tie, m0 READ strobe, m1 READ req + m1 abort: 2 issued, 0 drain cycles, m0 5 bytes 1 dones, m1 5 bytes 1 dones
+PASS: H m0 READ, abort while owned: drain from abort+1, m0 took 2 bytes 0 dones, idle after 1
+PASS: I both aborts with no strobe and no owner: 0 drain cycles, issued 0
+9 checks: 9 PASS, 0 FAIL
+rc=0
+## round-3 arbiter (cbbb5acc), the in-tree drain_misses_issue_cycle edit
+FAIL: A m0 READ strobe + m0 abort in the issue cycle: issued 1, drain from issue+-1, 0 drain cycles, m0 took 0 bytes 0 dones, port ended 0, idle after 0
+PASS: B m0 WRITE strobe + m0 abort: issued we 1, 0 drain cycles, m0 wready 5, m0 done 1
+FAIL: C m1 READ grant + m1 abort in the issue cycle: drain from issue+-1, 0 drain cycles, m1 took 0 bytes 0 dones, idle after 0
+PASS: D m1 WRITE grant + m1 abort: 0 drain cycles, m1 wready 5, m1 done 1
+PASS: E m0 READ strobe + m1 abort only: 0 drain cycles, m0 took 5 bytes 1 dones
+PASS: F m1 READ grant + m0 abort only: 0 drain cycles, m1 took 5 bytes 1 dones
+PASS: G tie, m0 READ strobe, m1 READ req + m1 abort: 2 issued, 0 drain cycles, m0 5 bytes 1 dones, m1 5 bytes 1 dones
+PASS: H m0 READ, abort while owned: drain from abort+1, m0 took 2 bytes 0 dones, idle after 1
+PASS: I both aborts with no strobe and no owner: 0 drain cycles, issued 0
+9 checks: 7 PASS, 2 FAIL
+rc=1

@@ -1,0 +1,65 @@
+# round-1/2 probes (scripts/run_probes.sh) at 84572585; output identical to R390-3's probes-r2-head.txt
+== --probe-hol
+PROBE COMPLETE: done 1 closed 0 released 1 own 0
+PROBE COMPLETE: k=0 AECP frames queued, GET_RX_STATE answered 1
+PROBE COMPLETE: k=1 AECP frames sent, GET_RX_STATE answered 1, aecp head 0, aecp responses so far 0
+PROBE COMPLETE: k=2 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE COMPLETE: k=3 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE COMPLETE: k=4 AECP frames sent, GET_RX_STATE answered 0, aecp head 0, aecp responses so far 2
+PROBE COMPLETE: k=5 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 3
+PROBE COMPLETE: k=6 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 3
+PROBE COMPLETE: k=7 AECP frames sent, GET_RX_STATE answered 0, aecp head 0, aecp responses so far 5
+PROBE COMPLETE: k=8 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 6
+PROBE COMPLETE: k=9 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 6
+PROBE COMPLETE: k=10 AECP frames sent, GET_RX_STATE answered 0, aecp head 0, aecp responses so far 8
+PROBE COMPLETE: after 2000 ms, GET_RX_STATE answered 1
+PROBE CLOSED: done 0 closed 1 released 1 own 1
+PROBE CLOSED: k=0 AECP frames queued, GET_RX_STATE answered 1
+PROBE CLOSED: k=1 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=2 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=3 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=4 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=5 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=6 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=7 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=8 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=9 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: k=10 AECP frames sent, GET_RX_STATE answered 1, aecp head 1, aecp responses so far 0
+PROBE CLOSED: after 2000 ms, GET_RX_STATE answered 1
+rc=0
+== --probe-hol-restore
+PROBE-R n_aecp=0: released at 123; after the GET was fed: GET_RX_STATE answered at 167, D3 terminal at 16089 (answered before the D3 terminal)
+PROBE-R n_aecp=2: released at 123; after the GET was fed: GET_RX_STATE answered at 167, D3 terminal at 15961 (answered before the D3 terminal)
+PROBE-R n_aecp=6: released at 123; after the GET was fed: GET_RX_STATE answered at 167, D3 terminal at 15705 (answered before the D3 terminal)
+rc=0
+== --probe-gaps
+PROBE G1 blank-in-pass-0 then whole-in-pass-1: planted 1 done 1776 fail 1 cause 5 rolled back 1 applied 1 ptof0 valid 0 value 0
+PROBE G2 SET ok 1; first failed attempt err at 49755; a READ_DESCRIPTOR sent 1000 cycles into the backoff answered after 2299 cycles (own now 0)
+rc=0
+== --probe-r2
+        longest D3 wait 20000, longest binding wait 20000, per-wait bound 20001
+PROBE A0 framed, at the per-wait edge: release 20003, done at clock 1000001, closed at clock -1 (aggregate 1000001); fail 1 cause 3 rb 0 closed 0 applied 0
+        longest D3 wait 19999, longest binding wait 20000, per-wait bound 20001
+PROBE A1 erased, one cycle inside: release 160026, done at clock 1000544, closed at clock -1 (aggregate 1000001); fail 1 cause 3 rb 1 closed 0 applied 0
+        longest D3 wait 19999, longest binding wait 20000, per-wait bound 20001
+PROBE A2 framed, go held as a level: release 160026, done at clock 1000001, closed at clock -1 (aggregate 1000001); fail 1 cause 3 rb 0 closed 0 applied 0
+        longest D3 wait 19999, longest binding wait 20000, per-wait bound 20001
+PROBE A3 framed, go pulsed again at AGG/2: release 160026, done at clock 1000001, closed at clock -1 (aggregate 1000001); fail 1 cause 3 rb 0 closed 0 applied 0
+        longest D3 wait 19812, longest binding wait 19813, per-wait bound 20001
+PROBE A4 framed, a command held from reset: release 158530, done at clock 1000001, closed at clock -1 (aggregate 1000001); fail 1 cause 3 rb 0 closed 0 applied 0
+PROBE A4: adp enable 1, the held command answered byte-exact 1, a new command answered byte-exact 1, own 0
+PROBE B1 CLOSED: closed 1; idle GET latency 168 (fed with idle), 172 (fed tight); after six tight AECP a tight GET answered in 172; word 37 = 5; head 1
+PROBE B2 CLOSED: eight tight (AECP, GET_RX_STATE) pairs: 8 of 8 GET answered; word 37 = 7; rx slot drops (snapshot) see receipt
+PROBE B3 slowed restore: GET behind six tight AECP answered in 172 (walking 1); at the terminal held answered 1, dropped answered 0, word 37 = 5; after the terminal two tight AECP answered 1+1, word 37 = 5
+rc=0
+== --probe-r2c
+PROBE C1 d=-3: grant forced at step 999997; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=-2: grant forced at step 999998; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=-1: grant forced at step 999999; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+0: grant forced at step 1000000; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+1: grant forced at step 1000001; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+2: grant forced at step 1000002; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C1 d=+3: grant forced at step 1000003; done at clock 1000001 closed -1 (bound 1000001) cause 3; drain seen 1; later SET ok 1, writes 1, persisted 1
+PROBE C2 k=300: error planted at 999701, roll-back strobe from 999703; done at clock -1, closed at clock 1000001 (bound 1000001); fail 1 cause 2 rb 0
+PROBE C2 k=3000: error planted at 997001, roll-back strobe from 997003; done at clock 997547, closed at clock -1 (bound 1000001); fail 1 cause 2 rb 1
+rc=0

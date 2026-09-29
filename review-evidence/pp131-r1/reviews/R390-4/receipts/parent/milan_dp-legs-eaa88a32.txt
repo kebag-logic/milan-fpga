@@ -1,0 +1,53 @@
+# milan_dp focused legs in scratch parents at dev eaa88a32 (protocol-processor 84572585, gptp-processor and verilog-axis at their gitlinks); a scratch-only printf of PP_STAT added to sim_main.cpp's walk wait in both trees
+## ax1x1 (image-less, sim_main.cpp), gitlink only
+  849 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+  853 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+  896 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+  947 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+  950 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+  953 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+  956 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+ 1578 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+[R390-4 probe] PP_STAT at the walk wait's end 0x5b000808 (busy 0 done 0 fail 1)
+  [FAIL] PP_STAT[2] the restore walk sequenced got=0x00000000 exp=0x00000001
+milan_datapath: 231 checks, 1 failures
+milan_datapath: guarded and NOT run in this shape: 5
+## ax1x1 with the author's edits
+  849 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+  853 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+  896 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+  947 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+  950 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+  953 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+  956 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+ 1578 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+[R390-4 probe] PP_STAT at the walk wait's end 0x5b000808 (busy 0 done 0 fail 1)
+milan_datapath: 231 checks, 0 failures
+milan_datapath: guarded and NOT run in this shape: 5
+## notify (sim_nxn.cpp, timed leg), gitlink only
+checks: 310   failures: 210
+RESULT: FAIL
+  [FAIL] [BOOT] PP_STAT[2] the restore walk sequenced   got=0x0 exp=0x1
+  [FAIL] [AECP] READ_DESCRIPTOR with no descriptor memory still ANSWERS got=0x0 exp=0x1
+  [FAIL] [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER got=0x0 exp=0x1
+  [FAIL] [AECP-WTMO] the station HEALS when the memory returns (no reset) got=0x0 exp=0x1
+  [FAIL] [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED got=0x0 exp=0x1
+  [FAIL] [AECP-IMG] the store FETCHED from descriptor memory got=0x0 exp=0x1
+  [FAIL] [AECP-IMG] the image VALIDATED (word 34 bit 0) got=0x0 exp=0x1
+  [FAIL] [AECP-IMG] ...with no store fault (word 34 [4:1]) got=0x8 exp=0x0
+## notify with the edits: [AECP-WTMO] lines 0 (gitlink-only run: 2)
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is held, not answered = 0x1
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+checks: 372   failures: 0
+RESULT: PASS
+## nxn (sim_nxn.cpp, 4x4) with the edits
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is held, not answered = 0x1
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+checks: 1841   failures: 0
+RESULT: PASS

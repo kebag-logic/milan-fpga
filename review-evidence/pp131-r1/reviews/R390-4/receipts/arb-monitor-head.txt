@@ -1,0 +1,25 @@
+# reviewer arbiter monitor (scripts/instrument_arb.py) planted in disposable git-archive copies at 84572585; the arbiter's logic is unchanged; one ARBMON line per arbiter instance the bench creates
+## pp_top
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 8 iss1 54 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 0 iss1 0 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 21 iss1 108 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 56 iss1 162 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 80 iss1 566 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 339 iss1 1537 | issue-cycle arms: m0 READ+abort 1, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 4 m1 6
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 85 iss1 496 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 1 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 0 iss1 0 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 0 iss1 0 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+7888 checks: 7888 PASS, 0 FAIL
+## acmp_nvm
+355 checks: 355 PASS, 0 FAIL
+ARBMON TOP.acmp_nvm_wrap.u_arb: iss0 5496 iss1 203 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 1 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 6 m1 0
+## probe
+PROBE E1 ALIGNED: binding READ 4 strobe on agg_o's first clock 1000000
+  after aligned: READ_DESCRIPTOR answered 1, AECP owned 0, ADP enable 1, SET ok 1; then 27 of 100000 cycles with the port not idle, 2 device ops, 1 WRITEs of 0x50, record persisted 1, d3_unflushed 0, nvm_alarm 0, owner 0, port state 0
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 64 iss1 9 | issue-cycle arms: m0 READ+abort 1, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 3 m1 3
+ARBMON TOP.pp_top_wrap.u_dut.u_nvm_arb: iss0 0 iss1 0 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 0 | abort with a WRITE strobe: m0 0 m1 0 | cross: m0 strobe + m1 abort 0, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 0 | abort while a WRITE is owned 0 | owned-READ aborts: m0 0 m1 0
+rc=0
+# totals per bench over every instance
+pp_top: iss0 589, iss1 2923, m0 issue arm 1, m1 issue arm 0, m0 WRITE+abort 0, m1 WRITE+abort 0, m0 strobe+m1 abort 0, m1 grant+m0 abort 0, m0 abort idle 0, m1 abort idle 0, abort WRITE owned 0, m0 owned-READ abort 5, m1 owned-READ abort 6
+acmp_nvm: iss0 5496, iss1 203, m0 issue arm 0, m1 issue arm 1, m0 WRITE+abort 0, m1 WRITE+abort 0, m0 strobe+m1 abort 0, m1 grant+m0 abort 0, m0 abort idle 0, m1 abort idle 0, abort WRITE owned 0, m0 owned-READ abort 6, m1 owned-READ abort 0
+probe: iss0 64, iss1 9, m0 issue arm 1, m1 issue arm 0, m0 WRITE+abort 0, m1 WRITE+abort 0, m0 strobe+m1 abort 0, m1 grant+m0 abort 0, m0 abort idle 0, m1 abort idle 0, abort WRITE owned 0, m0 owned-READ abort 3, m1 owned-READ abort 3

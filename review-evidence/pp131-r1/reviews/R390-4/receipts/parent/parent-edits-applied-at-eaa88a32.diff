@@ -1,0 +1,261 @@
+diff -ru par-head/hdl/milan/KL_pp_shadow.sv par-edits/hdl/milan/KL_pp_shadow.sv
+--- par-head/hdl/milan/KL_pp_shadow.sv	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/hdl/milan/KL_pp_shadow.sv	2026-09-29 05:25:24.103636256 +0200
+@@ -955,7 +955,15 @@
+     end
+   end : latch_live_pending
+ 
+-  assign nvm_pend_w = aecp_dyn_dirty_o | (|nvm_unflushed_w)
++  logic        d3_unflushed_w, pp_restore_closed_w, pp_restore_rb_w;
++  logic [2:0]  pp_rs_cause_w;
++  logic [1:0]  pp_restore_cause_w;
++  //! the D3 walk's CLOSED, roll-back and causes: the combined restore status
++  //! is lane 2's; scratch adoption only connects them
++  logic        unused_d3_status_w;
++  assign unused_d3_status_w = ^{pp_restore_closed_w, pp_restore_rb_w, pp_rs_cause_w,
++                                pp_restore_cause_w};
++  assign nvm_pend_w = aecp_dyn_dirty_o | (|nvm_unflushed_w) | d3_unflushed_w
+                     | aecp_live_wr_w | aecp_live_pend_r;
+ 
+   always_ff @(posedge clk_i or negedge rst_n) begin
+@@ -1211,6 +1219,11 @@
+       .restore_blank_o     (pp_restore_blank_w),
+       .nvm_alarm_o         (nvm_alarm_w),
+       .nvm_unflushed_o     (nvm_unflushed_w),
++      .d3_unflushed_o      (d3_unflushed_w),
++      .restore_closed_o    (pp_restore_closed_w),
++      .restore_rb_o        (pp_restore_rb_w),
++      .rs_cause_o          (pp_rs_cause_w),
++      .restore_cause_o     (pp_restore_cause_w),
+ 
+       .nvm_dev_req_o       (nvm_req_w),
+       .nvm_dev_gnt_i       (nvm_gnt_w),
+diff -ru par-head/scripts/measure_test_evidence.py par-edits/scripts/measure_test_evidence.py
+--- par-head/scripts/measure_test_evidence.py	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/scripts/measure_test_evidence.py	2026-09-29 05:25:24.104387974 +0200
+@@ -594,6 +594,10 @@
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
++    "protocol-processor/tb/pp_top/d3_mutants.py":
++        "mutation campaign; it plants one D3 saved-state defect from its own table into an "
++        "isolated copy and requires every named check to fail in a completed run; no expected "
++        "value is read from the text",
+     "protocol-processor/tb/acmp_talker/retry_mutants.py":
+         "mutation campaign; plants named defects in a scratch copy and requires named assertion "
+         "failures from completed cycle-bounded simulations; reads no expected behavior from RTL",
+diff -ru par-head/tb/verilator/milan_dp/sim_aclk.cpp par-edits/tb/verilator/milan_dp/sim_aclk.cpp
+--- par-head/tb/verilator/milan_dp/sim_aclk.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/milan_dp/sim_aclk.cpp	2026-09-29 05:25:24.108252270 +0200
+@@ -1228,7 +1228,11 @@
+         unsigned done = 0;
+         for (int r = 0; r < 400 && !done; r++) {
+             for (int c = 0; c < 64; c++) step();
+-            done = (axi_read(A_PP_STAT) >> 2) & 1u;
++            //! pin adoption (processor #131): with no AEM image in place the
++            //! restore ends CLOSED (busy 0, done 0, fail 1) and the listener
++            //! is released all the same, so either terminal ends the walk
++            const uint32_t st = axi_read(A_PP_STAT);
++            done = ((st >> 2) & 1u) | (((st >> 3) & 1u) & ~((st >> 1) & 1u) & 1u);
+         }
+         ck("[RENDER-BIND] PP_STAT[2] the restore walk sequenced", done, 1);
+     }
+diff -ru par-head/tb/verilator/milan_dp/sim_gmstep.cpp par-edits/tb/verilator/milan_dp/sim_gmstep.cpp
+--- par-head/tb/verilator/milan_dp/sim_gmstep.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/milan_dp/sim_gmstep.cpp	2026-09-29 05:25:24.104584598 +0200
+@@ -810,6 +810,9 @@
+ 
+ //! CRF sink, listener, talker and the clock source, then the two feeds.
+ void GmStepHarness::provision_media() {
++    // pin adoption: PP_CTRL[1] starts the boot restore walk, as nvm_boot() does
++    write(0x920, read(0x920) | 0x2u);
++    for (int r = 0; r < 400 && !((read(0x924) >> 2) & 1u); ++r) run_cycles(64);
+     write(0x73C, 0x00020001); write(0x740, 0x02000000); write(0x738, 0x1);
+     write(0x800, 0);
+     write(0x814, 0x00020000); write(0x818, 0x02000000);
+diff -ru par-head/tb/verilator/milan_dp/sim_gptp.cpp par-edits/tb/verilator/milan_dp/sim_gptp.cpp
+--- par-head/tb/verilator/milan_dp/sim_gptp.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/milan_dp/sim_gptp.cpp	2026-09-29 05:25:24.104851529 +0200
+@@ -1001,6 +1001,9 @@
+   // The same nonzero committed bank must traverse the processor's gather
+   // face and the real AECP response buffer onto the shared MAC wire.
+   void grade_the_committed_bank_on_the_aecp_wire(Vmilan_datapath *dut) {
++    // pin adoption: PP_CTRL[1] starts the boot restore walk, as nvm_boot() does
++    axi_write(dut, 0x920, axi_read(dut, 0x920) | 0x2u);
++    for (int r = 0; r < 400 && !((axi_read(dut, 0x924) >> 2) & 1u); ++r) run(dut, 64);
+     aecp_scan = tx_frames.size();
+     std::vector<uint8_t> avb = aecp_xact(
+         dut, 0x0027, 0x7101, {0x00, 0x09, 0x00, 0x00});
+diff -ru par-head/tb/verilator/milan_dp/sim_main.cpp par-edits/tb/verilator/milan_dp/sim_main.cpp
+--- par-head/tb/verilator/milan_dp/sim_main.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/milan_dp/sim_main.cpp	2026-09-29 05:25:24.107863817 +0200
+@@ -258,7 +258,11 @@
+         unsigned done = 0;
+         for (int r = 0; r < 400 && !done; r++) {
+             for (int c = 0; c < 64; c++) step();
+-            done = (axi_read(A_PP_STAT) >> 2) & 1u;
++            //! pin adoption (processor #131): with no AEM image in place the
++            //! restore ends CLOSED (busy 0, done 0, fail 1) and the listener
++            //! is released all the same, so either terminal ends the walk
++            const uint32_t st = axi_read(A_PP_STAT);
++            done = ((st >> 2) & 1u) | (((st >> 3) & 1u) & ~((st >> 1) & 1u) & 1u);
+         }
+         ck("PP_STAT[2] the restore walk sequenced", done, 1);
+     }
+diff -ru par-head/tb/verilator/milan_dp/sim_nxn.cpp par-edits/tb/verilator/milan_dp/sim_nxn.cpp
+--- par-head/tb/verilator/milan_dp/sim_nxn.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/milan_dp/sim_nxn.cpp	2026-09-29 05:25:24.112000000 +0200
+@@ -2356,6 +2356,18 @@
+     //! waveform - and that is exactly what reached silicon on 2026-08-13.
+     //! [AECP-IMG] below is the opposite arm: a memory that ANSWERS, the image
+     //! the build ships, img_valid, and byte-exact descriptors on the wire.
++    //! pin adoption (processor #131): AECP is held from reset until the D3
++    //! restore reaches its terminal, and the restore needs the image in place
++    //! before PP_CTRL[1] (parent D3 section 8.1). With no image and no walk,
++    //! a READ_DESCRIPTOR is held, never answered.
++    void prove_aecp_is_held_until_the_restore() {
++        dm_answering = false;
++        std::vector<uint8_t> pl = {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00};
++        auto r = aecp_xact(0x0004, 0x4000, pl);
++        ck("[AECP] before the restore READ_DESCRIPTOR is held, not answered",
++           static_cast<long>(r.empty()), 1);
++    }
++
+     void prove_read_descriptor_degrades_with_no_descriptor_memory() {
+         dm_answering = false;
+         {
+@@ -2421,8 +2433,10 @@
+             //! above passed on a lucky first frame.
+             rm_answering = true;
+             auto r2 = aecp_xact(0x0004, 0x4002, pl);
++            //! pin adoption: this arm now runs after the restore proved the
++            //! image, so the healed READ_DESCRIPTOR answers SUCCESS
+             ck("[AECP-WTMO] the station HEALS when the memory returns (no reset)",
+-               static_cast<long>(r2.size() >= 38 && aecp_status(r2) == 7), 1);
++               static_cast<long>(r2.size() >= 38 && aecp_status(r2) == 0), 1);
+         }
+     }
+ 
+@@ -2503,6 +2517,16 @@
+         //! section reads the datapath with the plane in its shipping
+         //! condition.
+         dm_answering = true;
++        //! pin adoption: the image is in place, so PP_CTRL[1] starts the
++        //! restore walk (the firmware's order); the D3 writer proves the image
++        start_the_boot_restore_walk();
++        //! the one AECP command held from before the restore is served at the
++        //! release (the hold admission); take its answer off the wire here
++        {
++            const auto held = await_aecp();
++            ck("[AECP] ...and the held READ_DESCRIPTOR is answered at the release",
++               static_cast<long>(held.size() >= 38 && ((held[34] << 8) | held[35]) == 0x4000), 1);
++        }
+ 
+         //! THE SIDE PORT FIRST, so that a zero out of word 34 later can
+         //! only mean "the store rejected the image" and never "this
+@@ -8019,10 +8043,9 @@
+            kNstreamsTb);
+     bring_the_datapath_out_of_reset();
+     prove_the_identity_and_provision_the_entity_id();
+-    start_the_boot_restore_walk();
+-    prove_read_descriptor_degrades_with_no_descriptor_memory();
+-    prove_a_wedged_response_memory_reports_and_heals();
++    prove_aecp_is_held_until_the_restore();
+     if (prove_the_shipped_descriptor_image_enumerates()) return fails ? 1 : 0;
++    prove_a_wedged_response_memory_reports_and_heals();
+     prove_the_dynamic_map_store_starts_empty();
+     provision_listeners_one_and_two_through_the_window();
+     prove_the_index_zero_alias_protection();
+diff -ru par-head/tb/verilator/milan_dp_render/sim_tdm8_render.cpp par-edits/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+--- par-head/tb/verilator/milan_dp_render/sim_tdm8_render.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/milan_dp_render/sim_tdm8_render.cpp	2026-09-29 05:25:24.105465750 +0200
+@@ -2101,6 +2101,9 @@
+               static_cast<uint64_t>(dac_after), kI2sN);
+     // the removed slots must now render digital silence while the rest are
+     // still graded against the record
++    // pin adoption: a frame committed before the removal can still reach the
++    // pins up to one commit-to-pin bound later; wait it out before collecting
++    run_fed(static_cast<long>(kFrameAxis + kCdcFloorAxis + kBitAxis) + 1);
+     decoder_reset();
+     taps_reset();
+     collect = true;
+diff -ru par-head/tb/verilator/nvm_cosim/cosim_cases.cpp par-edits/tb/verilator/nvm_cosim/cosim_cases.cpp
+--- par-head/tb/verilator/nvm_cosim/cosim_cases.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/nvm_cosim/cosim_cases.cpp	2026-09-29 05:25:24.104167593 +0200
+@@ -485,7 +485,7 @@
+       base();
+       fault(0x20, byte, 0, kind);      // every attempt fails at this byte
+       bind(X2);
+-      idle(1500);                      // debounce, three attempts, give-up
++      idle(2000);                      // debounce, three attempts 500 ms apart, give-up
+       snap("gave_up");
+       faults.clear();
+       bind(Z2);
+diff -ru par-head/tb/verilator/nvm_cosim/cosim_top.sv par-edits/tb/verilator/nvm_cosim/cosim_top.sv
+--- par-head/tb/verilator/nvm_cosim/cosim_top.sv	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/nvm_cosim/cosim_top.sv	2026-09-29 05:25:24.103966551 +0200
+@@ -215,6 +215,7 @@
+       .fmt_out_v_o     (fov_nc_w),
+       .dirty_o         (aecp_dyn_dirty_w),
+       .dbg_writes_o    (wr_nc_w),
++      .wr_chg_o        (),
+       .dbg_oob_o       (oob_nc_w)
+   );
+   assign dyn_dirty_o     = aecp_dyn_dirty_w;
+@@ -252,13 +253,16 @@
+ 
+   KL_acmp_nvm_shadow #(
+       .N_SINKS_P    (N_STREAM_IN_P),
+-      //! the top's NVM_RS_TMO_CYC_P default, derived the way it derives it
+-      .RS_TMO_CYC_P (CLK_HZ_P / 32'd50)
++      //! the top's NVM_RS_TMO_CYC_P and NVM_RETRY_BACKOFF_CYC_P defaults,
++      //! derived the way it derives them: ceil(CLK_HZ_P / 50), ceil(CLK_HZ_P / 2)
++      .RS_TMO_CYC_P (CLK_HZ_P / 32'd50 + (((CLK_HZ_P % 32'd50) != 32'd0) ? 32'd1 : 32'd0)),
++      .RETRY_BACKOFF_CYC_P ((CLK_HZ_P / 32'd2) + (CLK_HZ_P % 32'd2))
+   ) u_nvm_shadow (
+       .clk_i            (clk_i),
+       .rst_n            (rst_n),
+       .tick_i           (tick_ms_w),
+       .restore_go_i     (restore_go_i),
++      .rs_agg_i         (1'b0),
+       .restore_busy_o   (restore_busy_o),
+       .restore_done_o   (pp_restore_done_w),
+       .restore_fail_o   (pp_restore_fail_w),
+diff -ru par-head/tb/verilator/pp_shadow/sim_main.cpp par-edits/tb/verilator/pp_shadow/sim_main.cpp
+--- par-head/tb/verilator/pp_shadow/sim_main.cpp	2026-09-29 01:38:02.000000000 +0200
++++ par-edits/tb/verilator/pp_shadow/sim_main.cpp	2026-09-29 05:25:24.107156967 +0200
+@@ -1385,6 +1385,12 @@
+         axi_write(A_PP_NVM_SEL, 3);
+         axi_write(A_PP_NVM_DATA, 0x10); // validated image
+         axi_write(A_PP_NVM_STAT, 1);    // live writer
++        // pin adoption: PP_CTRL[1] starts the boot restore walk before the
++        // enable, as nvm_boot() does; AECP is held until it ends. Nothing
++        // answers behind the backend's configured window here, so each walk
++        // ends on its per-wait deadline (about 4.0 M cycles in all)
++        axi_write(A_PP_CTRL, 0x2);
++        for (int i = 0; i < 6000 && !((axi_read(A_PP_STAT) >> 2) & 1); ++i) run_idle(1000);
+         axi_write(A_PP_CTRL, 1);
+         run_idle(2000);
+         ck("K control: reset/load permits durable status",
+@@ -3679,6 +3685,9 @@
+         // let the walk burn its watchdog into the parked fault
+         for (int r = 0; r < 6; r++) run_idle(20000);
+         mem_answering = true;                  // HANDOVER: memory + image now
++        // pin adoption: the firmware starts the restore walk once the image is
++        // in place; the D3 writer's LOCATE proves the image the store parked on
++        restore_walk_completes();
+         // the FIRST locate-bearing command after the handover must SERVE
+         uint8_t cf[128];
+         size_t at = tx_frames.size();
+@@ -3801,8 +3810,10 @@
+                 refused_walk_done ? "restore_done set" : "restore_done never set");
+         ck("P3: a refused image is NOT reported as a successful restore",
+            (xstat >> 3) & 1, 1u);
++        //! pin adoption: the top's combined restore_blank_o never reads 1 with
++        //! fail (processor #131); the binding walk's raw blank is not exported
+         ck("P3: ...and no record was validated (the #20 blank/refusal collapse)",
+-           (xstat >> 7) & 1, 1u);
++           (xstat >> 7) & 1, 0u);
+         ck("P3: nothing was committed, so nothing is dirty",
+            (xstat >> 8) & 1, 0u);
+ 

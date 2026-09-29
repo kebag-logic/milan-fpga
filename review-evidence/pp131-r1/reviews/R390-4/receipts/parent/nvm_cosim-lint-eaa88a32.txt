@@ -1,0 +1,7 @@
+# nvm_cosim lint in the same scratch parents (rc 0 both)
+## head: 86 warnings
+%Warning-PINMISSING: cosim_top.sv:194:5: Instance has missing pin: 'wr_chg_o'
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: cosim_top.sv:257:5: Instance has missing pin: 'rs_agg_i'
+## edits: 85 warnings
