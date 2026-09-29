@@ -36,7 +36,7 @@ build:
 
 run: build
 	@echo "======================================================================"
-	./$(MDIR)/Vmedia_nco_sim
+	$(abspath $(MDIR))/Vmedia_nco_sim
 
 clean:
 	rm -rf obj_dir

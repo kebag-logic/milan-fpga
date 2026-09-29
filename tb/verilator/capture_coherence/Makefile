@@ -11,11 +11,12 @@
 # engagement PLACED against the capture walk's crossing - every cycle across
 # +/-32 of it and every 16 round the frame on the true plan, every 4 across
 # the +/-50 ppm acquisition band, every quarter cycle at 64 sub-step phases
-# across the crossing at -50 ppm, and the settled lock at +/-80 and +/-100
-# ppm (sim_main.cpp's header lists them). A second leg runs the same bench
-# against the whole milan_datapath on the shipping shape, with its own placed
-# band.
-#   make         - both legs, then the mutation arm
+# across the crossing at -50 ppm, and the approach to the settled lock at
+# +/-80 and +/-100 ppm (sim_main.cpp's header lists them). A second leg runs
+# the same bench against the whole milan_datapath on the shipping shape, with
+# its own placed band.
+#   make         - both legs, then the mutation arm (in parallel, one build
+#                  per CPU: mutants.py)
 #   make run     - the junction harness alone
 #   make dp      - the milan_datapath leg alone
 #   make mutants - the mutation arm alone (mutants.py)
@@ -71,7 +72,9 @@ all: run dp mutants
 # THE ALIGNER KEEP-OFF IS THE DATAPATH'S, NOT A RESTATEMENT: mga_keepoff.py
 # copies milan_datapath's MGA_* declarations out of DP_SRC (below) into the
 # build directory, where the wrapper `include-s them. So a datapath mutant
-# (the mutation arm's band50 leg) reaches this leg as well.
+# (the mutation arm's band50 leg) reaches this leg as well. It refuses a
+# DP_SRC whose aligner instance binds its keep-off to anything else, so a
+# literal there cannot pass unseen (RM9).
 build:
 	mkdir -p $(MDIR)
 	python3 mga_keepoff.py $(DP_SRC) $(MDIR)/mga_keepoff.svh
@@ -79,7 +82,7 @@ build:
 
 run: build
 	@echo "======================================================================"
-	./$(MDIR)/$(EXE)
+	$(abspath $(MDIR))/$(EXE)
 
 # THE WHOLE DATAPATH, on the shape the AX7101 flashes. Its source list and
 # elaboration flag set are tb/verilator/milan_dp's own (print-srcs,
@@ -87,15 +90,19 @@ run: build
 # DP_SRC passes through so the mutation arm can elaborate a mutated datapath
 # through this same recipe. The shape values are sw/litex/build.sh
 # cfg_ax7101's, and the milan clock is the shape's 50 MHz.
+# --no-print-directory: both lists are the nested make's stdout, and a print-
+# directory flag it inherits (GNU make 4.3 hands a `make -C` recipe
+# MAKEFLAGS=w, which reached the mutation arm's builds on the hosted runner)
+# would write "Entering directory" into them (#617 R394-3 F1).
 DP_DIR   = ../milan_dp
 PP_DIR   = ../../../protocol-processor/hdl
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 DP_MDIR ?= obj_dp
-DP_SRCS  := $(shell $(MAKE) -s -C $(DP_DIR) print-srcs DP_SRC='$(DP_SRC)')
+DP_SRCS  := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-srcs DP_SRC='$(DP_SRC)')
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP_DIR) print-srcs failed; the datapath source list could not be derived)
 endif
-DP_VFLAGS := $(shell $(MAKE) -s -C $(DP_DIR) print-dp-vflags)
+DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP_DIR) print-dp-vflags)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP_DIR) print-dp-vflags failed; the elaboration flag set could not be derived)
 endif
@@ -120,13 +127,14 @@ dp-build: ltn_rom.hex ucode.hex
 
 dp: dp-build
 	@echo "======================================================================"
-	./$(DP_MDIR)/Vcoherence_dp
+	$(abspath $(DP_MDIR))/Vcoherence_dp
 
 # Rule 8: the harness is load-bearing only if it can fail. Defects are
 # planted in a copy of the real crossbar, one at a time, and each must make
 # the SAME harness fail by its own verdict and by the check it names; the
 # unmutated build must still pass. Mutants build in a temporary directory,
-# nothing is written into the tree.
+# in parallel, one per CPU this process may use; nothing is written into the
+# tree.
 mutants:
 	@echo "======================================================================"
 	python3 mutants.py

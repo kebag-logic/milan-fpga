@@ -24,7 +24,7 @@ $(MDIR)/V$(TOP): $(SRCS) sim_main.cpp
 	  $(SRCS) sim_main.cpp
 build: $(MDIR)/V$(TOP)
 run: $(MDIR)/V$(TOP)
-	./$(MDIR)/V$(TOP)
+	$(abspath $(MDIR))/V$(TOP)
 	$(MAKE) netcheck
 
 # [NC] NETLIST-level decode pin (t532 silicon 2026-08-09, the VERSION 0x0030
