@@ -1,0 +1,17 @@
+# python3 -B scripts/census_sentence_r4.py <archive b2-review-evidence author/ tree fdde402a> docs/findings/606_FIRST_BIND_MEASUREMENT.md@5c579274 receipts/pr_body_at_read_r5.md
+archive: state-changing ACMP {(6, 8): 105, (8, 8): 105} total 210 all to peer listener_uid 8: True
+archive: AECP names ['GET_AVB_INFO', 'GET_CLOCK_SOURCE', 'GET_CONFIGURATION', 'GET_COUNTERS', 'GET_SAMPLING_RATE', 'READ_DESCRIPTOR'] all GET_/READ_: True
+archive: commands addressed to a DUT stream input {'GET_COUNTERS': 228, 'GET_RX_STATE': 228, 'READ_DESCRIPTOR': 4} total 460
+archive: all ACMP commands 809 of which to the DUT 232
+OK   page: no unqualified 'no command ... addressed' claim
+OK   page: 'no state-changing command addressed' a DUT stream input, and archive agrees
+OK   page: '210 CONNECT_RX and DISCONNECT_RX went to the reference peer' == 210
+OK   page: 'every AECP command was a GET_ or READ_'
+OK   page: reads named (228, 228, 4) == archive (228, 228, 4), and no other command addressed a DUT input
+OK   PR body F2 bullet: no unqualified 'no command ... addressed' claim
+OK   PR body F2 bullet: 'no state-changing command addressed' a DUT stream input, and archive agrees
+OK   PR body F2 bullet: '210 CONNECT_RX and DISCONNECT_RX went to the reference peer' == 210
+OK   PR body F2 bullet: 'every AECP command was a GET_ or READ_'
+OK   PR body F2 bullet: reads named (228, 228, 4) == archive (228, 228, 4), and no other command addressed a DUT input
+fails: 0
+rc=0
