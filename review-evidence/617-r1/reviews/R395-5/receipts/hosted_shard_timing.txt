@@ -1,0 +1,61 @@
+# Hosted shard evidence used for the composed shard-1 projection (public GitHub Actions data, fetched read-only)
+# dev 13eda870 push rtl-full run 36521622889, Verilator shard 1/5 job; per-suite PASS timestamps:
+2026-09-29T04:28:51.5406247Z PASS     aaf_latency_taps
+2026-09-29T04:29:00.3021823Z PASS     avtp_rxmon
+2026-09-29T04:29:04.4704171Z PASS     cbs
+2026-09-29T04:29:08.5388580Z PASS     cdc
+2026-09-29T04:29:20.7068890Z PASS     clkvalid
+2026-09-29T04:29:26.8770157Z PASS     controller_rate
+2026-09-29T04:40:01.2515593Z PASS     crf_rx
+2026-09-29T04:40:05.6441822Z PASS     datapath
+2026-09-29T04:40:06.1320047Z PASS     fw_service_budget
+2026-09-29T04:40:12.7197497Z PASS     gptp_plane
+2026-09-29T04:44:44.9146890Z PASS     gptp_shadow
+2026-09-29T04:44:49.1627747Z PASS     lat_history_ring
+2026-09-29T04:44:53.4070676Z PASS     maap
+2026-09-29T04:45:01.7114018Z PASS     mac_rmon
+2026-09-29T04:45:14.5316937Z PASS     media_nco
+2026-09-29T04:45:19.0958106Z PASS     mmcm_servo_autorepair
+2026-09-29T04:54:31.1959304Z PASS     nvm_cosim
+2026-09-29T04:54:35.2917090Z PASS     pair_fill
+2026-09-29T04:54:39.3245888Z PASS     pcmlpf
+2026-09-29T04:56:42.2287667Z PASS     pp_shadow
+2026-09-29T04:56:46.4228127Z PASS     tcam_csr
+2026-09-29T04:57:29.0023926Z PASS     tsn_fuzz
+
+# PR head 35f58b9c pull_request rtl-full run 36518018770, Verilator shard 1/5 job; per-suite PASS timestamps:
+2026-09-29T03:40:58.4709400Z PASS     aaf_latency_taps
+2026-09-29T03:41:07.1918480Z PASS     avtp_rxmon
+2026-09-29T03:57:40.0401142Z PASS     capture_coherence
+2026-09-29T03:57:44.1273007Z PASS     cbs
+2026-09-29T03:57:48.1593390Z PASS     cdc
+2026-09-29T03:58:00.1864566Z PASS     clkvalid
+2026-09-29T03:58:06.2669562Z PASS     controller_rate
+2026-09-29T04:08:43.7892732Z PASS     crf_rx
+2026-09-29T04:08:48.2758473Z PASS     datapath
+2026-09-29T04:08:48.7676597Z PASS     fw_service_budget
+2026-09-29T04:08:55.3256364Z PASS     gptp_plane
+2026-09-29T04:13:26.7069498Z PASS     gptp_shadow
+2026-09-29T04:13:30.9213141Z PASS     lat_history_ring
+2026-09-29T04:13:35.1531938Z PASS     maap
+2026-09-29T04:13:43.5927175Z PASS     mac_rmon
+2026-09-29T04:13:56.5132195Z PASS     media_nco
+2026-09-29T04:14:01.0914754Z PASS     mmcm_servo_autorepair
+2026-09-29T04:23:08.9460040Z PASS     nvm_cosim
+2026-09-29T04:23:13.1858460Z PASS     pair_fill
+2026-09-29T04:23:17.3269695Z PASS     pcmlpf
+2026-09-29T04:25:19.6440202Z PASS     pp_shadow
+2026-09-29T04:25:23.9240990Z PASS     tcam_csr
+2026-09-29T04:26:06.3812196Z PASS     tsn_fuzz
+
+# PR head shard 2/5 (mmcm_servo, crf_tx) and shards 0/3/4 for the other assigned suites:
+2026-09-29T03:40:29.6792760Z PASS     crf_tx
+2026-09-29T03:52:36.3750258Z PASS     mmcm_servo
+2026-09-29T03:50:57.1493560Z PASS     milan_dp_render
+2026-09-29T03:42:39.9147521Z PASS     chmap_capture
+2026-09-29T03:47:43.4641961Z PASS     media_grid_align
+2026-09-29T03:48:47.9442712Z PASS     tdm
+2026-09-29T04:11:16.4595650Z PASS     milan_dp
+
+# job wall times: dev shard 1/5 04:26:45Z -> 04:57:32Z (30m47s); PR-head shard 1/5 03:38:45Z -> 04:26:10Z (47m25s)
+# capture_coherence on the PR-head shard: 03:41:07Z -> 03:57:40Z = 993 s; composed shard 1 = dev shard suites + capture_coherence ~ 30m47s + 993s ~ 47 min, inside the 120-minute shard job limit and the 1800 s per-suite guard

@@ -1,0 +1,18 @@
+# planted: aligner tick_i ORed with media_rebase_p_w in a scratch copy
+5734c5734
+<     .tick_i     (media_tick_q_r),
+---
+>     .tick_i     (media_tick_q_r | media_rebase_p_w),
+== media_nco ports
+== media_grid_align ports
+== chan_map_capture ports
+== media_clock_restart ports
+-- cc_nco: 11 lines
+   no #602 restart/re-base signal
+-- cc_mga: 11 lines
+7:5734:     .tick_i     (media_tick_q_r | media_rebase_p_w),
+   SHARED SIGNAL FOUND
+-- cc_cmap: 65 lines
+   no #602 restart/re-base signal
+-- media_clock_restart: 19 lines
+exit=1

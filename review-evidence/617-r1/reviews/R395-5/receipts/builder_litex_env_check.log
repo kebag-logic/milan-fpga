@@ -1,0 +1,37 @@
+$ $WORKSPACE_HOME/litex-milan/venv/bin/python3 scripts/ci_litex_env.py --check
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+--check: nothing done
+rc=0
+-e git+https://github.com/litex-hub/litei2c.git@19417d617a02c44d97ba240ffe62dd89482c566b#egg=litei2c
+-e git+https://github.com/litex-hub/litespi.git@02d5a209bc0010d33ddb506ba18e736636d4109a#egg=litespi
+-e git+https://github.com/enjoy-digital/litex.git@a1e1c3652ec2f1346ebaea7663d2867f393ae2c4#egg=litex
+-e git+https://github.com/litex-hub/litex-boards.git@9ac53c7a11f2571ba2c9f165f468ae021a4f9bda#egg=litex_boards
+migen @ file://$WORKSPACE_HOME/litex-milan/migen
+-e git+https://github.com/litex-hub/pythondata-cpu-blackparrot.git@3d97ebaaecba8f67788dbd2c7d6f8cc5d031ff15#egg=pythondata_cpu_blackparrot
+-e git+https://github.com/litex-hub/pythondata-cpu-cdim.git@46f328e00bb51c050973ed433d5b687877d1838b#egg=pythondata_cpu_cdim
+-e git+https://github.com/litex-hub/pythondata-cpu-coreblocks.git@9facb7af5fd20265d31a2a7c4ff2b4ea1ad8cdb4#egg=pythondata_cpu_coreblocks
+-e git+https://github.com/litex-hub/pythondata-cpu-cv32e40p.git@19f8654021760e361a0b0c0178347ff6f3bed193#egg=pythondata_cpu_cv32e40p
+-e git+https://github.com/litex-hub/pythondata-cpu-cv32e41p.git@ffb39a9a2a07eb4279675d037b092bf943cae2c2#egg=pythondata_cpu_cv32e41p
+-e git+https://github.com/litex-hub/pythondata-cpu-cva5.git@df23fb0ab7295f5ffce7f430f92390f2106f9ea7#egg=pythondata_cpu_cva5
+-e git+https://github.com/litex-hub/pythondata-cpu-cva6.git@da8c19c8142eee4053b714fc2b748d746e17f175#egg=pythondata_cpu_cva6
+-e git+https://github.com/litex-hub/pythondata-cpu-gs232.git@3c21af565d37292321b58dff5c621315f7c7f06b#egg=pythondata_cpu_gs232
+-e git+https://github.com/litex-hub/pythondata-cpu-ibex.git@5ac251006b93cc34b6366aa6ee238a85b31b9398#egg=pythondata_cpu_ibex
+-e git+https://github.com/litex-hub/pythondata-cpu-lm32.git@0f1d1b91202b95a9b749a745848430d64afb4400#egg=pythondata_cpu_lm32
+-e git+https://github.com/litex-hub/pythondata-cpu-marocchino.git@1e7ffe1b337e9280aaa77cdc763685b2b12124c2#egg=pythondata_cpu_marocchino
+-e git+https://github.com/litex-hub/pythondata-cpu-microwatt.git@c69953aff92da0a2696877884a009c3718cfaa51#egg=pythondata_cpu_microwatt
+-e git+https://github.com/litex-hub/pythondata-cpu-minerva.git@ab328774891c70694c6576be19d1d3e427d9f435#egg=pythondata_cpu_minerva
+-e git+https://github.com/litex-hub/pythondata-cpu-mor1kx.git@ba6ea16dc1250ac138ea0d923af4f91da790892f#egg=pythondata_cpu_mor1kx
+-e git+https://github.com/litex-hub/pythondata-cpu-naxriscv.git@20da269306bb3bfabd09de08d4c1be1fbc202474#egg=pythondata_cpu_naxriscv
+-e git+https://github.com/litex-hub/pythondata-cpu-openc906.git@c7c0472fd315875a16bab13d32e30d92a352efda#egg=pythondata_cpu_openc906
+-e git+https://github.com/litex-hub/pythondata-cpu-picorv32.git@f41d93dc42195872548b359d1fbb4594d25d7211#egg=pythondata_cpu_picorv32
+-e git+https://github.com/litex-hub/pythondata-cpu-rocket.git@d641037640637471e82646e69a055475cd2abfab#egg=pythondata_cpu_rocket
+-e git+https://github.com/litex-hub/pythondata-cpu-sentinel.git@7ec5e1e5db1a53910e4c58ae4c098ebce3f9591f#egg=pythondata_cpu_sentinel
+-e git+https://github.com/litex-hub/pythondata-cpu-serv.git@111947d7ab652c28642d7ff0a528dae293ca4601#egg=pythondata_cpu_serv
+-e git+https://github.com/litex-hub/pythondata-cpu-vexiiriscv.git@15cfab529a17c473d0fc75edf3f409eb374cef35#egg=pythondata_cpu_vexiiriscv
+-e git+https://github.com/litex-hub/pythondata-cpu-vexriscv.git@642ecfed1c84460555d6d803d660cc60cfc1ecb6#egg=pythondata_cpu_vexriscv
+-e git+https://github.com/litex-hub/pythondata-cpu-vexriscv-smp.git@217d23d7e9ad5556c17a73dc6ffc1971765f3d7c#egg=pythondata_cpu_vexriscv_smp
+-e git+https://github.com/litex-hub/pythondata-misc-tapcfg.git@a12c3f592c99f9c082fdc68c065b81cbd6e6b238#egg=pythondata_misc_tapcfg
+-e git+https://github.com/litex-hub/pythondata-misc-usb_ohci.git@17c1d3d6548ea267e19aec3cb6d2e64335a1bb2a#egg=pythondata_misc_usb_ohci
+-e git+https://github.com/litex-hub/pythondata-software-compiler_rt.git@6eb76609c9627bf26635e57c63fb22cda7115887#egg=pythondata_software_compiler_rt
+-e git+https://github.com/litex-hub/pythondata-software-picolibc.git@6a13ccce7c575b32c102dd9dc52178505b81fe39#egg=pythondata_software_picolibc

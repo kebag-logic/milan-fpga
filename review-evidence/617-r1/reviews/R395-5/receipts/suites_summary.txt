@@ -1,0 +1,14 @@
+media_nco                                rc=0 wall_s=14
+media_grid_align                         rc=0 wall_s=170
+crf_rx                                   rc=0 wall_s=600
+crf_tx                                   rc=0 wall_s=6
+# queue 1 (the first four rows) ran media_nco, media_grid_align, crf_rx, crf_tx to rc=0 in their own build dirs.
+# queue 1's mmcm_servo run was disturbed while running (the reviewer mistakenly started a second queue and cleaned
+# mmcm_servo's build dir under it); queues 1-3 were stopped with no verdict counted for mmcm_servo or later suites.
+# queue 4 (rows after this note) is the single authoritative run of mmcm_servo and every later suite.
+mmcm_servo                               rc=0 wall_s=744
+tdm                                      rc=0 wall_s=6
+chmap_capture                            rc=0 wall_s=60
+capture_coherence                        rc=0 wall_s=698
+milan_dp_render                          rc=0 wall_s=351
+milan_dp                                 rc=0 wall_s=1672

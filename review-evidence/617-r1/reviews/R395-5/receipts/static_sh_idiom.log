@@ -1,0 +1,11 @@
+$ $REVIEWS/617-r395-5-packet/scratch/bin/python3md scripts/check_sh_idiom.py
+head: 2cc926da316c3e1c64e94ebeaab982672013fa57
+sh idiom: 23 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+rc=0

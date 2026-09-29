@@ -1,0 +1,30 @@
+== media_nco ports
+== media_grid_align ports
+== chan_map_capture ports
+== media_clock_restart ports
+-- cc_nco: 11 lines
+   no #602 restart/re-base signal
+-- cc_mga: 11 lines
+   no #602 restart/re-base signal
+-- cc_cmap: 65 lines
+   no #602 restart/re-base signal
+-- media_clock_restart: 19 lines
+   no PR aligner/NCO/capture signal
+== drivers of the aligner/NCO shared inputs
+1563:      crf_clk_selected_r <= 1'b0;
+1567:      crf_clk_selected_r <= (pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
+5739:  assign mnco_servo_en_w = crf_clk_selected_r;
+== every reader of the #602 signals
+3145:  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+3146:  wire mcr_restart_p_w = crf_clk_selected_r
+3173:  wire [MCR_CTX_C-1:0] mcr_mr_v_w;
+3176:    .restart_p_i (mcr_restart_p_w),
+3191:    .mr_o        (mcr_mr_v_w)
+3193:  assign aaf_mr_w  = mcr_mr_v_w[N_STREAMS-1:0];
+3194:  assign crft_mr_w = mcr_mr_v_w[N_STREAMS];
+5518:    //! outgoing streams have to echo. Consumed by mcr_restart_p_w above,
+6040:  //! (render_recentre_p_w), and a shape that prunes the DAC leaves this
+6127:  wire render_recentre_p_w /* verilator public_flat_rd */ =
+6128:       media_rebase_p_w
+6283:    .recentre_p_i (render_recentre_p_w),
+rc=0

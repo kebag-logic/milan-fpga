@@ -1,0 +1,72 @@
+# restoration check 2026-09-29T07:25:18Z
+warning: unable to find all commit-graph files
+HEAD: 2cc926da316c3e1c64e94ebeaab982672013fa57 tree: 578218ee140123445679eb1ef9e84b4786cece61
+index digest now:      2e1721cfb42dc9d6eb29972f13da6c07928c7805a703e008e9603c4382b2b91a  -
+index digest baseline: 2e1721cfb42dc9d6eb29972f13da6c07928c7805a703e008e9603c4382b2b91a  -
+$ git update-index --really-refresh; git diff --quiet HEAD (tracked bytes and modes)
+warning: unable to find all commit-graph files
+diff rc=0
+$ git diff --cached --quiet HEAD
+warning: unable to find all commit-graph files
+cached rc=0
+$ git ls-files -v | grep -v '^H ' (assume-unchanged / skip-worktree flags)
+(end)
+$ git status --porcelain (untracked, not ignored)
+warning: unable to find all commit-graph files
+(end)
+$ git submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor (v2.0-290-gc951a9f)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+$ git ls-tree HEAD gitlinks
+warning: unable to find all commit-graph files
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+gptp-processor: HEAD 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d dirty=0
+protocol-processor: HEAD c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 dirty=0
+third_party/verilog-axis: HEAD 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+ignored build output present (untracked, ignored; not repository bytes):
+warning: unable to find all commit-graph files
+!! avdecc/__pycache__/
+!! configs/generated/ltn_rom.hex
+!! configs/generated/ucode.hex
+!! scripts/__pycache__/
+!! sw/builder/__pycache__/
+!! sw/builder/out/
+!! sw/firmware/nvm_hosttest/__pycache__/
+!! sw/litex/__pycache__/
+!! sw/litex/platforms/__pycache__/
+!! tb/verilator/capture_coherence/ltn_rom.hex
+!! tb/verilator/capture_coherence/obj_dir/
+!! tb/verilator/capture_coherence/obj_dp/
+!! tb/verilator/capture_coherence/ucode.hex
+!! tb/verilator/chmap_capture/obj_dir/
+!! tb/verilator/chmap_capture/obj_net/
+!! tb/verilator/crf_rx/obj_dir/
+!! tb/verilator/crf_rx/obj_discontinuity/
+!! tb/verilator/crf_rx/obj_talker/
+!! tb/verilator/crf_tx/obj_dir/
+!! tb/verilator/media_grid_align/obj_dir/
+!! tb/verilator/media_grid_align/obj_mut_coin/
+!! tb/verilator/media_grid_align/obj_mut_keepoff/
+!! tb/verilator/media_grid_align/obj_mut_usign/
+!! tb/verilator/media_nco/obj_dir/
+!! tb/verilator/milan_dp/gen_divergent/
+!! tb/verilator/milan_dp/gptp_ucode.hex
+!! tb/verilator/milan_dp/ltn_rom.hex
+!! tb/verilator/milan_dp/obj_aclk/
+!! tb/verilator/milan_dp/obj_ax1x1/
+!! tb/verilator/milan_dp/obj_crflic/
+!! tb/verilator/milan_dp/obj_dir/
+!! tb/verilator/milan_dp/obj_gmstep/
+!! tb/verilator/milan_dp/obj_gptp/
+!! tb/verilator/milan_dp/obj_gptplat/
+!! tb/verilator/milan_dp/obj_legs/
+!! tb/verilator/milan_dp/obj_nolpf/
+!! tb/verilator/milan_dp/obj_notify/
+!! tb/verilator/milan_dp/obj_nxn/
+!! tb/verilator/milan_dp/obj_nxn4c/
+!! tb/verilator/milan_dp/obj_nxn8/

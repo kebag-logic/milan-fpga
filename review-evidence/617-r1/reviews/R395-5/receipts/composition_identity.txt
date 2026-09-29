@@ -1,0 +1,163 @@
+# composition identity
+warning: unable to find all commit-graph files
+candidate: 2cc926da316c3e1c64e94ebeaab982672013fa57 tree 578218ee140123445679eb1ef9e84b4786cece61
+warning: unable to find all commit-graph files
+parents: 0cc00731692c9f985f49953200f2c6bdaaddf790 35f58b9cca1de9215f787872734e6a9040f82c19
+warning: unable to find all commit-graph files
+merge-base(P,S): ce550952e47fbd92367f0d9b099345100f7f4215
+$ git merge-tree --write-tree 0cc00731692c9f985f49953200f2c6bdaaddf790 35f58b9cca1de9215f787872734e6a9040f82c19
+warning: unable to find all commit-graph files
+578218ee140123445679eb1ef9e84b4786cece61
+rc=0
+
+# files changed by the PR since ce550952 (source side)
+CHANGELOG.md
+docs/CHANNEL_MAP_64.md
+docs/design/TIME_SYNC.md
+docs/fpga/FPGA_DESIGN.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+docs/traceability/MODULE_MATRIX.md
+hdl/common/csr/README-tests.md
+hdl/common/eth_event_counter/README-tests.md
+hdl/common/README-tests.md
+hdl/ieee17221/adp/README-tests.md
+hdl/ieee1722/aaf/KL_chan_map_capture.sv
+hdl/ieee1722/aaf/README-tests.md
+hdl/ieee1722/avtp/README-tests.md
+hdl/ieee1722/crf/KL_media_grid_align.sv
+hdl/ieee1722/crf/KL_media_nco.sv
+hdl/ieee1722/crf/README-tests.md
+hdl/ieee1722/maap/README-tests.md
+hdl/ieee8021as/gptp_plane/README-tests.md
+hdl/ieee8021as/ptp_timestamp/README-tests.md
+hdl/ieee8021q/filtering/README-tests.md
+hdl/milan/milan_datapath.sv
+hdl/milan/README-tests.md
+scripts/measure_test_evidence.py
+tb/verilator/capture_coherence/coherence_bench.hpp
+tb/verilator/capture_coherence/coherence_wrap.sv
+tb/verilator/capture_coherence/.gitignore
+tb/verilator/capture_coherence/Makefile
+tb/verilator/capture_coherence/mga_keepoff.py
+tb/verilator/capture_coherence/mutants.py
+tb/verilator/capture_coherence/sim_dp.cpp
+tb/verilator/capture_coherence/sim_main.cpp
+tb/verilator/chmap_capture/chmap_wrap.sv
+tb/verilator/chmap_capture/Makefile
+tb/verilator/chmap_capture/sim_main.cpp
+tb/verilator/media_grid_align/media_grid_align_wrap.sv
+tb/verilator/media_nco/Makefile
+tb/verilator/media_nco/README.md
+tb/verilator/media_nco/sim_main.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+
+# files changed by the train since ce550952
+CHANGELOG.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/design/TIME_SYNC.md
+docs/ENDSTATION_BUILDER.md
+docs/findings/394_387_E1_SWITCH_CYCLES.md
+docs/findings/397_SERVICE_BUDGET.md
+docs/findings/451_TDM8_FIRST_LIGHT.md
+docs/findings/COMMERCIAL_TIMING_395.md
+docs/findings/README.md
+docs/fpga/FPGA_DESIGN.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/integration/BOARD_PORTING_AX7101.md
+docs/integration/BUILDING.md
+docs/litex/CLOCK_DOMAINS.md
+docs/litex/LITEX_SOC.md
+docs/MILAN_V12_ROADMAP.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+docs/reference/REGISTER_MAP.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/RUNNING_TESTS.md
+docs/testing/TESTING.md
+hdl/ieee1722/avtp/KL_media_clock_restart.sv
+hdl/milan/milan_datapath.sv
+REQUIREMENTS.md
+sw/builder/endstation_builder.py
+sw/builder/README-parameters.md
+sw/builder/test_builder.py
+sw/builder/test_clock_constraints.py
+sw/builder/test_clock_contract.py
+sw/builder/test_declarations.py
+sw/builder/test_shipping_clock_constraints.py
+sw/builder/test_timing_grade.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+sw/firmware/nvm_hosttest/nvm_host.c
+sw/firmware/nvm_hosttest/phy_host.c
+sw/firmware/nvm_hosttest/README.md
+sw/firmware/nvm_hosttest/test_disabled_writer.py
+sw/firmware/nvm_hosttest/test_nvm_firmware.py
+sw/firmware/nvm_hosttest/test_phy_firmware.py
+sw/litex/clock_constraints.py
+sw/litex/clock_constraints.tcl
+sw/litex/milan_soc.py
+sw/litex/patches/0006-bios-dispatch-hook.patch
+sw/litex/patches/apply.sh
+sw/litex/patches/README.md
+sw/litex/platforms/alinx_ax7101.py
+sw/litex/platforms/ax7101_timing.py
+sw/litex/report_timing_grade.py
+sw/litex/sweep_extra.sh
+sw/litex/sweep.sh
+sw/litex/timing_grade.tcl
+tb/verilator/fw_service_budget/build.py
+tb/verilator/fw_service_budget/phy.hpp
+tb/verilator/fw_service_budget/phy.py
+tb/verilator/fw_service_budget/README.md
+tb/verilator/fw_service_budget/run.py
+tb/verilator/fw_service_budget/sim_main.cpp
+tb/verilator/milan_dp/gmstep_mutants.py
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+tb/verilator/milan_dp/sim_gmstep.cpp
+tb/verilator/milan_dp/sim_main.cpp
+tb/verilator/nvm_capture_cpu/firmware.py
+tb/verilator/nvm_capture_cpu/measurements.json
+tb/verilator/nvm_capture_cpu/README.md
+tb/verilator/nvm_capture_cpu/run.py
+tb/verilator/nvm_cosim/cosim_host.c
+tb/verilator/nvm_cosim/run_cases.py
+tb/verilator/tkdiag/mcr_mutants.py
+tb/verilator/tkdiag/sim_main.cpp
+
+# overlap (both sides)
+CHANGELOG.md
+docs/design/TIME_SYNC.md
+docs/fpga/FPGA_DESIGN.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/milan/milan_datapath.sv
+
+# PR files where the candidate differs from the PR source head
+warning: unable to find all commit-graph files
+ CHANGELOG.md                   | 22 +++++++++++++---------
+ docs/design/TIME_SYNC.md       | 15 ++++++++++++---
+ docs/fpga/FPGA_DESIGN.md       |  5 +++--
+ docs/reference/REGISTER_MAP.md | 14 +++++++++++---
+ docs/testing/TESTING.md        |  8 ++++----
+ hdl/milan/milan_datapath.sv    | 27 ++++++++++++---------------
+ 6 files changed, 55 insertions(+), 36 deletions(-)
+
+# train files where the candidate differs from P (must be the PR-only files)
+warning: unable to find all commit-graph files
+(end: empty = candidate only adds PR changes onto P)
+
+# submodule gitlinks at candidate
+warning: unable to find all commit-graph files
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# gitlinks at P
+warning: unable to find all commit-graph files
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
