@@ -131,7 +131,7 @@ The verdict is NEGATIVE because of two MINOR documentation/conformance defects i
    - The diff's 116 added lines carry no host, peer, switch, instrument, suite, serial, home path or interface names.
    - `docs_check.py` reports 0 findings. The other doc gates return rc 0 (`receipts/doc_gates.txt`).
    - The following are present, and each is in the accepted class or has precedent in the tree:
-     - in the packet, the controller EUI `6805cafffe95b2ed`: this family is already tracked in `tb/tools/avdecc_ctl.py:313` and `tb/verilator/tsn_fuzz/wire.py:37`;
+     - in the packet, the controller EUI `<controller-host-id>`: this family is already tracked in `tb/tools/avdecc_ctl.py:313` and `tb/verilator/tsn_fuzz/wire.py:37`;
      - the peer entity ID `3cc0c60102030000` in the run logs: derived from the peer clock `3cc0c6fffe010203` already on the page at `:328`;
      - the DUT's own serial string in the ENTITY hex;
      - the g++ and libpcap versions: already on the page at `:211-212`.
