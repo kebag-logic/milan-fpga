@@ -1,0 +1,321 @@
+== identities
+d62b1e1a3a37283ebad039880163873698a011db
+b4a1f5ed6a5b00ecde3dcba7781f45fb72480b59
+5c57927413e0dae279f06a75d2a58e3fec8a2bb0
+79c36963660c10e4c1c11a744fb5bff41a552b8b
+5c57927413e0dae279f06a75d2a58e3fec8a2bb0
+13eda870d1a6cf3f946fc228a98862366b08d102
+79c36963660c10e4c1c11a744fb5bff41a552b8b
+== merge-base(PR, DEV) (expect OLDDEV)
+13eda870d1a6cf3f946fc228a98862366b08d102
+== OLDDEV ancestor of DEV
+yes
+== (1) files: PR content  git diff OLDDEV PR
+A	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+A	docs/findings/608_75_WITHDRAWAL_AND_RESTART.md
+M	docs/findings/README.md
+== (1) files: merged delta git diff DEV HEAD
+A	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+A	docs/findings/608_75_WITHDRAWAL_AND_RESTART.md
+M	docs/findings/README.md
+== (1) file-list equality
+FILE-LIST-EQUAL
+== (1) per-file patch equality (index lines stripped)
+docs/findings/606_FIRST_BIND_MEASUREMENT.md patch_hunks_equal=Y blob_equal=Y mode=100644/100644
+docs/findings/608_75_WITHDRAWAL_AND_RESTART.md patch_hunks_equal=Y blob_equal=Y mode=100644/100644
+docs/findings/README.md patch_hunks_equal=N blob_equal=N mode=100644/100644
+== (2) git diff PR HEAD outside docs/findings/README.md vs git diff OLDDEV DEV
+-- PR..HEAD files:
+A	docs/findings/387_SOFTWARE_GM_STEP.md
+A	docs/findings/451_TDM8_FIRST_LIGHT.md
+A	docs/findings/599_394_E1_LINK_CYCLES.md
+A	tb/verilator/capture_coherence/coherence_bench.hpp
+A	tb/verilator/capture_coherence/coherence_wrap.sv
+A	tb/verilator/capture_coherence/.gitignore
+A	tb/verilator/capture_coherence/Makefile
+A	tb/verilator/capture_coherence/mga_keepoff.py
+A	tb/verilator/capture_coherence/mutants.py
+A	tb/verilator/capture_coherence/sim_dp.cpp
+A	tb/verilator/capture_coherence/sim_main.cpp
+M	CHANGELOG.md
+M	docs/CHANNEL_MAP_64.md
+M	docs/design/TIME_SYNC.md
+M	docs/ENDSTATION_BUILDER.md
+M	docs/findings/README.md
+M	docs/fpga/FPGA_DESIGN.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/litex/CLOCK_DOMAINS.md
+M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+M	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/RUNNING_TESTS.md
+M	docs/testing/TESTING.md
+M	docs/traceability/MODULE_MATRIX.md
+M	hdl/common/csr/README-tests.md
+M	hdl/common/eth_event_counter/README-tests.md
+M	hdl/common/README-tests.md
+M	hdl/ieee17221/adp/README-tests.md
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/ieee1722/aaf/README-tests.md
+M	hdl/ieee1722/avtp/README-tests.md
+M	hdl/ieee1722/crf/KL_media_grid_align.sv
+M	hdl/ieee1722/crf/KL_media_nco.sv
+M	hdl/ieee1722/crf/README-tests.md
+M	hdl/ieee1722/maap/README-tests.md
+M	hdl/ieee8021as/gptp_plane/README-tests.md
+M	hdl/ieee8021as/ptp_timestamp/README-tests.md
+M	hdl/ieee8021q/filtering/README-tests.md
+M	hdl/milan/milan_datapath.sv
+M	hdl/milan/README-tests.md
+M	scripts/measure_test_evidence.py
+M	sw/builder/endstation_builder.py
+M	sw/builder/README-parameters.md
+M	sw/builder/test_builder.py
+M	sw/builder/test_clock_contract.py
+M	sw/builder/test_declarations.py
+M	sw/builder/test_shipping_clock_constraints.py
+M	sw/litex/milan_soc.py
+M	sw/litex/sweep_extra.sh
+M	tb/verilator/chmap_capture/chmap_wrap.sv
+M	tb/verilator/chmap_capture/Makefile
+M	tb/verilator/chmap_capture/sim_main.cpp
+M	tb/verilator/media_grid_align/media_grid_align_wrap.sv
+M	tb/verilator/media_nco/Makefile
+M	tb/verilator/media_nco/README.md
+M	tb/verilator/media_nco/sim_main.cpp
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+M	tb/verilator/milan_dp/sim_nxn.cpp
+-- OLDDEV..DEV files:
+A	docs/findings/387_SOFTWARE_GM_STEP.md
+A	docs/findings/451_TDM8_FIRST_LIGHT.md
+A	docs/findings/599_394_E1_LINK_CYCLES.md
+A	tb/verilator/capture_coherence/coherence_bench.hpp
+A	tb/verilator/capture_coherence/coherence_wrap.sv
+A	tb/verilator/capture_coherence/.gitignore
+A	tb/verilator/capture_coherence/Makefile
+A	tb/verilator/capture_coherence/mga_keepoff.py
+A	tb/verilator/capture_coherence/mutants.py
+A	tb/verilator/capture_coherence/sim_dp.cpp
+A	tb/verilator/capture_coherence/sim_main.cpp
+M	CHANGELOG.md
+M	docs/CHANNEL_MAP_64.md
+M	docs/design/TIME_SYNC.md
+M	docs/ENDSTATION_BUILDER.md
+M	docs/findings/README.md
+M	docs/fpga/FPGA_DESIGN.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/litex/CLOCK_DOMAINS.md
+M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+M	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/RUNNING_TESTS.md
+M	docs/testing/TESTING.md
+M	docs/traceability/MODULE_MATRIX.md
+M	hdl/common/csr/README-tests.md
+M	hdl/common/eth_event_counter/README-tests.md
+M	hdl/common/README-tests.md
+M	hdl/ieee17221/adp/README-tests.md
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/ieee1722/aaf/README-tests.md
+M	hdl/ieee1722/avtp/README-tests.md
+M	hdl/ieee1722/crf/KL_media_grid_align.sv
+M	hdl/ieee1722/crf/KL_media_nco.sv
+M	hdl/ieee1722/crf/README-tests.md
+M	hdl/ieee1722/maap/README-tests.md
+M	hdl/ieee8021as/gptp_plane/README-tests.md
+M	hdl/ieee8021as/ptp_timestamp/README-tests.md
+M	hdl/ieee8021q/filtering/README-tests.md
+M	hdl/milan/milan_datapath.sv
+M	hdl/milan/README-tests.md
+M	scripts/measure_test_evidence.py
+M	sw/builder/endstation_builder.py
+M	sw/builder/README-parameters.md
+M	sw/builder/test_builder.py
+M	sw/builder/test_clock_contract.py
+M	sw/builder/test_declarations.py
+M	sw/builder/test_shipping_clock_constraints.py
+M	sw/litex/milan_soc.py
+M	sw/litex/sweep_extra.sh
+M	tb/verilator/chmap_capture/chmap_wrap.sv
+M	tb/verilator/chmap_capture/Makefile
+M	tb/verilator/chmap_capture/sim_main.cpp
+M	tb/verilator/media_grid_align/media_grid_align_wrap.sv
+M	tb/verilator/media_nco/Makefile
+M	tb/verilator/media_nco/README.md
+M	tb/verilator/media_nco/sim_main.cpp
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+M	tb/verilator/milan_dp/sim_nxn.cpp
+FILE-LIST-EQUAL
+-- per-file: blob at HEAD == blob at DEV (outside README)
+docs/findings/387_SOFTWARE_GM_STEP.md blob_equal=Y mode=100644/100644
+docs/findings/451_TDM8_FIRST_LIGHT.md blob_equal=Y mode=100644/100644
+docs/findings/599_394_E1_LINK_CYCLES.md blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/coherence_bench.hpp blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/coherence_wrap.sv blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/.gitignore blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/Makefile blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/mga_keepoff.py blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/mutants.py blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/sim_dp.cpp blob_equal=Y mode=100644/100644
+tb/verilator/capture_coherence/sim_main.cpp blob_equal=Y mode=100644/100644
+CHANGELOG.md blob_equal=Y mode=100644/100644
+docs/CHANNEL_MAP_64.md blob_equal=Y mode=100644/100644
+docs/design/TIME_SYNC.md blob_equal=Y mode=100644/100644
+docs/ENDSTATION_BUILDER.md blob_equal=Y mode=100644/100644
+docs/fpga/FPGA_DESIGN.md blob_equal=Y mode=100644/100644
+docs/integration/BAREMETAL_FIRMWARE.md blob_equal=Y mode=100644/100644
+docs/litex/CLOCK_DOMAINS.md blob_equal=Y mode=100644/100644
+docs/reference/MILAN_COMPLIANCE_MATRIX.md blob_equal=Y mode=100644/100644
+docs/reference/PP_DESCRIPTOR_OWNERSHIP.md blob_equal=Y mode=100644/100644
+docs/reference/REGISTER_MAP.md blob_equal=Y mode=100644/100644
+docs/testing/CI_WORKFLOWS.md blob_equal=Y mode=100644/100644
+docs/testing/RUNNING_TESTS.md blob_equal=Y mode=100644/100644
+docs/testing/TESTING.md blob_equal=Y mode=100644/100644
+docs/traceability/MODULE_MATRIX.md blob_equal=Y mode=100644/100644
+hdl/common/csr/README-tests.md blob_equal=Y mode=100644/100644
+hdl/common/eth_event_counter/README-tests.md blob_equal=Y mode=100644/100644
+hdl/common/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee17221/adp/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee1722/aaf/KL_chan_map_capture.sv blob_equal=Y mode=100644/100644
+hdl/ieee1722/aaf/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee1722/avtp/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee1722/crf/KL_media_grid_align.sv blob_equal=Y mode=100644/100644
+hdl/ieee1722/crf/KL_media_nco.sv blob_equal=Y mode=100644/100644
+hdl/ieee1722/crf/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee1722/maap/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee8021as/gptp_plane/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee8021as/ptp_timestamp/README-tests.md blob_equal=Y mode=100644/100644
+hdl/ieee8021q/filtering/README-tests.md blob_equal=Y mode=100644/100644
+hdl/milan/milan_datapath.sv blob_equal=Y mode=100644/100644
+hdl/milan/README-tests.md blob_equal=Y mode=100644/100644
+scripts/measure_test_evidence.py blob_equal=Y mode=100644/100644
+sw/builder/endstation_builder.py blob_equal=Y mode=100644/100644
+sw/builder/README-parameters.md blob_equal=Y mode=100644/100644
+sw/builder/test_builder.py blob_equal=Y mode=100644/100644
+sw/builder/test_clock_contract.py blob_equal=Y mode=100644/100644
+sw/builder/test_declarations.py blob_equal=Y mode=100644/100644
+sw/builder/test_shipping_clock_constraints.py blob_equal=Y mode=100644/100644
+sw/litex/milan_soc.py blob_equal=Y mode=100644/100644
+sw/litex/sweep_extra.sh blob_equal=Y mode=100755/100755
+tb/verilator/chmap_capture/chmap_wrap.sv blob_equal=Y mode=100644/100644
+tb/verilator/chmap_capture/Makefile blob_equal=Y mode=100644/100644
+tb/verilator/chmap_capture/sim_main.cpp blob_equal=Y mode=100644/100644
+tb/verilator/media_grid_align/media_grid_align_wrap.sv blob_equal=Y mode=100644/100644
+tb/verilator/media_nco/Makefile blob_equal=Y mode=100644/100644
+tb/verilator/media_nco/README.md blob_equal=Y mode=100644/100644
+tb/verilator/media_nco/sim_main.cpp blob_equal=Y mode=100644/100644
+tb/verilator/milan_dp/Makefile blob_equal=Y mode=100644/100644
+tb/verilator/milan_dp/README.md blob_equal=Y mode=100644/100644
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp blob_equal=Y mode=100644/100644
+tb/verilator/milan_dp/sim_nxn.cpp blob_equal=Y mode=100644/100644
+== whole-tree: every path at HEAD equals DEV or PR (except README)
+paths 977 anomalies 0
+== gitlinks HEAD vs DEV vs PR
+d62b1e1a3a37283ebad039880163873698a011db
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+79c36963660c10e4c1c11a744fb5bff41a552b8b
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+5c57927413e0dae279f06a75d2a58e3fec8a2bb0
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+13eda870d1a6cf3f946fc228a98862366b08d102
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+== README three-way
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index ca93a4552..0c6ca40f4 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -8,6 +8,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ 
+ | Document | Scope | State |
+ |---|---|---|
++| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
+ | [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; three non-restarts tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); initial-bind exception tracked by #606; AAF unmeasured |
+ | [COMMERCIAL_TIMING_395.md](COMMERCIAL_TIMING_395.md) | AX7101 commercial-grade timing at both fixed speed models for the `9e9954e9` shipping checkpoint (#395 items 1, 2 and 5) | Applied constraints meet the recorded margin; rejected constraints belong to #607; physical temperature and oscillator measurements remain open |
+ | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
+-- PR side
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index ca93a4552..01b2ecb17 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -8,7 +8,9 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ 
+ | Document | Scope | State |
+ |---|---|---|
+-| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; three non-restarts tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); initial-bind exception tracked by #606; AAF unmeasured |
++| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs on `9e9954e9`; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; AAF unmeasured. On `13eda870` the talker non-restarts are re-measured in [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) and the initial bind in [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) |
++| [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) | First talker bind and long-hold connect of the DUT-talker CRF pair on dev `13eda870` (#606 item 3) | 5 of 5 first binds and 4 of 4 long-hold connects within 1 s; the post-reset allocation path is not exercised |
++| [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) | 100 listener withdrawals and reconnects of the DUT-talker CRF pair on dev `13eda870` (#608 item 3, #75) | 99 of 99 withdrawals that reached an IN registrar stopped; the one LV case is attributed to processor #108, pending a re-run after processor PR #133; 99 of 99 demonstrated restarts within 1 s |
+ | [COMMERCIAL_TIMING_395.md](COMMERCIAL_TIMING_395.md) | AX7101 commercial-grade timing at both fixed speed models for the `9e9954e9` shipping checkpoint (#395 items 1, 2 and 5) | Applied constraints meet the recorded margin; rejected constraints belong to #607; physical temperature and oscillator measurements remain open |
+ | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
+ | [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch power cycles, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return inside the 5 s bound (worst 1.60 s) |
+-- merged vs DEV
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index 0c6ca40f4..37f129922 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -9,7 +9,9 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ | Document | Scope | State |
+ |---|---|---|
+ | [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
+-| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; three non-restarts tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); initial-bind exception tracked by #606; AAF unmeasured |
++| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs on `9e9954e9`; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; AAF unmeasured. On `13eda870` the talker non-restarts are re-measured in [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) and the initial bind in [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) |
++| [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) | First talker bind and long-hold connect of the DUT-talker CRF pair on dev `13eda870` (#606 item 3) | 5 of 5 first binds and 4 of 4 long-hold connects within 1 s; the post-reset allocation path is not exercised |
++| [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) | 100 listener withdrawals and reconnects of the DUT-talker CRF pair on dev `13eda870` (#608 item 3, #75) | 99 of 99 withdrawals that reached an IN registrar stopped; the one LV case is attributed to processor #108, pending a re-run after processor PR #133; 99 of 99 demonstrated restarts within 1 s |
+ | [COMMERCIAL_TIMING_395.md](COMMERCIAL_TIMING_395.md) | AX7101 commercial-grade timing at both fixed speed models for the `9e9954e9` shipping checkpoint (#395 items 1, 2 and 5) | Applied constraints meet the recorded margin; rejected constraints belong to #607; physical temperature and oscillator measurements remain open |
+ | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
+ | [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch power cycles, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return inside the 5 s bound (worst 1.60 s) |
+-- merged vs PR
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index 01b2ecb17..37f129922 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -8,6 +8,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ 
+ | Document | Scope | State |
+ |---|---|---|
++| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
+ | [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs on `9e9954e9`; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; AAF unmeasured. On `13eda870` the talker non-restarts are re-measured in [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) and the initial bind in [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) |
+ | [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) | First talker bind and long-hold connect of the DUT-talker CRF pair on dev `13eda870` (#606 item 3) | 5 of 5 first binds and 4 of 4 long-hold connects within 1 s; the post-reset allocation path is not exercised |
+ | [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) | 100 listener withdrawals and reconnects of the DUT-talker CRF pair on dev `13eda870` (#608 item 3, #75) | 99 of 99 withdrawals that reached an IN registrar stopped; the one LV case is attributed to processor #108, pending a re-run after processor PR #133; 99 of 99 demonstrated restarts within 1 s |
+-- remerge-diff
+d62b1e1a3a37283ebad039880163873698a011db
+
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+remerge CONFLICT (content): Merge conflict in docs/findings/README.md
+index 83e6e569f..37f129922 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -8,14 +8,10 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ 
+ | Document | Scope | State |
+ |---|---|---|
+-<<<<<<< 5c5792741 (State that no state-changing command addressed a DUT stream input and name the reads that did)
++| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
+ | [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs on `9e9954e9`; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; AAF unmeasured. On `13eda870` the talker non-restarts are re-measured in [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) and the initial bind in [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) |
+ | [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) | First talker bind and long-hold connect of the DUT-talker CRF pair on dev `13eda870` (#606 item 3) | 5 of 5 first binds and 4 of 4 long-hold connects within 1 s; the post-reset allocation path is not exercised |
+ | [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) | 100 listener withdrawals and reconnects of the DUT-talker CRF pair on dev `13eda870` (#608 item 3, #75) | 99 of 99 withdrawals that reached an IN registrar stopped; the one LV case is attributed to processor #108, pending a re-run after processor PR #133; 99 of 99 demonstrated restarts within 1 s |
+-=======
+-| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
+-| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; three non-restarts tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); initial-bind exception tracked by #606; AAF unmeasured |
+->>>>>>> 79c369636 (Merge PR #620: Record e1 link-publication switch cycles and software grandmaster steps on the 13eda870 image)
+ | [COMMERCIAL_TIMING_395.md](COMMERCIAL_TIMING_395.md) | AX7101 commercial-grade timing at both fixed speed models for the `9e9954e9` shipping checkpoint (#395 items 1, 2 and 5) | Applied constraints meet the recorded margin; rejected constraints belong to #607; physical temperature and oscillator measurements remain open |
+ | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
+ | [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch power cycles, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return inside the 5 s bound (worst 1.60 s) |
+== VERDICT checks
+dev-added README rows: 1
+FAILURES 0
+DELTA-CHECK PASS
