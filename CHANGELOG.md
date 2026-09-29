@@ -62,6 +62,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `test_boot_walk.py` grades five boot paths per shape.
 - The AEM image loads and CRC-checks before `nvm_boot()`.
 - Gate 1b keeps the pinned verdict across that call.
+- Service stretches are charged from the first heartbeat opportunity.
+- The capture receipt and service figures are re-measured.
 - Every harness that sends AECP starts the walk first.
 - A received LeaveAll restarts the leavealltimer and goes Passive.
 - The talker licence waits for the stream VID's MVRP join.

@@ -1616,14 +1616,14 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. MEASURED on 2026-09-28 in the
+Timing. MEASURED on 2026-09-29 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172) requires this firmware remeasurement.
-Measured commit: `26a26e1f39feeebaebb0f450d7cbe2b63429c252`.
-Measured tree: `1ced48e23609180f2d09a19352837c00317429fe`.
-Firmware SHA-256: `89c0360ed2eb63566d0413e9c721aee05aae4581f23d3897a1ae853b46a10070`.
-Protocol-processor pin: `16be6768f710e79450aace277abacd6c2c3336e5`.
+The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) requires this firmware remeasurement.
+Measured commit: `18199bacae847f8f3c1a31ee9b62d0086c8abf41`.
+Measured tree: `2458ac0e663dd2a073347045c1bd92df54f1e85e`.
+Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
+Protocol-processor pin: `b2db3a970cedbbff2f8ba813acb96122c442bc58`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1651,10 +1651,10 @@ The 1x1 maximum is 3.88779 ms (12.6036x floor ratio).
 | Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
 |---|---|---|---|---|
 | 1x1 | 50 / 100, contract | ON | 3.87674 to 3.88779 | 12.6036x |
-| 1x1 | 50 / 100, contract | OFF | 3.82856 to 3.84214 | 12.7533x |
+| 1x1 | 50 / 100, contract | OFF | 3.82856 to 3.83356 | 12.7819x |
 | 8x8 | 50 / 100, contract | ON | 13.21274 to 13.23352 | 3.7027x |
-| 8x8 | 50 / 100, contract | OFF | 13.04976 to 13.06923 | 3.7493x |
-| 8x8 | 100 / 100, non-contract | ON | 9.94138 to 9.95464 | 4.9223x |
+| 8x8 | 50 / 100, contract | OFF | 13.05048 to 13.07044 | 3.7489x |
+| 8x8 | 100 / 100, non-contract | ON | 9.94496 to 9.95772 | 4.9208x |
 | 8x8 | 100 / 100, non-contract | OFF | 9.93764 to 9.94094 | 4.9291x |
 
 The full closed-record census is 3,218 bytes / 53 records at 1x1.
@@ -1808,7 +1808,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    The unchanged nominal 50 ms hold is retained conditionally.
    The 1x1 maximum is 3.88779 ms (12.6036x floor ratio).
    Both intervals include the complete record walk and attestation.
-   The 100 MHz 8x8 comparison is non-contract: 9.95464 ms maximum.
+   The 100 MHz 8x8 comparison is non-contract: 9.95772 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.
