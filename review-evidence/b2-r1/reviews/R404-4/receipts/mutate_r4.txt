@@ -1,0 +1,11 @@
+# bash scripts/mutate_r4.sh <packet> <clone> <archive d677a15a author> <packet>/scratch
+C0 control, unmodified page + live body (expect rc 1 from F7 only): rc=1 (KILLED) fails: 1 [PR body F2 bullet: '210 ACMP commands all to the peer's]
+C1 body with F7's phrase qualified: rc=0 (PASSES-AS-EXPECTED) 
+M1 page reverted to the round-3 F6 sentence: rc=1 (KILLED) 
+M2 page GET_COUNTERS 228 -> 226: rc=1 (KILLED) 
+M3 page reads sentence removed: rc=1 (KILLED) 
+M4 page 210 -> 200: rc=1 (KILLED) 
+M5 archive + one CONNECT_RX to DUT Stream Input 1: rc=1 (KILLED) 
+M6 archive + one SET_STREAM_FORMAT to DUT Stream Input 1: rc=1 (KILLED) 
+M7 one per-bind table cell changed: KILLED (CHANGED tables 1, PR body per-bind identical on NO PAGE TABLE)
+rc=0

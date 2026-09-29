@@ -1,0 +1,45 @@
+# clone integrity at 2026-09-29T11:34:36Z
+HEAD 5c57927413e0dae279f06a75d2a58e3fec8a2bb0 tree 5613d2b3b7b0f0b8b8d710216647631401bf1265
+status-porcelain lines: 0
+git diff-index HEAD (index+worktree vs HEAD):
+0
+0
+ls-files -s vs ls-tree -r HEAD (mode, blob, path):
+  identical, 966 entries
+gitlinks (mode 160000) at HEAD and at 13eda870:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+---
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor (v2.0-290-gc951a9f)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+files changed fb4a1b89..HEAD:
+M	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+files changed 13eda870..HEAD:
+A	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+A	docs/findings/608_75_WITHDRAWAL_AND_RESTART.md
+M	docs/findings/README.md
+numstat fb4a1b89..HEAD:
+3	1	docs/findings/606_FIRST_BIND_MEASUREMENT.md
+commit 5c579274 parents / message lines:
+fb4a1b895e97bb808b624ea0b31c43d121723f36$
+State that no state-changing command addressed a DUT stream input and name the reads that did$
+$
+worktree blob hash of page: 19dadb8b281246ca204bb57efd27704e901d2fce vs HEAD 19dadb8b281246ca204bb57efd27704e901d2fce
+# final clone state at 2026-09-29T11:37:46Z (after removing the ignored scripts/__pycache__/ left by the gate run)
+HEAD 5c57927413e0dae279f06a75d2a58e3fec8a2bb0 tree 5613d2b3b7b0f0b8b8d710216647631401bf1265
+status --porcelain --ignored lines: 0
+index mode/blob/path == HEAD tree: 966 entries
+worktree dirty tracked files: 0
+gitlink efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+gitlink 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor
+gitlink c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor
+gitlink 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis

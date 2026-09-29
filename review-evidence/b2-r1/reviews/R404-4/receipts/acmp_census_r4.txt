@@ -1,0 +1,29 @@
+# python3 -B scripts/acmp_census_r4.py <archive b2-review-evidence d677a15a review-evidence/b2-r1/author>
+duplicate snapshot.jsonl excluded: 112
+state records without an ACMPDU-shaped response: none
+distinct ACMP commands (command, destination):
+  CONNECT_RX     peer? listener_uid 8         105
+  DISCONNECT_RX  peer? listener_uid 8         105
+  GET_RX_STATE   dut Stream Input 0           2
+  GET_RX_STATE   dut Stream Input 1           226
+  GET_RX_STATE   peer Stream Input 0          2
+  GET_RX_STATE   peer Stream Input 1          2
+  GET_RX_STATE   peer Stream Input 2          2
+  GET_RX_STATE   peer Stream Input 3          2
+  GET_RX_STATE   peer Stream Input 4          2
+  GET_RX_STATE   peer Stream Input 5          2
+  GET_RX_STATE   peer Stream Input 6          2
+  GET_RX_STATE   peer Stream Input 7          2
+  GET_RX_STATE   peer Stream Input 8          341
+  GET_RX_STATE   peer Stream Input 9          2
+  GET_TX_STATE   dut Stream Output 0          2
+  GET_TX_STATE   dut Stream Output 1          2
+  GET_TX_STATE   peer Stream Output 0         2
+  GET_TX_STATE   peer Stream Output 1         2
+  GET_TX_STATE   peer Stream Output 2         2
+  GET_TX_STATE   peer Stream Output 3         2
+total distinct ACMP commands: 809
+  state-changing (CONNECT_RX + DISCONNECT_RX): 210
+  addressed to the DUT: 232 of which to a DUT Stream Input: 228
+  so '210 ACMP commands all to the peer's input' holds only for the state-changing subset: True
+rc=0
