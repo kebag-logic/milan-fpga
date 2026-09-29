@@ -40,8 +40,11 @@ REAL, at the pinned revision:
 - `KL_pp_nvm_port`, the device-face initiator, including its rule that
   `dev_req_o` is held until `dev_gnt_i`, which is what makes a deferral a
   withheld grant rather than a refusal;
-- `KL_aecp_dyn_state`, the AECP dynamic-state store whose sticky level the
-  parent consumes as `pend_i`;
+- `KL_aecp_dyn_state`, the AECP dynamic-state store whose sticky level this
+  harness consumes as `pend_i`, standing in for the D3 writer's
+  `d3_unflushed_o` that the shipping parent consumes since processor pin
+  `d352bbaa` (the D3 writer needs the AECP engine, which is not elaborated
+  here);
 - `KL_nvm_backend`, the shipping file;
 - the shipping writer, the shipping generator's constants, and the
   repository's own `scripts/nvm_klj2.py` decoding the journal the oracle
@@ -51,7 +54,10 @@ A MODEL, in `cosim_host.c` and `cosim_bridge.cpp`: the flash (with injectable
 erase, program and read-back failures and one 3 s erase), the reserved DDR
 window, the clock, and `PP_STAT`, which is composed from the RTL's outputs the
 way `hdl/common/csr/milan_csr.sv` composes it. `cosim_top.sv` carries the
-parent glue transcribed from `hdl/milan/KL_pp_shadow.sv`.
+parent glue transcribed from `hdl/milan/KL_pp_shadow.sv`, with the dyn level in
+place of `d3_unflushed_o` as above. The binding manager's retry backoff and
+restore deadline are derived from this harness's clock as the processor top
+derives them, and the aggregate deadline input is tied off.
 
 **NOT MODELLED, and it matters to every timing number this suite prints:** CPU
 instruction time, DDR and bus latency and arbitration, clock-domain crossings,

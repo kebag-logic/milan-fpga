@@ -92,7 +92,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
-- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
+- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
 - **[Render phase records from the mutation controls](#render-phase-records-from-the-mutation-controls)** -- The record the render mutation arm prints around each build and run it already makes: the fields, the fixed case labels, and the limits that keep it an observation rather than a result
 - **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
@@ -637,6 +637,19 @@ It releases it when the NVM binding walk ends.
 `sim_main`, `sim_nxn`, `sim_aclk` and `milan_dp_render` now set it at boot.
 Without it the 1x1 leg fails 24 checks: no sink ever probes.
 
+**Every harness that sends AECP starts it too.** Since processor pin
+`d352bbaa` AECP is also held from reset until the D3 walk after the binding
+walk reaches its terminal, and that walk proves the AEM image first.
+`gmstep`, `gptp`, `gptp-lat` and `ax1x1gptp` serve the image from reset and
+start the walk before their first AECP command, each grading it COMPLETE
+(`PP_STAT` done 1, CLOSED 0). The image-less legs (`sim_main`'s main, `nolpf`
+and `ax1x1`, and `aclk`) serve no image, so their walk ends CLOSED
+(`PP_STAT[16]`, busy 0, done 0, fail 1, D3 cause 7): the listener is released
+and AECP stays held, and each leg grades that terminal. The `sim_nxn` legs
+start the walk once the descriptor memory answers (the firmware's order), and
+`milan_dp_render` waits out one commit-to-pin bound before T8 collects,
+because the D3 walk moves that leg against the frame grid.
+
 ## GM step re-base leg (#387)
 
 The true-ratio leg also commands an absolute software settime.
@@ -874,12 +887,17 @@ comment that says what that means: it is `KL_aecp_desc_store`'s documented
 degrade path — the watchdog abandons the burst, the image never validates, and
 `READ_DESCRIPTOR` comes back well formed but empty-handed. A zero left at a port
 by accident and a zero driven by a decision look identical on a waveform, so it
-is stated. The `[AECP]` checks in `sim_nxn.cpp` grade that path: an answer
-arrives, it is an `AEM_RESPONSE`, its status is `BAD_ARGUMENTS` (an unvalidated
-image reports `configurations_count = 0`, and the µprogram range-checks the
-configuration index *before* it locates, so this is not
-`NO_SUCH_DESCRIPTOR`), it carries the Section 7.4.5 stub at `cdl = 20`, and it is
-padded to 60.
+is stated. Until processor pin `d352bbaa` the `[AECP]` checks in `sim_nxn.cpp`
+graded that path (a `BAD_ARGUMENTS` answer at `cdl = 20`). That arm is retired
+in every leg: AECP is now held from reset until the restore, and the restore
+needs the image in place, so with no memory the command is never answered.
+The `[AECP]` checks grade the hold instead: the first `READ_DESCRIPTOR` is held
+unanswered, a second is dropped at the ingress slot gate and counted in
+snapshot word 37, and the held one is answered at the release once `[AECP-IMG]`
+serves the image and starts the walk. The wedged-response-memory arm
+(`[AECP-WTMO]`) needs AECP released, so it runs after `[AECP-IMG]` in every
+leg, `notify` included; its heal answers `SUCCESS`, and word 36 is read both
+at the wedge and after the heal.
 
 **The SERVED path lives in `tb/verilator/pp_shadow`**, which backs those ports
 with a real `AEMI` image and grades `SUCCESS` with the descriptor bytes compared

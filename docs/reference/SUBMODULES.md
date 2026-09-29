@@ -82,8 +82,8 @@ Issues #606 and #608 adopted processor pin `c951a9ff`.
 
 Issue #70 lane 2 adopts processor pin `d352bbaa`.
 
-- [Processor PR 132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132) adds the D3 writer for the scalar records.
-- The writer holds AECP from reset until the D3 restore terminal.
+- [Processor PR 132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132) adds the scalar-record D3 writer.
+- It holds AECP until the D3 restore's terminal.
 - `KL_pp_shadow` connects the combined restore status and the D3 pending.
 - The ROM generators' outputs match the `c951a9ff` rows.
 

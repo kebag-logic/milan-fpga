@@ -183,13 +183,14 @@ started/stopped lives in the **ACMP binding
 record** and nowhere else. Milan Section 5.3.8.7 calls the state "undefined when the
 Stream Input is not bound", so it is a property of the binding, and only that
 record has the lifecycle — it is cleared on unbind, and it is captured by the
-NVM shadow and restored through the boot preload. **The persistence PLUMBING is
-complete; the persistence SHALL is not.** Section 5.3.8.7's third sentence ("shall be
-saved in a non-volatile memory and restored after a power cycle") still waits on
-a real flash backend: `KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` and answers a
-blank-flash stub, so nothing survives a power cycle on any shipping build. That
-gap is issue #70's, and it is named here so "captured and restored" is not read
-as "persisted". Selector 6 of the dynamic store is
+NVM shadow and restored through the boot preload. Section 5.3.8.7's third
+sentence ("shall be saved in a non-volatile memory and restored after a power
+cycle") now has its backing store: the binding record is written through
+`KL_nvm_backend` into the firmware's A/B flash journal and restored by the boot
+walk, and a bind survives a cold power cycle on silicon since 2026-09-21. The
+started-state restore across a cold cycle is not yet proven on silicon. That
+remainder is issue #70's, and it is named here so "captured and restored" is
+not read as "proven persisted". Selector 6 of the dynamic store is
 **retired, not reused**, and the two commands reach the record through a
 write-only request region that stores nothing, so a second copy cannot come
 back by accident. The design and the two constraints that forced it are
@@ -406,9 +407,15 @@ Input/Output; presentation offset per Stream Output; channel mappings both
 directions; clock source per Clock Domain; the bound state and binding
 parameters; every user name.
 
-**Nothing in this device persists anything.** The processor's NVM face is a
-blank-flash responder: reads `0xFF`, accepts and discards writes, completes
-erase. A restore walk always finds blank flash and completes with zero records.
+**Partly persisted.** The fabric backing store (`KL_nvm_backend`) and the
+firmware's A/B flash journal hold the bound state and binding parameters, and a
+bind survives a cold power cycle on silicon (2026-09-21, #70). Since processor
+pin `d352bbaa` (#70 lane 2) the D3 writer also writes and restores the current
+configuration, the sampling rates, both stream formats, the presentation
+offsets and the clock sources, proven on the desk; the firmware's AEM-first
+boot order that lets that restore complete, and its silicon cold cycle, remain
+open on #70. Channel mappings and user names have no record writer yet (#70
+lanes 3 and 4).
 
 Blocks **item 5.1 entirely**, and item 5.1 has **no "if the DUT does not implement
 persistence" escape clause** — this is a hard compliance gate, not a
@@ -527,8 +534,8 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    reservations against local or SRP starts during write-back. Nonvolatile
    replay remains tracked by P3.1 and issue #70.
 8. **P3.3** departing-controller monitor. Completed at 0x0055 with P3.2.
-9. **P3.1** persistence — largest, and the only one that needs a real flash
-   backend rather than the blank-flash stub.
+9. **P3.1** persistence, the largest. The backing store and the binding and
+   scalar writers are in; names, maps and the release campaign remain (#70).
 10. **P2.5** GET_DYNAMIC_INFO. Completed 2026-08-17.
 
 ---

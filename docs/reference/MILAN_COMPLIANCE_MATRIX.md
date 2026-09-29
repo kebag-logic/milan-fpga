@@ -149,26 +149,31 @@ input, are silently refused.
 | Clause | Requirement | Status / evidence |
 |---|---|---|
 | 5.5.2 / 5.5.3 | sink binding/unbinding, Table 5.26 timeouts, settlement, the Section 5.5.3.5 event ladder | implemented — PP acmp_listener + pp_top; RTL pp_shadow; SILICON binds against a Milan-validated peer |
-| 5.5.1.4 / 5.5.2.6 | Auto Connect (saved-state fast connect) | missing — blocked by persistence (Section 1.7): the flag path exists, the saved binding does not survive a power cycle |
+| 5.5.1.4 / 5.5.2.6 | Auto Connect (saved-state fast connect) | missing: the flag path exists and the saved binding survives a cold power cycle on silicon (Section 1.7), but fast connect after the restore is unproven (#70) |
 | 5.5.4 | talker treatment of PROBE_TX / DISCONNECT_TX / GET_TX_* | implemented — PP acmp_talker; SILICON streaming licences open/close |
 | 5.6.3 / 5.6.4 | advertise + discovery state machines, valid_time | implemented — PP adp_engine; SILICON discovery by controllers; the available_index increment-policy divergence stays recorded in the processor's docs |
 
 ### 1.7 Dynamic state and persistence (Section 5.3) — the largest open block
 
-The dynamic-state store serves every settable field below;
-**nothing survives a power cycle** — the root integration still answers as
-blank flash (`nvm_backed = 0`, audit B2), which also voids saved-state fast
-connect and the started-state restore (audit B12).
+The dynamic-state store serves every settable field below. The binding
+persists: the fabric backing store (`KL_nvm_backend`) and the firmware's A/B
+flash journal hold it, and a bind survives a cold power cycle on silicon
+(2026-09-21, #70). Since processor pin `d352bbaa` (#70 lane 2) the D3 writer
+writes and restores the scalar rows as well (the
+[D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), graded on the desk only:
+the firmware's AEM-first boot order, without which that restore ends CLOSED,
+and its cold-cycle proof remain open on #70. Channel maps and user names have
+no record writer yet.
 
 | Clause | State | Live (set/served) | Persisted |
 |---|---|---|---|
-| 5.3.5.1 | sampling rate per Audio Unit | implemented (adoption by the media plane open — B3) | missing |
-| 5.3.7.1 / 5.3.7.6 | Stream Output format · presentation-time offset (2 ms default) | implemented | missing |
-| 5.3.8.1 / .2 / .3 / .7 | Stream Input format · bound state · binding params · started/stopped | implemented | missing |
-| 5.3.9.1 / 5.3.10.1 | channel mappings (both directions) | implemented | missing |
-| 5.3.11.1 | clock source per Clock Domain | implemented: `media_clk_resolve` consumes INTERNAL/CRF selection; PHC-only re-base preserves that source ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | missing |
+| 5.3.5.1 | sampling rate per Audio Unit | implemented (adoption by the media plane open: B3) | partial: D3 writer since processor `d352bbaa` (desk); firmware boot order and cold cycle open (#70) |
+| 5.3.7.1 / 5.3.7.6 | Stream Output format · presentation-time offset (2 ms default) | implemented | partial: D3 writer (desk); restored offset on the wire and cold cycle open (#70) |
+| 5.3.8.1 / .2 / .3 / .7 | Stream Input format · bound state · binding params · started/stopped | implemented | partial: bound state and binding parameters survive a cold cycle on silicon; the format by the D3 writer (desk); the started-state restore is unproven on silicon (#70) |
+| 5.3.9.1 / 5.3.10.1 | channel mappings (both directions) | implemented | missing: no record writer (#70 lane 4) |
+| 5.3.11.1 | clock source per Clock Domain | implemented: `media_clk_resolve` consumes INTERNAL/CRF selection; PHC-only re-base preserves that source ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | partial: D3 writer (desk); firmware boot order and cold cycle open (#70) |
 | 5.3.12 | Identify control (volatile by rule) | implemented | n/a — must NOT persist |
-| 5.3.13 | user names | implemented (0x0054) | missing |
+| 5.3.13 | user names | implemented (0x0054) | missing: no record writer (#70 lane 3) |
 
 ### 1.8 Streaming (Section 6) and media clocking (Section 7)
 

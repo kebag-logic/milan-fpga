@@ -64,9 +64,10 @@ classifier/shaper chain is not instantiated in release builds.
 ## 3. Software responsibility
 
 Firmware verifies and copies the paired AEM image, establishes the PHC epoch,
-enables fabric blocks, and exposes a narrow UART diagnostic surface. It does
-not yet record protocol state across power cycles; issue #70 owns the missing
-backend, restore walk, and power-cut proof. All protocol timers, packet
+enables fabric blocks, and exposes a narrow UART diagnostic surface. It
+journals the processor's saved-state records A/B into flash and starts the
+restore walk on every boot; issue #70 owns the writers still missing (names
+and channel maps) and the power-cut proof. All protocol timers, packet
 construction, media movement, and PHC discipline remain hardware-owned.
 
 ## 4. Build identity
@@ -88,7 +89,7 @@ refuses a set whose installed or target identity cannot be proven.
 
 Audio payload stays on deterministic fabric paths. The CPU's current workload
 is bounded to initialization, infrequent control operations, and diagnostics;
-#70 will add persistence management. Timing closure and board-wire
+#70 completes persistence management. Timing closure and board-wire
 measurements, rather than firmware throughput, are the relevant release
 metrics.
 

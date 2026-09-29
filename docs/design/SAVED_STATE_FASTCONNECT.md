@@ -116,8 +116,8 @@ Implementation and historical evidence remain explicitly distinguished below.
 | Piece | State | Evidence |
 |---|---|---|
 | The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal` at `0xEE_0000`, 128 KiB, and `user` at `0xF0_0000`, 1 MiB |
-| The processor frames and streams one record class | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owns BINDING records through manager 0 of `KL_pp_nvm_mgr_arb`. In [the processor top](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/16be6768f710e79450aace277abacd6c2c3336e5/hdl/top/protocol_processor_top.sv), the arbiter starts at line 2523; manager 1 is tied idle at lines 2540-2546. No non-binding writer is connected |
-| A manager for every other persisted item | **ABSENT** | `KL_pp_nvm_port`'s own header says the manager "lands in P4". Nothing serializes names, formats, offsets, maps, rates, clock source, configuration index or SUID |
+| The processor frames and streams two record classes | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owned BINDING records through manager 0 of `KL_pp_nvm_mgr_arb` and manager 1 was tied idle. Since processor `d352bbaa` ([PR #132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132), adopted by #70 lane 2) manager 1 is the D3 writer, `KL_aecp_nvm_writer`, which writes and restores the scalar records: configuration index, sampling rates, clock sources, both stream formats and presentation offsets |
+| A manager for every other persisted item | **ABSENT** for names and maps | Nothing serializes the user names, the channel maps or the SUID; the D3 page's stages 2 and 3 own the first two |
 | The processor emits commit marks | **Historical: landed, unobserved at `44489453`** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
 | A write path on the shipping profile | **Landed** (2026-09-06) | `sw/firmware/milan_baremetal/milan_baremetal.c`: boot validation of both slots, the staged container, the control tuple, the restore walk, the heartbeat, the debounced A/B commit through the LiteSPI command master with erase, page program and read-back; `sw/firmware/nvm_hosttest/test_nvm_firmware.py` grades it per shape against `scripts/nvm_klj2.py` |
@@ -131,7 +131,9 @@ Implementation and historical evidence remain explicitly distinguished below.
 **Reconciliation pin.** Parent `c0723222` pins processor
 `16be6768f710e79450aace277abacd6c2c3336e5`, matching D3's reconciliation baseline.
 Processor PR #109 supplies S1/S3/S4; #110 supplies S2.
-Manager 1 remains idle; D3 integration is still owed.
+At that pin manager 1 was idle. #70 lane 2 adopts processor `d352bbaa`, where
+manager 1 is the D3 writer; the firmware's AEM-first boot order of D3 section
+5.3 remains owed.
 
 **Historical completion repair.** Root issue #424 adopted
 `2faa5af8889d97616bda1369e4739a546da7b0f1`, merging

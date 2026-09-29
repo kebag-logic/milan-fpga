@@ -91,10 +91,14 @@ derived crossing census in `docs/diagrams/cdc_census.*` is gated for drift.
 The offset-zero bitstream and raw AEM slot form one release image set. The
 transactional flash path verifies the installed bitstream and target artifacts,
 writes the AEM image first, and commits the bitstream last. Saved protocol
-state does not yet have a nonvolatile backend: the processor's NVM face remains
-a blank-flash responder. Issue #70 owns the raw-flash journal implementation,
-power-cut behavior, restore walk, and board evidence described in
-[`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md).
+state has a nonvolatile backend: the processor's NVM face is answered by
+`KL_nvm_backend` over a record image the firmware journals A/B into flash. The
+bindings are written and restored, and since processor pin `d352bbaa` the D3
+writer adds the scalar settings; channel maps and user names have no record
+writer yet. Issue #70 owns the remaining writers, the power-cut campaign and
+the board evidence described in
+[`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md)
+and [`../design/SAVED_STATE_MATERIALIZATION.md`](../design/SAVED_STATE_MATERIALIZATION.md).
 
 ## 7. Verification architecture
 

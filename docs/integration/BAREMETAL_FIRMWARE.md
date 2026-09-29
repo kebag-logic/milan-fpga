@@ -1895,10 +1895,19 @@ record area's base and length, the per-port channel-map tables (framed length
 and running prefix, direction distinct), the sequence, and the verdict with
 the validity bit, which is asserted only after validation. A first heartbeat
 follows at once, the restore walk is started through `PP_CTRL[1]` and waited
-for, and the console idle hook is installed. The boot line names both slots'
-verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
-`backed` bits, so a blank board reads `blank=1 fail=0 backed=1`, the register
-map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
+for until its terminal (`PP_STAT[2]` done, or `PP_STAT[16]` CLOSED, which
+never raises done), and the console idle hook is installed. Every boot path
+starts the walk: a record set that does not match the generated shape
+("persistence disabled") still runs it blind, as a refused window does,
+because the processor holds its ACMP listener and, since pin `d352bbaa`, AECP
+until the walk ends ([#70](https://github.com/kebag-logic/milan-fpga/issues/70),
+`sw/firmware/nvm_hosttest/test_boot_walk.py`). The boot line names both slots'
+verdicts, the offered sequence and the walk's `done`, `fail`, `blank`,
+`backed`, `closed` and `rolled_back` bits and both causes, so a blank board
+reads `blank=1 fail=0 backed=1`, the register map's "blank media behind a
+validated image" row, and no longer `0x5B00_008C`. The firmware still loads the
+AEM image after `nvm_boot()` (the order block above); the D3 page's section
+5.3 moves it ahead, and #70 records why that step is not yet taken.
 
 **Runtime.** The product BIOS calls `command_dispatch_hook` after each line.
 [Patch 0006](../../sw/litex/patches/0006-bios-dispatch-hook.patch) supplies the hook and required link marker.
@@ -1990,10 +1999,11 @@ plants five writer defects and requires each to be caught. A partial ownership f
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
-processor writing records into it. Today only the processor's binding records
-reach the store (the manager for the other seven Milan items is the donor's
-open work, design page section 12.2), so a commit on the bench carries binding
-records and erased spans.
+processor writing records into it. The processor's binding records and, since
+pin `d352bbaa`, its D3 writer's scalar records reach the store; channel maps
+and user names have no record writer yet
+([D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), so a commit on the bench
+carries those records and erased spans.
 
 ## Fabric gPTP option
 

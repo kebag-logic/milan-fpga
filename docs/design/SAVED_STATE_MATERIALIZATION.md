@@ -3,7 +3,13 @@
 
 # Saved-state materialization: who writes the non-binding records, and how they come back
 
-> **Status: ACCEPTED contract; materializer not implemented.**
+> **Status: ACCEPTED contract; stage 1 implemented.** The D3 writer and the
+> scalar records are in the processor at pin `d352bbaa`
+> ([processor PR #132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132),
+> lane 1), and #70 lane 2 adopts that pin with the parent glue of section 5.2.
+> The firmware's AEM-first boot order (section 5.3, change 1) is not yet
+> adopted; #70 records why. User names and channel maps (stages 2 and 3)
+> are not implemented.
 > Adoption follows the [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328).
 > The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) requires independent review.
 > This page decides scope D3 of the
@@ -144,16 +150,23 @@ number is this page's.
 
 The binding survives a cold power cycle on silicon since 2026-09-21
 (issue #70). Its records, ids `0x20` to `0x2F`, are written by
-`KL_acmp_nvm_shadow` through `KL_pp_nvm_port`. Nothing else is written.
+`KL_acmp_nvm_shadow` through `KL_pp_nvm_port`.
 
-The eight non-binding Milan item groups have no record writer. The
+Since processor pin `d352bbaa` (adopted by #70 lane 2) the D3 writer,
+manager 1 of `KL_pp_nvm_mgr_arb`, also writes and restores the scalar
+records: `0x00`, `0x02`.., `0x0A`.., `0x30`.., `0x40`.. and `0x50`...
+Before that pin the eight non-binding Milan item groups had no record
+writer; user names and both channel-map directions still have none. The
 [snapshot-ownership page section 11](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)
-reads NONE for each, and the contract reports them honestly instead: the
+reads NONE for those, and the contract reports them honestly instead: the
 parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
 
-`pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+`pend_i = (|nvm_unflushed_w) | d3_unflushed_w | aecp_live_wr_w | aecp_live_pend_r`.
 
-The first two report dynamic-state dirtiness and unflushed bindings.
+The first two report unflushed bindings and the D3 writer's unflushed
+scalar records, each retired at its record's window write (section 7.1).
+Before pin `d352bbaa` the second term was the dynamic-state store's
+`aecp_dyn_dirty_o`, sticky until reset; it stays exported as a diagnostic.
 Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
 Accepted name writes pulse `aecp_name_wr_o`.
 The parent's `amap_edit_live_wr_p` reports actual phase-5 map writes.
@@ -164,13 +177,13 @@ No slot holds these unmaterialized name/map changes.
 
 Where each live value is held, read at the current source:
 
-| Ids | Group | Live value | How a change is seen today |
+| Ids | Group | Live value | How a change is seen at pin `d352bbaa` |
 |---|---|---|---|
-| `0x00` | configuration index | `KL_aecp_dyn_state` selector 0, flops with a valid flag | the store's `dirty_o`, sticky until reset |
-| `0x02`.. | sampling rate | selector 1 | the same level |
-| `0x0A`.. | clock source | selector 2 | the same level |
-| `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same level |
-| `0x50`.. | presentation time offset | selector 5 | the same level |
+| `0x00` | configuration index | `KL_aecp_dyn_state` selector 0, flops with a valid flag | the D3 writer's per-record dirty bit (`d3_unflushed_o`), set by the accepted write that changes `{value, valid}` and retired at the record's window write |
+| `0x02`.. | sampling rate | selector 1 | the same per-record bit |
+| `0x0A`.. | clock source | selector 2 | the same per-record bit |
+| `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same per-record bit |
+| `0x50`.. | presentation time offset | selector 5 | the same per-record bit |
 | `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` block `amap_edit_commit`) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
 | `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
 

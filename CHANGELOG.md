@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin d352bbaa](#unreleased---processor-pin-d352bbaa)** -- Scalar settings persist.
 - **[Unreleased - frame-atomic TDM capture](#unreleased---frame-atomic-tdm-capture)** -- One TDM frame per AAF column.
 - **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
 - **[Unreleased - pending follows live writes](#unreleased---pending-follows-live-writes)** -- Pending follows accepted writes.
@@ -33,6 +34,34 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin d352bbaa
+
+- Issue #70 lane 2 adopts processor `d352bbaa` (processor PR #132).
+- The processor's D3 writer writes and restores the scalar records.
+- They are configuration, sampling rates and clock sources.
+- Both stream formats and the presentation offsets are included.
+- Channel maps and user names still have no record writer.
+- The restore runs the binding walk, then the D3 walk.
+- AECP is held from reset until the D3 walk's terminal.
+- One AECP command waits; later ones are dropped and counted.
+- Side-port snapshot word 37 counts those drops.
+- ADP advertises only once the restore is done.
+- `PP_STAT[16]` reports a CLOSED restore: fail, never done.
+- `PP_STAT[17]` reports a roll-back to DEFAULTS.
+- `PP_STAT[20:18]` and `[22:21]` carry both walks' abort causes.
+- `PP_STAT` done, fail and blank combine both walks.
+- Only a blind walk reads blank beside fail.
+- Saved-state pending takes the D3 writer's unflushed records.
+- The dynamic-state dirty level leaves pending and stays diagnostic.
+- The restore deadlines and write backoff derive from the clock.
+- Every firmware boot path now starts the restore walk.
+- A shape-mismatched record set runs it blind.
+- The restore wait ends on done or CLOSED.
+- `test_boot_walk.py` grades five boot paths per shape.
+- The AEM image still loads after `nvm_boot()`; #70 records why.
+- Every harness that sends AECP starts the walk first.
+- VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - frame-atomic TDM capture
 
