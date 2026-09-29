@@ -12,7 +12,7 @@ CAP=$!
 sleep 3
 timeout 150 flock -w 30 /tmp/milan-bench.lock bash -c "echo LOCK \$(date -u +%FT%T.%3NZ); timeout 125 python3 $PK/tools/console_poll.py $P $OUT/console.txt 105 2 milan_status 'mem_read 0x90000750 4' 'mem_read 0x90000764 4' 'mem_read 0x9000066c 4' 'mem_read 0x90000780 4' 'mem_read 0x900007e8 4' 'mem_read 0x900007ec 4'; echo POLL_RC=\$?; echo UNLOCK \$(date -u +%FT%T.%3NZ)" > "$OUT/lock.txt" 2>&1 &
 CON=$!
-ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout -k 30 140 python3 /tmp/a200/crf_bind_window.py ens10 10 60 25" > "$OUT/pw1-bind.jsonl" 2>&1
+ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout -k 30 140 python3 /tmp/a200/crf_bind_window.py <host-iface> 10 60 25" > "$OUT/pw1-bind.jsonl" 2>&1
 echo "pw1_rc=$?" >> "$OUT/timeline.txt"
 wait $CON; echo "console_rc=$?" >> "$OUT/timeline.txt"
 wait $CAP; echo "capture_rc=$?" >> "$OUT/timeline.txt"

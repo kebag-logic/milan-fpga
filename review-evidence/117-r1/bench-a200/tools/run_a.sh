@@ -15,7 +15,7 @@ sleep 3
 echo "console_start_local $(date -u +%FT%T.%3NZ)" >> "$OUT/timeline.txt"
 timeout $((DUR+40)) flock -w 30 /tmp/milan-bench.lock bash -c "echo LOCK \$(date -u +%FT%T.%3NZ); timeout $((DUR+20)) python3 $PK/tools/console_poll.py $P $OUT/console.txt $DUR 5 milan_status 'mem_read 0x9000062c 4' 'mem_read 0x90000644 4' 'mem_read 0x90000780 4' 'mem_read 0x900007e4 4' 'mem_read 0x900007e8 4' 'mem_read 0x900007ec 4' 'mem_read 0x90000774 4' 'mem_read 0x90000720 4' 'mem_read 0x900006f4 4'; echo POLL_RC=\$?; echo UNLOCK \$(date -u +%FT%T.%3NZ)" > "$OUT/lock.txt" 2>&1 &
 CON=$!
-ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout $((DUR+20)) python3 /tmp/a200/avdecc_ro.py watch ens10 $DUR 5 020000fffe000001=02:00:00:00:00:01 3cc0c60102030000=3c:c0:c6:01:02:03" > "$OUT/pw1-watch.jsonl" 2>&1 &
+ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout $((DUR+20)) python3 /tmp/a200/avdecc_ro.py watch <host-iface> $DUR 5 020000fffe000001=02:00:00:00:00:01 3cc0c60102030000=3c:c0:c6:01:02:03" > "$OUT/pw1-watch.jsonl" 2>&1 &
 PW=$!
 wait $CON; echo "console_rc=$?" >> "$OUT/timeline.txt"
 wait $PW; echo "pw1_rc=$?" >> "$OUT/timeline.txt"
