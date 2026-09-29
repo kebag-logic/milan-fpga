@@ -1,0 +1,23 @@
+## Makefile at ddb07747 (no --no-print-directory)
+False
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+## round-4 Makefile, --no-print-directory removed from print-srcs only
+1
+False
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+## round-4 Makefile, --no-print-directory removed from print-dp-vflags only
+1
+False
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+## round-4 Makefile
+True
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w

@@ -1,0 +1,41 @@
+[FAIL] the dp recipe does not build under an inherited MAKEFLAGS=w: its nested $(shell $(MAKE) ...) lists need --no-print-directory
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      |         ... Looked in:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.v
+      |              ../../../configs/generated/endstation_ax7101_1x1_tdm8/make[1]:.sv
+      |              ../../../hdl/common/make[1]:
+      |              ../../../hdl/common/make[1]:.v
+      |              ../../../hdl/common/make[1]:.sv
+      |              ../../../hdl/common/csr/make[1]:
+      |              ../../../hdl/common/csr/make[1]:.v
+      |              ../../../hdl/common/csr/make[1]:.sv
+      |              ../../../hdl/common/eth_event_counter/make[1]:
+      |              ../../../hdl/common/eth_event_counter/make[1]:.v
+      |              ../../../hdl/common/eth_event_counter/make[1]:.sv
+      |              ../../../hdl/ieee17221/adp/make[1]:
+      |              ../../../hdl/ieee17221/adp/make[1]:.v
+      |              ../../../hdl/ieee17221/adp/make[1]:.sv
+      |              ../../../hdl/ieee8021q/ts/make[1]:
+      |              ../../../hdl/ieee8021q/ts/make[1]:.v
+      |              ../../../hdl/ieee8021q/ts/make[1]:.sv
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.v
+      |              ../../../hdl/ieee8021as/ptp_timestamp/make[1]:.sv
+      |              ../../../third_party/verilog-axis/rtl/make[1]:
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.v
+      |              ../../../third_party/verilog-axis/rtl/make[1]:.sv
+      |              make[1]:
+      |              make[1]:.v
+      |              make[1]:.sv
+      |              $VALIDATION_STORAGE/617-a434-work/tmp/mfcause-rdvy0d5y/obj_makeflags_w/make[1]:
+      |              $VALIDATION_STORAGE/617-a434-work/tmp/mfcause-rdvy0d5y/obj_makeflags_w/make[1]:.v
+      |              $VALIDATION_STORAGE/617-a434-work/tmp/mfcause-rdvy0d5y/obj_makeflags_w/make[1]:.sv
+      |         ... With current working directory '$VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/capture_coherence'
+      | %Error: Cannot find file containing module: 'Entering'
+      | %Error: Cannot find file containing module: 'directory'
+      | %Error: Cannot find file containing module: '$VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/milan_dp'
+      | %Error: Cannot find file containing module: 'Leaving'
+      | %Error: Exiting due to 5 error(s)
+      | make: *** [Makefile:118: dp-build] Error 1
+      | make: Leaving directory '$VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/capture_coherence'

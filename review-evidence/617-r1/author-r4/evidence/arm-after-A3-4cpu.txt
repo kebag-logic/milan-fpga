@@ -1,0 +1,37 @@
+== capture_coherence: checks: 20832   failures: 0 ==
+== capture_coherence_dp: checks: 332   failures: 0 ==
+python3 mutants.py
+[i]  29 builds on 4 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: /tmp/capture-coherence-mutants-sr53e9jn/build_break_dp/milan_datapath.sv:7824:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the junction harness
+[PASS] the unmutated source still passes the band harness
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the fine harness
+[PASS] the unmutated source still passes the dp harness
+[PASS] the unmutated source still passes the dp-band harness
+[PASS] the unmutated source still passes the chmap harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+
+30 checks: 30 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION_STORAGE/617-a434-work/scratch/final/tb/verilator/capture_coherence'

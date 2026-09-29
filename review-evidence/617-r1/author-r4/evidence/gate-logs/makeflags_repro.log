@@ -1,0 +1,14 @@
+## R394-3 scripts/r394_mf_repro.py (GNU make 4.4.1)
+MAKEFLAGS='': 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+MAKEFLAGS='': mutants.build('dp') -> built Vcoherence_dp
+MAKEFLAGS='w': 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+MAKEFLAGS='w': mutants.build('dp') -> built Vcoherence_dp
+## hosted chain: GNU make 4.3, make -C <dir> -> recipe -> mutants.build('dp')
+make: Entering directory '$VALIDATION_STORAGE/617-a434-work/mfdrv'
+python3 $VALIDATION_STORAGE/617-a434-work/mf_repro.py $LANES/617-capture-frame-atomic/tb/verilator/capture_coherence $VALIDATION_STORAGE/617-a434-work/gates/mfwork/make43 inherit
+make on PATH: GNU Make 4.3
+MAKEFLAGS seen by this process: 'w -- WORK=$VALIDATION_STORAGE/617-a434-work/gates/mfwork/make43 SUITE=$LANES/617-capture-frame-atomic/tb/verilator/capture_coherence'
+nested list: 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+mutants.build('dp') -> built Vcoherence_dp
+make: Leaving directory '$VALIDATION_STORAGE/617-a434-work/mfdrv'
+## built: R394-3 script 2 of 2, make 4.3 chain 1 of 1

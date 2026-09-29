@@ -1,0 +1,11 @@
+## the arm at ddb07747
+[FAIL] mutation 'planted build break (a syntax error in the datapath)' did not compile; a mutant that cannot build proves nothing about the harness
+
+## the arm at 035dbede
+[FAIL] mutation 'planted build break (a syntax error in the datapath)' did not compile; a mutant that cannot build proves nothing about the harness
+      | %Error: $VALIDATION_STORAGE/617-a434-work/tmp/planted-jd7wpfen/dp_planted_build_break__a_syntax_error_in_the_datapath_/milan_datapath.sv:5722:9: syntax error, unexpected IDENTIFIER-for-type
+      |  5722 |   logic media_tick_q_r  planted_break;                   
+      |       |         ^~~~~~~~~~~~~~
+      |         ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+      | %Error: Exiting due to 1 error(s)
+      | make: *** [Makefile:125: dp-build] Error 1

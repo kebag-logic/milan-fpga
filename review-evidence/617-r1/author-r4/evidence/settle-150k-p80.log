@@ -1,0 +1,12 @@
+=== TDM capture junction: AAF column coherence (#617), --band50: the +/-50 ppm bands every 32 cycles alone ===
+  [i]  aligner keep-off 256 cycles (milan_datapath's MGA_KEEPOFF_CYC_C), engagement pull 64.0 ppm
+
+  [i]  calibration, +80 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[CRF-settle+80] CRF, +80 ppm plan, engagement placed every 256 cycles from +8 to +264 of the crossing, 150000 columns each
+  [i]  CRF-settle+80+8: engaged +7 cycles from the crossing, the close then moved -24..+251 (furthest at column 95776); tail: tick 785 cycles after the frame close, -1..+1 (spread 2); 1 repeats, 1 skips
+  [i]  CRF-settle+80+8: last slip at column 6056; engagement window unbounded columns
+  [i]  CRF-settle+80+264: engaged +263 cycles from the crossing, the close then moved -238..+1 (furthest at column 7211); tail: tick 779 cycles after the frame close, -1..+1 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-settle+80: 2 engagements landed from +7 to +263, widest gap 256 cycles
+== capture_coherence: checks: 42   failures: 0 ==
+RESULT: PASS

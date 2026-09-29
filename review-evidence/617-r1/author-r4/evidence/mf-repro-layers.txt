@@ -1,0 +1,28 @@
+# ddb07747 + round-4 mutants.py only (the Makefile's nested calls WITHOUT --no-print-directory)
+make on PATH: GNU Make 4.4.1
+MAKEFLAGS seen by this process: 'w'
+nested list: 'DP_SRCS starts: make[1]: Entering directory $VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/milan_dp'
+mutants.build('dp') -> built Vcoherence_dp
+## hosted chain, GNU make 4.3
+make: Entering directory '$VALIDATION_STORAGE/617-a434-work/mfdrv'
+python3 $VALIDATION_STORAGE/617-a434-work/mf_repro.py $VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/capture_coherence $VALIDATION_STORAGE/617-a434-work/mfwork-iso/iso-pyonly-43 inherit
+make on PATH: GNU Make 4.3
+MAKEFLAGS seen by this process: 'w -- WORK=$VALIDATION_STORAGE/617-a434-work/mfwork-iso/iso-pyonly-43 SUITE=$VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/capture_coherence'
+nested list: 'DP_SRCS starts: make[1]: Entering directory $VALIDATION_STORAGE/617-a434-work/scratch/iso-pyonly/tb/verilator/milan_dp'
+mutants.build('dp') -> built Vcoherence_dp
+make: Leaving directory '$VALIDATION_STORAGE/617-a434-work/mfdrv'
+
+# ddb07747 + round-4 Makefile only (mutants.py WITHOUT the emptied MAKEFLAGS)
+make on PATH: GNU Make 4.4.1
+MAKEFLAGS seen by this process: 'w'
+nested list: 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+mutants.build('dp') -> built Vcoherence_dp
+## hosted chain, GNU make 4.3
+make: Entering directory '$VALIDATION_STORAGE/617-a434-work/mfdrv'
+python3 $VALIDATION_STORAGE/617-a434-work/mf_repro.py $VALIDATION_STORAGE/617-a434-work/scratch/iso-mkonly/tb/verilator/capture_coherence $VALIDATION_STORAGE/617-a434-work/mfwork-iso/iso-mkonly-43 inherit
+make on PATH: GNU Make 4.3
+MAKEFLAGS seen by this process: 'w -- WORK=$VALIDATION_STORAGE/617-a434-work/mfwork-iso/iso-mkonly-43 SUITE=$VALIDATION_STORAGE/617-a434-work/scratch/iso-mkonly/tb/verilator/capture_coherence'
+nested list: 'DP_SRCS starts: ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv'
+mutants.build('dp') -> built Vcoherence_dp
+make: Leaving directory '$VALIDATION_STORAGE/617-a434-work/mfdrv'
+
