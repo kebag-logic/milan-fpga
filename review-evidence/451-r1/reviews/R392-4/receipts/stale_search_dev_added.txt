@@ -1,0 +1,102 @@
+29:+Issue #387 decided its render re-base and continuity behavior.
+52:+- a second render re-base on the identity change;
+53:+- no render re-base on the step.
+54:+Disabling render re-base fails its counted-event check.
+62:+| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
+64:+The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
+97:+- Each step is one counted [render re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+102:+PHC steps retain `tu`, holdover and the counted render re-base.
+107:+The [current contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step) retains the render re-base and `tu`.
+111:+Under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355), that measurement must observe the step's counted render re-base and `tu`.
+147:+All six plans use populated A/B slots.
+168:+Journal START-to-ACK excludes preceding capture/prefill.
+374:+The separate capture harness measures concurrent request traffic.
+384:+The capture harness checks byte-only timing and missing-copy/traffic controls.
+405:+| `media_rebase_p_w` has exactly two references | Its initializer and sole reader, `render_recentre_p_w`, under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355). Another reader or driver i
+417:+Wipe yields between its two slot-erase verification walks.
+418:+These placements service long Milan commands, including 8x8 slot status.
+432:+Capture copies use aligned 32-bit loads and stores within records.
+436:+The [capture receipt](../../tb/verilator/nvm_capture_cpu/measurements.json) binds firmware and processor identities.
+506:+| 4.4.4.3 | `mr` toggles on source change or selected-CRF disruption/received toggle; held >= 8 AVTPDUs | implemented: `KL_media_clock_restart`; tkdiag holds/merging and milan_dp controls. PHC-only re-base is excluded by the [#602 ruli
+539:+| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the me
+545:+                #602 ruling 5859297355: a PHC-only render re-base is not
+558:+  //! Keep the re-base pulse for the render recentre below. Real source
+594:+                #: #602: initializer plus exactly the render reader.
+597:+        #: #602 keeps only its render consumer; restart has separate causes.
+608:+          "adjtime/settime read, feeding only render_recentre_p_w. "
+609:+          "Render combines it with the settled source change, never GM "
+654:+    for dram, milan_hz, tdm_hz, bound_count, other_count in (
+659:+                   milan_clk_freq=milan_hz, audio_tdm_hz=tdm_hz)
+778:+    result = subprocess.run(["tclsh"], input=script, text=True, capture_output=True, timeout=30)
+780:+    assert result.returncode == 0 and not result.stderr, result.stdout + result.stderr
+781:+    assert "controls PASS" in result.stdout, result.stdout
+782:+    print(result.stdout.strip())
+856:+                                cwd=work, capture_output=True, text=True, timeout=600)
+857:+        assert result.returncode == 0, result.stdout[-4000:] + result.stderr
+900:+    node[keys[-1]] = "YAML_SLOT"
+902:+    assert template.count("YAML_SLOT") == 1
+906:+    path.write_text(template.replace("YAML_SLOT", spelling))
+929:+            path.write_text(template.replace("YAML_SLOT", f'"{spelling}"'))
+951:+    base = yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text())
+968:+                path.write_text(template.replace("YAML_SLOT", f'"{spelling}"'))
+1017:+                    path.write_text(template.replace("YAML_SLOT", f'["{spelling}"]'))
+1117:+        for config in ("ax7101_1x1_tdm8", "ax7101_8x8"):
+1124:+                                        text=True, capture_output=True, timeout=600)
+1125:+                assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+1126:+                markers = [line for line in result.stdout.splitlines()
+1128:+                assert len(markers) == 1 and markers[0].endswith(" PASS"), result.stdout[-4000:]
+1132:+    parser.add_argument("--config", choices=("ax7101_1x1_tdm8", "ax7101_8x8"))
+1148:+		/* A slot CRC can exceed the service window on the largest shape.
+1152:+		/* Bound the record-validation walk independently of the slot CRC. */
+1324:+		b = nvm_slot_erase(NVM_SLOT_B);
+1330:+10. `milan_nvm wipe` erases both slots;
+1352:+	 * capture handshake. There is no producer here, so only explicit test stimuli
+1353:+	 * re-open records after an accepted RELOAD; no grant ever voids a capture
+1605:+                            capture_output=True, text=True, timeout=120)
+1609:+ 10. `milan_nvm wipe` erases both slots;
+1638:+    slot = bench.work / "partial-slot.bin"
+1639:+    _, state, _ = run(bench, "--slot-b", slot_file(bench, "partial-golden.bin", golden),
+1644:+                      "--dump-slot-a", str(slot))
+1653:+           and slot.read_bytes()[:bench.img_len] == expected and state.get("acks") == 1,
+1677:+        nvm.make_bench(nvm.ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml", work, source)
+1715:+            result = subprocess.run([str(work / "phy")], capture_output=True, text=True, timeout=120)
+1717:+                if result.returncode or "PHY_OK" not in result.stdout:
+1718:+                    raise RuntimeError(result.stdout + result.stderr)
+1719:+                print(result.stdout, end="")
+1872:+                self.eth_async_clocks.append(audio_tdm_raw)
+1976:+  --shape endstation_ax7101_1x1_tdm8 --build-dir /tmp/service-no-dispatch \
+1979:+  --shape endstation_ax7101_1x1_tdm8 --build-dir /tmp/service-no-publish \
+1990:+    original_ports = capture_soc.packet_ports
+2003:+        """Adapt the shared capture callback to the explicit service control."""
+2005:+         patch.object(capture_soc, 'packet_ports', packet_ports), \
+2006:+         patch.object(capture_firmware, 'prepare', side_effect=firmware_source):
+2350:+            native = subprocess.run(argv, cwd=args.build_dir / 'gateware', stdout=log,
+2351:+                                    stderr=subprocess.STDOUT, check=False)
+2393:+| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with 
+2394:+- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+2397:+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker
+2441:+Render re-base and media-clock restart remain separate events.
+2446:+| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU | **233 / 0** (2026-09-24 UTC); historical #387 count, not re-measured he
+2453:+one counted render re-base. Real source changes and selected-CRF received
+2459:+change or CRF propagation, adds an identity-driven render re-base, or removes
+2460:+the step-driven render re-base. Disabling re-base must fail the counted-event
+2463:+holdover, continuity, render-law and slew controls, and restores either PHC
+2534:+// holdover, transport and listener lock continue, and the render stage
+2669:+python3 tb/verilator/nvm_capture_cpu/run.py \
+2670:+  --shape endstation_ax7101_8x8 --captures 2 --mutation byte-only \
+2671:+  --build-dir /tmp/nvm-capture-byte-only \
+2672:+  --baseline-measurement /tmp/nvm-capture-8x8-50-on/measurement.json
+2676:+Every byte-only capture must exceed 1.5 times its maximum.
+2681:+This capture SoC omits `milan_mac` and its MDIO CSR.
+2700:+      "shape": "endstation_ax7101_1x1_tdm8",
+2896:+      "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir /tmp/capture-1x1-50-on",
+2900:+      "shape": "endstation_ax7101_1x1_tdm8",
+3096:+      "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir /tmp/capture-1x1-50-off",
+3296:+      "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir /tmp/capture-8x8-50-on",
+3496:+      "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir /tmp/capture-8x8-50-off",
+3695:+      "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir /tmp/capture-8x8-100-on",
+3893:+      "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir /tmp/capture-8x8-100-off",
+3905:+  "provenance": "All six arms measure the round-3 firmware and the retained processor pin. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+3916:+    """Require every byte-only capture to cost at least 1.5x the word path.
+3919:+    This control does not change the ordinary capture timing or byte oracles.
+3923:+        raise RuntimeError('byte-only baseline uses a different capture scenario')

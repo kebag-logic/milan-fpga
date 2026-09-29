@@ -1,0 +1,112 @@
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 698afcc69..b8a99b8f3 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -105,11 +105,12 @@ The offset is local time minus grandmaster time.
+ - The CRF servo holds through the entire indicated correction.
+ - One step is one `phc_step_we_o` pulse.
+ - That pulse carries the measured offset, negated.
+-- Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
++- Each step is one counted [render re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+ 
+ | Source | Record |
+ |---|---|
+-| Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
++| Step-threshold decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
++| PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
+ | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+ | Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md#step-versus-slew-policy) |
+ 
+@@ -251,6 +252,14 @@ Clause `10.4.5` maps CRF's bit.
+ 
+ The separate `mr` restart follows `4.4.4.3` and `10.4.3`.
+ 
++The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) keeps PHC-only re-base separate.
++
++Only source changes and selected-CRF restart causes request `mr`.
++
++PHC steps retain `tu`, holdover and the counted render re-base.
++
++A coincident step never suppresses a required media-clock restart.
++
+ Held `tu` permits recovery after 256 clean timestamp intervals.
+ 
+ Sequence gaps also restart that history.
+@@ -342,7 +351,7 @@ The constant is independent of the audio interface.
+ | Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
+ | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
+ | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
+-| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a step is also one `mr` toggle ([media re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step)) |
++| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) |
+ | Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+ | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
+ | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 193d74be5..d47b4206a 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3094,8 +3094,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //
+   //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
+   //  an internal media clock there is no CRF stream to be disrupted, so
+-  //  toggling mr would be a false alarm to every listener. A PHC step is not
+-  //  a CRF request and is not gated (#387, below).
++  //  toggling mr would be a false alarm to every listener. A PHC-only
++  //  re-base is not a restart request (#602, below).
+   // --------------------------------------------------------------------------
+   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+   //! the selected media clock source. The clause's OTHER mandatory trigger, a
+@@ -3121,20 +3121,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+   //! clock and must not toggle mr on our streams; with the CRF source
+   //! selected, it is exactly the mandatory trigger, now reachable.
+-  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
+-  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
+-  //! software's adjtime when the plane is off) or a software settime moves
+-  //! every presentation time this talker stamps, so it restarts the media
+-  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
+-  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
+-  //! while another restart is still pending (a CRF disruption, say) merges
+-  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
+-  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
+-  //! below.
++  //! #602 ruling 5859297355 supersedes #387's PHC-step restart cause.
++  //! A PHC-only re-base changes presentation time, not the INTERNAL/CRF
++  //! media-clock source. It keeps mr and MEDIA_RESET unchanged; tu and
++  //! its holdover still signal the gPTP discontinuity (4.4.4.7/10.4.5).
++  //! Keep the re-base pulse for the render recentre below. Real source
++  //! changes and selected-CRF disruption/mr propagation still request a
++  //! restart (4.4.4.3/10.4.3), even alongside a PHC step. The restart
++  //! engine retains its per-stream eight-PDU hold and pending merge.
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+-  wire mcr_restart_p_w = (crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++  wire mcr_restart_p_w = crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
+diff --git a/sw/litex/platforms/alinx_ax7101.py b/sw/litex/platforms/alinx_ax7101.py
+index 16111c692..50453ec26 100644
+--- a/sw/litex/platforms/alinx_ax7101.py
++++ b/sw/litex/platforms/alinx_ax7101.py
+@@ -16,6 +16,7 @@ from typing import Any
+ from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
+ from litex.build.xilinx import Xilinx7SeriesPlatform
+ from litex.build.openfpgaloader import OpenFPGALoader
++from clock_constraints import BoundedEthVivadoToolchain
+ from platforms.ax7101_timing import TIMING_GRADE, configure_commands
+ 
+ # IOs ----------------------------------------------------------------------------------------------
+@@ -297,6 +298,10 @@ class Platform(Xilinx7SeriesPlatform):
+         # The board marking is industrial; #395 declares a commercial release.
+         Xilinx7SeriesPlatform.__init__(self, TIMING_GRADE["part"], _io, _connectors,
+                                        toolchain=toolchain)
++        if toolchain == "vivado":
++            # Replace before adding any hooks; state on the old toolchain
++            # would be discarded. Keep all hook configuration below this.
++            self.toolchain = BoundedEthVivadoToolchain()
+         for command in configure_commands():
+             # LiteX formats these strings once while writing the build Tcl.
+             self.toolchain.pre_placement_commands.append(

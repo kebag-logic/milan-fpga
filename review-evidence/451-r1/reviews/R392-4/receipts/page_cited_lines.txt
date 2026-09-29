@@ -1,0 +1,131 @@
+| External dependency | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` |
+
+The SoC board's live McASP0 configuration was read before any audio. McASP0 runs
+`dsp_a` with the codec side as bit-clock and frame master, so McASP0 is the
+slave. It carries eight 32-bit slots; serializer 0 transmits and serializer 1
+receives. The DUT pins are the `tdm` resource in the
+[platform file](../../sw/litex/platforms/alinx_ax7101.py).
+
+The DUT shape is the one-AAF-stream TDM8 end station
+---
+The report names BCLK, FSYNC, DOUT, DIN and ground. The amendment's link is
+seven conductors: those four signals and three grounds.
+
+The cause was the DUT configuration. In this image STREAM_PORT_OUTPUT 0 has
+a dynamic audio map: `ADP_DMAP_OUT_MASK_C` bit 0 is set in the generated
+shape, and GET_AUDIO_MAP on that port answers `number_of_maps` 1. That makes
+the capture crossbar feed the talker
+([`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), line 1344). With an
+empty map, every talker channel carries digital silence
+([channel map, section 4](../CHANNEL_MAP_64.md#4-capture-mux-contract-kl_chmap_capture-phase-1-name)).
+The first session's statement that the talker kept its default front end was
+wrong.
+
+--- datapath 1340-1348 at head
+  //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
+  //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
+  //! below) is declared here ahead of its first reader (#193).
+  wire        cfg_chmap_enable;
+  wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
+  wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
+  wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
+  wire [23:0] pkt_l_w    = cap_xbar_live_w ? cmap_l_w    : zf_l_w;
+  wire [23:0] pkt_r_w    = cap_xbar_live_w ? cmap_r_w    : zf_r_w;
+--- same range at lane
+  //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
+  //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
+  //! below) is declared here ahead of its first reader (#193).
+  wire        cfg_chmap_enable;
+  wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
+  wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
+  wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
+  wire [23:0] pkt_l_w    = cap_xbar_live_w ? cmap_l_w    : zf_l_w;
+  wire [23:0] pkt_r_w    = cap_xbar_live_w ? cmap_r_w    : zf_r_w;
+--- tdm resource head vs lane
+1,9c1,9
+< 187:    ("tdm", 0,
+< 188-        Subsignal("mclk",  Pins("B22")),   # J11.3
+< 189-        Subsignal("dout",  Pins("A20")),   # J11.5  fabric -> codec (render)
+< 190-        Subsignal("bclk",  Pins("B20")),   # J11.6
+< 191-        Subsignal("din",   Pins("F20")),   # J11.7  codec -> fabric (capture)
+< 192-        Subsignal("fsync", Pins("F19")),   # J11.8
+< 193-        #! MEDIA-GRID TEST POINT (J11.9, ball J16 - free, and the next pin
+< 194-        #! along from fsync so a two-channel probe reaches both on one clip).
+< 195-        #!
+---
+> 186:    ("tdm", 0,
+> 187-        Subsignal("mclk",  Pins("B22")),   # J11.3
+> 188-        Subsignal("dout",  Pins("A20")),   # J11.5  fabric -> codec (render)
+> 189-        Subsignal("bclk",  Pins("B20")),   # J11.6
+> 190-        Subsignal("din",   Pins("F20")),   # J11.7  codec -> fabric (capture)
+> 191-        Subsignal("fsync", Pins("F19")),   # J11.8
+> 192-        #! MEDIA-GRID TEST POINT (J11.9, ball J16 - free, and the next pin
+> 193-        #! along from fsync so a two-channel probe reaches both on one clip).
+> 194-        #!
+11,19c11,19
+< 378:        tdm = self.lookup_request("tdm", loose=True)
+< 379-        if tdm is not None:
+< 380-            for pad in (tdm.bclk, tdm.fsync, tdm.dout):
+< 381-                self.add_platform_command(
+< 382-                    "set_property IOB TRUE [get_ports {pad}]", pad=pad)
+< 383-        # NOTE: the GMII TX IOB-packing constraint lives in MilanMAC (milan_soc.py), which
+< 384-        # emits it only when the MAC/pads exist. It must be plain `set_property` lines: XDC
+< 385-        # does NOT execute TCL control flow, so an `if {...}` guard here is silently skipped
+< 386-        # (hardware-diagnosed: the "guarded" constraint left the TX FFs in fabric at X14).
+---
+> 373:        tdm = self.lookup_request("tdm", loose=True)
+> 374-        if tdm is not None:
+> 375-            for pad in (tdm.bclk, tdm.fsync, tdm.dout):
+> 376-                self.add_platform_command(
+> 377-                    "set_property IOB TRUE [get_ports {pad}]", pad=pad)
+> 378-        # NOTE: the GMII TX IOB-packing constraint lives in MilanMAC (milan_soc.py), which
+> 379-        # emits it only when the MAC/pads exist. It must be plain `set_property` lines: XDC
+> 380-        # does NOT execute TCL control flow, so an `if {...}` guard here is silently skipped
+> 381-        # (hardware-diagnosed: the "guarded" constraint left the TX FFs in fabric at X14).
+187:    ("tdm", 0,
+188-        Subsignal("mclk",  Pins("B22")),   # J11.3
+189-        Subsignal("dout",  Pins("A20")),   # J11.5  fabric -> codec (render)
+190-        Subsignal("bclk",  Pins("B20")),   # J11.6
+191-        Subsignal("din",   Pins("F20")),   # J11.7  codec -> fabric (capture)
+192-        Subsignal("fsync", Pins("F19")),   # J11.8
+193-        #! MEDIA-GRID TEST POINT (J11.9, ball J16 - free, and the next pin
+194-        #! along from fsync so a two-channel probe reaches both on one clip).
+195-        #!
+--
+378:        tdm = self.lookup_request("tdm", loose=True)
+379-        if tdm is not None:
+380-            for pad in (tdm.bclk, tdm.fsync, tdm.dout):
+381-                self.add_platform_command(
+382-                    "set_property IOB TRUE [get_ports {pad}]", pad=pad)
+383-        # NOTE: the GMII TX IOB-packing constraint lives in MilanMAC (milan_soc.py), which
+384-        # emits it only when the MAC/pads exist. It must be plain `set_property` lines: XDC
+385-        # does NOT execute TCL control flow, so an `if {...}` guard here is silently skipped
+386-        # (hardware-diagnosed: the "guarded" constraint left the TX FFs in fabric at X14).
+The capture spans 36 beat crossings, and the beat row holds 34 of them. The
+other two fall inside underrun clusters, the ones starting at frames 129,825
+and 411,321, and are counted in the "no host-visible lateness" row.
+
+The beat is documented behaviour at the INTERNAL clock source (see the
+[channel map](../CHANNEL_MAP_64.md)). The render stage's constant-latency law
+tolerates one PDU interval of lateness
+([listener render latency](../design/TIME_SYNC.md#listener-render-latency)),
+so the talker's jitter on a general-purpose host shows as underruns. Neither is
+a TDM link property.
+
+Over the first session's capture window, the DUT listener reported zero
+sequence mismatches, zero unsupported formats, zero uncertain timestamps and
+---
+
+The DUT's `SLIP_TDM` duplicate counter rose from 10,682 to 14,893 over
+8,244.7 s across both sessions, which is 0.5108 per second. That puts FSYNC
+10.64 ppm below the media grid and matches the
+[divider plan](../litex/CLOCK_DOMAINS.md) of -10.64 ppm. The counter is the DUT
+comparing its own two clocks, not a pin measurement. The beat seen at the SoC
+pins and in the talker stream agrees: one crossing per 93,990 frames is
+10.64 ppm. Against gPTP time, the first session's talker ordinal slope put
+FSYNC near -5 ppm, with 10 s blocks spread from -12.5 to 0 ppm. That figure is
+--- CLOCK_DOMAINS ppm lines
+119:| Plan A: I2S or TDM8 | `100 MHz × 23 / (2 × 37)` | `×34 /43` | `audio = 24,575,738.529 Hz`, about -10.64 ppm |
+123:Plan B's initial error is about -0.66 ppm.
+--- TIME_SYNC anchor heading
+331:### Listener render latency

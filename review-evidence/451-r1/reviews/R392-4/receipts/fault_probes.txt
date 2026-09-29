@@ -1,0 +1,253 @@
+### PROBE P0-control-head
+PASS dev..head touches exactly the four PR files: ['A\tdocs/findings/451_TDM8_FIRST_LIGHT.md', 'M\tdocs/findings/README.md', 'M\tdocs/litex/CLOCK_DOMAINS.md', 'M\tdocs/reference/MILAN_COMPLIANCE_MATRIX.md']
+PASS lane's own diff (base..lane) is the same four files
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md: changed lines dev..head == base..lane (-0 +438)
+PASS docs/findings/README.md: changed lines dev..head == base..lane (-0 +1)
+PASS docs/litex/CLOCK_DOMAINS.md: changed lines dev..head == base..lane (-1 +1)
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md: changed lines dev..head == base..lane (-1 +1)
+PASS finding page blob unchanged from the reviewed lane head
+PASS numstat lane..head == numstat base..dev (merge brought dev only)
+INFO merge-side per-file changed-line comparison complete
+PASS all gitlinks at head equal dev's
+PASS protocol-processor gitlink is c951a9ff: ['160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3\tprotocol-processor']
+PASS matrix row 4.4.4.3 equals dev's
+PASS matrix row 5.4.2.15 / .16 equals dev's
+PASS matrix row 5.3.11.1 equals dev's
+PASS matrix row 7.4.42.2 equals dev's
+PASS 4.4.4.3 keeps the #602 ruling link
+PASS 4.4.4.5 / .9 row equals the lane's
+PASS 4.4.4.5 / .9 keeps the first-light link
+PASS matrix differs from dev by exactly one line
+PASS matrix differs from lane by exactly dev's four lines
+PASS no conflict markers in matrix
+PASS index has no duplicate row (10 rows)
+PASS index rows = dev rows + the #451 row
+PASS #451 row first, as on the lane
+PASS dev's rows follow in dev's order
+PASS every other lane row is present in dev (only #397 was reworded by dev)
+PASS CLOCK_DOMAINS keeps dev's 6 added lines
+PASS CLOCK_DOMAINS keeps this PR's line
+PASS the superseded capture-only line is gone
+rc=0
+### PROBE P1-lane-as-head
+FAIL dev..head touches exactly the four PR files: ['M\tCHANGELOG.md', 'M\tREQUIREMENTS.md', 'M\tdocs/ENDSTATION_BUILDER.md', 'M\tdocs/MILAN_V12_ROADMAP.md', 'M\tdocs/design/GM_LOSS_RECOVERY.md', 'M\tdocs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md', 'M\tdocs/design/TIME_SYNC.md', 'M\tdocs/findings/394_387_E1_SWITCH_CYCLES.md', 'M\tdocs/findings/397_SERVICE_BUDGET.md', 'A\tdocs/findings/451_TDM8_FIRST_LIGHT.md', 'M\tdocs/findings/README.md', 'M\tdocs/fpga/FPGA_DESIGN.md', 'M\tdocs/integration/BAREMETAL_FIRMWARE.md', 'M\tdocs/integration/BOARD_PORTING_AX7101.md', 'M\tdocs/integration/BUILDING.md', 'M\tdocs/litex/CLOCK_DOMAINS.md', 'M\tdocs/litex/LITEX_SOC.md', 'M\tdocs/reference/MILAN_COMPLIANCE_MATRIX.md', 'M\tdocs/reference/REGISTER_MAP.md', 'M\tdocs/testing/CI_WORKFLOWS.md', 'M\tdocs/testing/RUNNING_TESTS.md', 'M\tdocs/testing/TESTING.md', 'M\thdl/ieee1722/avtp/KL_media_clock_restart.sv', 'M\thdl/milan/milan_datapath.sv', 'M\tsw/builder/README-parameters.md', 'M\tsw/builder/endstation_builder.py', 'M\tsw/builder/test_builder.py', 'D\tsw/builder/test_clock_constraints.py', 'M\tsw/builder/test_declarations.py', 'D\tsw/builder/test_shipping_clock_constraints.py', 'M\tsw/firmware/milan_baremetal/milan_baremetal.c', 'M\tsw/firmware/nvm_hosttest/README.md', 'M\tsw/firmware/nvm_hosttest/nvm_host.c', 'D\tsw/firmware/nvm_hosttest/phy_host.c', 'D\tsw/firmware/nvm_hosttest/test_disabled_writer.py', 'M\tsw/firmware/nvm_hosttest/test_nvm_firmware.py', 'D\tsw/firmware/nvm_hosttest/test_phy_firmware.py', 'D\tsw/litex/clock_constraints.py', 'D\tsw/litex/clock_constraints.tcl', 'M\tsw/litex/milan_soc.py', 'D\tsw/litex/patches/0006-bios-dispatch-hook.patch', 'M\tsw/litex/patches/README.md', 'M\tsw/litex/patches/apply.sh', 'M\tsw/litex/platforms/alinx_ax7101.py', 'M\tsw/litex/sweep.sh', 'M\ttb/verilator/fw_service_budget/README.md', 'M\ttb/verilator/fw_service_budget/build.py', 'D\ttb/verilator/fw_service_budget/phy.hpp', 'D\ttb/verilator/fw_service_budget/phy.py', 'M\ttb/verilator/fw_service_budget/run.py', 'M\ttb/verilator/fw_service_budget/sim_main.cpp', 'M\ttb/verilator/milan_dp/Makefile', 'M\ttb/verilator/milan_dp/README.md', 'M\ttb/verilator/milan_dp/gmstep_mutants.py', 'M\ttb/verilator/milan_dp/sim_gmstep.cpp', 'M\ttb/verilator/milan_dp/sim_main.cpp', 'M\ttb/verilator/nvm_capture_cpu/README.md', 'M\ttb/verilator/nvm_capture_cpu/firmware.py', 'M\ttb/verilator/nvm_capture_cpu/measurements.json', 'M\ttb/verilator/nvm_capture_cpu/run.py', 'M\ttb/verilator/nvm_cosim/cosim_host.c', 'M\ttb/verilator/nvm_cosim/run_cases.py', 'M\ttb/verilator/tkdiag/mcr_mutants.py', 'M\ttb/verilator/tkdiag/sim_main.cpp']
+PASS lane's own diff (base..lane) is the same four files
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md: changed lines dev..head == base..lane (-0 +438)
+FAIL docs/findings/README.md: changed lines dev..head == base..lane (-1 +2)
+FAIL docs/litex/CLOCK_DOMAINS.md: changed lines dev..head == base..lane (-7 +1)
+FAIL docs/reference/MILAN_COMPLIANCE_MATRIX.md: changed lines dev..head == base..lane (-5 +5)
+PASS finding page blob unchanged from the reviewed lane head
+FAIL numstat lane..head == numstat base..dev (merge brought dev only)
+FAIL merge side differs from dev side for CHANGELOG.md
+FAIL merge side differs from dev side for REQUIREMENTS.md
+FAIL merge side differs from dev side for docs/ENDSTATION_BUILDER.md
+FAIL merge side differs from dev side for docs/MILAN_V12_ROADMAP.md
+FAIL merge side differs from dev side for docs/design/GM_LOSS_RECOVERY.md
+FAIL merge side differs from dev side for docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+FAIL merge side differs from dev side for docs/design/TIME_SYNC.md
+FAIL merge side differs from dev side for docs/findings/394_387_E1_SWITCH_CYCLES.md
+FAIL merge side differs from dev side for docs/findings/397_SERVICE_BUDGET.md
+FAIL merge side differs from dev side for docs/findings/README.md
+FAIL merge side differs from dev side for docs/fpga/FPGA_DESIGN.md
+FAIL merge side differs from dev side for docs/integration/BAREMETAL_FIRMWARE.md
+FAIL merge side differs from dev side for docs/integration/BOARD_PORTING_AX7101.md
+FAIL merge side differs from dev side for docs/integration/BUILDING.md
+FAIL merge side differs from dev side for docs/litex/CLOCK_DOMAINS.md
+FAIL merge side differs from dev side for docs/litex/LITEX_SOC.md
+FAIL merge side differs from dev side for docs/reference/MILAN_COMPLIANCE_MATRIX.md
+FAIL merge side differs from dev side for docs/reference/REGISTER_MAP.md
+FAIL merge side differs from dev side for docs/testing/CI_WORKFLOWS.md
+FAIL merge side differs from dev side for docs/testing/RUNNING_TESTS.md
+FAIL merge side differs from dev side for docs/testing/TESTING.md
+FAIL merge side differs from dev side for hdl/ieee1722/avtp/KL_media_clock_restart.sv
+FAIL merge side differs from dev side for hdl/milan/milan_datapath.sv
+FAIL merge side differs from dev side for sw/builder/README-parameters.md
+FAIL merge side differs from dev side for sw/builder/endstation_builder.py
+FAIL merge side differs from dev side for sw/builder/test_builder.py
+FAIL merge side differs from dev side for sw/builder/test_clock_constraints.py
+FAIL merge side differs from dev side for sw/builder/test_declarations.py
+FAIL merge side differs from dev side for sw/builder/test_shipping_clock_constraints.py
+FAIL merge side differs from dev side for sw/firmware/milan_baremetal/milan_baremetal.c
+FAIL merge side differs from dev side for sw/firmware/nvm_hosttest/README.md
+FAIL merge side differs from dev side for sw/firmware/nvm_hosttest/nvm_host.c
+FAIL merge side differs from dev side for sw/firmware/nvm_hosttest/phy_host.c
+FAIL merge side differs from dev side for sw/firmware/nvm_hosttest/test_disabled_writer.py
+FAIL merge side differs from dev side for sw/firmware/nvm_hosttest/test_nvm_firmware.py
+FAIL merge side differs from dev side for sw/firmware/nvm_hosttest/test_phy_firmware.py
+FAIL merge side differs from dev side for sw/litex/clock_constraints.py
+FAIL merge side differs from dev side for sw/litex/clock_constraints.tcl
+FAIL merge side differs from dev side for sw/litex/milan_soc.py
+FAIL merge side differs from dev side for sw/litex/patches/0006-bios-dispatch-hook.patch
+FAIL merge side differs from dev side for sw/litex/patches/README.md
+FAIL merge side differs from dev side for sw/litex/patches/apply.sh
+FAIL merge side differs from dev side for sw/litex/platforms/alinx_ax7101.py
+FAIL merge side differs from dev side for sw/litex/sweep.sh
+FAIL merge side differs from dev side for tb/verilator/fw_service_budget/README.md
+FAIL merge side differs from dev side for tb/verilator/fw_service_budget/build.py
+FAIL merge side differs from dev side for tb/verilator/fw_service_budget/phy.hpp
+FAIL merge side differs from dev side for tb/verilator/fw_service_budget/phy.py
+FAIL merge side differs from dev side for tb/verilator/fw_service_budget/run.py
+FAIL merge side differs from dev side for tb/verilator/fw_service_budget/sim_main.cpp
+FAIL merge side differs from dev side for tb/verilator/milan_dp/Makefile
+FAIL merge side differs from dev side for tb/verilator/milan_dp/README.md
+FAIL merge side differs from dev side for tb/verilator/milan_dp/gmstep_mutants.py
+FAIL merge side differs from dev side for tb/verilator/milan_dp/sim_gmstep.cpp
+FAIL merge side differs from dev side for tb/verilator/milan_dp/sim_main.cpp
+FAIL merge side differs from dev side for tb/verilator/nvm_capture_cpu/README.md
+FAIL merge side differs from dev side for tb/verilator/nvm_capture_cpu/firmware.py
+FAIL merge side differs from dev side for tb/verilator/nvm_capture_cpu/measurements.json
+FAIL merge side differs from dev side for tb/verilator/nvm_capture_cpu/run.py
+FAIL merge side differs from dev side for tb/verilator/nvm_cosim/cosim_host.c
+FAIL merge side differs from dev side for tb/verilator/nvm_cosim/run_cases.py
+FAIL merge side differs from dev side for tb/verilator/tkdiag/mcr_mutants.py
+FAIL merge side differs from dev side for tb/verilator/tkdiag/sim_main.cpp
+INFO merge-side per-file changed-line comparison complete
+PASS all gitlinks at head equal dev's
+PASS protocol-processor gitlink is c951a9ff: ['160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3\tprotocol-processor']
+FAIL matrix row 4.4.4.3 equals dev's
+FAIL matrix row 5.4.2.15 / .16 equals dev's
+FAIL matrix row 5.3.11.1 equals dev's
+FAIL matrix row 7.4.42.2 equals dev's
+FAIL 4.4.4.3 keeps the #602 ruling link
+PASS 4.4.4.5 / .9 row equals the lane's
+PASS 4.4.4.5 / .9 keeps the first-light link
+FAIL matrix differs from dev by exactly one line
+FAIL matrix differs from lane by exactly dev's four lines
+PASS no conflict markers in matrix
+PASS index has no duplicate row (10 rows)
+FAIL index rows = dev rows + the #451 row
+PASS #451 row first, as on the lane
+FAIL dev's rows follow in dev's order
+PASS every other lane row is present in dev (only #397 was reworded by dev)
+FAIL CLOCK_DOMAINS keeps dev's 6 added lines
+PASS CLOCK_DOMAINS keeps this PR's line
+PASS the superseded capture-only line is gone
+rc=1
+### PROBE P2-dev-as-head
+FAIL dev..head touches exactly the four PR files: []
+PASS lane's own diff (base..lane) is the same four files
+FAIL docs/findings/451_TDM8_FIRST_LIGHT.md: changed lines dev..head == base..lane (-0 +0)
+FAIL docs/findings/README.md: changed lines dev..head == base..lane (-0 +0)
+FAIL docs/litex/CLOCK_DOMAINS.md: changed lines dev..head == base..lane (-0 +0)
+FAIL docs/reference/MILAN_COMPLIANCE_MATRIX.md: changed lines dev..head == base..lane (-0 +0)
+FAIL finding page blob unchanged from the reviewed lane head
+FAIL numstat lane..head == numstat base..dev (merge brought dev only)
+FAIL merge side differs from dev side for docs/findings/README.md
+FAIL merge side differs from dev side for docs/litex/CLOCK_DOMAINS.md
+FAIL merge side differs from dev side for docs/reference/MILAN_COMPLIANCE_MATRIX.md
+INFO merge-side per-file changed-line comparison complete
+PASS all gitlinks at head equal dev's
+PASS protocol-processor gitlink is c951a9ff: ['160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3\tprotocol-processor']
+PASS matrix row 4.4.4.3 equals dev's
+PASS matrix row 5.4.2.15 / .16 equals dev's
+PASS matrix row 5.3.11.1 equals dev's
+PASS matrix row 7.4.42.2 equals dev's
+PASS 4.4.4.3 keeps the #602 ruling link
+FAIL 4.4.4.5 / .9 row equals the lane's
+FAIL 4.4.4.5 / .9 keeps the first-light link
+FAIL matrix differs from dev by exactly one line
+FAIL matrix differs from lane by exactly dev's four lines
+PASS no conflict markers in matrix
+PASS index has no duplicate row (9 rows)
+FAIL index rows = dev rows + the #451 row
+FAIL #451 row first, as on the lane
+FAIL dev's rows follow in dev's order
+PASS every other lane row is present in dev (only #397 was reworded by dev)
+PASS CLOCK_DOMAINS keeps dev's 6 added lines
+FAIL CLOCK_DOMAINS keeps this PR's line
+FAIL the superseded capture-only line is gone
+rc=1
+### PROBE P3-bad-resolution
+PASS dev..head touches exactly the four PR files: ['A\tdocs/findings/451_TDM8_FIRST_LIGHT.md', 'M\tdocs/findings/README.md', 'M\tdocs/litex/CLOCK_DOMAINS.md', 'M\tdocs/reference/MILAN_COMPLIANCE_MATRIX.md']
+PASS lane's own diff (base..lane) is the same four files
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md: changed lines dev..head == base..lane (-0 +438)
+FAIL docs/findings/README.md: changed lines dev..head == base..lane (-0 +2)
+PASS docs/litex/CLOCK_DOMAINS.md: changed lines dev..head == base..lane (-1 +1)
+FAIL docs/reference/MILAN_COMPLIANCE_MATRIX.md: changed lines dev..head == base..lane (-2 +2)
+PASS finding page blob unchanged from the reviewed lane head
+FAIL numstat lane..head == numstat base..dev (merge brought dev only)
+FAIL merge side differs from dev side for docs/findings/README.md
+FAIL merge side differs from dev side for docs/reference/MILAN_COMPLIANCE_MATRIX.md
+INFO merge-side per-file changed-line comparison complete
+PASS all gitlinks at head equal dev's
+PASS protocol-processor gitlink is c951a9ff: ['160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3\tprotocol-processor']
+FAIL matrix row 4.4.4.3 equals dev's
+PASS matrix row 5.4.2.15 / .16 equals dev's
+PASS matrix row 5.3.11.1 equals dev's
+PASS matrix row 7.4.42.2 equals dev's
+FAIL 4.4.4.3 keeps the #602 ruling link
+PASS 4.4.4.5 / .9 row equals the lane's
+PASS 4.4.4.5 / .9 keeps the first-light link
+FAIL matrix differs from dev by exactly one line
+FAIL matrix differs from lane by exactly dev's four lines
+PASS no conflict markers in matrix
+FAIL index has no duplicate row (11 rows)
+PASS index rows = dev rows + the #451 row
+PASS #451 row first, as on the lane
+FAIL dev's rows follow in dev's order
+PASS every other lane row is present in dev (only #397 was reworded by dev)
+PASS CLOCK_DOMAINS keeps dev's 6 added lines
+PASS CLOCK_DOMAINS keeps this PR's line
+PASS the superseded capture-only line is gone
+rc=1
+### PROBE P5-rendered-link-drop-and-dup
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 1: rows=10 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 2: rows=6 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 3: rows=8 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 4: rows=7 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 5: rows=20 cells=[4]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 6: rows=4 cells=[4]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 7: rows=4 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 8: rows=5 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 9: rows=8 cells=[4]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 10: rows=8 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 11: rows=11 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 12: rows=10 cells=[3]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 13: rows=14 cells=[4]
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md rendered table 14: rows=14 cells=[4]
+PASS docs/findings/README.md rendered table 1: rows=12 cells=[3]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 1: rows=12 cells=[4]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 2: rows=11 cells=[3]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 3: rows=4 cells=[4]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 4: rows=4 cells=[4]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 5: rows=10 cells=[3]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 6: rows=4 cells=[4]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 7: rows=19 cells=[3]
+PASS docs/litex/CLOCK_DOMAINS.md rendered table 8: rows=11 cells=[2]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 1: rows=7 cells=[2]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 2: rows=5 cells=[2]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 3: rows=9 cells=[7]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 4: rows=9 cells=[8]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 5: rows=5 cells=[4]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 6: rows=4 cells=[6]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 7: rows=4 cells=[5]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 8: rows=5 cells=[6]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 9: rows=10 cells=[2]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 10: rows=12 cells=[2]
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md rendered table 11: rows=12 cells=[3]
+FAIL rendered row 4.4.4.3 carries href="https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355"
+PASS rendered row 4.4.4.5 / .9 carries href="../findings/451_TDM8_FIRST_LIGHT.md"
+PASS rendered row 5.4.2.15 / .16 carries issues/602#issuecomment-5859297355
+PASS rendered row 5.3.11.1 carries issues/602#issuecomment-5859297355
+PASS rendered row 7.4.42.2 carries issues/599
+INFO rendered index order: 451_TDM8_FIRST_LIGHT.md, 75_RECONNECT_RESTART_MEASUREMENT.md, COMMERCIAL_TIMING_395.md, 397_SERVICE_BUDGET.md, 397_SERVICE_BUDGET.md, 117_GPTP_SILICON_EVIDENCE.md, ../history/v1/findings/ADP_SHAPE_STATIC_0727.md, CBS_DATAPATH_BUG.md, ../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md, ../history/v1/findings/PP_SHADOW_AREA_0812.md, ../history/v1/findings/PERFORMANCE_GOAL.md
+FAIL rendered index: #451 first, 10 unique rows
+rc=1
+### PROBE P4-cell-drop
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:15 table cols=3 rows=9
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:32 table cols=3 rows=5
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:75 table cols=3 rows=7
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:87 table cols=3 rows=6
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:109 table cols=4 rows=19
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:133 table cols=4 rows=3
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:141 table cols=3 rows=3
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:149 table cols=3 rows=4
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:163 table cols=4 rows=7
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:175 table cols=3 rows=7
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:187 table cols=3 rows=10
+FAIL docs/reference/MILAN_COMPLIANCE_MATRIX.md:207 row has 2 cells, header 3
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:202 table cols=3 rows=9
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:223 table cols=4 rows=13
+INFO docs/reference/MILAN_COMPLIANCE_MATRIX.md:245 table cols=4 rows=13
+FAIL docs/reference/MILAN_COMPLIANCE_MATRIX.md: 14 table(s)
+rc=1

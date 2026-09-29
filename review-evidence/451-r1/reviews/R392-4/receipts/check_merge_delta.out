@@ -1,0 +1,30 @@
+PASS dev..head touches exactly the four PR files: ['A\tdocs/findings/451_TDM8_FIRST_LIGHT.md', 'M\tdocs/findings/README.md', 'M\tdocs/litex/CLOCK_DOMAINS.md', 'M\tdocs/reference/MILAN_COMPLIANCE_MATRIX.md']
+PASS lane's own diff (base..lane) is the same four files
+PASS docs/findings/451_TDM8_FIRST_LIGHT.md: changed lines dev..head == base..lane (-0 +438)
+PASS docs/findings/README.md: changed lines dev..head == base..lane (-0 +1)
+PASS docs/litex/CLOCK_DOMAINS.md: changed lines dev..head == base..lane (-1 +1)
+PASS docs/reference/MILAN_COMPLIANCE_MATRIX.md: changed lines dev..head == base..lane (-1 +1)
+PASS finding page blob unchanged from the reviewed lane head
+PASS numstat lane..head == numstat base..dev (merge brought dev only)
+INFO merge-side per-file changed-line comparison complete
+PASS all gitlinks at head equal dev's
+PASS protocol-processor gitlink is c951a9ff: ['160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3\tprotocol-processor']
+PASS matrix row 4.4.4.3 equals dev's
+PASS matrix row 5.4.2.15 / .16 equals dev's
+PASS matrix row 5.3.11.1 equals dev's
+PASS matrix row 7.4.42.2 equals dev's
+PASS 4.4.4.3 keeps the #602 ruling link
+PASS 4.4.4.5 / .9 row equals the lane's
+PASS 4.4.4.5 / .9 keeps the first-light link
+PASS matrix differs from dev by exactly one line
+PASS matrix differs from lane by exactly dev's four lines
+PASS no conflict markers in matrix
+PASS index has no duplicate row (10 rows)
+PASS index rows = dev rows + the #451 row
+PASS #451 row first, as on the lane
+PASS dev's rows follow in dev's order
+PASS every other lane row is present in dev (only #397 was reworded by dev)
+PASS CLOCK_DOMAINS keeps dev's 6 added lines
+PASS CLOCK_DOMAINS keeps this PR's line
+PASS the superseded capture-only line is gone
+rc=0
