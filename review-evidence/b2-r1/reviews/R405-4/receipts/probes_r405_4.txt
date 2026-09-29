@@ -1,0 +1,11 @@
+control: reviewer rc=0 [RESULT: PASS]  author rc=0 [1 FAIL lines: FAILURES 0;]
+m1_connect_rx_to_dut_input: reviewer rc=1 [RESULT: FAIL CONNECT_RX talker not DUT output 1, state-changing census, DUT stream-input reads, DUT stream-input non-read]  author rc=1 [7 FAIL lines: FAIL 0 state-changing commands addressed a DUT stream input;FAIL 0 state-changing commands addressed the DUT at all;FAIL 105 CONNECT_RX and 105 DISCONNECT_RX, 210 in all, every one to the peer's Stream Inpu;FAIL every CONNECT_RX names DUT Stream Output 1 as talker;FAIL 228 GET_RX_STATE, 228 GET_COUNTERS and 4 READ_DESCRIPTOR, 460 in all;FAIL all 460 are reads (0 state-changing);FAILURES 6;]
+m2_aecp_set_to_dut: reviewer rc=1 [RESULT: FAIL AECP non-read, state-changing census]  author rc=1 [4 FAIL lines: FAIL 0 state-changing commands addressed the DUT at all;FAIL every state-changing command is an ACMP CONNECT_RX or DISCONNECT_RX;FAIL all 2356 AECP commands are GET_ or READ_;FAILURES 3;]
+m3_drop_dut_input_counter: reviewer rc=1 [RESULT: FAIL DUT stream-input reads]  author rc=1 [2 FAIL lines: FAIL 228 GET_RX_STATE, 228 GET_COUNTERS and 4 READ_DESCRIPTOR, 460 in all;FAILURES 1;]
+m4_extra_dut_input_read: reviewer rc=1 [RESULT: FAIL DUT stream-input reads]  author rc=0 [1 FAIL lines: FAILURES 0;]
+m5_disconnect_rx_to_dut: reviewer rc=1 [RESULT: FAIL state-changing census, DUT stream-input reads, DUT stream-input non-read]  author rc=1 [7 FAIL lines: FAIL every ACMP command's role label matches the listener entity its response names;FAIL 0 state-changing commands addressed a DUT stream input;FAIL 0 state-changing commands addressed the DUT at all;FAIL 105 CONNECT_RX and 105 DISCONNECT_RX, 210 in all, every one to the peer's Stream Inpu;FAIL 228 GET_RX_STATE, 228 GET_COUNTERS and 4 READ_DESCRIPTOR, 460 in all;FAIL all 460 are reads (0 state-changing);FAILURES 6;]
+   m1_connect_rx_to_dut_input: changed lines vs archive: 2
+   m2_aecp_set_to_dut: changed lines vs archive: 2
+   m3_drop_dut_input_counter: changed lines vs archive: 1
+   m4_extra_dut_input_read: changed lines vs archive: 2
+   m5_disconnect_rx_to_dut: changed lines vs archive: 4

@@ -1,0 +1,41 @@
+### pip freeze (pinned env): cffi==2.1.1 cmarkgfm==2025.10.22 html5lib==1.1 pycparser==3.0 six==1.17.0 webencodings==0.6.1 
+### python Python 3.14.7
+### $ <packet>/scratch/mdenv/bin/python -B scripts/docs_check.py
+docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/gen_toc.py --check
+TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/gen_toc.py --verify-anchors
+anchor check: 249 existing cross-page fragment links reproduced
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+check_em_dash: 0 finding(s) over 914 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base fb4a1b895e97bb808b624ea0b31c43d121723f36
+check_em_dash: 0 finding(s) over 3 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fb4a1b89..HEAD]
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (339 arm(s))
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_doc_paths.py
+doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### rc=0
+### $ git diff --check 13eda870d1a6cf3f946fc228a98862366b08d102 5c57927413e0dae279f06a75d2a58e3fec8a2bb0
+### rc=0
+### $ git diff --check fb4a1b895e97bb808b624ea0b31c43d121723f36 5c57927413e0dae279f06a75d2a58e3fec8a2bb0
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_baremetal_only.py
+usage: check_baremetal_only.py [-h] [--check] [--selftest]
+check_baremetal_only.py: error: pick a mode: --check (scan the tree) or --selftest
+### rc=2
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_feature_status.py
+feature_status: 0 finding(s)
+### rc=0
+(the rc=2 above is a usage error: the script requires a mode; rerun with --check)
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_baremetal_only.py --check
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+### rc=2

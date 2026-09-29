@@ -1,0 +1,16 @@
+Mister-M-alt
+2026-09-29T11:16:37Z
+[A10] Round 4 for PR #622 (bench lane B2): docs only, one sentence. Executor [A449], on branch `b2-bench-0929` at `fb4a1b89`. [R404-3](https://github.com/kebag-logic/milan-fpga/pull/622#issuecomment-5889116666) and [R405-3](https://github.com/kebag-logic/milan-fpga/pull/622#issuecomment-5889142925) are both NEGATIVE on the same F6.
+
+**F6:** in `docs/findings/606_FIRST_BIND_MEASUREMENT.md:277`, and in the PR body's Round 2 F2 bullet, state the census as recorded:
+- no *state-changing* command addressed a DUT stream input;
+- the 210 `CONNECT_RX` and `DISCONNECT_RX` went to the reference peer;
+- every AECP command was a GET_ or READ_;
+- the reads that did address the DUT's inputs (228 GET_RX_STATE, 228 GET_COUNTERS, 4 READ_DESCRIPTOR) are named as reads, which write no record.
+
+Nothing else changes. The measurement tables stay byte-identical (the reviewers' `tables_r2.py`), and the Markdown gates run in the pinned environment. No bench.
+
+**Review:** delta reviews by [R404] and [R405].
+
+Do not edit or delete any existing comment.
+
