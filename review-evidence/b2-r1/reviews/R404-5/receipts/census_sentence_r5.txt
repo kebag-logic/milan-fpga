@@ -1,0 +1,19 @@
+# python3 -B scripts/census_sentence_r5.py <archive author/ tree fdde402a> receipts/pr_body_at_read_r5.md
+archive: state-changing ACMP by mt {6: 105, 8: 105} total 210 listener uids [8]
+bullet found: True
+OK   opening census '210 state-changing ACMP commands (105 CONNECT_RX, 105 DISCONNECT_RX), all to the peer's input' == archive 210 (105 mt6, 105 mt8), peer only True
+OK   no unqualified '<n> ACMP commands' count in the bullet (found [])
+OK   opening count 210 agrees with the later sentence's 210
+OK   later sentences intact: 'no state-changing command addressed one' and the reads name GET_RX_STATE
+fails: 0
+rc=0
+
+# control: the round-4 body (F7 open) must fail
+archive: state-changing ACMP by mt {6: 105, 8: 105} total 210 listener uids [8]
+bullet found: True
+FAIL opening census 'None state-changing ACMP commands (None CONNECT_RX, None DISCONNECT_RX), all to the peer's input' == archive 210 (105 mt6, 105 mt8), peer only True
+FAIL no unqualified '<n> ACMP commands' count in the bullet (found ['210 ACMP commands'])
+FAIL opening count None agrees with the later sentence's 210
+OK   later sentences intact: 'no state-changing command addressed one' and the reads name GET_RX_STATE
+fails: 3
+rc=1
