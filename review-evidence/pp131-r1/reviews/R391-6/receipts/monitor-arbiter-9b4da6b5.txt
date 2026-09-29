@@ -1,0 +1,30 @@
+R391-6 arbiter-side monitor mon_own0_reads over tb/acmp_nvm make run at 9b4da6b5 (one line per READ manager 0 owned, own_r == O_M0 && !we_r, printed on its end_w)
+manager-0 owned READs ended: 5479
+READs with manager 1's abort in any owned or issue clock: 16
+  owned=45 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=13 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=13 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=13 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=13 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=13 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=13 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=45 m1ab=0 m1ab_before_end=0 iss_m1ab=1 drain=0
+  owned=45 m1ab=45 m1ab_before_end=44 iss_m1ab=0 drain=0
+  owned=13 m1ab=13 m1ab_before_end=12 iss_m1ab=0 drain=0
+  owned=13 m1ab=13 m1ab_before_end=12 iss_m1ab=0 drain=0
+  owned=13 m1ab=13 m1ab_before_end=12 iss_m1ab=0 drain=0
+  owned=13 m1ab=13 m1ab_before_end=12 iss_m1ab=0 drain=0
+  owned=13 m1ab=13 m1ab_before_end=12 iss_m1ab=0 drain=0
+  owned=13 m1ab=13 m1ab_before_end=12 iss_m1ab=0 drain=0
+  owned=45 m1ab=45 m1ab_before_end=44 iss_m1ab=0 drain=0
+owned-with-abort READs (N11d): 8, owned clocks 168, with abort 168, fewest with abort before end 12, issue clocks with abort 0, drained at end 0
+issue-with-abort READs (N11b): 8, owned clocks with abort 0
+
+R391-5 monitor mon_unreachable_inputs (first 20 clocks per kind per simulation):
+== acmp_nvm (make run) at 9b4da6b5: {'m1_abort_not_own_read': 20, 'm1_abort_with_write': 20, 'm1_abort_on_m0': 20, 'm1_issue_abort_after_write': 1}
+== pp_top default build, whole run at 9b4da6b5: no monitored input occurred
+    mon_unreachable_inputs GI latency walks added: 5568 checks, 0 failures
+    mon_unreachable_inputs NW: 85 checks, 0 failures
+    mon_unreachable_inputs D3: 133 checks, 0 failures
+    mon_unreachable_inputs [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+    mon_unreachable_inputs rc=0

@@ -1,0 +1,49 @@
+== GOLDEN: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== issue_arm_m1_only: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== issue_arm_m0_only: rc=2 | 360 checks: 356 PASS, 4 FAIL
+   FAIL: N10 a manager-1 READ abandoned in its issue cycle: the drain armed in the issue cycle (issued at 422951, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1
+   FAIL: N10 a manager-1 READ abandoned in its issue cycle: the port is free again: the walk completes as saved and manager 1's next READ completes: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 430847, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes
+== issue_arm_stale_we: rc=2 | 360 checks: 357 PASS, 3 FAIL
+   FAIL: N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 428091, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes
+== issue_arm_cross_intent: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11b manager 1's abort in the issue cycle of each of the walk's READs: 1 of the walk's 1 READs issued with it, none drained (from 423622), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm 
+== issue_arm_write_too: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact
+== issue_arm_one_clock_late: rc=2 | 360 checks: 358 PASS, 2 FAIL
+   FAIL: N10 a manager-1 READ abandoned in its issue cycle: the drain armed in the issue cycle (issued at 422951, draining from 422953), moved 28 bytes and ended with the read; 0 cycles reached manager 1
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 424137, draining from 424139), moved 28 bytes and ended with the read; 0 cycles reached manager 1
+== cross_iss_m1_drains_m0: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11b manager 1's abort in the issue cycle of each of the walk's READs: 1 of the walk's 1 READs issued with it, none drained (from 423622), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm 
+== cross_iss_m0_drains_m1: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== cross_own_m1_drains_m0: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record
+== cross_own_m0_drains_m1: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== write_iss_m0_only: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== write_iss_m1_only: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact
+== write_own_m0_only: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== write_own_m1_only: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423536), every byte taken (1 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact
+== stale_we_m0_only: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== stale_we_m1_only: rc=2 | 360 checks: 357 PASS, 3 FAIL
+   FAIL: N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 428091, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1
+   FAIL: N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes
+== mon_unreachable_inputs: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== cross_own_m1_drains_m0_first_clk: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record
+== h_n11d_no_drive: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 0 of the 168 cycles manager 0 owned its 8 READs (at least 12 before each one's end) and in none of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  
+== h_n11d_half_drive: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 83 of the 168 cycles manager 0 owned its 8 READs (at least 12 before each one's end) and in none of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  
+== h_n11d_also_issue: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 168 of the 168 cycles manager 0 owned its 8 READs (at least 12 before each one's end) and in none of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  
+== t_arb_end_stuck0: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 450 of the 450 cycles manager 0 owned its 0 READs (at least -1 before each one's end) and in none of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  
+== mon_own0_reads: rc=0 | 360 checks: 360 PASS, 0 FAIL
+== h_n11d_also_issue_diag: rc=2 | 360 checks: 359 PASS, 1 FAIL
+   FAIL: N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 168 of the 168 cycles manager 0 owned its 8 READs (at least 12 before each one's end) and in 8 of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  

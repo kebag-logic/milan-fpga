@@ -1,0 +1,56 @@
+R391-6: author-r6 parent_edits.py (sha256 80d2c3969b114e7509199b493f8bd937d4348a8a39a6526e1fbb433971579635, byte-identical to author-r5) applied to a copy of public milan-fpga dev 9e3ccbfb9c22d24db48787cbcfd574974edb5e42 (parent files only; no submodules, nothing built or run)
+apply at 9e3ccbfb: all three groups applied (parent, pp_shadow harness, milan_dp harness), rc 0
+live dev read 2026-09-29T10:40:11Z: 79c36963660c10e4c1c11a744fb5bff41a552b8b
+
+S2 anchors in the edited tb/verilator/milan_dp/sim_nxn.cpp:
+2480:        grade_the_first_descriptors_on_the_wire();
+2484:        prove_a_wedged_response_memory_reports_and_heals();
+2485:        #ifdef NOTIFY_TIMED_TB
+2548:    //! is parked in S_BAD with FAULT_TIMEOUT from the two sections
+2560:    //! dbg_lane_wr is CUMULATIVE and [AECP-WTMO] already moved the
+2604:        //! rerr counts responses the memory VOIDED. [AECP-WTMO] added one
+2609:        ck("[AECP-IMG] the response buffer reports no fault (word 36)",
+
+        if (!built) printf("  [i]    %s\n", why.c_str());
+        if (!built) return false;
+
+        grade_the_image_header_and_the_side_port();
+        grade_the_first_descriptors_on_the_wire();
+        //! pin adoption (processor #131): the wedged-response-memory arm needs
+        //! AECP released, so it runs here, after the restore proved the image,
+        //! in every leg and before the timed leg's return
+        prove_a_wedged_response_memory_reports_and_heals();
+        #ifdef NOTIFY_TIMED_TB
+        //! THE TIMED LEG ENDS HERE: the image is served, so the
+        //! notification section has names to set, and nothing after it
+        //! is clocked for a compressed processor timebase. The clock-source
+        //! walk runs first so this leg's AX 1x1 image is graded like the
+        //! other legs' (which walk it inside the whole-model walk below):
+...
+    //! ---- the descriptors on the wire -----------------------------
+    //! NO RESET ANYWHERE, AND ONE COMMAND IS ALL IT TAKES. The store
+    //! is parked in S_BAD with FAULT_TIMEOUT from the two sections
+    //! above and it re-probes on no timer: an image that never
+    //! validated re-arms its header walk after every state-port read
+    //! (KL_aecp_desc_store.sv S_ANSWER, "a late software load heals
+    //! with no reset"), and the µCPU STALLS on the store while that
+    //! walk runs. So the very first command after the memory appears
+    //! is already served, which is the healing claim in the strongest
+    //! form it can be stated: a controller that retries once
+    //! enumerates. MEASURED across that one command: 3 bursts and 75
+    //! beats, being the 32-byte header, the 16-entry index map, and
+    //! the 312-byte ENTITY line it then served.
+    //!
+    //! dbg_lane_wr is CUMULATIVE and [AECP-WTMO] already moved the
+    //! error counter beside it, so both are graded as DELTAS across
+    //! the two reads below. Word 35 is {rerr[15:0], lane_wr[15:0]}.
+...
+           static_cast<long>(lane_si >= static_cast<long>((4 + si_len) / 8)), 1);
+        //! rerr counts responses the memory VOIDED. [AECP-WTMO] added one
+        //! deliberately, so only the delta across a working memory is
+        //! honest here.
+        ck("[AECP-IMG] no response was voided by the memory",
+           static_cast<long>((w35_2 >> 16) - (w35_0 >> 16)), 0);
+        ck("[AECP-IMG] the response buffer reports no fault (word 36)",
+           sp_read(SP_SNAPSHOT + 36, &spok) & 0x7u, 0);
+    }
