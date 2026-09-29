@@ -14,25 +14,35 @@ That pin defers the processor's own LeaveAll aging to transmit acceptance.
 |---|---|---|
 | #608 item 1: attribute cycles 13, 24 and 75 | Not a bench item | PR #604 round 3 and the [A10] analysis on #608. |
 | #608 item 2: reproduce in simulation | Not a bench item | PR #613's CRF STREAM_STOP regression. |
-| #608 item 3: stop within one PDU of the withdrawal, 100 of 100 | Two readings; see below | Literal text: NOT MET, 99 of 100. Recorded reading, a withdrawal that reaches an IN registrar: PASS, 99 of 99. |
+| #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487). Cycle 22's LV registrar is attributed to the processor #108 deviation. Met without qualification only after the pin adoption of processor PR #133 and a bench re-run. |
 | #608 item 3: STREAM_STOP counts each stop | PASS, 99 of 99 | Every stop counted STREAM_STOP +1; cycle 22 counted +0, matching no stop. |
 | #608: non-stop holds | 1 of 100 | Cycle 22. Image `9e9954e9` had 3 of 100. See [Cycle 22](#cycle-22). |
 | #75: first valid AVTP PDU within 1 s of a reconnect | PASS, 99 of 99 demonstrated restarts | Maximum 0.139247 s. See [Restart distribution and growth](#restart-distribution-and-growth). |
 | #75: restart latency does not grow | PASS | The 95% slope interval includes zero; ten-cycle blocks stay flat. |
 | #75: firmware, topology, capture and distribution documented | PASS | This page. |
-| #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped, so it is not a restart. |
+| #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart. The [#608 ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) requires no additional cycle. |
 
 These are operator measurements, not review verdicts.
 
-**The two readings of #608 item 3 need a decision; this page does not choose.**
+**The reading of #608 item 3 is decided.**
 
-The item's text asks for 100 of 100 stops within one PDU period.
+- The [ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) sets the bar at a withdrawal that reaches an IN registrar.
+- Its [correction](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487) grades this image: 99 of 99 such withdrawals stopped within one PDU.
+- Cycle 22's non-stop is attributed to the processor [#108](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/108) deviation, not accepted as standard behavior.
+- Processor [PR #133](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/133) implements the leavealltimer restart that #108 lacks.
+- #608 item 3 is met without qualification only after the pin adoption of #133 and a 100-cycle re-run.
+- Processor [#134](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/134) grades the LV-registrar stop in simulation.
+- It stands after #133, because a peer can also open an LV window.
 
-The [#608 decision](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5860869482) reads it as withdrawals reaching an IN registrar.
+History: read literally, the item's text asks for 100 of 100; this run is 99 of 100.
 
-It keeps the documented LV + rLv behavior for a genuine LeaveAll cycle.
+The earlier [#608 decision](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5860869482) first stated the IN-registrar reading.
 
-Cycle 22 is such a cycle, and its stream ran through the whole 2 s hold.
+It kept the documented LV + rLv behavior for a genuine LeaveAll cycle.
+
+Cycle 22 is a LeaveAll cycle, but not a genuine one in that sense.
+
+A conformant participant would have suppressed the DUT LeaveAll that opened it; see [Cycle 22](#cycle-22).
 
 The [#606 page](606_FIRST_BIND_MEASUREMENT.md) records the same session's first binds.
 
@@ -41,10 +51,10 @@ The [#606 page](606_FIRST_BIND_MEASUREMENT.md) records the same session's first 
 - **[Identity and setup](#identity-and-setup)** -- The image, the bound pair and the bench as found.
 - **[Method](#method)** -- The cycle, the stop and restart predicates, and how the registrar state is read.
 - **[Withdrawal and stop](#withdrawal-and-stop)** -- #608: where each withdrawal landed and whether the stream stopped.
-- **[Cycle 22](#cycle-22)** -- The one non-stop hold, event by event.
+- **[Cycle 22](#cycle-22)** -- The one non-stop hold, event by event, and the processor deviation that opened its LV window.
 - **[Restart distribution and growth](#restart-distribution-and-growth)** -- #75: restart times, their growth and the MSRP rate.
 - **[Per-cycle results](#per-cycle-results)** -- One row per cycle.
-- **[Counters and restore](#counters-and-restore)** -- Counter reconciliation and the restored bench.
+- **[Counters and restore](#counters-and-restore)** -- Counter reconciliation, the restored bench and the DUT's saved-state layer.
 - **[Limits](#limits)** -- What this bench run does not show.
 - **[Artifact hashes](#artifact-hashes)** -- Tool and raw-capture identities.
 
@@ -127,7 +137,7 @@ The bridge re-declared the stream within 0.088 s of every Listener-type LeaveAll
 
 That covers 110 LeaveAlls: 53 own and 57 from the bridge; none went unanswered.
 
-Every capture holds at least 2.743 s before its `Lv`.
+Every capture holds at least 2.742 s before its `Lv`.
 
 So an `Lv` with no LeaveAll in its capture came long after the last re-declaration.
 
@@ -195,6 +205,28 @@ Seconds after the tapped `DISCONNECT_RX` response.
 - STREAM_START and STREAM_STOP both moved +0.
 - The reconnect's `New` re-registered the Listener before any leave timer could expire.
 - A stop at `T-MRP-LEAVE`, 4.5-7.5 s after the LeaveAll, is documented, not observed.
+
+**Why the registrar was LV.** A DUT-side deviation opened the LV window.
+
+- The bridge's LeaveAll at -0.391721 s carried its Listener `JoinMt`, so the registrar was IN after it.
+- The DUT's own LeaveAll, for all four types, followed 0.401121 s later.
+- 802.1Q-2014 Table 10-5 (10.7.9) maps a received LeaveAll to "Start leavealltimer".
+- Clause 10.6: that restart suppresses multiple LeaveAll messages on one LAN.
+- A participant's leavealltimer draws 10-15 s, ± 0.5 s (Milan v1.2 Table 4.3).
+- So a conformant participant sends no LeaveAll within 9.5 s of a received one.
+- The processor at `c951a9ff` re-arms its own timer only at its own expiry; a received LeaveAll does not restart it.
+- Its [SRP engine design](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/c951a9ff0cb5851fb159d33e966e5a2a9a188fe3/docs/architecture/10_srp_engine.md), section 6.5, records this as an open deviation.
+- Processor [#108](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/108) tracks it.
+- A conformant DUT would not have sent this LeaveAll.
+- The `Lv` would then have met an IN registrar, and Δ13 would have stopped the stream.
+- The rLv in LV that followed is standard behavior (802.1Q-2014 Table 10-4); the LV state came from the deviation.
+
+The deviation recurs across the session:
+
+- 67 DUT LeaveAlls, in 64 of the 112 captures, came less than 10 s after a received bridge LeaveAll.
+- The gaps ran 0.199564-4.807277 s, median 1.997469 s; 14 were under 1 s.
+- Only pairs inside one capture are seen, so these counts are lower bounds.
+- Processor PR #133 adds the restart; processor #134 grades the LV-registrar stop.
 
 ## Restart distribution and growth
 
@@ -379,6 +411,27 @@ Restore, all proven:
 - The temporary capture module was unloaded and its build removed.
 - Outlets read as lane B1 left them; this lane switched none.
 - The bench lock was verified free.
+- The DUT's saved-state layer read the same at start and end; see [Saved-state layer](#saved-state-layer).
+
+### Saved-state layer
+
+The census compares AEM state only; the DUT's saved-state status read the same at start and end.
+
+| Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z |
+|---|---|---|
+| NVM slots A / B, image sequence | 229 / 230, image 230 | 229 / 230, image 230 |
+| Records, writer | 53 records, 3,264 B, writer live | 53 records, 3,264 B, writer live |
+| Commits ok / failed | 2 / 0 | 2 / 0 |
+| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000c44`, 1 | `0x5b000c44`, 1 |
+| `PP_NVM_STAT` | `0xc34000e4`, pend 1 | `0xc34000e4`, pend 1 |
+
+- No bind, unbind or cycle in this lane wrote a saved-state record, so no commit ran.
+- The binding records are indexed by the DUT's stream inputs; this lane bound only its Stream Output 1.
+- `nvm_pend` = 1 was inherited from lane B1; its final restore on [PR #620](https://github.com/kebag-logic/milan-fpga/pull/620) reads the same slots, commits, `PP_STAT` and `PP_NVM_STAT`.
+- Between the two reads the console samples carry `PP_STAT` alone, not `PP_NVM_STAT` or the commit count.
+- The persisted records were not read back or compared with the found state.
+
+The [#606 page](606_FIRST_BIND_MEASUREMENT.md#saved-state-layer) gives the derivation and the cause.
 
 ## Limits
 

@@ -16,7 +16,7 @@ That pin retries a refused destination-address allocation every 100 ms.
 | 2. Reproduce and attribute in simulation | Not a bench item | The [A10] analysis and PR #613's first-probe regression. |
 | 3. First bind on the bench, against 1 s | PASS, 5 of 5 | 0.059-0.229 s from the `CONNECT_RX` response to the first valid CRF PDU. See [Per-bind results](#per-bind-results). |
 | 3. Long-hold connect on the bench, against 1 s | PASS, 4 of 4 | Binds 2-5 follow 36.9-39.3 s unbound, each after the DUT withdrew its Talker Advertise. |
-| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP refresh stays at 1.000 s. A DUT LeaveAll crossed every pre-bind window. |
+| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP kept 1.000 s periodic spacing, 0.2 s after a LeaveAll. A DUT LeaveAll crossed every pre-bind window. |
 
 These are operator measurements, not review verdicts.
 
@@ -32,7 +32,7 @@ The [#608 and #75 page](608_75_WITHDRAWAL_AND_RESTART.md) records the same sessi
 - **[Declaration gate on the wire](#declaration-gate-on-the-wire)** -- When the DUT declares and withdraws its Talker Advertise.
 - **[Comparison with the 9e9954e9 first bind](#comparison-with-the-9e9954e9-first-bind)** -- The PR #604 first bind beside these five.
 - **[Limits](#limits)** -- What this bench run does not show.
-- **[Restore](#restore)** -- The bench as left.
+- **[Restore](#restore)** -- The bench as left, and the DUT's saved-state layer at start and end with its cause.
 - **[Artifact hashes](#artifact-hashes)** -- Image, tool and raw-capture identities.
 
 ## Identity and setup
@@ -195,7 +195,8 @@ Every unbind stopped the stream within one PDU of the bridge's Listener `Lv`.
 - Their withdrawals came 7.1-7.2 s later, 15.07-15.17 s after the bind.
 - That is the 15 s probe freshness of the gate.
 - Before each bind the DUT sent only `Mt` for the stream, never a declaration.
-- DUT MSRP PDUs kept a 1.000 s spacing in the baseline and final captures.
+- DUT MSRP PDUs kept 1.000 s periodic spacing, 0.2 s after a LeaveAll, in the baseline and final captures.
+- Each off-grid DUT PDU there was a reply to the bridge's LeaveAll, its own LeaveAll, or the PDU 0.2 s after it.
 
 ## Comparison with the 9e9954e9 first bind
 
@@ -235,8 +236,51 @@ Here the first probe succeeds and no LeaveAll is involved.
 - The capture host's interface set is as found.
 - Outlets read as B1 left them; this lane switched none.
 - The bench lock was verified free.
+- The DUT's saved-state layer read the same at start and end; see [Saved-state layer](#saved-state-layer).
 
 The [#608 and #75 page](608_75_WITHDRAWAL_AND_RESTART.md#counters-and-restore) gives the counter reconciliation.
+
+### Saved-state layer
+
+The census compares AEM state only; the DUT's saved-state status read the same at start and end.
+
+| Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z |
+|---|---|---|
+| NVM slots A / B, image sequence | 229 / 230, image 230 | 229 / 230, image 230 |
+| Records, writer | 53 records, 3,264 B, writer live | 53 records, 3,264 B, writer live |
+| Commits ok / failed | 2 / 0 | 2 / 0 |
+| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000c44`, 1 | `0x5b000c44`, 1 |
+| `PP_NVM_STAT` | `0xc34000e4`, pend 1 | `0xc34000e4`, pend 1 |
+
+The round-2 packet's `saved_state_b2.py` derives this from every console sample and controller transcript.
+
+- The two `milan_nvm` reads bracket every action: the action console samples run from 06:53:46Z to 07:20:32Z.
+- Only those two reads carry `PP_NVM_STAT`, the slot sequences and the commit counts.
+- The 224 action console samples between them carry `PP_STAT` alone.
+- `PP_STAT` read `0x5b000c44` in all 226 console samples.
+- So `nvm_pend` and `nvm_backed` read 1, and `nvm_dirty`, `nvm_stale` and `nvm_alarm` 0, at every sample.
+- The lane's only state-changing commands were 105 `CONNECT_RX` and 105 `DISCONNECT_RX`.
+- All went to the reference peer's Stream Input 8; every `CONNECT_RX` named DUT Stream Output 1.
+- Every AECP command, to either entity, was a GET_ or READ_ command.
+- The DUT's two stream inputs read connection count 0 in all 340 polls.
+
+Only the binding records, ids `0x20` to `0x2F`, have a record writer ([snapshot ownership, section 11](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)).
+
+They are indexed by sink, the DUT's stream inputs ([record allocation](../design/SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)).
+
+No record holds a stream output's connections.
+
+So none of the lane's binds, unbinds or cycles wrote a record, and no commit ran.
+
+The commit count stayed 2 / 0 and the slots stayed 229 / 230.
+
+`nvm_pend` = 1 was inherited from lane B1.
+
+Its final restore on [PR #620](https://github.com/kebag-logic/milan-fpga/pull/620) reads the same slots, commits, `PP_STAT` and `PP_NVM_STAT`.
+
+That page attributes the pending bit to SET_CLOCK_SOURCE writes, whose sticky level only a DUT reset clears.
+
+The persisted records were not read back or compared with the found state.
 
 ## Artifact hashes
 
