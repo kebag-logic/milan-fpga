@@ -82,7 +82,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
 | objdir | harness | shape | what it is for |
 |---|---|---|---|
-| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, 50 MHz | Physical timer cadence, independent scheduled peer, eight-channel diagnostic loopback, loss/recovery/reset and stalls |
+| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, the [contract clock](../../../docs/integration/BAREMETAL_FIRMWARE.md#build-contract) | Physical timer cadence, independent scheduled peer, eight-channel diagnostic loopback, loss/recovery/reset and stalls |
 
 ## Contents
 

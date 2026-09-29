@@ -185,6 +185,8 @@ Issue #607's constraint tests run in the complete builder bank.
 They elaborate both shipping AX7101 configurations with either GMII port.
 The real build Tcl must carry the namespace-derived clock hook.
 It must run between synthesis and optimization.
+The same Tcl must configure the #395 timing grade before placement.
+Its grade reports must follow the last routing pass and precede the bitstream.
 The generated XDC must omit the generic MultiReg false path.
 These elaborations compile no firmware and run no vendor implementation.
 Other controls check exception scope and conditional quasi-static constraints.

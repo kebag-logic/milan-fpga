@@ -41,10 +41,12 @@ pull-request update and on every push to `dev`. It produces one stable
   with no flag to soften it.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs. Documentation is a path that no gate the docs-only path skips reads
-without `docs-check` reading it too (#444): a top-level `*.md`, anything under
-`LICENSES/`, or a `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less
-the pages a gated module reads. Everything else is RTL relevant whatever its
+jobs. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+`*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
+module reads (#444). A gated module is code under the six roots named below,
+other than the builder bank that `docs-check` runs whole. A page a gated module
+reads stays relevant even where `docs-check` runs the same check, as the tap
+page below does. Everything else is RTL relevant whatever its
 suffix: every file under
 `tb/`, `hdl/`, `sw/`, `syn/`, `scripts/`, `tests/` and `configs/`, the diagram
 assets outside `docs/`, every generator, manifest and budget under `docs/`, an

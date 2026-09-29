@@ -36,6 +36,7 @@ import subprocess
 import json
 import argparse
 import binascii
+import runpy
 from pathlib import Path
 
 from boot_policy import fabric_constants
@@ -69,9 +70,11 @@ from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 SOC_DIR = Path(__file__).parent                 # sw/litex/
 REPO_ROOT = SOC_DIR.parent.parent               # milan-fpga/
 
-# Import the measured contract clock without changing the hashed recipe.
+# Read the measured contract clock without changing the hashed recipe. It
+# is run by its path: tb/ is a namespace package, so a regular `tb` package
+# anywhere on sys.path would win an import of it.
+BAREMETAL_CLK_HZ = runpy.run_path(REPO_ROOT / "tb/verilator/nvm_capture_cpu/recipe.py")["CPU_HZ"]
 sys.path.insert(0, str(REPO_ROOT))
-from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ
 
 # Local platform (not in upstream litex_boards).
 sys.path.insert(0, str(SOC_DIR / "platforms"))

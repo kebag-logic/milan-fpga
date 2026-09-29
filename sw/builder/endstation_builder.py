@@ -47,6 +47,7 @@ import argparse
 import hashlib
 import json
 import re
+import runpy
 import subprocess
 import sys
 from collections.abc import Sequence
@@ -66,14 +67,17 @@ except ImportError:  # pragma: no cover
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 
-# Keep the capture receipt's hashed recipe as the single clock authority.
+# Keep the capture receipt's hashed recipe as the single clock authority. It
+# is run by its path: tb/ is a namespace package, so a regular `tb` package
+# anywhere on sys.path would win an import of it.
+BAREMETAL_CLK_HZ = runpy.run_path(ROOT / "tb/verilator/nvm_capture_cpu/recipe.py")["CPU_HZ"]
 sys.path.insert(0, str(ROOT))
-from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ  # noqa: E402
 from sw.builder import aem_image_checks  # noqa: E402
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
 EUI64_MAX = (1 << 64) - 1
+MAC48_MAX = (1 << 48) - 1
 
 
 def _repo_relative(path: Path) -> str:
@@ -1331,16 +1335,37 @@ def _req(d, key, ctx):
     return d[key]
 
 
-def _eui64(v, ctx):
+#: Quoted hexadecimal text: an optional 0x/0X, then ASCII hex digits with at
+#: most one underscore between two digits. No sign and no whitespace.
+HEX_TEXT = re.compile(r"(?:0[xX])?([0-9A-Fa-f](?:_?[0-9A-Fa-f])*)")
+#: A MAC-48 written as six two-digit octets sharing one ':' or '-' separator.
+MAC_OCTETS = re.compile(r"[0-9A-Fa-f]{2}([:-])[0-9A-Fa-f]{2}(?:\1[0-9A-Fa-f]{2}){4}")
+
+
+def _hex_text(v: Any, bits: int, ctx: str, what: str) -> int:
+    """The value of a quoted hex field `bits` wide (a multiple of four).
+
+    Non-strings must be quoted before YAML can reinterpret their digits. The
+    text must match HEX_TEXT, and its digit count, leading zeros included,
+    must fit the field.
+    """
     if not isinstance(v, str):
         raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
-    try:
-        n = int(v, 16)
-    except ValueError:
-        raise ConfigError(f"{ctx}: '{v}' is not a hex EUI-64")
-    if not 0 <= n <= EUI64_MAX:
-        raise ConfigError(f"{ctx}: '{v}' out of EUI-64 range")
-    return n
+    match = HEX_TEXT.fullmatch(v)
+    if not match:
+        raise ConfigError(
+            f"{ctx}: {v!r} is not {what} (hex digits with an optional 0x and single "
+            "underscores between digits; no sign or whitespace)")
+    digits = match[1].replace("_", "")
+    if len(digits) > bits // 4:
+        raise ConfigError(
+            f"{ctx}: {v!r} is outside {bits} bits ({len(digits)} hex digits, at most {bits // 4})")
+    return int(digits, 16)
+
+
+def _eui64(v: Any, ctx: str) -> int:
+    """A quoted 64-bit hex field (EUI-64 identities and stream format words)."""
+    return _hex_text(v, EUI64_MAX.bit_length(), ctx, "a hex EUI-64")
 
 
 def _model_id(value: Any, ctx: str) -> int:
@@ -2035,10 +2060,8 @@ def _srp_dmac(s):
     if isinstance(s["stream_dmac_base"], str) and \
             s["stream_dmac_base"].strip().lower() == SRP_DMAC_DYNAMIC:
         s["stream_dmac_base"] = SRP_DEFAULTS["stream_dmac_base"]
-    dmac = _eui64(s["stream_dmac_base"], "srp.stream_dmac_base")
-    if dmac > 0xFFFFFFFFFFFF:
-        raise ConfigError(f"srp.stream_dmac_base {s['stream_dmac_base']} is "
-                          "wider than a MAC-48")
+    dmac = _hex_text(s["stream_dmac_base"], MAC48_MAX.bit_length(),
+                     "srp.stream_dmac_base", "a hex MAC-48")
     if not (dmac >> 40) & 1:
         raise ConfigError(f"srp.stream_dmac_base {s['stream_dmac_base']} is "
                           "not a MULTICAST address (I/G bit clear) - an AAF "
@@ -3184,20 +3207,31 @@ def emit_interface_params(cfg: dict[str, Any]) -> dict[str, Any] | None:
 
 
 # ---------------------------------------------------------- platform -------
-def _mac48(v, ctx):
-    """Quoted hex, including colon/dash MAC strings; unicast and nonzero.
+def _mac48(v: Any, ctx: str) -> int:
+    """A station MAC-48, unicast and nonzero.
 
-    Non-strings must be quoted before YAML can reinterpret their digits.
+    Six two-digit octets with one ':' or '-' separator (MAC_OCTETS), or
+    exactly twelve digits of quoted hex text (HEX_TEXT). Non-strings must be
+    quoted before YAML can reinterpret their digits.
     """
     if not isinstance(v, str):
         raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
-    s = v.replace(":", "").replace("-", "").replace("_", "")
-    try:
-        n = int(s, 16)
-    except ValueError:
-        raise ConfigError(f"{ctx}: '{v}' is not a MAC-48")
-    if not 0 < n <= 0xFFFFFFFFFFFF:
-        raise ConfigError(f"{ctx}: '{v}' out of MAC-48 range (or all-zero)")
+    octets = MAC_OCTETS.fullmatch(v)
+    text = HEX_TEXT.fullmatch(v)
+    if octets:
+        digits = v.replace(octets[1], "")
+    elif text:
+        digits = text[1].replace("_", "")
+    else:
+        digits = ""
+    if len(digits) != MAC48_MAX.bit_length() // 4:
+        raise ConfigError(
+            f"{ctx}: {v!r} is not a MAC-48 (six two-digit hex octets with one ':' or '-' "
+            "separator, or twelve hex digits with an optional 0x and single underscores "
+            "between digits)")
+    n = int(digits, 16)
+    if not n:
+        raise ConfigError(f"{ctx}: {v!r} is the all-zero MAC-48")
     if (n >> 40) & 1:
         raise ConfigError(f"{ctx}: '{v}' has the I/G bit set - a station MAC "
                           "must be UNICAST (it becomes the AVTP stream_id "
@@ -3667,17 +3701,9 @@ def _aem_string(v, ctx):
     return v
 
 
-def _declared_uint(v, bits, ctx):
+def _declared_uint(v: Any, bits: int, ctx: str) -> int:
     """An unsigned quoted hex field, refused outside `bits` bits."""
-    if not isinstance(v, str):
-        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
-    try:
-        n = int(v, 16)
-    except ValueError:
-        raise ConfigError(f"{ctx}: {v!r} is not a hex integer") from None
-    if not 0 <= n < 1 << bits:
-        raise ConfigError(f"{ctx}: {v!r} is outside {bits} bits")
-    return n
+    return _hex_text(v, bits, ctx, "a hex integer")
 
 
 def _vendor_oui(ent):
