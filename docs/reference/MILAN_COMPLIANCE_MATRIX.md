@@ -86,11 +86,11 @@ decision record for the one deliberate 2011-vs-2020 wire difference
 
 | Clause | Requirement | Status / evidence |
 |---|---|---|
-| 4.2.7.1 | MRP support + Table 4.3 timer tolerances | implemented — PP srp_top / timer_service; since processor pin `b2db3a97` PP srp_top suite grades joinTime, the periodictimer and the leavealltimer against Table 4.3, and a received LeaveAll restarts the leavealltimer (802.1Q-2014 Table 10-5) |
+| 4.2.7.1 | MRP support + Table 4.3 timer tolerances | implemented -- PP srp_top / timer_service; since processor pin `b2db3a97` PP srp_top suite grades joinTime, the periodictimer and the leavealltimer against Table 4.3, and a received LeaveAll restarts the leavealltimer (802.1Q-2014 Table 10-5) |
 | 4.2.7.1.2 / .3 | malformed-MRPDU tolerance; EndMark 0x0000 | implemented — PP srp_decoder / srp_encoder |
 | 4.2.7.2.1 | Domain: SR class A, priority 3, VID 2 | implemented — PP srp_top; SILICON reservation against a real bridge; the adopted {priority, VID} pair tags every emitted frame |
 | 4.2.7.2.2 | instantaneous IN→MT registrar transition | implemented — PP srp_stream_fsms |
-| 4.2.7.3 / 4.4.1 | MVRP (talker + listener) | implemented — PP srp suites; SILICON join; since processor pin `b2db3a97` the talker licence waits for the stream VID's MVRP join to leave (4.3.2), graded by the PP srp_top suite, R1-R4 |
+| 4.2.7.3 / 4.4.1 | MVRP (talker + listener) | implemented -- PP srp suites; SILICON join; since processor pin `b2db3a97` the talker licence waits for the stream VID's MVRP join to leave (4.3.2), graded by the PP srp_top suite, R1-R4 |
 | 4.3.3 | talker attribute declaration + Table 4.4 bandwidth | implemented — TSpec derived from real frame geometry (`milan_datapath`), declared by the processor; RTL milan_dp |
 
 ### 1.3 AECP AEM command set (Section 5.4.2)
