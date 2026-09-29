@@ -1,0 +1,83 @@
+== A. tracked YAML
+.github/ISSUE_TEMPLATE/task.yml: 0 builder hex/MAC values
+.github/workflows/docs.yml: 0 builder hex/MAC values
+.github/workflows/elaborate.yml: 0 builder hex/MAC values
+.github/workflows/rtl-fast.yml: 0 builder hex/MAC values
+.github/workflows/rtl.yml: 0 builder hex/MAC values
+configs/endstation_arty_4x4.yaml: 5 builder hex/MAC values load_config=OK
+   .entity.entity_model_id = 'hash-derived': selector
+   .entity.entity_id = 'mac-derived': selector
+   .srp.stream_dmac_base = '0x91E0F000FE01': ACCEPT
+   .platform.mac_address = '02:00:00:00:00:02': ACCEPT
+   .clocking.crf_output.format = '0x041060010000BB80': ACCEPT
+configs/endstation_arty_8ch.yaml: 5 builder hex/MAC values load_config=OK
+   .entity.entity_model_id = 'hash-derived': selector
+   .entity.entity_id = 'mac-derived': selector
+   .srp.stream_dmac_base = '0x91E0F000FE01': ACCEPT
+   .platform.mac_address = '02:00:00:00:00:02': ACCEPT
+   .clocking.crf_output.format = '0x041060010000BB80': ACCEPT
+configs/endstation_arty_current.yaml: 6 builder hex/MAC values load_config=OK
+   .entity.entity_model_id = 'hash-derived': selector
+   .entity.model_id_pin = '0x001BC50AC1000005': ACCEPT
+   .entity.entity_id = 'mac-derived': selector
+   .srp.stream_dmac_base = '0x91E0F000FE01': ACCEPT
+   .platform.mac_address = '02:00:00:00:00:02': ACCEPT
+   .streams.listeners[0].formats[0] = '0x0205022000806000': ACCEPT
+configs/endstation_ax7101_1x1_tdm8.yaml: 5 builder hex/MAC values load_config=OK
+   .entity.entity_model_id = 'hash-derived': selector
+   .entity.entity_id = 'mac-derived': selector
+   .srp.stream_dmac_base = '0x91E0F000FE01': ACCEPT
+   .platform.mac_address = '02:00:00:00:00:01': ACCEPT
+   .clocking.crf_output.format = '0x041060010000BB80': ACCEPT
+configs/endstation_ax7101_8x8.yaml: 5 builder hex/MAC values load_config=OK
+   .entity.entity_model_id = 'hash-derived': selector
+   .entity.entity_id = 'mac-derived': selector
+   .srp.stream_dmac_base = '0x91E0F000FE01': ACCEPT
+   .platform.mac_address = '02:00:00:00:00:01': ACCEPT
+   .clocking.crf_output.format = '0x041060010000BB80': ACCEPT
+sw/trace/milan_trace.yaml: 1 builder hex/MAC values
+   .trace.type.data-stream-types.milan.event-record-types.boot.payload-field-type.members[3].entity_id = 'x64': REFUSE (entity_id: 'x64' is not hex (hex digits with an optional 0x and single underscores between digits; no sign or whitespace))
+tb/verilator/csr/fixtures/reset_bits.yaml: 0 builder hex/MAC values
+tb/verilator/pp_shadow/fixtures/crf_on.yaml: 0 builder hex/MAC values
+tb/verilator/pp_shadow/fixtures/pending.yaml: 0 builder hex/MAC values
+tb/verilator/pp_shadow/fixtures/vid73.yaml: 0 builder hex/MAC values
+tests/protocols/acmp/1722_1_acmp.yaml: 0 builder hex/MAC values
+default SRP_DEFAULTS = {'sr_class': 'A', 'vid': 2, 'stream_dmac_base': '0x91E0F000FE01', 'accumulated_latency_ns': 0, 'class_queue': 4, 'enable_at_reset': False, 'talker_declare_at_reset': False, 'bandwidth_limit_pct': 75, 'join_time_ms': 200, 'leave_time_ms': 5000, 'leaveall_time_ms': 10000, 'tspec_policy': 'derived', 'max_frame_bytes': 224, 'interval_frames': 1, 'rtl_table': False}
+default CRF_FORMAT_DEFAULT = '0x041060010000BB80'
+
+== B. tracked Markdown double-quoted hex/MAC-like tokens
+docs/ENDSTATION_BUILDER.md:55: '1722': mac=REFUSE hex64=ACCEPT
+docs/development/CODE_QUALITY.md:1648: '0180c200000e': mac=REFUSE hex64=ACCEPT
+docs/development/CODE_QUALITY.md:1656: '23': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:178: 'C1': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:178: 'C2': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:179: 'C1': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:182: 'C2': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:183: 'C1': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:185: 'C1': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:188: 'C1': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:191: 'C2': mac=REFUSE hex64=ACCEPT
+docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:192: 'C1': mac=REFUSE hex64=ACCEPT
+sw/builder/README-parameters.md:162: '0x001B_C50A_C100_0005': mac=REFUSE hex64=ACCEPT
+sw/builder/README-parameters.md:163: '1234567890123456': mac=REFUSE hex64=ACCEPT
+sw/builder/README-parameters.md:170: '020000000002': mac=ACCEPT hex64=ACCEPT
+sw/builder/README-parameters.md:170: '0x0200_0000_0002': mac=ACCEPT hex64=ACCEPT
+sw/builder/README-parameters.md:170: '02:00:00:00:00:02': mac=ACCEPT hex64=REFUSE
+sw/builder/README-parameters.md:170: '02-00-00-00-00-02': mac=ACCEPT hex64=REFUSE
+sw/builder/README-parameters.md:171: '0:2': mac=REFUSE hex64=REFUSE
+sw/builder/README-parameters.md:171: '2:0:0:0:0:2': mac=REFUSE hex64=REFUSE
+
+== C. lines added by eaa88a32..5c908c712 carrying such tokens (any file)
+sw/firmware/nvm_hosttest/test_disabled_writer.py: '0': mac=REFUSE hex64=ACCEPT
+sw/firmware/nvm_hosttest/test_disabled_writer.py: '2500': mac=REFUSE hex64=ACCEPT
+tb/verilator/nvm_capture_cpu/measurements.json: '2026-09-28': mac=REFUSE hex64=REFUSE
+tb/verilator/nvm_capture_cpu/measurements.json: '26a26e1f39feeebaebb0f450d7cbe2b63429c252': mac=REFUSE hex64=REFUSE
+tb/verilator/nvm_capture_cpu/measurements.json: '1ced48e23609180f2d09a19352837c00317429fe': mac=REFUSE hex64=REFUSE
+tb/verilator/nvm_cosim/run_cases.py: '0': mac=REFUSE hex64=ACCEPT
+tb/verilator/nvm_cosim/run_cases.py: '0': mac=REFUSE hex64=ACCEPT
+tb/verilator/nvm_cosim/run_cases.py: '0': mac=REFUSE hex64=ACCEPT
+tb/verilator/nvm_cosim/run_cases.py: '0': mac=REFUSE hex64=ACCEPT
+tb/verilator/nvm_cosim/run_cases.py: '0': mac=REFUSE hex64=ACCEPT
+predecessor-added quoted tokens: 10
+
+TRACKED-YAML REFUSALS OR LOAD FAILURES: 1

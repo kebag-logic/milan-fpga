@@ -1,0 +1,24 @@
+== P3b: rename the heading AND its Contents entry, so only the two fragment links this PR added (BAREMETAL_FIRMWARE.md:2088, tb/verilator/milan_dp/README.md:85) and the Contents link dangle
+-## Build contract
++## Build contracts
+./docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1620:The [bare-metal contract](../integration/BAREMETAL_FIRMWARE.md#build-contract) specifie
+./docs/integration/BAREMETAL_FIRMWARE.md:2088:[contract clock](#build-contract). At the 50 MHz this cell measured, the
+./tb/verilator/milan_dp/README.md:85:| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, the [contract clock](../../../docs/
+P3b scripts/docs_check.py rc=0
+P3b scripts/gen_toc.py --check rc=0
+P3b scripts/gen_toc.py --verify-anchors rc=1
+  MISS docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md -> ../integration/BAREMETAL_FIRMWARE.md#build-contract
+  MISS tb/verilator/milan_dp/README.md -> ../../../docs/integration/BAREMETAL_FIRMWARE.md#build-contract
+P3b scripts/check_doc_paths.py rc=0
+P3b scripts/check_doc_style.py rc=0
+== P3c: same fragment check at the source head's parent state is not needed; probe whether ANY pre-existing in-repo fragment link is gated: grep docs_check for fragment handling
+26:   a file or directory in the tree (http/mailto/anchor-only links skipped), and
+27:   a ``#L123`` / ``#L123-L456`` line anchor names a line the target file still
+29:   between rounds, and an anchor past EOF drops the reader at the bottom of a
+58:   sign in prose, and no un-anchored ``X.md Section N`` pointers. The archive
+191:#: `X.md Section 7` (or the sign) with nothing to follow: an un-anchored
+192:#: section pointer. An anchored link is validated by this gate and by
+193:#: gen_toc --verify-anchors; a trailing "Section 7" is validated by nothing.
+563:LINE_ANCHOR_RE = re.compile(r"^L(\d+)(?:-L(\d+))?$")
+== restored
+worktree == index

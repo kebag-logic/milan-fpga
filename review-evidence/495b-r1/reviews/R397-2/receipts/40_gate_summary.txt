@@ -1,0 +1,12 @@
+01 rc=0 1s :: python3 sw/builder/test_firmware_compiler.py --selftest
+02 rc=0 502s :: python3 sw/builder/test_firmware_compiler.py --absent --audit $REVIEWS/495b-r397-2-packet/scratch/rv32-absent.jsonl
+03 rc=0 6s :: python3 sw/builder/test_declarations.py
+04 rc=0 5s :: python3 sw/builder/test_clock_contract.py
+05 rc=0 8s :: $HOME/litex-milan/venv/bin/python3 sw/builder/test_clock_constraints.py
+06 rc=0 8s :: $HOME/litex-milan/venv/bin/python3 sw/builder/test_shipping_clock_constraints.py
+07 rc=0 1s :: $HOME/litex-milan/venv/bin/python3 sw/builder/test_timing_grade.py $HOME/litex-milan/venv/bin/python3
+08 rc=0 5s :: $HOME/litex-milan/venv/bin/python3 sw/builder/test_clock_contract.py --soc
+09 rc=1 1s :: python3 sw/litex/test_pp_mem_bridge.py
+10 rc=0 0s :: python3 scripts/check_nvm_capture.py
+11 rc=0 2s :: python3 scripts/check_nvm_record_space.py
+12 rc=0 31s :: python3 scripts/check_nvm_record_space.py --self-test

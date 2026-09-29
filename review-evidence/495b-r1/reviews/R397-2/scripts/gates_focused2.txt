@@ -1,0 +1,8 @@
+$HOME/litex-milan/venv/bin/python3 sw/litex/test_pp_mem_bridge.py
+python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+python3 sw/firmware/nvm_hosttest/test_phy_firmware.py
+python3 sw/firmware/nvm_hosttest/test_disabled_writer.py
+python3 scripts/check_soc_sources.py
+python3 scripts/check_entity_shape.py --self-test
+python3 scripts/check_wire_accountability.py --self-test
+python3 scripts/pp_srcs.py --check

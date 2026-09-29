@@ -1,0 +1,27 @@
+run-list entries: 100; executed headers: 100; unique executed: 100
+executed sequence == run list, each exactly once
+test_rom_clock_contract: 1
+test_rom_clock_skip_reaches_the_ledger: 1
+test_sim_clock: 1
+test_extra_sweep_invocation: 1
+test_builder_clock_source: 1
+test_baremetal_profile_contract: 1
+test_schema_12_refusals: 1
+6:[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+8:[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+10:  [clock contract] SKIP: tmpjuvw8_nr: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+11:[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+12:  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+14:[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+16:[clock contract] 5 tap conversions and presence declarations match configurations
+18:[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+20:[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configur
+22:[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+28:[495 MAC] 9 named shape rules, 30 spellings refused
+30:[495 hex] 10 hex fields: 8 named shape rules and the width refused
+45:[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+95:  [gate 1b] ... and the text this reads is the text that runs, by TEXT RULES and by TOOLS together, because each has been measured to miss what the other holds. The text rules that SURVIVE #408 and #409: the firmware 
+100:  [gate 1b] COSTS. RETIRED this round (#408, #409), each with an accepted case measured GREEN in the loop above and RED at dev 759da623, and each replaced by an instrument rather than narrowed by exception: a conditi
+167:  [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+168:  [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+absent bank: executed sequence == run list (100), each once

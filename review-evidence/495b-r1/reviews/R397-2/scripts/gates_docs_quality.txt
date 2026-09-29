@@ -1,0 +1,35 @@
+python3 scripts/docs_check.py
+python3 scripts/check_em_dash.py --base 5c908c7128484e20e388b14d74d83630fa10f6b5
+python3 scripts/check_em_dash.py --base eaa88a32eb77adeba9c1c631198c7fb516a11095
+python3 scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+python3 scripts/check_em_dash.py --selftest
+python3 scripts/gen_toc.py --selftest
+python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/gen_toc.py --check
+python3 scripts/check_doc_style.py
+python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_gptp_docs.py
+python3 docs/DOC_MAP.gen.py --check
+python3 scripts/check_solution_docs.py
+python3 scripts/check_submodule_docs.py
+python3 scripts/check_feature_status.py
+python3 scripts/check_feature_status.py --self-test
+python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/check_doc_paths.py
+python3 scripts/check_archive.py
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/check_py_idiom.py
+python3 scripts/check_sh_idiom.py
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_hygiene.py --check
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/measure_fail_fast.py --check
+python3 scripts/check_todo_ownership.py
+python3 scripts/measure_naming.py --check
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_port_contracts.py
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_sweep_shape.py --self-test
+python3 scripts/check_deploy_shape.py --self-test
+bash -n sw/litex/sweep_extra.sh

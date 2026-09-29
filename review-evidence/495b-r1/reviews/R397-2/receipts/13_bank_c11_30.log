@@ -1,0 +1,13 @@
+[chunk] $REVIEWS/r397-2-495b/sw/builder/test_builder.py slice [11:30] of 100: ['test_all_configs_build', 'test_baremetal_profile_contract', 'test_gptp_product_default_and_legacy_option', 'test_gptp_launch_observer_seam', 'test_qspi_owner_transition_completed_write_prefixes', 'test_gptp_plane_reaches_the_instance', 'test_gptp_plane_instance_gate_bites', 'test_current_shape_matches_sweep_flags', 'test_current_shape_matches_gen_aem_store', 'test_capability_marks', 'test_bad_configs_rejected', 'test_port_layout_invariants', 'test_both_policies_valid', 'test_model_id_hashing', 'test_sweep_opts_fragments', 'test_gen_aem_store_consumes_overlay', 'test_resource_calibration', 'test_resource_determinism', 'test_resource_verdicts']
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+[chunk-time] test_all_configs_build 0.4s
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+  [gate 1b] boot-unit asm forms: 11 exact production forms; whitespace controls accepted; 7 changed/incomplete forms refused; fifth fence needs no extra entry
+  [gate 1b] identity storage: 3 automatic spellings accepted; 3 nonautomatic spellings refused on the identity-sample absence rule

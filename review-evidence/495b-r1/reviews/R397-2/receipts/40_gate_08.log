@@ -1,0 +1,10 @@
+$ $HOME/litex-milan/venv/bin/python3 sw/builder/test_clock_contract.py --soc
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+[clock contract] 5 tap conversions and presence declarations match configurations
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+[clock contract] SoC clock follows a planted recipe.py under a shadowing tb package; configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+rc=0

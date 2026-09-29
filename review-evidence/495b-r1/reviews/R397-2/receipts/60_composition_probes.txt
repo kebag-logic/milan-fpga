@@ -1,0 +1,15 @@
+== P1: run list calls test_gptp_rom_clock directly instead of through the ledger (composed test_builder.py)
+ sw/builder/test_builder.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+P1 rc=1 (expected nonzero)
+    assert "test_rom_clock_contract" in runs and "test_gptp_rom_clock" not in runs, runs
+AssertionError: ['test_commercial_timing_grade', 'test_baremetal_clock_contract', 'test_gptp_rom_clock', 'test_rom_clock_skip_reaches_the_ledger', 'test_extra_sweep_clocks', 'test_tap_clock_docs', 'test_sim_clock', 'test_extra_sweep_invocation', 'tes
+== P3: rename the Build contract heading in the composed BAREMETAL_FIRMWARE.md
+ docs/integration/BAREMETAL_FIRMWARE.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+P3 docs_check rc=0 (expected nonzero)
+P3 gen_toc --check rc=1 (expected nonzero)
+1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>
+then WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.
+== restored
+worktree == index

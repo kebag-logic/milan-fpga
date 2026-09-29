@@ -1,0 +1,68 @@
+c451 configs/endstation_arty_4x4.yaml rc=0
+c451 configs/endstation_arty_8ch.yaml rc=0
+c451 configs/endstation_arty_current.yaml rc=0
+c451 configs/endstation_ax7101_1x1_tdm8.yaml rc=0
+c451 configs/endstation_ax7101_8x8.yaml rc=0
+cand configs/endstation_arty_4x4.yaml rc=0
+cand configs/endstation_arty_8ch.yaml rc=0
+cand configs/endstation_arty_current.yaml rc=0
+cand configs/endstation_ax7101_1x1_tdm8.yaml rc=0
+cand configs/endstation_ax7101_8x8.yaml rc=0
+files c451: 50  cand: 50
+IDENTICAL: every builder output byte-equal between C451 (5c908c71) and candidate (0cc00731) for all five tracked configurations
+log differs: out_c451.endstation_arty_4x4.log
+2,8c2,8
+<   wrote <scratch>/out_c451/endstation_arty_4x4/soc_params.json
+<   wrote <scratch>/out_c451/endstation_arty_4x4/aem_overlay.json
+<   wrote <scratch>/out_c451/endstation_arty_4x4/build_plan.md
+<   wrote <scratch>/out_c451/endstation_arty_4x4/lwsrp_table.json
+<   wrote <scratch>/out_c451/endstation_arty_4x4/lwsrp_table.svh
+<   wrote <scratch>/out_c451/endstation_arty_4x4/lwsrp_csr_defaults.svh
+<   wrote <scratch>/out_c451/endstation_arty_4x4/adp_shape_defaults.svh
+---
+>   wrote <scratch>/out_cand/endstation_arty_4x4/soc_params.json
+log differs: out_c451.endstation_arty_8ch.log
+2,8c2,8
+<   wrote <scratch>/out_c451/endstation_arty_8ch/soc_params.json
+<   wrote <scratch>/out_c451/endstation_arty_8ch/aem_overlay.json
+<   wrote <scratch>/out_c451/endstation_arty_8ch/build_plan.md
+<   wrote <scratch>/out_c451/endstation_arty_8ch/lwsrp_table.json
+<   wrote <scratch>/out_c451/endstation_arty_8ch/lwsrp_table.svh
+<   wrote <scratch>/out_c451/endstation_arty_8ch/lwsrp_csr_defaults.svh
+<   wrote <scratch>/out_c451/endstation_arty_8ch/adp_shape_defaults.svh
+---
+>   wrote <scratch>/out_cand/endstation_arty_8ch/soc_params.json
+log differs: out_c451.endstation_arty_current.log
+2,8c2,8
+<   wrote <scratch>/out_c451/endstation_arty_current/soc_params.json
+<   wrote <scratch>/out_c451/endstation_arty_current/aem_overlay.json
+<   wrote <scratch>/out_c451/endstation_arty_current/build_plan.md
+<   wrote <scratch>/out_c451/endstation_arty_current/lwsrp_table.json
+<   wrote <scratch>/out_c451/endstation_arty_current/lwsrp_table.svh
+<   wrote <scratch>/out_c451/endstation_arty_current/lwsrp_csr_defaults.svh
+<   wrote <scratch>/out_c451/endstation_arty_current/adp_shape_defaults.svh
+---
+>   wrote <scratch>/out_cand/endstation_arty_current/soc_params.json
+log differs: out_c451.endstation_ax7101_1x1_tdm8.log
+2,8c2,8
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/soc_params.json
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/aem_overlay.json
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/build_plan.md
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+<   wrote <scratch>/out_c451/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+---
+>   wrote <scratch>/out_cand/endstation_ax7101_1x1_tdm8/soc_params.json
+log differs: out_c451.endstation_ax7101_8x8.log
+2,8c2,8
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/soc_params.json
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/aem_overlay.json
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/build_plan.md
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/lwsrp_table.json
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/lwsrp_table.svh
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+<   wrote <scratch>/out_c451/endstation_ax7101_8x8/adp_shape_defaults.svh
+---
+>   wrote <scratch>/out_cand/endstation_ax7101_8x8/soc_params.json
+builder stdout logs differing after normalising the output directory name: 0

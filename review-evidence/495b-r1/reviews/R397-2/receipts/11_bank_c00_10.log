@@ -1,0 +1,56 @@
+[chunk] $REVIEWS/r397-2-495b/sw/builder/test_builder.py slice [0:10] of 100: ['test_commercial_timing_grade', 'test_baremetal_clock_contract', 'test_rom_clock_contract', 'test_rom_clock_skip_reaches_the_ledger', 'test_extra_sweep_clocks', 'test_tap_clock_docs', 'test_sim_clock', 'test_extra_sweep_invocation', 'test_builder_clock_source', 'test_declaration_contracts']
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+[chunk-time] test_commercial_timing_grade 0.5s
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+[chunk-time] test_baremetal_clock_contract 0.5s
+test_rom_clock_contract:
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+[chunk-time] test_rom_clock_contract 1.4s
+test_rom_clock_skip_reaches_the_ledger:
+  [clock contract] SKIP: tmpzhffg023: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+[chunk-time] test_rom_clock_skip_reaches_the_ledger 0.6s
+test_extra_sweep_clocks:
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+[chunk-time] test_extra_sweep_clocks 1.4s
+test_tap_clock_docs:
+[clock contract] 5 tap conversions and presence declarations match configurations
+[chunk-time] test_tap_clock_docs 0.1s
+test_sim_clock:
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+[chunk-time] test_sim_clock 0.3s
+test_extra_sweep_invocation:
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+[chunk-time] test_extra_sweep_invocation 0.6s
+test_builder_clock_source:
+[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+[chunk-time] test_builder_clock_source 0.3s
+test_declaration_contracts:
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[595 MAC] twelve quoted values preserved; non-strings receive exact quote refusals
+[495 MAC] 9 named shape rules, 30 spellings refused
+[595 uint] OUI and capabilities strings preserve values; all non-strings refuse
+[495 hex] 10 hex fields: 8 named shape rules and the width refused
+[595 formats] all stream indices: list type, exact quoted values, defaults and element refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+[chunk-time] test_declaration_contracts 5.1s
+ALL GATES PASS
+--require-elaboration: every elaboration arm ran

@@ -1,0 +1,15 @@
+sw/builder/test_clock_contract.py blob 859fa5d5=5c722ed895e7 cand=5c722ed895e7
+sw/litex/sweep_extra.sh blob 859fa5d5=79bf2cc77a39 cand=79bf2cc77a39
+docs/testing/CI_WORKFLOWS.md blob 859fa5d5=93ef94afb060 cand=93ef94afb060
+docs/reference/PP_DESCRIPTOR_OWNERSHIP.md blob 859fa5d5=d419ef703dd8 cand=d419ef703dd8
+tb/verilator/milan_dp/README.md blob 859fa5d5=3f05559f593d cand=3f05559f593d
+sw/builder/endstation_builder.py blob 859fa5d5=cab725b1062c cand=cab725b1062c
+sw/builder/test_shipping_clock_constraints.py blob 859fa5d5=204b44423257 cand=204b44423257
+BAREMETAL_FIRMWARE.md 'at the 50 MHz this cell measured' line: source 2038, candidate 2088
+test_rom_clock_skip_reaches_the_ledger def line: source 27828, candidate 27830
+jobs. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+`*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
+module reads (#444). A gated module is code under the six roots named below,
+other than the builder bank that `docs-check` runs whole. A page a gated module
+Quote these values; an optional `0x` prefix and single underscores between digits are accepted.
+    assert route[-1] < reports[0] < written[0], "timing grade reports outside routed pre-bitstream"
