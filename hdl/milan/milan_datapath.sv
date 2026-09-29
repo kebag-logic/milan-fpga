@@ -5675,20 +5675,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //     cycles of phase per ppm of rate (u = 4 x err at 1/16 ppm per LSB,
   //     at any clock), so a raced engagement, pulled at 64 ppm toward a
   //     target a keep-off away, keeps 256 - 4 x the rate cycles of margin:
-  //     56 at 50 ppm, none at the pull (the on-crossing limit, measured at
-  //     about 63 ppm below nominal and 67 above). An unpulled engagement's
-  //     transient peaks at about 3 cycles per ppm, 149 at 50 ppm, measured
-  //     at 50 MHz, and reaches 256 at about 86 ppm (the transient limit).
-  //     Past either limit an engagement is carried across the crossing and
-  //     back as it acquires - one repeat and one skip, both counted - and
-  //     the settled lock still holds, measured to +/-100 ppm
+  //     56 at 50 ppm, none at the pull (the on-crossing limit: measured at
+  //     about 67 ppm above nominal; below nominal there is none, the dwell
+  //     on the crossing only stretching with the rate). An unpulled
+  //     engagement's transient peaks at about 3 cycles per ppm, 149 at
+  //     50 ppm, measured at 50 MHz, and reaches 256 at about 86 ppm (the
+  //     transient limit). Past either limit an engagement is carried across
+  //     the crossing and back as it acquires - one repeat and one skip, both
+  //     counted - and the settled lock still holds, measured converging to
+  //     +/-100 ppm and recorded converged to +/-150 ppm
   //     (docs/design/TIME_SYNC.md, The guarded crossing). The 1/128 sample
   //     default (8 cycles at 50 MHz) protected a settled lock but not
   //     acquisition: a CRF engagement within the transient's reach slipped
   //     frames as its phase crossed, some of them inside the lock window
   //     (tb/verilator/capture_coherence's mutation arm keeps that
   //     measurable, and its junction leg binds this constant's own
-  //     declaration, copied out of this file).
+  //     declaration, copied out of this file, and refuses to build unless
+  //     the instance below binds it).
   //  Keyed on the slot-0 strobe, as it was, the keep-off guarded an instant
   //  three TDM8 pair periods from the crossing, and a lock could park the
   //  close on the snapshot: whole-frame repeat/skip for as long as it held,

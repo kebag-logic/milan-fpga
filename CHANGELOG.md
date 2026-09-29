@@ -47,7 +47,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The grid aligner now keys on that frame close.
 - It sees the tick one cycle late; keep-off 256 cycles.
 - No settled CRF lock repeats or skips a frame.
-- That is measured to +/-100 ppm relative rate.
+- Measured converging to +/-100 ppm relative rate.
+- Recorded converged to +/-150 ppm.
 - The rate is the TDM frame against the local clock.
 - Only acquisition may repeat and skip, net zero.
 - [The guarded crossing](docs/design/TIME_SYNC.md#the-guarded-crossing) states the measured envelope.
@@ -59,6 +60,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `tb/verilator/capture_coherence` grades drift in INTERNAL and CRF.
 - It sweeps CRF engagement phases densely through the crossing.
 - It binds the datapath's own keep-off declaration.
+- Its build refuses a datapath aligner bound to anything else.
+- Its mutation arm runs in parallel, one build per CPU.
+- A failed build prints its compiler and make output.
 - VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - processor pin 16be6768

@@ -1948,17 +1948,23 @@ per ppm of relative rate (149 at 50 ppm), and a raced one, pulled a keep-off
 away at 64 ppm, sits 4 cycles per ppm short of its target, a margin of
 256 - 4 x the rate. That rate is the TDM frame against the local axis clock,
 which a +/-50 ppm Milan source does not bound (the local oscillator may run
-+/-100 ppm off). With the guard, `tb/verilator/capture_coherence` sees no slip
-in any settled lock, measured to +/-100 ppm. What this word counts while an
-engagement acquires, by relative rate
++/-100 ppm off). With the guard no settled lock slips:
+`tb/verilator/capture_coherence` sees no slip while the lock converges, to
++/-100 ppm, and recorded 150,000-column runs see none once it has converged,
+to +/-150 ppm. What this word counts while an engagement acquires, by
+relative rate
 ([the guarded crossing](../design/TIME_SYNC.md#the-guarded-crossing)):
 
-- within the on-crossing limit, about 63 ppm below nominal and 67 above: only
-  an engagement whose close lands on the crossing itself, one dup and one
-  skip - by column 57 within +/-50 ppm (every sub-cycle phase measured), later
-  as the rate nears the 64 ppm pull (column 181 at 60 ppm);
-- past it: an engagement near the crossing is carried across and back while
-  the integrator settles, one dup and one skip (by column 6,300 at 80 ppm);
+- below the 64 ppm pull, and above nominal to about 67 ppm, where the pull
+  stops outrunning the rate: only an engagement whose close lands on the
+  crossing itself, one dup and one skip - by column 57 within +/-50 ppm (every
+  sub-cycle phase measured); above nominal by column 8 through 66 ppm, below
+  nominal later as the rate nears the pull (column 181 at 60 ppm, 426 at 63);
+- past it: above nominal an engagement near the crossing is carried across
+  and back while the integrator settles; below nominal there is no sharp
+  limit, and the same pair comes later with the rate (column 1,323 at 66 ppm,
+  2,918 at 70); on either side one dup and one skip (by column 6,300 at
+  80 ppm);
 - past the transient limit, about 86 ppm: also an engagement up to 256 cycles
   off, as its transient crosses and returns (by column 13,100 at 100 ppm).
 

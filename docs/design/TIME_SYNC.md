@@ -467,7 +467,7 @@ Every channel of one sample event is one TDM frame.
 | Frame age at the tick, CRF | 256 to 785 axis cycles, fixed for a lock | the aligner holds the close 256 cycles off the crossing (below) |
 | Pair p | the frame's age plus (3 - p) pair periods of 5.208 us | the order the front end delivers pairs |
 | Beat at INTERNAL | one whole-frame slip every 1.958 s, counted once on `SLIP_TDM` | the loop table's rate, unchanged |
-| CRF | no slip at any settled lock phase, measured to +/-100 ppm relative rate | the guarded crossing, below |
+| CRF | no slip at any settled lock phase: measured converging to +/-100 ppm relative rate, recorded converged to +/-150 ppm | the guarded crossing, below |
 
 The per-pair holds this replaced had no frame boundary.
 
@@ -545,17 +545,18 @@ A +/-50 ppm Milan source therefore does not bound it.
 |---|---|---|
 | Pull on a raced engagement | 64 ppm: the proportional term at one keep-off, u = 256 x 4 in 1/16 ppm | `KL_media_grid_align` `KP_LOG2_P` |
 | Pulled-engagement margin | 256 - 4 x the rate cycles: 56 at 50 ppm, 16 at 60 ppm, none at 64 ppm | the proportional equilibrium, 4 cycles per ppm |
-| On-crossing engagement limit | about 63 ppm below nominal, 67 above: the pull no longer outruns the rate | RECORDED, sub-cycle probes: net zero at -62 and +66, carried across at -63 and +68 |
+| On-crossing engagement limit | above nominal about 67 ppm, a sharp one: the pull no longer outruns the rate; below nominal none, the dwell on the crossing stretches gradually with the rate | RECORDED, sub-cycle probes (reviews R394-3, R395-3): net zero by column 8 at +66, carried across from +67; below nominal one net-zero pair by column 426 at -63, 1323 at -66, about 1700 at -67 and 2918 at -70, the close at most 2 cycles past the crossing through -66 and 6 at -70 |
 | Unpulled transient peak | about 3 cycles per ppm: 149 at 50 ppm, 238 at 80, 299 at 100 | MEASURED, `capture_coherence` CRF-50/+50 and CRF-settle |
 | Transient limit | about 86 ppm: the peak reaches the 256-cycle keep-off | RECORDED, engagements 256 cycles off: no crossing at 86 ppm, crossings at 88 below and 90 above |
-| Settled lock | the integrator cancels the rate; the lock sits 256 cycles off | MEASURED to +/-100 ppm, CRF-settle; the aligner's authority is +/-200 ppm |
+| Settled lock | the integrator cancels the rate; the lock converges on 256 cycles off, with a time constant of about 13000 frames | RECORDED converged, 150000-column runs, on the crossing and 256 cycles off: 255 to 264 cycles off (a pulled engagement 255 to 257), spread at most 3 cycles over the second half, no slip, at +/-80, +/-100 and +/-150 ppm; time constant: review R394-3; the aligner's authority is +/-200 ppm |
+| Approach to the lock | the close converging on that target through the second half of a 30000-column run | MEASURED, CRF-settle at +/-80 and +/-100 ppm: no slip in the second half |
 
 | Relative rate | Engagement on the crossing | Unpulled engagement | Settled lock |
 |---|---|---|---|
 | within +/-50 ppm | one repeat and one skip, net zero, by column 57 | transient under the keep-off, 107 cycles clear at 50 ppm | no slip |
-| 50 to the on-crossing limit | one repeat and one skip, net zero, later as the rate nears the pull: by column 87 at 55 ppm, 181 at 60, 294 at 62 | transient under the keep-off | no slip |
-| on-crossing limit to about 86 ppm | carried across: one repeat or skip, then its pair when the integrator returns the close, by column 6300 at 80 ppm | transient under the keep-off | no slip |
-| beyond about 86 ppm | carried across and back, by column 11100 at 100 ppm | one repeat and one skip as the transient crosses and returns, by column 13100 at 100 ppm | no slip, measured to +/-100 ppm |
+| 50 ppm to the 64 ppm pull | one repeat and one skip, net zero: above nominal by column 8 through 66 ppm; below nominal later as the rate nears the pull, by column 87 at 55 ppm, 181 at 60, 294 at 62, 426 at 63 | transient under the keep-off | no slip |
+| past the pull, to about 86 ppm | above nominal, from about 67 ppm, carried across: one repeat or skip, then its pair when the integrator returns the close; below nominal no sharp limit, the same net-zero pair later with the rate, by column 1323 at 66 ppm and 2918 at 70; by column 6300 at 80 ppm on either side | transient under the keep-off | no slip |
+| beyond about 86 ppm | carried across and back, by column 11100 at 100 ppm | one repeat and one skip as the transient crosses and returns, by column 13100 at 100 ppm | no slip, recorded converged to +/-150 ppm |
 
 Every slip is acquisition, nets zero and counts on `SLIP_TDM`.
 
@@ -566,7 +567,7 @@ Every slip is acquisition, nets zero and counts on `SLIP_TDM`.
 | -50 ppm, every 4 cycles from -176 to +32 | 53 | 0 torn, 0 slips |
 | +50 ppm, every 4 cycles from -32 to +176 | 53 | 0 torn, 0 slips |
 | -50 ppm, -1 to +1 cycle, every quarter cycle at 64 sub-step phases (CRF-fine-50) | 768 | 0 torn; 141 repeat and skip once, net zero, last at column 57 |
-| +/-80 and +/-100 ppm, on the crossing and 256 cycles off, 30000 columns (CRF-settle) | 8 | 0 torn; acquisition slips net zero, last at column 13065; none in the lock |
+| +/-80 and +/-100 ppm, on the crossing and 256 cycles off, 30000 columns (CRF-settle) | 8 | 0 torn; acquisition slips net zero, last at column 13065; none in the second half, the approach to the lock (the converged lock: envelope table) |
 | Whole datapath, true plan, every 2 cycles from -20 to +4 | 13 | 0 torn, 0 slips |
 
 Before the NCO fix, CRF-fine-50 lost ticks.

@@ -93,13 +93,16 @@
                 repeated and skipped frames. milan_datapath keys the grid
                 aligner on the same close, with the tick one cycle late and
                 a 256-cycle keep-off, so no settled CRF lock brings the close
-                onto it - measured to +/-100 ppm of relative rate, the TDM
-                frame against the local axis clock. Acquisition can: an
+                onto it - measured converging to +/-100 ppm and recorded
+                converged to +/-150 ppm of relative rate, the TDM frame
+                against the local axis clock. Acquisition can: an
                 engagement landing on the crossing repeats and skips one
-                frame, net zero, by column 57 within +/-50 ppm; past about
-                63 ppm (the pull is 64) a raced engagement, and past about
-                86 ppm an unpulled one's transient, is carried across and
-                back, one repeat and one skip, both counted
+                frame, net zero, by column 57 within +/-50 ppm, later as the
+                rate nears the 64 ppm pull; above nominal past about 67 ppm
+                a raced engagement (below nominal there is no sharp limit:
+                the pair only comes later), and past about 86 ppm an
+                unpulled one's transient, is carried across and back, one
+                repeat and one skip, both counted
                 (docs/design/TIME_SYNC.md, The guarded crossing). #617 round
                 2: keyed on the slot-0 strobe, a lock could sit on the
                 crossing, repeating and skipping frames while the counters

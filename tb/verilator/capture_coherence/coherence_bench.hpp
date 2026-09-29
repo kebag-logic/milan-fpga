@@ -70,17 +70,21 @@ constexpr long kClusterGap = 64;
 constexpr long kEngageColumns = 64;
 //! Milan v1.2 7.4: a media clock source within +/-50 ppm of nominal
 constexpr double kMilanPpm = 50.0;
-//! no column window: an engagement at or past the pull is carried across the
-//! crossing and back while its lock settles, so only the lock is graded
+//! no column window: at or past the pull an engagement is carried across the
+//! crossing and back while its lock settles (above nominal), or dwells on it
+//! ever longer with the rate (below), so only the lock is graded
 constexpr long kUnbounded = LONG_MAX;
 
 //! The engagement window at relative rate `ppm` against a pull of `pull_ppm`
 //! (the aligner's u at one keep-off of error): kEngageColumns within the
 //! Milan bound; beyond it stretched as the departure (pull - |r|) slows, since
 //! the time to clear a cycle is its inverse (224 columns at 60 ppm, where the
-//! last slip measures column 181); unbounded at or past the pull, the
-//! on-crossing engagement limit (measured: carried across from about 63 ppm
-//! below nominal and 67 above).
+//! last slip measures column 181); unbounded at or past the pull. Above
+//! nominal that is the on-crossing engagement limit (measured: net zero by
+//! column 8 at +66 ppm, carried across from about +67); below nominal there
+//! is no sharp limit, the single net-zero pair only coming later with the
+//! rate (column 426 at -63 ppm, 1,323 at -66, 2,918 at -70; review probes
+//! R394-3 and R395-3), and an unbounded window grades only the lock.
 inline long engage_columns(double ppm, double pull_ppm) {
     const double rate = std::fabs(ppm);
     if (rate <= kMilanPpm) return kEngageColumns;
@@ -349,8 +353,8 @@ class ColumnBench {
     //! slip cluster must net one frame in its direction. Without it (CRF) the
     //! grids are held together and there is no drift to net: a slip may come
     //! only while the engagement acquires - on the walk's crossing, inside
-    //! its `window` columns (engage_columns()), or, past the on-crossing
-    //! limit, anywhere before the lock's tail - and it nets zero: the
+    //! its `window` columns (engage_columns()), or, at or past the pull,
+    //! anywhere before the lock's tail - and it nets zero: the
     //! aligner's loop returns the close to the side it engaged on.
     void grade(milan::tb::Checker& check, const std::string& n, long min_columns, double ppm, bool drift,
                long window) const {

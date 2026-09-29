@@ -67,14 +67,20 @@
 //                     columns): the NCO race of R395-2 F1 lost two ticks in
 //                     nine of these engagements until the NCO's terminal
 //                     compare was made monotone;
-//   CRF-settle-80/+80, -100/+100  the settled lock past the envelope, two
-//                     engagements each: on the crossing (0 cycles at the
-//                     negative rates, +8 at the positive ones: the side the
-//                     pull carries a close across) and 256 cycles further to
-//                     that side, where past about 86 ppm the unpulled
-//                     acquisition transient crosses it; 30,000 columns, so
-//                     the acquisition's net-zero crossings end in the first
-//                     half and the lock is graded after them.
+//   CRF-settle-80/+80, -100/+100  the approach to the settled lock past the
+//                     envelope, two engagements each: on the crossing (0
+//                     cycles at the negative rates, +8 at the positive ones:
+//                     the side the pull carries a close across) and 256
+//                     cycles further to that side, where past about 86 ppm
+//                     the unpulled acquisition transient crosses it; 30,000
+//                     columns, so the acquisition's net-zero crossings end
+//                     in the first half and the second half is graded after
+//                     them - while the close still converges on its target
+//                     (the integrator's time constant is about 13,000
+//                     frames). The converged lock itself, 255 to 264 cycles
+//                     off (255 to 257 when pulled) with a spread of 3 or
+//                     less, is recorded in 150,000-column runs
+//                     (docs/design/TIME_SYNC.md, The guarded crossing).
 // Each CRF scenario's tail is its second half, and never starts inside its
 // engagement window (coherence_bench's engage_columns and tail_start).
 //
@@ -689,8 +695,8 @@ std::vector<Sweep> sweeps(Mode mode) {
     list.push_back({"CRF-band-50", ppm_plan(-50), -176, 32, 4, 6'000});
     list.push_back({"CRF-band+50", ppm_plan(+50), -32, 176, 4, 6'000});
     list.push_back(fine);
-    //! the settled lock past the envelope: the acquisition slips of 100 ppm
-    //! end by column 13,100 (measured), inside the first half
+    //! the approach to the settled lock past the envelope: the acquisition
+    //! slips of 100 ppm end by column 13,100 (measured), inside the first half
     for (const int ppm : {-80, +80, -100, +100}) {
         char tag[24];
         std::snprintf(tag, sizeof tag, "CRF-settle%+d", ppm);
