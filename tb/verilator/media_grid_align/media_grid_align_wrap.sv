@@ -72,10 +72,13 @@ module media_grid_align_wrap (
 
   assign u_o = u_w;
 
-  //! the junction detector, wired as milan_datapath wires it: the loop's
-  //! frame marker is its slot-0 pair write and the packet grid is its tick.
-  //! The smallest legal shape - the tdm_slip_count block reads only those
-  //! two, whatever the map and the lanes.
+  //! the junction detector on the loop's own frame marker and tick. The
+  //! smallest legal shape: a one-pair TDM frame, so the frame close the
+  //! detector keys on (#617) is this slot-0 pair write, and the walk's
+  //! snapshot is the tick's own cycle. milan_datapath since #617 keys the
+  //! aligner on a TDM frame's close, hands it the tick one cycle late and
+  //! widens its keep-off to 256 cycles (tb/verilator/capture_coherence
+  //! grades that binding); this suite grades the module at its defaults.
   KL_chan_map_capture #(
     .N_SLOTS_P (2), .N_TDM_P (2), .N_LB_STREAMS_P (1), .N_LB_CH_P (2)
   ) u_junction (

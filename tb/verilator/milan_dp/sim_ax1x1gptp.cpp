@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // Issue #367 physical-rate integration, boundary: milan_datapath AXI-Lite
-// and MAC packet interfaces. Model: 50 MHz axis/gtx aliases, 20 ns nominal
-// PHC, audio/tdm = 782/1591 of axis, 200 MHz i_ps_clk. Audio edges quantize
-// upward to the 10 ns half-cycle grid, phase accumulator starts at zero;
-// auxiliary edges use 2.5 ns resolution. Resets assert together, clocks run
-// for 64 axis cycles, and both resets release at the next axis falling edge.
+// and MAC packet interfaces. Model: axis/gtx aliases at the contract clock,
+// a one-period nominal PHC, audio/tdm = 782/1591 of axis, i_ps_clk at four
+// times axis. Audio edges quantize upward to the half-period grid, phase
+// accumulator starts at zero; auxiliary edges use eighth-period resolution.
+// Resets assert together, clocks run for 64 axis cycles, and both resets
+// release at the next axis falling edge.
 // The reset arm repeats this with live traffic and discards in-flight frames.
 //
 // Peer: an independent 125 MHz timestamp clock, 10 us epoch offset, no
@@ -53,14 +54,30 @@
 #include <string>
 #include <vector>
 
+// The contract clock, CPU_HZ in tb/verilator/nvm_capture_cpu/recipe.py. The
+// Makefile derives it once and elaborates MILAN_CLK_FREQ_HZ from the same value.
+#ifndef MILAN_CLK_HZ_TB
+#error "MILAN_CLK_HZ_TB: build through the milan_dp Makefile, which derives it from recipe.py"
+#endif
+
 namespace {
-constexpr uint64_t kHz = 50000000;
+constexpr uint64_t kHz = MILAN_CLK_HZ_TB;
+//! One axis period: the PHC increment and every cycle/time conversion below.
+constexpr uint64_t kPeriodNs = 1000000000 / kHz;
+//! Peer-delay tolerance: one period of ingress phase plus 8 ns peer
+//! quantization. The check labels spell this period (20 ns, 200 MHz and
+//! 28 ns, which verify_abort.py reads) and the 782/1591 audio ratio models
+//! the audio master clock at it, so a contract clock with another period
+//! stops the build here rather than mislabelling its checks.
+constexpr int64_t kDelayBoundNs = static_cast<int64_t>(kPeriodNs) + 8;
+static_assert(kPeriodNs * kHz == 1000000000 && kDelayBoundNs == 28,
+              "revisit the check labels, verify_abort.py and the audio ratio for this period");
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
 constexpr uint64_t kSid = 0x0200000000020000ULL;
 constexpr uint64_t kPropagation = 320;
 constexpr uint64_t kResidence = 20000;
-constexpr uint64_t kAafPeriod = 6250;
+constexpr uint64_t kAafPeriod = kHz * 6 / 48000; // six 48 kHz samples per PDU
 constexpr unsigned kGuard = 2048;
 
 struct Frame {
@@ -196,8 +213,9 @@ class Harness {
     //! plane now takes its t1 from: it reports each gPTP frame it accepted
     //! and answers the seal. Without it the plane never discharges its boot
     //! fence and emits no gPTP frame at all. This build runs the fabric and
-    //! the PHC at 50 MHz, so the modelled MAC's tick is the product's 20 ns.
-    milan::tb::GptpLaunchObserver observer{20};
+    //! the PHC at the contract clock, so the modelled MAC's tick is one of
+    //! its periods, as in the product.
+    milan::tb::GptpLaunchObserver observer{kPeriodNs};
     //! Pdelay_Req frames whose launch this harness has not reported yet. A
     //! peer answers a request that was LAUNCHED; until the observer reports
     //! it there is no launch instant to answer for.
@@ -442,7 +460,7 @@ Frame Harness::audio_frame() {
     Frame f;
     f.u48(0x91E0F0002A02ULL); f.u48(0x020000000002ULL); f.u16(0x22F0);
     f.u8(2); f.u8(0x81); f.u8(audio_seq++); f.u8(0); f.u64(kSid);
-    f.u32(peer_clock(cyc * 20) + 2000000); // 2 ms presentation offset
+    f.u32(peer_clock(cyc * kPeriodNs) + 2000000); // 2 ms presentation offset
     f.u8(2); f.u8(0x50); f.u8(8); f.u8(32); f.u16(192); f.u16(0);
     for (unsigned s = 0; s < 6; ++s) {
         for (unsigned ch = 0; ch < 8; ++ch)
@@ -458,7 +476,7 @@ void Harness::schedule() {
         next_announce = cyc + kHz;
     }
     if (peer_on && cyc >= next_sync) {
-        const uint64_t depart = (cyc + 1000) * 20 + 10 - kPropagation;
+        const uint64_t depart = (cyc + 1000) * kPeriodNs + kPeriodNs / 2 - kPropagation;
         Frame f = ptp(0, sync_seq, 0x0208, 10); f.ts(0);
         queue({cyc + 1000, f});
         queue({cyc + 1500, follow_up(sync_seq++, peer_clock(depart))});
@@ -543,7 +561,7 @@ void Harness::answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1,
     //! peer, so a step lands between two requests that were exactly one
     //! second apart on the wire; reading the cadence off the stepped
     //! counter would call that discipline a cadence fault.
-    const uint64_t launch_ns = record_cycle * 20 - observer.correction_ns();
+    const uint64_t launch_ns = record_cycle * kPeriodNs - observer.correction_ns();
     if (!pd_requests) pd_first = launch_ns;
     if (pd_requests && (launch_ns - pd_last < 999900000
                        || launch_ns - pd_last > 1000100000)) ++pd_cadence_bad;
@@ -563,7 +581,7 @@ void Harness::answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1,
     //! record was delivered `correction_ns()` after the launch, so the
     //! arrival is that much closer than the event times alone suggest.
     const uint64_t at = record_cycle
-        + (2 * kPropagation + kResidence - observer.correction_ns()) / 20;
+        + (2 * kPropagation + kResidence - observer.correction_ns()) / kPeriodNs;
     queue({at, resp, true, t1, t2, t3});
     queue({at + 200, fu});
 }
@@ -661,7 +679,7 @@ void Harness::reset() {
     milan::tb::GptpLaunchObserver::tie_off(dut);
     run_cycles(64);
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
-    stamp_origin = cyc * 20;
+    stamp_origin = cyc * kPeriodNs;
     pd_requests = 0; pd_answers = 0; oracle_delay = 0;
     seq_started = false; payload_started = false;
     audio_seq = 0; audio_index = 1;
@@ -671,7 +689,7 @@ void Harness::reset() {
 void Harness::configure() {
     write(0x108, 0x00000002); write(0x10C, 0x00000100);
     write(0x608, 0x020000FF); write(0x604, 0xFE000001);
-    check.hex("PHC reset increment is 20 ns", read(0x504), 0x14000000);
+    check.hex("PHC reset increment is 20 ns", read(0x504), kPeriodNs << 24);
     check.hex("advertised talker geometry AAF plus CRF", read(0x618), 0x48010002);
     check.hex("advertised listener geometry AAF plus CRF", read(0x61C), 0x48010002);
     write(0x778, 0x85); write(0x6E4, 777); // inert legacy health writes
@@ -718,7 +736,7 @@ void Harness::geometry_and_clocks() {
     const uint64_t c0 = cyc;
     run_cycles(10000); write(0x520, 4); run_cycles(32);
     const uint64_t phc1 = (uint64_t(read(0x534)) << 32) | read(0x530);
-    check.dec("PHC advances 20 ns per modeled cycle before Sync selection", phc1 - phc0, (cyc - c0) * 20);
+    check.dec("PHC advances 20 ns per modeled cycle before Sync selection", phc1 - phc0, (cyc - c0) * kPeriodNs);
 }
 
 void Harness::publication(const char* arm, bool healthy) {
@@ -737,10 +755,10 @@ void Harness::publication(const char* arm, bool healthy) {
         check.hex("selected parent matches peer identity", parent, kPeer);
         check.hex("PathTrace has GM and parent", gen1 & 15, 2);
         check.hex("asCapable and Sync healthy, uncertainty cleared", stat & 0x10003, 0x10002);
-        // Bound: 20 ns ingress phase plus 8 ns peer quantization. No PHY allowance.
+        // Bound: kDelayBoundNs. No PHY allowance.
         if (pd_answers)
             check.that("peer delay equals independent event oracle within 28 ns",
-                       std::abs(int64_t(delay) - oracle_delay) <= 28);
+                       std::abs(int64_t(delay) - oracle_delay) <= kDelayBoundNs);
         else printf("NOT RUN: peer delay equals independent event oracle within 28 ns "
                     "(no accepted response in this reset epoch; uncounted)\n");
     } else {
@@ -905,7 +923,9 @@ int Harness::report() {
         if (!completed[i]) printf("NOT RUN TO COMPLETION: %s\n", phases[i]);
     printf("simulated_duration_seconds=%.9f cycles=%llu\n", double(cyc) / kHz,
            static_cast<unsigned long long>(cyc));
-    printf("clock_audio_hz=%.6f clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20\n", double(kHz) * 782 / 1591);
+    printf("clock_audio_hz=%.6f clock_axis_hz=%llu clock_ps_hz=%llu PHC_increment_ns=%llu\n", double(kHz) * 782 / 1591,
+           static_cast<unsigned long long>(kHz), static_cast<unsigned long long>(4 * kHz),
+           static_cast<unsigned long long>(kPeriodNs));
     printf("NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance\n");
     printf("NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch\n");
     printf("exit_status=%d negative_control=%d\n", check.passed() ? 0 : 1, negative_);
@@ -913,7 +933,8 @@ int Harness::report() {
 }
 
 int Harness::run() {
-    printf("ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=%d extended=%d\n", negative_, extended_);
+    printf("ax1x1gptp PHYSICAL: %g MHz, 782/1591 audio, %g MHz auxiliary; negative_control=%d extended=%d\n",
+           kHz / 1e6, 4 * kHz / 1e6, negative_, extended_);
     try {
         std::ifstream image("obj_ax1x1gptp/aemi.bin", std::ios::binary);
         if (!image) throw std::runtime_error("generated AEM image missing");
@@ -943,7 +964,7 @@ int Harness::run() {
             const uint32_t first_delay = read(0x6E4);
             printf("FIRST PDELAY published=%u oracle=%lld ns\n", first_delay, static_cast<long long>(oracle_delay));
             check.that("first peer delay matches independent event oracle within 28 ns",
-                       std::abs(int64_t(first_delay) - oracle_delay) <= 28);
+                       std::abs(int64_t(first_delay) - oracle_delay) <= kDelayBoundNs);
             completed[2] = true;
         } else {
             printf("NOT RUN: one response cannot assert asCapable (first exchange absent; uncounted)\n");

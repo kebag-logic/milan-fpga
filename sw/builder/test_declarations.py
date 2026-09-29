@@ -92,25 +92,40 @@ def test_model_id_resolution_contract() -> None:
     print("[F1] shadowed literals and derived endpoints refused")
 
 
+#: (key path, field, legal value, width in bits) of every quoted 64- and 48-bit
+#: hex field. The widths are the fields' own: EUI-64 identities and 1722.1
+#: stream format words are 64 bits, and the stream DMAC is a MAC-48.
+HEX_FIELDS = (
+    (("entity", "entity_model_id"), "entity.entity_model_id", "0x001BC50AC1000005", 64),
+    (("entity", "model_id_pin"), "entity.model_id_pin", "0x001BC50AC1000005", 64),
+    (("entity", "entity_id"), "entity.entity_id", "0x001BC50AC1000005", 64),
+    (("srp", "stream_dmac_base"), "srp.stream_dmac_base", "0x91E0F000FE01", 48),
+    (("streams", "talkers", 0, "formats", 0), "streams.talkers[0].formats",
+     "0x0205022000806000", 64),
+    (("streams", "listeners", 0, "formats", 0), "streams.listeners[0].formats",
+     "0x0205022000806000", 64),
+    (("clocking", "crf_format"), "clocking.crf_format", "0x041060010000BB80", 64),
+    (("clocking", "crf_output", "format"), "clocking.crf_output.format",
+     "0x041060010000BB80", 64),
+)
+
+
+def _hex_field_base() -> dict:
+    """arty_4x4 with one explicit format per direction and no pin or OUI, so
+    every HEX_FIELDS value is the only one deciding its field."""
+    raw = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
+    raw["entity"].pop("model_id_pin", None)
+    raw["entity"].pop("vendor_oui", None)
+    for direction in ("talkers", "listeners"):
+        raw["streams"][direction][0]["formats"] = ["0x0205022000806000"]
+    return raw
+
+
 def test_hex_scalar_contract() -> None:
     """Preserve hex string digits; reject YAML numbers before field semantics."""
-    base = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
-    cases = (
-        (("entity", "entity_model_id"), "entity.entity_model_id", "0x001BC50AC1000005"),
-        (("entity", "model_id_pin"), "entity.model_id_pin", "0x001BC50AC1000005"),
-        (("entity", "entity_id"), "entity.entity_id", "0x001BC50AC1000005"),
-        (("srp", "stream_dmac_base"), "srp.stream_dmac_base", "0x91E0F000FE01"),
-        (("streams", "talkers", 0, "formats", 0), "streams.talkers[0].formats",
-         "0x0205022000806000"),
-        (("streams", "listeners", 0, "formats", 0), "streams.listeners[0].formats",
-         "0x0205022000806000"),
-        (("clocking", "crf_format"), "clocking.crf_format", "0x041060010000BB80"),
-        (("clocking", "crf_output", "format"), "clocking.crf_output.format",
-         "0x041060010000BB80"),
-    )
     with tempfile.TemporaryDirectory(prefix="hex-scalar-contract.") as tmp:
         path = Path(tmp) / "scalar.yaml"
-        for keys, field, legal in cases:
+        for keys, field, legal, _bits in HEX_FIELDS:
             # The shared parser's result is independent of MAC width or family.
             # Those later rules cannot accept an arbitrary legal 64-bit number.
             for spelling in ("0x001BC50AC1000005", "1234567890123456",
@@ -118,11 +133,7 @@ def test_hex_scalar_contract() -> None:
                 value = yaml.safe_load(f'"{spelling}"')
                 assert eb._eui64(value, field) == int(spelling, 16)
                 assert eb._fmt64(value, field) == f"0x{int(spelling, 16):016X}"
-            raw = copy.deepcopy(base)
-            raw["entity"].pop("model_id_pin", None)
-            raw["entity"].pop("vendor_oui", None)
-            for direction in ("talkers", "listeners"):
-                raw["streams"][direction][0]["formats"] = ["0x0205022000806000"]
+            raw = _hex_field_base()
             node = raw
             for key in keys[:-1]:
                 node = node[key]
@@ -204,7 +215,11 @@ def test_station_mac_string_contract() -> None:
                 ("0x0200_0000_0002", 0x020000000002),
                 ("123456789012", 0x123456789012),
                 ("0x000000F42402", 0x000000F42402),
-                ("10:20:30:40:50:02", 0x102030405002)):
+                ("10:20:30:40:50:02", 0x102030405002),
+                ("0X020000000002", 0x020000000002),
+                ("0200_0000_0002", 0x020000000002),
+                ("02_00_00_00_00_02", 0x020000000002),
+                ("0a-1B-2c-3D-4e-5F", 0x0A1B2C3D4E5F)):
             path.write_text(template.replace("YAML_SLOT", f'"{spelling}"'))
             cfg = eb.load_config(path)
             assert eb._mac48(spelling, field) == expected, spelling
@@ -219,17 +234,116 @@ def test_station_mac_string_contract() -> None:
         omitted = copy.deepcopy(base)
         del omitted["platform"]["mac_address"]
         _refused(omitted, Path(tmp), field, "is required")
-        for spelling, rule in (("0", "out of MAC-48 range"),
-                               ("1000000000000", "out of MAC-48 range"),
+        for spelling, rule in (("000000000000", "is the all-zero MAC-48"),
+                               ("00:00:00:00:00:00", "is the all-zero MAC-48"),
                                ("010000000001", "I/G bit"), ("xyz", "not a MAC-48")):
             base["platform"]["mac_address"] = spelling
             _refused(base, Path(tmp), field, rule)
-    print("[595 MAC] eight quoted values preserved; non-strings receive exact quote refusals")
+    print("[595 MAC] twelve quoted values preserved; non-strings receive exact quote refusals")
 
 
-def test_declared_hex_string_contract() -> None:
-    """Both declared unsigned callers require strings, including explicit nulls."""
-    base = yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text())
+#: #495 (disposition 5882165062): quoted MAC spellings refused by their shape,
+#: under the rule each breaks. Every one is a YAML string, and the first of
+#: each rule differs from a legal unicast MAC only by that fault.
+MAC_SHAPE_REFUSALS = (
+    ("sign", ("+020000000002", "-020000000002", "+02:00:00:00:00:02", "-2")),
+    ("leading or trailing whitespace",
+     (" 020000000002", "020000000002 ", "\t02:00:00:00:00:02", "02-00-00-00-00-02\n")),
+    ("fewer than twelve digits", ("02000000002", "2", "0", "0x2")),
+    ("more than twelve digits", ("0200000000002", "1000000000000", "0x0200_0000_0000_2")),
+    ("short or unpadded octet",
+     ("2:000:00:00:00:02", "0:2", "2:0:0:0:0:2", "02:00:00:00:02", "02:00:00:00:00:00:02")),
+    ("mixed separators", ("02:00-00:00:00:02", "02-00:00:00:00:02")),
+    ("separator next to an underscore",
+     ("02:_00:00:00:00:02", "02_:00:00:00:00:02", "02-00-00-00-00_-02")),
+    ("leading, trailing or doubled underscore",
+     ("_020000000002", "020000000002_", "0200__00000002", "0x_020000000002")),
+    ("prefix on octets", ("0x02:00:00:00:00:02",)),
+)
+
+
+def _set(raw: dict, keys: tuple, value: object) -> dict:
+    """A copy of `raw` with the value at `keys` replaced."""
+    document = copy.deepcopy(raw)
+    node = document
+    for key in keys[:-1]:
+        node = node[key]
+    node[keys[-1]] = value
+    return document
+
+
+def _shape_refused(raw: dict, keys: tuple, spelling: str, directory: Path, prefix: str,
+                   rule: str) -> None:
+    """The loader refuses the quoted `spelling` with a message led by `prefix`."""
+    assert yaml.safe_load(yaml.safe_dump(spelling)) == spelling, spelling
+    try:
+        _load(_set(raw, keys, spelling), directory)
+    except eb.ConfigError as exc:
+        assert str(exc).startswith(prefix), (rule, spelling, str(exc))
+    else:
+        raise AssertionError(f"accepted {spelling!r}: {rule}")
+
+
+def test_mac_shape_contract() -> None:
+    """#495: each refused MAC shape is named and refused before its value."""
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
+    keys, field = ("platform", "mac_address"), "platform.mac_address"
+    with tempfile.TemporaryDirectory(prefix="mac-shape-contract.") as tmp:
+        for rule, spellings in MAC_SHAPE_REFUSALS:
+            for spelling in spellings:
+                _shape_refused(base, keys, spelling, Path(tmp),
+                               f"{field}: {spelling!r} is not a MAC-48 (", rule)
+    count = sum(len(spellings) for _, spellings in MAC_SHAPE_REFUSALS)
+    print(f"[495 MAC] {len(MAC_SHAPE_REFUSALS)} named shape rules, {count} spellings refused")
+
+
+def _hex_shape_refusals(legal: str) -> tuple[tuple[str, str], ...]:
+    """(rule, spelling) pairs of a `0x` legal value, each breaking one hex rule."""
+    digits = legal.removeprefix("0x")
+    first = next(c for c in digits if c.isdigit())
+    return (
+        ("sign", "+" + legal), ("sign", "+" + digits), ("sign", "-" + digits),
+        ("leading whitespace", " " + legal), ("leading whitespace", "\t" + digits),
+        ("trailing whitespace", legal + " "), ("trailing whitespace", digits + "\n"),
+        ("leading underscore", "_" + digits), ("leading underscore", "0x_" + digits),
+        ("trailing underscore", digits + "_"),
+        ("doubled underscore", f"{digits[:2]}__{digits[2:]}"),
+        ("non-ASCII digit", digits.replace(first, chr(0x0660 + int(first)), 1)),
+        ("no digits", "0x"),
+    )
+
+
+def _assert_hex_shape(raw: dict, keys: tuple, field: str, legal: str, bits: int,
+                      directory: Path) -> None:
+    """#495: one field refuses every named hex shape, and a digit past its
+    width even as a leading zero; the 0X prefix and grouping are accepted."""
+    digits = legal.removeprefix("0x")
+    assert len(digits) * 4 == bits, (field, legal, bits)
+    for rule, spelling in _hex_shape_refusals(legal):
+        _shape_refused(raw, keys, spelling, directory, f"{field}: {spelling!r} is not ", rule)
+    for spelling in ("0x0" + digits, "0" + digits):
+        _shape_refused(raw, keys, spelling, directory,
+                       f"{field}: {spelling!r} is outside {bits} bits (", "digits past the width")
+    for spelling in ("0X" + digits, f"0x{digits[:2]}_{digits[2:]}"):
+        _load(_set(raw, keys, spelling), directory)
+
+
+def test_hex_shape_contract() -> None:
+    """#495: every quoted hex field refuses each named shape and its width."""
+    oui_base = yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text())
+    fields = [(_hex_field_base(), *field) for field in HEX_FIELDS] + [
+        (oui_base, ("entity", "vendor_oui"), "entity.vendor_oui", "0x123456", 24),
+        (oui_base, ("entity", "entity_capabilities"), "entity.entity_capabilities",
+         f"0x{_adp_caps():08X}", 32)]
+    with tempfile.TemporaryDirectory(prefix="hex-shape-contract.") as tmp:
+        for raw, keys, field, legal, bits in fields:
+            _assert_hex_shape(raw, keys, field, legal, bits, Path(tmp))
+    rules = {rule for rule, _ in _hex_shape_refusals("0x10")}
+    print(f"[495 hex] {len(fields)} hex fields: {len(rules)} named shape rules and the width refused")
+
+
+def _adp_caps() -> int:
+    """ADP_ENTITY_CAPS_C as pp_adp_pkg declares it in the derived processor sources."""
     # Find the authority by its package declaration so source moves stay valid.
     sources = [(ROOT / path).read_text() for path in pp_sources()]
     packages = [source for source in sources
@@ -237,7 +351,13 @@ def test_declared_hex_string_contract() -> None:
     assert len(packages) == 1, "expected one pp_adp_pkg in derived processor sources"
     matches = re.findall(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)", packages[0])
     assert len(matches) == 1
-    caps = int(matches[0], 16)
+    return int(matches[0], 16)
+
+
+def test_declared_hex_string_contract() -> None:
+    """Both declared unsigned callers require strings, including explicit nulls."""
+    base = yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text())
+    caps = _adp_caps()
     with tempfile.TemporaryDirectory(prefix="declared-hex-contract.") as tmp:
         path = Path(tmp) / "case.yaml"
         for key, bits, expected in (("vendor_oui", 24, 0x123456),
@@ -269,7 +389,7 @@ def test_declared_hex_string_contract() -> None:
                 assert not isinstance(yaml.safe_load(spelling), str), spelling
                 _yaml_refused(path, template, spelling,
                               f"{field}: quote the hexadecimal value as a YAML string")
-            for spelling in ("-1", f"{1 << bits:X}"):
+            for spelling in (f"{1 << bits:X}", f"0{digits}"):
                 raw = copy.deepcopy(base)
                 raw["entity"][key] = spelling
                 _refused(raw, Path(tmp), field, f"outside {bits} bits")
@@ -516,7 +636,9 @@ def test_declaration_contracts() -> None:
     test_model_id_resolution_contract()
     test_hex_scalar_contract()
     test_station_mac_string_contract()
+    test_mac_shape_contract()
     test_declared_hex_string_contract()
+    test_hex_shape_contract()
     test_formats_list_contract()
     test_aem_u32_contract()
     test_listener_buffer_contract()

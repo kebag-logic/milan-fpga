@@ -412,14 +412,24 @@ ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 
 # Physical-rate integration: no compressed diagnostics, holdover or PP timers.
 # A distinct image keeps the historical 2 MHz gptp leg byte-for-byte intact.
-AX_GPTP_HZ = 50000000
+# Its rate is the contract clock, CPU_HZ in the recipe below, stated ONCE: it
+# feeds the ROM generator, the -G that builds the gateware and the -D that
+# tells the harness what it is driving. The recipe is run by its path, so no
+# package on PYTHONPATH can stand in for it.
+CLOCK_RECIPE = ../nvm_capture_cpu/recipe.py
+AX_GPTP_HZ := $(shell python3 -I -c 'import runpy, sys; print(runpy.run_path(sys.argv[1])["CPU_HZ"])' $(CLOCK_RECIPE))
+# TAKE THE STATUS, as for pp_srcs.py above: without it an unreadable recipe
+# elaborates MILAN_CLK_FREQ_HZ from an empty string.
+ifneq ($(.SHELLSTATUS),0)
+$(error $(CLOCK_RECIPE) did not yield CPU_HZ; the AX 1x1 simulation clock could not be derived)
+endif
 AX_GPTP_ARGS =
 AX_GPTP_JOBS = $(if $(filter 1 2 3,$(VERILATOR_JOBS)),$(VERILATOR_JOBS),4)
 AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),$(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256,$(VFLAGS)))
 # Model-preserving compiler optimization; physical clocks and timers stay above.
 # Three-thread measurements did not establish a safe PR-shard budget.
 AX_GPTP_FLAGS += -O3 --threads 1 -CFLAGS "-O3 -Wall -Wextra"
-gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile
+gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile $(CLOCK_RECIPE)
 	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x020000000001 --p1 248 -o $@
 
 ax1x1gptp-aemi:
@@ -467,6 +477,7 @@ ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
 	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \
+	  -CFLAGS "-DMILAN_CLK_HZ_TB=$(AX_GPTP_HZ) -Wall -Wextra" \
 	  -GGPTP_UCODE_HEX_P='"gptp_ax1x1_ucode.hex"' \
 	  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=$(AX_CHANS) \
 	  -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) -GAUDIO_IF_MASTER_P=1 \

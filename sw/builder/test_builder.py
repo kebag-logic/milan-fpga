@@ -17097,7 +17097,7 @@ def test_baremetal_profile_contract() -> None:
           "place a CSR store can live, and no instrument here reads it")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
-          "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
+          "1024-word ROM; VexiiRiscv RV32I at the contract clock through its supported "
           "decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache "
           "args, retired audio-ring surfaces or host clusters; deploy keeps "
           "the plane option on")
@@ -25736,7 +25736,7 @@ def _schema_12_refusal_cases(caps: int) -> list[tuple[str, str, Callable[[dict],
         ("vendor_oui past 24 bits", base,
          _setting(("entity.vendor_oui", "0x1000000")), "outside 24 bits"),
         ("vendor_oui negative", base,
-         _setting(("entity.vendor_oui", "-1")), "outside 24 bits"),
+         _setting(("entity.vendor_oui", "-1")), "is not a hex integer"),
         ("vendor_oui a bool", base,
          _setting(("entity.vendor_oui", True)), "quote the hexadecimal value as a YAML string"),
         ("vendor_oui with the I/G bit", base,
@@ -27815,17 +27815,64 @@ def test_commercial_timing_grade() -> None:
         test_pll_grade(python)
 
 
+def test_rom_clock_contract() -> None:
+    """Run the ROM-clock contract against this bank's ledger (#495).
+
+    Its system-clock control cannot apply to a shape whose system and Milan
+    clocks are equal; declining it is a NOT RUN in this verdict, like every
+    other declined arm, not a SKIP line printed before ALL GATES PASS.
+    """
+    from test_clock_contract import test_gptp_rom_clock
+
+    test_gptp_rom_clock(skip=skip)
+
+
+def test_rom_clock_skip_reaches_the_ledger() -> None:
+    """An equal-clock shape's declined ROM control is recorded in SKIPPED."""
+    import test_clock_contract
+
+    def equal_clocks(cfg: dict) -> None:
+        """Declare the system clock equal to the Milan clock."""
+        constraints = cfg["board"]["constraints"]
+        constraints["sys_clk_hz"] = constraints["milan_clk_hz"]
+
+    equal = _variant(CONFIGS["ax7101_1x1_tdm8"], equal_clocks)
+    configs, recorded = test_clock_contract.CONFIGS, len(SKIPPED)
+    test_clock_contract.CONFIGS = [equal]
+    try:
+        test_rom_clock_contract()
+        declined = SKIPPED[recorded:]
+    finally:
+        # The planted shape is not the bank's; its arm leaves the real verdict.
+        test_clock_contract.CONFIGS = configs
+        del SKIPPED[recorded:]
+        equal.unlink()
+    assert [(gate, kind) for gate, _why, kind in declined] == [("clock contract", "row")], declined
+    assert equal.stem in declined[0][1], declined
+    # ...and the run list below reaches the ROM contract only through that ledger.
+    loops = [node for node in ast.walk(ast.parse((HERE / "test_builder.py").read_text()))
+             if isinstance(node, ast.For) and isinstance(node.target, ast.Name) and node.target.id == "fn"]
+    assert len(loops) == 1, "the bank's run list was not found"
+    runs = [node.id for node in ast.walk(loops[0].iter) if isinstance(node, ast.Name)]
+    assert "test_rom_clock_contract" in runs and "test_gptp_rom_clock" not in runs, runs
+    print("  [clock contract] a planted equal-clock shape's declined ROM control reached the "
+          "NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger")
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
-        test_baremetal_clock_contract, test_extra_sweep_clocks, test_gptp_rom_clock, test_tap_clock_docs,
+        test_baremetal_clock_contract, test_builder_clock_source, test_extra_sweep_clocks,
+        test_extra_sweep_invocation, test_sim_clock, test_tap_clock_docs,
     )
 
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
     for fn in (test_commercial_timing_grade,
-               test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
+               test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,
+               test_extra_sweep_clocks, test_tap_clock_docs,
+               test_sim_clock, test_extra_sweep_invocation, test_builder_clock_source,
                test_declaration_contracts, test_clock_crossing_constraints,
                test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,

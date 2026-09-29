@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""#607: inspect constraints emitted by real shipping AX7101 elaborations."""
+"""#607: inspect constraints emitted by real shipping AX7101 elaborations,
+including #395's timing-grade hooks in the same build Tcl."""
 
 import argparse
 import importlib.abc
@@ -24,6 +25,23 @@ class FirmwareDataRefused(importlib.abc.MetaPathFinder):
         if name.startswith("pythondata_software_"):
             raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
         return None
+
+
+def assert_timing_grade_hooks(commands: list[str]) -> None:
+    """#395's hooks as the SoC-built toolchain emitted them (R382-4 S1): the
+    grade is configured before placement and reported on the routed design
+    before the bitstream is written."""
+    def lines(prefix: str) -> list[int]:
+        """Indices of the commands starting with `prefix`."""
+        return [i for i, line in enumerate(commands) if line.startswith(prefix)]
+
+    configure, reports = lines("kl_timing_grade_configure "), lines("kl_timing_grade_reports ")
+    assert len(configure) == 1, f"timing grade configure missing or duplicated: {configure}"
+    assert len(reports) == 1, f"timing grade reports missing or duplicated: {reports}"
+    place, route, written = lines("place_design"), lines("route_design"), lines("write_bitstream ")
+    assert place and route and written, "shipping Tcl lacks place, route or bitstream"
+    assert configure[0] < place[0], "timing grade configured after placement"
+    assert route[-1] < reports[0] < written[0], "timing grade reports outside routed pre-bitstream"
 
 
 def elaborate_shipping(config: str, port: str, output: Path) -> None:
@@ -76,6 +94,7 @@ def elaborate_shipping(config: str, port: str, output: Path) -> None:
             synth = next(i for i, line in enumerate(commands) if line.startswith("synth_design "))
             optimize = next(i for i, line in enumerate(commands) if line.startswith("opt_design "))
             assert synth < commands.index(hooks[0]) < optimize, "shipping hook outside pre-optimize"
+            assert_timing_grade_hooks(commands)
             assert not any("mr_ff" in line and not line.lstrip().startswith("#")
                            for line in xdc.splitlines()), "generic MultiReg false path in shipping XDC"
             assert not list(directory.glob("*.bit")), "elaboration produced a bitstream"

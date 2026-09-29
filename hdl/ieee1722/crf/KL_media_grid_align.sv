@@ -78,9 +78,13 @@
                 slip-free lock). So the capture is clamped into
                 [LOCK_KEEPOFF_CYC_P, DIV_C - LOCK_KEEPOFF_CYC_P] cycles after
                 the tick. A capture already that far from both ticks keeps
-                its phase bit for bit; a raced one is pulled at most the keep-off,
-                1/128 sample by default - half the root's 1/64-sample settle
-                band, so a raced engagement starts inside it. Only the
+                its phase bit for bit; a raced one is pulled at most the keep-off.
+                At the module default, 1/128 sample, that is half the root's
+                1/64-sample settle band, so a raced engagement starts inside
+                it. milan_datapath binds 256 cycles and a one-cycle-late tick:
+                raced engagements there start outside the band, and the #386
+                recentre waits for their pull, up to its 32768-tick ceiling
+                (TIME_SYNC.md, The guarded crossing). Only the
                 engagement is steered: under the lock the marker dithers
                 around that target, so its clearance from every tick is the
                 keep-off less the lock's own dither and the marker delivery

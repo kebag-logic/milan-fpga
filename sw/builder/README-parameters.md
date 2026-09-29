@@ -158,12 +158,17 @@ Hexadecimal identity, destination and format values require YAML strings.
 Quote `entity_id`, `entity_model_id`, `model_id_pin` and `srp.stream_dmac_base`.
 Also quote `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
 Quote AAF `formats` entries, `clocking.crf_format` and `clocking.crf_output.format`.
-Hexadecimal text accepts an optional `0x` prefix and underscores.
+Hexadecimal text is hex digits with an optional `0x` or `0X` prefix.
+A single underscore may stand between two digits, as in `"0x001B_C50A_C100_0005"`.
 For example, `"1234567890123456"` retains those hexadecimal digits.
+The digit count, leading zeros included, must fit the field's width.
+`entity.vendor_oui` holds 6 digits, `entity.entity_capabilities` 8, `srp.stream_dmac_base` 12, and the identity and format fields 16.
+Signs, leading or trailing whitespace, and leading, trailing or doubled underscores refuse.
 YAML numbers and other non-strings receive a named quote instruction.
 This includes octal, base-60 integers, booleans and explicit nulls.
-MAC strings also accept colon and dash separators.
-For example, `"020000000002"` and `"02:00:00:00:00:02"` name the same MAC.
+A MAC is six two-digit hex octets with one `:` or `-` separator throughout, or twelve digits of hexadecimal text.
+For example, `"020000000002"`, `"0x0200_0000_0002"`, `"02:00:00:00:00:02"` and `"02-00-00-00-00-02"` name the same MAC.
+Short or unpadded octets such as `"0:2"` and `"2:0:0:0:0:2"`, mixed separators, and an underscore beside a separator refuse.
 Unquoted `020000000002` and `10:20:30:40:50:02` refuse before YAML reinterpretation propagates.
 The `hash-derived`, `mac-derived` and `maap` selectors remain supported.
 Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.

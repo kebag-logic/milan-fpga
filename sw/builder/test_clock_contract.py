@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #582: enforce the clock contract and derive configured clock uses."""
 import contextlib
+from collections.abc import Callable
 import copy
 import io
 import os
 from pathlib import Path
+import re
+import runpy
 import shlex
 import subprocess
 import sys
@@ -17,6 +20,45 @@ import endstation_builder as eb
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIGS = sorted((ROOT / "configs").glob("endstation_*.yaml"))
+RECIPE = ROOT / "tb/verilator/nvm_capture_cpu/recipe.py"
+
+#: Import a tool with recipe.py's bytes replaced in memory, below a regular
+#: `tb` package that declares another clock. The import machinery and runpy
+#: both read source through open_code, so the plant reaches a load by path
+#: however it is written; an empty pycache prefix keeps a cached compilation of
+#: the real recipe out of the way. The last line proves the shadow is live.
+_PLANTED_IMPORT = """
+import _io, io, sys
+from pathlib import Path
+recipe, planted, module = Path(sys.argv[1]).resolve(), sys.argv[2].encode(), sys.argv[3]
+real_open_code = _io.open_code
+def open_code(path):
+    return _io.BytesIO(planted) if Path(path).resolve() == recipe else real_open_code(path)
+_io.open_code = io.open_code = open_code
+print(__import__(module).BAREMETAL_CLK_HZ)
+import tb.verilator.nvm_capture_cpu.recipe as shadow
+print(shadow.CPU_HZ)
+"""
+
+
+def _assert_clock_source(module: str, directory: Path) -> None:
+    """A tool's contract clock follows recipe.py's bytes, never a shadowing `tb` package."""
+    real = runpy.run_path(RECIPE)["CPU_HZ"]
+    planted, shadowed = real + 1, real + 2
+    with tempfile.TemporaryDirectory(prefix="clock-shadow-") as tmp:
+        package = Path(tmp) / "shadow/tb/verilator/nvm_capture_cpu"
+        package.mkdir(parents=True)
+        for level in (package, package.parent, package.parent.parent):
+            (level / "__init__.py").write_text("")
+        (package / "recipe.py").write_text(f"CPU_HZ = {shadowed}\n")
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(Path(tmp) / "shadow"), str(directory)]))
+        result = subprocess.run([sys.executable, "-B", "-X", f"pycache_prefix={Path(tmp) / 'pycache'}",
+                                 "-c", _PLANTED_IMPORT, str(RECIPE), f"CPU_HZ = {planted}\n", module],
+                                cwd=directory, env=env, text=True, capture_output=True, timeout=300)
+    assert result.returncode == 0, result.stderr
+    clock, shadow = (int(word) for word in result.stdout.split()[-2:])
+    assert shadow == shadowed, "the regular tb package did not shadow a namespace import"
+    assert clock == planted, f"{module}: contract clock {clock} does not follow recipe.py's bytes"
 
 
 def _refused(raw: dict, directory: Path, reason: str) -> None:
@@ -72,8 +114,22 @@ def test_baremetal_clock_contract() -> None:
           "system-clock ordering and non-cache Scala refusals; no output on failure")
 
 
-def test_gptp_rom_clock() -> None:
-    """Compare builder ROM bytes with an independent configured-clock run."""
+def test_builder_clock_source() -> None:
+    """The builder reads the contract clock from recipe.py's file, whatever sys.path holds."""
+    _assert_clock_source("endstation_builder", ROOT / "sw/builder")
+    print("[clock contract] builder clock follows a planted recipe.py under a shadowing tb package")
+
+
+def _print_skip(gate: str, why: str) -> None:
+    """Report a declined arm where no ledger listens, as when this module runs alone."""
+    print(f"  [{gate}] SKIP: {why}")
+
+
+def test_gptp_rom_clock(skip: Callable[[str, str], None] = _print_skip) -> None:
+    """Compare builder ROM bytes with an independent configured-clock run.
+
+    `skip` records a control that cannot apply; the builder bank passes its ledger.
+    """
     generator = ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py"
     with tempfile.TemporaryDirectory(prefix="gptp-rom-clock-") as tmp:
         directory = Path(tmp)
@@ -93,8 +149,8 @@ def test_gptp_rom_clock() -> None:
             # Controls must change bytes, not merely the argv.
             wrong_clocks = [[]]
             if clocks["sys_clk_hz"] == clocks["milan_clk_hz"]:
-                print(f"[clock contract] {path.stem}: SKIP system-clock control: "
-                      "sys_clk_hz == milan_clk_hz")
+                skip("clock contract", f"{path.stem}: system-clock ROM control not applicable, "
+                     "sys_clk_hz == milan_clk_hz makes its ROM the configured one")
             else:
                 wrong_clocks.append(["--clk-hz", str(clocks["sys_clk_hz"])])
             for wrong_args in wrong_clocks:
@@ -128,6 +184,7 @@ def test_soc_clock_contract() -> None:
     sys.path.insert(0, str(ROOT / "sw/litex"))
     import milan_soc
 
+    _assert_clock_source("milan_soc", ROOT / "sw/litex")
     for path in CONFIGS:
         cfg = eb.load_config(path)
         argv = eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / path.stem)]
@@ -151,27 +208,42 @@ def test_soc_clock_contract() -> None:
     for bad in (clock - 1, clock + 1, 80_000_000, 100_000_000):
         for option in ("--milan-clk-freq", "--sys-clk-freq"):
             _soc_clock_case(milan_soc, ["--no-milan", option, str(bad)], True)
-    print("[clock contract] SoC configured clocks, neighbours, 80/100 MHz, "
+    print("[clock contract] SoC clock follows a planted recipe.py under a shadowing tb package; "
+          "configured clocks, neighbours, 80/100 MHz, "
           "nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass")
 
 
-def _sweep(board: str, config: Path | None = None) -> subprocess.CompletedProcess:
+def _sweep(board: str, config: Path | None = None, argv: list[str] | None = None) -> subprocess.CompletedProcess:
+    """Run sweep_extra.sh under an empty HOME, where no Vivado or work tree can be reached."""
     env = dict(os.environ)
     env.pop("SWEEP_CFG", None)
     if config is not None:
         env["SWEEP_CFG"] = str(config)
-    return subprocess.run(["bash", str(ROOT / "sw/litex/sweep_extra.sh"), board, "clock-test", "--dry-run"],
-                          cwd=ROOT, env=env, text=True, capture_output=True, timeout=60)
+    with tempfile.TemporaryDirectory(prefix="sweep-home-") as home:
+        env["HOME"] = home
+        result = subprocess.run(["bash", str(ROOT / "sw/litex/sweep_extra.sh"),
+                                 *(argv or [board, "clock-test", "--dry-run"])],
+                                cwd=ROOT, env=env, text=True, capture_output=True, timeout=60)
+        assert not any(Path(home).iterdir()), f"sweep_extra.sh wrote under HOME: {result.stdout}"
+    assert "LAUNCHED" not in result.stdout, result.stdout
+    return result
 
 
 def _assert_sweep_clocks(result: subprocess.CompletedProcess, config: Path) -> None:
-    """Compare the preview with normalized clocks, including board defaults."""
+    """Compare the preview with normalized clocks, including board defaults, and its entity inputs."""
     assert result.returncode == 0, result.stderr
     clocks = eb.load_config(config)["constraints"]
     argv = shlex.split(result.stdout)
     for option, key in (("--sys-clk-freq", "sys_clk_hz"), ("--milan-clk-freq", "milan_clk_hz")):
         assert argv.count(option) == 1, argv
         assert float(argv[argv.index(option) + 1]) == clocks[key], (option, argv)
+    # The SoC finds the builder output by this directory's name and includes its gen/.
+    assert argv.count("--entity-gen-dir") == 1, argv
+    gen = Path(argv[argv.index("--entity-gen-dir") + 1])
+    assert gen.name == config.stem, (gen, config)
+    if config in CONFIGS:
+        definition = gen / "gen/adp_shape_defaults.svh"
+        assert config.name in definition.read_text(), f"{definition} does not name {config.name}"
 
 
 def test_extra_sweep_clocks() -> None:
@@ -204,6 +276,46 @@ def test_extra_sweep_clocks() -> None:
           "omitted system clock, board mismatch, invalid clock and missing configuration pass")
 
 
+def test_extra_sweep_invocation() -> None:
+    """--dry-run is honoured in any position; a bad argument list is refused before any launch."""
+    config = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+    # The middle order was read as tag "--dry-run" and launched three builds.
+    for argv in (["--dry-run", "ax7101", "order"], ["ax7101", "--dry-run", "order"],
+                 ["ax7101", "order", "--dry-run"]):
+        _assert_sweep_clocks(_sweep("ax7101", argv=argv), config)
+    for argv, reason in ((["ax7101", "--dry-run"], "expected a board and a tag, got 1"),
+                         (["ax7101", "order", "extra", "--dry-run"], "expected a board and a tag, got 3"),
+                         (["ax7101", "order", "--dryrun"], "unknown option --dryrun"),
+                         (["--dry-run", "ax7101", ""], "empty tag"),
+                         (["--dry-run", "zynq", "order"], "unknown board zynq")):
+        result = _sweep("ax7101", argv=argv)
+        assert result.returncode == 2 and reason in result.stderr, (argv, result.stderr)
+    # A launch builds first; a configuration outside configs/ gets no generated
+    # entity directory, so the SoC would include the tracked shape instead.
+    with tempfile.TemporaryDirectory(prefix="sweep-variant-") as tmp:
+        variant = Path(tmp) / "sweep variant.yaml"
+        variant.write_text(config.read_text())
+        result = _sweep("ax7101", variant, ["ax7101", "order"])
+        assert result.returncode != 0 and "wrote its entity definition to" in result.stderr, result.stderr
+    # The build interpreter reads the configuration, as sweep.sh's setup_env arranges.
+    script = ROOT / "sw/litex/sweep_extra.sh"
+    venv = re.search(r'export PATH="\$HOME/([^"$:]+):\$PATH"', script.read_text())
+    assert venv, "sweep_extra.sh exports no build interpreter"
+    with tempfile.TemporaryDirectory(prefix="sweep-venv-") as home:
+        marker = Path(home) / "interpreter-used"
+        interpreter = Path(home) / venv[1] / "python3"
+        interpreter.parent.mkdir(parents=True)
+        interpreter.write_text(f'#!/bin/sh\ntouch "{marker}"\nexec "{sys.executable}" "$@"\n')
+        interpreter.chmod(0o755)
+        env = {key: value for key, value in os.environ.items() if key != "SWEEP_CFG"}
+        result = subprocess.run(["bash", str(script), "--dry-run", "ax7101", "order"], cwd=ROOT,
+                                env=dict(env, HOME=home), text=True, capture_output=True, timeout=60)
+        assert result.returncode == 0 and marker.exists(), "configuration not read by the build interpreter"
+    print("[clock contract] extra sweep: --dry-run in every position previews; missing, extra, "
+          "unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; "
+          "the build interpreter reads the configuration")
+
+
 def test_tap_clock_docs() -> None:
     """The published cycle conversions follow each shape, including prunes."""
     text = (ROOT / "docs/AAF_LATENCY_TAPS.md").read_text()
@@ -219,10 +331,44 @@ def test_tap_clock_docs() -> None:
     print(f"[clock contract] {len(CONFIGS)} tap conversions and presence declarations match configurations")
 
 
+def _ax_gptp_dry_run(recipe: Path | None) -> subprocess.CompletedProcess:
+    """The commands `make ax1x1gptp` would run, expanded by make itself."""
+    command = ["make", "-s", "-n", "-B", "-C", str(ROOT / "tb/verilator/milan_dp"), "ax1x1gptp"]
+    if recipe is not None:
+        command.append(f"CLOCK_RECIPE={recipe}")
+    return subprocess.run(command, text=True, capture_output=True, timeout=120)
+
+
+def test_sim_clock() -> None:
+    """The AX 1x1 physical-rate simulation takes every clock use from the contract."""
+    with tempfile.TemporaryDirectory(prefix="sim-clock-") as tmp:
+        planted = Path(tmp) / "recipe.py"
+        planted_hz = eb.BAREMETAL_CLK_HZ + 1
+        planted.write_text(f"CPU_HZ = {planted_hz}\n")
+        # The planted recipe proves derivation: a literal would keep the contract value.
+        for recipe, hz in ((None, eb.BAREMETAL_CLK_HZ), (planted, planted_hz)):
+            result = _ax_gptp_dry_run(recipe)
+            assert result.returncode == 0, result.stderr
+            for use in (f"--clk-hz {hz} ", f"-GMILAN_CLK_FREQ_HZ={hz} ", f"-DMILAN_CLK_HZ_TB={hz} "):
+                assert result.stdout.count(use) == 1, f"make ax1x1gptp does not pass {use.strip()}"
+        absent = _ax_gptp_dry_run(Path(tmp) / "absent.py")
+        assert absent.returncode != 0 and "did not yield CPU_HZ" in absent.stderr, absent.stderr
+    source = (ROOT / "tb/verilator/milan_dp/sim_ax1x1gptp.cpp").read_text()
+    assert "constexpr uint64_t kHz = MILAN_CLK_HZ_TB;" in source, "harness clock is not the Makefile's"
+    for spelling in (str(eb.BAREMETAL_CLK_HZ), f"{eb.BAREMETAL_CLK_HZ / 1e6:g} MHz"):
+        assert spelling not in source, f"sim_ax1x1gptp.cpp restates the contract clock as {spelling!r}"
+    print("[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow "
+          "the contract and a planted recipe; an unreadable recipe is refused; the harness "
+          "restates no clock")
+
+
 if __name__ == "__main__":
     test_baremetal_clock_contract()
+    test_builder_clock_source()
     test_gptp_rom_clock()
     test_extra_sweep_clocks()
+    test_extra_sweep_invocation()
     test_tap_clock_docs()
+    test_sim_clock()
     if "--soc" in sys.argv:
         test_soc_clock_contract()

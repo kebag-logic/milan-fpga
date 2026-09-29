@@ -10,7 +10,8 @@
 //!      plus the rx -> talker LOOPBACK source (src 5) driven from a synthetic
 //!      depacketizer payload stream.
 //!   B: chmap(32 slots) -> packetizer(N=8, all 8ch = 32 slots) - exercises the
-//!      widened pair_slot up to slot 31 (talker 7 pair 3).
+//!      widened pair_slot up to slot 31 (talker 7 pair 3), with a one-pair
+//!      TDM frame (#617: every pair-0 strobe publishes).
 //! Both chmaps share the source-pair stimulus pins AND the loopback payload
 //! AXIS; each has its own map write/read port and media tick.
 //!
@@ -65,7 +66,7 @@ module chmap_wrap (
   //! per-lane slip evidence (saturating; ZERO with locked pacing)
   output wire [15:0]  a_dup_cnt_o,
   output wire [15:0]  a_skip_cnt_o,
-  //! #74 TDM junction slip detector (frame marker vs tick), lane A grades it
+  //! #74 TDM junction slip detector (frame close vs snapshot), lane A grades it
   output wire [15:0]  a_tdm_dup_cnt_o,
   output wire [15:0]  a_tdm_skip_cnt_o,
   output wire [15:0]  b_dup_cnt_o,
@@ -204,8 +205,12 @@ module chmap_wrap (
   wire [4:0]  b_slot_w;
   wire [23:0] b_l_w, b_r_w;
 
+  //! lane B closes a TDM frame on every pair-0 strobe: the one-pair frame
+  //! milan_datapath hands the crossbar on the I2S-capture shapes
+  //! (CMAP_TDM_FRAME_PAIRS_C = AIF_PAIRS_C = 1), which lane A's four-pair
+  //! frame cannot exercise
   KL_chan_map_capture #(
-    .N_SLOTS_P (32), .N_TDM_P (8), .GAP_CYC_P (24),
+    .N_SLOTS_P (32), .N_TDM_P (8), .TDM_FRAME_PAIRS_P (1), .GAP_CYC_P (24),
     .N_LB_STREAMS_P (8), .N_LB_CH_P (8)
   ) u_chmap_b (
     .clk_i (clk), .rst_n (rst_n),

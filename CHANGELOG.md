@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - frame-atomic TDM capture](#unreleased---frame-atomic-tdm-capture)** -- One TDM frame per AAF column.
 - **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
 - **[Unreleased - pending follows live writes](#unreleased---pending-follows-live-writes)** -- Pending follows accepted writes.
 - **[Unreleased - processor pin 0922e434](#unreleased---processor-pin-0922e434)** -- MVU waiver and parameter inventory.
@@ -32,6 +33,37 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - frame-atomic TDM capture
+
+- Issue #617 makes the talker's TDM capture frame-atomic.
+- Every AAF column now carries one TDM frame.
+- A frame publishes whole when its last pair lands.
+- Each media-tick walk reads one snapshot of it.
+- Earlier pairs wait for their frame to complete.
+- Pair delay grows by 1.68 to 15.75 us.
+- [Talker capture handoff](docs/design/TIME_SYNC.md#talker-capture-handoff) tables the exact change.
+- The walk and `SLIP_TDM` share one crossing: close against tick.
+- The grid aligner now keys on that frame close.
+- It sees the tick one cycle late; keep-off 256 cycles.
+- No settled CRF lock repeats or skips a frame.
+- Measured converging to +/-100 ppm relative rate.
+- Recorded converged to +/-150 ppm.
+- The rate is the TDM frame against the local clock.
+- Only acquisition may repeat and skip, net zero.
+- [The guarded crossing](docs/design/TIME_SYNC.md#the-guarded-crossing) states the measured envelope.
+- `SLIP_TDM` counts the talker's own repeated and skipped frames.
+- `KL_media_nco` now ends a period at or past its end.
+- A trim update on any cycle no longer loses ticks.
+- A late update is a one-cycle phase step instead.
+- The render path and channel-map semantics are unchanged.
+- `tb/verilator/capture_coherence` grades drift in INTERNAL and CRF.
+- It sweeps CRF engagement phases densely through the crossing.
+- It binds the datapath's own keep-off declaration.
+- Its build refuses a datapath aligner bound to anything else.
+- Its mutation arm runs in parallel, one build per CPU.
+- A failed build prints its compiler and make output.
+- VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - processor pin 16be6768
 

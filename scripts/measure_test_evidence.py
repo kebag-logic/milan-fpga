@@ -613,6 +613,11 @@ DUT_READER_DISPOSITIONS = {
         "boundary step double counting, retained guard streak, streak increment "
         "on slew discard and slew discard counted as a guard trip; "
         "no expectations read from RTL",
+    "tb/verilator/capture_coherence/mutants.py":
+        "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
+        "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
+        "and requires a named failure from the junction, datapath or chmap_capture harness; no "
+        "expected value is read from RTL",
     "tb/verilator/crf_rx/mutants.py":
         "mutation campaign; copies the receiver and servo, requiring named failures "
         "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "

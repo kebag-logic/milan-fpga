@@ -184,11 +184,12 @@ module KL_media_nco #(
   //! seeds at once (WNS -2.9 to -4.0 ns) - a structural failure, not a
   //! placement lottery.
   //!
-  //! Costs nothing to break: servo_trim_i moves at most once per servo tick
-  //! (KL_mmcm_drp_servo TICK_CYC_P = 24576 audio cycles, about 1 ms), and the
-  //! grid needs a new rate no faster than the loop produces one. One cycle of
-  //! latency on a value that updates every ~100,000 cycles is invisible to
-  //! the rate, to the phase, and to every check in tb/verilator/media_nco.
+  //! What breaking it costs is one cycle of trim latency, and nothing about
+  //! WHEN the trim moves: a producer may move it on any cycle of a period,
+  //! the last one included. The in-tree producer does - since #74 the servo
+  //! path is KL_media_grid_align's u, updated on every TDM frame marker, at
+  //! whatever phase the frame holds against this grid. The terminal compare
+  //! below is what makes that safe (TERMINAL COMPARE).
   logic signed [SUMW_C-1:0] trim_r;
   always_ff @(posedge clk_i) begin : trim_pipe
     if (!rst_n) trim_r <= '0;
@@ -196,7 +197,9 @@ module KL_media_nco #(
   end : trim_pipe
 
   //! ONE predicate set decides the borrowed/lent cycle AND the accumulator
-  //! wrap, so the two can never disagree (one shared fractional-N predicate)
+  //! wrap, so at a steady trim the two can never disagree (one shared
+  //! fractional-N predicate); a trim that moves on the period's last cycles
+  //! is the one bounded exception (TERMINAL COMPARE)
   wire signed [SUMW_C-1:0] sum_w = SUMW_C'(signed'({1'b0, frac_r}))
                                  + SUMW_C'(signed'(REM_C))
                                  + trim_r;
@@ -207,13 +210,35 @@ module KL_media_nco #(
                     + (ov_w ? 32'd1 : 32'd0)
                     - (un_w ? 32'd1 : 32'd0);
 
+  //! TERMINAL COMPARE (#617): the period ends on the first cycle the count
+  //! REACHES OR PASSES end_w, never on equality alone. end_w follows trim_r
+  //! live, so a trim update landing on the cycle the count sits at the old
+  //! end, and lowering the end (a lent cycle withdrawn, a borrowed one
+  //! taken), put the count one past it; an == compare then ran the count to
+  //! its CNTW_C-bit wrap and back, and the grid lost two ticks (a 3,089-cycle
+  //! period at 50 MHz). What this guarantees, whatever cycle a trim lands on:
+  //!   * one tick per period, never lost and never doubled, and the count
+  //!     never passes DIV_C, so it never wraps;
+  //!   * an update that lowers the end below the count ends the period on
+  //!     that cycle: no longer than the old trim set it, one cycle past the
+  //!     new end (two for a step of more than DEN_C LSB, beyond the servo's
+  //!     +/-200 ppm authority). The accumulator books the trim in force on
+  //!     the period's last cycle, the new one, so from then on the grid runs
+  //!     that one (two) cycle(s) behind its account: a one-time phase step
+  //!     the steering loop absorbs, never a lost sample and never a rate
+  //!     change;
+  //!   * at a steady trim the count meets the end exactly, so the grid is
+  //!     bit-for-bit what the == compare made (the rate, phase and legacy
+  //!     checks of tb/verilator/media_nco), and INTERNAL's free-run with it.
+  //! tb/verilator/media_nco check 10 moves the trim on every cycle around
+  //! the terminal count, both shapes, every end move.
   always_ff @(posedge clk_i) begin : media_grid
     if (!rst_n) begin
       cnt_r  <= '0;
       frac_r <= '0;
       tick_o <= 1'b0;
     end
-    else if (32'(cnt_r) == end_w) begin
+    else if (32'(cnt_r) >= end_w) begin
       cnt_r  <= '0;
       frac_r <= ov_w ? FRACW_C'(sum_w - SUMW_C'(signed'(DEN_C)))
               : un_w ? FRACW_C'(sum_w + SUMW_C'(signed'(DEN_C)))

@@ -10,8 +10,8 @@ hand-edit. Part of the Milan integration family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_nvm_backend` | `KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰milan_dp_render | -- |
-| ✅ `KL_pp_maap_shim` | `KL_pp_maap_shim.sv` | `milan_dp` · ➰milan_dp_render | -- |
-| ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` · ➰milan_dp_render | 34.3, 34.4 |
-| ✅ `milan_datapath` | `milan_datapath.sv` | `milan_dp` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
+| ✅ `KL_nvm_backend` | `KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰capture_coherence,milan_dp_render | -- |
+| ✅ `KL_pp_maap_shim` | `KL_pp_maap_shim.sv` | `milan_dp` · ➰capture_coherence,milan_dp_render | -- |
+| ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` · ➰capture_coherence,milan_dp_render | 34.3, 34.4 |
+| ✅ `milan_datapath` | `milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
 

@@ -35,14 +35,27 @@
 //
 //   7. A WILD TRIM DEGRADES TO THE CLAMP. Beyond +/-TRIM_MAX_P the rate must
 //      saturate, never wrap and never drop a sample.
+//
+//  10. A TRIM MAY MOVE ON ANY CYCLE (#617). The in-tree producer, the #74
+//      grid aligner, moves the trim once per TDM frame at whatever phase the
+//      frame holds, so an update can land on a period's last cycles. Each
+//      move of the period's end is driven to land on every cycle from three
+//      before the terminal count to the next period's first, including the
+//      cycle where a lowered end is already behind the count - the one an ==
+//      terminal compare missed, running the count to its wrap and losing two
+//      ticks. Every trial must tick once, inside the old or the new trim's
+//      period, with the count never past the higher end.
 
 #include "Vmedia_nco_wrap.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
 #include "nco_ref_model.h"
 
+#include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cmath>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -74,6 +87,7 @@ class MediaNcoHarness {
     void test_clamp(const Shape& sh, bool is_a, uint64_t ticks);
     void test_dynamic(const Shape& sh, bool is_a);
     void test_servo(const Shape& sh, bool is_a, long ppm_lsb, uint64_t ticks);
+    void test_terminal_race(const Shape& sh, bool is_a);
 
     long g_checks = 0;
     long g_fail   = 0;
@@ -500,6 +514,147 @@ void MediaNcoHarness::test_servo(const Shape& sh, bool is_a, long ppm_lsb, uint6
 }
 
 // ------------------------------------------------------------------------ //
+// 10. A trim that moves on ANY cycle around the terminal count (#617)        //
+//                                                                            //
+//    A period ends on the count DIV-1, plus the cycle its sum lends (sum >=  //
+//    DEN) or less the one it borrows (sum < 0). The trial holds one trim     //
+//    from the period's start, then moves it so the new trim first reaches    //
+//    the grid's trim register on a chosen cycle. The oracle states what a    //
+//    grid owes whatever that cycle is, not how the RTL gets there:           //
+//      one tick: the period is one the old or the new trim could set;        //
+//      no wrap: the count never passes the higher of the two ends;           //
+//      the account: the accumulator books the trim in force on the period's  //
+//      last cycle, in the closed form of check 2's phase oracle.             //
+// ------------------------------------------------------------------------ //
+
+//! One move of the period's end: the end each trim sets, as the count's
+//! offset from DIV-1 (+1 lends a cycle, -1 borrows one).
+struct EndMove {
+    int from;
+    int to;
+    const char* what;
+};
+
+//! Every move one trim step can make. The lowering ones are those that can
+//! land with the count already past the new end.
+constexpr std::array<EndMove, 6> kEndMoves = {{
+    {+1, 0, "lent -> nominal, end one lower"},
+    {0, -1, "nominal -> borrowed, end one lower"},
+    {+1, -1, "lent -> borrowed, end two lower"},
+    {0, +1, "nominal -> lent, end one higher"},
+    {-1, 0, "borrowed -> nominal, end one higher"},
+    {-1, +1, "borrowed -> lent, end two higher"},
+}};
+
+//! Where the new trim first reaches the trim register, in cycles from the
+//! old end: three cycles before it, the end itself (where a lowered end is
+//! already behind the count) and the next period's first cycle.
+constexpr int kLandFirst = -3;
+constexpr int kLandLast = 1;
+
+//! Periods a trial waits at trim 0 for a phase from which both of its trims
+//! are inside the clamp. At trim 0 the phase steps by REM modulo DEN, three
+//! values on both shapes, so three periods always reach one.
+constexpr int kRepositionPeriods = 8;
+
+//! Clocks a trial waits for its tick, in periods: past an == compare's wrap
+//! (2^CNTW + DIV clocks), so a lost tick is measured rather than hung on.
+constexpr int64_t kTrialGuardPeriods = 4;
+
+//! The sum the trim for `end` must give: the one nearest the other end's
+//! boundary, so the two trims differ by the least step that moves the end.
+int64_t end_sum(int end, int other, int64_t den) {
+    if (end > 0) return den;
+    if (end < 0) return -1;
+    return other > 0 ? den - 1 : 0;
+}
+
+void MediaNcoHarness::test_terminal_race(const Shape& sh, bool is_a) {
+    printf("\n-- 10. %s: a trim moving on any cycle around the terminal count --\n", sh.name);
+    const int64_t div = int64_t(sh.spec.div());
+    const int64_t rem = int64_t(sh.spec.rem());
+    const int64_t den = int64_t(sh.spec.fs_hz);
+    const int64_t tmax = sh.spec.trim_max;
+    const auto set_trim = [&](int64_t t) {
+        if (is_a) dut->a_trim_i = static_cast<int32_t>(t);
+        else      dut->b_trim_i = static_cast<int32_t>(t);
+    };
+    const auto count = [&]() { return int64_t(is_a ? dut->a_cnt_o : dut->b_cnt_o); };
+    const auto phase = [&]() { return int64_t(is_a ? dut->a_phase_o : dut->b_phase_o); };
+    const auto next_tick = [&]() {
+        for (int64_t c = 0; c < kTrialGuardPeriods * div; ++c) {
+            const Ticks t = tick_clock();
+            if (is_a ? t.a : t.b) return true;
+        }
+        return false;
+    };
+
+    do_reset();
+    int passed_end = 0;
+    for (const EndMove& mv : kEndMoves) {
+        //! a sum below zero needs a trim below -REM (the 50 MHz shape's
+        //! clamp does not reach it, the README's borrow note)
+        if ((mv.from < 0 || mv.to < 0) && tmax <= rem) {
+            printf("   %s: unreachable, the clamp %lld cannot take the sum below zero (REM %lld)\n", mv.what,
+                   static_cast<long long>(tmax), static_cast<long long>(rem));
+            continue;
+        }
+        for (int k = kLandFirst; k <= kLandLast; ++k) {
+            set_trim(0);
+            int64_t f = 0;
+            int64_t t_old = 0;
+            int64_t t_new = 0;
+            bool legal = false;
+            for (int p = 0; p < kRepositionPeriods && !legal; ++p) {
+                if (!next_tick()) break;
+                f = phase();
+                t_old = end_sum(mv.from, mv.to, den) - f - rem;
+                t_new = end_sum(mv.to, mv.from, den) - f - rem;
+                legal = std::llabs(t_old) <= tmax && std::llabs(t_new) <= tmax;
+            }
+            const std::string at = std::string(sh.name) + " " + mv.what + ", update landing at old end "
+                                   + (k < 0 ? "" : "+") + std::to_string(k);
+            ok(legal, at + ": a phase with both trims inside the clamp was reached (vacuity guard)");
+            if (!legal) continue;
+
+            set_trim(t_old);
+            const int64_t end_old = div - 1 + mv.from;
+            const int64_t end_new = div - 1 + mv.to;
+            const int64_t land = end_old + k;
+            int64_t len = 0;
+            int64_t top = 0;
+            bool moved = false;
+            bool ticked = false;
+            while (len < kTrialGuardPeriods * div && !ticked) {
+                if (!moved && count() == land - 1) {
+                    set_trim(t_new);
+                    moved = true;
+                }
+                const Ticks t = tick_clock();
+                ++len;
+                ticked = is_a ? t.a : t.b;
+                if (!ticked) top = std::max(top, count());
+            }
+            const bool in_period = k <= 0;
+            if (in_period && land > end_new) ++passed_end;
+            const int64_t booked = in_period ? t_new : t_old;
+            const int64_t want_phase = (((f + rem + booked) % den) + den) % den;
+            const int64_t lo = std::min(end_old, end_new) + 1;
+            const int64_t hi = std::max(end_old, end_new) + 1;
+            printf("   %s, lands at count %lld (ends %lld -> %lld): period %lld, top count %lld%s\n", at.c_str(),
+                   static_cast<long long>(land), static_cast<long long>(end_old), static_cast<long long>(end_new),
+                   static_cast<long long>(len), static_cast<long long>(top),
+                   in_period && land > end_new ? "  [count already past the new end]" : "");
+            ok(ticked && len >= lo && len <= hi, at + ": one tick, in a period the old or the new trim sets");
+            ok(top <= hi - 1, at + ": the count never passes the higher end (no wrap)");
+            ok(phase() == want_phase, at + ": the accumulator books the trim in force on the period's last cycle");
+        }
+    }
+    printf("   %d trials landed the update with the count already past the new end\n", passed_end);
+    ok(passed_end > 0, std::string(sh.name) + " an update landed with the count past the new end (vacuity guard)");
+}
+
+// ------------------------------------------------------------------------ //
 
 //! Clocks the bit-exactness comparison runs for: 600 000 is 288 A ticks and
 //! 576 B ticks, i.e. 6 ms and 12 ms of a 48 kHz grid, and every one of them
@@ -555,6 +710,9 @@ int MediaNcoHarness::run() {
     //  derived default trips the conversion checks instead of moving with them
     test_servo(A, true,  kPpmLsbA, kTicksPerPoint);
     test_servo(B, false, kPpmLsbB, kTicksPerPoint);
+
+    test_terminal_race(A, true);
+    test_terminal_race(B, false);
 
     printf("\n======================================================================\n");
     printf("media_nco: %ld checks: %ld PASS, %ld FAIL\n",
