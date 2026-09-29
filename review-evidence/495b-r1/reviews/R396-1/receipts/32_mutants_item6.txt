@@ -1,0 +1,17 @@
+6-CTL | item 6 | expect PASS | observed PASS (rc=0) | OK | [gate 40] 26 refusals; 3 header mutants per config
+6-A doubled underscores | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted '0200__00000002': leading, trailing or doubled underscore
+6-B prefix match not fullmatch | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted '0x001BC50AC1000005 ': trailing whitespace
+6-C width off by one | item 6 | expect KILL | observed KILL (rc=1) | OK | endstation_builder.ConfigError: clocking.crf_format: '0x041060010000BB80' is outside 64 bits (16 hex digits, at most 16)
+6-D width dropped | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted invalid entity.vendor_oui: outside 24 bits
+6-E mixed separators | item 6 | expect KILL | observed PASS (rc=0) | MISMATCH | [gate 40] 26 refusals; 3 header mutants per config
+6-F short MAC digit strings | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted '02000000002': fewer than twelve digits
+6-G unpadded octets | item 6 | expect KILL | observed PASS (rc=0) | MISMATCH | [gate 40] 26 refusals; 3 header mutants per config
+6-H sign admitted | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted '+020000000002': sign
+6-I Unicode digits via \d | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted '٠01BC50AC1000005': non-ASCII digit
+6-J capabilities width 24 | item 6 | expect KILL | observed KILL (rc=1) | OK | endstation_builder.ConfigError: entity.entity_capabilities: '0x0000C588' is outside 24 bits (8 hex digits, at most 6)
+6-K OUI width 32 | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: ('entity.vendor_oui', 'outside 24 bits', "entity.entity_model_id: '0x1000000C40236BA0E' is outside 64 bits (17 hex digits, at most 16)")
+6-L DMAC width 64 | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted '0x091E0F000FE01': digits past the width
+6-M prefix on octets | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: ('fewer than twelve digits', '0x2', "platform.mac_address: '2' is not a MAC-48 (six two-digit hex octets with one ':' or '-' separator, or twelve hex digits with an optional 0x and sin
+6-N whitespace stripped | item 6 | expect KILL | observed KILL (rc=1) | OK | AssertionError: accepted ' 0x001BC50AC1000005': leading whitespace
+6-O MAC hex without underscores | item 6 | expect KILL | observed KILL (rc=1) | OK | endstation_builder.ConfigError: platform.mac_address: '0x0200_0000_0002' is not a MAC-48 (six two-digit hex octets with one ':' or '-' separator, or twelve hex digits with an optional 0x and single un
+SUMMARY entries=16 mismatches=2 tree_clean_after=yes

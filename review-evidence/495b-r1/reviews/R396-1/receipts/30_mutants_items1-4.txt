@@ -1,0 +1,30 @@
+1-CTL | item 1 | expect PASS | observed PASS (rc=0) | OK | [clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+1-A Makefile literal clock | item 1 | expect KILL | observed KILL (rc=1) | OK | AssertionError: make ax1x1gptp does not pass --clk-hz 50000001
+1-B ROM rule literal | item 1 | expect KILL | observed KILL (rc=1) | OK | AssertionError: make ax1x1gptp does not pass --clk-hz 50000001
+1-C harness -D dropped | item 1 | expect KILL | observed KILL (rc=1) | OK | AssertionError: make ax1x1gptp does not pass -DMILAN_CLK_HZ_TB=50000000
+1-D elaboration literal | item 1 | expect KILL | observed KILL (rc=1) | OK | AssertionError: make ax1x1gptp does not pass -GMILAN_CLK_FREQ_HZ=50000001
+1-E shell status not taken | item 1 | expect KILL | observed KILL (rc=1) | OK | make: *** No rule to make target '/tmp/sim-clock-ucu9wg0i/absent.py', needed by 'gptp_ax1x1_ucode.hex'.  Stop.
+1-F harness literal kHz | item 1 | expect KILL | observed KILL (rc=1) | OK | AssertionError: harness clock is not the Makefile's
+1-G harness report literal 50 MHz | item 1 | expect KILL | observed KILL (rc=1) | OK | AssertionError: sim_ax1x1gptp.cpp restates the contract clock as '50 MHz'
+2-CTL | item 2 | expect PASS | observed PASS (rc=0) | OK | [clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter r
+2-A entity dir not passed | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: ['python3', '$CLONE/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '83333000', '--milan-clk-freq', '50000000', '--cpu', 'vexiiriscv', '--software
+2-B old positional parse | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: sweep_extra: unknown board --dry-run; usage: sweep_extra.sh [--dry-run] <arty|ax7101> <tag>
+2-C unknown option kept as argument | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: (['ax7101', 'order', '--dryrun'], 'sweep_extra: expected a board and a tag, got 3 argument(s); usage: sweep_extra.sh [--dry-run] <arty|ax7101> <tag>\n')
+2-D extra arguments ignored | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: (['ax7101', 'order', 'extra', '--dry-run'], '')
+2-E empty tag accepted | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: (['--dry-run', 'ax7101', ''], '')
+2-F launch guard removed | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: $CLONE/sw/litex/sweep_extra.sh: line 92: /tmp/sweep-home-9ob2iunl/Xilinx/2026.1/Vivado/settings64.sh: No such file or directory
+2-G interpreter exported late | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: sweep_extra.sh exports no build interpreter
+2-H entity dir named wrong | item 2 | expect KILL | observed KILL (rc=1) | OK | AssertionError: (PosixPath('$CLONE/configs/generated/endstation_ax7101_8x8'), PosixPath('$CLONE/configs/endstation_arty_4x4.yaml'))
+2-I launch guard always refuses (positive launch path) | item 2 | expect KILL | observed PASS (rc=0) | MISMATCH | [clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter r
+3-CTL builder | item 3 | expect PASS | observed PASS (rc=0) | OK | [clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+3-B5 builder literal mirror | item 3 | expect KILL | observed KILL (rc=1) | OK | AssertionError: endstation_builder: contract clock 50000000 does not follow recipe.py's bytes
+3-Bns builder namespace import | item 3 | expect KILL | observed KILL (rc=1) | OK | AssertionError: endstation_builder: contract clock 50000002 does not follow recipe.py's bytes
+3-CTL SoC | item 3 | expect PASS | observed PASS (rc=0) | OK | [clock contract] SoC clock follows a planted recipe.py under a shadowing tb package; configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-d
+3-S7 SoC literal mirror | item 3 | expect KILL | observed KILL (rc=1) | OK | AssertionError: milan_soc: contract clock 50000000 does not follow recipe.py's bytes
+3-Sns SoC namespace import | item 3 | expect KILL | observed KILL (rc=1) | OK | AssertionError: milan_soc: contract clock 50000002 does not follow recipe.py's bytes
+4-CTL | item 4 | expect PASS | observed PASS (rc=0) | OK |   [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+4-A skip printed only | item 4 | expect KILL | observed KILL (rc=1) | OK | AssertionError: []
+4-B wrapper drops the ledger | item 4 | expect KILL | observed KILL (rc=1) | OK | AssertionError: []
+4-C run list bypasses the wrapper | item 4 | expect KILL | observed KILL (rc=1) | OK | AssertionError: ['test_commercial_timing_grade', 'test_baremetal_clock_contract', 'test_gptp_rom_clock', 'test_rom_clock_skip_reaches_the_ledger', 'test_extra_sweep_clocks', 'test_tap_clock_docs', 'te
+4-D ledger kind changed | item 4 | expect KILL | observed KILL (rc=1) | OK | AssertionError: [('clock contract', 'tmpyp_wyec4: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one', 'gate')]
+SUMMARY entries=29 mismatches=1 tree_clean_after=yes

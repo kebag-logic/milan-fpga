@@ -1,0 +1,4 @@
+# before-state: base eaa88a32 sw/litex/sweep_extra.sh under the head's tests (empty HOME in _sweep)
+test_extra_sweep_clocks rc=1 | AssertionError: ['python3', '$CLONE/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '83333000', '--milan-clk-freq', '50000000', '--cpu', 'vexiiriscv', '--software-profile', 'baremeta
+test_extra_sweep_invocation rc=1 | AssertionError: unknown board --dry-run
+restored: 0 dirty paths

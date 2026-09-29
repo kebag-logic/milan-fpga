@@ -1,0 +1,26 @@
+# pins-only at 859fa5d5b9ce6762c38eb683c8d3f5e565dbcff0, Python 3.12.13, pyyaml 6.0.3
+=== python3 sw/builder/test_clock_constraints.py
+rc=0 seconds=86
+[constraints] quarantined /tmp/constraint-log-5u196ej9/digilent_arty.bit as /tmp/constraint-log-5u196ej9/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-5u196ej9/alinx_ax7101.bit as /tmp/constraint-log-5u196ej9/alinx_ax7101.bit.rejected
+[constraints] /tmp/constraint-log-5u196ej9/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+=== python3 sw/builder/test_timing_grade.py $PACKET/scratch/pins-venv/bin/python3
+rc=0 seconds=0
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+=== python3 sw/builder/test_clock_contract.py --soc
+rc=0 seconds=5
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+[clock contract] 5 tap conversions and presence declarations match configurations
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+[clock contract] SoC clock follows a planted recipe.py under a shadowing tb package; configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass

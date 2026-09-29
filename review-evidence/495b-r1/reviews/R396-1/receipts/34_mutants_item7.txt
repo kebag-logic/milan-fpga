@@ -1,0 +1,10 @@
+7-CTL 1x1 e1 | item 7 | expect PASS | observed PASS (rc=0) | OK | INFO:SoC:--------------------------------------------------------------------------------
+7-MD bitstream_commands replaced (1x1 e1) | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade reports missing or duplicated: []
+7-ME pre_placement cleared (1x1 e1) | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade configure missing or duplicated: []
+7-MD bitstream_commands replaced (8x8 e2) | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade reports missing or duplicated: []
+7-ME pre_placement cleared (8x8 e2) | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade configure missing or duplicated: []
+7-C configure moved after placement | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade configured after placement
+7-D reports moved before routing | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade reports outside routed pre-bitstream
+7-E configure duplicated | item 7 | expect KILL | observed KILL (rc=1) | OK | AssertionError: timing grade configure missing or duplicated: [243, 244]
+7-OLD probe without hook check under MD (before-state control) | item 7 | expect PASS | observed PASS (rc=0) | OK | INFO:SoC:--------------------------------------------------------------------------------
+SUMMARY entries=9 mismatches=0 tree_clean_after=yes

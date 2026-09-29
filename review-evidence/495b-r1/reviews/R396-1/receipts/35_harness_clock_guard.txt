@@ -1,0 +1,33 @@
+# compile probe of sim_ax1x1gptp.cpp:55-81 (clock constants, #error, static_assert) at head; excerpt opens an anonymous namespace, closed by the probe
+#include <vector>
+
+// The contract clock, CPU_HZ in tb/verilator/nvm_capture_cpu/recipe.py. The
+// Makefile derives it once and elaborates MILAN_CLK_FREQ_HZ from the same value.
+#ifndef MILAN_CLK_HZ_TB
+#error "MILAN_CLK_HZ_TB: build through the milan_dp Makefile, which derives it from recipe.py"
+#endif
+
+namespace {
+constexpr uint64_t kHz = MILAN_CLK_HZ_TB;
+//! One axis period: the PHC increment and every cycle/time conversion below.
+constexpr uint64_t kPeriodNs = 1000000000 / kHz;
+//! Peer-delay tolerance: one period of ingress phase plus 8 ns peer
+//! quantization. The check labels spell this period (20 ns, 200 MHz and
+//! 28 ns, which verify_abort.py reads) and the 782/1591 audio ratio models
+//! the audio master clock at it, so a contract clock with another period
+//! stops the build here rather than mislabelling its checks.
+constexpr int64_t kDelayBoundNs = static_cast<int64_t>(kPeriodNs) + 8;
+static_assert(kPeriodNs * kHz == 1000000000 && kDelayBoundNs == 28,
+              "revisit the check labels, verify_abort.py and the audio ratio for this period");
+constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
+constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
+constexpr uint64_t kSid = 0x0200000000020000ULL;
+constexpr uint64_t kPropagation = 320;
+constexpr uint64_t kResidence = 20000;
+constexpr uint64_t kAafPeriod = kHz * 6 / 48000; // six 48 kHz samples per PDU
+constexpr unsigned kGuard = 2048;
+=== g++ <no define>: rc=1 #error "MILAN_CLK_HZ_TB: build through the milan_dp Makefile, which derives it from recipe.py"
+=== g++ -DMILAN_CLK_HZ_TB=50000000: rc=0 
+=== g++ -DMILAN_CLK_HZ_TB=100000000: rc=1 static assertion failed: revisit the check labels, verify_abort.py and the audio ratio for this period
+=== g++ -DMILAN_CLK_HZ_TB=50000001: rc=1 static assertion failed: revisit the check labels, verify_abort.py and the audio ratio for this period
+=== g++ -DMILAN_CLK_HZ_TB=62500000: rc=1 static assertion failed: revisit the check labels, verify_abort.py and the audio ratio for this period

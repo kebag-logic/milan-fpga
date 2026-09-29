@@ -1,0 +1,16 @@
+# bank + changed tests at 859fa5d5b9ce6762c38eb683c8d3f5e565dbcff0
+=== bank present: pins-venv python3 -B sw/builder/test_builder.py --require-rv32 --require-elaboration (riscv64-elf-gcc 15.2.0 on PATH)
+rc=0 seconds=576 (see bank_present tail)
+
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 1 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+=== bank absent: same interpreter, PATH filtered of riscv* and HOME emptied; test_builder.py --require-elaboration
+rc=0 seconds=438
+  - [gate 1b] the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the sam
+  - [gate 11] real report not on disk ($PACKET/scratch/nocc-home/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 2 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 2 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+9557eafe775bbf4e35a463526a186668b5627b7468e6877e6efbb12e19f15f8b  $PACKET/scratch/bank_present.log
+da961a4d8b6475c83ded8a780166a5cc7030752b3d21b01529efd66b14cec816  $PACKET/scratch/bank_absent.log

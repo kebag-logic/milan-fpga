@@ -1,0 +1,30 @@
+# changed tests at 859fa5d5b9ce6762c38eb683c8d3f5e565dbcff0
+=== python3 -B sw/builder/test_clock_contract.py
+rc=0 seconds=5
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+[clock contract] 5 tap conversions and presence declarations match configurations
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+=== python3 -B sw/builder/test_declarations.py
+rc=0 seconds=6
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+=== $PACKET/scratch/pins-venv/bin/python3 -B sw/builder/test_declarations.py
+rc=0 seconds=6
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+=== $PACKET/scratch/pins-venv/bin/python3 -B sw/builder/test_shipping_clock_constraints.py --help
+rc=0 seconds=0
+  -h, --help            show this help message and exit
+  --config {ax7101_1x1_tdm8,ax7101_8x8}
+  --port {e1,e2}
+  --output-dir OUTPUT_DIR
+=== (cd sw/litex && pins python3 -B test_pp_mem_bridge.py)
+rc=0
+
+test_pp_mem_bridge: 113 checks: 113 PASS, 0 FAIL
+RESULT: PASS
