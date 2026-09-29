@@ -887,8 +887,10 @@ N = 2, R = 0) against `KL_aecp_desc_store`'s 576-octet line buffer.
 Hexadecimal declarations require YAML strings.
 This includes `platform.mac_address`, `entity.vendor_oui` and `entity.entity_capabilities`.
 Numbers, booleans and explicit nulls receive field-named quote instructions.
-Quoted MAC strings retain colon, dash and underscore separators.
-Hexadecimal digits retain their value, with an optional `0x` prefix.
+Quoted hexadecimal text is hex digits with an optional `0x` or `0X` prefix and single underscores between digits.
+Its digit count, leading zeros included, must fit the field's width.
+A quoted MAC is six two-digit hex octets with one `:` or `-` separator throughout, or twelve digits of hexadecimal text.
+Signs, surrounding whitespace, short or unpadded octets, mixed separators, and leading, trailing, doubled or separator-adjacent underscores refuse.
 Each declared AAF `formats` must be a list.
 Quote each entry; scalar strings and other non-lists refuse.
 Omitted or empty lists retain the derived format defaults.
