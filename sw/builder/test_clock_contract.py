@@ -6,6 +6,7 @@ import copy
 import io
 import os
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import sys
@@ -155,23 +156,37 @@ def test_soc_clock_contract() -> None:
           "nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass")
 
 
-def _sweep(board: str, config: Path | None = None) -> subprocess.CompletedProcess:
+def _sweep(board: str, config: Path | None = None, argv: list[str] | None = None) -> subprocess.CompletedProcess:
+    """Run sweep_extra.sh under an empty HOME, where no Vivado or work tree can be reached."""
     env = dict(os.environ)
     env.pop("SWEEP_CFG", None)
     if config is not None:
         env["SWEEP_CFG"] = str(config)
-    return subprocess.run(["bash", str(ROOT / "sw/litex/sweep_extra.sh"), board, "clock-test", "--dry-run"],
-                          cwd=ROOT, env=env, text=True, capture_output=True, timeout=60)
+    with tempfile.TemporaryDirectory(prefix="sweep-home-") as home:
+        env["HOME"] = home
+        result = subprocess.run(["bash", str(ROOT / "sw/litex/sweep_extra.sh"),
+                                 *(argv or [board, "clock-test", "--dry-run"])],
+                                cwd=ROOT, env=env, text=True, capture_output=True, timeout=60)
+        assert not any(Path(home).iterdir()), f"sweep_extra.sh wrote under HOME: {result.stdout}"
+    assert "LAUNCHED" not in result.stdout, result.stdout
+    return result
 
 
 def _assert_sweep_clocks(result: subprocess.CompletedProcess, config: Path) -> None:
-    """Compare the preview with normalized clocks, including board defaults."""
+    """Compare the preview with normalized clocks, including board defaults, and its entity inputs."""
     assert result.returncode == 0, result.stderr
     clocks = eb.load_config(config)["constraints"]
     argv = shlex.split(result.stdout)
     for option, key in (("--sys-clk-freq", "sys_clk_hz"), ("--milan-clk-freq", "milan_clk_hz")):
         assert argv.count(option) == 1, argv
         assert float(argv[argv.index(option) + 1]) == clocks[key], (option, argv)
+    # The SoC finds the builder output by this directory's name and includes its gen/.
+    assert argv.count("--entity-gen-dir") == 1, argv
+    gen = Path(argv[argv.index("--entity-gen-dir") + 1])
+    assert gen.name == config.stem, (gen, config)
+    if config in CONFIGS:
+        definition = gen / "gen/adp_shape_defaults.svh"
+        assert config.name in definition.read_text(), f"{definition} does not name {config.name}"
 
 
 def test_extra_sweep_clocks() -> None:
@@ -202,6 +217,46 @@ def test_extra_sweep_clocks() -> None:
         assert _sweep(board, path).returncode != 0, "missing configuration accepted"
     print("[clock contract] extra sweep: defaults, all configurations, changed system clock, "
           "omitted system clock, board mismatch, invalid clock and missing configuration pass")
+
+
+def test_extra_sweep_invocation() -> None:
+    """--dry-run is honoured in any position; a bad argument list is refused before any launch."""
+    config = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+    # The middle order was read as tag "--dry-run" and launched three builds.
+    for argv in (["--dry-run", "ax7101", "order"], ["ax7101", "--dry-run", "order"],
+                 ["ax7101", "order", "--dry-run"]):
+        _assert_sweep_clocks(_sweep("ax7101", argv=argv), config)
+    for argv, reason in ((["ax7101", "--dry-run"], "expected a board and a tag, got 1"),
+                         (["ax7101", "order", "extra", "--dry-run"], "expected a board and a tag, got 3"),
+                         (["ax7101", "order", "--dryrun"], "unknown option --dryrun"),
+                         (["--dry-run", "ax7101", ""], "empty tag"),
+                         (["--dry-run", "zynq", "order"], "unknown board zynq")):
+        result = _sweep("ax7101", argv=argv)
+        assert result.returncode == 2 and reason in result.stderr, (argv, result.stderr)
+    # A launch builds first; a configuration outside configs/ gets no generated
+    # entity directory, so the SoC would include the tracked shape instead.
+    with tempfile.TemporaryDirectory(prefix="sweep-variant-") as tmp:
+        variant = Path(tmp) / "sweep variant.yaml"
+        variant.write_text(config.read_text())
+        result = _sweep("ax7101", variant, ["ax7101", "order"])
+        assert result.returncode != 0 and "wrote its entity definition to" in result.stderr, result.stderr
+    # The build interpreter reads the configuration, as sweep.sh's setup_env arranges.
+    script = ROOT / "sw/litex/sweep_extra.sh"
+    venv = re.search(r'export PATH="\$HOME/([^"$:]+):\$PATH"', script.read_text())
+    assert venv, "sweep_extra.sh exports no build interpreter"
+    with tempfile.TemporaryDirectory(prefix="sweep-venv-") as home:
+        marker = Path(home) / "interpreter-used"
+        interpreter = Path(home) / venv[1] / "python3"
+        interpreter.parent.mkdir(parents=True)
+        interpreter.write_text(f'#!/bin/sh\ntouch "{marker}"\nexec "{sys.executable}" "$@"\n')
+        interpreter.chmod(0o755)
+        env = {key: value for key, value in os.environ.items() if key != "SWEEP_CFG"}
+        result = subprocess.run(["bash", str(script), "--dry-run", "ax7101", "order"], cwd=ROOT,
+                                env=dict(env, HOME=home), text=True, capture_output=True, timeout=60)
+        assert result.returncode == 0 and marker.exists(), "configuration not read by the build interpreter"
+    print("[clock contract] extra sweep: --dry-run in every position previews; missing, extra, "
+          "unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; "
+          "the build interpreter reads the configuration")
 
 
 def test_tap_clock_docs() -> None:
@@ -254,6 +309,7 @@ if __name__ == "__main__":
     test_baremetal_clock_contract()
     test_gptp_rom_clock()
     test_extra_sweep_clocks()
+    test_extra_sweep_invocation()
     test_tap_clock_docs()
     test_sim_clock()
     if "--soc" in sys.argv:
