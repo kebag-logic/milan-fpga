@@ -1,0 +1,859 @@
+=== TDM capture junction: AAF column coherence (#617), --fine: the sub-cycle sweep alone ===
+  [i]  aligner keep-off 256 cycles (milan_datapath's MGA_KEEPOFF_CYC_C), engagement pull 64.0 ppm
+
+  [i]  calibration, -50 ppm plan: with the TDM clock unheld the first close lands 14 cycles after its tick
+
+[CRF-fine-50] CRF, -50 ppm plan, engagement placed every 1 cycles from -1 to +1 of the crossing, 300 columns each
+  [i]  each offset at 4 quarter-cycle holds x 64 sub-step phases of the TDM clock
+  [i]  CRF-fine-50-1.0/0: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/1: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/2: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/3: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/4: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/5: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/6: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/7: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/8: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/9: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/10: engaged -2 cycles from the crossing, the close then moved -4..+0 (furthest at column 227); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/11: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/12: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 299); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/13: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/14: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 299); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/15: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/16: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 299); tail: tick 4 cycles after the frame close, -1..+2 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/17: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/18: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/19: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/20: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/21: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/22: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/23: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/24: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/25: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/26: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 281); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/27: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/28: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 281); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/29: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/30: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 281); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/31: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/32: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/33: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/34: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/35: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/36: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/37: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/38: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/39: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/40: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/41: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/42: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/43: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/44: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/45: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/46: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/47: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/48: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/49: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/50: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/51: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/52: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/53: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/54: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/55: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/56: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/57: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/58: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/59: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/60: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/61: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/62: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.0/63: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/0: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/1: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/2: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/3: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/4: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/5: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/6: engaged -3 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/7: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/8: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/9: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/10: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/11: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/12: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/13: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/14: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/15: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/16: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/17: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/18: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/19: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/20: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/21: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/22: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/23: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/24: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/25: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/26: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/27: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/28: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 299); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/29: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/30: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/31: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/32: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 299); tail: tick 4 cycles after the frame close, -1..+2 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/33: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/34: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [FAIL] [CRF-fine-50-1.1/35] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50-1.1/35] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50-1.1/35: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50-1.1/35] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.1  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50-1.1/36: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/37: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/38: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/39: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/40: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/41: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/42: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/43: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/44: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.1/45: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/46: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/47: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/48: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/49: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/50: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/51: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/52: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/53: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/54: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/55: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/56: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/57: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/58: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/59: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/60: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/61: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/62: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.1/63: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/0: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/1: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/2: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/3: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/4: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/5: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/6: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/7: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/8: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/9: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/10: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/11: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/12: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/13: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/14: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/15: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/16: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/17: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/18: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/19: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/20: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/21: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/22: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/23: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/24: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/25: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/26: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/27: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/28: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/29: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/30: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/31: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/32: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/33: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/34: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/35: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/36: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/37: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/38: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/39: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/40: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/41: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/42: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/43: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/44: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/45: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/46: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/47: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/48: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/49: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/50: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [FAIL] [CRF-fine-50-1.2/51] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50-1.2/51] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50-1.2/51: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50-1.2/51] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50-1.2/52: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/53: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/54: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/55: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/56: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/57: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/58: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.2/59: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/60: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/61: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/62: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 281); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.2/63: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/0: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/1: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/2: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/3: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/4: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/5: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/6: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 287); tail: tick 4 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/7: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/8: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/9: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/10: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/11: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/12: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/13: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/14: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/15: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/16: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/17: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/18: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/19: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/20: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/21: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/22: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/23: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/24: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/25: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/26: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/27: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/28: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/29: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/30: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/31: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/32: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/33: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/34: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/35: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/36: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/37: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/38: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/39: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/40: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/41: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/42: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/43: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/44: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/45: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/46: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/47: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/48: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/49: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/50: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/51: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/52: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/53: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/54: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/55: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/56: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/57: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/58: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/59: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/60: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/61: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50-1.3/62: engaged -2 cycles from the crossing, the close then moved -5..+0 (furthest at column 299); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50-1.3/63: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/0: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/1: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/2: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/3: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/4: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/5: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/6: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/7: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/8: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/9: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/10: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/11: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/12: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/13: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/14: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/15: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/16: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/17: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/18: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [FAIL] [CRF-fine-50+0.0/19] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+0.0/19] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+0.0/19: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+0.0/19] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [FAIL] [CRF-fine-50+0.0/20] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+0.0/20] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+0.0/20: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+0.0/20] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50+0.0/21: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/22: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/23: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/24: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/25: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/26: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/27: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/28: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/29: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/30: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/31: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/32: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/33: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/34: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/35: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/36: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/37: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/38: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/39: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/40: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/41: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/42: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/43: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/44: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/45: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/46: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/47: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/48: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/49: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/50: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/51: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/52: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/53: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/54: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/55: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/56: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/57: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/58: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/59: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/60: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/61: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.0/62: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.0/63: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/0: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/1: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/2: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 257); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/3: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/4: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/5: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/6: engaged -2 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/7: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/8: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/9: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/10: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/11: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/12: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/13: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/14: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/15: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/16: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/17: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/18: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/19: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/20: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/21: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/22: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/23: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/24: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/25: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/26: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/27: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/28: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/29: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/30: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/31: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/32: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/33: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/34: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [FAIL] [CRF-fine-50+0.1/35] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+0.1/35] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+0.1/35: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+0.1/35] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [FAIL] [CRF-fine-50+0.1/36] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+0.1/36] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+0.1/36: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+0.1/36] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50+0.1/37: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/38: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/39: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/40: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/41: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/42: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/43: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.1/44: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/45: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/46: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/47: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/48: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/49: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/50: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/51: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/52: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/53: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/54: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/55: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/56: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/57: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/58: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/59: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/60: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/61: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/62: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.1/63: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/0: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/1: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/2: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/3: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/4: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/5: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/6: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/7: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/8: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/9: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/10: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/11: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/12: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/13: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/14: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/15: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/16: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/17: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/18: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/19: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/20: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/21: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/22: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/23: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/24: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/25: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/26: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/27: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/28: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/29: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/30: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/31: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/32: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/33: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/34: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/35: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/36: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/37: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/38: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/39: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/40: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/41: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/42: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/43: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/44: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/45: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/46: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/47: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.2/48: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [FAIL] [CRF-fine-50+0.2/49] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+0.2/49] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+0.2/49: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+0.2/49] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.1  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50+0.2/50: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/51: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/52: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/53: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/54: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/55: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/56: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/57: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/58: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/59: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/60: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/61: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/62: engaged -1 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 3 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.2/63: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/0: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.3/1: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.3/2: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 3 cycles after the frame close, +0..+2 (spread 2); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/3: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [FAIL] [CRF-fine-50+0.3/4] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+0.3/4] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+0.3/4: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+0.3/4] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.2  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50+0.3/5: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/6: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.3/7: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/8: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/9: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/10: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.3/11: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/12: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/13: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/14: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/15: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/16: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/17: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/18: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/19: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/20: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/21: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/22: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/23: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/24: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/25: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/26: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/27: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/28: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/29: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/30: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/31: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/32: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/33: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/34: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/35: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/36: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/37: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/38: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/39: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/40: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/41: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/42: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/43: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/44: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/45: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/46: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/47: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/48: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/49: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/50: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/51: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/52: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/53: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/54: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/55: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/56: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/57: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/58: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/59: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/60: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.3/61: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+0.3/62: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+0.3/63: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/0: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/1: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/2: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/3: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/4: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/5: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/6: engaged -1 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/7: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/8: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/9: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/10: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/11: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/12: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/13: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/14: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/15: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/16: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/17: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/18: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/19: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/20: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/21: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/22: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/23: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/24: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/25: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/26: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/27: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/28: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 275); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/29: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/30: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/31: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/32: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/33: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/34: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/35: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/36: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/37: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/38: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/39: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/40: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/41: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/42: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/43: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/44: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/45: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/46: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/47: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/48: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/49: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/50: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/51: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/52: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/53: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/54: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/55: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/56: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/57: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/58: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/59: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/60: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/61: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.0/62: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 233); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.0/63: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/0: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/1: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/2: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/3: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/4: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/5: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/6: engaged -1 cycles from the crossing, the close then moved -4..+1 (furthest at column 245); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/7: engaged +2 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/8: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/9: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/10: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/11: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/12: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/13: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/14: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/15: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/16: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/17: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/18: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/19: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/20: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/21: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/22: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/23: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/24: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/25: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/26: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/27: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/28: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/29: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/30: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/31: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/32: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/33: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/34: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/35: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/36: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.1/37: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/38: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/39: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/40: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/41: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/42: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/43: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/44: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/45: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/46: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/47: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/48: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/49: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/50: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/51: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/52: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/53: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/54: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/55: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/56: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/57: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/58: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/59: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/60: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/61: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/62: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 251); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.1/63: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/0: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/1: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/2: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/3: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/4: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/5: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/6: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/7: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/8: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/9: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/10: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/11: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/12: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/13: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/14: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/15: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/16: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/17: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/18: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/19: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/20: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/21: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/22: engaged +0 cycles from the crossing, the close then moved -4..+1 (furthest at column 239); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.2/23: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/24: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/25: engaged +2 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/26: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.2/27: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/28: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/29: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/30: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 299); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.2/31: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/32: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/33: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/34: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.2/35: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/36: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/37: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/38: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 293); tail: tick 1 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.2/39: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/40: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/41: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/42: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/43: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/44: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/45: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/46: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/47: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/48: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/49: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/50: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/51: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/52: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/53: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/54: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/55: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/56: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/57: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/58: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/59: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/60: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/61: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/62: engaged +0 cycles from the crossing, the close then moved -5..+0 (furthest at column 263); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.2/63: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/0: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/1: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [FAIL] [CRF-fine-50+1.3/2] [C] CRF slips net zero
+  [FAIL] [CRF-fine-50+1.3/2] [C] CRF slips only inside the engagement's first columns
+  [i]  CRF-fine-50+1.3/2: engaged +0 cycles from the crossing, the close then moved -3..+67 (furthest at column 299); tail: tick 2 cycles after the frame close, -69..+1 (spread 70); 1 repeats, 2 skips
+  [FAIL] [CRF-fine-50+1.3/2] [C] slips while the CRF lock held got=1 exp=0
+  [i]  305 columns in 51 PDUs, 0 torn (0.0%), 1 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0        305 columns  100.0%  coherent
+  [i]    pair 0 sample age at the tick: min 781  mean 1317.6  max 1823 axis cycles
+  [i]    pair 1 sample age at the tick: min 521  mean 1057.1  max 1563 axis cycles
+  [i]    pair 2 sample age at the tick: min 260  mean 796.7  max 1303 axis cycles
+  [i]    pair 3 sample age at the tick: min 0  mean 536.3  max 1042 axis cycles
+  [i]  CRF-fine-50+1.3/3: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/4: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 281); tail: tick 2 cycles after the frame close, +0..+3 (spread 3); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.3/5: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/6: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/7: engaged +3 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1020 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/8: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/9: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/10: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/11: engaged +3 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1020 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/12: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/13: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/14: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/15: engaged +3 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1020 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/16: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/17: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/18: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -18..+0 (spread 18); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/19: engaged +3 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/20: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/21: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/22: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/23: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/24: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/25: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/26: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/27: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/28: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/29: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/30: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/31: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/32: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/33: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/34: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/35: engaged +3 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/36: engaged +1 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1023 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/37: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/38: engaged +2 cycles from the crossing, the close then moved -1..+35 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/39: engaged +2 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/40: engaged +1 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/41: engaged +2 cycles from the crossing, the close then moved +0..+36 (furthest at column 298); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/42: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/43: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/44: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/45: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/46: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/47: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/48: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/49: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/50: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/51: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/52: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/53: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/54: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/55: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/56: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/57: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/58: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/59: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -17..+0 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/60: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.3/61: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/62: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50+1.3/63: engaged +2 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1021 cycles after the frame close, -16..+0 (spread 16); 0 repeats, 0 skips
+  [i]  CRF-fine-50: 768 engagements landed from -3 to +3, widest gap 1 cycles
+== capture_coherence: checks: 15425   failures: 27 ==
+RESULT: FAIL

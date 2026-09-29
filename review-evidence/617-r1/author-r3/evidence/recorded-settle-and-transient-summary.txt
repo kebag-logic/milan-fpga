@@ -1,0 +1,71 @@
+# Recorded runs (not committed), Verilator 5.050, 50 MHz 1x1 TDM8 junction.
+# Settled-lock runs: R395-2's packaged probe (377d1ac3 harness and grading) built against 377d1ac3 RTL with only the
+#   NCO compare changed to >= (the round-3 fix); `--probe PPM OFF OFF 1 60000 1 0`.
+# Transient-limit runs: R395-2's probe re-derived by their scripts from the round-3 working tree (same RTL as the
+#   head); `--probe PPM OFF OFF 1 20000 1 0`. At -90 ppm the acquisition's return lands at column 10,464, past a
+#   20,000-column run's half: an acquisition slip, not a lock slip (the 30,000/60,000-column runs grade the lock).
+# Columns: rate ppm, placement, engaged, moved lo..hi, furthest col, tail ref, tail lo..hi, spread, repeats, skips,
+#   last slip col, tail slips, sha256(log) prefix
+## settled lock: 13 placements x 4 rates, 60,000 columns, tail = columns 30,000-60,000
+-100 -512 engaged -513 moved +0..+298 far col 7391 tail ref 439 tail +0..+70 spread 70 rep 0 skip 0 last -1 tail slips 0 e7d7a003c41f938e
+-100 -384 engaged -385 moved +0..+298 far col 7391 tail ref 311 tail +0..+70 spread 70 rep 0 skip 0 last -1 tail slips 0 98f42b9643cf274e
+-100 -256 engaged -257 moved +0..+299 far col 7547 tail ref 183 tail +0..+70 spread 70 rep 1 skip 1 last 13065 tail slips 0 8193af7a2cfea1d0
+-100 -128 engaged -129 moved -124..+176 far col 5879 tail ref 190 tail +0..+62 spread 62 rep 1 skip 1 last 11996 tail slips 0 076c92b7ebce9168
+-100 -64 engaged -65 moved -188..+120 far col 59177 tail ref 194 tail +0..+59 spread 59 rep 1 skip 1 last 11481 tail slips 0 436f8efd97ae0db3
+-100 -8 engaged -9 moved -244..+74 far col 58475 tail ref 198 tail -1..+55 spread 56 rep 1 skip 1 last 11084 tail slips 0 ffaf3ac54cdbb1c8
+-100 0 engaged -1 moved -252..+68 far col 58379 tail ref 198 tail +0..+55 spread 55 rep 1 skip 1 last 11036 tail slips 0 d6190773c48457eb
+-100 8 engaged +7 moved -521..+520 far col 6310 tail ref 696 tail +0..+84 spread 84 rep 0 skip 0 last -1 tail slips 0 583f71bdcb14fc95
+-100 64 engaged +64 moved -1..+497 far col 8819 tail ref 699 tail +0..+81 spread 81 rep 0 skip 0 last -1 tail slips 0 ed87a35fd41625f5
+-100 128 engaged +128 moved -1..+430 far col 8459 tail ref 703 tail +0..+77 spread 77 rep 0 skip 0 last -1 tail slips 0 c353cc828f74b3b5
+-100 256 engaged +256 moved -1..+299 far col 7391 tail ref 711 tail +0..+70 spread 70 rep 0 skip 0 last -1 tail slips 0 cc88ffb53eafd9d9
+-100 384 engaged +384 moved -1..+298 far col 7391 tail ref 584 tail +0..+70 spread 70 rep 0 skip 0 last -1 tail slips 0 4954b2a80ba8c485
+-100 512 engaged +512 moved -1..+298 far col 7391 tail ref 456 tail +0..+70 spread 70 rep 0 skip 0 last -1 tail slips 0 2259a4329b4f2a4f
+-80 -512 engaged -513 moved +0..+238 far col 7169 tail ref 454 tail +0..+56 spread 56 rep 0 skip 0 last -1 tail slips 0 93e2492a55706112
+-80 -384 engaged -385 moved +0..+238 far col 7169 tail ref 326 tail +0..+56 spread 56 rep 0 skip 0 last -1 tail slips 0 981d18840f5b9f9d
+-80 -256 engaged -257 moved +0..+238 far col 7169 tail ref 198 tail +0..+56 spread 56 rep 0 skip 0 last -1 tail slips 0 a361962cc103fecd
+-80 -128 engaged -129 moved -124..+117 far col 57461 tail ref 205 tail +0..+48 spread 48 rep 0 skip 0 last -1 tail slips 0 2b4082fd1db7f794
+-80 -64 engaged -65 moved -189..+64 far col 59621 tail ref 209 tail -1..+44 spread 45 rep 0 skip 0 last -1 tail slips 0 812088d743fa536e
+-80 -8 engaged -9 moved -245..+26 far col 58709 tail ref 212 tail +0..+42 spread 42 rep 1 skip 1 last 6204 tail slips 0 2e1044e363f1ce17
+-80 0 engaged -1 moved -253..+22 far col 58571 tail ref 213 tail -1..+41 spread 42 rep 1 skip 1 last 6284 tail slips 0 a3a1e8d708d83f74
+-80 8 engaged +7 moved +0..+500 far col 9838 tail ref 711 tail -1..+70 spread 71 rep 0 skip 0 last -1 tail slips 0 219797059d995d7a
+-80 64 engaged +64 moved -1..+439 far col 9335 tail ref 715 tail -1..+66 spread 67 rep 0 skip 0 last -1 tail slips 0 7dc228034ab922ed
+-80 128 engaged +128 moved -1..+371 far col 8633 tail ref 718 tail +0..+63 spread 63 rep 0 skip 0 last -1 tail slips 0 fcaae6bc5cb674e5
+-80 256 engaged +256 moved -1..+239 far col 7187 tail ref 726 tail +0..+56 spread 56 rep 0 skip 0 last -1 tail slips 0 8f1dfec8b1b632bd
+-80 384 engaged +384 moved -1..+238 far col 7175 tail ref 599 tail +0..+56 spread 56 rep 0 skip 0 last -1 tail slips 0 8528b7eb7d7013f6
+-80 512 engaged +512 moved -1..+238 far col 7175 tail ref 471 tail +0..+56 spread 56 rep 0 skip 0 last -1 tail slips 0 c31ce26ed615138a
+80 -512 engaged -513 moved -238..+0 far col 7211 tail ref 572 tail -56..+0 spread 56 rep 0 skip 0 last -1 tail slips 0 5318374c175f2560
+80 -384 engaged -385 moved -238..+0 far col 7211 tail ref 444 tail -56..+0 spread 56 rep 0 skip 0 last -1 tail slips 0 177ad446294ec14b
+80 -256 engaged -257 moved -238..+0 far col 7211 tail ref 316 tail -56..+0 spread 56 rep 0 skip 0 last -1 tail slips 0 587dae3b33f42dfe
+80 -128 engaged -129 moved -369..+0 far col 8723 tail ref 322 tail -63..+0 spread 63 rep 0 skip 0 last -1 tail slips 0 fa3a5cae8261039f
+80 -64 engaged -65 moved -436..+0 far col 8939 tail ref 326 tail -66..+0 spread 66 rep 0 skip 0 last -1 tail slips 0 a47151fc43ca3e80
+80 -8 engaged -9 moved -496..+0 far col 9371 tail ref 330 tail -70..+0 spread 70 rep 0 skip 0 last -1 tail slips 0 ecb9cb891e23fe0b
+80 0 engaged -1 moved -505..+0 far col 9599 tail ref 330 tail -70..+0 spread 70 rep 0 skip 0 last -1 tail slips 0 7f7854897c577034
+80 8 engaged +7 moved -24..+248 far col 58486 tail ref 828 tail -41..+0 spread 41 rep 1 skip 1 last 6056 tail slips 0 e014229c6e7f045c
+80 64 engaged +63 moved -61..+192 far col 59417 tail ref 831 tail -44..+1 spread 45 rep 0 skip 0 last -1 tail slips 0 3cebc7cd5516ce76
+80 128 engaged +127 moved -115..+127 far col 57245 tail ref 835 tail -48..+1 spread 49 rep 0 skip 0 last -1 tail slips 0 046873efb06e2243
+80 256 engaged +255 moved -236..+1 far col 7187 tail ref 843 tail -55..+0 spread 55 rep 0 skip 0 last -1 tail slips 0 ae8502c5b1cd8b5d
+80 384 engaged +383 moved -238..+0 far col 7217 tail ref 717 tail -55..+1 spread 56 rep 0 skip 0 last -1 tail slips 0 40881e4bcf0b5156
+80 512 engaged +511 moved -238..+0 far col 7217 tail ref 589 tail -55..+1 spread 56 rep 0 skip 0 last -1 tail slips 0 9e34c377f3da329a
+100 -512 engaged -513 moved -298..+0 far col 7499 tail ref 586 tail -69..+0 spread 69 rep 0 skip 0 last -1 tail slips 0 f35e505bc88cbfc6
+100 -384 engaged -385 moved -298..+0 far col 7499 tail ref 458 tail -69..+0 spread 69 rep 0 skip 0 last -1 tail slips 0 6d7e60988e7d4e0d
+100 -256 engaged -257 moved -298..+0 far col 7499 tail ref 330 tail -69..+0 spread 69 rep 0 skip 0 last -1 tail slips 0 53c0c63e9e26a246
+100 -128 engaged -129 moved -428..+0 far col 8603 tail ref 337 tail -77..+0 spread 77 rep 0 skip 0 last -1 tail slips 0 dd364b0ff55e7919
+100 -64 engaged -65 moved -495..+0 far col 8951 tail ref 340 tail -80..+1 spread 81 rep 0 skip 0 last -1 tail slips 0 bc34e95a826194eb
+100 -8 engaged -9 moved -520..+521 far col 6431 tail ref 344 tail -83..+0 spread 83 rep 0 skip 0 last -1 tail slips 0 2520ad3326aa595c
+100 0 engaged -1 moved -520..+521 far col 6155 tail ref 344 tail -83..+1 spread 84 rep 0 skip 0 last -1 tail slips 0 b58406f52963098f
+100 8 engaged +7 moved -72..+247 far col 58540 tail ref 842 tail -54..+1 spread 55 rep 1 skip 1 last 10956 tail slips 0 ab8bffb7e9f572bb
+100 64 engaged +63 moved -117..+191 far col 59219 tail ref 846 tail -58..+0 spread 58 rep 1 skip 1 last 11343 tail slips 0 91f286551e4ae369
+100 128 engaged +127 moved -173..+127 far col 5807 tail ref 849 tail -61..+1 spread 62 rep 1 skip 1 last 11855 tail slips 0 b043e203111581e1
+100 256 engaged +255 moved -297..+1 far col 7619 tail ref 857 tail -68..+1 spread 69 rep 1 skip 1 last 13007 tail slips 0 17d1d3b74b0171e8
+100 384 engaged +383 moved -298..+0 far col 7493 tail ref 731 tail -68..+1 spread 69 rep 0 skip 0 last -1 tail slips 0 00d6b61253b9adc7
+100 512 engaged +511 moved -298..+0 far col 7493 tail ref 603 tail -68..+1 spread 69 rep 0 skip 0 last -1 tail slips 0 078b5e8ebd5952d3
+# 52 runs, total tail slips 0
+## transient limit: engagement 256 cycles off on the side the transient moves toward, 20,000 columns
+-90 engaged -257 moved +0..+269 rep 1 skip 1 last 10464 tail slips 1 caeb435256996827
+-88 engaged -257 moved +0..+263 rep 1 skip 1 last 9625 tail slips 0 cad2816772c5d286
+-86 engaged -257 moved +0..+257 rep 0 skip 0 last -1 tail slips 0 df362230f30457e2
+-84 engaged -257 moved +0..+250 rep 0 skip 0 last -1 tail slips 0 63563740059a6acc
+84 engaged +263 moved -250..+0 rep 0 skip 0 last -1 tail slips 0 2dbdef9f6264e76a
+86 engaged +263 moved -256..+0 rep 0 skip 0 last -1 tail slips 0 a0965290e034efe9
+88 engaged +263 moved -262..+0 rep 0 skip 0 last -1 tail slips 0 809074bfadc87340
+90 engaged +263 moved -269..+0 rep 1 skip 1 last 9489 tail slips 0 2128a1d7361205a2
