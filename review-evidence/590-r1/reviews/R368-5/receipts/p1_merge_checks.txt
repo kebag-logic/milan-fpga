@@ -1,0 +1,75 @@
+merge parents: 1f039cfe86d5337f5c9b7248696dba1c4bdda67e b5c0f69d5d11f0ec4bc847a2cfdd13e89e199a8a
+merge-base: 7a7582f03ce5ba7863a90ac342c21be18d90db0b
+auto-merge tree: 5d051cc3d2d7494282d90be338fe21dfd8a7f24d
+files differing between auto-merge tree and merge commit:
+docs/findings/README.md
+files differing between merge commit and head:
+tb/verilator/nvm_cosim/cosim_host.c
+tb/verilator/nvm_cosim/run_cases.py
+== rows(B)
+75_RECONNECT_RESTART_MEASUREMENT.md
+397_SERVICE_BUDGET.md
+117_GPTP_SILICON_EVIDENCE.md
+ADP shape (historical)
+CBS_DATAPATH_BUG.md
+Media-clock lock (historical)
+Protocol area (historical)
+Throughput campaign (historical)
+== rows(OURS)
+75_RECONNECT_RESTART_MEASUREMENT.md
+397_SERVICE_BUDGET.md
+117_GPTP_SILICON_EVIDENCE.md
+ADP shape (historical)
+CBS_DATAPATH_BUG.md
+Media-clock lock (historical)
+Protocol area (historical)
+Throughput campaign (historical)
+== rows(DEV)
+75_RECONNECT_RESTART_MEASUREMENT.md
+COMMERCIAL_TIMING_395.md
+397_SERVICE_BUDGET.md
+117_GPTP_SILICON_EVIDENCE.md
+ADP shape (historical)
+CBS_DATAPATH_BUG.md
+Media-clock lock (historical)
+Protocol area (historical)
+Throughput campaign (historical)
+== rows(MERGE)
+75_RECONNECT_RESTART_MEASUREMENT.md
+COMMERCIAL_TIMING_395.md
+397_SERVICE_BUDGET.md
+117_GPTP_SILICON_EVIDENCE.md
+ADP shape (historical)
+CBS_DATAPATH_BUG.md
+Media-clock lock (historical)
+Protocol area (historical)
+Throughput campaign (historical)
+== rows(HEAD_)
+75_RECONNECT_RESTART_MEASUREMENT.md
+COMMERCIAL_TIMING_395.md
+397_SERVICE_BUDGET.md
+117_GPTP_SILICON_EVIDENCE.md
+ADP shape (historical)
+CBS_DATAPATH_BUG.md
+Media-clock lock (historical)
+Protocol area (historical)
+Throughput campaign (historical)
+== duplicate link targets in merge:
+== ours rows missing byte-exact from merge (expect only the 397 row replaced by... none):
+== dev rows missing byte-exact from merge (expect dev's old 397 row only):
+| [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz, using unchanged firmware and external markers (#397) | Simulation measurement; architecture decision and bench proof remain open |
+== merge rows found in neither side:
+== gitlinks
+b5c0f69d efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+b5c0f69d 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor
+b5c0f69d c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor
+b5c0f69d 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+9f94b246 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+9f94b246 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor
+9f94b246 c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor
+9f94b246 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+4c2a30de efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+4c2a30de 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor
+4c2a30de c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 protocol-processor
+4c2a30de 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+dev 397 row == base 397 row (only lane edited it)

@@ -1,0 +1,51 @@
+cosim_host.c:65-70 byte-identical to nvm_host.c:67-72
+void bios_dispatch_hook_required(void);
+
+/* The host replaces the BIOS, including its patch-0006 link marker. */
+void bios_dispatch_hook_required(void)
+{
+}
+ tb/verilator/nvm_cosim/cosim_host.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+ tb/verilator/nvm_cosim/run_cases.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+4c2a30debb031595b81c5c4bfc53b601a0fec528 Stub the patch-0006 link marker in the nvm_cosim host
+  body-lines=|
+d0203aac9724653ea0fb4a61d28ad2e42e515e74 Model nvm_started in the nvm_cosim writer restart
+  body-lines=|
+d09c72ea2b0be1a2df3e18e77774f14f6df3242c Clarify pre-602 measurements and post-602 acceptance contract
+  body-lines=|
+11e4e1f2876c99e8f136d869c70674e077ddcf94 Derive the declaration test package source and clarify YAML string summaries
+  body-lines=|
+44d3ae3b15a0d058abb837c655ad24bd9b64c6e8 Refuse non-string YAML hex declarations and non-list formats
+  body-lines=|
+6c5ca18f12191a252447ec7c7c75363b851f2771 Align PHC-only re-base requirements with the 602 ruling
+  body-lines=|
+45e6cf1a37358914b7ebc4c2e0d2b3905970bed3 Document post-602 PHC-only re-base soak contract
+  body-lines=|
+be6b48c140db1692caedbdf997495b43ff1a56a2 Validate deployed descriptor images and complete L6/L10 refusals
+  body-lines=|
+e8bf5e080e4b7d586d0484427ec2ef4fe9c51744 Adopt processor retry and LeaveAll fixes with parent regressions
+  body-lines=|
+a53682ed38720de758006602a19f78c8e40d69da Validate L6 and L10 at the shipping descriptor image boundary
+  body-lines=|
+6b2ebd1c435136966f84ffc16d28a80c7d6b9387 test: cover delayed PHC restart causes and correct gate documentation
+  body-lines=|
+3b5603e3d16a164c35329efeb633800fe4fe9f95 Clarify timing signoff evidence and run the standalone PLL control
+  body-lines=|
+471892a9bcc2d26fdcfc19db01949ecea83c5e0f test: observe received CRF state independently of propagation
+  body-lines=|
+3a0cb4cf4fed2d71436a43f4b96cb375f9178342 Distinguish fully exposed Ethernet reset crossing measurements
+  body-lines=|
+09de469c7defb8a88bd0a6f0c7a3ddc6558f1280 Record rejected crossing constraints and strengthen timing-grade checks
+  body-lines=|
+add85ca6a5945b7cb815ef53e9c916a3c22aa969 test: isolate PHC restart exclusions and cover coincident CRF events
+  body-lines=|
+66001a307ce5de57577e66d6e3a18b9f4020764b Declare commercial timing grade and report shipping corners
+  body-lines=|
+49012143b335ea48d6a71c441a05d0c1796887ff Align builder restart assertions with the PHC-only ruling
+  body-lines=|
+81893de43af69791c5e368150487ba3351a69cc1 Correct the restart input comment for PHC-only steps
+  body-lines=|
+f7660247e2df93f83b6ac1998bcc90870684153a Keep PHC-only re-base separate from media clock restart
+  body-lines=|
