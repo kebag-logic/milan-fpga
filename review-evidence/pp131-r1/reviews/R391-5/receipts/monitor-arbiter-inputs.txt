@@ -1,0 +1,15 @@
+R391-5 arbiter input monitor (prints the first 20 clocks of each kind per simulation)
+== acmp_nvm (make run): {'m1_abort_not_own_read': 20, 'm1_abort_with_write': 20, 'm1_abort_on_m0': 8, 'm1_issue_abort_after_write': 1}
+    359 checks: 359 PASS, 0 FAIL
+== pp_top default build, whole run: no monitored input occurred
+    mon_unreachable_inputs GI latency walks added: 5568 checks, 0 failures
+    mon_unreachable_inputs NW: 85 checks, 0 failures
+    mon_unreachable_inputs D3: 133 checks, 0 failures
+    mon_unreachable_inputs [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+    mon_unreachable_inputs rc=0
+== P9 sweep AGG 2800 scen 0,1: no monitored input occurred
+    mon_unreachable_inputs R391-P9 AGG 2800 scen {0,1} step 1: 5802 runs, 5294 fired, 0 BAD; expiry edge at most 8 clocks after the bound; terminal at most 1152 clocks after it; 0 proofs unfired on the bound clock; binding w
+== P9 sweep AGG 2800 scen 2,3: no monitored input occurred
+    mon_unreachable_inputs R391-P9 AGG 2800 scen {2,3} step 1: 5802 runs, 5801 fired, 0 BAD; expiry edge at most 8 clocks after the bound; terminal at most 579 clocks after it; 1 proofs unfired on the bound clock; binding wa
+== P9 sweep AGG 2800 scen 4,5: no monitored input occurred
+    mon_unreachable_inputs R391-P9 AGG 2800 scen {4,5} step 1: 5802 runs, 4374 fired, 0 BAD; expiry edge at most 8 clocks after the bound; terminal at most 15561 clocks after it; 1 proofs unfired on the bound clock; binding 

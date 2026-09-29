@@ -1,0 +1,44 @@
+planted cross_iss_m0_drains_m1
+cross_iss_m0_drains_m1 GI latency walks added: 5568 checks, 0 failures
+cross_iss_m0_drains_m1 NW: 85 checks, 0 failures
+cross_iss_m0_drains_m1 D3: 133 checks, 0 failures
+cross_iss_m0_drains_m1 [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+cross_iss_m0_drains_m1 rc=0
+planted cross_own_m0_drains_m1
+cross_own_m0_drains_m1 GI latency walks added: 5568 checks, 0 failures
+cross_own_m0_drains_m1 NW: 85 checks, 0 failures
+cross_own_m0_drains_m1 D3: 133 checks, 0 failures
+cross_own_m0_drains_m1 [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+cross_own_m0_drains_m1 rc=0
+planted cross_own_m1_drains_m0
+cross_own_m1_drains_m0 GI latency walks added: 5568 checks, 0 failures
+cross_own_m1_drains_m0 NW: 85 checks, 0 failures
+cross_own_m1_drains_m0 D3: 133 checks, 0 failures
+cross_own_m1_drains_m0 [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+cross_own_m1_drains_m0 rc=0
+planted issue_arm_m1_only
+issue_arm_m1_only GI latency walks added: 5568 checks, 0 failures
+issue_arm_m1_only NW: 85 checks, 0 failures
+issue_arm_m1_only FAIL: D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 1), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)
+issue_arm_m1_only FAIL: D3R18: once the device ends the drained READ the port is idle (0), and a later SET persists (0 WRITEs, the port busy 100000 of 100000 clocks, unflushed 1)
+issue_arm_m1_only D3: 133 checks, 2 failures
+issue_arm_m1_only [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 2 failures
+issue_arm_m1_only rc=1
+planted stale_we_m0_only
+stale_we_m0_only GI latency walks added: 5568 checks, 0 failures
+stale_we_m0_only NW: 85 checks, 0 failures
+stale_we_m0_only D3: 133 checks, 0 failures
+stale_we_m0_only [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+stale_we_m0_only rc=0
+planted write_iss_m0_only
+write_iss_m0_only GI latency walks added: 5568 checks, 0 failures
+write_iss_m0_only NW: 85 checks, 0 failures
+write_iss_m0_only D3: 133 checks, 0 failures
+write_iss_m0_only [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+write_iss_m0_only rc=0
+planted write_own_m0_only
+write_own_m0_only GI latency walks added: 5568 checks, 0 failures
+write_own_m0_only NW: 85 checks, 0 failures
+write_own_m0_only D3: 133 checks, 0 failures
+write_own_m0_only [build default, SRP_DOM_DEF_VID_P 0x0002] 7868 checks, 0 failures
+write_own_m0_only rc=0
