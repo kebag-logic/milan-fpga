@@ -1,0 +1,24 @@
+### pip freeze (pinned env): cffi==2.1.1 cmarkgfm==2025.10.22 html5lib==1.1 pycparser==3.0 six==1.17.0 webencodings==0.6.1 
+### $ <packet>/scratch/mdenv/bin/python -B scripts/docs_check.py
+docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/gen_toc.py --check
+TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/gen_toc.py --verify-anchors
+anchor check: 249 existing cross-page fragment links reproduced
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+check_em_dash: 0 finding(s) over 912 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base d76763733e088cd21bbdd587927c8cf2f26cc8b3
+check_em_dash: 0 finding(s) over 12 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d7676373..HEAD]
+### rc=0
+### $ <packet>/scratch/mdenv/bin/python -B scripts/check_doc_paths.py
+doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### rc=0
+### $ /usr/bin/git diff --check 13eda870d1a6cf3f946fc228a98862366b08d102 fb4a1b895e97bb808b624ea0b31c43d121723f36
+### rc=0
