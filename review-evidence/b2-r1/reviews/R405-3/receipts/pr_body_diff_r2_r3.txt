@@ -1,0 +1,16 @@
+78c78
+< - **F2, the saved-state layer.** Both restore sections carry the start and end table (slots, image, records, commits, `PP_STAT` with `nvm_pend`, `PP_NVM_STAT`). The #606 page gives the derivation: 226 console samples, 210 ACMP commands all to the peer's input, no AECP write, and the DUT's stream inputs unbound in all 340 polls. It also gives the cause: binding records are indexed by the DUT's stream inputs, and only its Stream Output 1 was bound, so no record was written and no commit ran. `nvm_pend` 1 is lane B1's residue. Between the two reads the samples carry `PP_STAT` alone. The persisted content was not compared with the found state.
+---
+> - **F2, the saved-state layer.** Both restore sections carry the start and end table (slots, image, records, commits, `PP_STAT` with `nvm_pend`, `PP_NVM_STAT`). The #606 page gives the derivation: 226 console samples, 210 ACMP commands all to the peer's input, and no AECP write. The DUT's Stream Input 1 read unbound in 226 distinct polls (before and after every action, and at both censuses), and its Stream Input 0 at the two censuses only. It also gives the cause: binding records are indexed by the DUT's stream inputs, and no command addressed one. With that command census and the commits (2 / 0) and slots (229 / 230) unchanged, no record was written and no commit ran. `nvm_pend` 1 is lane B1's residue. Between the two reads the samples carry `PP_STAT` alone. The persisted content was not compared with the found state.
+82a83,90
+> ## Round 3
+> 
+> Docs only, no bench access, under the [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/606#issuecomment-5888700643), answering [R404-2](https://github.com/kebag-logic/milan-fpga/pull/622#issuecomment-5888547222) and [R405-2](https://github.com/kebag-logic/milan-fpga/pull/622#issuecomment-5888695807). One commit on `d7676373`.
+> 
+> - **F5, the stream-input polls.** The #606 page's Saved-state layer and the Round 2 F2 bullet above state the polls as recorded: Stream Input 1 in 226 distinct polls, before and after every action and at both censuses; Stream Input 0 at the two censuses only; connection count 0 in every one. Each action's `snapshot.jsonl` is a byte copy of its `snapshot-after.jsonl` and is not counted: round 2's 340 was 228 polls plus 112 copies. "No record written" rests on the command census and the unchanged commits and slots.
+> - **R404-2 S3, the packets located.** Both pages' Artifact hashes sections name the redacted round-1 packet, `review-evidence/b2-r1/author/` on branch `b2-review-evidence`, and the round-2 packet, `author-r2/` beside it. The #606 page's derivation names `author-r2/` as well.
+> - **Measurement tables unchanged.** Every table on both pages, and this body's per-bind table, is byte-identical to round 2.
+> 
+85a94,95
+> 
+> 

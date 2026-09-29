@@ -1,0 +1,35 @@
+jsonl files: 561
+polls by (top dir, file, input, conn_count):
+   ('bind', 'snapshot-after.jsonl', 'state-5-1', 0) 12
+   ('bind', 'snapshot-before.jsonl', 'state-5-1', 0) 12
+   ('bind', 'snapshot.jsonl', 'state-5-1', 0) 12
+   ('cycles', 'snapshot-after.jsonl', 'state-5-1', 0) 100
+   ('cycles', 'snapshot-before.jsonl', 'state-5-1', 0) 100
+   ('cycles', 'snapshot.jsonl', 'state-5-1', 0) 100
+   ('restore', 'census-end.jsonl', 'state-5-0', 0) 1
+   ('restore', 'census-end.jsonl', 'state-5-1', 0) 1
+   ('restore', 'census-start.jsonl', 'state-5-0', 0) 1
+   ('restore', 'census-start.jsonl', 'state-5-1', 0) 1
+dirs with snapshot.jsonl: 112 byte-equal to snapshot-after.jsonl: {True: 112}
+dirs with a before/after snapshot: 112 cycles: 100 bind/: ['bind/baseline', 'bind/bind-1', 'bind/bind-2', 'bind/bind-3', 'bind/bind-4', 'bind/bind-5', 'bind/final', 'bind/unbind-1', 'bind/unbind-2', 'bind/unbind-3', 'bind/unbind-4', 'bind/unbind-restore']
+dirs whose before/after polls are not exactly one Stream Input 1 each: []
+missing before: [] missing after: []
+dirs with an action transcript: 110 without before/after snapshot: []
+bind/ subdirs: ['baseline', 'bind-1', 'bind-2', 'bind-3', 'bind-4', 'bind-5', 'final', 'unbind-1', 'unbind-2', 'unbind-3', 'unbind-4', 'unbind-restore']
+   bind/baseline: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/bind-1: ['acmp.tsv', 'analysis.json', 'bind-errors.txt', 'bind.jsonl', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/bind-2: ['acmp.tsv', 'analysis.json', 'bind-errors.txt', 'bind.jsonl', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/bind-3: ['acmp.tsv', 'analysis.json', 'bind-errors.txt', 'bind.jsonl', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/bind-4: ['acmp.tsv', 'analysis.json', 'bind-errors.txt', 'bind.jsonl', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/bind-5: ['acmp.tsv', 'analysis.json', 'bind-errors.txt', 'bind.jsonl', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/final: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl']
+   bind/unbind-1: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl', 'unbind-errors.txt', 'unbind.jsonl']
+   bind/unbind-2: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl', 'unbind-errors.txt', 'unbind.jsonl']
+   bind/unbind-3: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl', 'unbind-errors.txt', 'unbind.jsonl']
+   bind/unbind-4: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl', 'unbind-errors.txt', 'unbind.jsonl']
+   bind/unbind-restore: ['acmp.tsv', 'analysis.json', 'capture.txt', 'console-after.txt', 'console-before.txt', 'events.jsonl', 'msrp.tsv', 'raw-artifacts.json', 'result.json', 'snapshot-after.jsonl', 'snapshot-before.jsonl', 'snapshot-errors.txt', 'snapshot.jsonl', 'unbind-errors.txt', 'unbind.jsonl']
+census polls: [('restore/census-end.jsonl', 'state-5-0', 1790666445.998411, 0), ('restore/census-end.jsonl', 'state-5-1', 1790666445.998529, 0), ('restore/census-start.jsonl', 'state-5-0', 1790664641.653344, 0), ('restore/census-start.jsonl', 'state-5-1', 1790664641.653448, 0)]
+counted polls (snapshot.jsonl excluded): 228 {('state-5-1', 0): 226, ('state-5-0', 0): 2}
+distinct (input, t) among counted: 228  among all: 228  all incl. copies: 340
+Stream Input 0 outside census files: []
+non-zero conn_count anywhere: []

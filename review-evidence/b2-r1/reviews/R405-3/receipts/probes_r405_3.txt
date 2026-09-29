@@ -1,0 +1,105 @@
+== probe control
+-- reviewer script (selected lines)
+dirs with snapshot.jsonl: 112 byte-equal to snapshot-after.jsonl: {True: 112}
+dirs whose before/after polls are not exactly one Stream Input 1 each: []
+missing before: [] missing after: []
+counted polls (snapshot.jsonl excluded): 228 {('state-5-1', 0): 226, ('state-5-0', 0): 2}
+Stream Input 0 outside census files: []
+non-zero conn_count anywhere: []
+-- author script
+PASS all 112 action directories: snapshot.jsonl is a byte copy of snapshot-after.jsonl
+PASS every *.jsonl gives 340 records, 112 of them in the snapshot.jsonl copies
+PASS Stream Input 1: 226 distinct polls
+PASS Stream Input 1 polled once before and once after each of the 112 actions
+PASS Stream Input 1 polled once at each census
+PASS Stream Input 0: 2 polls, one at each census and none elsewhere
+PASS no other DUT stream input was polled
+PASS every poll: status 0, connection count 0
+PASS 228 distinct polls in all
+FAILURES 0
+rc=0
+== probe drop-before
+-- reviewer script (selected lines)
+dirs with snapshot.jsonl: 112 byte-equal to snapshot-after.jsonl: {True: 112}
+dirs whose before/after polls are not exactly one Stream Input 1 each: ['cycles/cycle-003']
+missing before: [] missing after: []
+counted polls (snapshot.jsonl excluded): 227 {('state-5-1', 0): 225, ('state-5-0', 0): 2}
+Stream Input 0 outside census files: []
+non-zero conn_count anywhere: []
+-- author script
+PASS all 112 action directories: snapshot.jsonl is a byte copy of snapshot-after.jsonl
+FAIL every *.jsonl gives 340 records, 112 of them in the snapshot.jsonl copies
+FAIL Stream Input 1: 226 distinct polls
+FAIL Stream Input 1 polled once before and once after each of the 112 actions
+PASS Stream Input 1 polled once at each census
+PASS Stream Input 0: 2 polls, one at each census and none elsewhere
+PASS no other DUT stream input was polled
+PASS every poll: status 0, connection count 0
+FAIL 228 distinct polls in all
+FAILURES 4
+rc=0
+== probe bound
+-- reviewer script (selected lines)
+dirs with snapshot.jsonl: 112 byte-equal to snapshot-after.jsonl: {True: 112}
+dirs whose before/after polls are not exactly one Stream Input 1 each: []
+missing before: [] missing after: []
+counted polls (snapshot.jsonl excluded): 228 {('state-5-1', 0): 225, ('state-5-1', 1): 1, ('state-5-0', 0): 2}
+Stream Input 0 outside census files: []
+non-zero conn_count anywhere: [('bind/bind-2/snapshot-after.jsonl', 'state-5-1', 1790665047.423769, 1), ('bind/bind-2/snapshot.jsonl', 'state-5-1', 1790665047.423769, 1)]
+-- author script
+PASS all 112 action directories: snapshot.jsonl is a byte copy of snapshot-after.jsonl
+PASS every *.jsonl gives 340 records, 112 of them in the snapshot.jsonl copies
+PASS Stream Input 1: 226 distinct polls
+PASS Stream Input 1 polled once before and once after each of the 112 actions
+PASS Stream Input 1 polled once at each census
+PASS Stream Input 0: 2 polls, one at each census and none elsewhere
+PASS no other DUT stream input was polled
+FAIL every poll: status 0, connection count 0
+PASS 228 distinct polls in all
+FAILURES 1
+rc=0
+== probe si0
+-- reviewer script (selected lines)
+dirs with snapshot.jsonl: 112 byte-equal to snapshot-after.jsonl: {True: 112}
+dirs whose before/after polls are not exactly one Stream Input 1 each: ['cycles/cycle-010']
+missing before: [] missing after: []
+counted polls (snapshot.jsonl excluded): 229 {('state-5-1', 0): 226, ('state-5-0', 0): 3}
+Stream Input 0 outside census files: ['cycles/cycle-010/snapshot-before.jsonl']
+non-zero conn_count anywhere: []
+-- author script
+PASS all 112 action directories: snapshot.jsonl is a byte copy of snapshot-after.jsonl
+FAIL every *.jsonl gives 340 records, 112 of them in the snapshot.jsonl copies
+PASS Stream Input 1: 226 distinct polls
+PASS Stream Input 1 polled once before and once after each of the 112 actions
+PASS Stream Input 1 polled once at each census
+FAIL Stream Input 0: 2 polls, one at each census and none elsewhere
+PASS no other DUT stream input was polled
+PASS every poll: status 0, connection count 0
+FAIL 228 distinct polls in all
+FAILURES 3
+rc=0
+== probe nocopy
+-- reviewer script (selected lines)
+dirs with snapshot.jsonl: 112 byte-equal to snapshot-after.jsonl: {True: 111, False: 1}
+dirs whose before/after polls are not exactly one Stream Input 1 each: []
+missing before: [] missing after: []
+counted polls (snapshot.jsonl excluded): 228 {('state-5-1', 0): 226, ('state-5-0', 0): 2}
+Stream Input 0 outside census files: []
+non-zero conn_count anywhere: []
+-- author script
+FAIL all 112 action directories: snapshot.jsonl is a byte copy of snapshot-after.jsonl
+PASS every *.jsonl gives 340 records, 112 of them in the snapshot.jsonl copies
+PASS Stream Input 1: 226 distinct polls
+PASS Stream Input 1 polled once before and once after each of the 112 actions
+PASS Stream Input 1 polled once at each census
+PASS Stream Input 0: 2 polls, one at each census and none elsewhere
+PASS no other DUT stream input was polled
+PASS every poll: status 0, connection count 0
+PASS 228 distinct polls in all
+FAILURES 1
+rc=0
+author poll_count_b2r3.py exit status on probe-control: 0
+author poll_count_b2r3.py exit status on probe-drop-before: 1
+author poll_count_b2r3.py exit status on probe-bound: 1
+author poll_count_b2r3.py exit status on probe-si0: 1
+author poll_count_b2r3.py exit status on probe-nocopy: 1
