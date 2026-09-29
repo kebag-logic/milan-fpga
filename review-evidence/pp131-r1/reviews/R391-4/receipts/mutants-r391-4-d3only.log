@@ -1,0 +1,112 @@
+R391-4: the reviewer's 26 mutants (R391-3's 20 re-planted plus 6 against the issue-cycle drain), each planted in a git-archive export of 84572585; tb/pp_top --d3-only (133 checks)
+== rate_walk_stuck_on_first_lane
+rate_walk_stuck_on_first_lane FAIL: D3R3b entry 7 of 10 (24000 Hz): applied 0 refused 1, rate 0 valid 0
+rate_walk_stuck_on_first_lane D3: 133 checks, 1 failures
+== rate_walk_unbounded
+rate_walk_unbounded FAIL: D3R3b entry 8 of 10 (16000 Hz): applied 1 refused 0, rate 16000 valid 1
+rate_walk_unbounded D3: 133 checks, 1 failures
+== pass1_read_not_drained
+pass1_read_not_drained FAIL: D3R5b: once the device ends the drained pass-1 READ a later SET persists (0 WRITEs, unflushed 1)
+pass1_read_not_drained D3: 133 checks, 1 failures
+== judge_wait_unwatched
+judge_wait_unwatched FAIL: D3R8b: a silent judge ends DEFAULTS at -1, the release at 122, cause 0, rolled back 0
+judge_wait_unwatched D3: 133 checks, 1 failures
+== backoff_holds_dispatch
+backoff_holds_dispatch FAIL: D3S10 backoff: 999936 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 501303 cycles later, before the retry
+backoff_holds_dispatch D3: 133 checks, 1 failures
+== disagree_whole_then_blank_only
+disagree_whole_then_blank_only FAIL: D3R4b: a record blank in pass 0 and whole in pass 1 aborts, cause 0, rolled back 0, the offset not applied (valid 0x01)
+disagree_whole_then_blank_only D3: 133 checks, 1 failures
+== rollback_strobe_one_cycle
+rollback_strobe_one_cycle FAIL: D3R4 strobe: with no debt owed the roll-back holds both stores in reset 1 cycles, at least two
+rollback_strobe_one_cycle D3: 133 checks, 1 failures
+== agg_fires_with_event_in_hand
+agg_fires_with_event_in_hand FAIL: D3R17: the writer's grant lands on the bound's own clock (1, 0x56's READ steered 1, latency 9); DEFAULTS 1 clocks later, cause 3, the READ in hand drained 0
+agg_fires_with_event_in_hand FAIL: D3R17: once the device ends the READ granted on the bound's clock a later SET persists (0 WRITEs, unflushed 1)
+agg_fires_with_event_in_hand D3: 133 checks, 2 failures
+== agg_not_stopped_at_terminal
+agg_not_stopped_at_terminal FAIL: D3R16 COMPLETE: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 0 closed 1 cause 3), 2 roll-back strobe cycles after the terminal, the rows lost
+agg_not_stopped_at_terminal FAIL: D3R16 DEFAULTS: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 1 closed 1 cause 6), 2 roll-back strobe cycles after the terminal, the rows lost
+agg_not_stopped_at_terminal FAIL: D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 0 fail 1 rolled back 0 closed 1 cause 2), 20002 roll-back strobe cycles after the terminal, the rows kept
+agg_not_stopped_at_terminal D3: 133 checks, 3 failures
+== agg_not_one_shot
+agg_not_one_shot FAIL: D3R13 pass 1: rolled back to DEFAULTS at clock 0, the bound 1000001, cause 3, rolled back 0
+agg_not_one_shot D3: 133 checks, 1 failures
+== hold_admits_two
+hold_admits_two FAIL: D3O5: one AECP command held, 4 dropped at the slot gate and counted, 0 answered
+hold_admits_two FAIL: D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles
+hold_admits_two FAIL: D3O6: at the terminal the held command is answered byte-exact, 4 dropped and counted, 0 of them answered
+hold_admits_two FAIL: D3O6: after the terminal an AECP command is served, no drop counted
+hold_admits_two FAIL: D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered
+hold_admits_two D3: 133 checks, 5 failures
+== hold_released_in_closed
+hold_released_in_closed FAIL: D3O5: in CLOSED each GET_RX_STATE after each of 6 AECP commands is answered in 168 cycles, the idle latency (worst 168)
+hold_released_in_closed FAIL: D3O5: one AECP command held, 0 dropped at the slot gate and counted, 0 answered
+hold_released_in_closed FAIL: D3O5: after 2,000 ms in CLOSED the listener answers in -1 cycles
+hold_released_in_closed FAIL: D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered
+hold_released_in_closed D3: 133 checks, 4 failures
+== held_gate_drops_every_subtype
+held_gate_drops_every_subtype FAIL: D3O5: in CLOSED each GET_RX_STATE after each of 6 AECP commands is answered in 168 cycles, the idle latency (worst 0)
+held_gate_drops_every_subtype FAIL: D3O5: one AECP command held, 11 dropped at the slot gate and counted, 0 answered
+held_gate_drops_every_subtype FAIL: D3O5: after 2,000 ms in CLOSED the listener answers in -1 cycles
+held_gate_drops_every_subtype FAIL: D3O6: during the slowed walk a GET_RX_STATE behind six AECP commands is answered in -1 cycles, the idle latency 168
+held_gate_drops_every_subtype FAIL: D3O6: at the terminal the held command is answered byte-exact, 6 dropped and counted, 0 of them answered
+held_gate_drops_every_subtype FAIL: D3O6: after the terminal an AECP command is served, no drop counted
+held_gate_drops_every_subtype D3: 133 checks, 6 failures
+== resident_counts_acmp
+resident_counts_acmp FAIL: D3O5: one AECP command held, 6 dropped at the slot gate and counted, 0 answered
+resident_counts_acmp FAIL: D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles
+resident_counts_acmp FAIL: D3O6: at the terminal the held command is answered byte-exact, 6 dropped and counted, 0 of them answered
+resident_counts_acmp FAIL: D3O6: after the terminal an AECP command is served, no drop counted
+resident_counts_acmp D3: 133 checks, 4 failures
+== resident_never_returned
+resident_never_returned FAIL: D3O7: the returned slot frees the share: the next command held, the one after it dropped (2 counted), none answered
+resident_never_returned D3: 133 checks, 1 failures
+== agg_o_pulse
+agg_o_pulse FAIL: D3R18: binding READ strobe 4 on agg_o's first clock 12398091 (strobe 0, abort 0, arbiter owner 0), the done before it held to 12398088 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)
+agg_o_pulse FAIL: D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 0), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)
+agg_o_pulse FAIL: D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered 1 clocks after the bound, want 2), and the restore ends DEFAULTS 4 clocks after the bound (cause 3)
+agg_o_pulse D3: 133 checks, 3 failures
+== bind_agg_only_between_records
+bind_agg_only_between_records FAIL: D3R14 image valid: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs
+bind_agg_only_between_records FAIL: D3R14 image valid: DEFAULTS by clock 0, the D3 walk's longest wait 0 (no record READ requested), cause 0, rolled back 0, image valid 1, AECP owned 1, ADP enabled 0 (0 early enable cycles)
+bind_agg_only_between_records FAIL: D3R14 image valid: AECP answers a READ_DESCRIPTOR byte-exact, and once the device ends the drained binding READ a later SET persists (1 WRITEs)
+bind_agg_only_between_records FAIL: D3R14 image refused: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs
+bind_agg_only_between_records FAIL: D3R14 image refused: CLOSED by clock 0, cause 0, AECP owned 1, ADP enabled 0
+bind_agg_only_between_records FAIL: D3R18: binding READ strobe 5 on agg_o's first clock 12474748 (strobe 1, abort 0, arbiter owner 0), the done before it held to 12474744 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)
+bind_agg_only_between_records FAIL: D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 1), the binding walk fails whole (cause 0) and the restore ends DEFAULTS (cause 0, closed 0)
+bind_agg_only_between_records FAIL: D3R19 past the bound: no image at reset (1) nor at the D3 walk's start (0); the binding walk (longest wait 19002 of 20001) fails whole at the bound (cause 0), released -13651217 clocks after it, the LOCATE proves the image 0 clocks after the release
+bind_agg_only_between_records FAIL: D3R19 past the bound: DEFAULTS with no record READ; the restore ends no terminal -1 clocks after the bound, cause 0, rolled back 0, image valid 0, AECP owned 1, 0 D3 record READs
+bind_agg_only_between_records FAIL: D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered -1 clocks after the bound, want 2), and the restore ends DEFAULTS -1 clocks after the bound (cause 0)
+bind_agg_only_between_records D3: 133 checks, 10 failures
+== bind_agg_ignores_byte_in_hand
+bind_agg_ignores_byte_in_hand D3: 133 checks, 0 failures
+bind_agg_ignores_byte_in_hand rc=0
+== proof_past_bound_needs_fired
+proof_past_bound_needs_fired FAIL: D3R20 W_IMG: DEFAULTS with no record READ; the restore ends COMPLETE 2168 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs
+proof_past_bound_needs_fired FAIL: D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 3 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 2 D3 record READs
+proof_past_bound_needs_fired D3: 133 checks, 2 failures
+== proof_default_only_from_img
+proof_default_only_from_img FAIL: D3R19 past the bound: DEFAULTS with no record READ; the restore ends DEFAULTS 2713 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs
+proof_default_only_from_img FAIL: D3R19 inside the LOCATE: DEFAULTS with no record READ; the restore ends COMPLETE 2439 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs
+proof_default_only_from_img FAIL: D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 3 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 2 D3 record READs
+proof_default_only_from_img D3: 133 checks, 3 failures
+== issue_arm_m1_only
+issue_arm_m1_only FAIL: D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 1), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)
+issue_arm_m1_only FAIL: D3R18: once the device ends the drained READ the port is idle (0), and a later SET persists (0 WRITEs, the port busy 100000 of 100000 clocks, unflushed 1)
+issue_arm_m1_only D3: 133 checks, 2 failures
+== issue_arm_m0_only
+issue_arm_m0_only D3: 133 checks, 0 failures
+issue_arm_m0_only rc=0
+== issue_arm_stale_we
+issue_arm_stale_we D3: 133 checks, 0 failures
+issue_arm_stale_we rc=0
+== issue_arm_cross_intent
+issue_arm_cross_intent D3: 133 checks, 0 failures
+issue_arm_cross_intent rc=0
+== issue_arm_write_too
+issue_arm_write_too D3: 133 checks, 0 failures
+issue_arm_write_too rc=0
+== issue_arm_one_clock_late
+issue_arm_one_clock_late FAIL: D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 1), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)
+issue_arm_one_clock_late D3: 133 checks, 1 failures

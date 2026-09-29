@@ -1,0 +1,16 @@
+clone: $REVIEWS/r391-4-pp131
+HEAD 84572585ea76214c9f15f199590b8fc91f8c7edc
+HEAD^{tree} 41df0c439cc64b1ee71c13644f2917a7c76d81eb
+index tree (write-tree) 41df0c439cc64b1ee71c13644f2917a7c76d81eb
+detached: yes
+status --porcelain --ignored (empty = clean):
+?? abc.history
+[end status]
+gitlinks (mode 160000) in HEAD: 0
+.gitmodules present: no
+work-tree blobs rehashed: 312, mismatches: 0
+index vs HEAD: identical
+
+remediation: abc.history (0 bytes, untracked) was written into the clone's work tree by the reviewer's single-module synthesis run (the tool writes its history into its working directory); it was inspected (empty) and removed. Re-check:
+status --porcelain --ignored lines after removal: 0
+HEAD 84572585ea76214c9f15f199590b8fc91f8c7edc tree 41df0c439cc64b1ee71c13644f2917a7c76d81eb write-tree 41df0c439cc64b1ee71c13644f2917a7c76d81eb
