@@ -1,0 +1,39 @@
+page raw rows parsed: 100; packet raw index entries: 213
+A. 19 actions, 7520 console rounds, 7520 with one MAC_STATUS and one link_status read, equal
+PASS 599 page: both words agreed in all 7,520 console rounds of nineteen actions
+   nvm_pend 0 up to 05:38:28, 1 from 05:41:15; pend never 0 after: True
+PASS 599 page: nvm_pend 0 up to 05:38:29Z (bracket) and 1 from 05:41:16Z to the end
+PASS 599 page: nvm_dirty 0 (and alarm 0) in all 7,520 samples
+PASS B. every retained controller transcript is enumerated (26 files)
+   command kinds: {'CONNECT_RX': 2, 'DISCONNECT_RX': 2, 'GET_AVB_INFO': 2984, 'GET_CLOCK_SOURCE': 7, 'GET_CONFIGURATION': 4, 'GET_COUNTERS': 11964, 'GET_RX/TX_STATE': 3024, 'GET_SAMPLING_RATE': 4, 'READ_DESCRIPTOR': 79, 'SET_CLOCK_SOURCE': 2}
+   state-changing 05:41:01Z setup-raw.jsonl peer CONNECT_RX 1
+   state-changing 05:41:01Z setup-raw.jsonl dut CONNECT_RX 1
+   state-changing 05:41:01Z setup-raw.jsonl dut SET_CLOCK_SOURCE 0024000000010000
+   state-changing 06:22:05Z restore-raw.jsonl dut SET_CLOCK_SOURCE 0024000000000000
+   state-changing 06:22:05Z restore-raw.jsonl peer DISCONNECT_RX 0
+   state-changing 06:22:05Z restore-raw.jsonl dut DISCONNECT_RX 0
+PASS 599 page: six state-changing commands, three in the setup between the pend samples, three in the restore; every other command a read
+   gm01: asCapable clears at [4.55, 51.57] s, PDELAY_NS there [0, 4393]
+   gm02: asCapable clears at [4.28, 51.3] s, PDELAY_NS there [0, 4039]
+   gm03: asCapable clears at [4.78, 50.84] s, PDELAY_NS there [0, 4701]
+   gm04: asCapable clears at [4.53, 51.55] s, PDELAY_NS there [0, 4378]
+   gm05: asCapable clears at [4.03, 51.11] s, PDELAY_NS there [0, 4231]
+C. takeover [0, 0, 0, 0, 0], release [4393, 4039, 4701, 4378, 4231], holds [4, 4, 5, 4, 4, 4, 4, 4, 4, 4] samples, other 2359 samples 373-389 ns
+PASS 387 page: 0 ns at takeovers, 4,039-4,701 ns at releases, 373-389 ns elsewhere, held 4-5 samples
+   gm01: DUT GPTP_GM_CHANGED 22 -> 25 (27 s after start) -> 28
+   gm02: DUT GPTP_GM_CHANGED 28 -> 31 (27 s after start) -> 34
+   gm03: DUT GPTP_GM_CHANGED 34 -> 37 (27 s after start) -> 40
+   gm04: DUT GPTP_GM_CHANGED 40 -> 41 (27 s after start) -> 44
+   gm05: DUT GPTP_GM_CHANGED 44 -> 47 (27 s after start) -> 50
+D. per-edge DUT GPTP_GM_CHANGED deltas [3, 3, 3, 3, 3, 3, 1, 3, 3, 3]
+PASS 387 page: DUT GPTP_GM_CHANGED +3 at nine of ten edges and +1 at the tenth
+E. before / after the standalone test / run 1 first poll: [{'dut': (22, 'switch'), 'peer': (60, 'switch')}, {'dut': (22, 'switch'), 'peer': (60, 'switch')}, {'dut': (22, 'switch'), 'peer': (60, 'switch')}]
+PASS 387 page: DUT and peer GPTP_GM_CHANGED stayed 22 and 60 across the standalone test
+F. identity/console-identity.txt: slots 227/228 image 228, commits 0/0, PP_NVM_STAT c30000e4 pend 0 unres 0, PP_STAT 5b000444
+PASS saved-state table column from r1/identity/console-identity.txt
+PASS PP_NVM_STAT[22] and PP_STAT[11] agree with the printed pend in r1/identity/console-identity.txt
+F. restore/console-final.txt: slots 229/230 image 230, commits 2/0, PP_NVM_STAT c34000e4 pend 1 unres 0, PP_STAT 5b000c44
+PASS saved-state table column from r1/restore/console-final.txt
+PASS PP_NVM_STAT[22] and PP_STAT[11] agree with the printed pend in r1/restore/console-final.txt
+
+TOTAL fail=0

@@ -1,0 +1,19 @@
+PASS REDACTION.json lists every file of the original archive (235), plus 10 excluded
+files the archiver path-redacted in either archive: 4
+PASS no republished file outside the record (extra: 0)
+entries: 245; byte-identical 205, redacted 30, excluded 10
+PASS every entry accounted for; redactions touch placeholders only
+placeholder <account>: 1 distinct original value(s)
+placeholder <capture-host-if>: 2 distinct original value(s)
+placeholder <capture-host-mac>: 2 distinct original value(s)
+placeholder <controller-host-eui64>: 2 distinct original value(s)
+placeholder <controller-host-if>: 1 distinct original value(s)
+placeholder <tap-driver>: 1 distinct original value(s)
+scan of the published tree for <account> originals: 0 files
+scan of the published tree for <capture-host-if> originals: 0 files
+scan of the published tree for <capture-host-mac> originals: 0 files
+scan of the published tree for <controller-host-eui64> originals: 2 files: reviews/R402-1/receipts/rederive.txt x10, reviews/R402-1/scripts/rederive.py x1
+scan of the published tree for <controller-host-if> originals: 0 files
+scan of the published tree for <tap-driver> originals: 0 files
+
+TOTAL fail=0 scan-hit-files=2

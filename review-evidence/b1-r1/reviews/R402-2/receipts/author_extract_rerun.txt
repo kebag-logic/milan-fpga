@@ -1,0 +1,6 @@
+extract_console_rounds.py rc=0 output vs packet extract_console_rounds.txt: BYTE-IDENTICAL; last line: CLAIM all 7,520 rounds agree: REPRODUCED
+extract_pdelay.py rc=0 output vs packet extract_pdelay.txt: BYTE-IDENTICAL; last line: CLAIM 0 / 4,039-4,701 / 373-389 ns: REPRODUCED
+extract_alignment_counters.py rc=0 output vs packet extract_alignment_counters.txt: BYTE-IDENTICAL; last line: CLAIM GPTP_GM_CHANGED stayed 22 (DUT) and 60 (peer), switch GM throughout: REPRODUCED
+extract_saved_state.py rc=0 output vs packet extract_saved_state.txt: BYTE-IDENTICAL; last line: DUT stream input 1 bound (count 1) in every poll of 16 actions (baseline-bound to gm05); talker, uid and flags over them: [('3cc0c60102030000', '2', '0x0002')]
+extract_seed_crc.py rc=0 output vs packet extract_seed_crc.txt: BYTE-IDENTICAL; last line: CLAIM eto d84bce7b, eppo bf44ccc9, asl 809fcffa: REPRODUCED
+asl build log working directory names build-dev-13eda870d1a6; that worktree HEAD reads 13eda870d1a6cf3f946fc228a98862366b08d102, clean at review time

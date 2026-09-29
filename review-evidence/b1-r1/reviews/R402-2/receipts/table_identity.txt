@@ -1,0 +1,23 @@
+== docs/findings/599_394_E1_LINK_CYCLES.md: 8 tables at f9eab5bf, 9 at 931c3edf
+  IDENTICAL (5 lines) | Acceptance | Verdict | Evidence |
+  IDENTICAL (13 lines) | Identity check | Result |
+  IDENTICAL (4 lines) | Direction | Binding | Format |
+  IDENTICAL (15 lines) | Observation | Seconds after OFF |
+  IDENTICAL (12 lines) | Cycle | OFF | MAC_STATUS down | MAC_STATUS up | LINK_DOWN / LINK_UP | GM return | gPTP recovery | 
+  IDENTICAL (7 lines) | Counter block | Before cycle 1 | After cycle 10 | Per cycle |
+  ADDED     (6 lines) | Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+  IDENTICAL (11 lines) | Tool | SHA-256 |
+  IDENTICAL (67 lines) | Action | Raw artifact | Bytes | SHA-256 |
+== docs/findings/387_SOFTWARE_GM_STEP.md: 6 tables at f9eab5bf, 7 at 931c3edf
+  CHANGED   (3 lines) | Acceptance | Verdict | Evidence |
+    --- 
+    +++ 
+    @@ -3 +3 @@
+    -| #387 acceptance 4 | PASS, with one recorded deviation | Five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked CRF stream. No outgoing `mr` changed. MEDIA_RESET stayed flat, and neither listener unlocked. `A_MCSRV_STAT` read LOCKED throughout, and `tu` 
+    +| #387 acceptance 4 | PARTLY MET | Met: five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked CRF stream. No outgoing `mr` changed. MEDIA_RESET stayed flat, and neither listener unlocked. `A_MCSRV_STAT` read LOCKED throughout. Not met: the decided one co
+  IDENTICAL (12 lines) | Run | Edge | DUT PHC step | Grandmaster time step | `tu` set / steady clear | Step to steady | `tu
+  IDENTICAL (7 lines) | Run | Takeover Announce | Release Announce | `CLKV_TUCNT` | DUT GPTP_GM_CHANGED | CLOCK_DOMAIN LOC
+  IDENTICAL (10 lines) | Element | Decided reaction to one step | Observed over ten steps |
+  ADDED     (6 lines) | Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+  IDENTICAL (11 lines) | Item | SHA-256 |
+  IDENTICAL (37 lines) | Action | Raw artifact | Bytes | SHA-256 |

@@ -1,0 +1,24 @@
+harvested private-token bases by kind (allowlisted public ones in brackets):
+  account name: 1 [0 public]
+  clock identity: 4 [3 public]
+  home path: 1 [0 public]
+  host MAC: 24 [2 public]
+  host name: 1 [0 public]
+  interface name: 2 [0 public]
+
+TARGET author-r2@04d00b66: 275 files scanned, 0 private-token hits
+
+TARGET b1-r1@04d00b66: 322 files scanned, 11 private-token hits
+  clock identity #t671406: 11 at reviews/R402-1/receipts/rederive.txt:322, reviews/R402-1/receipts/rederive.txt:323, reviews/R402-1/receipts/rederive.txt:366, reviews/R402-1/receipts/rederive.txt:367, reviews/R402-1/receipts/rederive.txt:410, reviews/R402-1/receipts/rederive.txt:411 ...
+
+TARGET pages+PR-body@931c3edf: 3 files scanned, 0 private-token hits
+
+TARGET round1-unredacted@92e1d7a3: 236 files scanned, 249 private-token hits
+  account name #t3bafa2: 2 at review-evidence/b1-r1/author/capture/capture-prerequisite-raw.txt:8, review-evidence/b1-r1/author/capture/capture-prerequisite-raw.txt:8
+  clock identity #t671406: 188 at review-evidence/b1-r1/author/bench/baseline-bound/controller.jsonl:12, review-evidence/b1-r1/author/bench/baseline-bound/controller.jsonl:13, review-evidence/b1-r1/author/bench/baseline-bound/controller.jsonl:24, review-evidence/b1-r1/author/bench/baseline-bound/controller.jsonl:25, review-evidence/b1-r1/author/bench/baseline-bound/controller.jsonl:36, review-evidence/b1-r1/author/bench/baseline-bound/controller.jsonl:37 ...
+  host MAC #t2420da: 2 at review-evidence/b1-r1/author/capture/capture-prerequisite-raw.txt:14, review-evidence/b1-r1/author/capture/capture-prerequisite-raw.txt:16
+  host MAC #tf7be26: 2 at review-evidence/b1-r1/author/capture/capture-cleanup.txt:8, review-evidence/b1-r1/author/capture/capture-prerequisite-raw.txt:13
+  interface name #t7639ae: 2 at review-evidence/b1-r1/author/capture/capture-cleanup.txt:8, review-evidence/b1-r1/author/capture/capture-prerequisite-raw.txt:13
+  interface name #te02528: 53 at review-evidence/b1-r1/author/bench/gm01/ptp4l-gm.log:1, review-evidence/b1-r1/author/bench/gm01/ptp4l-gm.log:4, review-evidence/b1-r1/author/bench/gm01/ptp4l-gm.log:6, review-evidence/b1-r1/author/bench/gm01/ptp4l-slave.log:2, review-evidence/b1-r1/author/bench/gm01/ptp4l-slave.log:5, review-evidence/b1-r1/author/bench/gm01/ptp4l-slave.log:6 ...
+
+TOTAL hits 260

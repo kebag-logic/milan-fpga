@@ -1,0 +1,9 @@
+retained files: 213, 176644961 bytes
+PASS 1. 100 page raw-artifact rows, 100 equal to their retained copy
+PASS 2. retained set equals the packet raw index (213 entries, count and total bytes agree)
+PASS 3a. storage MANIFEST.sha256 verifies 213/213
+PASS 3b. packet retention MANIFEST.sha256 and MANIFEST.tsv are byte-identical to the storage copies
+PASS 3c. the TSV's page-row column names exactly the 100 page rows, each against its file
+PASS 4. 181 per-action raw-artifacts.json entries equal their retained copy
+
+TOTAL fail=0
