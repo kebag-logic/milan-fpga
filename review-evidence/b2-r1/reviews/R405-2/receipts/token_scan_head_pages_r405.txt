@@ -1,0 +1,32 @@
+categories: ['abs-path', 'controller-host-eui64', 'controller-host-eui64-sep', 'controller-host-mac', 'controller-host-mac-dotted', 'eui64-fffe', 'hostname', 'iface', 'ipv4', 'mac-colon', 'serial']; private deny-list loaded: True
+scanned 4 files
+
+[ipv4] distinct 0
+
+[mac-colon] distinct 1
+  sha256:fec65a05285b kind=MAAP multicast stream destination files=1 e.g. pages/606_FIRST_BIND_MEASUREMENT.md
+
+[eui64-fffe] distinct 1
+  sha256:1f3e5f2dea1b kind=DUT (locally administered) files=1 e.g. pages/606_FIRST_BIND_MEASUREMENT.md
+
+[abs-path] distinct 0
+
+[hostname] distinct 0
+
+[iface] distinct 0
+
+[serial] distinct 0
+
+[controller-host-eui64] distinct 0
+
+[controller-host-eui64-sep] distinct 0
+
+[controller-host-mac] distinct 0
+
+[controller-host-mac-dotted] distinct 0
+
+[identifier classification: EUI-64 (fffe form) and EUI-48 tokens]
+  sha256:1f3e5f2dea1b len=16 locally administered; DUT (locally administered); occurrences=1; exact token in public refs: ['13eda870d1a6']
+  sha256:77530459ff60 len=12 group (multicast); MAAP multicast stream destination; occurrences=1; exact token in public refs: NO
+
+[16-hex identifiers sharing a vendor OUI with a universally administered EUI-64 above (entity/stream IDs without fffe)]

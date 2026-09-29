@@ -1,0 +1,15 @@
+console .txt files: 226
+milan_status samples: 226
+PP_STAT values: {'5b000c44': 226}
+  5b000c44: alarm[4]=0 backed[6]=1 dirty[8]=0 stale[9]=0 img_valid[10]=1 pend[11]=1 tag=0x5b
+milan_nvm reads: 2
+   2026-09-29T06:49:58.397376Z identity/console-identity.txt :: NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live | NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+   2026-09-29T07:20:45.540950Z restore/console-final.txt :: NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live | NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+mem_read addresses: {'0x90000110': 226, '0x9000071c': 1, '0x90000720': 226, '0x90000750': 225, '0x90000764': 225, '0x90000774': 226, '0x90000780': 1, '0x900008f8': 1, '0x90000930': 225, '0xf000181c': 1}
+PP_STAT (0x924) read by mem_read: 0  PP_NVM_STAT (0x93c) read by mem_read: 0
+action console samples (bind/ + cycles/ files): 224  first/last section ts: 2026-09-29T06:53:46.585657Z 2026-09-29T07:20:32.154777Z
+ACMP message types on the tap: {'GET_RX_STATE_CMD': 115, 'GET_RX_STATE_RSP': 115, 'CONNECT_RX_CMD': 105, 'CONNECT_RX_RSP': 105, 'CONNECT_TX_CMD': 105, 'CONNECT_TX_RSP': 105, 'DISCONNECT_RX_CMD': 105, 'DISCONNECT_RX_RSP': 105}
+   ('CONNECT_RX_CMD', '020000fffe000001', '1', '3cc0c60102030000', '8') 105
+   ('DISCONNECT_RX_CMD', '020000fffe000001', '1', '3cc0c60102030000', '8') 105
+AECP/ACMP-controller command names in jsonl: {'GET_AVB_INFO': 676, 'GET_COUNTERS': 2732, 'GET_CLOCK_SOURCE': 4, 'GET_CONFIGURATION': 4, 'GET_SAMPLING_RATE': 4, 'READ_DESCRIPTOR': 54}
+DUT stream-input state polls: 340 {('state-5-1', 0): 338, ('state-5-0', 0): 2}

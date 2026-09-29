@@ -1,0 +1,11 @@
+captures: 112
+DUT LeaveAll PDUs (distinct times): 87  bridge LeaveAll PDUs: 90
+DUT LeaveAll PDUs < 10 s after a prior bridge LeaveAll in the same capture: 67
+captures holding at least one such PDU: 64 of 112
+gap min/median/max: 0.199564 1.997469 4.807277  under 1 s: 14
+cycle-022 pair: bridge LA 2.658125925 DUT LA 3.059247408 gap 0.401121483
+cycle-022 bridge LA after DISCONNECT_RX response: -0.391721 s
+cycle-022 DUT LA after DISCONNECT_RX response: +0.009401 s
+cycle-022 bridge Listener Lv after DISCONNECT_RX response: +0.010791 s
+minimum capture time before the bridge Listener Lv over 100 cycles: 2.742934077 s (cycles/cycle-004)
+  -> printed 3 d.p. truncated: 2.742 floor, rounded: 2.743

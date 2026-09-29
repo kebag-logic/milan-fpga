@@ -1,0 +1,73 @@
+categories: ['abs-path', 'controller-host-eui64', 'controller-host-eui64-sep', 'controller-host-mac', 'controller-host-mac-dotted', 'eui64-fffe', 'hostname', 'iface', 'ipv4', 'mac-colon', 'serial']; private deny-list loaded: True
+scanned 1956 files
+
+[ipv4] distinct 1
+  sha256:01974d9ab993 kind=dotted number files=2 e.g. b2-r1/author/tools/wire_summary.py
+
+[mac-colon] distinct 2
+  sha256:fec65a05285b kind=MAAP multicast stream destination files=2 e.g. b2-r1/author/summary/page-606.template.md
+  sha256:0e6ed8ee11e3 kind=MAAP multicast stream destination files=1 e.g. b2-r1/author/tools/avdecc_ro.py
+
+[eui64-fffe] distinct 2
+  sha256:1f3e5f2dea1b kind=DUT (locally administered) files=567 e.g. b2-r1/author/HANDOFF.md
+  sha256:6804fb3e7fad kind=other files=565 e.g. b2-r1/author/bind/baseline/console-after.txt
+
+[abs-path] distinct 7
+  sha256:3b122b9d4638 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+  sha256:3e44fb009899 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+  sha256:0fe68e7a8a47 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+  sha256:b42b6b401f54 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+  sha256:a9e5ed9db2e4 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+  sha256:407bb1063433 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+  sha256:e28ada10e246 kind=other files=1 e.g. b2-r1/reviews/R405-1/scripts/scan_tokens.py
+
+[hostname] distinct 0
+
+[iface] distinct 2
+  sha256:0a443a771fa4 kind=other files=1 e.g. b2-r1/reviews/R404-1/scripts/token_scan.py
+  sha256:cf98bd78c00e kind=other files=1 e.g. b2-r1/reviews/R404-1/scripts/token_scan.py
+
+[serial] distinct 2
+  sha256:e9e74dccbada kind=other files=1 e.g. b2-r1/reviews/R404-1/scripts/token_scan.py
+  sha256:14de29253155 kind=other files=1 e.g. b2-r1/reviews/R405-1/REPORT.md
+
+[controller-host-eui64] distinct 0
+
+[controller-host-eui64-sep] distinct 0
+
+[controller-host-mac] distinct 0
+
+[controller-host-mac-dotted] distinct 0
+
+[identifier classification: EUI-64 (fffe form) and EUI-48 tokens]
+  sha256:1f3e5f2dea1b len=16 locally administered; DUT (locally administered); occurrences=1616; exact token in public refs: ['13eda870d1a6']
+  sha256:37cf8835e04d len=12 universally administered (vendor OUI); other; occurrences=1; exact token in public refs: NO
+  sha256:39d48e1c7090 len=12 locally administered; other; occurrences=2; exact token in public refs: NO
+  sha256:3cae3598f33f len=12 locally administered; other; occurrences=7; exact token in public refs: NO
+  sha256:41f2033b1234 len=12 group (multicast); MAAP multicast stream destination; occurrences=432; exact token in public refs: NO
+  sha256:427ede196162 len=12 group (multicast); other; occurrences=1; exact token in public refs: NO
+  sha256:48900629b8e1 len=12 locally administered; other; occurrences=5; exact token in public refs: NO
+  sha256:645d219fdca2 len=12 group (multicast); MAAP multicast stream destination; occurrences=2; exact token in public refs: NO
+  sha256:66f33e2cee6a len=12 group (multicast); other; occurrences=1; exact token in public refs: NO
+  sha256:6804fb3e7fad len=16 universally administered (vendor OUI); other; occurrences=1130; exact token in public refs: ['13eda870d1a6']
+  sha256:68b4204410c9 len=12 universally administered (vendor OUI); other; occurrences=2; exact token in public refs: NO
+  sha256:6deda8e57a59 len=12 universally administered (vendor OUI); other; occurrences=2; exact token in public refs: ['13eda870d1a6']
+  sha256:75a3d3d23d49 len=12 group (multicast); MAAP multicast stream destination; occurrences=2; exact token in public refs: ['13eda870d1a6']
+  sha256:77530459ff60 len=12 group (multicast); MAAP multicast stream destination; occurrences=4; exact token in public refs: NO
+  sha256:80c900057cfb len=12 group (multicast); other; occurrences=2; exact token in public refs: NO
+  sha256:9698e8246737 len=12 group (multicast); other; occurrences=6; exact token in public refs: NO
+  sha256:97e28daf6c55 len=12 group (multicast); other; occurrences=1; exact token in public refs: NO
+  sha256:9abc546e3f56 len=12 locally administered; other; occurrences=1; exact token in public refs: NO
+  sha256:9bd5c56a9777 len=12 group (multicast); other; occurrences=4; exact token in public refs: NO
+  sha256:af1e25941015 len=12 group (multicast); other; occurrences=1; exact token in public refs: NO
+  sha256:b4d21713c69f len=12 group (multicast); MAAP multicast stream destination; occurrences=2; exact token in public refs: NO
+  sha256:b9b4d7945507 len=12 group (multicast); other; occurrences=1; exact token in public refs: NO
+  sha256:c44062a9d624 len=12 locally administered; other; occurrences=1; exact token in public refs: NO
+  sha256:d72fbd0de7de len=12 universally administered (vendor OUI); other; occurrences=1; exact token in public refs: NO
+  sha256:e226fca0551d len=12 group (multicast); other; occurrences=15; exact token in public refs: NO
+  sha256:fb4d2ef89d9e len=12 group (multicast); other; occurrences=2; exact token in public refs: NO
+  sha256:fe109128210a len=12 group (multicast); other; occurrences=1; exact token in public refs: NO
+
+[16-hex identifiers sharing a vendor OUI with a universally administered EUI-64 above (entity/stream IDs without fffe)]
+  sha256:9614725b6a1d OUI-sha256:bf1a921cecf1; occurrences=1763; exact token in public refs: ['13eda870d1a6']
+  sha256:bfa8f3d69d2c OUI-sha256:bf1a921cecf1; occurrences=176; exact token in public refs: NO
