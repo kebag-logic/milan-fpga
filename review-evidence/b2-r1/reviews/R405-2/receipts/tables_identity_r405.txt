@@ -1,0 +1,60 @@
+##### 606_FIRST_BIND_MEASUREMENT
+CHANGED | #606 item | Verdict | Evidence |
+     --- 
+     +++ 
+     @@ -7 +7 @@
+     -| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP refresh stays at 1.000 s. A DUT LeaveAll crossed every pre-bind window. |
+     +| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP kept 1.000 s periodic spacing, 0.2 s after a LeaveAll. A DUT LeaveAll crossed every pre-bind window. |
+SAME    | Identity check | Result | (9 lines)
+SAME    | Binding | Talker output | Listener input | Format | (3 lines)
+SAME    | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll PDUs / target TA declarations in it | First probe  (7 lines)
+SAME    | Unbind | After bind response, s | Bridge Listener Lv, s | Last PDU, s | PDUs after Lv + 2 ms | DUT TA Lv, s  (6 lines)
+SAME    | Event after the `CONNECT_RX` response | `9e9954e9`, one bind | `13eda870`, binds 1-5 | (7 lines)
+ADDED   | Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z | (7 lines)
+SAME    | Image artifact | Bytes | SHA-256 | (6 lines)
+SAME    | Tool | Role | SHA-256 | (20 lines)
+SAME    | Capture identifier | Bytes | SHA-256 | (14 lines)
+summary: old 9 tables, new 10 tables, identical 8, changed 1
+##### 608_75_WITHDRAWAL_AND_RESTART
+CHANGED | Issue item | Verdict | Evidence |
+     --- 
+     +++ 
+     @@ -5 +5 @@
+     -| #608 item 3: stop within one PDU of the withdrawal, 100 of 100 | Two readings; see below | Literal text: NOT MET, 99 of 100. Recorded reading, a withdrawal that reaches an IN registrar: PASS, 99 of 99. |
+     +| #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487). Cycle 22's LV registrar is attributed to the processor #108 deviation. Met without qualification only after the pin adoption of processor PR #133 and a bench re-run. |
+     @@ -11 +11 @@
+     -| #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped, so it is not a restart. |
+     +| #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart. The [#608 ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) requires no additional cycle. |
+SAME    | Binding | Talker output | Listener input | Format | (3 lines)
+SAME    | Cycle | Own LeaveAll minus bridge Lv, s | Registrar at Lv | Stop | (10 lines)
+SAME    | Event | Time, s | (9 lines)
+SAME    | Population | Count | Below 1 s | Min, s | Median, s | p95, s | Max, s | (5 lines)
+SAME    | First ten median, s | Last ten median, s | Slope, s per cycle | 95% slope interval, s per cycle | Residual d (3 lines)
+SAME    | Cycles | Demonstrated restarts | Median, s | Max, s | Combined MSRP PDUs/s | (12 lines)
+SAME    | Cycle | Bridge Lv after disconnect, s | Registrar at Lv | Last PDU minus Lv, ms | Hold PDUs | START / STOP | (102 lines)
+SAME    | Point | START / STOP | (8 lines)
+ADDED   | Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z | (7 lines)
+SAME    | Capture identifier | Bytes | SHA-256 | (102 lines)
+summary: old 10 tables, new 11 tables, identical 9, changed 1
+##### README
+CHANGED | Document | Scope | State |
+     --- 
+     +++ 
+     @@ -3 +3,3 @@
+     -| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; three non-restarts tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); initial-bind exception tracked by #606; AAF unmeasured |
+     +| [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs on `9e9954e9`; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; AAF unmeasured. On `13eda870` the talker non-restarts are re-measured in [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) and the initial bind in [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) |
+     +| [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) | First talker bind and long-hold connect of the DUT-talker CRF pair on dev `13eda870` (#606 item 3) | 5 of 5 first binds and 4 of 4 long-hold connects within 1 s; the post-reset allocation path is not exercised |
+     +| [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) | 100 listener withdrawals and reconnects of the DUT-talker CRF pair on dev `13eda870` (#608 item 3, #75) | 99 of 99 withdrawals that reached an IN registrar stopped; the one LV case is attributed to processor #108, pending a re-run after processor PR #133; 99 of 99 demonstrated restarts within 1 s |
+summary: old 1 tables, new 1 tables, identical 0, changed 1
+##### PR body (round-1 author PR-BODY.md vs live PR body)
+CHANGED | Issue item | Verdict | Evidence |
+     --- 
+     +++ 
+     @@ -5 +5 @@
+     -| #608 item 3: stop within one PDU, 100 of 100 | Literal: NOT MET, 99 of 100. Recorded reading (withdrawal reaching an IN registrar): PASS, 99 of 99 | Cycle 22: the DUT's own MSRP LeaveAll crossed the tap 1.390 ms before the bridge's Listener `Lv`; the registrar was LV and the stream ran through the 2 s hold (1,005 PDUs) |
+     +| #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487): cycle 22's LV registrar is attributed to the processor #108 deviation; met without qualification only after the pin adoption of processor PR #133 and a bench re-run |
+     @@ -10 +10 @@
+     -| #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped |
+     +| #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart; the [#608 ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) requires no additional cycle |
+SAME    | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll PDUs / target TA declarations in it | First probe  (7 lines)
+summary: old 2 tables, new 2 tables, identical 1, changed 1

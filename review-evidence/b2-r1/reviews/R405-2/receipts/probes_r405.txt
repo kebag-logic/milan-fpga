@@ -1,0 +1,14 @@
+## probe1: per-cycle row 57 Lv 0.009568->0.009569
+CHANGED | Issue item | Verdict | Evidence |
+CHANGED | Cycle | Bridge Lv after disconnect, s | Registrar at Lv | Last PDU minus Lv, ms | Hold PDUs | START / STOP |
+     -| 57 | 0.009568 | IN (observed) | -1.814 | 4 | +1 / +1 | yes | 0.013605 | PASS | PASS |
+     +| 57 | 0.009569 | IN (observed) | -1.814 | 4 | +1 / +1 | yes | 0.013605 | PASS | PASS |
+summary: old 10 tables, new 11 tables, identical 8, changed 2
+## probe2: cycle-050 console-after PP_STAT 5b000c44->5b000444
+PP_STAT values: {'5b000c44': 225, '5b000444': 1}
+  5b000c44: alarm[4]=0 backed[6]=1 dirty[8]=0 stale[9]=0 img_valid[10]=1 pend[11]=1 tag=0x5b
+  5b000444: alarm[4]=0 backed[6]=1 dirty[8]=0 stale[9]=0 img_valid[10]=1 pend[11]=0 tag=0x5b
+milan_nvm reads: 2
+## probe3: cycle-022 DUT LeaveAll moved +10 s
+DUT LeaveAll PDUs < 10 s after a prior bridge LeaveAll in the same capture: 66
+captures holding at least one such PDU: 63 of 112
