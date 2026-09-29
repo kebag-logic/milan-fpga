@@ -66,7 +66,8 @@ its 1,800 s per-suite guard). A unit is one build and the harness runs graded
 on it; the dp and dp-band legs build the same clean datapath the same way, so
 their controls share one build. The datapath units, the longest, start
 first, and every unit's lines print in the fixed order below, whatever order
-the units finish in. Every build runs with MAKEFLAGS emptied (BUILD_MAKEFLAGS)
+the units finish in; the dp harness's ROM images are made once, before any
+build starts. Every build runs with MAKEFLAGS emptied (BUILD_MAKEFLAGS)
 and keeps its own make and compiler output; a failed build prints the last
 BUILD_TAIL_LINES lines of it under its verdict. Two checks hold those two
 properties: the dp recipe must build under an inherited MAKEFLAGS=w, and a
@@ -123,6 +124,10 @@ BUILD_MAKEFLAGS = ""
 #: the lines of a failed build's own make and compiler output printed under
 #: its verdict: its compiler's error and make's, from the CI log alone
 BUILD_TAIL_LINES = 40
+#: the dp harness's processor ROM images, which every dp build lists as
+#: prerequisites in the suite directory: made once, before the builds run side
+#: by side, so no two builds generate them at once
+ROM_IMAGES = ("ltn_rom.hex", "ucode.hex")
 #: the build break the arm plants to prove a failed build shows its cause: a
 #: statement no parser accepts, after the datapath's last line
 PLANTED_BREAK = "\nplanted build break;\n"
@@ -509,6 +514,19 @@ def build_break_result(work: Path) -> Result:
                    f"file ({'it built' if exe else 'no such line in the tail below'})", *tail]
 
 
+def rom_images_result(work: Path) -> Result:
+    """The dp harness's ROM images (ROM_IMAGES), made once before any build
+    starts; a failure prints its output, and no build can use them."""
+    tag = "rom_images"
+    rc, out = run_child(["make", "-s", "-C", str(HERE), *ROM_IMAGES],
+                        env={**os.environ, "MAKEFLAGS": BUILD_MAKEFLAGS})
+    build_log(work, tag).write_text(out)
+    if rc == 0:
+        return True, []
+    return False, ["[FAIL] the dp harness's ROM images could not be made; no dp build can run",
+                   *build_tail(build_log(work, tag))]
+
+
 class Unit(NamedTuple):
     """One build and the harness runs graded on it."""
     run: Callable[[], list[Result]]
@@ -562,6 +580,10 @@ def main() -> int:
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, stop)
     with tempfile.TemporaryDirectory(prefix="capture-coherence-mutants-") as td:
+        made, lines = rom_images_result(Path(td))
+        if not made:
+            emit(lines)
+            return 1
         verdicts = run_units(arm_units(Path(td)), len(os.sched_getaffinity(0)))
     passes = sum(verdicts)
     print(f"\n{len(verdicts)} checks: {passes} PASS, {len(verdicts) - passes} FAIL", flush=True)
