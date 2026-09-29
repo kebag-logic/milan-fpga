@@ -151,6 +151,11 @@ static int seconds_to_ns(uint64_t seconds, uint64_t nanoseconds,
 #define MILAN_PP_STAT_RESTORE_FAIL (1u << 3)
 #define MILAN_PP_STAT_NVM_BACKED   (1u << 6)
 #define MILAN_PP_STAT_NVM_BLANK    (1u << 7)
+/* The D3 walk's CLOSED terminal (processor pin d352bbaa): fail and never
+ * done, with AECP held until reset; the restore could not prove the AEM
+ * image. [17] is its roll-back to DEFAULTS, [20:18] its first abort cause
+ * and [22:21] the binding walk's (docs/reference/REGISTER_MAP.md). */
+#define MILAN_PP_STAT_RESTORE_CLOSED (1u << 16)
 
 /* The backend's control words: PP_NVM_SEL indices (REGISTER_MAP.md 0x934). */
 #define NVM_W_IMG_BASE   0u
@@ -337,8 +342,10 @@ typedef char nvm_own_words_is_eight[(NVM_OWN_WORDS == 8u) ? 1 : -1];
  * which cites the design-page section behind each). The heartbeat period is
  * half the section 9.4 maximum (500 ms), the erase timeout covers the
  * datasheet tSE maximum (3 s) inside the 8 s commit deadline, and the
- * debounce is the provisional value section 14 leaves open: a power cut
- * inside it loses exactly the changes nvm_dirty is reporting.
+ * debounce is the ruled DR2a 1,000 ms firmware first-dirty window, after the
+ * processor's own 500 ms producer window (docs/design/
+ * SAVED_STATE_MATERIALIZATION.md section 15.1): a power cut inside them
+ * loses exactly the changes nvm_pend and nvm_dirty are reporting.
  */
 #define NVM_MS(n)              ((uint64_t)(n) * 1000000ull)
 #define NVM_HEARTBEAT_NS       NVM_MS(MILAN_NVM_HEARTBEAT_MS)
@@ -1351,14 +1358,23 @@ static void nvm_wait_dev_idle(void)
 	}
 }
 
-/* Start the boot restore walk and wait for it to sequence, heartbeating. */
+/* The restore reached a terminal: COMPLETE or DEFAULTS (done), or CLOSED
+ * (fail, never done). Waiting on done alone would spend the whole timeout on
+ * a CLOSED restore, which never raises it. */
+static int nvm_restore_ended(void)
+{
+	return (milan_read(MILAN_PP_STAT) &
+		(MILAN_PP_STAT_RESTORE_DONE | MILAN_PP_STAT_RESTORE_CLOSED)) != 0;
+}
+
+/* Start the boot restore walk and wait for its terminal, heartbeating. */
 static void nvm_restore_walk(void)
 {
 	uint64_t start = gettime_ns();
 
 	/* PP_CTRL[1] only: the entity enable, bit 0, is the choke point's. */
 	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 0x2u);
-	while (!(milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE)) {
+	while (!nvm_restore_ended()) {
 		nvm_heartbeat_tick();
 		if (gettime_ns() - start > NVM_RESTORE_TIMEOUT_NS) {
 			printf("Milan NVM: the restore walk did not sequence in time.\n");
@@ -1444,6 +1460,14 @@ static void nvm_boot(void)
 	bios_dispatch_hook_required();
 	if (!nvm_shape_consistent()) {
 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
+		/* The restore walk still runs, blind, as it does after a refused
+		 * window: the processor holds its ACMP listener and AECP from reset
+		 * until the walk reaches its terminal, so a boot that never starts
+		 * it leaves the entity deaf and uncontrollable. No image stands
+		 * behind the device face, so the entity comes up on its defaults
+		 * and the status says so (restore fail 1). */
+		if (!nvm_restore_ended())
+			nvm_restore_walk();
 		return;
 	}
 	nvm_started = 1;
@@ -1537,19 +1561,21 @@ static void nvm_boot(void)
 				       tries);
 		}
 	}
-	/* a restore walk the fabric already sequenced since its reset is not run
+	/* a restore walk the fabric already ended since its reset is not run
 	 * again: a re-attached writer finds the entity live */
-	if (!(milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE))
+	if (!nvm_restore_ended())
 		nvm_restore_walk();
 	stat = milan_read(MILAN_PP_STAT);
-	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu.\n",
+	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu closed=%lu rolled_back=%lu cause=%lu/%lu.\n",
 	       nvm_verdict_name[nvm_verdict_a], (unsigned long)seq_a,
 	       nvm_verdict_name[nvm_verdict_b], (unsigned long)seq_b,
 	       nvm_slot_letter(chosen), (unsigned long)nvm_seq,
 	       nvm_verdict_name[verdict], (unsigned int)NVM_IMG_LEN,
 	       (unsigned int)MILAN_NVM_LIVE_BASE,
 	       (unsigned long)((stat >> 2) & 1u), (unsigned long)((stat >> 3) & 1u),
-	       (unsigned long)((stat >> 7) & 1u), (unsigned long)((stat >> 6) & 1u));
+	       (unsigned long)((stat >> 7) & 1u), (unsigned long)((stat >> 6) & 1u),
+	       (unsigned long)((stat >> 16) & 1u), (unsigned long)((stat >> 17) & 1u),
+	       (unsigned long)((stat >> 18) & 7u), (unsigned long)((stat >> 21) & 3u));
 	set_idle_hook(nvm_service);
 }
 

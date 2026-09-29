@@ -617,6 +617,7 @@ def main() -> int:
     a = ap.parse_args()
     cfgs = a.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
     firmware_text = FIRMWARE.read_text()
+    import test_boot_walk as bootwalk
     import test_disabled_writer as disabled
 
     findings = []
@@ -627,6 +628,7 @@ def main() -> int:
             bench = make_bench(cfg, work, firmware_text)
             got = grade(bench)
             got += disabled.grade(cfg, work / "disabled", firmware_text)
+            got += bootwalk.grade(cfg, work / "boot-walk", firmware_text, bench)
             disabled.check_link_guard(bench)
             findings += got
             print(f"{cfg.stem:<28} records={len(bench.frames):3d} image={bench.img_len:5d} B "
@@ -634,6 +636,7 @@ def main() -> int:
         if a.self_test and not findings:
             findings += self_test(cfgs[0], Path(tmp) / "selftest", firmware_text)
             findings += disabled.self_test(cfgs[0], Path(tmp) / "disabled-mutant", firmware_text)
+            findings += bootwalk.self_test(cfgs[0], Path(tmp) / "boot-walk-mutant", firmware_text)
             subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],
                            check=True, timeout=180)
     for x in findings:
