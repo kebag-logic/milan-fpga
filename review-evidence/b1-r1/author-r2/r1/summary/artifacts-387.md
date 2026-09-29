@@ -1,0 +1,37 @@
+| Action | Raw artifact | Bytes | SHA-256 |
+|---|---|---:|---|
+| gm01 | `console.jsonl` | 1124688 | `f72e7065b6f5a363d2a20d6258679463341ebd7343b6d9177c3188f9d6551ed2` |
+| gm01 | `controller.jsonl` | 639590 | `f252de61752452c992829302d352cc8592d6650545113b9a5fc2e41740e69f9f` |
+| gm01 | `controller-wire.pcap` | 459526 | `77de6b4ed15dcb48be985dea76476c8c6696ddb8dd215b3e81b6e3912d17c1ca` |
+| gm01 | `tap.pcap` | 13625805 | `9a85c4b61f6a21f8f7239f4960088e3273d70f3a1ff08f47d8ef24c286218a64` |
+| gm01 | `events.jsonl` | 4122 | `537d187739b2fce75f7478c6194fb37be79ee548abdae4e18a203ae1f8f87bb9` |
+| gm01 | `ptp4l-slave.log` | 3448 | `880fdb8d204b61b899294363b8cc6e09379c9bd5d62a4bb8e3bfcd90a1eb456e` |
+| gm01 | `ptp4l-gm.log` | 479 | `1aef82ba0ca494f70c96a6710271f21ad2967a47362fa2409915ce9fa96d837e` |
+| gm02 | `console.jsonl` | 1124293 | `9ee376fafce7b093324dfe3d1632d4c9fd62291410940028947785692b019065` |
+| gm02 | `controller.jsonl` | 639591 | `b7134efdda62576ba5294ccb291bd01b1246166bd0a3326fc89630dc2db6b7ec` |
+| gm02 | `controller-wire.pcap` | 461331 | `9abe94d91ad0113807da88849a990fc3298807a627cf3cc0ae556aa8c8970cfe` |
+| gm02 | `tap.pcap` | 13619719 | `fbb55efea84122a31325698595045b58cf2309d1b8b2c49661e1ced3a3210642` |
+| gm02 | `events.jsonl` | 4120 | `e8ebad60b8eb0c86c14c6c4938e5a9ad00fc9a23a26942cc9e03e2ac59909126` |
+| gm02 | `ptp4l-slave.log` | 3456 | `a4872aa922897a7113bad409757257de0db0ef3abf6243ea46b1be104333c873` |
+| gm02 | `ptp4l-gm.log` | 479 | `db7adce82609d24de2612c11f79168bf683d42c6af8a77d4eb350f115af3c61c` |
+| gm03 | `console.jsonl` | 1124314 | `bbcc51d0f77f4a79946c858ffe1c64c05b6e470da42336bcff9ea7334edd093f` |
+| gm03 | `controller.jsonl` | 639595 | `8a602368bc8d5fe367d365c066b76bfe7647f1ff36a8a469af64045b24fad416` |
+| gm03 | `controller-wire.pcap` | 461864 | `5e1d6020f10f05450a1672a008213322b88fa40f1abf1fbc61b780af6f96fcf2` |
+| gm03 | `tap.pcap` | 13625642 | `c27b4e7eb119e3bc1eedc17d5c7708b986db9778b01fa0ded209089e01882c59` |
+| gm03 | `events.jsonl` | 4117 | `9c05be2ba65a213c8dae22c2ae4e40a1a6db9528f987242d877fb2be4689b6e5` |
+| gm03 | `ptp4l-slave.log` | 3455 | `8771d269dbaf77d532007c9fb8ca23d5debdb1a0a3d9cc21fec5b19075f1120e` |
+| gm03 | `ptp4l-gm.log` | 479 | `be71fc54bafcd6acc2f172c2ba799d348e93920e427845639eadbc101c4fc32f` |
+| gm04 | `console.jsonl` | 1124629 | `e2e1914554e0dbd8bb9dac97d3257709ea62d5d546870ba53de315bea8d803a6` |
+| gm04 | `controller.jsonl` | 640655 | `281e445fbdee2f89bd3924c3947d3ab1712179704f2786c5a12b69413cac097d` |
+| gm04 | `controller-wire.pcap` | 469859 | `33751c9cdc0c6161dafa7d1a060fc81a108659dfaa2f5d0dd939ee2453a637d5` |
+| gm04 | `tap.pcap` | 13630825 | `747248b7c98ec0ea49b0e408ceb37bb4d10c6ce8c28e0e31d61b31c7b88d9a22` |
+| gm04 | `events.jsonl` | 4115 | `7bff01660d336620fc162bcf02f2cd98cf18eac94e9fd2909efb55b71ae44ec5` |
+| gm04 | `ptp4l-slave.log` | 3455 | `23ff472a8a031be3484731b848d6dfeab6239c444e39ba8109f490eac7cc7873` |
+| gm04 | `ptp4l-gm.log` | 479 | `69cf477bca78bf606adf5a4239658fabce48e6266a6ed3c22c1d68a9db102970` |
+| gm05 | `console.jsonl` | 1124327 | `04efafe2c570666386ecfe2f8afd34e4c855dd0e00c62878d6b231651b15bf7b` |
+| gm05 | `controller.jsonl` | 641526 | `988fb3a7a589f0153c857e8958febb2e5125b53f3b029c35b4d0b0d10c571670` |
+| gm05 | `controller-wire.pcap` | 463422 | `f7bc4660584866629e59987febf6606129b8b520e0ecbb5a06c7f952cc3f1bf0` |
+| gm05 | `tap.pcap` | 13620466 | `444488b1b1f0b9293bbd544860cc66feef0d5e53172b1b861428d7f48f99c060` |
+| gm05 | `events.jsonl` | 4121 | `bdfbfbfef6b47670c31e6102efbf78b944dc23c30f150357ead05c2cfcc03a60` |
+| gm05 | `ptp4l-slave.log` | 3455 | `e8eddea557e3fb3572922a324286ca17db160b146f074a414e4e2341e1e4bd46` |
+| gm05 | `ptp4l-gm.log` | 553 | `2de4be8f78691f3727c1ee89ac37979a338e03f713d575ae910e1c7e0fd4a870` |

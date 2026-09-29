@@ -1,0 +1,20 @@
+== docs/findings/599_394_E1_LINK_CYCLES.md: 8 tables at old, 9 at new
+  identical (5 lines) under '# Published link state over ten e1 switch power cycles': '| Acceptance | Verdict | Evidence |'
+  identical (13 lines) under '## Identity and setup': '| Identity check | Result |'
+  identical (4 lines) under '## Identity and setup': '| Direction | Binding | Format |'
+  identical (15 lines) under '## Link-drop proof': '| Observation | Seconds after OFF |'
+  identical (12 lines) under '## Per-cycle results': '| Cycle | OFF | MAC_STATUS down | MAC_STATUS up | LINK_DOWN '
+  identical (7 lines) under '## Counters and media': '| Counter block | Before cycle 1 | After cycle 10 | Per cycl'
+  identical (11 lines) under '## Artifact hashes': '| Tool | SHA-256 |'
+  identical (67 lines) under '## Artifact hashes': '| Action | Raw artifact | Bytes | SHA-256 |'
+  ADDED table under '### Saved-state layer' (6 lines): '| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |'
+== docs/findings/387_SOFTWARE_GM_STEP.md: 6 tables at old, 7 at new
+  CHANGED under '# Software grandmaster steps on a running CRF stream': 1 row(s) differ; old 3 lines, new 3
+    row 2 old: | #387 acceptance 4 | PASS, with one recorded deviation | Five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, 
+    row 2 new: | #387 acceptance 4 | PARTLY MET | Met: five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked CRF stream.
+  identical (12 lines) under '## Per-step results': '| Run | Edge | DUT PHC step | Grandmaster time step | `tu` s'
+  identical (7 lines) under '## Per-step results': '| Run | Takeover Announce | Release Announce | `CLKV_TUCNT` '
+  identical (10 lines) under '## Contract check': '| Element | Decided reaction to one step | Observed over ten'
+  identical (11 lines) under '## Artifact hashes': '| Item | SHA-256 |'
+  identical (37 lines) under '## Artifact hashes': '| Action | Raw artifact | Bytes | SHA-256 |'
+  ADDED table under '## Restore' (6 lines): '| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |'

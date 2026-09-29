@@ -1,0 +1,35 @@
+INPUT gm01/events.jsonl 4122 537d187739b2fce75f7478c6194fb37be79ee548abdae4e18a203ae1f8f87bb9 index ok, page row 387_SOFTWARE_GM_STEP.md:329
+INPUT gm01/console.jsonl 1124688 f72e7065b6f5a363d2a20d6258679463341ebd7343b6d9177c3188f9d6551ed2 index ok, page row 387_SOFTWARE_GM_STEP.md:325
+gm01: 480 samples, asCapable 1->0 at 2 samples
+  takeover clear at   4.55 s: PDELAY_NS 0, GM software-GM; that value held for 4 samples, 4.55-5.30 s
+  release  clear at  51.57 s: PDELAY_NS 4393, GM switch; that value held for 4 samples, 51.57-52.32 s
+  every other sample: 472 samples, PDELAY_NS 375-388
+INPUT gm02/events.jsonl 4120 e8ebad60b8eb0c86c14c6c4938e5a9ad00fc9a23a26942cc9e03e2ac59909126 index ok, page row 387_SOFTWARE_GM_STEP.md:336
+INPUT gm02/console.jsonl 1124293 9ee376fafce7b093324dfe3d1632d4c9fd62291410940028947785692b019065 index ok, page row 387_SOFTWARE_GM_STEP.md:332
+gm02: 480 samples, asCapable 1->0 at 2 samples
+  takeover clear at   4.28 s: PDELAY_NS 0, GM software-GM; that value held for 5 samples, 4.28-5.28 s
+  release  clear at  51.30 s: PDELAY_NS 4039, GM switch; that value held for 4 samples, 51.30-52.05 s
+  every other sample: 471 samples, PDELAY_NS 373-387
+INPUT gm03/events.jsonl 4117 9c05be2ba65a213c8dae22c2ae4e40a1a6db9528f987242d877fb2be4689b6e5 index ok, page row 387_SOFTWARE_GM_STEP.md:343
+INPUT gm03/console.jsonl 1124314 bbcc51d0f77f4a79946c858ffe1c64c05b6e470da42336bcff9ea7334edd093f index ok, page row 387_SOFTWARE_GM_STEP.md:339
+gm03: 480 samples, asCapable 1->0 at 2 samples
+  takeover clear at   4.78 s: PDELAY_NS 0, GM software-GM; that value held for 4 samples, 4.78-5.53 s
+  release  clear at  50.84 s: PDELAY_NS 4701, GM switch; that value held for 4 samples, 50.84-51.59 s
+  every other sample: 472 samples, PDELAY_NS 373-387
+INPUT gm04/events.jsonl 4115 7bff01660d336620fc162bcf02f2cd98cf18eac94e9fd2909efb55b71ae44ec5 index ok, page row 387_SOFTWARE_GM_STEP.md:350
+INPUT gm04/console.jsonl 1124629 e2e1914554e0dbd8bb9dac97d3257709ea62d5d546870ba53de315bea8d803a6 index ok, page row 387_SOFTWARE_GM_STEP.md:346
+gm04: 480 samples, asCapable 1->0 at 2 samples
+  takeover clear at   4.53 s: PDELAY_NS 0, GM software-GM; that value held for 4 samples, 4.53-5.28 s
+  release  clear at  51.55 s: PDELAY_NS 4378, GM switch; that value held for 4 samples, 51.55-52.30 s
+  every other sample: 472 samples, PDELAY_NS 373-387
+INPUT gm05/events.jsonl 4121 bdfbfbfef6b47670c31e6102efbf78b944dc23c30f150357ead05c2cfcc03a60 index ok, page row 387_SOFTWARE_GM_STEP.md:357
+INPUT gm05/console.jsonl 1124327 04efafe2c570666386ecfe2f8afd34e4c855dd0e00c62878d6b231651b15bf7b index ok, page row 387_SOFTWARE_GM_STEP.md:353
+gm05: 480 samples, asCapable 1->0 at 2 samples
+  takeover clear at   4.03 s: PDELAY_NS 0, GM software-GM; that value held for 4 samples, 4.03-4.78 s
+  release  clear at  51.11 s: PDELAY_NS 4231, GM switch; that value held for 4 samples, 51.11-51.86 s
+  every other sample: 472 samples, PDELAY_NS 375-389
+
+takeover clears: [0, 0, 0, 0, 0] ns
+release clears:  [4393, 4039, 4701, 4378, 4231] ns, range 4039-4701
+every other sample of the five runs: 2359 samples, 373-389 ns (41 samples carried a clear value)
+CLAIM 0 / 4,039-4,701 / 373-389 ns: REPRODUCED

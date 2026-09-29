@@ -1,0 +1,40 @@
+### <packet>/scratch/mdenv/bin/python -B scripts/docs_check.py
+docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/gen_toc.py --check
+TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+check_em_dash: 0 finding(s) over 792 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base f9eab5bf55ca4471e6e48ae3d38018d7e804505b
+check_em_dash: 0 finding(s) over 143 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [f9eab5bf..HEAD]
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/check_doc_paths.py
+doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/check_baremetal_only.py --check
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+rc=2
+### <packet>/scratch/mdenv/bin/python -B scripts/check_feature_status.py --self-test
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+### <packet>/scratch/mdenv/bin/python -B scripts/ci_scope.py --selftest
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+rc=0
+### git diff --check 13eda870d1a6cf3f946fc228a98862366b08d102..HEAD
+rc=0
+### git diff --check f9eab5bf55ca4471e6e48ae3d38018d7e804505b..HEAD
+rc=0
+### python3 -B scripts/check_baremetal_only.py --check (system CPython with PyYAML; not a Markdown-environment gate)
+baremetal-only: OK (0 findings across 936 tracked first-party file(s))
+rc=0

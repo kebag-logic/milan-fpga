@@ -1,0 +1,42 @@
+== docs/findings/599_394_E1_LINK_CYCLES.md: 8 tables at f9eab5bf55ca4471e6e48ae3d38018d7e804505b, 9 at 931c3edfced972e01356cd989b5092a1672de5a3
+  base table 1 at line 9, 5 lines, verdict, header '| Acceptance | Verdict | Evidence |': BYTE-IDENTICAL
+  base table 2 at line 35, 13 lines, measurement/contract/hash, header '| Identity check | Result |': BYTE-IDENTICAL
+  base table 3 at line 67, 4 lines, measurement/contract/hash, header '| Direction | Binding | Format |': BYTE-IDENTICAL
+  base table 4 at line 163, 15 lines, measurement/contract/hash, header '| Observation | Seconds after OFF |': BYTE-IDENTICAL
+  base table 5 at line 201, 12 lines, measurement/contract/hash, header '| Cycle | OFF | MAC_STATUS down | MAC_STATUS up | LINK_DOWN ': BYTE-IDENTICAL
+  base table 6 at line 232, 7 lines, measurement/contract/hash, header '| Counter block | Before cycle 1 | After cycle 10 | Per cycl': BYTE-IDENTICAL
+  base table 7 at line 290, 11 lines, measurement/contract/hash, header '| Tool | SHA-256 |': BYTE-IDENTICAL
+  base table 8 at line 306, 67 lines, measurement/contract/hash, header '| Action | Raw artifact | Bytes | SHA-256 |': BYTE-IDENTICAL
+  new table at line 291, 6 lines, header '| Saved-state field | Identity gate, 05:31Z | Final restore,'
+  table-line diff:
+    --- f9eab5bf55ca4471e6e48ae3d38018d7e804505b:docs/findings/599_394_E1_LINK_CYCLES.md (table lines)
+    +++ 931c3edfced972e01356cd989b5092a1672de5a3:docs/findings/599_394_E1_LINK_CYCLES.md (table lines)
+    @@ -56,0 +57,6 @@
+    +| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+    +|---|---|---|
+    +| NVM slots A / B, image sequence | 227 / 228, image 228 | 229 / 230, image 230 |
+    +| Commits ok / failed | 0 / 0 | 2 / 0 |
+    +| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000444`, 0 | `0x5b000c44`, 1 |
+    +| `PP_NVM_STAT` | `0xc30000e4`, pend 0 | `0xc34000e4`, pend 1 |
+== docs/findings/387_SOFTWARE_GM_STEP.md: 6 tables at f9eab5bf55ca4471e6e48ae3d38018d7e804505b, 7 at 931c3edfced972e01356cd989b5092a1672de5a3
+  base table 1 at line 10, 3 lines, verdict, header '| Acceptance | Verdict | Evidence |': CHANGED
+  base table 2 at line 122, 12 lines, measurement/contract/hash, header '| Run | Edge | DUT PHC step | Grandmaster time step | `tu` s': BYTE-IDENTICAL
+  base table 3 at line 150, 7 lines, measurement/contract/hash, header '| Run | Takeover Announce | Release Announce | `CLKV_TUCNT` ': BYTE-IDENTICAL
+  base table 4 at line 166, 10 lines, measurement/contract/hash, header '| Element | Decided reaction to one step | Observed over ten': BYTE-IDENTICAL
+  base table 5 at line 249, 11 lines, measurement/contract/hash, header '| Item | SHA-256 |': BYTE-IDENTICAL
+  base table 6 at line 263, 37 lines, measurement/contract/hash, header '| Action | Raw artifact | Bytes | SHA-256 |': BYTE-IDENTICAL
+  new table at line 270, 6 lines, header '| Saved-state field | Identity gate, 05:31Z | Final restore,'
+  table-line diff:
+    --- f9eab5bf55ca4471e6e48ae3d38018d7e804505b:docs/findings/387_SOFTWARE_GM_STEP.md (table lines)
+    +++ 931c3edfced972e01356cd989b5092a1672de5a3:docs/findings/387_SOFTWARE_GM_STEP.md (table lines)
+    @@ -3 +3 @@
+    -| #387 acceptance 4 | PASS, with one recorded deviation | Five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked...
+    +| #387 acceptance 4 | PARTLY MET | Met: five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked CRF stream. No ou...
+    @@ -32,0 +33,6 @@
+    +| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+    +|---|---|---|
+    +| NVM slots A / B, image sequence | 227 / 228, image 228 | 229 / 230, image 230 |
+    +| Commits ok / failed | 0 / 0 | 2 / 0 |
+    +| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000444`, 0 | `0x5b000c44`, 1 |
+    +| `PP_NVM_STAT` | `0xc30000e4`, pend 0 | `0xc34000e4`, pend 1 |
+RESULT measurement/contract/hash tables changed: 0

@@ -1,0 +1,11 @@
+head f9eab5bf55ca4471e6e48ae3d38018d7e804505b
+gate-1 rc=0 elapsed=4.5 cmd: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+gate-2 rc=0 elapsed=0.05 cmd: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py
+gate-3 rc=0 elapsed=2.97 cmd: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+gate-4 rc=0 elapsed=2.82 cmd: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base 13eda870
+gate-5 rc=0 elapsed=0.07 cmd: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py
+gate-6 rc=0 elapsed=2.67 cmd: python3 -B scripts/ci_scope.py --selftest
+gate-7 rc=0 elapsed=15.55 cmd: python3 -B scripts/check_baremetal_only.py --check
+gate-8 rc=0 elapsed=0.72 cmd: python3 -B scripts/check_feature_status.py --self-test
+gate-9 rc=0 elapsed=0.01 cmd: git diff --check
+gate-10 rc=0 elapsed=0.01 cmd: git diff --check 13eda870d1a6cf3f946fc228a98862366b08d102 HEAD

@@ -1,0 +1,28 @@
+page raw rows 100; raw index 213; retention tsv 213; retention sha256 213
+retention entries not in the raw index: []
+retention entries tagged with a page row: 100; page rows: 100; same set: True
+raw/retention/page closure mismatches: 0
+
+tool and configuration rows (pages' Item/Tool tables) against the redacted packet:
+  599_394_E1_LINK_CYCLES.md: Bitstream SHA-256, 3,825,992 bytes                           690d87e407bb not in the packet (external identity)
+  599_394_E1_LINK_CYCLES.md: Bitstream payload SHA-256                                    6597f7a601dd not in the packet (external identity)
+  599_394_E1_LINK_CYCLES.md: AEM SHA-256                                                  9b077636b1d4 not in the packet (external identity)
+  599_394_E1_LINK_CYCLES.md: CSR map SHA-256, 9,033 bytes                                 7723d0b8129d published byte-identical as r1/identity/csr.csv
+  599_394_E1_LINK_CYCLES.md: `b1_action.py`, acquisition                                  dd6d6ec73c21 published byte-identical as r1/tools/b1_action.py
+  599_394_E1_LINK_CYCLES.md: `b1_analyze.py`, analysis                                    e4f7681891e1 REDACTED in the packet: r1/tools/b1_analyze.py now 464f92e70aed; original hash only in REDACTION.json
+  599_394_E1_LINK_CYCLES.md: `b1_summary.py`, tables                                      7c388bb385c9 published byte-identical as r1/tools/b1_summary.py
+  599_394_E1_LINK_CYCLES.md: `census_compare.py`                                          f014c6f2bd80 published byte-identical as r1/tools/census_compare.py
+  599_394_E1_LINK_CYCLES.md: `wire_summary.py`, tap decoder, unchanged from PR #600       7a8af475fa5f published byte-identical as r1/tools/wire_summary.py
+  599_394_E1_LINK_CYCLES.md: `console_poll.py`, unchanged from PR #600                    3a0de7d8e1f9 published byte-identical as r1/tools/console_poll.py
+  599_394_E1_LINK_CYCLES.md: Controller reader, unchanged from PR #600                    172836966609 published byte-identical as r1/tools/avdecc_ro.py
+  599_394_E1_LINK_CYCLES.md: Controller actions                                           94c3473d26b1 published byte-identical as r1/tools/a438_controller.py
+  599_394_E1_LINK_CYCLES.md: [UART grader](../../scripts/baremetal_uart_smoke.py) at `13e bc41ab03e641 not in the packet (external identity)
+  387_SOFTWARE_GM_STEP.md: Reference gPTP implementation 4.4, source tarball, 277,069 b 61757bc0a58d not in the packet (external identity)
+  387_SOFTWARE_GM_STEP.md: Its gPTP port program as built                               25247f3a7445 not in the packet (external identity)
+  387_SOFTWARE_GM_STEP.md: Its clock-control program (`phc_ctl`) as built               ea44d7799a0f not in the packet (external identity)
+  387_SOFTWARE_GM_STEP.md: Grandmaster configuration                                    f798c63330ef published byte-identical as r1/gm/gm.cfg
+  387_SOFTWARE_GM_STEP.md: Alignment configuration                                      f1e59efb5843 published byte-identical as r1/gm/slave.cfg
+  387_SOFTWARE_GM_STEP.md: `b1_action.py`, acquisition                                  dd6d6ec73c21 published byte-identical as r1/tools/b1_action.py
+  387_SOFTWARE_GM_STEP.md: `b1_analyze.py`, analysis                                    e4f7681891e1 REDACTED in the packet: r1/tools/b1_analyze.py now 464f92e70aed; original hash only in REDACTION.json
+  387_SOFTWARE_GM_STEP.md: `b1_summary.py`, tables                                      7c388bb385c9 published byte-identical as r1/tools/b1_summary.py
+  387_SOFTWARE_GM_STEP.md: `phc_restore.py`, controller clock restore                   442c0185630b REDACTED in the packet: r1/tools/phc_restore.py now 39ec5379fd36; original hash only in REDACTION.json

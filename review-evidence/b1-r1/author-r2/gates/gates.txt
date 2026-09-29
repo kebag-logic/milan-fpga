@@ -1,0 +1,16 @@
+pwd -P: $LANES/b1-bench-0929
+HEAD: 931c3edfced972e01356cd989b5092a1672de5a3
+status lines: 0
+md python: Python 3.14.7
+system python: Python 3.14.7
+gate 1 rc=0: md-venv python scripts/docs_check.py
+gate 2 rc=0: md-venv python scripts/check_doc_style.py
+gate 3 rc=0: md-venv python scripts/gen_toc.py --check
+gate 4 rc=0: md-venv python scripts/check_em_dash.py --base 13eda870
+gate 5 rc=0: md-venv python scripts/check_doc_paths.py
+gate 6 rc=0: python3 scripts/ci_scope.py --selftest
+gate 7 rc=0: python3 scripts/check_baremetal_only.py --check
+gate 8 rc=0: python3 scripts/check_feature_status.py --self-test
+gate 9 rc=0: git diff --check
+gate 10 rc=0: git diff --check 13eda870..HEAD
+gate 11 rc=0: git diff --check f9eab5bf..HEAD

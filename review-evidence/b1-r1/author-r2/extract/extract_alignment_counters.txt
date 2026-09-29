@@ -1,0 +1,15 @@
+standalone test window (r1/gm/slave-test.log): LOCK 2026-09-29T06:03:37.189Z to UNLOCK 2026-09-29T06:04:17.598Z
+  log 83980.729: assuming the grand master role
+  log 83982.839: selected best master clock switch
+INPUT cycle10/controller.jsonl 387630 268c21ddd42314c14c48407554caab9f734afa97367a06a0b8fc679108f04c38 index ok, page row 599_394_E1_LINK_CYCLES.md:425
+INPUT post-slave-test-snapshot.jsonl 5222 158bb09b10da511a85dfda63615dcaa5498f84aa2c89ac2408a128152e80a792 index ok, no page row
+INPUT gm01/controller.jsonl 639590 f252de61752452c992829302d352cc8592d6650545113b9a5fc2e41740e69f9f index ok, page row 387_SOFTWARE_GM_STEP.md:326
+INPUT gm01/events.jsonl 4122 537d187739b2fce75f7478c6194fb37be79ee548abdae4e18a203ae1f8f87bb9 index ok, page row 387_SOFTWARE_GM_STEP.md:329
+run 1 events: alignment converged 06:05:45.815Z, offset applied 06:05:45.988Z, takeover start 06:05:56.001Z
+before: last poll of cycle10   dut  06:01:54.625Z GM switch   LINK_UP/DOWN 12/11 GPTP_GM_CHANGED 22
+before: last poll of cycle10   peer 06:01:54.626Z GM switch   LINK_UP/DOWN 1/0 GPTP_GM_CHANGED 60
+after: post-test snapshot      dut  06:04:37.953Z GM switch   LINK_UP/DOWN 12/11 GPTP_GM_CHANGED 22
+after: post-test snapshot      peer 06:04:37.954Z GM switch   LINK_UP/DOWN 1/0 GPTP_GM_CHANGED 60
+run 1: first poll of gm01      dut  06:05:46.863Z GM switch   LINK_UP/DOWN 12/11 GPTP_GM_CHANGED 22
+run 1: first poll of gm01      peer 06:05:46.864Z GM switch   LINK_UP/DOWN 1/0 GPTP_GM_CHANGED 60
+CLAIM GPTP_GM_CHANGED stayed 22 (DUT) and 60 (peer), switch GM throughout: REPRODUCED

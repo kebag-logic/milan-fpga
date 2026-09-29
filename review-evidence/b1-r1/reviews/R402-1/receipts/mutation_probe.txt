@@ -1,0 +1,7 @@
+probe mac_down: rederive rc=1 (1 FAIL lines: FAIL cycle03 MAC down 2.31-2.56 vs page 2.06-2.31)
+probe link_delta: rederive rc=1 (1 FAIL lines: FAIL cycle07 LINK_DOWN/UP +1/+1 (8/7 -> 9/8))
+probe recovery: rederive rc=1 (1 FAIL lines: FAIL cycle10 gPTP recovery 1.786 < 5 s)
+probe step_ms: rederive rc=1 (1 FAIL lines: FAIL gm03 release steps -10.004 / -9.996 ms vs -1.004 ms / -9.996 ms)
+probe ascap: rederive rc=1 (1 FAIL lines: FAIL gm03 takeover asCapable lost 4.78-6.78 (2.001 s) vs 4.78-5.78)
+probe mr: rederive rc=1 (1 FAIL lines: FAIL gm05 takeover mr / MEDIA_RESET / UNLOCKED columns zero)
+probes not killed: 0

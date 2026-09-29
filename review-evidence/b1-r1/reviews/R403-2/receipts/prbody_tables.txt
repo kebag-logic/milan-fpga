@@ -1,0 +1,14 @@
+PR body table lines: 30; byte-identical to a page line: 26; not on a page: 4
+  not-on-page: | #599 acceptance 4, first half | PASS: a switch cycle drops the DUT PHY link | The firmware's BMSR publication (MAC_STATUS and `link_status`) fell 2.31-2.56 s after OFF 
+  not-on-page: | #599 acceptance 4 | PASS | 10/10 cycles: LINK_DOWN +1 and LINK_UP +1 (DUT 2/1 to 12/11); MAC_STATUS `0x0d`, `0x00`, `0x0d` each cycle |
+  not-on-page: | #394 acceptance 2, e1 only | PASS | 10/10: reservation, both bindings, asCapable and MEDIA_LOCKED recovered with no reboot and no re-bind. LINK_DOWN, LINK_UP and MEDIA_
+  not-on-page: | #387 acceptance 4 | PARTLY MET | Met: 10 PHC steps (+9.99 ms takeover, -10.00 ms release) on a running, locked CRF stream, no `mr` change, MEDIA_RESET +0, neither liste
+PR body mentions 'PASS, with one recorded deviation': False
+PR body contains 04d00b6693315d2b14a6c6b51b681a3136b550c2: True
+  PR body has '#621': True
+  PR body has 'Item 2 sets no time bound': True
+  PR body has 'render re-base': True
+  PR body has 'GPTP_GM_CHANGED': True
+  PR body has '2-3 times': True
+  PR body has 'private cold storage': True
+  PR body has 'author-r2': True

@@ -1,0 +1,31 @@
+== DUT saved-state layer
+identity/console-identity.txt: PP_STAT=5b000444  (nvm_pend PP_STAT[11]=0)
+identity/console-identity.txt: NVM: slot A VD_OK seq 227, slot B VD_OK seq 228, authoritative B, image seq 228, 53 records, 3264 B at 0x7f7ef000, writer live
+identity/console-identity.txt: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+restore/console-final.txt: PP_STAT=5b000c44  (nvm_pend PP_STAT[11]=1)
+restore/console-final.txt: NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+restore/console-final.txt: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+bench/dryrun/console.jsonl: 80 milan_status samples, PP_STAT values ['5b000444'], nvm_pend values [0]
+bench/final/console.jsonl: 80 milan_status samples, PP_STAT values ['5b000c44'], nvm_pend values [1]
+
+== raw retention
+baseline-bound  indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'controller.jsonl', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'tap.pcap']
+bmsr-proof      indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle01         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle02         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle03         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle04         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle05         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle06         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle07         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle08         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle09         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+cycle10         indexed  9; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+dryrun          indexed  9; archived ['console.jsonl', 'controller-errors.txt', 'controller-wire-capture.txt', 'controller.jsonl', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['controller-wire.pcap', 'tap.pcap']
+final           indexed  9; archived ['console.jsonl', 'controller-errors.txt', 'controller-wire-capture.txt', 'controller.jsonl', 'events.jsonl', 'results.json', 'tap-capture.txt']; NOT archived ['controller-wire.pcap', 'tap.pcap']
+gm01            indexed 11; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'ptp4l-gm.log', 'ptp4l-slave.log', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+gm02            indexed 11; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'ptp4l-gm.log', 'ptp4l-slave.log', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+gm03            indexed 11; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'ptp4l-gm.log', 'ptp4l-slave.log', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+gm04            indexed 11; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'ptp4l-gm.log', 'ptp4l-slave.log', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+gm05            indexed 11; archived ['controller-errors.txt', 'controller-wire-capture.txt', 'events.jsonl', 'ptp4l-gm.log', 'ptp4l-slave.log', 'results.json', 'tap-capture.txt']; NOT archived ['console.jsonl', 'controller-wire.pcap', 'controller.jsonl', 'tap.pcap']
+index path roots: ['/tmp']

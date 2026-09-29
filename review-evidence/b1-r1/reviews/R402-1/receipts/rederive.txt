@@ -1,0 +1,549 @@
+== per-cycle table (599 page)
+PASS cycle01 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle01 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle01 bracket ends are the change samples
+PASS cycle01 link brackets <= 0.26 s
+PASS cycle01 OFF 20.90 vs page 20.90
+PASS cycle01 MAC down 1.81-2.06 vs page 1.81-2.06
+PASS cycle01 MAC up vs page 36.82-37.07
+PASS cycle01 LINK_DOWN/UP +1/+1 (2/1 -> 3/2)
+PASS cycle01 LINK counter increments first seen at [39.571], after MAC up 37.074
+PASS cycle01 GM return 39.78 vs 39.78
+PASS cycle01 gPTP recovery 0.544 < 5 s
+PASS cycle01 healthy from first recovery to the end (40.326 == 40.326)
+PASS cycle01 console: switch GM at [39.793], healthy from [40.294]
+PASS cycle01 first PDU (45.048, 46.125) vs 45.05 / 46.12
+PASS cycle01 link-up to PDU ['7.974', '9.051'] vs 7.97 / 9.05 (2-decimal rounding)
+PASS cycle01 CRF licence 13.41/45.17 vs 13.41 / 45.17 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle01 bindings {'polls': 146, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle01 reset epoch [1]
+PASS cycle01 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle01 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle01 both listeners end locked (DUT 2/1 peer 1/0)
+PASS cycle01 media servo ends LOCKED (state 4)
+PASS cycle01 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle01 all tap CRF PDUs valid
+PASS cycle01 DUT mr one change [[-9.773, 1], [1.151, 0]], peer none [[-9.774, 0]]
+PASS cycle02 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle02 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle02 bracket ends are the change samples
+PASS cycle02 link brackets <= 0.26 s
+PASS cycle02 OFF 20.97 vs page 20.97
+PASS cycle02 MAC down 2.06-2.31 vs page 2.06-2.31
+PASS cycle02 MAC up vs page 36.82-37.07
+PASS cycle02 LINK_DOWN/UP +1/+1 (3/2 -> 4/3)
+PASS cycle02 counters chain from previous cycle (3, 2)
+PASS cycle02 LINK counter increments first seen at [38.966], after MAC up 37.074
+PASS cycle02 GM return 40.02 vs 40.02
+PASS cycle02 gPTP recovery 1.555 < 5 s
+PASS cycle02 healthy from first recovery to the end (41.575 == 41.575)
+PASS cycle02 console: switch GM at [41.043], healthy from [41.543]
+PASS cycle02 first PDU (45.22, 47.958) vs 45.22 / 47.96
+PASS cycle02 link-up to PDU ['8.146', '10.884'] vs 8.15 / 10.88 (2-decimal rounding)
+PASS cycle02 CRF licence 15.15/45.42 vs 15.15 / 45.42 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle02 bindings {'polls': 148, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle02 reset epoch [1]
+PASS cycle02 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle02 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle02 both listeners end locked (DUT 3/2 peer 1/0)
+PASS cycle02 media servo ends LOCKED (state 4)
+PASS cycle02 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle02 all tap CRF PDUs valid
+PASS cycle02 DUT mr one change [[-9.839, 0], [1.139, 1]], peer none [[-9.838, 0]]
+PASS cycle03 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle03 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle03 bracket ends are the change samples
+PASS cycle03 link brackets <= 0.26 s
+PASS cycle03 OFF 20.88 vs page 20.88
+PASS cycle03 MAC down 2.31-2.56 vs page 2.31-2.56
+PASS cycle03 MAC up vs page 36.83-37.08
+PASS cycle03 LINK_DOWN/UP +1/+1 (4/3 -> 5/4)
+PASS cycle03 counters chain from previous cycle (4, 3)
+PASS cycle03 LINK counter increments first seen at [39.549], after MAC up 37.078
+PASS cycle03 GM return 39.88 vs 39.88
+PASS cycle03 gPTP recovery 1.704 < 5 s
+PASS cycle03 healthy from first recovery to the end (41.579 == 41.579)
+PASS cycle03 console: switch GM at [41.047], healthy from [41.548]
+PASS cycle03 first PDU (51.914, 49.166) vs 51.91 / 49.17
+PASS cycle03 link-up to PDU ['14.836', '12.088'] vs 14.84 / 12.09 (2-decimal rounding)
+PASS cycle03 CRF licence 14.90/51.92 vs 14.90 / 51.92 (sequence ['0x3002e3', '0x3', '0x3002e3'])
+PASS cycle03 bindings {'polls': 146, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle03 reset epoch [1]
+PASS cycle03 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle03 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle03 both listeners end locked (DUT 4/3 peer 1/0)
+PASS cycle03 media servo ends LOCKED (state 4)
+PASS cycle03 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle03 all tap CRF PDUs valid
+PASS cycle03 DUT mr one change [[-9.883, 1], [1.147, 0]], peer none [[-9.884, 0]]
+PASS cycle04 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle04 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle04 bracket ends are the change samples
+PASS cycle04 link brackets <= 0.26 s
+PASS cycle04 OFF 20.86 vs page 20.86
+PASS cycle04 MAC down 2.06-2.31 vs page 2.06-2.31
+PASS cycle04 MAC up vs page 37.07-37.32
+PASS cycle04 LINK_DOWN/UP +1/+1 (5/4 -> 6/5)
+PASS cycle04 counters chain from previous cycle (5, 4)
+PASS cycle04 LINK counter increments first seen at [38.95], after MAC up 37.323
+PASS cycle04 GM return 39.81 vs 39.81
+PASS cycle04 gPTP recovery 1.513 < 5 s
+PASS cycle04 healthy from first recovery to the end (41.325 == 41.325)
+PASS cycle04 console: switch GM at [41.043], healthy from [41.293]
+PASS cycle04 first PDU (43.058, 45.603) vs 43.06 / 45.60
+PASS cycle04 link-up to PDU ['5.735', '8.280'] vs 5.74 / 8.28 (2-decimal rounding)
+PASS cycle04 CRF licence 16.40/43.17 vs 16.40 / 43.17 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle04 bindings {'polls': 148, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle04 reset epoch [1]
+PASS cycle04 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle04 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle04 both listeners end locked (DUT 5/4 peer 1/0)
+PASS cycle04 media servo ends LOCKED (state 4)
+PASS cycle04 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle04 all tap CRF PDUs valid
+PASS cycle04 DUT mr one change [[-9.891, 0], [1.121, 1]], peer none [[-9.891, 0]]
+PASS cycle05 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle05 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle05 bracket ends are the change samples
+PASS cycle05 link brackets <= 0.26 s
+PASS cycle05 OFF 20.86 vs page 20.86
+PASS cycle05 MAC down 1.81-2.06 vs page 1.81-2.06
+PASS cycle05 MAC up vs page 36.82-37.07
+PASS cycle05 LINK_DOWN/UP +1/+1 (6/5 -> 7/6)
+PASS cycle05 counters chain from previous cycle (6, 5)
+PASS cycle05 LINK counter increments first seen at [38.932], after MAC up 37.073
+PASS cycle05 GM return 39.85 vs 39.85
+PASS cycle05 gPTP recovery 0.720 < 5 s
+PASS cycle05 healthy from first recovery to the end (40.574 == 40.574)
+PASS cycle05 console: switch GM at [40.042], healthy from [40.542]
+PASS cycle05 first PDU (45.265, 46.71) vs 45.27 / 46.71
+PASS cycle05 link-up to PDU ['8.192', '9.637'] vs 8.19 / 9.64 (2-decimal rounding)
+PASS cycle05 CRF licence 19.65/45.42 vs 19.65 / 45.42 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle05 bindings {'polls': 148, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle05 reset epoch [1]
+PASS cycle05 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle05 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle05 both listeners end locked (DUT 6/5 peer 1/0)
+PASS cycle05 media servo ends LOCKED (state 4)
+PASS cycle05 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle05 all tap CRF PDUs valid
+PASS cycle05 DUT mr one change [[-9.884, 1], [1.124, 0]], peer none [[-9.885, 0]]
+PASS cycle06 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle06 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle06 bracket ends are the change samples
+PASS cycle06 link brackets <= 0.26 s
+PASS cycle06 OFF 21.06 vs page 21.06
+PASS cycle06 MAC down 2.31-2.56 vs page 2.31-2.56
+PASS cycle06 MAC up vs page 39.10-39.35
+PASS cycle06 LINK_DOWN/UP +1/+1 (7/6 -> 8/7)
+PASS cycle06 counters chain from previous cycle (7, 6)
+PASS cycle06 LINK counter increments first seen at [41.351], after MAC up 39.352
+PASS cycle06 GM return 42.10 vs 42.10
+PASS cycle06 gPTP recovery 1.750 < 5 s
+PASS cycle06 healthy from first recovery to the end (43.853 == 43.853)
+PASS cycle06 console: switch GM at [43.321], healthy from [43.821]
+PASS cycle06 first PDU (46.297, 46.646) vs 46.30 / 46.65
+PASS cycle06 link-up to PDU ['6.945', '7.294'] vs 6.95 / 7.29 (2-decimal rounding)
+PASS cycle06 CRF licence 6.67/46.44 vs 6.67 / 46.44 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle06 bindings {'polls': 141, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle06 reset epoch [1]
+PASS cycle06 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle06 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle06 both listeners end locked (DUT 7/6 peer 1/0)
+PASS cycle06 media servo ends LOCKED (state 4)
+PASS cycle06 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle06 all tap CRF PDUs valid
+PASS cycle06 DUT mr one change [[-9.848, 0], [1.16, 1]], peer none [[-9.849, 0]]
+PASS cycle07 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle07 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle07 bracket ends are the change samples
+PASS cycle07 link brackets <= 0.26 s
+PASS cycle07 OFF 20.88 vs page 20.88
+PASS cycle07 MAC down 1.81-2.06 vs page 1.81-2.06
+PASS cycle07 MAC up vs page 36.59-36.84
+PASS cycle07 LINK_DOWN/UP +1/+1 (8/7 -> 9/8)
+PASS cycle07 counters chain from previous cycle (8, 7)
+PASS cycle07 LINK counter increments first seen at [38.936], after MAC up 36.838
+PASS cycle07 GM return 39.88 vs 39.88
+PASS cycle07 gPTP recovery 1.463 < 5 s
+PASS cycle07 healthy from first recovery to the end (41.34 == 41.34)
+PASS cycle07 console: switch GM at [41.058], healthy from [41.308]
+PASS cycle07 first PDU (45.247, 45.584) vs 45.25 / 45.58
+PASS cycle07 link-up to PDU ['8.409', '8.746'] vs 8.41 / 8.75 (2-decimal rounding)
+PASS cycle07 CRF licence 11.65/45.43 vs 11.65 / 45.43 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle07 bindings {'polls': 148, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle07 reset epoch [1]
+PASS cycle07 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle07 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle07 both listeners end locked (DUT 8/7 peer 1/0)
+PASS cycle07 media servo ends LOCKED (state 4)
+PASS cycle07 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle07 all tap CRF PDUs valid
+PASS cycle07 DUT mr one change [[-9.808, 1], [1.124, 0]], peer none [[-9.807, 0]]
+PASS cycle08 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle08 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle08 bracket ends are the change samples
+PASS cycle08 link brackets <= 0.26 s
+PASS cycle08 OFF 20.85 vs page 20.85
+PASS cycle08 MAC down 1.81-2.06 vs page 1.81-2.06
+PASS cycle08 MAC up vs page 37.08-37.33
+PASS cycle08 LINK_DOWN/UP +1/+1 (9/8 -> 10/9)
+PASS cycle08 counters chain from previous cycle (9, 8)
+PASS cycle08 LINK counter increments first seen at [38.762], after MAC up 37.325
+PASS cycle08 GM return 39.81 vs 39.81
+PASS cycle08 gPTP recovery 1.523 < 5 s
+PASS cycle08 healthy from first recovery to the end (41.332 == 41.332)
+PASS cycle08 console: switch GM at [41.045], healthy from [41.295]
+PASS cycle08 first PDU (45.101, 46.2) vs 45.10 / 46.20
+PASS cycle08 link-up to PDU ['7.776', '8.875'] vs 7.78 / 8.88 (2-decimal rounding)
+PASS cycle08 CRF licence 16.41/45.17 vs 16.41 / 45.17 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle08 bindings {'polls': 148, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle08 reset epoch [1]
+PASS cycle08 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle08 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle08 both listeners end locked (DUT 9/8 peer 1/0)
+PASS cycle08 media servo ends LOCKED (state 4)
+PASS cycle08 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle08 all tap CRF PDUs valid
+PASS cycle08 DUT mr one change [[-9.79, 0], [1.107, 1]], peer none [[-9.791, 0]]
+PASS cycle09 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle09 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle09 bracket ends are the change samples
+PASS cycle09 link brackets <= 0.26 s
+PASS cycle09 OFF 20.87 vs page 20.87
+PASS cycle09 MAC down 2.31-2.56 vs page 2.31-2.56
+PASS cycle09 MAC up vs page 36.82-37.07
+PASS cycle09 LINK_DOWN/UP +1/+1 (10/9 -> 11/10)
+PASS cycle09 counters chain from previous cycle (10, 9)
+PASS cycle09 LINK counter increments first seen at [39.571], after MAC up 37.072
+PASS cycle09 GM return 39.90 vs 39.90
+PASS cycle09 gPTP recovery 1.427 < 5 s
+PASS cycle09 healthy from first recovery to the end (41.324 == 41.324)
+PASS cycle09 console: switch GM at [41.042], healthy from [41.292]
+PASS cycle09 first PDU (49.061, 49.406) vs 49.06 / 49.41
+PASS cycle09 link-up to PDU ['11.989', '12.334'] vs 11.99 / 12.33 (2-decimal rounding)
+PASS cycle09 CRF licence 10.90/49.17 vs 10.90 / 49.17 (sequence ['0x3002e3', '0x3', '0x3002e3'])
+PASS cycle09 bindings {'polls': 146, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle09 reset epoch [1]
+PASS cycle09 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle09 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle09 both listeners end locked (DUT 10/9 peer 1/0)
+PASS cycle09 media servo ends LOCKED (state 4)
+PASS cycle09 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle09 all tap CRF PDUs valid
+PASS cycle09 DUT mr one change [[-9.785, 1], [1.134, 0]], peer none [[-9.784, 0]]
+PASS cycle10 MAC_STATUS sequence ['0xd', '0x0', '0xd']
+PASS cycle10 link_status CSR changes in the same console rounds as MAC_STATUS
+PASS cycle10 bracket ends are the change samples
+PASS cycle10 link brackets <= 0.26 s
+PASS cycle10 OFF 21.05 vs page 21.05
+PASS cycle10 MAC down 2.06-2.31 vs page 2.06-2.31
+PASS cycle10 MAC up vs page 36.82-37.07
+PASS cycle10 LINK_DOWN/UP +1/+1 (11/10 -> 12/11)
+PASS cycle10 counters chain from previous cycle (11, 10)
+PASS cycle10 LINK counter increments first seen at [39.743], after MAC up 37.074
+PASS cycle10 GM return 40.04 vs 40.04
+PASS cycle10 gPTP recovery 1.786 < 5 s
+PASS cycle10 healthy from first recovery to the end (41.826 == 41.826)
+PASS cycle10 console: switch GM at [41.044], healthy from [41.794]
+PASS cycle10 first PDU (45.361, 45.671) vs 45.36 / 45.67
+PASS cycle10 link-up to PDU ['8.287', '8.597'] vs 8.29 / 8.60 (2-decimal rounding)
+PASS cycle10 CRF licence 18.16/45.42 vs 18.16 / 45.42 (sequence ['0x3002e3', '0x3', '0x300223', '0x3002e3'])
+PASS cycle10 bindings {'polls': 146, 'all_connected': True, 'conn_counts': [1]}
+PASS cycle10 reset epoch [1]
+PASS cycle10 only power actions in the event record: ['power-command', 'power-result']
+PASS cycle10 DUT CRF listener MEDIA_LOCKED/UNLOCKED +1/+1
+PASS cycle10 both listeners end locked (DUT 11/10 peer 1/0)
+PASS cycle10 media servo ends LOCKED (state 4)
+PASS cycle10 both CRF directions continuous after return (gaps 0.002/0.002)
+PASS cycle10 all tap CRF PDUs valid
+PASS cycle10 DUT mr one change [[-9.816, 0], [1.168, 1]], peer none [[-9.817, 0]]
+PASS cycle10 ends at LINK_UP/LINK_DOWN 12/11
+== per-cycle prose (599 page)
+NOTE MAC down first-samples 2.06-2.56 (page: 1.81-2.56 bracket span)
+NOTE MAC up first-samples 36.84-39.35 (page: returned 36.59-39.35)
+NOTE link-up before first returning frame, measured from first-up sample: 1.43-1.96 s (page 1.43-1.96)
+PASS recovery range 0.544-1.786
+NOTE media locked 43.95-52.55 (page 43.95-52.55); servo locked 48.40-52.40 (page 48.40-52.40)
+NOTE first valid PDU after first frame DUT 4.26-13.04 peer 5.55-10.60 (page 4.26-13.04 / 5.56-10.60)
+NOTE PHC steps at GM return -115.9 .. -340.7 s (page -115.9 to -340.7)
+NOTE largest console gap 0.255 s (page 0.255)
+== counters before/after (599 page)
+PASS GPTP_GM_CHANGED 2 -> 22 (page 2 -> 22)
+PASS MEDIA_LOCKED 1 -> 11 (page 1 -> 11)
+PASS MEDIA_UNLOCKED 0 -> 10 (page 0 -> 10)
+PASS STREAM_START 1 -> 11 (page 1 -> 11)
+PASS STREAM_STOP 0 -> 10 (page 0 -> 10)
+PASS CLOCK_DOMAIN LOCKED 2 -> 12 (page 2 -> 12)
+PASS CLOCK_DOMAIN UNLOCKED 1 -> 11 (page 1 -> 11)
+PASS peer GPTP_GM_CHANGED 40 -> 60 (page 40 -> 60)
+PASS peer LINK_UP 1 -> 1 (page 1 -> 1)
+PASS peer LINK_DOWN 0 -> 0 (page 0 -> 0)
+== link-drop proof (599 page)
+NOTE mac_status [[-9.943, '0xd'], [2.561, '0x0'], [37.324, '0xd']]
+NOTE link_status [[-9.929, '0xd'], [2.575, '0x0'], [37.338, '0xd']]
+NOTE linkg_stat [[-9.915, '0x83'], [3.84, '0x3'], [38.853, '0x83']]
+NOTE carrier [[-9.839, 1], [1.386, 0], [34.678, 1]]; last far frame 0.959; far frames after 5 s 0; first wire return 38.711; first GM 39.742 gPTP Sync
+NOTE health [[-9.975, 'sync1 asc1 tu0'], [1.529, 'sync0 asc1 tu1'], [5.28, 'sync0 asc0 tu1'], [40.292, 'sync0 asc1 tu1'], [41.042, 'sync1 asc1 tu1'], [41.542, 'sync1 asc1 tu0']]
+NOTE gm [[-9.975, '3cc0c6fffefe0210'], [3.529, '020000fffe000001'], [40.792, '3cc0c6fffefe0210']]
+NOTE off_hold 20.86; recovered_at 41.574; recovery 1.832; epochs [1]; peer ADP [87336, 87354]
+PASS proof: MAC_STATUS 0x0d -> 0x00 -> 0x0d
+PASS proof: down bracket 2.31-2.56
+PASS proof: up bracket 37.07-37.32
+PASS proof: no switch frame from 5 s until ON
+PASS proof: LINK_UP/DOWN 1/0 -> 2/1
+PASS proof: bindings record {'polls': 148, 'all_connected': False, 'conn_counts': [0]}
+PASS proof: no CRF on the tap (nothing bound)
+== console rounds, both link words
+PASS baseline-bound: 120 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS bmsr-proof: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle01: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle02: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle03: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle04: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle05: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle06: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle07: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle08: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle09: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS cycle10: 440 rounds, MAC_STATUS and link_status change together (3 changes)
+PASS dryrun: 80 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS final: 80 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS gm01: 480 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS gm02: 480 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS gm03: 480 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS gm04: 480 rounds, MAC_STATUS and link_status change together (1 changes)
+PASS gm05: 480 rounds, MAC_STATUS and link_status change together (1 changes)
+NOTE console rounds over all archived actions: 7520 (page: 7,520)
+NOTE console rounds excluding the dry run: 7440
+== per-step table (387 page)
+PASS gm01 two console steps, + then -: [0.009964, -0.010007]
+PASS gm01 two wire DUT PHC jumps and two GM time jumps
+PASS gm01 console GM sequence switch -> host -> switch: [[-9.98, '3cc0c6fffefe0210'], [4.051, '<controller-host-id>'], [50.571, '3cc0c6fffefe0210']]
+PASS gm01 wire Announce: host GM priority1 240, stepsRemoved 1 ([[-9.346, ['3cc0c6fffefe0210', 246, 0]], [3.889, ['<controller-host-id>', 240, 1]], [50.55, ['3cc0c6fffefe0210', 246, 0]]])
+PASS gm01 A_MCSRV_STAT state LOCKED in every sample
+PASS gm01 CRFT_CTRL constant 0x3002e3
+PASS gm01 no mr change on either CRF direction
+PASS gm01 largest CRF gap <= 2 ms
+PASS gm01 epoch 1, bindings held
+PASS gm01 DUT talker MEDIA_RESET +0
+PASS gm01 listener MEDIA_RESET DUT +0 peer +0
+PASS gm01 MEDIA_LOCKED/UNLOCKED +0/+0 on DUT and peer
+PASS gm01 peer talker MEDIA_RESET +0
+PASS gm01 CLKV_TUCNT [461, 469] vs 461 to 469
+PASS gm01 Announce times
+PASS gm01 DUT GPTP_GM_CHANGED +6 vs +6
+PASS gm01 CLOCK_DOMAIN vs +6 / +6
+PASS gm01 TS_UNC/LATE/EARLY vs +2 / +1 / +1
+PASS gm01 tu=1 PDUs vs 2685 / 94
+NOTE gm01 peer listener TIMESTAMP_UNCERTAIN +2685 vs DUT tu=1 PDUs 2685
+PASS gm01 takeover row identity
+PASS gm01 takeover steps +9.988 / +9.994 ms vs +9.988 ms / +9.994 ms
+PASS gm01 takeover console agrees with wire within 0.07 ms (0.0240 ms)
+PASS gm01 takeover tu set/clear vs 4.05 / 7.34
+PASS gm01 takeover step-to-steady 3.25-3.54 vs 3.25-3.54
+PASS gm01 takeover steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm01 takeover asCapable lost 4.55-6.55 (2.003 s) vs 4.55-6.55
+NOTE gm01 takeover asCapable first seen clear at 4.551; step bracket [3.801, 4.083]; delay from bracket end 0.47
+NOTE gm01 takeover console health through the edge: [(4.051, 'sync1 asc1 tu1'), (4.551, 'sync1 asc0 tu0'), (4.801, 'sync0 asc0 tu1'), (6.554, 'sync1 asc1 tu0'), (7.055, 'sync1 asc1 tu1'), (7.305, 'sync1 asc1 tu0')]
+PASS gm01 takeover tu episodes 3 vs 3
+PASS gm01 takeover mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm01 takeover servo discards in window [11, 12, 13]; page LOCKED; 10 to 13
+PASS gm01 release row identity
+PASS gm01 release steps -10.004 / -9.997 ms vs -10.004 ms / -9.997 ms
+PASS gm01 release console agrees with wire within 0.07 ms (0.0030 ms)
+PASS gm01 release tu set/clear vs 50.82 / 54.10
+PASS gm01 release step-to-steady 3.25-3.53 vs 3.25-3.53
+PASS gm01 release steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm01 release asCapable lost 51.57-53.57 (2.001 s) vs 51.57-53.57
+NOTE gm01 release asCapable first seen clear at 51.571; step bracket [50.571, 50.853]; delay from bracket end 0.72
+NOTE gm01 release console health through the edge: [(50.571, 'sync0 asc1 tu1'), (50.821, 'sync1 asc1 tu1'), (51.071, 'sync1 asc1 tu0'), (51.571, 'sync1 asc0 tu0'), (51.821, 'sync0 asc0 tu1'), (53.572, 'sync0 asc1 tu1'), (53.822, 'sync1 asc1 tu1'), (54.072, 'sync1 asc1 tu0')]
+PASS gm01 release tu episodes 3 vs 3
+PASS gm01 release mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm01 release servo discards in window [13, 14]; page LOCKED; 13 to 14
+PASS gm02 two console steps, + then -: [0.010018, -0.009939]
+PASS gm02 two wire DUT PHC jumps and two GM time jumps
+PASS gm02 console GM sequence switch -> host -> switch: [[-9.975, '3cc0c6fffefe0210'], [3.53, '<controller-host-id>'], [50.547, '3cc0c6fffefe0210']]
+PASS gm02 wire Announce: host GM priority1 240, stepsRemoved 1 ([[-9.044, ['3cc0c6fffefe0210', 246, 0]], [3.408, ['<controller-host-id>', 240, 1]], [50.437, ['3cc0c6fffefe0210', 246, 0]]])
+PASS gm02 A_MCSRV_STAT state LOCKED in every sample
+PASS gm02 CRFT_CTRL constant 0x3002e3
+PASS gm02 no mr change on either CRF direction
+PASS gm02 largest CRF gap <= 2 ms
+PASS gm02 epoch 1, bindings held
+PASS gm02 DUT talker MEDIA_RESET +0
+PASS gm02 listener MEDIA_RESET DUT +0 peer +0
+PASS gm02 MEDIA_LOCKED/UNLOCKED +0/+0 on DUT and peer
+PASS gm02 peer talker MEDIA_RESET +0
+PASS gm02 CLKV_TUCNT [469, 477] vs 469 to 477
+PASS gm02 Announce times
+PASS gm02 DUT GPTP_GM_CHANGED +6 vs +6
+PASS gm02 CLOCK_DOMAIN vs +5 / +5
+PASS gm02 TS_UNC/LATE/EARLY vs +1 / +1 / +0
+PASS gm02 tu=1 PDUs vs 2569 / 39
+NOTE gm02 peer listener TIMESTAMP_UNCERTAIN +2569 vs DUT tu=1 PDUs 2569
+PASS gm02 takeover row identity
+PASS gm02 takeover steps +9.988 / +9.995 ms vs +9.988 ms / +9.995 ms
+PASS gm02 takeover console agrees with wire within 0.07 ms (0.0300 ms)
+PASS gm02 takeover tu set/clear vs 3.78 / 7.06
+PASS gm02 takeover step-to-steady 3.25-3.53 vs 3.25-3.53
+PASS gm02 takeover steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm02 takeover asCapable lost 4.28-6.28 (2.001 s) vs 4.28-6.28
+NOTE gm02 takeover asCapable first seen clear at 4.280; step bracket [3.53, 3.812]; delay from bracket end 0.47
+NOTE gm02 takeover console health through the edge: [(3.53, 'sync1 asc1 tu1'), (4.03, 'sync1 asc1 tu0'), (4.28, 'sync1 asc0 tu0'), (4.78, 'sync0 asc0 tu1'), (6.281, 'sync0 asc1 tu1'), (6.531, 'sync1 asc1 tu1'), (7.031, 'sync1 asc1 tu0')]
+PASS gm02 takeover tu episodes 2 vs 2
+PASS gm02 takeover mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm02 takeover servo discards in window [15, 16, 17]; page LOCKED; 14 to 17
+PASS gm02 release row identity
+PASS gm02 release steps -10.005 / -9.998 ms vs -10.005 ms / -9.998 ms
+PASS gm02 release console agrees with wire within 0.07 ms (0.0660 ms)
+PASS gm02 release tu set/clear vs 50.55 / 54.08
+PASS gm02 release step-to-steady 3.50-3.78 vs 3.50-3.78
+PASS gm02 release steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm02 release asCapable lost 51.30-53.30 (2.001 s) vs 51.30-53.30
+NOTE gm02 release asCapable first seen clear at 51.297; step bracket [50.297, 50.579]; delay from bracket end 0.72
+NOTE gm02 release console health through the edge: [(50.547, 'sync1 asc1 tu1'), (51.047, 'sync1 asc1 tu0'), (51.297, 'sync1 asc0 tu0'), (51.547, 'sync0 asc0 tu1'), (53.298, 'sync1 asc1 tu0'), (53.548, 'sync1 asc1 tu1'), (54.048, 'sync1 asc1 tu0')]
+PASS gm02 release tu episodes 3 vs 3
+PASS gm02 release mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm02 release servo discards in window [18, 19]; page LOCKED; 17 to 19
+PASS gm03 two console steps, + then -: [0.010043, -0.01004]
+PASS gm03 two wire DUT PHC jumps and two GM time jumps
+PASS gm03 console GM sequence switch -> host -> switch: [[-9.976, '3cc0c6fffefe0210'], [3.529, '<controller-host-id>'], [50.588, '3cc0c6fffefe0210']]
+PASS gm03 wire Announce: host GM priority1 240, stepsRemoved 1 ([[-8.767, ['3cc0c6fffefe0210', 246, 0]], [3.487, ['<controller-host-id>', 240, 1]], [50.523, ['3cc0c6fffefe0210', 246, 0]]])
+PASS gm03 A_MCSRV_STAT state LOCKED in every sample
+PASS gm03 CRFT_CTRL constant 0x3002e3
+PASS gm03 no mr change on either CRF direction
+PASS gm03 largest CRF gap <= 2 ms
+PASS gm03 epoch 1, bindings held
+PASS gm03 DUT talker MEDIA_RESET +0
+PASS gm03 listener MEDIA_RESET DUT +0 peer +0
+PASS gm03 MEDIA_LOCKED/UNLOCKED +0/+0 on DUT and peer
+PASS gm03 peer talker MEDIA_RESET +0
+PASS gm03 CLKV_TUCNT [477, 486] vs 477 to 486
+PASS gm03 Announce times
+PASS gm03 DUT GPTP_GM_CHANGED +6 vs +6
+PASS gm03 CLOCK_DOMAIN vs +6 / +6
+PASS gm03 TS_UNC/LATE/EARLY vs +2 / +0 / +0
+PASS gm03 tu=1 PDUs vs 2617 / 88
+NOTE gm03 peer listener TIMESTAMP_UNCERTAIN +2617 vs DUT tu=1 PDUs 2617
+PASS gm03 takeover row identity
+PASS gm03 takeover steps +9.988 / +9.995 ms vs +9.988 ms / +9.995 ms
+PASS gm03 takeover console agrees with wire within 0.07 ms (0.0550 ms)
+PASS gm03 takeover tu set/clear vs 3.78 / 8.06
+PASS gm03 takeover step-to-steady 4.25-4.53 vs 4.25-4.53
+PASS gm03 takeover steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm03 takeover asCapable lost 4.78-6.78 (2.001 s) vs 4.78-6.78
+NOTE gm03 takeover asCapable first seen clear at 4.779; step bracket [3.529, 3.811]; delay from bracket end 0.97
+NOTE gm03 takeover console health through the edge: [(3.529, 'sync0 asc1 tu1'), (3.779, 'sync1 asc1 tu1'), (4.029, 'sync1 asc1 tu0'), (4.779, 'sync1 asc0 tu0'), (5.029, 'sync0 asc0 tu1'), (6.78, 'sync1 asc1 tu0'), (7.53, 'sync0 asc1 tu1'), (7.78, 'sync1 asc1 tu1')]
+PASS gm03 takeover tu episodes 3 vs 3
+PASS gm03 takeover mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm03 takeover servo discards in window [20]; page LOCKED; 19 to 20
+PASS gm03 release row identity
+PASS gm03 release steps -10.004 / -9.996 ms vs -10.004 ms / -9.996 ms
+PASS gm03 release console agrees with wire within 0.07 ms (0.0360 ms)
+PASS gm03 release tu set/clear vs 50.59 / 54.12
+PASS gm03 release step-to-steady 3.50-3.78 vs 3.50-3.78
+PASS gm03 release steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm03 release asCapable lost 50.84-52.84 (2.000 s) vs 50.84-52.84
+NOTE gm03 release asCapable first seen clear at 50.838; step bracket [50.338, 50.62]; delay from bracket end 0.22
+NOTE gm03 release console health through the edge: [(50.588, 'sync1 asc1 tu1'), (50.838, 'sync1 asc0 tu1'), (51.088, 'sync0 asc0 tu1'), (52.838, 'sync1 asc1 tu0'), (53.589, 'sync1 asc1 tu1')]
+PASS gm03 release tu episodes 3 vs 3
+PASS gm03 release mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm03 release servo discards in window [20, 21]; page LOCKED; 20 to 21
+PASS gm04 two console steps, + then -: [0.009967, -0.010005]
+NOTE gm04 console flags below 5 ms: [{'bracket': [97.575, 97.859], 'phc_minus_wall_delta_s': 0.002726}, {'bracket': [97.825, 98.108], 'phc_minus_wall_delta_s': -0.00279}]
+PASS gm04 two wire DUT PHC jumps and two GM time jumps
+PASS gm04 console GM sequence switch -> host -> switch: [[-9.976, '3cc0c6fffefe0210'], [3.529, '<controller-host-id>'], [50.547, '3cc0c6fffefe0210']]
+PASS gm04 wire Announce: host GM priority1 240, stepsRemoved 1 ([[-9.347, ['3cc0c6fffefe0210', 246, 0]], [3.496, ['<controller-host-id>', 240, 1]], [50.524, ['3cc0c6fffefe0210', 246, 0]]])
+PASS gm04 A_MCSRV_STAT state LOCKED in every sample
+PASS gm04 CRFT_CTRL constant 0x3002e3
+PASS gm04 no mr change on either CRF direction
+PASS gm04 largest CRF gap <= 2 ms
+PASS gm04 epoch 1, bindings held
+PASS gm04 DUT talker MEDIA_RESET +0
+PASS gm04 listener MEDIA_RESET DUT +0 peer +0
+PASS gm04 MEDIA_LOCKED/UNLOCKED +0/+0 on DUT and peer
+PASS gm04 peer talker MEDIA_RESET +0
+PASS gm04 CLKV_TUCNT [486, 494] vs 486 to 494
+PASS gm04 Announce times
+PASS gm04 DUT GPTP_GM_CHANGED +4 vs +4
+PASS gm04 CLOCK_DOMAIN vs +5 / +5
+PASS gm04 TS_UNC/LATE/EARLY vs +2 / +0 / +0
+PASS gm04 tu=1 PDUs vs 2425 / 74
+NOTE gm04 peer listener TIMESTAMP_UNCERTAIN +2425 vs DUT tu=1 PDUs 2425
+PASS gm04 takeover row identity
+PASS gm04 takeover steps +9.987 / +9.995 ms vs +9.987 ms / +9.995 ms
+PASS gm04 takeover console agrees with wire within 0.07 ms (0.0200 ms)
+PASS gm04 takeover tu set/clear vs 3.78 / 6.81
+PASS gm04 takeover step-to-steady 3.00-3.28 vs 3.00-3.28
+PASS gm04 takeover steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm04 takeover asCapable lost 4.53-6.53 (2.001 s) vs 4.53-6.53
+NOTE gm04 takeover asCapable first seen clear at 4.529; step bracket [3.529, 3.811]; delay from bracket end 0.72
+NOTE gm04 takeover console health through the edge: [(3.529, 'sync0 asc1 tu1'), (3.779, 'sync1 asc1 tu1'), (4.279, 'sync1 asc1 tu0'), (4.529, 'sync1 asc0 tu0'), (5.029, 'sync0 asc0 tu1'), (6.53, 'sync0 asc1 tu1'), (6.78, 'sync1 asc1 tu0')]
+PASS gm04 takeover tu episodes 2 vs 2
+PASS gm04 takeover mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm04 takeover servo discards in window [22, 23, 24]; page LOCKED; 21 to 24
+PASS gm04 release row identity
+PASS gm04 release steps -10.004 / -9.997 ms vs -10.004 ms / -9.997 ms
+PASS gm04 release console agrees with wire within 0.07 ms (0.0010 ms)
+PASS gm04 release tu set/clear vs 50.80 / 53.83
+PASS gm04 release step-to-steady 3.00-3.28 vs 3.00-3.28
+PASS gm04 release steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm04 release asCapable lost 51.55-53.55 (2.001 s) vs 51.55-53.55
+NOTE gm04 release asCapable first seen clear at 51.547; step bracket [50.547, 50.829]; delay from bracket end 0.72
+NOTE gm04 release console health through the edge: [(50.547, 'sync0 asc1 tu1'), (50.797, 'sync1 asc1 tu1'), (51.047, 'sync1 asc1 tu0'), (51.547, 'sync1 asc0 tu0'), (51.797, 'sync0 asc0 tu1'), (53.548, 'sync0 asc1 tu1'), (53.798, 'sync1 asc1 tu0')]
+PASS gm04 release tu episodes 3 vs 3
+PASS gm04 release mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm04 release servo discards in window [24, 25]; page LOCKED; 24 to 25
+PASS gm05 two console steps, + then -: [0.009979, -0.010002]
+PASS gm05 two wire DUT PHC jumps and two GM time jumps
+PASS gm05 console GM sequence switch -> host -> switch: [[-9.975, '3cc0c6fffefe0210'], [3.78, '<controller-host-id>'], [50.605, '3cc0c6fffefe0210']]
+PASS gm05 wire Announce: host GM priority1 240, stepsRemoved 1 ([[-8.789, ['3cc0c6fffefe0210', 246, 0]], [3.614, ['<controller-host-id>', 240, 1]], [50.526, ['3cc0c6fffefe0210', 246, 0]]])
+PASS gm05 A_MCSRV_STAT state LOCKED in every sample
+PASS gm05 CRFT_CTRL constant 0x3002e3
+PASS gm05 no mr change on either CRF direction
+PASS gm05 largest CRF gap <= 2 ms
+PASS gm05 epoch 1, bindings held
+PASS gm05 DUT talker MEDIA_RESET +0
+PASS gm05 listener MEDIA_RESET DUT +0 peer +0
+PASS gm05 MEDIA_LOCKED/UNLOCKED +0/+0 on DUT and peer
+PASS gm05 peer talker MEDIA_RESET +0
+PASS gm05 CLKV_TUCNT [494, 504] vs 494 to 504
+PASS gm05 Announce times
+PASS gm05 DUT GPTP_GM_CHANGED +6 vs +6
+PASS gm05 CLOCK_DOMAIN vs +6 / +6
+PASS gm05 TS_UNC/LATE/EARLY vs +3 / +0 / +0
+PASS gm05 tu=1 PDUs vs 2630 / 91
+NOTE gm05 peer listener TIMESTAMP_UNCERTAIN +2630 vs DUT tu=1 PDUs 2630
+PASS gm05 takeover row identity
+PASS gm05 takeover steps +9.987 / +9.995 ms vs +9.987 ms / +9.995 ms
+PASS gm05 takeover console agrees with wire within 0.07 ms (0.0080 ms)
+PASS gm05 takeover tu set/clear vs 3.78 / 7.07
+PASS gm05 takeover step-to-steady 3.25-3.54 vs 3.25-3.54
+PASS gm05 takeover steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm05 takeover asCapable lost 4.03-6.03 (2.001 s) vs 4.03-6.03
+NOTE gm05 takeover asCapable first seen clear at 4.030; step bracket [3.529, 3.811]; delay from bracket end 0.22
+NOTE gm05 takeover console health through the edge: [(3.78, 'sync1 asc1 tu1'), (4.03, 'sync1 asc0 tu1'), (4.28, 'sync0 asc0 tu1'), (6.031, 'sync1 asc1 tu0'), (6.781, 'sync1 asc1 tu1')]
+PASS gm05 takeover tu episodes 3 vs 3
+PASS gm05 takeover mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm05 takeover servo discards in window [25, 26]; page LOCKED; 25 to 26
+PASS gm05 release row identity
+PASS gm05 release steps -10.003 / -9.996 ms vs -10.003 ms / -9.996 ms
+PASS gm05 release console agrees with wire within 0.07 ms (0.0010 ms)
+PASS gm05 release tu set/clear vs 50.60 / 54.14
+PASS gm05 release step-to-steady 3.50-3.78 vs 3.50-3.78
+PASS gm05 release steady clear is sync1 asc1 tu0 held 2 s (sync1 asc1 tu0, changes [])
+PASS gm05 release asCapable lost 51.11-53.11 (2.000 s) vs 51.11-53.11
+NOTE gm05 release asCapable first seen clear at 51.106; step bracket [50.355, 50.637]; delay from bracket end 0.47
+NOTE gm05 release console health through the edge: [(50.605, 'sync1 asc1 tu1'), (51.106, 'sync1 asc0 tu0'), (51.356, 'sync0 asc0 tu1'), (53.106, 'sync1 asc1 tu0'), (53.606, 'sync1 asc1 tu1')]
+PASS gm05 release tu episodes 3 vs 3
+PASS gm05 release mr / MEDIA_RESET / UNLOCKED columns zero
+NOTE gm05 release servo discards in window [27]; page LOCKED; 26 to 27
+NOTE asCapable first-clear sample minus bracket end 0.22-0.97 s (page 0.22-0.97)
+NOTE wire tu first clear after rise 0.40-0.61 s over all edges (page: eight edges 0.5-0.75)
+NOTE first tu=1 PDU minus new GM first Announce 0.0010-0.0020 s (page: within 2 ms)
+NOTE step-to-steady 3.00-4.53 s (page 3.00-4.53)
+NOTE takeover steps land (bracket end) 3.81-4.08, release 50.58-50.85 (page 3.4-4.1 / 50.3-50.9)
+NOTE DUT PHC step takeover 9.987..9.988 ms release -10.005..-10.003 ms
+NOTE GM time step takeover 9.994..9.995 ms release -9.998..-9.996 ms
+PASS ten step rows
+TOTAL pass=483 fail=0

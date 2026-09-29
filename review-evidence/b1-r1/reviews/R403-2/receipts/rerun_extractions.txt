@@ -1,0 +1,45 @@
+raw-index files with a public byte-identical copy: 115; extraction inputs: 50; covered: 10
+  covered baseline-bound/controller.jsonl
+  covered dryrun/console.jsonl
+  covered dryrun/controller.jsonl
+  covered final/console.jsonl
+  covered final/controller.jsonl
+  covered gm01/events.jsonl
+  covered gm02/events.jsonl
+  covered gm03/events.jsonl
+  covered gm04/events.jsonl
+  covered gm05/events.jsonl
+
+== console rounds, author code, ACTIONS patched to the covered actions
+  dryrun: rerun ["dryrun          rounds   80  agree   80  values ['0x0d']"] author ["dryrun          rounds   80  agree   80  values ['0x0d']"] -> MATCH
+  final: rerun ["final           rounds   80  agree   80  values ['0x0d']"] author ["final           rounds   80  agree   80  values ['0x0d']"] -> MATCH
+  INPUT lines: ['INPUT dryrun/console.jsonl 187346 d0a032aff9ceee502d80dfab55319f7d0ece0d9ec9e0e20ca20069c05afcff4e index ok, no page row', 'INPUT final/console.jsonl 187365 a31acfa62ec6dafb4cc435d4bc2d659cce5ad57e4aa4884e3701810163f83abc index ok, page row 599_394_E1_LINK_CYCLES.md:429']
+
+== saved state, author code, ACTIONS and OTHER_TRANSCRIPTS patched
+  dryrun: MATCH (2 line(s) each)
+    dryrun          05:35:57.60Z-05:36:17.36Z samples  80 PP_STAT ['5b000444'] pend [0] dirty [0]; controller 240 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'stat
+    dryrun          [('0000000000000000', '0', '0000000000000000', '000000000000', '0', '0', '0x0000')]
+  final: MATCH (2 line(s) each)
+    final           06:22:20.77Z-06:22:40.52Z samples  80 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 240 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'stat
+    final           [('0000000000000000', '0', '0000000000000000', '000000000000', '0', '0', '0x0000')]
+  identity/final readbacks: MATCH (8 lines)
+    READBACK r1/identity/console-identity.txt 62b77b66c74ee1ada56f0997cb4a05128b066444be7bd404ef9a25299f29cac5 = round-1 manifest
+      milan_nvm at 2026-09-29T05:31:24.606405Z; PP_STAT 5b000444 {'alarm': 0, 'backed': 1, 'dirty': 0, 'img_valid': 1, 'pend': 0, 'verdict': 0}
+      NVM: slot A VD_OK seq 227, slot B VD_OK seq 228, authoritative B, image seq 228, 53 records, 3264 B at 0x7f7ef000, writer live
+      NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+    READBACK r1/restore/console-final.txt 872dedc46da812c25573e06be9b5e2cac0a93d675af2445786680b2ce81470d6 = round-1 manifest
+      milan_nvm at 2026-09-29T06:22:44.310799Z; PP_STAT 5b000c44 {'alarm': 0, 'backed': 1, 'dirty': 0, 'img_valid': 1, 'pend': 1, 'verdict': 0}
+      NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+      NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+  image seq 228 -> 230; commits ok/failed 0/0 -> 2/0; state-changing commands: 0
+  nvm_pend: 0 in every sample up to 05:36:17.36Z, 1 in every sample from 06:22:20.77Z; never 0 after it: True
+  nvm_dirty (PP_STAT[8]) set in 0 of 160 samples; nvm_alarm set in 0; verdict nibble values [0]
+  [harness] stopped after the per-action part: IndexError: list index out of range
+  baseline-bound polled DUT binding: baseline-bound  [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')] -> MATCH; state-changing 0
+
+== negative controls on disposable copies
+  N1 one-byte tamper of dryrun console: exit 2 (REFUSED): INPUT dryrun/console.jsonl 187346 72d886a2a5c09af1fc658d2aa76fee76e5f8f345c7c97e45dd357a3e2953741d index MISMATCH
+  N2 flipped link_status in one round: exit 1; ["dryrun          rounds   80  agree   79  values ['0x0d']", "DISAGREE ('dryrun', 1790660157.6048057, [13], [0])"]
+  N3 injected CONNECT_RX: mutating() -> 'dut CONNECT_RX status 0: listener uid 1 talker uid 2 conn_count 1'
+  N3 injected SET_NAME: mutating() -> 'dut SET_NAME status SUCCESS payload 00'
+  N3 injected ADD_AUDIO_MAPPINGS: mutating() -> None

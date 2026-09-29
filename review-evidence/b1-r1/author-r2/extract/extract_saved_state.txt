@@ -1,0 +1,119 @@
+== identity gate
+READBACK r1/identity/console-identity.txt 62b77b66c74ee1ada56f0997cb4a05128b066444be7bd404ef9a25299f29cac5 = round-1 manifest
+  milan_nvm at 2026-09-29T05:31:24.606405Z; PP_STAT 5b000444 {'alarm': 0, 'backed': 1, 'dirty': 0, 'img_valid': 1, 'pend': 0, 'verdict': 0}
+  NVM: slot A VD_OK seq 227, slot B VD_OK seq 228, authoritative B, image seq 228, 53 records, 3264 B at 0x7f7ef000, writer live
+  NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+INPUT census-start-raw.jsonl 29738 0ad29ceccf8f8f2a0ffdf12fb0f1a2b6f990ad7236fded3005caec7576be5fc3 index ok, no page row
+INPUT setup-raw.jsonl 6725 b2876767d5ffeeaeeaf57efa1fc5f9c80c84c6c126eae6a1b3a3a305600f9f22 index ok, no page row
+INPUT post-slave-test-snapshot.jsonl 5222 158bb09b10da511a85dfda63615dcaa5498f84aa2c89ac2408a128152e80a792 index ok, no page row
+INPUT restore-raw.jsonl 2716 9a2a09694a4ddcc67a466376633d580fa58cc935d6a6ed8f8a92771817e9572c index ok, no page row
+INPUT census-end-raw.jsonl 29785 c29bcd82902947e0146b3c25e0625df04f3d331e49edb8245380495a094a4351 index ok, no page row
+INPUT identity-aecp-raw.jsonl 1424 6543037f79868386065fde5f8c0d2f573831cc7f86891dba1d93e2b2c4b5edc3 index ok, no page row
+INPUT peer-config1-desc-raw.jsonl 10201 92a60fe90d1ba597ed2a6a213c4e4ce954b3fc4c38eba8a8ef0bca5dedcf1068 index ok, no page row
+
+== actions: PP_STAT per 250 ms sample, and the controller's own commands
+INPUT dryrun/console.jsonl 187346 d0a032aff9ceee502d80dfab55319f7d0ece0d9ec9e0e20ca20069c05afcff4e index ok, no page row
+INPUT dryrun/controller.jsonl 105802 5b17a3804d30aac8e896052ae20eeb7b80ad97da5761aa2031c6f1607d3468a8 index ok, no page row
+dryrun          05:35:57.60Z-05:36:17.36Z samples  80 PP_STAT ['5b000444'] pend [0] dirty [0]; controller 240 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT bmsr-proof/console.jsonl 1030629 4764df46a24c298998419f68415bbf17d2ed4b3cee77a771e341aa117ca01686 index ok, page row 599_394_E1_LINK_CYCLES.md:374
+INPUT bmsr-proof/controller.jsonl 391063 16d12ad49a454ee78317ec9e7a06bd721d289753eb8b0337e2925f2209aff7ee index ok, page row 599_394_E1_LINK_CYCLES.md:375
+bmsr-proof      05:36:39.20Z-05:38:28.99Z samples 440 PP_STAT ['5b000444'] pend [0] dirty [0]; controller 900 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT baseline-bound/console.jsonl 281035 1a18cf76b5dd2cc6c7a29daf6ce0976e9ba3ef152ae77cb904b828394cc72829 index ok, page row 599_394_E1_LINK_CYCLES.md:369
+INPUT baseline-bound/controller.jsonl 158776 5f349b929152cc145ae47f2d9993f132c76a5e832b0f863bd6132f5fe4ce12b3 index ok, page row 599_394_E1_LINK_CYCLES.md:370
+baseline-bound  05:41:15.67Z-05:41:45.44Z samples 120 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 360 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle01/console.jsonl 1030610 4a9064e38aa89e07d055ad06c11be6321693ae8cf6dc25e6a559c6d4381607c4 index ok, page row 599_394_E1_LINK_CYCLES.md:379
+INPUT cycle01/controller.jsonl 387042 b920fef033174caed079734b8cab04477f0c5aa9cb0cd2415d494dd8dcdd215e index ok, page row 599_394_E1_LINK_CYCLES.md:380
+cycle01         05:42:19.75Z-05:44:09.54Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 888 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle02/console.jsonl 1030651 c54a59cfb1b48c35a134d50a81995a83b9af841a3485bcf96c90f227399d0461 index ok, page row 599_394_E1_LINK_CYCLES.md:384
+INPUT cycle02/controller.jsonl 393492 82e82dfa50a5b6a0cd297d5de307be73477b4aa2007ab6f425256f14ea33dbab index ok, page row 599_394_E1_LINK_CYCLES.md:385
+cycle02         05:44:16.12Z-05:46:05.91Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 900 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle03/console.jsonl 1030581 8e395b8e1b7401f60194e7318a30a5c0f101015dbcb4de0e8d0f26d9a8a3a712 index ok, page row 599_394_E1_LINK_CYCLES.md:389
+INPUT cycle03/controller.jsonl 386971 ff4296d591d8c887c5ff581ddd03aa4e33efc84b6a76cee76a73941123779357 index ok, page row 599_394_E1_LINK_CYCLES.md:390
+cycle03         05:46:12.16Z-05:48:01.96Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 888 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle04/console.jsonl 1030948 d8b2168bf3757aa561554f71200a237cdd58f950f91b206b493741b45c4fbfcf index ok, page row 599_394_E1_LINK_CYCLES.md:394
+INPUT cycle04/controller.jsonl 392490 b75848b86669821d816f224528403212ce6e551ee08cf70f4a8e3f0603ac4e6a index ok, page row 599_394_E1_LINK_CYCLES.md:395
+cycle04         05:48:22.07Z-05:50:11.86Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 900 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle05/console.jsonl 1031063 13e290bdc7be01d09e4f81268e87b802f858e1c642784cdff2507167a0d41c61 index ok, page row 599_394_E1_LINK_CYCLES.md:399
+INPUT cycle05/controller.jsonl 392836 3fc16cd6946b59fc08e75f99dd28b33dedb856b0020c48ca51b319df0caad077 index ok, page row 599_394_E1_LINK_CYCLES.md:400
+cycle05         05:50:17.96Z-05:52:07.76Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 900 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle06/console.jsonl 1030958 db21fc3b4633fac8ae9f96a91e401ddce2d36e6a540242eb8a25f61317410117 index ok, page row 599_394_E1_LINK_CYCLES.md:404
+INPUT cycle06/controller.jsonl 376378 2331685243cad23f55a533dcf582546358fb3e9e5600448050e7bd8c15f9c22e index ok, page row 599_394_E1_LINK_CYCLES.md:405
+cycle06         05:52:13.83Z-05:54:03.65Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 864 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle07/console.jsonl 1030626 ee0ef7e43a5b782fa36b43b86fa77297bb0c19e681312fdc8fec4a3a18817656 index ok, page row 599_394_E1_LINK_CYCLES.md:409
+INPUT cycle07/controller.jsonl 392833 b0735c1dd0bcc4708689f86767c5f8ccbf2899bad59cfcb883c14dba92c2dd70 index ok, page row 599_394_E1_LINK_CYCLES.md:410
+cycle07         05:54:13.49Z-05:56:03.29Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 900 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle08/console.jsonl 1030503 e08f65975c6683a36fe775f7057e6e2ad23409daae9e48e46892d260e79f5e8b index ok, page row 599_394_E1_LINK_CYCLES.md:414
+INPUT cycle08/controller.jsonl 392607 6e26bcf5d77ebe3754e19f38c3948737ec957776bd2b11f691072805069bd1a1 index ok, page row 599_394_E1_LINK_CYCLES.md:415
+cycle08         05:56:09.48Z-05:57:59.27Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 900 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle09/console.jsonl 1030587 c4966de2234ed48bff7b39d4aa14d2fd5587c38a84c7f304c514bc8d52c64199 index ok, page row 599_394_E1_LINK_CYCLES.md:419
+INPUT cycle09/controller.jsonl 387426 13518a9b122d9684cb467fe386d99cf930299141eb7b625016954a4c5f0a33dc index ok, page row 599_394_E1_LINK_CYCLES.md:420
+cycle09         05:58:05.47Z-05:59:55.26Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 888 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT cycle10/console.jsonl 1030456 855eaa4aaa2091c8f176e683237cde2986de1c1da99954eb6b0dfba25dbf1b66 index ok, page row 599_394_E1_LINK_CYCLES.md:424
+INPUT cycle10/controller.jsonl 387630 268c21ddd42314c14c48407554caab9f734afa97367a06a0b8fc679108f04c38 index ok, page row 599_394_E1_LINK_CYCLES.md:425
+cycle10         06:00:04.21Z-06:01:54.00Z samples 440 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 888 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT gm01/console.jsonl 1124688 f72e7065b6f5a363d2a20d6258679463341ebd7343b6d9177c3188f9d6551ed2 index ok, page row 387_SOFTWARE_GM_STEP.md:325
+INPUT gm01/controller.jsonl 639590 f252de61752452c992829302d352cc8592d6650545113b9a5fc2e41740e69f9f index ok, page row 387_SOFTWARE_GM_STEP.md:326
+gm01            06:05:46.02Z-06:07:45.89Z samples 480 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 1440 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT gm02/console.jsonl 1124293 9ee376fafce7b093324dfe3d1632d4c9fd62291410940028947785692b019065 index ok, page row 387_SOFTWARE_GM_STEP.md:332
+INPUT gm02/controller.jsonl 639591 b7134efdda62576ba5294ccb291bd01b1246166bd0a3326fc89630dc2db6b7ec index ok, page row 387_SOFTWARE_GM_STEP.md:333
+gm02            06:10:47.19Z-06:12:47.02Z samples 480 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 1440 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT gm03/console.jsonl 1124314 bbcc51d0f77f4a79946c858ffe1c64c05b6e470da42336bcff9ea7334edd093f index ok, page row 387_SOFTWARE_GM_STEP.md:339
+INPUT gm03/controller.jsonl 639595 8a602368bc8d5fe367d365c066b76bfe7647f1ff36a8a469af64045b24fad416 index ok, page row 387_SOFTWARE_GM_STEP.md:340
+gm03            06:13:34.82Z-06:15:34.66Z samples 480 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 1440 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT gm04/console.jsonl 1124629 e2e1914554e0dbd8bb9dac97d3257709ea62d5d546870ba53de315bea8d803a6 index ok, page row 387_SOFTWARE_GM_STEP.md:346
+INPUT gm04/controller.jsonl 640655 281e445fbdee2f89bd3924c3947d3ab1712179704f2786c5a12b69413cac097d index ok, page row 387_SOFTWARE_GM_STEP.md:347
+gm04            06:16:25.97Z-06:18:25.79Z samples 480 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 1440 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT gm05/console.jsonl 1124327 04efafe2c570666386ecfe2f8afd34e4c855dd0e00c62878d6b231651b15bf7b index ok, page row 387_SOFTWARE_GM_STEP.md:353
+INPUT gm05/controller.jsonl 641526 988fb3a7a589f0153c857e8958febb2e5125b53f3b029c35b4d0b0d10c571670 index ok, page row 387_SOFTWARE_GM_STEP.md:354
+gm05            06:19:20.57Z-06:21:20.42Z samples 480 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 1440 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+INPUT final/console.jsonl 187365 a31acfa62ec6dafb4cc435d4bc2d659cce5ad57e4aa4884e3701810163f83abc index ok, page row 599_394_E1_LINK_CYCLES.md:429
+INPUT final/controller.jsonl 106986 c3d713b1e6a7b3e1c19a91dde235257bf24f4d7a92f4a3a53b8365b470d0f8f0 index ok, page row 599_394_E1_LINK_CYCLES.md:430
+final           06:22:20.77Z-06:22:40.52Z samples  80 PP_STAT ['5b000c44'] pend [1] dirty [0]; controller 240 answers, labels ['avb', 'counter-36-0', 'counter-5-1', 'counter-5-8', 'counter-6-1', 'counter-6-2', 'counter-9-0', 'state-5-1', 'state-5-8'], state-changing 0
+
+PP_STAT values over all samples: ['5b000444', '5b000c44']
+  5b000444 {'alarm': 0, 'backed': 1, 'dirty': 0, 'img_valid': 1, 'pend': 0, 'verdict': 0}
+  5b000c44 {'alarm': 0, 'backed': 1, 'dirty': 0, 'img_valid': 1, 'pend': 1, 'verdict': 0}
+
+== state-changing controller commands in the other transcripts
+05:41:01.64Z setup-raw.jsonl: peer CONNECT_RX status 0: listener uid 8 talker uid 1 conn_count 1
+05:41:01.64Z setup-raw.jsonl: dut CONNECT_RX status 0: listener uid 1 talker uid 2 conn_count 1
+05:41:01.64Z setup-raw.jsonl: dut SET_CLOCK_SOURCE status SUCCESS payload 0024000000010000
+06:22:05.01Z restore-raw.jsonl: dut SET_CLOCK_SOURCE status SUCCESS payload 0024000000000000
+06:22:05.01Z restore-raw.jsonl: peer DISCONNECT_RX status 0: listener uid 8 talker uid 0 conn_count 0
+06:22:05.02Z restore-raw.jsonl: dut DISCONNECT_RX status 0: listener uid 1 talker uid 2 conn_count 0
+
+== DUT stream input 1 as polled: distinct (talker, talker uid, stream ID, destination, VLAN, connection count, flags)
+dryrun          [('0000000000000000', '0', '0000000000000000', '000000000000', '0', '0', '0x0000')]
+bmsr-proof      [('0000000000000000', '0', '0000000000000000', '000000000000', '0', '0', '0x0000')]
+baseline-bound  [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle01         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle02         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle03         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle04         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle05         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle06         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle07         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle08         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle09         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+cycle10         [('3cc0c60102030000', '2', '0000000000000000', '000000000000', '0', '1', '0x0002'), ('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+gm01            [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+gm02            [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+gm03            [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+gm04            [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+gm05            [('3cc0c60102030000', '2', '3cc0c60102034000', '91e0f000c9d6', '2', '1', '0x0002')]
+final           [('0000000000000000', '0', '0000000000000000', '000000000000', '0', '0', '0x0000')]
+
+== final restore
+READBACK r1/restore/console-final.txt 872dedc46da812c25573e06be9b5e2cac0a93d675af2445786680b2ce81470d6 = round-1 manifest
+  milan_nvm at 2026-09-29T06:22:44.310799Z; PP_STAT 5b000c44 {'alarm': 0, 'backed': 1, 'dirty': 0, 'img_valid': 1, 'pend': 1, 'verdict': 0}
+  NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+  NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+
+image seq 228 -> 230; commits ok/failed 0/0 -> 2/0; state-changing commands: 6
+nvm_pend: 0 in every sample up to 05:38:28.99Z, 1 in every sample from 05:41:15.67Z; never 0 after it: True
+  state-changing commands between those samples: 3
+    peer CONNECT_RX status 0: listener uid 8 talker uid 1 conn_count 1
+    dut CONNECT_RX status 0: listener uid 1 talker uid 2 conn_count 1
+    dut SET_CLOCK_SOURCE status SUCCESS payload 0024000000010000
+nvm_dirty (PP_STAT[8]) set in 0 of 7520 samples; nvm_alarm set in 0; verdict nibble values [0]
+DUT stream input 1 bound (count 1) in every poll of 16 actions (baseline-bound to gm05); talker, uid and flags over them: [('3cc0c60102030000', '2', '0x0002')]

@@ -1,0 +1,105 @@
+### rederive.py <repo@931c3edf> author-r2/r1 (redacted republished packet at 04d00b66)
+OK   cycle 1 row: page=['1', '20.90', '1.81-2.06', '36.82-37.07', '+1 / +1', '39.78', '0.544', '45.05 / 46.12', '7.97 / 9.05', '13.41 / 45.17', 'held'] rederived=['1', '20.90', '1.81-2.06', '36.82-37.07', '+1 / +1', '39.78', '0.544', '45.05 / 46.12', '7.97 / 9.05', '13.41 / 45.17', 'held']
+OK   cycle 2 row: page=['2', '20.97', '2.06-2.31', '36.82-37.07', '+1 / +1', '40.02', '1.555', '45.22 / 47.96', '8.15 / 10.88', '15.15 / 45.42', 'held'] rederived=['2', '20.97', '2.06-2.31', '36.82-37.07', '+1 / +1', '40.02', '1.555', '45.22 / 47.96', '8.15 / 10.88', '15.15 / 45.42', 'held']
+OK   cycle 3 row: page=['3', '20.88', '2.31-2.56', '36.83-37.08', '+1 / +1', '39.88', '1.704', '51.91 / 49.17', '14.84 / 12.09', '14.90 / 51.92', 'held'] rederived=['3', '20.88', '2.31-2.56', '36.83-37.08', '+1 / +1', '39.88', '1.704', '51.91 / 49.17', '14.84 / 12.09', '14.90 / 51.92', 'held']
+OK~  cycle 4 row: page=['4', '20.86', '2.06-2.31', '37.07-37.32', '+1 / +1', '39.81', '1.513', '43.06 / 45.60', '5.74 / 8.28', '16.40 / 43.17', 'held'] rederived=['4', '20.86', '2.06-2.31', '37.07-37.32', '+1 / +1', '39.81', '1.513', '43.06 / 45.60', '5.73 / 8.28', '16.40 / 43.17', 'held']
+OK   cycle 5 row: page=['5', '20.86', '1.81-2.06', '36.82-37.07', '+1 / +1', '39.85', '0.720', '45.27 / 46.71', '8.19 / 9.64', '19.65 / 45.42', 'held'] rederived=['5', '20.86', '1.81-2.06', '36.82-37.07', '+1 / +1', '39.85', '0.720', '45.27 / 46.71', '8.19 / 9.64', '19.65 / 45.42', 'held']
+OK   cycle 6 row: page=['6', '21.06', '2.31-2.56', '39.10-39.35', '+1 / +1', '42.10', '1.750', '46.30 / 46.65', '6.95 / 7.29', '6.67 / 46.44', 'held'] rederived=['6', '21.06', '2.31-2.56', '39.10-39.35', '+1 / +1', '42.10', '1.750', '46.30 / 46.65', '6.95 / 7.29', '6.67 / 46.44', 'held']
+OK   cycle 7 row: page=['7', '20.88', '1.81-2.06', '36.59-36.84', '+1 / +1', '39.88', '1.463', '45.25 / 45.58', '8.41 / 8.75', '11.65 / 45.43', 'held'] rederived=['7', '20.88', '1.81-2.06', '36.59-36.84', '+1 / +1', '39.88', '1.463', '45.25 / 45.58', '8.41 / 8.75', '11.65 / 45.43', 'held']
+OK   cycle 8 row: page=['8', '20.85', '1.81-2.06', '37.08-37.33', '+1 / +1', '39.81', '1.523', '45.10 / 46.20', '7.78 / 8.88', '16.41 / 45.17', 'held'] rederived=['8', '20.85', '1.81-2.06', '37.08-37.33', '+1 / +1', '39.81', '1.523', '45.10 / 46.20', '7.78 / 8.88', '16.41 / 45.17', 'held']
+OK   cycle 9 row: page=['9', '20.87', '2.31-2.56', '36.82-37.07', '+1 / +1', '39.90', '1.427', '49.06 / 49.41', '11.99 / 12.33', '10.90 / 49.17', 'held'] rederived=['9', '20.87', '2.31-2.56', '36.82-37.07', '+1 / +1', '39.90', '1.427', '49.06 / 49.41', '11.99 / 12.33', '10.90 / 49.17', 'held']
+OK   cycle 10 row: page=['10', '21.05', '2.06-2.31', '36.82-37.07', '+1 / +1', '40.04', '1.786', '45.36 / 45.67', '8.29 / 8.60', '18.16 / 45.42', 'held'] rederived=['10', '21.05', '2.06-2.31', '36.82-37.07', '+1 / +1', '40.04', '1.786', '45.36 / 45.67', '8.29 / 8.60', '18.16 / 45.42', 'held']
+
+-- cycle bullets and counters --
+MAC down bracket span 1.81-2.56
+MAC down minus last far frame (first_down - last_far) 1.01-1.53
+MAC down minus last far frame (last_up - last_far) 0.76-1.28
+MAC up bracket span 36.59-39.35
+wire return minus MAC up first_up 1.43-1.96
+wire return minus MAC up last_down_before 1.68-2.21
+gPTP recovery 0.544-1.786
+gPTP steady_from == recovered_at every cycle True
+first GM kind ['gPTP Announce', 'gPTP Announce', 'gPTP Announce', 'gPTP Announce', 'gPTP Sync', 'gPTP Sync', 'gPTP Sync', 'gPTP Sync', 'gPTP Sync', 'gPTP Sync']
+MEDIA_LOCKED again 43.95-52.55 none missing: True
+servo LOCKED again 48.40-52.40
+first PDU after wire return DUT 4.26-13.04
+first PDU after wire return peer 5.55-10.60
+post PDUs >100 both ways every cycle True
+post max gap 0.002
+post tu1 PDUs [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+GM-return PHC steps 10 -340.7--115.9
+console max gap 0.25457191467285156
+reset epochs [1]
+DUT mr changes per cycle [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+DUT mr change minus MAC down first_down [-0.911, -1.172, -1.415, -1.19, -0.937, -1.402, -0.939, -0.954, -1.427, -1.144]
+peer mr changes per cycle [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+MAC_STATUS values per cycle [('0x0', '0xd')] up value ['0xd']
+link_status CSR mirrors MAC_STATUS values True
+link_status CSR lag behind MAC_STATUS (s) 0.014-0.027
+far frames during OFF after 5 s [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+carrier down/up [[1.379, 34.771], [1.374, 34.861], [1.36, 34.834], [1.36, 34.851], [1.341, 34.824], [1.357, 35.064], [1.342, 34.948], [1.369, 34.68], [1.372, 34.848], [1.344, 35.134]]
+dut:counter-9-0 first(cycle01) {'0': 2, '1': 1, '5': 2} last(cycle10) {'0': 12, '1': 11, '5': 22}
+dut:counter-5-1 first(cycle01) {'0': 1, '1': 0} last(cycle10) {'0': 11, '1': 10}
+dut:counter-6-1 first(cycle01) {'0': 1, '1': 0} last(cycle10) {'0': 11, '1': 10}
+dut:counter-36-0 first(cycle01) {'0': 2, '1': 1} last(cycle10) {'0': 12, '1': 11}
+peer:counter-9-0 first(cycle01) {'0': 1, '1': 0, '5': 40} last(cycle10) {'0': 1, '1': 0, '5': 60}
+per-cycle deltas LINK_UP/LINK_DOWN/GM_CHANGED [(1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2), (1, 1, 2)]
+per-cycle DUT listener LOCKED/UNLOCKED deltas [(1, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1)]
+per-cycle peer listener LOCKED/UNLOCKED deltas [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]
+counter continuity cycle(n).last == cycle(n+1).first (dut 9-0, 5-1, 36-0) False
+
+-- link-drop proof --
+mac_status [[-9.943, "0xd"], [2.561, "0x0"], [37.324, "0xd"]]
+link_status_csr [[-9.929, "0xd"], [2.575, "0x0"], [37.338, "0xd"]]
+linkg_stat [[-9.915, "0x83"], [3.84, "0x3"], [38.853, "0x83"]]
+carrier [[-9.839, 1], [1.386, 0], [34.678, 1]]
+last_far_frame_before_on 0.959
+far_frames_during_off_after_5s 0
+first_wire_return 38.711
+first_gm 39.742
+first_gm_kind "gPTP Sync"
+gptp_recovered_at 41.574
+gptp_recovery_s 1.832
+reset_epochs [1]
+peer_available_index [87336, 87354]
+health [[-9.975, "sync1 asc1 tu0"], [1.529, "sync0 asc1 tu1"], [5.28, "sync0 asc0 tu1"], [40.292, "sync0 asc1 tu1"], [41.042, "sync1 asc1 tu1"], [41.542, "sync1 asc1 tu0"]]
+gm [[-9.975, "3cc0c6fffefe0210"], [3.529, "020000fffe000001"], [40.792, "3cc0c6fffefe0210"]]
+bindings {"polls": 148, "all_connected": false, "conn_counts": [0]}
+off_hold_s 20.863460063934326
+LINK counters {'LINK_UP': 1, 'LINK_DOWN': 0, 'end_LINK_UP': 2, 'end_LINK_DOWN': 1, 'GM_CHANGED': [0, 2]}
+
+-- steps --
+OK   gm1 takeover row: page=['1', 'takeover', '+9.988 ms', '+9.994 ms', '4.05 / 7.34', '3.25-3.54', '3', '4.55-6.55', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 10 to 13'] rederived=['1', 'takeover', '+9.988 ms', '+9.994 ms', '4.05 / 7.34', '3.25-3.54', '3', '4.55-6.55', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 10 to 13']
+   console step +9.964 ms; wire-vs-console 0.024 ms; step at +3.80..4.08; asCapable lost 0.47-0.75 s after step, for 2.003 s; crf max gap dut/peer 0.002/0.002; peer tu1 63; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm1 release row: page=['1', 'release', '-10.004 ms', '-9.997 ms', '50.82 / 54.10', '3.25-3.53', '3', '51.57-53.57', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 13 to 14'] rederived=['1', 'release', '-10.004 ms', '-9.997 ms', '50.82 / 54.10', '3.25-3.53', '3', '51.57-53.57', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 13 to 14']
+   console step -10.007 ms; wire-vs-console 0.003 ms; step at +50.57..50.85; asCapable lost 0.72-1.00 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 31; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm1 run row: page=['1', '3.89', '50.55', '461 to 469', '+6', '+6 / +6', '+2 / +1 / +1', '2685 / 94', '2 ms'] rederived=['1', '3.89', '50.55', '461 to 469', '+6', '+6 / +6', '+2 / +1 / +1', '2685 / 94', '2 ms']
+   announce GM changes [[-9.346, ["3cc0c6fffefe0210", 246, 0]], [3.889, ["<software-GM>", 240, 1]], [50.55, ["3cc0c6fffefe0210", 246, 0]]]; crf_ctrl [[-9.855, '0x3002e3']]; servo states [4]; bindings {'polls': 240, 'all_connected': True, 'conn_counts': [1]}; reset epochs [1]; mac [[-9.946, '0xd']]; console gap 0.254; peer tu1 on wire 94; peer listener TIMESTAMP_UNCERTAIN delta 2685; DUT talker TIMESTAMP_UNCERTAIN delta 8
+OK   gm2 takeover row: page=['2', 'takeover', '+9.988 ms', '+9.995 ms', '3.78 / 7.06', '3.25-3.53', '2', '4.28-6.28', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 14 to 17'] rederived=['2', 'takeover', '+9.988 ms', '+9.995 ms', '3.78 / 7.06', '3.25-3.53', '2', '4.28-6.28', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 14 to 17']
+   console step +10.018 ms; wire-vs-console 0.030 ms; step at +3.53..3.81; asCapable lost 0.47-0.75 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 39; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm2 release row: page=['2', 'release', '-10.005 ms', '-9.998 ms', '50.55 / 54.08', '3.50-3.78', '3', '51.30-53.30', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 17 to 19'] rederived=['2', 'release', '-10.005 ms', '-9.998 ms', '50.55 / 54.08', '3.50-3.78', '3', '51.30-53.30', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 17 to 19']
+   console step -9.939 ms; wire-vs-console 0.066 ms; step at +50.30..50.58; asCapable lost 0.72-1.00 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 0; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm2 run row: page=['2', '3.41', '50.44', '469 to 477', '+6', '+5 / +5', '+1 / +1 / +0', '2569 / 39', '2 ms'] rederived=['2', '3.41', '50.44', '469 to 477', '+6', '+5 / +5', '+1 / +1 / +0', '2569 / 39', '2 ms']
+   announce GM changes [[-9.044, ["3cc0c6fffefe0210", 246, 0]], [3.408, ["<software-GM>", 240, 1]], [50.437, ["3cc0c6fffefe0210", 246, 0]]]; crf_ctrl [[-9.851, '0x3002e3']]; servo states [4]; bindings {'polls': 240, 'all_connected': True, 'conn_counts': [1]}; reset epochs [1]; mac [[-9.943, '0xd']]; console gap 0.263; peer tu1 on wire 39; peer listener TIMESTAMP_UNCERTAIN delta 2569; DUT talker TIMESTAMP_UNCERTAIN delta 8
+OK   gm3 takeover row: page=['3', 'takeover', '+9.988 ms', '+9.995 ms', '3.78 / 8.06', '4.25-4.53', '3', '4.78-6.78', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 19 to 20'] rederived=['3', 'takeover', '+9.988 ms', '+9.995 ms', '3.78 / 8.06', '4.25-4.53', '3', '4.78-6.78', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 19 to 20']
+   console step +10.043 ms; wire-vs-console 0.055 ms; step at +3.53..3.81; asCapable lost 0.97-1.25 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 58; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm3 release row: page=['3', 'release', '-10.004 ms', '-9.996 ms', '50.59 / 54.12', '3.50-3.78', '3', '50.84-52.84', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 20 to 21'] rederived=['3', 'release', '-10.004 ms', '-9.996 ms', '50.59 / 54.12', '3.50-3.78', '3', '50.84-52.84', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 20 to 21']
+   console step -10.040 ms; wire-vs-console 0.036 ms; step at +50.34..50.62; asCapable lost 0.22-0.50 s after step, for 2.000 s; crf max gap dut/peer 0.002/0.002; peer tu1 30; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm3 run row: page=['3', '3.49', '50.52', '477 to 486', '+6', '+6 / +6', '+2 / +0 / +0', '2617 / 88', '2 ms'] rederived=['3', '3.49', '50.52', '477 to 486', '+6', '+6 / +6', '+2 / +0 / +0', '2617 / 88', '2 ms']
+   announce GM changes [[-8.767, ["3cc0c6fffefe0210", 246, 0]], [3.487, ["<software-GM>", 240, 1]], [50.523, ["3cc0c6fffefe0210", 246, 0]]]; crf_ctrl [[-9.852, '0x3002e3']]; servo states [4]; bindings {'polls': 240, 'all_connected': True, 'conn_counts': [1]}; reset epochs [1]; mac [[-9.944, '0xd']]; console gap 0.253; peer tu1 on wire 88; peer listener TIMESTAMP_UNCERTAIN delta 2617; DUT talker TIMESTAMP_UNCERTAIN delta 9
+OK   gm4 takeover row: page=['4', 'takeover', '+9.987 ms', '+9.995 ms', '3.78 / 6.81', '3.00-3.28', '2', '4.53-6.53', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 21 to 24'] rederived=['4', 'takeover', '+9.987 ms', '+9.995 ms', '3.78 / 6.81', '3.00-3.28', '2', '4.53-6.53', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 21 to 24']
+   console step +9.967 ms; wire-vs-console 0.020 ms; step at +3.53..3.81; asCapable lost 0.72-1.00 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 44; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm4 release row: page=['4', 'release', '-10.004 ms', '-9.997 ms', '50.80 / 53.83', '3.00-3.28', '3', '51.55-53.55', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 24 to 25'] rederived=['4', 'release', '-10.004 ms', '-9.997 ms', '50.80 / 53.83', '3.00-3.28', '3', '51.55-53.55', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 24 to 25']
+   console step -10.005 ms; wire-vs-console 0.001 ms; step at +50.55..50.83; asCapable lost 0.72-1.00 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 30; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm4 run row: page=['4', '3.50', '50.52', '486 to 494', '+4', '+5 / +5', '+2 / +0 / +0', '2425 / 74', '2 ms'] rederived=['4', '3.50', '50.52', '486 to 494', '+4', '+5 / +5', '+2 / +0 / +0', '2425 / 74', '2 ms']
+   announce GM changes [[-9.347, ["3cc0c6fffefe0210", 246, 0]], [3.496, ["<software-GM>", 240, 1]], [50.524, ["3cc0c6fffefe0210", 246, 0]]]; crf_ctrl [[-9.857, '0x3002e3']]; servo states [4]; bindings {'polls': 240, 'all_connected': True, 'conn_counts': [1]}; reset epochs [1]; mac [[-9.944, '0xd']]; console gap 0.255; peer tu1 on wire 74; peer listener TIMESTAMP_UNCERTAIN delta 2425; DUT talker TIMESTAMP_UNCERTAIN delta 8
+OK   gm5 takeover row: page=['5', 'takeover', '+9.987 ms', '+9.995 ms', '3.78 / 7.07', '3.25-3.54', '3', '4.03-6.03', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 25 to 26'] rederived=['5', 'takeover', '+9.987 ms', '+9.995 ms', '3.78 / 7.07', '3.25-3.54', '3', '4.03-6.03', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 25 to 26']
+   console step +9.979 ms; wire-vs-console 0.008 ms; step at +3.53..3.81; asCapable lost 0.22-0.50 s after step, for 2.001 s; crf max gap dut/peer 0.002/0.002; peer tu1 61; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm5 release row: page=['5', 'release', '-10.003 ms', '-9.996 ms', '50.60 / 54.14', '3.50-3.78', '3', '51.11-53.11', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 26 to 27'] rederived=['5', 'release', '-10.003 ms', '-9.996 ms', '50.60 / 54.14', '3.50-3.78', '3', '51.11-53.11', '0 / 0', '+0 / +0', '+0 / +0', 'LOCKED; 26 to 27']
+   console step -10.002 ms; wire-vs-console 0.001 ms; step at +50.35..50.64; asCapable lost 0.47-0.75 s after step, for 2.000 s; crf max gap dut/peer 0.002/0.002; peer tu1 30; DUT listener MEDIA_LOCKED delta 0, peer MEDIA_RESET delta 0
+OK   gm5 run row: page=['5', '3.61', '50.53', '494 to 504', '+6', '+6 / +6', '+3 / +0 / +0', '2630 / 91', '2 ms'] rederived=['5', '3.61', '50.53', '494 to 504', '+6', '+6 / +6', '+3 / +0 / +0', '2630 / 91', '2 ms']
+   announce GM changes [[-8.789, ["3cc0c6fffefe0210", 246, 0]], [3.614, ["<software-GM>", 240, 1]], [50.526, ["3cc0c6fffefe0210", 246, 0]]]; crf_ctrl [[-9.857, '0x3002e3']]; servo states [4]; bindings {'polls': 240, 'all_connected': True, 'conn_counts': [1]}; reset epochs [1]; mac [[-9.943, '0xd']]; console gap 0.253; peer tu1 on wire 91; peer listener TIMESTAMP_UNCERTAIN delta 2630; DUT talker TIMESTAMP_UNCERTAIN delta 10
+non-step console flags [(1, []), (2, []), (3, []), (4, [{'bracket': [97.575, 97.859], 'phc_minus_wall_delta_s': 0.002726}, {'bracket': [97.825, 98.108], 'phc_minus_wall_delta_s': -0.00279}]), (5, [])]
+
+DIFFS: none
+rc=0

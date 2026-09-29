@@ -1,0 +1,6 @@
+identity gate (identity/console-identity.txt): PP_STAT=5b000444 PP_STAT[11]=0
+   NVM: slot A VD_OK seq 227, slot B VD_OK seq 228, authoritative B, image seq 228, 53 records, 3264 B at 0x7f7ef000, writer live
+   NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+final restore (restore/console-final.txt): PP_STAT=5b000c44 PP_STAT[11]=1
+   NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+   NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK

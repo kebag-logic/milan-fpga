@@ -1,0 +1,15 @@
+cycle04  baseline (no mutation)                     author b1_check.py rc=0 (RECOVERED); reviewer rederive rc=0
+cycle04  binding lost in one poll                   author b1_check.py rc=3 (NOT_RECOVERED); reviewer rederive rc=1
+cycle04  DUT reset epoch 2 (a reboot)               author b1_check.py rc=3 (NOT_RECOVERED); reviewer rederive rc=0
+cycle04  media servo ends in HOLDOVER               author b1_check.py rc=3 (NOT_RECOVERED); reviewer rederive rc=0
+cycle04  gPTP never steady                          author b1_check.py rc=3 (NOT_RECOVERED); reviewer rederive rc=0
+cycle04  LINK_DOWN counted twice (+2)               author b1_check.py rc=0 (RECOVERED); reviewer rederive rc=1
+cycle04  LINK_UP not counted (+0)                   author b1_check.py rc=0 (RECOVERED); reviewer rederive rc=1
+cycle04  MAC_STATUS never returns (no up edge)      author b1_check.py rc=0 (RECOVERED); reviewer rederive rc=1
+gm03     baseline (no mutation)                     author b1_gmcheck.py rc=0 (RESTORED); reviewer rederive rc=0
+gm03     DUT listener unlocked once                 author b1_gmcheck.py rc=3 (NOT_RESTORED); reviewer rederive rc=0
+gm03     outgoing mr toggled at the takeover        author b1_gmcheck.py rc=0 (RESTORED); reviewer rederive rc=1
+gm03     talker MEDIA_RESET +1 at the takeover      author b1_gmcheck.py rc=0 (RESTORED); reviewer rederive rc=1
+gm03     servo left LOCKED mid-run then relocked    author b1_gmcheck.py rc=0 (RESTORED); reviewer rederive rc=1
+gm03     grandmaster not restored                   author b1_gmcheck.py rc=3 (NOT_RESTORED); reviewer rederive rc=0
+archived check.txt verdicts: cycle04=RECOVERED gm03=RESTORED

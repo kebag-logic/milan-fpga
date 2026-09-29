@@ -1,0 +1,57 @@
+LOCK 2026-09-29T06:03:37.189Z
+f1e59efb5843a288a102b6a9bc6f492a2b33e32ca6deea555a817e7cd049948c  /tmp/a438/slave.cfg
+ptp4l[83977.200]: selected /dev/ptp0 as PTP clock
+ptp4l[83977.217]: port 1 (<controller-host-if>): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[83977.217]: uds: removed existing /var/run/ptp4l
+ptp4l[83977.217]: port 0 (/var/run/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[83977.218]: port 0 (/var/run/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[83977.217]: uds: removed existing /var/run/ptp4lro
+ptp4l[83980.729]: port 1 (<controller-host-if>): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
+ptp4l[83980.729]: selected local clock <controller-host-eui64> as best master
+ptp4l[83980.729]: port 1 (<controller-host-if>): assuming the grand master role
+ptp4l[83980.839]: port 1 (<controller-host-if>): new foreign master 3cc0c6.fffe.fe0210-8
+ptp4l[83982.839]: selected best master clock 3cc0c6.fffe.fe0210
+ptp4l[83982.839]: port 1 (<controller-host-if>): MASTER to UNCALIBRATED on RS_SLAVE
+ptp4l[83982.839]: running in a temporal vortex
+ptp4l[83983.570]: port 1 (<controller-host-if>): UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED
+ptp4l[83984.200]: rms 64636891511139 max 129273783022311 freq -32257 +/- 2432 delay    -7 +/-   0
+ptp4l[83985.200]: rms  635 max  977 freq -30243 +/- 854 delay    -9 +/-   0
+ptp4l[83986.200]: rms 1054 max 1109 freq -28342 +/- 275 delay    -9 +/-   0
+ptp4l[83987.200]: rms  664 max  883 freq -27979 +/-  29 delay   -10 +/-   0
+ptp4l[83988.200]: rms  214 max  356 freq -28185 +/-  79 delay    -9 +/-   0
+ptp4l[83989.200]: rms   40 max   60 freq -28411 +/-  51 delay    -8 +/-   0
+ptp4l[83990.200]: rms   62 max   67 freq -28518 +/-  16 delay    -8 +/-   0
+ptp4l[83991.200]: rms   37 max   54 freq -28536 +/-   4 delay    -9 +/-   0
+ptp4l[83992.200]: rms    7 max   14 freq -28515 +/-   5 delay   -10 +/-   0
+ptp4l[83993.200]: rms    3 max    5 freq -28506 +/-   4 delay   -10 +/-   0
+ptp4l[83994.200]: rms    5 max    6 freq -28497 +/-   2 delay   -10 +/-   0
+ptp4l[83995.200]: rms    2 max    4 freq -28501 +/-   3 delay   -10 +/-   0
+ptp4l[83996.200]: rms    2 max    3 freq -28500 +/-   2 delay    -8 +/-   0
+ptp4l[83997.200]: rms    3 max    4 freq -28502 +/-   5 delay    -8 +/-   0
+ptp4l[83998.200]: rms    2 max    3 freq -28501 +/-   2 delay    -8 +/-   0
+ptp4l[83999.200]: rms    5 max    7 freq -28493 +/-   2 delay   -10 +/-   0
+ptp4l[84000.200]: rms    3 max    7 freq -28494 +/-   4 delay   -10 +/-   0
+ptp4l[84001.200]: rms    5 max    9 freq -28488 +/-   5 delay   -10 +/-   0
+ptp4l[84002.200]: rms    3 max    5 freq -28488 +/-   3 delay    -8 +/-   0
+ptp4l[84003.200]: rms    3 max    5 freq -28487 +/-   3 delay   -10 +/-   0
+ptp4l[84004.200]: rms    4 max    7 freq -28483 +/-   5 delay   -10 +/-   0
+ptp4l[84005.200]: rms    2 max    3 freq -28484 +/-   2 delay   -10 +/-   0
+ptp4l[84006.200]: rms    2 max    4 freq -28481 +/-   2 delay   -10 +/-   0
+ptp4l[84007.200]: rms    3 max    4 freq -28481 +/-   3 delay   -10 +/-   0
+ptp4l[84008.200]: rms    4 max    5 freq -28482 +/-   5 delay   -10 +/-   0
+ptp4l[84009.200]: rms    3 max    4 freq -28480 +/-   4 delay   -10 +/-   0
+ptp4l[84010.200]: rms    2 max    4 freq -28478 +/-   3 delay   -10 +/-   0
+ptp4l[84011.200]: rms    4 max    6 freq -28475 +/-   5 delay    -8 +/-   0
+ptp4l[84012.200]: rms    4 max    6 freq -28474 +/-   4 delay   -10 +/-   0
+ptp4l[84013.200]: rms    2 max    3 freq -28475 +/-   3 delay    -9 +/-   0
+ptp4l[84014.200]: rms    3 max    5 freq -28475 +/-   4 delay    -9 +/-   0
+ptp4l[84015.200]: rms    4 max    6 freq -28469 +/-   3 delay    -9 +/-   0
+ptp4l[84016.200]: rms    3 max    5 freq -28472 +/-   4 delay    -9 +/-   0
+PTP_RC=124
+phc_ctl[84017.415]: clock frequency offset is 28463.928223ppb
+phc_ctl[84017.415]: offset from CLOCK_REALTIME is 1790661645354342602ns
+
+current settings:
+tx_type 1
+rx_filter 1
+UNLOCK 2026-09-29T06:04:17.598Z
