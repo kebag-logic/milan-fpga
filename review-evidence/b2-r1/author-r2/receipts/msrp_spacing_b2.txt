@@ -1,0 +1,14 @@
+# python3 -B scripts/msrp_spacing_b2.py <round-1 packet author dir>
+== baseline: 19 DUT MRPDUs; gaps, s: [1.0, 1.0, 1.0, 1.0, 0.6, 0.4, 0.6, 0.2, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+   bridge LeaveAll at [5.36]; DUT LeaveAll at [6.365]
+   off-grid 5.365: reply 0.005 s after the bridge's LeaveAll
+   off-grid 6.365: own LeaveAll, 1.005 s after the bridge's
+   off-grid 6.565: 0.200 s after its own LeaveAll
+   on the 1.000 s grid: 16 of 19; next DUT MRPDU after each own LeaveAll, s: [0.2]
+== final: 19 DUT MRPDUs; gaps, s: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.4, 0.8, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+   bridge LeaveAll at [8.859]; DUT LeaveAll at [10.066]
+   off-grid 8.866: reply 0.006 s after the bridge's LeaveAll
+   off-grid 10.066: own LeaveAll, 1.206 s after the bridge's
+   on the 1.000 s grid: 17 of 19; next DUT MRPDU after each own LeaveAll, s: [0.2]
+RESULT PASS
+rc=0

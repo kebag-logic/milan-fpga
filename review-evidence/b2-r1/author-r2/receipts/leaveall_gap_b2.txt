@@ -1,0 +1,15 @@
+# python3 -B scripts/leaveall_gap_b2.py <round-1 packet author dir> <archive 666d8897 review-evidence/b2-r1/MANIFEST.json>
+captures read: 112; msrp.tsv not matching the archive original_sha256: none
+DUT LeaveAll MRPDUs less than 10 s after a received bridge LeaveAll: 67
+captures holding at least one: 64 of 112
+captures holding two: ['bind-4', 'unbind-2', 'unbind-3']
+gap min / median / max, s: 0.199564 / 1.997469 / 4.807277
+gaps under 1 s: 14
+
+cycle 22, seconds after the tapped DISCONNECT_RX response:
+  bridge LeaveAll                  -0.391721  types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed']
+  DUT's own LeaveAll               +0.009401  types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed']
+  bridge Listener Lv               +0.010791
+  own LeaveAll minus bridge LeaveAll 0.401121 s; own LeaveAll minus Lv -1.390731 ms
+  cycle 22 in the gap list: [0.401121]
+rc=0

@@ -1,0 +1,29 @@
+# git diff -U0 c37f1d04 d7676373 -- <both pages>: every removed table line (a line starting '-|')
+6:-| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP refresh stays at 1.000 s. A DUT LeaveAll crossed every pre-bind window. |
+65:-| #608 item 3: stop within one PDU of the withdrawal, 100 of 100 | Two readings; see below | Literal text: NOT MET, 99 of 100. Recorded reading, a withdrawal that reaches an IN registrar: PASS, 99 of 99. |
+68:-| #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped, so it is not a restart. |
+removed table lines: 3 (all three are verdict-table rows)
+# every added table line (a line starting '+|')
++| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP kept 1.000 s periodic spacing, 0.2 s after a LeaveAll. A DUT LeaveAll crossed every pre-bind window. |
++| Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z |
++|---|---|---|
++| NVM slots A / B, image sequence | 229 / 230, image 230 | 229 / 230, image 230 |
++| Records, writer | 53 records, 3,264 B, writer live | 53 records, 3,264 B, writer live |
++| Commits ok / failed | 2 / 0 | 2 / 0 |
++| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000c44`, 1 | `0x5b000c44`, 1 |
++| `PP_NVM_STAT` | `0xc34000e4`, pend 1 | `0xc34000e4`, pend 1 |
++| #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487). Cycle 22's LV registrar is attributed to the processor #108 deviation. Met without qualification only after the pin adoption of processor PR #133 and a bench re-run. |
++| #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart. The [#608 ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) requires no additional cycle. |
++| Saved-state field | Identity gate, 06:49:58Z | Final restore, 07:20:45Z |
++|---|---|---|
++| NVM slots A / B, image sequence | 229 / 230, image 230 | 229 / 230, image 230 |
++| Records, writer | 53 records, 3,264 B, writer live | 53 records, 3,264 B, writer live |
++| Commits ok / failed | 2 / 0 | 2 / 0 |
++| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000c44`, 1 | `0x5b000c44`, 1 |
++| `PP_NVM_STAT` | `0xc34000e4`, pend 1 | `0xc34000e4`, pend 1 |
+added table lines: 17 (three verdict rows, two seven-line saved-state tables)
+# literal diff of all table lines: base minus its verdict table, head minus its verdict table and its saved-state table
+diff docs/findings/606_FIRST_BIND_MEASUREMENT.md (base 72 table lines, head 72):
+  diff rc=0
+diff docs/findings/608_75_WITHDRAWAL_AND_RESTART.md (base 254 table lines, head 254):
+  diff rc=0

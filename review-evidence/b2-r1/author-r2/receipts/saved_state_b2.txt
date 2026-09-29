@@ -1,0 +1,81 @@
+# python3 -B scripts/saved_state_b2.py <round-1 packet author dir> <archive 666d8897 review-evidence/b2-r1/MANIFEST.json> <PR #620 docs/findings/599_394_E1_LINK_CYCLES.md at 931c3edf>
+# MANIFEST.json sha256 45a986ea6e34f40c7ffb9d83fe710159628055b372b6373e97b5d9f218259b2e, B1 page sha256 3ac7cea8796b94842decf499c1afb7317908e8632026e94ecc72b4d3d0f6f28e
+== saved-state reads (milan_nvm)
+identity gate: 2026-09-29T06:49:58.397376Z
+    slots: A 229 / B 230
+    slot_verdicts: VD_OK / VD_OK
+    authoritative: B
+    image_seq: 230
+    records: 53
+    record_bytes: 3264
+    writer: live
+    pp_nvm_stat: c34000e4
+    nvm_stat_fields: backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK
+    commits: 2 / 0
+    refusals: captures refused=0 acks refused=0
+    last: VD_OK
+    pp_stat: 5b000c44
+    pp_stat_bits: {'alarm': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'img_valid': 1, 'pend': 1, 'verdict': 0, 'tag': 91}
+    pp_nvm_stat_decoded: {'tag': 'c3', 'unres': 0, 'pend': 1, 'commit_busy': 0, 'stale': 0, 'dirty': 0, 'img_valid': 1, 'backed': 1, 'dev_busy': 0}
+final restore: 2026-09-29T07:20:45.540950Z
+    slots: A 229 / B 230
+    slot_verdicts: VD_OK / VD_OK
+    authoritative: B
+    image_seq: 230
+    records: 53
+    record_bytes: 3264
+    writer: live
+    pp_nvm_stat: c34000e4
+    nvm_stat_fields: backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK
+    commits: 2 / 0
+    refusals: captures refused=0 acks refused=0
+    last: VD_OK
+    pp_stat: 5b000c44
+    pp_stat_bits: {'alarm': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'img_valid': 1, 'pend': 1, 'verdict': 0, 'tag': 91}
+    pp_nvm_stat_decoded: {'tag': 'c3', 'unres': 0, 'pend': 1, 'commit_busy': 0, 'stale': 0, 'dirty': 0, 'img_valid': 1, 'backed': 1, 'dev_busy': 0}
+OK   identity-gate and final-restore reads identical in every field except the timestamp 
+
+== every console sample, PP_STAT (milan_status)
+console files 226, milan_status samples 226, first 06:49:34.77Z (identity/console-identity.txt), last 07:20:45.42Z (restore/console-final.txt)
+distinct PP_STAT: {'5b000c44': 226}
+  5b000c44: {'alarm': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'img_valid': 1, 'pend': 1, 'verdict': 0, 'tag': 91}
+samples with each bit set: {'alarm': 0, 'backed': 226, 'dirty': 0, 'stale': 0, 'img_valid': 226, 'pend': 226}
+OK   PP_STAT constant over every console sample
+OK   nvm_dirty, nvm_alarm and nvm_stale read 0 in every sample
+OK   nvm_pend and nvm_backed read 1 in every sample
+OK   verdict nibble 0 (VD_OK) in every sample
+OK   226 console files: identity, final, and before/after of 112 actions
+
+== controller transcripts: state-changing commands and DUT sink polls
+  105 x CONNECT_RX to role=peer listener_uid=8, talker is the DUT: True, talker_uid=1, status=0
+  105 x DISCONNECT_RX to role=peer listener_uid=8, talker is the DUT: False, talker_uid=0, status=0
+  ACMP state-changing commands between 06:56:18.30Z and 07:19:56.56Z
+  AECP commands by role: {('dut (identity reader)', 'READ_DESCRIPTOR'): 2, ('dut', 'GET_AVB_INFO'): 338, ('dut', 'GET_CLOCK_SOURCE'): 2, ('dut', 'GET_CONFIGURATION'): 2, ('dut', 'GET_COUNTERS'): 1356, ('dut', 'GET_SAMPLING_RATE'): 2, ('dut', 'READ_DESCRIPTOR'): 14, ('peer', 'GET_AVB_INFO'): 338, ('peer', 'GET_CLOCK_SOURCE'): 2, ('peer', 'GET_CONFIGURATION'): 2, ('peer', 'GET_COUNTERS'): 1376, ('peer', 'GET_SAMPLING_RATE'): 2, ('peer', 'READ_DESCRIPTOR'): 40}
+  AECP commands other than GET_/READ_: none
+  DUT stream input polls (GET_RX_STATE): {'state-5-1': 338, 'state-5-0': 2}
+  DUT stream input values (what, status, conn_count, talker all-zero, stream all-zero): {('state-5-1', 0, 0, True, True): 338, ('state-5-0', 0, 0, True, True): 2}
+  DUT stream output polls (GET_TX_STATE): {'state-6-0': 2, 'state-6-1': 2}
+OK   210 ACMP state-changing commands (105 CONNECT_RX, 105 DISCONNECT_RX), all to the reference peer's Stream Input 8 and all SUCCESS; every CONNECT_RX response names DUT Stream Output 1 as the talker
+OK   no AECP command other than GET_ and READ_ in any transcript
+  action console samples 224: 06:53:46.58Z (bind/baseline/console-before.txt) to 07:20:32.05Z (bind/final/console-after.txt)
+OK   the two milan_nvm reads (06:49:58.39Z, 07:20:45.54Z) bracket every action console sample and every ACMP command
+OK   every poll of a DUT stream input read connection count 0 with no talker and no stream
+
+== lane B1 final restore (PR #620 page at 931c3edf, Saved-state layer table)
+  NVM slots A / B, image sequence: 229 / 230, image 230
+  Commits ok / failed: 2 / 0
+  `PP_STAT`, `nvm_pend` (bit 11): `0x5b000c44`, 1
+  `PP_NVM_STAT`: `0xc34000e4`, pend 1
+  B2 identity gate, same format: NVM slots A / B, image sequence: 229 / 230, image 230
+  B2 identity gate, same format: Commits ok / failed: 2 / 0
+  B2 identity gate, same format: `PP_STAT`, `nvm_pend` (bit 11): `0x5b000c44`, 1
+  B2 identity gate, same format: `PP_NVM_STAT`: `0xc34000e4`, pend 1
+OK   B2's identity-gate read equals lane B1's final-restore column in all four rows
+
+== inputs against the archive MANIFEST.json (author/ prefix)
+  files read 787: archived bytes identical 338, archived as a redacted copy 449, unmatched 0
+OK   all 226 console files read are byte-identical to the archived copies
+OK   every file read matches its archive original_sha256
+
+FAILURES: 0
+rc=0

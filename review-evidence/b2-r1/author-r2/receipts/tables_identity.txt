@@ -1,0 +1,106 @@
+# python3 -B scripts/tables_identity.py <lane clone> c37f1d04e39be0344dfde77e793cdfa441bd4869 d76763733e088cd21bbdd587927c8cf2f26cc8b3 <round-1 PR body> PR-BODY.md
+# round-1 PR body = live PR #622 body before round 2, sha256 b29ea7c6f4fd8abfcc655212333640e3b13781f6980a135532ae62fc2ce0057f
+== docs/findings/606_FIRST_BIND_MEASUREMENT.md c37f1d04e39be0344dfde77e793cdfa441bd4869 -> d76763733e088cd21bbdd587927c8cf2f26cc8b3
+  base verdict        7 lines sha256 a8e86f5922c79ed002acf8297a78591f1598015d327d18f08a42d983e22483a7  # First talker bind on the 13eda870 image / table 1
+  base measurement    9 lines sha256 7f59b1d3858c28320cd143cd8a83299b6b2ea6061660128d8b6f4280cbfb16a1  ## Identity and setup / table 1
+  base measurement    3 lines sha256 972381c1421e4e640a34ddb3449cf63cb9dac586a884b2d84d1a8cc347ca4d6e  ## Identity and setup / table 2
+  base measurement    7 lines sha256 5ca7cf449a23d143d76b16331fba0047b0e984b802f927c4de9d886157f035a2  ## Per-bind results / table 1
+  base measurement    6 lines sha256 cdae2af4a9450ada828adde91078aa81203d49f10b16fd8072fdb51151475a62  ## Per-bind results / table 2
+  base measurement    7 lines sha256 7514292a05f06d53e256f0296e737439d07280c4daa363e2d0773c616a829781  ## Comparison with the 9e9954e9 first bind / table 1
+  base measurement    6 lines sha256 3bcee03f18476ed5ec5b1df3cfb9e785d774fe3f0cf92534a4f719cc2e515a33  ## Artifact hashes / table 1
+  base measurement   20 lines sha256 ece13a78fd7120bf025efd2083d6c438b744f0903ceb51be963ac46a62e70f76  ## Artifact hashes / table 2
+  base measurement   14 lines sha256 34d98768ed150d5594aeb67bb7e4816d9861a1ecb24549876dfd2f9aadf2f3cb  ## Artifact hashes / table 3
+  head verdict        7 lines sha256 e3c4cc022eb7b9c89dc1beb9d835919deea39da74206884cbc844c927e98ffaf  # First talker bind on the 13eda870 image / table 1
+  head measurement    9 lines sha256 7f59b1d3858c28320cd143cd8a83299b6b2ea6061660128d8b6f4280cbfb16a1  ## Identity and setup / table 1
+  head measurement    3 lines sha256 972381c1421e4e640a34ddb3449cf63cb9dac586a884b2d84d1a8cc347ca4d6e  ## Identity and setup / table 2
+  head measurement    7 lines sha256 5ca7cf449a23d143d76b16331fba0047b0e984b802f927c4de9d886157f035a2  ## Per-bind results / table 1
+  head measurement    6 lines sha256 cdae2af4a9450ada828adde91078aa81203d49f10b16fd8072fdb51151475a62  ## Per-bind results / table 2
+  head measurement    7 lines sha256 7514292a05f06d53e256f0296e737439d07280c4daa363e2d0773c616a829781  ## Comparison with the 9e9954e9 first bind / table 1
+  head measurement    7 lines sha256 d6fa864231864b57105528ad631bcfcf2740e9e31363fc98191430cf92b150cd  ### Saved-state layer / table 1
+  head measurement    6 lines sha256 3bcee03f18476ed5ec5b1df3cfb9e785d774fe3f0cf92534a4f719cc2e515a33  ## Artifact hashes / table 1
+  head measurement   20 lines sha256 ece13a78fd7120bf025efd2083d6c438b744f0903ceb51be963ac46a62e70f76  ## Artifact hashes / table 2
+  head measurement   14 lines sha256 34d98768ed150d5594aeb67bb7e4816d9861a1ecb24549876dfd2f9aadf2f3cb  ## Artifact hashes / table 3
+  measurement tables at base: 8; byte-identical at head: 8
+  diff of measurement tables (empty = byte-identical):
+    <empty>
+  tables only at head: ['### Saved-state layer / table 1']
+  tables only at base: none
+  verdict table diff, # First talker bind on the 13eda870 image / table 1:
+    --- base
+    +++ head
+    @@ -4,4 +4,4 @@
+     | 2. Reproduce and attribute in simulation | Not a bench item | The [A10] analysis and PR #613's first-probe regression. |
+     | 3. First bind on the bench, against 1 s | PASS, 5 of 5 | 0.059-0.229 s from the `CONNECT_RX` response to the first valid CRF PDU. See [Per-bind results](#per-bind-results). |
+     | 3. Long-hold connect on the bench, against 1 s | PASS, 4 of 4 | Binds 2-5 follow 36.9-39.3 s unbound, each after the DUT withdrew its Talker Advertise. |
+    -| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP refresh stays at 1.000 s. A DUT LeaveAll crossed every pre-bind window. |
+    +| 3. Periodic refresh and LeaveAll kept | Observed, not graded | DUT MSRP kept 1.000 s periodic spacing, 0.2 s after a LeaveAll. A DUT LeaveAll crossed every pre-bind window. |
+== docs/findings/608_75_WITHDRAWAL_AND_RESTART.md c37f1d04e39be0344dfde77e793cdfa441bd4869 -> d76763733e088cd21bbdd587927c8cf2f26cc8b3
+  base verdict       11 lines sha256 3b14f4cf71d32499874af3b5eb103d7ed689b6cd782ec7a3102bb76dbb65fb52  # Listener withdrawal and reconnect restart on the 13eda870 image / table 1
+  base measurement    3 lines sha256 972381c1421e4e640a34ddb3449cf63cb9dac586a884b2d84d1a8cc347ca4d6e  ## Identity and setup / table 1
+  base measurement   10 lines sha256 3138914b83bb0906ef9bc16b981e1e0bb604ba1b458cccebaab11d901ae5603f  ## Withdrawal and stop / table 1
+  base measurement    9 lines sha256 47786f31711a737da26ca50c03363f32f8d07cafe210bac2492cba38f68753f6  ## Cycle 22 / table 1
+  base measurement    5 lines sha256 589b32069826f5fb29079eb54460722757e898279c0d6842de7ad4a5bf152e6d  ## Restart distribution and growth / table 1
+  base measurement    3 lines sha256 e568878d3fec8fcc1b1d499f7915a083f0c87ed3256a87de54346678503a6650  ## Restart distribution and growth / table 2
+  base measurement   12 lines sha256 5413834ab1592000032b4a6e0349d4381d0abeeecdf396d3fdb513d17be763e8  ## Restart distribution and growth / table 3
+  base measurement  102 lines sha256 80d88b30bef15074526c619c1451486e606efb9fcd924b7e8ff4737178d74f54  ## Per-cycle results / table 1
+  base measurement    8 lines sha256 fadb9645095d2933911cb7edfed64d7a33109bc7df39588bbfb65b923443f6a2  ## Counters and restore / table 1
+  base measurement  102 lines sha256 43c99acf26ae1135999947ef1d6eb7d575ca22273980a6a17fcaba6ac20b7a8f  ## Artifact hashes / table 1
+  head verdict       11 lines sha256 1a2a32a30b8f2d78b4ab1b803b18c4b5c8cfc5222629a7090bdb5262b9296b8d  # Listener withdrawal and reconnect restart on the 13eda870 image / table 1
+  head measurement    3 lines sha256 972381c1421e4e640a34ddb3449cf63cb9dac586a884b2d84d1a8cc347ca4d6e  ## Identity and setup / table 1
+  head measurement   10 lines sha256 3138914b83bb0906ef9bc16b981e1e0bb604ba1b458cccebaab11d901ae5603f  ## Withdrawal and stop / table 1
+  head measurement    9 lines sha256 47786f31711a737da26ca50c03363f32f8d07cafe210bac2492cba38f68753f6  ## Cycle 22 / table 1
+  head measurement    5 lines sha256 589b32069826f5fb29079eb54460722757e898279c0d6842de7ad4a5bf152e6d  ## Restart distribution and growth / table 1
+  head measurement    3 lines sha256 e568878d3fec8fcc1b1d499f7915a083f0c87ed3256a87de54346678503a6650  ## Restart distribution and growth / table 2
+  head measurement   12 lines sha256 5413834ab1592000032b4a6e0349d4381d0abeeecdf396d3fdb513d17be763e8  ## Restart distribution and growth / table 3
+  head measurement  102 lines sha256 80d88b30bef15074526c619c1451486e606efb9fcd924b7e8ff4737178d74f54  ## Per-cycle results / table 1
+  head measurement    8 lines sha256 fadb9645095d2933911cb7edfed64d7a33109bc7df39588bbfb65b923443f6a2  ## Counters and restore / table 1
+  head measurement    7 lines sha256 d6fa864231864b57105528ad631bcfcf2740e9e31363fc98191430cf92b150cd  ### Saved-state layer / table 1
+  head measurement  102 lines sha256 43c99acf26ae1135999947ef1d6eb7d575ca22273980a6a17fcaba6ac20b7a8f  ## Artifact hashes / table 1
+  measurement tables at base: 9; byte-identical at head: 9
+  diff of measurement tables (empty = byte-identical):
+    <empty>
+  tables only at head: ['### Saved-state layer / table 1']
+  tables only at base: none
+  verdict table diff, # Listener withdrawal and reconnect restart on the 13eda870 image / table 1:
+    --- base
+    +++ head
+    @@ -2,10 +2,10 @@
+     |---|---|---|
+     | #608 item 1: attribute cycles 13, 24 and 75 | Not a bench item | PR #604 round 3 and the [A10] analysis on #608. |
+     | #608 item 2: reproduce in simulation | Not a bench item | PR #613's CRF STREAM_STOP regression. |
+    -| #608 item 3: stop within one PDU of the withdrawal, 100 of 100 | Two readings; see below | Literal text: NOT MET, 99 of 100. Recorded reading, a withdrawal that reaches an IN registrar: PASS, 99 of 99. |
+    +| #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487). Cycle 22's LV registrar is attributed to the processor #108 deviation. Met without qualification only after the pin adoption of processor PR #133 and a bench re-run. |
+     | #608 item 3: STREAM_STOP counts each stop | PASS, 99 of 99 | Every stop counted STREAM_STOP +1; cycle 22 counted +0, matching no stop. |
+     | #608: non-stop holds | 1 of 100 | Cycle 22. Image `9e9954e9` had 3 of 100. See [Cycle 22](#cycle-22). |
+     | #75: first valid AVTP PDU within 1 s of a reconnect | PASS, 99 of 99 demonstrated restarts | Maximum 0.139247 s. See [Restart distribution and growth](#restart-distribution-and-growth). |
+     | #75: restart latency does not grow | PASS | The 95% slope interval includes zero; ten-cycle blocks stay flat. |
+     | #75: firmware, topology, capture and distribution documented | PASS | This page. |
+    -| #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped, so it is not a restart. |
+    +| #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart. The [#608 ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) requires no additional cycle. |
+== PR body, round 1 -> round 2
+  base verdict       10 lines sha256 bf50dfaa68dab742bc75c1c6f1db7bab129da33b1e0bf505d6b1c138426cb719  ## Verdicts (operator measurements; the reviews decide) / table 1
+  base measurement    7 lines sha256 5ca7cf449a23d143d76b16331fba0047b0e984b802f927c4de9d886157f035a2  ## Per-bind table (seconds after the tapped `CONNECT_RX` response) / table 1
+  head verdict       10 lines sha256 e9ea0d69ed6bf4166d670a70e6e55f27af1c30cd0150bf4830ed362b9622abc1  ## Verdicts (operator measurements; the reviews decide) / table 1
+  head measurement    7 lines sha256 5ca7cf449a23d143d76b16331fba0047b0e984b802f927c4de9d886157f035a2  ## Per-bind table (seconds after the tapped `CONNECT_RX` response) / table 1
+  measurement tables at base: 1; byte-identical at head: 1
+  diff of measurement tables (empty = byte-identical):
+    <empty>
+  tables only at head: none
+  tables only at base: none
+  verdict table diff, ## Verdicts (operator measurements; the reviews decide) / table 1:
+    --- base
+    +++ head
+    @@ -2,9 +2,9 @@
+     |---|---|---|
+     | #606 item 3: first bind, 1 s bound | PASS, 5 of 5 | 0.059-0.229 s from the `CONNECT_RX` response to the first valid CRF PDU; first probe SUCCESS every time; the bridge's first MRPDU is Listener Ready, no LeaveAll |
+     | #606 item 3: long-hold connect, 1 s bound | PASS, 4 of 4 | Binds 2-5 after 36.9-39.3 s unbound, each after the DUT withdrew its Talker Advertise |
+    -| #608 item 3: stop within one PDU, 100 of 100 | Literal: NOT MET, 99 of 100. Recorded reading (withdrawal reaching an IN registrar): PASS, 99 of 99 | Cycle 22: the DUT's own MSRP LeaveAll crossed the tap 1.390 ms before the bridge's Listener `Lv`; the registrar was LV and the stream ran through the 2 s hold (1,005 PDUs) |
+    +| #608 item 3: stop within one PDU of the withdrawal | 99 of 99 withdrawals that reached an IN registrar stopped; qualified | Graded under the [corrected ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5886425487): cycle 22's LV registrar is attributed to the processor #108 deviation; met without qualification only after the pin adoption of processor PR #133 and a bench re-run |
+     | #608 item 3: STREAM_STOP counts each stop | PASS, 99 of 99 | +1 START and +1 STOP per stop; cycle 22 +0 / +0 |
+     | #608: non-stop holds | 1 of 100 | 3 of 100 on image `9e9954e9` |
+     | #75: first valid AVTP PDU within 1 s of a reconnect | PASS, 99 of 99 demonstrated restarts | 0.011239-0.139247 s, median 0.013195 s, p95 0.081912 s |
+     | #75: restart latency does not grow | PASS | Slope -0.000083 s/cycle, 95% interval [-0.000235, +0.000069]; first-ten and last-ten medians 0.013168 and 0.013255 s |
+    -| #75: at least 100 physical restarts, DUT talker | NOT MET, 99 of 100 | Cycle 22 never stopped |
+    +| #75: at least 100 physical cycles resume within 1 s, DUT talker | Met under the ruling: 100 cycles, 99 of 99 demonstrated restarts | Cycle 22 never stopped, so it is not a restart; the [#608 ruling](https://github.com/kebag-logic/milan-fpga/issues/608#issuecomment-5885808887) requires no additional cycle |
+RESULT PASS: every measurement table is byte-identical
+rc=0
