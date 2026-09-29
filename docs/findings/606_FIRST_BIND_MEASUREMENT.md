@@ -274,7 +274,9 @@ They are indexed by sink, the DUT's stream inputs ([record allocation](../design
 
 No record holds a stream output's connections.
 
-No command in the lane addressed a DUT stream input: every state-changing command went to the reference peer, and every AECP command was a GET_ or READ_.
+No state-changing command addressed a DUT stream input: the 210 `CONNECT_RX` and `DISCONNECT_RX` went to the reference peer, and every AECP command was a GET_ or READ_.
+
+The commands that did address the DUT's stream inputs were reads, which write no record: 228 GET_RX_STATE (the polls above), 228 GET_COUNTERS and 4 READ_DESCRIPTOR.
 
 The commit count stayed 2 / 0 and the slots stayed 229 / 230.
 
