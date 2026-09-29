@@ -6,7 +6,8 @@
 > **Status: ACCEPTED contract; stage 1 implemented.** The D3 writer and the
 > scalar records are in the processor at pin `d352bbaa`
 > ([processor PR #132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132),
-> lane 1), and #70 lane 2 adopts that pin with the parent glue of section 5.2.
+> lane 1), and #70 lane 2 adopts them at processor pin `b2db3a97`, which adds
+> processor PR #133, with the parent glue of section 5.2.
 > The firmware's AEM-first boot order (section 5.3, change 1) is adopted
 > with it: `milan_init()` loads and CRC-checks the image before `nvm_boot()`.
 > User names and channel maps (stages 2 and 3) are not implemented.

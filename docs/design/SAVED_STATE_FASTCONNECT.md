@@ -131,8 +131,8 @@ Implementation and historical evidence remain explicitly distinguished below.
 **Reconciliation pin.** Parent `c0723222` pins processor
 `16be6768f710e79450aace277abacd6c2c3336e5`, matching D3's reconciliation baseline.
 Processor PR #109 supplies S1/S3/S4; #110 supplies S2.
-At that pin manager 1 was idle. #70 lane 2 adopts processor `d352bbaa`, where
-manager 1 is the D3 writer, and the firmware loads the AEM image before the
+At that pin manager 1 was idle. #70 lane 2 adopts processor `b2db3a97`, which
+carries PR #132's `d352bbaa`, where manager 1 is the D3 writer, and the firmware loads the AEM image before the
 walk (D3 section 5.3).
 
 **Historical completion repair.** Root issue #424 adopted

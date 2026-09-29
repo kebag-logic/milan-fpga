@@ -8,7 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Unreleased - processor pin d352bbaa](#unreleased---processor-pin-d352bbaa)** -- Scalar settings persist.
+- **[Unreleased - processor pin b2db3a97](#unreleased---processor-pin-b2db3a97)** -- Scalar settings persist.
 - **[Unreleased - frame-atomic TDM capture](#unreleased---frame-atomic-tdm-capture)** -- One TDM frame per AAF column.
 - **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
 - **[Unreleased - pending follows live writes](#unreleased---pending-follows-live-writes)** -- Pending follows accepted writes.
@@ -35,9 +35,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
 
-## Unreleased - processor pin d352bbaa
+## Unreleased - processor pin b2db3a97
 
-- Issue #70 lane 2 adopts processor `d352bbaa` (processor PR #132).
+- Issue #70 lane 2 adopts processor `b2db3a97`.
+- That pin carries processor PRs #132 and #133.
 - The processor's D3 writer writes and restores the scalar records.
 - They are configuration, sampling rates and clock sources.
 - Both stream formats and the presentation offsets are included.
@@ -62,6 +63,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The AEM image loads and CRC-checks before `nvm_boot()`.
 - Gate 1b keeps the pinned verdict across that call.
 - Every harness that sends AECP starts the walk first.
+- A received LeaveAll restarts the leavealltimer and goes Passive.
+- The talker licence waits for the stream VID's MVRP join.
+- The crflic `[C]` phase grades that restart and holds three exchanges.
 - VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - frame-atomic TDM capture
