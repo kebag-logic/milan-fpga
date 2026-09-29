@@ -1,0 +1,15 @@
+## milan_dp_gptp at 9dce84e, scratch parent at dev eaa88a32 with parent_edits.py: its two steps
+### make -C tb/verilator/milan_dp ax1x1gptp
+rc 0 seconds 3277.1 log bytes 102799 log sha256 745fd27d71b2f3eb622f01f3e6c5080d5085fc64a2682c1154c7141aba5f2b23
+/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp 
+  [ ok ] [BOOT] PP_STAT[2] the restore walk sequenced got=1 exp=1
+  [ ok ] [BOOT] PP_STAT[2] the restore walk sequenced got=1 exp=1
+simulated_duration_seconds=16.992510280 cycles=849625514
+exit_status=0 negative_control=0
+== ax1x1gptp physical: checks: 139   failures: 0 ==
+wall_clock_seconds=3251.88 process_exit_status=0
+### python3 verify_abort.py (tb/verilator/milan_dp_gptp)
+rc 0 seconds 556.4 log sha256 482db6fd93bc4344b54b82ae4b4f610cbbb6a451a2c763583be5fb5832e61d35
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==

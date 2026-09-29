@@ -1,0 +1,14 @@
+## R391-4 parent_scratch.sh <parent> eaa88a32 <processor> 9dce84e <scratch> <V> a435edits <packet>/parent_edits.py dp notify
+parent_edits.py sha256 80d2c3969b114e7509199b493f8bd937d4348a8a39a6526e1fbb433971579635
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is held, not answered = 0x1
+  [ok]   [BOOT] PP_STAT[2] the restore walk sequenced   = 0x1
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [BOOT] PP_STAT[2] the restore walk sequenced   = 0x1
+checks: 378   failures: 0
+RESULT: PASS

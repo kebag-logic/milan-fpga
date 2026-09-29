@@ -1,0 +1,21 @@
+## DR4 same-session OOC synthesis, Vivado 2026.1, syn/ooc/protocol_processor_ooc.tcl (head's), part xc7a100tfgg484-2, -tclargs <src> 1 1 (the shipping 1x1 shape), 8 threads
+### base (c951a9ff)
+| Slice LUTs*                | 21675 |     0 |          0 |     63400 | 34.19 |
+| Slice Registers            | 23710 |     0 |          0 |    126800 | 18.70 |
+| Block RAM Tile    | 16.5 |     0 |          0 |       135 | 12.22 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+|   u_aecp                   |                      KL_aecp_engine |       4924 |       4704 |     220 |    0 |  2856 |      6 |      0 |          1 |
+|   u_nvm_shadow             |                  KL_acmp_nvm_shadow |        638 |        638 |       0 |    0 |  1221 |      0 |      0 |          0 |
+WNS(ns) -5.970
+util.rpt sha256 fc211f23e9b4f2c24f352c4ec9134dfc4bf741939800c7263a460b9fd3ce09e5
+### head (9dce84e)
+| Slice LUTs*                | 22706 |     0 |          0 |     63400 | 35.81 |
+| Slice Registers            | 24269 |     0 |          0 |    126800 | 19.14 |
+| Block RAM Tile    | 16.5 |     0 |          0 |       135 | 12.22 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+|   u_aecp                   |                      KL_aecp_engine |       5783 |       5563 |     220 |    0 |  3336 |      6 |      0 |          1 |
+|     u_d3                   |                  KL_aecp_nvm_writer |        790 |        790 |       0 |    0 |   479 |      0 |      0 |          0 |
+|   u_nvm_shadow             |                  KL_acmp_nvm_shadow |        689 |        689 |       0 |    0 |  1268 |      0 |      0 |          0 |
+WNS(ns) -5.165
+util.rpt sha256 220cf0de752db57b3863caf3790810be42ef101478b6e73b8ee976bf75df961b
+### lane 1 (head - base): +1,031 LUT / +559 FF / 0 BRAM / 0 DSP

@@ -1,0 +1,2 @@
+359 checks: 359 PASS, 0 FAIL
+ARBMON TOP.acmp_nvm_wrap.u_arb: iss0 5504 iss1 207 | issue-cycle arms: m0 READ+abort 0, m1 READ+abort 2 | abort with a WRITE strobe: m0 0 m1 1 | cross: m0 strobe + m1 abort 8, m1 grant + m0 abort 0 | abort with nothing owned or strobed: m0 0 m1 8 | abort while a WRITE is owned 45 | owned-READ aborts: m0 6 m1 0

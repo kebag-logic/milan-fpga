@@ -1,0 +1,33 @@
+## make -C tb/verilator/milan_dp ax1x1gptp, scratch parents at dev eaa88a32, processor gitlink 84572585, pinned Verilator 5.050
+## (a) every declared edit applied (parent_edits.py); (b) control: the same edits except sim_ax1x1gptp.cpp
+### gptp-edits-ax1x1gptp
+make rc 0 seconds (build and run) 3246.9 log bytes 102775 log sha256 5151767ec3b2f3f7599ebf0e0e060ad1358a0175935a6d1cc1d3d3c5dadd1af6
+/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp 
+  [ ok ] [BOOT] PP_STAT[2] the restore walk sequenced got=1 exp=1
+  [ ok ] [BOOT] PP_STAT[2] the restore walk sequenced got=1 exp=1
+simulated_duration_seconds=16.992510280 cycles=849625514
+exit_status=0 negative_control=0
+== ax1x1gptp physical: checks: 139   failures: 0 ==
+wall_clock_seconds=3226.16 process_exit_status=0
+### gptp-ctl-ax1x1gptp
+make rc 2 seconds (build and run) 3253.6 log bytes 102823 log sha256 c44f82471fe775e7ac29ae4a356ba327149920edc420a6d6793a0993f51ec662
+/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp 
+  [FAIL] pre-acquisition GET_AVB_INFO length      got=0 exp=62
+  [FAIL] pre-acquisition GET_AVB_INFO SUCCESS     got=255 exp=0
+  [FAIL] pre-acquisition GET_AVB_INFO has no selected GM got=0xffffffffffffffff exp=0x0
+  [FAIL] GET_AVB_INFO length                      got=0 exp=62
+  [FAIL] GET_AVB_INFO status SUCCESS              got=255 exp=0
+  [FAIL] GET_AVB_INFO coherent GM                 got=0xffffffffffffffff exp=0xaaccfffe010203
+  [FAIL] GET_AVB_INFO delay equals CSR bank       got=18446744073709551615 exp=313
+  [FAIL] GET_AVB_INFO asCapable agrees with CSR
+  [FAIL] GET_AS_PATH Ethernet minimum length      got=0 exp=60
+  [FAIL] GET_AS_PATH status SUCCESS               got=255 exp=0
+  [FAIL] GET_AS_PATH control data length excludes padding got=2047 exp=32
+  [FAIL] GET_AS_PATH padding bytes are zero       got=18446744073709551615 exp=0
+  [FAIL] GET_AS_PATH two ordered identities       got=18446744073709551615 exp=2
+  [FAIL] GET_AS_PATH GM                           got=0xffffffffffffffff exp=0xaaccfffe010203
+  [FAIL] GET_AS_PATH parent                       got=0xffffffffffffffff exp=0x80e1fffe112233
+simulated_duration_seconds=16.992345440 cycles=849617272
+exit_status=1 negative_control=0
+== ax1x1gptp physical: checks: 137   failures: 15 ==
+wall_clock_seconds=3232.17 process_exit_status=1
