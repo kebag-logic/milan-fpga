@@ -1,0 +1,12 @@
+milan-fpga@57b8c867 tb/verilator/milan_dp/README.md blob 3f05559f593d2f3b0aad632590ed257616714b6c
+  443: | `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+  528: LeaveAll period is not modelled. This station's leavealltimer does not
+  529: restart on a received LeaveAll (processor issue 108), and nothing here
+  530: measures that. The silicon rerun of #530 is the acceptance.
+milan-fpga@9e3ccbfb9c22d24db48787cbcfd574974edb5e42 tb/verilator/milan_dp/README.md blob 3f05559f593d2f3b0aad632590ed257616714b6c
+  443: | `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+  528: LeaveAll period is not modelled. This station's leavealltimer does not
+  529: restart on a received LeaveAll (processor issue 108), and nothing here
+  530: measures that. The silicon rerun of #530 is the acceptance.
+milan-fpga@57b8c867 and @9e3ccbfb tb/verilator/milan_dp/sim_crf_licence.cpp blob 6f9d17b1 (both refs), lines 953/956 assert '>= 4' DUT/switch LeaveAll MRPDUs
+milan-fpga@9e3ccbfb protocol-processor gitlink: c951a9ff0cb5851fb159d33e966e5a2a9a188fe3 (source base)

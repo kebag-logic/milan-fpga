@@ -1,0 +1,8 @@
+control srp_top peer: rc=0 PASS
+control srp_top restart: rc=0 PASS
+stale-expiry-honoured: rc=2 failures=7 KILLED tags=M10
+mvrp-stale-expiry-honoured: rc=2 failures=7 KILLED tags=P6
+r-rearm-no-inflight: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-inflight: rc=2 failures=6 KILLED tags=P6
+r-flag-ignores-edge-peer: rc=2 failures=1 KILLED tags=P7
+7 checks: 7 PASS, 0 FAIL

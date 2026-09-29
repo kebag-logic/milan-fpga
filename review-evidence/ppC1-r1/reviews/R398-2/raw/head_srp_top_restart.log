@@ -1,0 +1,26 @@
+RESTART msrp peers=20 own_after_last_ms=11092
+RESTART lane=0 peer_ms=5564 deadline_ms=18792 own_ms=18801
+RESTART lane=1 peer_ms=5564 deadline_ms=19582 own_ms=19610
+RESTART lane=2 peer_ms=5564 deadline_ms=19582 own_ms=19610
+RESTART lane=3 peer_ms=5564 deadline_ms=19582 own_ms=19611
+RESTART lane=4 peer_ms=5564 deadline_ms=19582 own_ms=19611
+RESTART mvrp_peer_minus_expiry=-12 actions=0
+RESTART mvrp_peer_minus_expiry=-11 actions=0
+RESTART mvrp_peer_minus_expiry=-10 actions=0
+RESTART mvrp_peer_minus_expiry=-9 actions=0
+RESTART mvrp_peer_minus_expiry=-8 actions=0
+RESTART mvrp_peer_minus_expiry=-7 actions=0
+RESTART mvrp_peer_minus_expiry=-6 actions=0
+RESTART mvrp_peer_minus_expiry=-5 actions=0
+RESTART mvrp_peer_minus_expiry=-4 actions=0
+RESTART mvrp_peer_minus_expiry=-3 actions=0
+RESTART mvrp_peer_minus_expiry=-2 actions=0
+RESTART mvrp_peer_minus_expiry=-1 actions=0
+RESTART mvrp_peer_minus_expiry=0 actions=0
+RESTART mvrp_peer_minus_expiry=1 actions=0
+RESTART mvrp_peer_minus_flag_tick=-1 actions=0
+RESTART mvrp_peer_minus_flag_tick=0 actions=0
+RESTART mvrp_peer_minus_flag_tick=1 actions=1
+49 checks: 49 PASS, 0 FAIL
+restart wall=14.75 s
+restart rc=0

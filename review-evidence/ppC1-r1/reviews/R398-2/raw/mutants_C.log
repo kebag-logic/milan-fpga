@@ -1,0 +1,6 @@
+control srp_top restart: rc=0 PASS
+control srp_top timers: rc=0 PASS
+expiry-only-redraw: rc=2 failures=15 KILLED tags=P1,P3
+mvrp-expiry-only-redraw: rc=2 failures=17 KILLED tags=P2,P3,P6
+draw-kind-0: rc=2 failures=6 KILLED tags=Q1,Q2,Q3,Q4
+5 checks: 5 PASS, 0 FAIL

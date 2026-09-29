@@ -1,0 +1,6 @@
+control srp_top armdelay: rc=0 PASS
+control srp_top peer: rc=0 PASS
+rearm-at-issue: rc=2 failures=8 KILLED tags=P8
+r-rearm-no-deadline: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-deadline: rc=2 failures=8 KILLED tags=P8
+5 checks: 5 PASS, 0 FAIL
