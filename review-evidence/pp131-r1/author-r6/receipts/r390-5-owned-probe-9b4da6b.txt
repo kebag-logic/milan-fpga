@@ -1,0 +1,7 @@
+R390-5 scripts/r5_owned_cross_probe.py --tree <clone at 9b4da6b> (pinned Verilator 5.050)
+{"run": "probe-head", "verdict": "SURVIVED", "run_rc": 0, "completed": true, "missing": [], "failing": []}
+{"run": "probe+r5_owned_cross_m0_only", "verdict": "KILLED", "run_rc": 2, "completed": true, "missing": [], "failing": ["R5P manager 1's abort held through each of the walk's READs: abort present in 3251 owned cycles over 1 READs, none drained (from 424095), the walk completes as saved: the walk is not done, or failed; ", "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue c"]}
+{"run": "tree-harness+r5_owned_cross_m0_only", "verdict": "SURVIVED", "run_rc": 2, "completed": true, "missing": ["__any__"], "failing": ["N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue c"]}
+probe-head.log: 361 checks: 361 PASS, 0 FAIL
+probe+r5_owned_cross_m0_only.log: 361 checks: 359 PASS, 2 FAIL
+tree-harness+r5_owned_cross_m0_only.log: 360 checks: 359 PASS, 1 FAIL

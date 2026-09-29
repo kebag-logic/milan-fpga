@@ -1,0 +1,36 @@
+R390-4's arbiter unit probe (R390-5 packet scripts/arb_unit) against each of R391-5's r391_5_mutants.py arbiter edits, at 9b4da6b (scratch driver run_unit_r391_5.py; the arbiter is unchanged since 014e679)
+== head: 9 checks: 9 PASS, 0 FAIL | rc=0
+== issue_arm_m1_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: A m0 READ strobe + m0 abort in the issue cycle: issued 1, drain from issue+-1, 0 drain cycles, m0 took 0 bytes 0 dones, port ended 0, idle after 0
+== issue_arm_m0_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: C m1 READ grant + m1 abort in the issue cycle: drain from issue+-1, 0 drain cycles, m1 took 0 bytes 0 dones, idle after 0
+== issue_arm_stale_we: 9 checks: 7 PASS, 2 FAIL | rc=1
+   FAIL: B m0 WRITE strobe + m0 abort: issued we 1, 6 drain cycles, m0 wready 0, m0 done 0
+   FAIL: D m1 WRITE grant + m1 abort: 6 drain cycles, m1 wready 0, m1 done 0
+== issue_arm_cross_intent: 9 checks: 6 PASS, 3 FAIL | rc=1
+   FAIL: E m0 READ strobe + m1 abort only: 6 drain cycles, m0 took 0 bytes 0 dones
+   FAIL: F m1 READ grant + m0 abort only: 6 drain cycles, m1 took 0 bytes 0 dones
+   FAIL: G tie, m0 READ strobe, m1 READ req + m1 abort: 2 issued, 6 drain cycles, m0 0 bytes 0 dones, m1 5 bytes 1 dones
+== issue_arm_write_too: 9 checks: 7 PASS, 2 FAIL | rc=1
+   FAIL: B m0 WRITE strobe + m0 abort: issued we 1, 6 drain cycles, m0 wready 0, m0 done 0
+   FAIL: D m1 WRITE grant + m1 abort: 6 drain cycles, m1 wready 0, m1 done 0
+== issue_arm_one_clock_late: 9 checks: 7 PASS, 2 FAIL | rc=1
+   FAIL: A m0 READ strobe + m0 abort in the issue cycle: issued 1, drain from issue+2, 6 drain cycles, m0 took 0 bytes 0 dones, port ended 1, idle after 1
+   FAIL: C m1 READ grant + m1 abort in the issue cycle: drain from issue+2, 6 drain cycles, m1 took 0 bytes 0 dones, idle after 1
+== cross_iss_m1_drains_m0: 9 checks: 7 PASS, 2 FAIL | rc=1
+   FAIL: E m0 READ strobe + m1 abort only: 6 drain cycles, m0 took 0 bytes 0 dones
+   FAIL: G tie, m0 READ strobe, m1 READ req + m1 abort: 2 issued, 6 drain cycles, m0 0 bytes 0 dones, m1 5 bytes 1 dones
+== cross_iss_m0_drains_m1: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: F m1 READ grant + m0 abort only: 6 drain cycles, m1 took 0 bytes 0 dones
+== cross_own_m1_drains_m0: 9 checks: 9 PASS, 0 FAIL | rc=0
+== cross_own_m0_drains_m1: 9 checks: 9 PASS, 0 FAIL | rc=0
+== write_iss_m0_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: B m0 WRITE strobe + m0 abort: issued we 1, 6 drain cycles, m0 wready 0, m0 done 0
+== write_iss_m1_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: D m1 WRITE grant + m1 abort: 6 drain cycles, m1 wready 0, m1 done 0
+== write_own_m0_only: 9 checks: 9 PASS, 0 FAIL | rc=0
+== write_own_m1_only: 9 checks: 9 PASS, 0 FAIL | rc=0
+== stale_we_m0_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: B m0 WRITE strobe + m0 abort: issued we 1, 6 drain cycles, m0 wready 0, m0 done 0
+== stale_we_m1_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: D m1 WRITE grant + m1 abort: 6 drain cycles, m1 wready 0, m1 done 0
