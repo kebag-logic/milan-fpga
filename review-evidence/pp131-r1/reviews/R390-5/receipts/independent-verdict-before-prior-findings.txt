@@ -1,0 +1,8 @@
+Written 2026-09-29T06:22:34Z before reading any prior public review finding text for this round.
+Verdict (independent pass): NEGATIVE - exact head 9dce84ea60857de74457f74b5bf08d89bd3ba408
+F1 MINOR (Tests, Docs): the owned half of D3 6.4's owner-matched drain (manager 1's abort while
+  manager 0 owns its READ) is ungraded although tb/acmp_nvm's synthetic manager 1 can present it;
+  r5_owned_cross_m0_only passes acmp_nvm 359/359 and pp_top 7888/7888; a 20-line reviewer check
+  (R5P) passes at head 360/360 and kills it. 09_verification.md:192 and README N11b claim the rule;
+  the author's limit names only the by-construction grant case.
+Ledger: Conformance CLEAN; RTL CLEAN (no hdl change); Robustness CLEAN; Tests UNCLEAN (F1); Docs UNCLEAN (F1).

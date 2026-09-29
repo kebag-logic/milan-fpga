@@ -1,0 +1,21 @@
+parent edits applied, B1-B4 window 2000 ms
+pp_shadow harness edits applied
+milan_dp harness edits applied
+rc=0
+ hdl/milan/KL_pp_shadow.sv                        | 15 +++++++++-
+ scripts/measure_test_evidence.py                 |  4 +++
+ tb/verilator/milan_dp/sim_aclk.cpp               | 11 ++++++--
+ tb/verilator/milan_dp/sim_ax1x1gptp.cpp          | 10 +++++++
+ tb/verilator/milan_dp/sim_gmstep.cpp             |  3 ++
+ tb/verilator/milan_dp/sim_gptp.cpp               |  3 ++
+ tb/verilator/milan_dp/sim_main.cpp               | 11 ++++++--
+ tb/verilator/milan_dp/sim_nxn.cpp                | 35 +++++++++++++++++++++---
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp |  3 ++
+ tb/verilator/nvm_cosim/cosim_cases.cpp           |  2 +-
+ tb/verilator/nvm_cosim/cosim_top.sv              |  9 ++++--
+ tb/verilator/pp_shadow/sim_main.cpp              | 13 ++++++++-
+ 12 files changed, 106 insertions(+), 13 deletions(-)
+changed lines identical to the author's published diff
+80d2c3969b114e7509199b493f8bd937d4348a8a39a6526e1fbb433971579635  scratch/author-r5/parent_edits.py
+d3413c3067b642e0ce2682b8b0680e7ac5d0480e19f85d7f0b83dd330f0bbade  scratch/author-r5/parent-edits.diff
+efceba1696063162964f61aecf4912685cba2fdda240c1c728a9b6e002c992ee  scratch/parent-edits-13eda870.diff

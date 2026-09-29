@@ -1,0 +1,71 @@
+# Parent facts at dev 13eda870d1a6cf3f946fc228a98862366b08d102 (public clone, read-only use; first parent eaa88a32eb77adeba9c1c631198c7fb516a11095)
+
+## milan_dp harness survey: AECP mentions / PP_CTRL writes / restore-walk helpers (unedited dev)
+tb/verilator/milan_dp/sim_aclk.cpp            aecp=5    ppctrl=3   restore=2
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp       aecp=16   ppctrl=0   restore=0
+tb/verilator/milan_dp/sim_crf_licence.cpp     aecp=0    ppctrl=2   restore=0
+tb/verilator/milan_dp/sim_gmstep.cpp          aecp=10   ppctrl=0   restore=0
+tb/verilator/milan_dp/sim_gptp.cpp            aecp=68   ppctrl=0   restore=0
+tb/verilator/milan_dp/sim_main.cpp            aecp=8    ppctrl=4   restore=2
+tb/verilator/milan_dp/sim_nxn.cpp             aecp=412  ppctrl=6   restore=3
+tb/verilator/milan_dp/sim_prune.cpp           aecp=0    ppctrl=0   restore=0
+
+## #609 (eaa88a32..13eda870) paths touching processor-consuming benches or HDL
+ tb/verilator/nvm_cosim/cosim_host.c | 6 ++++++
+ tb/verilator/nvm_cosim/run_cases.py | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+## milan_dp_gptp/Makefile
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+
+# Separate driver deadline for the real-cadence gPTP integration. The shared
+# recipe owns the generated image, elaboration parameters and build directory.
+# The default sweep excludes this directory; --physical-gptp selects it once.
+.PHONY: all extended
+all:
+	$(MAKE) -C ../milan_dp ax1x1gptp
+	python3 verify_abort.py
+
+extended:
+	$(MAKE) -C ../milan_dp ax1x1gptp-extended
+
+## rtl.yml physical selection
+309:  physical-gptp:
+332:          mkdir -p "$RUNNER_TEMP/physical-gptp-logs"
+333:          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA"
+365:          selected="$(scripts/run_all_suites.sh --physical-gptp --list)"
+366:          test "$selected" = milan_dp_gptp
+372:            scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" --physical-gptp
+373:          python3 scripts/suite_tally.py "$RUNNER_TEMP/physical-gptp-logs" --quiet \
+374:            --expect-suite-root tb/verilator --physical-gptp
+375:          mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"
+377:            "$RUNNER_TEMP/physical-gptp-logs/controls/"
+382:          name: physical-gptp-logs
+383:          path: ${{ runner.temp }}/physical-gptp-logs
+
+## firmware nvm_boot persistence-disabled path
+1446:		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
+1447-		return;
+1448-	}
+
+## sim_nxn.cpp call order and arms
+           kNstreamsTb);
+    bring_the_datapath_out_of_reset();
+    prove_the_identity_and_provision_the_entity_id();
+    start_the_boot_restore_walk();
+    prove_read_descriptor_degrades_with_no_descriptor_memory();
+    prove_a_wedged_response_memory_reports_and_heals();
+    if (prove_the_shipped_descriptor_image_enumerates()) return fails ? 1 : 0;
+2359:    void prove_read_descriptor_degrades_with_no_descriptor_memory() {
+2398:    void prove_a_wedged_response_memory_reports_and_heals() {
+2466:        #ifdef NOTIFY_TIMED_TB
+[AECP-WTMO] ck lines: 6
+[AECP] degrade ck lines: 5
+
+## fw_service_budget default suite target
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+.PHONY: all
+all:
+	python3 -B run.py --self-test

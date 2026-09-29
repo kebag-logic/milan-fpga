@@ -1,0 +1,344 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "no_backoff_d3",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 timing: each retry granted after the derived 500001-cycle backoff and one relatch (15, 15)",
+   "D3S10 backoff: 6 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 0 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dyn_not_rolled_back",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R4: the record whole in pass 0 and unframed in pass 1 aborts, cause 5, rolled back 1: every row at its default after the applied configuration",
+   "D3R4b: a record blank in pass 0 and whole in pass 1 aborts, cause 5, rolled back 1, the offset not applied (valid 0x00)",
+   "D3R5b: pass 1's silent READ aborts at the deadline: DEFAULTS, cause 3, rolled back 1",
+   "D3R8b: a silent judge ends DEFAULTS at 21577, the release at 122, cause 3, rolled back 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rollback_ignores_debt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R10 16000"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R10 5000: done 6537 closed -1 cause 6 rolled back 1; the stores in reset from 5077 to 5079, the debt owed 2 cycles of it, fell at 5998",
+   "D3R10 16000: done -1 closed 13277 cause 6 rolled back 0; the stores in reset from 5077 to 5079, the debt owed 2 cycles of it, fell at -1",
+   "D3R15 debt wait: the pass-1 fault's READ (region 0x02 offset 8) granted on its steered cycle 1; at the bound the roll-back was under way (strobe 0, debt 1, image valid 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "closed_releases_the_entity",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R12"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R12: the re-walk cannot prove the image: CLOSED -1, cause 2, the entity held",
+   "D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 0 closed 0 cause 2), 0 roll-back strobe cycles after the terminal, the rows kept"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_rollback",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R4: the record whole in pass 0 and unframed in pass 1 aborts, cause 5, rolled back 0: every row at its default after the applied configuration",
+   "D3R4 strobe: with no debt owed the roll-back holds both stores in reset 0 cycles, at least two",
+   "D3R4b: a record blank in pass 0 and whole in pass 1 aborts, cause 5, rolled back 0, the offset not applied (valid 0x00)",
+   "D3R5b: pass 1's silent READ aborts at the deadline: DEFAULTS, cause 3, rolled back 0",
+   "D3R7: the rule's descriptor fetch errs: cause 6, refused 0, rolled back 0",
+   "D3R8b: a silent judge ends DEFAULTS at 21034, the release at 122, cause 3, rolled back 0",
+   "D3R10 5000: done 5076 closed -1 cause 6 rolled back 0; the stores in reset from -1 to -1, the debt owed 0 cycles of it, fell at -1",
+   "D3R10 16000: done 5076 closed -1 cause 6 rolled back 0; the stores in reset from -1 to -1, the debt owed 0 cycles of it, fell at -1",
+   "D3R10 30000: done 5076 closed -1 cause 6 rolled back 0; the stores in reset from -1 to -1, the debt owed 0 cycles of it, fell at -1",
+   "D3R11: rolled back (cause 2), sink 0 still bound to its restored talker, 0 rewrites of its record",
+   "D3R12: the re-walk cannot prove the image: CLOSED -1, cause 2, the entity held",
+   "D3R13 pass 1: rolled back to DEFAULTS at clock 1000001, the bound 1000001, cause 3, rolled back 0",
+   "D3R15 debt wait: the pass-1 fault's READ (region 0x02 offset 8) granted on its steered cycle 1; at the bound the roll-back was under way (strobe 0, debt 0, image valid 1)",
+   "D3R15 debt wait: CLOSED -1 clocks after the bound's own (want 0), cause 6, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0",
+   "D3R15 re-LOCATE: the pass-1 fault's READ (region 0x02 offset 0) granted on its steered cycle 1; at the bound the roll-back was under way (strobe 0, debt 0, image valid 1)",
+   "D3R15 re-LOCATE: CLOSED -1 clocks after the bound's own (want 0), cause 2, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0",
+   "D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 0 closed 0 cause 2), 0 roll-back strobe cycles after the terminal, the rows kept"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "store_not_rolled_back",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R10 5000"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R10 5000: done -1 closed 6003 cause 6 rolled back 0; the stores in reset from 5077 to 5999, the debt owed 921 cycles of it, fell at 5998",
+   "D3R10 16000: done -1 closed 17003 cause 6 rolled back 0; the stores in reset from 5077 to 16999, the debt owed 11921 cycles of it, fell at 16998",
+   "D3R15 re-LOCATE: the pass-1 fault's READ (region 0x02 offset 0) granted on its steered cycle 1; at the bound the roll-back was under way (strobe 0, debt 0, image valid 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "alarm_forgiven_by_success",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 revocation"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 revocation: a later successful write leaves the alarm set"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fourth_attempt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 count: 4 failed attempts of 0x50 (4 grants), alarm 1, unflushed 0",
+   "D3S10 count: no fourth attempt (4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "backoff_derivation",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 timing: each retry granted after the derived 500001-cycle backoff and one relatch (5014, 5014)",
+   "D3S10 backoff: 6 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 2364 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "disagree_one_direction",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4b"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R4b: a record blank in pass 0 and whole in pass 1 aborts, cause 0, rolled back 0, the offset not applied (valid 0x01)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "pass1_read_not_drained",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R5b: once the device ends the drained pass-1 READ"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R5b: once the device ends the drained pass-1 READ a later SET persists (0 WRITEs, unflushed 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "backoff_holds_dispatch",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 backoff"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 backoff: 999936 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 501303 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rate_walk_stuck_on_first_lane",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R3b entry 7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R3b entry 7 of 10 (24000 Hz): applied 0 refused 1, rate 0 valid 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rollback_one_cycle",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4 strobe"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R4 strobe: with no debt owed the roll-back holds both stores in reset 1 cycles, at least two"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "judge_wait_unwatched",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R8b"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R8b: a silent judge ends DEFAULTS at -1, the release at 122, cause 0, rolled back 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rate_walk_unbounded",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R3b entry 8"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R3b entry 8 of 10 (16000 Hz): applied 1 refused 0, rate 16000 valid 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_aggregate_deadline",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R13 pass 0: DEFAULTS at clock",
+   "D3R13 pass 1"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R13 pass 0: DEFAULTS at clock 0 of the aggregate 1000001, cause 0, rolled back 0, applied 0, the longest wait 19812 of 20001",
+   "D3R13 pass 0: the READ in hand at the bound was drained, and once the device ends it a later SET persists",
+   "D3R13 pass 1: rolled back to DEFAULTS at clock 0, the bound 1000001, cause 0, rolled back 0",
+   "D3R14 image valid: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs",
+   "D3R14 image valid: DEFAULTS by clock 0, the D3 walk's longest wait 0 (no record READ requested), cause 0, rolled back 0, image valid 1, AECP owned 1, ADP enabled 0 (0 early enable cycles)",
+   "D3R14 image valid: AECP answers a READ_DESCRIPTOR byte-exact, and once the device ends the drained binding READ a later SET persists (1 WRITEs)",
+   "D3R14 image refused: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs",
+   "D3R14 image refused: CLOSED by clock 0, cause 0, AECP owned 1, ADP enabled 0",
+   "D3R15 debt wait: CLOSED -1 clocks after the bound's own (want 0), cause 6, D3 done 6582 clocks after the bound, rolled back 1, AECP owned 0",
+   "D3R15 re-LOCATE: CLOSED -1 clocks after the bound's own (want 0), cause 2, D3 done 446 clocks after the bound, rolled back 1, AECP owned 0",
+   "D3R17: the writer's grant lands on the bound's own clock (1, 0x56's READ steered 1, latency 9); DEFAULTS 20002 clocks later, cause 3, the READ in hand drained 1",
+   "D3R18: binding READ strobe 0 on agg_o's first clock -1 (strobe 0, abort 0, arbiter owner 9), the done before it held to 12655233 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)",
+   "D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 9), the binding walk fails whole (cause 0) and the restore ends DEFAULTS (cause 0, closed 0)",
+   "D3R19 past the bound: no image at reset (1) nor at the D3 walk's start (0); the binding walk (longest wait 19002 of 20001) fails whole at the bound (cause 0), released -13831706 clocks after it, the LOCATE proves the image 0 clocks after the release",
+   "D3R19 past the bound: DEFAULTS with no record READ; the restore ends no terminal -1 clocks after the bound, cause 0, rolled back 0, image valid 0, AECP owned 1, 0 D3 record READs",
+   "D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered -1 clocks after the bound, want 2), and the restore ends DEFAULTS -1 clocks after the bound (cause 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "aggregate_mirrored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R13 pass 0: DEFAULTS at clock"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R13 pass 0: DEFAULTS at clock 0 of the aggregate 1000001, cause 0, rolled back 0, applied 0, the longest wait 19812 of 20001",
+   "D3R13 pass 0: the READ in hand at the bound was drained, and once the device ends it a later SET persists",
+   "D3R13 pass 1: rolled back to DEFAULTS at clock 0, the bound 1000001, cause 0, rolled back 0",
+   "D3R14 image valid: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs",
+   "D3R14 image valid: DEFAULTS by clock 0, the D3 walk's longest wait 0 (no record READ requested), cause 0, rolled back 0, image valid 1, AECP owned 1, ADP enabled 0 (0 early enable cycles)",
+   "D3R14 image valid: AECP answers a READ_DESCRIPTOR byte-exact, and once the device ends the drained binding READ a later SET persists (1 WRITEs)",
+   "D3R14 image refused: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs",
+   "D3R14 image refused: CLOSED by clock 0, cause 0, AECP owned 1, ADP enabled 0",
+   "D3R15 debt wait: CLOSED -1 clocks after the bound's own (want 0), cause 6, D3 done 6582 clocks after the bound, rolled back 1, AECP owned 0",
+   "D3R15 re-LOCATE: CLOSED -1 clocks after the bound's own (want 0), cause 2, D3 done 446 clocks after the bound, rolled back 1, AECP owned 0",
+   "D3R17: the writer's grant lands on the bound's own clock (1, 0x56's READ steered 1, latency 9); DEFAULTS 20002 clocks later, cause 3, the READ in hand drained 1",
+   "D3R18: binding READ strobe 0 on agg_o's first clock -1 (strobe 0, abort 0, arbiter owner 9), the done before it held to 12655233 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)",
+   "D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 9), the binding walk fails whole (cause 0) and the restore ends DEFAULTS (cause 0, closed 0)",
+   "D3R19 past the bound: no image at reset (1) nor at the D3 walk's start (0); the binding walk (longest wait 19002 of 20001) fails whole at the bound (cause 0), released -13831706 clocks after it, the LOCATE proves the image 0 clocks after the release",
+   "D3R19 past the bound: DEFAULTS with no record READ; the restore ends no terminal -1 clocks after the bound, cause 0, rolled back 0, image valid 0, AECP owned 1, 0 D3 record READs",
+   "D3R19 inside the LOCATE: DEFAULTS with no record READ; the restore ends COMPLETE 2439 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R20 W_IMG: DEFAULTS with no record READ; the restore ends COMPLETE 2168 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends COMPLETE 2168 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered -1 clocks after the bound, want 2), and the restore ends DEFAULTS -1 clocks after the bound (cause 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

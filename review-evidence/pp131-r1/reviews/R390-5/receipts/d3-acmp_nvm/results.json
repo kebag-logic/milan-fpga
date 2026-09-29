@@ -1,0 +1,156 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "alarm_forgiven_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E11 DR2c revocation"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E11 DR2c revocation: a later successful commit and time leave the alarm set"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "drain_misses_issue_cycle_m1",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle: the drain armed in the issue cycle (issued at 422951, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N10 a manager-1 READ abandoned in its issue cycle: the port is free again: the walk completes as saved and manager 1's next READ completes: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 430847, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_ignores_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_stale_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 428091, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_backoff_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E9 DR2c timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (43, 43)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fourth_attempt_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E8 DR2c count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E8 DR2c count: three attempts in all (4 started, 4 failed)",
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (642, 642)",
+   "E10 DR2c count: no fourth attempt (4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs: 1 of the walk's 1 READs issued with it, none drained (from 423622), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owned_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423536), every byte taken (1 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ }
+]
