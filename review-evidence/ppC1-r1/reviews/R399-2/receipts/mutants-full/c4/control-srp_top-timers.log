@@ -1,0 +1,16 @@
+make: Entering directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-8hhcpg77/tb/srp_top'
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-8hhcpg77/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+make[1]: Entering directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-8hhcpg77/tb/srp_top/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-8hhcpg77/tb/srp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_dir/Vsrp_top_sim timers
+TIMER join ladder_ms=403,603,803 gaps=200-200
+TIMER periodic talker=9:1000-1000 domain=9:1000-1000 vid=9:1000-1000
+TIMER leaveall first_msrp=14206 first_mvrp=10601 msrp=4:10000-12800 mvrp=4:11000-13200
+TIMER after_peer msrp next_own=+11000
+TIMER after_peer mvrp next_own=+14495
+7 checks: 7 PASS, 0 FAIL
+make: Leaving directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-8hhcpg77/tb/srp_top'

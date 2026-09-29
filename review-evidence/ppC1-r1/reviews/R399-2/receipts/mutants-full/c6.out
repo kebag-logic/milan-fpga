@@ -1,0 +1,18 @@
+control srp_encoder : rc=0 PASS
+control srp_top armdelay: rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+round-completion-lost: rc=2 failures=1 KILLED tags=N13
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+rearm-at-issue: rc=2 failures=8 KILLED tags=P8
+join-sent-at-handover: rc=2 failures=3 KILLED tags=R1,R3
+join-sent-at-handover: rc=2 failures=3 KILLED tags=W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent,W4 re-joined VID 7 waits for its New to leave
+17 checks: 17 PASS, 0 FAIL

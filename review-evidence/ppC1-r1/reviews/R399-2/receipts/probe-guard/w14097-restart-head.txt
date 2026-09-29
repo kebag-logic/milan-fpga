@@ -1,0 +1,33 @@
+FAIL: P1: every peer LeaveAll restarts the MSRP leavealltimer
+FAIL: P1: after the last peer LeaveAll the own one follows 10-15 s later (at +-1 ms)
+RESTART msrp peers=20 own_after_last_ms=-1
+FAIL: P2: every peer MVRP LeaveAll restarts the MVRP leavealltimer
+FAIL: P2: the MSRP participant keeps its own LeaveAll cycle
+FAIL: P3: the restarted timer fires once, 10 s or more after the peer type=0 (own at +8533 ms)
+RESTART lane=0 peer_ms=4294958763 deadline_ms=4695 own_ms=0
+FAIL: P3: the restarted timer fires once, 10 s or more after the peer type=1 (own at +8533 ms)
+RESTART lane=1 peer_ms=4294958763 deadline_ms=5485 own_ms=0
+FAIL: P3: the restarted timer fires once, 10 s or more after the peer type=2 (own at +8533 ms)
+RESTART lane=2 peer_ms=4294958763 deadline_ms=5485 own_ms=0
+FAIL: P3: the restarted timer fires once, 10 s or more after the peer type=3 (own at +8533 ms)
+RESTART lane=3 peer_ms=4294958763 deadline_ms=5485 own_ms=0
+FAIL: P3: the restarted timer fires once, 10 s or more after the peer type=4 (own at +8533 ms)
+RESTART lane=4 peer_ms=4294958763 deadline_ms=5485 own_ms=0
+RESTART mvrp_peer_minus_expiry=-12 actions=0
+RESTART mvrp_peer_minus_expiry=-11 actions=0
+RESTART mvrp_peer_minus_expiry=-10 actions=0
+RESTART mvrp_peer_minus_expiry=-9 actions=0
+RESTART mvrp_peer_minus_expiry=-8 actions=0
+RESTART mvrp_peer_minus_expiry=-7 actions=0
+RESTART mvrp_peer_minus_expiry=-6 actions=0
+RESTART mvrp_peer_minus_expiry=-5 actions=0
+RESTART mvrp_peer_minus_expiry=-4 actions=0
+RESTART mvrp_peer_minus_expiry=-3 actions=0
+RESTART mvrp_peer_minus_expiry=-2 actions=0
+RESTART mvrp_peer_minus_expiry=-1 actions=0
+RESTART mvrp_peer_minus_expiry=0 actions=0
+RESTART mvrp_peer_minus_expiry=1 actions=0
+RESTART mvrp_peer_minus_flag_tick=-1 actions=0
+RESTART mvrp_peer_minus_flag_tick=0 actions=0
+RESTART mvrp_peer_minus_flag_tick=1 actions=1
+49 checks: 40 PASS, 9 FAIL

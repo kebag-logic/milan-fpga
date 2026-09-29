@@ -1,0 +1,66 @@
+make: Entering directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-elzf_9v_/tb/srp_top'
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-elzf_9v_/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+make[1]: Entering directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-elzf_9v_/tb/srp_top/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-elzf_9v_/tb/srp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.011 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.002 s on 16 threads; allocated 16.492 MB
+./obj_dir/Vsrp_top_sim armdelay
+ARMDELAY delay=3 peer_minus_expiry=-11 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=3 peer_minus_expiry=-10 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=3 peer_minus_expiry=-9 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=3 peer_minus_expiry=-8 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=3 peer_minus_expiry=-7 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=3 peer_minus_expiry=-6 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=3 peer_minus_expiry=-5 own_msrp=1 own_mvrp=0 placed=1/1
+FAIL: P8: arm delay 3: no own MSRP LeaveAll after a peer at -15..+2 clocks of the own expiry (7 of 18 offsets send one)
+FAIL: P8: arm delay 3: no own MVRP LeaveAll after a peer at -15..+2 clocks of the own expiry (2 of 18 offsets send one)
+ARMDELAY delay=3 offsets=-15..+2 own_msrp=7 own_mvrp=2
+ARMDELAY delay=4 peer_minus_expiry=-11 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=4 peer_minus_expiry=-10 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=4 peer_minus_expiry=-9 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=4 peer_minus_expiry=-8 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=4 peer_minus_expiry=-7 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=4 peer_minus_expiry=-6 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=4 peer_minus_expiry=-5 own_msrp=1 own_mvrp=0 placed=1/1
+FAIL: P8: arm delay 4: no own MSRP LeaveAll after a peer at -16..+2 clocks of the own expiry (7 of 19 offsets send one)
+FAIL: P8: arm delay 4: no own MVRP LeaveAll after a peer at -16..+2 clocks of the own expiry (2 of 19 offsets send one)
+ARMDELAY delay=4 offsets=-16..+2 own_msrp=7 own_mvrp=2
+ARMDELAY delay=8 peer_minus_expiry=-14 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-13 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-12 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-11 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-10 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-9 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-8 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-7 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-6 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=8 peer_minus_expiry=-5 own_msrp=1 own_mvrp=0 placed=1/1
+FAIL: P8: arm delay 8: no own MSRP LeaveAll after a peer at -20..+2 clocks of the own expiry (10 of 23 offsets send one)
+FAIL: P8: arm delay 8: no own MVRP LeaveAll after a peer at -20..+2 clocks of the own expiry (6 of 23 offsets send one)
+ARMDELAY delay=8 offsets=-20..+2 own_msrp=10 own_mvrp=6
+ARMDELAY delay=16 peer_minus_expiry=-22 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-21 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-20 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-19 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-18 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-17 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-16 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-15 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-14 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-13 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-12 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-11 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-10 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-9 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-8 own_msrp=1 own_mvrp=1 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-7 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-6 own_msrp=1 own_mvrp=0 placed=1/1
+ARMDELAY delay=16 peer_minus_expiry=-5 own_msrp=1 own_mvrp=0 placed=1/1
+FAIL: P8: arm delay 16: no own MSRP LeaveAll after a peer at -28..+2 clocks of the own expiry (18 of 31 offsets send one)
+FAIL: P8: arm delay 16: no own MVRP LeaveAll after a peer at -28..+2 clocks of the own expiry (14 of 31 offsets send one)
+ARMDELAY delay=16 offsets=-28..+2 own_msrp=18 own_mvrp=14
+13 checks: 5 PASS, 8 FAIL
+make: *** [Makefile:26: run] Error 1
+make: Leaving directory '$REVIEWS/ppC1-r399-2-packet/scratch/tmp/srp-leaveall-elzf_9v_/tb/srp_top'

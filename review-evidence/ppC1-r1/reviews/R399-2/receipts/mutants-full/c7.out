@@ -1,0 +1,20 @@
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms : rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+r-rearm-no-inflight: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-inflight: rc=2 failures=6 KILLED tags=P6
+count-up-unsends: rc=2 failures=3 KILLED tags=R2,R3
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+19 checks: 19 PASS, 0 FAIL

@@ -1,0 +1,15 @@
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+control srp_top timers: rc=0 PASS
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+my-expiry-pulse: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+mvrp-passive-lost: rc=2 failures=6 KILLED tags=P4,P5,P6,P7
+draw-kind-0: rc=2 failures=6 KILLED tags=Q1,Q2,Q3,Q4
+14 checks: 14 PASS, 0 FAIL

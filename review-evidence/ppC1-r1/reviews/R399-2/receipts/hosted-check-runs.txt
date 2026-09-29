@@ -1,0 +1,29 @@
+docs-gates | completed | success | 2026-09-29T09:59:08Z | 2026-09-29T09:59:19Z | run 36552673879 | job 109354357082
+portability | completed | success | 2026-09-29T09:59:08Z | 2026-09-29T10:01:09Z | run 36552673879 | job 109354357079
+suites | in_progress | null | 2026-09-29T09:59:07Z | null | run 36552673879 | job 109354356918
+suites | in_progress | null | 2026-09-29T09:59:02Z | null | run 36552665106 | job 109354326075
+portability | completed | success | 2026-09-29T09:59:02Z | 2026-09-29T10:01:33Z | run 36552665106 | job 109354325990
+docs-gates | completed | success | 2026-09-29T09:59:02Z | 2026-09-29T09:59:13Z | run 36552665106 | job 109354325826
+[{"conclusion":"","createdAt":"2026-09-29T09:59:05Z","databaseId":36552673879,"event":"pull_request","name":"hdl","status":"in_progress"},{"conclusion":"","createdAt":"2026-09-29T09:59:00Z","databaseId":36552665106,"event":"push","name":"hdl","status":"in_progress"}]
+== job 109354356918
+1 Set up job | completed | success
+2 Run actions/checkout@v4 | completed | success
+3 Cache the pinned Verilator build | completed | success
+4 Build Verilator v5.050 | completed | skipped
+5 Lint (zero tolerance) + every suite | completed | success
+6 SRP LeaveAll mutation campaign | in_progress | null
+7 Traceability matrix no-drift + untested budget 0 | pending | null
+8 nvm_port README figures agree with the tree | pending | null
+15 Post Cache the pinned Verilator build | pending | null
+16 Post Run actions/checkout@v4 | pending | null
+== job 109354326075
+1 Set up job | completed | success
+2 Run actions/checkout@v4 | completed | success
+3 Cache the pinned Verilator build | completed | success
+4 Build Verilator v5.050 | completed | skipped
+5 Lint (zero tolerance) + every suite | completed | success
+6 SRP LeaveAll mutation campaign | in_progress | null
+7 Traceability matrix no-drift + untested budget 0 | pending | null
+8 nvm_port README figures agree with the tree | pending | null
+15 Post Cache the pinned Verilator build | pending | null
+16 Post Run actions/checkout@v4 | pending | null

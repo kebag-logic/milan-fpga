@@ -1,0 +1,14 @@
+control srp_top congestion: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top timers: rc=0 PASS
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+mvrp-supersedes-msrp: rc=2 failures=8 KILLED tags=M1,M2,M3,M4
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+preparation-before-slot: rc=2 failures=21 KILLED tags=M1,M11,M12,M5,M6,M8
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+stale-expiry-honoured: rc=2 failures=7 KILLED tags=M10
+join-ms-400: rc=2 failures=2 KILLED tags=Q1,Q2
+13 checks: 13 PASS, 0 FAIL

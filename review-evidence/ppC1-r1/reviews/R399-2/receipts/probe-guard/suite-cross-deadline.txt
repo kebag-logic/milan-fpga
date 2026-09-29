@@ -1,0 +1,19 @@
+FAIL: F3: own MVRP LeaveAll PDU seen
+FAIL: F3: held VID re-joined in the MVRP cycle
+FAIL: M10: a peer at expiry delta=-7 leaves Passive with a restarted timer
+FAIL: M10: a peer at expiry delta=-6 leaves Passive with a restarted timer
+FAIL: M10: a peer at expiry delta=-5 leaves Passive with a restarted timer
+FAIL: P1: the MVRP participant keeps its own LeaveAll cycle
+FAIL: P2: the MSRP participant keeps its own LeaveAll cycle
+FAIL: P4: a peer MVRP LeaveAll in Active drops the own flag; the VID re-join still goes out
+FAIL: P4: control: without a peer the own MVRP LeaveAll rides the next drain
+FAIL: P5: after a peer MVRP LeaveAll the first VID declaration carries no own flag
+FAIL: P5: control: the Active flag rides the first VID declaration
+FAIL: P7: calibration: the own MVRP flag rides an MVRP join tick (+0 clocks)
+FAIL: P7: MVRP peer at the flag's join tick delta=-1: own flag dropped, timer restarted
+FAIL: P7: MVRP peer at the flag's join tick delta=0: own flag dropped, timer restarted
+FAIL: P7: MVRP peer at the flag's join tick delta=1: own flag already accepted goes out, timer restarted
+FAIL: P7: MVRP peer sweep covers -1, 0 and +1 clocks of the flag's tick
+FAIL: Q3: the first own MSRP and MVRP LeaveAll come 10 s or more after arming (at +14206 / +-1 ms)
+FAIL: Q3: consecutive own LeaveAlls are 10-15 s apart (MSRP 4 x 10000-12800, MVRP 0 x 0-0)
+2200 checks: 2182 PASS, 18 FAIL
