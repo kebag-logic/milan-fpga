@@ -1,0 +1,2862 @@
+{
+  "head": "4c2a30debb031595b81c5c4bfc53b601a0fec528",
+  "runs": "$LANES/590-592-599-firmware/tb/verilator/nvm_cosim/runs",
+  "all_case_stdout_vs_probe": {
+    "case_runs_here": 207,
+    "case_runs_probe": 207,
+    "only_here": [],
+    "only_probe": [],
+    "byte_identical": 21,
+    "differing_raw": 186,
+    "differing_after_host_address_normalisation": []
+  },
+  "case_runs": {
+    "contract-1x1/A11_inflight_write_closes_after_arm/stdout.log": {
+      "stdout_sha256": "f5fd258b46b8d723933fcb681e9380c116b5090a070d2f531f5300a2bf58d4d7",
+      "normalised_sha256": "84f964236b7d7cbb30646c1c831037431d3e2e2523d17a6929406b7592326c18"
+    },
+    "contract-1x1/A12_last_byte_before_arm_done_after/stdout.log": {
+      "stdout_sha256": "87f772681ea9b38a4e72143d23f463d8687d5bf0d9a632909a52f933c15f97bb",
+      "normalised_sha256": "8b224cab7c6edf455e3dfcf4fecc5adc47f6fcfb702971f4454cc8fcef2a4bf0"
+    },
+    "contract-1x1/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "bc4f6b6c897f8d76793d47743c8d3cdd5491739da8bc2c1276d4f9b0e03268f4",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "contract-1x1/A2_write_between_verify_and_ack/stdout.log": {
+      "stdout_sha256": "50de929746dfcd40bb414488a91da8c63be70892fd85d69a987703d5afc05dfd",
+      "normalised_sha256": "693f7e13f102b75ffdc46e743303db027352435b9528452232e86556b69e37fc"
+    },
+    "contract-1x1/A3_write_done_on_ack_edge/stdout.log": {
+      "stdout_sha256": "e16ccc1947ac724fd1da22cba8ceeeaffef6fdaee55dc8e4e97a4575eda3f6bd",
+      "normalised_sha256": "1b29bfa91e58bb1346b50cef1a07e81e3ec57ccd687f9910e5f8b1d159299808"
+    },
+    "contract-1x1/A4_write_after_ack/stdout.log": {
+      "stdout_sha256": "1e4164ff6bccfeeea555cf200467860109fadb3da5fa21520c66402aa505db4c",
+      "normalised_sha256": "5d5f3935887d031fc9dcf7948b711e4a7743b8238815d392ddc6c2018040de10"
+    },
+    "contract-1x1/A4_write_after_ack~wrap/stdout.log": {
+      "stdout_sha256": "dbfd06efea8d844ef0e9bc304c82dd3dc8c62b96d05cdecf61c00a12dde3dca4",
+      "normalised_sha256": "aaad293028ec1e8c72f93536e7c00b1111cd1aaff81003b08ec92cb12546e08e"
+    },
+    "contract-1x1/A5_stray_duplicate_ack/stdout.log": {
+      "stdout_sha256": "95a27aae10ec7b13c20bd1caff67da12090b3ed65ba7e2cf77c7834920098e79",
+      "normalised_sha256": "2374a392a50d4b4480d10c405de627e5b481ba50e5aa86e7119205070712a6a5"
+    },
+    "contract-1x1/A6_late_ack_while_new_capture_open/stdout.log": {
+      "stdout_sha256": "e788210fd4c5c90f21992ff19d978e577789c1febbb0454d9092b1a3b860ab32",
+      "normalised_sha256": "74662ab5c70c4e74a3952824918ce1310f179cf1ca42365fb6eb6963ce8323b6"
+    },
+    "contract-1x1/A8_identity_wrap/stdout.log": {
+      "stdout_sha256": "a7d3afb2103562c3049020eaea1ef645e0f66d49d97d56c94f63d861df92af1b",
+      "normalised_sha256": "8c10d256b8b768cd311046f3c3b720c35222e718ad5e419e87d2bc02f8012e01"
+    },
+    "contract-1x1/A9_updates_during_slow_erase/stdout.log": {
+      "stdout_sha256": "cdf272f396ca7f9ab76fbb10754bf48e1cbefe24667bb8640df3e052d7630678",
+      "normalised_sha256": "19e5aa174c636c8c3ad91006408542b782974d8e5aba4e006cb4b16c78689e93"
+    },
+    "contract-1x1/A9_updates_during_slow_erase~wrap/stdout.log": {
+      "stdout_sha256": "6950d5003fb0008b59566c2333ca38a98aa80b014abd10d00e14f3b31ceea1a0",
+      "normalised_sha256": "82be6a0aef6d36d0fad3a152f582a7a80771540d41d7ad3feac3b4697525d03a"
+    },
+    "contract-1x1/B10_partial_write_never_closes/stdout.log": {
+      "stdout_sha256": "7a9197835de5800489a204e69ef47a76af8bf8351c6f53cb725c01e6181419fc",
+      "normalised_sha256": "c2335a2c287f6c44685cd77d3c6763b1ef8aee022b136c58f09d5954d156263d"
+    },
+    "contract-1x1/B1_erase_error_full_span/stdout.log": {
+      "stdout_sha256": "8cba68ff5ac6baa83a6e48ebbf46d47361067a9bf6cdfd00810b386fcf5c3d48",
+      "normalised_sha256": "c6d0ec4ff3e570d85c9ec7dfb9d1839661c0758a8c9e6913213d57e651c1e832"
+    },
+    "contract-1x1/B1_erase_error_full_span~wrap/stdout.log": {
+      "stdout_sha256": "b1db5397f9e1679843270117f3b12b6816f8d6cfaf8ee8617cc6023beb32393d",
+      "normalised_sha256": "ab327159f7b768aeac2e69ca1c702b881889569da35d35224de0b44e85cf64d4"
+    },
+    "contract-1x1/B2_erase_error_partial_span/stdout.log": {
+      "stdout_sha256": "deaa8ec2c2d590ae6a63da17c750c3746acca1cd38b0ce74082fe106e0e850a5",
+      "normalised_sha256": "1cde110adbc38d3d256de3b57f7782f9974a4d034d76177f6914e88f053a6040"
+    },
+    "contract-1x1/B3_erase_error_no_byte/stdout.log": {
+      "stdout_sha256": "0b53d35fc7a58428ef05af4fd28ef75ab1ae87c59df2613dcc574f6ad84ec57e",
+      "normalised_sha256": "15b646743f20541781769d273bde7cc7001849114433aaade8cc965b3f7dce90"
+    },
+    "contract-1x1/B4_write_error_after_erase/stdout.log": {
+      "stdout_sha256": "1e873a6019541e60b2e358561c18b5b629ff64267b1043f4a8ad8f161984d6f6",
+      "normalised_sha256": "fc1d73727b59e833d9b13de3dc207d3957f4390d68baed962fca19ba1356a18d"
+    },
+    "contract-1x1/B5_erase_then_no_write_yet/stdout.log": {
+      "stdout_sha256": "7442585db8e3f199d46b79912bfc9741a348f4a8ac283e34ee87d8347fdac75a",
+      "normalised_sha256": "0bf68b19ecd7c6fcb2d8b557c0f2860688441247d2b3994484b479e1dd0391e9"
+    },
+    "contract-1x1/B6_two_failed_records_partial/stdout.log": {
+      "stdout_sha256": "b346c800a9b3cd3a52d2cc0b4140e8f546e091a759cb85b7b0fefdff1a91eb86",
+      "normalised_sha256": "9c14364582597c532c76886273eb7b34fa374cc7254e60aa5560c205853929dc"
+    },
+    "contract-1x1/B6b_two_failed_records_full/stdout.log": {
+      "stdout_sha256": "fd9e4cc95ded9c4feeec05538df18fa72d3936c2a84a2b2e66f1e4e22cd94a15",
+      "normalised_sha256": "9832e14981912d8b70b0ea7e433e1c5628360c9d07c5ea7b3fad92792027c34d"
+    },
+    "contract-1x1/B7_first_boot_erased_records/stdout.log": {
+      "stdout_sha256": "469a3095e96720caea0740515c5463dd6d027f59e1c3e91327fcb9e5ea35724b",
+      "normalised_sha256": "354494db308e3bdbc8130073d3bb39d760243f2e426b88b1e5dc1fbb1beac711"
+    },
+    "contract-1x1/B8_first_boot_failed_erase/stdout.log": {
+      "stdout_sha256": "14b915c883b1c6d44682c4b30f79ff4f71e1b48e0a47228fe76f235b6c65c5f6",
+      "normalised_sha256": "28d7723ca842e16fe5d49214d0befe7db46d28ae0920b8f17ddb72954581c7e8"
+    },
+    "contract-1x1/B9_abandoned_write_stream/stdout.log": {
+      "stdout_sha256": "a67adb16b3a44cd08f8a792b6fe154463865410848e05b7ea8f42e5788c949b4",
+      "normalised_sha256": "358e3a07c9d1ba03dca7d5c2c419e53f6fdfb85a1b6d1c258d422c16e9c159cd"
+    },
+    "contract-1x1/C1_request_during_hold_is_deferred/stdout.log": {
+      "stdout_sha256": "127307773cc4d5a265f853749bd76fb8a20334f5fb63a4fe8c69f2d28c570a74",
+      "normalised_sha256": "92558d86869ebd8e4b935d92ffaf0c51629cc1dcd9ca6ceda504dd859d8a9fb3"
+    },
+    "contract-1x1/C1a_real_port_arm_after_erase_done/stdout.log": {
+      "stdout_sha256": "a1ee5aeb22c1ed850a090c1188cc4a68c47159d63ebf987784e130cfa1f7dcf9",
+      "normalised_sha256": "c7c730adf98693158b46d0d4935ca76a4b93fd10da58f3e0d9b68d8842d9e15b"
+    },
+    "contract-1x1/C1g_real_port_copy_inside_erase_write_gap/stdout.log": {
+      "stdout_sha256": "ca5fd7c148f8a361557c734afb6bd2167dd8e4740b6fcd24370cf9e4d2419fa1",
+      "normalised_sha256": "4a366dd21bf095da4c3f2c0615096ee8afc1ac10fdf9892d9c00fb046bc512d3"
+    },
+    "contract-1x1/C1r_real_port_request_deferred/stdout.log": {
+      "stdout_sha256": "dff2d0e1fd9b42b607c93145be9ec4090a73472432409e4b445a0e01ccf3daff",
+      "normalised_sha256": "9c7c8c8747364b5cd7e3ce8779a3cbfad90f72e6ae8a75f401a1d688ba8e2ec9"
+    },
+    "contract-1x1/C2_hold_expiry_then_erase_with_stale_mask/stdout.log": {
+      "stdout_sha256": "ffe759936a0a0588b62ad2e98a9bab985343a9529149afcda3ebac3d6f352b75",
+      "normalised_sha256": "e49709fc55cc182543120a361bd2c770c5672d87bf5e4b6e1a097874c6166f92"
+    },
+    "contract-1x1/C2_hold_expiry_then_erase_with_stale_mask~wrap/stdout.log": {
+      "stdout_sha256": "18f3aa516e3bc2006efde9a826ce74f1b59202a2cf00b2e600acfcc822bae6b3",
+      "normalised_sha256": "31ed4956c68b865abd9822baecdc466132955996533d271d5188f3c714534c90"
+    },
+    "contract-1x1/C2e_real_port_erased_span_under_stale_mask/stdout.log": {
+      "stdout_sha256": "e0ca5b6f8e5c8ebfd7f7bdd910acd036cc29d96d26601b10aac81f190c9ad230",
+      "normalised_sha256": "3f0bd57a2da0666b849e1f54b5e06db77b28395722aa1185586f01914bdb19fc"
+    },
+    "contract-1x1/C2r_real_port_torn_record_under_stale_mask/stdout.log": {
+      "stdout_sha256": "5995956e16305d3fa1de9ede50b15c6db3a4b3a1a17b48ea693de79667616bf1",
+      "normalised_sha256": "6e2d8cd4ea46e32b6edd96099515c007ad670561605635188f56c85e290d23e1"
+    },
+    "contract-1x1/C3_hold_expiry_without_producer/stdout.log": {
+      "stdout_sha256": "10555814b446240a157699dc2d80e25a01964ae44e1fc3ac7843129fed1bff65",
+      "normalised_sha256": "f5fc0c0d6c62e9ba57bfe6783d3874796d54f7db9463130fff8e6f18b12d5682"
+    },
+    "contract-1x1/C5_concurrent_arm_refused/stdout.log": {
+      "stdout_sha256": "8bee7ba0c793be17e9ce6917b45645dbc0dc5880c32084ad62df6b7f89d56c6c",
+      "normalised_sha256": "e3a25fa1ba7b10b45b58464d3799a874c81350c46bcdeb2a57fbe6210cef3ba4"
+    },
+    "contract-1x1/C7_late_ack_after_commit_deadline/stdout.log": {
+      "stdout_sha256": "9114d157271e9375333a4b3ab54c26016579934ad32d2c92ab2032f740943967",
+      "normalised_sha256": "d6f43e343113d49c4d0b6f3cbae586c7d09b920124bb4234007a19b0ae25c7a6"
+    },
+    "contract-1x1/C8_ack_refused_after_verified_slot/stdout.log": {
+      "stdout_sha256": "1dbeb7d9bb18cc88f00aed339673b4804b85a516e57d9346069725144099fadf",
+      "normalised_sha256": "0d6840a5c6e22ce288e8d02b7e52c598636eefe0c91c900019f3fd5ca25d6409"
+    },
+    "contract-1x1/C8_ack_refused_after_verified_slot~wrap/stdout.log": {
+      "stdout_sha256": "7740e29f0f3879ab5998a2222943dea9490745af1546861e86ad5844e01392d1",
+      "normalised_sha256": "c447d727219019dac38b88ef21dbe249a3d1ccbe5a63769f21425bed3db65614"
+    },
+    "contract-1x1/D1_writer_loss_and_recovery/stdout.log": {
+      "stdout_sha256": "4b001a081749991582fdb285c7c68c44abccb74ba51b4f6fa32cfe6b5cdc35c0",
+      "normalised_sha256": "65c88cdca93ac312bf0bfbcd925cdb486c8556ac6ece76c60ac619482adc9871"
+    },
+    "contract-1x1/D4c_accepted_write_silent/stdout.log": {
+      "stdout_sha256": "e8bf5319355a87c7aed006a5d1af72e50f2c2e9feefbdeaa8fa17c18f146f611",
+      "normalised_sha256": "c26aa2c1f33ea1637627aee23310a052dd7e835c0067f52d54108ac122d02553"
+    },
+    "contract-1x1/D4d_readiness_withheld/stdout.log": {
+      "stdout_sha256": "a49b19bdd4a5fc7b54bb56aeb7c2ed728cb81366e99fb72cf681be4353849534",
+      "normalised_sha256": "4eeb4486f7e45af5321eda900012597868eb0a431b1c270cfeb329863bceb147"
+    },
+    "contract-1x1/D4e_silent_inside_capture/stdout.log": {
+      "stdout_sha256": "cc037b886f0e2ee20c11367b56f7ceffd81a654286bc875e6cb36b3a0c74af27",
+      "normalised_sha256": "601b1c7520d547921c015d920fced6a2cc45c33db5376dc7d4b878bc7f340373"
+    },
+    "contract-1x1/E1_dyn_change_ack_then_second_change/stdout.log": {
+      "stdout_sha256": "b4ba421753a3cc9a6a6f16acbd78967401702c44c4527486849e9f4d27c6e733",
+      "normalised_sha256": "159d5e6cb1f012e7c9700c15ced1842e1a81947c151f74926617c31411109bc2"
+    },
+    "contract-1x1/E3_binding_inside_manager_debounce/stdout.log": {
+      "stdout_sha256": "6c49fed95a9c5eee18f7551a19ff04b7b3152154403c84f7bef630dcfedbacd9",
+      "normalised_sha256": "7476bb5a85edaf92daca0bfc89d6c4247705cde9cee484948e4498674a6f70a7"
+    },
+    "contract-1x1/F2_reported_flash_failure/stdout.log": {
+      "stdout_sha256": "c4d3d1e866238c008836503e803b1692116b0f98e910a173544324543af1f3ed",
+      "normalised_sha256": "8c389720f1df91dbf53f2e3742069ed62fe7c7f2495ccb268ba8fcae3d6cd28d"
+    },
+    "contract-1x1/F3_flash_absent_producer_unblocked/stdout.log": {
+      "stdout_sha256": "ebc0b61fbbc5a3cf12c3dfa36e283ec3a3b32704cbb28639dde69c0822a810b8",
+      "normalised_sha256": "0b08900695d84aa3c04a31056830ad5ce42091ecf736face57e13b480677fbdd"
+    },
+    "contract-1x1/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "10908499d47cbdbc4d72f230ef5fe4731188b72dc51805373136ebad7f58bf18",
+      "normalised_sha256": "668923349aa63fc7ce35c8c71a5a20c58f7ba4435c845c152ee62f4f6d249739"
+    },
+    "contract-1x1/R_power_cycle~B1_erase_error_full_span@end/stdout.log": {
+      "stdout_sha256": "18603346796b0331138c0812e1b96be18fcbf0deb1f554b860665696ce852280",
+      "normalised_sha256": "afb979d84bb5b7e6172be69dba081c042014e5ddfe7bea76afffc2844a848735"
+    },
+    "contract-1x1/R_power_cycle~B2_erase_error_partial_span@end/stdout.log": {
+      "stdout_sha256": "fa74e47f0437cf2743bec45a2f98685e356f6033d96d7026fff744239e5d036a",
+      "normalised_sha256": "afb979d84bb5b7e6172be69dba081c042014e5ddfe7bea76afffc2844a848735"
+    },
+    "contract-1x1/R_power_cycle~B4_write_error_after_erase@end/stdout.log": {
+      "stdout_sha256": "189530c421c2034c4178bfe037c7e4c8988c7579f0e7ecee30fc1d53d19994f0",
+      "normalised_sha256": "afb979d84bb5b7e6172be69dba081c042014e5ddfe7bea76afffc2844a848735"
+    },
+    "contract-1x1/R_power_cycle~B9_abandoned_write_stream@end/stdout.log": {
+      "stdout_sha256": "0a99a196efb555e67dadc1aeaecf200591e28edaf15970eba591df9e8f80c4e5",
+      "normalised_sha256": "d885fb6e73a3a8d0f84e2b837063c91d23054a36de5164d43c17e8652425a1ba"
+    },
+    "contract-1x1/U10_arm_refused_while_request_deferred/stdout.log": {
+      "stdout_sha256": "f173452e5bafea6796d00fd79eeac149439e89258d1c170ee9b831580cc80097",
+      "normalised_sha256": "f173452e5bafea6796d00fd79eeac149439e89258d1c170ee9b831580cc80097"
+    },
+    "contract-1x1/U11_arm_refused_without_accepted_load/stdout.log": {
+      "stdout_sha256": "12e293b610997059d97d4e17721c52c0c52cd0e87a40cfcbde2e32d4e14dafb8",
+      "normalised_sha256": "12e293b610997059d97d4e17721c52c0c52cd0e87a40cfcbde2e32d4e14dafb8"
+    },
+    "contract-1x1/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "a3b69f23d5a639b431aabe5d76546944fd8a1057895a032aa71ed880d8061e15",
+      "normalised_sha256": "7d6abf0ae88986f8813c557d444320b7fc8ba5d2b6f129dab957da86f11bb4e3"
+    },
+    "contract-1x1/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "5ca65710ac3b90fba99b496593aa3e828fca227af7f96fa93bef4cefa5868333",
+      "normalised_sha256": "560f2bd544ce0de7e793ffaeef0a32b73178ca6a7b1c1a48c251d5880527c119"
+    },
+    "contract-1x1/U1_post_reset_ack/stdout.log": {
+      "stdout_sha256": "0ddd429d58a6ac085f508dcf76008818fb5e1fac6d75f4cda4b6a40ec07cffed",
+      "normalised_sha256": "0ddd429d58a6ac085f508dcf76008818fb5e1fac6d75f4cda4b6a40ec07cffed"
+    },
+    "contract-1x1/U2_close_on_arm_edge/stdout.log": {
+      "stdout_sha256": "6d6e7dc391268aef50ff0887d113a8358919d3038785111e2feb0cd55986b9e0",
+      "normalised_sha256": "6d6e7dc391268aef50ff0887d113a8358919d3038785111e2feb0cd55986b9e0"
+    },
+    "contract-1x1/U3_grant_on_attest_edge/stdout.log": {
+      "stdout_sha256": "6eb3a22e9ca2a2ce69bc12b6916ce7aba824bd3e716f0430c8d0e5513d31bf0a",
+      "normalised_sha256": "6eb3a22e9ca2a2ce69bc12b6916ce7aba824bd3e716f0430c8d0e5513d31bf0a"
+    },
+    "contract-1x1/U4_grant_request_on_arm_edge/stdout.log": {
+      "stdout_sha256": "63af6121644703477fdba6d9c021bf7e914d5efd6051e5228c45c11ccd844a07",
+      "normalised_sha256": "63af6121644703477fdba6d9c021bf7e914d5efd6051e5228c45c11ccd844a07"
+    },
+    "contract-1x1/U5_reload_refused_inflight_at_rebase/stdout.log": {
+      "stdout_sha256": "3bc3f98574bcf7ff0175e774fa36091e1057d218a675812dc813a6ac95998fa6",
+      "normalised_sha256": "3bc3f98574bcf7ff0175e774fa36091e1057d218a675812dc813a6ac95998fa6"
+    },
+    "contract-1x1/U6_reload_refused_after_boot/stdout.log": {
+      "stdout_sha256": "b0bd5cf0bb72796ab4beae4709819706b061f31815623d23d0e34aa8aa66620f",
+      "normalised_sha256": "b0bd5cf0bb72796ab4beae4709819706b061f31815623d23d0e34aa8aa66620f"
+    },
+    "contract-1x1/U7_reset_row_and_pre_reset_ack/stdout.log": {
+      "stdout_sha256": "abda671bde43d8c8a6ed215e70820e02e6ad4d3740ad6663a2b59793abbe3f87",
+      "normalised_sha256": "abda671bde43d8c8a6ed215e70820e02e6ad4d3740ad6663a2b59793abbe3f87"
+    },
+    "contract-1x1/U8_grant_on_rebase_edge/stdout.log": {
+      "stdout_sha256": "e2b2194c39d8a60dcbbace60f8399fc48853c8b7a2833f5944300d552c53ab3c",
+      "normalised_sha256": "e2b2194c39d8a60dcbbace60f8399fc48853c8b7a2833f5944300d552c53ab3c"
+    },
+    "contract-1x1/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "91fe4f34e352f9da6a346b6393e41580d644f33cb1e210bb3f67f28f8f65038e",
+      "normalised_sha256": "8e1bd5d5aaa9e1a7af434265ad704d6fc121129584979354c27a07fc520575c0"
+    },
+    "contract-1x1/W1_writer_restart_reattaches/stdout.log": {
+      "stdout_sha256": "f334890b0d887380893dbce2ae18793193d4054e942c2617ae5a900891385d82",
+      "normalised_sha256": "1542f3bf0674056148744b6c36f62b6c52973fdc4dc49db6d873fde545a715c2"
+    },
+    "contract-1x1/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "81d5ebee99abb7f9078aadf5c7af248a8dfd4252c12794ee2ae478f02f6ec01a",
+      "normalised_sha256": "5bf9839474d647599bf935754dd46e76bc8f8e1dabb3b4206b66c7f5068d37e9"
+    },
+    "contract-1x1/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "cc78f02a7065b58056c77d7c5d4cb1a4e7917351a644fbfddf5ef29fe8a20ce3",
+      "normalised_sha256": "1418db903553f8d3eac6a292ecd68cf2f4375c90f34776fbbf5a7dc215ad28df"
+    },
+    "contract-1x1/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "8973fdbeb2a27cf806c8e62ac7b2dd3fd1a53e357d90ed223991450b5719e7bf",
+      "normalised_sha256": "0c0dc52ffa35f71616c6b60b9bc2d59f939d018fdcc1091f28f57288d0e3b7a8"
+    },
+    "contract-8x8/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "e13d68d9813ec90cafda66e1379b051e22483aebef764ad3f65168d7933df6af",
+      "normalised_sha256": "e4dbc7370578a0f6a8e52c85f76b45cdc96ed7d6705652f81cca2972ecb67312"
+    },
+    "contract-8x8/A2_write_between_verify_and_ack/stdout.log": {
+      "stdout_sha256": "701884416899febb49343dbf6bca00c83d7c95c4696b8dc8cd577afbe405c04b",
+      "normalised_sha256": "2f5799c311de80e0c73ac1a79b5ac47dfeed0a71aad916a439409fc83734fa3c"
+    },
+    "contract-8x8/A3_write_done_on_ack_edge/stdout.log": {
+      "stdout_sha256": "e0290c692c39b6b6f2afeda80d20d0d251c3ae813f7c5b6df92eb62c6300fe25",
+      "normalised_sha256": "5a9a574a9ad7dca4d0ea9130b6f47891b7d60edc0b84bd58571513c50a664eb9"
+    },
+    "contract-8x8/B1_erase_error_full_span/stdout.log": {
+      "stdout_sha256": "3a21b3bb5cb0b03dd3a9e73d0f5cb67dc794fda9b928e0e579262aaace46ac47",
+      "normalised_sha256": "a49b568742ac906ac07c903c14c34194f8dfa7032f7ce1bbd724cf61294a3087"
+    },
+    "contract-8x8/B2_erase_error_partial_span/stdout.log": {
+      "stdout_sha256": "e6a05b0686f8aee0dacc354543ee42c012f7042fa7b76bd484bebdb1cf62303b",
+      "normalised_sha256": "480c6964248ea138f27dcf3502e578d27517fe5633f9e14a30b6accc26bf4f49"
+    },
+    "contract-8x8/B5_erase_then_no_write_yet/stdout.log": {
+      "stdout_sha256": "74b254a8b2bdd39f9a9bb963aec8cba25206a54cd51d0550b24f14ae192782b4",
+      "normalised_sha256": "57bf128473f06558b1c0b8ef1808c83ca68e3a1f7f2f1413659af7e79fb8c077"
+    },
+    "contract-8x8/B6_two_failed_records_partial/stdout.log": {
+      "stdout_sha256": "427a1b5bc735f713a2310dd7ee0de39c054f1d1c9cee21a3d9990c60e430a4d1",
+      "normalised_sha256": "9bfbc2302e918e219ac7ed6ec6054a96ca31ffa0cf80df49a53b8cd150187454"
+    },
+    "contract-8x8/B9_abandoned_write_stream/stdout.log": {
+      "stdout_sha256": "53c212579e7ab3e520b6e54c797a8ee40ead89cf7050fd278bb675398bb97e5e",
+      "normalised_sha256": "44f4dbe48433152a04889d126ade65020f6c34e4423e5d188ea56e0c0d72b63c"
+    },
+    "contract-8x8/C1_request_during_hold_is_deferred/stdout.log": {
+      "stdout_sha256": "904720335d2bd1104466b17f5ea6b9f233fdff9dc9ea879ae7be8a1c190b2cc4",
+      "normalised_sha256": "1617d544a1000f26eb0eb628506ed3558764ac090c39b586fa28b561cbfec5da"
+    },
+    "contract-8x8/C2_hold_expiry_then_erase_with_stale_mask/stdout.log": {
+      "stdout_sha256": "f09440d828262d2aa3c4c5ae93540091937c1456e27b2c3658bfff13f9ee2586",
+      "normalised_sha256": "c8d1417aa9a7bea3be9d31919f6b48e19d07f49414c99c1f25e662348eb188c0"
+    },
+    "contract-8x8/D1_writer_loss_and_recovery/stdout.log": {
+      "stdout_sha256": "a556d11c041a5b179b0d102cad9b5e9d450c587e0df6d265d4cf07c11eda0b13",
+      "normalised_sha256": "1d5122aa88308e882a3cad0b4e424850ef50c2e8e751e8c5e3e6f0546b8401c4"
+    },
+    "contract-8x8/E1_dyn_change_ack_then_second_change/stdout.log": {
+      "stdout_sha256": "fea9c95b822f73ec2f28b0434f3dff34f2ff91032bb0b3bfe5981540abfc21c1",
+      "normalised_sha256": "8f495bc6a12efce6d227ce1759ad6717cb784547f0f099050ec1a5b75d01bbdc"
+    },
+    "contract-8x8/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "6bc2aa63f5c5a0121cdd4eb87b5bc8e9ae06fe4a79e5066126f81d6e640fc0d8",
+      "normalised_sha256": "2dc067310c2932f15af09995260c30018a7a9841514fb61f66d11ac666a1bb85"
+    },
+    "contract-8x8/R_power_cycle~B1_erase_error_full_span@end/stdout.log": {
+      "stdout_sha256": "c12aa3466113bdb86951bee4a42628592290a0940e8cb5efa2f9035be082c0b5",
+      "normalised_sha256": "a91ba29ebb85ac2e280adc9abc261364e047ac54a93f153e33d6a9651bc70e08"
+    },
+    "contract-8x8/R_power_cycle~B2_erase_error_partial_span@end/stdout.log": {
+      "stdout_sha256": "3fe91785dc0e9646de64b7209b0d4715b28e1c1597dfac4afd91d18fbbe542f0",
+      "normalised_sha256": "a91ba29ebb85ac2e280adc9abc261364e047ac54a93f153e33d6a9651bc70e08"
+    },
+    "contract-8x8/R_power_cycle~B9_abandoned_write_stream@end/stdout.log": {
+      "stdout_sha256": "b1ad8bcdfed44a3d4d8bf8eeaf9c6426ab470d957aa4794e08957c0eea81da79",
+      "normalised_sha256": "43bdd939d2ce03177acd1931add0023f44370a1db3ccef1a4244af5c75e863b0"
+    },
+    "contract-8x8/U11_arm_refused_without_accepted_load/stdout.log": {
+      "stdout_sha256": "a5292501a431b3fa599c3f3b57cff00250b97118e163c219f7d4eef3f4395e5a",
+      "normalised_sha256": "a5292501a431b3fa599c3f3b57cff00250b97118e163c219f7d4eef3f4395e5a"
+    },
+    "contract-8x8/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "f17f8c72c305d6bbff22514f243b52e993536e3844884843a04dce5b5f6f18c3",
+      "normalised_sha256": "9bf09e1a3bb75daeb71be395d90fbb58815f605739d0725a399c63d0ed17371f"
+    },
+    "contract-8x8/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "4106fbccc8fe5051cbe176ff24b7b62e6baf70b2a5693b4c674fb6f0af41e279",
+      "normalised_sha256": "62679998cdf1bab2b3fdbf36193cd215b65fa2324d9b173a955929a7780baa2c"
+    },
+    "contract-8x8/U4_grant_request_on_arm_edge/stdout.log": {
+      "stdout_sha256": "b8369680c5677b380a0ef180e7ce92ff1c7aa507c249cb00348707adb7852759",
+      "normalised_sha256": "b8369680c5677b380a0ef180e7ce92ff1c7aa507c249cb00348707adb7852759"
+    },
+    "contract-8x8/U5_reload_refused_inflight_at_rebase/stdout.log": {
+      "stdout_sha256": "38ac9d7974bdf22139d122e4cb67d7f37b670bae3cccc806f1472bf6525a20fd",
+      "normalised_sha256": "38ac9d7974bdf22139d122e4cb67d7f37b670bae3cccc806f1472bf6525a20fd"
+    },
+    "contract-8x8/U6_reload_refused_after_boot/stdout.log": {
+      "stdout_sha256": "dd5137f602078307d9a483975e9bbbc49578bf9119e3be6d1f23a6ee82dc610c",
+      "normalised_sha256": "dd5137f602078307d9a483975e9bbbc49578bf9119e3be6d1f23a6ee82dc610c"
+    },
+    "contract-8x8/U7_reset_row_and_pre_reset_ack/stdout.log": {
+      "stdout_sha256": "535502aab02db98ae1dfcfe9c4ef33df182cbf5b52e901d64d286d1a7c202ec8",
+      "normalised_sha256": "535502aab02db98ae1dfcfe9c4ef33df182cbf5b52e901d64d286d1a7c202ec8"
+    },
+    "contract-8x8/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "5a1c82802dc6f0a055867c46a37fa9aa0145e9c5c197879ac39d4a16a0575183",
+      "normalised_sha256": "a8b10c7cbeedc88c0859d064c8c30d678de52f3ed2f8d103e7d9a685193bf06d"
+    },
+    "contract-8x8/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "947eea406f7f90f90579a5624b00e71dbfe253e0c176062f03e2a51fa200884a",
+      "normalised_sha256": "ce424db099dc35f1377bd0771c30b0386e3e78d076082c2b16094ffe4d0e961d"
+    },
+    "contract-8x8/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "bddc5e34ecdee4a35c31b175c687e43e2c389cf62b5f0af9e2f989d20f42e7fc",
+      "normalised_sha256": "0869ccc2fe94aebd7361ab59dd3d56d0553b42a9a6fc4190209cee781fec9648"
+    },
+    "contract-8x8/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "17ca620fd03c18ceac60ba31e2b3023b6c0d96c50ab1dadef456b277634cb935",
+      "normalised_sha256": "deb95fe1120fe10066e2794414d45685d25732d7a46ce6352ffc50efc6847729"
+    },
+    "idw2-1x1/A4_write_after_ack~wrap/stdout.log": {
+      "stdout_sha256": "cc1e49e42e43e714f59ef38e9c963580187897a51ae8457a740996d9f370c1ba",
+      "normalised_sha256": "ee4a78686301110cb16019f0d1e619c7262ba8a1cfd324bdcb21987cf98fc863"
+    },
+    "idw2-1x1/A8_identity_wrap/stdout.log": {
+      "stdout_sha256": "90edea39b5d5f91e048515a99ccca47c759c26205a4a3f9d8271d5d58b8e37b4",
+      "normalised_sha256": "4659e8a8796fbe380557a5c32aa627b69b75aa543830dd9234879822b070111f"
+    },
+    "idw2-1x1/A9_updates_during_slow_erase~wrap/stdout.log": {
+      "stdout_sha256": "15009a87d85880718b1763c0d14c1b8aa5dc01687d88736e2b722780dcca2b1c",
+      "normalised_sha256": "10cdf101117c54bae9c41c8ced5390cafea04a8afcbb7d12b1605f9c36f8544d"
+    },
+    "idw2-1x1/B1_erase_error_full_span~wrap/stdout.log": {
+      "stdout_sha256": "da4f7ab9c62992f5bc15d4793582bbc1198599e67ac524b83962e367cdda2a13",
+      "normalised_sha256": "07855becd702fb79446d528a3aa0bc0529cd083cbe268f5a8983d96445026cf1"
+    },
+    "idw2-1x1/C2_hold_expiry_then_erase_with_stale_mask~wrap/stdout.log": {
+      "stdout_sha256": "c7187e8ba251accda8e406fe962a7f0081fc12fa9a35ef851edb909a4cd0ef6b",
+      "normalised_sha256": "55775fc365bb6b184597e5256b6a1499a53bb6ad91e7ce86b6a2529cacdbb027"
+    },
+    "idw2-1x1/C8_ack_refused_after_verified_slot~wrap/stdout.log": {
+      "stdout_sha256": "42382565076de302eb6d42e89a7935130aea8a5b0459c369acb3fb9d22e9d73c",
+      "normalised_sha256": "60cf6fded3a70034cb758e573d6efd08bd85e028361d6452f6a0bec1e0e58a42"
+    },
+    "mut-A01_composite_durable_bit/E1_dyn_change_ack_then_second_change/stdout.log": {
+      "stdout_sha256": "fdbdf7339007517bd8e929e4711eac8497255cdcfb031b1d6d0bdffc0f04a050",
+      "normalised_sha256": "0a7520da5d3f40f443248d4adc8f2ba25fe42ab8c54569f8c7d2351ff66c79a6"
+    },
+    "mut-F01_attestation_not_checked/C2_hold_expiry_then_erase_with_stale_mask/stdout.log": {
+      "stdout_sha256": "ab4b1942382c19980028696f6c5f3f0a33a7bcd5400ff159fa2d5bd7d739d921",
+      "normalised_sha256": "414382f7826073aab7e264a3bf1917cf37d2d61e6c5cb5446e3689f273405e03"
+    },
+    "mut-F02_copies_open_records/B1_erase_error_full_span/stdout.log": {
+      "stdout_sha256": "349a35732c4da04272e9e084cd8015aa8f9ded22a3a1d02aa1c7e318b4bc842a",
+      "normalised_sha256": "c6d0ec4ff3e570d85c9ec7dfb9d1839661c0758a8c9e6913213d57e651c1e832"
+    },
+    "mut-F02_copies_open_records/R_power_cycle~B1_erase_error_full_span@end/stdout.log": {
+      "stdout_sha256": "8b74cb0cdaa908aaf6e4f35406ec7602e81bb8b24f2bb8e6b84c46952ec2af07",
+      "normalised_sha256": "c0794ce74dc47026550ce9f0c1a34644957eb64cbac832df06b2d22e64c0038a"
+    },
+    "mut-F03_prefill_from_blank/B1_erase_error_full_span/stdout.log": {
+      "stdout_sha256": "2bd9328a3d4151ff4e5b3a5c41a995bebf5762a2d079fcadfb1442d51b19e3d1",
+      "normalised_sha256": "85920cb4105320af0370ff715ab144b419b1d4225ee1626ef3769653c1243a4c"
+    },
+    "mut-F03_prefill_from_blank/R_power_cycle~B1_erase_error_full_span@end/stdout.log": {
+      "stdout_sha256": "bcf12949e8375c8f99b2953b359e91648559b363f298c1b69adc0ca21cf47fec",
+      "normalised_sha256": "c0794ce74dc47026550ce9f0c1a34644957eb64cbac832df06b2d22e64c0038a"
+    },
+    "mut-F04_ack_without_identity/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "d63e51239248383b361e4c381cc060df14520e97c3dcf6714fb3ec2c41e01ae8",
+      "normalised_sha256": "3d97f1a53037bad42a694ad871adebfe2e8c0a78678a528c6f88c6a0fbfbad11"
+    },
+    "mut-F04_ack_without_identity/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "c2f0a38e52b2e896a9fefcb7dff5456f57ccfdd166bda400f9add83c2d140d8f",
+      "normalised_sha256": "84f5171a07bd7a4e1a7f9cf8c0462033a45573f4db43329d12a276a36ec1d882"
+    },
+    "mut-F04_ack_without_identity/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "f3f524d121654e50a68bb9ccea9be5cd510b0f43e250913ffcd4f3792327f2e6",
+      "normalised_sha256": "b22d2a67dd5c2448945a58b313481d08831c0bd352cbf0d96b05a570ca9f96ed"
+    },
+    "mut-F04_ack_without_identity/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "a2843f442e54581052d79ae78ef28aed88c2fada5065aafdcfb3735a8e453678",
+      "normalised_sha256": "f2267c1b4e5905d5f44c2daf1044225cbbaa48b4f5c74a7d2c2a55cc4e59159f"
+    },
+    "mut-F04_ack_without_identity/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "95603424b893816a9d6d51306d4081e64119595247b62653852ab9a31c8b1ca1",
+      "normalised_sha256": "666cfe2217f7bc71506232998588ac8c0ba15e8974030dbecf671576581ad03f"
+    },
+    "mut-F04_ack_without_identity/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "ad54f4b7a503f65dccdbf5880abd09bee66137030cfeb143a9dd0aa6c1a6aabb",
+      "normalised_sha256": "ea7196f75a7dedb431815e6e5ef1d07f2c3aef45dd5a7f9a967048d3a2e8a5e2"
+    },
+    "mut-F04_ack_without_identity/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "86782092754b4fa928a30e8ebdc92773bf9ea3dac94ae7b425f243a19739fd7d",
+      "normalised_sha256": "f5f9f389359155b2416a96ae76486b276620ec12b9c2485ff4fbaf9bcf651a44"
+    },
+    "mut-F04_ack_without_identity/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "443f9989b92e9f56de539c5669cc7aa6f67827cc85ffc01593ad721f021d423a",
+      "normalised_sha256": "55581d6889044a3c2f831e3701a4e01d578012f27c40000574b93fc4321ed075"
+    },
+    "mut-F05_device_busy_gate_kept/B9_abandoned_write_stream/stdout.log": {
+      "stdout_sha256": "22225e23d90f937c790645eaae3181f6b9cb58ed914ee3e7695702051989314e",
+      "normalised_sha256": "1955d92c6bf0198424163e7cfb7570fb7af5ce6fa0d9b6d086d392d1c883450a"
+    },
+    "mut-F05_device_busy_gate_kept/R_power_cycle~B9_abandoned_write_stream@end/stdout.log": {
+      "stdout_sha256": "6b095a681652461b68c1df60008d46c37ae006b6be9281f27d3c89d4e9a63224",
+      "normalised_sha256": "9b6c48cdbf25d4efd78038137af69013875e34c5894cabebd5ae3bfc5c175007"
+    },
+    "mut-F06_ack_after_failed_slot/F2_reported_flash_failure/stdout.log": {
+      "stdout_sha256": "c5fb90c2680ff1fd601378843976fa1bd9518e1917167731f1a9c30af48bf8fa",
+      "normalised_sha256": "c691413a225e6019bc48cf40ee3c4159ecf961e2ef43292a22933218837f2077"
+    },
+    "mut-F07_reload_refusal_ignored/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "39b0ab453daa1cd3fa8d5481c78946a4e803d029c698ac973d8e5c0e32c4a6a2",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "mut-F07_reload_refusal_ignored/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "97501cdad5f623e2b8da4ef229a198eb8a9cb46a1d24ce92bf5d68c107020839",
+      "normalised_sha256": "d020a64f5b5f916fbb111add17889cd85b841fcba52a58025702586092a44a20"
+    },
+    "mut-F07_reload_refusal_ignored/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "af00aa77045fc72d036ec65cd8bb7d0564b3a7e953dead7fbd7be76e2e221bf7",
+      "normalised_sha256": "f72cf6bfae841ea1b9c6d3433def8cb50ea95be9401186dab73b39d973dc18a5"
+    },
+    "mut-F07_reload_refusal_ignored/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "4d0dd52e9b9e934cb77f75e16970ecb604dd1d2cdc19866cb8ea3b225381e15e",
+      "normalised_sha256": "bcbce866ea914caa0a684b0f5bc128aa81feab1cadb0247c6574cc487bd42206"
+    },
+    "mut-F07_reload_refusal_ignored/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "a9afb939a686ab039e0bdbc68093782bc9ac02f4277130644e6ca0ef108f383f",
+      "normalised_sha256": "18db516e8f8db9e4a9687f696c5a282afebbf4a6e290908795602a474fb88f0a"
+    },
+    "mut-F07_reload_refusal_ignored/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "62a0f9a41fbb732a2cf2e4cd648c2d040b73edb4f65ae73a47e58695665cfcd1",
+      "normalised_sha256": "5eded33718aceeb84c60f981bcb4331a6bead9eeffcd18cba81b6f8a094abf5f"
+    },
+    "mut-F07_reload_refusal_ignored/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "4589450c5ad0c9678013acf943c56782348588dad118ed8c2449be14e0a6dc51",
+      "normalised_sha256": "2063d2fc67dfa9ae30500d4f44d29f86e9eea195579975c1508926abae59d905"
+    },
+    "mut-F07_reload_refusal_ignored/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "d30ef79a19b85eb89409dcbdb2a595034698f8d8abd1a3cd01bd72beb338e974",
+      "normalised_sha256": "376503d6cbe578b9302d356eabc1db99934487737f5ae7bef5f7f7ae7b2166c7"
+    },
+    "mut-F08_restart_reloads_window/W1_writer_restart_reattaches/stdout.log": {
+      "stdout_sha256": "b54809fc966ee2f4d90206142476be2b8f2230d4764e070d61cf253fe15c1d6c",
+      "normalised_sha256": "3bc3870a39ed237e902b05c3e81fd66b64335f6772d889aa0674709ebef39145"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "6a06dafbe05e7c3e59f21abbc1f075daf9b82126789f5cb80756ed2b99878ba0",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "d4ade91b00991511f45f2c9b4ed8fa0db820136269f850e72f853adaf1117031",
+      "normalised_sha256": "668923349aa63fc7ce35c8c71a5a20c58f7ba4435c845c152ee62f4f6d249739"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "14d0658ef825e2e32a502606aa8787f80ccf05bb37c30909a350b7cac7d557c3",
+      "normalised_sha256": "b99ced8a22bac90beb0ec6945d9bbcf93006950fd1f091d9c1215dbdf1e93bd1"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "9c802b86500800420c0a046e08b9cfa15dd3962d6601d2347f129c072063d274",
+      "normalised_sha256": "e917eac031d54c31dc66bb478da84b786c9426eb532f0beee1f088816fb14798"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "4cb1563cfac6f98d819c8761c257eff2e182bcceb6abf6b2c3ff269ee0826d9c",
+      "normalised_sha256": "e0a135abcaca3fd94cbadd6830049042dc6f5170eb2e0b7978d6bccaa650db10"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "b311a3abfd3414b93a1e4930206e06f2f629e2b1f9f045f6686413569d0dcb03",
+      "normalised_sha256": "f4ab8d020b4633e4d724e12c3312d7fffee6c2700f6af0e97718d361918e434f"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "7ab66358b4f2fa4d4af385068f23072014ce2c267b98daa43572fb528146a2f7",
+      "normalised_sha256": "1ebec645a3f1c04eca6450afd235c5d9bc34ecd9937e04af747cf932157dcf0e"
+    },
+    "mut-F10_retired_writer_keeps_heartbeating/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "26e8d24de43e867de4b9e99ccb9eaafd297cc121684af3c7b62ae966794fb08e",
+      "normalised_sha256": "00b1458f484d2d25bc7eb88109d5e733c1ec75af99150e269be80e2edce13ab0"
+    },
+    "mut-F11_restart_reattaches_without_load/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "c7a2a48f5a9d513bb7b0e1b6f42e849b7ab742c4f56e538bea288966e69b9b8a",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "mut-F11_restart_reattaches_without_load/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "a1886a875b1b0f45dc1489873109c405a62c70268e65625669e9bdd1438bc82c",
+      "normalised_sha256": "668923349aa63fc7ce35c8c71a5a20c58f7ba4435c845c152ee62f4f6d249739"
+    },
+    "mut-F11_restart_reattaches_without_load/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "1db5a8a07af9bc3c065a49281613bceb286a2598c7e17490a14e9df46342c34e",
+      "normalised_sha256": "7d6abf0ae88986f8813c557d444320b7fc8ba5d2b6f129dab957da86f11bb4e3"
+    },
+    "mut-F11_restart_reattaches_without_load/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "7c898cf5ee2ec85f46396f5f04ab107c69957e727089a3ee93ad2bd449d4e965",
+      "normalised_sha256": "560f2bd544ce0de7e793ffaeef0a32b73178ca6a7b1c1a48c251d5880527c119"
+    },
+    "mut-F11_restart_reattaches_without_load/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "d9ed2ab094b0a8bb0f606bf5aa4f2336db63304736d50c8200f040073246ddce",
+      "normalised_sha256": "8e1bd5d5aaa9e1a7af434265ad704d6fc121129584979354c27a07fc520575c0"
+    },
+    "mut-F11_restart_reattaches_without_load/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "913926b848c332230163f49c24746d260555b87bf474c0c3d0f38598c95bed4a",
+      "normalised_sha256": "5f8ddf27958530403445572c2fd4253fa34d3c0292bd35337a0568f8f14e0d82"
+    },
+    "mut-F11_restart_reattaches_without_load/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "04755d22c964a75b1edf22a420b96591a0aa7fef792dd9e336ff0e9f79a35a1d",
+      "normalised_sha256": "b52cf09b6f86f8f47fe89e9752d95524966f8bdb27c48c3095ab08c814ae044f"
+    },
+    "mut-F11_restart_reattaches_without_load/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "dd6666d6e021e9cc5d99a6a1b4a71de8c04fdc5759f595e41d6c39c11a32b93d",
+      "normalised_sha256": "2be6d844c5d56f69ebae4d63e413f536a57956b61523e6653db23933b1ac826e"
+    },
+    "mut-F12_repeat_ignores_window_live/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "653938b68d41b145d12240f8a9438cf8aa1fc156b7e8adbd327179a94e86dd4b",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "mut-F12_repeat_ignores_window_live/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "b4534656eaf0e5d7a4c8927b415af99ee3f7941651a57693076bf9baf1634cb0",
+      "normalised_sha256": "a2aa2f37a7191ae5ab0e5b7cff372bf1e628a5d9ec0998ea945c065f4c81cf66"
+    },
+    "mut-F12_repeat_ignores_window_live/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "571c392b15593d9fb5f27452f72a8f2e1d16e79ca5178e237f8945bf9cb39c69",
+      "normalised_sha256": "28ebe20620fe9433e673e3020bebe1945d70688677f6efb20f04f4760de6bacf"
+    },
+    "mut-F12_repeat_ignores_window_live/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "ecef990fb5e681eb537c2fb78573bce0ed6c6b005da4226e46508468ab4ea3e4",
+      "normalised_sha256": "8cedf26aed066c0e80170f793beb91f9a31d4925c3b34adf2a4e083bfc9a4fe1"
+    },
+    "mut-F12_repeat_ignores_window_live/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "ba5b3512715dcaee06fb8425206027a08b8f927c30b7fc928de67d954de7615e",
+      "normalised_sha256": "71e53f45e05bd9ad04e1c2eaa1a98de93edbda367bf8b4a7f8a8e56aa0d371ab"
+    },
+    "mut-F12_repeat_ignores_window_live/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "90802cfdde68aebf02099d529e32ab09529c9e6a9b19a13f69bf790c9bc846e1",
+      "normalised_sha256": "6699d1db32051ad6d709dbbe197b9b14bd81f64caafc32d46868e990d7438e6c"
+    },
+    "mut-F12_repeat_ignores_window_live/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "cd1932946cc4b211f30746cbf1a915f2f8c6fe7042fb2cf3d1eec64eb1b8f8af",
+      "normalised_sha256": "a31a702462a53ce89adf73fc14ec14218a4454d8991e30797277501ab0ab4420"
+    },
+    "mut-F12_repeat_ignores_window_live/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "0855f90f0e5a5fc7e8fd5d3d2bebdcb4818ed8a4f2384651f9442676b0d94b22",
+      "normalised_sha256": "2b626216bb42a2deee8c15298172942f8a8774a08682d05f039054c6a492ee43"
+    },
+    "mut-G01_edge_detected_change/E1_dyn_change_ack_then_second_change/stdout.log": {
+      "stdout_sha256": "8c71a61d87ea65bdb74307cd08160c984ea47f3a318cc28976701087fac3e456",
+      "normalised_sha256": "8f067f39d9649ae62d13a4412fdcf8540145a96244f0c1388e24406ed0e0731f"
+    },
+    "mut-M01_open_at_erase_completion/B1_erase_error_full_span/stdout.log": {
+      "stdout_sha256": "5830e425d4e3a62ad82af8be314e286a51f371a9dd0d9f7fe498a0191c824840",
+      "normalised_sha256": "0f18e1a2ba0025d2ab3fdbf9fed820630ff6b8a72adcac826ca49e6a612e8ccd"
+    },
+    "mut-M01_open_at_erase_completion/R_power_cycle~B1_erase_error_full_span@end/stdout.log": {
+      "stdout_sha256": "8707ff7b3fa11ce6d8144508eed75d19d845282c2f0df4c312a7749e577981d8",
+      "normalised_sha256": "c0794ce74dc47026550ce9f0c1a34644957eb64cbac832df06b2d22e64c0038a"
+    },
+    "mut-M02_close_on_any_completion/C1g_real_port_copy_inside_erase_write_gap/stdout.log": {
+      "stdout_sha256": "7ea262c49b3d83c4611662872c287e51e30a8f10211dcbcd49cd5cefda5cfd00",
+      "normalised_sha256": "77409249ac2e8be3709851a15a7d36f06b840aee78cda903a35c859010db8910"
+    },
+    "mut-M03_close_on_partial_write/B10_partial_write_never_closes/stdout.log": {
+      "stdout_sha256": "dbfb562267326d99fa60a75607dc2cb78015660653dfffcabd9dbba80fbaf598",
+      "normalised_sha256": "c532019d85bd6efd050dcdceb586b0d9e8c6a17356b1d231b0e556b4b1e30196"
+    },
+    "mut-M04_ack_ignores_identity/A6_late_ack_while_new_capture_open/stdout.log": {
+      "stdout_sha256": "df7d7f0e65356943ccaef380a610ce20ef4d1e9a4d8553a861b06277d8d0ea1d",
+      "normalised_sha256": "273edc4f62d024736fa2ff9799ecd6c26616e85f7e206c72b9ae186f452888bd"
+    },
+    "mut-M05_ack_retires_live_work/A2_write_between_verify_and_ack/stdout.log": {
+      "stdout_sha256": "06adecc476d96e10de1b571632ca46fbd223f7b8ec4e2c0f2f887a769cc3d9a4",
+      "normalised_sha256": "7be242dfdccca092ca5b22d6c8d3af39ae4d71d48479c7348881e6f5ad47d6cd"
+    },
+    "mut-M06_hold_does_not_defer/C1_request_during_hold_is_deferred/stdout.log": {
+      "stdout_sha256": "c8b97ee76181167e67d410847e102a8a2eddd15e4d8dfca53542b02bfe2492a8",
+      "normalised_sha256": "aead13204e0bec8b09bd953c37bcd1cbdc9da7f1e62c29858d1562b23db9dff8"
+    },
+    "mut-M07_hold_never_expires/C2_hold_expiry_then_erase_with_stale_mask/stdout.log": {
+      "stdout_sha256": "54c9fbcee517ef04334d29fadf8c3fc9e339a70bb973b378e75caf5d76634325",
+      "normalised_sha256": "4a821ab62f5ba8310c42be149a7b77f951c6a6b9487de33f2c07195d1d8c1c45"
+    },
+    "mut-M08_attestation_ignores_grant/C2_hold_expiry_then_erase_with_stale_mask/stdout.log": {
+      "stdout_sha256": "c71fdd9711217de3ae25b50333fbfb847b46d81651620db6c51a7d8563ebc8f4",
+      "normalised_sha256": "414382f7826073aab7e264a3bf1917cf37d2d61e6c5cb5446e3689f273405e03"
+    },
+    "mut-M09_second_arm_accepted/C5_concurrent_arm_refused/stdout.log": {
+      "stdout_sha256": "eb5ab47321c2109d2675605ba5ddfb967fbfa632a82d7deab24c3cc87fb17b08",
+      "normalised_sha256": "4c66c4f2f69308df193489b7066030b784da2cc4044fa286510ee8fbbbe7d4bf"
+    },
+    "mut-M10_release_forgets_work/C2_hold_expiry_then_erase_with_stale_mask/stdout.log": {
+      "stdout_sha256": "5740dbe439be2c448bb3830b1381aad5e8e711d9364d3f13b8b3023aaf771e60",
+      "normalised_sha256": "c2260beb967ac2df647f14c190325d1d029481fb958f743141d7fc6b6f44e0a3"
+    },
+    "mut-M11_dirty_from_accepted_bytes/A12_last_byte_before_arm_done_after/stdout.log": {
+      "stdout_sha256": "fd152f983928fd3ef0a17cef2fa47a3865e589125f3ffe4c9d42daf0a0fcf5f2",
+      "normalised_sha256": "a0fc34f8a388f19446236dffbc9530fca0391cf29b5231facba84f4537d6099e"
+    },
+    "mut-M12_alarm_not_revoking/B1_erase_error_full_span/stdout.log": {
+      "stdout_sha256": "1dda846f64bdb942128bdade182443a9318dca06119eafe3655d73464505626b",
+      "normalised_sha256": "1b87320d767a260948cc7dda28e52dee4e5829af47af746d1b3c53995d45fd6e"
+    },
+    "mut-M12_alarm_not_revoking/R_power_cycle~B1_erase_error_full_span@end/stdout.log": {
+      "stdout_sha256": "077555e7d8a62933bc829b8c6da221f9faab9bbdb9ffea1cc50c768c9be4200c",
+      "normalised_sha256": "afb979d84bb5b7e6172be69dba081c042014e5ddfe7bea76afffc2844a848735"
+    },
+    "mut-M13_report_not_revoking/F2_reported_flash_failure/stdout.log": {
+      "stdout_sha256": "06c4f3fadec612b49b7a0fb6d20a37fc385ed139c73f8355654bacc971a1d9cc",
+      "normalised_sha256": "ea5d854fdc05aba4590eee8076e4974c062b0654353924c551540921f29a171c"
+    },
+    "mut-M14_pending_bit_misses_producer/E1_dyn_change_ack_then_second_change/stdout.log": {
+      "stdout_sha256": "1ad0c3f58f28f6be77a6d71261a6f8a480e0a45d16eb3e3c581da29eb8402bb5",
+      "normalised_sha256": "8f067f39d9649ae62d13a4412fdcf8540145a96244f0c1388e24406ed0e0731f"
+    },
+    "mut-M15_pending_bit_misses_open_record/B5_erase_then_no_write_yet/stdout.log": {
+      "stdout_sha256": "3c0bb5543964c1ddaa6649aa459795235ae94b358e688942a94a963dd6c2d1dc",
+      "normalised_sha256": "81928ac4ad9f1fbf31378539ede699e0c7ab566ba2e5cfa2f8ee7dc15de0779f"
+    },
+    "mut-M17_hold_expiry_voids_capture/C3_hold_expiry_without_producer/stdout.log": {
+      "stdout_sha256": "0199181dda114b5ee0204d6d4f3e41e1fe2df638c2f2c580dcdfe6342511880f",
+      "normalised_sha256": "b26f569c3f2353177f0d67ce237fc38f2edc2e636da115abe2dc49da66b90396"
+    },
+    "mut-M18_pending_bit_stuck/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "f837c04192a1a1643ab95e55013dd3518fc4eb26866ea9c5190919a4cebeb8bf",
+      "normalised_sha256": "efe2b8b3a868e1fd2845c1535c84541297e0b609947b02b4afaf5cb909e5aabc"
+    },
+    "mut-M18_pending_bit_stuck/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "ea20f6f50319c8508512aa3eb1f85c4e65374888ee89c05e0b4a66bd02ac1cc3",
+      "normalised_sha256": "38deb81e2672cf1e16e180da7c72f4f2479aada9d96b0a71dae8a0a706af2ae1"
+    },
+    "mut-M18_pending_bit_stuck/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "50cbec6c420cf561927409f96cb9db2a69917d4b1d51e9600add174646827202",
+      "normalised_sha256": "7d6abf0ae88986f8813c557d444320b7fc8ba5d2b6f129dab957da86f11bb4e3"
+    },
+    "mut-M18_pending_bit_stuck/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "347ea237d1864188e4f0b85ea73bce84b3d039620ed34e3c470502f356c6a34f",
+      "normalised_sha256": "560f2bd544ce0de7e793ffaeef0a32b73178ca6a7b1c1a48c251d5880527c119"
+    },
+    "mut-M18_pending_bit_stuck/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "396dddd25ea267ca4e08b35027d3a8a006005d3c9e5e5faf98ca9cca66087f32",
+      "normalised_sha256": "8e1bd5d5aaa9e1a7af434265ad704d6fc121129584979354c27a07fc520575c0"
+    },
+    "mut-M18_pending_bit_stuck/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "05d24abd729ab3848bff6c079f20363770b345b8311b3b26b83f52fcb5fea309",
+      "normalised_sha256": "5bf9839474d647599bf935754dd46e76bc8f8e1dabb3b4206b66c7f5068d37e9"
+    },
+    "mut-M18_pending_bit_stuck/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "893e7be9625e70060e5a8df9a3972f505391eeb98d406c3172400e4d24f397a7",
+      "normalised_sha256": "1418db903553f8d3eac6a292ecd68cf2f4375c90f34776fbbf5a7dc215ad28df"
+    },
+    "mut-M18_pending_bit_stuck/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "72ccc8c14245f60edac8b401c5613cddbffae19aac4aa8caead90bb846bd025a",
+      "normalised_sha256": "4e13f3070f5e26dfaddb0ffe9ef5b36adde070ddac7de34d51db8cdf980e95eb"
+    },
+    "mut-M19_arm_edge_grant_not_deferred/U4_grant_request_on_arm_edge/stdout.log": {
+      "stdout_sha256": "2ad9d8259f7f2d837ffa31721017983a38914446a508008d385dd4c4840c33b7",
+      "normalised_sha256": "2ad9d8259f7f2d837ffa31721017983a38914446a508008d385dd4c4840c33b7"
+    },
+    "mut-M20_arm_accepted_while_request_deferred/U10_arm_refused_while_request_deferred/stdout.log": {
+      "stdout_sha256": "1d7abffd3b4411c201eedce4a0c30c46e6e4b82e39a24a4682ba291f05181f6f",
+      "normalised_sha256": "1d7abffd3b4411c201eedce4a0c30c46e6e4b82e39a24a4682ba291f05181f6f"
+    },
+    "mut-R01_reload_ignores_inflight/U5_reload_refused_inflight_at_rebase/stdout.log": {
+      "stdout_sha256": "fca054f6d17cb0380391fece84be3d7a7e4184ecfddeb33ed9a0e892dff2fc14",
+      "normalised_sha256": "fca054f6d17cb0380391fece84be3d7a7e4184ecfddeb33ed9a0e892dff2fc14"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "b2c5f1f35e7c624e09452df78c21bf194799a63bb27193ff6dbac29875766c84",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "fcaa207f72056cc2950d6b084c02026759c1fdd881e52f73bd37c090bf8311c8",
+      "normalised_sha256": "0e149f86ecf652694692b98999678592d74f27a48606773ddd2544a892a9334a"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "7e79abe363db5cd84ecd81f4b7a2b450c52159d662ec6c3103238890d6687562",
+      "normalised_sha256": "ff6cc2581729ba9b9d2c609f4dfc45f0193074a59a0cf81ec520bc26e7c7b746"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "2c427abb3272f2972b00b8f6b6ee3a95c3bd2179771237e6f9da984279389932",
+      "normalised_sha256": "a5f80e708211522ed5b06c72642ac389506d08df176d61656b41c5c68ef4e60f"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "d561a4de6124965499e105276f32648de71f27ddc65f56ff069094b296c9d9a6",
+      "normalised_sha256": "3d41f8876966b3764f31fa481b71dd682a47d498f4dffbeb75a6ffec35990d81"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "07deefcc0c4648f29fe6ed2b01748c7c581d9e1e7d473671849a07973f59f058",
+      "normalised_sha256": "6279b5fcf5de18af3f0a70068905523c3f3417ac570652c00f14d3ffa2e696e3"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "068ba83e6cd350557664cd95514722120abf8e4eaec2be97c4e544a0c5c6cceb",
+      "normalised_sha256": "f074317d4fe991a6a1278374e4760b19eaaf0c54d8ba9c2140bddabb4de28b1c"
+    },
+    "mut-R02_reload_ignores_grant_since_rebase/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "d5a5f8b787aea49ecea2cbe4cadd1dc821456eeec22127fe26e41d0f0406da45",
+      "normalised_sha256": "b32abaf8500c4709b200e91380baa5192b48d4671dd0b7e41762a7fd4559830e"
+    },
+    "mut-R03_reload_not_once_per_reset/U6_reload_refused_after_boot/stdout.log": {
+      "stdout_sha256": "6f146e98befc0c675344e04f84332ce433e411a52411e6d947373c3d2c4b6bb7",
+      "normalised_sha256": "6f146e98befc0c675344e04f84332ce433e411a52411e6d947373c3d2c4b6bb7"
+    },
+    "mut-R04_rebase_wins_over_same_edge_grant/U8_grant_on_rebase_edge/stdout.log": {
+      "stdout_sha256": "55b61c5f5674ef936fe69ebb6e11a32bc8030f053ebebc8d63f71cf3f4d795bd",
+      "normalised_sha256": "55b61c5f5674ef936fe69ebb6e11a32bc8030f053ebebc8d63f71cf3f4d795bd"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "6e007cbac0d528f2bf053d885635855d21455e9bfbaa9129e65ab95c8cabcc4c",
+      "normalised_sha256": "2f3fce4dee3b4319934fd20a7c6ac95e595dd87397e4d3a3c63a0af28a3d5201"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "b13de662c7e46306106b0b047ca83f3b252c3ccfb5cb6d575adf7b862b13bd4c",
+      "normalised_sha256": "668923349aa63fc7ce35c8c71a5a20c58f7ba4435c845c152ee62f4f6d249739"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "27a2a3b734e1f508ef854e9628522f85637503397a36bd0c2758f0b612e06d15",
+      "normalised_sha256": "60815dd7bdb56960e0fd96183a8a5fe8c3884eb82041b236fecb6cf6b9d36cab"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "49e964d56480da15ee9b4537708071021d8ad7c8620ee8f5c28b16dc1be0a590",
+      "normalised_sha256": "aca8f02bc510abe2388133e2e0acc9176cc3c37676ed334b9819d94a5750f273"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "44a2a04e8e51fbf4962e581ae4f3bd62ae995277595a95552f48ff330e839d13",
+      "normalised_sha256": "13cf16e2e7e78bc10babcb4a00b83247428d9226cead328693723334622f7bd0"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "ea2056f38ee5b9a04e131c21b4ed8e0a51403526bf2973825ed9bbe3ba5c51b7",
+      "normalised_sha256": "ba5a1cd52e3cf9351271899cd7cafa9b15d6d2c70f435b3704447a445f621fac"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "60e3418637d384c7c9d0327b1f7f0521dbc1c36fd4a41f8ba2e3a1e5a0aa3af7",
+      "normalised_sha256": "74fa5cecb634c73863a779f964465f394e092c4c63dc5e6bde50cfa285127170"
+    },
+    "mut-R05_boot_load_stays_pending_when_live/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "d86590de89d6c1cd1376d119df65cdbade07b41bcda5d657eed1fc506dd93679",
+      "normalised_sha256": "b5ba700deb40a18339d236c5610dadf9e7ca2c887ce6b9d68534cc7548f13f37"
+    },
+    "mut-R06_revision_b_load_rule/A1_stable_no_change/stdout.log": {
+      "stdout_sha256": "c674685ec7cf4b70b7e765bc99341e788a83207798b961ed7bd35901ac29ab6b",
+      "normalised_sha256": "c9dce0dbfa639de5dcbed4bcb63d1744fb81fff0355acceae738f8d6db0f9593"
+    },
+    "mut-R06_revision_b_load_rule/R1_reload_after_failed_erase/stdout.log": {
+      "stdout_sha256": "aff1ea1334f6e29efb3a5f93c3e6d702da1c48d5e98837b58ba4b8ec38195091",
+      "normalised_sha256": "9b0b29119a74b1fbd080057fb6b5462be06ce1587722a50ba5865fcd30eef8d7"
+    },
+    "mut-R06_revision_b_load_rule/U12_window_live_stops_the_repeat/stdout.log": {
+      "stdout_sha256": "bf5e6a1812a215adee9c58147a8e3f021ecf3fc49807bf43b76f5c287eb3b7f8",
+      "normalised_sha256": "9c620a0bdf001394b2502bff26ee6677382663ddf07f866f54b8cdb5217b3145"
+    },
+    "mut-R06_revision_b_load_rule/U13_four_refusals_with_the_device_busy/stdout.log": {
+      "stdout_sha256": "ed770d863600d525f867f9bd09995c137e3c1d076723bd15b99e1399bc97a03a",
+      "normalised_sha256": "66df62be98d5626a2b25912edbfb7b690cdeb58e7195086180890daa30a11ff1"
+    },
+    "mut-R06_revision_b_load_rule/U9_four_window_loads_refused/stdout.log": {
+      "stdout_sha256": "2b288f63d5e80a8c0dc3f8b1dae8b8f033a7750a99c20855b0fddac76b226347",
+      "normalised_sha256": "8b90201f46977528c4377d7c2d97c6732c74bca72d4993e74e377523fbb1066e"
+    },
+    "mut-R06_revision_b_load_rule/W2_restart_after_refused_loads/stdout.log": {
+      "stdout_sha256": "bd16f951f0d79c139ebb7b4226b536c9b62fca010ba02decb13787f410d213da",
+      "normalised_sha256": "8befdc65648e298f0244f9c3dd9d9259105563295edf27433bba40f03f2e5c19"
+    },
+    "mut-R06_revision_b_load_rule/W3_write_across_refused_fill_then_restart/stdout.log": {
+      "stdout_sha256": "0c43b0d213ae914060e001494dac03e5fde231ab6d5b5ac9f69dea8a39b1453f",
+      "normalised_sha256": "0625b0a96c422b71fbc30a3c40276af714bce278486d41c27b5b0e0819d735ae"
+    },
+    "mut-R06_revision_b_load_rule/W4_all_records_rewritten_after_refused_fill/stdout.log": {
+      "stdout_sha256": "f09216f708b7d79d646f8d1db00f0db54ca4157be7b0b4d177bf9c62dee8bb36",
+      "normalised_sha256": "48997c239ba37f502e087e88558a58c4d773bcf8c4041df87f340cd976754dec"
+    },
+    "mut-R07_arm_without_accepted_load/U11_arm_refused_without_accepted_load/stdout.log": {
+      "stdout_sha256": "3ff0e5043fcc4f85f315336f0b8168a1968a1343108dee36c5802fc38f728102",
+      "normalised_sha256": "3ff0e5043fcc4f85f315336f0b8168a1968a1343108dee36c5802fc38f728102"
+    }
+  },
+  "cases": [
+    {
+      "build": "contract-1x1",
+      "case": "W1_writer_restart_reattaches",
+      "stdout_size": 9565,
+      "stdout_sha256": "f334890b0d887380893dbce2ae18793193d4054e942c2617ae5a900891385d82",
+      "kept": "head-evidence/contract-1x1/W1_writer_restart_reattaches.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "base",
+          "ms": 2230,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 9
+        },
+        {
+          "tag": "before",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "restarted",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "end",
+          "ms": 5830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK), 3264 B at 0xc2888fc0; walk done=1 fail=0 blank=1 backed=1.",
+        "Milan NVM: commit (dirty) seq 1 -> slot A, 3264 B, capture 1 acknowledged.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xc2888fc0; walk done=1 fail=0 blank=1 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 2 acknowledged."
+      ]
+    },
+    {
+      "build": "contract-1x1",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3897,
+      "stdout_sha256": "81d5ebee99abb7f9078aadf5c7af248a8dfd4252c12794ee2ae478f02f6ec01a",
+      "kept": "head-evidence/contract-1x1/W2_restart_after_refused_loads.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x977f4fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x977f4fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-1x1",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3751,
+      "stdout_sha256": "cc78f02a7065b58056c77d7c5d4cb1a4e7917351a644fbfddf5ef29fe8a20ce3",
+      "kept": "head-evidence/contract-1x1/W3_write_across_refused_fill_then_restart.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xd995efc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xd995efc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-1x1",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16068,
+      "stdout_sha256": "8973fdbeb2a27cf806c8e62ac7b2dd3fd1a53e357d90ed223991450b5719e7bf",
+      "kept": "head-evidence/contract-1x1/W4_all_records_rewritten_after_refused_fill.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x61c8bfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x61c8bfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-8x8",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 4674,
+      "stdout_sha256": "947eea406f7f90f90579a5624b00e71dbfe253e0c176062f03e2a51fa200884a",
+      "kept": "head-evidence/contract-8x8/W2_restart_after_refused_loads.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 631,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 631,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6631,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0xed776fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0xed776fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-8x8",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4549,
+      "stdout_sha256": "bddc5e34ecdee4a35c31b175c687e43e2c389cf62b5f0af9e2f989d20f42e7fc",
+      "kept": "head-evidence/contract-8x8/W3_write_across_refused_fill_then_restart.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x02863fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x02863fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-8x8",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 39464,
+      "stdout_sha256": "17ca620fd03c18ceac60ba31e2b3023b6c0d96c50ab1dadef456b277634cb935",
+      "kept": "head-evidence/contract-8x8/W4_all_records_rewritten_after_refused_fill.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6153,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9153,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x94495fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x94495fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F04_ack_without_identity",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3891,
+      "stdout_sha256": "ad54f4b7a503f65dccdbf5880abd09bee66137030cfeb143a9dd0aa6c1a6aabb",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x0afa4fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x0afa4fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F04_ack_without_identity",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3745,
+      "stdout_sha256": "86782092754b4fa928a30e8ebdc92773bf9ea3dac94ae7b425f243a19739fd7d",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x05b15fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x05b15fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F04_ack_without_identity",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16062,
+      "stdout_sha256": "443f9989b92e9f56de539c5669cc7aa6f67827cc85ffc01593ad721f021d423a",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x38bb6fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x38bb6fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F07_reload_refusal_ignored",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3926,
+      "stdout_sha256": "62a0f9a41fbb732a2cf2e4cd648c2d040b73edb4f65ae73a47e58695665cfcd1",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x394e5fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x394e5fc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F07_reload_refusal_ignored",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3617,
+      "stdout_sha256": "4589450c5ad0c9678013acf943c56782348588dad118ed8c2449be14e0a6dc51",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xd3a0dfc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xd3a0dfc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F07_reload_refusal_ignored",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16120,
+      "stdout_sha256": "d30ef79a19b85eb89409dcbdb2a595034698f8d8abd1a3cd01bd72beb338e974",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6059,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end2",
+          "ms": 9059,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x98cbafc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x98cbafc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F08_restart_reloads_window",
+      "case": "W1_writer_restart_reattaches",
+      "stdout_size": 6686,
+      "stdout_sha256": "b54809fc966ee2f4d90206142476be2b8f2230d4764e070d61cf253fe15c1d6c",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "base",
+          "ms": 2230,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 9
+        },
+        {
+          "tag": "before",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "restarted",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "end",
+          "ms": 5830,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK), 3264 B at 0xe5763fc0; walk done=1 fail=0 blank=1 backed=1.",
+        "Milan NVM: commit (dirty) seq 1 -> slot A, 3264 B, capture 1 acknowledged.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe5763fc0; walk done=1 fail=0 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F10_retired_writer_keeps_heartbeating",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 5219,
+      "stdout_sha256": "b311a3abfd3414b93a1e4930206e06f2f629e2b1f9f045f6686413569d0dcb03",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 27
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x25c50fc0; walk done=1 fail=1 blank=1 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x25c50fc0; walk done=1 fail=1 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F10_retired_writer_keeps_heartbeating",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4970,
+      "stdout_sha256": "7ab66358b4f2fa4d4af385068f23072014ce2c267b98daa43572fb528146a2f7",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 25
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x50163fc0; walk done=1 fail=1 blank=1 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x50163fc0; walk done=1 fail=1 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F10_retired_writer_keeps_heartbeating",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 17881,
+      "stdout_sha256": "26e8d24de43e867de4b9e99ccb9eaafd297cc121684af3c7b62ae966794fb08e",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 25
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 37
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x1dba4fc0; walk done=1 fail=1 blank=1 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x1dba4fc0; walk done=1 fail=1 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F11_restart_reattaches_without_load",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 6719,
+      "stdout_sha256": "913926b848c332230163f49c24746d260555b87bf474c0c3d0f38598c95bed4a",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf58abfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf58abfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested."
+      ]
+    },
+    {
+      "build": "mut-F11_restart_reattaches_without_load",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 6566,
+      "stdout_sha256": "04755d22c964a75b1edf22a420b96591a0aa7fef792dd9e336ff0e9f79a35a1d",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xcfab3fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xcfab3fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested."
+      ]
+    },
+    {
+      "build": "mut-F11_restart_reattaches_without_load",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 20335,
+      "stdout_sha256": "dd6666d6e021e9cc5d99a6a1b4a71de8c04fdc5759f595e41d6c39c11a32b93d",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 24
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 24
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 36
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x57663fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x57663fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested."
+      ]
+    },
+    {
+      "build": "mut-F12_repeat_ignores_window_live",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3897,
+      "stdout_sha256": "90802cfdde68aebf02099d529e32ab09529c9e6a9b19a13f69bf790c9bc846e1",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x64bf8fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x64bf8fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F12_repeat_ignores_window_live",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 8170,
+      "stdout_sha256": "cd1932946cc4b211f30746cbf1a915f2f8c6fe7042fb2cf3d1eec64eb1b8f8af",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 3 window load(s); accepted at attempt 4.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x65da0fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x65da0fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-F12_repeat_ignores_window_live",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 23566,
+      "stdout_sha256": "0855f90f0e5a5fc7e8fd5d3d2bebdcb4818ed8a4f2384651f9442676b0d94b22",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "end2",
+          "ms": 9068,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 37
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 3 window load(s); accepted at attempt 4.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xaf98efc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xaf98efc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged.",
+        "Milan NVM: commit (dirty) seq 3 -> slot A, 3264 B, capture 2 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-M18_pending_bit_stuck",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3897,
+      "stdout_sha256": "05d24abd729ab3848bff6c079f20363770b345b8311b3b26b83f52fcb5fea309",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x6a3bafc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x6a3bafc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-M18_pending_bit_stuck",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3751,
+      "stdout_sha256": "893e7be9625e70060e5a8df9a3972f505391eeb98d406c3172400e4d24f397a7",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe8825fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe8825fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-M18_pending_bit_stuck",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16068,
+      "stdout_sha256": "72ccc8c14245f60edac8b401c5613cddbffae19aac4aa8caead90bb846bd025a",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x76853fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x76853fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R02_reload_ignores_grant_since_rebase",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 7268,
+      "stdout_sha256": "07deefcc0c4648f29fe6ed2b01748c7c581d9e1e7d473671849a07973f59f058",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 3
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 3
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 27
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x27618fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x27618fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-R02_reload_ignores_grant_since_rebase",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4855,
+      "stdout_sha256": "068ba83e6cd350557664cd95514722120abf8e4eaec2be97c4e544a0c5c6cceb",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xc241dfc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xc241dfc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-R02_reload_ignores_grant_since_rebase",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 20051,
+      "stdout_sha256": "d5a5f8b787aea49ecea2cbe4cadd1dc821456eeec22127fe26e41d0f0406da45",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6059,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "end2",
+          "ms": 9059,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 37
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x35dd1fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x35dd1fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-R05_boot_load_stays_pending_when_live",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3903,
+      "stdout_sha256": "ea2056f38ee5b9a04e131c21b4ed8e0a51403526bf2973825ed9bbe3ba5c51b7",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x17d97fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x17d97fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R05_boot_load_stays_pending_when_live",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3757,
+      "stdout_sha256": "60e3418637d384c7c9d0327b1f7f0521dbc1c36fd4a41f8ba2e3a1e5a0aa3af7",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf1279fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf1279fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R05_boot_load_stays_pending_when_live",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16074,
+      "stdout_sha256": "d86590de89d6c1cd1376d119df65cdbade07b41bcda5d657eed1fc506dd93679",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x5887dfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x5887dfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R06_revision_b_load_rule",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 5142,
+      "stdout_sha256": "bd16f951f0d79c139ebb7b4226b536c9b62fca010ba02decb13787f410d213da",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xfb263fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xfb263fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R06_revision_b_load_rule",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4989,
+      "stdout_sha256": "0c43b0d213ae914060e001494dac03e5fde231ab6d5b5ac9f69dea8a39b1453f",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x919b0fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x919b0fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R06_revision_b_load_rule",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 19999,
+      "stdout_sha256": "f09216f708b7d79d646f8d1db00f0db54ca4157be7b0b4d177bf9c62dee8bb36",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 24
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 36
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x89fb9fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x89fb9fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    }
+  ]
+}

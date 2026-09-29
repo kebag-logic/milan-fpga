@@ -1,0 +1,28 @@
+Milan baremetal: CSR ID=4d494c4e VERSION=00020059, RV32I machine mode, no MMU/cache.
+Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x977f4fc0; walk done=1 fail=1 blank=1 backed=0.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x97705fc0, CRC 3e6a6713.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+OBS {"tag":"boot","cycle":30708,"ms":30,"stat":3284142112,"capid":0,"backed":0,"dirty_pub":0,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":112,"mem_errs":4,"own":[263175,196611,196611,65537,4294967295,63,0,0],"preloads":[]}
+OBS {"tag":"live","cycle":630765,"ms":630,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":168,"mem_errs":4,"own":[263175,196609,196611,65537,4294967295,63,0,0],"preloads":[]}
+Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x977f4fc0; walk done=1 fail=1 blank=1 backed=0.
+OBS {"tag":"restarted","cycle":630768,"ms":630,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":168,"mem_errs":4,"own":[263175,196609,196611,65537,4294967295,63,0,0],"preloads":[]}
+OBS {"tag":"end","cycle":6630793,"ms":6630,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":168,"mem_errs":4,"own":[263175,196609,196611,65537,4294967295,63,0,0],"preloads":[]}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":43,"gnt":44,"end":157,"res":"err","bytes":28}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":182,"gnt":183,"end":296,"res":"err","bytes":28}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":321,"gnt":322,"end":435,"res":"err","bytes":28}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":460,"gnt":461,"end":574,"res":"err","bytes":28}
+EVT {"k":"op","src":"port","op":0,"rid":32,"req":591,"gnt":592,"end":602,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":33,"req":606,"gnt":607,"end":617,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":2,"rid":33,"req":530047,"gnt":530048,"end":530161,"res":"done","bytes":28}
+EVT {"k":"op","src":"port","op":1,"rid":33,"req":530162,"gnt":530163,"end":530305,"res":"done","bytes":28}
+EVT {"k":"strobe","cyc":158,"v":64,"stray":0}
+EVT {"k":"strobe","cyc":297,"v":64,"stray":0}
+EVT {"k":"strobe","cyc":436,"v":64,"stray":0}
+EVT {"k":"strobe","cyc":575,"v":64,"stray":0}
+EVT {"k":"hook","name":"s_reload","n":1,"cyc":43,"v":64}
+EVT {"k":"hook","name":"s_reload","n":2,"cyc":182,"v":64}
+EVT {"k":"hook","name":"s_reload","n":3,"cyc":321,"v":64}
+EVT {"k":"hook","name":"s_reload","n":4,"cyc":460,"v":64}
+CASE_DONE W2_restart_after_refused_loads hooks_pending=0

@@ -1,0 +1,131 @@
+START build-service-8x8-queued-input 00:31:24
+END build-service-8x8-queued-input 0 00:31:48
+START service-8x8-queued-input 00:31:48
+START build-service-8x8-queued-builtins 00:31:48
+END build-service-8x8-queued-builtins 0 00:32:10
+START service-8x8-queued-builtins 00:32:10
+START build-service-8x8-device-wait 00:32:10
+END build-service-8x8-device-wait 0 00:32:32
+START service-8x8-device-wait 00:32:32
+START build-service-8x8-uart-paced 00:32:32
+END build-service-8x8-uart-paced 0 00:32:54
+START service-8x8-uart-paced 00:32:54
+START build-service-8x8-all 00:32:54
+END build-service-8x8-all 0 00:33:15
+START service-8x8-all 00:33:15
+START build-service-8x8-queued-short 00:33:15
+END build-service-8x8-queued-short 0 00:33:38
+START service-8x8-queued-short 00:33:38
+START build-service-1x1-queued-input 00:33:38
+END build-service-1x1-queued-input 0 00:33:58
+START service-1x1-queued-input 00:33:58
+START build-service-1x1-queued-builtins 00:33:58
+END build-service-1x1-queued-builtins 0 00:34:20
+START service-1x1-queued-builtins 00:34:20
+START build-service-1x1-device-wait 00:34:20
+END build-service-1x1-device-wait 0 00:34:41
+START service-1x1-device-wait 00:34:41
+START build-service-1x1-uart-paced 00:34:41
+END build-service-1x1-uart-paced 0 00:35:02
+START service-1x1-uart-paced 00:35:02
+START build-service-1x1-all 00:35:02
+END build-service-1x1-all 0 00:35:26
+START service-1x1-all 00:35:26
+START build-service-1x1-queued-short 00:35:26
+END build-service-1x1-queued-short 0 00:35:50
+START service-1x1-queued-short 00:35:50
+START build-service-remove-dispatch-queued-builtins 00:35:50
+END build-service-remove-dispatch-queued-builtins 0 00:36:12
+START service-remove-dispatch-queued-builtins 00:36:12
+START build-service-remove-dispatch-queued-short 00:36:12
+END build-service-remove-dispatch-queued-short 0 00:36:34
+START service-remove-dispatch-queued-short 00:36:34
+START build-service-late-sample-all 00:36:34
+END build-service-late-sample-all 0 00:36:56
+START service-late-sample-all 00:36:56
+START build-service-no-publish-all 00:36:56
+END build-service-no-publish-all 0 00:37:18
+START service-no-publish-all 00:37:18
+START build-capture-8x8-100-on 00:37:18
+END build-capture-8x8-100-on 0 00:37:44
+START capture-8x8-100-on 00:37:44
+START build-capture-8x8-100-off 00:37:44
+END build-capture-8x8-100-off 0 00:38:09
+START capture-8x8-100-off 00:38:09
+START build-capture-8x8-50-on 00:38:09
+END build-capture-8x8-50-on 0 00:38:35
+START capture-8x8-50-on 00:38:35
+START build-capture-8x8-50-off 00:38:35
+END build-capture-8x8-50-off 0 00:39:02
+START capture-8x8-50-off 00:39:02
+START build-capture-1x1-50-on 00:39:02
+END build-capture-1x1-50-on 0 00:39:28
+START capture-1x1-50-on 00:39:28
+START build-capture-1x1-50-off 00:39:28
+END build-capture-1x1-50-off 0 00:40:04
+START capture-1x1-50-off 00:40:04
+START build-capture-byte-only 00:40:04
+END build-capture-byte-only 0 00:40:41
+START build-capture-skip-copy 00:40:41
+END build-capture-skip-copy 0 00:41:20
+START capture-skip-copy 00:41:20
+START build-capture-no-traffic 00:41:20
+END build-capture-no-traffic 0 00:42:00
+START capture-no-traffic 00:42:00
+END capture-skip-copy 0 00:42:50
+END capture-no-traffic 0 00:43:27
+END service-1x1-all 0 00:45:40
+START regrade-service-1x1-all 00:45:40
+END regrade-service-1x1-all 0 00:45:40
+END capture-1x1-50-on 0 00:46:04
+END capture-1x1-50-off 0 00:46:37
+END service-late-sample-all 0 00:46:54
+START regrade-service-late-sample-all 00:46:54
+END regrade-service-late-sample-all 0 00:46:54
+END service-1x1-uart-paced 0 00:46:57
+START regrade-service-1x1-uart-paced 00:46:57
+END regrade-service-1x1-uart-paced 0 00:46:57
+END service-no-publish-all 0 00:47:33
+END service-1x1-queued-input 0 00:55:07
+START regrade-service-1x1-queued-input 00:55:07
+END regrade-service-1x1-queued-input 0 00:55:08
+END service-1x1-queued-short 0 00:58:06
+START regrade-service-1x1-queued-short 00:58:06
+END regrade-service-1x1-queued-short 0 00:58:06
+END service-remove-dispatch-queued-short 0 00:58:35
+START regrade-service-remove-dispatch-queued-short 00:58:35
+END regrade-service-remove-dispatch-queued-short 0 00:58:35
+END service-1x1-device-wait 0 01:00:15
+START regrade-service-1x1-device-wait 01:00:15
+END regrade-service-1x1-device-wait 0 01:00:16
+END capture-8x8-50-off 0 01:10:02
+END service-8x8-queued-short 0 01:11:16
+START regrade-service-8x8-queued-short 01:11:16
+END regrade-service-8x8-queued-short 0 01:11:16
+END capture-8x8-50-on 0 01:13:10
+START capture-byte-only 01:13:10
+END capture-8x8-100-off 0 01:16:56
+END capture-8x8-100-on 0 01:18:17
+END capture-byte-only 0 01:19:35
+END service-8x8-all 0 01:22:41
+START regrade-service-8x8-all 01:22:41
+END regrade-service-8x8-all 0 01:22:41
+END service-8x8-uart-paced 0 01:24:48
+START regrade-service-8x8-uart-paced 01:24:48
+END regrade-service-8x8-uart-paced 0 01:24:48
+END service-8x8-device-wait 0 01:25:25
+START regrade-service-8x8-device-wait 01:25:25
+END regrade-service-8x8-device-wait 0 01:25:25
+END service-1x1-queued-builtins 0 01:34:17
+START regrade-service-1x1-queued-builtins 01:34:17
+END regrade-service-1x1-queued-builtins 0 01:34:18
+END service-remove-dispatch-queued-builtins 0 01:37:50
+START regrade-service-remove-dispatch-queued-builtins 01:37:50
+END regrade-service-remove-dispatch-queued-builtins 0 01:37:50
+END service-8x8-queued-builtins 0 02:06:52
+START regrade-service-8x8-queued-builtins 02:06:52
+END regrade-service-8x8-queued-builtins 0 02:06:53
+END service-8x8-queued-input 0 02:18:26
+START regrade-service-8x8-queued-input 02:18:26
+END regrade-service-8x8-queued-input 0 02:18:26
+ALL NATIVE MEASUREMENTS COMPLETE: 25 arms at 4c2a30debb031595b81c5c4bfc53b601a0fec528

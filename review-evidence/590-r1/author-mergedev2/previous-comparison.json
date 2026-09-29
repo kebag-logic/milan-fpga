@@ -1,0 +1,1655 @@
+{
+  "head": "4c2a30debb031595b81c5c4bfc53b601a0fec528",
+  "previous_packet": "590-a422",
+  "previous_head": "1f039cfe86d5337f5c9b7248696dba1c4bdda67e",
+  "dev_parent": "b5c0f69d5d11f0ec4bc847a2cfdd13e89e199a8a",
+  "changed_since_previous": [
+    "CHANGELOG.md",
+    "REQUIREMENTS.md",
+    "docs/ENDSTATION_BUILDER.md",
+    "docs/MILAN_V12_ROADMAP.md",
+    "docs/design/GM_LOSS_RECOVERY.md",
+    "docs/design/TIME_SYNC.md",
+    "docs/diagrams/PNG_MANIFEST.json",
+    "docs/diagrams/submodule_boundaries.drawio",
+    "docs/diagrams/submodule_boundaries.png",
+    "docs/diagrams/submodule_boundaries.svg",
+    "docs/findings/394_387_E1_SWITCH_CYCLES.md",
+    "docs/findings/COMMERCIAL_TIMING_395.md",
+    "docs/findings/README.md",
+    "docs/fpga/FPGA_DESIGN.md",
+    "docs/integration/BAREMETAL_FIRMWARE.md",
+    "docs/integration/BUILDING.md",
+    "docs/litex/LITEX_SOC.md",
+    "docs/reference/MILAN_COMPLIANCE_MATRIX.md",
+    "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md",
+    "docs/reference/REGISTER_MAP.md",
+    "docs/reference/SUBMODULES.md",
+    "docs/testing/CI_WORKFLOWS.md",
+    "docs/testing/RUNNING_TESTS.md",
+    "docs/testing/TESTING.md",
+    "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+    "hdl/milan/milan_datapath.sv",
+    "protocol-processor/.gitattributes",
+    "protocol-processor/.github/workflows/hdl.yml",
+    "protocol-processor/docs/architecture/02_interfaces.md",
+    "protocol-processor/docs/architecture/05_acmp_engine.md",
+    "protocol-processor/docs/architecture/08_timing.md",
+    "protocol-processor/docs/architecture/10_srp_engine.md",
+    "protocol-processor/docs/guides/integrator.md",
+    "protocol-processor/docs/guides/operator.md",
+    "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+    "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+    "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+    "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+    "protocol-processor/hdl/srp/KL_srp_top.sv",
+    "protocol-processor/tb/acmp_talker/README.md",
+    "protocol-processor/tb/acmp_talker/retry_cases.hpp",
+    "protocol-processor/tb/acmp_talker/retry_mutants.py",
+    "protocol-processor/tb/acmp_talker/sim_main.cpp",
+    "protocol-processor/tb/pp_top/README.md",
+    "protocol-processor/tb/pp_top/sim_main.cpp",
+    "protocol-processor/tb/srp_encoder/README.md",
+    "protocol-processor/tb/srp_encoder/sim_main.cpp",
+    "protocol-processor/tb/srp_encoder/srp_tb_wrap.sv",
+    "protocol-processor/tb/srp_stream_fsms/README.md",
+    "protocol-processor/tb/srp_stream_fsms/sim_main.cpp",
+    "protocol-processor/tb/srp_top/Makefile",
+    "protocol-processor/tb/srp_top/README.md",
+    "protocol-processor/tb/srp_top/mutants.py",
+    "protocol-processor/tb/srp_top/mutations/action-omitted.patch",
+    "protocol-processor/tb/srp_top/mutations/already-full-missed.patch",
+    "protocol-processor/tb/srp_top/mutations/bad-listener-length.patch",
+    "protocol-processor/tb/srp_top/mutations/before-slot.patch",
+    "protocol-processor/tb/srp_top/mutations/canceled-content-never-drains.patch",
+    "protocol-processor/tb/srp_top/mutations/empty-canceled-pdu.patch",
+    "protocol-processor/tb/srp_top/mutations/encoder-peer-ignored.patch",
+    "protocol-processor/tb/srp_top/mutations/expiry-congestion.patch",
+    "protocol-processor/tb/srp_top/mutations/expiry-event.patch",
+    "protocol-processor/tb/srp_top/mutations/expiry-outranks-peer.patch",
+    "protocol-processor/tb/srp_top/mutations/full-drain-missing.patch",
+    "protocol-processor/tb/srp_top/mutations/leaveall-expiry-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/listener-lost-txla.patch",
+    "protocol-processor/tb/srp_top/mutations/listener-no-expiry.patch",
+    "protocol-processor/tb/srp_top/mutations/listener-no-own.patch",
+    "protocol-processor/tb/srp_top/mutations/listener-no-renewal.patch",
+    "protocol-processor/tb/srp_top/mutations/listener-sid-ignored.patch",
+    "protocol-processor/tb/srp_top/mutations/listener-strict-lv.patch",
+    "protocol-processor/tb/srp_top/mutations/missing-registrar-edge.patch",
+    "protocol-processor/tb/srp_top/mutations/mvrp-supersedes-msrp.patch",
+    "protocol-processor/tb/srp_top/mutations/my-cancel-eats-new-intent.patch",
+    "protocol-processor/tb/srp_top/mutations/my-drop-join-during-wait.patch",
+    "protocol-processor/tb/srp_top/mutations/my-edge-cancel-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/my-expiry-pulse.patch",
+    "protocol-processor/tb/srp_top/mutations/my-join-edge-peer.patch",
+    "protocol-processor/tb/srp_top/mutations/my-la-outranks-leave.patch",
+    "protocol-processor/tb/srp_top/mutations/my-no-walk-at-sLA.patch",
+    "protocol-processor/tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch",
+    "protocol-processor/tb/srp_top/mutations/own-flags-missing.patch",
+    "protocol-processor/tb/srp_top/mutations/peer-restarts-timer.patch",
+    "protocol-processor/tb/srp_top/mutations/pending-peer-ignored.patch",
+    "protocol-processor/tb/srp_top/mutations/preparation-before-slot.patch",
+    "protocol-processor/tb/srp_top/mutations/r-accept-edge-drain-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/r-cancel-consumes-new-intent.patch",
+    "protocol-processor/tb/srp_top/mutations/r-cancel-latch-dropped.patch",
+    "protocol-processor/tb/srp_top/mutations/r-collect-blocks-pushes.patch",
+    "protocol-processor/tb/srp_top/mutations/r-expiry-pulse-restored.patch",
+    "protocol-processor/tb/srp_top/mutations/r-join-coalesce-dropped.patch",
+    "protocol-processor/tb/srp_top/mutations/r-join-start-guard-dropped.patch",
+    "protocol-processor/tb/srp_top/mutations/r-la-only-emission-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/r-mvrp-start-during-prepare.patch",
+    "protocol-processor/tb/srp_top/mutations/r-reuse-without-action.patch",
+    "protocol-processor/tb/srp_top/mutations/r-sink-receive-priority-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/receive-priority-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/renewal-congestion.patch",
+    "protocol-processor/tb/srp_top/mutations/repeated-action.patch",
+    "protocol-processor/tb/srp_top/mutations/repeated-expiry-queued.patch",
+    "protocol-processor/tb/srp_top/mutations/reserved-slot-not-reused.patch",
+    "protocol-processor/tb/srp_top/mutations/reset-retains-intent.patch",
+    "protocol-processor/tb/srp_top/mutations/round-completion-lost.patch",
+    "protocol-processor/tb/srp_top/mutations/table-one-short.patch",
+    "protocol-processor/tb/srp_top/mutations/talker-lost-txla.patch",
+    "protocol-processor/tb/srp_top/mutations/talker-no-expiry.patch",
+    "protocol-processor/tb/srp_top/mutations/talker-no-own.patch",
+    "protocol-processor/tb/srp_top/mutations/talker-no-renewal.patch",
+    "protocol-processor/tb/srp_top/mutations/talker-strict-lv.patch",
+    "protocol-processor/tb/srp_top/sim_main.cpp",
+    "protocol-processor/tb/srp_top/srp_top_wrap.sv",
+    "scripts/measure_test_evidence.py",
+    "sw/builder/README-parameters.md",
+    "sw/builder/aem_image_checks.py",
+    "sw/builder/endstation_builder.py",
+    "sw/builder/test_builder.py",
+    "sw/builder/test_declarations.py",
+    "sw/builder/test_timing_grade.py",
+    "sw/litex/milan_soc.py",
+    "sw/litex/platforms/alinx_ax7101.py",
+    "sw/litex/platforms/ax7101_timing.py",
+    "sw/litex/report_timing_grade.py",
+    "sw/litex/timing_grade.tcl",
+    "syn/yosys/rom_digests.tsv",
+    "tb/verilator/milan_dp/Makefile",
+    "tb/verilator/milan_dp/README.md",
+    "tb/verilator/milan_dp/gmstep_mutants.py",
+    "tb/verilator/milan_dp/sim_gmstep.cpp",
+    "tb/verilator/milan_dp/sim_main.cpp",
+    "tb/verilator/nvm_cosim/cosim_host.c",
+    "tb/verilator/nvm_cosim/run_cases.py",
+    "tb/verilator/pp_shadow/Makefile",
+    "tb/verilator/pp_shadow/README.md",
+    "tb/verilator/pp_shadow/recovery_probes.vlt",
+    "tb/verilator/pp_shadow/sim_main.cpp",
+    "tb/verilator/tkdiag/mcr_mutants.py",
+    "tb/verilator/tkdiag/sim_main.cpp"
+  ],
+  "service": [
+    {
+      "name": "service-1x1-all",
+      "raw_log_sha256": "39284026999cba608e759415b102f2bfe7d14d489a72dc1792dc288ad649f462",
+      "previous_raw_log_sha256": "39284026999cba608e759415b102f2bfe7d14d489a72dc1792dc288ad649f462",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-1x1-device-wait",
+      "raw_log_sha256": "0dd48face93ad5dd1e16326cbe658c2a835ca2804d14f6bb0a4d45a83c10a0e3",
+      "previous_raw_log_sha256": "0dd48face93ad5dd1e16326cbe658c2a835ca2804d14f6bb0a4d45a83c10a0e3",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-1x1-queued-builtins",
+      "raw_log_sha256": "08e2a005db5fe2834ad36b1adfad637dab08c70a24072e5618ca9d1cc7dea2c8",
+      "previous_raw_log_sha256": "08e2a005db5fe2834ad36b1adfad637dab08c70a24072e5618ca9d1cc7dea2c8",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-1x1-queued-input",
+      "raw_log_sha256": "fa096a822167286db1c091c3429fc9575a0b40318b64a91114e904300f4959ec",
+      "previous_raw_log_sha256": "fa096a822167286db1c091c3429fc9575a0b40318b64a91114e904300f4959ec",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-1x1-queued-short",
+      "raw_log_sha256": "48f24de1be3a00370ab15577a248672b2c2dca567c880e0ee21d9cc42c355ea4",
+      "previous_raw_log_sha256": "48f24de1be3a00370ab15577a248672b2c2dca567c880e0ee21d9cc42c355ea4",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-1x1-uart-paced",
+      "raw_log_sha256": "657a51d99baa14eab54ea4d9afde77cd7a90c09c752c748043af838d13329811",
+      "previous_raw_log_sha256": "657a51d99baa14eab54ea4d9afde77cd7a90c09c752c748043af838d13329811",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-8x8-all",
+      "raw_log_sha256": "fbbfc3775f068e4531c5bd45f429620020e47b106bf18a6caebcf1cabf3fbb04",
+      "previous_raw_log_sha256": "fbbfc3775f068e4531c5bd45f429620020e47b106bf18a6caebcf1cabf3fbb04",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-8x8-device-wait",
+      "raw_log_sha256": "ed02ff6a4ed88e86b2c016a99ce6491725fd566527802906f77b1b29a4bacb76",
+      "previous_raw_log_sha256": "ed02ff6a4ed88e86b2c016a99ce6491725fd566527802906f77b1b29a4bacb76",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-8x8-queued-builtins",
+      "raw_log_sha256": "41a3a9a71be80f166ebdadae07bee335a403224c93a37190250424b1b086c597",
+      "previous_raw_log_sha256": "41a3a9a71be80f166ebdadae07bee335a403224c93a37190250424b1b086c597",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-8x8-queued-input",
+      "raw_log_sha256": "ea852b363479d44178df2b51b0b23eb2ad7f11c40ce7d81c193d6dedec8b4e76",
+      "previous_raw_log_sha256": "ea852b363479d44178df2b51b0b23eb2ad7f11c40ce7d81c193d6dedec8b4e76",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-8x8-queued-short",
+      "raw_log_sha256": "8465bd96d0ed070853f18f230b57dd9cd4fbc1240379e70bfecd8ae4837e4486",
+      "previous_raw_log_sha256": "8465bd96d0ed070853f18f230b57dd9cd4fbc1240379e70bfecd8ae4837e4486",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-8x8-uart-paced",
+      "raw_log_sha256": "6f0822916a7fa2c9926a64261dc399b1a277219471ddf8b62dd693e66443b083",
+      "previous_raw_log_sha256": "6f0822916a7fa2c9926a64261dc399b1a277219471ddf8b62dd693e66443b083",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-late-sample-all",
+      "raw_log_sha256": "54dc39f70d8758cdffd803b37d3638624635df1f2cc13c4c267c69bcad3c49e9",
+      "previous_raw_log_sha256": "54dc39f70d8758cdffd803b37d3638624635df1f2cc13c4c267c69bcad3c49e9",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-no-publish-all",
+      "raw_log_sha256": "a6e3f8661a9e8188cab37c339cdafe6536a22e910ba80614ebf2db7abc8a2e11",
+      "previous_raw_log_sha256": "a6e3f8661a9e8188cab37c339cdafe6536a22e910ba80614ebf2db7abc8a2e11",
+      "raw_log_identical": true,
+      "receipt": "none: no-publish returns before a receipt, by design",
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-remove-dispatch-queued-builtins",
+      "raw_log_sha256": "1abd83dd3ef335b10701971f28453f64512db3334dd0ee161eaa8efd5d741250",
+      "previous_raw_log_sha256": "1abd83dd3ef335b10701971f28453f64512db3334dd0ee161eaa8efd5d741250",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "service-remove-dispatch-queued-short",
+      "raw_log_sha256": "5c53d92e14b207ccfb371582d89eda375d3ba04ec351fa5aa820aeee49d03edd",
+      "previous_raw_log_sha256": "5c53d92e14b207ccfb371582d89eda375d3ba04ec351fa5aa820aeee49d03edd",
+      "raw_log_identical": true,
+      "graded_fields_differing": [],
+      "build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "input_hashes_differing": [
+        "sw/litex/milan_soc.py"
+      ],
+      "moved_repository_inputs_outside_change_set": [],
+      "build_inputs": {
+        "tracked": 134,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": [
+          "external/Ram_1w_1ra_Generic.v",
+          "external/Ram_1w_1rs_Generic.v",
+          "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v"
+        ]
+      },
+      "measurement_inputs": {
+        "tracked": 22,
+        "not_equal_to_head": [],
+        "absent_at_dev_parent": [
+          "sw/litex/patches/0006-bios-dispatch-hook.patch",
+          "tb/verilator/fw_service_budget/phy.hpp",
+          "tb/verilator/fw_service_budget/phy.py"
+        ],
+        "differing_from_dev_parent": [
+          "sw/firmware/milan_baremetal/milan_baremetal.c",
+          "tb/verilator/fw_service_budget/build.py",
+          "tb/verilator/fw_service_budget/run.py",
+          "tb/verilator/fw_service_budget/sim_main.cpp",
+          "tb/verilator/nvm_capture_cpu/firmware.py",
+          "tb/verilator/nvm_capture_cpu/run.py"
+        ],
+        "untracked": []
+      },
+      "spec_build_hashes_differing": [
+        "build/gateware/sim.v",
+        "build/native/Vsim",
+        "build/software/bios/bios.elf",
+        "build/software/include/generated/csr.h",
+        "build/software/include/generated/git.h",
+        "build/software/include/generated/mem.h",
+        "build/software/include/generated/soc.h",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv",
+        "sw/litex/milan_soc.py"
+      ],
+      "spec_fields_differing": []
+    }
+  ],
+  "capture": [
+    {
+      "name": "capture-1x1-50-off",
+      "raw_log_sha256": "85f775e4431729d9e9bd41cf4fd7a4b08046fbddef42d610d78a2e760c1aa5ba",
+      "previous_raw_log_sha256": "85f775e4431729d9e9bd41cf4fd7a4b08046fbddef42d610d78a2e760c1aa5ba",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 3.84214,
+      "previous_maximum_ms": 3.84214,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": [],
+      "receipt_identities_differing": [],
+      "receipt_graded_fields_differing": []
+    },
+    {
+      "name": "capture-1x1-50-on",
+      "raw_log_sha256": "d92c00af4d3468501d512c91388c03e9ca845b9213fbb2a326c79114e9033c34",
+      "previous_raw_log_sha256": "d92c00af4d3468501d512c91388c03e9ca845b9213fbb2a326c79114e9033c34",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 3.88779,
+      "previous_maximum_ms": 3.88779,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": [],
+      "receipt_identities_differing": [],
+      "receipt_graded_fields_differing": []
+    },
+    {
+      "name": "capture-8x8-100-off",
+      "raw_log_sha256": "8f46882a90e030a88bc37980527834e7a8e66aecc0e008312c6fec31e3d9bc35",
+      "previous_raw_log_sha256": "8f46882a90e030a88bc37980527834e7a8e66aecc0e008312c6fec31e3d9bc35",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 9.940940000000001,
+      "previous_maximum_ms": 9.940940000000001,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": [],
+      "receipt_identities_differing": [],
+      "receipt_graded_fields_differing": []
+    },
+    {
+      "name": "capture-8x8-100-on",
+      "raw_log_sha256": "d6d39f7c101abf18e41aa2013b23eb13773b706259888b74ebe83e115b27fbba",
+      "previous_raw_log_sha256": "d6d39f7c101abf18e41aa2013b23eb13773b706259888b74ebe83e115b27fbba",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 9.954640000000001,
+      "previous_maximum_ms": 9.954640000000001,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": [],
+      "receipt_identities_differing": [],
+      "receipt_graded_fields_differing": []
+    },
+    {
+      "name": "capture-8x8-50-off",
+      "raw_log_sha256": "7568f7375af3e62207ec217d82d5dd7b1ab590e0c7d382d00827734446f4a1a6",
+      "previous_raw_log_sha256": "7568f7375af3e62207ec217d82d5dd7b1ab590e0c7d382d00827734446f4a1a6",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 13.06923,
+      "previous_maximum_ms": 13.06923,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": [],
+      "receipt_identities_differing": [],
+      "receipt_graded_fields_differing": []
+    },
+    {
+      "name": "capture-8x8-50-on",
+      "raw_log_sha256": "caf432494afcf9dd5afb9615c1ff975fcd8e17e5745b3c2332e45bd0280f034e",
+      "previous_raw_log_sha256": "caf432494afcf9dd5afb9615c1ff975fcd8e17e5745b3c2332e45bd0280f034e",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 13.23352,
+      "previous_maximum_ms": 13.23352,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": [],
+      "receipt_identities_differing": [],
+      "receipt_graded_fields_differing": []
+    },
+    {
+      "name": "capture-byte-only",
+      "raw_log_sha256": "2eaa4ea7f3469e861fcb519647bef8783bb96aa708d6a7508b4ef0528ae346ce",
+      "previous_raw_log_sha256": "2eaa4ea7f3469e861fcb519647bef8783bb96aa708d6a7508b4ef0528ae346ce",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 24.30446,
+      "previous_maximum_ms": 24.30446,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "capture-no-traffic",
+      "raw_log_sha256": "0c9266646778b14dc517a9a61b455405c62ccca71f637a38797391f075bf7769",
+      "previous_raw_log_sha256": "0c9266646778b14dc517a9a61b455405c62ccca71f637a38797391f075bf7769",
+      "raw_log_identical": true,
+      "measurement_fields_differing": [],
+      "measurement_identical": true,
+      "maximum_ms": 3.84214,
+      "previous_maximum_ms": 3.84214,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": []
+    },
+    {
+      "name": "capture-skip-copy",
+      "raw_log_sha256": "ffb5d01b074005ea5c73281aadc173fbe4de65ed4ae48b0f7682c47529259f40",
+      "previous_raw_log_sha256": "ffb5d01b074005ea5c73281aadc173fbe4de65ed4ae48b0f7682c47529259f40",
+      "raw_log_identical": true,
+      "source_count": 118,
+      "source_and_include_lists_identical": true,
+      "sources_changed_since_previous": [
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/milan/milan_datapath.sv",
+        "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+        "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+        "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+        "protocol-processor/hdl/srp/KL_srp_top.sv"
+      ],
+      "spec_fields_differing": []
+    }
+  ]
+}

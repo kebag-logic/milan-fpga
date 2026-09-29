@@ -1,0 +1,14 @@
+host build failed: gcc $VALIDATION_STORAGE/590-a430/probes/phase/host.o $VALIDATION_STORAGE/590-a430/probes/phase/fw.o -o $VALIDATION_STORAGE/590-a430/probes/phase/fw
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/fw.o: in function `phy_mdio_bit':
+$VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:800:(.text+0x37d): undefined reference to `milan_mac_phy_mdio_w_write'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:802:(.text+0x38c): undefined reference to `milan_mac_phy_mdio_r_read'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:803:(.text+0x399): undefined reference to `milan_mac_phy_mdio_w_write'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:805:(.text+0x3aa): undefined reference to `milan_mac_phy_mdio_w_write'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/fw.o: in function `phy_mdio_read':
+$VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:825:(.text+0x45b): undefined reference to `milan_mac_phy_mdio_w_write'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/fw.o: in function `phy_link_tick':
+$VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:894:(.text+0x50b): undefined reference to `milan_mac_link_status_write'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:910:(.text+0x55e): undefined reference to `milan_mac_link_status_write'
+/usr/bin/ld: $VALIDATION_STORAGE/590-a430/probes/phase/milan_baremetal.c:903:(.text+0x5b1): undefined reference to `milan_mac_link_status_write'
+collect2: error: ld returned 1 exit status
+

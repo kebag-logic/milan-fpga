@@ -1,0 +1,89 @@
+[
+  {
+    "name": "phase-probe",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "python3",
+      "-B",
+      "$REVIEWS/590-r369-2-packet/scripts/probe_mdio_phase.py",
+      "$LANES/590-592-599-firmware",
+      "$VALIDATION_STORAGE/590-a430/probes/phase"
+    ],
+    "raw_rc": 0,
+    "expected_rc": 0,
+    "rc": 0,
+    "seconds": 1.328,
+    "path": "logs/probe-phase-probe.log",
+    "size": 463,
+    "sha256": "4890501093e71d811e72c154e6c7088ba38845ea32021d9db6348099e9cd2190"
+  },
+  {
+    "name": "disabled-writer-probe",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "python3",
+      "-B",
+      "$REVIEWS/590-r368-2-packet/probes/disabled_writer_probe.py",
+      "$LANES/590-592-599-firmware",
+      "$VALIDATION_STORAGE/590-a430/probes/disabled"
+    ],
+    "raw_rc": 0,
+    "expected_rc": 0,
+    "rc": 0,
+    "seconds": 9.305,
+    "path": "logs/probe-disabled-writer-probe.log",
+    "size": 4176,
+    "sha256": "adffe7b6cddf80a1ec64dbc7899f47652bb7cd693857ba2b9d8fea3301d6d172"
+  },
+  {
+    "name": "dispatch-oracle-probe",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "python3",
+      "-B",
+      "$REVIEWS/590-r369-2-packet/scripts/builtin_oracle_probe.py",
+      "$LANES/590-592-599-firmware"
+    ],
+    "raw_rc": 0,
+    "expected_rc": 0,
+    "rc": 0,
+    "seconds": 0.061,
+    "path": "logs/probe-dispatch-oracle-probe.log",
+    "size": 333,
+    "sha256": "511a9c6eed812138bec9a70c289bad5bc2628cbba126fffc64da6ca90a1196e0"
+  },
+  {
+    "name": "edge-cross",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "python3",
+      "-B",
+      "$REVIEWS/590-r368-2-packet/probes/host_mutant2.py",
+      "$LANES/590-592-599-firmware",
+      "edge-cross"
+    ],
+    "raw_rc": 1,
+    "expected_rc": 1,
+    "rc": 0,
+    "seconds": 30.582,
+    "path": "logs/probe-edge-cross.log",
+    "size": 2645,
+    "sha256": "cf42f22fa0a72a398b2b10c0b5af6a3feec91c36e97bac26471a37a9eeea9f8e"
+  },
+  {
+    "name": "product-link-guard",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/590-a430/product_link_guard.py"
+    ],
+    "raw_rc": 0,
+    "expected_rc": 0,
+    "rc": 0,
+    "seconds": 0.424,
+    "path": "logs/probe-product-link-guard.log",
+    "size": 71,
+    "sha256": "dc63acc2fab84ed6463389f78e5d4b36bcd5f2d16501795dcdcabd64381531df"
+  }
+]

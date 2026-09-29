@@ -1,0 +1,2027 @@
+{
+  "probe_log": {
+    "size": 6489,
+    "sha256": "cfa2cdf02a1b8ca587b9aff94e50be2433f9e1f845552d9c52ee7de617b8b17e",
+    "kept": "logs/probe-nvm_cosim.log"
+  },
+  "probe_cosim_host_sha256": "2eaf403838cbafb643f52bcadd622e18c065c792d03ff07c7444e0bb25195d9e",
+  "cases": [
+    {
+      "build": "contract-1x1",
+      "case": "W1_writer_restart_reattaches",
+      "stdout_size": 9565,
+      "stdout_sha256": "7a415f2147b568e0b28ec10a0afe4cb9eaf5e85224a810d386ad23d2f9dc4ee7",
+      "kept": "probe-evidence/contract-1x1/W1_writer_restart_reattaches.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "base",
+          "ms": 2230,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 9
+        },
+        {
+          "tag": "before",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "restarted",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "end",
+          "ms": 5830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK), 3264 B at 0xf5600fc0; walk done=1 fail=0 blank=1 backed=1.",
+        "Milan NVM: commit (dirty) seq 1 -> slot A, 3264 B, capture 1 acknowledged.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf5600fc0; walk done=1 fail=0 blank=1 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 2 acknowledged."
+      ]
+    },
+    {
+      "build": "contract-1x1",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3897,
+      "stdout_sha256": "200c491fd355f540b72c01f1f091fc899fe3ac64fff7478fa3e532ae6795b163",
+      "kept": "probe-evidence/contract-1x1/W2_restart_after_refused_loads.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xd44d9fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xd44d9fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-1x1",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3751,
+      "stdout_sha256": "82e7ef1cf943f1bee3baa64ab7b9651e52abb73a083fe3406e0ce5f57e5fac59",
+      "kept": "probe-evidence/contract-1x1/W3_write_across_refused_fill_then_restart.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xb63defc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xb63defc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-1x1",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16068,
+      "stdout_sha256": "e5c9f9e2aaf76dc239f289d5a4ca759e145cccbe57d8bcc636fc2d5e5e5c6ad6",
+      "kept": "probe-evidence/contract-1x1/W4_all_records_rewritten_after_refused_fill.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x80629fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x80629fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-8x8",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 4674,
+      "stdout_sha256": "a26acd6a82074979de962b2f8dec4d9a2b654d24033da7a3fa88911fb318c292",
+      "kept": "probe-evidence/contract-8x8/W2_restart_after_refused_loads.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 631,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 631,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6631,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0xa5e99fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0xa5e99fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-8x8",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4549,
+      "stdout_sha256": "1d5e7a4179f7e530348cf7d08d06637854036c9ac9d3a0c12dacf004cc258160",
+      "kept": "probe-evidence/contract-8x8/W3_write_across_refused_fill_then_restart.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x96f0efc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x96f0efc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "contract-8x8",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 39464,
+      "stdout_sha256": "3966aa07275e6ccbe4d27879def43dae5d435529184b163230fafefa19ff953f",
+      "kept": "probe-evidence/contract-8x8/W4_all_records_rewritten_after_refused_fill.stdout.log",
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6153,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9153,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x61e5efc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x61e5efc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F04_ack_without_identity",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3891,
+      "stdout_sha256": "d51abf4e2048efb561ac1d7a98601036e10ab802db92f2ff13640da943e7d792",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0xfd123fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0xfd123fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F04_ack_without_identity",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3745,
+      "stdout_sha256": "8bc8f0252bfeb53c44e105230c2d711831d2bae07bc49332c7c6f6dce56b7909",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0xab035fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0xab035fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F04_ack_without_identity",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16062,
+      "stdout_sha256": "194bb7d117be49faaa4f1618896488b997c7a315a3a3ca6224de29cc5e11a464",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x31a0dfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 3, slot B VD_OK seq 2; offered A seq 3 (VD_OK), 3264 B at 0x31a0dfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F07_reload_refusal_ignored",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3926,
+      "stdout_sha256": "5f2211b89e3348a3b308d8b57071645b1029db4ed6b78ff4490d637e3ef3fb99",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xff12afc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xff12afc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F07_reload_refusal_ignored",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3617,
+      "stdout_sha256": "b3a0931e3e1eda39c9f2a7dbfc791eb557170ed8b1183108fc18b6ad51b02095",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x9bd79fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x9bd79fc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F07_reload_refusal_ignored",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16120,
+      "stdout_sha256": "1ae51ceb4b46ebae7054ce8389939fb08deb1feed5d1eb90abe6d94b6ece9023",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6059,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end2",
+          "ms": 9059,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x401ebfc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x401ebfc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F08_restart_reloads_window",
+      "case": "W1_writer_restart_reattaches",
+      "stdout_size": 6686,
+      "stdout_sha256": "5a383e4b4bef0d5fcae17e949cb3bfa99ca038c3b389e5425b8702ce808b4570",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "base",
+          "ms": 2230,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 9
+        },
+        {
+          "tag": "before",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "restarted",
+          "ms": 2830,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        },
+        {
+          "tag": "end",
+          "ms": 5830,
+          "backed": 0,
+          "stale": 1,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 12
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK), 3264 B at 0x41d3afc0; walk done=1 fail=0 blank=1 backed=1.",
+        "Milan NVM: commit (dirty) seq 1 -> slot A, 3264 B, capture 1 acknowledged.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x41d3afc0; walk done=1 fail=0 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F10_retired_writer_keeps_heartbeating",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 5219,
+      "stdout_sha256": "1f5e991ff4f1d593bb02c0649442a101a747067fbd4f922eb61d7b8e669141cd",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 3
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 27
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x00846fc0; walk done=1 fail=1 blank=1 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x00846fc0; walk done=1 fail=1 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F10_retired_writer_keeps_heartbeating",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4970,
+      "stdout_sha256": "390d051cd61ea146843d1be2cf93d189d1bae02364c5cb745ee33179fa0bbde1",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 25
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe2ed3fc0; walk done=1 fail=1 blank=1 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe2ed3fc0; walk done=1 fail=1 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F10_retired_writer_keeps_heartbeating",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 17881,
+      "stdout_sha256": "3c1aec9d02518cd77a43df4ad9aacc89145d023d571017d001891a21db6c35fc",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 25
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 37
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x2c332fc0; walk done=1 fail=1 blank=1 backed=1.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x2c332fc0; walk done=1 fail=1 blank=1 backed=1."
+      ]
+    },
+    {
+      "build": "mut-F11_restart_reattaches_without_load",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 6719,
+      "stdout_sha256": "dbe23ace6c42ef4bb8dce9d8c0d0f873570c65d44fe2b5d799f3fd9daef027ae",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x172f9fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x172f9fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested."
+      ]
+    },
+    {
+      "build": "mut-F11_restart_reattaches_without_load",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 6566,
+      "stdout_sha256": "0bf8d0774eb8875b52167df72886d393d64851acffb299c34509c0ebc65ac9f3",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe66fcfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe66fcfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested."
+      ]
+    },
+    {
+      "build": "mut-F11_restart_reattaches_without_load",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 20335,
+      "stdout_sha256": "f822fde53f828f9ea7157b34351724b581481775961b832e4f4a53d9c74a07f9",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 24
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 24
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 36
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x24792fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x24792fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested.",
+        "Milan NVM: commit (dirty) deferred, the capture was not attested."
+      ]
+    },
+    {
+      "build": "mut-F12_repeat_ignores_window_live",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3897,
+      "stdout_sha256": "4e40ba4b4d2c93ddafba40d6c76baa1b6b985fe74ffd1e90b491f2af19ca248f",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x6bd27fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x6bd27fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-F12_repeat_ignores_window_live",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 8170,
+      "stdout_sha256": "8b2b551d5bf1752dab5f2711c5da18612d44a5ea0215783b8500da2f5e291b0e",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 3 window load(s); accepted at attempt 4.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xbae85fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xbae85fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-F12_repeat_ignores_window_live",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 23566,
+      "stdout_sha256": "6adc7a5792275b975c98767ee15a1f3bc9258bbd875f9b00fe55b527db346abc",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "end2",
+          "ms": 9068,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 37
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 3 window load(s); accepted at attempt 4.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x62221fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x62221fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged.",
+        "Milan NVM: commit (dirty) seq 3 -> slot A, 3264 B, capture 2 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-M18_pending_bit_stuck",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3897,
+      "stdout_sha256": "1f99332106d3e09ce1c4f16f35750519606e325505f280b772454f45b646e03e",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe05a3fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe05a3fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-M18_pending_bit_stuck",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3751,
+      "stdout_sha256": "433435db9edb6efd55ee43d73708c914ba958d3bff691a07eac8c996d4e20d90",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x1240bfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x1240bfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-M18_pending_bit_stuck",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16068,
+      "stdout_sha256": "33de79bd1f923935ae0e815eb3cfc18325c34e198dddc3f4e277d7c2acf13a51",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x3e536fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x3e536fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R02_reload_ignores_grant_since_rebase",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 7268,
+      "stdout_sha256": "0764befb86a57275d168b5056fde402c48adec356bf35d104d1b0e978367b524",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 3
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 3
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 27
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x95580fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x95580fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-R02_reload_ignores_grant_since_rebase",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4855,
+      "stdout_sha256": "71237b6b57ce5551df2133aeda245780f425d56a9a5f55cad1a9404ba0b30e3b",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf62bffc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xf62bffc0; walk done=1 fail=0 blank=0 backed=1."
+      ]
+    },
+    {
+      "build": "mut-R02_reload_ignores_grant_since_rebase",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 20051,
+      "stdout_sha256": "ad51d70019c436523d9787b2d1834802fcb2ea2364df926000baf1ae083997fd",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "live",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "restarted",
+          "ms": 30,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 1
+        },
+        {
+          "tag": "end",
+          "ms": 6030,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6059,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 25
+        },
+        {
+          "tag": "end2",
+          "ms": 9059,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 37
+        }
+      ],
+      "console": [
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xea4a2fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xea4a2fc0; walk done=1 fail=0 blank=0 backed=1.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    },
+    {
+      "build": "mut-R05_boot_load_stays_pending_when_live",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 3903,
+      "stdout_sha256": "999bf6e2080d5fc3ad87b5b7dae732bfbd5317236ae19436a8ad37a13d0f74f4",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe0adcfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe0adcfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R05_boot_load_stays_pending_when_live",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 3757,
+      "stdout_sha256": "4a7a8524095b85b63c459e8fed27924c6d40941a8c50d994d902150ddb4c5001",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x2502bfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x2502bfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R05_boot_load_stays_pending_when_live",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 16074,
+      "stdout_sha256": "5b8b4ad9ff6faa91f1cf04ce7241ed22fa1ecdb0533796a50c757da2e891694d",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 0
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x58358fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x58358fc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R06_revision_b_load_rule",
+      "case": "W2_restart_after_refused_loads",
+      "stdout_size": 5142,
+      "stdout_sha256": "644edd8c0f6954ea4effd7fe1099ffc316e7515b3f34e97e17ca959890c889bf",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 30,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 630,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6630,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x697cbfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x697cbfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R06_revision_b_load_rule",
+      "case": "W3_write_across_refused_fill_then_restart",
+      "stdout_size": 4989,
+      "stdout_sha256": "ced2866bc02c27037d27447a95cf516e205f9fd39eaade2ddb070cf74b03df5f",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x6f8fcfc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x6f8fcfc0; walk done=1 fail=1 blank=1 backed=0."
+      ]
+    },
+    {
+      "build": "mut-R06_revision_b_load_rule",
+      "case": "W4_all_records_rewritten_after_refused_fill",
+      "stdout_size": 19999,
+      "stdout_sha256": "ac4e3595bb6547b733c0941e4dbffc344d7c24ec3ac6f663163ee43dcadc3237",
+      "kept": null,
+      "observations": [
+        {
+          "tag": "boot",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "live",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 1,
+          "hb": 0
+        },
+        {
+          "tag": "restarted",
+          "ms": 38,
+          "backed": 0,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 0
+        },
+        {
+          "tag": "end",
+          "ms": 6038,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 24
+        },
+        {
+          "tag": "rewritten",
+          "ms": 6067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 1,
+          "pend": 0,
+          "hb": 24
+        },
+        {
+          "tag": "end2",
+          "ms": 9067,
+          "backed": 1,
+          "stale": 0,
+          "dirty_pub": 0,
+          "pend": 0,
+          "hb": 36
+        }
+      ],
+      "console": [
+        "Milan NVM: the backend refused 4 window loads; the window is not validated and the writer is disabled until the next reset.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x197f6fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x197f6fc0; walk done=1 fail=1 blank=1 backed=0.",
+        "Milan NVM: commit (dirty) seq 2 -> slot B, 3264 B, capture 1 acknowledged."
+      ]
+    }
+  ]
+}

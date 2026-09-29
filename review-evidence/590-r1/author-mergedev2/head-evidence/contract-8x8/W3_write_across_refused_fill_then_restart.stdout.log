@@ -1,0 +1,34 @@
+Milan baremetal: CSR ID=4d494c4e VERSION=00020059, RV32I machine mode, no MMU/cache.
+NOTE {"key":"overlap_grant","value":574,"cycle":574}
+Milan NVM: the backend refused 4 window load(s) and the window then went live; the writer is disabled until the next reset.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x02863fc0; walk done=1 fail=1 blank=1 backed=0.
+Milan baremetal: AEM 4 B copied QSPI +0x00400000 -> 0x02774fc0, CRC 3e6a6713.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+OBS {"tag":"boot","cycle":38937,"ms":38,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":112,"mem_errs":3,"own":[263175,33489405,33489407,16711935,4294967295,4294967295,4294967295,7],"preloads":[]}
+OBS {"tag":"live","cycle":38937,"ms":38,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":112,"mem_errs":3,"own":[263175,33489405,33489407,16711935,4294967295,4294967295,4294967295,7],"preloads":[]}
+Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.
+Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 12680 B at 0x02863fc0; walk done=1 fail=1 blank=1 backed=0.
+OBS {"tag":"restarted","cycle":38940,"ms":38,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":112,"mem_errs":3,"own":[263175,33489405,33489407,16711935,4294967295,4294967295,4294967295,7],"preloads":[]}
+OBS {"tag":"end","cycle":6038965,"ms":6038,"stat":3284142368,"capid":0,"backed":0,"dirty_pub":1,"stale":0,"pend":1,"unres":1,"verdict":0,"img_valid":0,"alarm":0,"mgr_dirty":0,"port_busy":0,"dev_busy":0,"restore_done":1,"restore_fail":1,"blank":1,"dyn_dirty":0,"dyn_fmt0":"0x0000000000000000","dyn_fmt0_v":0,"erases":0,"programs":0,"hb":0,"hb_max_gap_ms":0,"losses":0,"bad101":0,"mem_accepts":112,"mem_errs":3,"own":[263175,33489405,33489407,16711935,4294967295,4294967295,4294967295,7],"preloads":[]}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":85,"gnt":86,"end":199,"res":"err","bytes":28}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":266,"gnt":267,"end":380,"res":"err","bytes":28}
+EVT {"k":"op","src":"bfm","op":2,"rid":32,"req":447,"gnt":448,"end":561,"res":"err","bytes":28}
+EVT {"k":"op","src":"bfm","op":1,"rid":33,"req":573,"gnt":574,"end":8708,"res":"done","bytes":28}
+EVT {"k":"op","src":"port","op":0,"rid":32,"req":8709,"gnt":8710,"end":8720,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":33,"req":8724,"gnt":8725,"end":8735,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":34,"req":8739,"gnt":8740,"end":8750,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":35,"req":8754,"gnt":8755,"end":8765,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":36,"req":8769,"gnt":8770,"end":8780,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":37,"req":8784,"gnt":8785,"end":8795,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":38,"req":8799,"gnt":8800,"end":8810,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":39,"req":8814,"gnt":8815,"end":8825,"res":"done","bytes":0}
+EVT {"k":"op","src":"port","op":0,"rid":40,"req":8829,"gnt":8830,"end":8840,"res":"done","bytes":0}
+EVT {"k":"strobe","cyc":200,"v":64,"stray":0}
+EVT {"k":"strobe","cyc":381,"v":64,"stray":0}
+EVT {"k":"strobe","cyc":562,"v":64,"stray":0}
+EVT {"k":"strobe","cyc":629,"v":64,"stray":0}
+EVT {"k":"hook","name":"s_reload","n":1,"cyc":85,"v":64}
+EVT {"k":"hook","name":"s_reload","n":2,"cyc":266,"v":64}
+EVT {"k":"hook","name":"s_reload","n":3,"cyc":447,"v":64}
+EVT {"k":"hook","name":"s_reload","n":4,"cyc":629,"v":64}
+CASE_DONE W3_write_across_refused_fill_then_restart hooks_pending=0

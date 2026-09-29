@@ -1,0 +1,4 @@
+$WORKSPACE_HOME/br-milan-rv32/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: $VALIDATION_STORAGE/590-a430/link-guard/missing-marker.elf has a LOAD segment with RWX permissions
+$WORKSPACE_HOME/br-milan-rv32/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: ../libmilan_baremetal/libmilan_baremetal.a(milan_baremetal.o): in function `milan_write':
+$LANES/590-592-599-firmware/sw/firmware/milan_baremetal/milan_baremetal.c:74:(.text.milan_init+0x194): undefined reference to `bios_dispatch_hook_required'
+collect2: error: ld returned 1 exit status

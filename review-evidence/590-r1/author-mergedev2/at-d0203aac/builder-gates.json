@@ -1,0 +1,56 @@
+[
+  {
+    "name": "builder-present-with-firmware-census",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "timeout",
+      "14400",
+      "env",
+      "PYTHONHASHSEED=0",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONUNBUFFERED=1",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-elaboration",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 958.413,
+    "stored": [
+      {
+        "path": "logs/builder-present-with-firmware-census.log",
+        "size": 92526,
+        "sha256": "5b084fcf7830e2db124cea60b5d5a909fa9e1b7e75f90f5ca36688e2c4ce2d92"
+      }
+    ],
+    "size": 92526,
+    "sha256": "5b084fcf7830e2db124cea60b5d5a909fa9e1b7e75f90f5ca36688e2c4ce2d92"
+  },
+  {
+    "name": "builder-absent",
+    "head": "d0203aac9724653ea0fb4a61d28ad2e42e515e74",
+    "command": [
+      "timeout",
+      "14400",
+      "env",
+      "PYTHONHASHSEED=0",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONUNBUFFERED=1",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+      "-B",
+      "$MANAGEMENT/2026-09-23/590-a430/full-builder-absent.py"
+    ],
+    "rc": 0,
+    "seconds": 679.675,
+    "stored": [
+      {
+        "path": "logs/builder-absent.log",
+        "size": 94622,
+        "sha256": "f28d6bda57b2ba789ac8aa44117b482cb66d3334baaa2afbdb6b1ceec78361da"
+      }
+    ],
+    "size": 94622,
+    "sha256": "f28d6bda57b2ba789ac8aa44117b482cb66d3334baaa2afbdb6b1ceec78361da"
+  }
+]
