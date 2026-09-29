@@ -11,15 +11,15 @@ PROBE=$WORKSPACE_HOME/milan-bench/2026-09-08/controller-probe/target-counters-pr
 ts() { date -u +%FT%T.%3NZ; }
 echo "LOCK $(ts)" > $OUT/lock.txt
 echo "start_local $(ts)" > $OUT/timeline.txt
-ssh -o BatchMode=yes <bench-host-prefix>pw1 "mkdir -p /tmp/a249/enum-$TAG; rm -f /tmp/a249/enum-$TAG/*.json; sudo -n timeout 170 tcpdump -i ens10 -w /tmp/a249/$TAG.pcap ether proto 0x22f0" > $OUT/tcpdump.log 2>&1 &
+ssh -o BatchMode=yes <bench-host-prefix>pw1 "mkdir -p /tmp/a249/enum-$TAG; rm -f /tmp/a249/enum-$TAG/*.json; sudo -n timeout 170 tcpdump -i <host-iface> -w /tmp/a249/$TAG.pcap ether proto 0x22f0" > $OUT/tcpdump.log 2>&1 &
 CAP=$!
 sleep 3
 for e in 020000fffe000001 3cc0c60102030000; do
   echo "probe_$e start $(ts)" >> $OUT/timeline.txt
-  ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout --signal=TERM 35 $PROBE ens10 $e 20; echo PROBE_RC=\$?" > $OUT/counters-probe-$e.log 2>&1
+  ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout --signal=TERM 35 $PROBE <host-iface> $e 20; echo PROBE_RC=\$?" > $OUT/counters-probe-$e.log 2>&1
 done
 echo "enum start $(ts)" >> $OUT/timeline.txt
-ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout --signal=TERM 70 /tmp/a249/a200_enum ens10 40 /tmp/a249/enum-$TAG; echo ENUM_RC=\$?; sudo -n chown -R alex /tmp/a249/enum-$TAG" > $OUT/a200-enum.log 2>&1
+ssh -o BatchMode=yes <bench-host-prefix>pw1 "sudo -n timeout --signal=TERM 70 /tmp/a249/a200_enum <host-iface> 40 /tmp/a249/enum-$TAG; echo ENUM_RC=\$?; sudo -n chown -R alex /tmp/a249/enum-$TAG" > $OUT/a200-enum.log 2>&1
 echo "enum end $(ts)" >> $OUT/timeline.txt
 wait $CAP; echo "capture_rc=$?" >> $OUT/timeline.txt
 echo "UNLOCK $(ts)" >> $OUT/lock.txt

@@ -28,7 +28,7 @@ echo "LOCK $(ts)"
 echo "start_local $(ts) SOAK=$SOAK" > "$OUT/timeline.txt"
 $SSH <bench-host-prefix>ubuntu-server "mkdir -p /tmp/a249 && sudo -n timeout $CAPMAX tcpdump -i $TAPIF -w /tmp/a249/tap-soak.pcap" > "$OUT/tcpdump-tap.log" 2>&1 &
 CAP=$!
-$SSH <bench-host-prefix>pw1 "sudo -n timeout $CAPMAX tcpdump -i ens10 -w /tmp/a249/pw1-soak.pcap ether proto 0x22f0" > "$OUT/tcpdump-pw1.log" 2>&1 &
+$SSH <bench-host-prefix>pw1 "sudo -n timeout $CAPMAX tcpdump -i <host-iface> -w /tmp/a249/pw1-soak.pcap ether proto 0x22f0" > "$OUT/tcpdump-pw1.log" 2>&1 &
 CAP2=$!
 sleep 3
 tl grader_pre_start
@@ -39,9 +39,9 @@ timeout $((SOAK + 60)) python3 $PK/tools/console_poll.py $P "$OUT/console.txt" $
   'mem_read 0x90000720 4' 'mem_read 0x90000774 4' > "$OUT/console-poll.stdout" 2>&1 &
 CON=$!
 tl console_started
-$SSH <bench-host-prefix>pw1 "sudo -n timeout $((SOAK + 30)) python3 /tmp/a249/avdecc_ro.py watch ens10 $SOAK 1 $DUT=$DMAC $PEER=$PMAC > /tmp/a249/watch.jsonl 2>&1; echo WATCH_RC=\$?" > "$OUT/watch.rc" 2>&1 &
+$SSH <bench-host-prefix>pw1 "sudo -n timeout $((SOAK + 30)) python3 /tmp/a249/avdecc_ro.py watch <host-iface> $SOAK 1 $DUT=$DMAC $PEER=$PMAC > /tmp/a249/watch.jsonl 2>&1; echo WATCH_RC=\$?" > "$OUT/watch.rc" 2>&1 &
 WAT=$!
-$SSH <bench-host-prefix>pw1 "sudo -n timeout $((SOAK + 30)) python3 /tmp/a249/a231_counters_poll.py ens10 $SOAK 1 \
+$SSH <bench-host-prefix>pw1 "sudo -n timeout $((SOAK + 30)) python3 /tmp/a249/a231_counters_poll.py <host-iface> $SOAK 1 \
   $DUT=$DMAC:6:0 $DUT=$DMAC:6:1 $DUT=$DMAC:9:0 $DUT=$DMAC:0x24:0 $PEER=$PMAC:9:0 > /tmp/a249/counters.jsonl 2>&1; echo CTR_RC=\$?" > "$OUT/counters.rc" 2>&1 &
 CTR=$!
 tl pollers_started
@@ -50,7 +50,7 @@ S1=$(stat -c %s "$OUT/console.txt" 2>/dev/null || echo 0)
 sleep 2
 S2=$(stat -c %s "$OUT/console.txt" 2>/dev/null || echo 0)
 PRE_TAP=$(grep -c "listening on $TAPIF" "$OUT/tcpdump-tap.log")
-PRE_PW1=$(grep -c "listening on ens10" "$OUT/tcpdump-pw1.log")
+PRE_PW1=$(grep -c "listening on <host-iface>" "$OUT/tcpdump-pw1.log")
 if [ "$PRE_TAP" -lt 1 ] || [ "$PRE_PW1" -lt 1 ] || [ "$S2" -le "$S1" ]; then
   tl "PREFLIGHT_WARN tap=$PRE_TAP pw1=$PRE_PW1 console=$S1->$S2 (recorded; the soak is passive, so it continues)"
 else
@@ -68,7 +68,7 @@ timeout 60 python3 $PK/tools/console_read.py $P "$OUT/console-end.txt" milan_sta
 tl "console_end_rc=$?"
 sleep 5
 $SSH <bench-host-prefix>ubuntu-server "sudo -n pkill -INT -f '^tcpdump -i $TAPIF -w /tmp/a249/tap-soak\.pcap$'"; tl "tap_stop_rc=$?"
-$SSH <bench-host-prefix>pw1 "sudo -n pkill -INT -f '^tcpdump -i ens10 -w /tmp/a249/pw1-soak\.pcap ether proto 0x22f0$'"; tl "pw1_stop_rc=$?"
+$SSH <bench-host-prefix>pw1 "sudo -n pkill -INT -f '^tcpdump -i <host-iface> -w /tmp/a249/pw1-soak\.pcap ether proto 0x22f0$'"; tl "pw1_stop_rc=$?"
 wait $CAP; tl "capture_tap_rc=$?"
 wait $CAP2; tl "capture_pw1_rc=$?"
 tl end_local

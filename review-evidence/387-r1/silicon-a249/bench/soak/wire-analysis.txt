@@ -14,9 +14,9 @@ tap->UTC fit over 182 5 s minima: slope -6.623 ppm; first record 09:51:56.386698
   port 2 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp             908
   port 2 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp_Follow_Up   908
   port 2 3c:c0:c6:fe:02:11 gPTP Sync                    7264
-  port 2 68:05:ca:95:b2:ed AECP                         5400
-  port 2 68:05:ca:95:b2:ed ethertype 0x0800             48
-  port 2 68:05:ca:95:b2:ed ethertype 0x86dd             72
+  port 2 <controller-host-id> AECP                         5400
+  port 2 <controller-host-id> ethertype 0x0800             48
+  port 2 <controller-host-id> ethertype 0x86dd             72
   port 3 02:00:00:00:00:01 ADP                          131
   port 3 02:00:00:00:00:01 AECP                         5400
   port 3 02:00:00:00:00:01 MAAP                         228

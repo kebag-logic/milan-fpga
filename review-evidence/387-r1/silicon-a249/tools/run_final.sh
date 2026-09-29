@@ -10,14 +10,14 @@ P=/dev/serial/by-id/<adapter>
 ts() { date -u +%FT%T.%3NZ; }
 echo "LOCK $(ts)" > $OUT/lock.txt
 echo "start_local $(ts)" > $OUT/timeline.txt
-ssh -o BatchMode=yes <bench-host-prefix>pw1 'mkdir -p /tmp/a249/enum-final; rm -f /tmp/a249/enum-final/*.json; sudo -n timeout 130 tcpdump -i ens10 -w /tmp/a249/final.pcap ether proto 0x22f0' > $OUT/tcpdump.log 2>&1 &
+ssh -o BatchMode=yes <bench-host-prefix>pw1 'mkdir -p /tmp/a249/enum-final; rm -f /tmp/a249/enum-final/*.json; sudo -n timeout 130 tcpdump -i <host-iface> -w /tmp/a249/final.pcap ether proto 0x22f0' > $OUT/tcpdump.log 2>&1 &
 CAP=$!
 sleep 3
 echo "census start $(ts)" >> $OUT/timeline.txt
 timeout 200 ssh -o BatchMode=yes <bench-host-prefix>pw1 'bash /tmp/a249/a249_census.sh' > $OUT/census-final.jsonl 2>&1
 echo "census end rc=$? $(ts)" >> $OUT/timeline.txt
 echo "enum start $(ts)" >> $OUT/timeline.txt
-ssh -o BatchMode=yes <bench-host-prefix>pw1 'sudo -n timeout --signal=TERM 70 /tmp/a249/a200_enum ens10 40 /tmp/a249/enum-final; echo ENUM_RC=$?; sudo -n chown -R alex /tmp/a249/enum-final' > $OUT/a200-enum.log 2>&1
+ssh -o BatchMode=yes <bench-host-prefix>pw1 'sudo -n timeout --signal=TERM 70 /tmp/a249/a200_enum <host-iface> 40 /tmp/a249/enum-final; echo ENUM_RC=$?; sudo -n chown -R alex /tmp/a249/enum-final' > $OUT/a200-enum.log 2>&1
 echo "enum end $(ts)" >> $OUT/timeline.txt
 timeout 60 python3 $PK/tools/console_read.py $P $OUT/console-final.txt milan_status 'mem_read 0x9000077c 4' \
   'mem_read 0x90000780 4' 'mem_read 0x900007e4 4' 'mem_read 0x900007e8 4' 'mem_read 0x900007ec 4' \
