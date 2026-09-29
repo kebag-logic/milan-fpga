@@ -1,0 +1,23 @@
+Public parent: kebag-logic/milan-fpga, blobless clone; origin/dev at fetch = 79c36963660c10e4c1c11a744fb5bff41a552b8b
+author-r6 parent_edits.py (branch pp131-review-evidence @ 3ad574a4adefa5b37d7b76672005aa562a5c4701):
+80d2c3969b114e7509199b493f8bd937d4348a8a39a6526e1fbb433971579635  author-r6/parent_edits.py
+byte-identical to author-r5 parent_edits.py: yes
+== apply at eaa88a32 (files it edits, extracted by git archive): milan_dp harness edits applied
+   changed lines equal author-r6 receipts/parent-edits.diff: yes (119 +/- lines)
+   2480:        grade_the_first_descriptors_on_the_wire();
+   2484:        prove_a_wedged_response_memory_reports_and_heals();
+   2548:    //! is parked in S_BAD with FAULT_TIMEOUT from the two sections
+   2560:    //! dbg_lane_wr is CUMULATIVE and [AECP-WTMO] already moved the
+   2563:    void grade_the_first_descriptors_on_the_wire() {
+   2604:        //! rerr counts responses the memory VOIDED. [AECP-WTMO] added one
+   2609:        ck("[AECP-IMG] the response buffer reports no fault (word 36)",
+== apply at 9e3ccbfb (files it edits, extracted by git archive): milan_dp harness edits applied
+   changed lines equal author-r6 receipts/parent-edits.diff: yes (119 +/- lines)
+   2480:        grade_the_first_descriptors_on_the_wire();
+   2484:        prove_a_wedged_response_memory_reports_and_heals();
+   2548:    //! is parked in S_BAD with FAULT_TIMEOUT from the two sections
+   2560:    //! dbg_lane_wr is CUMULATIVE and [AECP-WTMO] already moved the
+   2563:    void grade_the_first_descriptors_on_the_wire() {
+   2604:        //! rerr counts responses the memory VOIDED. [AECP-WTMO] added one
+   2609:        ck("[AECP-IMG] the response buffer reports no fault (word 36)",
+protocol-processor gitlink at eaa88a32 and 9e3ccbfb: c951a9ff0cb5851fb159d33e966e5a2a9a188fe3

@@ -1,0 +1,103 @@
+[
+ {
+  "mutant": "cross_own_byte",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424284), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED",
+  "print": [
+   "R6PRINT N11d owned_cyc=45 with_m1_abort=45 reads_ended=1 span_min=44 issues=1 issues_with_m1_abort=0 drain_on=424284 aborts=1 leaks=0"
+  ],
+  "tally": [
+   "360 checks: 359 PASS, 1 FAIL"
+  ]
+ },
+ {
+  "mutant": "cross_own_nobyte",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED",
+  "print": [
+   "R6PRINT N11d owned_cyc=45 with_m1_abort=45 reads_ended=1 span_min=44 issues=1 issues_with_m1_abort=0 drain_on=424272 aborts=1 leaks=0"
+  ],
+  "tally": [
+   "360 checks: 359 PASS, 1 FAIL"
+  ]
+ },
+ {
+  "mutant": "h_abort_in_issue_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 168 of the 168 cycles manager 0 owned its 8 READs (at least 12 before each one's end) and in none of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  "
+  ],
+  "verdict": "KILLED",
+  "print": [
+   "R6PRINT N11d owned_cyc=168 with_m1_abort=168 reads_ended=8 span_min=12 issues=8 issues_with_m1_abort=8 drain_on=-1 aborts=0 leaks=0"
+  ],
+  "tally": [
+   "360 checks: 359 PASS, 1 FAIL"
+  ]
+ },
+ {
+  "mutant": "h_no_abort_at_end",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 160 of the 168 cycles manager 0 owned its 8 READs (at least 12 before each one's end) and in none of their 8 issue cycles, none drained (from -1), and the walk completes as saved:  "
+  ],
+  "verdict": "KILLED",
+  "print": [
+   "R6PRINT N11d owned_cyc=168 with_m1_abort=160 reads_ended=8 span_min=12 issues=8 issues_with_m1_abort=0 drain_on=-1 aborts=0 leaks=0"
+  ],
+  "tally": [
+   "360 checks: 359 PASS, 1 FAIL"
+  ]
+ },
+ {
+  "mutant": "print-head",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "SURVIVED",
+  "print": [
+   "R6PRINT N11d owned_cyc=168 with_m1_abort=168 reads_ended=8 span_min=12 issues=8 issues_with_m1_abort=0 drain_on=-1 aborts=0 leaks=0"
+  ],
+  "tally": [
+   "360 checks: 360 PASS, 0 FAIL"
+  ]
+ }
+]

@@ -1,0 +1,9 @@
+R390-6 independent pass over 9dce84ea..9b4da6b5 completed before reading any prior public review of this PR other than my own R390-5 (which I authored).
+Written: 2026-09-29T10:31:37Z
+Head: 9b4da6b5753fec8f5b2bba605c47af56c6cf1a0f
+Provisional verdict: POSITIVE.
+- R390-5 F1: resolved (N11d grades the owned half for manager 1; my own mutants r5_owned_cross_m0_only and r5_owned_cross_both KILLED by N11d alone; the tree's owned_arm_cross_intent and cross_own_m1_drains_m0 KILLED by N11d alone; readings 168/168 owned, 0/8 issue, span min 12, drain_on -1; 09 row and README grade exactly what the tree grades; the five manager-0 halves listed, and the unit-probe column checked against my own edits).
+- d3_mutants.py 83/83 KILLED, goldens PASS, README counts equal the run.
+- No RTL change.
+- PR body Round 6 and the consolidated list carry the R391-5 S2 points; the line citations match the scratch parent at eaa88a32 with the unchanged edit script.
+New open items: none at MINOR or above. One SUGGESTION: the make-pinned sentence in tb/acmp_nvm/README.md:268 still says 107 of 349; at the head it is 110 of 360.

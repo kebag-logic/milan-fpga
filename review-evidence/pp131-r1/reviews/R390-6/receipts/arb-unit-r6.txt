@@ -1,0 +1,21 @@
+== head: 9 checks: 9 PASS, 0 FAIL | rc=0
+== r5_issue_cross_m1_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: F m1 READ grant + m0 abort only: 6 drain cycles, m1 took 0 bytes 0 dones
+== r5_issue_cross_m0_only: 9 checks: 7 PASS, 2 FAIL | rc=1
+   FAIL: E m0 READ strobe + m1 abort only: 6 drain cycles, m0 took 0 bytes 0 dones
+   FAIL: G tie, m0 READ strobe, m1 READ req + m1 abort: 2 issued, 6 drain cycles, m0 0 bytes 0 dones, m1 5 bytes 1 dones
+== r5_owned_cross_m0_only: 9 checks: 9 PASS, 0 FAIL | rc=0
+== r5_owned_cross_m1_only: 9 checks: 9 PASS, 0 FAIL | rc=0
+== r5_owned_cross_both: 9 checks: 9 PASS, 0 FAIL | rc=0
+== r5_identity: 9 checks: 9 PASS, 0 FAIL | rc=0
+== issue_arm_cross_intent: 9 checks: 6 PASS, 3 FAIL | rc=1
+   FAIL: E m0 READ strobe + m1 abort only: 6 drain cycles, m0 took 0 bytes 0 dones
+   FAIL: F m1 READ grant + m0 abort only: 6 drain cycles, m1 took 0 bytes 0 dones
+   FAIL: G tie, m0 READ strobe, m1 READ req + m1 abort: 2 issued, 6 drain cycles, m0 0 bytes 0 dones, m1 5 bytes 1 dones
+== owned_arm_cross_intent: 9 checks: 9 PASS, 0 FAIL | rc=0
+== cross_own_m1_drains_m0: 9 checks: 9 PASS, 0 FAIL | rc=0
+== r6_write_iss_m0_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: B m0 WRITE strobe + m0 abort: issued we 1, 6 drain cycles, m0 wready 0, m0 done 0
+== r6_write_own_m0_only: 9 checks: 9 PASS, 0 FAIL | rc=0
+== r6_stale_we_m0_only: 9 checks: 8 PASS, 1 FAIL | rc=1
+   FAIL: B m0 WRITE strobe + m0 abort: issued we 1, 6 drain cycles, m0 wready 0, m0 done 0

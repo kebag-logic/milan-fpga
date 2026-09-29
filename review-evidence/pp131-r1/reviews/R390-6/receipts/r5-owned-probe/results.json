@@ -1,0 +1,46 @@
+[
+ {
+  "mutant": "probe+r5_owned_cross_m0_only",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R5P manager 1's abort held through each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "R5P manager 1's abort held through each of the walk's READs: abort present in 3251 owned cycles over 1 READs, none drained (from 424095), the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm ",
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 427545), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "probe-head",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "tree-harness+r5_owned_cross_m0_only",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "__any__"
+  ],
+  "missing": [
+   "__any__"
+  ],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "SURVIVED"
+ }
+]
