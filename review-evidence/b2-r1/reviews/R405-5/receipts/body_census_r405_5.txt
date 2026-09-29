@@ -1,0 +1,35 @@
+ok   exactly one Round 2 F2 bullet (1)
+census: state-changing {('CONNECT_RX', 'PEER', 8): 105, ('DISCONNECT_RX', 'PEER', 8): 105} | to DUT inputs {'GET_COUNTERS': 228, 'GET_RX_STATE': 228, 'READ_DESCRIPTOR': 4} | ACMP total 809
+ok   census receipt RESULT: PASS
+ok   recorded state-changing = 105 CONNECT_RX + 105 DISCONNECT_RX, all PEER input 8
+ok   recorded AECP commands all GET_/READ_ (no AECP write)
+ok   bullet carries the state-changing clause: 210 state-changing ACMP commands (105 `CONNECT_RX`, 105 `DISCONNECT_RX`), all to the peer's input, and no AECP write
+ok   no unqualified '<n> ACMP commands' in the body ([])
+ok   old F7 text absent
+ok   bullet does not claim the 809-command ACMP total
+ok   bullet's two statements of the 210 state-changing commands agree
+ok   bullet: no state-changing command addressed a DUT input
+ok   bullet: every AECP command a GET_ or READ_
+ok   bullet's reads to DUT inputs equal the census: 228 GET_RX_STATE (the polls above), 228 GET_COUNTERS and 4 READ_DESCRIPTOR
+ok   bullet's input-1 poll count equals census
+ok   bullet's input-0 polls (2) equal census
+ok   page :264 names the same 105 + 105 as the only state-changing commands
+ok   page :265 peer's Stream Input 8
+ok   page :279 carries the same read counts
+ok   page :277 premise
+ok   bullet keeps '226 console samples'
+ok   bullet keeps 'commits (2 / 0)'
+ok   bullet keeps 'slots (229 / 230)'
+ok   page :262 226 console samples
+ok   no closing keyword + issue reference ([])
+ok   'Relates to' lines ['#606', '#608', '#75']
+RESULT: PASS
+rc=0
+--- control: round-4 body (expected FAIL on F7 checks)
+ok   census receipt RESULT: PASS
+FAIL bullet carries the state-changing clause: 210 state-changing ACMP commands (105 `CONNECT_RX`, 105 `DISCONNECT_RX`), all to the peer's input, and no AECP write
+FAIL no unqualified '<n> ACMP commands' in the body (['210 ACMP commands'])
+FAIL old F7 text absent
+FAIL bullet's two statements of the 210 state-changing commands agree
+RESULT: FAIL (4)
+rc=1

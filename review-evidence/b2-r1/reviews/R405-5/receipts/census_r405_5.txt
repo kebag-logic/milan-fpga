@@ -1,0 +1,55 @@
+jsonl files 561: published_sha256 equal 561, differ 0, not in manifest 0
+snapshot.jsonl copies 112, not a byte copy of snapshot-after.jsonl: 0
+non-command records by (file, type): {('events.jsonl', 'complete'): 112, ('identity-aecp.jsonl', 'start'): 1}
+controller invocations logged in events.jsonl by action: {'snapshot': 224, 'bind': 5, 'unbind': 5, 'cycle': 100}
+ACMP transaction records by (message, listener, listener_uid): {('CONNECT_RX', '3cc0c60102030000', 8): 105, ('DISCONNECT_RX', '3cc0c60102030000', 8): 105}
+
+commands by (protocol, command, entity, descriptor type):
+   ('ACMP', 'CONNECT_RX', 'PEER', 5) 105
+   ('ACMP', 'DISCONNECT_RX', 'PEER', 5) 105
+   ('ACMP', 'GET_RX_STATE', 'DUT', 5) 228
+   ('ACMP', 'GET_RX_STATE', 'PEER', 5) 359
+   ('ACMP', 'GET_TX_STATE', 'DUT', 6) 4
+   ('ACMP', 'GET_TX_STATE', 'PEER', 6) 8
+   ('AECP', 'GET_AVB_INFO', 'DUT', None) 226
+   ('AECP', 'GET_AVB_INFO', 'PEER', None) 226
+   ('AECP', 'GET_CLOCK_SOURCE', 'DUT', None) 2
+   ('AECP', 'GET_CLOCK_SOURCE', 'PEER', None) 2
+   ('AECP', 'GET_CONFIGURATION', 'DUT', None) 2
+   ('AECP', 'GET_CONFIGURATION', 'PEER', None) 2
+   ('AECP', 'GET_COUNTERS', 'DUT', 36) 226
+   ('AECP', 'GET_COUNTERS', 'DUT', 5) 228
+   ('AECP', 'GET_COUNTERS', 'DUT', 6) 228
+   ('AECP', 'GET_COUNTERS', 'DUT', 9) 226
+   ('AECP', 'GET_COUNTERS', 'PEER', 36) 226
+   ('AECP', 'GET_COUNTERS', 'PEER', 5) 244
+   ('AECP', 'GET_COUNTERS', 'PEER', 6) 232
+   ('AECP', 'GET_COUNTERS', 'PEER', 9) 226
+   ('AECP', 'GET_SAMPLING_RATE', 'DUT', None) 2
+   ('AECP', 'GET_SAMPLING_RATE', 'PEER', None) 2
+   ('AECP', 'READ_DESCRIPTOR', 'DUT', 0) 1
+   ('AECP', 'READ_DESCRIPTOR', 'DUT', 1) 1
+   ('AECP', 'READ_DESCRIPTOR', 'DUT', 10) 4
+   ('AECP', 'READ_DESCRIPTOR', 'DUT', 36) 2
+   ('AECP', 'READ_DESCRIPTOR', 'DUT', 5) 4
+   ('AECP', 'READ_DESCRIPTOR', 'DUT', 6) 4
+   ('AECP', 'READ_DESCRIPTOR', 'PEER', 10) 10
+   ('AECP', 'READ_DESCRIPTOR', 'PEER', 36) 2
+   ('AECP', 'READ_DESCRIPTOR', 'PEER', 5) 20
+   ('AECP', 'READ_DESCRIPTOR', 'PEER', 6) 8
+
+AECP command names seen: ['GET_AVB_INFO', 'GET_CLOCK_SOURCE', 'GET_CONFIGURATION', 'GET_COUNTERS', 'GET_SAMPLING_RATE', 'READ_DESCRIPTOR']
+state-changing commands by (command, addressed entity, index): {('CONNECT_RX', 'PEER', 8): 105, ('DISCONNECT_RX', 'PEER', 8): 105}
+commands addressed to a DUT stream input (descriptor type 5): {'GET_COUNTERS': 228, 'GET_RX_STATE': 228, 'READ_DESCRIPTOR': 4} total 460 by index {('GET_COUNTERS', 1): 226, ('GET_RX_STATE', 1): 226, ('GET_RX_STATE', 0): 2, ('READ_DESCRIPTOR', 0): 2, ('READ_DESCRIPTOR', 1): 2, ('GET_COUNTERS', 0): 2}
+
+ACMP commands in total: 809 {('GET_RX_STATE', 'PEER'): 359, ('GET_RX_STATE', 'DUT'): 228, ('CONNECT_RX', 'PEER'): 105, ('DISCONNECT_RX', 'PEER'): 105, ('GET_TX_STATE', 'DUT'): 4, ('GET_TX_STATE', 'PEER'): 8}
+ACMP commands to the peer's input 8: 551
+
+wire (acmp.tsv, 112 action captures) ACMP command frames by (msg, listener, luid, talker, tuid):
+   ('CONNECT_RX', 'PEER', '8', 'talker DUT', '1') 105
+   ('CONNECT_TX', 'PEER', '8', 'talker DUT', '1') 105
+   ('DISCONNECT_RX', 'PEER', '8', 'talker DUT', '1') 105
+   ('GET_RX_STATE', 'PEER', '8', 'talker 0000000000000000', '0') 115
+wire commands naming a DUT listener that are not reads: {}
+
+RESULT: PASS

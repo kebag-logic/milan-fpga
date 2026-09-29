@@ -1,0 +1,21 @@
+# GraphQL closingIssuesReferences, PR #622
+{"data":{"repository":{"pullRequest":{"headRefOid":"5c57927413e0dae279f06a75d2a58e3fec8a2bb0","isDraft":false,"closingIssuesReferences":{"totalCount":0,"nodes":[]},"lastEditedAt":"2026-09-29T11:38:44Z","updatedAt":"2026-09-29T11:41:18Z"}}}}
+# body table lines (| prefixed), r4 snapshot vs live
+17
+a287bf7051aef9b459e59c005962ebf33d95b73e57cf750752a001e3e41e90d2  -
+17
+a287bf7051aef9b459e59c005962ebf33d95b73e57cf750752a001e3e41e90d2  -
+TABLE_LINES_IDENTICAL
+# keyed table comparison
+SAME    | Issue item | Verdict | Evidence | (10 lines)
+SAME    | Bind | Unbound before, s | Pre-bind tap, s | DUT LeaveAll PDUs / target TA declarations in it | First probe  (7 lines)
+summary: old 2 tables, new 2 tables, identical 2, changed 0
+# full body diff r4 -> live
+78c78
+< - **F2, the saved-state layer.** Both restore sections carry the start and end table (slots, image, records, commits, `PP_STAT` with `nvm_pend`, `PP_NVM_STAT`). The #606 page gives the derivation: 226 console samples, 210 ACMP commands all to the peer's input, and no AECP write. The DUT's Stream Input 1 read unbound in 226 distinct polls (before and after every action, and at both censuses), and its Stream Input 0 at the two censuses only. It also gives the cause: binding records are indexed by the DUT's stream inputs, and no state-changing command addressed one. The 210 `CONNECT_RX` and `DISCONNECT_RX` went to the reference peer, and every AECP command was a GET_ or READ_. The commands that did address the DUT's stream inputs were reads, which write no record: 228 GET_RX_STATE (the polls above), 228 GET_COUNTERS and 4 READ_DESCRIPTOR. With that command census and the commits (2 / 0) and slots (229 / 230) unchanged, no record was written and no commit ran. `nvm_pend` 1 is lane B1's residue. Between the two reads the samples carry `PP_STAT` alone. The persisted content was not compared with the found state.
+---
+> - **F2, the saved-state layer.** Both restore sections carry the start and end table (slots, image, records, commits, `PP_STAT` with `nvm_pend`, `PP_NVM_STAT`). The #606 page gives the derivation: 226 console samples, 210 state-changing ACMP commands (105 `CONNECT_RX`, 105 `DISCONNECT_RX`), all to the peer's input, and no AECP write. The DUT's Stream Input 1 read unbound in 226 distinct polls (before and after every action, and at both censuses), and its Stream Input 0 at the two censuses only. It also gives the cause: binding records are indexed by the DUT's stream inputs, and no state-changing command addressed one. The 210 `CONNECT_RX` and `DISCONNECT_RX` went to the reference peer, and every AECP command was a GET_ or READ_. The commands that did address the DUT's stream inputs were reads, which write no record: 228 GET_RX_STATE (the polls above), 228 GET_COUNTERS and 4 READ_DESCRIPTOR. With that command census and the commits (2 / 0) and slots (229 / 230) unchanged, no record was written and no commit ran. `nvm_pend` 1 is lane B1's residue. Between the two reads the samples carry `PP_STAT` alone. The persisted content was not compared with the found state.
+97a98
+> 
+sha r4 dd0f08961122dee967ea88dfd9b29809e3547505409a6714c55eb0379cfd9722  -
+sha live 4ee4193e1010a9d102168a6fe3420acf6eeb8071961118f46407a3b0f5f0d047  -

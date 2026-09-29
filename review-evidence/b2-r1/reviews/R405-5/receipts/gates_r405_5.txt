@@ -1,0 +1,28 @@
+Python 3.14.7
+cmarkgfm ? html5lib 1.1
+## scripts/docs_check.py
+docs_check: 0 finding(s) across 176 md files + 938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+## scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+## scripts/gen_toc.py --check
+TOC gate: OK (118 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+## scripts/gen_toc.py --verify-anchors
+anchor check: 249 existing cross-page fragment links reproduced
+rc=0
+## scripts/check_em_dash.py --base 13eda870d1a6cf3f946fc228a98862366b08d102
+check_em_dash: 0 finding(s) over 914 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [13eda870..HEAD]
+rc=0
+## scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (339 arm(s))
+rc=0
+## scripts/check_doc_paths.py
+doc path gate: OK (854 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+## scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+## git diff --check 13eda870
+rc=0

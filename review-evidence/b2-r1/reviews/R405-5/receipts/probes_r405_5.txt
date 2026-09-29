@@ -1,0 +1,7 @@
+control body_census rc=0 (expect 0)
+M1 drop 'state-changing' rc=1 (expect 1)
+M2 split 106/104 rc=1 (expect 1)
+M3 Relates->Closes #606 rc=1 (expect 1)
+M4 READ_DESCRIPTOR 5 rc=1 (expect 1)
+M5 table cell changed, tables: summary: old 2 tables, new 2 tables, identical 1, changed 1
+control tables: summary: old 2 tables, new 2 tables, identical 2, changed 0
