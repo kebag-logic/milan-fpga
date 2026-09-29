@@ -1,0 +1,21 @@
+6
+suites | completed | success | 2026-09-29T10:53:54Z | 2026-09-29T11:56:11Z
+docs-gates | completed | success | 2026-09-29T10:53:54Z | 2026-09-29T10:54:05Z
+portability | completed | success | 2026-09-29T10:53:54Z | 2026-09-29T10:56:47Z
+portability | completed | success | 2026-09-29T10:53:50Z | 2026-09-29T10:55:49Z
+suites | completed | success | 2026-09-29T10:53:50Z | 2026-09-29T11:38:58Z
+docs-gates | completed | success | 2026-09-29T10:54:25Z | 2026-09-29T10:54:35Z
+pending
+2
+hdl pull_request completed success 36558392722
+hdl push completed success 36558385720
+== run 36558392722
+99bfd4bc3180bab97d47f63056513fb39eea6a37 pull_request success .github/workflows/hdl.yml
+portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; SRP LeaveAll mutation campaign=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+== run 36558385720
+99bfd4bc3180bab97d47f63056513fb39eea6a37 push success .github/workflows/hdl.yml
+docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; SRP LeaveAll mutation campaign=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success

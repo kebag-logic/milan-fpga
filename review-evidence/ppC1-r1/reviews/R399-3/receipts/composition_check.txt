@@ -1,0 +1,22 @@
+head 99bfd4bc3180bab97d47f63056513fb39eea6a37 tree d8ec1053bf0968ed462d8a419a0cf859c41e9c3c parents 412efeb750e358a65b04bae1cbb3086134d15b7e d352bbaa7cae0be2c6248f7869afe2a272ab014b
+merge-base(c1,d3) c951a9ff0cb5851fb159d33e966e5a2a9a188fe3
+fresh merge-tree(c1,d3) d8ec1053bf0968ed462d8a419a0cf859c41e9c3c  (must equal the head tree)
+files changed by both lanes: docs/architecture/08_timing.md docs/guides/integrator.md hdl/top/protocol_processor_top.sv 
+C1-only files differing from 412efeb750e358a65b04bae1cbb3086134d15b7e at head: 0
+#132-only files differing from d352bbaa7cae0be2c6248f7869afe2a272ab014b at head: 0
+hdl files changed by C1: hdl/srp/KL_srp_encoder.sv hdl/srp/KL_srp_talker_fsm.sv hdl/srp/KL_srp_top.sv hdl/srp/KL_srp_vlan.sv hdl/top/protocol_processor_top.sv 
+hdl files changed by #132: hdl/acmp/KL_acmp_nvm_shadow.sv hdl/acmp/KL_pp_acmp_lsn_admit.sv hdl/adp/KL_adp_engine.sv hdl/aecp/KL_aecp_desc_mem_guard.sv hdl/aecp/KL_aecp_desc_store.sv hdl/aecp/KL_aecp_dyn_state.sv hdl/aecp/KL_aecp_engine.sv hdl/aecp/KL_aecp_nvm_writer.sv hdl/aecp/ucode/gen_ucode.py hdl/packet_engine/KL_pp_nvm_mgr_arb.sv hdl/packet_engine/KL_pp_nvm_port.sv hdl/packet_engine/KL_pp_rx_validator.sv hdl/top/protocol_processor_top.sv 
+--- protocol_processor_top.sv: head vs #132 (only C1's comment may differ)
+-    //! real admission. For confirmed admission, gate with srp_active_o AND
++    //! real admission AND the stream VID's MVRP join transmitted (Milan
++    //! 4.3.2). For confirmed admission, gate with srp_active_o AND
+--- #132's top diff lines naming SRP/MRP/arm/draw/TX nets (expect none)
+(none)
+--- shared-service instances, byte-compared across base, C1, #132 and head
+KL_pp_timer_service #(     648 chars, identical in all four: True
+KL_pp_prng u_prng          398 chars, identical in all four: True
+KL_pp_tx_arbiter #(       1085 chars, identical in all four: True
+KL_srp_top #(             4326 chars, identical in all four: True
+lines naming arm*: 65, identical in all four: True
+--- the D3 writer's ports naming a shared service (expect none)
+(none)

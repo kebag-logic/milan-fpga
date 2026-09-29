@@ -1,0 +1,9 @@
+R399P held+flood: t0=0 first_peer=2000 last_peer=31195 own_la_ms=37604 48404 
+R399P held+flood: boot=0 flood=1 peers=30 own_la_total=2 own_la_in_peer_window=0 next_own_after_last_peer_ms=6409 aecp_held_at_end=1 aecp_responses=0 word37_drops=299
+FAIL: R399P held+flood: next own MSRP LeaveAll 6409 ms after the last peer
+R399P booted+flood: t0=12 first_peer=2012 last_peer=31208 own_la_ms=23004 37604 
+R399P booted+flood: boot=1 flood=1 peers=30 own_la_total=2 own_la_in_peer_window=1 next_own_after_last_peer_ms=6396 aecp_held_at_end=0 aecp_responses=300 word37_drops=0
+FAIL: R399P booted+flood: 1 own MSRP LeaveAll inside the peer window
+FAIL: R399P booted+flood: next own MSRP LeaveAll 6396 ms after the last peer
+R399P: 12 checks, 3 failures
+expiry-only-redraw rc=1
