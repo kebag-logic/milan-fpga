@@ -23,8 +23,8 @@ The [#387 page](387_SOFTWARE_GM_STEP.md) records the same session's grandmaster 
 - **[Link-drop proof](#link-drop-proof)** -- The read-only switch cycle that answered #599's first question.
 - **[Per-cycle results](#per-cycle-results)** -- Link edges, counters, recovery and restart in each of ten cycles.
 - **[Counters and media](#counters-and-media)** -- Counter blocks before and after, and the media observations.
-- **[Restore and validation](#restore-and-validation)** -- The restored bench and the local gates.
-- **[Artifact hashes](#artifact-hashes)** -- Image, tool and raw-capture identities.
+- **[Restore and validation](#restore-and-validation)** -- The restored bench, the DUT's saved-state residue and its cause.
+- **[Artifact hashes](#artifact-hashes)** -- Image, tool and raw-capture identities, and where the packet and raw captures are kept.
 
 ## Identity and setup
 
@@ -91,13 +91,15 @@ The [firmware contract](../integration/BAREMETAL_FIRMWARE.md) polls every 125 ms
 
 Console `mem_read` sampled `MAC_STATUS` (`0x110`) and the `link_status` CSR every 250 ms.
 
-Both agreed in all 7,520 console rounds of the session.
+Both agreed in all 7,520 console rounds of the session's nineteen actions.
+
+The packet's `extract_console_rounds.py` reproduces that count from the hashed console captures.
 
 `LINKG_STAT` (`0x774`) was sampled with them.
 
-A link edge therefore lies inside a 0.25 s console bracket.
+A published link edge therefore lies inside a 0.25 s console bracket.
 
-The poll adds up to one further period before the bracket.
+The physical edge may precede that bracket by up to the 250 ms publication bound.
 
 **Other observations.** Each 250 ms console round also read these words:
 
@@ -120,7 +122,9 @@ The quickest round trip supplies each offset.
 
 **Scope.** Only OUT4, the bench AVB switch, was cycled, each time for about 20 s.
 
-The DUT was never rebooted, flashed or power-cycled.
+The bench never rebooted, flashed or power-cycled the DUT.
+
+Its own saved-state writer committed twice; see [Saved-state layer](#saved-state-layer).
 
 `RST_EPOCH` read 1 in every sample.
 
@@ -212,8 +216,9 @@ Link brackets are the last console sample before and the first after the edge.
 | 10 | 21.05 | 2.06-2.31 | 36.82-37.07 | +1 / +1 | 40.04 | 1.786 | 45.36 / 45.67 | 8.29 / 8.60 | 18.16 / 45.42 | held |
 
 - All ten cycles counted LINK_DOWN +1 and LINK_UP +1.
-- The PHY link dropped 1.81-2.56 s after OFF, about 1 s after the switch's last frame.
-- It returned 36.59-39.35 s after OFF, 1.43-1.96 s before the first frame on the link.
+- The published PHY link state fell in brackets 1.81-2.56 s after OFF, about 1 s after the switch's last frame.
+- It rose in brackets 36.59-39.35 s after OFF, 1.43-1.96 s before the first frame on the link.
+- Each physical edge may precede its bracket by up to the 250 ms publication bound.
 - gPTP recovered in 0.544-1.786 s, inside the [5 s bound](../design/GM_LOSS_RECOVERY.md#recovery-bound).
 - Both listeners were MEDIA_LOCKED again 43.95-52.55 s after OFF.
 - The media servo was LOCKED again 48.40-52.40 s after OFF.
@@ -259,6 +264,8 @@ These restart observations are recorded without applying #593.
 
 ## Restore and validation
 
+Everything below was restored as found, except the DUT's [saved-state layer](#saved-state-layer).
+
 - Both bindings unbound on their first attempt; all eighteen stream states read connection count 0.
 - DUT clock source 0, INTERNAL, was restored.
 - The start and end censuses agree on all 53 non-counter reads.
@@ -277,13 +284,67 @@ The controller host's restore is recorded on the [#387 page](387_SOFTWARE_GM_STE
 
 No RTL, firmware or other documentation changed in this lane.
 
+### Saved-state layer
+
+The census compares AEM state only; the DUT's saved-state layer did not end as found.
+
+| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+|---|---|---|
+| NVM slots A / B, image sequence | 227 / 228, image 228 | 229 / 230, image 230 |
+| Commits ok / failed | 0 / 0 | 2 / 0 |
+| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000444`, 0 | `0x5b000c44`, 1 |
+| `PP_NVM_STAT` | `0xc30000e4`, pend 0 | `0xc34000e4`, pend 1 |
+
+The packet's `extract_saved_state.py` derives the cause from every console sample and controller transcript, in time order.
+
+- `nvm_pend` read 0 in every sample up to 05:38:29Z, the end of the link-drop proof.
+- It read 1 in every sample from 05:41:16Z, the bound baseline, to the end.
+- Between them, the setup at 05:41:02Z issued three state-changing commands.
+- Those were both CONNECT_RX commands and the DUT's SET_CLOCK_SOURCE to source 1.
+- The restore at 06:22:05Z issued the other three: SET_CLOCK_SOURCE to source 0 and both DISCONNECT_RX commands.
+- Every other controller command in the session was a read.
+- The DUT listener kept the same talker, unique ID, connection count and flags in every poll from the bound baseline to run 5.
+- `nvm_dirty` read 0 in all 7,520 samples, so no commit fell inside a sampled action.
+
+Only the binding records, ids `0x20` to `0x2F`, have a record writer ([snapshot ownership, section 11](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)).
+
+A commit follows only a completed record write.
+
+So the setup's bind of the DUT listener committed image 229 to slot A.
+
+The restore's unbind committed image 230 to slot B.
+
+The alternating slots and the count of two fix that order; the commit instants were not sampled.
+
+The clock-source records, ids `0x0A` to `0x11`, have no writer.
+
+Each SET_CLOCK_SOURCE write set the dynamic-state store's sticky level, one of `nvm_pend`'s sources.
+
+Only a reset clears that level, so returning to source 0 left it set.
+
+At the end `nvm_dirty`, the open-record flag and the alarm read 0, and both commits succeeded.
+
+The binding source was therefore clear, and no name or map write was issued.
+
+The persisted records were not read back or compared with the found state.
+
+The pending flag cannot be cleared without a DUT reset, which this lane may not perform.
+
 ## Artifact hashes
 
-The author's bench packet holds scripts, transcripts, analyses and `MANIFEST.sha256`.
+The public packet is on branch `b1-review-evidence` under `review-evidence/b1-r1/author-r2/`; PR #620 records its pinned commit.
 
-Each action's `raw-artifacts.json` indexes its raw files by size and SHA-256.
+It holds the scripts, transcripts and analyses, redacted of host, interface and account names and of host MAC-derived identities.
 
-Raw captures are kept outside the packet on the bench host; the table identifies them.
+Each action's `raw-artifacts.json` in it indexes that action's raw files by size and SHA-256.
+
+Their temporary-directory paths are historical names, not current storage locators.
+
+Raw captures are retained in private cold storage, keyed by the SHA-256 values in the table below.
+
+The packet's retention manifest matches every retained copy to its row.
+
+Its extraction scripts reproduce the console-round count, the `asl` seed CRC, the peer-delay values and the alignment-test counters from hashed inputs.
 
 Raw retention follows [TESTING section 6b](../testing/TESTING.md#6b-bench-evidence-retention).
 

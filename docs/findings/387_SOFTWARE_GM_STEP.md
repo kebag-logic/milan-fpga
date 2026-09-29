@@ -9,7 +9,7 @@ and the [owner decision of 2026-09-28](https://github.com/kebag-logic/milan-fpga
 
 | Acceptance | Verdict | Evidence |
 |---|---|---|
-| #387 acceptance 4 | PASS, with one recorded deviation | Five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked CRF stream. No outgoing `mr` changed. MEDIA_RESET stayed flat, and neither listener unlocked. `A_MCSRV_STAT` read LOCKED throughout, and `tu` signalled every step. The DUT was steady again 3.00-4.53 s after each step, inside the 5 s bound. Deviation: every step was followed by a 2.0 s asCapable loss. See [Deviation](#deviation-ascapable-loss-after-every-step). |
+| #387 acceptance 4 | PARTLY MET | Met: five takeovers and five releases gave ten PHC steps of +9.99 ms and -10.00 ms on a running, locked CRF stream. No outgoing `mr` changed. MEDIA_RESET stayed flat, and neither listener unlocked. `A_MCSRV_STAT` read LOCKED throughout. Not met: the decided one counted event per step. `tu` was signalled 2-3 times per step instead of once. asCapable was lost for 2.0 s after every step ([#621](https://github.com/kebag-logic/milan-fpga/issues/621)). DUT GPTP_GM_CHANGED rose by 3 at nine of ten edges, against one grandmaster change. Not observable on this bench: the counted render re-base, because no AAF stream was bound and its count has no register. Item 2 sets no time bound; the DUT was steady again 3.00-4.53 s after each step. See [Deviation](#deviation-from-the-one-counted-event-contract). |
 
 These are operator measurements, not review verdicts.
 
@@ -21,10 +21,10 @@ The [switch-cycle page](599_394_E1_LINK_CYCLES.md) records the same session's li
 - **[Method and limits](#method-and-limits)** -- How steps, `tu`, `mr` and counters were observed.
 - **[Per-step results](#per-step-results)** -- The ten steps, their sign, and the media reaction.
 - **[Contract check](#contract-check)** -- Each decided reaction against what the bench showed.
-- **[Deviation: asCapable loss after every step](#deviation-ascapable-loss-after-every-step)** -- The one behaviour outside the contract.
+- **[Deviation from the one-counted-event contract](#deviation-from-the-one-counted-event-contract)** -- The asCapable loss after every step, which turns one counted `tu` event into two or three.
 - **[Other observations](#other-observations)** -- Counters and peer behaviour recorded without a verdict.
-- **[Restore](#restore)** -- The original grandmaster, streams and controller host restored.
-- **[Artifact hashes](#artifact-hashes)** -- Tool, configuration and raw-capture identities.
+- **[Restore](#restore)** -- The original grandmaster, streams and controller host restored, and the DUT's saved-state residue.
+- **[Artifact hashes](#artifact-hashes)** -- Tool, configuration and raw-capture identities, and where the raw captures are kept.
 
 ## Stimulus
 
@@ -65,6 +65,8 @@ A standalone test confirmed that this role changed no grandmaster.
 
 The DUT's and peer's GPTP_GM_CHANGED stayed at 22 and 60.
 
+The packet's `extract_alignment_counters.py` reproduces both from the hashed controller transcripts before and after the test.
+
 The grandmaster configuration used a free-running clock with the gPTP profile's intervals.
 
 The switch forwarded the new grandmaster to the DUT with stepsRemoved 1.
@@ -104,6 +106,13 @@ That clear is the first sample from which sync 1, asCapable 1 and `tu=0` hold fo
 **Limits.** No AAF stream was bound.
 
 The render stage's re-base tally has no CSR, so the counted render re-base was not observable.
+
+Two things would make it observable on a bench.
+
+- An AAF stream bound into the DUT's render stage and running across each step.
+- The stage's recentre count published on a register or console command.
+
+Today that count is a [verification tap](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state) that only simulation reads.
 
 One console sample in run 4 came back 2.7 ms late, at 97.8 s.
 
@@ -174,7 +183,21 @@ The [step policy](../design/TIME_SYNC.md#step-policy) sets the thresholds.
 | Render re-base | One counted re-base per step | Not observable on this bench: no AAF stream and no tally CSR |
 | Step to relocked media | No time bound in item 2 ([#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5859048589)) | Media never unlocked; the DUT was steady 3.00-4.53 s after the step |
 
-## Deviation: asCapable loss after every step
+Item 2 decides one counted `tu` event per step; the #602 ruling removes only its `mr` and MEDIA_RESET parts.
+
+Each step here gave two or three `tu` episodes, and the render re-base was not observable.
+
+So #387 acceptance 4 is PARTLY MET: the media-plane reactions are met, and the single counted event is not.
+
+"Media" in the last row means the listeners' MEDIA_LOCKED state and the CRF servo.
+
+The DUT's CLOCK_DOMAIN counters follow `tu`, and they did count UNLOCKED with each `tu` episode (see [Other observations](#other-observations)).
+
+## Deviation from the one-counted-event contract
+
+The decided contract is one counted event per step.
+
+Every one of the ten steps departed from it.
 
 After every step the DUT cleared asCapable 0.22-0.97 s later, for 2.0 s each time.
 
@@ -182,13 +205,19 @@ Sync dropped with it and `tu` rose again.
 
 When asCapable returned, the DUT re-adopted the grandmaster with a further holdover.
 
-That gives two or three `tu` episodes per step instead of one.
+That gives two or three `tu` episodes per step instead of one counted event.
+
+DUT GPTP_GM_CHANGED rose by 3 at nine of ten edges and by 1 at the tenth, against one grandmaster change per edge.
 
 In the sample where asCapable cleared, the DUT's published peer delay read this:
 
 - 0 ns at all five takeovers;
 - 4,039-4,701 ns at all five releases;
-- 373-389 ns everywhere else.
+- 373-389 ns in every other sample of the five runs.
+
+The 0 ns and 4,039-4,701 ns readings each held for four or five samples, about 1 s.
+
+The packet's `extract_pdelay.py` reproduces these values from the hashed console captures.
 
 That fits a peer-delay exchange computed across the step.
 
@@ -200,9 +229,9 @@ The loss still extends each step's `tu` from about 0.5 s to 3.0-4.5 s.
 
 It also adds GPTP_GM_CHANGED and CLOCK_DOMAIN counts.
 
-Item 2 does not grade it.
+The asCapable loss is [#621](https://github.com/kebag-logic/milan-fpga/issues/621): a PHC step should not cost asCapable.
 
-It is proposed as a follow-up issue for the manager: a PHC step should not cost asCapable.
+This lane records it and does not fix it.
 
 ## Other observations
 
@@ -234,9 +263,34 @@ The controller host was returned to its found state:
 - Its time is back on its original trajectory against the host clock, within 4.4 us.
 - The temporary build, configurations and scripts were removed.
 
-One difference remains.
+Two differences remain.
 
-Two stale control-socket files from an earlier run of the same implementation predated this lane.
+**The DUT's saved-state layer** did not end as found:
+
+| Saved-state field | Identity gate, 05:31Z | Final restore, 06:22Z |
+|---|---|---|
+| NVM slots A / B, image sequence | 227 / 228, image 228 | 229 / 230, image 230 |
+| Commits ok / failed | 0 / 0 | 2 / 0 |
+| `PP_STAT`, `nvm_pend` (bit 11) | `0x5b000444`, 0 | `0x5b000c44`, 1 |
+| `PP_NVM_STAT` | `0xc30000e4`, pend 0 | `0xc34000e4`, pend 1 |
+
+The setup bound the DUT listener and selected the CRF input as clock source.
+
+The restore selected INTERNAL again and unbound it.
+
+Only the binding records have a writer, so each binding change committed one image: the bind 229, the unbind 230.
+
+The clock-source writes have no record writer.
+
+They set a sticky pending source that only a reset clears.
+
+The [switch-cycle page](599_394_E1_LINK_CYCLES.md#saved-state-layer) derives this from the captures.
+
+The persisted records were not read back or compared with the found state.
+
+The pending flag cannot be cleared without a DUT reset, which this lane may not perform.
+
+**Two stale control-socket files** from an earlier run of the same implementation predated this lane.
 
 The implementation removed them at its first start; no daemon was listening on them.
 
@@ -245,6 +299,12 @@ They were not recreated.
 ## Artifact hashes
 
 The bench packet and index files are as on the [switch-cycle page](599_394_E1_LINK_CYCLES.md#artifact-hashes).
+
+The public packet is on branch `b1-review-evidence` under `review-evidence/b1-r1/author-r2/`; PR #620 records its pinned commit.
+
+Raw captures are retained in private cold storage, keyed by the SHA-256 values in the table below.
+
+The packet's retention manifest matches every retained copy to its row.
 
 | Item | SHA-256 |
 |---|---|
