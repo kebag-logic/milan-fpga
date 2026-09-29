@@ -1,0 +1,13 @@
+#!/bin/sh
+# Pinned Verilator 5.050 wrapper for the review: rewrites "-j 0" (all cores)
+# to "-j 8" so no build exceeds the review's 8-job limit. Set PINNED_VERILATOR
+# to the 5.050 entry point (default: the tool-bin copy staged beside this).
+real="${PINNED_VERILATOR:-$(dirname "$0")/../scratch/tool-bin/verilator}"
+out=""
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=8; fi
+  prev="$a"
+  out="$out '$(printf %s "$a" | sed "s/'/'\\\\''/g")'"
+done
+eval "exec \"\$real\" $out"

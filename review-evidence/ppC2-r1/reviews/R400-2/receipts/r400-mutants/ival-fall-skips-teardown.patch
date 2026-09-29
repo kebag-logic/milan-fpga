@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -666,7 +666,7 @@
+             draw_act_r    <= 1'b0;
+             pstate_r      <= P_INITIAL;
+             teardown_ph_r <= 1'b0;
+-            w_st_r        <= W_TEARDOWN;
++            w_st_r        <= W_OFF;
+           end else if (draw_act_r) begin
+             if (prng_draw_valid_i) begin
+               draw_act_r <= 1'b0;

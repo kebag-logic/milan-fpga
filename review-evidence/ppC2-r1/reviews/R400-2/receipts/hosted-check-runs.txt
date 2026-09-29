@@ -1,0 +1,29 @@
+2026-09-29T15:40:03Z
+portability | completed | success | run https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36588714000/job/109475848295
+suites | in_progress | null | run https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36588714000/job/109475848184
+docs-gates | completed | success | run https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/36588714000/job/109475848124
+JOB docs-gates completed success
+  step Set up job: completed success
+  step Run actions/checkout@v4: completed success
+  step Link, matrix, parameter, wavedrom and staleness gates: completed success
+  step Post Run actions/checkout@v4: completed success
+  step Complete job: completed success
+JOB suites in_progress 
+  step Set up job: completed success
+  step Run actions/checkout@v4: completed success
+  step Cache the pinned Verilator build: completed success
+  step Build Verilator v5.050: completed skipped
+  step Lint (zero tolerance) + every suite: completed success
+  step SRP LeaveAll mutation campaign: in_progress 
+  step MAAP mutation campaign: pending 
+  step Traceability matrix no-drift + untested budget 0: pending 
+  step nvm_port README figures agree with the tree: pending 
+  step Post Cache the pinned Verilator build: pending 
+  step Post Run actions/checkout@v4: pending 
+JOB portability completed success
+  step Set up job: completed success
+  step Run actions/checkout@v4: completed success
+  step Install yosys + sv2v: completed success
+  step Elaborate every top off-vendor: completed success
+  step Post Run actions/checkout@v4: completed success
+  step Complete job: completed success

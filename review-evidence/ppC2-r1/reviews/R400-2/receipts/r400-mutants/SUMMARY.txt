@@ -1,0 +1,12 @@
+tx-set-omits-alloc: rc=0 tally=('191', '191', '0') SURVIVED | 
+tx-set-omits-gwait: rc=0 tally=('191', '191', '0') SURVIVED | 
+tx-set-omits-write: rc=2 tally=('187', '183', '4') KILLED | FAIL: U24: sDefend path, the claim is withdrawn at the fall
+tx-set-omits-commit: rc=0 tally=('191', '191', '0') SURVIVED | 
+tx-set-omits-lane: rc=2 tally=('189', '186', '3') KILLED | FAIL: U25: the claim is withdrawn for the whole outage (1000 cycles valid, state 2)
+tx-fall-keeps-claim: rc=2 tally=('191', '188', '3') KILLED | FAIL: U24: sDefend path, the claim is withdrawn at the fall
+off-keeps-rel-pend: rc=2 tally=('191', '141', '50') KILLED | FAIL: U18: PROBE byte-exact at the clamped offset
+ival-fall-keeps-draw-mark: rc=2 tally=('191', '189', '2') KILLED | FAIL: U17c: the next PortOperational! probes the next fitting draw (3 offsets did not)
+post-teardown-keeps-chain: rc=2 tally=('191', '190', '1') KILLED | FAIL: U23: every walk reached its 4th PROBE (1 did not)
+ival-fall-skips-teardown: rc=0 tally=('191', '191', '0') SURVIVED | 
+seed-clamp-ge: rc=0 tally=('191', '191', '0') SURVIVED | 
+seed-clamp-value-minus-one: rc=2 tally=('191', '185', '6') KILLED | FAIL: U18: the seed is clamped to offset 0xfdf8, got 91e0f000fdf7

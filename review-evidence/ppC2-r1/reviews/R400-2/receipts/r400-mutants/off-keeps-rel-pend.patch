@@ -1,0 +1,10 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -602,7 +602,6 @@
+           // for the next engagement
+           pstate_r    <= P_INITIAL;
+           seed_used_r <= 1'b0;
+-          rel_pend_r  <= 1'b0;
+           if (eng_w) begin
+             // Begin!/PortOperational!: generate_address + ReserveAddress!
+             w_st_r <= W_ADDR;

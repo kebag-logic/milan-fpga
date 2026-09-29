@@ -1,0 +1,12 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -586,8 +586,7 @@
+       // sequentially). The Release! is ordered after that entry and does
+       // not wait for the frame: the claim is withdrawn now, and W_POST
+       // drops the entry's state change and runs the teardown (Table B.7)
+-      if (!eng_w && (w_st_r inside {W_ALLOC, W_GWAIT, W_WRITE, W_COMMIT,
+-                                    W_LANE})) begin
++      if (!eng_w && (w_st_r inside {W_GWAIT, W_WRITE, W_COMMIT, W_LANE})) begin
+         pstate_r   <= P_INITIAL;
+         rel_pend_r <= 1'b1;
+       end

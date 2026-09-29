@@ -1,0 +1,10 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -663,7 +663,6 @@
+             // is ordered first and the entry is dropped whole — no timer
+             // armed, no PDU, no state change (Table B.7 Release!, B.3.2).
+             // A draw in flight is abandoned as in W_ADDR
+-            draw_act_r    <= 1'b0;
+             pstate_r      <= P_INITIAL;
+             teardown_ph_r <= 1'b0;
+             w_st_r        <= W_TEARDOWN;
