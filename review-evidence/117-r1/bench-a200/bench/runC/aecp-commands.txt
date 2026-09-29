@@ -1,7 +1,7 @@
-1790169047.001 p2 CMD REGISTER_UNSOL controller=6805ca95b2ed0a20 status=0
-1790169047.001 p3 RSP REGISTER_UNSOL controller=6805ca95b2ed0a20 status=0
-1790169086.501 p2 CMD DEREGISTER_UNSOL controller=6805ca95b2ed0a20 status=0
-1790169086.501 p3 RSP DEREGISTER_UNSOL controller=6805ca95b2ed0a20 status=0
+1790169047.001 p2 CMD REGISTER_UNSOL controller=<controller-host-id>0a20 status=0
+1790169047.001 p3 RSP REGISTER_UNSOL controller=<controller-host-id>0a20 status=0
+1790169086.501 p2 CMD DEREGISTER_UNSOL controller=<controller-host-id>0a20 status=0
+1790169086.501 p3 RSP DEREGISTER_UNSOL controller=<controller-host-id>0a20 status=0
 3 (2, 'AECP mt', 6)
 1 (2, 'CMD', '0x1', '', '')
 2 (2, 'CMD', '0x2b', '', '')
@@ -25,4 +25,4 @@
 4 (3, 'RSP', 'GET_STREAM_INFO', '', 0)
 41 (3, 'RSP', 'READ_DESCRIPTOR', '', 0)
 1 (3, 'RSP', 'REGISTER_UNSOL', '', 0)
-controller ids seen {'6805ca95b2ed0055': 10, '6805ca95b2ed0a20': 151}
+controller ids seen {'<controller-host-id>0055': 10, '<controller-host-id>0a20': 151}

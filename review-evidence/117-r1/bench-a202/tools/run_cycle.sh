@@ -19,11 +19,11 @@ echo "start_local $(ts) N=$N PRE=$PRE HOLD=$HOLD POST=$POST BIND=$BIND PROOF=$PR
 for h in <bench-host-prefix>ubuntu-server <bench-host-prefix><bench-host> <bench-host-prefix>pi; do timeout 40 python3 $PK/tools/clock_offset.py $h 25; done > $OUT/clock-before.jsonl 2>&1
 $SSH <bench-host-prefix>ubuntu-server "sudo -n timeout $((D + 120)) tcpdump -i <MAC-derived-interface-name> -w /tmp/a202-c$N.pcap" > $OUT/tcpdump-tap.log 2>&1 &
 CAP=$!
-$SSH <bench-host-prefix><bench-host> "sudo -n timeout $((D + 120)) tcpdump -i ens10 -w /tmp/a202/c$N-<bench-host>.pcap" > $OUT/tcpdump-<bench-host>.log 2>&1 &
+$SSH <bench-host-prefix><bench-host> "sudo -n timeout $((D + 120)) tcpdump -i <host-iface> -w /tmp/a202/c$N-<bench-host>.pcap" > $OUT/tcpdump-<bench-host>.log 2>&1 &
 CAP2=$!
 WARGS=""
 if [ "$BIND" = 1 ]; then WARGS="--bind --unbind-deadline 240"; fi
-$SSH <bench-host-prefix><bench-host> "sudo -n timeout -k 20 $((D + 420)) python3 /tmp/a202/a202_watch.py ens10 $((D + 110)) 1 $WARGS" > $OUT/<bench-host>-watch.jsonl 2>&1 &
+$SSH <bench-host-prefix><bench-host> "sudo -n timeout -k 20 $((D + 420)) python3 /tmp/a202/a202_watch.py <host-iface> $((D + 110)) 1 $WARGS" > $OUT/<bench-host>-watch.jsonl 2>&1 &
 PW=$!
 sleep 3
 echo "locked_start_local $(ts)" >> $OUT/timeline.txt
@@ -34,7 +34,7 @@ sleep 10
 $SSH <bench-host-prefix><bench-host> "sudo -n pkill -TERM -f '^python3 /tmp/a202/a202_watch\.py '" ; echo "watch_term_rc=$?" >> $OUT/timeline.txt
 wait $PW; echo "<bench-host>_watch_rc=$?" >> $OUT/timeline.txt
 $SSH <bench-host-prefix>ubuntu-server "sudo -n pkill -INT -f '^tcpdump -i <MAC-derived-interface-name> -w /tmp/a202-c$N\.pcap$'"
-$SSH <bench-host-prefix><bench-host> "sudo -n pkill -INT -f '^tcpdump -i ens10 -w /tmp/a202/c$N-<bench-host>\.pcap$'"
+$SSH <bench-host-prefix><bench-host> "sudo -n pkill -INT -f '^tcpdump -i <host-iface> -w /tmp/a202/c$N-<bench-host>\.pcap$'"
 wait $CAP; echo "capture_tap_rc=$?" >> $OUT/timeline.txt
 wait $CAP2; echo "capture_<bench-host>_rc=$?" >> $OUT/timeline.txt
 for h in <bench-host-prefix>ubuntu-server <bench-host-prefix><bench-host> <bench-host-prefix>pi; do timeout 40 python3 $PK/tools/clock_offset.py $h 25; done > $OUT/clock-after.jsonl 2>&1
