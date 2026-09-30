@@ -1,0 +1,73 @@
+control adp_engine run: rc=0 PASS
+cfg-read-live: rc=2 failures=1 named=1 KILLED
+    FAIL: P11c the index sampled at build 0102, never torn (0304 moved in after byte 64), got 0104
+cfg-dependent-field: rc=2 failures=14 named=3 KILLED
+    FAIL: P2 AVAILABLE byte 67: got 07 want 05
+    FAIL: P5 gm-sampled byte 67: got 07 want 05
+    FAIL: P7 DEPARTING byte 67: got 07 want 05
+    FAIL: P7 restart advert byte-exact with index 0
+    FAIL: P11a advert byte-exact at current_configuration_index 2
+    FAIL: P11b wire byte 66 did not move with the configuration: 00 -> 01
+    FAIL: P11b wire byte 67 did not move with the configuration: 07 -> 06
+    FAIL: P11b advert byte-exact: only available_index (+1) and 64..65 moved
+    FAIL: P11d ENTITY_DEPARTING byte-exact at index 0001
+    FAIL: P11e restart advert byte-exact at the image configuration
+    FAIL: P13 F04.2 TMR_DELAY x DELAY(timer armed): ENTITY_AVAILABLE byte-exact at available_index 3
+    FAIL: P13 F04.2 SHUTDOWN x WAITING: ENTITY_DEPARTING byte-exact at available_index 1
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): ENTITY_DEPARTING byte-exact at available_index 1
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): ENTITY_DEPARTING byte-exact at available_index 1
+gate-enable-dropped: rc=2 failures=30 named=4 KILLED
+    FAIL: P12 no draw request over 8220 ms with enable low, got 2
+    FAIL: P12 no timer arm or cancel with enable low, got 5
+    FAIL: P12 no committed frame and no TX request with enable low, got 2
+    FAIL: P12 dbg_adv_state DOWN in every clock, 32800 were not
+    FAIL: P1 exactly one draw, got 2
+    FAIL: P1 startup draw kind 1 (T-ADP-DELAY-START), got 2
+    FAIL: P1 delay timer armed on shared slot 0
+    FAIL: P1 SM in DELAY, got 3
+    FAIL: P2 frame committed
+    FAIL: P2 re-requested after refusals, got 2
+    FAIL: P2 AVAILABLE byte 53: got 01 want 00
+    FAIL: P2 one TX request, got 2
+    FAIL: P2 available_index incremented AFTER tx
+    FAIL: P2 SM in WAITING
+    FAIL: P2 T-ADP-ADV armed at 5 s (got 23647 want 24864)
+    FAIL: P3.1 re-draw
+    FAIL: P3.1 available_index sequence: got 2 want 1
+    FAIL: P3.1 ADV re-armed after send
+    FAIL: P3.2 available_index sequence: got 3 want 2
+    FAIL: P3.2 ADV re-armed after send
+    FAIL: P3.3 available_index sequence: got 4 want 3
+    FAIL: P3.3 ADV re-armed after send
+    FAIL: P3 index after 4 adverts, got 5
+    FAIL: P4a T-ADP-ADV cancelled
+    FAIL: P5 gm-sampled byte 53: got 07 want 06
+    FAIL: P13 F04.2 LINK_UP x NOT STARTED(DOWN) (5.6.1 not started): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_UP x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 LINK_UP x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN): reached (state 2)
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN) (5.6.1 not started): ends in state 0, got 2
+walk-down-answers-discover: rc=2 failures=16 named=4 KILLED
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN) (5.6.1 not started): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN (Table 5.51 -): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN) (5.6.1 not started): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN (Table 5.51 -): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: no cancel, got 1
+walk-delay-ignores-link-down: rc=2 failures=4 named=4 KILLED
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight) (5.6.3.5.10): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed) (5.6.3.5.10): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): the running timer is stopped (a cancel)
+6 checks: 6 PASS, 0 FAIL
+rc=0

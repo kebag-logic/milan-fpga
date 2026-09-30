@@ -1,0 +1,17 @@
+control pp_top adp-config: rc=0 PASS
+cfg-valid-not-sticky: rc=2 failures=7 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+    FAIL: AD5: the flag the ADPDU reads equals the store's in every clock from the reset (31202 clocks differed)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (460 clocks differed)
+    FAIL: AD7: SET_CONFIGURATION(0) SUCCESS, GET reads 0, the flag set, the device idle (premise)
+cfg-valid-any-selector: rc=2 failures=1 named=1 KILLED
+    FAIL: AD1b: wire bytes 64..65 carry configuration 1, got 0
+cfg-valid-ucpu-bus: rc=2 failures=3 named=2 KILLED
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+    FAIL: AD5: the flag the ADPDU reads equals the store's in every clock from the reset (31203 clocks differed)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (461 clocks differed)
+4 checks: 4 PASS, 0 FAIL
+rc=0

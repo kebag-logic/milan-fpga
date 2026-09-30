@@ -1,0 +1,25 @@
+control pp_top adp-config: rc=0 PASS
+cfg-dependent-field-top: rc=2 failures=7 named=1 KILLED
+    FAIL: AD1: first ENTITY_AVAILABLE carries the image configuration 1 (current_cfg_i, nothing set yet)
+    FAIL: AD2: 1 wire bytes outside 50..53 and 64..65 moved
+    FAIL: AD3: 1 wire bytes outside 50..53 and 64..65 moved
+    FAIL: AD3: ENTITY_AVAILABLE byte-exact at configuration 1
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 1)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 1)
+cfg-frozen-at-top: rc=2 failures=4 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+cfg-overlay-only: rc=2 failures=4 named=2 KILLED
+    FAIL: AD1: first ENTITY_AVAILABLE carries the image configuration 1 (current_cfg_i, nothing set yet)
+    FAIL: AD1b: wire bytes 64..65 carry configuration 1, got 0
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+cfg-nonzero-for-valid: rc=2 failures=3 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+5 checks: 5 PASS, 0 FAIL
+rc=0

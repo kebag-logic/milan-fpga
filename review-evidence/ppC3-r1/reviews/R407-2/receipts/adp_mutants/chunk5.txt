@@ -1,0 +1,41 @@
+control adp_engine run: rc=0 PASS
+disc-fresh-checks-gm: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0) (5.6.4.5.2 step 3): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+disc-not-discovered-checks-index: rc=2 failures=14 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4) (5.6.4.5.1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0) (5.6.4.5.1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): reached
+    FAIL: P13 T-ADP-NOADP armed and expired
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): reached
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 BIND x TK_DISCOVERED (sink 0): reached
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+disc-not-discovered-checks-interface: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0) (5.6.4.5.1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+disc-restart-not-rediscovered: rc=2 failures=4 named=1 KILLED
+    FAIL: P9e restart fires a pair, got 1
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 1 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+disc-departing-ignores-interface: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7) (5.6.4.5.3 step 1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7): no event, got 1 events
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7): no T-ADP-NOADP operation
+disc-stray-noadp-departs: rc=2 failures=2 named=1 KILLED
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): no event, got 1 events
+disc-unbind-keeps-timer: rc=2 failures=2 named=1 KILLED
+    FAIL: P9k NOADP cancelled
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): T-ADP-NOADP stopped once
+8 checks: 8 PASS, 0 FAIL
+rc=0
