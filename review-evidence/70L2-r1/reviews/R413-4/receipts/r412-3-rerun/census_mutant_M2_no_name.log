@@ -1,0 +1,27 @@
+mutant=M2_no_name head=5b4a47e99f5a453832ccabccfbf4aae116d6fea0
+mutated M2_no_name in $REVIEWS/70L2-r413-4-packet/scratch/r412pkt/scratch/trees/mut_M2_no_name/sw/builder/test_builder.py
+Traceback (most recent call last):
+  File "$REVIEWS/70L2-r413-4-packet/scratch/r412pkt/scratch/trees/mut_M2_no_name/sw/builder/test_builder.py", line 14779, in test_baremetal_profile_contract
+    assert_resolved_boot_flow(_taken["text"], source_model, what,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              source=planted, units=units)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/70L2-r413-4-packet/scratch/r412pkt/scratch/trees/mut_M2_no_name/sw/builder/test_builder.py", line 7212, in assert_resolved_boot_flow
+    assert handed_verdict == [verdict_tag], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the compiled a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/70L2-r413-4-packet/scratch/r412pkt/scripts/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/70L2-r413-4-packet/scratch/r412pkt/scratch/trees/mut_M2_no_name/sw/builder/test_builder.py", line 14783, in test_baremetal_profile_contract
+    assert RESOLVER_VERDICT_PIN in str(exc) and not unnamed, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the resolver refused a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) without naming the broken pin(s) ["another symbol of the linked image is on aem_loaded's storage"]: the compiled a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I))
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: the resolver refused a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) without naming the broken pin(s) ["another symbol of the linked image is on aem_loaded's storage"]: the compiled a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I))
+rc=1

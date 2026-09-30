@@ -1,0 +1,17 @@
+probe=own_local_under_store head=5b4a47e99f5a453832ccabccfbf4aae116d6fea0
+planted own_local_under_store in $REVIEWS/70L2-r413-4-packet/scratch/trees/r413_own_local_under_store/sw/firmware/milan_baremetal/milan_baremetal.c
+instrumented $REVIEWS/70L2-r413-4-packet/scratch/trees/r413_own_local_under_store/sw/builder/test_builder.py
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R412 gate-1b verdict ran=True kept=['aem_loaded']
+R412 image aem_loaded [('0x158b8', 4, True)]
+R412 image reference milan_init() 0x134f8 R_RISCV_HI20 | the upper part
+R412 image reference milan_init() 0x134fc R_RISCV_LO12_S | a store in place
+R412 image reference milan_init() 0x13508 R_RISCV_HI20 | the upper part
+R412 image reference milan_init() 0x1350c R_RISCV_LO12_I | a load in place
+R412 image reference milan_status_handler() 0x13640 R_RISCV_HI20 | the upper part
+R412 image reference milan_status_handler() 0x13644 R_RISCV_LO12_I | a load in place
+R412 objects within 16 bytes of the verdict: [('0x158b0', 4, 'nvm_auth_slot'), ('0x158b8', 4, 'aem_loaded'), ('0x158bc', 4, 'r413_nbr'), ('0x158c0', 4, 'nvm_started'), ('0x158c4', 4, 'nvm_ready'), ('0x158c8', 4, 'nvm_retired')]
+R412 nvm_boot() relocations within 8 bytes of the verdict but not on it: [('0x12b90', 'nvm_boot()', 'R_RISCV_HI20', '0x158bc'), ('0x12b94', 'nvm_boot()', 'R_RISCV_LO12_I', '0x158bc'), ('0x12bec', 'nvm_boot()', 'R_RISCV_HI20', '0x158c0'), ('0x12bf4', 'nvm_boot()', 'R_RISCV_LO12_S', '0x158c0'), ('0x12d48', 'nvm_boot()', 'R_RISCV_HI20', '0x158b0'), ('0x12d50', 'nvm_boot()', 'R_RISCV_LO12_S', '0x158b0')]
+R412 forget-on-call REFUSED: the compiled R412 forget-on-call enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro bod
+rc=0
