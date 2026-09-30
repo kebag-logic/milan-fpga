@@ -1,0 +1,20 @@
+# parent milan-fpga dev ec0cc0c1 (shallow read-only fetch into reviewer scratch): references to the AECP engine
+FETCH_HEAD:hdl/milan/KL_pp_shadow.sv:40:                protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
+FETCH_HEAD:hdl/milan/KL_pp_shadow.sv:219:    //! flops it measured 5,079 FF / 3,495 LUT inside KL_aecp_engine and it was
+FETCH_HEAD:hdl/milan/KL_pp_shadow.sv:488:    //! buffer's watchdog voids the response and KL_aecp_engine answers a
+FETCH_HEAD:scripts/pp_srcs.py:89:        {"protocol-processor/hdl/aecp/KL_aecp_engine.sv"},
+FETCH_HEAD:scripts/pp_srcs.py:110:         "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
+FETCH_HEAD:scripts/pp_srcs.py:260:    w["sw/litex/milan_soc.py"] += " protocol-processor/hdl/aecp/KL_aecp_engine.sv"
+FETCH_HEAD:sw/litex/milan_soc.py:1160:    # state inside KL_aecp_engine, on a die whose 135 block-RAM tiles were 100%
+FETCH_HEAD:sw/litex/milan_soc.py:3033:            # void the response, and KL_aecp_engine answers a well-formed
+FETCH_HEAD:tb/verilator/pp_shadow/sim_main.cpp:504:    // buffer's watchdog void EVERY response and KL_aecp_engine answer
+FETCH_HEAD:tb/verilator/pp_shadow/sim_main.cpp:2608:    // repository's. KL_aecp_engine walks the AECPDU into ONE pair of
+FETCH_HEAD:tb/verilator/pp_shadow/sim_main.cpp:3077:    // watchdog VOIDS the response and KL_aecp_engine answers a well-formed
+FETCH_HEAD:tests/steps/aecp_engine_model.py:93:# ---- geometry (KL_aecp_engine.sv localparams) ------------------------------
+FETCH_HEAD:tests/steps/aecp_engine_model.py:265:# the command path (KL_aecp_engine.sv + the microprograms it dispatches to)
+FETCH_HEAD:tests/steps/aecp_engine_model.py:519:        #! engine records at KL_aecp_engine.sv's u-bit banner and that
+FETCH_HEAD:tests/steps/aecp_engine_steps.py:38:#   protocol-processor/hdl/aecp/KL_aecp_engine.sv     dispatch, echo pre-load,
+FETCH_HEAD:tests/steps/aecp_engine_steps.py:164:# protocol-processor/hdl/aecp/KL_aecp_engine.sv are parsed and compared to
+FETCH_HEAD:tests/steps/aecp_engine_steps.py:283:              / "KL_aecp_engine.sv")
+## instantiations (KL_aecp_engine followed by #( or an instance name):
+none

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Wrapper: the pinned Verilator 5.050, with the suites' "-j 0" capped at ${VJ:-8} build jobs.
+# PINNED_VERILATOR must name the pinned binary (or wrapper) to exec.
+: "${PINNED_VERILATOR:?set PINNED_VERILATOR}"
+out=""
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a="${VJ:-8}"; fi
+  prev="$a"
+  out="$out '$(printf %s "$a" | sed "s/'/'\\\\''/g")'"
+done
+eval "exec \"\$PINNED_VERILATOR\" $out"

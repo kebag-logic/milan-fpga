@@ -1,0 +1,14 @@
+# tb/srp_admission/mutants.py at 20ec92b7: full driver stopped at the call limit after 11 of 12 steps (all PASS); the 12th step run alone via scripts/srpadm_subset.py
+control admission-2: rc=0 PASS
+control admission-8: rc=0 PASS
+control srp-top: rc=0 PASS
+stale-evaluation admission-2: rc=2 PASS
+stale-evaluation admission-8: rc=2 PASS
+stale-evaluation srp-top: rc=2 PASS
+pending-absent admission-2: rc=2 PASS
+pending-absent admission-8: rc=2 PASS
+pending-absent srp-top: rc=2 PASS
+discarded-round-strobes admission-2: rc=2 PASS
+discarded-round-strobes admission-8: rc=2 PASS
+## 12th step
+discarded-round-strobes srp-top: rc=2 PASS

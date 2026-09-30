@@ -1,0 +1,17 @@
+# reviewer probes (probes/apply_probes.py) on an exported copy of 20ec92b7
+## probe1: --split --refused, full default make -C tb/pp_top
+NW: 85 checks, 0 failures
+D3: 133 checks, 0 failures
+AD: 64 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7933 checks, 0 failures
+[build fixture, SRP_DOM_DEF_VID_P 0x5a3c] 20 checks, 0 failures
+7953 checks: 7953 PASS, 0 FAIL
+PROBE-SPLIT lines: 0
+PROBE-RISE lines: 22
+PROBE-FALL lines: 21
+## probe2 (positive control): --split plus tb/adp_engine/mutations/cfg-valid-hard-reset.patch, Vpp_top_sim --d3-only
+D3: 133 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 133 checks, 0 failures
+PROBE-SPLIT lines: 1180811
+PROBE-RISE lines: 16
+PROBE-FALL lines: 16

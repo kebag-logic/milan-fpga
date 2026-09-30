@@ -1,0 +1,37 @@
+# all 33 tb suites at 20ec92b7, one at a time (suites_subset.sh), check_upc_map gate first
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+rc=0
+acmp_listener rc=0 tally=[2544 checks: 2544 PASS, 0 FAIL] secs=5
+acmp_nvm rc=0 tally=[360 checks: 360 PASS, 0 FAIL] secs=6
+acmp_talker rc=0 tally=[1342 checks: 1342 PASS, 0 FAIL] secs=5
+adp_engine rc=0 tally=[1367 checks: 1367 PASS, 0 FAIL] secs=5
+aecp_notify rc=0 tally=[10 checks: 10 PASS, 0 FAIL] secs=5
+ca_originator rc=0 tally=[16 checks: 16 PASS, 0 FAIL] secs=5
+desc_mem_guard rc=0 tally=[78 checks: 78 PASS, 0 FAIL] secs=5
+desc_store rc=0 tally=[584 checks: 584 PASS, 0 FAIL] secs=7
+dispatch rc=0 tally=[211 checks: 211 PASS, 0 FAIL] secs=5
+dyn_state rc=0 tally=[118 checks: 118 PASS, 0 FAIL] secs=11
+event_router rc=0 tally=[81 checks: 81 PASS, 0 FAIL] secs=5
+lsn_admit rc=0 tally=[18 checks: 18 PASS, 0 FAIL] secs=5
+maap rc=0 tally=[75 checks: 75 PASS, 0 FAIL] secs=6
+nvm_port rc=0 tally=[136 checks: 136 PASS, 0 FAIL] secs=6
+originator rc=0 tally=[104 checks: 104 PASS, 0 FAIL] secs=5
+pp_top rc=0 tally=[7944 checks: 7944 PASS, 0 FAIL] secs=283
+prng rc=0 tally=[76 checks: 76 PASS, 0 FAIL] secs=5
+release_merge rc=0 tally=[18 checks: 18 PASS, 0 FAIL] secs=5
+resp_buf rc=0 tally=[64 checks: 64 PASS, 0 FAIL] secs=5
+rx_slots rc=0 tally=[130 checks: 130 PASS, 0 FAIL] secs=5
+rx_validator rc=0 tally=[437 checks: 437 PASS, 0 FAIL] secs=6
+scoreboard rc=0 tally=[3705 checks: 3705 PASS, 0 FAIL] secs=5
+side_port rc=0 tally=[368 checks: 368 PASS, 0 FAIL] secs=5
+srp_admission rc=0 tally=[991231 checks: 991231 PASS, 0 FAIL] secs=26
+srp_decoder rc=0 tally=[190 checks: 190 PASS, 0 FAIL] secs=5
+srp_encoder rc=0 tally=[581 checks: 581 PASS, 0 FAIL] secs=5
+srp_stream_fsms rc=0 tally=[1219 checks: 1219 PASS, 0 FAIL] secs=6
+srp_top rc=0 tally=[2200 checks: 2200 PASS, 0 FAIL] secs=170
+timer_map rc=0 tally=[1360 checks: 1360 PASS, 0 FAIL] secs=25
+timer_service rc=0 tally=[48 checks: 48 PASS, 0 FAIL] secs=5
+tx_arbiter rc=0 tally=[66 checks: 66 PASS, 0 FAIL] secs=5
+tx_slots rc=0 tally=[95 checks: 95 PASS, 0 FAIL] secs=5
+ucpu rc=0 tally=[386 checks: 386 PASS, 0 FAIL] secs=5
+33 suites, total checks 1017162

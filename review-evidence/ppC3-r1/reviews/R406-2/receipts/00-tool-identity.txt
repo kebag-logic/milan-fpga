@@ -1,0 +1,21 @@
+# tool identity
+2026-09-30T03:15:48Z
+assigned path: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator -> ls: cannot access '$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator': No such file or directory
+substitute dir: $VALIDATION_STORAGE/ppC3-manager-20ec92b7/pinned-tool-bin
+total 12
+drwxr-xr-x 2 <account> <account> 4096 Sep 22 15:48 .
+drwxr-xr-x 5 <account> <account> 4096 Sep 30 05:12 ..
+-rwxr-xr-x 1 <account> <account>  319 Sep 22 15:48 verilator
+$VALIDATION_STORAGE/ppC3-manager-20ec92b7/pinned-tool-bin/verilator: POSIX shell script, ASCII text executable, with very long lines (308)
+--- wrapper head
+#!/bin/sh
+exec env VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator "$@"
+--- version
+Verilator 5.050 2026-07-01 rev v5.050
+--- sha256
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_STORAGE/ppC3-manager-20ec92b7/pinned-tool-bin/verilator
+--- resolved root
+$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator
+Python 3.14.7
+g++ (GCC) 16.2.1 20260810
+git version 2.55.0
