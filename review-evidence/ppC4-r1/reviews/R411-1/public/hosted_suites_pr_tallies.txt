@@ -1,0 +1,17 @@
+PASS acmp_listener (2988 checks: 2988 PASS, 0 FAIL)
+PASS pp_top (7930 checks: 7930 PASS, 0 FAIL)
+PASS rx_validator (495 checks: 495 PASS, 0 FAIL)
+suites: 1016816 checks total, 0 failing
+make -C tb/nvm_port figures
+all measured figures agree with the tree
+[command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +baa3f76ef8cb22582ab1b8cda57c9005e087943d:refs/remotes/pull/137/merge
+ * [new ref]           baa3f76ef8cb22582ab1b8cda57c9005e087943d -> pull/137/merge
+##[group]Checking out the ref
+[command]/usr/bin/git checkout --progress --force refs/remotes/pull/137/merge
+Note: switching to 'refs/remotes/pull/137/merge'.
+HEAD is now at baa3f76 Merge a9ce0fa2e0b8b120703c6e541668d4281cec286e into b2db3a970cedbbff2f8ba813acb96122c442bc58
+LINT OK  KL_pp_release_merge
+PASS release_merge (18 checks: 18 PASS, 0 FAIL)
+make -C tb/srp_top mutants
+python3 mutants.py --output "/tmp/srp-leaveall-mutants"
+# PR #13 was squash-merged. Its review lineage is therefore absent

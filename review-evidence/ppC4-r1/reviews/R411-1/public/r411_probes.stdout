@@ -1,0 +1,30 @@
+{"mutant": "golden-acmp_listener", "verdict": "PASS", "run_rc": 0, "missing": []}
+   failing: 0
+{"mutant": "golden-pp_top", "verdict": "PASS", "run_rc": 0, "missing": []}
+   failing: 0
+{"mutant": "golden-rx_validator", "verdict": "PASS", "run_rc": 0, "missing": []}
+   failing: 0
+{"mutant": "r411_admit_13@acmp_listener", "verdict": "KILLED", "run_rc": 2, "missing": []}
+   failing: 30
+{"mutant": "r411_admit_9@acmp_listener", "verdict": "KILLED", "run_rc": 2, "missing": []}
+   failing: 44
+{"mutant": "r411_admit_5@acmp_listener", "verdict": "KILLED", "run_rc": 2, "missing": []}
+   failing: 58
+{"mutant": "r411_guard_seq_dropped@acmp_listener", "verdict": "KILLED", "run_rc": 2, "missing": []}
+   failing: 6
+{"mutant": "r411_cdl_gt_44_rejected@rx_validator", "verdict": "KILLED", "run_rc": 2, "missing": []}
+   failing: 16
+{"mutant": "r411_admit_7@pp_top", "verdict": "KILLED", "run_rc": 1, "missing": []}
+   failing: 1
+{"mutant": "r411_admit_14@pp_top", "verdict": "KILLED", "run_rc": 1, "missing": []}
+   failing: 1
+{"mutant": "r411_cdl_gt_44_rejected@pp_top", "verdict": "KILLED", "run_rc": 1, "missing": []}
+   failing: 19
+{"mutant": "r411_bound_vlan_not_latched@pp_top", "verdict": "KILLED", "run_rc": 1, "missing": []}
+   failing: 2
+{"mutant": "r411_matcher_sid_ignored@pp_top", "verdict": "KILLED", "run_rc": 1, "missing": []}
+   failing: 5
+{"mutant": "r411_bound_eid_not_latched@pp_top", "verdict": "KILLED", "run_rc": 1, "missing": []}
+   failing: 12
+R411 probes: 11 of 11 KILLED; all expected
+rc=0

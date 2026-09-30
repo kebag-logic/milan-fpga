@@ -1,0 +1,287 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "issue_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs: 1 of the walk's 1 READs issued with it, none drained (from 423622), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fourth_attempt_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E8 DR2c count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E8 DR2c count: three attempts in all (4 started, 4 failed)",
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (642, 642)",
+   "E10 DR2c count: no fourth attempt (4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_ignores_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_stale_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 428091, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_backoff_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E9 DR2c timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (43, 43)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "held_drop_uncounted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O5: one AECP command held",
+   "D3O6: at the terminal"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O5: one AECP command held, 0 dropped at the slot gate and counted, 0 answered",
+   "D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles",
+   "D3O6: at the terminal the held command is answered byte-exact, 0 dropped and counted, 0 of them answered",
+   "D3O6: after the terminal an AECP command is served, no drop counted",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "hold_released_at_go",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: released at"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O1: released at 122, terminal at 880, own fell at 123, the held command taken at 124, 0 busy cycles while owned",
+   "D3O2: CLOSED at 164 after the release at 122, cause 7, own 0, 1 descriptor requests",
+   "D3O2: CLOSED holds AECP (29998 busy cycles, the command still queued) and leaves the listener released",
+   "D3O5: one AECP command held, 5 dropped at the slot gate and counted, 0 answered",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (1 counted), none answered",
+   "D3S1: no record outside the nine rows set (36 ops)",
+   "D3S4 taint: 2 WRITEs of 0x50, the first carrying the latched value, the last the change made during it",
+   "D3S5 premise: the change accepted at 368271, the WRITE's done at 369209",
+   "D3S6 group: 0x51 changed during 0x50's WRITE is written after it (1 WRITEs of 0x51)",
+   "D3S7: IDENTIFY set, 0 pending cycles, 54 NVM operations",
+   "D3R12: the re-walk cannot prove the image: CLOSED 9425, cause 2, the entity held",
+   "D3R14 image refused: CLOSED by clock 1000045, cause 7, AECP owned 0, ADP enabled 0",
+   "D3R15 debt wait: CLOSED 0 clocks after the bound's own (want 0), cause 6, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0",
+   "D3R15 re-LOCATE: CLOSED 0 clocks after the bound's own (want 0), cause 2, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0",
+   "D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 0 fail 1 rolled back 0 closed 1 cause 2), 0 roll-back strobe cycles after the terminal, the rows kept"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "image_unproven_continues",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O2: CLOSED at",
+   "D3O3: CLOSED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O2: CLOSED at -1 after the release at 122, cause 0, own 0, 2 descriptor requests",
+   "D3O2: CLOSED holds AECP (185 busy cycles, the command still queued) and leaves the listener released",
+   "D3O3: CLOSED -123 cycles after the release, cause 0",
+   "D3O5: in CLOSED each GET_RX_STATE after each of 6 AECP commands is answered in 168 cycles, the idle latency (worst 246)",
+   "D3O5: one AECP command held, 0 dropped at the slot gate and counted, 6 answered",
+   "D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered",
+   "D3R14 image refused: CLOSED by clock 0, cause 3, AECP owned 0, ADP enabled 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "identify_is_a_change",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S7: IDENTIFY set, 49787 pending cycles, 2 NVM operations"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "judge_wait_unwatched",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R8b"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R8b: a silent judge ends DEFAULTS at -1, the release at 122, cause 0, rolled back 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "latch_ignores_program",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S9"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S5 same edge: the change on the done edge is written (6 WRITEs)",
+   "D3S11: the writer owned 3 cycles waiting for the running command, then wrote the SET's value",
+   "D3S9: 0 commands taken while owned, 10 latch cycles over a running program; the longest service ownership 3 cycles"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_aggregate_deadline",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R13 pass 0: DEFAULTS at clock",
+   "D3R13 pass 1"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R13 pass 0: DEFAULTS at clock 0 of the aggregate 1000001, cause 0, rolled back 0, applied 0, the longest wait 19812 of 20001",
+   "D3R13 pass 0: the READ in hand at the bound was drained, and once the device ends it a later SET persists",
+   "D3R13 pass 1: rolled back to DEFAULTS at clock 0, the bound 1000001, cause 0, rolled back 0",
+   "D3R14 image valid: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs",
+   "D3R14 image valid: DEFAULTS by clock 0, the D3 walk's longest wait 0 (no record READ requested), cause 0, rolled back 0, image valid 1, AECP owned 1, ADP enabled 0 (0 early enable cycles)",
+   "D3R14 image valid: AECP answers a READ_DESCRIPTOR byte-exact, and once the device ends the drained binding READ a later SET persists (1 WRITEs)",
+   "D3R14 image refused: the binding walk (longest wait 19002 of 20001) fails whole at the bound's clock 1000001 (cause 0, bound sinks 0x00), its READ drained 0, the listener released by clock 0; 0 D3 READs",
+   "D3R14 image refused: CLOSED by clock 0, cause 0, AECP owned 1, ADP enabled 0",
+   "D3R15 debt wait: CLOSED -1 clocks after the bound's own (want 0), cause 6, D3 done 6582 clocks after the bound, rolled back 1, AECP owned 0",
+   "D3R15 re-LOCATE: CLOSED -1 clocks after the bound's own (want 0), cause 2, D3 done 446 clocks after the bound, rolled back 1, AECP owned 0",
+   "D3R17: the writer's grant lands on the bound's own clock (1, 0x56's READ steered 1, latency 9); DEFAULTS 20002 clocks later, cause 3, the READ in hand drained 1",
+   "D3R18: binding READ strobe 0 on agg_o's first clock -1 (strobe 0, abort 0, arbiter owner 9), the done before it held to 12655233 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)",
+   "D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 9), the binding walk fails whole (cause 0) and the restore ends DEFAULTS (cause 0, closed 0)",
+   "D3R19 past the bound: no image at reset (1) nor at the D3 walk's start (0); the binding walk (longest wait 19002 of 20001) fails whole at the bound (cause 0), released -13831706 clocks after it, the LOCATE proves the image 0 clocks after the release",
+   "D3R19 past the bound: DEFAULTS with no record READ; the restore ends no terminal -1 clocks after the bound, cause 0, rolled back 0, image valid 0, AECP owned 1, 0 D3 record READs",
+   "D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered -1 clocks after the bound, want 2), and the restore ends DEFAULTS -1 clocks after the bound (cause 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_backoff_d3",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 timing: each retry granted after the derived 500001-cycle backoff and one relatch (15, 15)",
+   "D3S10 backoff: 6 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 0 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ }
+]
