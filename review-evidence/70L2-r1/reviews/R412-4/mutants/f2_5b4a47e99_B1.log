@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    t.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/m_f2_5b4a47e99_B1/sw/builder/test_builder.py", line 14751, in test_baremetal_profile_contract
+    assert verdict_interior_bytes and 0 not in verdict_interior_bytes, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the interior-byte break's references from nvm_boot() land on byte(s) [] of aem_loaded's storage, not past its first byte alone, so it does not measure the census's range: milan_verdict_next must follow the verdict, and the compiler must fold the offset into the relocation
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
