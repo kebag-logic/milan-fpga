@@ -1,0 +1,46 @@
+# changed paths b2db3a97..a9ce0fa2
+M	tb/acmp_listener/README.md
+M	tb/acmp_listener/sim_main.cpp
+M	tb/pp_top/README.md
+A	tb/pp_top/acmp_mutants.py
+M	tb/pp_top/pp_top_wrap.sv
+M	tb/pp_top/sim_main.cpp
+M	tb/rx_validator/README.md
+M	tb/rx_validator/sim_main.cpp
+
+Changes:
+
+# changed paths under driver input trees (expect none):
+
+(end)
+# references from un-rerun drivers to changed dirs/files (expect none):
+syn/yosys/run.sh:12:      KL_pp_rx_validator KL_pp_normalizer KL_pp_dispatch KL_pp_scoreboard
+syn/yosys/run.sh:14:      KL_pp_side_port KL_pp_nvm_port KL_pp_nvm_mgr_arb KL_adp_engine KL_pp_acmp_listener
+(end)
+mutations/
+run.sh  2.7K
+Makefile  810B
+README.md  23.2K
+retry_cases.hpp  20.5K
+retry_mutants.py  18.0K
+sim_main.cpp  49.1K
+Makefile  1.1K
+README.md  48.4K
+measure_figures.py  41.3K
+pre_fix_forms.py  12.4K
+sim_main.cpp  67.4K
+Makefile  701B
+README.md  5.1K
+mutants.py  4.9K
+sim_main.cpp  11.4K
+srp_admission_wrap.sv  1.8K
+Makefile  1.1K
+README.md  33.6K
+mutants.py  9.4K
+sim_main.cpp  128.7K
+srp_top_wrap.sv  15.7K
+(recursive grep result appended)
+tb/acmp_talker/README.md:46:`pp_top`'s section T, where the code comes from a real MRPDU through the SRP
+tb/acmp_talker/README.md:157:  never reads the package. The same mutation fails `pp_top` (5), and
+syn/yosys/run.sh:12:      KL_pp_rx_validator KL_pp_normalizer KL_pp_dispatch KL_pp_scoreboard
+syn/yosys/run.sh:14:      KL_pp_side_port KL_pp_nvm_port KL_pp_nvm_mgr_arb KL_adp_engine KL_pp_acmp_listener
