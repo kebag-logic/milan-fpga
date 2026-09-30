@@ -934,9 +934,11 @@ image:
 
 - every relocation that lands on the four bytes of `aem_loaded`, under any
   symbol, is the upper part of the address or a load or store in place (`%lo`
-  on a load or store). So no relocated reference forms the full address in a
-  register, a GOT entry or a data word, where a call argument, a register that
-  survives a call or a store could carry it;
+  on a load or store). So no relocation on those bytes forms their full
+  address in a register, a GOT entry or a data word, where a call argument, a
+  register that survives a call or a store could carry it. An address formed
+  from another object's relocation is not a reference to those bytes (the
+  second limit below);
 - the one store in place is in `milan_init()`. The resolver, reading the
   census's own compile, finds its value to be the one `load_aem_image()`
   returned, and finds no other store on a symbol the image places on those
@@ -961,17 +963,39 @@ when it breaks:
 - the sources of the units the Makefile links must not name it, since the image
   of one unit cannot see another.
 
-**Limit, stated rather than closed.** A reference is found by its relocation,
-and a literal address carries none. A store through the product's address of
-`aem_loaded`, written as a number, is placed at that number and the pins do not
-see it. The unit is linked alone, so its layout is not the product's either.
-Closing this needs the SoC's RAM map in the gate, which is a separate rule on
-the residue checklist (#495). The resolver's standing model applies as well: a
-store the census cannot place is refused by rule 1b, and one it places at a
-number, a range, the stack or another static is taken not to land on the
-verdict. So, within that model and that limit, nothing writes the verdict but
-that one store. A static that fails a pin is dropped at a call as every other
-one is.
+The resolver's standing model applies as well: a store the census cannot place
+is refused by rule 1b, and one it places at a number, a range, the stack or
+another static is taken not to land on the verdict. So the pins prove this
+much and no more: of the writes that reach the verdict through a relocation on
+its bytes, `milan_init()`'s one store is the only one. Outside the two limits
+below, the word that store wrote is the word read back after `nvm_boot()`. A
+static that fails a pin is dropped at a call as every other one is.
+
+**Two limits, stated rather than closed.** A reference is found by its
+relocation, and two addresses reach the verdict's bytes with no relocation on
+them:
+
+- **A literal address.** A store through the product's address of
+  `aem_loaded`, written as a number, is placed at that number and the pins do
+  not see it. The unit is linked alone, so its layout is not the product's
+  either. Closing this needs the SoC's RAM map in the gate, which is a
+  separate rule on the residue checklist (#495).
+- **Another object's address, carried outside that object.** A pointer formed
+  from a neighbouring object's relocation and carried past that object's end
+  or before its start lands on the verdict, while its relocation stays on the
+  neighbour. A called function that writes through it is not seen, because a
+  call's arguments are recorded and not judged (the first entry under **What
+  the census does NOT observe**, above). Two examples are `sscanf()` with
+  `"%s"` overrunning a four-byte static declared just before the verdict, and
+  `sscanf()` handed `&neighbour + k` with `k` known only at run time. Nor is a
+  store this unit makes through such a pointer at an offset the resolver
+  places on the neighbour, such as a local pointer to the neighbour indexed
+  outside it: the model takes a store it places on another static not to
+  leave that static. An offset the compiler folds into the relocation lands on
+  the verdict's bytes and is refused by address. A store through an offset
+  known only at run time is refused by rule 1b, as one the census cannot
+  place. This is the memory-safety class the standing model already leaves
+  open, and gate 1b is not a memory-safety prover.
 
 Gate 1b builds an AEM-first base from the shipping source, which must pass only
 with the slot kept and must be refused with no pin read. It then plants
@@ -1602,7 +1626,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
 | No indirect call and no tail transfer through a register, anywhere in the firmware | an instrument that cannot place a call edge must refuse it: a target it cannot resolve is exactly the one that could be the choke point. **Remedy:** call through a name, or model indirect targets and argument provenance completely, which is a data-flow change of its own |
 | The one call edge into `entity_advertise()` must come from `milan_init()` and hand it the value `load_aem_image()` returned | the value is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer, and an argument the resolver cannot resolve is refused rather than read as verified |
-| `aem_loaded` stays a file-scope `static` and a local object, stored only by `milan_init()`'s `aem_loaded = load_aem_image();`, with its full address never formed and its storage under no other name, however any of that is spelled | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only while its pins hold. They are decided by address on the linked image of the census's `-no-pie` compile: every reference to its storage is the upper part or a load or store in place, the one store is `milan_init()`'s, no other symbol covers it, and every AUIPC carries a relocation. The source and compile-time pins stay as early diagnostics. With any pin broken the choke point is entered with a verdict it cannot trace, and the refusal names the pin. A store through a literal address carries no relocation and is outside these pins |
+| `aem_loaded` stays a file-scope `static` and a local object, stored in place only by `milan_init()`'s `aem_loaded = load_aem_image();`, with no relocation on its storage forming its full address and no other name on that storage, however any of that is spelled | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only while its pins hold. They are decided by address on the linked image of the census's `-no-pie` compile: every relocation on its storage is the upper part or a load or store in place, the one store is `milan_init()`'s, no other symbol covers it, and every AUIPC carries a relocation. The source and compile-time pins stay as early diagnostics. With any pin broken the choke point is entered with a verdict it cannot trace, and the refusal names the pin. Two writes put no relocation on its storage and are outside these pins: one through a literal address, and one through another object's address carried past that object's end or before its start, such as a called function's overrun of a neighbouring static |
 | The AEM copy loop keeps a shape this range refinement can bound: a constant destination base indexed by the counter the emitted `bltu` compares | the copy store is PLACED as a bounded range inside the CRC'd buffer instead of declared as a count-keyed residual, and a loop the lattice cannot bound (`*dst++ = *src++`, a `memcpy`, a bound held in a variable) leaves a store the gate cannot place, which is a refusal. **Remedy:** keep the `dst[i] = src[i]` form, or extend the refinement to the new shape with its own degenerate-case controls |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |

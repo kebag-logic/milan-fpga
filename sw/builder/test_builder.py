@@ -1635,27 +1635,45 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
         #: DECIDED on the linked image of a second compile of the same
         #: source at the product's -no-pie code model, by address: every
         #: relocation landing on its bytes, under any symbol, is the upper
-        #: part or a load or store in place, so no relocated reference forms
-        #: its full address -- in a register, a GOT entry or a data word --
-        #: for a call argument, a register surviving a call or a store to
-        #: carry; the one store in place is milan_init()'s, and this
-        #: resolver finds its value to be the one load_aem_image()
+        #: part or a load or store in place, so no relocation on those bytes
+        #: forms their full address -- in a register, a GOT entry or a data
+        #: word -- for a call argument, a register surviving a call or a
+        #: store to carry; the one store in place is milan_init()'s, and
+        #: this resolver finds its value to be the one load_aem_image()
         #: returned; no other symbol covers those bytes; it is a local
         #: object; and every AUIPC carries a relocation. A store the census
         #: cannot place is refused by rule 1b, and one it places at a
         #: number, a range, the stack or another static is taken, as
-        #: everywhere in this model, not to land on it. So within that model
-        #: nothing writes it but that one store, and the word this function
+        #: everywhere in this model, not to land on it. That is all the
+        #: pins prove: of the writes that reach the static through a
+        #: relocation on its bytes, milan_init()'s one store is the only
+        #: one, so outside the two limits below the word this function
         #: stored is still the word it reads back after the call. A static
         #: that fails any pin is forgotten here as every other one is.
         #:
-        #: LIMIT, stated rather than closed: a reference is found by its
-        #: relocation, and a literal address carries none. A store through
-        #: the product's address of the static, written as a number, is
-        #: placed at that number and is not seen by these pins; the unit is
-        #: linked alone, so its layout is not the product's either. Closing
-        #: it needs the SoC's RAM map in the gate, which is a rule of its
-        #: own (#495).
+        #: LIMITS, stated rather than closed: a reference is found by its
+        #: relocation, and two addresses reach the static's bytes with no
+        #: relocation on them.
+        #: - A literal address. A store through the product's address of
+        #:   the static, written as a number, is placed at that number and
+        #:   is not seen by these pins; the unit is linked alone, so its
+        #:   layout is not the product's either. Closing it needs the SoC's
+        #:   RAM map in the gate, which is a rule of its own (#495).
+        #: - Another object's address carried outside that object. A
+        #:   pointer formed from another object's relocation and carried past
+        #:   that object's end or before its start lands on the static while
+        #:   its relocation stays on the other object. A called function
+        #:   that writes through it is not seen, since a call's arguments
+        #:   are recorded and not judged: sscanf() overrunning a
+        #:   neighbouring static buffer, or handed `&neighbour + k` with k
+        #:   known only at run time. Nor is a store this unit makes through
+        #:   it at an offset this resolver places on the other static, which
+        #:   the model takes not to leave that static. An offset the compiler
+        #:   folds into the relocation lands on the static's bytes and is
+        #:   refused by address, and a store through an offset known only at
+        #:   run time is refused by rule 1b. This is the memory-safety class
+        #:   the standing model leaves open, and this gate does not prove
+        #:   memory safety.
         _rv32_forget_symbols(state, kept)
         for reg in RV32_CALLER_SAVED:
             state.set(reg, None)
@@ -6891,22 +6909,28 @@ def test_baremetal_profile_contract() -> None:
           symbol the image places on them or does not place at all:
           milan_init()'s store of the value load_aem_image() returned;
         - the escape: every other reference is the upper part or a load in
-          place, so no relocated reference forms the full address -- in a
-          register (`%lo` on an `addi`), a GOT entry or a data word --
-          where a call argument, a register surviving a call, a return or
-          a store could carry it;
+          place, so no relocation on those bytes forms their full address
+          -- in a register (`%lo` on an `addi`), a GOT entry or a data
+          word -- where a call argument, a register surviving a call, a
+          return or a store could carry it;
         - one name: no other symbol of the image covers those bytes, so no
           alias, weakref, `.set`, `.equ` or assembler label reaches them;
         - locality: aem_loaded is a local object of the image;
         - the AUIPC: every AUIPC carries a relocation, so no PC-relative
           address is formed that no relocation places.
 
-        LIMIT, stated rather than closed (the ruling on PR #623's round-3
-        STOP): a reference is found by its relocation, so an address that
-        carries none on those bytes -- the product's address of aem_loaded
-        written as a number -- is not a reference here, and a store through
-        it is placed at that number and passes, as the resolver's model
-        takes a store it places elsewhere not to land on the verdict."""
+        LIMITS, stated rather than closed (the rulings on PR #623's round-3
+        STOP and review): a reference is found by its relocation, so a write
+        through an address with none on those bytes passes:
+        - the product's address of aem_loaded written as a number, placed
+          at that number and taken, as the resolver's model takes every
+          store it places elsewhere, not to land on the verdict;
+        - another object's address carried past its end or before its
+          start, whose relocation lands on that object: a called function
+          writing through it (an overrun of a neighbouring static) is not
+          judged, and a store this unit makes through it at an offset the
+          resolver places on that object is taken not to leave it -- the
+          memory-safety class the standing model leaves open."""
         named = [symbol for symbol in image["symbols"]
                  if symbol["name"] == "aem_loaded" and symbol["defined"] and
                  symbol["kind"] == ELF_STT_OBJECT and symbol["size"]]
@@ -17146,9 +17170,11 @@ def test_baremetal_profile_contract() -> None:
             "), accepted the AEM-first base "
             "only with it kept, and refused "
             f"{len(verdict_pin_refused)}/{len(verdict_pin_breaks)} planted "
-            "pin breaks on the verdict, each naming its pins; a store "
-            "through a literal address carries no relocation and is outside "
-            "these pins"
+            "pin breaks on the verdict, each naming its pins; two writes "
+            "put no relocation on its storage and are outside these pins: "
+            "one through a literal address, and one through another "
+            "object's address carried outside that object, such as a "
+            "called function's overrun of a neighbouring static"
             "; " + range_control_note + "; and " + join_control_note)
     else:
         helper_blind_note = (

@@ -64,6 +64,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Gate 1b keeps the pinned verdict across that call.
 - The pins are decided by address on a linked image.
 - A store through a literal address stays outside them.
+- So does an overrun of another object onto the verdict.
 - Service stretches are charged from the first heartbeat opportunity.
 - The capture receipt and service figures are re-measured.
 - Every harness that sends AECP starts the walk first.
