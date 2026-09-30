@@ -1,0 +1,23 @@
+# gold: main's KL_aecp_notify; gate: this lane's at EN_IDENTIFY_NOTIF_P = 0
+read_verilog base/all.v
+hierarchy -top KL_aecp_notify
+rename KL_aecp_notify gold
+design -stash gold
+read_verilog head/all.v
+hierarchy -top KL_aecp_notify
+chparam -set EN_IDENTIFY_NOTIF_P 0 KL_aecp_notify
+rename KL_aecp_notify gate
+design -stash gate
+design -copy-from gold -as gold gold
+design -copy-from gate -as gate gate
+proc
+memory
+opt_clean
+# the two inputs the gate never reads at 0 have no counterpart in the gold
+delete -port gate/identify_button_i gate/identify_index_i
+equiv_make gold gate equiv
+hierarchy -top equiv
+equiv_struct
+equiv_simple -seq 3
+equiv_induct -seq 3
+equiv_status -assert

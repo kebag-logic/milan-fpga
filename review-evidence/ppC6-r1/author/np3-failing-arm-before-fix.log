@@ -1,0 +1,5 @@
+FAIL: NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+  got (94 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 00 03 80 0e 00 06 00 00 80 00 06 00 00 a0 00 00 06 00 00 01 00 b0 00 00 06 00 00 02 00 0f 42 40 91 e0 f0 0d 00 06 00 00 00 d0 00 00 06 00 00 05 00 02 00 00 06 00 00 01 60 00 00 00
+  exp (122 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 60 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 00 03 80 0e 00 06 00 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0f 42 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+NP: 47 checks, 1 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 47 checks, 1 failures

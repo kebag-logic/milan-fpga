@@ -1,0 +1,41 @@
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index fc0fad609..46f3faf8e 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -1094,7 +1094,10 @@ module KL_pp_shadow #(
+       .DESC_IDX_ENTRIES_P  (DESC_IDX_ENTRIES_P),
+       .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
+       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
+-      .RESP_BASE_P         (RESP_BASE_P)
++      .RESP_BASE_P         (RESP_BASE_P),
++      //! P-EN-IDENTIFY-NOTIFICATION stays 0 until a debounced board button is
++      //! wired to identify_button_i (processor lane C6, manager ruling on #80)
++      .EN_IDENTIFY_NOTIF_P (1'b0)
+       //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (each restore wait's
+       //! deadline), NVM_RS_AGG_CYC_P (the whole restore's, from restore_go_i)
+       //! and NVM_RETRY_BACKOFF_CYC_P (the gap between record write attempts).
+@@ -1132,6 +1135,9 @@ module KL_pp_shadow #(
+       .listener_caps_i     (listener_caps_i),
+       .current_cfg_i       (current_cfg_i),
+       .identify_index_i    (identify_index_i),
++      //! no identification button on this board yet: tied off, and never read
++      //! while EN_IDENTIFY_NOTIF_P is 0 (IEEE 1722.1-2021 7.5.1, Milan 5.4.5.4)
++      .identify_button_i   (1'b0),
+ 
+       .entity_enable_i     (enable_i),
+       .link_up_i           (link_up_i),
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index b9bcd3f00..e7f48a4a5 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -594,6 +594,10 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
++    "protocol-processor/tb/pp_top/notify_mutants.py":
++        "mutation campaign; it plants one notification, identify or inflight defect from its own table "
++        "into an isolated copy and requires every named check to fail in a completed run; no expected "
++        "value is read from the text",
+     "protocol-processor/tb/pp_top/d3_mutants.py":
+         "mutation campaign; it plants one D3 saved-state defect from its own table into an "
+         "isolated copy and requires every named check to fail in a completed run; no expected "
