@@ -1,0 +1,114 @@
+# RV32 (census compiler) -O0 -fno-inline -S: nvm_boot and milan_init
+nvm_boot:
+.LFB1:
+	.cfi_startproc
+	addi	sp,sp,-16
+	.cfi_def_cfa_offset 16
+	sw	ra,12(sp)
+	sw	s0,8(sp)
+	.cfi_offset 1, -4
+	.cfi_offset 8, -8
+	addi	s0,sp,16
+	.cfi_def_cfa 8, 0
+	lla	a2,milan_r413_alias
+	lla	a1,.LC0
+	lla	a0,.LC1
+	call	__isoc99_sscanf@plt
+	nop
+	lw	ra,12(sp)
+	.cfi_restore 1
+	lw	s0,8(sp)
+	.cfi_restore 8
+	.cfi_def_cfa 2, 16
+	addi	sp,sp,16
+	.cfi_def_cfa_offset 0
+	jr	ra
+milan_init:
+.LFB3:
+	.cfi_startproc
+	addi	sp,sp,-16
+	.cfi_def_cfa_offset 16
+	sw	ra,12(sp)
+	sw	s0,8(sp)
+	.cfi_offset 1, -4
+	.cfi_offset 8, -8
+	addi	s0,sp,16
+	.cfi_def_cfa 8, 0
+	call	load_aem_image
+	mv	a4,a0
+	lla	a5,aem_loaded
+	sw	a4,0(a5)
+	call	nvm_boot
+	lla	a5,aem_loaded
+	lw	a5,0(a5)
+	mv	a0,a5
+	call	entity_advertise
+	nop
+	lw	ra,12(sp)
+	.cfi_restore 1
+	lw	s0,8(sp)
+	.cfi_restore 8
+	.cfi_def_cfa 2, 16
+	addi	sp,sp,16
+	.cfi_def_cfa_offset 0
+	jr	ra
+7:	.local	aem_loaded
+8:	.comm	aem_loaded,4,4
+9:	.globl	milan_r413_alias
+10:	.set	milan_r413_alias,aem_loaded
+58:	lla	a2,milan_r413_alias
+138:	lla	a5,aem_loaded
+141:	lla	a5,aem_loaded
+
+# RV32 -Os -S: milan_init (product-like optimisation)
+milan_init:
+.LFB3:
+	.cfi_startproc
+	addi	sp,sp,-16
+	.cfi_def_cfa_offset 16
+	sw	s0,8(sp)
+	sw	ra,12(sp)
+	.cfi_offset 8, -8
+	.cfi_offset 1, -4
+	lla	s0,.LANCHOR0
+	sw	zero,0(s0)
+	call	nvm_boot
+	lw	a0,0(s0)
+	lw	s0,8(sp)
+	.cfi_restore 8
+	lw	ra,12(sp)
+	.cfi_restore 1
+	addi	sp,sp,16
+	.cfi_def_cfa_offset 0
+	tail	entity_advertise
+	.cfi_endproc
+.LFE3:
+	.size	milan_init, .-milan_init
+	.globl	milan_r413_alias
+	.set	milan_r413_alias,aem_loaded
+	.bss
+	.align	2
+	.set	.LANCHOR0,. + 0
+	.type	aem_loaded, @object
+	.size	aem_loaded, 4
+aem_loaded:
+	.zero	4
+	.ident	"GCC: (Buildroot 2026.05) 14.3.0"
+	.section	.note.GNU-stack,"",@progbits
+20:	lla	a2,milan_r413_alias
+60:	.cfi_def_cfa_offset 16
+63:	.cfi_offset 8, -8
+64:	.cfi_offset 1, -4
+74:	.cfi_def_cfa_offset 0
+79:	.globl	milan_r413_alias
+80:	.set	milan_r413_alias,aem_loaded
+83:	.set	.LANCHOR0,. + 0
+
+# host run -O0
+entity_advertise(verified=1): ENABLE WRITTEN
+
+# host run -O2
+entity_advertise(verified=1): ENABLE WRITTEN
+
+# host run -Os
+entity_advertise(verified=1): ENABLE WRITTEN

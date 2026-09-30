@@ -1,0 +1,14 @@
+# the gate's pin-2 question on the alias demo: aem_loaded made a global register variable
+## -fsyntax-only (as the gate asks)
+rc=0
+## -S (full compile, for contrast)
+scratch/alias_register.c:6:12: error: ‘milan_r413_alias’ aliased to undefined symbol ‘aem_loaded’
+    6 | extern int milan_r413_alias __attribute__((alias("aem_loaded")));
+      |            ^~~~~~~~~~~~~~~~
+rc=1
+## control: &aem_loaded directly, -fsyntax-only
+scratch/addr_register.c: In function ‘nvm_boot’:
+scratch/addr_register.c:10:9: error: address of global register variable ‘aem_loaded’ requested
+   10 |         (void)sscanf("1", "%d", &aem_loaded);
+      |         ^
+rc=1

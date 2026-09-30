@@ -1,0 +1,19 @@
+# review clone integrity after probes
+HEAD 943a3dac973abc7130fe1a19bb6f5943788a01fe tree ffb89f749a18aeb6ec7d843f320fb6b095b08e10
+status (porcelain, incl. untracked):
+[end status]
+worktree and index match HEAD (git diff / diff --cached empty)
+index tree ffb89f749a18aeb6ec7d843f320fb6b095b08e10
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit b2db3a970cedbbff2f8ba813acb96122c442bc58	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule checkouts:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ b2db3a970cedbbff2f8ba813acb96122c442bc58 protocol-processor (v2.0-324-gb2db3a9)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor dirty: 0
+protocol-processor dirty: 0
+third_party/verilog-axis dirty: 0

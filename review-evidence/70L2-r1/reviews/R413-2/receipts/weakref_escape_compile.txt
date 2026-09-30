@@ -1,0 +1,15 @@
+# RV32 -O0 -fno-inline -S: references
+7:	.local	aem_loaded
+8:	.comm	aem_loaded,4,4
+9:	.set	milan_r413_ref,aem_loaded
+57:	lla	a2,milan_r413_ref
+137:	lla	a5,aem_loaded
+140:	lla	a5,aem_loaded
+# pin-2 question (-fsyntax-only, register variable)
+rc=0
+# host run -O0
+entity_advertise(verified=1): ENABLE WRITTEN
+# host run -O2
+entity_advertise(verified=1): ENABLE WRITTEN
+# host run -Os
+entity_advertise(verified=1): ENABLE WRITTEN
