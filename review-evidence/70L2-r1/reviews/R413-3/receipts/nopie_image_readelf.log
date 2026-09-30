@@ -1,0 +1,26 @@
+# Independent -no-pie image census of the shipping firmware (readelf/objdump 2.45.1)
+# head 0a80abcb; ELF dumped by wrapping rv32_image() (dump_nopie_elf.py)
+=== unit_0 ===
+-- ELF flags (0x0 => no RVC) & aem_loaded symbol --
+  Flags:                             0x0
+    10: 00015f30     4 OBJECT  LOCAL  DEFAULT    8 aem_loaded
+-- relocations landing on aem_loaded (kind tally) --
+      3 R_RISCV_HI20
+      2 R_RISCV_LO12_I
+      1 R_RISCV_LO12_S
+-- instruction at each LO12 site (must be lw/sw, never addi) --
+   13aec:	f2e7a823          	sw	a4,-208(a5) # 15f30 <aem_loaded>
+   13afc:	f307a783          	lw	a5,-208(a5) # 15f30 <aem_loaded>
+   13c34:	f307a783          	lw	a5,-208(a5) # 15f30 <aem_loaded>
+=== unit_1 ===
+-- ELF flags (0x0 => no RVC) & aem_loaded symbol --
+  Flags:                             0x0
+    10: 000158a0     4 OBJECT  LOCAL  DEFAULT    8 aem_loaded
+-- relocations landing on aem_loaded (kind tally) --
+      3 R_RISCV_HI20
+      2 R_RISCV_LO12_I
+      1 R_RISCV_LO12_S
+-- instruction at each LO12 site (must be lw/sw, never addi) --
+   134e4:	8ae7a023          	sw	a4,-1888(a5) # 158a0 <aem_loaded>
+   134f4:	8a07a783          	lw	a5,-1888(a5) # 158a0 <aem_loaded>
+   1362c:	8a07a783          	lw	a5,-1888(a5) # 158a0 <aem_loaded>
