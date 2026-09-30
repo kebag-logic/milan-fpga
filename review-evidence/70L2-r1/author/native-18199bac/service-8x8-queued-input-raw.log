@@ -1,0 +1,471 @@
+
+[1m        __   _ __      _  __[0m
+[1m       / /  (_) /____ | |/_/[0m
+[1m      / /__/ / __/ -_)>  <[0m
+[1m     /____/_/\__/\__/_/|_|[0m
+[1m   Build your hardware, easily![0m
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+
+ LiteX git sha1: a1e1c36
+
+--================ [1mSoC[0m =================--
+[1mCPU[0m:		VexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz
+[1mBUS[0m:		wishbone 32-bit data/32-bit addr
+[1mCSR[0m:		32-bit data big ordering
+[1mROM[0m:		128.0KiB
+[1mSRAM[0m:		8.0KiB
+[1mFLASH[0m:		16.0MiB
+[1mSDRAM[0m:		1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)
+[1mMAIN RAM[0m:	1.0GiB
+
+--=========== [1mInitialization[0m ===========--
+Initializing SDRAM @0x40000000...
+Switching SDRAM to software control.
+Switching SDRAM to hardware control.
+
+Initializing n25q128a13 SPI Flash @0x01000000...
+Memspeed at 0x1000000 (Sequential, 4.0KiB)...
+   Read speed: 1.3MiB/s
+Memspeed at 0x1000000 (Random, 4.0KiB)...
+   Read speed: 451.5KiB/s
+
+Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.
+
+EVENT cycle=2936533 kind=write address=2336 value=0 requests=0 responses=0 errors=0
+
+EVENT cycle=2937357 kind=aem_read
+Milan baremetal: AEM 18288 B copied QSPI +0x00400000 -> 0x7f700000, CRC 823b739f.
+
+EVENT cycle=104471409 kind=write address=2364 value=64 requests=0 responses=0 errors=0
+
+EVENT cycle=104472683 kind=write address=2336 value=2 requests=0 responses=0 errors=0
+
+EVENT cycle=104538153 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=104538297 kind=ticks first=104472844 last=104472844 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=104538297 kind=write address=2364 value=1 requests=32 responses=32 errors=0
+
+EVENT cycle=104599655 kind=ticks first=104538880 last=104598206 count=44 max_gap=1404 gap_start=104571956
+
+EVENT cycle=104599655 kind=write address=2336 value=0 requests=144 responses=144 errors=0
+Milan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered A seq 1 (VD_OK), 12680 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0.
+
+EVENT cycle=104914647 kind=write address=2336 value=1 requests=144 responses=144 errors=0
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+--============== [1mConsole[0m ===============--
+
+[92;1mlitex[0m> 
+EVENT cycle=105066974 kind=boot_prompt
+
+EVENT cycle=105066975 kind=command_start index=0 tx_bytes=1489
+milan_nvm
+
+EVENT cycle=117208621 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=133981299 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=133981503 kind=ticks first=105145998 last=133934942 count=56 max_gap=8585894 gap_start=125349048
+
+EVENT cycle=133981503 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=146827975 kind=phy_read status=13 up=1 down=0
+
+EVENT cycle=159193939 kind=ticks first=135943736 last=159193098 count=43 max_gap=1964532 gap_start=141835522
+
+EVENT cycle=159193939 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=159577787 kind=phy_read status=0 up=1 down=1
+
+EVENT cycle=159586963 kind=phy_read status=0 up=1 down=1
+
+EVENT cycle=174084041 kind=phy_read status=0 up=1 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=185995276 kind=ticks first=159567866 last=183902750 count=22 max_gap=8585894 gap_start=165479072
+
+EVENT cycle=185995276 kind=command_end index=0 erases=0 programs=0 bytes=0 tx_bytes=1860
+
+EVENT cycle=185995277 kind=command_start index=1 tx_bytes=1860
+milan_nvm
+EVENT cycle=186075175 kind=ticks first=186074328 last=186074328 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=186075175 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=186904449 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=199690649 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=214964447 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=214964651 kind=ticks first=186099596 last=214918090 count=55 max_gap=8585894 gap_start=206332196
+
+EVENT cycle=214964651 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=227811123 kind=phy_read status=13 up=2 down=1
+
+EVENT cycle=240177087 kind=ticks first=216926884 last=240176246 count=43 max_gap=1964532 gap_start=222818670
+
+EVENT cycle=240177087 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=240615521 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=255158031 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=267069266 kind=ticks first=240551014 last=264976740 count=22 max_gap=8585894 gap_start=246507630
+
+EVENT cycle=267069266 kind=command_end index=1 erases=0 programs=0 bytes=0 tx_bytes=2231
+
+EVENT cycle=267069267 kind=command_start index=2 tx_bytes=2231
+milan_nvm
+EVENT cycle=267149165 kind=ticks first=267148318 last=267148318 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=267149165 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=267987539 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=280791891 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=296083841 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=296084047 kind=ticks first=267173586 last=296019334 count=55 max_gap=8585894 gap_start=287433440
+
+EVENT cycle=296084047 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=308948669 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=321314635 kind=ticks first=298046280 last=321313794 count=43 max_gap=1964532 gap_start=303938066
+
+EVENT cycle=321314635 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=321753069 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=336295579 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=348206814 kind=ticks first=321688562 last=346114288 count=22 max_gap=8585894 gap_start=327645178
+
+EVENT cycle=348206814 kind=command_end index=2 erases=0 programs=0 bytes=0 tx_bytes=2602
+
+EVENT cycle=348206815 kind=command_start index=3 tx_bytes=2602
+milan_nvm
+EVENT cycle=348286713 kind=ticks first=348285866 last=348285866 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=348286713 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=349125087 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=361929439 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=377221389 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=377221595 kind=ticks first=348311134 last=377156882 count=55 max_gap=8585894 gap_start=368570988
+
+EVENT cycle=377221595 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=390086217 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=402452183 kind=ticks first=379183828 last=402451342 count=43 max_gap=1964532 gap_start=385075614
+
+EVENT cycle=402452183 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=402890617 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=417433127 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=429344362 kind=ticks first=402826110 last=427251836 count=22 max_gap=8585894 gap_start=408782726
+
+EVENT cycle=429344362 kind=command_end index=3 erases=0 programs=0 bytes=0 tx_bytes=2973
+
+EVENT cycle=429344363 kind=command_start index=4 tx_bytes=2973
+milan_nvm
+EVENT cycle=429424327 kind=ticks first=429423480 last=429423480 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=429424327 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=430262737 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=443067429 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=458359559 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=458359785 kind=ticks first=429448748 last=458295052 count=55 max_gap=8585904 gap_start=449709148
+
+EVENT cycle=458359785 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=471224407 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=483590373 kind=ticks first=460322018 last=483589532 count=43 max_gap=1964532 gap_start=466213804
+
+EVENT cycle=483590373 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=484028807 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=498571317 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=510482552 kind=ticks first=483964300 last=508390026 count=22 max_gap=8585894 gap_start=489920916
+
+EVENT cycle=510482552 kind=command_end index=4 erases=0 programs=0 bytes=0 tx_bytes=3344
+
+EVENT cycle=510482553 kind=command_start index=5 tx_bytes=3344
+milan_nvm
+EVENT cycle=510562455 kind=ticks first=510561608 last=510561608 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=510562455 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=511400829 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=524205181 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=539497131 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=539497337 kind=ticks first=510586876 last=539432624 count=55 max_gap=8585894 gap_start=530846730
+
+EVENT cycle=539497337 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=552361959 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=564727925 kind=ticks first=541459570 last=564727084 count=43 max_gap=1964532 gap_start=547351356
+
+EVENT cycle=564727925 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=565166359 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=579708869 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=591620104 kind=ticks first=565101852 last=589527578 count=22 max_gap=8585894 gap_start=571058468
+
+EVENT cycle=591620104 kind=command_end index=5 erases=0 programs=0 bytes=0 tx_bytes=3715
+
+EVENT cycle=591620105 kind=command_start index=6 tx_bytes=3715
+milan_nvm
+EVENT cycle=591700007 kind=ticks first=591699160 last=591699160 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=591700007 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=592538381 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=605342733 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=620634683 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=620634889 kind=ticks first=591724428 last=620570176 count=55 max_gap=8585894 gap_start=611984282
+
+EVENT cycle=620634889 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=633499511 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=645865477 kind=ticks first=622597122 last=645864636 count=43 max_gap=1964532 gap_start=628488908
+
+EVENT cycle=645865477 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=646303911 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=660846421 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=672757656 kind=ticks first=646239404 last=670665130 count=22 max_gap=8585894 gap_start=652196020
+
+EVENT cycle=672757656 kind=command_end index=6 erases=0 programs=0 bytes=0 tx_bytes=4086
+
+EVENT cycle=672757657 kind=command_start index=7 tx_bytes=4086
+milan_nvm
+EVENT cycle=672837559 kind=ticks first=672836712 last=672836712 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=672837559 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=673675933 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=686480285 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=701772235 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=701772441 kind=ticks first=672861980 last=701707728 count=55 max_gap=8585894 gap_start=693121834
+
+EVENT cycle=701772441 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=714637063 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=727003029 kind=ticks first=703734674 last=727002188 count=43 max_gap=1964532 gap_start=709626460
+
+EVENT cycle=727003029 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=727441463 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=741983973 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=753895208 kind=ticks first=727376956 last=751802682 count=22 max_gap=8585894 gap_start=733333572
+
+EVENT cycle=753895208 kind=command_end index=7 erases=0 programs=0 bytes=0 tx_bytes=4457
+
+EVENT cycle=753895209 kind=command_start index=8 tx_bytes=4457
+milan_nvm
+EVENT cycle=753975111 kind=ticks first=753974264 last=753974264 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=753975111 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=754813485 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=767617837 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=782909787 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=782909993 kind=ticks first=753999532 last=782845280 count=55 max_gap=8585894 gap_start=774259386
+
+EVENT cycle=782909993 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=795774615 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=808140581 kind=ticks first=784872226 last=808139740 count=43 max_gap=1964532 gap_start=790764012
+
+EVENT cycle=808140581 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=808579015 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=823121525 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=835032760 kind=ticks first=808514508 last=832940234 count=22 max_gap=8585894 gap_start=814471124
+
+EVENT cycle=835032760 kind=command_end index=8 erases=0 programs=0 bytes=0 tx_bytes=4828
+
+EVENT cycle=835032761 kind=command_start index=9 tx_bytes=4828
+milan_nvm
+EVENT cycle=835112725 kind=ticks first=835111878 last=835111878 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=835112725 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=835951099 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=848755451 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=864047417 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=864047643 kind=ticks first=835137146 last=863982894 count=55 max_gap=8585894 gap_start=855397000
+
+EVENT cycle=864047643 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=876912265 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=889278231 kind=ticks first=866009876 last=889277390 count=43 max_gap=1964532 gap_start=871901662
+
+EVENT cycle=889278231 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=889716665 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=904259175 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=916170410 kind=ticks first=889652158 last=914077884 count=22 max_gap=8585894 gap_start=895608774
+
+EVENT cycle=916170410 kind=command_end index=9 erases=0 programs=0 bytes=0 tx_bytes=5199
+
+EVENT cycle=916170411 kind=command_start index=10 tx_bytes=5199
+milan_nvm
+EVENT cycle=916250313 kind=ticks first=916249466 last=916249466 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=916250313 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=917088687 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=929893039 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=945184989 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=945185195 kind=ticks first=916274734 last=945120482 count=55 max_gap=8585894 gap_start=936534588
+
+EVENT cycle=945185195 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=958049817 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=970415783 kind=ticks first=947147428 last=970414942 count=43 max_gap=1964532 gap_start=953039214
+
+EVENT cycle=970415783 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=970854217 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=985396727 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=997307962 kind=ticks first=970789710 last=995215436 count=22 max_gap=8585894 gap_start=976746326
+
+EVENT cycle=997307962 kind=command_end index=10 erases=0 programs=0 bytes=0 tx_bytes=5570
+
+EVENT cycle=997307963 kind=command_start index=11 tx_bytes=5570
+milan_nvm
+EVENT cycle=997387865 kind=ticks first=997387018 last=997387018 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=997387865 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+
+EVENT cycle=998226239 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=1011030591 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=1026322541 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=1026322747 kind=ticks first=997412286 last=1026258034 count=55 max_gap=8585894 gap_start=1017672140
+
+EVENT cycle=1026322747 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=1039187369 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=1051553335 kind=ticks first=1028284980 last=1051552494 count=43 max_gap=1964532 gap_start=1034176766
+
+EVENT cycle=1051553335 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+EVENT cycle=1051991769 kind=phy_read status=11 up=2 down=1
+
+EVENT cycle=1066534279 kind=phy_read status=11 up=2 down=1
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=1078445514 kind=ticks first=1051927262 last=1076352988 count=22 max_gap=8585894 gap_start=1057883878
+
+EVENT cycle=1078445514 kind=command_end index=11 erases=0 programs=0 bytes=0 tx_bytes=5941
+
+EVENT cycle=1078445515 kind=command_start index=12 tx_bytes=5941
+milan_status
+EVENT cycle=1078545697 kind=ticks first=1078544850 last=1078544850 count=1 max_gap=0 gap_start=0
+
+EVENT cycle=1078545697 kind=write address=2364 value=1 requests=144 responses=144 errors=0
+
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded
+GPTP_GM=0000000000000000 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=0 AS_PATH_GEN=0 CLKV_STAT=00000001 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db
+TAI_NS=0x000000028332b9fc
+[92;1mlitex[0m> 
+EVENT cycle=1079224394 kind=command_end index=12 erases=0 programs=0 bytes=0 tx_bytes=6269
+
+PHY_TIMING transactions=481 publications=73 max_transaction_cycles=8789 max_poll_cycles=65192 down_edges=1 up_edges=1
+BACKING armed=1 unbacked_cycles=0
+== fw_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS

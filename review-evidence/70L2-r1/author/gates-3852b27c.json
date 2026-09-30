@@ -1,0 +1,354 @@
+{
+  "head": "3852b27cfec53b381447780ce581161cc2140c8a",
+  "results": [
+    {
+      "name": "lint_rtl",
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 5.6,
+      "log": "/tmp/a448/logs/gates-3852b27c/lint_rtl.log",
+      "log_bytes": 14186,
+      "log_sha256": "75be251ed2de9739cd7f7732a854cff193740da7edbf7e88d7cc77ee9dca38c7"
+    },
+    {
+      "name": "xvlog_gate",
+      "command": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 150.4,
+      "log": "/tmp/a448/logs/gates-3852b27c/xvlog_gate.log",
+      "log_bytes": 1320,
+      "log_sha256": "db47f21106c2bed05a83bcce1f37484553cbdf203a3e28539d29ad4e7a7137de"
+    },
+    {
+      "name": "check_rtl_source_lists",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0,
+      "seconds": 3.0,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_rtl_source_lists.log",
+      "log_bytes": 390,
+      "log_sha256": "b8372555c3e35c330478129b3e1963f0e258b4f7e76d1a7bae55fe7385713b8c"
+    },
+    {
+      "name": "pp_srcs",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.3,
+      "log": "/tmp/a448/logs/gates-3852b27c/pp_srcs.log",
+      "log_bytes": 955,
+      "log_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+    },
+    {
+      "name": "check_port_contracts",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0,
+      "seconds": 3.9,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_port_contracts.log",
+      "log_bytes": 421,
+      "log_sha256": "c0431de18695b1674e27cc82b0ca01510a66ddb499ac659988de647ee6d6e479"
+    },
+    {
+      "name": "measure_naming",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.9,
+      "log": "/tmp/a448/logs/gates-3852b27c/measure_naming.log",
+      "log_bytes": 36618,
+      "log_sha256": "8d97c3b8f775561e317c43f8cace1cd94937f82e0513872c21fde2f81a5c9d2b"
+    },
+    {
+      "name": "measure_test_evidence",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 8.5,
+      "log": "/tmp/a448/logs/gates-3852b27c/measure_test_evidence.log",
+      "log_bytes": 11898,
+      "log_sha256": "ccb36c8d883bee0c9dcfa8edf09e3d472a7b518b1b14c5353ee3b694695bf345"
+    },
+    {
+      "name": "check_cpp_idiom",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 2.6,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_cpp_idiom.log",
+      "log_bytes": 315,
+      "log_sha256": "43833ab7c3d79b2c141a2ceeaf56b05bcb6cc20b2fbd5af1574f511a8e4f019d"
+    },
+    {
+      "name": "check_py_idiom",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 3.8,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_py_idiom.log",
+      "log_bytes": 461,
+      "log_sha256": "35724c4de6d62254b5f14864a30fc1864246821650fe34f40affea2ba3b6a45f"
+    },
+    {
+      "name": "check_feature_status",
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "rc": 0,
+      "seconds": 0.7,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_feature_status.log",
+      "log_bytes": 29,
+      "log_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"
+    },
+    {
+      "name": "check_submodule_docs",
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.7,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_submodule_docs.log",
+      "log_bytes": 47,
+      "log_sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835"
+    },
+    {
+      "name": "submodule_boundaries",
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.7,
+      "log": "/tmp/a448/logs/gates-3852b27c/submodule_boundaries.log",
+      "log_bytes": 54,
+      "log_sha256": "905777610f39981543faabafcc11309ac6ab670121c8866a45e171e5c9b7d00c"
+    },
+    {
+      "name": "check_baremetal_only",
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 18.1,
+      "log": "/tmp/a448/logs/gates-3852b27c/check_baremetal_only.log",
+      "log_bytes": 71,
+      "log_sha256": "a0a06c54bb2fc130e1595a2ca40352a02ad01498bdcb122f3d0741510cfbfd57"
+    },
+    {
+      "name": "ci_scope",
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 5.9,
+      "log": "/tmp/a448/logs/gates-3852b27c/ci_scope.log",
+      "log_bytes": 5837,
+      "log_sha256": "50102b9882b98a59dea14231762fce61806255afb1c71e4b2d8b3aedc262304e"
+    },
+    {
+      "name": "integrator_params",
+      "command": [
+        "python3",
+        "protocol-processor/scripts/check-integrator-params.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "/tmp/a448/logs/gates-3852b27c/integrator_params.log",
+      "log_bytes": 45,
+      "log_sha256": "aa8920d8ffe76b9a702e3264271c9abf5390d24832bf33f4fbb251ada1aaf240"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "79c36963660c10e4c1c11a744fb5bff41a552b8b",
+        "HEAD"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "/tmp/a448/logs/gates-3852b27c/diff-check.log",
+      "log_bytes": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "md-docs_check",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 9.1,
+      "log": "/tmp/a448/logs/gates-3852b27c/md-docs_check.log",
+      "log_bytes": 127,
+      "log_sha256": "c983a535ee139f70c62523d4d549a3f273a8d8b47afa16d333ccd826a78bab83"
+    },
+    {
+      "name": "md-check_doc_paths",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.2,
+      "log": "/tmp/a448/logs/gates-3852b27c/md-check_doc_paths.log",
+      "log_bytes": 84,
+      "log_sha256": "0f9fa704b411b9993581088941111e300a8e4df10fb0c029ecc0648048e26509"
+    },
+    {
+      "name": "md-check_doc_style",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "/tmp/a448/logs/gates-3852b27c/md-check_doc_style.log",
+      "log_bytes": 47,
+      "log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+    },
+    {
+      "name": "md-check_archive",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "seconds": 0.6,
+      "log": "/tmp/a448/logs/gates-3852b27c/md-check_archive.log",
+      "log_bytes": 93,
+      "log_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+    },
+    {
+      "name": "md-gen_toc",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 3.1,
+      "log": "/tmp/a448/logs/gates-3852b27c/md-gen_toc.log",
+      "log_bytes": 94,
+      "log_sha256": "7bd517fdaeda47f1cdc0f728417b45f061cd70367d76e347365cbe06fff6dae8"
+    },
+    {
+      "name": "md-check_em_dash",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "79c36963660c10e4c1c11a744fb5bff41a552b8b"
+      ],
+      "rc": 0,
+      "seconds": 7.1,
+      "log": "/tmp/a448/logs/gates-3852b27c/md-check_em_dash.log",
+      "log_bytes": 141,
+      "log_sha256": "230007f0d0d013961491b0641fd57be879508f9e24c2f49f78f96df10561ec6b"
+    },
+    {
+      "name": "nvm_cosim-full",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/nvm_cosim"
+      ],
+      "rc": 0,
+      "seconds": 391.3,
+      "log": "/tmp/a448/logs/gates-3852b27c/nvm_cosim-full.log",
+      "log_bytes": 6709,
+      "log_sha256": "5e5eefc1ecdb84ad4692fbbbd1e627b346beac84ffb2043e479d031425a24558"
+    },
+    {
+      "name": "nvm_cosim-lint",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/nvm_cosim",
+        "lint"
+      ],
+      "rc": 0,
+      "seconds": 0.3,
+      "log": "/tmp/a448/logs/gates-3852b27c/nvm_cosim-lint.log",
+      "log_bytes": 29858,
+      "log_sha256": "b9ed81c9903aec76ad133420d081bb9d543ddd95833e0c4f8514d12d98f79f5a"
+    },
+    {
+      "name": "pp_shadow",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/pp_shadow",
+        "-j8"
+      ],
+      "rc": 0,
+      "seconds": 214.9,
+      "log": "/tmp/a448/logs/gates-3852b27c/pp_shadow.log",
+      "log_bytes": 328626,
+      "log_sha256": "0919885a39985a0c7ddcc23b5041439541bd6e379068dbfc4a415384427785dd"
+    },
+    {
+      "name": "milan_dp_render",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/milan_dp_render",
+        "-j8"
+      ],
+      "rc": 0,
+      "seconds": 415.4,
+      "log": "/tmp/a448/logs/gates-3852b27c/milan_dp_render.log",
+      "log_bytes": 162949,
+      "log_sha256": "b0f362be03aa1f623c6eb8e35bc7c6eddec844384efefd61c8b9a4b87d5b7d71"
+    },
+    {
+      "name": "builder-present",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+        "-B",
+        "sw/builder/test_builder.py",
+        "--require-elaboration",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 1710.2,
+      "log": "/tmp/a448/logs/gates-3852b27c/builder-present.log",
+      "log_bytes": 99164,
+      "log_sha256": "533a2d689175dfea614dda07a5ca0c372713de34d0799dac0c737e9ddb90ae54"
+    }
+  ]
+}

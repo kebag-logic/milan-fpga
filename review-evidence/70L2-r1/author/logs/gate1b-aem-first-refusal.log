@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "$LANES/70-lane2-pin/sw/builder/test_builder.py", line 10476, in assert_boot_contract
+    verdicts.append(assert_boot_contract(
+                    ~~~~~~~~~~~~~~~~~~~~^
+        selected, docs, csr, makefile, listing, datapath))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/70-lane2-pin/sw/builder/test_builder.py", line 11556, in assert_boot_contract
+    compiled_census_verdict["resolved"] = assert_resolved_boot_flow(
+                                          ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        census_taken["text"], model,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        helper=re.search(
+        ^^^^^^^^^^^^^^^^^
+            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            r"\s*\(", firmware, re.ASCII).group(1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/70-lane2-pin/sw/builder/test_builder.py", line 6634, in assert_resolved_boot_flow
+    assert handed_verdict == [verdict_tag], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    t.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/70-lane2-pin/sw/builder/test_builder.py", line 11575, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "$LANES/70-lane2-pin/sw/builder/test_builder.py", line 10479, in assert_boot_contract
+    raise AssertionError(
+    ...<3 lines>...
+        f"{exc}") from exc
+AssertionError: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()

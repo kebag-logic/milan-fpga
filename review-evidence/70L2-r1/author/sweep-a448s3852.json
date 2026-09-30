@@ -1,0 +1,227 @@
+{
+  "tag": "a448s3852",
+  "floor_wns_ns": 0.03,
+  "floor_whs_ns": 0.0,
+  "seeds": [
+    {
+      "seed": "asl",
+      "directive": "AltSpreadLogic_high",
+      "dir": "$WORKSPACE_HOME/litex-milan/work/build_ax7101_asl_a448s3852",
+      "launch_published_layout": true,
+      "launch_traceback": false,
+      "launch_constraints_pass": true,
+      "vivado_log": true,
+      "refusal_ids": {
+        "12-4739": 0,
+        "20-1307": 0,
+        "12-5201": 0
+      },
+      "critical_warnings": 0,
+      "flashboot_layout": true,
+      "bit": [
+        "alinx_ax7101.bit"
+      ],
+      "bit_rejected": [],
+      "bit_sha256": "711dddbd4e3c7cf834690addfafda993aeada043cf1ec2a10f31db38093bf01f",
+      "bit_bytes": 3825992,
+      "refusal_gate_accepts": true,
+      "corners": {
+        "Slow_0C": {
+          "wns": 0.174,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.062,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Slow_85C": {
+          "wns": 0.174,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.062,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Fast_0C": {
+          "wns": 1.463,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.028,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Fast_85C": {
+          "wns": 1.463,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.028,
+          "ths": 0.0,
+          "ths_fail": 0
+        }
+      },
+      "worst_wns": 0.174,
+      "worst_whs": 0.028,
+      "meets_floor": true,
+      "eth_interaction": [
+        "eth_clocks0_rx milansoc_crg_clkout0 rise - rise 5.33 0.00 0 13 8.00 0 13 Ignored Max Delay Datapath Only",
+        "eth_clocks0_rx milansoc_crg_clkout1 rise - rise 6.10 0.00 0 50 8.00 0 50 Ignored Max Delay Datapath Only",
+        "milansoc_crg_clkout0 eth_clocks0_rx rise - rise 6.00 0.00 0 16 8.00 0 16 Ignored Max Delay Datapath Only",
+        "milansoc_crg_clkout1 eth_clocks0_rx rise - rise 6.69 0.00 0 14 8.00 0 14 Ignored Max Delay Datapath Only"
+      ],
+      "utilization_place": {
+        "Slice LUTs": "50211",
+        "Slice Registers": "58743",
+        "Slice": "15823",
+        "Block RAM Tile": "92.5",
+        "DSPs": "14"
+      }
+    },
+    {
+      "seed": "eto",
+      "directive": "ExtraTimingOpt",
+      "dir": "$WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_a448s3852",
+      "launch_published_layout": true,
+      "launch_traceback": false,
+      "launch_constraints_pass": true,
+      "vivado_log": true,
+      "refusal_ids": {
+        "12-4739": 0,
+        "20-1307": 0,
+        "12-5201": 0
+      },
+      "critical_warnings": 0,
+      "flashboot_layout": true,
+      "bit": [
+        "alinx_ax7101.bit"
+      ],
+      "bit_rejected": [],
+      "bit_sha256": "a6f49999e43d32a08dc00615555180d8bef382a21c817107390cb208650aa00f",
+      "bit_bytes": 3825992,
+      "refusal_gate_accepts": true,
+      "corners": {
+        "Slow_0C": {
+          "wns": 0.247,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.066,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Slow_85C": {
+          "wns": 0.247,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.066,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Fast_0C": {
+          "wns": 1.463,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.032,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Fast_85C": {
+          "wns": 1.463,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.032,
+          "ths": 0.0,
+          "ths_fail": 0
+        }
+      },
+      "worst_wns": 0.247,
+      "worst_whs": 0.032,
+      "meets_floor": true,
+      "eth_interaction": [
+        "eth_clocks0_rx milansoc_crg_clkout0 rise - rise 5.19 0.00 0 13 8.00 0 13 Ignored Max Delay Datapath Only",
+        "eth_clocks0_rx milansoc_crg_clkout1 rise - rise 6.10 0.00 0 50 8.00 0 50 Ignored Max Delay Datapath Only",
+        "milansoc_crg_clkout0 eth_clocks0_rx rise - rise 6.45 0.00 0 16 8.00 0 16 Ignored Max Delay Datapath Only",
+        "milansoc_crg_clkout1 eth_clocks0_rx rise - rise 6.39 0.00 0 14 8.00 0 14 Ignored Max Delay Datapath Only"
+      ],
+      "utilization_place": {
+        "Slice LUTs": "50203",
+        "Slice Registers": "58743",
+        "Slice": "15823",
+        "Block RAM Tile": "92.5",
+        "DSPs": "14"
+      }
+    },
+    {
+      "seed": "eppo",
+      "directive": "ExtraPostPlacementOpt",
+      "dir": "$WORKSPACE_HOME/litex-milan/work/build_ax7101_eppo_a448s3852",
+      "launch_published_layout": true,
+      "launch_traceback": false,
+      "launch_constraints_pass": true,
+      "vivado_log": true,
+      "refusal_ids": {
+        "12-4739": 0,
+        "20-1307": 0,
+        "12-5201": 0
+      },
+      "critical_warnings": 0,
+      "flashboot_layout": true,
+      "bit": [
+        "alinx_ax7101.bit"
+      ],
+      "bit_rejected": [],
+      "bit_sha256": "9287e0ca9df5676ef4267325694e3487ced70c76b7c3d7680327cf21e6ebeb7c",
+      "bit_bytes": 3825992,
+      "refusal_gate_accepts": true,
+      "corners": {
+        "Slow_0C": {
+          "wns": 0.07,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.121,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Slow_85C": {
+          "wns": 0.07,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.121,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Fast_0C": {
+          "wns": 1.633,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.058,
+          "ths": 0.0,
+          "ths_fail": 0
+        },
+        "Fast_85C": {
+          "wns": 1.633,
+          "tns": 0.0,
+          "tns_fail": 0,
+          "whs": 0.058,
+          "ths": 0.0,
+          "ths_fail": 0
+        }
+      },
+      "worst_wns": 0.07,
+      "worst_whs": 0.058,
+      "meets_floor": true,
+      "eth_interaction": [
+        "eth_clocks0_rx milansoc_crg_clkout0 rise - rise 5.62 0.00 0 13 8.00 0 13 Ignored Max Delay Datapath Only",
+        "eth_clocks0_rx milansoc_crg_clkout1 rise - rise 6.42 0.00 0 50 8.00 0 50 Ignored Max Delay Datapath Only",
+        "milansoc_crg_clkout0 eth_clocks0_rx rise - rise 6.78 0.00 0 16 8.00 0 16 Ignored Max Delay Datapath Only",
+        "milansoc_crg_clkout1 eth_clocks0_rx rise - rise 6.40 0.00 0 14 8.00 0 14 Ignored Max Delay Datapath Only"
+      ],
+      "utilization_place": {
+        "Slice LUTs": "50008",
+        "Slice Registers": "58742",
+        "Slice": "15816",
+        "Block RAM Tile": "92.5",
+        "DSPs": "14"
+      }
+    }
+  ],
+  "any_seed_meets_floor_and_accepted": true
+}

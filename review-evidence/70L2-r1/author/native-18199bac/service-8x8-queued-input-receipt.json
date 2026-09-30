@@ -1,0 +1,2266 @@
+{
+  "media": {
+    "image_bytes": 12680,
+    "records": 156,
+    "aem_bytes": 18288,
+    "populated": true,
+    "slots_sha256": "7186d1f3eb97ec12d36fc85675ee20be299bc5783d1bcd2439360401e3e42895",
+    "plan": "queued-input",
+    "shape": "endstation_ax7101_8x8"
+  },
+  "shape": "endstation_ax7101_8x8",
+  "cpu_hz": 50000000,
+  "sys_hz": 100000000,
+  "device_wait_us": 0,
+  "program_wait_us": 0,
+  "raw_log": "\n\r\u001b[1m        __   _ __      _  __\u001b[0m\n\r\u001b[1m       / /  (_) /____ | |/_/\u001b[0m\n\r\u001b[1m      / /__/ / __/ -_)>  <\u001b[0m\n\r\u001b[1m     /____/_/\\__/\\__/_/|_|\u001b[0m\n\r\u001b[1m   Build your hardware, easily!\u001b[0m\n\r\n\r (c) Copyright 2012-2026 Enjoy-Digital\n\r (c) Copyright 2007-2015 M-Labs\n\r\n\r\n\r LiteX git sha1: a1e1c36\n\r\n\r--================ \u001b[1mSoC\u001b[0m =================--\n\r\u001b[1mCPU\u001b[0m:\t\tVexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz\n\r\u001b[1mBUS\u001b[0m:\t\twishbone 32-bit data/32-bit addr\n\r\u001b[1mCSR\u001b[0m:\t\t32-bit data big ordering\n\r\u001b[1mROM\u001b[0m:\t\t128.0KiB\n\r\u001b[1mSRAM\u001b[0m:\t\t8.0KiB\n\r\u001b[1mFLASH\u001b[0m:\t\t16.0MiB\n\r\u001b[1mSDRAM\u001b[0m:\t\t1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)\n\r\u001b[1mMAIN RAM\u001b[0m:\t1.0GiB\n\r\n\r--=========== \u001b[1mInitialization\u001b[0m ===========--\n\rInitializing SDRAM @0x40000000...\n\rSwitching SDRAM to software control.\n\rSwitching SDRAM to hardware control.\n\r\n\rInitializing n25q128a13 SPI Flash @0x01000000...\n\rMemspeed at 0x1000000 (Sequential, 4.0KiB)...\n\r   Read speed: 1.3MiB/s\n\rMemspeed at 0x1000000 (Random, 4.0KiB)...\n\r   Read speed: 451.5KiB/s\n\r\n\rMilan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.\n\r\nEVENT cycle=2936533 kind=write address=2336 value=0 requests=0 responses=0 errors=0\n\nEVENT cycle=2937357 kind=aem_read\nMilan baremetal: AEM 18288 B copied QSPI +0x00400000 -> 0x7f700000, CRC 823b739f.\n\r\nEVENT cycle=104471409 kind=write address=2364 value=64 requests=0 responses=0 errors=0\n\nEVENT cycle=104472683 kind=write address=2336 value=2 requests=0 responses=0 errors=0\n\nEVENT cycle=104538153 kind=phy_read status=13 up=1 down=0\n\nEVENT cycle=104538297 kind=ticks first=104472844 last=104472844 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=104538297 kind=write address=2364 value=1 requests=32 responses=32 errors=0\n\nEVENT cycle=104599655 kind=ticks first=104538880 last=104598206 count=44 max_gap=1404 gap_start=104571956\n\nEVENT cycle=104599655 kind=write address=2336 value=0 requests=144 responses=144 errors=0\nMilan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered A seq 1 (VD_OK), 12680 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0.\n\r\nEVENT cycle=104914647 kind=write address=2336 value=1 requests=144 responses=144 errors=0\nMilan baremetal: fabric entity enabled; UART diagnostics ready.\n\r--============== \u001b[1mConsole\u001b[0m ===============--\n\r\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=105066974 kind=boot_prompt\n\nEVENT cycle=105066975 kind=command_start index=0 tx_bytes=1489\nmilan_nvm\n\r\nEVENT cycle=117208621 kind=phy_read status=13 up=1 down=0\n\nEVENT cycle=133981299 kind=phy_read status=13 up=1 down=0\n\nEVENT cycle=133981503 kind=ticks first=105145998 last=133934942 count=56 max_gap=8585894 gap_start=125349048\n\nEVENT cycle=133981503 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=146827975 kind=phy_read status=13 up=1 down=0\n\nEVENT cycle=159193939 kind=ticks first=135943736 last=159193098 count=43 max_gap=1964532 gap_start=141835522\n\nEVENT cycle=159193939 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=159577787 kind=phy_read status=0 up=1 down=1\n\nEVENT cycle=159586963 kind=phy_read status=0 up=1 down=1\n\nEVENT cycle=174084041 kind=phy_read status=0 up=1 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=185995276 kind=ticks first=159567866 last=183902750 count=22 max_gap=8585894 gap_start=165479072\n\nEVENT cycle=185995276 kind=command_end index=0 erases=0 programs=0 bytes=0 tx_bytes=1860\n\nEVENT cycle=185995277 kind=command_start index=1 tx_bytes=1860\nmilan_nvm\nEVENT cycle=186075175 kind=ticks first=186074328 last=186074328 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=186075175 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=186904449 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=199690649 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=214964447 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=214964651 kind=ticks first=186099596 last=214918090 count=55 max_gap=8585894 gap_start=206332196\n\nEVENT cycle=214964651 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=227811123 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=240177087 kind=ticks first=216926884 last=240176246 count=43 max_gap=1964532 gap_start=222818670\n\nEVENT cycle=240177087 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=240615521 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=255158031 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=267069266 kind=ticks first=240551014 last=264976740 count=22 max_gap=8585894 gap_start=246507630\n\nEVENT cycle=267069266 kind=command_end index=1 erases=0 programs=0 bytes=0 tx_bytes=2231\n\nEVENT cycle=267069267 kind=command_start index=2 tx_bytes=2231\nmilan_nvm\nEVENT cycle=267149165 kind=ticks first=267148318 last=267148318 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=267149165 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=267987539 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=280791891 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=296083841 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=296084047 kind=ticks first=267173586 last=296019334 count=55 max_gap=8585894 gap_start=287433440\n\nEVENT cycle=296084047 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=308948669 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=321314635 kind=ticks first=298046280 last=321313794 count=43 max_gap=1964532 gap_start=303938066\n\nEVENT cycle=321314635 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=321753069 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=336295579 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=348206814 kind=ticks first=321688562 last=346114288 count=22 max_gap=8585894 gap_start=327645178\n\nEVENT cycle=348206814 kind=command_end index=2 erases=0 programs=0 bytes=0 tx_bytes=2602\n\nEVENT cycle=348206815 kind=command_start index=3 tx_bytes=2602\nmilan_nvm\nEVENT cycle=348286713 kind=ticks first=348285866 last=348285866 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=348286713 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=349125087 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=361929439 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=377221389 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=377221595 kind=ticks first=348311134 last=377156882 count=55 max_gap=8585894 gap_start=368570988\n\nEVENT cycle=377221595 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=390086217 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=402452183 kind=ticks first=379183828 last=402451342 count=43 max_gap=1964532 gap_start=385075614\n\nEVENT cycle=402452183 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=402890617 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=417433127 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=429344362 kind=ticks first=402826110 last=427251836 count=22 max_gap=8585894 gap_start=408782726\n\nEVENT cycle=429344362 kind=command_end index=3 erases=0 programs=0 bytes=0 tx_bytes=2973\n\nEVENT cycle=429344363 kind=command_start index=4 tx_bytes=2973\nmilan_nvm\nEVENT cycle=429424327 kind=ticks first=429423480 last=429423480 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=429424327 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=430262737 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=443067429 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=458359559 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=458359785 kind=ticks first=429448748 last=458295052 count=55 max_gap=8585904 gap_start=449709148\n\nEVENT cycle=458359785 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=471224407 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=483590373 kind=ticks first=460322018 last=483589532 count=43 max_gap=1964532 gap_start=466213804\n\nEVENT cycle=483590373 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=484028807 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=498571317 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=510482552 kind=ticks first=483964300 last=508390026 count=22 max_gap=8585894 gap_start=489920916\n\nEVENT cycle=510482552 kind=command_end index=4 erases=0 programs=0 bytes=0 tx_bytes=3344\n\nEVENT cycle=510482553 kind=command_start index=5 tx_bytes=3344\nmilan_nvm\nEVENT cycle=510562455 kind=ticks first=510561608 last=510561608 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=510562455 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=511400829 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=524205181 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=539497131 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=539497337 kind=ticks first=510586876 last=539432624 count=55 max_gap=8585894 gap_start=530846730\n\nEVENT cycle=539497337 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=552361959 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=564727925 kind=ticks first=541459570 last=564727084 count=43 max_gap=1964532 gap_start=547351356\n\nEVENT cycle=564727925 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=565166359 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=579708869 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=591620104 kind=ticks first=565101852 last=589527578 count=22 max_gap=8585894 gap_start=571058468\n\nEVENT cycle=591620104 kind=command_end index=5 erases=0 programs=0 bytes=0 tx_bytes=3715\n\nEVENT cycle=591620105 kind=command_start index=6 tx_bytes=3715\nmilan_nvm\nEVENT cycle=591700007 kind=ticks first=591699160 last=591699160 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=591700007 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=592538381 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=605342733 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=620634683 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=620634889 kind=ticks first=591724428 last=620570176 count=55 max_gap=8585894 gap_start=611984282\n\nEVENT cycle=620634889 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=633499511 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=645865477 kind=ticks first=622597122 last=645864636 count=43 max_gap=1964532 gap_start=628488908\n\nEVENT cycle=645865477 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=646303911 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=660846421 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=672757656 kind=ticks first=646239404 last=670665130 count=22 max_gap=8585894 gap_start=652196020\n\nEVENT cycle=672757656 kind=command_end index=6 erases=0 programs=0 bytes=0 tx_bytes=4086\n\nEVENT cycle=672757657 kind=command_start index=7 tx_bytes=4086\nmilan_nvm\nEVENT cycle=672837559 kind=ticks first=672836712 last=672836712 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=672837559 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=673675933 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=686480285 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=701772235 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=701772441 kind=ticks first=672861980 last=701707728 count=55 max_gap=8585894 gap_start=693121834\n\nEVENT cycle=701772441 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=714637063 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=727003029 kind=ticks first=703734674 last=727002188 count=43 max_gap=1964532 gap_start=709626460\n\nEVENT cycle=727003029 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=727441463 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=741983973 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=753895208 kind=ticks first=727376956 last=751802682 count=22 max_gap=8585894 gap_start=733333572\n\nEVENT cycle=753895208 kind=command_end index=7 erases=0 programs=0 bytes=0 tx_bytes=4457\n\nEVENT cycle=753895209 kind=command_start index=8 tx_bytes=4457\nmilan_nvm\nEVENT cycle=753975111 kind=ticks first=753974264 last=753974264 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=753975111 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=754813485 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=767617837 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=782909787 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=782909993 kind=ticks first=753999532 last=782845280 count=55 max_gap=8585894 gap_start=774259386\n\nEVENT cycle=782909993 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=795774615 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=808140581 kind=ticks first=784872226 last=808139740 count=43 max_gap=1964532 gap_start=790764012\n\nEVENT cycle=808140581 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=808579015 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=823121525 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=835032760 kind=ticks first=808514508 last=832940234 count=22 max_gap=8585894 gap_start=814471124\n\nEVENT cycle=835032760 kind=command_end index=8 erases=0 programs=0 bytes=0 tx_bytes=4828\n\nEVENT cycle=835032761 kind=command_start index=9 tx_bytes=4828\nmilan_nvm\nEVENT cycle=835112725 kind=ticks first=835111878 last=835111878 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=835112725 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=835951099 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=848755451 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=864047417 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=864047643 kind=ticks first=835137146 last=863982894 count=55 max_gap=8585894 gap_start=855397000\n\nEVENT cycle=864047643 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=876912265 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=889278231 kind=ticks first=866009876 last=889277390 count=43 max_gap=1964532 gap_start=871901662\n\nEVENT cycle=889278231 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=889716665 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=904259175 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=916170410 kind=ticks first=889652158 last=914077884 count=22 max_gap=8585894 gap_start=895608774\n\nEVENT cycle=916170410 kind=command_end index=9 erases=0 programs=0 bytes=0 tx_bytes=5199\n\nEVENT cycle=916170411 kind=command_start index=10 tx_bytes=5199\nmilan_nvm\nEVENT cycle=916250313 kind=ticks first=916249466 last=916249466 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=916250313 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=917088687 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=929893039 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=945184989 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=945185195 kind=ticks first=916274734 last=945120482 count=55 max_gap=8585894 gap_start=936534588\n\nEVENT cycle=945185195 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=958049817 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=970415783 kind=ticks first=947147428 last=970414942 count=43 max_gap=1964532 gap_start=953039214\n\nEVENT cycle=970415783 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=970854217 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=985396727 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=997307962 kind=ticks first=970789710 last=995215436 count=22 max_gap=8585894 gap_start=976746326\n\nEVENT cycle=997307962 kind=command_end index=10 erases=0 programs=0 bytes=0 tx_bytes=5570\n\nEVENT cycle=997307963 kind=command_start index=11 tx_bytes=5570\nmilan_nvm\nEVENT cycle=997387865 kind=ticks first=997387018 last=997387018 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=997387865 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\r\nEVENT cycle=998226239 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=1011030591 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=1026322541 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=1026322747 kind=ticks first=997412286 last=1026258034 count=55 max_gap=8585894 gap_start=1017672140\n\nEVENT cycle=1026322747 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=1039187369 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=1051553335 kind=ticks first=1028284980 last=1051552494 count=43 max_gap=1964532 gap_start=1034176766\n\nEVENT cycle=1051553335 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\nEVENT cycle=1051991769 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=1066534279 kind=phy_read status=11 up=2 down=1\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 156 records, 12680 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=1078445514 kind=ticks first=1051927262 last=1076352988 count=22 max_gap=8585894 gap_start=1057883878\n\nEVENT cycle=1078445514 kind=command_end index=11 erases=0 programs=0 bytes=0 tx_bytes=5941\n\nEVENT cycle=1078445515 kind=command_start index=12 tx_bytes=5941\nmilan_status\nEVENT cycle=1078545697 kind=ticks first=1078544850 last=1078544850 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=1078545697 kind=write address=2364 value=1 requests=144 responses=144 errors=0\n\n\rID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded\n\rGPTP_GM=0000000000000000 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=0 AS_PATH_GEN=0 CLKV_STAT=00000001 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db\n\rTAI_NS=0x000000028332b9fc\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=1079224394 kind=command_end index=12 erases=0 programs=0 bytes=0 tx_bytes=6269\n\nPHY_TIMING transactions=481 publications=73 max_transaction_cycles=8789 max_poll_cycles=65192 down_edges=1 up_edges=1\nBACKING armed=1 unbacked_cycles=0\n== fw_service_budget: checks: 1   failures: 0 ==\nRESULT: PASS\n",
+  "input_hashes": {
+    "sw/firmware/milan_baremetal/milan_baremetal.c": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+    "sw/firmware/milan_baremetal/Makefile": "e50b8d465728756e043591140e710d7d854954bbc01aeed16a24e3699796635d",
+    "sw/litex/milan_soc.py": "394b72d68fce4477f4d2d2a28d4eb2d07162aa4187b11ffff8c0d0c117cb0d7a",
+    "sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch": "eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a",
+    "sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch": "cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8",
+    "sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch": "e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0",
+    "sw/litex/patches/0006-bios-dispatch-hook.patch": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f",
+    "configs/endstation_ax7101_1x1_tdm8.yaml": "d2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807",
+    "configs/endstation_ax7101_8x8.yaml": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e",
+    "tb/verilator/nvm_capture_cpu/firmware.py": "772ffdc689f08a3dc59889d87a72ce7559230dff739d4ebe1caf2aca3fc892c8",
+    "tb/verilator/nvm_capture_cpu/probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
+    "tb/verilator/nvm_capture_cpu/recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
+    "tb/verilator/nvm_capture_cpu/run.py": "f80afdba407f73c750cdd633419ee51977fab211dc23f7cc7bd577ea5a7a289d",
+    "tb/verilator/nvm_capture_cpu/soc.py": "9fc7aebe4e969643b75ff9d793712eb9ee04dc736278ce6e2b7f986d128534f5",
+    "tb/verilator/fw_service_budget/build.py": "2440b8c296ea247b624a3bf58787739ae72df07b826c86e0be281d1f800e697d",
+    "tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+    "tb/verilator/fw_service_budget/flash_test.cpp": "9a0ed225ee928c328d929e3e634ef11075bd9507a0ceb2bb789455a25927dc3d",
+    "tb/verilator/fw_service_budget/observe.vlt": "9936d6c81bdc5348a34322e70419a67e8d6315893856d18c83f1d2cfdb340c60",
+    "tb/verilator/fw_service_budget/phy.hpp": "8dc44be45e6efef3a704399e5511115cfa20f6e0c607468557294af2e12178f9",
+    "tb/verilator/fw_service_budget/phy.py": "16d8518d6f18d1ada142db1b029df27070435af6dc76363f285fa89c8b0cc341",
+    "tb/verilator/fw_service_budget/run.py": "6ea53924ce13352b15750e067110a3352114696f8a3e2f78eafaf33b9aa520cc",
+    "tb/verilator/fw_service_budget/sim_main.cpp": "86153ee62fa7719852e6e5b0bf1e4d533cf5cd10b1fbd457bf6ccbf0a5d0c634"
+  },
+  "build_hashes": {
+    "configs/endstation_ax7101_1x1_tdm8.yaml": "d2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807",
+    "configs/endstation_ax7101_8x8.yaml": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e",
+    "gptp-processor/hdl/common/KL_gptp_timer.sv": "0cd54f1303e521a7a83f0e6db0fdafbe2c14db2a2277ae032d333c36fd7c0e38",
+    "gptp-processor/hdl/top/KL_gptp_engine.sv": "51642d60f680a168c9f767fd74ce0157a3fda7b2feaf578b2f69456afb7077ac",
+    "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv": "fa4d9ffd04ab68f24a77aa08c7e7f3b98f0015bc97e11d7f3969bb3d79df8647",
+    "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv": "f9e43432d8d121a27b15544d8e33e3d8f85fa05432399e7b75d5e6c4125d7b35",
+    "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv": "f8ed0a2d0901391aafc96611488a91919e3f2d385b5c96d20b0799508e4d714b",
+    "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv": "f5d1dbf6acafa6197d7afd7830f920b0c324f0628738deabc5af92fbca7dbdc1",
+    "hdl/common/KL_link_guard.sv": "85c716fdbf90f92bece9c11e81d3704c4b3aaea935c50e9f9a2733208da73a53",
+    "hdl/common/axi_stream_if.sv": "f3787e00690a6182572af8817b1fe19d7b8abb7215cd51cc8ce43f9770d91c6c",
+    "hdl/common/cdc_handshake.sv": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+    "hdl/common/cdc_pair_fifo.sv": "d6c043df6e2c99e00cb5dd5a9595c459351133968229e4ad7f6246824c61c025",
+    "hdl/common/cdc_pulse.sv": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+    "hdl/common/csr/milan_csr.sv": "c41737c8a89c050e5bc8f6d94ca9130e911c8e8e9c049f00c86a1dc9638bd3b3",
+    "hdl/common/eth_event_counter/KL_mac_rmon_events.sv": "9b45703f19dd59656107ed11d619bfe1a2b6d232d160faf20f3fe5a1b0355f4b",
+    "hdl/common/eth_event_counter/ethernet_events.sv": "e7b87c05dc031981db1bd1ce012761a8c043a2598855fdbcf8e2c7d1baaa99b6",
+    "hdl/common/eth_event_counter/event_counter.sv": "564927ba2161ccf445a63ba60af214e34d2d4ec0068a80833dd80ac79f08a466",
+    "hdl/common/ethernet_packet_pkg.sv": "91c82f1696af7e46518deec7247c683cd13a8dc482fc957e3f0775549dc64713",
+    "hdl/common/tx_ifg_gasket.sv": "c2038c55d20a01b22c1e8c71a2238a0cdb430db2a53a3ea01b660a8b2c955ac8",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv": "8931009ce7d06c16ad2a39d7ce7069d9aa807b74fb035ef9b54a7672d80461c3",
+    "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv": "5aa7571a27cee85f6ae2c39cb58332886b6c7063ceda502c233af7b04306e144",
+    "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv": "2fb2ecb429b1125d368f61dd36c131302da136bfb41603346e9ac084a9441e8e",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv": "05f58ca91d7b0e4158e68c37cac79c9c65dc8a8b403df91419e150de3a9d75ca",
+    "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv": "0a885054146a04e95add3bb8bbe28aa80e7fe6c1f447ce000816f923560b05fc",
+    "hdl/ieee1722/aaf/KL_chan_map_capture.sv": "7f21dd43679fb8fdd019a8bacd6cdfd6a4bc160a1a1da9d8246062b750f9358b",
+    "hdl/ieee1722/aaf/KL_chan_map_render.sv": "d645deb04c8d5554f013a43e2de6b7a4b2e1a3538e65cde0dda725a2e392e5fe",
+    "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv": "721ce0c974668d062d5d6b099454e2218ea85be4515fb34996e4e1c11a5784e4",
+    "hdl/ieee1722/aaf/KL_i2s_playback.sv": "f79b1ff10545c2a18e6af8637ad31ff50cce0e1654f2fb06305507afc301cd11",
+    "hdl/ieee1722/aaf/KL_media_adv.sv": "65029f520cb945ba679e872c9b60580342ebb6ccfd002a31400b4aec2b68ae99",
+    "hdl/ieee1722/aaf/KL_pair_blend.sv": "7b10ab08be2722970674eb959d7b65d60f327153e60e0ca72f6d4d0181b1591a",
+    "hdl/ieee1722/aaf/KL_pair_zero_fill.sv": "3a0b8adef03b9373d66426d88cc49c0989258007020276a7ff78e03051116acd",
+    "hdl/ieee1722/aaf/KL_pcm_lpf.sv": "de148eea2d2e298cb7ead685e133eebd745ec5f7192ce41877cacde9b2cdb121",
+    "hdl/ieee1722/aaf/KL_pcm_route.sv": "696979b3075883e293825974f347fc36119515dd6c73aa65ef63a4cd347177b6",
+    "hdl/ieee1722/aaf/KL_render_setpoint.sv": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200",
+    "hdl/ieee1722/aaf/KL_tdm_capture.sv": "ec077533729fe07f60df4d7e777ce4fa74bb893d03e2a1f530908e40eb89cd60",
+    "hdl/ieee1722/aaf/KL_tdm_capture_master.sv": "b4a4b7f7487499153b64553d36e34011cfab0bdbc47cbd0c40a7ed457e821ffc",
+    "hdl/ieee1722/aaf/KL_tdm_render.sv": "2e155f55c8c0e00099c028520fe19517373bbcbbe0ad998272fdf5ab66ede46b",
+    "hdl/ieee1722/aaf/KL_tdm_render_master.sv": "abdb08d03210316872077d7a67ea9417b6860b5af12afad4a07cb21fdc24d951",
+    "hdl/ieee1722/aaf/KL_tone_gen.sv": "b8b83919ff2f92da3e9de81de80c2c8714d544b4bc1d54c8ea57baf7e1884a3b",
+    "hdl/ieee1722/aaf/aaf_talker_i2s.sv": "bf33bb22c1b9d2aa62e71b8b157a565413e6d76c60042c81935ff71e4b1b81aa",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv": "4f4372952e5d08b003cb35c588a370bc471f96a960a830e8172eb43d86c6ed05",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv": "7407649412d5cce3b80b66c46b734f2530dac4b7e6e4f4dec7c0be94791eef13",
+    "hdl/ieee1722/avtp/KL_media_clock_restart.sv": "5891b12a91ba1cd91f308c9c2394808d9aebe4bae999e5654859689d9656465f",
+    "hdl/ieee1722/avtp/KL_stream_table.sv": "cebf68fe297a46c0825b5bcb0ab7b231e881be65ebda1d6c27cbaa5b393da7cc",
+    "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv": "6b2ca279ba258c3ed6c264e6c1c02947af2e6f4997ec3c4b9dd138a02aa6280d",
+    "hdl/ieee1722/avtp/avtp_stream_parser.sv": "43d3a69b6be07d82b4082131de03525078fe4562139135fd837a1dc735ee6a58",
+    "hdl/ieee1722/avtp/avtp_subtype_pkg.sv": "6442ccd6a6ac6071b558b7d37a063e50638b976f390112ba6189351c0ae105b9",
+    "hdl/ieee1722/crf/KL_crf_rx.sv": "3cc824af3473f0f399db61466ce2e5fcfc07911eb219d48e24ed243ebcafdbb6",
+    "hdl/ieee1722/crf/KL_crf_tx.sv": "ac31366daa6c88e82eb739880834325ce5a97badce4e247489f2bbe71bfabe43",
+    "hdl/ieee1722/crf/KL_media_grid_align.sv": "f5db2d275e935a21ba8041e80318a7a0a6600a14c3e0857b43dea2031e402552",
+    "hdl/ieee1722/crf/KL_media_nco.sv": "086efa0c3dfb14f2bff0041889f4acfe2d55f4036996c02ced2d432741b7e66b",
+    "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv": "c0edc68e3b2846c9bba5f8b884fe21e6d8d4ec4a507861f48fd63c632329e6e0",
+    "hdl/ieee1722/maap/KL_maap.sv": "566b88228f6cc1c84de307e770122f37eecabdc6c49a36ea7ea56e33552e261d",
+    "hdl/ieee17221/adp/adp_tx_arbiter.sv": "3a7e171107c0f5554b5f76721ada4f972378e5c829700b16c323cfede4ec3b5f",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv": "477aa966a7119cf94148a5c92186c42a86668c80cac97a750dee14f5f0330e5f",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": "84fafe6dedec86f293f054d0aefed2b0466aa38e0e4fb12be7c042fbd4a5f259",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+    "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv": "af8dc99c4da6a0f1709fb91803474e430e283fa265750597728b58f8a9107cee",
+    "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv": "fac8feb49e61cf946a215162f4694935d75a9bc24e09240a2d44635ef1ec91cc",
+    "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv": "89813f3420f7aa4ea80aee478b25ca6a9fa562572025447fc07b1c949bda1a33",
+    "hdl/ieee8021q/filtering/rx_mac_filter.sv": "c14536e3bbe679f7979dcdae81b080ba770a5c69e442be7d8b1eb638eb52b11e",
+    "hdl/ieee8021q/filtering/tcam.sv": "2fb50884ba72fefc8f0c4be096513b49ffe71f1d4635c58eaa6cfd1d88c77e8b",
+    "hdl/milan/KL_nvm_backend.sv": "aef59437f8d28a6e81993d9b5d9ae2b59ce0ae25358e9dc6ff83e9716e1d885e",
+    "hdl/milan/KL_pp_maap_shim.sv": "965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e",
+    "hdl/milan/KL_pp_shadow.sv": "ced693631aedcc41952c970304b9dbfef0dc105a086378d3a26978046be21346",
+    "hdl/milan/milan_datapath.sv": "90989c3c30c376570cc1c2cd102ae4c647d123fb814dbc19dc513085a27d611a",
+    "protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv": "f786e54416293edb10e55ce07e39f8e884d40bbe00a682f878bffff1040179b7",
+    "protocol-processor/hdl/acmp/KL_acmp_talker.sv": "f29b9ce8860058f405c196a41db728a382812a0a7ef55e012ea654f916d28369",
+    "protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv": "5394089126ea62d13f24ad73d6b2ae278b6f5cd32ac8c9d310e507e286189f9d",
+    "protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv": "af9ea8ab5bf36ee186ff7882551fb57304bcfd3643f3c24537a0d29e7919d905",
+    "protocol-processor/hdl/acmp/pp_acmp_pkg.sv": "b504951db8c81134ef54030e37879431f84ea8005e38c46479c8f66dcc4bbb85",
+    "protocol-processor/hdl/adp/KL_adp_engine.sv": "0d4226c5ec674799c205d49078fccacc531fdf394f5b4f935b181d8b5d4bc991",
+    "protocol-processor/hdl/adp/pp_adp_pkg.sv": "5e396186e1b2495c73fe3d4d09fcdc388b7ce24048cb60f80b4c74da390f2ed2",
+    "protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv": "524570696cdf2c8c6874e8b015d3e8624fc17a77ebf4a86ae848feceb7129131",
+    "protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv": "781223168d76c57342a761b278962ef10c818cdb1b48ea8c26f4977582934098",
+    "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv": "8c02b10cc5e365541bd19db41600e0142744024ffd379e7c8de411a3bf95ca3b",
+    "protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv": "35c138e1d0084eb38352e04895d9a42ac81b7a473d65ba1ad3ba0ec73ccc0266",
+    "protocol-processor/hdl/aecp/KL_aecp_engine.sv": "a177d4295f9980c132c92184fdc04bc6e287cc4296bebcca6194f26c2daf83dd",
+    "protocol-processor/hdl/aecp/KL_aecp_notify.sv": "10ac645beb27c2b46579e8922a608e7b9ee282486166c1a827d329e4d54845f3",
+    "protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv": "2501f08134fe9cfe7f13742f699d3cbc2d00d57bba129fac9d2c85ba630e6a27",
+    "protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv": "c2321d3eeee0934d84cc470b4cc7b10dca5495000ae7c23f0f04243a9badc04e",
+    "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv": "6eb9f0a537d747685fbd2ac36d6cee6566f8cbf7725c4853435cfe74925fac62",
+    "protocol-processor/hdl/aecp/ucpu_pkg.sv": "cb8b925f1d5332f9ac90f09c73b18e401a7428f6e66119a53c7850537280f01d",
+    "protocol-processor/hdl/common/KL_pp_prng.sv": "e44e469b9c3dfac811b7e17b08092b974941946df8308485e3f75d11a61015fd",
+    "protocol-processor/hdl/common/KL_pp_timer_service.sv": "8214f9db0dea43942eca9cb057bd80c993c9eaad0ab65124e58fb05578f5d69c",
+    "protocol-processor/hdl/common/pp_pkg.sv": "2ffdc53a71bc0ec45a15eeb9625a9a2a05ef9f17f9dd3fcd530a14eaea41ba9a",
+    "protocol-processor/hdl/maap/KL_pp_maap.sv": "4611c8bf8f25a07d31dc622537b886c294d975ca1f8b2c9e2e762c6bc77a2d68",
+    "protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv": "da2322019be49129a6ea088933e650ef377a80ddd578a4dd741d0533f3f858a4",
+    "protocol-processor/hdl/packet_engine/KL_pp_event_router.sv": "ca47734f0a12f524fab9386362ae4f0edf4008097bd72fda04ae6e4ed8d979b4",
+    "protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv": "b3e36db689572c27f2d4d343fa804dfb3fa835e3db0eaa488679cc9eb386bd32",
+    "protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv": "4cf0fbf4bd7b6dcafa0530a19e82ce93bcf06168232be2aa1f83198cd7a1e837",
+    "protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv": "13ae12b2b7288753bda4447fd2f73d743a1400f6dcb7291523cdb9741e9ba8e2",
+    "protocol-processor/hdl/packet_engine/KL_pp_originator.sv": "3037627e73f92001a83c83f692b0a2ae34d0bcdafd19ed83a4fb66ec9cb8b114",
+    "protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv": "146b5f7cd13aaddc2ff1035f7c8e26c324e30a0a6500050ed4142d44322f0832",
+    "protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv": "6d7418e4ddf91a0c519a0ee4f4013ef18e2985459d99ab57c302a173205d756f",
+    "protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv": "50f9b21f92bf83fc311a6831a1c65802416b9913372c6269a6f451f75bd1ed2f",
+    "protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv": "1f74700603bbd2d512f66e8b115bc59417db4fbc3ceb32787807df282aaf8588",
+    "protocol-processor/hdl/packet_engine/KL_pp_side_port.sv": "ebe824f1e2780a1fecc66bd6e1f3bbe95c3c997f0a1b7ec3be96ffd15ca2a31d",
+    "protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv": "0af244999fae86465701024c3824e7f2174b7b150e9b356562ec11f34451433c",
+    "protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv": "3a73fac524bee3ee335aae4cdc3ef6e7911a38d25cdca137dbb774f24217f922",
+    "protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv": "66ee2a24465d0141ccd560f8bd099e09c4d0e2a0d415d43a776c81721dc90134",
+    "protocol-processor/hdl/srp/KL_srp_admission.sv": "0fa5cd77e6c4afc6ca9315d0f38f4edf68d87819b3a5dc3bbc776e5d812363d5",
+    "protocol-processor/hdl/srp/KL_srp_decoder.sv": "255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0",
+    "protocol-processor/hdl/srp/KL_srp_domain.sv": "db2ab8a2f5bee7dd69b54e42fc3f05cfee07bfe6df76788b8e1e5c5e3f1b03bb",
+    "protocol-processor/hdl/srp/KL_srp_encoder.sv": "2bcb712c0089bc2d951c3a5fcaa12a11758c498277c74677d24f0a5c05614b99",
+    "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv": "39669fedf972e7996a623e785fd28a56447194840df05e48418ad1a817af54a1",
+    "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv": "94de9b29decfb600c1187db0d4387e7e82b6ae98d9a19fc62758d4c098bd7b9e",
+    "protocol-processor/hdl/srp/KL_srp_top.sv": "52c3d0d177e454d7bbbf565fc2d67c49b70c9dcc7c6f63f982785226988dedad",
+    "protocol-processor/hdl/srp/KL_srp_vlan.sv": "ff8d2c81a994c7dafc4174d558f70ebfd69675447136b49d8e314762542253b9",
+    "protocol-processor/hdl/srp/srp_pkg.sv": "d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192",
+    "protocol-processor/hdl/top/KL_mrp_strip.sv": "0a238b74de2f1621afffeb10b631f6d9433380e0c0fa507fcf4233291f5828cb",
+    "protocol-processor/hdl/top/protocol_processor_top.sv": "4fe67d016d163973fa7d593ceccf753377dd04a7c575ef74ff5e726a7f716925",
+    "sw/firmware/milan_baremetal/Makefile": "e50b8d465728756e043591140e710d7d854954bbc01aeed16a24e3699796635d",
+    "sw/firmware/milan_baremetal/milan_baremetal.c": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+    "sw/litex/milan_soc.py": "394b72d68fce4477f4d2d2a28d4eb2d07162aa4187b11ffff8c0d0c117cb0d7a",
+    "sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch": "eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a",
+    "sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch": "cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8",
+    "sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch": "e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0",
+    "sw/litex/patches/0006-bios-dispatch-hook.patch": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f",
+    "tb/verilator/fw_service_budget/build.py": "2440b8c296ea247b624a3bf58787739ae72df07b826c86e0be281d1f800e697d",
+    "tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+    "tb/verilator/fw_service_budget/observe.vlt": "9936d6c81bdc5348a34322e70419a67e8d6315893856d18c83f1d2cfdb340c60",
+    "tb/verilator/fw_service_budget/phy.hpp": "8dc44be45e6efef3a704399e5511115cfa20f6e0c607468557294af2e12178f9",
+    "tb/verilator/fw_service_budget/phy.py": "16d8518d6f18d1ada142db1b029df27070435af6dc76363f285fa89c8b0cc341",
+    "tb/verilator/fw_service_budget/sim_main.cpp": "86153ee62fa7719852e6e5b0bf1e4d533cf5cd10b1fbd457bf6ccbf0a5d0c634",
+    "tb/verilator/nvm_capture_cpu/firmware.py": "772ffdc689f08a3dc59889d87a72ce7559230dff739d4ebe1caf2aca3fc892c8",
+    "tb/verilator/nvm_capture_cpu/probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
+    "tb/verilator/nvm_capture_cpu/recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
+    "tb/verilator/nvm_capture_cpu/run.py": "f80afdba407f73c750cdd633419ee51977fab211dc23f7cc7bd577ea5a7a289d",
+    "tb/verilator/nvm_capture_cpu/soc.py": "9fc7aebe4e969643b75ff9d793712eb9ee04dc736278ce6e2b7f986d128534f5",
+    "third_party/verilog-axis/rtl/arbiter.v": "d54d337db4812f927b2e9b5788dfa39f9bd578ad01b7846c5fa7f2610b0923fa",
+    "third_party/verilog-axis/rtl/axis_arb_mux.v": "bee8d11f32f7fb1c5afdd6cdad872cd7de9dc94bcb4787f9aa119f2ebbc489a6",
+    "third_party/verilog-axis/rtl/axis_fifo.v": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39",
+    "third_party/verilog-axis/rtl/priority_encoder.v": "df28220d95b47df349a72803a9751aad331eb8e1435416e8686d00572a974dd5",
+    "build/aem_desc.bin": "193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4",
+    "build/gateware/sim.v": "ca0607d4c96136d53c4498a3678c1b720a0db4df95226bdaf41d7862e71bfc9e",
+    "build/gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+    "build/gateware/sim_rom.init": "97ecc4927538b06dd6078fb01c692d1e1b57826d2ec29d265117fd5289c1ba0b",
+    "build/gateware/sim_sram.init": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/generated/endstation_ax7101_8x8/adp_shape_defaults.svh": "85939da9c5718d5aacd63ba6be04279e93ad06db16e0f55f2d2f58b7d5926a00",
+    "build/generated/endstation_ax7101_8x8/aecp_aem_rom.svh": "9f6963190256809964376e8747ebc3465d4b4831df01ec3d91c7e8892e46d755",
+    "build/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh": "85939da9c5718d5aacd63ba6be04279e93ad06db16e0f55f2d2f58b7d5926a00",
+    "build/generated/endstation_ax7101_8x8/lwsrp_csr_defaults.svh": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4",
+    "build/generated/endstation_ax7101_8x8/lwsrp_table.svh": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e",
+    "build/native/Vsim": "da9d9b9f99567cfa45fc330d7103259c8e8e81740b1d674907d8a593c4a07b67",
+    "build/retirement.hpp": "184ade8028a5957b96eab77dff31a43139853e326dffa1100303c3a0055ef5d8",
+    "build/software/bios/bios.bin": "69bbec40f7c8b1dd14be658ee545ba0edd5bda30e7c4e927b5b25f6e963c722a",
+    "build/software/bios/bios.elf": "feaf4e89ff034799f7289530c1ac48ad1ca6eada376e26a4733c7f36ae520908",
+    "build/software/include/generated/csr.h": "221dbb3bacf96bb5221220e557fad6c22402fa5904c4312275a06c05ce833eb4",
+    "build/software/include/generated/git.h": "d4b11ce9958aa8088417dd1a93a1cd13bd98fa239bd24dba7afe5514486d0b31",
+    "build/software/include/generated/mem.h": "0cba1b4bab418cd0ba9b276182084d04876589f87506fe2cfda4418a63e49032",
+    "build/software/include/generated/sdram_phy.h": "f1607e3281bf86b9236ace9594333c9b5c4fa751481d812aa946aa06aebe0d73",
+    "build/software/include/generated/soc.h": "e778d6eadea4b664217842e3905ce31e64181f6682b312616652b18e6f39ce31",
+    "external/Ram_1w_1ra_Generic.v": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+    "external/Ram_1w_1rs_Generic.v": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+    "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d"
+  },
+  "log_sha256": "44c9a80dabcebe00b98d06ee64459c36b9be0354aac06e18b24aa647156261a7",
+  "rows": [
+    {
+      "duty": "boot_to_entity_enabled",
+      "start_sys_cycle": 64,
+      "end_sys_cycle": 104914647,
+      "sys_cycles": 104914583,
+      "cpu_cycles": 52457292,
+      "ms": 1049.14583,
+      "device_wait_ms": 0.0,
+      "service_ms": 1049.14583,
+      "budget_ms": 20000,
+      "margin_ms": 18950.85417,
+      "tick_calls": 45,
+      "no_tick_sys_cycles": 104472780,
+      "no_tick_ms": 1044.7278,
+      "no_tick_start": 64,
+      "no_tick_end": 104472844,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 1294.7278,
+      "period_bound_margin_ms": -794.7277999999999,
+      "liveness_bound_margin_ms": 705.2722000000001
+    },
+    {
+      "duty": "aem_copy_crc",
+      "start_sys_cycle": 2937357,
+      "end_sys_cycle": 104914647,
+      "sys_cycles": 101977290,
+      "cpu_cycles": 50988645,
+      "ms": 1019.7729,
+      "device_wait_ms": 0.0,
+      "service_ms": 1019.7729,
+      "budget_ms": null,
+      "margin_ms": null,
+      "tick_calls": 45,
+      "no_tick_sys_cycles": 101535487,
+      "no_tick_ms": 1015.35487,
+      "no_tick_start": 2937357,
+      "no_tick_end": 104472844,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 1265.3548700000001,
+      "period_bound_margin_ms": -765.3548700000001,
+      "liveness_bound_margin_ms": 734.6451299999999,
+      "armed_start_sys_cycle": 104472844,
+      "armed_no_tick_ms": 3.16441,
+      "armed_period_bound_ms": 253.16441,
+      "phy_publication_bound_ms": 4.607340000000004
+    },
+    {
+      "duty": "restore_walk",
+      "start_sys_cycle": 104472683,
+      "end_sys_cycle": 104599655,
+      "sys_cycles": 126972,
+      "cpu_cycles": 63486,
+      "ms": 1.26972,
+      "device_wait_ms": 0.0,
+      "service_ms": 1.26972,
+      "budget_ms": 3000,
+      "margin_ms": 2998.73028,
+      "tick_calls": 45,
+      "no_tick_sys_cycles": 66036,
+      "no_tick_ms": 0.66036,
+      "no_tick_start": 104472844,
+      "no_tick_end": 104538880,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 250.66036,
+      "period_bound_margin_ms": 249.33964,
+      "liveness_bound_margin_ms": 1749.33964,
+      "armed_start_sys_cycle": 104472844,
+      "armed_no_tick_ms": 0.66036,
+      "armed_period_bound_ms": 250.66036,
+      "phy_publication_bound_ms": 2.103289999999997
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 105066975,
+      "end_sys_cycle": 185995276,
+      "sys_cycles": 80928301,
+      "cpu_cycles": 40464151,
+      "ms": 809.28301,
+      "device_wait_ms": 0.0,
+      "service_ms": 809.28301,
+      "budget_ms": 500,
+      "margin_ms": -309.28301,
+      "command_index": 0,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 125349048,
+      "no_tick_end": 133934942,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 185995277,
+      "end_sys_cycle": 267069266,
+      "sys_cycles": 81073989,
+      "cpu_cycles": 40536995,
+      "ms": 810.73989,
+      "device_wait_ms": 0.0,
+      "service_ms": 810.73989,
+      "budget_ms": 500,
+      "margin_ms": -310.73988999999995,
+      "command_index": 1,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 206332196,
+      "no_tick_end": 214918090,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 267069267,
+      "end_sys_cycle": 348206814,
+      "sys_cycles": 81137547,
+      "cpu_cycles": 40568774,
+      "ms": 811.37547,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37547,
+      "budget_ms": 500,
+      "margin_ms": -311.37546999999995,
+      "command_index": 2,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 287433440,
+      "no_tick_end": 296019334,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 348206815,
+      "end_sys_cycle": 429344362,
+      "sys_cycles": 81137547,
+      "cpu_cycles": 40568774,
+      "ms": 811.37547,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37547,
+      "budget_ms": 500,
+      "margin_ms": -311.37546999999995,
+      "command_index": 3,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 368570988,
+      "no_tick_end": 377156882,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 429344363,
+      "end_sys_cycle": 510482552,
+      "sys_cycles": 81138189,
+      "cpu_cycles": 40569095,
+      "ms": 811.38189,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.38189,
+      "budget_ms": 500,
+      "margin_ms": -311.38189,
+      "command_index": 4,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585904,
+      "no_tick_ms": 85.85904,
+      "no_tick_start": 449709148,
+      "no_tick_end": 458295052,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06390111111114,
+      "period_bound_margin_ms": 131.93609888888886,
+      "liveness_bound_margin_ms": 1631.9360988888889,
+      "phy_publication_bound_ms": 244.50683111111113
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 510482553,
+      "end_sys_cycle": 591620104,
+      "sys_cycles": 81137551,
+      "cpu_cycles": 40568776,
+      "ms": 811.37551,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37551,
+      "budget_ms": 500,
+      "margin_ms": -311.37550999999996,
+      "command_index": 5,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 530846730,
+      "no_tick_end": 539432624,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 591620105,
+      "end_sys_cycle": 672757656,
+      "sys_cycles": 81137551,
+      "cpu_cycles": 40568776,
+      "ms": 811.37551,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37551,
+      "budget_ms": 500,
+      "margin_ms": -311.37550999999996,
+      "command_index": 6,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 611984282,
+      "no_tick_end": 620570176,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 672757657,
+      "end_sys_cycle": 753895208,
+      "sys_cycles": 81137551,
+      "cpu_cycles": 40568776,
+      "ms": 811.37551,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37551,
+      "budget_ms": 500,
+      "margin_ms": -311.37550999999996,
+      "command_index": 7,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 693121834,
+      "no_tick_end": 701707728,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 753895209,
+      "end_sys_cycle": 835032760,
+      "sys_cycles": 81137551,
+      "cpu_cycles": 40568776,
+      "ms": 811.37551,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37551,
+      "budget_ms": 500,
+      "margin_ms": -311.37550999999996,
+      "command_index": 8,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 774259386,
+      "no_tick_end": 782845280,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 835032761,
+      "end_sys_cycle": 916170410,
+      "sys_cycles": 81137649,
+      "cpu_cycles": 40568825,
+      "ms": 811.37649,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37649,
+      "budget_ms": 500,
+      "margin_ms": -311.37649,
+      "command_index": 9,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 855397000,
+      "no_tick_end": 863982894,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 916170411,
+      "end_sys_cycle": 997307962,
+      "sys_cycles": 81137551,
+      "cpu_cycles": 40568776,
+      "ms": 811.37551,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37551,
+      "budget_ms": 500,
+      "margin_ms": -311.37550999999996,
+      "command_index": 10,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 936534588,
+      "no_tick_end": 945120482,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 997307963,
+      "end_sys_cycle": 1078445514,
+      "sys_cycles": 81137551,
+      "cpu_cycles": 40568776,
+      "ms": 811.37551,
+      "device_wait_ms": 0.0,
+      "service_ms": 811.37551,
+      "budget_ms": 500,
+      "margin_ms": -311.37550999999996,
+      "command_index": 11,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 121,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 1017672140,
+      "no_tick_end": 1026258034,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.06380111111116,
+      "period_bound_margin_ms": 131.93619888888884,
+      "liveness_bound_margin_ms": 1631.9361988888888,
+      "phy_publication_bound_ms": 244.50673111111115
+    },
+    {
+      "duty": "milan_status",
+      "start_sys_cycle": 1078445515,
+      "end_sys_cycle": 1079224394,
+      "sys_cycles": 778879,
+      "cpu_cycles": 389440,
+      "ms": 7.78879,
+      "device_wait_ms": 0.0,
+      "service_ms": 7.78879,
+      "budget_ms": 500,
+      "margin_ms": 492.21121,
+      "command_index": 12,
+      "uart_bytes": 341,
+      "uart_115200_ms": 29.600694444444443,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 679544,
+      "no_tick_ms": 6.79544,
+      "no_tick_start": 1078544850,
+      "no_tick_end": 1079224394,
+      "uart_tx_allowance_ms": 28.47222222222222,
+      "period_bound_ms": 285.2676622222222,
+      "period_bound_margin_ms": 214.7323377777778,
+      "liveness_bound_margin_ms": 1714.7323377777777,
+      "phy_publication_bound_ms": 161.7105922222222
+    },
+    {
+      "duty": "maximum_heartbeat_gap",
+      "start_sys_cycle": 104538297,
+      "end_sys_cycle": 133981503,
+      "sys_cycles": 29443206,
+      "cpu_cycles": 14721603,
+      "ms": 294.43206,
+      "device_wait_ms": 0.0,
+      "service_ms": 294.43206,
+      "budget_ms": 500,
+      "margin_ms": 205.56794000000002,
+      "plan": "queued-input",
+      "tick_calls": 100,
+      "no_tick_sys_cycles": 8585894,
+      "no_tick_ms": 85.85894,
+      "no_tick_start": 125349048,
+      "no_tick_end": 133934942,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 335.85894,
+      "period_bound_margin_ms": 164.14105999999998,
+      "liveness_bound_margin_ms": 1664.14106
+    }
+  ],
+  "events": [
+    {
+      "cycle": 2936533,
+      "kind": "write",
+      "address": 2336,
+      "value": 0,
+      "requests": 0,
+      "responses": 0,
+      "errors": 0
+    },
+    {
+      "cycle": 2937357,
+      "kind": "aem_read"
+    },
+    {
+      "cycle": 104471409,
+      "kind": "write",
+      "address": 2364,
+      "value": 64,
+      "requests": 0,
+      "responses": 0,
+      "errors": 0
+    },
+    {
+      "cycle": 104472683,
+      "kind": "write",
+      "address": 2336,
+      "value": 2,
+      "requests": 0,
+      "responses": 0,
+      "errors": 0
+    },
+    {
+      "cycle": 104538153,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 1,
+      "down": 0
+    },
+    {
+      "cycle": 104538297,
+      "kind": "ticks",
+      "first": 104472844,
+      "last": 104472844,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 104538297,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 32,
+      "responses": 32,
+      "errors": 0
+    },
+    {
+      "cycle": 104599655,
+      "kind": "ticks",
+      "first": 104538880,
+      "last": 104598206,
+      "count": 44,
+      "max_gap": 1404,
+      "gap_start": 104571956
+    },
+    {
+      "cycle": 104599655,
+      "kind": "write",
+      "address": 2336,
+      "value": 0,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 104914647,
+      "kind": "write",
+      "address": 2336,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 105066974,
+      "kind": "boot_prompt"
+    },
+    {
+      "cycle": 105066975,
+      "kind": "command_start",
+      "index": 0,
+      "tx_bytes": 1489
+    },
+    {
+      "cycle": 117208621,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 1,
+      "down": 0
+    },
+    {
+      "cycle": 133981299,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 1,
+      "down": 0
+    },
+    {
+      "cycle": 133981503,
+      "kind": "ticks",
+      "first": 105145998,
+      "last": 133934942,
+      "count": 56,
+      "max_gap": 8585894,
+      "gap_start": 125349048
+    },
+    {
+      "cycle": 133981503,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 146827975,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 1,
+      "down": 0
+    },
+    {
+      "cycle": 159193939,
+      "kind": "ticks",
+      "first": 135943736,
+      "last": 159193098,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 141835522
+    },
+    {
+      "cycle": 159193939,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 159577787,
+      "kind": "phy_read",
+      "status": 0,
+      "up": 1,
+      "down": 1
+    },
+    {
+      "cycle": 159586963,
+      "kind": "phy_read",
+      "status": 0,
+      "up": 1,
+      "down": 1
+    },
+    {
+      "cycle": 174084041,
+      "kind": "phy_read",
+      "status": 0,
+      "up": 1,
+      "down": 1
+    },
+    {
+      "cycle": 185995276,
+      "kind": "ticks",
+      "first": 159567866,
+      "last": 183902750,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 165479072
+    },
+    {
+      "cycle": 185995276,
+      "kind": "command_end",
+      "index": 0,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 1860
+    },
+    {
+      "cycle": 185995277,
+      "kind": "command_start",
+      "index": 1,
+      "tx_bytes": 1860
+    },
+    {
+      "cycle": 186075175,
+      "kind": "ticks",
+      "first": 186074328,
+      "last": 186074328,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 186075175,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 186904449,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 199690649,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 214964447,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 214964651,
+      "kind": "ticks",
+      "first": 186099596,
+      "last": 214918090,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 206332196
+    },
+    {
+      "cycle": 214964651,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 227811123,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 240177087,
+      "kind": "ticks",
+      "first": 216926884,
+      "last": 240176246,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 222818670
+    },
+    {
+      "cycle": 240177087,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 240615521,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 255158031,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 267069266,
+      "kind": "ticks",
+      "first": 240551014,
+      "last": 264976740,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 246507630
+    },
+    {
+      "cycle": 267069266,
+      "kind": "command_end",
+      "index": 1,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 2231
+    },
+    {
+      "cycle": 267069267,
+      "kind": "command_start",
+      "index": 2,
+      "tx_bytes": 2231
+    },
+    {
+      "cycle": 267149165,
+      "kind": "ticks",
+      "first": 267148318,
+      "last": 267148318,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 267149165,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 267987539,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 280791891,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 296083841,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 296084047,
+      "kind": "ticks",
+      "first": 267173586,
+      "last": 296019334,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 287433440
+    },
+    {
+      "cycle": 296084047,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 308948669,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 321314635,
+      "kind": "ticks",
+      "first": 298046280,
+      "last": 321313794,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 303938066
+    },
+    {
+      "cycle": 321314635,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 321753069,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 336295579,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 348206814,
+      "kind": "ticks",
+      "first": 321688562,
+      "last": 346114288,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 327645178
+    },
+    {
+      "cycle": 348206814,
+      "kind": "command_end",
+      "index": 2,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 2602
+    },
+    {
+      "cycle": 348206815,
+      "kind": "command_start",
+      "index": 3,
+      "tx_bytes": 2602
+    },
+    {
+      "cycle": 348286713,
+      "kind": "ticks",
+      "first": 348285866,
+      "last": 348285866,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 348286713,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 349125087,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 361929439,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 377221389,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 377221595,
+      "kind": "ticks",
+      "first": 348311134,
+      "last": 377156882,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 368570988
+    },
+    {
+      "cycle": 377221595,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 390086217,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 402452183,
+      "kind": "ticks",
+      "first": 379183828,
+      "last": 402451342,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 385075614
+    },
+    {
+      "cycle": 402452183,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 402890617,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 417433127,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 429344362,
+      "kind": "ticks",
+      "first": 402826110,
+      "last": 427251836,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 408782726
+    },
+    {
+      "cycle": 429344362,
+      "kind": "command_end",
+      "index": 3,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 2973
+    },
+    {
+      "cycle": 429344363,
+      "kind": "command_start",
+      "index": 4,
+      "tx_bytes": 2973
+    },
+    {
+      "cycle": 429424327,
+      "kind": "ticks",
+      "first": 429423480,
+      "last": 429423480,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 429424327,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 430262737,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 443067429,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 458359559,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 458359785,
+      "kind": "ticks",
+      "first": 429448748,
+      "last": 458295052,
+      "count": 55,
+      "max_gap": 8585904,
+      "gap_start": 449709148
+    },
+    {
+      "cycle": 458359785,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 471224407,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 483590373,
+      "kind": "ticks",
+      "first": 460322018,
+      "last": 483589532,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 466213804
+    },
+    {
+      "cycle": 483590373,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 484028807,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 498571317,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 510482552,
+      "kind": "ticks",
+      "first": 483964300,
+      "last": 508390026,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 489920916
+    },
+    {
+      "cycle": 510482552,
+      "kind": "command_end",
+      "index": 4,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 3344
+    },
+    {
+      "cycle": 510482553,
+      "kind": "command_start",
+      "index": 5,
+      "tx_bytes": 3344
+    },
+    {
+      "cycle": 510562455,
+      "kind": "ticks",
+      "first": 510561608,
+      "last": 510561608,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 510562455,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 511400829,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 524205181,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 539497131,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 539497337,
+      "kind": "ticks",
+      "first": 510586876,
+      "last": 539432624,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 530846730
+    },
+    {
+      "cycle": 539497337,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 552361959,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 564727925,
+      "kind": "ticks",
+      "first": 541459570,
+      "last": 564727084,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 547351356
+    },
+    {
+      "cycle": 564727925,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 565166359,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 579708869,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 591620104,
+      "kind": "ticks",
+      "first": 565101852,
+      "last": 589527578,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 571058468
+    },
+    {
+      "cycle": 591620104,
+      "kind": "command_end",
+      "index": 5,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 3715
+    },
+    {
+      "cycle": 591620105,
+      "kind": "command_start",
+      "index": 6,
+      "tx_bytes": 3715
+    },
+    {
+      "cycle": 591700007,
+      "kind": "ticks",
+      "first": 591699160,
+      "last": 591699160,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 591700007,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 592538381,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 605342733,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 620634683,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 620634889,
+      "kind": "ticks",
+      "first": 591724428,
+      "last": 620570176,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 611984282
+    },
+    {
+      "cycle": 620634889,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 633499511,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 645865477,
+      "kind": "ticks",
+      "first": 622597122,
+      "last": 645864636,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 628488908
+    },
+    {
+      "cycle": 645865477,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 646303911,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 660846421,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 672757656,
+      "kind": "ticks",
+      "first": 646239404,
+      "last": 670665130,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 652196020
+    },
+    {
+      "cycle": 672757656,
+      "kind": "command_end",
+      "index": 6,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 4086
+    },
+    {
+      "cycle": 672757657,
+      "kind": "command_start",
+      "index": 7,
+      "tx_bytes": 4086
+    },
+    {
+      "cycle": 672837559,
+      "kind": "ticks",
+      "first": 672836712,
+      "last": 672836712,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 672837559,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 673675933,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 686480285,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 701772235,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 701772441,
+      "kind": "ticks",
+      "first": 672861980,
+      "last": 701707728,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 693121834
+    },
+    {
+      "cycle": 701772441,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 714637063,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 727003029,
+      "kind": "ticks",
+      "first": 703734674,
+      "last": 727002188,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 709626460
+    },
+    {
+      "cycle": 727003029,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 727441463,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 741983973,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 753895208,
+      "kind": "ticks",
+      "first": 727376956,
+      "last": 751802682,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 733333572
+    },
+    {
+      "cycle": 753895208,
+      "kind": "command_end",
+      "index": 7,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 4457
+    },
+    {
+      "cycle": 753895209,
+      "kind": "command_start",
+      "index": 8,
+      "tx_bytes": 4457
+    },
+    {
+      "cycle": 753975111,
+      "kind": "ticks",
+      "first": 753974264,
+      "last": 753974264,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 753975111,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 754813485,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 767617837,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 782909787,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 782909993,
+      "kind": "ticks",
+      "first": 753999532,
+      "last": 782845280,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 774259386
+    },
+    {
+      "cycle": 782909993,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 795774615,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 808140581,
+      "kind": "ticks",
+      "first": 784872226,
+      "last": 808139740,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 790764012
+    },
+    {
+      "cycle": 808140581,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 808579015,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 823121525,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 835032760,
+      "kind": "ticks",
+      "first": 808514508,
+      "last": 832940234,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 814471124
+    },
+    {
+      "cycle": 835032760,
+      "kind": "command_end",
+      "index": 8,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 4828
+    },
+    {
+      "cycle": 835032761,
+      "kind": "command_start",
+      "index": 9,
+      "tx_bytes": 4828
+    },
+    {
+      "cycle": 835112725,
+      "kind": "ticks",
+      "first": 835111878,
+      "last": 835111878,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 835112725,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 835951099,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 848755451,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 864047417,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 864047643,
+      "kind": "ticks",
+      "first": 835137146,
+      "last": 863982894,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 855397000
+    },
+    {
+      "cycle": 864047643,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 876912265,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 889278231,
+      "kind": "ticks",
+      "first": 866009876,
+      "last": 889277390,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 871901662
+    },
+    {
+      "cycle": 889278231,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 889716665,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 904259175,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 916170410,
+      "kind": "ticks",
+      "first": 889652158,
+      "last": 914077884,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 895608774
+    },
+    {
+      "cycle": 916170410,
+      "kind": "command_end",
+      "index": 9,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 5199
+    },
+    {
+      "cycle": 916170411,
+      "kind": "command_start",
+      "index": 10,
+      "tx_bytes": 5199
+    },
+    {
+      "cycle": 916250313,
+      "kind": "ticks",
+      "first": 916249466,
+      "last": 916249466,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 916250313,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 917088687,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 929893039,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 945184989,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 945185195,
+      "kind": "ticks",
+      "first": 916274734,
+      "last": 945120482,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 936534588
+    },
+    {
+      "cycle": 945185195,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 958049817,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 970415783,
+      "kind": "ticks",
+      "first": 947147428,
+      "last": 970414942,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 953039214
+    },
+    {
+      "cycle": 970415783,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 970854217,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 985396727,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 997307962,
+      "kind": "ticks",
+      "first": 970789710,
+      "last": 995215436,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 976746326
+    },
+    {
+      "cycle": 997307962,
+      "kind": "command_end",
+      "index": 10,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 5570
+    },
+    {
+      "cycle": 997307963,
+      "kind": "command_start",
+      "index": 11,
+      "tx_bytes": 5570
+    },
+    {
+      "cycle": 997387865,
+      "kind": "ticks",
+      "first": 997387018,
+      "last": 997387018,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 997387865,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 998226239,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 1011030591,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 1026322541,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 1026322747,
+      "kind": "ticks",
+      "first": 997412286,
+      "last": 1026258034,
+      "count": 55,
+      "max_gap": 8585894,
+      "gap_start": 1017672140
+    },
+    {
+      "cycle": 1026322747,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 1039187369,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 1051553335,
+      "kind": "ticks",
+      "first": 1028284980,
+      "last": 1051552494,
+      "count": 43,
+      "max_gap": 1964532,
+      "gap_start": 1034176766
+    },
+    {
+      "cycle": 1051553335,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 1051991769,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 1066534279,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 1078445514,
+      "kind": "ticks",
+      "first": 1051927262,
+      "last": 1076352988,
+      "count": 22,
+      "max_gap": 8585894,
+      "gap_start": 1057883878
+    },
+    {
+      "cycle": 1078445514,
+      "kind": "command_end",
+      "index": 11,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 5941
+    },
+    {
+      "cycle": 1078445515,
+      "kind": "command_start",
+      "index": 12,
+      "tx_bytes": 5941
+    },
+    {
+      "cycle": 1078545697,
+      "kind": "ticks",
+      "first": 1078544850,
+      "last": 1078544850,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 1078545697,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 144,
+      "responses": 144,
+      "errors": 0
+    },
+    {
+      "cycle": 1079224394,
+      "kind": "command_end",
+      "index": 12,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 6269
+    }
+  ],
+  "heartbeat_max_gap_ms": 294.43206,
+  "heartbeat_500ms_met": true,
+  "budget_findings": [
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm"
+  ],
+  "heartbeat": {
+    "plan": "queued-input",
+    "start_sys_cycle": 104538297,
+    "end_sys_cycle": 133981503,
+    "right_censored": false,
+    "period_margin_ms": 205.56794000000002,
+    "liveness_margin_ms": 1705.56794
+  },
+  "liveness": [
+    {
+      "command_index": 0,
+      "backed": 1,
+      "sampled_by_sys_cycle": 185995276
+    },
+    {
+      "command_index": 1,
+      "backed": 1,
+      "sampled_by_sys_cycle": 267069266
+    },
+    {
+      "command_index": 2,
+      "backed": 1,
+      "sampled_by_sys_cycle": 348206814
+    },
+    {
+      "command_index": 3,
+      "backed": 1,
+      "sampled_by_sys_cycle": 429344362
+    },
+    {
+      "command_index": 4,
+      "backed": 1,
+      "sampled_by_sys_cycle": 510482552
+    },
+    {
+      "command_index": 5,
+      "backed": 1,
+      "sampled_by_sys_cycle": 591620104
+    },
+    {
+      "command_index": 6,
+      "backed": 1,
+      "sampled_by_sys_cycle": 672757656
+    },
+    {
+      "command_index": 7,
+      "backed": 1,
+      "sampled_by_sys_cycle": 753895208
+    },
+    {
+      "command_index": 8,
+      "backed": 1,
+      "sampled_by_sys_cycle": 835032760
+    },
+    {
+      "command_index": 9,
+      "backed": 1,
+      "sampled_by_sys_cycle": 916170410
+    },
+    {
+      "command_index": 10,
+      "backed": 1,
+      "sampled_by_sys_cycle": 997307962
+    },
+    {
+      "command_index": 11,
+      "backed": 1,
+      "sampled_by_sys_cycle": 1078445514
+    },
+    {
+      "command_index": 12,
+      "backed": 1,
+      "sampled_by_sys_cycle": 1079224394
+    }
+  ],
+  "phy": {
+    "transactions": 481,
+    "publications": 73,
+    "max_transaction_sys_cycles": 8789,
+    "max_poll_sys_cycles": 65192,
+    "down_edges": 1,
+    "up_edges": 1,
+    "scheduling_charge_sys_cycles": 144293
+  },
+  "service_findings": []
+}

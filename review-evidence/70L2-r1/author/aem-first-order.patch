@@ -1,0 +1,54 @@
+diff -ru a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+--- a/docs/integration/BAREMETAL_FIRMWARE.md	2026-09-29 13:53:56.568489873 +0200
++++ b/docs/integration/BAREMETAL_FIRMWARE.md	2026-09-29 13:53:56.590795802 +0200
+@@ -135,10 +135,10 @@
+ <!-- milan-feature-order:firmware_boot_order:start -->
+ 1. `configure_fabric()` — the fabric CSRs, with the PHC and the gPTP plane
+    already live from the CSR reset.
+-2. `nvm_boot()`: the saved-state slots, the backing store and the restore
+-   walk, before the entity model is loaded and before the entity can be
+-   advertised.
+-3. `load_aem_image()`: copy from QSPI and verify the CRC32.
++2. `load_aem_image()`: copy from QSPI and verify the CRC32, before the
++   restore judges any saved value against the image.
++3. `nvm_boot()`: the saved-state slots, the backing store and the restore
++   walk, on every path, before the entity can be advertised.
+ 4. `entity_advertise()`: the enable bits, and only on a verified image.
+ <!-- milan-feature-order:firmware_boot_order:end -->
+ 
+diff -ru a/docs/reference/milan_feature_status.json b/docs/reference/milan_feature_status.json
+--- a/docs/reference/milan_feature_status.json	2026-09-29 13:53:56.562368691 +0200
++++ b/docs/reference/milan_feature_status.json	2026-09-29 13:53:56.589821000 +0200
+@@ -40,8 +40,8 @@
+     "missing_mandatory_aem_operations": [],
+     "firmware_boot_order": [
+       "configure_fabric",
+-      "nvm_boot",
+       "load_aem_image",
++      "nvm_boot",
+       "entity_advertise"
+     ]
+   },
+diff -ru a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c	2026-09-29 13:53:56.556419157 +0200
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c	2026-09-29 13:53:56.589696593 +0200
+@@ -1665,11 +1665,15 @@
+ 	}
+ 	/* PHC and fabric gPTP are live from reset, independent of the AEM gate. */
+ 	configure_fabric();
+-	/* Saved state is restored before the entity model is loaded and
+-	 * long before the entity is advertised; the verifier's verdict then
+-	 * flows straight into the choke point, with nothing between them. */
+-	nvm_boot();
++	/* The AEM image is loaded and CRC-checked BEFORE the saved state is
++	 * restored (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3): the
++	 * restore judges every value against the image, and one started
++	 * without it cannot prove the image and ends CLOSED, holding AECP until
++	 * reset. nvm_boot() starts the walk on every path, a failed image
++	 * included (the binding walk still releases the listener), and the
++	 * verifier's verdict then flows straight into the choke point. */
+ 	aem_loaded = load_aem_image();
++	nvm_boot();
+ 	entity_advertise(aem_loaded);
+ }
+ 

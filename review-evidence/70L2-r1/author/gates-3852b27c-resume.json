@@ -1,0 +1,98 @@
+{
+  "head": "3852b27cfec53b381447780ce581161cc2140c8a",
+  "head_after": "3852b27cfec53b381447780ce581161cc2140c8a",
+  "clean_after": true,
+  "results": [
+    {
+      "name": "milan_dp",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/milan_dp",
+        "-j8"
+      ],
+      "rc": 0,
+      "seconds": 1304.9,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/milan_dp.log",
+      "log_bytes": 1056683,
+      "log_sha256": "3123081fd3d5d696d39e77a11da4944696c0cd6e77c7c54018cce7aa27547494"
+    },
+    {
+      "name": "milan_dp-ax1x1gptp",
+      "command": [
+        "make",
+        "-C",
+        "tb/verilator/milan_dp",
+        "ax1x1gptp"
+      ],
+      "rc": 0,
+      "seconds": 3074.1,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/milan_dp-ax1x1gptp.log",
+      "log_bytes": 103772,
+      "log_sha256": "746924245cd8a3a1b2ddb805a1e7e98a35695433ee3eb6e4d82f9896a320d070"
+    },
+    {
+      "name": "builder-absent",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+        "-B",
+        "$MANAGEMENT/2026-09-23/70-a448/full-builder-absent.py"
+      ],
+      "rc": 0,
+      "seconds": 672.1,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/builder-absent.log",
+      "log_bytes": 101260,
+      "log_sha256": "f6f1c2b73d8eb31b6eba8706559f5fbf632ef45f1d3d07c9a29c299a6b772011"
+    },
+    {
+      "name": "yosys-portability",
+      "command": [
+        "bash",
+        "syn/yosys/run.sh"
+      ],
+      "rc": 0,
+      "seconds": 663.3,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/yosys-portability.log",
+      "log_bytes": 6012,
+      "log_sha256": "2d4876dfa33b069c7994995f307389b598f8702340d16b448ecc004aa7cd9671"
+    },
+    {
+      "name": "host-firmware-selftest",
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 69.0,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/host-firmware-selftest.log",
+      "log_bytes": 5189,
+      "log_sha256": "ad6c0b73230d67eb5584551d7ecfc06271fae68be2fad240dc0144a4b77e84e4"
+    },
+    {
+      "name": "fw_service_budget-selftest",
+      "command": [
+        "python3",
+        "tb/verilator/fw_service_budget/run.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.6,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/fw_service_budget-selftest.log",
+      "log_bytes": 259,
+      "log_sha256": "89b07a06224d88c15e170edeb2cfdd3538724d1ac2e7c7ff8c3edac0c646e35b"
+    },
+    {
+      "name": "check_nvm_capture",
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "rc": 1,
+      "seconds": 0.7,
+      "log": "/tmp/a448/logs/gates-3852b27c-resume/check_nvm_capture.log",
+      "log_bytes": 310,
+      "log_sha256": "d8dbd006c121eee2924a80d31cacba24f8f8c4f67f391db857aa6eccafb6ba5c"
+    }
+  ]
+}
