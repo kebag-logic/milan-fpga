@@ -1,0 +1,23 @@
+{
+ "mutant": "fan_out_skips_row_0",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "ST1b:"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0",
+  "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (16, 4, 9)",
+  "ST1b: one change from row 15 reaches the other fifteen rows byte-exact, each at its own sequence_id (0, 1 or 2), 14 of 15",
+  "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+  "ST2: descriptor 0005:1 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+  "ST2: descriptor 0006:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+  "ST2: descriptor 0009:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+  "ST2: descriptor 0024:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+  "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (27 of 2218 frame comparisons diverged)"
+ ],
+ "verdict": "KILLED"
+}

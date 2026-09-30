@@ -1,0 +1,26 @@
+{
+ "mutant": "requester_not_excluded",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP1 SET_CONFIGURATION(1): the requester receives no"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP1 SET_CONFIGURATION(1): the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP1b SET_CONFIGURATION(0): the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP2 SET_STREAM_FORMAT: the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP3 SET_STREAM_INFO: the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP4 SET_CONTROL(IDENTIFY 255): the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP4b SET_CONTROL(IDENTIFY 0): the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP5 SET_SAMPLING_RATE(48000): the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP6 STOP_STREAMING: the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP7 START_STREAMING: the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "NP8 SET_CONTROL(IDENTIFY 255) from B: the requester receives no unsolicited response (Milan 5.4.5.2)",
+  "ST1c: the requester receives only its solicited response",
+  "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (23 of 2203 frame comparisons diverged)"
+ ],
+ "verdict": "KILLED"
+}

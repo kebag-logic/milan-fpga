@@ -1,0 +1,15 @@
+{
+ "mutant": "set_control_ignores_lock",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "RN: 720 seeded steps"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (398 of 2249 frame comparisons diverged)"
+ ],
+ "verdict": "KILLED"
+}

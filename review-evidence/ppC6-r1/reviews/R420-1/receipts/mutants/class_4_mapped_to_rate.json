@@ -1,0 +1,18 @@
+{
+ "mutant": "class_4_mapped_to_rate",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP4 SET_CONTROL(IDENTIFY 255): exactly one"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP4 SET_CONTROL(IDENTIFY 255): exactly one unsolicited response of this command at the other registered controller, got 0",
+  "NP4b SET_CONTROL(IDENTIFY 0): exactly one unsolicited response of this command at the other registered controller, got 0",
+  "NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0",
+  "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (6 of 2203 frame comparisons diverged)"
+ ],
+ "verdict": "KILLED"
+}

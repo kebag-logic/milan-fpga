@@ -1,0 +1,16 @@
+{
+ "mutant": "enq_dropped_configuration",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP1 SET_CONFIGURATION(1): exactly one"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP1 SET_CONFIGURATION(1): exactly one unsolicited response of this command at the other registered controller, got 0",
+  "NP1b SET_CONFIGURATION(0): exactly one unsolicited response of this command at the other registered controller, got 0"
+ ],
+ "verdict": "KILLED"
+}

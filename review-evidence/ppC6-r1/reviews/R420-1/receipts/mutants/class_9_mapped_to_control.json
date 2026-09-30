@@ -1,0 +1,16 @@
+{
+ "mutant": "class_9_mapped_to_control",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP6 STOP_STREAMING: exactly one"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP6 STOP_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0",
+  "NP7 START_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0"
+ ],
+ "verdict": "KILLED"
+}

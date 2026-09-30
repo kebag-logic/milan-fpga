@@ -1,0 +1,7 @@
+lint_hdl rc=0
+gen_matrix --check rc=0
+make check rc=0
+notify_mutants.py rc=0
+make -C tb/pp_top identify rc=0
+gsi_mutants.py rc=0
+d3_mutants.py chunk1 (1-28) rc=0

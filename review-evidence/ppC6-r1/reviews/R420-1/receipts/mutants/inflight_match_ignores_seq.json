@@ -1,0 +1,21 @@
+{
+ "mutant": "inflight_match_ignores_seq",
+ "suite": "make run",
+ "build_rc": 0,
+ "run_rc": 2,
+ "completed": true,
+ "named_checks": [
+  "R: a seeded session"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "D wrong seq not routed",
+  "D wrong key not routed",
+  "D both misses counted",
+  "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (3941 of 3762 events)",
+  "R c: the drained session leaks no entry, timer or held slot",
+  "final: every hold released exactly once (879 vs 877)",
+  "final: table empty"
+ ],
+ "verdict": "KILLED"
+}

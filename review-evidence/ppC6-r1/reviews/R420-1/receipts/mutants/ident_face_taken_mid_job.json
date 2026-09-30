@@ -1,0 +1,17 @@
+{
+ "mutant": "ident_face_taken_mid_job",
+ "suite": "./obj_idn/Vpp_top_idn",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "ID5f:"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "ID5b: the press during the fan-out sends one burst, got 2",
+  "ID5c: 15 fan-out frames went between the press and the first identify frame, want at most two (the job in flight and the one the engine took)",
+  "ID5f: all fifteen rows received their SET_NAME notification byte-exact at their own sequence_id 0 (14 of 15)"
+ ],
+ "verdict": "KILLED"
+}

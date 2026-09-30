@@ -1,0 +1,15 @@
+{
+ "mutant": "stream_info_get_body",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP3 SET_STREAM_INFO: it is byte-exact"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)"
+ ],
+ "verdict": "KILLED"
+}

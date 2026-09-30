@@ -1,0 +1,15 @@
+{
+ "mutant": "enq_dropped_stream_info",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP3 SET_STREAM_INFO: exactly one"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP3 SET_STREAM_INFO: exactly one unsolicited response of this command at the other registered controller, got 0"
+ ],
+ "verdict": "KILLED"
+}

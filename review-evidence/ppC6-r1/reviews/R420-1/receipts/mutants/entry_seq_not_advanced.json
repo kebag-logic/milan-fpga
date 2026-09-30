@@ -1,0 +1,27 @@
+{
+ "mutant": "entry_seq_not_advanced",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "NP1b SET_CONFIGURATION(0): it is byte-exact"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "NP1b SET_CONFIGURATION(0): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 1, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP2 SET_STREAM_FORMAT: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP4 SET_CONTROL(IDENTIFY 255): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 4, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP4b SET_CONTROL(IDENTIFY 0): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 5, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP5 SET_SAMPLING_RATE(48000): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 6, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP6 STOP_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 8, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP7 START_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 9, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "NP8 SET_CONTROL(IDENTIFY 255) from B: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+  "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (16, 5, 5)",
+  "ST1b: one change from row 15 reaches the other fifteen rows byte-exact, each at its own sequence_id (0, 1 or 2), 5 of 15",
+  "ST2c: 368 GET_COUNTERS notifications, every one byte-exact at its row's own sequence_id (367 not)",
+  "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (26 of 2203 frame comparisons diverged)"
+ ],
+ "verdict": "KILLED"
+}

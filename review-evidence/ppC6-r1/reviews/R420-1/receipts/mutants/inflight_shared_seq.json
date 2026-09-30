@@ -1,0 +1,24 @@
+{
+ "mutant": "inflight_shared_seq",
+ "suite": "make run",
+ "build_rc": 0,
+ "run_rc": 2,
+ "completed": true,
+ "named_checks": [
+  "R: a seeded session"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "A owner-5 counter untouched",
+  "B owner-5 first seq",
+  "E owner-1 seq advanced between issues",
+  "E owner-6 counter independent (first use) got 6",
+  "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (4631 of 3780 events)",
+  "R c: the drained session leaks no entry, timer or held slot",
+  "final: ready",
+  "final: every hold released exactly once (248 vs 236)",
+  "final: no armed timer slot leaked",
+  "final: table empty"
+ ],
+ "verdict": "KILLED"
+}

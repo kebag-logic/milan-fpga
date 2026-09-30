@@ -1,0 +1,34 @@
+{
+ "mutant": "ident_burst_100ms",
+ "suite": "./obj_idn/Vpp_top_idn",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "ID1c:"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "ID1c: frame 1 to 2 spaced 10264 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID1c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID2c: frame 1 to 2 spaced 10264 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID2c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID2c: frame 1 to 2 spaced 10199 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID2c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID2c: frame 1 to 2 spaced 10199 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID2c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 9 frames",
+  "ID3c: frame 1 to 2 spaced 10264 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID3c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID3e: frame 1 to 2 spaced 10194 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID3e: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+  "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+  "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+  "ID5e: frame 1 to 2 spaced 10200 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID5e: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID6d: frame 1 to 2 spaced 10174 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+  "ID6d: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)"
+ ],
+ "verdict": "KILLED"
+}

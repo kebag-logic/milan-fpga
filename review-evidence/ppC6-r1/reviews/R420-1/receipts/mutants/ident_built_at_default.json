@@ -1,0 +1,16 @@
+{
+ "mutant": "ident_built_at_default",
+ "suite": "./obj_dir/Vpp_top_sim --identify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "ID0: with the parameter at 0"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "ID0: with the parameter at 0 the button puts no AECP frame on the wire (12)",
+  "ID0b: nothing is ever addressed to 91-E0-F0-01-00-01"
+ ],
+ "verdict": "KILLED"
+}

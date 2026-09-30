@@ -1,0 +1,27 @@
+{
+ "mutant": "counter_limit_500ms",
+ "suite": "./obj_dir/Vpp_top_sim --notify-only",
+ "build_rc": 0,
+ "run_rc": 1,
+ "completed": true,
+ "named_checks": [
+  "ST2: descriptor 0005:0",
+  "ST2b: descriptor 0005:0"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+  "ST2b: descriptor 0005:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+  "ST2: descriptor 0005:1 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+  "ST2b: descriptor 0005:1 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+  "ST2: descriptor 0006:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+  "ST2b: descriptor 0006:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+  "ST2: descriptor 0009:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+  "ST2b: descriptor 0009:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+  "ST2: descriptor 0024:0 churned at 10 Hz for 5000 ms emitted 2 rounds, want at least 3 and at most one per second",
+  "ST2b: descriptor 0024:0 rounds 49916 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+  "ST3: every solicited probe under the storm was answered (3 missing of 10)",
+  "ST3b: GET_CONFIGURATION answered within T-BUDGET-AECP-WC under the storm: worst 434030 clocks, bound 100001"
+ ],
+ "verdict": "KILLED"
+}

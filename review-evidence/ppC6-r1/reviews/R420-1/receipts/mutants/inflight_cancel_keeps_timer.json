@@ -1,0 +1,19 @@
+{
+ "mutant": "inflight_cancel_keeps_timer",
+ "suite": "make run",
+ "build_rc": 0,
+ "run_rc": 2,
+ "completed": true,
+ "named_checks": [
+  "R: a seeded session"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "H cancellation disarmed timeout",
+  "H absent-owner cancellation is inert",
+  "I no expiry before serializer acceptance",
+  "J2 both timer cancellations complete without a leak",
+  "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (95 of 3757 events)"
+ ],
+ "verdict": "KILLED"
+}

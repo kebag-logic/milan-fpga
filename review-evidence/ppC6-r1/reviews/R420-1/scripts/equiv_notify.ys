@@ -1,0 +1,18 @@
+# Reviewer probe: KL_aecp_notify at head with EN_IDENTIFY_NOTIF_P = 0 (the default)
+# against processor main 0451d83d. Inputs are sv2v outputs of pp_pkg.sv +
+# KL_aecp_notify.sv from each tree, modules renamed notify_gold (main) and
+# notify_gate (head). The gate's two new inputs, unread at 0, are demoted to
+# undriven internal wires; any remaining reader would leave an unproven $equiv.
+read_verilog notify_gold.v
+read_verilog notify_gate.v
+hierarchy -check
+proc; opt_clean
+delete -port notify_gate/identify_button_i notify_gate/identify_index_i
+memory; opt_clean
+flatten
+equiv_make notify_gold notify_gate equiv
+hierarchy -top equiv
+async2sync
+equiv_simple -seq 5
+equiv_induct -seq 5
+equiv_status -assert
