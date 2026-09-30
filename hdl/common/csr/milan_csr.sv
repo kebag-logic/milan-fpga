@@ -650,9 +650,18 @@ module milan_csr #(
   //! read as a verdict, because a walk over an absent backend sets exactly the
   //! bits a walk over real media sets.
   input  wire                    i_pp_nvm_backed,
-  //! the completed walk validated ZERO records (blank or unframed media)
+  //! the completed walk validated ZERO records (blank or unframed media);
+  //! beside i_pp_restore_fail only for a walk that ran blind
   input  wire                    i_pp_nvm_blank,
-  input  wire                    i_pp_nvm_alarm,
+  //! The D3 walk's terminals and both walks' abort causes
+  //! (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2, 8.7): CLOSED is fail and
+  //! never done, with AECP held until reset; roll-back is DEFAULTS after a
+  //! pass-1 abort. Each cause is valid with i_pp_restore_fail.
+  input  wire                    i_pp_restore_closed, //! PP_STAT[16]
+  input  wire                    i_pp_restore_rb,     //! PP_STAT[17]
+  input  wire [2:0]              i_pp_rs_cause,       //! PP_STAT[20:18], the D3 walk's
+  input  wire [1:0]              i_pp_restore_cause,  //! PP_STAT[22:21], the binding walk's
+  input  wire                    i_pp_nvm_alarm,      //! PP_STAT[4], a producer ran out of write attempts
   //! The saved-state backend's section 9 bits and the firmware's verdict
   //! (docs/design/SAVED_STATE_FASTCONNECT.md 9.1): dirty = the image holds
   //! committed changes no slot holds; stale = a writer loss not yet made good;
@@ -2220,8 +2229,11 @@ module milan_csr #(
         A_PP_CTRL:   pp_rd_data_w = pp_ctrl_r;
         //! [15:12] verdict, [11] nvm_pend, [10] img_valid, [9] stale, [8]
         //! dirty: the section 9.1 bits beside the original [7:0]; nvm_backed
-        //! is LIVE evidence now, not a constant (KL_pp_shadow's banner)
-        A_PP_STAT:   pp_rd_data_w = {PP_PRESENT_TAG_C, 8'd0,
+        //! is LIVE evidence now, not a constant (KL_pp_shadow's banner).
+        //! [22:16] the D3 terminals and both walks' causes; [23] reserved 0
+        A_PP_STAT:   pp_rd_data_w = {PP_PRESENT_TAG_C, 1'b0,
+                                     i_pp_restore_cause, i_pp_rs_cause,
+                                     i_pp_restore_rb, i_pp_restore_closed,
                                      i_pp_nvm_verdict, i_pp_nvm_pend,
                                      i_pp_nvm_img_valid, i_pp_nvm_stale,
                                      i_pp_nvm_dirty,

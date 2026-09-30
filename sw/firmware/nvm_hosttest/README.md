@@ -10,6 +10,7 @@ every shipped shape passed and every planted defect reddened.
 - **[The model](#the-model)** -- the CSR face, the flash, the LiteSPI master and the clock, in `nvm_host.c`
 - **[What is graded](#what-is-graded)** -- eleven checks per shape, all on bytes
 - **[The five negative controls](#the-five-negative-controls)** -- writer defects planted into a copy, each of which must be caught
+- **[Every boot path starts the restore walk](#every-boot-path-starts-the-restore-walk)** -- five boot paths per shape and two planted boot defects
 - **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- the board
 
 ## What it drives
@@ -95,12 +96,36 @@ The self-test also invokes the PHY host checks.
 Their IEEE-timed peer catches missing publication, deferred recovery and
 sampling after the rising edge instead of before it.
 
+## Every boot path starts the restore walk
+
+Since processor pin `d352bbaa` the processor holds its ACMP listener and AECP
+from reset until the restore walk reaches its terminal, and `PP_CTRL[1]`
+starts that walk ([#70](https://github.com/kebag-logic/milan-fpga/issues/70)).
+[`test_boot_walk.py`](test_boot_walk.py) boots each shape five ways: a cold
+boot, a window the backend refuses on every load, a record set that does not
+match the generated shape ("persistence disabled", planted into a copy), and
+the cold and persistence-disabled boots again with the model's walk ending
+CLOSED (`--walk-closed`: fail and never done, `PP_STAT[16]`). Each boot must
+start exactly one walk, never raise the entity enable before it, and end its
+wait at the walk's terminal rather than at the restore timeout. The model
+counts `PP_CTRL[1]` rising edges (`walks=`) and flags an enable seen before
+any walk (`enable_first=`).
+
+`--self-test` plants two boot defects, each caught by a named boot-walk
+finding:
+
+| control | the defect | what catches it |
+|---|---|---|
+| `shape_path_skips_walk` | the persistence-disabled path returns before the walk, as it did before this check | `walks=0` and `enable_first=1` on that path |
+| `wait_on_done_only` | the restore wait ends on done alone, which a CLOSED restore never raises | the wait runs out its timeout on a CLOSED restore |
+
 ## What this suite does NOT prove
 
 The board. The real LiteSPI master's timing and arbitration, the real DRAM
 window, the processor writing records into it and the restore walk reading
 them back are the bench's ([design page](../../../docs/design/SAVED_STATE_FASTCONNECT.md)
-section 11), and today only the processor's binding records reach the store.
+section 11). The processor's binding records and, since pin `d352bbaa`, its D3
+writer's scalar records reach the store; names and channel maps do not yet.
 The model follows the backend's contract as `hdl/milan/KL_nvm_backend.sv`
 states it; the backend itself is graded by
 [`tb/verilator/nvm_backend`](../../../tb/verilator/nvm_backend/README.md).

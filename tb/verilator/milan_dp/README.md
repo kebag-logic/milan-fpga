@@ -92,7 +92,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
-- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
+- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
 - **[Render phase records from the mutation controls](#render-phase-records-from-the-mutation-controls)** -- The record the render mutation arm prints around each build and run it already makes: the fields, the fixed case labels, and the limits that keep it an observation rather than a result
 - **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
@@ -440,7 +440,7 @@ Advertise state are sampled on every cycle.
 | `[A]` | Run B's opening: both first probes are refused, MAAP grants, the DUT declares Talker Advertise and is admitted, and no Listener Ready exists. No CRF or AAF PDU leaves, `CRFT_COUNT` stays 0 and `CRFT_CTRL[6]`/`[7]` read 0 (item 2). |
 | `[B]` | The first Listener Ready opens each gate on the cycle ACTIVE rises. Every CRF PDU is C-tagged {PCP 3, VID 2} with the stream {MAC, uid 1} and the MAAP DA. |
 | `[B2]` | The AAF closing edge: a withdrawn Listener closes the AAF gate on the cycle ACTIVE falls, while the talker still declares and is admitted. |
-| `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+| `[C]` | Item 1: 76 s bound across at least three DUT and three switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. Each switch LeaveAll restarts the DUT's leavealltimer (802.1Q-2014 Table 10-5 rLA!, processor issue 108, since processor pin `b2db3a97`): every DUT LeaveAll comes at least 10 s after the switch's preceding one, which is why the phase holds three of each rather than five. |
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
 | `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
@@ -517,7 +517,8 @@ The #551 campaign additionally removes each real-grant term.
 | the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
 | the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore the pin of record | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passed at `990f9652`, the measurement pin. |
 | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
-| the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+| processor pin `424c688f` | by hand, one of the two arms that need a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+| the previous processor pin `d352bbaa` | by hand, the other: `git -C protocol-processor checkout d352bbaa`, `make crflic CRFLIC_MDIR=obj_crflic_prevpin`, then restore the pin | 1 of 416 fails, the restart check: a received LeaveAll does not restart the timer at that pin, so `[C]` holds five DUT and five switch LeaveAll MRPDUs and the soonest DUT LeaveAll comes 2,210 ms after the switch's (10,210 ms at `b2db3a97`) |
 
 The mutants remain an explicit campaign outside the default sweep.
 Six additional elaborations exercise both missing-term failure modes.
@@ -525,9 +526,10 @@ The normal licence leg remains part of the default sweep.
 
 **What it cannot show.** The switch's timing is modelled from the Run B
 capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed
-LeaveAll period is not modelled. This station's leavealltimer does not
-restart on a received LeaveAll (processor issue 108), and nothing here
-measures that. The silicon rerun of #530 is the acceptance.
+LeaveAll period is not modelled. Since processor pin `b2db3a97` this
+station's leavealltimer restarts on a received LeaveAll (processor docs 10
+section 6.5, its issue 108), and `[C]` measures that lag, not the draw's
+upper bound. The silicon rerun of #530 is the acceptance.
 
 ### FRAMES_TX is an interval count
 
@@ -636,6 +638,19 @@ It releases it when the NVM binding walk ends.
 `PP_CTRL[1]` starts that walk, as the firmware's `nvm_boot()` does.
 `sim_main`, `sim_nxn`, `sim_aclk` and `milan_dp_render` now set it at boot.
 Without it the 1x1 leg fails 24 checks: no sink ever probes.
+
+**Every harness that sends AECP starts it too.** Since processor pin
+`d352bbaa` AECP is also held from reset until the D3 walk after the binding
+walk reaches its terminal, and that walk proves the AEM image first.
+`gmstep`, `gptp`, `gptp-lat` and `ax1x1gptp` serve the image from reset and
+start the walk before their first AECP command, each grading it COMPLETE
+(`PP_STAT` done 1, CLOSED 0). The image-less legs (`sim_main`'s main, `nolpf`
+and `ax1x1`, and `aclk`) serve no image, so their walk ends CLOSED
+(`PP_STAT[16]`, busy 0, done 0, fail 1, D3 cause 7): the listener is released
+and AECP stays held, and each leg grades that terminal. The `sim_nxn` legs
+start the walk once the descriptor memory answers (the firmware's order), and
+`milan_dp_render` waits out one commit-to-pin bound before T8 collects,
+because the D3 walk moves that leg against the frame grid.
 
 ## GM step re-base leg (#387)
 
@@ -874,12 +889,17 @@ comment that says what that means: it is `KL_aecp_desc_store`'s documented
 degrade path — the watchdog abandons the burst, the image never validates, and
 `READ_DESCRIPTOR` comes back well formed but empty-handed. A zero left at a port
 by accident and a zero driven by a decision look identical on a waveform, so it
-is stated. The `[AECP]` checks in `sim_nxn.cpp` grade that path: an answer
-arrives, it is an `AEM_RESPONSE`, its status is `BAD_ARGUMENTS` (an unvalidated
-image reports `configurations_count = 0`, and the µprogram range-checks the
-configuration index *before* it locates, so this is not
-`NO_SUCH_DESCRIPTOR`), it carries the Section 7.4.5 stub at `cdl = 20`, and it is
-padded to 60.
+is stated. Until processor pin `d352bbaa` the `[AECP]` checks in `sim_nxn.cpp`
+graded that path (a `BAD_ARGUMENTS` answer at `cdl = 20`). That arm is retired
+in every leg: AECP is now held from reset until the restore, and the restore
+needs the image in place, so with no memory the command is never answered.
+The `[AECP]` checks grade the hold instead: the first `READ_DESCRIPTOR` is held
+unanswered, a second is dropped at the ingress slot gate and counted in
+snapshot word 37, and the held one is answered at the release once `[AECP-IMG]`
+serves the image and starts the walk. The wedged-response-memory arm
+(`[AECP-WTMO]`) needs AECP released, so it runs after `[AECP-IMG]` in every
+leg, `notify` included; its heal answers `SUCCESS`, and word 36 is read both
+at the wedge and after the heal.
 
 **The SERVED path lives in `tb/verilator/pp_shadow`**, which backs those ports
 with a real `AEMI` image and grades `SUCCESS` with the descriptor bytes compared

@@ -371,6 +371,7 @@ class GmStepHarness {
 
     void reset();
     void acquire();
+    void start_the_boot_restore_walk();
     void provision_media();
     void baseline();
     void change_grandmaster();
@@ -808,6 +809,26 @@ void GmStepHarness::acquire() {
                (uint64_t(read(0x628)) << 32) | read(0x624), kGmA);
 }
 
+//! The boot restore walk, as the firmware's nvm_boot() starts it on every
+//! boot. Since processor pin d352bbaa AECP is held from reset until the D3
+//! walk's terminal, and PP_CTRL[1] starts it; the AEM image is served from
+//! reset, so the walk proves it and ends COMPLETE (done 1, CLOSED 0) before
+//! the first AECP command below.
+void GmStepHarness::start_the_boot_restore_walk() {
+    constexpr uint16_t kPpCtrl = 0x920;
+    constexpr uint16_t kPpStat = 0x924;
+    constexpr uint32_t kDone = 1u << 2;
+    constexpr uint32_t kClosed = 1u << 16;
+    write(kPpCtrl, read(kPpCtrl) | 0x2u);
+    uint32_t stat = 0;
+    for (unsigned r = 0; r < 400 && !(stat & (kDone | kClosed)); ++r) {
+        run_cycles(64);
+        stat = read(kPpStat);
+    }
+    check_.hex("[BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)",
+               stat & (kDone | kClosed), kDone);
+}
+
 //! CRF sink, listener, talker and the clock source, then the two feeds.
 void GmStepHarness::provision_media() {
     write(0x73C, 0x00020001); write(0x740, 0x02000000); write(0x738, 0x1);
@@ -1181,6 +1202,7 @@ int GmStepHarness::run() {
     try {
         reset();
         acquire();
+        start_the_boot_restore_walk();
         provision_media();
         baseline();
         change_grandmaster();

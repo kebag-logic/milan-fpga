@@ -42,7 +42,9 @@
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                saved-state persistence.
+                saved-state persistence of the names and the channel maps
+                (the bindings and, since processor pin d352bbaa, the scalar
+                records persist).
                 The unsolicited-notification trigger set and the
                 departing-controller monitor are SERVED since VERSION
                 0x0055: the four trigger pins above carry the edges only
@@ -119,7 +121,12 @@
                   nvm_img_valid_o the firmware validated the image in place
                   restore_blank_o  the walk validated zero records - blank or
                                  unframed media - as opposed to a walk that
-                                 put bindings back.
+                                 put bindings back. Never with the
+                                 processor's own fail; a BLIND walk (below)
+                                 reports it beside fail.
+                  restore_closed_o, restore_rb_o, rs_cause_o, restore_cause_o
+                                 the D3 walk's CLOSED and roll-back terminals
+                                 and both walks' abort causes.
 
                 and restore_fail_o is RAISED on a completed walk that ran
                 BLIND: at some cycle of the walk no validated image stood
@@ -180,7 +187,9 @@
 module KL_pp_shadow #(
     //! MAC RX AXIS data width (the datapath's TDATA_WIDTH). 64 only.
     parameter int unsigned TDATA_WIDTH_P  = 64,
-    //! core clock, feeds the processor's timer prescaler
+    //! clk_i frequency in Hz. Feeds the processor's timer prescaler and its
+    //! saved-state times (NVM_RS_TMO_CYC_P, NVM_RS_AGG_CYC_P,
+    //! NVM_RETRY_BACKOFF_CYC_P), which it derives from this value
     parameter int unsigned CLK_HZ_P       = 100_000_000,
     //! processor sink/source array sizes (F01.5 P-N-STREAM-IN/OUT)
     parameter int unsigned N_STREAM_IN_P  = 8,
@@ -675,7 +684,16 @@ module KL_pp_shadow #(
     output logic       restore_fail_o,     //! the completed restore did NOT restore: torn read-back, or no backend at all
     output logic       nvm_backed_o,       //! LIVE: the firmware behind the device face answered in time (section 9.2)
     output logic       restore_blank_o,    //! the completed walk validated ZERO records
-    output logic       nvm_alarm_o,        //! commit retries exhausted
+    //! The D3 walk's terminal and causes, straight through from
+    //! protocol_processor_top (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2,
+    //! 8.7): CLOSED is fail and never done, AECP held until reset; roll-back is
+    //! DEFAULTS after a pass-1 abort; rs_cause_o is the D3 walk's first abort
+    //! cause and restore_cause_o the binding walk's, both valid with fail.
+    output logic       restore_closed_o,   //! the D3 walk ended CLOSED
+    output logic       restore_rb_o,       //! the D3 walk rolled back to DEFAULTS
+    output logic [2:0] rs_cause_o,         //! D3 abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image
+    output logic [1:0] restore_cause_o,    //! binding walk cause: 1 torn, 2 device, 3 deadline
+    output logic       nvm_alarm_o,        //! a record producer exhausted its write attempts
     output logic       nvm_dirty_o,        //! the image holds committable work no slot holds
     output logic       nvm_stale_o,        //! a writer loss that has not been made good
     output logic       nvm_pend_o,         //! accepted work no verified slot holds and nvm_dirty does not report (snapshot-ownership 6.1)
@@ -904,14 +922,18 @@ module KL_pp_shadow #(
   //!
   //!   * pend: the backend's pend_i is a LEVEL (snapshot-ownership section
   //!     6.1), 1 while the producer holds accepted work it has not yet
-  //!     written through the device face. The processor's aecp_dyn_dirty_o is
-  //!     exactly such a level (set by the first persisted-field write since
-  //!     reset, cleared by reset only) and is passed straight through; the
-  //!     edge detector the tracked glue derived from it is GONE, because it
-  //!     lost every change after the first (issue #420). Two further sources
-  //!     come from the binding manager and the live write owners below:
-  //!     unflushed sinks, and accepted live name/map writes held
-  //!     sticky because neither group has a record writer.
+  //!     written through the device face. Its producers are the processor's
+  //!     two record writers: the binding manager's unflushed sinks and the D3
+  //!     writer's unflushed scalar records (configuration, sampling rate,
+  //!     clock source, both stream formats, presentation offset), each
+  //!     retired at the done of the whole-record window write
+  //!     (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2 and 7.1). The
+  //!     accepted live name/map writes are held sticky beside them because
+  //!     neither group has a record writer yet (stage 3 retires them).
+  //!     aecp_dyn_dirty_o LEFT pend_i with the D3 writer: it is set by any
+  //!     persisted-row write since reset, a restore write included, and never
+  //!     clears, so it would hold pend at 1 over every durable scalar. It stays
+  //!     exported as a diagnostic.
   //!   * a blind walk: whether a validated image stood behind the device face
   //!     for EVERY cycle of the restore walk. Latched per walk, because the
   //!     verdict is about the bytes the walk read, not about the image's
@@ -924,9 +946,9 @@ module KL_pp_shadow #(
   logic        nvm_backed_w, nvm_img_valid_w, nvm_pend_w, nvm_alarm_w;
   logic        restore_busy_q, walk_blind_r;
 
-  //! Binding changes stay pending until their record completes or alarms.
-  //! Names and maps have no record writer yet, so their source clears only
-  //! at reset. The later class-6/7 marks still delimit command completion;
+  //! Binding and scalar changes stay pending until their record completes or
+  //! alarms. Names and maps have no record writer yet, so their source clears
+  //! only at reset. The later class-6/7 marks still delimit command completion;
   //! waiting for those marks would claim durability over a live change.
   //!
   //! All three events and the backend use clk_i and the shared rst_n. No
@@ -935,6 +957,7 @@ module KL_pp_shadow #(
   //! the backend registers that input on the SAME edge as the live write.
   //! The parent shares its actual write enable; unchanged maps raise nothing.
   logic [N_STREAM_IN_P-1:0] nvm_unflushed_w;
+  logic                     d3_unflushed_w;
   logic                     aecp_name_wr_w;
   logic                     aecp_live_wr_w;
   logic                     aecp_live_pend_r;
@@ -955,7 +978,7 @@ module KL_pp_shadow #(
     end
   end : latch_live_pending
 
-  assign nvm_pend_w = aecp_dyn_dirty_o | (|nvm_unflushed_w)
+  assign nvm_pend_w = (|nvm_unflushed_w) | d3_unflushed_w
                     | aecp_live_wr_w | aecp_live_pend_r;
 
   always_ff @(posedge clk_i or negedge rst_n) begin
@@ -1072,6 +1095,14 @@ module KL_pp_shadow #(
       .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
       .RESP_BASE_P         (RESP_BASE_P)
+      //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (each restore wait's
+      //! deadline), NVM_RS_AGG_CYC_P (the whole restore's, from restore_go_i)
+      //! and NVM_RETRY_BACKOFF_CYC_P (the gap between record write attempts).
+      //! The processor derives all three from the CLK_HZ_P bound above, which is
+      //! this wrapper's clk_i frequency, so they follow the parent clock. A
+      //! value or formula restated here would be a second copy of the DR3a
+      //! and DR2c rulings (docs/design/SAVED_STATE_MATERIALIZATION.md 5.1,
+      //! 15.1) that a clock change would leave behind.
   ) u_pp (
       .clk_i               (clk_i),
       .rst_n               (rst_n),
@@ -1209,8 +1240,14 @@ module KL_pp_shadow #(
       .restore_done_o      (pp_restore_done_w),
       .restore_fail_o      (pp_restore_fail_w),
       .restore_blank_o     (pp_restore_blank_w),
+      .restore_closed_o    (restore_closed_o),
+      .restore_rb_o        (restore_rb_o),
+      .rs_cause_o          (rs_cause_o),
+      .restore_cause_o     (restore_cause_o),
+      //! either record producer's reset-sticky alarm, straight to alarm_i
       .nvm_alarm_o         (nvm_alarm_w),
       .nvm_unflushed_o     (nvm_unflushed_w),
+      .d3_unflushed_o      (d3_unflushed_w),
 
       .nvm_dev_req_o       (nvm_req_w),
       .nvm_dev_gnt_i       (nvm_gnt_w),
@@ -1455,10 +1492,16 @@ module KL_pp_shadow #(
   // ======================================================================= //
   //  Saved-state verdict (Milan v1.2 5.3.8.2/5.3.8.3/5.3.8.7)              //
   // ======================================================================= //
-  //! done stays the SEQUENCING level the processor publishes: the walk ran to
-  //! the end. Everything below is what the walk is allowed to CLAIM.
+  //! done stays the SEQUENCING level the processor publishes: both walks ran
+  //! to a COMPLETE or DEFAULTS terminal (CLOSED is fail and never done).
+  //! Everything below is what the walk is allowed to CLAIM.
   assign restore_done_o  = pp_restore_done_w;
   assign nvm_backed_o    = nvm_backed_w;
+  //! the processor's combined blank: both walks sequenced, neither failed and
+  //! neither validated a record, so a device error that loses the one saved
+  //! record never reads blank (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2,
+  //! H8). The blind-walk latch below is unchanged: a walk with no validated
+  //! image behind the device face still reports fail beside its blank.
   assign restore_blank_o = pp_restore_blank_w;
 
   //! A completed walk that ran BLIND is a FAILED restore, not a successful

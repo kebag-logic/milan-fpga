@@ -53,7 +53,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 > * **`NOT_IMPLEMENTED` is an answer, not a fault** — and so is `BAD_ARGUMENTS`
 >   to an `IDENTIFY_NOTIFICATION` sent as a command. "GET_COUNTERS came back
 >   NOT_IMPLEMENTED", "the name will not set", "IDENTIFY does nothing", "the
->   binding did not survive the power cycle": that is the stated capability
+>   name did not survive the power cycle": that is the stated capability
 >   boundary, written up in
 >   [the current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), not
 >   something to diagnose.
@@ -858,10 +858,11 @@ The control-plane diagnoses below are checked against the
    Identify control, selected stream, clock and configuration operations,
    `GET_AUDIO_MAP`, live `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`,
    registration, and Milan info are served. Name access,
-   `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, and saved-state persistence remain
-   mandatory gaps. `GET_DYNAMIC_INFO` is served with the
-   fixed-getter whitelist and per-record status rules. Nothing persists a
-   binding across a power cycle. Check the exact inventory and persistence verdict in the
+   `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, and saved-state persistence of the
+   names and channel maps remain mandatory gaps. `GET_DYNAMIC_INFO` is served
+   with the fixed-getter whitelist and per-record status rules. A binding
+   survives a power cycle, and the scalar settings are written and restored
+   since processor pin `d352bbaa`. Check the exact inventory and persistence verdict in the
    [current audit, blockers B1 and B2](../testing/MILAN_V12_AUDIT_2026-08-16.md).
    If the symptom is instead "the controller cannot read a **descriptor**",
    that is a different animal and it is diagnosable:
@@ -1048,26 +1049,34 @@ live in the protocol processor's side-port snapshot window, reached through
 ---
 ## Section 27: no ACMP listener command is answered - the boot restore walk was never started
 
-**Symptom.** After a reset or a fresh boot the entity advertises and answers
-AECP. Its talker answers PROBE_TX. But no listener command is ever answered:
-`BIND_RX`, `UNBIND_RX` and `GET_RX_STATE` get no response, and no sink sends a
-PROBE_TX.
+**Symptom.** After a reset or a fresh boot no listener command is ever
+answered: `BIND_RX`, `UNBIND_RX` and `GET_RX_STATE` get no response, and no
+sink sends a PROBE_TX. Its talker answers PROBE_TX. Since processor pin
+`d352bbaa` AECP is silent as well, and the entity is not advertised.
 
 **Cause.** Since processor pin `a8f8ce81` (its issue 92) the processor holds
 its ACMP listener from reset until the NVM binding walk ends. That stops an
-early command from erasing a binding the walk is restoring. `PP_CTRL[1]`
-starts the walk. The shipping firmware sets it in `nvm_boot()` on every boot.
-A custom boot path, or a test harness, that never sets it leaves the listener
-held until the next reset.
+early command from erasing a binding the walk is restoring. Since processor
+pin `d352bbaa` it also holds AECP until the D3 walk that follows reaches its
+terminal, and ADP advertises only from `restore_done`. `PP_CTRL[1]` starts
+the walk. The shipping firmware sets it in `nvm_boot()` on every boot path. A
+custom boot path, or a test harness, that never sets it leaves the listener
+and AECP held until the next reset.
 
 **Check.** Read `PP_STAT` at `0x924`:
 
-* `[1]` and `[2]` both `0`: the walk never started. Set `PP_CTRL[1]`.
-* `[1]` stays `1`: the device face is slow. The walk still ends at
-  `NVM_RS_TMO_CYC_P`, 20 ms at the default clock, with `[3]` set.
-* `[2]` is `1`: the walk ended, so look elsewhere.
+* `[1]`, `[2]` and `[16]` all `0`: the walk never started. Set `PP_CTRL[1]`.
+* `[1]` stays `1`: the device face is slow. Each wait still ends at
+  `NVM_RS_TMO_CYC_P`, 20 ms at the default clock, and the whole restore at
+  `NVM_RS_AGG_CYC_P`, 1,000 ms, with `[3]` set.
+* `[16]` is `1`: the restore ended CLOSED. The listener is released, but AECP
+  stays held and the entity dark until reset. `[20:18]` reads `7` when the AEM
+  image could not be proven: it was not loaded and verified before
+  `PP_CTRL[1]`.
+* `[2]` is `1`: the walks ended, so look elsewhere.
 
-**Fix.** Set `PP_CTRL[1]` before the entity enable, and wait for `PP_STAT[2]`.
-With no validated image the backend answers blank media, so the walk ends in a
-few hundred cycles. Every `milan_dp` harness that binds a sink does this since
+**Fix.** Load and verify the AEM image, then set `PP_CTRL[1]` before the
+entity enable, and wait for `PP_STAT[2]` or `PP_STAT[16]`. With no validated
+NVM image the backend answers blank media, so the walks end in a few thousand
+cycles. Every `milan_dp` harness that binds a sink does this since
 #508; without it the 1x1 leg fails 24 checks.

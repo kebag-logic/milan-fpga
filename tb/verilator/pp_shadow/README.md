@@ -77,6 +77,10 @@ Duplicate records offer phase 5 without writing or marking changes.
 The parent accepts each held record once.
 
 The control-face writer establishes the initial durable status.
+Each boot then starts the restore walk before the enable, as `nvm_boot()` does.
+Since processor pin `d352bbaa` AECP is held until the D3 walk's terminal.
+Nothing answers behind the backend's window here, so each walk ends DEFAULTS
+on its per-wait deadlines, and the boot grades that terminal.
 Each test then observes live writes through command completion.
 Pending must rise on the first accepting edge.
 The later group mark must occur and identify its group.

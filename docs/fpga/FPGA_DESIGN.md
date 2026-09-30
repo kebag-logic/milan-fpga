@@ -43,8 +43,10 @@ audit.
 RTL. Commands outside the processor's implemented inventory still use the
 fallback. Name access and the mandatory stream-format and stream-info setters
 are served, as are command-driven and root-observed Table 5.22 notifications
-and the departing-controller monitor. Saved-state persistence and commands
-outside the declared inventory remain absent. Live audio-map mutation is implemented. A
+and the departing-controller monitor. Saved-state persistence is partial
+(bindings, and the scalar settings since processor pin `d352bbaa`; names and
+channel maps have no record writer), and commands outside the declared
+inventory remain absent. Live audio-map mutation is implemented. A
 stated capability boundary from an informed decision, not a regression and not a
 temporary blip. Section 1.2 names what it costs module by module.
 

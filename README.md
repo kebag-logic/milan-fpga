@@ -137,9 +137,12 @@ Identify control is stored but the root indication remains tied low.
 `GET_AVB_INFO` now consumes the selected owner's coherent GM, propagation-delay,
 asCapable snapshot. The writable AAF admission bypass remains a deployment
 hazard.
-The integration also reports no nonvolatile backend, so required state does not
-survive a power cycle. This is a compliance blocker, not a documentation-only
-limitation.
+Saved state is only partly persistent: a binding survives a cold power cycle,
+the scalar settings (configuration, sampling rate, stream formats, presentation
+offset, clock source) are written and restored since processor pin `d352bbaa`
+with their silicon cold-cycle proof still open, and channel maps and
+user names are not persisted. This is a compliance blocker, not a
+documentation-only limitation.
 The Stream Input START/STOP path completes at the binding record (issue #97):
 command success follows the record commit or the confirmed no-op, and a
 stopped CRF sink keeps observing and counting while only timing consumption

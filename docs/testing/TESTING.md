@@ -39,7 +39,7 @@ current protocol-level verdict is the
 > processor limits unsolicited `GET_COUNTERS` to at most one push per
 > descriptor per second. The same integration suite grades the remaining
 > Table 5.22 triggers and the departing-controller monitor. Root IDENTIFY and
-> saved-state persistence remain open.
+> saved-state persistence of the names and channel maps remain open.
 >
 > Verification is split deliberately. The processor's `pp_top` suite grades
 > the AECP response path, the root `milan_dp` suite grades the counter sources
@@ -1181,7 +1181,8 @@ Neither this plan nor its self-test closes #70 or #117.
   discriminator when a controller probe comes back empty. The root now feeds
   the rate-limited Milan Table 5.22 counter-change producer and the other
   observable triggers; remaining gaps include the public IDENTIFY indication,
-  saved-state persistence and commands outside the served inventory.
+  saved-state persistence of the names and channel maps and commands outside
+  the served inventory.
   Milan Delta 7 `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero owner,
   correct addressing, and the command-specific length. Three consequences
   remain easy to mistake for test failures:

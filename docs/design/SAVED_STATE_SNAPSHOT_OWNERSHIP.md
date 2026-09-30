@@ -34,7 +34,9 @@
 > The marks retain their command-completion meaning.
 > What is still a KNOWN LIMITATION of the shipping build, and a scope rather
 > than a defect of this contract, is MATERIALIZATION: no record writer exists
-> for the non-binding groups, which is scope D3 and UNRESOLVED 1.
+> for the user names and the channel maps, which is scope D3 and UNRESOLVED 1.
+> The scalar groups have the D3 writer since processor pin `d352bbaa`
+> (#70 lane 2, section 11).
 >
 > Two product decisions are recorded, and the contract is built on both:
 >
@@ -963,7 +965,10 @@ The backend registers `pend_i` on each `clk_i` edge.
 Issue #502 aligns name/map reporting with live acceptance.
 `KL_pp_shadow` combines these sources:
 
-- The dynamic-state store's sticky `aecp_dyn_dirty_o` level.
+- The D3 writer's `d3_unflushed_o`, the OR of its per-record dirty bits
+  for the scalar records, each retired at its record's window write. It
+  replaced the dynamic-state store's sticky `aecp_dyn_dirty_o` level at
+  processor pin `d352bbaa` (#70 lane 2); that level stays a diagnostic.
 - The binding manager's `nvm_unflushed_o` vector, reduced with OR.
 - Accepted name writes from `aecp_name_wr_o`.
 - Actual phase-5 map writes through `amap_live_wr_i`.
@@ -1268,24 +1273,26 @@ the status, because the contract relies on neither ever ending.
 ## 11. Persistent-field materialization
 
 Historical tracing used dev 36ee8a37 and donor 8f2f58fb.
-The table includes subsequent D1, D2 and #502 reporting updates.
+The table includes subsequent D1, D2 and #502 reporting updates, and the
+scalar rows the D3 writer owns since processor pin `d352bbaa`.
 The only device-face initiator in
-the gateware is KL_pp_nvm_port, driven only by KL_acmp_nvm_shadow; the
+the gateware is KL_pp_nvm_port, driven by KL_acmp_nvm_shadow and, since that
+pin, by the D3 writer through KL_pp_nvm_mgr_arb; the
 firmware writes no record content (it copies whole containers). Record ids
 are
 [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)'s.
 
 | Ids | Group | Live value held by | Change indication reaching the parent | Record writer | What this contract publishes |
 |---|---|---|---|---|---|
-| 0x00 | configuration index | KL_aecp_dyn_state, selector 0 | aecp_dyn_dirty_o, a sticky level set on any persisted-field write, cleared only by reset | NONE | nvm_pend 1 from the first change until reset |
+| 0x00 | configuration index | KL_aecp_dyn_state, selector 0 | the D3 writer's per-record dirty bit on d3_unflushed_o, set by an accepted write that changes the row and retired at the record's window write (before pin `d352bbaa`: aecp_dyn_dirty_o, sticky until reset) | the D3 writer, KL_aecp_nvm_writer, through KL_pp_nvm_port (since pin `d352bbaa`) | the whole contract, pending from the accepted write |
 | 0x01 | system unique id | no AECP program writes it | none | NONE | nothing changes, nothing to report |
-| 0x02 to 0x09 | sampling rate | KL_aecp_dyn_state, selector 1 | the dynamic-state level | NONE | nvm_pend 1 until reset |
-| 0x0A to 0x11 | clock source | KL_aecp_dyn_state, selector 2 | the dynamic-state level | NONE | nvm_pend 1 until reset |
+| 0x02 to 0x09 | sampling rate | KL_aecp_dyn_state, selector 1 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
+| 0x0A to 0x11 | clock source | KL_aecp_dyn_state, selector 2 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
 | 0x12 to 0x19 | media clock reference | no AECP program writes it | none | NONE | nothing changes, nothing to report |
 | 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty on nvm_unflushed_o (donor scope D1, landed), then the record's own grant and completion in the backend | KL_acmp_nvm_shadow through KL_pp_nvm_port, the ONLY record writer | the whole contract, pending from the accept inside the manager's debounce |
-| 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the dynamic-state level | NONE | nvm_pend 1 until reset (E1: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
-| 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the dynamic-state level | NONE | nvm_pend 1 until reset |
-| 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the dynamic-state level | NONE | nvm_pend 1 until reset |
+| 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 (E1, before that pin: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
+| 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
+| 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
 | 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, and never written (UNRESOLVED 1) |
 | 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance, never written (UNRESOLVED 1) |
 
@@ -1378,7 +1385,8 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   and not just the first attempt. Neither weakens the parent use: both make
   the vector report exactly the changes the manager still owes.
 - Current parent use: `KL_pp_shadow` drives the backend's pending input.
-  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+  `pend_i = (|nvm_unflushed_w) | d3_unflushed_w | aecp_live_wr_w | aecp_live_pend_r`
+  since processor pin `d352bbaa`; before it the D3 term was `aecp_dyn_dirty_o`.
   Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
   The pulse covers acceptance; the history stays set until reset.
   Section 6.1 defines each source and its clearing rule.
@@ -1419,7 +1427,8 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   [section 12.1](SAVED_STATE_FASTCONNECT.md#121-the-inventory-derived-from-the-donor)
   of the saved-state page.
 
-**D3, materialization: ACCEPTED contract; implementation STILL OPEN.**
+**D3, materialization: ACCEPTED contract; stage 1 (the scalar records) implemented
+at processor pin `d352bbaa` and adopted by #70 lane 2; names and maps STILL OPEN.**
 The [D3 decision](SAVED_STATE_MATERIALIZATION.md#3-decision) chooses one processor-side writer.
 It shares the existing port with the binding manager.
 Its [trigger table](SAVED_STATE_MATERIALIZATION.md#31-accepted-live-write-groups) supersedes mark-based selection.
@@ -1551,8 +1560,9 @@ that no rule consumes and that races the producer by construction.
 - The KLJ2 format, the erased-record rule and the A/B rule of
   [section 7](SAVED_STATE_FASTCONNECT.md#7-durability-the-ab-contract) are
   unchanged.
-- Until D3 lands, channel-map and name changes are reported pending but are
-  never made durable (section 11): this proposal does not hide that.
+- Until D3's later stages land, channel-map and name changes are reported
+  pending but are never made durable (section 11): this proposal does not
+  hide that.
 
 ## 18. Cost
 
@@ -1606,14 +1616,14 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. MEASURED on 2026-09-28 in the
+Timing. MEASURED on 2026-09-29 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172) requires this firmware remeasurement.
-Measured commit: `26a26e1f39feeebaebb0f450d7cbe2b63429c252`.
-Measured tree: `1ced48e23609180f2d09a19352837c00317429fe`.
-Firmware SHA-256: `89c0360ed2eb63566d0413e9c721aee05aae4581f23d3897a1ae853b46a10070`.
-Protocol-processor pin: `16be6768f710e79450aace277abacd6c2c3336e5`.
+The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) requires this firmware remeasurement.
+Measured commit: `18199bacae847f8f3c1a31ee9b62d0086c8abf41`.
+Measured tree: `2458ac0e663dd2a073347045c1bd92df54f1e85e`.
+Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
+Protocol-processor pin: `b2db3a970cedbbff2f8ba813acb96122c442bc58`.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1641,10 +1651,10 @@ The 1x1 maximum is 3.88779 ms (12.6036x floor ratio).
 | Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
 |---|---|---|---|---|
 | 1x1 | 50 / 100, contract | ON | 3.87674 to 3.88779 | 12.6036x |
-| 1x1 | 50 / 100, contract | OFF | 3.82856 to 3.84214 | 12.7533x |
+| 1x1 | 50 / 100, contract | OFF | 3.82856 to 3.83356 | 12.7819x |
 | 8x8 | 50 / 100, contract | ON | 13.21274 to 13.23352 | 3.7027x |
-| 8x8 | 50 / 100, contract | OFF | 13.04976 to 13.06923 | 3.7493x |
-| 8x8 | 100 / 100, non-contract | ON | 9.94138 to 9.95464 | 4.9223x |
+| 8x8 | 50 / 100, contract | OFF | 13.05048 to 13.07044 | 3.7489x |
+| 8x8 | 100 / 100, non-contract | ON | 9.94496 to 9.95772 | 4.9208x |
 | 8x8 | 100 / 100, non-contract | OFF | 9.93764 to 9.94094 | 4.9291x |
 
 The full closed-record census is 3,218 bytes / 53 records at 1x1.
@@ -1763,14 +1773,13 @@ Physical timing and memory ordering remain UNRESOLVED 6.
 
 ## 20. UNRESOLVED
 
-1. Materialization. Nothing writes a record for configuration index,
-   sampling rate, clock source, stream formats, presentation time offset,
-   channel maps or names at the current source; only bindings have a writer.
-   The pending bit reports the dynamic-state fields truthfully (1 until
-   reset); making them durable needs the accepted D3 contract in
+1. Materialization. Since processor pin `d352bbaa` (#70 lane 2) the D3
+   writer writes and restores the configuration index, sampling rates,
+   clock sources, both stream formats and the presentation time offsets.
+   Nothing writes a record for channel maps or names yet; making them
+   durable needs D3's later stages in
    [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md), under #70.
-   Its implementation remains open; its policy register records manager rulings.
-   DR3a still requires measured deadline ratification before lane 2 implements.
+   DR3a's deadlines are ratified (#70, 5873060660).
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
    `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
@@ -1799,7 +1808,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    The unchanged nominal 50 ms hold is retained conditionally.
    The 1x1 maximum is 3.88779 ms (12.6036x floor ratio).
    Both intervals include the complete record walk and attestation.
-   The 100 MHz 8x8 comparison is non-contract: 9.95464 ms maximum.
+   The 100 MHz 8x8 comparison is non-contract: 9.95772 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.

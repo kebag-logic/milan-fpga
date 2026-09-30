@@ -2100,7 +2100,13 @@ void TdmRenderHarness::prove_a_removal_silences_only_its_own_slots() {
     check.dec("T8 REMOVE: no removal aliased the pruned DAC lane",
               static_cast<uint64_t>(dac_after), kI2sN);
     // the removed slots must now render digital silence while the rest are
-    // still graded against the record
+    // still graded against the record. A frame committed before the removal
+    // can still reach the pins up to one commit-to-pin bound after it (the
+    // bound T14 grades: one frame, the frame CDC's floor and one bit), so
+    // that bound is waited out before collecting. Since processor pin
+    // d352bbaa the boot restore also runs the D3 walk, which moves this leg's
+    // arrival here against the frame grid; nothing in the removal changed.
+    run_fed(static_cast<long>(kFrameAxis + kCdcFloorAxis + kBitAxis) + 1);
     decoder_reset();
     taps_reset();
     collect = true;

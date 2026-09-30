@@ -28,8 +28,15 @@
 //                the manager drives KL_pp_nvm_mgr_arb, which drains a read the
 //                manager abandons at its walk deadline, in front of the port;
 //                the port's error cause reaches the manager, whose deadline
-//                is the top's NVM_RS_TMO_CYC_P (CLK_HZ_P / 50); and the
-//                arbiter's second manager is tied idle, as the top ties it.
+//                is the top's NVM_RS_TMO_CYC_P (ceil(CLK_HZ_P / 50)) and
+//                whose write backoff is the top's NVM_RETRY_BACKOFF_CYC_P
+//                (ceil(CLK_HZ_P / 2), DR2c), each derived here from this
+//                wrapper's clock as the top derives it; and the arbiter's
+//                second manager is tied idle. Since processor pin d352bbaa
+//                the top's second manager is the D3 writer, which needs the
+//                AECP engine this harness does not elaborate, so it stays
+//                tied here, and so does the aggregate deadline the writer
+//                raises into the manager (rs_agg_i).
 //                The top's listener admission gate is not modelled: no
 //                listener is, and restore_done here is the walk's own.
 //
@@ -180,6 +187,8 @@ module cosim_top
   logic [N_STREAM_IN_P-1:0]     finv_w;
   logic [N_STREAM_OUT_P*64-1:0] fo_nc_w;
   logic [15:0] cfg_nc_w, cs_nc_w, wr_nc_w, oob_nc_w;
+  //! the accepted-change qualifier that feeds the top's D3 writer
+  logic        wr_chg_nc_w;
   logic [7:0]  id_nc_w;
   logic        st_ready_nc_w, st_rvalid_nc_w;
   logic [63:0] st_rdata_nc_w;
@@ -215,6 +224,7 @@ module cosim_top
       .fmt_out_v_o     (fov_nc_w),
       .dirty_o         (aecp_dyn_dirty_w),
       .dbg_writes_o    (wr_nc_w),
+      .wr_chg_o        (wr_chg_nc_w),
       .dbg_oob_o       (oob_nc_w)
   );
   assign dyn_dirty_o     = aecp_dyn_dirty_w;
@@ -252,13 +262,20 @@ module cosim_top
 
   KL_acmp_nvm_shadow #(
       .N_SINKS_P    (N_STREAM_IN_P),
-      //! the top's NVM_RS_TMO_CYC_P default, derived the way it derives it
-      .RS_TMO_CYC_P (CLK_HZ_P / 32'd50)
+      //! the top's NVM_RS_TMO_CYC_P and NVM_RETRY_BACKOFF_CYC_P defaults,
+      //! derived from this clock the way the top derives them: ceil(CLK_HZ_P
+      //! / 50) and ceil(CLK_HZ_P / 2). The module's own defaults are fixed
+      //! at a 100 MHz clock, 100 times this harness's.
+      .RS_TMO_CYC_P (CLK_HZ_P / 32'd50 + (((CLK_HZ_P % 32'd50) != 32'd0) ? 32'd1 : 32'd0)),
+      .RETRY_BACKOFF_CYC_P ((CLK_HZ_P / 32'd2) + (CLK_HZ_P % 32'd2))
   ) u_nvm_shadow (
       .clk_i            (clk_i),
       .rst_n            (rst_n),
       .tick_i           (tick_ms_w),
       .restore_go_i     (restore_go_i),
+      //! the top's D3 writer raises the aggregate deadline here; it is not
+      //! elaborated (see the banner), so the aggregate never fires
+      .rs_agg_i         (1'b0),
       .restore_busy_o   (restore_busy_o),
       .restore_done_o   (pp_restore_done_w),
       .restore_fail_o   (pp_restore_fail_w),
@@ -427,6 +444,12 @@ module cosim_top
   //! elaborates the dynamic-state store and binding manager. The shipping
   //! pp_shadow suite grades names and actual parent phase-5 map writes,
   //! including unchanged maps that must leave pending clear.
+  //!
+  //! Since processor pin d352bbaa the shipping glue takes the D3 writer's
+  //! d3_unflushed_o in place of the dyn level (KL_pp_shadow.sv): the writer
+  //! retires each scalar change at its record's window write. The writer is
+  //! not elaborated here (see the banner), so the dyn level stays this
+  //! harness's stand-in for it, and a scalar change stays pending to reset.
   logic pend_w;
   assign pend_w = aecp_dyn_dirty_w | (|mgr_dirty_w);
 `else

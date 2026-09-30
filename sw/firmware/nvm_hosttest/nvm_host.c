@@ -130,6 +130,14 @@ struct walk {
 	int fail;
 	int blank;
 	int blind;
+	/* the D3 walk's CLOSED terminal (processor pin d352bbaa): fail and never
+	 * done, published at PP_STAT[16]; --walk-closed selects it */
+	int closed;
+	int end_closed;
+	/* every PP_CTRL[1] rising edge, and whether PP_CTRL[0] (the entity
+	 * enable) was ever raised while no walk had yet started */
+	unsigned int starts;
+	int enable_first;
 };
 
 struct flash_model {
@@ -312,11 +320,14 @@ static void on_store(unsigned int offset, uint32_t v)
 		strobes(v);
 		break;
 	case A_PP_CTRL:
+		if ((v & 1u) && !(pp_ctrl & 1u) && walk.starts == 0u)
+			walk.enable_first = 1;
 		if ((v & 2u) && !walk.armed) {
 			walk.pending = 1;
 			walk.at = now_ns + WALK_ARM_NS;
 			walk.blind = !be.img_valid;
 			walk.done = 0;
+			walk.starts++;
 		}
 		walk.armed = (v & 2u) != 0;
 		pp_ctrl = v;
@@ -384,9 +395,10 @@ static void advance(void)
 		if (now_ns >= walk.at + WALK_LEN_NS) {
 			walk.pending = 0;
 			walk.busy = 0;
-			walk.done = 1;
-			walk.fail = walk.blind;
-			walk.blank = area_all_erased();
+			walk.closed = walk.end_closed;
+			walk.done = !walk.closed;
+			walk.fail = walk.blind || walk.closed;
+			walk.blank = !walk.closed && area_all_erased();
 			be.base_ok = be.words[0] == (uint32_t)image_base_seen();
 		}
 	}
@@ -423,7 +435,8 @@ static void recompose(void)
 			     ((uint32_t)be.backed << 6) | ((uint32_t)walk.blank << 7) |
 			     ((uint32_t)be.dirty << 8) | ((uint32_t)be.stale << 9) |
 			     ((uint32_t)be.img_valid << 10) |
-			     ((uint32_t)be.unres << 11) | (be.verdict << 12);
+			     ((uint32_t)be.unres << 11) | (be.verdict << 12) |
+			     ((uint32_t)walk.closed << 16);
 	csr[A_PP_NVM_SEL / 4] = be.sel;
 	csr[A_PP_NVM_DATA / 4] = data_readback();
 	csr[A_PP_NVM_STAT / 4] = 0xc3000000u |
@@ -666,13 +679,14 @@ static void summary(void)
 	       "backed=%d dirty=%d stale=%d valid=%d verdict=%u blank=%d fail=%d done=%d "
 	       "seq=%u base_ok=%d img_len=%u losses=%u arms=%u reloads=%u "
 	       "ld_acc=%d ld_pend=%d rl_ref=%d unres=%d ack_ref=%d arm_ref=%d "
-	       "cap_id=%u now_ms=%llu\n",
+	       "cap_id=%u walks=%u enable_first=%d closed=%d now_ms=%llu\n",
 	       be.hb_count, be.ack_count, be.start_count, fl.erases, fl.programs,
 	       (unsigned long long)(be.max_hb_gap_ns / 1000000ull), fl.pagewrap,
 	       be.backed, be.dirty, be.stale, be.img_valid, be.verdict, walk.blank,
 	       walk.fail, walk.done, be.words[2], be.base_ok, be.words[1], be.losses,
 	       be.arm_count, be.reload_count, be.ld_acc, be.ld_pend, be.rl_ref,
 	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
+	       walk.starts, walk.enable_first, walk.closed,
 	       (unsigned long long)(now_ns / 1000000ull));
 }
 
@@ -713,7 +727,10 @@ int main(int argc, char **argv)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
-		else if (strcmp(a, "--refuse-loads") == 0 && v)
+		else if (strcmp(a, "--walk-closed") == 0) {
+			walk.end_closed = 1;
+			takes = 0;
+		} else if (strcmp(a, "--refuse-loads") == 0 && v)
 			be.refuse_loads = (unsigned int)strtoul(v, NULL, 0);
 		else if (strcmp(a, "--stray-ack") == 0 && v)
 			/* an acknowledgement quoting ANOTHER capture: it names

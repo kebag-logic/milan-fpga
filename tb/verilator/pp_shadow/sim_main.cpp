@@ -1385,6 +1385,21 @@ class PpShadowHarness {
         axi_write(A_PP_NVM_SEL, 3);
         axi_write(A_PP_NVM_DATA, 0x10); // validated image
         axi_write(A_PP_NVM_STAT, 1);    // live writer
+        // PP_CTRL[1] starts the boot restore walk before the enable, as
+        // nvm_boot() does: since processor pin d352bbaa AECP is held from reset
+        // until the D3 walk's terminal. Nothing answers behind the backend's
+        // configured window in this bench, so each walk ends on its per-wait
+        // deadline (NVM_RS_TMO_CYC_P, derived from the clock): the binding walk
+        // fails, and the D3 walk proves the image, reads nothing and ends
+        // DEFAULTS, about 4.0 M cycles in all at this bench's 100 MHz.
+        axi_write(A_PP_CTRL, 0x2);
+        uint32_t walk = 0;
+        for (int i = 0; i < 6000 && !(walk & ((1u << 2) | (1u << 16))); ++i) {
+            run_idle(1000);
+            walk = axi_read(A_PP_STAT);
+        }
+        ck("K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, "
+           "CLOSED 0)", walk & ((1u << 2) | (1u << 3) | (1u << 16)), (1u << 2) | (1u << 3));
         axi_write(A_PP_CTRL, 1);
         run_idle(2000);
         ck("K control: reset/load permits durable status",
@@ -3679,6 +3694,13 @@ class PpShadowHarness {
         // let the walk burn its watchdog into the parked fault
         for (int r = 0; r < 6; r++) run_idle(20000);
         mem_answering = true;                  // HANDOVER: memory + image now
+        // the firmware starts the restore walk once the image is in place
+        // (the AEM image before nvm_boot()); since processor pin d352bbaa AECP
+        // is held until the D3 walk's terminal, and that walk's LOCATE proves
+        // the image the store parked on, so the store heals before any wire
+        // command can reach it
+        ck_true("M2: the restore walk after the handover proves the image and sequences",
+                restore_walk_completes(), "restore_done");
         // the FIRST locate-bearing command after the handover must SERVE
         uint8_t cf[128];
         size_t at = tx_frames.size();
@@ -3729,9 +3751,10 @@ class PpShadowHarness {
 
     //! Arms a restore walk and waits for PP_STAT[2] restore_done, on the same
     //! budget [P] gives its own walk. Returns false when the walk never
-    //! terminates, so a wedged walk is a graded failure and not a hang.
+    //! terminates, so a wedged walk is a graded failure and not a hang. The
+    //! entity enable, PP_CTRL[0], is left as it stands.
     bool restore_walk_completes() {
-        axi_write(A_PP_CTRL, 0x2);                       // restore_go
+        axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);  // restore_go
         for (int i = 0; i < 200; i++) {
             run_idle(64);
             if ((axi_read(A_PP_STAT) >> 2) & 1) return true;
@@ -3767,15 +3790,16 @@ class PpShadowHarness {
     // plane twice, so every phase that needs the provisioned CSR window must
     // already have run.
     //
-    // WHAT IT DOES NOT DECIDE. A completed walk that validated zero records
-    // reports blank and fail together, whatever ended it: restore_blank_o is
-    // `done_r && !any_rec_r` in the manager, so a refusal and empty media land
-    // in the same encoding. That collapse is EXISTING behaviour and belongs to
-    // donor #20; this phase pins it exactly as it is and defines no new
-    // error-status policy. What it grades is delivery and retirement: the
-    // refusal must ARRIVE, the walk must terminate rather than wedge, the
-    // result must not read as a successful restore, and the shared reset must
-    // retire it and leave a legitimate blank READ usable.
+    // WHAT IT DOES NOT DECIDE. Until processor pin d352bbaa a completed walk
+    // that validated zero records reported blank and fail together, whatever
+    // ended it (the donor #20 collapse). Since that pin the processor's
+    // combined restore_blank_o never reads 1 with its fail, so the refusal
+    // reads fail and NOT blank, while empty media behind no validated image
+    // still reads blank beside the wrapper's blind-walk fail. This phase
+    // defines no error-status policy of its own. What it grades is delivery
+    // and retirement: the refusal must ARRIVE, the walk must terminate rather
+    // than wedge, the result must not read as a successful restore, and the
+    // shared reset must retire it and leave a legitimate blank READ usable.
     void grade_backend_rejection_reaches_the_processor() {
         printf("[P3] saved state: a real backend refusal must reach the processor\n");
         do_reset();
@@ -3801,8 +3825,11 @@ class PpShadowHarness {
                 refused_walk_done ? "restore_done set" : "restore_done never set");
         ck("P3: a refused image is NOT reported as a successful restore",
            (xstat >> 3) & 1, 1u);
-        ck("P3: ...and no record was validated (the #20 blank/refusal collapse)",
-           (xstat >> 7) & 1, 1u);
+        //! the combined blank never reads 1 with the processor's fail (processor
+        //! pin d352bbaa): a refusal that loses the saved record is not a clean
+        //! first boot
+        ck("P3: ...and does not read blank (fail, not an empty first boot)",
+           (xstat >> 7) & 1, 0u);
         ck("P3: nothing was committed, so nothing is dirty",
            (xstat >> 8) & 1, 0u);
 

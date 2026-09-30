@@ -2303,20 +2303,24 @@ class NxnDatapathHarness {
     //! The boot restore walk, as the firmware's nvm_boot() starts it. Since
     //! processor pin a8f8ce81 (its issue 92) the ACMP listener serves
     //! nothing from reset until the binding walk ends, and PP_CTRL[1] is what
-    //! starts that walk. The firmware sets it on every boot before it enables
-    //! the entity; a harness that binds a sink over ACMP owes the same step.
-    //! No image is configured, so the backend answers blank media and the
-    //! walk sequences in a few hundred cycles.
+    //! starts that walk. Since processor pin d352bbaa AECP is held from reset
+    //! until the D3 walk's terminal as well, and that walk must prove the AEM
+    //! image first (parent D3 section 8.1), so this runs once the descriptor
+    //! memory answers, as the firmware loads the image before nvm_boot(). No
+    //! NVM image is configured, so the backend answers blank media: the walk
+    //! ends COMPLETE (done 1, CLOSED 0) in a few thousand cycles.
     void start_the_boot_restore_walk() {
         constexpr uint16_t A_PP_CTRL = 0x920;
-        constexpr uint16_t A_PP_STAT = 0x924;
+        constexpr uint32_t kDone = 1u << 2;
+        constexpr uint32_t kClosed = 1u << 16;
         axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
-        unsigned done = 0;
-        for (int r = 0; r < 400 && !done; r++) {
+        uint32_t st = 0;
+        for (int r = 0; r < 400 && !(st & (kDone | kClosed)); r++) {
             for (int c = 0; c < 64; c++) step();
-            done = (axi_read(A_PP_STAT) >> 2) & 1u;
+            st = axi_read(A_PP_STAT);
         }
-        ck("[BOOT] PP_STAT[2] the restore walk sequenced", done, 1);
+        ck("[BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)",
+           st & (kDone | kClosed), kDone);
     }
 
     void prove_the_identity_and_provision_the_entity_id() {
@@ -2339,44 +2343,34 @@ class NxnDatapathHarness {
     }
 
     //! [AECP] THIS LEG STARTS WITH NO DESCRIPTOR MEMORY, ON PURPOSE AND ON
-    //! RECORD. milan_datapath exposes nine ports for the AEM descriptor image
-    //! the AECP store fetches (o_desc_mem_req_valid / i_desc_mem_req_ready /
-    //! o_desc_mem_req_addr / o_desc_mem_req_beats / i_desc_mem_rsp_valid /
-    //! o_desc_mem_rsp_ready / i_desc_mem_rsp_data / i_desc_mem_rsp_last /
-    //! i_desc_mem_rsp_err). Driving req_ready LOW is not neutral: it is
-    //! KL_aecp_desc_store's documented degrade path - the watchdog abandons
-    //! the burst, the image never validates, and READ_DESCRIPTOR comes back
-    //! well formed but empty-handed. That is legal, and it is what this
-    //! section grades. A zero left at a port by accident and a zero driven by
-    //! a decision look identical on a waveform, so the decision is named.
-    //!
-    //! WHAT THIS ARM CANNOT CATCH, AND WHAT THAT COST. While it was the ONLY
-    //! arm, a control plane that never transacted on those nine ports passed
-    //! here - "never transacts" and "no memory offered" are the same
-    //! waveform - and that is exactly what reached silicon on 2026-08-13.
-    //! [AECP-IMG] below is the opposite arm: a memory that ANSWERS, the image
-    //! the build ships, img_valid, and byte-exact descriptors on the wire.
-    void prove_read_descriptor_degrades_with_no_descriptor_memory() {
+    //! RECORD: i_desc_mem_req_ready is held LOW until [AECP-IMG] below serves
+    //! the image. Until processor pin d352bbaa this section graded the store's
+    //! degrade path, a READ_DESCRIPTOR answered BAD_ARGUMENTS with no memory.
+    //! That arm is RETIRED: since that pin AECP is held from reset until the
+    //! D3 restore's terminal (parent D3 section 8.1), and the restore needs the
+    //! image in place before PP_CTRL[1], so with no memory the command it
+    //! graded is never answered at all. What this section grades instead is
+    //! the hold and its admission (processor #131, 5873580810): the first AECP
+    //! command is HELD in the shared ingress, unanswered, and every further
+    //! one is DROPPED at its slot gate and counted in snapshot word 37, so
+    //! ACMP, ADP and MAAP keep their slots. The held one is answered at the
+    //! release, in [AECP-IMG] below.
+    static constexpr uint16_t kHeldSeq = 0x4000;
+    void prove_aecp_is_held_until_the_restore() {
         dm_answering = false;
-        {
-            std::vector<uint8_t> pl = {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00};
-            auto r = aecp_xact(0x0004, 0x4000, pl);   // READ_DESCRIPTOR(ENTITY,0)
-            ck("[AECP] READ_DESCRIPTOR with no descriptor memory still ANSWERS",
-               static_cast<long>(r.size() >= 38), 1);
-            if (r.size() >= 38) {
-                ck("[AECP] ...as an AEM_RESPONSE (message_type 1)",
-                   r[15] & 0x0F, 1);
-                //! the store never validated an image, so configurations_count
-                //! reads 0 and the uCPU's range check answers BAD_ARGUMENTS
-                //! before it ever locates - not NO_SUCH_DESCRIPTOR
-                ck("[AECP] ...with BAD_ARGUMENTS(7): configurations_count is 0",
-                   aecp_status(r), 7);
-                ck("[AECP] ...carrying the 7.4.5 stub (cdl = 12 + 8)",
-                   static_cast<long>(((static_cast<unsigned>(r[16]) & 7) << 8) | r[17]), 20);
-                ck("[AECP] ...padded to the 60-octet Ethernet minimum",
-                   static_cast<long>(r.size()), 60);
-            }
-        }
+        const std::vector<uint8_t> pl = {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00};
+        bool spok = false;
+        const uint32_t w37_0 = sp_read(SP_SNAPSHOT + 37, &spok);
+        const auto r = aecp_xact(0x0004, kHeldSeq, pl);   // READ_DESCRIPTOR(ENTITY,0)
+        ck("[AECP] before the restore READ_DESCRIPTOR is HELD, not answered",
+           static_cast<long>(r.empty()), 1);
+        const std::vector<uint8_t> f = aecp_request(0x0004, static_cast<uint16_t>(kHeldSeq + 3), pl);
+        inject(f.data(), f.size(), 1200);
+        const uint32_t w37_1 = sp_read(SP_SNAPSHOT + 37, &spok);
+        ck("[AECP] ...a second one is DROPPED at the slot gate (word 37 +1)",
+           static_cast<long>((w37_1 & 0xFFFFu) - (w37_0 & 0xFFFFu)), 1);
+        ck("[AECP] ...read over a posted access that did not error",
+           static_cast<long>(spok), 1);
     }
 
     //! [AECP-WTMO] THE RESPONSE MEMORY STOPS ANSWERING - AND THE STATION
@@ -2399,6 +2393,7 @@ class NxnDatapathHarness {
         {
             rm_answering = false;
             std::vector<uint8_t> pl = {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00};
+            bool spok = false;
             auto r = aecp_xact(0x0004, 0x4001, pl);
             ck("[AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER",
                static_cast<long>(r.size() >= 38), 1);
@@ -2419,21 +2414,31 @@ class NxnDatapathHarness {
             //! the next open, so the very next command answers as it did before
             //! the memory went away. A wedge would fail HERE even if the check
             //! above passed on a lucky first frame.
+            ck("[AECP-WTMO] ...and the response buffer reports its fault (word 36)",
+               static_cast<long>((sp_read(SP_SNAPSHOT + 36, &spok) & 0x7u) != 0), 1);
             rm_answering = true;
             auto r2 = aecp_xact(0x0004, 0x4002, pl);
+            //! this arm runs after the restore proved the image (processor pin
+            //! d352bbaa holds AECP until then), so the healed READ_DESCRIPTOR
+            //! of ENTITY 0 answers SUCCESS
             ck("[AECP-WTMO] the station HEALS when the memory returns (no reset)",
-               static_cast<long>(r2.size() >= 38 && aecp_status(r2) == 7), 1);
+               static_cast<long>(r2.size() >= 38 && aecp_status(r2) == 0), 1);
+            //! ...and the fault the wedge left clears with the heal. This is
+            //! the one reading [AECP-IMG]'s word-36 check gave while this arm
+            //! ran before it.
+            ck("[AECP-WTMO] ...and the response buffer's fault clears (word 36)",
+               sp_read(SP_SNAPSHOT + 36, &spok) & 0x7u, 0);
         }
     }
 
     //! [AECP-IMG] THE DESCRIPTOR MEMORY ANSWERS - AND THE ENTITY ENUMERATES.
     //!
-    //! THE ARM THAT WAS MISSING, AND THE REASON THIS SECTION EXISTS. Above
-    //! this line the suite proves a station that DEGRADES well: no memory
-    //! gives a well-formed BAD_ARGUMENTS, a wedged memory gives a well-formed
-    //! ENTITY_MISBEHAVING that heals. NEITHER can go red against a control
-    //! plane that never transacts on the descriptor ports at all, because
-    //! that is the stimulus both of them apply. The 2026-08-13 board shipped
+    //! THE ARM THAT WAS MISSING, AND THE REASON THIS SECTION EXISTS. The
+    //! degrade arms prove a station that fails well: a wedged memory gives a
+    //! well-formed ENTITY_MISBEHAVING that heals (and, until processor pin
+    //! d352bbaa, no memory gave a well-formed BAD_ARGUMENTS). NEITHER can go
+    //! red against a control plane that never transacts on the descriptor
+    //! ports at all, because that is the stimulus both of them apply. The 2026-08-13 board shipped
     //! with exactly that: img_valid 0, descriptor-store fault 8, and the
     //! response memory's dbg_lane_wr parked at 2 where a plane that reports
     //! reaches 17 on the same traffic. Every gate was green.
@@ -2463,6 +2468,10 @@ class NxnDatapathHarness {
 
         grade_the_image_header_and_the_side_port();
         grade_the_first_descriptors_on_the_wire();
+        //! the wedged-response-memory arm needs AECP released, so it runs
+        //! here, after the restore proved the image, in every leg and before
+        //! the timed leg's return
+        prove_a_wedged_response_memory_reports_and_heals();
         #ifdef NOTIFY_TIMED_TB
         //! THE TIMED LEG ENDS HERE: the image is served, so the
         //! notification section has names to set, and nothing after it
@@ -2503,6 +2512,19 @@ class NxnDatapathHarness {
         //! section reads the datapath with the plane in its shipping
         //! condition.
         dm_answering = true;
+        //! the image is in place, so PP_CTRL[1] starts the restore walk (the
+        //! firmware's order: the AEM image before nvm_boot()); the D3 writer's
+        //! LOCATE proves the image and the walk releases AECP
+        start_the_boot_restore_walk();
+        //! the one AECP command held from before the restore is served at the
+        //! release (the hold admission); take its answer off the wire here
+        {
+            const std::vector<uint8_t> held = await_aecp();
+            ck("[AECP] ...and the held READ_DESCRIPTOR is answered at the release",
+               static_cast<long>(held.size() >= 38
+                                 && ((held[34] << 8) | held[35]) == kHeldSeq
+                                 && aecp_status(held) == 0), 1);
+        }
 
         //! THE SIDE PORT FIRST, so that a zero out of word 34 later can
         //! only mean "the store rejected the image" and never "this
@@ -2515,22 +2537,17 @@ class NxnDatapathHarness {
     }
 
     //! ---- the descriptors on the wire -----------------------------
-    //! NO RESET ANYWHERE, AND ONE COMMAND IS ALL IT TAKES. The store
-    //! is parked in S_BAD with FAULT_TIMEOUT from the two sections
-    //! above and it re-probes on no timer: an image that never
-    //! validated re-arms its header walk after every state-port read
-    //! (KL_aecp_desc_store.sv S_ANSWER, "a late software load heals
-    //! with no reset"), and the µCPU STALLS on the store while that
-    //! walk runs. So the very first command after the memory appears
-    //! is already served, which is the healing claim in the strongest
-    //! form it can be stated: a controller that retries once
-    //! enumerates. MEASURED across that one command: 3 bursts and 75
-    //! beats, being the 32-byte header, the 16-entry index map, and
-    //! the 312-byte ENTITY line it then served.
+    //! NO RESET ANYWHERE. With no memory the store was never asked for
+    //! the image: the one AECP command sent before it was held, never
+    //! dispatched. The memory then arrived and the restore walk's image
+    //! proof (the D3 writer's LOCATE of ENTITY 0) made the store walk
+    //! it, so the image is validated before the first command here is
+    //! served, and the held command was already answered from it.
     //!
-    //! dbg_lane_wr is CUMULATIVE and [AECP-WTMO] already moved the
-    //! error counter beside it, so both are graded as DELTAS across
-    //! the two reads below. Word 35 is {rerr[15:0], lane_wr[15:0]}.
+    //! dbg_lane_wr and the error counter beside it are CUMULATIVE, and
+    //! the held command's answer already moved the lane count, so both
+    //! are graded as DELTAS across the two reads below. Word 35 is
+    //! {rerr[15:0], lane_wr[15:0]}.
     void grade_the_first_descriptors_on_the_wire() {
         bool spok = false;
         const uint32_t w35_0 = sp_read(SP_SNAPSHOT + 35, &spok);
@@ -2572,9 +2589,9 @@ class NxnDatapathHarness {
            static_cast<long>(lane_ent >= static_cast<long>((4 + ent_len) / 8)), 1);
         ck("[AECP-IMG] ...and committed STREAM_INPUT 1's as well",
            static_cast<long>(lane_si >= static_cast<long>((4 + si_len) / 8)), 1);
-        //! rerr counts responses the memory VOIDED. [AECP-WTMO] added one
-        //! deliberately, so only the delta across a working memory is
-        //! honest here.
+        //! rerr counts responses the memory VOIDED. [AECP-WTMO], which
+        //! runs after this, adds one deliberately, so only the delta across
+        //! a working memory is honest here.
         ck("[AECP-IMG] no response was voided by the memory",
            static_cast<long>((w35_2 >> 16) - (w35_0 >> 16)), 0);
         ck("[AECP-IMG] the response buffer reports no fault (word 36)",
@@ -8022,9 +8039,7 @@ int NxnDatapathHarness::run() {
            kNstreamsTb);
     bring_the_datapath_out_of_reset();
     prove_the_identity_and_provision_the_entity_id();
-    start_the_boot_restore_walk();
-    prove_read_descriptor_degrades_with_no_descriptor_memory();
-    prove_a_wedged_response_memory_reports_and_heals();
+    prove_aecp_is_held_until_the_restore();
     if (prove_the_shipped_descriptor_image_enumerates()) return fails ? 1 : 0;
     prove_the_dynamic_map_store_starts_empty();
     provision_listeners_one_and_two_through_the_window();

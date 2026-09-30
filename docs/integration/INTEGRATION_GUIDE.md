@@ -151,12 +151,15 @@ sequenceDiagram
 - Release resets only with stable clocks.
 - Read `MILN` from offset zero.
 - Exercise one writable CSR afterward.
-- Load and verify descriptor memory.
+- Load and verify descriptor memory before `PP_CTRL[1]`; a restore started
+  without it cannot prove the image and ends CLOSED.
 - Connect response memory before entity enablement.
 - Start the restore walk with `PP_CTRL[1]` on every boot.
 - The ACMP listener answers nothing until that walk ends.
-- `PP_STAT[2]` reports the end.
-- A silent device ends the walk at 20 ms.
+- AECP answers nothing until the D3 walk ends.
+- `PP_STAT[2]` reports the end, and `PP_STAT[16]` a CLOSED one.
+- A silent device ends each wait at 20 ms.
+- The whole restore is bounded at 1,000 ms.
 - Enable only fully wired protocol features.
 
 ## Include required sources
