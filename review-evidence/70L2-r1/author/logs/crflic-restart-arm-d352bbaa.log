@@ -1,0 +1,498 @@
+E=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__0.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__1.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__2.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__3.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__4.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__5.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__6.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__7.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__8.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__1__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__2__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024unit__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_crf_licence.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_crflic
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/70-lane2-pin/tb/verilator/milan_dp/obj_crflic_prevpin'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 141.170 MB sources in 117 modules, into 12.217 MB in 21 C++ files needing 0.005 MB
+- Verilator: Walltime 13.212 s (elab=0.405, cvt=2.676, bld=9.678); cpu 3.664 s on 32 threads; allocated 1952.359 MB
+./obj_crflic_prevpin/Vmilan_dp_crflic
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+  -- source uid 0 (AAF)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+  [PASS] no CRF PDU on the wire                                             got=0 exp=0
+  [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+  [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+  [PASS] the AAF gate never opened                                          got=0 exp=0
+  [PASS] no AAF PDU on the wire                                             got=0 exp=0
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+  [i]    the raw verdict has stood 3868.82 ms: the window Run B streamed through
+[B] the listener's retry succeeds and the switch declares Listener Ready
+  -- source uid 0
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  -- source uid 1
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=581573 exp=581573
+  [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=582156 exp=582156
+  [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+  [PASS] AAF PDUs follow the AAF gate
+  [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+  [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+  [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+  [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the AAF gate closed on that cycle                                  got=877020 exp=877020
+  [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+  [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+  [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+  [PASS] the CRF output is untouched                                        got=1 exp=1
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+  [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+  [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+  [PASS] the CRF licence never fell                                         got=0 exp=0
+  [PASS] the CRF DA gate never closed                                       got=0 exp=0
+  [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+  [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+  [i]    5 DUT and 5 switch LeaveAll MRPDUs in this phase
+  [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+  [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+  [PASS] the switch sent >= 3 of its own, Listener JoinMt first
+  [i]    5 DUT LeaveAll MRPDUs followed a switch LeaveAll, the soonest 2210.00 ms after it
+  [FAIL] each switch LeaveAll restarted the DUT's leavealltimer: every DUT LeaveAll came >= 10 s after the switch's preceding one (802.1Q-2014 Table 10-5 rLA!)
+  [PASS] the Listener registration still reads Ready                        got=2 exp=2
+  [i]    155 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+  [i]    37 intervals since STREAM_START, FRAMES_TX 38, 155 PDUs
+  [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+  [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+  [PASS] FRAMES_TX = the intervals elapsed since STREAM_START (+-1)
+  [PASS] ...which is far fewer than the PDUs sent (>= 3 per interval here)
+  [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=155 exp=155
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+  [PASS] Asking Failed registered                                           got=1 exp=1
+  [PASS] ACTIVE fell within 50 ms of it
+  [PASS] the licence closed on that cycle                                   got=8227016 exp=8227016
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] Ready Failed registered                                            got=3 exp=3
+  [PASS] ACTIVE rose after it
+  [PASS] the licence reopened on that cycle                                 got=8427016 exp=8427016
+  [PASS] CRF PDUs resumed
+[F] ...and they restart at the next STREAM_START
+  [PASS] STREAM_START = 2                                                   got=2 exp=2
+  [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+  [PASS] FRAMES_TX restarted: it counts only the intervals since the restart (+1)
+[E] the CRF listener unbinds inside a fresh probe window
+  [PASS] the probe window is still open
+  [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the licence closed on that cycle                                   got=8677016 exp=8677016
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+[G/H] #551: real admission ceiling and both round phases
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 0, admission phase 0: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=9695343 exp=9695343
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=27 exp=27
+[H] source 0, admission phase 0: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=10205651 exp=10205651
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=0 ACTIVE=10205652 grant=10205657 licence=10205657 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 0, admission phase 0: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=10715955 exp=10715955
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=51 exp=51
+[J] source 0, admission phase 0: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=11226263 exp=11226263
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=0 ACTIVE=11226264 grant=11226269 licence=11226269 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 0, admission phase 1: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=11736566 exp=11736566
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=75 exp=75
+[H] source 0, admission phase 1: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=12246874 exp=12246874
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=1 ACTIVE=12246875 grant=12246880 licence=12246880 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 0, admission phase 1: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=12757178 exp=12757178
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=99 exp=99
+[J] source 0, admission phase 1: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13267486 exp=13267486
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=1 ACTIVE=13267487 grant=13267492 licence=13267492 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 1, admission phase 0: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13795981 exp=13795981
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=161 exp=161
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=161 exp=161
+[H] source 1, admission phase 0: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=14306293 exp=14306293
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=0 ACTIVE=14306294 grant=14306297 licence=14306297 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 1, admission phase 0: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=14816597 exp=14816597
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=167 exp=167
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=167 exp=167
+[J] source 1, admission phase 0: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=15326909 exp=15326909
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=0 ACTIVE=15326910 grant=15326913 licence=15326913 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 1, admission phase 1: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=15837212 exp=15837212
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=173 exp=173
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=173 exp=173
+[H] source 1, admission phase 1: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=16347524 exp=16347524
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=1 ACTIVE=16347525 grant=16347530 licence=16347530 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 1, admission phase 1: refused re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=16857828 exp=16857828
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=179 exp=179
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=179 exp=179
+[J] source 1, admission phase 1: admitted re-declaration
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=17368140 exp=17368140
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=1 ACTIVE=17368141 grant=17368146 licence=17368146 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 176282.04 ms (17628204 cycles)
+checks: 416   failures: 1
+RESULT: FAIL
+make: *** [Makefile:454: crflic] Error 1
+make: Leaving directory '$LANES/70-lane2-pin/tb/verilator/milan_dp'

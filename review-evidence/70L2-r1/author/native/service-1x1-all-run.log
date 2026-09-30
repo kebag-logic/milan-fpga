@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$LANES/70-lane2-pin/tb/verilator/fw_service_budget/run.py", line 660, in <module>
+    main()
+    ~~~~^^
+  File "$LANES/70-lane2-pin/tb/verilator/fw_service_budget/run.py", line 649, in main
+    result.update(grade(raw, media))
+                  ~~~~~^^^^^^^^^^^^
+  File "$LANES/70-lane2-pin/tb/verilator/fw_service_budget/run.py", line 277, in grade
+    require('walk done=1 fail=0' in uart, 'restore walk did not complete successfully')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/70-lane2-pin/tb/verilator/fw_service_budget/run.py", line 39, in require
+    raise RuntimeError(message)
+RuntimeError: restore walk did not complete successfully

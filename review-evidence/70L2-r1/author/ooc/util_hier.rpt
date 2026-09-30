@@ -1,0 +1,76 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Tue Sep 29 13:55:03 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -file util_hier.rpt
+| Design       : KL_pp_shadow
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-----------------------------+-------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|           Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++-----------------------------+-------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| KL_pp_shadow                |                               (top) |      25623 |      24201 |    1422 |    0 | 25881 |     16 |      2 |          8 |
+|   (KL_pp_shadow)            |                               (top) |          9 |          9 |       0 |    0 |   327 |      0 |      0 |          0 |
+|   ctl_fifo                  |                           axis_fifo |         86 |         86 |       0 |    0 |    33 |      1 |      1 |          0 |
+|   u_nvm                     |                      KL_nvm_backend |        925 |        925 |       0 |    0 |   932 |      0 |      0 |          4 |
+|   u_pp                      |              protocol_processor_top |      24612 |      23190 |    1422 |    0 | 24589 |     15 |      1 |          4 |
+|     (u_pp)                  |              protocol_processor_top |        416 |        416 |       0 |    0 |  3250 |      0 |      0 |          0 |
+|     g_rx_pool[0].u_rx_slots |                      KL_pp_rx_slots |         51 |         51 |       0 |    0 |    38 |      1 |      0 |          0 |
+|     g_rx_pool[2].u_rx_slots |                    KL_pp_rx_slots_1 |         55 |         55 |       0 |    0 |    62 |      1 |      0 |          0 |
+|     g_rx_pool[5].u_rx_slots |                    KL_pp_rx_slots_3 |         97 |         97 |       0 |    0 |    62 |      1 |      0 |          0 |
+|     u_adp                   |                       KL_adp_engine |        600 |        552 |      48 |    0 |   463 |      0 |      0 |          1 |
+|     u_aecp                  |                      KL_aecp_engine |       6040 |       5820 |     220 |    0 |  3507 |      6 |      0 |          1 |
+|       (u_aecp)              |                      KL_aecp_engine |       1495 |       1495 |       0 |    0 |  1100 |      1 |      0 |          0 |
+|       u_d3                  |                  KL_aecp_nvm_writer |        913 |        913 |       0 |    0 |   488 |      0 |      0 |          0 |
+|       u_dyn                 |                   KL_aecp_dyn_state |        200 |        200 |       0 |    0 |   468 |      0 |      0 |          0 |
+|       u_resp                |                    KL_aecp_resp_buf |        402 |        402 |       0 |    0 |   260 |      0 |      0 |          0 |
+|       u_store               |                  KL_aecp_desc_store |       1139 |       1051 |      88 |    0 |   701 |      2 |      0 |          1 |
+|       u_ucpu                |                        KL_aecp_ucpu |       1898 |       1766 |     132 |    0 |   490 |      3 |      0 |          0 |
+|     u_ca_builder            |               KL_aecp_ca_originator |        207 |        207 |       0 |    0 |   152 |      0 |      0 |          0 |
+|     u_dispatch              |                      KL_pp_dispatch |        792 |        316 |     476 |    0 |   759 |      0 |      0 |          0 |
+|       u_maap_q              | KL_pp_dispatch_fifo__parameterized0 |        134 |          6 |     128 |    0 |   188 |      0 |      0 |          0 |
+|       u_acmp_q              |                 KL_pp_dispatch_fifo |        293 |        165 |     128 |    0 |   192 |      0 |      0 |          0 |
+|       u_adp_q               |               KL_pp_dispatch_fifo_4 |         67 |          7 |      60 |    0 |    88 |      0 |      0 |          0 |
+|       u_aecp_q              |               KL_pp_dispatch_fifo_5 |        271 |        111 |     160 |    0 |   243 |      0 |      0 |          0 |
+|     u_event_router          |                  KL_pp_event_router |        247 |        247 |       0 |    0 |    51 |      0 |      0 |          0 |
+|     u_listener              |                 KL_pp_acmp_listener |       1707 |       1499 |     208 |    0 |  1369 |      0 |      0 |          0 |
+|     u_maap                  |                          KL_pp_maap |        818 |        818 |       0 |    0 |   499 |      0 |      0 |          0 |
+|     u_mrp_strip             |                        KL_mrp_strip |         71 |         71 |       0 |    0 |   107 |      1 |      0 |          0 |
+|     u_normalizer            |                    KL_pp_normalizer |         21 |         21 |       0 |    0 |   304 |      0 |      0 |          0 |
+|     u_notify                |                      KL_aecp_notify |       2853 |       2757 |      96 |    0 |  3301 |      0 |      0 |          0 |
+|     u_nvm_port              |                      KL_pp_nvm_port |        433 |        433 |       0 |    0 |   127 |      0 |      0 |          0 |
+|     u_nvm_shadow            |                  KL_acmp_nvm_shadow |        850 |        750 |     100 |    0 |  1118 |      0 |      0 |          0 |
+|     u_originator            |                    KL_pp_originator |        845 |        825 |      20 |    0 |   885 |      0 |      0 |          0 |
+|     u_prng                  |                          KL_pp_prng |        158 |        158 |       0 |    0 |   150 |      0 |      0 |          0 |
+|     u_rx_validator          |                  KL_pp_rx_validator |       1198 |       1186 |      12 |    0 |   798 |      0 |      0 |          0 |
+|     u_scoreboard            |                    KL_pp_scoreboard |         81 |         81 |       0 |    0 |    73 |      0 |      0 |          0 |
+|     u_side_port             |                     KL_pp_side_port |         56 |         56 |       0 |    0 |     6 |      0 |      0 |          0 |
+|     u_srp                   |                          KL_srp_top |       4532 |       4346 |     186 |    0 |  6381 |      0 |      1 |          2 |
+|       (u_srp)               |                          KL_srp_top |        943 |        943 |       0 |    0 |  2838 |      0 |      0 |          0 |
+|       u_admission           |                    KL_srp_admission |        335 |        335 |       0 |    0 |   271 |      0 |      0 |          2 |
+|       u_decoder             |                      KL_srp_decoder |        661 |        661 |       0 |    0 |   628 |      0 |      1 |          0 |
+|       u_domain              |                       KL_srp_domain |         57 |         57 |       0 |    0 |   108 |      0 |      0 |          0 |
+|       u_encoder             |                      KL_srp_encoder |       1379 |       1205 |     174 |    0 |  1085 |      0 |      0 |          0 |
+|       u_listener            |                 KL_srp_listener_fsm |        401 |        401 |       0 |    0 |   667 |      0 |      0 |          0 |
+|       u_talker              |                   KL_srp_talker_fsm |        653 |        653 |       0 |    0 |   714 |      0 |      0 |          0 |
+|       u_vlan                |                         KL_srp_vlan |        103 |         91 |      12 |    0 |    70 |      0 |      0 |          0 |
+|     u_talker                |                      KL_acmp_talker |        864 |        808 |      56 |    0 |   551 |      0 |      0 |          0 |
+|     u_timer                 |                 KL_pp_timer_service |        785 |        785 |       0 |    0 |   179 |      1 |      0 |          0 |
+|     u_tx_arbiter            |                    KL_pp_tx_arbiter |        272 |        272 |       0 |    0 |   187 |      0 |      0 |          0 |
+|     u_tx_slots              |                      KL_pp_tx_slots |        405 |        405 |       0 |    0 |   138 |      1 |      0 |          0 |
++-----------------------------+-------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+
+
