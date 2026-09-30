@@ -1,0 +1,203 @@
+{
+  "head": "943a3dac973abc7130fe1a19bb6f5943788a01fe",
+  "tree": "ffb89f749a18aeb6ec7d843f320fb6b095b08e10",
+  "results": [
+    {
+      "name": "fw_service_budget-selftest",
+      "command": [
+        "python3",
+        "tb/verilator/fw_service_budget/run.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.6,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/fw_service_budget-selftest.log",
+      "log_bytes": 259,
+      "log_sha256": "243dc72342b59782d0df26e5c4372f1698a7a43577a4fbd7cb1cfd4230d8d1a2"
+    },
+    {
+      "name": "grader-mutants",
+      "command": [
+        "python3",
+        "$MANAGEMENT/2026-09-23/70-a455/check_mutants.py",
+        "$LANES/70-lane2-pin",
+        "/tmp/a455/gate-mutants"
+      ],
+      "rc": 0,
+      "seconds": 2.2,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/grader-mutants.log",
+      "log_bytes": 2315,
+      "log_sha256": "d0bc104bfd573fc08ad9101604bc7ed5dc7f458abde0edbd9a6049cad1f59afb"
+    },
+    {
+      "name": "check_nvm_capture",
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "rc": 0,
+      "seconds": 0.7,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/check_nvm_capture.log",
+      "log_bytes": 324,
+      "log_sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+    },
+    {
+      "name": "firmware-digest",
+      "command": [
+        "python3",
+        "$MANAGEMENT/2026-09-23/70-a455/check_firmware_digest.py",
+        "$LANES/70-lane2-pin"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/firmware-digest.log",
+      "log_bytes": 261,
+      "log_sha256": "8fea3f19d285e62a02ea771d06f43264ba30b0d96988fd4d43008c0c3cbb75e9"
+    },
+    {
+      "name": "check_py_idiom",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 3.4,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/check_py_idiom.log",
+      "log_bytes": 461,
+      "log_sha256": "4162e76204f67229a728afeac0a4ebbb757cdbb50ccb0508144f44a4e2d9f0d5"
+    },
+    {
+      "name": "measure_test_evidence",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 5.7,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/measure_test_evidence.log",
+      "log_bytes": 11898,
+      "log_sha256": "ccb36c8d883bee0c9dcfa8edf09e3d472a7b518b1b14c5353ee3b694695bf345"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "79c36963660c10e4c1c11a744fb5bff41a552b8b",
+        "HEAD"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/diff-check.log",
+      "log_bytes": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "md-docs_check",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 4.5,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/md-docs_check.log",
+      "log_bytes": 127,
+      "log_sha256": "c983a535ee139f70c62523d4d549a3f273a8d8b47afa16d333ccd826a78bab83"
+    },
+    {
+      "name": "md-check_doc_paths",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/md-check_doc_paths.log",
+      "log_bytes": 84,
+      "log_sha256": "0f9fa704b411b9993581088941111e300a8e4df10fb0c029ecc0648048e26509"
+    },
+    {
+      "name": "md-check_doc_style",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/md-check_doc_style.log",
+      "log_bytes": 47,
+      "log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+    },
+    {
+      "name": "md-check_archive",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "seconds": 0.3,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/md-check_archive.log",
+      "log_bytes": 93,
+      "log_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+    },
+    {
+      "name": "md-gen_toc",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 3.1,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/md-gen_toc.log",
+      "log_bytes": 94,
+      "log_sha256": "7bd517fdaeda47f1cdc0f728417b45f061cd70367d76e347365cbe06fff6dae8"
+    },
+    {
+      "name": "md-check_em_dash",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "79c36963660c10e4c1c11a744fb5bff41a552b8b"
+      ],
+      "rc": 0,
+      "seconds": 3.3,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/md-check_em_dash.log",
+      "log_bytes": 141,
+      "log_sha256": "d5e2578b51298e50fd3f9c25d2f095cbf717058e639f18d72e7ebb7341c4ee05"
+    },
+    {
+      "name": "builder-present",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+        "-B",
+        "sw/builder/test_builder.py",
+        "--require-elaboration",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 1050.6,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/builder-present.log",
+      "log_bytes": 99388,
+      "log_sha256": "643f648e590c54d8eb7a98c71c25d5a9227d89f3ae2c8c400123c5988878a310"
+    },
+    {
+      "name": "builder-absent",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+        "-B",
+        "$MANAGEMENT/2026-09-23/70-a455/full-builder-absent.py"
+      ],
+      "rc": 0,
+      "seconds": 675.3,
+      "log": "$VALIDATION_STORAGE/a455-gates-943a3dac/builder-absent.log",
+      "log_bytes": 101260,
+      "log_sha256": "6531430e9b21546df0e4ec1745f2d20ef0b5621dc1c1af3d86ffae5c18f264c6"
+    }
+  ],
+  "head_after": "943a3dac973abc7130fe1a19bb6f5943788a01fe",
+  "clean_after": true
+}

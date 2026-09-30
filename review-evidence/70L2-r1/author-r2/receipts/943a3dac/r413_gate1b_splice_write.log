@@ -1,0 +1,8 @@
+# head 943a3dac973abc7130fe1a19bb6f5943788a01fe
+# argv $WORKSPACE_HOME/litex-milan/venv/bin/python -u $REVIEWS/70L2-r413-1-packet/probes/run_gate1b.py /tmp/a455/rev2/r413-splice_write
+# env {'R413_STOP_AFTER_BASELINE': '1'}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+elapsed 7.4s
+# rc 1
