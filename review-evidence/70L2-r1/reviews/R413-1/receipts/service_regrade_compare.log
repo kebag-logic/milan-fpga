@@ -1,0 +1,11 @@
+oracle[0] endstation_ax7101_1x1_tdm8 all: rows read by the rule=25; rows whose bound the rule changes=[]
+oracle[0] endstation_ax7101_1x1_tdm8 all: base findings=N/A: no continuous backing observation head findings=N/A: no continuous backing observation findings_equal=True phy_bounds_equal=True head_armed_rows=[('restore_walk', 250.01111)]
+oracle[1] endstation_ax7101_8x8 all: rows read by the rule=25; rows whose bound the rule changes=[]
+oracle[1] endstation_ax7101_8x8 all: base findings=N/A: no continuous backing observation head findings=N/A: no continuous backing observation findings_equal=True phy_bounds_equal=True head_armed_rows=[('restore_walk', 250.01111)]
+oracle[2] endstation_ax7101_1x1_tdm8 uart-paced: rows read by the rule=25; rows whose bound the rule changes=[]
+oracle[2] endstation_ax7101_1x1_tdm8 uart-paced: base findings=N/A: no continuous backing observation head findings=N/A: no continuous backing observation findings_equal=True phy_bounds_equal=True head_armed_rows=[('restore_walk', 250.01111)]
+service-8x8-all-receipt.json: rows read by the rule=25; rows whose bound the rule changes=[('aem_copy_crc', 1265.3548700000001, 253.16441)]
+service-8x8-all-receipt.json: base findings=['over-budget tick stretch: aem_copy_crc', 'over-budget PHY service stretch: aem_copy_crc'] head findings=[] findings_equal=False phy_bounds_equal=False head_armed_rows=[('aem_copy_crc', 253.16441), ('restore_walk', 250.66036)]
+service-1x1-all-receipt.json: rows read by the rule=25; rows whose bound the rule changes=[('aem_copy_crc', 533.12954, 253.74805)]
+service-1x1-all-receipt.json: base findings=['over-budget tick stretch: aem_copy_crc', 'over-budget PHY service stretch: aem_copy_crc'] head findings=[] findings_equal=False phy_bounds_equal=False head_armed_rows=[('aem_copy_crc', 253.74805), ('restore_walk', 250.65929)]
+OLD-ORDER TRACES REGRADE UNCHANGED

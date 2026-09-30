@@ -1,0 +1,7 @@
+nvm_boot_splice:
+	sw	a5,.LANCHOR0,a4
+nvm_boot_paste:
+	sw	a5,.LANCHOR0,a4
+	.type	aem_loaded, @object
+	.size	aem_loaded, 4
+aem_loaded:
