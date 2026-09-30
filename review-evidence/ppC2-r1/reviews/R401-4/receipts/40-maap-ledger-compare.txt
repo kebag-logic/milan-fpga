@@ -1,0 +1,31 @@
+ledger rows 29, campaign arm runs 29
+EQ  fit-compare-forced-true                maap         run 5 FAIL of 196  ledger 5 of 196
+EQ  fit-compare-off-by-one                 maap         run 7 FAIL of 195  ledger 7 of 195
+EQ  seed-clamp-removed                     maap         run 6 FAIL of 196  ledger 6 of 196
+EQ  release-keeps-draw-mark                maap         run 9 FAIL of 194  ledger 9 of 194
+EQ  validator-maap-version-1-only          rx_validator run 47 FAIL of 497  ledger 47 of 497
+EQ  validator-maap-version-1-only          pp_top       run 4 FAIL of 34  ledger 4 of 34
+EQ  compare-mac-forward                    maap         run 9 FAIL of 194  ledger 9 of 194
+EQ  compare-mac-forward                    pp_top       run 5 FAIL of 34  ledger 5 of 34
+EQ  probe-rprobe-never-yields              maap         run 2 FAIL of 196  ledger 2 of 196
+EQ  defend-rdefend-ignored                 maap         run 8 FAIL of 194  ledger 8 of 194
+EQ  defend-rdefend-no-tiebreak             maap         run 2 FAIL of 196  ledger 2 of 196
+EQ  probe-rannounce-tiebreak               maap         run 7 FAIL of 196  ledger 7 of 196
+EQ  yield-reuses-range                     maap         run 8 FAIL of 196  ledger 8 of 196
+EQ  ival-sends-after-release               maap         run 8 FAIL of 196  ledger 8 of 196
+EQ  post-publishes-after-release           maap         run 4 FAIL of 194  ledger 4 of 194
+EQ  tx-path-absorbs-release                maap         run 10 FAIL of 190  ledger 10 of 190
+EQ  off-waits-for-an-edge                  maap         run 9 FAIL of 189  ledger 9 of 189
+EQ  rx-release-returns-to-idle             maap         run 3 FAIL of 195  ledger 3 of 195
+EQ  seed-rearmed-on-idle-release-only      maap         run 2 FAIL of 196  ledger 2 of 196
+EQ  seed-clamp-off-by-one                  maap         run 2 FAIL of 196  ledger 2 of 196
+EQ  release-waits-for-draw                 maap         run 1 FAIL of 196  ledger 1 of 196
+EQ  idle-serves-a-latched-expiry-first     maap         run 3 FAIL of 196  ledger 3 of 196
+EQ  teardown-keeps-announce-timer          maap         run 1 FAIL of 196  ledger 1 of 196
+EQ  drain-waits-for-the-link               maap         run 5 FAIL of 196  ledger 5 of 196
+EQ  tx-set-omits-alloc                     maap         run 3 FAIL of 196  ledger 3 of 196
+EQ  tx-set-omits-gwait                     maap         run 3 FAIL of 196  ledger 3 of 196
+EQ  tx-set-omits-write                     maap         run 7 FAIL of 192  ledger 7 of 192
+EQ  tx-set-omits-commit                    maap         run 3 FAIL of 196  ledger 3 of 196
+EQ  tx-set-omits-lane                      maap         run 6 FAIL of 194  ledger 6 of 194
+ALL EQUAL
