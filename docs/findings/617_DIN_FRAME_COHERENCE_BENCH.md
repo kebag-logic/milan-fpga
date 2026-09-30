@@ -51,9 +51,16 @@ others change documentation. The lane base is the same commit.
 | QSPI payload CRC32, 3,825,788 bytes | `d178f19a`; `13eda870` read `d84bce7b` |
 | Identity gate | PASS |
 
+VERSION, the AEM CRC32, the entity ID and the ROM CRC32 are unchanged from
+`13eda870`, whose readback is on the
+[#606 page](606_FIRST_BIND_MEASUREMENT.md#identity-and-setup). Only the QSPI
+payload CRC32 differs. It shows that a different bitstream is installed, not
+which one.
+
 This is CRC consistency and descriptor identity, not a configuration SHA-256
-readback. The build's bitstream was not on the bench host, so the payload CRC
-is recorded as read.
+readback. The lane packet does not hold the `ec0cc0c1` build's own payload
+CRC32, because the build's bitstream was not on the bench host. So `d178f19a`
+is recorded as read, and is not matched to the build.
 
 As found, all 18 queried stream states were unbound and both DUT audio maps
 were empty. The DUT selected clock source 0, INTERNAL, at 48 kHz. `SLIP_TDM`
@@ -97,7 +104,12 @@ was copied over the USB network link with its SHA-256 checked.
 
 **Torn frame.** #617 defines a torn AAF frame as one carrying samples from two
 TDM frames. Under the pattern that is a frame whose valid words carry more than
-one ordinal. The count covers every frame of the recording.
+one ordinal. The rule reads only pattern words, so a frame that mixes one
+pattern ordinal with zero or idle words is not counted by it. The
+whole-recording count therefore covers the frames that carry pattern words.
+Here those are the playback region's frames: no word outside the region is a
+pattern word. The frames at the region's edges were graded by inspection of
+their words, listed at the end of the [DIN run](#din-run).
 
 ## DIN run
 
@@ -143,7 +155,10 @@ whole-frame slip per beat, counted once on `SLIP_TDM`.
 
 Across the 70 s of playback the counter rose by 36, the repeats in the stream.
 
-Outside the region the recording holds 1,191,588 frames:
+Outside the region the recording holds 1,191,588 frames, and none carries a
+pattern word. The edge frames, 45,587 before the region and the 777 transition
+frames after it, were graded by inspection of their words, not by the torn
+rule:
 
 - **Before playback and after the stop tail**, every word reads `0xffffff00`.
 - **Frame 45,587**, just before the region, reads `ffffff00`, `fffff000`, then
@@ -222,9 +237,19 @@ mixes adjacent TDM frames.
 Residuals that no permitted command restores:
 
 - The map and bind edits of the method made the DUT persist its saved state.
-  NVM commits went from 0 to 6, the slots from seq 229/230 to 235/236, and
-  `pend=1` is left set, as is `PP_STAT` bit 11. The live maps and bindings
-  equal the start. First light left the same bit set.
+  NVM commits went from 0 to 6, and the slots from seq 229/230 to 235/236. At
+  the end the last commit is `VD_OK` and `dirty=0`, so the slots hold the
+  state as left, with STREAM_INPUT 0 unbound. The live maps and bindings equal
+  the start.
+- `nvm_pend` is left at 1. The console's `pend=1` and `PP_STAT` bit 11 are
+  that one wire, read at `PP_NVM_STAT[22]` and `PP_STAT[11]`
+  ([REGISTER_MAP.md](../reference/REGISTER_MAP.md#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2)).
+  A channel-map write holds it at 1 until the next reset, and the maps are
+  never saved
+  ([records `0x60` to `0x7F`](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)).
+  So the next lane does not read the durable state, `backed=1`, `dirty=0`,
+  `stale=0` and `pend=0`, until the DUT is reset. A lane that needs that
+  reading must reset the DUT first. First light left the same bit set.
 - The bridge legs run under new process IDs.
 
 ## Limits
@@ -247,8 +272,10 @@ size and SHA-256.
 | DIN pattern period, built on the SoC board | 2097152 | `b6a92e9724e945354c3f8fc5178cec7bb8fd0e62d52bd9ee7f13ed5347bfa97c` |
 | DOUT 70 s SoC capture, `dout-long` | 107520000 | `bfee26618674d17f5eacfb18c36a0860cac37dfcd4bba0a04b84684b6625b040` |
 
-The lane packet `b3-a453` holds the tools, the per-action evidence and the
-raw-artifact index. Its grading tools:
+The lane packet holds the tools, the per-action evidence and the raw-artifact
+index. Its redacted copy is `review-evidence/b3-r1/author/` on branch
+`b3-review-evidence`, where `RAW-ARTIFACTS.json` indexes every raw file by size
+and SHA-256. Its grading tools:
 
 | Tool | SHA-256 |
 |---|---|

@@ -123,8 +123,14 @@ rotation `k`. Every rotation from 1 to 7 occurs in both runs.
 
 | Run | Bridge side during the capture | DUT side, bound |
 |---|---|---|
-| `usb-long` | McASP0 receive 250.7 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 135 to 349 |
-| `usb-long2` | McASP0 receive 250.7 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 456 to 692 |
+| `usb-long` | McASP0 receive 250.0 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 135 to 349 |
+| `usb-long2` | McASP0 receive 250.0 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 456 to 692 |
+
+The McASP0 receive rate is the count of the receive DMA's 192-frame periods
+between the bridge status reads before and after each capture. The interval
+runs between the same uptime read of the two logs, so the bracket is
+consistent: 18,942 and 18,957 periods in about 75.8 s (75.78 s and 75.83 s).
+That is 250.0 periods/s, or 47,992 and 47,999 frames/s: the nominal rate.
 
 In `usb-long`, 1,315 of the 2,833 rotation changes follow a silent stretch.
 In `usb-long2`, 4 of 238 do.
@@ -207,8 +213,10 @@ size and SHA-256.
 | USB Audio capture, `usb-long` | 115200000 | `7995b44a5f6529a54092eaa5b94e0e85b701cf85bab0d4bbd55a853bf9ccd7ca` |
 | USB Audio capture, `usb-long2` | 115200000 | `fa79d7055a4a0fb4e696787e49130428ed31c50012dfd9b9494b5dbe0b5e6178` |
 
-The lane packet `b3-a453` holds the tools, the per-action evidence and the
-raw-artifact index. Its grading tools:
+The lane packet holds the tools, the per-action evidence and the raw-artifact
+index. Its redacted copy is `review-evidence/b3-r1/author/` on branch
+`b3-review-evidence`, where `RAW-ARTIFACTS.json` indexes every raw file by size
+and SHA-256. Its grading tools:
 
 | Tool | SHA-256 |
 |---|---|
