@@ -531,7 +531,20 @@ def armed_controls(raw: str) -> int:
     require(service_findings(dict(result, rows=[lead], events=blocks), raw)
             == ['over-budget tick stretch: milan_status', 'over-budget PHY service stretch: milan_status'],
             "an armed duty's leading gap escaped: arming was not the run's first opportunity")
-    return 4
+    # A command that starts unarmed keeps its UART allowance in the armed
+    # bound: with 10 ms of output, an armed span of 240 ms meets 500 ms and
+    # one cycle more is charged. Without the allowance that cycle would fit.
+    phy = ['over-budget PHY service stretch: milan_status']
+    for extra, expected, message in (
+            (0, phy, 'armed bound with a UART allowance refused its boundary'),
+            (1, ['over-budget tick stretch: milan_status'] + phy,
+             "an unarmed-start command's UART allowance left its armed bound")):
+        command = dict(interval('milan_status', 100_000_000, 104_472_844 + 24_000_000 + extra, None),
+                       uart_tx_allowance_ms=10.0)
+        command.update(tick_span(armed, command['start_sys_cycle'], command['end_sys_cycle']))
+        command['period_bound_ms'] = 250 + command['no_tick_ms'] + command['uart_tx_allowance_ms']
+        require(service_findings(dict(result, rows=[command], events=armed), raw) == expected, message)
+    return 5
 
 
 def dispatch_controls() -> int:

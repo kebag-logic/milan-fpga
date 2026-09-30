@@ -150,12 +150,14 @@ A duty that starts armed keeps its whole span.
 The AEM image now loads before `nvm_boot()` (#70).
 So the AEM row begins inside the unarmed prefix.
 Its receipt records that arming cycle and the armed bound.
-Four self-test controls pin the rule and its boundary.
+Five self-test controls pin the rule and its boundary.
 An unarmed prefix is not charged, and an armed stretch one cycle past the allowance is.
 A duty that starts armed keeps its whole-span bound.
 An armed command's leading gap one cycle past the allowance is charged.
 That command has an opportunity before it and a serviced block inside it.
 So an arming cycle read per duty, or from a later block, is refused.
+A command that starts unarmed keeps its TX allowance in the armed bound.
+At that bound it passes, and one cycle more is charged, so dropping the allowance is refused.
 
 The plan-dependent heartbeat row includes the final, right-censored tail.
 Receipts name its start, end, plan and both deadline margins.

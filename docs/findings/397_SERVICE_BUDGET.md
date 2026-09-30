@@ -315,7 +315,7 @@ The separate capture harness measures concurrent request traffic.
 
 ## Controls and reproduction
 
-Portable checks pass 51 grading controls and 14 flash controls.
+Portable checks pass 52 grading controls and 14 flash controls.
 They retain historical traces and their original duration comparisons.
 New controls refuse one-cycle overruns, a single unbacked cycle and duplicate link edges.
 A target dispatch-removal mutation must lose backing in both `queued-short` and `queued-builtins`.
