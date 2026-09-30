@@ -1,0 +1,10 @@
+  model=nopie verdict=0x000158b8 references:
+    ('nvm_boot', '0x130d0', 'HI20', 'upper part')
+    ('nvm_boot', '0x130d4', 'LO12_I', 'FULL ADDRESS formed in a register')
+    ('milan_init', '0x134f8', 'HI20', 'upper part')
+    ('milan_init', '0x134fc', 'LO12_S', 'in-place store')
+    ('milan_init', '0x13508', 'HI20', 'upper part')
+    ('milan_init', '0x1350c', 'LO12_I', 'in-place load')
+    ('milan_status_handler', '0x13640', 'HI20', 'upper part')
+    ('milan_status_handler', '0x13644', 'LO12_I', 'in-place load')
+VERDICT FORGOTTEN: the verdict's address escapes: [('nvm_boot', '0x130d4', 'LO12_I', 'FULL ADDRESS formed in a register')] | resolved stores on the verdict's address: [('milan_init', '<call:load_aem_image>'), ('nvm_boot', '1')]

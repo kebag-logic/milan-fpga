@@ -1,0 +1,11 @@
+  at milan_init()'s call to nvm_boot(), the verdict's address is held in ['a5']
+  model=pic verdict=0x00015a40 references:
+    ('nvm_boot', '0x131e8', 'GOT_HI20', 'FULL ADDRESS held in a GOT data word')
+    ('nvm_boot', '0x131ec', 'PCREL_LO12_I', 'in-place load')
+    ('milan_init', '0x13620', 'PCREL_HI20', 'upper part')
+    ('milan_init', '0x13624', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+    ('milan_init', '0x13634', 'PCREL_HI20', 'upper part')
+    ('milan_init', '0x13638', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+    ('milan_status_handler', '0x13770', 'PCREL_HI20', 'upper part')
+    ('milan_status_handler', '0x13774', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+VERDICT FORGOTTEN: the verdict's address escapes: [('nvm_boot', '0x131e8', 'GOT_HI20', 'FULL ADDRESS held in a GOT data word'), ('milan_init', '0x13624', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register'), ('milan_init', '0x13638', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register'), ('milan_status_handler', '0x13774', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')] | in-place stores on the verdict: none (exactly milan_init's one)

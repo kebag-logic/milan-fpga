@@ -1,0 +1,8 @@
+instrumented /tmp/a457-r3/probe-work/r413_paste_write/sw/builder/test_builder.py
+planted paste_write firmware sha256 7aa8f5f68a278b6fd296cb30caad5165688076e4e36ac867434f2336f39d13ff
+[gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE REFUSED: under the arm selection line 794 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from nvm_boot(), milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+elapsed 6.8s
+
+rc=1

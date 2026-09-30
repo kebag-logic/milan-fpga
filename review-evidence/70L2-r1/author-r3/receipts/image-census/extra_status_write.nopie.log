@@ -1,0 +1,10 @@
+  model=nopie verdict=0x000158a8 references:
+    ('milan_init', '0x134e0', 'HI20', 'upper part')
+    ('milan_init', '0x134e4', 'LO12_S', 'in-place store')
+    ('milan_init', '0x134f0', 'HI20', 'upper part')
+    ('milan_init', '0x134f4', 'LO12_I', 'in-place load')
+    ('milan_status_handler', '0x13540', 'HI20', 'upper part')
+    ('milan_status_handler', '0x13548', 'LO12_S', 'in-place store')
+    ('milan_status_handler', '0x13634', 'HI20', 'upper part')
+    ('milan_status_handler', '0x13638', 'LO12_I', 'in-place load')
+VERDICT FORGOTTEN: in-place stores on the verdict: ['milan_init', 'milan_status_handler'] (exactly milan_init's one) | resolved stores on the verdict's address: [('milan_init', '<call:load_aem_image>'), ('milan_status_handler', '1')]

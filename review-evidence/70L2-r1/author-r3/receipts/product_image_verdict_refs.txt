@@ -1,0 +1,13 @@
+# product image of the round-1 sweep (seed asl, work tag a448s597d; firmware = this head's, sha256 a73ecc25...0eb3)
+# path: <LiteX work>/build_ax7101_asl_a448s597d/software/bios/bios.elf
+size_bytes 532748
+sha256 7aaedf8a31eabf2912bec736efbc0f2f54856f88ab308fb0a68c42d024910855
+# symbols at the verdict's address (pinned SDK nm):
+10000278 b aem_loaded
+# every instruction naming the verdict's page offset 632 (pinned SDK objdump -d), with the lui that sets its base:
+7871-    75c4:	lui	a0,0x10000
+7872:    75c8:	lw	a0,632(a0) # 10000278 <aem_loaded>
+9218-    8a60:	lui	s10,0x10000
+9219:    8a64:	sw	a5,632(s10) # 10000278 <aem_loaded>
+9334-    8c30:	jal	87c8 <nvm_restore_walk>
+9335:    8c34:	lw	a5,632(s10)
