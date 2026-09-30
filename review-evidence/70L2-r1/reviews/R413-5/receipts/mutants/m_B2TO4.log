@@ -1,0 +1,8 @@
+mutant=B2TO4 head=b3ae17233eb9dd5934255f4018da7d45a159b5ac
+mutated B2TO4 in $PACKET/scratch/trees/m_B2TO4/sw/builder/test_builder.py
+planted stop in $PACKET/scratch/trees/m_B2TO4/sw/builder/test_builder.py
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE-REFUSED: the interior-byte +2 break's references from nvm_boot() land on byte(s) [] of aem_loaded's storage, not on byte +2 alone, so it does not measure that byte: milan_verdict_next must follow the verdict, and the compiler must fold the offset into the relocation
+elapsed=13s
+rc=1

@@ -1,0 +1,8 @@
+probe=L5_before_overrun head=b3ae17233eb9dd5934255f4018da7d45a159b5ac
+planted L5_before_overrun in $PACKET/scratch/trees/p_L5_before_overrun/sw/firmware/milan_baremetal/milan_baremetal.c
+planted stop in $PACKET/scratch/trees/p_L5_before_overrun/sw/builder/test_builder.py
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+elapsed=27s
+rc=0

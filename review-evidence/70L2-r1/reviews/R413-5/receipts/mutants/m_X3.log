@@ -1,0 +1,8 @@
+mutant=X3 head=b3ae17233eb9dd5934255f4018da7d45a159b5ac
+mutated X3 in $PACKET/scratch/trees/m_X3/sw/builder/test_builder.py
+planted stop in $PACKET/scratch/trees/m_X3/sw/builder/test_builder.py
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +3 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+elapsed=28s
+rc=1

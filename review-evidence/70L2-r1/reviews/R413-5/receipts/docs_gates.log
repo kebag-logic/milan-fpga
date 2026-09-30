@@ -1,0 +1,21 @@
+$ python3 scripts/docs_check.py   (pinned markdown lock venv; head b3ae17233eb9)
+docs_check: 0 finding(s) across 177 md files + 948 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 scripts/check_em_dash.py --base 79c36963660c10e4c1c11a744fb5bff41a552b8b   (pinned markdown lock venv; head b3ae17233eb9)
+check_em_dash: 0 finding(s) over 568 added line(s) in 24 changed Markdown page(s), 1 mirrored label(s) exempt, arms 339/339 [79c36963..HEAD]
+rc=0
+$ python3 scripts/check_doc_style.py   (pinned markdown lock venv; head b3ae17233eb9)
+documentation style: OK (22 current documents)
+rc=0
+$ python3 scripts/check_doc_paths.py   (pinned markdown lock venv; head b3ae17233eb9)
+doc path gate: OK (861 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ python3 scripts/check_archive.py   (pinned markdown lock venv; head b3ae17233eb9)
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0
+$ python3 scripts/gen_toc.py --verify-anchors   (pinned markdown lock venv; head b3ae17233eb9)
+anchor check: 259 existing cross-page fragment links reproduced
+rc=0
+$ python3 scripts/gen_toc.py --check   (pinned markdown lock venv; head b3ae17233eb9)
+TOC gate: OK (119 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
