@@ -1,0 +1,18 @@
+FAIL: D3O1: released at 122, terminal at 880, own fell at 123, the held command taken at 124, 0 busy cycles while owned
+FAIL: D3O2: CLOSED at 164 after the release at 122, cause 7, own 0, 1 descriptor requests
+FAIL: D3O2: CLOSED holds AECP (29998 busy cycles, the command still queued) and leaves the listener released
+FAIL: D3O5: one AECP command held, 5 dropped at the slot gate and counted, 0 answered
+FAIL: D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)
+FAIL: D3O7: the returned slot frees the share: the next command held, the one after it dropped (1 counted), none answered
+FAIL: D3S1: no record outside the nine rows set (36 ops)
+FAIL: D3S4 taint: 2 WRITEs of 0x50, the first carrying the latched value, the last the change made during it
+FAIL: D3S5 premise: the change accepted at 368271, the WRITE's done at 369209
+FAIL: D3S6 group: 0x51 changed during 0x50's WRITE is written after it (1 WRITEs of 0x51)
+FAIL: D3S7: IDENTIFY set, 0 pending cycles, 54 NVM operations
+FAIL: D3R12: the re-walk cannot prove the image: CLOSED 9425, cause 2, the entity held
+FAIL: D3R14 image refused: CLOSED by clock 1000045, cause 7, AECP owned 0, ADP enabled 0
+FAIL: D3R15 debt wait: CLOSED 0 clocks after the bound's own (want 0), cause 6, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0
+FAIL: D3R15 re-LOCATE: CLOSED 0 clocks after the bound's own (want 0), cause 2, D3 done -1 clocks after the bound, rolled back 0, AECP owned 0
+FAIL: D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 0 fail 1 rolled back 0 closed 1 cause 2), 0 roll-back strobe cycles after the terminal, the rows kept
+D3: 133 checks, 16 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 133 checks, 16 failures

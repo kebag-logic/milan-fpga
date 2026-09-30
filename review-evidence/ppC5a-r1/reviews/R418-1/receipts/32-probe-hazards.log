@@ -1,0 +1,9 @@
+  [R418-PB] SET_NAME STREAM_INPUT 1: answered status 0, 110 bytes
+FAIL: HZ premise: the ACMP command (message 4) is admitted and held behind the stalled MAC
+FAIL: HZ R418-PB NAME_WR SET_NAME STREAM_OUTPUT 1 vs held GET_TX_STATE source 1: not admitted while the held ACMP command keeps its key
+  [R418-PB] SET_NAME STREAM_OUTPUT 1: answered status 0
+  [R418-PB] SET_SAMPLING_RATE(STREAM_INPUT 1): answered status 11
+  [R418-PB] SET_CONTROL(STREAM_INPUT 1): answered status 11
+  [R418-PB] REGISTER beside the held read: answered status 0
+HZ: 97 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 97 checks, 2 failures

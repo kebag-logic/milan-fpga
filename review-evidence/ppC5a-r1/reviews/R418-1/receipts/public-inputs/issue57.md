@@ -1,0 +1,22 @@
+T-AECP-RESP: deadline-kill seam tied off at the top, no suite measures MVU response latency (REQ-MVU-005)
+OPEN
+[A10] Found by the compliance-matrix audit of `docs/00_MILAN_COMPLIANCE_REVIEW.md` at main 6a878f6 (owner request, 2026-09-18). The matrix Cov column grades the ORIGINAL architecture document; this ticket records what the tree carries today. Baseline at that head: `./scripts/run_suites.sh` exit 0 (30 of 30 suites, 14790 checks), `./scripts/lint_hdl.sh` exit 0.
+
+## REQ-MVU-005 (Milan 5.4.3.3/.4, shall) - audit verdict PARTIAL
+
+MVU responses use only the statuses SUCCESS and NOT_IMPLEMENTED and are sent within 240 ms of the command (controller timeout 250 ms).
+
+- In `hdl/` today: Status set: E_MVUINFO sets ST_OK (hdl/aecp/ucode/gen_ucode.py:703); every other VENDOR_UNIQUE command keeps the echo with NOT_IMPLEMENTED (hdl/aecp/KL_aecp_engine.sv:166-171, :2820-2823). Timing: the per-transaction deadline is computed (hdl/packet_engine/KL_pp_normalizer.sv:139, budget 100 ms at hdl/top/protocol_processor_top.sv:704) but nothing consumes it: the scoreboard deadline-kill seam is tied off (protocol_processor_top.sv:852-854 kill_valid_i = 1'b0, kill_resp_queued_i = 1'b0) and the engine has no deadline compare, so the 'deadline engine' of the Arch cell (03_packet_engine.md:142, :239-244; 06_aecp_engine.md:764-768) does not exist. The FAIL_SAFE microprogram it would jump to does (gen_ucode.py:364-365). The only bound in RTL is the memory watchdog MEM_TIMEOUT_CYC_P -> ENTITY_MISBEHAVING.
+- In `tb/` today: Status: tb/pp_top/sim_main.cpp M1 :2256-2259 (status 0), M3 :2302, M4 :2315, M5 :2329, M6 :2353 (NOT_IMPLEMENTED byte-exact). Timing: only implicit - MilanInfoPhase::mvu() waits at most 200 compressed ms (:2207, 20,000 clocks) so a slower answer fails M1 as 'answered with silence'; no check measures an MVU command-to-response latency against 240 ms. The explicit MAC-to-MAC latency measurement B4/B4b (tb/pp_top/README.md section B) is on READ_DESCRIPTOR against the 100 ms budget only. tb/ucpu P15 (:815-823) grades the FAIL_SAFE program, not its trigger; tb/scoreboard grades the kill seam in isolation.
+- Missing: (1) No RTL consumer of pp_txn deadline: the rule (e) deadline-kill -> FAIL_SAFE path is tied off at the top, so 'respond within 240 ms' holds by construction only. (2) No tb check that measures MVU (or worst-case AECP: 16-way fan-out contention, slow response memory) response latency against T-AECP-RESP; the only evidence for MVU is the harness receive timeout.
+- Searched with: deadline; kill_valid_i / kill_resp_queued_i; T-AECP-RESP / 240; budget_aecp_ms / BUDGET_AECP_MS_C; FAIL_SAFE / E_FAILSAFE; wait_any(h.q_aecp, 200) (confidence: medium)
+
+## Acceptance
+
+1. tb/pp_top measures first command byte to first response byte for GET_MILAN_INFO and for an unimplemented MVU command, at the suite memory latency and at the reference 143-clock latency, and checks it against T-AECP-RESP (240 ms at P-CLK-HZ) the way B4/B4b do for READ_DESCRIPTOR
+2. One arm holds the engine busy (16-row notification fan-out in flight, or a response-memory stall short of MEM_TIMEOUT_CYC_P) and proves the solicited MVU answer still lands inside the budget
+3. Either the scoreboard kill inputs at protocol_processor_top.sv:852-854 are driven by a real deadline compare that forces the FAIL_SAFE response, with a pp_top arm that provokes it, or 03 section 6 rule (e), 06 section 8 and the REQ-MVU-005 / REQ-AEM-024 Arch cells are amended to say the bound is by construction plus the memory watchdog
+
+Matrix finding link: GAP-03.
+
+Executor and reviewers: assigned when the lane opens.
