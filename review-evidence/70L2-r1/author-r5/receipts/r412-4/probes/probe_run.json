@@ -1,0 +1,142 @@
+[
+ [
+  "pre_overrun_sscanf",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static char milan_pre[4];\nstatic int aem_loaded;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t(void)sscanf(\"AAAAAAA\", \"%s\", milan_pre);\n"
+   ]
+  ]
+ ],
+ [
+  "nbr_runtime_sscanf",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)&milan_nbr - (int)(milan_read(MILAN_ID) & 7u));\n"
+ ],
+ [
+  "nbr_fold_byte1",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)(&milan_nbr - 1) + 1);\n"
+ ],
+ [
+  "nbr_fold_byte2",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)(&milan_nbr - 1) + 2);\n"
+ ],
+ [
+  "nbr_fold_byte3",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)(&milan_nbr - 1) + 3);\n"
+ ],
+ [
+  "nbr_fold_byte0",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)(&milan_nbr - 1));\n"
+ ],
+ [
+  "nbr_fold_own",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)&milan_nbr);\n"
+ ],
+ [
+  "pre_fold_byte2",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static int milan_pre_i;\nstatic int aem_loaded;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t(void)sscanf(\"\\001\", \"%c\", (char *)(&milan_pre_i + 1) + 2);\n"
+   ]
+  ]
+ ],
+ [
+  "own_store_fold",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(&milan_nbr)[-1] = 1;\n"
+ ],
+ [
+  "own_store_localptr",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t{ int *p = &milan_nbr; p[-1] = 1; }\n"
+ ],
+ [
+  "own_store_pre_array_local",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static char milan_pre[4];\nstatic int aem_loaded;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t{ char *p = milan_pre; p[4] = 1; }\n"
+   ]
+  ]
+ ],
+ [
+  "own_store_runtime",
+  "nvm",
+  "static int milan_nbr;\n",
+  "\t(&milan_nbr)[-(int)(milan_read(MILAN_ID) & 1u)] = 1;\n"
+ ],
+ [
+  "own_store_bounded_loop",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static char milan_pre[4];\nstatic int aem_loaded;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t{ unsigned int i; for (i = 0; i < 8u; i++) milan_pre[i] = 0; }\n"
+   ]
+  ]
+ ],
+ [
+  "csr_pointer_sscanf",
+  "nvm",
+  "",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)(uintptr_t)milan_read(MILAN_ID));\n"
+ ],
+ [
+  "parsed_pointer_sscanf",
+  "nvm",
+  "",
+  "\t{ char *q = (char *)strtoul(\"0x40000000\", 0, 0); (void)sscanf(\"\\001\", \"%c\", q); }\n"
+ ],
+ [
+  "literal_sscanf",
+  "nvm",
+  "",
+  "\t(void)sscanf(\"\\001\", \"%c\", (char *)0x40001000u);\n"
+ ],
+ [
+  "stack_runtime_sscanf",
+  "nvm",
+  "",
+  "\t{ char loc[4]; (void)sscanf(\"\\001\", \"%c\", loc + (int)milan_read(MILAN_ID)); }\n"
+ ],
+ [
+  "unplanted",
+  "nvm",
+  "",
+  "\t;\n"
+ ]
+]

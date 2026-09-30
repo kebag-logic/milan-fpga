@@ -1,0 +1,97 @@
+R412-3 early base: ACCEPTED, kept=['aem_loaded']
+R412-3 early nbr_after_sscanf: ACCEPTED, kept=['aem_loaded']
+R412-3 early arr_overrun_sscanf: ACCEPTED, kept=['aem_loaded']
+R412-3 early nbr_runtime_sscanf: ACCEPTED, kept=['aem_loaded']
+R412-3 early pre_overrun_sscanf: ACCEPTED, kept=['aem_loaded']
+R412-3 early plain_write: REFUSED, naming aem_loaded must contain only the image v
+R412-3 early bcp_write: REFUSED, naming aem_loaded must contain only the image v
+R412-3 early pie_write: REFUSED, naming aem_loaded must contain only the image v
+R412-3 early optimize_write: REFUSED, naming aem_loaded must contain only the image v
+R412-3 early block_extern_sscanf: REFUSED, naming the address of aem_loaded must not be ta
+R412-3 early nbr_runtime_store: REFUSED, naming a STORE this gate cannot PLACE
+R412-3 early nbr_memset: REFUSED, naming identity-sample absence rule
+R412-3 early splice_write: REFUSED, naming a store lands on aem_loaded's storage ot
+R412-3 early paste_write: REFUSED, naming a store lands on aem_loaded's storage ot
+R412-3 early m_macro_set: REFUSED, naming a store lands on aem_loaded's storage ot
+R412-3 early m_macro_addr: REFUSED, naming a store lands on aem_loaded's storage ot; the address of aem_loaded is taken
+R412-3 early alias_write: REFUSED, naming a store lands on aem_loaded's storage ot; another symbol of the linked image is on
+R412-3 early static_alias_write: REFUSED, naming a store lands on aem_loaded's storage ot; another symbol of the linked image is on
+R412-3 early alias_sscanf: REFUSED, naming the linked image forms the full address ; another symbol of the linked image is on
+R412-3 early weakref_sscanf: REFUSED, naming the linked image forms the full address ; another symbol of the linked image is on
+R412-3 early static_alias_sscanf: REFUSED, naming the linked image forms the full address ; another symbol of the linked image is on
+R412-3 early alias_decl_only: REFUSED, naming another symbol of the linked image is on
+R412-3 early m_macro_addr_sscanf: REFUSED, naming the linked image forms the full address ; the address of aem_loaded is taken
+R412-3 early nbr_before_sscanf: REFUSED, naming the linked image forms the full address 
+R412-3 early nbr_byte_sscanf: REFUSED, naming the linked image forms the full address 
+R412-3 full base: GATE1B PASS, slot kept, 17/17 at +1, +2, +3
+R412-3 full nbr_runtime_sscanf: GATE1B PASS, slot kept, 17/17 at +1, +2, +3
+R412-3 full pre_overrun_sscanf: GATE1B PASS, slot kept, 17/17 at +1, +2, +3
+R412-3 mutant M1_no_escape: KILLED: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["the linked image forms
+R412-3 mutant M2_no_name: KILLED: the resolver refused a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) without naming the broken pin(s) ["
+R412-3 mutant M3_no_local: KILLED: the resolver refused aem_loaded given external linkage without naming the broken pin(s) ['aem_loaded is not a local object of the link
+R412-3 mutant M4_no_auipc: KILLED: the resolver accepted an AUIPC with no relocation, its PC-relative address handed to sscanf() inside nvm_boot(): aem_loaded's slot cro
+R412-3 mutant M5_no_image_store: KILLED: the resolver accepted a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot(): aem_loaded's slot cross
+R412-3 mutant M6_no_resolver_store: KILLED: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["a store lands on aem_l
+R412-3 mutant M7_addi_in_place: KILLED: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["the linked image forms
+R412-3 mutant M8_no_image: KILLED: the resolver accepted a second assignment inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is 
+R412-3 mutant M9_by_name_only: KILLED: the resolver accepted a neighbour's address folded onto byte +1 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's s
+R413-4 stop N1_first_two_bytes: KILLED: folded onto byte +2 of aem_loaded
+R413-4 stop N2_first_three: KILLED: folded onto byte +3 of aem_loaded
+R413-4 stop N3_skip_first_byte: KILLED: the compiled firmware enters entity_advertise() with [None]
+R413-4 stop N4_second_byte_only: KILLED: folded onto byte +2 of aem_loaded
+R413-4 stop none: PASSES the verdict controls, slot kept, 17/17, bytes [1, 2, 3]
+R413-4 early own_local_under_store: ACCEPTED, kept=['aem_loaded']
+R413-4 early own_callee_store: ACCEPTED, kept=['aem_loaded']
+R413-4 early data_word_nbr_sscanf: ACCEPTED, kept=['aem_loaded']
+R413-4 early own_folded_store: REFUSED, naming a store lands on aem_loaded's storage ot; the linked image forms the full address 
+R413-4 early own_runtime_store: REFUSED, naming a STORE this gate cannot PLACE
+R413-4 early data_word_nbr_store: REFUSED, naming a STORE this gate cannot PLACE
+R413-4 early interior_b1_store: REFUSED, naming a store lands on aem_loaded's storage ot; the linked image forms the full address 
+R413-4 early interior_b2_sscanf: REFUSED, naming the linked image forms the full address 
+R413-4 early interior_b3_sscanf: REFUSED, naming the linked image forms the full address 
+R413-4 N1 + interior_b2_sscanf (early stop, before the verdict controls): ACCEPTED, kept=['aem_loaded']
+R413-4 N1 + interior_b3_sscanf (early stop, before the verdict controls): ACCEPTED, kept=['aem_loaded']
+R412-4 probe pre_overrun_sscanf: ACCEPTED
+R412-4 probe nbr_runtime_sscanf: ACCEPTED
+R412-4 probe nbr_fold_own: ACCEPTED
+R412-4 probe own_store_localptr: ACCEPTED
+R412-4 probe own_store_pre_array_local: ACCEPTED
+R412-4 probe csr_pointer_sscanf: ACCEPTED
+R412-4 probe parsed_pointer_sscanf: ACCEPTED
+R412-4 probe literal_sscanf: ACCEPTED
+R412-4 probe stack_runtime_sscanf: ACCEPTED
+R412-4 probe unplanted: ACCEPTED
+R412-4 probe nbr_fold_byte0: REFUSED, naming the linked image forms the full address 
+R412-4 probe nbr_fold_byte1: REFUSED, naming the linked image forms the full address 
+R412-4 probe nbr_fold_byte2: REFUSED, naming the linked image forms the full address 
+R412-4 probe nbr_fold_byte3: REFUSED, naming the linked image forms the full address 
+R412-4 probe pre_fold_byte2: REFUSED, naming the linked image forms the full address 
+R412-4 probe own_store_fold: REFUSED, naming a store lands on aem_loaded's storage ot; the linked image forms the full address 
+R412-4 probe own_store_runtime: REFUSED, naming a STORE this gate cannot PLACE
+R412-4 probe own_store_bounded_loop: REFUSED, naming a STORE this gate cannot PLACE
+R412-4 probe r3_pre_overrun_sscanf: ACCEPTED
+R412-4 probe r3_nbr_runtime_sscanf: ACCEPTED
+R412-4 probe r3_nbr_byte_sscanf: REFUSED, naming the linked image forms the full address 
+R412-4 whole gate function with csr_pointer_sscanf planted: RETURNED, the class printed
+R412-4 whole gate function with stack_runtime_sscanf planted: RETURNED, the class printed
+R412-4 mutant K0: KILLED
+R412-4 mutant K1: KILLED
+R412-4 mutant K2: KILLED
+R412-4 mutant K3: KILLED
+R412-4 mutant K4: KILLED
+R412-4 mutant K5: KILLED
+R412-4 mutant K6: KILLED
+R412-4 mutant K7: KILLED: folded onto byte +1 of aem_loaded
+R412-4 mutant K8: KILLED: folded onto byte +1 of aem_loaded
+R412-4 mutant B1: KILLED: land on byte(s) [] of aem_loaded's storage, not on byte +1 alone
+R412-4 mutant B2: KILLED: land on byte(s) [0] of aem_loaded's storage, not on byte +1 alone
+R412-4 mutant N0: PASSES through gate 1b's resolved note, 17/17 at +1, +2, +3
+own D0_drop_byte0: KILLED: the compiled firmware enters entity_advertise() with [None]
+own D1_drop_byte1: KILLED: the resolver accepted a neighbour's address folded onto byte +1 of aem_loaded
+own D2_drop_byte2: KILLED: the resolver accepted a neighbour's address folded onto byte +2 of aem_loaded
+own D3_drop_byte3: KILLED: the resolver accepted a neighbour's address folded onto byte +3 of aem_loaded
+own Q2_on_neighbour: KILLED: the interior-byte +2 break's references from nvm_boot() land on byte(s) [] 
+own Q3_on_byte1: KILLED: the interior-byte +3 break's references from nvm_boot() land on byte(s) [1] 
+own P1_on_neighbour: KILLED: the interior-byte +1 break's references from nvm_boot() land on byte(s) [] 
+own P2_on_first_byte: KILLED: the interior-byte +1 break's references from nvm_boot() land on byte(s) [0] 
+REVIEW RUNS AS EXPECTED at b3ae17233eb9dd5934255f4018da7d45a159b5ac: R412-3 25 early probes, 3 whole-gate probes and M1-M9; R413-4 N1-N4 and the head, 9 plants and 2 N1 plants; R412-4 21 probes, 2 whole-gate plants, N0, K0-K8, B1, B2; this round's D0-D3, Q2, Q3, P1, P2
