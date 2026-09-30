@@ -1,0 +1,190 @@
+{
+  "head": "5b4a47e99f5a453832ccabccfbf4aae116d6fea0",
+  "tree": "4da3a4345786338298d728d06b82fe9d35bc2e2a",
+  "results": [
+    {
+      "name": "review-runs",
+      "command": [
+        "python3",
+        "$MANAGEMENT/2026-09-23/70-a460/check_review_runs.py",
+        "$LANES/70-lane2-pin",
+        "$VALIDATION_STORAGE/a460-70L2r4/packet/receipts"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/review-runs.log",
+      "log_bytes": 4718,
+      "log_sha256": "9ff6dac7847f7d409eecb0ae74bf636b65d1e8cf1f19ddca23c468a943cdac19"
+    },
+    {
+      "name": "firmware-digest",
+      "command": [
+        "python3",
+        "$MANAGEMENT/2026-09-23/70-a460/check_firmware_digest.py",
+        "$LANES/70-lane2-pin"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/firmware-digest.log",
+      "log_bytes": 280,
+      "log_sha256": "94719ec0a0d12a6a3497af83836dd45e4a3f9c8f2f96e333916a89518a7cbac3"
+    },
+    {
+      "name": "check_nvm_capture",
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "rc": 0,
+      "seconds": 0.7,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/check_nvm_capture.log",
+      "log_bytes": 324,
+      "log_sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+    },
+    {
+      "name": "fw_service_budget-selftest",
+      "command": [
+        "python3",
+        "tb/verilator/fw_service_budget/run.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.6,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/fw_service_budget-selftest.log",
+      "log_bytes": 259,
+      "log_sha256": "1e5411dba0cc00b0731618b484ed4cfb80938e9f4b7ed05db614cf20edfb743c"
+    },
+    {
+      "name": "grader-mutants",
+      "command": [
+        "python3",
+        "$MANAGEMENT/2026-09-23/70-a460/check_grader_mutants.py",
+        "$LANES/70-lane2-pin",
+        "$VALIDATION_STORAGE/a460-70L2r4/packet/scripts",
+        "$VALIDATION_STORAGE/a460-70L2r4/packet/scratch/grader"
+      ],
+      "rc": 0,
+      "seconds": 2.6,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/grader-mutants.log",
+      "log_bytes": 3413,
+      "log_sha256": "af8a66623457af5e1fe752051a434e417f33ec4b2ab7256941ab36a5ac5e6020"
+    },
+    {
+      "name": "check_py_idiom",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 3.4,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/check_py_idiom.log",
+      "log_bytes": 461,
+      "log_sha256": "f7d59ce47c8fadc55415f363f3070c0a116f3986fc321a82da4f977fccd57332"
+    },
+    {
+      "name": "measure_test_evidence",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 5.7,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/measure_test_evidence.log",
+      "log_bytes": 11898,
+      "log_sha256": "ccb36c8d883bee0c9dcfa8edf09e3d472a7b518b1b14c5353ee3b694695bf345"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "79c36963660c10e4c1c11a744fb5bff41a552b8b",
+        "HEAD"
+      ],
+      "rc": 0,
+      "seconds": 0.0,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/diff-check.log",
+      "log_bytes": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "md-docs_check",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 4.4,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/md-docs_check.log",
+      "log_bytes": 127,
+      "log_sha256": "c983a535ee139f70c62523d4d549a3f273a8d8b47afa16d333ccd826a78bab83"
+    },
+    {
+      "name": "md-check_doc_paths",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/md-check_doc_paths.log",
+      "log_bytes": 84,
+      "log_sha256": "0f9fa704b411b9993581088941111e300a8e4df10fb0c029ecc0648048e26509"
+    },
+    {
+      "name": "md-check_doc_style",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/md-check_doc_style.log",
+      "log_bytes": 47,
+      "log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+    },
+    {
+      "name": "md-check_archive",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "seconds": 0.3,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/md-check_archive.log",
+      "log_bytes": 93,
+      "log_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+    },
+    {
+      "name": "md-gen_toc",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 3.0,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/md-gen_toc.log",
+      "log_bytes": 94,
+      "log_sha256": "7bd517fdaeda47f1cdc0f728417b45f061cd70367d76e347365cbe06fff6dae8"
+    },
+    {
+      "name": "md-check_em_dash",
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "79c36963660c10e4c1c11a744fb5bff41a552b8b"
+      ],
+      "rc": 0,
+      "seconds": 3.0,
+      "log": "$VALIDATION_STORAGE/a460-70L2r4/gates/5b4a47e99f5a453832ccabccfbf4aae116d6fea0/md-check_em_dash.log",
+      "log_bytes": 141,
+      "log_sha256": "f712a6471f6c370a7d9e48618dc7c012e26ffda791e7038ef603820831c134ba"
+    }
+  ],
+  "head_after": "5b4a47e99f5a453832ccabccfbf4aae116d6fea0",
+  "clean_after": true
+}

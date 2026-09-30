@@ -1,0 +1,27 @@
+mutant=M3_no_local head=5b4a47e99f5a453832ccabccfbf4aae116d6fea0
+mutated M3_no_local in $VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/mut_M3_no_local/sw/builder/test_builder.py
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/mut_M3_no_local/sw/builder/test_builder.py", line 14779, in test_baremetal_profile_contract
+    assert_resolved_boot_flow(_taken["text"], source_model, what,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              source=planted, units=units)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/mut_M3_no_local/sw/builder/test_builder.py", line 7212, in assert_resolved_boot_flow
+    assert handed_verdict == [verdict_tag], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the compiled aem_loaded given external linkage enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the address of aem_loaded is taken (the compiler was not asked: the preprocessed unit declares `static int aem_loaded;` 0 time(s)); aem_loaded is not a file-scope static of the compiled unit
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a460-70L2r4/packet/scripts/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/mut_M3_no_local/sw/builder/test_builder.py", line 14783, in test_baremetal_profile_contract
+    assert RESOLVER_VERDICT_PIN in str(exc) and not unnamed, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the resolver refused aem_loaded given external linkage without naming the broken pin(s) ['aem_loaded is not a local object of the linked image']: the compiled aem_loaded given external linkage enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the address of aem_loaded is taken (the compiler was not asked: the preprocessed unit declares `static int aem_loaded;` 0 time(s)); aem_loaded is not a file-scope static of the compiled unit
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: the resolver refused aem_loaded given external linkage without naming the broken pin(s) ['aem_loaded is not a local object of the linked image']: the compiled aem_loaded given external linkage enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the address of aem_loaded is taken (the compiler was not asked: the preprocessed unit declares `static int aem_loaded;` 0 time(s)); aem_loaded is not a file-scope static of the compiled unit
+rc=1
