@@ -1,0 +1,97 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "lk-sclks-lock-nop",
+    "patch": "lk-sclks-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sclks-miss-lock-nop",
+    "patch": "lk-sclks-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-lock-nop",
+    "patch": "lk-sctrl-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-miss-lock-nop",
+    "patch": "lk-sctrl-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-prefix-zero-body",
+    "patch": "lk-prefix-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-never",
+    "patch": "ov-oversize-never",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-at-576",
+    "patch": "ov-oversize-at-576",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-top-oversize-dropped",
+    "patch": "ov-top-oversize-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-append-524",
+    "patch": "pg-append-524",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 14,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-cap-dropped",
+    "patch": "pg-cap-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

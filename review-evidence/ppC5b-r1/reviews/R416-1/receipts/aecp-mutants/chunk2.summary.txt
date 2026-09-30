@@ -1,0 +1,13 @@
+control aecp-dispatch: rc=0 PASS
+lk-sclks-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-sclks-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sctrl-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-sctrl-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-prefix-zero-body: rc=2 failures=5 named=1 KILLED
+ov-oversize-never: rc=2 failures=18 named=1 KILLED
+ov-oversize-at-576: rc=2 failures=4 named=1 KILLED
+ov-top-oversize-dropped: rc=2 failures=18 named=1 KILLED
+pg-append-524: rc=2 failures=14 named=1 KILLED
+pg-cap-dropped: rc=2 failures=10 named=1 KILLED
+11 checks: 11 PASS, 0 FAIL
+rc=0

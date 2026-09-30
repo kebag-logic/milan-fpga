@@ -1,0 +1,36 @@
+== base DESC_LINE_BYTES_P=560
+top=protocol_processor_top -GDESC_LINE_BYTES_P=560 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=560
+top=protocol_processor_top -GDESC_LINE_BYTES_P=560 rc=1 warnings=1 errors=1
+%Error: Exiting due to 1 warning(s)
+== base DESC_LINE_BYTES_P=568
+top=protocol_processor_top -GDESC_LINE_BYTES_P=568 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=568
+top=protocol_processor_top -GDESC_LINE_BYTES_P=568 rc=0 warnings=0 errors=0
+== base DESC_LINE_BYTES_P=576
+top=protocol_processor_top -GDESC_LINE_BYTES_P=576 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=576
+top=protocol_processor_top -GDESC_LINE_BYTES_P=576 rc=0 warnings=0 errors=0
+== base DESC_LINE_BYTES_P=1008
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1008 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=1008
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1008 rc=0 warnings=0 errors=0
+== base DESC_LINE_BYTES_P=1016
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1016 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=1016
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1016 rc=1 warnings=1 errors=1
+%Error: Exiting due to 1 warning(s)
+== base DESC_LINE_BYTES_P=1024
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1024 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=1024
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1024 rc=1 warnings=1 errors=1
+%Error: Exiting due to 1 warning(s)
+== base DESC_LINE_BYTES_P=1536
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1536 rc=0 warnings=0 errors=0
+== head DESC_LINE_BYTES_P=1536
+top=protocol_processor_top -GDESC_LINE_BYTES_P=1536 rc=1 warnings=1 errors=1
+%Error: Exiting due to 1 warning(s)
+L=560: %Warning-USERERROR: hdl/aecp/KL_aecp_engine.sv:919:5: response buffer (576 B) cannot carry a 71-record GET_AUDIO_MAP page (592 B)
+L=560:                                                     : ... note: In instance 'protocol_processor_top.u_aecp'
+L=1016: %Warning-USERERROR: hdl/aecp/KL_aecp_ucpu.sv:273:5: RESP_D8_CAP_BYTES_P=1040 outside 524..1024 (the 10-bit cursor)
+L=1016:                                                   : ... note: In instance 'protocol_processor_top.u_aecp.u_ucpu'

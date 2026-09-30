@@ -1,0 +1,31 @@
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index b3a04d1..92f5c93 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1135,7 +1135,7 @@ place(E_RDESCAU, [
+     u('BR_STATUS', cnd=2, imm=E_RDESC),          # unset: the image is current
+     u('READ_ST', rd=8, imm=RGN_LEN),
+     u('COMPARE', ra=8, fmt=FMT_W, imm=AU_RATE_TAIL),
+-    u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++    u('NOP'),                                    # R416 probe: guard removed
+     u('READ_ST', rd=1, imm=RGN_DYN + SEL_RATE),  # GET_SAMPLING_RATE's value
+     u('READ_ST', rd=4, imm=RGN_DATA + AU_RATE_OFF),   # lane 136: [31:0] = @140
+     u('MOVE', rd=7, ra=0, imm=AU_RATE_OFF),      # prefix length 136
+@@ -1162,7 +1162,7 @@ place(E_RDESCCD, [
+     u('BR_STATUS', cnd=2, imm=E_RDESC),          # unset: the image is current
+     u('READ_ST', rd=8, imm=RGN_LEN),
+     u('COMPARE', ra=8, fmt=FMT_W, imm=CD_SRCIDX_TAIL),
+-    u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++    u('NOP'),                                    # R416 probe: guard removed
+     u('READ_ST', rd=1, imm=RGN_DYN + SEL_CLKSRC),  # GET_CLOCK_SOURCE's value
+     u('MOVE', rd=7, ra=0, imm=CD_SRCIDX_OFF),    # prefix length 70
+     u('SET_STATUS', imm=ST_OK),
+@@ -1197,7 +1197,7 @@ place(E_RDESCSO, _rdesc_stream(SEL_FMTOUT))
+ place(E_RDESCSF, [
+     u('READ_ST', rd=8, imm=RGN_LEN),
+     u('COMPARE', ra=8, fmt=FMT_W, imm=STR_FMT_TAIL),
+-    u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++    u('NOP'),                                    # R416 probe: guard removed
+     u('READ_ST', rd=4, imm=RGN_DATA + STR_FMT_LANE2),  # lane 80..87
+     u('SHIFT_R', rd=5, ra=4, imm=32),            # [15:0] = formats_offset @82
+     u('MOVE', rd=7, ra=0, imm=STR_FMT_OFF),      # prefix length 74

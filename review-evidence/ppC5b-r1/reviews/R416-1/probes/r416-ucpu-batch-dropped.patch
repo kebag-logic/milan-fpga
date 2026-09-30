@@ -1,0 +1,13 @@
+diff --git a/hdl/aecp/KL_aecp_ucpu.sv b/hdl/aecp/KL_aecp_ucpu.sv
+index e58cf00..1a58d5c 100644
+--- a/hdl/aecp/KL_aecp_ucpu.sv
++++ b/hdl/aecp/KL_aecp_ucpu.sv
+@@ -274,7 +274,7 @@ module KL_aecp_ucpu
+            RESP_D8_CAP_BYTES_P, RESP_CAP_C);
+   end
+   logic [10:0] append_cap_w;
+-  assign append_cap_w = (uop_e_r.cnd[0] && !batch_r) ? 11'(RESP_D8_CAP_BYTES_P)
++  assign append_cap_w = (uop_e_r.cnd[0]) ? 11'(RESP_D8_CAP_BYTES_P)
+                                                       : 11'(RESP_CAP_C);
+   logic append_skip_w;
+   assign append_skip_w = (uop_e_r.op == OP_APPEND) &&

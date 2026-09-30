@@ -1,0 +1,6 @@
+d8-ignored rc=2: 398 checks: 396 PASS, 2 FAIL
+FAIL: P11b filled to 588 (72 qwords) got 524
+FAIL: P11b the elements past 524 are written, the 72nd at 580
+batch-dropped rc=2: 398 checks: 396 PASS, 2 FAIL
+FAIL: P11c in a batch capped at 524 got 588
+FAIL: P11c in a batch nothing past 524

@@ -1,0 +1,34 @@
+tb/pp_top/aecp_mutants.py at head, three --only chunks (derived from each chunk's results.json)
+chunk1: control aecp-dispatch rc=0 PASS
+chunk1: m9-guard-set-stream-format rc=2 failures=9 named=2 KILLED
+chunk1: m9-guard-set-stream-info rc=2 failures=9 named=2 KILLED
+chunk1: m9-guard-set-name rc=2 failures=9 named=2 KILLED
+chunk1: m9-guard-get-name rc=2 failures=7 named=1 KILLED
+chunk1: m9-guard-add-mappings rc=2 failures=7 named=1 KILLED
+chunk1: m9-guard-remove-mappings rc=2 failures=7 named=1 KILLED
+chunk1: m9-guard-dynamic-info rc=2 failures=7 named=1 KILLED
+chunk1: a5b-reboot-success-arm rc=2 failures=1 named=1 KILLED
+chunk1: lk-ssrate-lock-nop rc=2 failures=9 named=1 KILLED
+chunk1: lk-ssrate-miss-lock-nop rc=2 failures=1 named=1 KILLED
+chunk2: control aecp-dispatch rc=0 PASS
+chunk2: lk-sclks-lock-nop rc=2 failures=9 named=1 KILLED
+chunk2: lk-sclks-miss-lock-nop rc=2 failures=1 named=1 KILLED
+chunk2: lk-sctrl-lock-nop rc=2 failures=9 named=1 KILLED
+chunk2: lk-sctrl-miss-lock-nop rc=2 failures=1 named=1 KILLED
+chunk2: lk-prefix-zero-body rc=2 failures=5 named=1 KILLED
+chunk2: ov-oversize-never rc=2 failures=18 named=1 KILLED
+chunk2: ov-oversize-at-576 rc=2 failures=4 named=1 KILLED
+chunk2: ov-top-oversize-dropped rc=2 failures=18 named=1 KILLED
+chunk2: pg-append-524 rc=2 failures=14 named=1 KILLED
+chunk2: pg-cap-dropped rc=2 failures=10 named=1 KILLED
+chunk3: control aecp-dispatch rc=0 PASS
+chunk3: pg-cap-off-by-one rc=2 failures=4 named=1 KILLED
+chunk3: rd-base-no-overlay rc=2 failures=5 named=1 KILLED
+chunk3: rd-au-image-only rc=2 failures=1 named=1 KILLED
+chunk3: rd-au-unset-overlays rc=2 failures=1 named=1 KILLED
+chunk3: rd-cd-image-only rc=2 failures=2 named=1 KILLED
+chunk3: rd-str-unset-overlays rc=2 failures=3 named=1 KILLED
+chunk3: rd-so-reads-input-row rc=2 failures=2 named=1 KILLED
+chunk3: rd-cfg-any rc=2 failures=2 named=1 KILLED
+chunk3: rd-tail-uncut rc=2 failures=5 named=1 KILLED
+TOTAL: 29 arms, 29 KILLED on their named check; controls 3/3 PASS

@@ -1,0 +1,97 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "m9-guard-set-stream-format",
+    "patch": "m9-guard-set-stream-format",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-stream-info",
+    "patch": "m9-guard-set-stream-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-name",
+    "patch": "m9-guard-set-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-get-name",
+    "patch": "m9-guard-get-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-add-mappings",
+    "patch": "m9-guard-add-mappings",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-remove-mappings",
+    "patch": "m9-guard-remove-mappings",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-dynamic-info",
+    "patch": "m9-guard-dynamic-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "a5b-reboot-success-arm",
+    "patch": "a5b-reboot-success-arm",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-ssrate-lock-nop",
+    "patch": "lk-ssrate-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-ssrate-miss-lock-nop",
+    "patch": "lk-ssrate-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]
