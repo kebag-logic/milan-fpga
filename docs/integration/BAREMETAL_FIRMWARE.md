@@ -921,19 +921,35 @@ cannot place, so nothing survives a write it did not see.
 
 One slot crosses a call, and only under three pins (#70). The AEM-first boot
 order stores the verdict, calls `nvm_boot()` and reads the verdict back for the
-choke point, so the resolver keeps `aem_loaded` across a call while, on the
-source that was compiled, the unit writes it exactly once, as `aem_loaded =
-load_aem_image();`; its address is never taken; and it is a file-scope `static`
-of the one translation unit: declared once, emitted with internal linkage and
-named by no other unit the Makefile links. Then nothing anywhere writes it but
-that assignment, so no callee can. A static that fails a pin is dropped at a
-call as every other one is. Gate 1b builds an AEM-first base from the shipping
-source, which must pass only with the slot kept and must be refused with no
-pin read, and five planted breaks, each refused on the verdict with the pin it
-breaks named: `aem_loaded = 0;` inside `nvm_boot()`, `aem_loaded = 1;` in the
-UART status handler, `&aem_loaded` taken and written through inside
-`nvm_boot()`, the verdict declared without `static`, and a second translation
-unit that declares it.
+choke point, so the resolver keeps `aem_loaded` across a call while three pins
+hold on the firmware's unit as the compiler compiled it, never as written, so
+no macro, phase-2 splice or `##` paste changes an answer:
+
+- the resolved census places exactly one store on it in the whole unit,
+  `milan_init()`'s store of the value `load_aem_image()` returned;
+- the compiler accepts the preprocessed unit with it declared a register
+  variable, whose address C forbids taking, so no expression hands a pointer to
+  it to any code;
+- it is a file-scope `static` of the one translation unit: declared once in the
+  preprocessed unit and defined with internal linkage, so no other unit can
+  name it; the sources of the units the Makefile links are also read for its
+  name.
+
+A store the census cannot place is refused by rule 1b, and one it places at a
+number, a range, the stack or another static is taken, as everywhere in this
+model, not to land on the verdict. So within that model nothing writes it but
+that one store. A static that fails a pin is dropped at a call as every other
+one is. Gate 1b builds an AEM-first base from the shipping source, which must
+pass only with the slot kept and must be refused with no pin read, and nine
+planted breaks, each refused on the verdict with the pin it breaks named:
+`aem_loaded = 0;` inside `nvm_boot()`, `aem_loaded = 1;` in the UART status
+handler, `&aem_loaded` taken and written through inside `nvm_boot()`, the
+verdict declared without `static`, a second translation unit that declares it,
+and four spellings inside `nvm_boot()` that pins read on the text as written
+accepted (PR #623 review): a write joined by a phase-2 splice, one pasted by
+`##`, one spelled through a function-like macro, and the address spelled
+through a macro and handed to `sscanf()`. That last write is made by the
+library, with no store in the unit, so only the address pin refuses it.
 
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
@@ -1539,7 +1555,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
 | No indirect call and no tail transfer through a register, anywhere in the firmware | an instrument that cannot place a call edge must refuse it: a target it cannot resolve is exactly the one that could be the choke point. **Remedy:** call through a name, or model indirect targets and argument provenance completely, which is a data-flow change of its own |
 | The one call edge into `entity_advertise()` must come from `milan_init()` and hand it the value `load_aem_image()` returned | the value is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer, and an argument the resolver cannot resolve is refused rather than read as verified |
-| `aem_loaded` stays a file-scope `static` of the one translation unit, written only by `aem_loaded = load_aem_image();`, with its address never taken | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only under these three pins; with any one broken the choke point is entered with a verdict it cannot trace, and the refusal names the broken pin |
+| `aem_loaded` stays a file-scope `static` of the one translation unit, stored only by `milan_init()`'s `aem_loaded = load_aem_image();`, with its address never taken, however either is spelled | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only under these three pins, read on the compiled unit (the census's stores, and the compiler asked with the verdict declared a register variable); with any one broken the choke point is entered with a verdict it cannot trace, and the refusal names the broken pin |
 | The AEM copy loop keeps a shape this range refinement can bound: a constant destination base indexed by the counter the emitted `bltu` compares | the copy store is PLACED as a bounded range inside the CRC'd buffer instead of declared as a count-keyed residual, and a loop the lattice cannot bound (`*dst++ = *src++`, a `memcpy`, a bound held in a variable) leaves a store the gate cannot place, which is a refusal. **Remedy:** keep the `dst[i] = src[i]` form, or extend the refinement to the new shape with its own degenerate-case controls |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |

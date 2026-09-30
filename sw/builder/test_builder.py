@@ -1631,12 +1631,18 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
                   ("a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7")}
         #: A callee may write any static this unit holds, so the symbol
         #: slots do not cross a call -- except a `kept` one. A static is
-        #: kept only when three pins hold on the source that was compiled
-        #: (aem_verdict_pins()): the unit assigns it exactly once, and that
-        #: assignment is the verifier's; its address is never taken; and it
-        #: is a file-scope static of the firmware's one translation unit.
-        #: Then no code anywhere can write it except that one assignment, so
-        #: no callee can, and the word this function stored is still the
+        #: kept only when three pins hold on what the compiler compiled
+        #: (aem_verdict_pins()): the resolved census places exactly one
+        #: store on it in the whole unit, milan_init()'s store of the value
+        #: load_aem_image() returned; the compiler accepts the unit with it
+        #: declared a register variable, whose address C forbids taking, so
+        #: no expression hands a pointer to it to any code; and it is a
+        #: file-scope static, defined here with internal linkage, so no
+        #: other unit can name it. A store the census cannot place is
+        #: refused by rule 1b, and one it places at a number, a range, the
+        #: stack or another static is taken, as everywhere in this model,
+        #: not to land on it. So within that model nothing writes it but
+        #: that one store, and the word this function stored is still the
         #: word it reads back after the call. A static that fails any pin
         #: is forgotten here as every other one is.
         _rv32_forget_symbols(state, kept)
@@ -6512,12 +6518,14 @@ def test_baremetal_profile_contract() -> None:
         body, close = braced_span(code, found, "entity_advertise()")
         return found, body, close
 
-    #: The verdict's WRITES and its ADDRESS, one definition each: the source
-    #: rules in assert_boot_contract() refuse both, and aem_verdict_pins()
-    #: reads the same two to decide whether the resolver may keep the
-    #: verdict's slot across a call. Read/modify/write, increment and
-    #: compound-assignment spellings all override the verifier's verdict, so
-    #: the variable is pinned rather than one spelling.
+    #: The verdict's WRITES and its ADDRESS, one definition each, for the
+    #: source rules in assert_boot_contract(). Read/modify/write, increment
+    #: and compound-assignment spellings all override the verifier's
+    #: verdict, so the variable is pinned rather than one spelling. Both
+    #: read the text as written, which a macro, a phase-2 splice or a `##`
+    #: paste out-spells, so aem_verdict_pins() does not read them: it reads
+    #: the same two facts on what the compiler compiled ([R412] and [R413]
+    #: F1 on PR #623).
     verdict_write_re = re.compile(
         r"(?:\+\+|--)\s*aem_loaded\b|"
         r"\baem_loaded\b\s*(?:\+\+|--|(?:[-+*/%|&^]|<<|>>)?=(?!=))"
@@ -6543,8 +6551,8 @@ def test_baremetal_profile_contract() -> None:
 
     #: The three pins, each named, so a refusal says which one failed.
     VERDICT_PIN_WRITE = (
-        "aem_loaded is written somewhere other than its one assignment from "
-        "load_aem_image()")
+        "the compiled unit stores to aem_loaded other than milan_init()'s "
+        "one store of load_aem_image()'s return")
     VERDICT_PIN_ADDRESS = "the address of aem_loaded is taken"
     VERDICT_PIN_STATIC = (
         "aem_loaded is not a file-scope static of the compiled unit")
@@ -6568,31 +6576,91 @@ def test_baremetal_profile_contract() -> None:
                                 if path.is_file() else None)
         return units
 
-    def aem_verdict_pins(source: str, assembly: str,
+    def verdict_register_diagnostic(preprocessed: dict[str, Any],
+                                    declared: re.Match[str]) -> str | None:
+        """None when the compiler accepts the preprocessed unit with its one
+        `static int aem_loaded;` made a register variable, else what it
+        refused. C forbids taking a register variable's address, so the
+        compiler, not a reader of text, answers whether any expression in
+        the unit forms that address, however it is spelled. The declaration
+        moves to the top of the unit, ahead of every function a header
+        defines, where GCC requires a global register variable; the line it
+        leaves is blanked, and the unit's line markers keep every other
+        line's number."""
+        text = preprocessed["text"]
+        diagnostic = ('register int aem_loaded __asm__("s1");\n' +
+                      text[:declared.start()] +
+                      " " * (declared.end() - declared.start()) +
+                      text[declared.end():])
+        with tempfile.TemporaryDirectory(prefix="milan-verdict-") as tmp:
+            path = Path(tmp) / "verdict.i"
+            path.write_text(diagnostic, encoding="utf-8")
+            checked = subprocess.run(
+                [preprocessed["compiler"],
+                 *tuple(census_used.get("flags") or ()),
+                 "-std=gnu99", "-x", "cpp-output", "-fsyntax-only", str(path)],
+                capture_output=True, text=True,
+                env={**os.environ, "LC_ALL": "C"})
+        if checked.returncode == 0:
+            return None
+        errors = [line.split("error:", 1)[1].strip()
+                  for line in checked.stderr.splitlines() if "error:" in line]
+        return "; ".join(errors[:3]) or checked.stderr.strip()[-300:]
+
+    def aem_verdict_pins(assembly: str, unit: dict[str, Any],
+                         preprocessed: dict[str, Any],
                          units: dict[str, str | None]) -> list[str]:
         """The pins that FAIL for the resolver to keep aem_loaded's slot
         across a call; an empty list keeps it (rv32_step()'s call rule).
 
-        `source` is the text compiled into `assembly` and `units` every
-        OTHER translation unit linked into the firmware, so all three pins
-        are read at the same head as the code the resolver walks:
+        The firmware's own unit is read as the compiler compiled it, never
+        as written, so no spelling of a write or an address -- a macro, a
+        phase-2 splice, a `##` paste -- changes an answer ([R412] and
+        [R413] F1 on PR #623). `unit` is rv32_unit() of `assembly` under
+        the forget-on-call rule, so no pin depends on the slot it decides;
+        `preprocessed` is the unit the preprocessor handed the compiler for
+        that assembly; `units` every OTHER translation unit linked into the
+        firmware, read as written: what keeps them from naming the verdict
+        is its internal linkage, which the assembly shows.
 
-        1. the unit writes aem_loaded exactly once, `aem_loaded =
-           load_aem_image();`, the verifier's verdict;
-        2. its address is never taken, so no pointer writes it either;
+        1. the resolved census places exactly one store on aem_loaded in
+           the whole unit, and it is milan_init()'s store of the value
+           load_aem_image() returned;
+        2. the compiler accepts the preprocessed unit with aem_loaded made
+           a register variable (verdict_register_diagnostic()), so no
+           expression in it forms the address;
         3. it is a file-scope static of the one translation unit: declared
-           once as `static int aem_loaded;`, emitted with internal linkage,
-           and named in no other unit."""
-        code = blanked(source)
+           once, as `static int aem_loaded;`, in the preprocessed unit,
+           defined by the assembly with internal linkage, and named in no
+           other linked unit's source."""
         broken = []
-        if not verdict_is_the_verifiers(code):
-            broken.append(VERDICT_PIN_WRITE)
-        if verdict_address_taken(code):
-            broken.append(VERDICT_PIN_ADDRESS)
+        verdict = Rv32Where("sym", "aem_loaded")
+        writes = sorted(((name, value) for name, run in unit["runs"].items()
+                         for _at, (address, value) in run["stores"]
+                         if address == verdict),
+                        key=lambda write: (write[0], repr(write[1])))
+        if writes != [("milan_init", Rv32Tag("call:load_aem_image"))]:
+            broken.append(
+                f"{VERDICT_PIN_WRITE} (resolved: " +
+                (", ".join(f"{name}() stores {value!r}"
+                           for name, value in writes) or "no store") + ")")
+        declared = list(re.finditer(
+            r"(?m)^static int aem_loaded;$",
+            blanked(preprocessed["text"]))) if preprocessed["ran"] else []
+        if len(declared) != 1:
+            broken.append(
+                f"{VERDICT_PIN_ADDRESS} (the compiler was not asked: the "
+                f"preprocessed unit declares `static int aem_loaded;` "
+                f"{len(declared)} time(s))")
+        else:
+            refused = verdict_register_diagnostic(preprocessed, declared[0])
+            if refused is not None:
+                broken.append(f"{VERDICT_PIN_ADDRESS} (the compiler, with "
+                              f"aem_loaded a register variable: {refused})")
         exported = re.search(r"(?m)^\s*\.globa?l\s+aem_loaded\s*$", assembly)
         common = re.search(r"(?m)^\s*\.comm\s+aem_loaded\s*,", assembly)
         local = re.search(r"(?m)^\s*\.local\s+aem_loaded\s*$", assembly)
-        if len(re.findall(r"(?m)^static int aem_loaded;$", code)) != 1 or \
+        if len(declared) != 1 or \
                 "aem_loaded" not in rv32_defined(assembly) or exported or \
                 (common and not local):
             broken.append(VERDICT_PIN_STATIC)
@@ -6614,8 +6682,9 @@ def test_baremetal_profile_contract() -> None:
         `source` is the text the census compiled into `assembly`, and
         `units` the firmware's other translation units (default: the ones
         the tracked Makefile links). aem_loaded's slot crosses a call only
-        when aem_verdict_pins() finds all three pins holding on them; with
-        no source it never does.
+        when aem_verdict_pins() finds all three pins holding on what the
+        compiler compiled from `source`, preprocessed here with the
+        census's own compiler and flags; with no source it never does.
 
         Five questions, each about a VALUE or an EDGE and none about a
         spelling:
@@ -6659,13 +6728,14 @@ def test_baremetal_profile_contract() -> None:
            value the one `crc32()` handed back, and does a non-zero verdict
            survive the removal of the CRC-equality edge?
         """
+        forgetting = rv32_unit(assembly)
         broken = (["no compiled source was handed in"] if source is None
                   else aem_verdict_pins(
-                      source, assembly,
+                      assembly, forgetting, preprocess_take(source, label),
                       other_units(makefile_source) if units is None
                       else units))
         kept = frozenset() if broken else frozenset({"aem_loaded"})
-        unit = rv32_unit(assembly, kept)
+        unit = rv32_unit(assembly, kept) if kept else forgetting
         runs = unit["runs"]
         for needed in ("entity_advertise", "load_aem_image", "milan_write",
                        "milan_init"):
@@ -11671,8 +11741,9 @@ def test_baremetal_profile_contract() -> None:
             #: not from the shipping firmware: rule 1c pins the one
             #: sanctioned consumer of that helper's return, and pinning it
             #: against a name a mutant may have moved would answer about the
-            #: wrong function. The verdict's pins are read on the same source
-            #: and the same Makefile's units.
+            #: wrong function. The verdict's pins are read on this assembly,
+            #: the same source's preprocessed unit and the same Makefile's
+            #: units.
             compiled_census_verdict["resolved"] = assert_resolved_boot_flow(
                 census_taken["text"], model,
                 helper=re.search(
@@ -14141,7 +14212,13 @@ def test_baremetal_profile_contract() -> None:
     #: shipping firmware is in that order): the base is ACCEPTED with the
     #: slot kept; the same assembly with no source handed in, which is the
     #: forget-on-call rule, is REFUSED; and every planted break of a pin is
-    #: REFUSED on the verdict with the broken pin named.
+    #: REFUSED on the verdict with the broken pin named. The last four are
+    #: the spellings a reader of the text as written does not see, which is
+    #: why the pins read the compiled unit ([R412] and [R413] F1 on PR
+    #: #623): a write joined by a phase-2 splice, one pasted by `##`, one
+    #: spelled through a macro, and the address spelled through a macro and
+    #: handed to sscanf(), whose write no store in this unit makes, so only
+    #: the address pin can refuse it.
     def aem_first(firmware: str) -> str:
         """`firmware` with milan_init()'s nvm_boot() call moved to just
         after the AEM verifier's call."""
@@ -14156,6 +14233,16 @@ def test_baremetal_profile_contract() -> None:
 
     aem_first_source = aem_first(firmware_source)
     nvm_boot_open = "static void nvm_boot(void)\n{\n"
+
+    def in_nvm_boot(macro: str, statement: str, what: str) -> str:
+        """The AEM-first base with `macro` defined just after the verdict's
+        declaration and `statement` opening nvm_boot()'s body."""
+        declared = "static int aem_loaded;\n"
+        base = replace_once(aem_first_source, declared, declared + macro,
+                            what) if macro else aem_first_source
+        return replace_once(base, nvm_boot_open, nvm_boot_open + statement,
+                            what)
+
     verdict_pin_breaks = (
         ("a second assignment inside nvm_boot()", VERDICT_PIN_WRITE,
          replace_once(aem_first_source, nvm_boot_open,
@@ -14183,6 +14270,23 @@ def test_baremetal_profile_contract() -> None:
          {"milan_verdict.c": "extern int aem_loaded;\n\n"
                              "void milan_verdict_clear(void)\n{\n"
                              "\taem_loaded = 0;\n}\n"}),
+        ("a phase-2 line-splice write inside nvm_boot()", VERDICT_PIN_WRITE,
+         in_nvm_boot("", "\taem_\\\nloaded = 1;\n", "spliced verdict write"),
+         None),
+        ("a `##`-paste write inside nvm_boot()", VERDICT_PIN_WRITE,
+         in_nvm_boot("#define MILAN_VERDICT_JOIN(a, b) a##b\n",
+                     "\tMILAN_VERDICT_JOIN(aem_, loaded) = 1;\n",
+                     "pasted verdict write"), None),
+        ("a macro-spelled write inside nvm_boot()", VERDICT_PIN_WRITE,
+         in_nvm_boot("#define MILAN_VERDICT_SET(flag) ((flag) = 1)\n",
+                     "\tMILAN_VERDICT_SET(aem_loaded);\n",
+                     "macro-spelled verdict write"), None),
+        ("a macro-spelled address handed to sscanf() inside nvm_boot()",
+         VERDICT_PIN_ADDRESS,
+         in_nvm_boot("#define MILAN_VERDICT_REF(obj) (&(obj))\n",
+                     "\t(void)sscanf(\"1\", \"%d\", "
+                     "MILAN_VERDICT_REF(aem_loaded));\n",
+                     "macro-spelled verdict address"), None),
     )
     verdict_pin_refused = []
     if baseline_census_verdict["ran"]:
@@ -16631,7 +16735,8 @@ def test_baremetal_profile_contract() -> None:
             ", each refused on the resolved store address"
             "; it kept the slot of "
             f"{', '.join(_resolved['kept']) or 'no static'} across a call "
-            "under the verdict's three pins, accepted the AEM-first base "
+            "under the verdict's three pins, read on the compiled unit, "
+            "accepted the AEM-first base "
             "only with it kept, and refused "
             f"{len(verdict_pin_refused)}/{len(verdict_pin_breaks)} planted "
             "pin breaks on the verdict, each naming its pin"
