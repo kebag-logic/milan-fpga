@@ -1,0 +1,16 @@
+== check_em_dash.py
+usage: check_em_dash.py [-h] (--base REV | --selftest)
+check_em_dash.py: error: one of the arguments --base --selftest is required
+rc=2
+== check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== check_doc_paths.py
+doc path gate: OK (861 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== docs_check.py
+docs_check: 0 finding(s) across 177 md files + 948 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== check_em_dash.py --base 79c36963
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
