@@ -172,6 +172,7 @@ and the containing command's full TX serialization at 115200 baud, 8N1.
 The table combines the largest span and TX allowance for each duty across plans.
 Paced spans already include UART blocking; adding the allowance again is conservative.
 Boot's unarmed prefix precedes the first heartbeat opportunity.
+Reset to the first PHY publication spans that prefix, which only boot's 20000 ms comparison grades; the AEM-first order added the AEM copy and CRC to it, from 316.91802 ms at 1x1 and 970.14222 ms at 8x8.
 The AEM read now falls inside it, so the AEM row is charged from that opportunity.
 Its unarmed part is boot's: 283.12954 to 285.75298 ms at 1x1.
 At 8x8 it is 1015.35487 to 1017.99251 ms.
