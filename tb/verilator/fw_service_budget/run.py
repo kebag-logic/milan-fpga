@@ -517,7 +517,21 @@ def armed_controls(raw: str) -> int:
     require(service_findings(dict(result, rows=[dict(row)], events=armed_first), raw)
             == ['over-budget tick stretch: aem_copy_crc', 'over-budget PHY service stretch: aem_copy_crc'],
             'a duty that starts armed lost its whole-span bound')
-    return 3
+    # A command long after arming, with an opportunity before it and a
+    # serviced block inside it, whose first 250 ms and one cycle carry none.
+    # Arming is the run's first opportunity, so that leading gap is charged;
+    # an arming cycle read per duty, or from a later block, would drop it.
+    start = 150_000_000
+    inside, end = start + 25_000_001, start + 30_000_001
+    blocks = armed + [dict(kind='ticks', cycle=end, first=inside, last=end - 100_000, count=50,
+                           max_gap=100_000, gap_start=inside)]
+    lead = dict(interval('milan_status', start, end, None), uart_tx_allowance_ms=0.0)
+    lead.update(tick_span(blocks, start, end))
+    lead['period_bound_ms'] = 250 + lead['no_tick_ms']
+    require(service_findings(dict(result, rows=[lead], events=blocks), raw)
+            == ['over-budget tick stretch: milan_status', 'over-budget PHY service stretch: milan_status'],
+            "an armed duty's leading gap escaped: arming was not the run's first opportunity")
+    return 4
 
 
 def dispatch_controls() -> int:
