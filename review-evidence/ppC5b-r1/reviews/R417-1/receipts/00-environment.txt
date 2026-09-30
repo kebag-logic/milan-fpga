@@ -1,0 +1,27 @@
+Reviewer environment for R417-1 (exact head 54c1e2b11c90e7063fc5882b15ddea5e4335d411, tree f90877d2037fda973553b0ef1b75f29a7e0a6365)
+date: 2026-09-30T17:19:26Z
+named pinned wrapper path in the assignment: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator -> ls: cannot access '$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator': No such file or directory
+substitute: byte-identical copy of the sibling manager wrapper (all 216 pinned-tool-bin/verilator wrappers under $VALIDATION_STORAGE hash to the same value)
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+wrapper target binary sha256 (verilator, verilator_bin): fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+verilator --version: Verilator 5.050 2026-07-01 rev v5.050
+python3: Python 3.14.7
+g++: g++ (GCC) 16.2.1 20260810
+CPU restriction: every build/run under taskset -c 0-7 (8 CPUs)
+
+public evidence fetched from kebag-logic/milan-fpga@d10fd5d86c7147eaf28d8a3816b7048cdd9fbd87 review-evidence/ppC5b-r1 (sha256 as published):
+01c6829ed5b4db18defa8b503b77e4dd503111683a87413648fc3d0c2c851d73  ev/aecp-mutants-54c1e2b.json
+8cba0c936cfa1c8d7963742b8cba50f7d716ed1d39f1a01a43ab4cf4012ae0aa  ev/d3-mutants-54c1e2b.txt
+0990e41af26e1187fc43e4583b89df203d4a4683a0201477456318f35b176ac5  ev/HANDOFF.md
+2ba6680373831206006933dddf7c97615f4870526c476a5b371b995702ddc420  ev/parent-adaptation-132-c1.patch
+0f799ed5a0c50f42e474ffb35b171a79dc085989132ec1750632f24a3f3c98a2  ev/parent-gates-54c1e2b.txt
+c3f899666fdfbd4e65b98b63b3063618b65da3f3dd0f3f0276b9417d03569ae6  ev/PR-BODY.md
+0a30ce8b396c190c5086ce67fbb5eeaed9fe8fe11208aa3d469a572c492e6044  ev/suites-54c1e2b.txt
+
+hosted check runs at the exact head (read-only query at review time):
+suites | in_progress | null | run 36745905838
+docs-gates | completed | success | run 36745905838
+portability | completed | success | run 36745905838
+portability | completed | success | run 36745878948
+suites | in_progress | null | run 36745878948
+docs-gates | completed | success | run 36745878948
