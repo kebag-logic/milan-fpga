@@ -1,0 +1,17 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R412 PREMISE +1 reached [1]
+R412 PREMISE +2 reached [2]
+R412 PREMISE +3 reached [3]
+R412 REFUSED a second assignment inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a second assignment in the UART status handler :: pins named: ['write']
+R412 REFUSED &aem_loaded taken and written through inside nvm_boot() :: pins named: ['write', 'escape', 'address']
+R412 REFUSED aem_loaded given external linkage :: pins named: ['local', 'address', 'static']
+R412 REFUSED aem_loaded declared in a second translation unit :: pins named: ['unit']
+R412 REFUSED a phase-2 line-splice write inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a `##`-paste write inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a macro-spelled write inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a macro-spelled address handed to sscanf() inside nvm_boot() :: pins named: ['escape', 'address']
+GATE1B REFUSED (28 s): the resolver refused a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) without naming the broken pin(s) ["another symbol of the linked image is on aem_loaded's storage"]: the compiled a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, n
+K3_no_name_pin rc=3

@@ -1,0 +1,9 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R412 PREMISE +1 reached [1]
+R412 PREMISE +2 reached [2]
+R412 PREMISE +3 reached [3]
+R412 REFUSED a second assignment inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a second assignment in the UART status handler :: pins named: ['write']
+GATE1B REFUSED (26 s): the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["the linked image forms the full address of aem_loaded's storage"]: the compiled &aem_loaded taken and written through inside nvm_boot() enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's s
+K2_no_escape_pin rc=3

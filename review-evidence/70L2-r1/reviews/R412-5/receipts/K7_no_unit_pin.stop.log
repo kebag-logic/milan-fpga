@@ -1,0 +1,11 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R412 PREMISE +1 reached [1]
+R412 PREMISE +2 reached [2]
+R412 PREMISE +3 reached [3]
+R412 REFUSED a second assignment inside nvm_boot() :: pins named: ['write']
+R412 REFUSED a second assignment in the UART status handler :: pins named: ['write']
+R412 REFUSED &aem_loaded taken and written through inside nvm_boot() :: pins named: ['write', 'escape', 'address']
+R412 REFUSED aem_loaded given external linkage :: pins named: ['local', 'address', 'static']
+GATE1B REFUSED (26 s): the resolver accepted aem_loaded declared in a second translation unit: aem_loaded's slot crossed a call although a pin that makes that sound is broken
+K7_no_unit_pin rc=3
