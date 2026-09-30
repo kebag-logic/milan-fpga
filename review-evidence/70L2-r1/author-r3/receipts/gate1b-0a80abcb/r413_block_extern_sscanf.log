@@ -1,0 +1,8 @@
+instrumented /tmp/a457-r3/probe-work/r413_block_extern_sscanf/sw/builder/test_builder.py
+planted block_extern_sscanf firmware sha256 81aa4fdce04e83d3e1ec785c65d5b6b896b3060972d77bf77cd5048cf1509569
+[gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the address of aem_loaded must not be taken: a pointer to the verdict (or a memset through one) overwrites it without any assignment this gate can see
+elapsed 6.3s
+
+rc=1

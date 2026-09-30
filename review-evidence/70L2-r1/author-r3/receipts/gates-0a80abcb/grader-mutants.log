@@ -1,0 +1,21 @@
+W0_identity_control: SURVIVED rc=0 :: RESULT: PASS | fw_service_budget_oracle: checks: 52 failures: 0 | PASS: over-budget duty, marker integrity and product dispatch census
+W1_old_whole_span: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/w/W1_old_whole_span/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: unarmed AEM prefix was charged as an armed gap
+W2_unarmed_never_charged: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/w/W2_unarmed_never_charged/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: armed bound not recorded
+W3_first_tick_inside_duty: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/w/W3_first_tick_inside_duty/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: an armed duty's leading gap escaped: arming was not the run's first opportunity
+W4_last_tick: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/w/W4_last_tick/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: an armed duty's leading gap escaped: arming was not the run's first opportunity
+W5_phy_whole_span: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/w/W5_phy_whole_span/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: unarmed AEM prefix was charged as an armed gap
+W6_armed_no_uart: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/w/W6_armed_no_uart/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: an unarmed-start command's UART allowance left its armed bound
+X1_exempt_aem_by_name: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/x/X1_exempt_aem_by_name/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: armed bound not recorded
+X2_armed_drops_250_base: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/x/X2_armed_drops_250_base/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: armed bound not recorded
+X3_arming_from_any_event_kind: SURVIVED rc=0 :: RESULT: PASS | fw_service_budget_oracle: checks: 52 failures: 0 | PASS: over-budget duty, marker integrity and product dispatch census
+X4_arming_from_block_report_cycle: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/x/X4_arming_from_block_report_cycle/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: armed bound not recorded
+X5_ends_before_arm_boundary: KILLED rc=1 ::   File "/tmp/a457-gates/mutants/x/X5_ends_before_arm_boundary/tb/verilator/fw_service_budget/run.py", line 39, in require |     raise RuntimeError(message) | RuntimeError: armed bound not recorded
+W0_identity_control: SURVIVED rc=0 :: RESULT: PASS | fw_service_budget_oracle: checks: 52 failures: 0 | PASS: over-budget duty, marker integrity and product dispatch census
+skip_every_unarmed_start: rc=1 KILLED :: RuntimeError: armed bound not recorded
+anchor_last_tick: rc=1 KILLED :: RuntimeError: tick block crossed a duty boundary
+anchor_first_heartbeat_write: rc=1 KILLED :: RuntimeError: unarmed AEM prefix was charged as an armed gap
+span_from_duty_start: rc=1 KILLED :: RuntimeError: unarmed AEM prefix was charged as an armed gap
+exempt_aem_by_name: rc=1 KILLED :: RuntimeError: armed bound not recorded
+armed_bound_without_250_base: rc=1 KILLED :: RuntimeError: armed bound not recorded
+restored run.py; all mutants killed
+MUTANTS AS EXPECTED: W0 passes; W1-W6 killed (W3, W4 and W6 by name); X1, X2, X4, X5 killed and X3 passes as a stricter rule; all six R413 rules killed

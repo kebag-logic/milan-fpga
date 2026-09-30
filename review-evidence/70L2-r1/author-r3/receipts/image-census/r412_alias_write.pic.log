@@ -1,0 +1,11 @@
+  at milan_init()'s call to nvm_boot(), the verdict's address is held in ['a5']
+  model=pic verdict=0x00015a20 references:
+    ('nvm_boot', '0x12c50', 'PCREL_HI20', 'upper part')
+    ('nvm_boot', '0x12c54', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+    ('milan_init', '0x13608', 'PCREL_HI20', 'upper part')
+    ('milan_init', '0x1360c', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+    ('milan_init', '0x1361c', 'PCREL_HI20', 'upper part')
+    ('milan_init', '0x13620', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+    ('milan_status_handler', '0x13758', 'PCREL_HI20', 'upper part')
+    ('milan_status_handler', '0x1375c', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')
+VERDICT FORGOTTEN: another symbol names the verdict's storage: ['aem_view'] | the verdict's address escapes: [('nvm_boot', '0x12c54', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register'), ('milan_init', '0x1360c', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register'), ('milan_init', '0x13620', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register'), ('milan_status_handler', '0x1375c', 'PCREL_LO12_I', 'FULL ADDRESS formed in a register')] | in-place stores on the verdict: none (exactly milan_init's one) | resolved stores on the verdict's address: [('milan_init', '<call:load_aem_image>'), ('nvm_boot', '1')]

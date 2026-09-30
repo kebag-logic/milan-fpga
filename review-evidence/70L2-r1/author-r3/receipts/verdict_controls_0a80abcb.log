@@ -1,0 +1,41 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+A457 CONTROL REFUSED: a second assignment inside nvm_boot()
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from nvm_boot(), milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 0)
+A457 CONTROL REFUSED: a second assignment in the UART status handler
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from milan_init(), milan_status_handler(); resolved: milan_init() stores <call:load_aem_image>, milan_status_handler() stores 1)
+A457 CONTROL REFUSED: &aem_loaded taken and written through inside nvm_boot()
+    names: the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+    names: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I)); the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address o
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 0); the linked image forms the full address of aem_loaded's storage (the full addr
+A457 CONTROL REFUSED: aem_loaded given external linkage
+    names: aem_loaded is not a file-scope static of the compiled unit
+    names: aem_loaded is not a local object of the linked image; the address of aem_loaded is taken (the compiler was not asked: the preprocessed unit declares `static int aem_loaded;` 0 time(s)); aem_loaded is not a file-scope static of the compiled unit
+A457 CONTROL REFUSED: aem_loaded declared in a second translation unit
+    names: aem_loaded is named in a second translation unit (milan_verdict.c)
+A457 CONTROL REFUSED: a phase-2 line-splice write inside nvm_boot()
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from nvm_boot(), milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+A457 CONTROL REFUSED: a `##`-paste write inside nvm_boot()
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from nvm_boot(), milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+A457 CONTROL REFUSED: a macro-spelled write inside nvm_boot()
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from nvm_boot(), milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+A457 CONTROL REFUSED: a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot()
+    names: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from nvm_boot(), milan_init(); resolved: milan_init() stores <call:load_aem_image>)
+A457 CONTROL REFUSED: a macro-spelled address handed to sscanf() inside nvm_boot()
+    names: the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+    names: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I)); the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address o
+A457 CONTROL REFUSED: a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf)
+    names: another symbol of the linked image is on aem_loaded's storage (milan_verdict_alias)
+    names: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I)); another symbol of the linked image is on aem_loaded's storage (milan_verdict_alias)
+A457 CONTROL REFUSED: a weakref of aem_loaded handed to sscanf() inside nvm_boot() (weakref_sscanf)
+    names: another symbol of the linked image is on aem_loaded's storage (milan_verdict_ref)
+    names: the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) at 0x00012b88 in nvm_boot() (R_RISCV_LO12_I)); another symbol of the linked image is on aem_loaded's storage (milan_verdict_ref)
+A457 CONTROL REFUSED: the address of aem_loaded held in a data word and handed to sscanf() inside nvm_boot()
+    names: the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+    names: the linked image forms the full address of aem_loaded's storage (the full address held in a data word at 0x000158c4 in .data (R_RISCV_32)); the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 
+A457 CONTROL REFUSED: an AUIPC with no relocation, its PC-relative address handed to sscanf() inside nvm_boot()
+    names: an AUIPC of the linked image carries no relocation (0x00012b84 in nvm_boot())
+A457 PROBE: verdict-pin controls refused 14 of 14 ; base kept = ['aem_loaded'] ; base references = [('milan_init()', 79072, 'R_RISCV_HI20', 'the upper part'), ('milan_init()', 79076, 'R_RISCV_LO12_S', 'a store in place'), ('milan_init()', 79088, 'R_RISCV_HI20', 'the upper part'), ('milan_init()', 79092, 'R_RISCV_LO12_I', 'a load in place'), ('milan_status_handler()', 79400, 'R_RISCV_HI20', 'the upper part'), ('milan_status_handler()', 79404, 'R_RISCV_LO12_I', 'a load in place')]
+GATE ACCEPTED (test_baremetal_profile_contract returned)
+elapsed 17.2s
+rc=0
