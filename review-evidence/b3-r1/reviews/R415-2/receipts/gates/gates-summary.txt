@@ -1,0 +1,10 @@
+docs_check rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/docs_check.py
+check_doc_style rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/check_doc_style.py
+gen_toc_check rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/gen_toc.py --check
+check_em_dash rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/check_em_dash.py --base ec0cc0c1df7d7ab3e25d973958f53f0074393d2c
+check_doc_paths rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/check_doc_paths.py
+check_baremetal_only rc=0 :: python3 (system, pyyaml present) -B scripts/check_baremetal_only.py --check   [first attempt in the pinned Markdown env rc=2: pyyaml not in that env, an environment refusal, not a finding]
+check_feature_status_selftest rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/check_feature_status.py --self-test
+ci_scope_selftest rc=0 :: <pinned-md-env-40cdefe08ebd>/bin/python -B scripts/ci_scope.py --selftest
+git_diff_check_base rc=0 :: git diff --check ec0cc0c1df7d7ab3e25d973958f53f0074393d2c HEAD
+git_diff_check_r1 rc=0 :: git diff --check 6dfa64a7506a8660a70d77eaa7c96c5de2886f5d HEAD

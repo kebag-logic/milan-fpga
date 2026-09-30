@@ -1,0 +1,16 @@
+PASS rc 0
+PASS words equal published
+PASS split equal published
+PASS byte_offset 52224
+PASS previous_frame_silent
+PASS in_order
+PASS wrong sha refused
+PASS out-of-range frame refused
+PASS rotated frame not in_order
+RESULT PASS
+published frame 1632: tags [1, 2, 3, 4, 5, 6, 7, 8] ordinals ['6ec8'] low bytes ['0x20', '0x38', '0x50', '0x68', '0x78', '0x90', '0xa8', '0xc0'] monotonic True max low byte < 0x100 (below one 24-bit LSB) True
+grade-summary /strict/failing_or_silent_frames 3600000
+grade-summary /frame_classes/silent 327339
+grade-summary /silent_stretches 2420
+grade-summary /silent_stretch_frames_max 2459
+grade-summary /first_non_silent_frame 1632

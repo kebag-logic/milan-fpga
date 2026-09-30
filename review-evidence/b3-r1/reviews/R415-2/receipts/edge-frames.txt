@@ -1,0 +1,12 @@
+frames 4551624; region 45588..3405623 = 3360036 (page 3,360,036)
+zero-based: 45588 frames precede the region (indices 0..45587), 1146000 follow it; outside 1191588 (page 1,191,588)
+outside words: {'ffffff00': 9526486, 'other': 1, 'zero': 6217}; sum 9532704 = 8 x 1191588: True
+ffffff00 is a pattern word: False; fffff000: False; 00000000: False
+edge frame 45586: ['ffffff00', 'ffffff00', 'ffffff00', 'ffffff00', 'ffffff00', 'ffffff00', 'ffffff00', 'ffffff00'] pattern words 0
+edge frame 45587: ['ffffff00', 'fffff000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'] pattern words 0
+edge frame 45588: ['01000000', '02000000', '03000000', '04000000', '05000000', '06000000', '07000000', '08000000'] pattern words 8
+edge frame 3405623: ['0144ff00', '0244ff00', '0344ff00', '0444ff00', '0544ff00', '0644ff00', '0744ff00', '0844ff00'] pattern words 8
+edge frame 3405624: ['00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'] pattern words 0
+edge frame 3405625: ['00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'] pattern words 0
+frames_after_region_before_idle 777 (page 777); zero words 6 + 776*8 + 3 = 6217 (census 6217)
+reading of page line 159 "45,587 before the region": as a frame index it names the frame just before the region; as a count it is one short of the 45588 frames that precede the region

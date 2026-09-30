@@ -1,0 +1,40 @@
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md: 12 tables at 6dfa64a7, 12 at a66996aa
+  table 1: old L14 new L14 rows 7/7 ac81df3c229c9fca ac81df3c229c9fca IDENTICAL
+  table 2: old L43 new L43 rows 10/10 16af21539317fc91 16af21539317fc91 IDENTICAL
+  table 3: old L105 new L117 rows 3/3 ef2ad71423988d2c ef2ad71423988d2c IDENTICAL
+  table 4: old L112 new L124 rows 4/4 d4146c175326bc5b d4146c175326bc5b IDENTICAL
+  table 5: old L121 new L133 rows 10/10 e7e17c98d1d9bc07 e7e17c98d1d9bc07 IDENTICAL
+  table 6: old L137 new L149 rows 6/6 507ff98fae7dc7e2 507ff98fae7dc7e2 IDENTICAL
+  table 7: old L157 new L172 rows 3/3 1f5f9938973e943b 1f5f9938973e943b IDENTICAL
+  table 8: old L162 new L177 rows 10/10 e7d374dab694cda4 e7d374dab694cda4 IDENTICAL
+  table 9: old L194 new L209 rows 12/12 a370680a22c2e35a a370680a22c2e35a IDENTICAL
+  table 10: old L212 new L227 rows 9/9 efd57001f1f92b26 efd57001f1f92b26 IDENTICAL
+  table 11: old L244 new L269 rows 5/5 49a26d98a41664ec 49a26d98a41664ec IDENTICAL
+  table 12: old L253 new L280 rows 6/6 6e5add73c725d361 6e5add73c725d361 IDENTICAL
+docs/findings/451_USB_AUDIO_CAPTURE.md: 8 tables at 6dfa64a7, 8 at a66996aa
+  table 1: old L15 new L15 rows 9/9 07903162874c1475 07903162874c1475 IDENTICAL
+  table 2: old L99 new L99 rows 4/4 893975a90f036817 893975a90f036817 IDENTICAL
+  table 3: old L109 new L109 rows 4/4 70ceea717f3c322c 70ceea717f3c322c IDENTICAL
+  table 4: old L119 new L119 rows 4/4 021b77351bdc8689 021b77351bdc8689 IDENTICAL
+  table 5: old L124 new L124 rows 4/4 90f4c5ff596d873d b3a5d2e803b6f4e6 CHANGED
+    row differs at 1 char(s), len 191/191: [(34, '7', '0')]
+    row differs at 1 char(s), len 192/192: [(35, '7', '0')]
+  table 6: old L181 new L187 rows 6/6 4fb1a290ce6cff90 4fb1a290ce6cff90 IDENTICAL
+  table 7: old L205 new L211 rows 4/4 b1fc136c24c850c2 b1fc136c24c850c2 IDENTICAL
+  table 8: old L213 new L221 rows 4/4 6ddde15369efb220 6ddde15369efb220 IDENTICAL
+docs/findings/README.md: 1 tables at 6dfa64a7, 1 at a66996aa
+  table 1: old L9 new L9 rows 14/16 117978669391e0c1 ace62412eb48f902 CHANGED
+    row differs at 2 char(s), len 482/720: [(480, ' ', '.'), (481, '|', ' ')]
+    row differs at 408 char(s), len 431/521: [(3, '7', '4'), (5, '_', '1'), (6, 'R', '_'), (7, 'E', 'U'), (8, 'C', 'S'), (9, 'O', 'B')]
+    row differs at 254 char(s), len 278/363: [(4, '0', '1'), (5, '6', '7'), (7, 'F', 'D'), (9, 'R', 'N'), (10, 'S', '_'), (11, 'T', 'F')]
+    row differs at 345 char(s), len 372/431: [(3, '6', '7'), (4, '0', '5'), (5, '8', '_'), (6, '_', 'R'), (7, '7', 'E'), (8, '5', 'C')]
+    row differs at 268 char(s), len 325/278: [(3, 'C', '6'), (4, 'O', '0'), (5, 'M', '6'), (6, 'M', '_'), (7, 'E', 'F'), (8, 'R', 'I')]
+    row differs at 267 char(s), len 283/372: [(3, '3', '6'), (4, '9', '0'), (5, '7', '8'), (7, 'S', '7'), (8, 'E', '5'), (9, 'R', '_')]
+    row differs at 302 char(s), len 339/325: [(3, '1', 'C'), (4, '1', 'O'), (5, '7', 'M'), (6, '_', 'M'), (7, 'G', 'E'), (8, 'P', 'R')]
+    row differs at 191 char(s), len 199/283: [(3, 'A', '3'), (4, 'D', '9'), (5, 'P', '7'), (6, ' ', '_'), (7, 's', 'S'), (8, 'h', 'E')]
+    row differs at 139 char(s), len 151/339: [(3, 'C', '1'), (4, 'B', '1'), (5, 'S', '7'), (7, 'D', 'G'), (8, 'A', 'P'), (10, 'A', 'P')]
+    row differs at 187 char(s), len 237/199: [(3, 'M', 'A'), (4, 'e', 'D'), (5, 'd', 'P'), (6, 'i', ' '), (7, 'a', 's'), (8, '-', 'h')]
+    row differs at 143 char(s), len 157/151: [(3, 'P', 'C'), (4, 'r', 'B'), (5, 'o', 'S'), (6, 't', '_'), (7, 'o', 'D'), (8, 'c', 'A')]
+    row differs at 222 char(s), len 239/237: [(3, 'T', 'M'), (4, 'h', 'e'), (5, 'r', 'd'), (6, 'o', 'i'), (7, 'u', 'a'), (8, 'g', '-')]
+    added row: | [Protocol area (historical)](../history/v1/findings/PP_SHADOW_AREA_0812.md) | Protocol-processor integration area acco
+    added row: | [Throughput campaign (historical)](../history/v1/findings/PERFORMANCE_GOAL.md) | Closed >500 Mbit/s campaign measured 

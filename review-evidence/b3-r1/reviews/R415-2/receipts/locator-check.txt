@@ -1,0 +1,24 @@
+RAW-ARTIFACTS entries: 135
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md tool grade_617.py: page 9e4551453f7e packet 9e4551453f7e MATCH
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md tool decode_din_pairs.py: page feaf05c84540 packet feaf05c84540 MATCH
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md tool decode_capture.py: page cfb7121b589f packet cfb7121b589f MATCH
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md tool attribute_dout.py: page d3d05bb78f23 packet d3d05bb78f23 MATCH
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md raw "DIN talker stream recording, `din-long`": 189654306 B 5f6de7fbe648 -> INDEXED din-long/din-long.pcap
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md raw "DIN pattern period, built on the SoC board": 2097152 B b6a92e9724e9 -> NOTE: not in RAW-ARTIFACTS.json; hash recorded in ['author/runs/din-long/events.jsonl', 'author/runs/din-long-lock.txt']
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md raw "DOUT 70 s SoC capture, `dout-long`": 107520000 B bfee26618674 -> INDEXED dout-long/dout-long.raw
+docs/findings/451_USB_AUDIO_CAPTURE.md tool grade_usb.py: page 505e506aa98f packet 505e506aa98f MATCH
+docs/findings/451_USB_AUDIO_CAPTURE.md tool decode_capture.py: page cfb7121b589f packet cfb7121b589f MATCH
+docs/findings/451_USB_AUDIO_CAPTURE.md raw "USB Audio capture, `usb-long`": 115200000 B 7995b44a5f65 -> INDEXED usb-long/usb-long.raw
+docs/findings/451_USB_AUDIO_CAPTURE.md raw "USB Audio capture, `usb-long2`": 115200000 B fa79d7055a4a -> INDEXED usb-long2/usb-long2.raw
+  author/MANIFEST.sha256: REVIEW-READY.md differs by the archiver path redaction recorded in MANIFEST.json (explained)
+  author/MANIFEST.sha256: REVIEW-READY.readback.md differs by the archiver path redaction recorded in MANIFEST.json (explained)
+  author/MANIFEST.sha256: gates/gates.txt differs by the archiver path redaction recorded in MANIFEST.json (explained)
+  author/MANIFEST.sha256: identity/controller-preflight.txt differs by the archiver path redaction recorded in MANIFEST.json (explained)
+author/MANIFEST.sha256: 166 listed files present here checked, 0 mismatches
+author-r2/packet/MANIFEST.sha256: 5 listed files present here checked, 0 mismatches
+author-r2/packet/HANDOFF.md: 1b2a8a1b1d83 in manifest
+author-r2/packet/summary/summary.json: 3958ffbcb401 in manifest
+author-r2/packet/summary/usb-long-frame-1632.json: 0ed79483f978 in manifest
+author-r2/packet/tools/usb_frame_words.py: 0f4bb562dbc4 in manifest
+author-r2/packet/receipts/mcasp-rx-rate.txt: 7b8784651066 in manifest
+RESULT PASS
