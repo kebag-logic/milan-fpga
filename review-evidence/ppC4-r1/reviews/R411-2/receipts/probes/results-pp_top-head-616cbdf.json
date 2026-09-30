@@ -1,0 +1,37 @@
+[
+ {
+  "mutant": "golden-pp_top@head-616cbdf",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "P1-unbind_then_probe_A5-pp_top@head-616cbdf",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [
+   "AS6: no ACMP frame from the UNBIND_RX_RESPONSE to the GET_RX_STATE (1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P2-unbind_then_probe_A13-pp_top@head-616cbdf",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ }
+]

@@ -1,0 +1,442 @@
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+$REVIEWS/ppC4-r411-2-packet/scripts/verilator-capped.sh --cc --exe --build -j 0 --top-module KL_pp_acmp_listener -GSTRM_TIMEOUT_CYC_P=32 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/acmp/KL_pp_acmp_listener.sv sim_main.cpp -o Vacmp_lsm_sim
+make[1]: Entering directory '$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener/obj_dir'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener -Wall -Wextra   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener -Wall -Wextra   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_pp_acmp_listener.cpp VKL_pp_acmp_listener___024root__0.cpp VKL_pp_acmp_listener__ConstPool__0__Slow.cpp VKL_pp_acmp_listener___024root__Slow.cpp VKL_pp_acmp_listener___024root__0__Slow.cpp VKL_pp_acmp_listener__Syms__Slow.cpp > VKL_pp_acmp_listener__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener -Wall -Wextra   -c -o VKL_pp_acmp_listener__ALL.o VKL_pp_acmp_listener__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_pp_acmp_listener__ALL.a    -pthread -lpthread -latomic   -o Vacmp_lsm_sim
+rm VKL_pp_acmp_listener__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/ppC4-r411-2-packet/scratch/tmp/pp-acmp-mutant-nh9dg_tm/tb/acmp_listener/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.139 MB sources in 4 modules, into 0.219 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.094 s (elab=0.005, cvt=0.023, bld=5.054); cpu 0.044 s on 2 threads; allocated 48.566 MB
+./obj_dir/Vacmp_lsm_sim
+FAIL: F05.3 BIND_NEW x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 BIND_NEW x SNR: frame 1 bytes differ
+    byte 49 got 16 want 15
+FAIL: F05.3 BIND_NEW x SNR: strobes got st0 td0 da1 dd1 nv1/1 want st0 td1 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x SNR: probe_seq got 22 want 21
+FAIL: F05.3 BIND_NEW x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 BIND_NEW x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 BIND_NEW x SOK: frame 1 bytes differ
+    byte 49 got 18 want 17
+FAIL: F05.3 BIND_NEW x SOK: strobes got st0 td0 da1 dd1 nv1/1 want st0 td1 da1 dd1 nv1/1
+FAIL: F05.3 BIND_NEW x SOK: probe_seq got 24 want 23
+FAIL: F05.3 UNBIND x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 UNBIND x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 UNBIND x SNR: strobes got st0 td0 da0 dd1 nv1/0 want st0 td1 da0 dd1 nv1/0
+FAIL: F05.3 UNBIND x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 UNBIND x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 UNBIND x SOK: strobes got st0 td0 da0 dd1 nv1/0 want st0 td1 da0 dd1 nv1/0
+FAIL: F05.3 GETRX x PWA: probe_seq got 32 want 31
+FAIL: F05.3 GETRX x PWD: probe_seq got 33 want 32
+FAIL: F05.3 GETRX x PWR: probe_seq got 34 want 33
+FAIL: F05.3 GETRX x PW2: probe_seq got 35 want 34
+FAIL: F05.3 GETRX x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 GETRX x PWT: sm_state got PWR want PWT
+FAIL: F05.3 GETRX x PWT: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 GETRX x PWT: probe_seq got 36 want 35
+FAIL: F05.3 GETRX x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 GETRX x SNR: frame 0 bytes differ
+    byte 4 got 00 want 55
+    byte 5 got 00 want 44
+    byte 6 got 00 want 33
+    byte 7 got 00 want 22
+    byte 8 got 00 want 11
+    byte 10 got 00 want 22
+    byte 11 got 00 want 35
+    byte 40 got 00 want 91
+    byte 41 got 00 want e0
+    byte 42 got 00 want f0
+    byte 44 got 00 want 44
+    byte 45 got 00 want 55
+    byte 53 got 00 want 02
+FAIL: F05.3 GETRX x SNR: sm_state got PWR want SNR
+FAIL: F05.3 GETRX x SNR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 GETRX x SNR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 GETRX x SNR: probe_seq got 37 want 36
+FAIL: F05.3 GETRX x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002235/91e0f0004455/2
+FAIL: F05.3 GETRX x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 GETRX x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 GETRX x SOK: frame 0 bytes differ
+    byte 4 got 00 want 55
+    byte 5 got 00 want 44
+    byte 6 got 00 want 33
+    byte 7 got 00 want 22
+    byte 8 got 00 want 11
+    byte 10 got 00 want 22
+    byte 11 got 00 want 36
+    byte 40 got 00 want 91
+    byte 41 got 00 want e0
+    byte 42 got 00 want f0
+    byte 44 got 00 want 44
+    byte 45 got 00 want 55
+    byte 53 got 00 want 02
+FAIL: F05.3 GETRX x SOK: sm_state got PWR want SOK
+FAIL: F05.3 GETRX x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 GETRX x SOK: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 GETRX x SOK: probe_seq got 38 want 37
+FAIL: F05.3 GETRX x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x PWA: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x PWA: probe_seq got 39 want 38
+FAIL: F05.3 PROBE_OK x PWD: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x PWD: probe_seq got 40 want 39
+FAIL: F05.3 PROBE_OK x PWR: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x PWR: timer ops got 0 want 2
+FAIL: F05.3 PROBE_OK x PWR: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: F05.3 PROBE_OK x PWR: settle payload got 0000000000000000/000000000000/0
+FAIL: F05.3 PROBE_OK x PWR: notify got 0 want 1
+FAIL: F05.3 PROBE_OK x PWR: sm_state got PWR want SNR
+FAIL: F05.3 PROBE_OK x PWR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 PROBE_OK x PWR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 PROBE_OK x PWR: probe_seq got 41 want 40
+FAIL: F05.3 PROBE_OK x PWR: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x PW2: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x PW2: timer ops got 0 want 2
+FAIL: F05.3 PROBE_OK x PW2: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: F05.3 PROBE_OK x PW2: settle payload got 0000000000000000/000000000000/0
+FAIL: F05.3 PROBE_OK x PW2: notify got 0 want 1
+FAIL: F05.3 PROBE_OK x PW2: sm_state got PW2 want SNR
+FAIL: F05.3 PROBE_OK x PW2: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 PROBE_OK x PW2: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r1 d1 g0 t0
+FAIL: F05.3 PROBE_OK x PW2: probe_seq got 42 want 41
+FAIL: F05.3 PROBE_OK x PW2: settled got 0000000000000000/000000000000/0 want 5544332211002234/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 PROBE_OK x PWT: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x PWT: sm_state got PWR want PWT
+FAIL: F05.3 PROBE_OK x PWT: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 PROBE_OK x PWT: probe_seq got 43 want 42
+FAIL: F05.3 PROBE_OK x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 PROBE_OK x SNR: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x SNR: sm_state got PWR want SNR
+FAIL: F05.3 PROBE_OK x SNR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 PROBE_OK x SNR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 PROBE_OK x SNR: probe_seq got 44 want 43
+FAIL: F05.3 PROBE_OK x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 PROBE_OK x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 PROBE_OK x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 PROBE_OK x SOK: writebacks got 0 want 1
+FAIL: F05.3 PROBE_OK x SOK: sm_state got PWR want SOK
+FAIL: F05.3 PROBE_OK x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 PROBE_OK x SOK: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 PROBE_OK x SOK: probe_seq got 45 want 44
+FAIL: F05.3 PROBE_OK x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 PROBE_FAIL x PWA: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWA: probe_seq got 46 want 45
+FAIL: F05.3 PROBE_FAIL x PWD: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWD: probe_seq got 47 want 46
+FAIL: F05.3 PROBE_FAIL x PWR: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWR: timer ops got 0 want 2
+FAIL: F05.3 PROBE_FAIL x PWR: notify got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWR: sm_state got PWR want PWT
+FAIL: F05.3 PROBE_FAIL x PWR: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 PROBE_FAIL x PWR: probe_seq got 48 want 47
+FAIL: F05.3 PROBE_FAIL x PW2: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PW2: timer ops got 0 want 2
+FAIL: F05.3 PROBE_FAIL x PW2: notify got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PW2: sm_state got PW2 want PWT
+FAIL: F05.3 PROBE_FAIL x PW2: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 PROBE_FAIL x PW2: probe_seq got 49 want 48
+FAIL: F05.3 PROBE_FAIL x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 PROBE_FAIL x PWT: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x PWT: sm_state got PWR want PWT
+FAIL: F05.3 PROBE_FAIL x PWT: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 PROBE_FAIL x PWT: probe_seq got 50 want 49
+FAIL: F05.3 PROBE_FAIL x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 PROBE_FAIL x SNR: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x SNR: sm_state got PWR want SNR
+FAIL: F05.3 PROBE_FAIL x SNR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 PROBE_FAIL x SNR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 PROBE_FAIL x SNR: probe_seq got 51 want 50
+FAIL: F05.3 PROBE_FAIL x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 PROBE_FAIL x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 PROBE_FAIL x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 PROBE_FAIL x SOK: writebacks got 0 want 1
+FAIL: F05.3 PROBE_FAIL x SOK: sm_state got PWR want SOK
+FAIL: F05.3 PROBE_FAIL x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 PROBE_FAIL x SOK: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 PROBE_FAIL x SOK: probe_seq got 52 want 51
+FAIL: F05.3 PROBE_FAIL x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002238/91e0f0004455/2
+FAIL: F05.3 TMR_DELAY x PWA: probe_seq got 53 want 52
+FAIL: F05.3 TMR_DELAY x PWD: frame 0 bytes differ
+    byte 49 got 37 want 36
+FAIL: F05.3 TMR_DELAY x PWD: probe_seq got 55 want 54
+FAIL: F05.3 TMR_DELAY x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TMR_DELAY x PWT: armed deadline 50200 proves the slot carries the state's own T-ID (+4000)
+FAIL: F05.3 TMR_DELAY x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_DELAY x SNR: armed deadline 50200 proves the slot carries the state's own T-ID (+10000)
+FAIL: F05.3 TMR_DELAY x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_DELAY x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TMR_DELAY x SOK: frames got 1 want 0
+FAIL: F05.3 TMR_DELAY x SOK: timer ops got 1 want 0
+FAIL: F05.3 TMR_DELAY x SOK: notify got 1 want 0
+FAIL: F05.3 TMR_DELAY x SOK: sm_state got PW2 want SOK
+FAIL: F05.3 TMR_DELAY x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TMR_DELAY x SOK: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_DELAY x SOK: probe_seq got 60 want 59
+FAIL: F05.3 TMR_DELAY x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002239/91e0f0004455/2
+FAIL: F05.3 TMR_CMD x PWA: probe_seq got 61 want 60
+FAIL: F05.3 TMR_CMD x PWR: frame 0 bytes differ
+    byte 49 got 3f want 3e
+FAIL: F05.3 TMR_CMD x PWR: probe_seq got 63 want 62
+FAIL: F05.3 TMR_CMD x PW2: probe_seq got 64 want 63
+FAIL: F05.3 TMR_CMD x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TMR_CMD x PWT: armed deadline 50200 proves the slot carries the state's own T-ID (+4000)
+FAIL: F05.3 TMR_CMD x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_CMD x SNR: armed deadline 50200 proves the slot carries the state's own T-ID (+10000)
+FAIL: F05.3 TMR_CMD x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_CMD x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TMR_CMD x SOK: frames got 1 want 0
+FAIL: F05.3 TMR_CMD x SOK: timer ops got 1 want 0
+FAIL: F05.3 TMR_CMD x SOK: notify got 1 want 0
+FAIL: F05.3 TMR_CMD x SOK: sm_state got PW2 want SOK
+FAIL: F05.3 TMR_CMD x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TMR_CMD x SOK: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_CMD x SOK: probe_seq got 67 want 66
+FAIL: F05.3 TMR_CMD x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: F05.3 TMR_RETRY x PWA: probe_seq got 68 want 67
+FAIL: F05.3 TMR_RETRY x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TMR_RETRY x PWT: frames got 1 want 0
+FAIL: F05.3 TMR_RETRY x PWT: timer ops got 1 want 0
+FAIL: F05.3 TMR_RETRY x PWT: sm_state got PW2 want PWA
+FAIL: F05.3 TMR_RETRY x PWT: pbsta/acmpsta got 2/0 want 1/0
+FAIL: F05.3 TMR_RETRY x PWT: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_RETRY x PWT: probe_seq got 72 want 71
+FAIL: F05.3 TMR_RETRY x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_RETRY x SNR: armed deadline 50200 proves the slot carries the state's own T-ID (+10000)
+FAIL: F05.3 TMR_RETRY x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_RETRY x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TMR_RETRY x SOK: frames got 1 want 0
+FAIL: F05.3 TMR_RETRY x SOK: timer ops got 1 want 0
+FAIL: F05.3 TMR_RETRY x SOK: notify got 1 want 0
+FAIL: F05.3 TMR_RETRY x SOK: sm_state got PW2 want SOK
+FAIL: F05.3 TMR_RETRY x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TMR_RETRY x SOK: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_RETRY x SOK: probe_seq got 74 want 73
+FAIL: F05.3 TMR_RETRY x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002234/91e0f0004455/2
+FAIL: F05.3 TMR_NOTK x PWA: probe_seq got 75 want 74
+FAIL: F05.3 TMR_NOTK x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TMR_NOTK x PWT: armed deadline 50200 proves the slot carries the state's own T-ID (+4000)
+FAIL: F05.3 TMR_NOTK x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_NOTK x SNR: frames got 1 want 0
+FAIL: F05.3 TMR_NOTK x SNR: timer ops got 1 want 0
+FAIL: F05.3 TMR_NOTK x SNR: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: F05.3 TMR_NOTK x SNR: sm_state got PW2 want PWA
+FAIL: F05.3 TMR_NOTK x SNR: pbsta/acmpsta got 2/0 want 1/0
+FAIL: F05.3 TMR_NOTK x SNR: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r0 d0 g0 t0
+FAIL: F05.3 TMR_NOTK x SNR: probe_seq got 80 want 79
+FAIL: F05.3 TMR_NOTK x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TMR_NOTK x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TMR_NOTK x SOK: frames got 1 want 0
+FAIL: F05.3 TMR_NOTK x SOK: timer ops got 1 want 0
+FAIL: F05.3 TMR_NOTK x SOK: notify got 1 want 0
+FAIL: F05.3 TMR_NOTK x SOK: sm_state got PW2 want SOK
+FAIL: F05.3 TMR_NOTK x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TMR_NOTK x SOK: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TMR_NOTK x SOK: probe_seq got 81 want 80
+FAIL: F05.3 TMR_NOTK x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002235/91e0f0004455/2
+FAIL: F05.3 TK_DISC x PWA: probe_seq got 82 want 81
+FAIL: F05.3 TK_DISC x PWD: probe_seq got 83 want 82
+FAIL: F05.3 TK_DISC x PWR: probe_seq got 84 want 83
+FAIL: F05.3 TK_DISC x PW2: probe_seq got 85 want 84
+FAIL: F05.3 TK_DISC x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TK_DISC x PWT: sm_state got PWR want PWT
+FAIL: F05.3 TK_DISC x PWT: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 TK_DISC x PWT: probe_seq got 86 want 85
+FAIL: F05.3 TK_DISC x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_DISC x SNR: sm_state got PWR want SNR
+FAIL: F05.3 TK_DISC x SNR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TK_DISC x SNR: flags got b1 s1 w0 r0 d0 g0 t1 want b1 s1 w0 r0 d1 g0 t1
+FAIL: F05.3 TK_DISC x SNR: probe_seq got 87 want 86
+FAIL: F05.3 TK_DISC x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002235/91e0f0004455/2
+FAIL: F05.3 TK_DISC x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_DISC x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TK_DISC x SOK: sm_state got PWR want SOK
+FAIL: F05.3 TK_DISC x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TK_DISC x SOK: flags got b1 s1 w0 r0 d0 g0 t1 want b1 s1 w0 r0 d1 g1 t1
+FAIL: F05.3 TK_DISC x SOK: probe_seq got 88 want 87
+FAIL: F05.3 TK_DISC x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 TK_DEP x PWA: probe_seq got 89 want 88
+FAIL: F05.3 TK_DEP x PWD: probe_seq got 90 want 89
+FAIL: F05.3 TK_DEP x PWR: probe_seq got 91 want 90
+FAIL: F05.3 TK_DEP x PW2: probe_seq got 92 want 91
+FAIL: F05.3 TK_DEP x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TK_DEP x PWT: probe_seq got 93 want 92
+FAIL: F05.3 TK_DEP x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_DEP x SNR: timer ops got 1 want 0
+FAIL: F05.3 TK_DEP x SNR: notify got 1 want 0
+FAIL: F05.3 TK_DEP x SNR: sm_state got PWA want SNR
+FAIL: F05.3 TK_DEP x SNR: pbsta/acmpsta got 1/0 want 3/0
+FAIL: F05.3 TK_DEP x SNR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 TK_DEP x SNR: probe_seq got 94 want 93
+FAIL: F05.3 TK_DEP x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002236/91e0f0004455/2
+FAIL: F05.3 TK_DEP x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_DEP x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TK_DEP x SOK: timer ops got 1 want 0
+FAIL: F05.3 TK_DEP x SOK: notify got 1 want 0
+FAIL: F05.3 TK_DEP x SOK: sm_state got PWA want SOK
+FAIL: F05.3 TK_DEP x SOK: pbsta/acmpsta got 1/0 want 3/0
+FAIL: F05.3 TK_DEP x SOK: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TK_DEP x SOK: probe_seq got 95 want 94
+FAIL: F05.3 TK_DEP x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 TK_REG x PWA: probe_seq got 96 want 95
+FAIL: F05.3 TK_REG x PWD: probe_seq got 97 want 96
+FAIL: F05.3 TK_REG x PWR: probe_seq got 98 want 97
+FAIL: F05.3 TK_REG x PW2: probe_seq got 99 want 98
+FAIL: F05.3 TK_REG x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TK_REG x PWT: sm_state got PWR want PWT
+FAIL: F05.3 TK_REG x PWT: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 TK_REG x PWT: probe_seq got 100 want 99
+FAIL: F05.3 TK_REG x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_REG x SNR: timer ops got 0 want 1
+FAIL: F05.3 TK_REG x SNR: sm_state got PWR want SOK
+FAIL: F05.3 TK_REG x SNR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TK_REG x SNR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TK_REG x SNR: probe_seq got 101 want 100
+FAIL: F05.3 TK_REG x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002237/91e0f0004455/2
+FAIL: F05.3 TK_REG x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_REG x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TK_REG x SOK: sm_state got PWR want SOK
+FAIL: F05.3 TK_REG x SOK: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TK_REG x SOK: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: F05.3 TK_REG x SOK: probe_seq got 102 want 101
+FAIL: F05.3 TK_REG x SOK: settled got 0000000000000000/000000000000/0 want 5544332211002238/91e0f0004455/2
+FAIL: F05.3 TK_UNREG x PWA: probe_seq got 103 want 102
+FAIL: F05.3 TK_UNREG x PWD: probe_seq got 104 want 103
+FAIL: F05.3 TK_UNREG x PWR: probe_seq got 105 want 104
+FAIL: F05.3 TK_UNREG x PW2: probe_seq got 106 want 105
+FAIL: F05.3 TK_UNREG x PWT(setup): state sync got PWR want PWT
+FAIL: F05.3 TK_UNREG x PWT: sm_state got PWR want PWT
+FAIL: F05.3 TK_UNREG x PWT: pbsta/acmpsta got 2/0 want 2/5
+FAIL: F05.3 TK_UNREG x PWT: probe_seq got 107 want 106
+FAIL: F05.3 TK_UNREG x SNR(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_UNREG x SNR: sm_state got PWR want SNR
+FAIL: F05.3 TK_UNREG x SNR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: F05.3 TK_UNREG x SNR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: F05.3 TK_UNREG x SNR: probe_seq got 108 want 107
+FAIL: F05.3 TK_UNREG x SNR: settled got 0000000000000000/000000000000/0 want 5544332211002238/91e0f0004455/2
+FAIL: F05.3 TK_UNREG x SOK(setup): state sync got PWR want SNR
+FAIL: F05.3 TK_UNREG x SOK(setup): state sync got PWR want SOK
+FAIL: F05.3 TK_UNREG x SOK: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: F05.3 TK_UNREG x SOK: notify got 0 want 1
+FAIL: F05.3 TK_UNREG x SOK: sm_state got PWR want PWA
+FAIL: F05.3 TK_UNREG x SOK: pbsta/acmpsta got 2/0 want 1/0
+FAIL: F05.3 TK_UNREG x SOK: probe_seq got 109 want 108
+FAIL: B1 dup: frame 0 bytes differ
+    byte 49 got 6f want 6e
+FAIL: B1 dup: probe_seq got 111 want 110
+FAIL: B1: same probe_seq 110
+FAIL: B2 dbl-timeout: probe_seq got 111 want 110
+FAIL: B3 RETRY tk arm: probe_seq got 111 want 110
+FAIL: B3b(setup): state sync got PWR want SNR
+FAIL: B3b(setup): state sync got PWR want SNR
+FAIL: B3b NOTK tk arm: frames got 1 want 0
+FAIL: B3b NOTK tk arm: timer op 0 got {c0 s9 o32 50200} want {c0 s9 o32 50777}
+FAIL: B3b NOTK tk arm: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: B3b NOTK tk arm: sm_state got PW2 want PWD
+FAIL: B3b NOTK tk arm: flags got b1 s1 w0 r1 d0 g0 t1 want b1 s1 w0 r0 d0 g0 t1
+FAIL: B3b NOTK tk arm: probe_seq got 112 want 111
+FAIL: B3b: NOTK with talker -> PWD got PW2
+FAIL: B3c(setup): state sync got PWR want SNR
+FAIL: B3c(setup): state sync got PWR want SOK
+FAIL: B3c(setup): state sync got PWR want SOK
+FAIL: B3c UNREG tk arm: timer ops got 0 want 1
+FAIL: B3c UNREG tk arm: strobes got st0 td0 da0 dd0 nv0/0 want st0 td1 da0 dd0 nv0/0
+FAIL: B3c UNREG tk arm: notify got 0 want 1
+FAIL: B3c UNREG tk arm: sm_state got PWR want PWD
+FAIL: B3c UNREG tk arm: probe_seq got 113 want 112
+FAIL: B3c: UNREG with talker -> PWD got PWR
+FAIL: B4(setup): state sync got PWR want SNR
+FAIL: B4(setup): state sync got PWR want SOK
+FAIL: B4 REF-BUG: sm_state got PWR want SOK
+FAIL: B4 REF-BUG: pbsta/acmpsta got 2/0 want 3/0
+FAIL: B4 REF-BUG: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+FAIL: B4 REF-BUG: probe_seq got 114 want 113
+FAIL: B4 REF-BUG: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B4: no invented arc, no RF latch from the spurious rise
+FAIL: B5(setup): state sync got PWR want SNR
+FAIL: B5 reg-failed: timer ops got 0 want 1
+FAIL: B5 reg-failed: sm_state got PWR want SOK
+FAIL: B5 reg-failed: pbsta/acmpsta got 2/0 want 3/0
+FAIL: B5 reg-failed: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d3 g1 t0
+FAIL: B5 reg-failed: probe_seq got 115 want 114
+FAIL: B5 reg-failed: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B5: flags carry REGISTERING_FAILED 0x0040
+FAIL: B5: frame 0 bytes differ
+    byte 4 got 00 want 55
+    byte 5 got 00 want 44
+    byte 6 got 00 want 33
+    byte 7 got 00 want 22
+    byte 8 got 00 want 11
+    byte 10 got 00 want 22
+    byte 11 got 00 want 33
+    byte 40 got 00 want 91
+    byte 41 got 00 want e0
+    byte 42 got 00 want f0
+    byte 44 got 00 want 44
+    byte 45 got 00 want 55
+    byte 51 got 02 want 42
+    byte 53 got 00 want 02
+FAIL: B8 guard mismatch: writebacks got 1 want 0
+FAIL: B8 guard mismatch: timer ops got 2 want 0
+FAIL: B8 guard mismatch: strobes got st1 td0 da0 dd0 nv0/0 want st0 td0 da0 dd0 nv0/0
+FAIL: B8 guard mismatch: notify got 1 want 0
+FAIL: B8: no write-back, slot returned
+FAIL: B8: still PRB_W_RESP
+FAIL: B13 msg 3 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 5 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 7 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 9 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 11 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 13 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 14 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 15 status 0 in PWR: probe_seq got 117 want 116
+FAIL: B13 msg 3 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 5 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 7 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 9 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 11 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 13 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 14 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B13 msg 15 status 5 in PW2: probe_seq got 118 want 117
+FAIL: B14 wrong controller_entity_id in PWR: probe_seq got 119 want 118
+FAIL: B14 wrong talker_entity_id in PWR: probe_seq got 119 want 118
+FAIL: B14 wrong talker_unique_id in PWR: probe_seq got 119 want 118
+FAIL: B14 exact answer in PWR: writebacks got 0 want 1
+FAIL: B14 exact answer in PWR: timer ops got 0 want 2
+FAIL: B14 exact answer in PWR: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: B14 exact answer in PWR: settle payload got 0000000000000000/000000000000/0
+FAIL: B14 exact answer in PWR: notify got 0 want 1
+FAIL: B14 exact answer in PWR: sm_state got PWR want SNR
+FAIL: B14 exact answer in PWR: pbsta/acmpsta got 2/0 want 3/0
+FAIL: B14 exact answer in PWR: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g0 t0
+FAIL: B14 exact answer in PWR: probe_seq got 119 want 118
+FAIL: B14 exact answer in PWR: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B14 exact answer in PWR: the unaltered response settles (got PWR)
+FAIL: B14 wrong controller_entity_id in PW2: probe_seq got 120 want 119
+FAIL: B14 wrong talker_entity_id in PW2: probe_seq got 120 want 119
+FAIL: B14 wrong talker_unique_id in PW2: probe_seq got 120 want 119
+FAIL: B14 exact answer in PW2: writebacks got 0 want 1
+FAIL: B14 exact answer in PW2: timer ops got 0 want 2
+FAIL: B14 exact answer in PW2: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: B14 exact answer in PW2: settle payload got 0000000000000000/000000000000/0
+FAIL: B14 exact answer in PW2: notify got 0 want 1
+FAIL: B14 exact answer in PW2: sm_state got PW2 want SNR
+FAIL: B14 exact answer in PW2: pbsta/acmpsta got 2/0 want 3/0
+FAIL: B14 exact answer in PW2: flags got b1 s1 w0 r1 d0 g0 t0 want b1 s1 w0 r1 d1 g0 t0
+FAIL: B14 exact answer in PW2: probe_seq got 120 want 119
+FAIL: B14 exact answer in PW2: settled got 0000000000000000/000000000000/0 want 5544332211002233/91e0f0004455/2
+FAIL: B14 exact answer in PW2: the unaltered response settles (got PW2)
+FAIL: B9 holder bind: frame 1 bytes differ
+    byte 49 got 7a want 79
+FAIL: B11 settle beats stale expiry: writebacks got 0 want 1
+FAIL: B11 settle beats stale expiry: timer ops got 0 want 2
+FAIL: B11 settle beats stale expiry: strobes got st0 td0 da0 dd0 nv0/0 want st1 td0 da0 dd0 nv0/0
+FAIL: B11 settle beats stale expiry: settle payload got 0000000000000000/000000000000/0
+FAIL: B11 settle beats stale expiry: notify got 0 want 1
+FAIL: B11: no second work item; still SETTLED_NO_RSV (got sm PWR, wr 0 td 0 tops 0 nf 0)
+2971 checks: 2593 PASS, 378 FAIL
+make: *** [Makefile:20: run] Error 1

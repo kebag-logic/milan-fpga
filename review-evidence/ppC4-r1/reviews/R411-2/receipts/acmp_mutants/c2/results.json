@@ -1,0 +1,249 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "st_ls_teardown_as_declare@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS6: the Listener attribute is withdrawn on the wire"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "st_ls_settle_as_withdraw@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New",
+   "AS4: class-D: Listener READY declared",
+   "AS5: 11.5 s after the settle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: class-D: Listener READY declared, Talker ADVERTISE registered for sink 1 (decl 0, reg 0)",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener",
+   "AS5: 11.5 s after the settle: no re-probe (2 ACMP frames) and no Listener Lv",
+   "AS5: Listener READY still declared, Talker still registered (decl 0, reg 0)",
+   "AS5: GET_RX_STATE still carries the settled stream past T-ACMP-NOTK",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "st_ls_state_none@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New",
+   "AS4: class-D: Listener READY declared",
+   "AS5: 11.5 s after the settle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: class-D: Listener READY declared, Talker ADVERTISE registered for sink 1 (decl 0, reg 0)",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener",
+   "AS5: 11.5 s after the settle: no re-probe (2 ACMP frames) and no Listener Lv",
+   "AS5: Listener READY still declared, Talker still registered (decl 0, reg 0)",
+   "AS5: GET_RX_STATE still carries the settled stream past T-ACMP-NOTK",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "st_ls_sid_da_swapped@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New",
+   "AS4: class-D: Listener READY declared",
+   "AS5: 11.5 s after the settle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: class-D: Listener READY declared, Talker ADVERTISE registered for sink 1 (decl 0, reg 0)",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener",
+   "AS5: 11.5 s after the settle: no re-probe (2 ACMP frames) and no Listener Lv",
+   "AS5: Listener READY still declared, Talker still registered (decl 0, reg 0)",
+   "AS5: GET_RX_STATE still carries the settled stream past T-ACMP-NOTK",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "st_ls_index_zero@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS4: class-D: Listener READY declared",
+   "AS4: exactly one TK_ATTR_REGISTERED{1}",
+   "AS5: 11.5 s after the settle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS4: class-D: Listener READY declared, Talker ADVERTISE registered for sink 1 (decl 0, reg 0)",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener",
+   "AS5: 11.5 s after the settle: no re-probe (2 ACMP frames) and no Listener Lv",
+   "AS5: Listener READY still declared, Talker still registered (decl 0, reg 0)",
+   "AS5: GET_RX_STATE still carries the settled stream past T-ACMP-NOTK",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "st_ls_vid_dropped@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New",
+   "AS4: class-D: Listener READY declared",
+   "AS5: 11.5 s after the settle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: class-D: Listener READY declared, Talker ADVERTISE registered for sink 1 (decl 0, reg 0)",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener",
+   "AS5: 11.5 s after the settle: no re-probe (2 ACMP frames) and no Listener Lv",
+   "AS5: Listener READY still declared, Talker still registered (decl 0, reg 0)",
+   "AS5: GET_RX_STATE still carries the settled stream past T-ACMP-NOTK",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "bound_view_not_latched@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream",
+   "AS5: the bound view still carries the settled stream"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream (bound 1, sid 0000000000000000, da 000000000000, vid 0)",
+   "AS5: the bound view still carries the settled stream"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "st_ls_teardown_lost@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS6: the Listener attribute is withdrawn on the wire",
+   "AS6: no Listener declared and no match held"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact",
+   "AS6: no Listener declared and no match held any more (decl 2, reg 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "bound_dmac_from_sid@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream (bound 1, sid 0202000aa1a10001, da 000aa1a10001, vid 2)",
+   "AS5: the bound view still carries the settled stream"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "matcher_vid_ignored@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+   "AS3: near misses register nothing",
+   "AS3: no TK_ATTR_REGISTERED{1}"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration on the wire",
+   "AS3: near misses register nothing (decl 2, reg 1)",
+   "AS3: no TK_ATTR_REGISTERED{1} reached the listener",
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "bound_view_not_cleared@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS6: the bound view is cleared with the binding"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS6: the bound view is cleared with the binding (bound 0, sid 0202000aa1a10001, da 91e0f0a1a101, vid 2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "matcher_da_ignored@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+   "AS3: near misses register nothing",
+   "AS3: no TK_ATTR_REGISTERED{1}"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration on the wire",
+   "AS3: near misses register nothing (decl 2, reg 1)",
+   "AS3: no TK_ATTR_REGISTERED{1} reached the listener",
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener"
+  ],
+  "verdict": "KILLED"
+ }
+]

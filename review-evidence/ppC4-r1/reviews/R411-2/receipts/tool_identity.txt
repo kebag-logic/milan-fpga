@@ -1,0 +1,10 @@
+named pinned path: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator -> ABSENT on this host
+used: $VALIDATION_TOOLS/verilator-v5.050/bin/verilator (standalone v5.050 build; the hosted workflow pins v5.050)
+Verilator 5.050 2026-07-01 rev v5.050
+fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf  $VALIDATION_TOOLS/verilator-v5.050/bin/verilator
+51910d8d47cfa29ee548a42eca10147e94b2f5b6014d68c110de1740274cc26a  $VALIDATION_TOOLS/verilator-v5.050/bin/verilator_bin
+wrapper (every -j 0 capped at VCAP; VCAP=8 for single builds, 2 for 4-way driver runs, 4/2 for probes):
+b8ed2bd3d50218940a76f6456d8e79ede6eacc8a0038086a229d5ebc93914f7f  $REVIEWS/ppC4-r411-2-packet/scripts/verilator-capped.sh
+g++ (GCC) 16.2.1 20260810
+Python 3.14.7
+not used for any receipt: /usr/bin/verilator Verilator 5.052 2026-09-05 rev v5.052
