@@ -1,0 +1,11 @@
+{"mutant": "golden@round1-a9ce0fa", "verdict": "PASS", "run_rc": 0, "completed": true, "missing": [], "failing_checks": []}
+{"mutant": "golden@round2-616cbdf", "verdict": "PASS", "run_rc": 0, "completed": true, "missing": [], "failing_checks": []}
+{"mutant": "P2_unbind_emits_getrx_answer@round1-a9ce0fa", "verdict": "SURVIVED", "run_rc": 0, "completed": true, "missing": ["AS6: no ACMP frame from the UNBIND_RX_RESPONSE to the GET_RX_STATE"], "failing_checks": []}
+{"mutant": "P2_unbind_emits_getrx_answer@round2-616cbdf", "verdict": "SURVIVED", "run_rc": 0, "completed": true, "missing": ["AS6: no ACMP frame from the UNBIND_RX_RESPONSE to the GET_RX_STATE"], "failing_checks": []}
+{"mutant": "P4_getrx_unbound_also_probes@round1-a9ce0fa", "verdict": "SURVIVED", "run_rc": 1, "completed": true, "missing": ["AS6: GET_RX_STATE unbound"], "failing_checks": ["AS6: nothing probes the unbound sink: no ACMP frame in 1.5 s (1)"]}
+{"mutant": "P4_getrx_unbound_also_probes@round2-616cbdf", "verdict": "SURVIVED", "run_rc": 1, "completed": true, "missing": ["AS6: GET_RX_STATE unbound"], "failing_checks": ["AS6: nothing probes the unbound sink: no ACMP frame in 1.5 s (1)"]}
+
+real	0m58.086s
+user	5m36.373s
+sys	0m7.661s
+rc=0

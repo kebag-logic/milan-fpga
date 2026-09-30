@@ -1,0 +1,4 @@
+Recorded 2026-09-30T12:29:32Z before reading R410-1 / R411-1 reports.
+Independent verdict draft: POSITIVE. No BLOCKER/MAJOR/MINOR.
+S-3 (new): AS6 UNBIND_RX_RESPONSE read with wait_acmp (skips non-matching frames): an extra ACMP frame emitted ahead of the response (probe P2: UNB cell + A16; executor order A16 before A7) survives both round-1 and round-2 benches; strict bench (wait_any) passes golden, kills P2.
+S-4 (new, pre-existing text): tb/rx_validator F4 "IEEE 2013 short form, cdl 24" vs lane's 09 F09.4 "cdl 44, the IEEE 1722.1-2013 length" — in the V3 bullet the lane extended.

@@ -1,0 +1,29 @@
+[
+ {
+  "mutant": "strict_golden@round2-616cbdf",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "P2_unbind_emits_getrx_answer+strict@round2-616cbdf",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS6: UNBIND_RX_RESPONSE SUCCESS byte-exact"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS6: UNBIND_RX_RESPONSE SUCCESS byte-exact",
+   "AS6: no ACMP frame from the UNBIND_RX_RESPONSE to the GET_RX_STATE (1)"
+  ],
+  "verdict": "KILLED"
+ }
+]
