@@ -1,0 +1,27 @@
+# gold: main 0451d83d KL_aecp_engine plus the lane's SET_STREAM_INFO mapping fix alone
+# gate: head 5e806296 KL_aecp_engine at its default EN_IDENTIFY_NOTIF_P = 0
+# unchanged submodules kept as matched blackboxes (cut points)
+read_verilog ../basefix-all.v
+hierarchy -top KL_aecp_engine
+blackbox =A:*KL_aecp_ucpu =A:*KL_aecp_desc_store =A:*KL_aecp_resp_buf =A:*KL_aecp_dyn_state =A:*KL_aecp_nvm_writer
+proc
+memory
+opt_clean
+rename KL_aecp_engine gold
+design -stash gold
+read_verilog ../head-all.v
+hierarchy -top KL_aecp_engine
+blackbox =A:*KL_aecp_ucpu =A:*KL_aecp_desc_store =A:*KL_aecp_resp_buf =A:*KL_aecp_dyn_state =A:*KL_aecp_nvm_writer
+proc
+memory
+opt_clean
+rename KL_aecp_engine gate
+design -stash gate
+design -copy-from gold *
+design -copy-from gate -as gate gate
+equiv_make gold gate equiv
+hierarchy -top equiv
+equiv_struct
+equiv_simple -seq 2
+equiv_induct -seq 2
+equiv_status -assert

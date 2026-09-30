@@ -1,0 +1,22 @@
+# gold: main 0451d83d KL_aecp_notify; gate: head 5e806296 KL_aecp_notify at EN_IDENTIFY_NOTIF_P = 0
+read_verilog ../base-all.v
+hierarchy -top KL_aecp_notify
+rename KL_aecp_notify gold
+design -stash gold
+read_verilog ../head-all.v
+chparam -set EN_IDENTIFY_NOTIF_P 1 KL_aecp_notify
+hierarchy -top KL_aecp_notify
+rename KL_aecp_notify gate
+design -stash gate
+design -copy-from gold -as gold gold
+design -copy-from gate -as gate gate
+proc
+memory
+opt_clean
+delete -port gate/identify_button_i gate/identify_index_i
+equiv_make gold gate equiv
+hierarchy -top equiv
+equiv_struct
+equiv_simple -seq 3
+equiv_induct -seq 3
+equiv_status -assert

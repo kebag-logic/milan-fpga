@@ -1,0 +1,745 @@
+[
+ {
+  "mutant": "golden-originator-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-identify-only",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_two_frames",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1: one press sends three IDENTIFY_NOTIFICATION frames (IEEE 7.5.1.2.1), got 2",
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 6",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2c: frame 2 to 3 spaced 85001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2c: frame 1 to 2 spaced 85001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2d: burst 2 starts 115464 clocks after burst 1, want T-IDENT-REARM 100000 to 100300 (no faster than 1 s, from the first frame)",
+   "ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (6 frames)",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3c: frame 2 to 3 spaced 106 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3e: frame 1 to 2 spaced 85001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3f: the new press's burst follows the running one's third frame at once (WAITING, then IDENTIFY), 15194 clocks later",
+   "ID5b: the press during the fan-out sends one burst, got 2",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID6b: the held press still sends its burst at the release, got 2 frames"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_seq_per_frame",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0",
+   "ID1b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID6c: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0",
+   "ID6c: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_no_rearm",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID2: held 2.5 s"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 3",
+   "ID2d: at least two bursts to time the re-arm, got 1",
+   "ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (3 frames)",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_rearm_from_third_frame",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID2: held 2.5 s",
+   "ID2d: burst 2 starts"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 6",
+   "ID2d: burst 2 starts 130265 clocks after burst 1, want T-IDENT-REARM 100000 to 100300 (no faster than 1 s, from the first frame)",
+   "ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (6 frames)",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_burst_100ms",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1c: frame 1 to 2 spaced 10264 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID1c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 1 to 2 spaced 10264 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 1 to 2 spaced 10199 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 1 to 2 spaced 10199 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 9 frames",
+   "ID3c: frame 1 to 2 spaced 10264 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3c: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3e: frame 1 to 2 spaced 10194 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3e: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5e: frame 1 to 2 spaced 10200 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID5e: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID6d: frame 1 to 2 spaced 10174 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID6d: frame 2 to 3 spaced 10000 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_t0_at_request",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID6d:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 903",
+   "ID2c: frame 1 to 2 spaced 199 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 2 to 3 spaced 200 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 1 to 2 spaced 194 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2c: frame 2 to 3 spaced 200 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2d: burst 3 starts 505 clocks after burst 2, want T-IDENT-REARM 100000 to 100300 (no faster than 1 s, from the first frame)",
+   "ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (903 frames)",
+   "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 141 frames",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3e: frame 1 to 2 spaced 194 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3e: frame 2 to 3 spaced 200 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5e: frame 1 to 2 spaced 14600 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID6d: frame 1 to 2 spaced 174 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID6d: frame 2 to 3 spaced 200 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_release_ignored",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three",
+   "ID2e:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1: one press sends three IDENTIFY_NOTIFICATION frames (IEEE 7.5.1.2.1), got 16",
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 25",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2c: frame 2 to 3 spaced 106 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2c: frame 2 to 3 spaced 70001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2c: frame 2 to 3 spaced 70001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID2d: burst 2 starts 30300 clocks after burst 1, want T-IDENT-REARM 100000 to 100300 (no faster than 1 s, from the first frame)",
+   "ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (25 frames)",
+   "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 20 frames",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3c: frame 1 to 2 spaced 106 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3e: frame 1 to 2 spaced 70001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3f: the new press's burst follows the running one's third frame at once (WAITING, then IDENTIFY), 15000 clocks later",
+   "ID4c: neither the command form nor the IDENTIFY control (the controller-to-entity direction, Milan 5.4.5.4) sends an identification notification, got 9",
+   "ID5b: the press during the fan-out sends one burst, got 15",
+   "ID5c: 12 fan-out frames went between the press and the first identify frame, want at most two (the job in flight and the one the engine took)",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5e: frame 1 to 2 spaced 14801 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID5e: frame 2 to 3 spaced 106 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID6b: the held press still sends its burst at the release, got 14 frames"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_cut_on_release",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1: one press sends three IDENTIFY_NOTIFICATION frames (IEEE 7.5.1.2.1), got 1",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3c: frame 1 to 2 spaced 2167 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3e: frame 1 to 2 spaced 70001 clocks, want T-IDENT-BURST 15000 to 15300 (150 ms at 100 clocks/ms, never less)",
+   "ID3f: the new press's burst follows the running one's third frame at once (WAITING, then IDENTIFY), 15000 clocks later",
+   "ID5b: the press during the fan-out sends one burst, got 1",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID6b: the held press still sends its burst at the release, got 1 frames"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_face_taken_mid_job",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID5f:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID5b: the press during the fan-out sends one burst, got 2",
+   "ID5c: 15 fan-out frames went between the press and the first identify frame, want at most two (the job in flight and the one the engine took)",
+   "ID5f: all fifteen rows received their SET_NAME notification byte-exact at their own sequence_id 0 (14 of 15)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_unicast_da",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1: one press sends three IDENTIFY_NOTIFICATION frames (IEEE 7.5.1.2.1), got 0",
+   "ID1d: nothing else on the AECP wire (3 other frames); no controller is registered, so the burst needs no registration",
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 0",
+   "ID2d: at least two bursts to time the re-arm, got 0",
+   "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 0 frames",
+   "ID5b: the press during the fan-out sends one burst, got 0",
+   "ID6b: the held press still sends its burst at the release, got 0 frames"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_built_at_default",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID0: with the parameter at 0"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID0: with the parameter at 0 the button puts no AECP frame on the wire (12)",
+   "ID0b: nothing is ever addressed to 91-E0-F0-01-00-01"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "enq_dropped_configuration",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1 SET_CONFIGURATION(1): exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1 SET_CONFIGURATION(1): exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP1b SET_CONFIGURATION(0): exactly one unsolicited response of this command at the other registered controller, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "enq_dropped_stream_info",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP3 SET_STREAM_INFO: exactly one unsolicited response of this command at the other registered controller, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "class_4_mapped_to_rate",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP4 SET_CONTROL(IDENTIFY 255): exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP4 SET_CONTROL(IDENTIFY 255): exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP4b SET_CONTROL(IDENTIFY 0): exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (6 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "class_9_mapped_to_control",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP6 STOP_STREAMING: exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP6 STOP_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP7 START_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "requester_not_excluded",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1 SET_CONFIGURATION(1): the requester receives no"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1 SET_CONFIGURATION(1): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP1b SET_CONFIGURATION(0): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP2 SET_STREAM_FORMAT: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP3 SET_STREAM_INFO: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP4 SET_CONTROL(IDENTIFY 255): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP4b SET_CONTROL(IDENTIFY 0): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP5 SET_SAMPLING_RATE(48000): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP6 STOP_STREAMING: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP7 START_STREAMING: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "ST1c: the requester receives only its solicited response",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (23 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "entry_seq_not_advanced",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1b SET_CONFIGURATION(0): it is byte-exact"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1b SET_CONFIGURATION(0): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 1, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP2 SET_STREAM_FORMAT: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP4 SET_CONTROL(IDENTIFY 255): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 4, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP4b SET_CONTROL(IDENTIFY 0): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 5, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP5 SET_SAMPLING_RATE(48000): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 6, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP6 STOP_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 8, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP7 START_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 9, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (16, 5, 5)",
+   "ST1b: one change from row 15 reaches the other fifteen rows byte-exact, each at its own sequence_id (0, 1 or 2), 5 of 15",
+   "ST2c: 368 GET_COUNTERS notifications, every one byte-exact at its row's own sequence_id (367 not)",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (26 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "stream_info_get_body",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_limit_500ms",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ST2: descriptor 0005:0",
+   "ST2b: descriptor 0005:0"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0005:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0005:1 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0005:1 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0006:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0006:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0009:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0009:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0024:0 churned at 10 Hz for 5000 ms emitted 2 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0024:0 rounds 49916 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST3: every solicited probe under the storm was answered (3 missing of 10)",
+   "ST3b: GET_CONFIGURATION answered within T-BUDGET-AECP-WC under the storm: worst 434030 clocks, bound 100001"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fan_out_skips_row_0",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ST1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0",
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (16, 4, 9)",
+   "ST1b: one change from row 15 reaches the other fifteen rows byte-exact, each at its own sequence_id (0, 1 or 2), 14 of 15",
+   "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0005:1 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0006:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0009:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0024:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (27 of 2218 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "refresh_resets_seq",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (25 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "foreign_unlock_allowed",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (420 of 2233 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_taker_notified",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (16 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "deregister_keeps_row",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (75 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_holds_15",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (15, 5, 10)",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (51 of 2225 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_highest_free_id",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "A lowest free id got 11",
+   "A busy bit set",
+   "B reuses freed id 0",
+   "E ids in order",
+   "E middle first",
+   "E third next",
+   "E first last",
+   "F ids allocated in order",
+   "F freed id 3 reused",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (4624 of 3778 events)",
+   "R c: the drained session leaks no entry, timer or held slot",
+   "final: ready",
+   "final: every hold released exactly once (357 vs 345)",
+   "final: no armed timer slot leaked",
+   "final: table empty"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "set_control_ignores_lock",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (398 of 2249 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_match_ignores_seq",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D wrong seq not routed",
+   "D wrong key not routed",
+   "D both misses counted",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (3941 of 3762 events)",
+   "R c: the drained session leaks no entry, timer or held slot",
+   "final: every hold released exactly once (879 vs 877)",
+   "final: table empty"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_cancel_keeps_timer",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "H cancellation disarmed timeout",
+   "H absent-owner cancellation is inert",
+   "I no expiry before serializer acceptance",
+   "J2 both timer cancellations complete without a leak",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (95 of 3757 events)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_shared_seq",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "A owner-5 counter untouched",
+   "B owner-5 first seq",
+   "E owner-1 seq advanced between issues",
+   "E owner-6 counter independent (first use) got 6",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (4631 of 3780 events)",
+   "R c: the drained session leaks no entry, timer or held slot",
+   "final: ready",
+   "final: every hold released exactly once (248 vs 236)",
+   "final: no armed timer slot leaked",
+   "final: table empty"
+  ],
+  "verdict": "KILLED"
+ }
+]

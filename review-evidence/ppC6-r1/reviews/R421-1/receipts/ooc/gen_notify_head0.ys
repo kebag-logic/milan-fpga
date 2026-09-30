@@ -1,0 +1,8 @@
+read_verilog ../head-all.v
+chparam -set EN_IDENTIFY_NOTIF_P 0 KL_aecp_notify
+hierarchy -top KL_aecp_notify
+proc
+opt -full
+memory
+opt -full
+stat -width

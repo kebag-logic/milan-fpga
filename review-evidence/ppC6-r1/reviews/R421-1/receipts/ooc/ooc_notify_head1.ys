@@ -1,0 +1,4 @@
+read_verilog ../head-all.v
+chparam -set EN_IDENTIFY_NOTIF_P 1 KL_aecp_notify
+synth_xilinx -family xc7 -flatten -top KL_aecp_notify
+stat

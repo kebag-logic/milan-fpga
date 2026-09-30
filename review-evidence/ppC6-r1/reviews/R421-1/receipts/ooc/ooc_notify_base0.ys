@@ -1,0 +1,4 @@
+read_verilog ../base-all.v
+
+synth_xilinx -family xc7 -flatten -top KL_aecp_notify
+stat
