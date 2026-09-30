@@ -1,0 +1,23 @@
+LOCK_REQUEST 2026-09-30T03:37:46.891Z usb-long
+LOCK 2026-09-30T03:37:46.896Z
+{"t": 1790739466.945014, "kind": "start", "name": "usb-long", "talker_s": 140.0, "capture_s": 75.0, "pcm": "hw:UAC2,0"}
+{"t": 1790739466.945548, "kind": "talker-started"}
+{"t": 1790739467.092296, "kind": "dut", "tag": "before", "rc": 0}
+{"t": 1790739483.3138, "kind": "ctl", "tag": "bind", "rc": 0}
+{"t": 1790739483.556243, "kind": "ctl", "tag": "map-add", "rc": 0}
+{"t": 1790739485.695114, "kind": "dut", "tag": "active-0", "rc": 0}
+{"t": 1790739487.834218, "kind": "dut", "tag": "active-1", "rc": 0}
+{"t": 1790739489.983227, "kind": "dut", "tag": "active-2", "rc": 0}
+{"t": 1790739490.529035, "kind": "soc", "tag": "status-before", "rc": 0}
+{"t": 1790739565.737396, "kind": "arecord", "rc": 0, "seconds": 75.116, "bytes": 115200000, "sha256": "7995b44a5f6529a54092eaa5b94e0e85b701cf85bab0d4bbd55a853bf9ccd7ca", "expected_bytes": 115200000}
+{"t": 1790739566.301031, "kind": "soc", "tag": "status-after", "rc": 0}
+{"t": 1790739566.452087, "kind": "dut", "tag": "after-capture", "rc": 0}
+{"t": 1790739566.673186, "kind": "ctl", "tag": "map-remove", "rc": 0}
+{"t": 1790739566.866114, "kind": "ctl", "tag": "unbind", "rc": 0}
+{"t": 1790739567.094407, "kind": "ctl", "tag": "map-final", "rc": 0}
+{"t": 1790739619.052804, "kind": "talker-exit", "rc": 0}
+{"t": 1790739619.335293, "kind": "dut", "tag": "final", "rc": 0}
+{"t": 1790739619.335402, "kind": "end"}
+ACTION_RC=0
+UNLOCK 2026-09-30T03:40:19.342Z
+LOCK_RC=0 2026-09-30T03:40:19.345Z

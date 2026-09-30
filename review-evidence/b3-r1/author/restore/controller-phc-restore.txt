@@ -1,0 +1,37 @@
+LOCK 2026-09-30T03:49:25.710Z
+f2d65bcfeb385acd4655a8a82b85cc0244af952474206cf0ae9308f86ae6f672  aaf_talker.py
+172836966609645d6e12adf19a8341a145a4dadc51edb81c6d29a23aae1fd75a  avdecc_ro.py
+3df2933e5ad1fb7c72cb945eaa4b74f8005ceefbbfdf93f6cdac006dd080d9f8  avdecc_rw.py
+2e63e20787dcc8093cb09af5ddf1f08dc49a6e606dc941b5fb1672ed0f9ba3c6  din-long-gptp.log
+23214a1ee550e434f809f1464743f355758bdb1630649b4d93318081b9a7261e  din-long-listener.jsonl
+d532aa35dc5c091a9f672b69471d3f27c24ac34252398f6a4ae39996aefaa8b3  din_listener.py
+75e23690db1704be1c88fb3eb10bbce963486f9f9f5b8683cf68c577ea052dd2  dout-long-gptp.log
+7d5f72919c86e8efe1dbd511b0415d99d2bf7da05861bbe180f28f06ff4a23bf  dout-long-talker.jsonl
+84ba82615058e3270c6ae2b2d8d762f3e183d4ae39b2f85bc5c27a9a4d0249ea  phc_restore.py
+652b2bb3ca514adedefb89d61014a2e9a1aa560c6fa05c63b653a98e4a5d7ba8  usb-long-gptp.log
+81352dfdea8ddf3b3758bb22b8c827d27ab8d9a8be4988078981b6c557a8a3ca  usb-long-talker.jsonl
+4f676902f84551065248a1322fb31c19db399a5d7581a83308faecd254246b2f  usb-long2-gptp.log
+442606433d4575d2b1750516636f4d975a0b325fd6d6843995759656d2730be7  usb-long2-talker.jsonl
+983d7ce988e3af454d0870462c5c655eae88737dc7be2ef100e11cab9a8cc929  with_gptp.py
+SCP_RC=0
+phc_ctl[162326.212]: clock frequency offset is 28284.271240ppb
+phc_ctl[162326.212]: offset from CLOCK_REALTIME is 1790661645965021033ns
+phc_ctl[162326.227]: adjusted clock frequency offset to 28062.332153ppb
+phc_ctl[162326.239]: offset from CLOCK_REALTIME is 1790661645965021212ns
+rate_ns_per_s=7618.208 now_offset=1790661645965021212 target_offset=1790532372182131968 adjust_s=129273.782889216
+phc_ctl[162326.251]: adjusted clock by 129273.782889 seconds
+phc_ctl[162326.265]: clock frequency offset is 28062.316895ppb
+phc_ctl[162326.265]: offset from CLOCK_REALTIME is 1790532372182136698ns
+residual_from_original_trajectory_ns=4352
+RESTORE_RC=0
+current settings:
+tx_type 1
+rx_filter 1
+HWSTAMP_RC=0
+176K	/tmp/a453
+RM_RC=0
+ls: cannot access '/tmp/a453': No such file or directory
+PGREP_RC=1
+17936 bash -c python3 -B /tmp/a453/phc_restore.py <home>/linuxptp/phc_ctl <controller-avb-if>; echo RESTORE_RC=$?; sudo -n <home>/linuxptp/hwstamp_ctl -i <controller-avb-if>; echo HWSTAMP_RC=$?; du -sh /tmp/a453; rm -rf /tmp/a453; echo RM_RC=$?; ls /tmp/a453 2>&1; pgrep -a ptp4l; echo PGREP_RC=$?; pgrep -af "din_listener|aaf_talker|with_gptp|tcpdump"; echo PGREP2_RC=$?
+PGREP2_RC=0
+UNLOCK 2026-09-30T03:49:26.290Z

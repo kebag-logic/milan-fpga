@@ -1,0 +1,96 @@
+{
+ "file": "usb-long2.raw",
+ "bytes": 115200000,
+ "sha256": "fa79d7055a4a0fb4e696787e49130428ed31c50012dfd9b9494b5dbe0b5e6178",
+ "frames": 3600000,
+ "nominal_seconds": 75.0,
+ "strict": {
+  "valid_frames": 0,
+  "torn_valid_frames": 0,
+  "failing_or_silent_frames": 3600000
+ },
+ "words": {
+  "tag_1_8": 28773277,
+  "zero": 6,
+  "tag_outside_1_8": 765
+ },
+ "low_byte_histogram": {
+  "0x00": 671050,
+  "0x01-0x3f": 7806873,
+  "0x40-0x7f": 8013212,
+  "0x80-0xbf": 6391272,
+  "0xc0-0xff": 5890870
+ },
+ "frame_classes": {
+  "aligned": 428820,
+  "other": 1578,
+  "rot1": 445811,
+  "rot2": 479780,
+  "rot3": 479809,
+  "rot4": 465939,
+  "rot5": 432171,
+  "rot6": 431325,
+  "rot7": 431523,
+  "silent": 3244
+ },
+ "channel_spread_in_aligned_or_rotated_frames": {
+  "<0.25": 737366,
+  ">=1": 188754,
+  "<1": 1874063,
+  "<0.5": 794995
+ },
+ "within_segment_steps": {
+  "+1": 3589776,
+  "other": 889,
+  "0": 3269,
+  "+2": 743
+ },
+ "segments": 971,
+ "class_changes": 970,
+ "silent_stretches": 4,
+ "silent_stretch_frames_max": 2441,
+ "first_non_silent_frame": 0,
+ "longest_aligned_segment": {
+  "first_frame": 668535,
+  "last_frame": 733855,
+  "frames": 65321,
+  "steps": {
+   "other": 4,
+   "+2": 7,
+   "+1": 65309
+  }
+ },
+ "longest_aligned_or_rotated_segment": {
+  "class": "rot6",
+  "first_frame": 471931,
+  "last_frame": 537436,
+  "frames": 65506,
+  "steps": {
+   "other": 7,
+   "+1": 65459,
+   "0": 21,
+   "+2": 18
+  }
+ },
+ "joins_between_ordinal_segments": 500,
+ "joins_with_unit_step": 5,
+ "rotation_runs": 239,
+ "rotation_changes": 238,
+ "rotation_changes_after_silence": 4,
+ "rotation_frames_by_k": {
+  "0": 428820,
+  "1": 445811,
+  "2": 479780,
+  "3": 479809,
+  "4": 465939,
+  "5": 432171,
+  "6": 431325,
+  "7": 431523
+ },
+ "rotation_run_span_frames": {
+  "min": 2,
+  "median": 939,
+  "max": 95998
+ },
+ "ordinal_wraps_expected": 54
+}

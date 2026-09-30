@@ -1,0 +1,103 @@
+
+### 2026-09-30T05:39:25+0200 timeout=40.0
+
+# printf '%s_READY\n' A453_908623
+A453_908623_READY
+# printf '%s_B\n' A453_908623; cat /proc/uptime; tdm8-uac2.sh status; echo UDC=$((cat /sys/class/udc/*/state); for s in /proc/asound/card*/pcm*/sub0/status; do eccho "== $s"; head -3 $s; done; grep dma-controller /proc/interrupts; echo BAD=$(ddmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown||refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; cat /proc//uptime; printf '\n%s_E rc=%s\n' A453_908623 $?
+A453_908623_B
+145522.02 397482.57
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: running (pid 1499)
+to-host: running (pid 1498)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 1498
+trigger_time: 145522.006385795
+tstamp      : 0.000000000
+delay       : 774
+avail       : 772
+avail_max   : 1536
+-----
+hw_ptr      : 6916
+appl_ptr    : 6144
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 1499
+trigger_time: 145412.707699180
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 1499
+trigger_time: 145412.699972270
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 1498
+trigger_time: 145412.700071000
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 432
+-----
+hw_ptr      : 3602952
+appl_ptr    : 3604488
+UDC=configured
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 1498
+trigger_time: 145522.166790950
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 1499
+trigger_time: 145412.707699180
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 1499
+trigger_time: 145412.699972270
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 1498
+trigger_time: 145412.700071000
+ 95:       7248          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         34          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   35563280          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:     888528          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+BAD=0
+0
+145522.23 397482.89
+
+A453_908623_E rc=0
+# 

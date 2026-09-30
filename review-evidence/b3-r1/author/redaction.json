@@ -1,0 +1,418 @@
+{
+ "rule": "Bench host names, interface names, the controller's, the reference peer's and the grandmaster's identifiers, the bridge network's addresses and MACs, home paths and the account name are replaced by the role labels listed per file. The DUT's entity, MAC and stream identifiers are public and retained. Each original stays under the raw root in packet-originals/, identified by its SHA-256.",
+ "files": [
+  {
+   "file": "identity/adp-discover.jsonl",
+   "original_sha256": "6d7a54e12f6c0e2a3cfbec4dd50fee442a31a603dc333d91b9296ef7641192ac",
+   "retained_sha256": "a009dd44d3e35ddad9710a889266e35c2c689d622b702bf65ae161da9226cd8a",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-mac>",
+    "<peer-model-id>"
+   ]
+  },
+  {
+   "file": "identity/console-identity.stdout",
+   "original_sha256": "af6bff2117646b7474f89df580ac90da2ed8d076f942300044e52112b0977d97",
+   "retained_sha256": "b9abd3d20acc3b60e480b6c6812a30289a5b5fb7b9ba445e093ccfc5144b5378",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "identity/console-identity.txt",
+   "original_sha256": "25c2cb28ae36c0c66be052d05419d2e45dab53735225e7f10400ca279e4f89a3",
+   "retained_sha256": "85a60d4e373b111f179139f3f2107e00649f4647fd1bba4d63b8dea161a49ffb",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "identity/controller-preflight.txt",
+   "original_sha256": "179906f9f862db94589457220b56fc6f58f43fbcd90bfdd3c661b839e219c77b",
+   "retained_sha256": "d9650db697fb43a28a273dddbc2c778f6254cac3a8b4ac007e5c81c4f52f4b7d",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-mac>",
+    "<controller-mgmt-if>",
+    "<controller-mgmt-mac>"
+   ]
+  },
+  {
+   "file": "identity/grader-identity.txt",
+   "original_sha256": "61b1976b13fbaa1954deebf1b4945030a533c5e09d68d369489c0a39dce3c780",
+   "retained_sha256": "6c2e9f4a7cfd8e07dfc77588e140e9f31433f1dc81bdffe3d421082eaa5a469d",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "identity/identity-aecp.jsonl",
+   "original_sha256": "3a6fabc7b2424506fd04f2ebec64707d26007f4643e8e98926b67863d01c2aac",
+   "retained_sha256": "0d3b490a1955dbf758dc2d0486b8fa3205c1d196c958841b811de25e6b1b80bb",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/census-end.jsonl",
+   "original_sha256": "05c31e79de0e25bb96e98cbcb36177a999364682ab2bb0b95343c93dfa0a08be",
+   "retained_sha256": "9271a197c97771df4556b14b012c753219178ba98ffa9050851e237eb4bc31d7",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-crf-stream-id>",
+    "<peer-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/census-start.jsonl",
+   "original_sha256": "dd9cab6668d00a2b6ccf4dbdf7c3582c5856a78b640db10a432ef455c67e3cb9",
+   "retained_sha256": "6267a95591320d1f9ec5de2bc3bacb3349a3f72e54b0cd7254126d6911f140c1",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-crf-stream-id>",
+    "<peer-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/controller-phc-restore.txt",
+   "original_sha256": "282c4c7b16bd01dc77ef32bdb2743786bcd7be8cc65b90701f3bbe219fc7b016",
+   "retained_sha256": "c3adf2b2cee4fd9c362c5600f2586da4ef6286729833dc8ca0eec5fe44d2e8f5",
+   "labels": [
+    "<controller-avb-if>",
+    "<home>"
+   ]
+  },
+  {
+   "file": "restore/controller-pre-restore.txt",
+   "original_sha256": "8c4e2778a10fbe11cde496b645bbf7a27a72685c326bda0dddaba81d1d95b3a8",
+   "retained_sha256": "0e2fa6114bd198da2677f09206d022f573cfc9e649df441384ff7f669b31f6cc",
+   "labels": [
+    "<operator>"
+   ]
+  },
+  {
+   "file": "restore/dut-end.txt",
+   "original_sha256": "845e64c6e14dd28270c16be1b180bf43069fe106dea3ccf4ee40de218c030d0f",
+   "retained_sha256": "a0bc97da7686d29e5ed4daa91457880fb7a7e90e2ab11830f7eb7b4ac4743534",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/dut-start.txt",
+   "original_sha256": "1d6346d8457981be635e7c6bc5d62c3243080663cf6c15906d1a87dab198212a",
+   "retained_sha256": "99e14063bc9b76f84df82b2cc5d90c33697ccfbaf4de53ed1d223f2b1acaacd3",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "soc/s01-stop-legs.log",
+   "original_sha256": "f60d79789b5e2fc08b3253d0f3fdf432385476d1d9cbd929bb6a533ebe145470",
+   "retained_sha256": "26435c69111969e3046229a5f2484f87129b61f785cc6c4a89ecfe34a2d744d0",
+   "labels": [
+    "<ecm-board-mac>"
+   ]
+  },
+  {
+   "file": "soc/s02-start-legs.log",
+   "original_sha256": "4ece19ae687593ae79a5ee21ccb6f13f7c523faec4de8597b7fa81f6c638e343",
+   "retained_sha256": "aecc0a58940ce1622691b85a89993e4b0563286f5aa6256b375c8fa02019093d",
+   "labels": [
+    "<ecm-board-mac>"
+   ]
+  },
+  {
+   "file": "runs/controller/din-long-gptp.log",
+   "original_sha256": "2e63e20787dcc8093cb09af5ddf1f08dc49a6e606dc941b5fb1672ed0f9ba3c6",
+   "retained_sha256": "ba9d209d3e3119123b89cc5595d6d087edd8eddf6485c9968871cb36f88cd400",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-clock-id>",
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "runs/controller/dout-long-gptp.log",
+   "original_sha256": "75e23690db1704be1c88fb3eb10bbce963486f9f9f5b8683cf68c577ea052dd2",
+   "retained_sha256": "4b4e8096427e1f47f7ca0bda2defadb72670dc7191b8f9453eace99b0ff90743",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-clock-id>",
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "runs/controller/dout-long-talker.jsonl",
+   "original_sha256": "7d5f72919c86e8efe1dbd511b0415d99d2bf7da05861bbe180f28f06ff4a23bf",
+   "retained_sha256": "87448f6f22cf53967868eb542f07e4468ce01c8c627cadb3b8ec24a401469182",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/controller/usb-long-gptp.log",
+   "original_sha256": "652b2bb3ca514adedefb89d61014a2e9a1aa560c6fa05c63b653a98e4a5d7ba8",
+   "retained_sha256": "431e5388920c2d225c7064f437710786e12880501576174fa62d77084a38a833",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-clock-id>",
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "runs/controller/usb-long-talker.jsonl",
+   "original_sha256": "81352dfdea8ddf3b3758bb22b8c827d27ab8d9a8be4988078981b6c557a8a3ca",
+   "retained_sha256": "25262eda835efbf5b63becf5014c86793655fa8a9965e21026b0beab0df4b65e",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/controller/usb-long2-gptp.log",
+   "original_sha256": "4f676902f84551065248a1322fb31c19db399a5d7581a83308faecd254246b2f",
+   "retained_sha256": "cfe6aae6bd82ff0925ff02dfbac7001f6eb72da0c27ee683c9c76b01224e2906",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-clock-id>",
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "runs/controller/usb-long2-talker.jsonl",
+   "original_sha256": "442606433d4575d2b1750516636f4d975a0b325fd6d6843995759656d2730be7",
+   "retained_sha256": "0f8af7f8c943f12189227a59c73733cdb83f33a37e12a9ff5f5588497ab52f54",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/din-long/ctl-map-add.jsonl",
+   "original_sha256": "63a05086d1e098ce28717cbe6e7017ff9c9e4b2f6b8d640edd7f1464ecab2a3a",
+   "retained_sha256": "2c2356209bd0c6b398c582e2185c9928fc4f291abb190a0975f3c239eb60e9af",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/din-long/ctl-map-final.jsonl",
+   "original_sha256": "f569011faee1b314fd852cc657a8e62fee0c180000f0e15278b0151845d8570f",
+   "retained_sha256": "9a7635dc562bbd91aedaa23d70d058d7b01e4607ad6365b6c1f9f9634fcd82d0",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/din-long/ctl-map-initial.jsonl",
+   "original_sha256": "c79dbb79aecdbafecaf1f1970d1f8467a9c2bac758b857a270c979e0e59c9e25",
+   "retained_sha256": "5b64615de8ae93607210388b1fad0c7145efbd85caabd8ead28387bbc841f65f",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/din-long/ctl-map-remove.jsonl",
+   "original_sha256": "2bd8d695aa465038d3075a95fb1dc875f660aef085a824411367f85dd52a933b",
+   "retained_sha256": "03853301ce2bec0d79ed0218e1f8c80505294cdcd49739bb671c375d1eeaa8a5",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/controller-logs.txt",
+   "original_sha256": "acb519e2d8548697f79d0c0ab73bd3c7a0582b42d9238534fcc3e3f3410d759a",
+   "retained_sha256": "262b4a685e90368c3b1d6e75c20a9d32ebc4362f00ece4febeb68b635f6fdf34",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/ctl-bind.jsonl",
+   "original_sha256": "2edcf48e7ad5e3713c96cb1bf35ad40a7905df2332a7546911a8e97752a241b5",
+   "retained_sha256": "6ca72589905fe59f98f1a75df0818235b7c842bca1420e3fc9e692129c0826e7",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/ctl-map-add.jsonl",
+   "original_sha256": "bc74f34a7c18d68d2447f21d62c9cc9509c74e95683dfb20870cc0b38a5532c5",
+   "retained_sha256": "a8f6b869ecc78f18d3de947b3cd0c18124d43702211ad326444cb209013048d5",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/ctl-map-final.jsonl",
+   "original_sha256": "4b0ee666a8ec9ece06db61c4f9ee14bf42b369f8c2819f82ccccc8e26e95271f",
+   "retained_sha256": "977563176abd1cffb849d54dc838c9c340e41904526406e54fa811d9cbcdd618",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/ctl-map-remove.jsonl",
+   "original_sha256": "98205a01fd14756477b20b4bd698e73e7944be7bcfdfc045c0717d917a7e33a2",
+   "retained_sha256": "9e33e031b398c190f98d880597136d1b8d74b454eb139a11812b795fdddb76ff",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/ctl-unbind.jsonl",
+   "original_sha256": "2a394a6f5bede5ef6ed419cab8b7d88a57070dcd0ec7ee748344ed05363f0c58",
+   "retained_sha256": "54163a232213156ac7b0e10e3133fadf78013d44ff14c4ba62e0bb076fa382d2",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/soc-capture.log",
+   "original_sha256": "8086a6c034418c682154ffdefe4221dad441486ffbe8deba9a31def349df6066",
+   "retained_sha256": "0b6231e8fb62061384c3950c27a1f0c3ca9a50743ecdfc7c0216163e9f895ae1",
+   "labels": [
+    "<ecm-host>"
+   ]
+  },
+  {
+   "file": "runs/dout-long/talker.jsonl",
+   "original_sha256": "7d5f72919c86e8efe1dbd511b0415d99d2bf7da05861bbe180f28f06ff4a23bf",
+   "retained_sha256": "87448f6f22cf53967868eb542f07e4468ce01c8c627cadb3b8ec24a401469182",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/usb-long/controller-logs.txt",
+   "original_sha256": "a55570b044985953b5979c1b625401d08a1116bde00f165a2082e8c0e3e1887d",
+   "retained_sha256": "457ad31243f9ed1aeac0b2e00e6198dcfeecb0ec0f01833fb6179da041e06303",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/usb-long/ctl-bind.jsonl",
+   "original_sha256": "eaa9221112871d7e7745e85ff504abe6563192854475e6ef4413853f26d90323",
+   "retained_sha256": "c1399a3b09f7ae1cfe48be65f01ae5280c12b69b2f9330ebb94d07d79a2846e7",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/usb-long/ctl-map-add.jsonl",
+   "original_sha256": "fc447990e72899656d43e389392dea8616d1588f19cceec0a6d77b1ec4d5e33e",
+   "retained_sha256": "246b4d21ee061f5aaec928324112232418d594a3508c2f9ed57c6d7eb40b7fcd",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/usb-long/ctl-map-final.jsonl",
+   "original_sha256": "fdb8b497d01c3d0b5afeb884ddc6f2f3091808899d8c4ed0b1c7e10474e8a25c",
+   "retained_sha256": "b0824c4deb4b4c4ef2384f58927b2f67e0eead321acf006fbf668223b76c2ca0",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/usb-long/ctl-map-remove.jsonl",
+   "original_sha256": "9e9b04c8903f805fb34572445e111bd4889cadd8e5c3fd664139794abc503a35",
+   "retained_sha256": "73d2d960b195e7c68f5f63c57926185d869a67ca96a9980d5b5f618fe41c95de",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/usb-long/ctl-unbind.jsonl",
+   "original_sha256": "c7edfcfa892669392ae830d5f5273ec4db2d86fbb25da6bcd0c120de258ba7af",
+   "retained_sha256": "52249879e553fab07dc8f7ed0a0a962af3124efa0ea89f14658604b006c3646c",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/usb-long2/controller-logs.txt",
+   "original_sha256": "c176dfdb7b63a266e2d10f93fdd5563cc071d6b90211a54ebc237233c5db789b",
+   "retained_sha256": "6563c8904f9f1923a2624c407edbca906f066a546a2963cadb1cb2fd46a26c17",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/usb-long2/ctl-bind.jsonl",
+   "original_sha256": "dc9b8c90c540e0b5cea92290e95164be51f3bc20843db8222d202685e6e775f2",
+   "retained_sha256": "602f43fb41ce492144695f7c6c53e771c9e9bc3f90fde7af574938fdb3d7010f",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/usb-long2/ctl-map-add.jsonl",
+   "original_sha256": "7eb3d5b0cfef539e5a4518a1bdb69024e1f38e8b5ee2b7b0d8a0e2fa2893222b",
+   "retained_sha256": "3dc825e4656b78c43595d9aa6aa0e167e7729b1672ae3f949aa1fe470fabbcff",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/usb-long2/ctl-map-final.jsonl",
+   "original_sha256": "b79ec540d39568b1da3726a6406be47162063042438dda6d75918bacf2a912bc",
+   "retained_sha256": "bceb9d8612be4a4870b813a20ac8eb396767c57c562006174fbded160cc846b0",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/usb-long2/ctl-map-remove.jsonl",
+   "original_sha256": "de32885f4e9847679a349480456f3c40c3d8d5a1b94e8dfe5a37abfdade3ab98",
+   "retained_sha256": "0123ca07d4a7f01ff333d4e45c950f163383c9f1d60fbdaacb54b06a3794366d",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/usb-long2/ctl-unbind.jsonl",
+   "original_sha256": "b8d00d04a1ff81a862d063a1e5f3012c633fc0b2fff6afd5ae17504ce5b5574b",
+   "retained_sha256": "7306fa217e9914b8090de8533342815b3429efaebb967f7ec0c0b4d6fdfb7ffe",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  }
+ ],
+ "residual_check_hits": 0
+}
