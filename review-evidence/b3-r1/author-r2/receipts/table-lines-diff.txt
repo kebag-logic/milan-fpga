@@ -1,0 +1,20 @@
+== 617_DIN_FRAME_COHERENCE_BENCH.md: table lines (lines starting '|'), 6dfa64a7 vs a66996aa
+base 85 lines sha256 a2f63c3afe5e320713ebdf70e5140e2ac1abe81e91c2055434e8769290dc7b48
+head 85 lines sha256 a2f63c3afe5e320713ebdf70e5140e2ac1abe81e91c2055434e8769290dc7b48
+command: diff <(git show 6dfa64a7:docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md | grep '^|') <(git show a66996aa:docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md | grep '^|')
+diff rc=0
+== 451_USB_AUDIO_CAPTURE.md: table lines (lines starting '|'), 6dfa64a7 vs a66996aa
+base 39 lines sha256 e1d5a5ce19dbcda71d78d50c9e499e0f9334c75f65feba0b0b517da19738dbc6
+head 39 lines sha256 b5cfa4e6aee78e7f25e3b5ced27be64c6f6c0e5b73c8276addc11228ef216b40
+command: diff <(git show 6dfa64a7:docs/findings/451_USB_AUDIO_CAPTURE.md | grep '^|') <(git show a66996aa:docs/findings/451_USB_AUDIO_CAPTURE.md | grep '^|')
+24,25c24,25
+< | `usb-long` | McASP0 receive 250.7 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 135 to 349 |
+< | `usb-long2` | McASP0 receive 250.7 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 456 to 692 |
+---
+> | `usb-long` | McASP0 receive 250.0 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 135 to 349 |
+> | `usb-long2` | McASP0 receive 250.0 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 456 to 692 |
+diff rc=1
+== 451_USB_AUDIO_CAPTURE.md table lines, byte comparison: cmp -l base head (offset, octal base byte, octal head byte)
+2656  67  60
+2849  67  60
+cmp rc=1 (1 = differ); sizes 3994 and 3994 bytes; octal 67 is '7', 60 is '0'

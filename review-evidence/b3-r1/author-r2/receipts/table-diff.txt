@@ -1,0 +1,32 @@
+== docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md: 12 tables at 6dfa64a7506a8660a70d77eaa7c96c5de2886f5d, 12 at a66996aae46bc4a3eb2d8a4822d12d5186aa04eb; 12 identical
+  table 1: IDENTICAL, lines 14-20 -> 14-20, 810 bytes, sha256 56e1c95136bae6a3e9f1d84556458f00ca49945dfdae5a96b1f26e6ee472794e
+  table 2: IDENTICAL, lines 43-52 -> 43-52, 512 bytes, sha256 a60663d5838642425a0050c9f76a6163e044ed8e7637c03401eecd9846a073ff
+  table 3: IDENTICAL, lines 105-107 -> 117-119, 286 bytes, sha256 124afd9a0dc0551d8a527c0ed11b36b4814f846f0e585f4a3b6db1b81d1c7680
+  table 4: IDENTICAL, lines 112-115 -> 124-127, 136 bytes, sha256 8e29c2f0145312b0f2838bce2a57a79d868bb4d0711f51dc9922bac78165bec2
+  table 5: IDENTICAL, lines 121-130 -> 133-142, 644 bytes, sha256 901700c5f00b16608fab8f4f5cc766724ecfbde3580c099355f71bdb80a7339f
+  table 6: IDENTICAL, lines 137-142 -> 149-154, 197 bytes, sha256 7df642bde14694353a1160908a95e24ac6f01bd90eeeff0fdde45148805f006e
+  table 7: IDENTICAL, lines 157-159 -> 172-174, 296 bytes, sha256 e44f38b1395c5c84a68fe49210b42b32f32b85e1ded09dc061e76412bf8fec90
+  table 8: IDENTICAL, lines 162-171 -> 177-186, 452 bytes, sha256 2880a33195900ff8cd0cfe71ab92e1bf1a044ff67b1c07efc08d0f38a8bbcc63
+  table 9: IDENTICAL, lines 194-205 -> 209-220, 838 bytes, sha256 0434a5f8098cf50dac7981c07ec555f0a37ccb9ad990099fa90e8e9d41fcc955
+  table 10: IDENTICAL, lines 212-220 -> 227-235, 747 bytes, sha256 32cb824e92221fa14956208e6f4a7d51dea518bd145880bac438dc5dc131676e
+  table 11: IDENTICAL, lines 244-248 -> 269-273, 416 bytes, sha256 92a75dc849ae9e98f3f0fe1bc52e477f8b537c261e828b0a2060303f0c0af85f
+  table 12: IDENTICAL, lines 253-258 -> 280-285, 509 bytes, sha256 b96c7c285fa9dc8277b02506a4636ccf0cd7fd80915299ef95c69e7d78342990
+== docs/findings/451_USB_AUDIO_CAPTURE.md: 8 tables at 6dfa64a7506a8660a70d77eaa7c96c5de2886f5d, 8 at a66996aae46bc4a3eb2d8a4822d12d5186aa04eb; 7 identical
+  table 1: IDENTICAL, lines 15-23 -> 15-23, 1343 bytes, sha256 3aa868b60aea3e5656978f6fd98f3e4f3628f090a57dfd10bdfdfd73796d7acb
+  table 2: IDENTICAL, lines 99-102 -> 99-102, 496 bytes, sha256 5626a2bcccf2416968d7d7a8a1d88fb03833dddfbcaf205b07a3a9105ed306be
+  table 3: IDENTICAL, lines 109-112 -> 109-112, 423 bytes, sha256 a10300fa9d87abc09bf2776faeb690238e1b72e6a5efaf89e675c71d83aa805e
+  table 4: IDENTICAL, lines 119-122 -> 119-122, 286 bytes, sha256 e24e3fbf2dd04f751c53c3bfe1d979ef71b33c46ba3ab3203e3438053cc164cd
+  table 5: CHANGED, lines 124-127 -> 124-127, 458 -> 458 bytes
+    -| `usb-long` | McASP0 receive 250.7 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 135 to 349 |
+    -| `usb-long2` | McASP0 receive 250.7 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 456 to 692 |
+    +| `usb-long` | McASP0 receive 250.0 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 135 to 349 |
+    +| `usb-long2` | McASP0 receive 250.0 periods/s; 5 capture restarts; USB function configured; fault scan 0 | 0 sequence mismatches, 0 depacketizer drops, media locked; render rails 456 to 692 |
+  table 6: IDENTICAL, lines 181-186 -> 187-192, 435 bytes, sha256 f7a95065b2775432330602bff1109fc93f3f70bfe44c41e1d1e2447883bbefb7
+  table 7: IDENTICAL, lines 205-208 -> 211-214, 276 bytes, sha256 ec1b015c598247c8164b9adba57ee873e3b9daadca10f1867f1c714aca4634ae
+  table 8: IDENTICAL, lines 213-216 -> 221-224, 277 bytes, sha256 9d3f20fdca202c40b113ff0820bfd5399eb7fff67373551daa605cf13c2eb565
+== docs/findings/README.md: 1 tables at 6dfa64a7506a8660a70d77eaa7c96c5de2886f5d, 1 at a66996aae46bc4a3eb2d8a4822d12d5186aa04eb; 0 identical
+  table 1: CHANGED, lines 9-22 -> 9-24, 3550 -> 4674 bytes
+    -| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN |
+    +| [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN. On `ec0cc0c1` the DIN re-run counts 0 torn frames in [617_DIN_FRAME_COHERENCE_BENCH.md](617_DIN_FRAME_COHERENCE_BENCH.md), and [451_USB_AUDIO_CAPTURE.md](451_USB_AUDIO_CAPTURE.md) records the capture through the USB Audio device as FAIL |
+    +| [451_USB_AUDIO_CAPTURE.md](451_USB_AUDIO_CAPTURE.md) | Capture of the DUT's rendered pattern on the bench host's USB Audio card through the SoC board's audio bridge, on dev `ec0cc0c1`: slot and channel order and continuity over two 75 s runs; the continuity check (#451) | FAIL: 0 of 3,600,000 frames pass the pattern rule in either run, with a rotating channel order and silent stretches; the direct McASP0 path is bit-exact on the same image. Continuity check, playback direction, scope and calibrated items NOT RUN |
+    +| [617_DIN_FRAME_COHERENCE_BENCH.md](617_DIN_FRAME_COHERENCE_BENCH.md) | Bench re-run of the #451 first-light DIN capture on dev `ec0cc0c1`, with the frame-atomic capture handoff of PR #618, and a DOUT re-run (#617 acceptance 4) | 0 torn of 3,360,036 playback frames (first light 67.5%); slot and channel order identity in both directions; render path unchanged |

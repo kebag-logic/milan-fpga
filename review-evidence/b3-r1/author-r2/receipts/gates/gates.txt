@@ -1,0 +1,12 @@
+head a66996aae46bc4a3eb2d8a4822d12d5186aa04eb cwd $LANES/b3-bench-0930 2026-09-30T05:14:45Z
+gate-1 rc=0 :: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+gate-2 rc=0 :: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py
+gate-3 rc=0 :: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+gate-4 rc=0 :: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base ec0cc0c1
+gate-5 rc=0 :: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py
+gate-6 rc=0 :: python3 scripts/ci_scope.py --selftest
+gate-7 rc=0 :: python3 scripts/check_baremetal_only.py --check
+gate-8 rc=0 :: python3 scripts/check_feature_status.py --self-test
+gate-9 rc=0 :: git diff --check
+gate-10 rc=0 :: git diff --check ec0cc0c1 HEAD
+gate-11 rc=0 :: git diff --check 6dfa64a7 HEAD
