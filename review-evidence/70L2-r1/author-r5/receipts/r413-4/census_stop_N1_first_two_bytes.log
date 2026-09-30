@@ -1,0 +1,16 @@
+mutant=N1_first_two_bytes head=b3ae17233eb9dd5934255f4018da7d45a159b5ac
+mutated N1_first_two_bytes in $VALIDATION_STORAGE/a461-70L2r5/r413-4/scratch/trees/r413_stop_N1_first_two_bytes/sw/builder/test_builder.py
+instrumented $VALIDATION_STORAGE/a461-70L2r5/r413-4/scratch/trees/r413_stop_N1_first_two_bytes/sw/builder/test_builder.py
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a461-70L2r5/r413-4/scripts/r412-3/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/a461-70L2r5/r413-4/scratch/trees/r413_stop_N1_first_two_bytes/sw/builder/test_builder.py", line 14803, in test_baremetal_profile_contract
+    raise AssertionError(
+    ...<2 lines>...
+        "is broken")
+AssertionError: the resolver accepted a neighbour's address folded onto byte +2 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: the resolver accepted a neighbour's address folded onto byte +2 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+rc=1

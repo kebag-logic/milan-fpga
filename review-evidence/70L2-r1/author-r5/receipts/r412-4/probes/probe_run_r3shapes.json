@@ -1,0 +1,44 @@
+[
+ [
+  "r3_pre_overrun_sscanf",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static char r412_line[4];\nstatic int aem_loaded;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t(void)sscanf(\"abcd\\001\", \"%s\", r412_line);\n"
+   ]
+  ]
+ ],
+ [
+  "r3_nbr_runtime_sscanf",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static int aem_loaded;\nstatic int r412_pad;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t{ volatile int k = -1; (void)sscanf(\"\\001\", \"%c\", (char *)(&r412_pad + k)); }\n"
+   ]
+  ]
+ ],
+ [
+  "r3_nbr_byte_sscanf",
+  "sub",
+  [
+   [
+    "static int aem_loaded;\n",
+    "static int aem_loaded;\nstatic int r412_pad;\n"
+   ],
+   [
+    "static void nvm_boot(void)\n{\n",
+    "static void nvm_boot(void)\n{\n\t(void)sscanf(\"\\001\", \"%c\", (char *)&r412_pad - 3);\n"
+   ]
+  ]
+ ]
+]

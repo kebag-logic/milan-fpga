@@ -1,0 +1,36 @@
+{
+  "head": "b3ae17233eb9dd5934255f4018da7d45a159b5ac",
+  "tree": "02d9741fb9f57d81c758ae42adea26ed9694f647",
+  "results": [
+    {
+      "name": "builder-present",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+        "-B",
+        "sw/builder/test_builder.py",
+        "--require-elaboration",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 1071.3,
+      "log": "$VALIDATION_STORAGE/a461-70L2r5/gates-b3ae1723/builder-present.log",
+      "log_bytes": 100188,
+      "log_sha256": "97aced8c55422f2a2fdf655b04f2d00cc593f57e7c979e484c917df08b47101a"
+    },
+    {
+      "name": "builder-absent",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+        "-B",
+        "$MANAGEMENT/2026-09-23/70-a461/full-builder-absent.py"
+      ],
+      "rc": 0,
+      "seconds": 667.5,
+      "log": "$VALIDATION_STORAGE/a461-70L2r5/gates-b3ae1723/builder-absent.log",
+      "log_bytes": 101260,
+      "log_sha256": "97d983fafd7ace366a8354925d1be2fbf35fa8b52824a3601b38314713acd952"
+    }
+  ],
+  "head_after": "b3ae17233eb9dd5934255f4018da7d45a159b5ac",
+  "clean_after": true
+}

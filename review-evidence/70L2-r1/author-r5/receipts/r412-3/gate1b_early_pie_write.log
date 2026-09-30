@@ -1,0 +1,32 @@
+probe=pie_write head=b3ae17233eb9dd5934255f4018da7d45a159b5ac
+planted pie_write in $VALIDATION_STORAGE/a461-70L2r5/r412-3/scratch/trees/pie_write/sw/firmware/milan_baremetal/milan_baremetal.c
+instrumented $VALIDATION_STORAGE/a461-70L2r5/r412-3/scratch/trees/pie_write/sw/builder/test_builder.py
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a461-70L2r5/r412-3/scratch/trees/pie_write/sw/builder/test_builder.py", line 11058, in assert_boot_contract
+    verdicts.append(assert_boot_contract(
+                    ~~~~~~~~~~~~~~~~~~~~^
+        selected, docs, csr, makefile, listing, datapath))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/a461-70L2r5/r412-3/scratch/trees/pie_write/sw/builder/test_builder.py", line 11891, in assert_boot_contract
+    assert verdict_is_the_verifiers(firmware), \
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: aem_loaded must contain only the image verifier's verdict
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a461-70L2r5/r412-3/scripts/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/a461-70L2r5/r412-3/scratch/trees/pie_write/sw/builder/test_builder.py", line 12152, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "$VALIDATION_STORAGE/a461-70L2r5/r412-3/scratch/trees/pie_write/sw/builder/test_builder.py", line 11061, in assert_boot_contract
+    raise AssertionError(
+    ...<3 lines>...
+        f"{exc}") from exc
+AssertionError: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken; line 1459 `#ifndef __PIE__`: __PIE__ not defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): aem_loaded must contain only the image verifier's verdict
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken; line 1459 `#ifndef __PIE__`: __PIE__ not defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): aem_loaded must contain only the image verifier's verdict
+rc=1

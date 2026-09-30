@@ -1,0 +1,15 @@
+mutant=Q2_on_neighbour head=b3ae17233eb9dd5934255f4018da7d45a159b5ac
+mutated Q2_on_neighbour in $VALIDATION_STORAGE/a461-70L2r5/own/scratch/trees/stop_Q2_on_neighbour/sw/builder/test_builder.py
+instrumented $VALIDATION_STORAGE/a461-70L2r5/own/scratch/trees/stop_Q2_on_neighbour/sw/builder/test_builder.py
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a461-70L2r5/r413-4/scripts/r412-3/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/a461-70L2r5/own/scratch/trees/stop_Q2_on_neighbour/sw/builder/test_builder.py", line 14764, in test_baremetal_profile_contract
+    assert reached == [offset], \
+           ^^^^^^^^^^^^^^^^^^^
+AssertionError: the interior-byte +2 break's references from nvm_boot() land on byte(s) [] of aem_loaded's storage, not on byte +2 alone, so it does not measure that byte: milan_verdict_next must follow the verdict, and the compiler must fold the offset into the relocation
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: the interior-byte +2 break's references from nvm_boot() land on byte(s) [] of aem_loaded's storage, not on byte +2 alone, so it does not measure that byte: milan_verdict_next must follow the verdict, and the compiler must fold the offset into the relocation
+rc=1

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    t.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/a461-70L2r5/r412-4/scratch/m_a461_b3ae17233_K1/sw/builder/test_builder.py", line 14803, in test_baremetal_profile_contract
+    raise AssertionError(
+    ...<2 lines>...
+        "is broken")
+AssertionError: the resolver accepted a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
