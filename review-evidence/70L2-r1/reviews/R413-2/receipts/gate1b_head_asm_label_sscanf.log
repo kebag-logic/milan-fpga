@@ -1,0 +1,7 @@
+probe: plant=asm_label_sscanf head=943a3dac973abc7130fe1a19bb6f5943788a01fe gate=head test_builder.py (early stop after shipping-firmware assert_boot_contract)
+planted asm_label_sscanf firmware sha256 9faf31a15a81f53800fb887a85114b1e75399549b189e26d490df6d7142b2d5e
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE REFUSED: under the arm selection line 794 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__("aem_loaded");'
+elapsed 7.3s
+rc=1

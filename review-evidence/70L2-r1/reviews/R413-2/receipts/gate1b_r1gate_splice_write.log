@@ -1,0 +1,8 @@
+probe: plant=splice_write gate=ROUND-1 test_builder.py from 597dba85 (early stop after shipping-firmware assert_boot_contract)
+planted splice_write firmware sha256 6dd821739abb646d3ffdad086e3940ffa88aa7f75557a2dbfc4aa2b37fe01275
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R413 PROBE: shipping-firmware gate 1b ACCEPTED; ran= True kept= ['aem_loaded']
+GATE ACCEPTED (test_baremetal_profile_contract returned)
+elapsed 8.4s
+rc=0

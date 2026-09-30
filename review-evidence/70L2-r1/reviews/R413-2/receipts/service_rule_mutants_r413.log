@@ -1,0 +1,7 @@
+skip_every_unarmed_start: rc=1 KILLED :: RuntimeError: armed bound not recorded
+anchor_last_tick: rc=1 KILLED :: RuntimeError: tick block crossed a duty boundary
+anchor_first_heartbeat_write: rc=1 KILLED :: RuntimeError: unarmed AEM prefix was charged as an armed gap
+span_from_duty_start: rc=1 KILLED :: RuntimeError: unarmed AEM prefix was charged as an armed gap
+exempt_aem_by_name: rc=1 KILLED :: RuntimeError: armed bound not recorded
+armed_bound_without_250_base: rc=1 KILLED :: RuntimeError: armed bound not recorded
+restored run.py; all mutants killed

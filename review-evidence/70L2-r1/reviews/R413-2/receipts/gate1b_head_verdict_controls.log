@@ -1,0 +1,16 @@
+probe: head gate 943a3dac, test_baremetal_profile_contract up to and including the in-gate verdict-pin controls
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R413 CONTROL REFUSED: a second assignment inside nvm_boot() | pin named: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 0)
+R413 CONTROL REFUSED: a second assignment in the UART status handler | pin named: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, milan_status_handler() stores 1)
+R413 CONTROL REFUSED: &aem_loaded taken and written through inside nvm_boot() | pin named: the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+R413 CONTROL REFUSED: aem_loaded given external linkage | pin named: aem_loaded is not a file-scope static of the compiled unit
+R413 CONTROL REFUSED: aem_loaded declared in a second translation unit | pin named: aem_loaded is named in a second translation unit (milan_verdict.c)
+R413 CONTROL REFUSED: a phase-2 line-splice write inside nvm_boot() | pin named: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+R413 CONTROL REFUSED: a `##`-paste write inside nvm_boot() | pin named: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+R413 CONTROL REFUSED: a macro-spelled write inside nvm_boot() | pin named: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+R413 CONTROL REFUSED: a macro-spelled address handed to sscanf() inside nvm_boot() | pin named: the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+R413 PROBE: verdict-pin controls refused 9 of 9 ; base kept = ['aem_loaded']
+GATE ACCEPTED (test_baremetal_profile_contract returned)
+elapsed 14.4s
+rc=0

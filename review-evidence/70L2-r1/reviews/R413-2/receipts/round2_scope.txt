@@ -1,0 +1,18 @@
+# round-2 scope: git diff --stat 597dba85..943a3dac (no hdl/, syn/, constraints/, sw/firmware/ or gitlink change)
+ docs/findings/397_SERVICE_BUDGET.md      |   3 ++-
+ docs/integration/BAREMETAL_FIRMWARE.md   |  44 +++++++++++++++++++++++++------------
+ sw/builder/test_builder.py               | 181 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--------------------------------
+ tb/verilator/fw_service_budget/README.md |   9 ++++++--
+ tb/verilator/fw_service_budget/run.py    |  16 +++++++++++++-
+ 5 files changed, 197 insertions(+), 56 deletions(-)
+# name-status
+M	docs/findings/397_SERVICE_BUDGET.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	sw/builder/test_builder.py
+M	tb/verilator/fw_service_budget/README.md
+M	tb/verilator/fw_service_budget/run.py
+# gitlink diff (empty = unchanged)
+# commits
+943a3dac973abc7130fe1a19bb6f5943788a01fe State in the service-budget page that only boot's 20000 ms comparison grades reset to the first PHY publication, and how the AEM-first order lengthened that prefix
+666f0623b6f5a4f92745f21ca9ad95ac476b127b Pin the service grader's arming to the run's first opportunity with an armed command whose leading gap is one cycle past the allowance
+bab4f32dd8f05ee8014ec6470f2b0b1746c44edc Read gate 1b's verdict pins on the compiled unit, the census's stores and a register-variable compile, and refuse a spliced, pasted or macro-spelled write and a macro-spelled address

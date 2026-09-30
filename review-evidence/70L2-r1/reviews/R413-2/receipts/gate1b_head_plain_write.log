@@ -1,0 +1,7 @@
+probe: plant=plain_write head=943a3dac973abc7130fe1a19bb6f5943788a01fe gate=head test_builder.py (early stop after shipping-firmware assert_boot_contract)
+planted plain_write firmware sha256 cb5ddecc9014574b50c29e3c6ceb74e12ae0ef5743c204e20b946a844beb51ff
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): aem_loaded must contain only the image verifier's verdict
+elapsed 6.8s
+rc=1
