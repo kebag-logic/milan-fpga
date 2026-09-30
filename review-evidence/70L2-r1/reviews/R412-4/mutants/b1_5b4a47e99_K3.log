@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/m_5b4a47e99_K3/sw/builder/test_builder.py", line 14779, in test_baremetal_profile_contract
+    assert_resolved_boot_flow(_taken["text"], source_model, what,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              source=planted, units=units)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m_5b4a47e99_K3/sw/builder/test_builder.py", line 7212, in assert_resolved_boot_flow
+    assert handed_verdict == [verdict_tag], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the compiled &aem_loaded taken and written through inside nvm_boot() enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 0); the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    t.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/m_5b4a47e99_K3/sw/builder/test_builder.py", line 14783, in test_baremetal_profile_contract
+    assert RESOLVER_VERDICT_PIN in str(exc) and not unnamed, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["the linked image forms the full address of aem_loaded's storage"]: the compiled &aem_loaded taken and written through inside nvm_boot() enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: a store lands on aem_loaded's storage other than milan_init()'s one store of load_aem_image()'s return (the image stores in place from milan_init(); resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 0); the address of aem_loaded is taken (the compiler, with aem_loaded a register variable: address of global register variable 'aem_loaded' requested)
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
