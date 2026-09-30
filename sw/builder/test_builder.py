@@ -14612,12 +14612,15 @@ def test_baremetal_profile_contract() -> None:
     #: only the image's half of the store pin sees it there. The next two
     #: plant, one each, the two escapes no C spelling above reaches: the
     #: address held in a data word, and an AUIPC with no relocation. The
-    #: last names no verdict at all: a static declared just after it, whose
-    #: address one int back plus one byte the compiler folds into the
-    #: relocation, handed to sscanf(). Its only reference lands on an
-    #: interior byte, so it is the break that measures the census's
-    #: four-byte range ([R412-3] F2); where it lands is read off the image
-    #: before it is graded.
+    #: last three name no verdict at all: a static declared just after it,
+    #: whose address one int back plus one, two or three bytes the compiler
+    #: folds into the relocation is handed to sscanf(). Each one's only
+    #: reference lands on one byte past the verdict's first, +1, +2 or +3,
+    #: so a census that stops reading any of those bytes no longer refuses
+    #: the break on it ([R412-3] F2, [R413-4] F1); where each lands is read
+    #: off the image before it is graded. The first byte is where
+    #: milan_init()'s one store lands, so a census that stops reading it
+    #: refuses the shipping firmware itself.
     def aem_first(firmware: str) -> str:
         """`firmware` with milan_init()'s nvm_boot() call moved to just
         after the AEM verifier's call."""
@@ -14642,11 +14645,21 @@ def test_baremetal_profile_contract() -> None:
         return replace_once(base, nvm_boot_open, nvm_boot_open + statement,
                             what)
 
-    verdict_interior_break = in_nvm_boot(
-        "static int milan_verdict_next;\n",
-        "\t(void)sscanf(\"\\001\", \"%c\", "
-        "(char *)(&milan_verdict_next - 1) + 1);\n",
-        "verdict address on an interior byte")
+    #: Keyed by the one byte of the verdict each break's reference lands on.
+    verdict_interior_breaks = {
+        1: in_nvm_boot("static int milan_verdict_next;\n",
+                       "\t(void)sscanf(\"\\001\", \"%c\", "
+                       "(char *)(&milan_verdict_next - 1) + 1);\n",
+                       "verdict address on interior byte +1"),
+        2: in_nvm_boot("static int milan_verdict_next;\n",
+                       "\t(void)sscanf(\"\\001\", \"%c\", "
+                       "(char *)(&milan_verdict_next - 1) + 2);\n",
+                       "verdict address on interior byte +2"),
+        3: in_nvm_boot("static int milan_verdict_next;\n",
+                       "\t(void)sscanf(\"\\001\", \"%c\", "
+                       "(char *)(&milan_verdict_next - 1) + 3);\n",
+                       "verdict address on interior byte +3"),
+    }
     verdict_pin_breaks = (
         ("a second assignment inside nvm_boot()", (VERDICT_PIN_WRITE,),
          replace_once(aem_first_source, nvm_boot_open,
@@ -14722,37 +14735,40 @@ def test_baremetal_profile_contract() -> None:
                      "\t\t__asm__ volatile(\"auipc %0, 0\" : \"=r\"(pc_p));\n"
                      "\t\t(void)sscanf(\"1\", \"%d\", pc_p);\n\t}\n",
                      "unrelocated AUIPC"), None),
-        ("a neighbour's address folded onto an interior byte of aem_loaded "
-         "and handed to sscanf() inside nvm_boot()", (VERDICT_PIN_ESCAPE,),
-         verdict_interior_break, None),
+        *((f"a neighbour's address folded onto byte +{offset} of aem_loaded "
+           "and handed to sscanf() inside nvm_boot()", (VERDICT_PIN_ESCAPE,),
+           planted, None)
+          for offset, planted in verdict_interior_breaks.items()),
     )
     verdict_pin_refused = []
     verdict_interior_bytes = []
     if baseline_census_verdict["ran"]:
-        #: The interior break measures the RANGE only while nvm_boot()'s
-        #: references land inside the verdict's bytes and none on the first,
-        #: which the compiler's layout and folding decide, not this gate.
-        #: Read on the image's relocation targets alone, not through
+        #: An interior break measures its byte only while nvm_boot()'s
+        #: references land on the verdict at that byte and no other, which
+        #: the compiler's layout and folding decide, not this gate. Read on
+        #: the image's relocation targets alone, not through
         #: rv32_image_references(), whose range is what it tests.
-        _image = verdict_image_take(verdict_interior_break,
-                                    "interior-byte break")
-        _verdict = [symbol for symbol in _image["symbols"]
-                    if symbol["name"] == "aem_loaded" and symbol["defined"]]
-        assert len(_verdict) == 1, \
-            "the interior-byte break's image defines " \
-            f"{len(_verdict)} objects named aem_loaded, not one"
-        verdict_interior_bytes = sorted({
-            target - _verdict[0]["value"]
-            for site, _kind, target in _image["relocations"]
-            if target is not None and
-            0 <= target - _verdict[0]["value"] < _verdict[0]["size"] and
-            rv32_image_where(_image, site) == "nvm_boot()"})
-        assert verdict_interior_bytes and 0 not in verdict_interior_bytes, \
-            "the interior-byte break's references from nvm_boot() land on " \
-            f"byte(s) {verdict_interior_bytes} of aem_loaded's storage, not " \
-            "past its first byte alone, so it does not measure the census's " \
-            "range: milan_verdict_next must follow the verdict, and the " \
-            "compiler must fold the offset into the relocation"
+        for offset, planted in verdict_interior_breaks.items():
+            _image = verdict_image_take(planted, f"interior byte +{offset}")
+            _verdict = [symbol for symbol in _image["symbols"] if
+                        symbol["name"] == "aem_loaded" and symbol["defined"]]
+            assert len(_verdict) == 1, \
+                f"the interior-byte +{offset} break's image defines " \
+                f"{len(_verdict)} objects named aem_loaded, not one"
+            reached = sorted({
+                target - _verdict[0]["value"]
+                for site, _kind, target in _image["relocations"]
+                if target is not None and
+                0 <= target - _verdict[0]["value"] < _verdict[0]["size"] and
+                rv32_image_where(_image, site) == "nvm_boot()"})
+            assert reached == [offset], \
+                f"the interior-byte +{offset} break's references from " \
+                f"nvm_boot() land on byte(s) {reached} of aem_loaded's " \
+                f"storage, not on byte +{offset} alone, so it does not " \
+                "measure that byte: milan_verdict_next must follow the " \
+                "verdict, and the compiler must fold the offset into the " \
+                "relocation"
+            verdict_interior_bytes.extend(reached)
         _taken = census_take(aem_first_source, "AEM-first base")
         accepted = assert_resolved_boot_flow(
             _taken["text"], source_model, "AEM-first base",
@@ -17208,10 +17224,12 @@ def test_baremetal_profile_contract() -> None:
             "), accepted the AEM-first base "
             "only with it kept, and refused "
             f"{len(verdict_pin_refused)}/{len(verdict_pin_breaks)} planted "
-            "pin breaks on the verdict, each naming its pins, one of them "
-            "reaching it only at byte(s) "
+            "pin breaks on the verdict, each naming its pins, "
+            f"{len(verdict_interior_bytes)} of them reaching it at one byte "
+            "each, "
             + ", ".join(f"+{offset}" for offset in verdict_interior_bytes) +
-            " of its storage, which measures the census's four-byte range"
+            " of its storage, so a census that stops reading any of those "
+            "bytes no longer refuses the break on it"
             "; a called function writing through any pointer with no "
             "relocation on its storage is outside these pins, whatever the "
             "pointer's origin, such as a literal address, another object's "

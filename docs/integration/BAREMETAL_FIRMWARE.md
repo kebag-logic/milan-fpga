@@ -1008,7 +1008,7 @@ gate 1b is not a memory-safety prover.
 
 Gate 1b builds an AEM-first base from the shipping source, which must pass only
 with the slot kept and must be refused with no pin read. It then plants
-fifteen breaks. Each is refused on the verdict, naming the early diagnostic
+seventeen breaks. Each is refused on the verdict, naming the early diagnostic
 that sees it, if one does, and every image pin it breaks:
 
 | Planted break, inside `nvm_boot()` unless stated | Pins the refusal must name |
@@ -1025,20 +1025,24 @@ that sees it, if one does, and every image pin it breaks:
 | a `weakref` of `aem_loaded` handed to `sscanf()` | one name, escape |
 | the address held in a data word and handed to `sscanf()` | address (early), escape |
 | an `auipc` with no relocation, its PC-relative address handed to `sscanf()` | AUIPC |
-| a static declared just after the verdict, its address one `int` back plus one byte handed to `sscanf()` with `"%c"` | escape |
+| a static declared just after the verdict, its address one `int` back plus one, two or three bytes handed to `sscanf()` with `"%c"` (three breaks) | escape |
 
 The `alias` and `weakref` breaks passed the round-2 gate, whose pins read the
 compiled unit by name (PR #623 review); only the image sees them. In each
 `sscanf()` break the library makes the write, with no store in the unit, so
 only an address or escape pin refuses it.
 
-The last break names no verdict. The compiler folds its offset into the
-relocation, so its only reference lands on the verdict's second byte, not its
-first. It is the one break that measures the census's four-byte range: a
-census that read only the first byte passed the other fourteen (PR #623 review,
-round 3). Before grading it, gate 1b reads the image's relocation targets
-directly: `nvm_boot()` must place at least one on the verdict's bytes and none
-on the first. The gate prints the byte reached.
+The last three breaks name no verdict. The compiler folds each offset into the
+relocation, so each break's only reference lands on one byte past the
+verdict's first: +1, +2 or +3. So a census that stops reading any of those
+three bytes no longer refuses the break on it. Narrowed censuses passed the
+breaks before these (PR #623 review): one reading only the first byte passed
+all fourteen of round 3, and ones reading only the first two or the first
+three bytes passed all fifteen of round 4. The first byte is where
+`milan_init()`'s one store lands, so a census that stops reading it refuses the
+shipping firmware itself. Before grading each break, gate 1b reads the image's
+relocation targets directly: `nvm_boot()` must place them on that break's byte
+and no other. The gate prints the bytes reached.
 
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
