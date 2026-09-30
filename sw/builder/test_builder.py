@@ -14610,9 +14610,15 @@ def test_baremetal_profile_contract() -> None:
     #: each handing its address to sscanf(). One write is compiled only at
     #: the product's code model (`#ifndef __PIE__`): the census's own
     #: compile is position-independent where the SDK defaults to PIE, so
-    #: only the image's half of the store pin sees it there. The last two
+    #: only the image's half of the store pin sees it there. The next two
     #: plant, one each, the two escapes no C spelling above reaches: the
-    #: address held in a data word, and an AUIPC with no relocation.
+    #: address held in a data word, and an AUIPC with no relocation. The
+    #: last names no verdict at all: a static declared just after it, whose
+    #: address one int back plus one byte the compiler folds into the
+    #: relocation, handed to sscanf(). Its only reference lands on an
+    #: interior byte, so it is the break that measures the census's
+    #: four-byte range ([R412-3] F2); where it lands is read off the image
+    #: before it is graded.
     def aem_first(firmware: str) -> str:
         """`firmware` with milan_init()'s nvm_boot() call moved to just
         after the AEM verifier's call."""
@@ -14637,6 +14643,11 @@ def test_baremetal_profile_contract() -> None:
         return replace_once(base, nvm_boot_open, nvm_boot_open + statement,
                             what)
 
+    verdict_interior_break = in_nvm_boot(
+        "static int milan_verdict_next;\n",
+        "\t(void)sscanf(\"\\001\", \"%c\", "
+        "(char *)(&milan_verdict_next - 1) + 1);\n",
+        "verdict address on an interior byte")
     verdict_pin_breaks = (
         ("a second assignment inside nvm_boot()", (VERDICT_PIN_WRITE,),
          replace_once(aem_first_source, nvm_boot_open,
@@ -14712,9 +14723,37 @@ def test_baremetal_profile_contract() -> None:
                      "\t\t__asm__ volatile(\"auipc %0, 0\" : \"=r\"(pc_p));\n"
                      "\t\t(void)sscanf(\"1\", \"%d\", pc_p);\n\t}\n",
                      "unrelocated AUIPC"), None),
+        ("a neighbour's address folded onto an interior byte of aem_loaded "
+         "and handed to sscanf() inside nvm_boot()", (VERDICT_PIN_ESCAPE,),
+         verdict_interior_break, None),
     )
     verdict_pin_refused = []
+    verdict_interior_bytes = []
     if baseline_census_verdict["ran"]:
+        #: The interior break measures the RANGE only while nvm_boot()'s
+        #: references land inside the verdict's bytes and none on the first,
+        #: which the compiler's layout and folding decide, not this gate.
+        #: Read on the image's relocation targets alone, not through
+        #: rv32_image_references(), whose range is what it tests.
+        _image = verdict_image_take(verdict_interior_break,
+                                    "interior-byte break")
+        _verdict = [symbol for symbol in _image["symbols"]
+                    if symbol["name"] == "aem_loaded" and symbol["defined"]]
+        assert len(_verdict) == 1, \
+            "the interior-byte break's image defines " \
+            f"{len(_verdict)} objects named aem_loaded, not one"
+        verdict_interior_bytes = sorted({
+            target - _verdict[0]["value"]
+            for site, _kind, target in _image["relocations"]
+            if target is not None and
+            0 <= target - _verdict[0]["value"] < _verdict[0]["size"] and
+            rv32_image_where(_image, site) == "nvm_boot()"})
+        assert verdict_interior_bytes and 0 not in verdict_interior_bytes, \
+            "the interior-byte break's references from nvm_boot() land on " \
+            f"byte(s) {verdict_interior_bytes} of aem_loaded's storage, not " \
+            "past its first byte alone, so it does not measure the census's " \
+            "range: milan_verdict_next must follow the verdict, and the " \
+            "compiler must fold the offset into the relocation"
         _taken = census_take(aem_first_source, "AEM-first base")
         accepted = assert_resolved_boot_flow(
             _taken["text"], source_model, "AEM-first base",
@@ -17170,7 +17209,11 @@ def test_baremetal_profile_contract() -> None:
             "), accepted the AEM-first base "
             "only with it kept, and refused "
             f"{len(verdict_pin_refused)}/{len(verdict_pin_breaks)} planted "
-            "pin breaks on the verdict, each naming its pins; two writes "
+            "pin breaks on the verdict, each naming its pins, one of them "
+            "reaching it only at byte(s) "
+            + ", ".join(f"+{offset}" for offset in verdict_interior_bytes) +
+            " of its storage, which measures the census's four-byte range"
+            "; two writes "
             "put no relocation on its storage and are outside these pins: "
             "one through a literal address, and one through another "
             "object's address carried outside that object, such as a "

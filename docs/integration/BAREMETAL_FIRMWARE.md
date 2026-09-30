@@ -999,7 +999,7 @@ them:
 
 Gate 1b builds an AEM-first base from the shipping source, which must pass only
 with the slot kept and must be refused with no pin read. It then plants
-fourteen breaks. Each is refused on the verdict, naming the early diagnostic
+fifteen breaks. Each is refused on the verdict, naming the early diagnostic
 that sees it, if one does, and every image pin it breaks:
 
 | Planted break, inside `nvm_boot()` unless stated | Pins the refusal must name |
@@ -1016,11 +1016,20 @@ that sees it, if one does, and every image pin it breaks:
 | a `weakref` of `aem_loaded` handed to `sscanf()` | one name, escape |
 | the address held in a data word and handed to `sscanf()` | address (early), escape |
 | an `auipc` with no relocation, its PC-relative address handed to `sscanf()` | AUIPC |
+| a static declared just after the verdict, its address one `int` back plus one byte handed to `sscanf()` with `"%c"` | escape |
 
 The `alias` and `weakref` breaks passed the round-2 gate, whose pins read the
 compiled unit by name (PR #623 review); only the image sees them. In each
 `sscanf()` break the library makes the write, with no store in the unit, so
 only an address or escape pin refuses it.
+
+The last break names no verdict. The compiler folds its offset into the
+relocation, so its only reference lands on the verdict's second byte, not its
+first. It is the one break that measures the census's four-byte range: a
+census that read only the first byte passed the other fourteen (PR #623 review,
+round 3). Before grading it, gate 1b reads the image's relocation targets
+directly: `nvm_boot()` must place at least one on the verdict's bytes and none
+on the first. The gate prints the byte reached.
 
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
