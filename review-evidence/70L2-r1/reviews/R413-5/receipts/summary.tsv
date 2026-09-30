@@ -1,0 +1,32 @@
+m_B2TO4	rc=1	GATE-REFUSED: the interior-byte +2 break's references from nvm_boot() land on byte(s) [] of aem_loaded's storage, not on byte +2 alone, so it does not measure that byte: 
+m_B3TO0	rc=1	GATE-REFUSED: the interior-byte +3 break's references from nvm_boot() land on byte(s) [0] of aem_loaded's storage, not on byte +3 alone, so it does not measure that byte:
+m_B3TO1	rc=1	GATE-REFUSED: the interior-byte +3 break's references from nvm_boot() land on byte(s) [1] of aem_loaded's storage, not on byte +3 alone, so it does not measure that byte:
+m_EV	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +1 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_H1	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +1 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_H2	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +2 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_H3	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +3 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_NO2_X2	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=16/16 interior_bytes=[1, 3]
+m_NO3_P3	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=16/16 interior_bytes=[1, 2]
+m_NO3_X3	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=16/16 interior_bytes=[1, 2]
+m_O1	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+m_P1	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +1 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_P2	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +2 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_P3	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +3 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_S1	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+m_X0	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+m_X1	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +1 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_X2	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +2 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+m_X3	rc=1	GATE-REFUSED: the resolver accepted a neighbour's address folded onto byte +3 of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call alt
+p_I2_interior_b2	rc=1	GATE-REFUSED: under the arm selection line 794 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+p_I3_interior_b3	rc=1	GATE-REFUSED: under the arm selection line 794 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+p_L10_unit_callee_ret	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+p_L11_unit_stack_far	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+p_L1_csr_pointer	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L2_frame_runtime	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L3_callee_return	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L4_literal	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L5_before_overrun	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L6_nbr_runtime	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L7_unit_literal	rc=0	STOPPED-AFTER-VERDICT-BREAKS kept=['aem_loaded'] refused=17/17 interior_bytes=[1, 2, 3]
+p_L8_unit_csr_pointer	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
+p_L9_unit_frame_rt	rc=1	GATE-REFUSED: under the arm selection line 793 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of it
