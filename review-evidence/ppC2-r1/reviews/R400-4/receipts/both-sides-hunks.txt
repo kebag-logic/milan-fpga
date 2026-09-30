@@ -1,0 +1,24 @@
+SAME-HUNKS .gitattributes
+SAME-HUNKS .github/workflows/hdl.yml
+DIFFER tb/pp_top/Makefile
+5,6c5,6
+< -.PHONY: name-writes run gsi-build gsi-internal fixture-guards fixture-guards-test clean
+< +.PHONY: name-writes run gsi-build gsi-internal maap-internal fixture-guards fixture-guards-test clean
+---
+> -.PHONY: name-writes run gsi-build gsi-internal adp-config fixture-guards fixture-guards-test clean
+> +.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test clean
+SAME-HUNKS tb/pp_top/README.md
+DIFFER tb/pp_top/sim_main.cpp
+80,83c80,81
+< -  if (!gsi_only && !name_only && !d3_only) Suite(h).run();
+< -  if (!name_only && !d3_only) InternalStreamInfoPhase{h}.run();
+< -  if (!gsi_only && !d3_only) run_name_writes(h);
+< -  if (!gsi_only && !name_only) run_d3(h);
+---
+> -  const bool one_section = gsi_only || name_only || d3_only || adp_only;
+> +  const bool one_section = gsi_only || name_only || d3_only || adp_only || maap_only;
+85,88d82
+< +  if (!gsi_only && !name_only && !d3_only && !maap_only) Suite(h).run();
+< +  if (!name_only && !d3_only && !maap_only) InternalStreamInfoPhase{h}.run();
+< +  if (!gsi_only && !d3_only && !maap_only) run_name_writes(h);
+< +  if (!gsi_only && !name_only && !maap_only) run_d3(h);

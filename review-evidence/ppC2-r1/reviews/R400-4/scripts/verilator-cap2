@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+VERILATOR_CAP=2 exec "$(dirname "$(readlink -f "$0")")/verilator-capN" "$@"

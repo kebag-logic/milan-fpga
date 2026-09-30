@@ -1,0 +1,23 @@
+control maap run: rc=0 tally=(196, 0) PASS
+fit-compare-forced-true [maap]: rc=2 tally=(196, 5) named=4 KILLED
+    FAIL: U17: draws 0xfdff and 0xfd02 overhang the pool and are redrawn (1 draws, want 3)
+    FAIL: U17: the claim is the first fitting draw, got 91e0f000fdff
+    FAIL: U17: the probed block ends at or below 91:E0:F0:00:FD:FF (ends 91e0f000fefd)
+fit-compare-off-by-one [maap]: rc=2 tally=(195, 7) named=3 KILLED
+    FAIL: U17: the widest block is probed
+    FAIL: U17: draws 0xfdff and 0xfd02 overhang the pool and are redrawn (1745 draws, want 3)
+    FAIL: U17: the claim is the first fitting draw, got 91e0f000985f
+seed-clamp-removed [maap]: rc=2 tally=(196, 6) named=4 KILLED
+    FAIL: U18: the seed is clamped to offset 0xfdf8, got 91e0f000ffff
+    FAIL: U18: PROBE byte-exact at the clamped offset
+    FAIL: U18: the clamped block is claimed
+release-keeps-draw-mark [maap]: rc=2 tally=(194, 9) named=3 KILLED
+    FAIL: U17b: phase 1, the walk restarts after a Release! mid-redraw
+    FAIL: U17b: phase 2, the walk restarts after a Release! mid-redraw
+    FAIL: U17b: phase 3, the walk restarts after a Release! mid-redraw
+5 checks: 5 PASS, 0 FAIL
+
+real	0m37.058s
+user	0m54.962s
+sys	0m1.718s
+rc=0

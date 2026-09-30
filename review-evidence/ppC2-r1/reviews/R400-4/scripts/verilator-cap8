@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Wrapper: run the host Verilator with every "-j 0" (all cores) rewritten to "-j 8".
+real=${REAL_VERILATOR:-/usr/bin/verilator}
+args=(); prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=8; fi
+  args+=("$a"); prev="$a"
+done
+exec "$real" "${args[@]}"

@@ -1,0 +1,71 @@
+### ./scripts/lint_hdl.sh
+LINT OK  KL_srp_top
+LINT OK  KL_srp_vlan
+LINT OK  KL_mrp_strip
+LINT OK  protocol_processor_top
+rc=0
+### make check
+links: 981 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (94 rows, 0 untested)
+parameters: top 26, guide 26, diagram 26, OK
+rc=0
+### python3 scripts/gen_matrix.py --check
+matrix: OK (94 rows, 0 untested)
+rc=0
+### git diff --check c951a9ff 47afa74d
+rc=0
+### git diff --check 921fff59 47afa74d
+rc=0
+### git diff --check b2db3a97 47afa74d
+rc=0
+### git diff --check 0451d83d 47afa74d
+rc=0
+### make -C tb/pp_top maap-internal
+- Verilator: Walltime 0.011 s (elab=0.000, cvt=0.000, bld=0.010); cpu 0.001 s on 8 threads; allocated 6.066 MB
+./obj_dir/Vpp_top_sim --maap-internal-only
+[build default, SRP_DOM_DEF_VID_P 0x0002] 34 checks, 0 failures
+make: Leaving directory '$REVIEWS/ppC2-r400-4-packet/scratch/tree/tb/pp_top'
+rc=0
+### make -C tb/pp_top adp-config
+./obj_dir/Vpp_top_sim --adp-only
+AD: 55 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 55 checks, 0 failures
+make: Leaving directory '$REVIEWS/ppC2-r400-4-packet/scratch/tree/tb/pp_top'
+rc=0
+### make -C tb/pp_top gsi-internal
+./obj_dir/Vpp_top_sim --gsi-internal-only
+GI latency walks added: 5568 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 6182 checks, 0 failures
+make: Leaving directory '$REVIEWS/ppC2-r400-4-packet/scratch/tree/tb/pp_top'
+rc=0
+### make -C tb/pp_top name-writes
+./obj_dir/Vpp_top_sim --name-writes-only
+NW: 85 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 85 checks, 0 failures
+make: Leaving directory '$REVIEWS/ppC2-r400-4-packet/scratch/tree/tb/pp_top'
+rc=0
+### tb/pp_top/obj_dir/Vpp_top_sim --d3-only
+FAIL: D3R18: once the device ends the drained READ the port is idle (1), and a later SET persists (0 WRITEs, the port busy 0 of 100000 clocks, unflushed 0)
+D3: 133 checks, 55 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 133 checks, 55 failures
+FAIL: this build's tally cannot be recorded for the Makefile
+rc=1
+### tb/pp_top/obj_dir/Vpp_top_sim --dr3a
+DR3a descriptor memory silent                       release     122  terminal     8188  CLOSED   cause 7  longest wait: binding     12 D3   8063  longest D3 record op    0
+DR3a every grant 200 inside the per-wait deadline   release  158530  terminal  1000000  DEFAULTS cause 3  longest wait: binding  19813 D3  19812  longest D3 record op 39633
+DR3a every READ byte just inside the per-wait deadline release 1000002  terminal  1000004  DEFAULTS cause 3  longest wait: binding  19002 D3      0  longest D3 record op    0
+DR2a one SET_STREAM_INFO: pending 0 cycles, acceptance to the window's done (0 ticks of this bench's 100-cycle ms)
+rc=0
+### NOTE: the two direct-binary rows above ran from the repo root (wrong cwd: the binary opens obj_dir/ and the ROM hex files relative to its cwd); rerun below from tb/pp_top
+### (cd tb/pp_top) ./obj_dir/Vpp_top_sim --d3-only
+0
+D3: 133 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 133 checks, 0 failures
+rc=0
+### (cd tb/pp_top) ./obj_dir/Vpp_top_sim --dr3a
+0
+DR3a every grant 200 inside the per-wait deadline   release  158530  terminal  1000000  DEFAULTS cause 3  longest wait: binding  19813 D3  19812  longest D3 record op 39633
+DR3a every READ byte just inside the per-wait deadline release 1000002  terminal  1000004  DEFAULTS cause 3  longest wait: binding  19002 D3      0  longest D3 record op    0
+DR2a one SET_STREAM_INFO: pending 50028 cycles, acceptance to the window's done (500 ticks of this bench's 100-cycle ms)
+rc=0
