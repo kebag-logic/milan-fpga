@@ -1,0 +1,130 @@
+47afa74d5cb7cf67ec1f606a0b8ea05fda3e3346 921fff59d6e1243284e477f7a368173018420d35 0451d83d9d3f2ed5f4513c59ac5ac219ad9dd7ff
+
+diff --git a/.gitattributes b/.gitattributes
+remerge CONFLICT (content): Merge conflict in .gitattributes
+index 5ee65df..06e1c1e 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -1,7 +1,4 @@
+ # Unified-diff context preserves blank source lines as a single space.
+ tb/srp_top/mutations/*.patch whitespace=-blank-at-eol,-blank-at-eof
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
+ tb/maap/mutations/*.patch whitespace=-blank-at-eol,-blank-at-eof
+-=======
+ tb/adp_engine/mutations/*.patch whitespace=-blank-at-eol,-blank-at-eof
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
+diff --git a/.github/workflows/hdl.yml b/.github/workflows/hdl.yml
+remerge CONFLICT (content): Merge conflict in .github/workflows/hdl.yml
+index 9124676..3661809 100644
+--- a/.github/workflows/hdl.yml
++++ b/.github/workflows/hdl.yml
+@@ -56,17 +56,14 @@ jobs:
+         run: |
+           export PATH="$HOME/verilator/bin:$PATH"
+           make -C tb/srp_top mutants
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
+       - name: MAAP mutation campaign
+         run: |
+           export PATH="$HOME/verilator/bin:$PATH"
+           make -C tb/maap mutants
+-=======
+       - name: ADP mutation campaign
+         run: |
+           export PATH="$HOME/verilator/bin:$PATH"
+           make -C tb/adp_engine mutants
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
+       - name: Traceability matrix no-drift + untested budget 0
+         run: python3 scripts/gen_matrix.py --check
+ 
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+remerge CONFLICT (content): Merge conflict in tb/pp_top/Makefile
+index 4091a17..1ccfcc6 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -65,14 +65,12 @@ name-writes: gsi-build
+ gsi-internal: gsi-build
+ 	./obj_dir/Vpp_top_sim --gsi-internal-only
+ 
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
+ # the MP section alone (the tb/maap mutation campaign's pp_top arms)
+ maap-internal: gsi-build
+ 	./obj_dir/Vpp_top_sim --maap-internal-only
+-=======
++
+ adp-config: gsi-build
+ 	./obj_dir/Vpp_top_sim --adp-only
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
+ 
+ run: fixture-guards ltn_rom.hex ucode.hex
+ 	@rm -f obj_dir/build_tally.txt
+@@ -103,8 +101,4 @@ ucode.hex: $(HDL)/aecp/ucode/gen_ucode.py
+ clean:
+ 	rm -rf obj_dir obj_vid ltn_rom.hex ucode.hex
+ 
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
+-.PHONY: name-writes run gsi-build gsi-internal maap-internal fixture-guards fixture-guards-test clean
+-=======
+-.PHONY: name-writes run gsi-build gsi-internal adp-config fixture-guards fixture-guards-test clean
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
++.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test clean
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+remerge CONFLICT (content): Merge conflict in tb/pp_top/sim_main.cpp
+index 175304c..dd0fed9 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -10045,14 +10045,14 @@ struct NameWritePhase {
+   printf("NW: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
+ //! the MP section alone, for the MAAP mutation campaign (tb/maap README):
+ //! its second model needs only the descriptor image the main harness loads
+ [[maybe_unused]] static void run_maap_internal(H& h) {
+   Suite setup(h);
+   setup.load_descriptor_image();
+   InternalMaapPhase{h}.run();
+-=======
++}
++
+ // ==== AD. The ADPDU across SET_CONFIGURATION (issue #40) =================
+ // REQ-ADP-005 (Milan §5.6.2 note) with IEEE §6.2.2.18: every ADPDU field is
+ // independent of the current Configuration except current_configuration_index,
+@@ -10394,7 +10394,6 @@ struct AdpConfigPhase {
+   const int fails0 = h.fails;
+   AdpConfigPhase{h}.run();
+   printf("AD: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
+ }
+ 
+ int main(int argc, char** argv) {
+@@ -10413,29 +10412,19 @@ int main(int argc, char** argv) {
+   const bool gsi_only = argc == 2 && std::strcmp(argv[1], "--gsi-internal-only") == 0;
+   const bool name_only = argc == 2 && std::strcmp(argv[1], "--name-writes-only") == 0;
+   const bool d3_only = argc == 2 && std::strcmp(argv[1], "--d3-only") == 0;
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
+   const bool maap_only = argc == 2 && std::strcmp(argv[1], "--maap-internal-only") == 0;
+-=======
+   const bool adp_only = argc == 2 && std::strcmp(argv[1], "--adp-only") == 0;
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
+   if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+     run_dr3a(h);
+     return 0;
+   }
+-<<<<<<< 921fff5 (Say no new TX slot request after a MAAP Release!, since a request already pending is retried until granted, in U28, U23 and the tb/maap README (#66))
++  const bool one_section = gsi_only || name_only || d3_only || adp_only || maap_only;
+   if (maap_only) run_maap_internal(h);
+-  if (!gsi_only && !name_only && !d3_only && !maap_only) Suite(h).run();
+-  if (!name_only && !d3_only && !maap_only) InternalStreamInfoPhase{h}.run();
+-  if (!gsi_only && !d3_only && !maap_only) run_name_writes(h);
+-  if (!gsi_only && !name_only && !maap_only) run_d3(h);
+-=======
+-  const bool one_section = gsi_only || name_only || d3_only || adp_only;
+   if (!one_section) Suite(h).run();
+   if (!one_section || gsi_only) InternalStreamInfoPhase{h}.run();
+   if (!one_section || name_only) run_name_writes(h);
+   if (!one_section || d3_only) run_d3(h);
+   if (!one_section || adp_only) run_adp_config(h);
+->>>>>>> 0451d83 (Merge pull request #136 from Mister-M-alt/c3-adp-coverage)
+   const char* const build = "default";
+ #endif
+   //! NOT the canonical tally shape: this binary is ONE of the suite's two

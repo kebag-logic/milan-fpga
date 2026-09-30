@@ -1,0 +1,23 @@
+Parent consumer set, the manager's sixteen commands, in its order, from the scratch parent root
+($VALIDATION_STORAGE/ppC2-a459/parent: milan-fpga dev ccdd07b5, gitlink 47afa74d, the combined #132 + C1 adaptation).
+Commands 6 and 15 ran detached with the rc written by the wrapping shell (6.rc, 15.rc, with start/end epochs);
+every other rc was printed by the foreground shell right after the command. One log per command (N.log).
+
+ 1  python3 scripts/check_cpp_idiom.py                 rc 0
+ 2  python3 scripts/check_py_idiom.py                  rc 0
+ 3  python3 scripts/xvlog_gate.py --check              rc 0
+ 4  python3 scripts/check_rtl_source_lists.py          rc 0
+ 5  python3 scripts/pp_srcs.py --check --selftest      rc 0
+ 6  python3 sw/builder/test_builder.py                 rc 0   (6.rc; 968 s)
+ 7  make -C tb/verilator/pp_shadow -j8                 rc 0   (log over 200 KB: 7-extract.txt)
+ 8  python3 scripts/check_port_contracts.py            rc 0
+ 9  python3 scripts/measure_naming.py --check          rc 0
+10  python3 scripts/measure_test_evidence.py --check   rc 0
+11  python3 scripts/docs_check.py                      rc 0
+12  python3 scripts/lint_rtl.py --check                rc 0
+13  make -C tb/verilator/nvm_cosim lint                rc 0
+14  make -C tb/verilator/nvm_cosim quick               rc 0
+15  make -C tb/verilator/milan_dp -j8                  rc 0   (15.rc; 1495 s; log over 200 KB: 15-extract.txt)
+16  make -C tb/verilator/milan_dp_render -j8           rc 0
+
+16 of 16 rc 0.

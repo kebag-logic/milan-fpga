@@ -1,0 +1,34 @@
+Scratch parent: $VALIDATION_STORAGE/ppC2-a459/parent
+Source: git archive of the trusted read-only checkout $LANES/trusted-dev-20260930-ccdd07b5 at milan-fpga dev ccdd07b52bbbbfe6be9d8f5317e673a6907c375d
+Scratch repository commits:
+  f069039df93f4d6004a85537eb9a14504688c659 scratch: the manager's combined #132 + C1 parent adaptation (parent-adaptation-132-c1.patch)
+  140950e4e77a54e0fb73faf2abb0c804b35dece3 scratch: milan-fpga dev ccdd07b5 export, protocol-processor gitlink at 47afa74
+Tree check (git ls-tree -r of the scratch export commit against ccdd07b5): the only differing entry
+  378c378
+  < 160000 commit c951a9ff0cb5851fb159d33e966e5a2a9a188fe3	protocol-processor
+  ---
+  > 160000 commit 47afa74d5cb7cf67ec1f606a0b8ea05fda3e3346	protocol-processor
+Submodules (git submodule status, after git submodule init of the three cloned paths):
+  -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+   5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+   47afa74d5cb7cf67ec1f606a0b8ea05fda3e3346 protocol-processor (v2.0-352-g47afa74)
+   48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+  protocol-processor: a clone of the lane at 47afa74d5cb7cf67ec1f606a0b8ea05fda3e3346 (0 untracked or modified entries after the gates)
+  gptp-processor, third_party/verilog-axis: public clones at their pins; external: not initialised (SSH-only, read by no gate)
+Adaptation: parent-adaptation-132-c1.patch (sha256 2ba6680373831206006933dddf7c97615f4870526c476a5b371b995702ddc420, 18135 bytes; byte-identical to round 3's), git apply --check then git apply; files:
+   hdl/milan/KL_pp_shadow.sv                        | 15 +++++++++-
+   scripts/measure_test_evidence.py                 |  4 +++
+   tb/verilator/milan_dp/sim_aclk.cpp               | 11 ++++++--
+   tb/verilator/milan_dp/sim_ax1x1gptp.cpp          | 10 +++++++
+   tb/verilator/milan_dp/sim_crf_licence.cpp        |  4 +--
+   tb/verilator/milan_dp/sim_gmstep.cpp             |  3 ++
+   tb/verilator/milan_dp/sim_gptp.cpp               |  3 ++
+   tb/verilator/milan_dp/sim_main.cpp               | 11 ++++++--
+   tb/verilator/milan_dp/sim_nxn.cpp                | 35 +++++++++++++++++++++---
+   tb/verilator/milan_dp_render/sim_tdm8_render.cpp |  3 ++
+   tb/verilator/nvm_cosim/cosim_cases.cpp           |  2 +-
+   tb/verilator/nvm_cosim/cosim_top.sv              |  9 ++++--
+   tb/verilator/pp_shadow/sim_main.cpp              | 13 ++++++++-
+   13 files changed, 108 insertions(+), 15 deletions(-)
+No other parent edit (C3 adds none).
+Trusted checkout after the run: HEAD ccdd07b52bbbbfe6be9d8f5317e673a6907c375d; git status --porcelain entries: 0

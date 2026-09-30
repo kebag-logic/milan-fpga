@@ -1,0 +1,64 @@
+Extract of 15.log (make -C tb/verilator/milan_dp -j8; the full log is over 200 KB, see OVERSIZE.txt)
+rc: 0
+1267:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_gptplat'
+1271:./obj_gptplat/Vmilan_dp_gptplat
+1278:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_gmstep'
+1282:./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+1287:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_gptp'
+1291:./obj_gptp/Vmilan_dp_gptp
+1437:== gmstep: checks: 103   failures: 0 ==
+1438:RESULT: PASS
+1446:181 checks: 181 PASS, 0 FAIL
+1454:181 checks: 181 PASS, 0 FAIL
+1860:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_dir'
+2301:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_nxn'
+2742:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_nxndv'
+3186:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_nxn8'
+3629:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_nxn4c'
+4038:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_nolpf'
+4447:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_prune'
+4857:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_ax1x1'
+5267:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_aclk'
+5678:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_notify'
+6088:make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp/obj_crflic'
+6092:./obj_dir/Vmilan_dp_sim
+6363:milan_datapath: 234 checks, 0 failures
+6366:./obj_notify/Vmilan_dp_notify
+6758:checks: 378   failures: 0
+6759:RESULT: PASS
+6761:./obj_crflic/Vmilan_dp_crflic
+6849:  [i]    3 DUT and 3 switch LeaveAll MRPDUs in this phase
+6850:  [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+7318:checks: 415   failures: 0
+7319:RESULT: PASS
+7320:./obj_nxn/Vmilan_dp_nxn
+9256:checks: 1841   failures: 0
+9257:RESULT: PASS
+9259:./obj_nxndv/Vmilan_dp_nxndv
+11197:checks: 1843   failures: 0
+11198:RESULT: PASS
+11199:./obj_nxn8/Vmilan_dp_nxn8
+14940:checks: 3521   failures: 0
+14941:RESULT: PASS
+14943:./obj_nxn4c/Vmilan_dp_nxn4c
+16879:checks: 1841   failures: 0
+16880:RESULT: PASS
+16882:./obj_nolpf/Vmilan_dp_nolpf
+17153:milan_datapath: 234 checks, 0 failures
+17156:./obj_prune/Vmilan_dp_prune
+17201:checks: 33   failures: 0
+17202:RESULT: PASS
+17204:./obj_ax1x1/Vmilan_dp_ax1x1
+17478:milan_datapath: 231 checks, 0 failures
+17481:./obj_aclk/Vmilan_dp_aclk
+17740:media_aclk: 190 checks, 0 failures
+17741:RESULT: PASS
+17774:6 checks: 6 PASS, 0 FAIL
+17778:[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+17780:[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+17782:[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+17784:[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+17786:[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+17789:6 checks: 6 PASS, 0 FAIL
+17790:make: Leaving directory '$VALIDATION_STORAGE/ppC2-a459/parent/tb/verilator/milan_dp'
+AECP-WTMO lines: 30, all '[ok]'

@@ -1,0 +1,28 @@
+Processor gates at the merged head 47afa74d (tree 329ff52a). Unless noted, run in a git-archive export of the
+head ($VALIDATION_STORAGE/ppC2-a459/head) with the capping wrapper first on PATH, one heavy job at a time.
+Detached runs wrote rc/start/end files; other rcs were printed by the foreground shell.
+
+./scripts/run_suites.sh                       rc 0  33 suites, 1,017,348 checks, 0 failing (run_suites.rc; 683 s)
+./scripts/lint_hdl.sh                         rc 0  41 LINT OK
+python3 scripts/gen_matrix.py --check         rc 0  94 rows, 0 untested
+make check (in the lane, clean worktree)      rc 0  mermaid 41 + wavedrom 18, links 981, matrix 115 REQ / 17 GAP, modmatrix 94, params 26/26/26
+git diff --check <base> 47afa74d              rc 0 for c951a9ff, 921fff59, b2db3a97, 0451d83d
+make -C tb/maap mutants                       rc 0  32/32: 3 controls PASS, 29 of 29 KILLED (maap-mutants.rc; 250 s)
+make -C tb/adp_engine mutants                 rc 0  32/32: 2 controls PASS, 30 of 30 KILLED (adp-mutants.rc)
+make -C tb/srp_top mutants                    rc 0  90/90: 11 controls, 78 KILLED, coverage 65/65 (srp-mutants.rc; 1768 s)
+python3 tb/pp_top/d3_mutants.py --jobs 1      rc 0  83 of 83 KILLED, goldens PASS (d3-mutants.rc; 4938 s)
+python3 tb/pp_top/gsi_mutants.py              rc 0  20 detected, golden and restored PASS (gsi-mutants.rc)
+python3 tb/pp_top/name_wr_mutant.py           rc 0  decode killed, golden and restored PASS
+make -C tb/nvm_port figures                   rc 0  in the lane (it reads old revisions through git); "all measured figures agree with the tree"
+                                                    (a first attempt in the export failed only its git-form pins, "cannot read dc354be~1": no repository there;
+                                                    every measured figure agreed; the lane run left tb/nvm_port/__pycache__, created 14:37:38, removed)
+./syn/yosys/run.sh                            rc 0  36 YOSYS OK, KL_aecp_engine YOSYS XILINX OK
+make -C tb/pp_top maap-internal               rc 0  34 checks, 0 failures
+make -C tb/pp_top adp-config                  rc 0  55 checks, 0 failures
+make -C tb/pp_top gsi-internal                rc 0  6,182 checks, 0 failures
+make -C tb/pp_top name-writes                 rc 0  85 checks, 0 failures
+tb/pp_top: ./obj_dir/Vpp_top_sim --d3-only    rc 0  133 checks, 0 failures (from tb/pp_top; a first run from the export root found neither
+                                                    its relative ucode.hex/ltn_rom.hex nor obj_dir/build_tally.txt: 55 of 133 failing, rc 1)
+tb/pp_top: ./obj_dir/Vpp_top_sim --dr3a       rc 0  measurements only
+Informational: C3's gate-enable-dropped patch, full default pp_top run at the merged tree: rc 2, 4 of 7,929 failing
+(AD0 x2, AD1b, D3R14), MP green (gate-enable-dropped-pp_top-run.log)
