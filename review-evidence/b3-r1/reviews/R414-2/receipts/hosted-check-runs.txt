@@ -1,0 +1,22 @@
+hosted check runs at a66996aae46bc4a3eb2d8a4822d12d5186aa04eb, read 2026-09-30T05:31:06Z
+  conclusion none: 1
+  conclusion skipped: 7
+  conclusion success: 7
+executed (success/failure):
+  bdd-conformance | completed | success
+  changes | completed | success
+  docs-check | in_progress | none
+  docs-check-no-git | completed | success
+  elaborate | completed | success
+  full-ci-gate | completed | success
+  rtl-fast | completed | success
+  wire-accountability | completed | success
+skipped (not evidence):
+  Physical gPTP (nightly and manual)
+  verilator-lint
+  Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+  verilator-suites
+  yosys-elaboration
+  yosys-portability
+  Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
+re-read 2026-09-30T05:34:06Z: docs-check	in_progress	none

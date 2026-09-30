@@ -1,0 +1,10 @@
+script scripts/mcasp_rx_rate.py sha256 8e242c6730626d4d4e3515051b6ab0d4daf6ba26113f262a6780e0b3a573d173 (round-1 reviewer script, byte-identical to review-evidence/b3-r1/reviews/R414-1/scripts/mcasp_rx_rate.py)
+inputs: review-evidence/b3-r1/author/runs/usb-long*/soc-status-{before,after}.log at c721867b
+6af54c6f35adb241ad256487a6d19693c427c91384dd8a009f64ffbbdffe3a6d  runs/usb-long/soc-status-before.log
+7aff5400d827c70defb04f8636f7c210cc91245c5b82c16af71f62c81c62e3c1  runs/usb-long/soc-status-after.log
+3a66c675e369e2d8ff3b2f01fae04b00ec87c1519d78fcc0ead2d2787ef2f9c9  runs/usb-long2/soc-status-before.log
+634c963cacf52bfa5289101bc833bb6df003b4c63f800a5fb93440ac3e93bbea  runs/usb-long2/soc-status-after.log
+runs/usb-long/soc-status-before.log -> runs/usb-long/soc-status-after.log: interval 75.78 s, rx periods 18942, rate 249.96 periods/s (47992 frames/s), level (restart) delta 5
+runs/usb-long2/soc-status-before.log -> runs/usb-long2/soc-status-after.log: interval 75.83 s, rx periods 18957, rate 249.99 periods/s (47999 frames/s), level (restart) delta 5
+rc=0
+page 451_USB_AUDIO_CAPTURE.md:126-133 at a66996aa states: 250.0 periods/s; 18,942 and 18,957 periods; 75.78 s and 75.83 s; 47,992 and 47,999 frames/s

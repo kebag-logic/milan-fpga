@@ -1,0 +1,23 @@
+evidence c721867b7ec772b0bfc928962979f3b32c4bb0d8 review-evidence/b3-r1
+OK S1 region bounds: first 45588 last 3405623 frames 3360036
+OK S1 outside frames: 4551624 - 3360036 = 1191588
+OK S1 outside words sum: {'ffffff00': 9526486, 'other': 1, 'zero': 6217} sum 9532704 = 1191588 x 8
+OK S1 the one 'other' word is frame 45,587's and is not a pattern word: ['0xfffff000']
+OK S1 zero words = frame 45,587's + 776 all-zero + 3: 6217 vs 6217; frames_after_region_before_idle 777
+OK S1 no pattern word outside the region: census classes are only ffffff00, zero and the one non-pattern other
+OK S1 torn counts: 0 whole recording, 0 region
+OK S3 PP_STAT delta is bit 11 only: 5b000444 -> 5b000c44
+OK S3 PP_NVM_STAT delta is bit 22 only: c30000e4 -> c34000e4
+OK S3 console pend matches both bits: pend 0 -> 1
+OK S3 end state: {'backed': '1', 'dirty': '0', 'stale': '0', 'pend': '1', 'verdict': 'VD_OK'}
+OK S3 commits and slots: commits 0 -> 6, seq ('229', '230') -> ('235', '236')
+OK S4 frame and file: frame 1632 sha 7995b44a prev silent
+OK S4 tags in slot order, one ordinal: ordinal 6ec8
+OK S4 low bytes rise 0x20 .. 0xc0: 20 38 50 68 78 90 a8 c0
+0 failure(s)
+rc=0
+--- negative control: copy with PP_STAT bit 11 cleared at end and frame 1,632 word 0 ordinal changed (FAILs and rc 1 expected)
+checker rc=1
+FAIL S3 PP_STAT delta is bit 11 only: 5b000444 -> 5b000444
+FAIL S4 tags in slot order, one ordinal: ordinal 6ec9
+2 failure(s)
