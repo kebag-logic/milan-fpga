@@ -1,0 +1,26 @@
+[A460] REVIEW READY
+Commit: `5b4a47e99f5a453832ccabccfbf4aae116d6fea0` (branch `70-lane2-pin-d352`, local only, tree `4da3a434`; 28 commits on dev `79c36963`, two this round on `0a80abcb`: `fa1d6e03` and `5b4a47e9`; processor pin `b2db3a97`, unchanged).
+
+Changed, under the [round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5909983141):
+1. **R412-3 F1, `fa1d6e03`: the bounded claim, and both limits named.** "nothing writes the verdict but that one store" is gone. In its place: of the writes that reach `aem_loaded` through a relocation on its four bytes, `milan_init()`'s one store is the only one. This is in the rule comment (`sw/builder/test_builder.py:1632-1676`), the `verdict_image_pins()` docstring (`:6899-6933`), the gate's closing line, `docs/integration/BAREMETAL_FIRMWARE.md:935-998` and its refusal row (`:1638`), the CHANGELOG and the PR body. Two limits are stated, not closed:
+   - a literal address;
+   - another object's address carried outside that object: a pointer formed from a neighbouring static's relocation and carried past its end or before its start. A called function writing through it is not seen, since a call's arguments are recorded and not judged. Examples are `sscanf("%s")` overrunning a four-byte static declared just before the verdict, and `&neighbour + k` with `k` known only at run time. Neither is a store the unit itself makes through it at an offset the resolver places on the neighbour.
+
+   A folded offset is refused by address, and a run-time offset stored in the unit by rule 1b. The page cites the standing callee limit and says gate 1b is not a memory-safety prover.
+2. **R412-3 F2, `5b4a47e9`: a break on an interior byte.** The fifteenth planted break names no verdict. It declares `static int milan_verdict_next;` just after the verdict and hands `sscanf("%c")` the address `(char *)(&milan_verdict_next - 1) + 1`. The compiler folds that to one relocation on the verdict's second byte, and the break is refused on the escape pin: "the linked image forms the full address of aem_loaded's storage (the full address formed in a register (%lo on an addi) ... in nvm_boot() (R_RISCV_LO12_I))". Before grading, the gate reads the image's relocation targets directly and requires the break to land past the first byte; the closing line prints `+1`.
+
+No firmware, RTL, bitstream, CI or processor change. The round's diff touches `CHANGELOG.md`, `BAREMETAL_FIRMWARE.md` and `test_builder.py` only.
+
+Validation at `5b4a47e9`, clean tree, physical path, never piped, every gate rc 0:
+- Builder bank with the RV32 compiler required (`--require-elaboration --require-rv32`, 1,043 s). Gate 1b "refused 15/15 planted pin breaks on the verdict, each naming its pins, one of them reaching it only at byte(s) +1 of its storage", then names both limits. It ends "ALL GATES PASS EXCEPT 1 NOT RUN" (gate 11's calibration tree, as before).
+- The same bank with every cross-compiler candidate hidden (668 s): "EXCEPT 2 NOT RUN" (gate 1b's compiled census by design, and gate 11), then "FULL BUILDER ABSENT PASS".
+- R412-3's `census_mutants_run.sh`, its scripts unchanged: M1 to M9 all killed. M9, which survived at `0a80abcb`, is killed by "the resolver accepted a neighbour's address folded onto an interior byte of aem_loaded".
+- R412-3's `probe_all.sh`, early mode: all 25 probes give its round-3 outcomes. The head is accepted with `kept=['aem_loaded']`, `nbr_byte_sscanf` and `nbr_before_sscanf` are refused on escape alone, and every write, alias, weakref and address spelling is refused as before. Whole-gate mode: the unplanted head passes `GATE1B PASS` with the slot kept.
+- The docs gates (the six Markdown gates in the pinned environment) and the firmware digest: `sw/firmware` is unchanged since `597dba85`, `943a3dac` and `0a80abcb`, and `a73ecc25...0eb3` equals the capture receipt's.
+- Supporting: `check_nvm_capture`, the `fw_service_budget` self-test (52 checks), R412-3's grader mutants, the Python idiom ratchets, the evidence classifier and `git diff --check`.
+
+Acceptance criteria, met:
+- F1: R412-3's `nbr_runtime_sscanf` and `pre_overrun_sscanf` stay accepted with the slot kept, early and through the whole gate 1b, and match the second limit's words. One is a pointer to a neighbouring static carried before its start by a run-time offset, the other one carried past its end by the callee, and a called function writes through each.
+- F2: the interior-byte break is refused naming the escape pin, so M9 is killed. M1 to M8 stay killed, and the shipping head passes with the slot kept. Two mutants of the break show its layout check can fail: moved onto the neighbour it is refused on "byte(s) []", and moved onto the verdict's first byte on "byte(s) [0]".
+
+Open risks/questions: one, disclosed rather than new. Two probes of this round's own are accepted with the slot kept: the unit storing through a local pointer to a neighbour, one `int` before it or one byte past a four-byte array before the verdict. That is the standing model's "a store placed on another static stays in it" clause. So the second limit names the unit's own store as well as a callee's, under the ruling's rationale (the memory-safety class). Recording both limits on #495 is the manager's.

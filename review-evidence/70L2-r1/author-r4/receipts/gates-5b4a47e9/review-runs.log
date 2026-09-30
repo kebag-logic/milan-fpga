@@ -1,0 +1,41 @@
+early base: ACCEPTED, kept=['aem_loaded']
+early nbr_after_sscanf: ACCEPTED, kept=['aem_loaded']
+early arr_overrun_sscanf: ACCEPTED, kept=['aem_loaded']
+early nbr_runtime_sscanf: ACCEPTED, kept=['aem_loaded']
+early pre_overrun_sscanf: ACCEPTED, kept=['aem_loaded']
+early plain_write: REFUSED, naming aem_loaded must contain only the image verifier'
+early bcp_write: REFUSED, naming aem_loaded must contain only the image verifier'
+early pie_write: REFUSED, naming aem_loaded must contain only the image verifier'
+early optimize_write: REFUSED, naming aem_loaded must contain only the image verifier'
+early block_extern_sscanf: REFUSED, naming the address of aem_loaded must not be taken
+early nbr_runtime_store: REFUSED, naming a STORE this gate cannot PLACE
+early nbr_memset: REFUSED, naming identity-sample absence rule
+early splice_write: REFUSED, naming a store lands on aem_loaded's storage other than
+early paste_write: REFUSED, naming a store lands on aem_loaded's storage other than
+early m_macro_set: REFUSED, naming a store lands on aem_loaded's storage other than
+early m_macro_addr: REFUSED, naming a store lands on aem_loaded's storage other than; the address of aem_loaded is taken
+early alias_write: REFUSED, naming a store lands on aem_loaded's storage other than; another symbol of the linked image is on aem_loa
+early static_alias_write: REFUSED, naming a store lands on aem_loaded's storage other than; another symbol of the linked image is on aem_loa
+early alias_sscanf: REFUSED, naming the linked image forms the full address of aem_l; another symbol of the linked image is on aem_loa
+early weakref_sscanf: REFUSED, naming the linked image forms the full address of aem_l; another symbol of the linked image is on aem_loa
+early static_alias_sscanf: REFUSED, naming the linked image forms the full address of aem_l; another symbol of the linked image is on aem_loa
+early alias_decl_only: REFUSED, naming another symbol of the linked image is on aem_loa
+early m_macro_addr_sscanf: REFUSED, naming the linked image forms the full address of aem_l; the address of aem_loaded is taken
+early nbr_before_sscanf: REFUSED, naming the linked image forms the full address of aem_l
+early nbr_byte_sscanf: REFUSED, naming the linked image forms the full address of aem_l
+early (this round) unit_under_store: ACCEPTED, kept=['aem_loaded']
+early (this round) unit_over_store: ACCEPTED, kept=['aem_loaded']
+early (this round) interior_const: REFUSED, naming the linked image forms the full address of aem_l
+full base: GATE1B PASS, slot kept
+full nbr_runtime_sscanf: GATE1B PASS, slot kept
+full pre_overrun_sscanf: GATE1B PASS, slot kept
+mutant M1_no_escape: KILLED: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["the linked image forms the full address of aem_loaded's storage"]: the c
+mutant M2_no_name: KILLED: the resolver refused a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() (alias_sscanf) without naming the broken pin(s) ["another symbol of the linked image is on aem_loade
+mutant M3_no_local: KILLED: the resolver refused aem_loaded given external linkage without naming the broken pin(s) ['aem_loaded is not a local object of the linked image']: the compiled aem_loaded given external
+mutant M4_no_auipc: KILLED: the resolver accepted an AUIPC with no relocation, its PC-relative address handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound i
+mutant M5_no_image_store: KILLED: the resolver accepted a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is 
+mutant M6_no_resolver_store: KILLED: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["a store lands on aem_loaded's storage other than milan_init()'s one stor
+mutant M7_addi_in_place: KILLED: the resolver refused &aem_loaded taken and written through inside nvm_boot() without naming the broken pin(s) ["the linked image forms the full address of aem_loaded's storage"]: the c
+mutant M8_no_image: KILLED: the resolver accepted a second assignment inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+mutant M9_by_name_only: KILLED: the resolver accepted a neighbour's address folded onto an interior byte of aem_loaded and handed to sscanf() inside nvm_boot(): aem_loaded's slot crossed a call although a pin that ma
+REVIEW RUNS AS EXPECTED at 5b4a47e99f5a453832ccabccfbf4aae116d6fea0: 25 review probes and 3 of this round's early, 3 through the whole gate 1b, and census mutants M1-M9 all killed

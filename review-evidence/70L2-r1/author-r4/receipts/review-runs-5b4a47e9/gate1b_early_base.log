@@ -1,0 +1,17 @@
+probe=base head=5b4a47e99f5a453832ccabccfbf4aae116d6fea0
+planted base in $VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/base/sw/firmware/milan_baremetal/milan_baremetal.c
+instrumented $VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/base/sw/builder/test_builder.py
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+R412 gate-1b verdict ran=True kept=['aem_loaded']
+R412 image aem_loaded [('0x158a0', 4, True)]
+R412 image reference milan_init() 0x134e0 R_RISCV_HI20 | the upper part
+R412 image reference milan_init() 0x134e4 R_RISCV_LO12_S | a store in place
+R412 image reference milan_init() 0x134f0 R_RISCV_HI20 | the upper part
+R412 image reference milan_init() 0x134f4 R_RISCV_LO12_I | a load in place
+R412 image reference milan_status_handler() 0x13628 R_RISCV_HI20 | the upper part
+R412 image reference milan_status_handler() 0x1362c R_RISCV_LO12_I | a load in place
+R412 objects within 16 bytes of the verdict: [('0x15898', 4, 'nvm_auth_slot'), ('0x158a0', 4, 'aem_loaded'), ('0x158a4', 4, 'nvm_started'), ('0x158a8', 4, 'nvm_ready'), ('0x158ac', 4, 'nvm_retired'), ('0x158b0', 4, 'nvm_in_commit')]
+R412 nvm_boot() relocations within 8 bytes of the verdict but not on it: [('0x12bd4', 'nvm_boot()', 'R_RISCV_HI20', '0x158a4'), ('0x12bdc', 'nvm_boot()', 'R_RISCV_LO12_S', '0x158a4'), ('0x12d30', 'nvm_boot()', 'R_RISCV_HI20', '0x15898'), ('0x12d38', 'nvm_boot()', 'R_RISCV_LO12_S', '0x15898'), ('0x12e10', 'nvm_boot()', 'R_RISCV_HI20', '0x158a8'), ('0x12e18', 'nvm_boot()', 'R_RISCV_LO12_S', '0x158a8'), ('0x12efc', 'nvm_boot()', 'R_RISCV_HI20', '0x158a8'), ('0x12f04', 'nvm_boot()', 'R_RISCV_LO12_S', '0x158a8')]
+R412 forget-on-call REFUSED: the compiled R412 forget-on-call enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro bod
+rc=0

@@ -1,0 +1,15 @@
+mutant=M5_no_image_store head=5b4a47e99f5a453832ccabccfbf4aae116d6fea0
+mutated M5_no_image_store in $VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/mut_M5_no_image_store/sw/builder/test_builder.py
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/a460-70L2r4/packet/scripts/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/a460-70L2r4/packet/scratch/trees/mut_M5_no_image_store/sw/builder/test_builder.py", line 14788, in test_baremetal_profile_contract
+    raise AssertionError(
+    ...<2 lines>...
+        "is broken")
+AssertionError: the resolver accepted a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: the resolver accepted a write compiled only at the product's code model (`#ifndef __PIE__`) inside nvm_boot(): aem_loaded's slot crossed a call although a pin that makes that sound is broken
+rc=1
