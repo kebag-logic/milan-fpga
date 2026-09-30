@@ -1,0 +1,23 @@
+Verilator: Verilator 5.052 2026-09-05 rev v5.052
+  /usr/bin/verilator sha256 098b09b11ba7d3e904ae13d924a9e8dac8ced5c9d7c9beff3b9d36119a417581
+  verilator_bin sha256 37fbb386c29e7bf2c228b5fbf28d610b4c41682de730ff7d86574c9618407451 13034456 bytes
+Build wrapper (outside the tree and this directory): $VALIDATION_STORAGE/ppC2-a452/bin/verilator
+  sha256 58b08717ac894cc14d6efd2b25f45e4a7ec67b6204c2807acbe560219883fbcf; rewrites '-j 0' to '-j 8', passes everything else to /usr/bin/verilator
+  content:
+    #!/usr/bin/env bash
+    # caps Verilator's --build parallelism at 8 jobs (the lane's memory rule):
+    # "-j 0" (all cores) becomes "-j 8"; everything else passes through
+    args=()
+    prev=""
+    for a in "$@"; do
+      if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=8; fi
+      if [ "$a" = "-j0" ]; then a="-j8"; fi
+      args+=("$a"); prev="$a"
+    done
+    exec /usr/bin/verilator "${args[@]}"
+python3: Python 3.14.7
+g++: g++ (GCC) 16.2.1 20260810
+yosys: Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+sv2v: sv2v v0.0.13
+git: git version 2.55.0
+host: Linux 7.2.7-arch1-1 x86_64, 16 cpus; service memory.max 12884901888 bytes

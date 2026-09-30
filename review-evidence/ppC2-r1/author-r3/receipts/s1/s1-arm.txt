@@ -1,0 +1,6 @@
+control maap run: rc=0 tally=(196, 0) PASS
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U28: no new TX slot request follows the fall (a request already pending is retried until granted), in any walker state, for 33 s (1 of 17 falls)
+    FAIL: U28: at most the one frame requested before the fall drains (1 of 17 falls)
+    FAIL: U28: no claim after the fall, and INITIAL (1 of 17 falls)
+2 checks: 2 PASS, 0 FAIL

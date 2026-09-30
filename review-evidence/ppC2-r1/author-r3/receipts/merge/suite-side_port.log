@@ -1,0 +1,9 @@
+verilator --cc --exe --build -j 0 --top-module side_port_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$VALIDATION_STORAGE/ppC2-a452/merge-head/tree/tb/side_port -Wall -Wextra" ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv side_port_tb_wrap.sv sim_main.cpp -o Vside_port_sim
+make[1]: Entering directory '$VALIDATION_STORAGE/ppC2-a452/merge-head/tree/tb/side_port/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION_STORAGE/ppC2-a452/merge-head/tree/tb/side_port/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 5.852 MB
+./obj_dir/Vside_port_sim
+368 checks: 368 PASS, 0 FAIL

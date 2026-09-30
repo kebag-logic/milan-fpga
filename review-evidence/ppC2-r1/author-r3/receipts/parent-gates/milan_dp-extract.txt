@@ -1,0 +1,50 @@
+Extract of $VALIDATION_STORAGE/ppC2-a452/parent-gates/milan_dp.log (full log: see OVERSIZE.txt): run commands, per-leg tallies, RESULT lines, the crflic [C] lines and every line naming FAIL that is not an [ok] check
+39:checksum 0xBCE6827F
+1275:./obj_gptplat/Vmilan_dp_gptplat
+1282:./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+1291:./obj_gptp/Vmilan_dp_gptp
+1437:== gmstep: checks: 103   failures: 0 ==
+1438:RESULT: PASS
+1446:181 checks: 181 PASS, 0 FAIL
+1454:181 checks: 181 PASS, 0 FAIL
+6092:./obj_dir/Vmilan_dp_sim
+6146:  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+6363:milan_datapath: 234 checks, 0 failures
+6366:./obj_notify/Vmilan_dp_notify
+6758:checks: 378   failures: 0
+6759:RESULT: PASS
+6761:./obj_crflic/Vmilan_dp_crflic
+6776:  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+6783:  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+6849:  [i]    3 DUT and 3 switch LeaveAll MRPDUs in this phase
+6850:  [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+6852:  [PASS] the switch sent >= 3 of its own, Listener JoinMt first
+7318:checks: 415   failures: 0
+7319:RESULT: PASS
+7320:./obj_nxn/Vmilan_dp_nxn
+9256:checks: 1841   failures: 0
+9257:RESULT: PASS
+9259:./obj_nxndv/Vmilan_dp_nxndv
+11197:checks: 1843   failures: 0
+11198:RESULT: PASS
+11199:./obj_nxn8/Vmilan_dp_nxn8
+14940:checks: 3521   failures: 0
+14941:RESULT: PASS
+14943:./obj_nxn4c/Vmilan_dp_nxn4c
+16879:checks: 1841   failures: 0
+16880:RESULT: PASS
+16882:./obj_nolpf/Vmilan_dp_nolpf
+16936:  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+17153:milan_datapath: 234 checks, 0 failures
+17156:./obj_prune/Vmilan_dp_prune
+17201:checks: 33   failures: 0
+17202:RESULT: PASS
+17204:./obj_ax1x1/Vmilan_dp_ax1x1
+17258:  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+17478:milan_datapath: 231 checks, 0 failures
+17481:./obj_aclk/Vmilan_dp_aclk
+17740:media_aclk: 190 checks, 0 failures
+17741:RESULT: PASS
+17774:6 checks: 6 PASS, 0 FAIL
+17789:6 checks: 6 PASS, 0 FAIL
+[AECP-WTMO] [ok] lines: 30

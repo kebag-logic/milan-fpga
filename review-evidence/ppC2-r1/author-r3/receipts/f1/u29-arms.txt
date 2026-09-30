@@ -1,0 +1,22 @@
+control maap run: rc=0 tally=(196, 0) PASS
+tx-set-omits-alloc [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-gwait [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-write [maap]: rc=2 tally=(192, 7) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-commit [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+6 checks: 6 PASS, 0 FAIL
