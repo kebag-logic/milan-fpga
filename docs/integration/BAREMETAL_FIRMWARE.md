@@ -919,37 +919,84 @@ unit's own symbols and read back with `lw` before the next call is now a value,
 and every symbol slot is dropped at each call and at each store the resolver
 cannot place, so nothing survives a write it did not see.
 
-One slot crosses a call, and only under three pins (#70). The AEM-first boot
+One slot crosses a call, and only while its pins hold (#70). The AEM-first boot
 order stores the verdict, calls `nvm_boot()` and reads the verdict back for the
-choke point, so the resolver keeps `aem_loaded` across a call while three pins
-hold on the firmware's unit as the compiler compiled it, never as written, so
-no macro, phase-2 splice or `##` paste changes an answer:
+choke point, so the resolver must keep `aem_loaded` across that call.
 
-- the resolved census places exactly one store on it in the whole unit,
-  `milan_init()`'s store of the value `load_aem_image()` returned;
-- the compiler accepts the preprocessed unit with it declared a register
-  variable, whose address C forbids taking, so no expression hands a pointer to
-  it to any code;
-- it is a file-scope `static` of the one translation unit: declared once in the
-  preprocessed unit and defined with internal linkage, so no other unit can
-  name it; the sources of the units the Makefile links are also read for its
-  name.
+The pins are decided on the verdict's storage by address, never by a name or a
+spelling. Gate 1b compiles the same source a second time, with the census's
+flags and stub headers plus the product's `-no-pie` code model (LiteX builds
+the BIOS that way). It links that unit alone with the census's own compiler,
+the pinned SDK wherever `--require-rv32` grades, and reads the image's symbol
+and relocation tables. No disassembler runs: the only instruction bits read are
+the major opcode at each relocation site and at each word of the code. On that
+image:
 
-A store the census cannot place is refused by rule 1b, and one it places at a
-number, a range, the stack or another static is taken, as everywhere in this
-model, not to land on the verdict. So within that model nothing writes it but
+- every relocation that lands on the four bytes of `aem_loaded`, under any
+  symbol, is the upper part of the address or a load or store in place (`%lo`
+  on a load or store). So no relocated reference forms the full address in a
+  register, a GOT entry or a data word, where a call argument, a register that
+  survives a call or a store could carry it;
+- the one store in place is in `milan_init()`. The resolver, reading the
+  census's own compile, finds its value to be the one `load_aem_image()`
+  returned, and finds no other store on a symbol the image places on those
+  bytes;
+- no other symbol covers those bytes, so no `alias`, `weakref`, `.set`, `.equ`
+  or assembler label names them;
+- `aem_loaded` is a local object of the image, and every AUIPC in the image
+  carries a relocation.
+
+The census's own compile is position-independent, the SDK's default, and every
+access there forms the verdict's full address in a register before it loads or
+stores. The product's code model forms none, which is why the pins are read
+there. The resolver still reads the census's own compile for the stored value.
+
+The earlier pins stay as early diagnostics, and each still forgets the slot
+when it breaks:
+
+- the compiler must accept the preprocessed unit with the verdict declared a
+  register variable, whose address C forbids taking;
+- the verdict must be declared once as a file-scope `static` and defined with
+  internal linkage;
+- the sources of the units the Makefile links must not name it, since the image
+  of one unit cannot see another.
+
+**Limit, stated rather than closed.** A reference is found by its relocation,
+and a literal address carries none. A store through the product's address of
+`aem_loaded`, written as a number, is placed at that number and the pins do not
+see it. The unit is linked alone, so its layout is not the product's either.
+Closing this needs the SoC's RAM map in the gate, which is a separate rule on
+the residue checklist (#495). The resolver's standing model applies as well: a
+store the census cannot place is refused by rule 1b, and one it places at a
+number, a range, the stack or another static is taken not to land on the
+verdict. So, within that model and that limit, nothing writes the verdict but
 that one store. A static that fails a pin is dropped at a call as every other
-one is. Gate 1b builds an AEM-first base from the shipping source, which must
-pass only with the slot kept and must be refused with no pin read, and nine
-planted breaks, each refused on the verdict with the pin it breaks named:
-`aem_loaded = 0;` inside `nvm_boot()`, `aem_loaded = 1;` in the UART status
-handler, `&aem_loaded` taken and written through inside `nvm_boot()`, the
-verdict declared without `static`, a second translation unit that declares it,
-and four spellings inside `nvm_boot()` that pins read on the text as written
-accepted (PR #623 review): a write joined by a phase-2 splice, one pasted by
-`##`, one spelled through a function-like macro, and the address spelled
-through a macro and handed to `sscanf()`. That last write is made by the
-library, with no store in the unit, so only the address pin refuses it.
+one is.
+
+Gate 1b builds an AEM-first base from the shipping source, which must pass only
+with the slot kept and must be refused with no pin read. It then plants
+fourteen breaks. Each is refused on the verdict, naming the early diagnostic
+that sees it, if one does, and every image pin it breaks:
+
+| Planted break, inside `nvm_boot()` unless stated | Pins the refusal must name |
+|---|---|
+| `aem_loaded = 0;` | the store |
+| `aem_loaded = 1;` in the UART status handler | the store |
+| `&aem_loaded` taken and written through | address (early), escape, the store |
+| the verdict declared without `static` | static (early), local object |
+| a second translation unit that declares it | second unit (early) |
+| a write joined by a phase-2 splice, one pasted by `##`, and one spelled through a function-like macro (three breaks) | the store |
+| `aem_loaded = 1;` under `#ifndef __PIE__`, so only the `-no-pie` image holds it where the SDK defaults to PIE | the store |
+| the address spelled through a macro and handed to `sscanf()` | address (early), escape |
+| a GNU `alias` of `aem_loaded` handed to `sscanf()` | one name, escape |
+| a `weakref` of `aem_loaded` handed to `sscanf()` | one name, escape |
+| the address held in a data word and handed to `sscanf()` | address (early), escape |
+| an `auipc` with no relocation, its PC-relative address handed to `sscanf()` | AUIPC |
+
+The `alias` and `weakref` breaks passed the round-2 gate, whose pins read the
+compiled unit by name (PR #623 review); only the image sees them. In each
+`sscanf()` break the library makes the write, with no store in the unit, so
+only an address or escape pin refuses it.
 
 **The block join is a meet over all predecessors.** The same round found the
 frame-memory join treating a slot missing from one side differently from a slot
@@ -1555,7 +1602,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
 | No indirect call and no tail transfer through a register, anywhere in the firmware | an instrument that cannot place a call edge must refuse it: a target it cannot resolve is exactly the one that could be the choke point. **Remedy:** call through a name, or model indirect targets and argument provenance completely, which is a data-flow change of its own |
 | The one call edge into `entity_advertise()` must come from `milan_init()` and hand it the value `load_aem_image()` returned | the value is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer, and an argument the resolver cannot resolve is refused rather than read as verified |
-| `aem_loaded` stays a file-scope `static` of the one translation unit, stored only by `milan_init()`'s `aem_loaded = load_aem_image();`, with its address never taken, however either is spelled | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only under these three pins, read on the compiled unit (the census's stores, and the compiler asked with the verdict declared a register variable); with any one broken the choke point is entered with a verdict it cannot trace, and the refusal names the broken pin |
+| `aem_loaded` stays a file-scope `static` and a local object, stored only by `milan_init()`'s `aem_loaded = load_aem_image();`, with its full address never formed and its storage under no other name, however any of that is spelled | the verdict is read back after `nvm_boot()` returns, and the resolver keeps its slot across that call only while its pins hold. They are decided by address on the linked image of the census's `-no-pie` compile: every reference to its storage is the upper part or a load or store in place, the one store is `milan_init()`'s, no other symbol covers it, and every AUIPC carries a relocation. The source and compile-time pins stay as early diagnostics. With any pin broken the choke point is entered with a verdict it cannot trace, and the refusal names the pin. A store through a literal address carries no relocation and is outside these pins |
 | The AEM copy loop keeps a shape this range refinement can bound: a constant destination base indexed by the counter the emitted `bltu` compares | the copy store is PLACED as a bounded range inside the CRC'd buffer instead of declared as a count-keyed residual, and a loop the lattice cannot bound (`*dst++ = *src++`, a `memcpy`, a bound held in a variable) leaves a store the gate cannot place, which is a refusal. **Remedy:** keep the `dst[i] = src[i]` form, or extend the refinement to the new shape with its own degenerate-case controls |
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |

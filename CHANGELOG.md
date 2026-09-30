@@ -62,6 +62,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `test_boot_walk.py` grades five boot paths per shape.
 - The AEM image loads and CRC-checks before `nvm_boot()`.
 - Gate 1b keeps the pinned verdict across that call.
+- The pins are decided by address on a linked image.
+- A store through a literal address stays outside them.
 - Service stretches are charged from the first heartbeat opportunity.
 - The capture receipt and service figures are re-measured.
 - Every harness that sends AECP starts the walk first.

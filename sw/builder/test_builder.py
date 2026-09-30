@@ -1631,20 +1631,31 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
                   ("a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7")}
         #: A callee may write any static this unit holds, so the symbol
         #: slots do not cross a call -- except a `kept` one. A static is
-        #: kept only when three pins hold on what the compiler compiled
-        #: (aem_verdict_pins()): the resolved census places exactly one
-        #: store on it in the whole unit, milan_init()'s store of the value
-        #: load_aem_image() returned; the compiler accepts the unit with it
-        #: declared a register variable, whose address C forbids taking, so
-        #: no expression hands a pointer to it to any code; and it is a
-        #: file-scope static, defined here with internal linkage, so no
-        #: other unit can name it. A store the census cannot place is
-        #: refused by rule 1b, and one it places at a number, a range, the
-        #: stack or another static is taken, as everywhere in this model,
-        #: not to land on it. So within that model nothing writes it but
-        #: that one store, and the word this function stored is still the
-        #: word it reads back after the call. A static that fails any pin
-        #: is forgotten here as every other one is.
+        #: kept only when its pins hold (aem_verdict_pins()), and they are
+        #: DECIDED on the linked image of a second compile of the same
+        #: source at the product's -no-pie code model, by address: every
+        #: relocation landing on its bytes, under any symbol, is the upper
+        #: part or a load or store in place, so no relocated reference forms
+        #: its full address -- in a register, a GOT entry or a data word --
+        #: for a call argument, a register surviving a call or a store to
+        #: carry; the one store in place is milan_init()'s, and this
+        #: resolver finds its value to be the one load_aem_image()
+        #: returned; no other symbol covers those bytes; it is a local
+        #: object; and every AUIPC carries a relocation. A store the census
+        #: cannot place is refused by rule 1b, and one it places at a
+        #: number, a range, the stack or another static is taken, as
+        #: everywhere in this model, not to land on it. So within that model
+        #: nothing writes it but that one store, and the word this function
+        #: stored is still the word it reads back after the call. A static
+        #: that fails any pin is forgotten here as every other one is.
+        #:
+        #: LIMIT, stated rather than closed: a reference is found by its
+        #: relocation, and a literal address carries none. A store through
+        #: the product's address of the static, written as a number, is
+        #: placed at that number and is not seen by these pins; the unit is
+        #: linked alone, so its layout is not the product's either. Closing
+        #: it needs the SoC's RAM map in the gate, which is a rule of its
+        #: own (#495).
         _rv32_forget_symbols(state, kept)
         for reg in RV32_CALLER_SAVED:
             state.set(reg, None)
@@ -1948,6 +1959,205 @@ def rv32_unit(assembly: str,
     return {"data": data, "functions": functions, "runs": runs,
             "private": private, "seeds": seeds, "exported": exported,
             "addressed": addressed, "defined": rv32_defined(assembly)}
+
+
+#: ---- the LINKED IMAGE a static's references are read on (#70) ---------
+#:
+#: The census compile above is position-independent, the SDK's default, so
+#: every access to a static forms the static's full address in a register
+#: (`lla`) before it loads or stores. LiteX builds the BIOS with `-no-pie`,
+#: where an access forms only the upper part and supplies the lower part as
+#: the load's or store's own immediate, so the address is used in place and
+#: never held. rv32_image() reads a unit compiled that way and linked
+#: alone, and rv32_image_references() says, BY ADDRESS, which relocation
+#: lands on a static's bytes, under whichever symbol it names, and on which
+#: instruction (the ruling on PR #623's round-3 STOP, #70).
+#:
+#: The image is read by hand, as ELF32 little-endian: the section headers,
+#: the symbol table and every RELA table that applies to an allocated
+#: section. No disassembler runs. The only instruction bits read are the
+#: major opcode (bits 6:0) of the word at a relocation site and of each
+#: word of an executable section, which is an instruction only when every
+#: instruction is one 32-bit word, so an image that declares the
+#: compressed extension is reported as such and its words are not read.
+#:
+#: The numbers below are the ELF gABI's and the RISC-V psABI's, not the
+#: project's. A misread one cannot pass quietly: the shipping firmware's
+#: image must show milan_init()'s store and every load in place, and each
+#: planted control must be refused on the class it plants (gate 1b).
+ELF_SHT_SYMTAB, ELF_SHT_RELA, ELF_SHT_NOBITS, ELF_SHT_REL = 2, 4, 8, 9
+ELF_SHF_ALLOC, ELF_SHF_EXECINSTR = 0x2, 0x4
+ELF_STB_LOCAL, ELF_STT_OBJECT, ELF_STT_FUNC = 0, 1, 2
+ELF_STT_SECTION, ELF_STT_FILE = 3, 4
+#: EF_RISCV_RVC: the image may hold 16-bit instructions.
+ELF_EF_RISCV_RVC = 0x1
+RV32_RELOCATIONS = {
+    "R_RISCV_32": 1, "R_RISCV_CALL": 18, "R_RISCV_CALL_PLT": 19,
+    "R_RISCV_GOT_HI20": 20, "R_RISCV_PCREL_HI20": 23,
+    "R_RISCV_PCREL_LO12_I": 24, "R_RISCV_PCREL_LO12_S": 25,
+    "R_RISCV_HI20": 26, "R_RISCV_LO12_I": 27, "R_RISCV_LO12_S": 28}
+RV32_RELOCATION_NAMES = {kind: name for name, kind in RV32_RELOCATIONS.items()}
+#: The relocations an AUIPC carries when the assembler forms a PC-relative
+#: address or a call from a symbol.
+RV32_AUIPC_RELOCATIONS = frozenset(RV32_RELOCATIONS[name] for name in (
+    "R_RISCV_CALL", "R_RISCV_CALL_PLT", "R_RISCV_GOT_HI20",
+    "R_RISCV_PCREL_HI20"))
+#: The major opcodes a reference's role is read from: LOAD and LOAD-FP,
+#: STORE and STORE-FP, OP-IMM (`addi`), LUI and AUIPC.
+RV32_OPCODE_LOADS, RV32_OPCODE_STORES = frozenset({0x03, 0x07}), \
+    frozenset({0x23, 0x27})
+RV32_OPCODE_OP_IMM, RV32_OPCODE_LUI, RV32_OPCODE_AUIPC = 0x13, 0x37, 0x17
+#: The three roles a reference to a static may have while its address is
+#: used only in place. Any other role forms the full address somewhere it
+#: can be kept, handed on or stored, and rv32_image_references() spells it.
+RV32_ROLE_UPPER = "the upper part"
+RV32_ROLE_LOAD = "a load in place"
+RV32_ROLE_STORE = "a store in place"
+
+
+def rv32_image(elf: bytes) -> dict[str, Any]:
+    """The symbols and relocations of a linked RV32 image, read by hand.
+
+    `symbols` holds each symbol as a dict: name, value, size, kind (its
+    STT_ type), local (STB_LOCAL) and defined (a section index other than
+    SHN_UNDEF). `relocations` holds each relocation that applies to an
+    allocated section as `(site, kind, target)`: the target is the value
+    of its symbol plus the addend, and for a `%pcrel_lo` the target of the
+    upper part at the label it names, so each reference is placed at the
+    address it forms (None when no upper part is at that label).
+    `opcodes` maps each 4-byte-aligned address of an allocated section with
+    contents to its word's major opcode, `functions` each function symbol's
+    span, `sections` each allocated section's span and name, `rvc` the
+    compressed-extension flag, and `bare_auipc` every AUIPC in an
+    executable section with no RV32_AUIPC_RELOCATIONS at its site (None
+    when `rvc` is set, since the words are then not instructions)."""
+    assert elf[:6] == b"\x7fELF\x01\x01", \
+        "the linked image is not ELF32 little-endian, the one format this " \
+        "census reads"
+    flags, = struct.unpack_from("<I", elf, 0x24)
+    header_at, = struct.unpack_from("<I", elf, 0x20)
+    header_size, header_count, names_index = struct.unpack_from(
+        "<HHH", elf, 0x2E)
+    # Elf32_Shdr: name, type, flags, addr, offset, size, link, info, ...
+    headers = [struct.unpack_from("<10I", elf, header_at + k * header_size)
+               for k in range(header_count)]
+
+    def string_at(table: tuple[int, ...], offset: int) -> str:
+        """The NUL-terminated string at `offset` of a string table."""
+        start = table[4] + offset
+        return elf[start:elf.index(b"\0", start)].decode("utf-8", "replace")
+
+    symtab = next(header for header in headers if header[1] == ELF_SHT_SYMTAB)
+    symbols = []
+    for k in range(symtab[5] // 16):
+        name, value, size, info, _other, index = struct.unpack_from(
+            "<IIIBBH", elf, symtab[4] + 16 * k)
+        symbols.append({"name": string_at(headers[symtab[6]], name),
+                        "value": value, "size": size, "kind": info & 0xF,
+                        "local": info >> 4 == ELF_STB_LOCAL,
+                        "defined": index != 0})
+    raw = []
+    for header in headers:
+        if header[1] not in (ELF_SHT_RELA, ELF_SHT_REL) or \
+                not headers[header[7]][2] & ELF_SHF_ALLOC:
+            continue
+        assert header[1] == ELF_SHT_RELA, \
+            "the linked image carries an SHT_REL table, which RISC-V never " \
+            "emits and this census does not read"
+        for k in range(header[5] // 12):
+            site, info, addend = struct.unpack_from("<IIi", elf,
+                                                    header[4] + 12 * k)
+            raw.append((site, info & 0xFF,
+                        (symbols[info >> 8]["value"] + addend) & RV32_MASK))
+    upper = {site: target for site, kind, target in raw
+             if kind in (RV32_RELOCATIONS["R_RISCV_PCREL_HI20"],
+                         RV32_RELOCATIONS["R_RISCV_GOT_HI20"])}
+    lower = (RV32_RELOCATIONS["R_RISCV_PCREL_LO12_I"],
+             RV32_RELOCATIONS["R_RISCV_PCREL_LO12_S"])
+    relocations = [(site, kind, upper.get(target) if kind in lower
+                    else target) for site, kind, target in raw]
+    allocated = [(header[3], header[3] + header[5],
+                  string_at(headers[names_index], header[0]), header)
+                 for header in headers if header[2] & ELF_SHF_ALLOC]
+    opcodes = {start + at: struct.unpack_from("<I", elf, header[4] + at)[0]
+               & 0x7F
+               for start, _end, _name, header in allocated
+               if header[1] != ELF_SHT_NOBITS
+               for at in range(0, header[5] - 3, 4)}
+    rvc = bool(flags & ELF_EF_RISCV_RVC)
+    carried = {site for site, kind, _target in raw
+               if kind in RV32_AUIPC_RELOCATIONS}
+    bare = None if rvc else sorted(
+        address for start, end, _name, header in allocated
+        if header[2] & ELF_SHF_EXECINSTR and header[1] != ELF_SHT_NOBITS
+        for address in range(start, end - 3, 4)
+        if opcodes[address] == RV32_OPCODE_AUIPC and address not in carried)
+    return {"symbols": symbols, "relocations": relocations,
+            "opcodes": opcodes, "rvc": rvc, "bare_auipc": bare,
+            "sections": [(start, end, name)
+                         for start, end, name, _header in allocated],
+            "functions": sorted((symbol["value"],
+                                 symbol["value"] + symbol["size"],
+                                 symbol["name"]) for symbol in symbols
+                                if symbol["kind"] == ELF_STT_FUNC and
+                                symbol["defined"] and symbol["size"])}
+
+
+def rv32_image_where(image: dict[str, Any], address: int) -> str:
+    """The function of rv32_image()'s `image` holding `address`, or the
+    section when no function does."""
+    return next((f"{function}()" for start, end, function
+                 in image["functions"] if start <= address < end),
+                next((section for start, end, section in image["sections"]
+                      if start <= address < end), "no section"))
+
+
+def rv32_image_references(image: dict[str, Any], low: int,
+                          high: int) -> list[tuple[str, int, str, str]]:
+    """Every relocation of rv32_image()'s `image` that lands on the bytes
+    [low, high), under any symbol, as `(where, site, relocation, role)`.
+
+    `where` is the function holding the site, or the section when no
+    function does. `role` is one of the three in-place roles
+    (RV32_ROLE_UPPER, RV32_ROLE_LOAD, RV32_ROLE_STORE), or else a sentence
+    saying how the reference forms the full address, which a caller reads
+    as an escape: `%lo` on an `addi`, a GOT entry, a data word, or any
+    other relocation or opcode. A `%pcrel_lo` whose upper part cannot be
+    found is placed nowhere, so it is reported as a reference too: it may
+    land on those bytes and nothing here can say it does not."""
+    kinds = RV32_RELOCATIONS
+    references = []
+    for site, kind, target in image["relocations"]:
+        if target is not None and not low <= target < high:
+            continue
+        opcode = image["opcodes"].get(site)
+        name = RV32_RELOCATION_NAMES.get(kind, f"relocation type {kind}")
+        if target is None:
+            role = ("a %pcrel_lo whose upper part is at no label this census "
+                    "can find, so the address it forms is unplaced")
+        elif (kind, opcode) in ((kinds["R_RISCV_HI20"], RV32_OPCODE_LUI),
+                                (kinds["R_RISCV_PCREL_HI20"],
+                                 RV32_OPCODE_AUIPC)):
+            role = RV32_ROLE_UPPER
+        elif kind in (kinds["R_RISCV_LO12_I"], kinds["R_RISCV_PCREL_LO12_I"]) \
+                and opcode in RV32_OPCODE_LOADS:
+            role = RV32_ROLE_LOAD
+        elif kind in (kinds["R_RISCV_LO12_S"], kinds["R_RISCV_PCREL_LO12_S"]) \
+                and opcode in RV32_OPCODE_STORES:
+            role = RV32_ROLE_STORE
+        elif kind in (kinds["R_RISCV_LO12_I"], kinds["R_RISCV_PCREL_LO12_I"]) \
+                and opcode == RV32_OPCODE_OP_IMM:
+            role = "the full address formed in a register (%lo on an addi)"
+        elif kind == kinds["R_RISCV_GOT_HI20"]:
+            role = "the full address held in a GOT entry"
+        elif kind == kinds["R_RISCV_32"]:
+            role = "the full address held in a data word"
+        else:
+            role = (f"{name} on major opcode "
+                    f"{'none' if opcode is None else hex(opcode)}, which is "
+                    "not a use in place")
+        references.append((rv32_image_where(image, site), site, name, role))
+    return references
 
 
 def test_all_configs_build() -> None:
@@ -4533,6 +4743,10 @@ def test_baremetal_profile_contract() -> None:
     #: that needs no driving would stand the census down on the very tool
     #: it exists for.
     rv32_drivers = ((), ("-march=rv32i", "-mabi=ilp32"))
+    #: The census's own flags, one tuple for both of its compiles: the
+    #: assembly every instrument reads, and the -no-pie image the verdict's
+    #: pins are decided on (verdict_image_take()).
+    census_flags = ("-std=gnu99", "-O0", "-fno-inline")
 
     def census_headers(root: Path) -> None:
         """The stub header set the census compiles against, written from
@@ -4981,9 +5195,8 @@ def test_baremetal_profile_contract() -> None:
             source.write_text(firmware)
             assembly = root / "census.s"
             built = run(
-                [compiler] + list(driver) +
-                ["-std=gnu99", "-O0", "-fno-inline", "-S",
-                 "-o", str(assembly), f"-I{root}", str(source)],
+                [compiler] + list(driver) + list(census_flags) +
+                ["-S", "-o", str(assembly), f"-I{root}", str(source)],
                 capture_output=True, text=True)
             if built.returncode != 0:
                 # Reached only when the compiler IS the RV32 target, since a
@@ -6549,10 +6762,21 @@ def test_baremetal_profile_contract() -> None:
                 return True
         return False
 
-    #: The three pins, each named, so a refusal says which one failed.
+    #: The pins, each named, so a refusal says which one failed. The first
+    #: five are DECIDED on the linked image of the census's -no-pie compile
+    #: (verdict_image_pins(), the ruling on PR #623's round-3 STOP); the
+    #: last three are the source and compile-time pins read before it, kept
+    #: as early diagnostics: each also forgets the slot when it breaks, and
+    #: its name says which spelling broke it.
     VERDICT_PIN_WRITE = (
-        "the compiled unit stores to aem_loaded other than milan_init()'s "
+        "a store lands on aem_loaded's storage other than milan_init()'s "
         "one store of load_aem_image()'s return")
+    VERDICT_PIN_ESCAPE = (
+        "the linked image forms the full address of aem_loaded's storage")
+    VERDICT_PIN_NAME = (
+        "another symbol of the linked image is on aem_loaded's storage")
+    VERDICT_PIN_LOCAL = "aem_loaded is not a local object of the linked image"
+    VERDICT_PIN_PCREL = "an AUIPC of the linked image carries no relocation"
     VERDICT_PIN_ADDRESS = "the address of aem_loaded is taken"
     VERDICT_PIN_STATIC = (
         "aem_loaded is not a file-scope static of the compiled unit")
@@ -6607,43 +6831,176 @@ def test_baremetal_profile_contract() -> None:
                   for line in checked.stderr.splitlines() if "error:" in line]
         return "; ".join(errors[:3]) or checked.stderr.strip()[-300:]
 
-    def aem_verdict_pins(assembly: str, unit: dict[str, Any],
-                         preprocessed: dict[str, Any],
-                         units: dict[str, str | None]) -> list[str]:
+    #: Where the unit is linked. Any base serves: every reference is read
+    #: against the verdict's own symbol in the same image, never against an
+    #: address of the product, whose layout the SDK cannot link (its BIOS
+    #: libraries are built by LiteX). The script defines no symbol.
+    verdict_image_layout = (
+        "SECTIONS {\n  . = 0x10000;\n"
+        "  .text : { *(.text .text.*) }\n"
+        "  .rodata : { *(.rodata .rodata.* .srodata .srodata.*) }\n"
+        "  .data : { *(.data .data.* .sdata .sdata.*) }\n"
+        "  .bss : { *(.sbss .sbss.* .bss .bss.* COMMON) }\n}\n")
+
+    def verdict_image_take(firmware: str,
+                           label: str = "firmware") -> dict[str, Any]:
+        """rv32_image() of `firmware` compiled with the census's compiler,
+        driver, flags and stub headers at the product's code model,
+        `-no-pie` (LiteX's BIOS flags), and linked ALONE by the same driver:
+        relocations kept (`-q`), no relaxation, the layout above, and every
+        symbol the unit does not define left at 0. Only relocations and
+        symbols are read from it, so it never has to run."""
+        assert census_used.get("target"), \
+            "the verdict's linked image needs the RV32 compiler the census " \
+            "adopted, and none was adopted"
+        compiler = census_used["compiler"]
+        driver = (*tuple(census_used.get("flags") or ()), "-no-pie")
+        with tempfile.TemporaryDirectory(prefix="milan-image-") as tmp:
+            root = Path(tmp)
+            census_headers(root)
+            source = root / firmware_path.name
+            source.write_text(firmware, encoding="utf-8")
+            (root / "unit.ld").write_text(verdict_image_layout)
+            for argv in (
+                    [compiler, *driver, *census_flags, "-c",
+                     "-o", str(root / "unit.o"), f"-I{root}", str(source)],
+                    [compiler, *driver, "-nostdlib", "-nostartfiles",
+                     "-static", "-Wl,-q", "-Wl,--no-relax",
+                     "-Wl,--unresolved-symbols=ignore-all", "-Wl,-e,0",
+                     f"-Wl,-T,{root / 'unit.ld'}",
+                     "-o", str(root / "unit.elf"), str(root / "unit.o")]):
+                built = subprocess.run(argv, capture_output=True, text=True)
+                assert built.returncode == 0, \
+                    f"the verdict's linked image of the {label} could not " \
+                    f"be built with {compiler}, which IS the RV32 target, " \
+                    "so the pins that decide aem_loaded's slot have no " \
+                    "image to be read on; " \
+                    f"{built.stderr.strip().splitlines()[-1:]}"
+            return rv32_image((root / "unit.elf").read_bytes())
+
+    def verdict_image_pins(
+            image: dict[str, Any], unit: dict[str, Any]
+    ) -> tuple[list[str], list[tuple[str, int, str, str]]]:
+        """The pins verdict_image_take()'s `image` breaks, and every
+        reference it holds to the verdict's storage: the bytes of its one
+        object named aem_loaded, by ADDRESS, under any symbol.
+
+        - the write: the image's one store in place on those bytes is in
+          milan_init(), and this resolver, on the census's own compile under
+          the forget-on-call rule (`unit`), finds exactly one store on a
+          symbol the image places on them or does not place at all:
+          milan_init()'s store of the value load_aem_image() returned;
+        - the escape: every other reference is the upper part or a load in
+          place, so no relocated reference forms the full address -- in a
+          register (`%lo` on an `addi`), a GOT entry or a data word --
+          where a call argument, a register surviving a call, a return or
+          a store could carry it;
+        - one name: no other symbol of the image covers those bytes, so no
+          alias, weakref, `.set`, `.equ` or assembler label reaches them;
+        - locality: aem_loaded is a local object of the image;
+        - the AUIPC: every AUIPC carries a relocation, so no PC-relative
+          address is formed that no relocation places.
+
+        LIMIT, stated rather than closed (the ruling on PR #623's round-3
+        STOP): a reference is found by its relocation, so an address that
+        carries none on those bytes -- the product's address of aem_loaded
+        written as a number -- is not a reference here, and a store through
+        it is placed at that number and passes, as the resolver's model
+        takes a store it places elsewhere not to land on the verdict."""
+        named = [symbol for symbol in image["symbols"]
+                 if symbol["name"] == "aem_loaded" and symbol["defined"] and
+                 symbol["kind"] == ELF_STT_OBJECT and symbol["size"]]
+        if len(named) != 1:
+            return [f"{VERDICT_PIN_LOCAL} (the image defines {len(named)} "
+                    "objects named aem_loaded, not one)"], []
+        verdict = named[0]
+        low, high = verdict["value"], verdict["value"] + verdict["size"]
+        placed = [symbol for symbol in image["symbols"] if symbol["defined"]
+                  and symbol["kind"] not in (ELF_STT_SECTION, ELF_STT_FILE)]
+
+        def covers(name: str) -> bool:
+            """True when a store on the symbol `name` may land on the
+            verdict's bytes: the image places `name` there, or has no symbol
+            of that name at all. One the image leaves undefined is placed
+            by the product's linker, in another unit, and never on a local
+            object of this one; rule 1b refuses a store through it as one
+            it cannot place."""
+            if all(symbol["name"] != name for symbol in image["symbols"]):
+                return True
+            return any(symbol["value"] < high and
+                       symbol["value"] + max(symbol["size"], 1) > low
+                       for symbol in placed if symbol["name"] == name)
+
+        broken = []
+        references = rv32_image_references(image, low, high)
+        stores = [where for where, _site, _kind, role in references
+                  if role == RV32_ROLE_STORE]
+        writes = sorted(((name, value) for name, run in unit["runs"].items()
+                         for _at, (address, value) in run["stores"]
+                         if isinstance(address, Rv32Where) and
+                         address.kind == "sym" and covers(address.detail)),
+                        key=lambda write: (write[0], repr(write[1])))
+        if stores != ["milan_init()"] or \
+                writes != [("milan_init", Rv32Tag("call:load_aem_image"))]:
+            broken.append(
+                f"{VERDICT_PIN_WRITE} (the image stores in place from "
+                f"{', '.join(stores) or 'nowhere'}; resolved: " +
+                (", ".join(f"{name}() stores {value!r}"
+                           for name, value in writes) or "no store") + ")")
+        escapes = [f"{role} at 0x{site:08x} in {where} ({kind})"
+                   for where, site, kind, role in references
+                   if role not in (RV32_ROLE_UPPER, RV32_ROLE_LOAD,
+                                   RV32_ROLE_STORE)]
+        if escapes:
+            broken.append(f"{VERDICT_PIN_ESCAPE} ({'; '.join(escapes)})")
+        others = sorted({symbol["name"] for symbol in placed
+                         if symbol is not verdict and
+                         symbol["value"] < high and
+                         symbol["value"] + max(symbol["size"], 1) > low})
+        if others:
+            broken.append(f"{VERDICT_PIN_NAME} ({', '.join(others)})")
+        if not verdict["local"]:
+            broken.append(VERDICT_PIN_LOCAL)
+        if image["rvc"]:
+            broken.append(f"{VERDICT_PIN_PCREL} (the image declares the "
+                          "compressed extension, so its words are not read "
+                          "as instructions)")
+        elif image["bare_auipc"]:
+            broken.append(f"{VERDICT_PIN_PCREL} (" + ", ".join(
+                f"0x{address:08x} in {rv32_image_where(image, address)}"
+                for address in image["bare_auipc"]) + ")")
+        return broken, references
+
+    def aem_verdict_pins(
+            assembly: str, unit: dict[str, Any],
+            preprocessed: dict[str, Any], units: dict[str, str | None],
+            image: dict[str, Any]
+    ) -> tuple[list[str], list[tuple[str, int, str, str]]]:
         """The pins that FAIL for the resolver to keep aem_loaded's slot
-        across a call; an empty list keeps it (rv32_step()'s call rule).
+        across a call, and the verdict's references in the linked image; an
+        empty list keeps the slot (rv32_step()'s call rule).
 
-        The firmware's own unit is read as the compiler compiled it, never
-        as written, so no spelling of a write or an address -- a macro, a
-        phase-2 splice, a `##` paste -- changes an answer ([R412] and
-        [R413] F1 on PR #623). `unit` is rv32_unit() of `assembly` under
-        the forget-on-call rule, so no pin depends on the slot it decides;
-        `preprocessed` is the unit the preprocessor handed the compiler for
-        that assembly; `units` every OTHER translation unit linked into the
-        firmware, read as written: what keeps them from naming the verdict
-        is its internal linkage, which the assembly shows.
+        The linked image DECIDES (verdict_image_pins()): `image` is
+        verdict_image_take() of the source `assembly` was compiled from,
+        and `unit` rv32_unit() of `assembly` under the forget-on-call rule,
+        so no pin depends on the slot it decides. By address, no alias,
+        weakref, `.set`, asm label, macro, phase-2 splice or `##` paste
+        changes an answer ([R412-2] and [R413-2] F1 on PR #623).
 
-        1. the resolved census places exactly one store on aem_loaded in
-           the whole unit, and it is milan_init()'s store of the value
-           load_aem_image() returned;
-        2. the compiler accepts the preprocessed unit with aem_loaded made
+        The source and compile-time pins stay as early diagnostics, read on
+        `preprocessed`, the unit the preprocessor handed the compiler for
+        `assembly`, and on `units`, every OTHER translation unit linked
+        into the firmware, read as written, since the image of one unit
+        cannot see another:
+
+        1. the compiler accepts the preprocessed unit with aem_loaded made
            a register variable (verdict_register_diagnostic()), so no
-           expression in it forms the address;
-        3. it is a file-scope static of the one translation unit: declared
+           expression in it takes the address;
+        2. it is a file-scope static of the one translation unit: declared
            once, as `static int aem_loaded;`, in the preprocessed unit,
            defined by the assembly with internal linkage, and named in no
            other linked unit's source."""
-        broken = []
-        verdict = Rv32Where("sym", "aem_loaded")
-        writes = sorted(((name, value) for name, run in unit["runs"].items()
-                         for _at, (address, value) in run["stores"]
-                         if address == verdict),
-                        key=lambda write: (write[0], repr(write[1])))
-        if writes != [("milan_init", Rv32Tag("call:load_aem_image"))]:
-            broken.append(
-                f"{VERDICT_PIN_WRITE} (resolved: " +
-                (", ".join(f"{name}() stores {value!r}"
-                           for name, value in writes) or "no store") + ")")
+        broken, references = verdict_image_pins(image, unit)
         declared = list(re.finditer(
             r"(?m)^static int aem_loaded;$",
             blanked(preprocessed["text"]))) if preprocessed["ran"] else []
@@ -6669,7 +7026,7 @@ def test_baremetal_profile_contract() -> None:
                         re.search(r"\baem_loaded\b", blanked(text)))
         if naming:
             broken.append(f"{VERDICT_PIN_UNIT} ({', '.join(naming)})")
-        return broken
+        return broken, references
 
     def assert_resolved_boot_flow(assembly: str, model: CsrModel,
                                   label: str = "firmware",
@@ -6682,9 +7039,10 @@ def test_baremetal_profile_contract() -> None:
         `source` is the text the census compiled into `assembly`, and
         `units` the firmware's other translation units (default: the ones
         the tracked Makefile links). aem_loaded's slot crosses a call only
-        when aem_verdict_pins() finds all three pins holding on what the
-        compiler compiled from `source`, preprocessed here with the
-        census's own compiler and flags; with no source it never does.
+        when aem_verdict_pins() finds every pin holding: on the linked image
+        of `source` at the product's -no-pie code model, which decides, and
+        on `source` preprocessed here with the census's own compiler and
+        flags; with no source it never does.
 
         Five questions, each about a VALUE or an EDGE and none about a
         spelling:
@@ -6729,11 +7087,12 @@ def test_baremetal_profile_contract() -> None:
            survive the removal of the CRC-equality edge?
         """
         forgetting = rv32_unit(assembly)
-        broken = (["no compiled source was handed in"] if source is None
-                  else aem_verdict_pins(
-                      assembly, forgetting, preprocess_take(source, label),
-                      other_units(makefile_source) if units is None
-                      else units))
+        broken, references = (
+            (["no compiled source was handed in"], []) if source is None
+            else aem_verdict_pins(
+                assembly, forgetting, preprocess_take(source, label),
+                other_units(makefile_source) if units is None else units,
+                verdict_image_take(source, label)))
         kept = frozenset() if broken else frozenset({"aem_loaded"})
         unit = rv32_unit(assembly, kept) if kept else forgetting
         runs = unit["runs"]
@@ -7137,6 +7496,7 @@ def test_baremetal_profile_contract() -> None:
             "calls": sum(len(run["calls"]) for run in runs.values()),
             "copied": repr(copy_range),
             "kept": sorted(kept),
+            "verdict_references": references,
         }
 
     #: ---- the CFG join's own self-test ([R0] MAJOR on PR #241) ---------
@@ -14207,18 +14567,28 @@ def test_baremetal_profile_contract() -> None:
     #: The AEM-first boot order stores the verdict, calls nvm_boot(), and
     #: reads the verdict back for the choke point, so the resolver answers
     #: it only by keeping aem_loaded's slot across that call, which it does
-    #: only under the three pins aem_verdict_pins() reads. Measured on an
-    #: AEM-first base built from the shipping source (the identity once the
-    #: shipping firmware is in that order): the base is ACCEPTED with the
-    #: slot kept; the same assembly with no source handed in, which is the
-    #: forget-on-call rule, is REFUSED; and every planted break of a pin is
-    #: REFUSED on the verdict with the broken pin named. The last four are
-    #: the spellings a reader of the text as written does not see, which is
-    #: why the pins read the compiled unit ([R412] and [R413] F1 on PR
-    #: #623): a write joined by a phase-2 splice, one pasted by `##`, one
-    #: spelled through a macro, and the address spelled through a macro and
-    #: handed to sscanf(), whose write no store in this unit makes, so only
-    #: the address pin can refuse it.
+    #: only under the pins aem_verdict_pins() reads, decided on the linked
+    #: image of the census's -no-pie compile. Measured on an AEM-first base
+    #: built from the shipping source (the identity once the shipping
+    #: firmware is in that order): the base is ACCEPTED with the slot kept;
+    #: the same assembly with no source handed in, which is the
+    #: forget-on-call rule, is REFUSED; and every planted break is REFUSED
+    #: on the verdict naming each pin it lists: the early diagnostic that
+    #: sees it, if one does, and every image pin it breaks. Only the second
+    #: translation unit is outside the image, which is one unit linked
+    #: alone. Four are spellings a reader of the text as written does not
+    #: see ([R412] and [R413] F1 on PR #623): a write joined by a phase-2
+    #: splice, one pasted by `##`, one spelled through a macro, and the
+    #: address spelled through a macro and handed to sscanf(), whose write
+    #: no store in this unit makes. Two are spellings the source and
+    #: compile-time pins do not see at all, which is why the image decides
+    #: ([R412-2] and [R413-2] F1): a GNU alias and a weakref of aem_loaded,
+    #: each handing its address to sscanf(). One write is compiled only at
+    #: the product's code model (`#ifndef __PIE__`): the census's own
+    #: compile is position-independent where the SDK defaults to PIE, so
+    #: only the image's half of the store pin sees it there. The last two
+    #: plant, one each, the two escapes no C spelling above reaches: the
+    #: address held in a data word, and an AUIPC with no relocation.
     def aem_first(firmware: str) -> str:
         """`firmware` with milan_init()'s nvm_boot() call moved to just
         after the AEM verifier's call."""
@@ -14244,11 +14614,12 @@ def test_baremetal_profile_contract() -> None:
                             what)
 
     verdict_pin_breaks = (
-        ("a second assignment inside nvm_boot()", VERDICT_PIN_WRITE,
+        ("a second assignment inside nvm_boot()", (VERDICT_PIN_WRITE,),
          replace_once(aem_first_source, nvm_boot_open,
                       nvm_boot_open + "\taem_loaded = 0;\n",
                       "verdict cleared inside nvm_boot()"), None),
-        ("a second assignment in the UART status handler", VERDICT_PIN_WRITE,
+        ("a second assignment in the UART status handler",
+         (VERDICT_PIN_WRITE,),
          replace_once(
              aem_first_source,
              "static void milan_status_handler(int nb_params, char **params)"
@@ -14257,36 +14628,66 @@ def test_baremetal_profile_contract() -> None:
              "\n{\n\taem_loaded = 1;\n", "verdict set by the status handler"),
          None),
         ("&aem_loaded taken and written through inside nvm_boot()",
-         VERDICT_PIN_ADDRESS,
+         (VERDICT_PIN_ADDRESS, VERDICT_PIN_ESCAPE, VERDICT_PIN_WRITE),
          replace_once(aem_first_source, nvm_boot_open,
                       nvm_boot_open +
                       "\tint *clear_p = &aem_loaded;\n\n\t*clear_p = 0;\n",
                       "verdict pointer inside nvm_boot()"), None),
-        ("aem_loaded given external linkage", VERDICT_PIN_STATIC,
+        ("aem_loaded given external linkage",
+         (VERDICT_PIN_STATIC, VERDICT_PIN_LOCAL),
          replace_once(aem_first_source, "static int aem_loaded;",
                       "int aem_loaded;", "verdict without static"), None),
-        ("aem_loaded declared in a second translation unit", VERDICT_PIN_UNIT,
-         aem_first_source,
+        ("aem_loaded declared in a second translation unit",
+         (VERDICT_PIN_UNIT,), aem_first_source,
          {"milan_verdict.c": "extern int aem_loaded;\n\n"
                              "void milan_verdict_clear(void)\n{\n"
                              "\taem_loaded = 0;\n}\n"}),
-        ("a phase-2 line-splice write inside nvm_boot()", VERDICT_PIN_WRITE,
+        ("a phase-2 line-splice write inside nvm_boot()",
+         (VERDICT_PIN_WRITE,),
          in_nvm_boot("", "\taem_\\\nloaded = 1;\n", "spliced verdict write"),
          None),
-        ("a `##`-paste write inside nvm_boot()", VERDICT_PIN_WRITE,
+        ("a `##`-paste write inside nvm_boot()", (VERDICT_PIN_WRITE,),
          in_nvm_boot("#define MILAN_VERDICT_JOIN(a, b) a##b\n",
                      "\tMILAN_VERDICT_JOIN(aem_, loaded) = 1;\n",
                      "pasted verdict write"), None),
-        ("a macro-spelled write inside nvm_boot()", VERDICT_PIN_WRITE,
+        ("a macro-spelled write inside nvm_boot()", (VERDICT_PIN_WRITE,),
          in_nvm_boot("#define MILAN_VERDICT_SET(flag) ((flag) = 1)\n",
                      "\tMILAN_VERDICT_SET(aem_loaded);\n",
                      "macro-spelled verdict write"), None),
+        ("a write compiled only at the product's code model "
+         "(`#ifndef __PIE__`) inside nvm_boot()", (VERDICT_PIN_WRITE,),
+         in_nvm_boot("", "#ifndef __PIE__\n\taem_loaded = 1;\n#endif\n",
+                     "verdict write outside a PIE compile"), None),
         ("a macro-spelled address handed to sscanf() inside nvm_boot()",
-         VERDICT_PIN_ADDRESS,
+         (VERDICT_PIN_ADDRESS, VERDICT_PIN_ESCAPE),
          in_nvm_boot("#define MILAN_VERDICT_REF(obj) (&(obj))\n",
                      "\t(void)sscanf(\"1\", \"%d\", "
                      "MILAN_VERDICT_REF(aem_loaded));\n",
                      "macro-spelled verdict address"), None),
+        ("a GNU alias of aem_loaded handed to sscanf() inside nvm_boot() "
+         "(alias_sscanf)", (VERDICT_PIN_NAME, VERDICT_PIN_ESCAPE),
+         in_nvm_boot("extern int milan_verdict_alias "
+                     "__attribute__((alias(\"aem_loaded\")));\n",
+                     "\t(void)sscanf(\"1\", \"%d\", &milan_verdict_alias);\n",
+                     "aliased verdict address"), None),
+        ("a weakref of aem_loaded handed to sscanf() inside nvm_boot() "
+         "(weakref_sscanf)", (VERDICT_PIN_NAME, VERDICT_PIN_ESCAPE),
+         in_nvm_boot("static int milan_verdict_ref "
+                     "__attribute__((weakref(\"aem_loaded\")));\n",
+                     "\t(void)sscanf(\"1\", \"%d\", &milan_verdict_ref);\n",
+                     "weakref verdict address"), None),
+        ("the address of aem_loaded held in a data word and handed to "
+         "sscanf() inside nvm_boot()",
+         (VERDICT_PIN_ADDRESS, VERDICT_PIN_ESCAPE),
+         in_nvm_boot("static int *milan_verdict_word = &aem_loaded;\n",
+                     "\t(void)sscanf(\"1\", \"%d\", milan_verdict_word);\n",
+                     "verdict address in a data word"), None),
+        ("an AUIPC with no relocation, its PC-relative address handed to "
+         "sscanf() inside nvm_boot()", (VERDICT_PIN_PCREL,),
+         in_nvm_boot("", "\t{\n\t\tint *pc_p;\n\n"
+                     "\t\t__asm__ volatile(\"auipc %0, 0\" : \"=r\"(pc_p));\n"
+                     "\t\t(void)sscanf(\"1\", \"%d\", pc_p);\n\t}\n",
+                     "unrelocated AUIPC"), None),
     )
     verdict_pin_refused = []
     if baseline_census_verdict["ran"]:
@@ -14309,16 +14710,16 @@ def test_baremetal_profile_contract() -> None:
                 "the resolver accepted the AEM-first base with no pin read, "
                 "so keeping aem_loaded's slot is not what these controls "
                 "measure")
-        for what, pin, planted, units in verdict_pin_breaks:
+        for what, pins, planted, units in verdict_pin_breaks:
             _taken = census_take(planted, what)
             try:
                 assert_resolved_boot_flow(_taken["text"], source_model, what,
                                           source=planted, units=units)
             except AssertionError as exc:
-                assert RESOLVER_VERDICT_PIN in str(exc) and \
-                    pin in str(exc), \
+                unnamed = [pin for pin in pins if pin not in str(exc)]
+                assert RESOLVER_VERDICT_PIN in str(exc) and not unnamed, \
                     f"the resolver refused {what} without naming the " \
-                    f"broken pin ({pin}): {exc}"
+                    f"broken pin(s) {unnamed}: {exc}"
                 verdict_pin_refused.append(what)
             else:
                 raise AssertionError(
@@ -16735,11 +17136,19 @@ def test_baremetal_profile_contract() -> None:
             ", each refused on the resolved store address"
             "; it kept the slot of "
             f"{', '.join(_resolved['kept']) or 'no static'} across a call "
-            "under the verdict's three pins, read on the compiled unit, "
-            "accepted the AEM-first base "
+            "under the verdict's pins, decided by address on the linked "
+            "image of the census's -no-pie compile, where the firmware's "
+            f"{len(_resolved['verdict_references'])} reference(s) to "
+            "aem_loaded's storage are each the upper part or a load or store "
+            "in place ("
+            + ", ".join(f"{where} {role}" for where, _site, _kind, role
+                        in _resolved["verdict_references"]) +
+            "), accepted the AEM-first base "
             "only with it kept, and refused "
             f"{len(verdict_pin_refused)}/{len(verdict_pin_breaks)} planted "
-            "pin breaks on the verdict, each naming its pin"
+            "pin breaks on the verdict, each naming its pins; a store "
+            "through a literal address carries no relocation and is outside "
+            "these pins"
             "; " + range_control_note + "; and " + join_control_note)
     else:
         helper_blind_note = (
