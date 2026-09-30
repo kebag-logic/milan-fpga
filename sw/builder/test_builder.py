@@ -1647,33 +1647,31 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
         #: everywhere in this model, not to land on it. That is all the
         #: pins prove: of the writes that reach the static through a
         #: relocation on its bytes, milan_init()'s one store is the only
-        #: one, so outside the two limits below the word this function
-        #: stored is still the word it reads back after the call. A static
-        #: that fails any pin is forgotten here as every other one is.
+        #: one. A static that fails any pin is forgotten here as every
+        #: other one is.
         #:
-        #: LIMITS, stated rather than closed: a reference is found by its
-        #: relocation, and two addresses reach the static's bytes with no
-        #: relocation on them.
-        #: - A literal address. A store through the product's address of
-        #:   the static, written as a number, is placed at that number and
-        #:   is not seen by these pins; the unit is linked alone, so its
-        #:   layout is not the product's either. Closing it needs the SoC's
-        #:   RAM map in the gate, which is a rule of its own (#495).
-        #: - Another object's address carried outside that object. A
-        #:   pointer formed from another object's relocation and carried past
-        #:   that object's end or before its start lands on the static while
-        #:   its relocation stays on the other object. A called function
-        #:   that writes through it is not seen, since a call's arguments
-        #:   are recorded and not judged: sscanf() overrunning a
-        #:   neighbouring static buffer, or handed `&neighbour + k` with k
-        #:   known only at run time. Nor is a store this unit makes through
-        #:   it at an offset this resolver places on the other static, which
-        #:   the model takes not to leave that static. An offset the compiler
-        #:   folds into the relocation lands on the static's bytes and is
-        #:   refused by address, and a store through an offset known only at
-        #:   run time is refused by rule 1b. This is the memory-safety class
-        #:   the standing model leaves open, and this gate does not prove
-        #:   memory safety.
+        #: THE LIMIT, stated rather than closed: a reference is found by its
+        #: relocation, so a called function that writes through any pointer
+        #: carrying no relocation on the static's bytes is not seen, since a
+        #: call's arguments are recorded and not judged. It is the census's
+        #: standing callee limit applied to the verdict (#495). Its shapes
+        #: include, and are not limited to:
+        #: - a literal address, the product's address of the static written
+        #:   as a number, which only the SoC's RAM map could place on it; a
+        #:   store this unit makes through it is placed at that number, and
+        #:   the unit is linked alone, so its layout is not the product's;
+        #: - another object's address carried outside that object: sscanf()
+        #:   overrunning a neighbouring static buffer, or handed
+        #:   `&neighbour + k` with k known only at run time. A store this
+        #:   unit makes through it at an offset this resolver places on the
+        #:   other static is taken not to leave that static; an offset the
+        #:   compiler folds into the relocation lands on the static's bytes
+        #:   and is refused by address, and a store through an offset known
+        #:   only at run time is refused by rule 1b;
+        #: - a pointer of run-time origin: a CSR or NVM read, a callee's
+        #:   return, or a frame address plus a run-time offset.
+        #: Closing it needs call-argument provenance or a memory-safety check
+        #: on every call inside nvm_boot(), and this gate proves neither.
         _rv32_forget_symbols(state, kept)
         for reg in RV32_CALLER_SAVED:
             state.set(reg, None)
@@ -6920,17 +6918,18 @@ def test_baremetal_profile_contract() -> None:
           address is formed that no relocation places.
 
         LIMITS, stated rather than closed (the rulings on PR #623's round-3
-        STOP and review): a reference is found by its relocation, so a write
-        through an address with none on those bytes passes:
-        - the product's address of aem_loaded written as a number, placed
-          at that number and taken, as the resolver's model takes every
-          store it places elsewhere, not to land on the verdict;
-        - another object's address carried past its end or before its
-          start, whose relocation lands on that object: a called function
-          writing through it (an overrun of a neighbouring static) is not
-          judged, and a store this unit makes through it at an offset the
-          resolver places on that object is taken not to leave it -- the
-          memory-safety class the standing model leaves open."""
+        STOP and its reviews): a reference is found by its relocation, so a
+        write through a pointer with none on those bytes passes, whatever
+        its origin. Such pointers include a literal address, which the
+        resolver places at that number; another object's address carried
+        past its end or before its start, whose relocation lands on that
+        object (a called function writing through it is not judged, and a
+        store this unit makes through it at an offset the resolver places
+        on that object is taken not to leave it); and a pointer of run-time
+        origin, a CSR or NVM read, a callee's return or a frame address plus
+        a run-time offset. That is the census's standing callee limit
+        applied to the verdict, the memory-safety class its model leaves
+        open."""
         named = [symbol for symbol in image["symbols"]
                  if symbol["name"] == "aem_loaded" and symbol["defined"] and
                  symbol["kind"] == ELF_STT_OBJECT and symbol["size"]]
@@ -17213,11 +17212,11 @@ def test_baremetal_profile_contract() -> None:
             "reaching it only at byte(s) "
             + ", ".join(f"+{offset}" for offset in verdict_interior_bytes) +
             " of its storage, which measures the census's four-byte range"
-            "; two writes "
-            "put no relocation on its storage and are outside these pins: "
-            "one through a literal address, and one through another "
-            "object's address carried outside that object, such as a "
-            "called function's overrun of a neighbouring static"
+            "; a called function writing through any pointer with no "
+            "relocation on its storage is outside these pins, whatever the "
+            "pointer's origin, such as a literal address, another object's "
+            "address carried outside that object, a CSR or NVM read, a "
+            "callee's return or a frame address plus a run-time offset"
             "; " + range_control_note + "; and " + join_control_note)
     else:
         helper_blind_note = (

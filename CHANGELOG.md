@@ -63,8 +63,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The AEM image loads and CRC-checks before `nvm_boot()`.
 - Gate 1b keeps the pinned verdict across that call.
 - The pins are decided by address on a linked image.
-- A store through a literal address stays outside them.
-- So does an overrun of another object onto the verdict.
+- Writes via pointers without a verdict relocation stay outside them.
+- Examples: a literal, another object's overrun, a run-time pointer.
 - Service stretches are charged from the first heartbeat opportunity.
 - The capture receipt and service figures are re-measured.
 - Every harness that sends AECP starts the walk first.
