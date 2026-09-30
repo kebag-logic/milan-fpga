@@ -1,0 +1,27 @@
+Parent consumer set (sixteen commands) in the scratch parent $VALIDATION_STORAGE/parent-c5b:
+git archive export of milan-fpga dev ec0cc0c1, gptp-processor 5dce647a and third_party/verilog-axis
+48ff7a7e at their recorded pins, external recorded and uninitialized, protocol-processor gitlink
+staged at 54c1e2b11c90e7063fc5882b15ddea5e4335d411, parent-adaptation-132-c1.patch applied with git apply
+(sha256 2ba6680373831206006933dddf7c97615f4870526c476a5b371b995702ddc420; applied diff equals the patch).
+
+python3 scripts/check_cpp_idiom.py                  rc=0   build without warnings: 0 <= 0
+python3 scripts/check_py_idiom.py                   rc=0   over-long line: 0 <= 0
+python3 scripts/xvlog_gate.py --check               rc=0   PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+python3 scripts/check_rtl_source_lists.py           rc=0   OK (107 files in the milan_datapath closure, 4 of 4 consumer lists)
+python3 scripts/pp_srcs.py --check --selftest       rc=0
+python3 sw/builder/test_builder.py                  rc=0   ALL GATES PASS EXCEPT 1 NOT RUN (gate 11: hardware build tree not on this host)
+make -C tb/verilator/pp_shadow -j8                  rc=0   pp_shadow: 295 checks, 0 failures
+python3 scripts/check_port_contracts.py             rc=0
+python3 scripts/measure_naming.py --check           rc=0   NAMING RATCHET: PASS (96 candidates, all recorded)
+python3 scripts/measure_test_evidence.py --check    rc=0   74 <= 77 unarmed, 10 <= 10 unseeded, 0 <= 0 unexplained DUT-source readers, 3 <= 3 wall-clock
+python3 scripts/docs_check.py                       rc=0   0 finding(s)
+make -C tb/verilator/nvm_cosim lint                 rc=0
+make -C tb/verilator/nvm_cosim quick                rc=0   315 checks: 315 PASS, 0 FAIL
+make -C tb/verilator/milan_dp -j8                   rc=0   every leg RESULT: PASS (1502 s)
+make -C tb/verilator/milan_dp_render -j8            rc=0   RESULT: PASS
+python3 scripts/lint_rtl.py --check                 rc=0   LINT GATE: PASS (90 <= ratchet 90)
+
+Intermediate heads (superseded, recorded for the attribution):
+596ab8e  measure_naming --check rc=1: NEW KL_aecp_ucpu RESP_D8_CAP_P (a new boundary must state its unit); fixed by 344daec (RESP_D8_CAP_BYTES_P)
+344daec  milan_dp -j8 rc=2: nxndv [AECP-IMG] STREAM_INPUT,1 and [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1,
+         "the bytes ARE the image's, exactly" got 0x2 exp 0x0 (the face-sourced STREAM overlay); fixed by 54c1e2b (row-sourced)
