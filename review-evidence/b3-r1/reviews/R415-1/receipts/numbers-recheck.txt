@@ -1,0 +1,75 @@
+OK   din pdus: got 758604 want 758604
+OK   din frames = pdus*6: got 4551624 want 4551624
+OK   din frames: got 4551624 want 4551624
+OK   din seq gaps: got 0 want 0
+OK   din header mismatch: got 0 want 0
+OK   din region frames: got 3360036 want 3360036
+OK   din region = last-first+1: got 3360036 want 3360036
+OK   din torn region: got 0 want 0
+OK   din torn whole: got 0 want 0
+OK   din invalid region: got 0 want 0
+OK   din pair states: got {'[0, 0, 0]': 3360036} want {'[0, 0, 0]': 3360036}
+OK   din L/R mismatch: got [0, 0, 0, 0] want [0, 0, 0, 0]
+OK   din steps identical all ch: got True want True
+OK   din non-unit steps: got {'0': 36} want {'0': 36}
+OK   din +1 steps per ch: got 3359999 want 3359999
+OK   din step gap range: got (93990, 93993) want (93990, 93993)
+OK   din outside frames: got 1191588 want 1191588
+OK   din outside words total: got 9532704 want 9532704
+OK   din outside zero words = 6 (f45587) + 776*8 + 3: got 6217 want 6217
+OK   din frames after region: got 777 want 777
+OK   din first stop-tail frame all zero: got ['00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'] want ['00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000']
+OK   din frame 45587: got ['ffffff00', 'fffff000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000'] want ['ffffff00', 'fffff000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000']
+     SLIP_TDM before: dups 383 skips 0 at 2026-09-30T03:29:53.904005Z
+     SLIP_TDM streaming: dups 391 skips 0 at 2026-09-30T03:30:10.022171Z
+     SLIP_TDM after-play: dups 427 skips 0 at 2026-09-30T03:31:20.490875Z
+     SLIP_TDM final: dups 440 skips 0 at 2026-09-30T03:31:46.087111Z
+OK   SLIP_TDM reads: got [383, 391, 427, 440] want [383, 391, 427, 440]
+OK   SLIP_TDM skips: got [0, 0, 0, 0] want [0, 0, 0, 0]
+OK   SLIP_TDM as found: got 333 want 333
+OK   dout frames: got 3360000 want 3360000
+OK   dout torn/silent: got (0, 0) want (0, 0)
+OK   dout per-channel own tag only: got True want True
+OK   dout clusters: got 59 want 59
+OK   dout beat clusters: got 36 want 36
+OK   dout beat repeats/skips: got (696, 732) want (696, 732)
+OK   dout beat net one drop each: got {1} want {1}
+OK   dout beat spacing: got (93989, 93992) want (93989, 93992)
+OK   dout attribution: got (36, 12, 11, 7) want (36, 12, 11, 7)
+OK   usb-long frames: got 3600000 want 3600000
+OK   usb-long strict valid: got 0 want 0
+OK   usb-long silent: got (327339, 2420) want (327339, 2420)
+OK   usb-long aligned: got 344438 want 344438
+OK   usb-long rotated 1-7: got 2919511 want 2919511
+OK   usb-long every rotation occurs: got True want True
+OK   usb-long other: got 8712 want 8712
+OK   usb-long classes sum: got 3600000 want 3600000
+OK   usb-long rotation changes: got 2833 want 2833
+OK   usb-long longest rotation run: got 2922 want 2922
+OK   usb-long words tag 1-8: got 26163422 want 26163422
+OK   usb-long low byte nonzero: got 25484975 want 25484975
+     usb-long low-byte nonzero share 97.41%  aligned share 9.57%
+OK   usb-long spread >= 1: got 636231 want 636231
+OK   usb-long steps: got (3248176, 2825, 601, 7758) want (3248176, 2825, 601, 7758)
+OK   usb-long joins: got (4588, 5) want (4588, 5)
+OK   usb-long rotation changes after silence: got 1315 want 1315
+OK   usb-long first non-silent / longest silence: got (1632, 2459) want (1632, 2459)
+OK   usb-long2 frames: got 3600000 want 3600000
+OK   usb-long2 strict valid: got 0 want 0
+OK   usb-long2 silent: got (3244, 4) want (3244, 4)
+OK   usb-long2 aligned: got 428820 want 428820
+OK   usb-long2 rotated 1-7: got 3166358 want 3166358
+OK   usb-long2 every rotation occurs: got True want True
+OK   usb-long2 other: got 1578 want 1578
+OK   usb-long2 classes sum: got 3600000 want 3600000
+OK   usb-long2 rotation changes: got 238 want 238
+OK   usb-long2 longest rotation run: got 95998 want 95998
+OK   usb-long2 words tag 1-8: got 28773277 want 28773277
+OK   usb-long2 low byte nonzero: got 28102227 want 28102227
+     usb-long2 low-byte nonzero share 97.67%  aligned share 11.91%
+OK   usb-long2 spread >= 1: got 188754 want 188754
+OK   usb-long2 steps: got (3589776, 3269, 743, 889) want (3589776, 3269, 743, 889)
+OK   usb-long2 joins: got (500, 5) want (500, 5)
+OK   usb-long2 rotation changes after silence: got 4 want 4
+OK   usb-long2 first non-silent / longest silence: got (0, 2441) want (0, 2441)
+RESULT PASS

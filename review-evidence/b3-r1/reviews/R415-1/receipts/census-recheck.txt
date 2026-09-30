@@ -1,0 +1,17 @@
+entries 32 32 equal ignoring read time 18
+stream-state entries 18 all conn_count 0: True roles ['dut', 'peer']
+dut clock {"cmd": "GET_CLOCK_SOURCE", "seq": 16696, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.08, "payload": "0024000000000000"}
+dut config {"cmd": "GET_CONFIGURATION", "seq": 16697, "status": "SUCCESS", "cdl": 16, "rtt_ms": 0.111, "payload": "00000000"}
+dut sample-rate {"cmd": "GET_SAMPLING_RATE", "seq": 16698, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.077, "payload": "000200000000bb80"}
+dut avb {"cmd": "GET_AVB_INFO", "seq": 16699, "status": "SUCCESS", "cdl": 36, "rtt_ms": 0.085, "payload": "00090000<grandmaster-id>0000017d0017000106030002"}
+dut format-5-0 {"cmd": "GET_STREAM_FORMAT", "seq": 16700, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.076, "payload": "000500000205022002006000"}
+dut format-5-1 {"cmd": "GET_STREAM_FORMAT", "seq": 16701, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.09, "payload": "00050001041060010000bb80"}
+dut format-6-0 {"cmd": "GET_STREAM_FORMAT", "seq": 16702, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.076, "payload": "000600000205022002006000"}
+dut format-6-1 {"cmd": "GET_STREAM_FORMAT", "seq": 16703, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.103, "payload": "00060001041060010000bb80"}
+dut desc-5-0 {"cmd": "READ_DESCRIPTOR", "seq": 16704, "status": "SUCCESS", "cdl": 170, "rtt_ms": 0.137, "payload": "000000000005000053747265616d20496e20300000000000000000000
+dut desc-6-0 {"cmd": "READ_DESCRIPTOR", "seq": 16705, "status": "SUCCESS", "cdl": 162, "rtt_ms": 0.124, "payload": "000000000006000053747265616d204f7574203000000000000000000
+dut map-0x000e-0 {"cmd": "GET_AUDIO_MAP", "seq": 16706, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.065, "payload": "000e00000000000100000000"}
+dut map-0x000f-0 {"cmd": "GET_AUDIO_MAP", "seq": 16707, "status": "SUCCESS", "cdl": 24, "rtt_ms": 0.075, "payload": "000f00000000000100000000"}
+peer clock {"cmd": "GET_CLOCK_SOURCE", "seq": 16722, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.096, "payload": "0024000000005868"}
+peer sample-rate {"cmd": "GET_SAMPLING_RATE", "seq": 16723, "status": "SUCCESS", "cdl": 20, "rtt_ms": 0.118, "payload": "000200000000bb80"}
+reviewer compare excluding seq/rtt_ms/t: equal 32 of 32 (+1 start record)

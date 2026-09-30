@@ -1,0 +1,39 @@
+OK   grade_617 clean rc: got 0 want 0
+OK   grade_617 clean torn in region: got 0 want 0
+OK   grade_617 clean torn whole: got 0 want 0
+OK   grade_617 clean whole-frame repeats: got {'0': 2} want {'0': 2}
+OK   grade_617 clean steps identical: got True want True
+OK   grade_617 clean pair states: got {'[0, 0, 0]': 12000} want {'[0, 0, 0]': 12000}
+OK   grade_617 torn-first-light-shape rc: got 0 want 0
+OK   grade_617 torn-first-light-shape torn in region: got 101 want 101
+OK   grade_617 torn-first-light-shape torn whole: got 101 want 101
+OK   grade_617 torn-first-light-shape pair states not all coherent: got True want True
+OK   grade_617 torn-left-right rc: got 0 want 0
+OK   grade_617 torn-left-right torn in region: got 3 want 3
+OK   grade_617 torn-left-right torn whole: got 3 want 3
+OK   grade_617 torn-left-right pair states not all coherent: got True want True
+OK   grade_617 limit-first-light-stop-tail rc: got 0 want 0
+OK   grade_617 limit-first-light-stop-tail torn in region: got 0 want 0
+OK   grade_617 limit-first-light-stop-tail torn whole: got 0 want 0
+OK   grade_617 limit-first-light-stop-tail whole-frame repeats: got {} want {}
+OK   grade_617 limit-first-light-stop-tail steps identical: got True want True
+OK   grade_617 limit-first-light-stop-tail pair states: got {'[0, 0, 0]': 12000} want {'[0, 0, 0]': 12000}
+OK   grade_usb exact rc: got 0 want 0
+OK   grade_usb exact strict valid: got 5000 want 5000
+OK   grade_usb exact aligned: got 5000 want 5000
+OK   grade_usb exact rot3: got 0 want 0
+OK   decode_capture exact rc: got 0 want 0
+OK   decode_capture exact torn-or-invalid frames: got False want False
+OK   grade_usb rot3 rc: got 0 want 0
+OK   grade_usb rot3 strict valid: got 0 want 0
+OK   grade_usb rot3 aligned: got 0 want 0
+OK   grade_usb rot3 rot3: got 4999 want 4999
+OK   decode_capture rot3 rc: got 0 want 0
+OK   decode_capture rot3 torn-or-invalid frames: got True want True
+OK   grade_usb interp rc: got 0 want 0
+OK   grade_usb interp strict valid: got 0 want 0
+OK   grade_usb interp aligned: got 5000 want 5000
+OK   grade_usb interp rot3: got 0 want 0
+OK   decode_capture interp rc: got 0 want 0
+OK   decode_capture interp torn-or-invalid frames: got True want True
+RESULT PASS
