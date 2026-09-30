@@ -1,0 +1,42 @@
+# head bab4f32dd8f05ee8014ec6470f2b0b1746c44edc
+# argv $WORKSPACE_HOME/litex-milan/venv/bin/python -u $REVIEWS/70L2-r412-1-packet/scripts/run_gate1b.py /tmp/a455/rev/r412-m_macro_set
+# env {'R412_EARLY': '1', 'R412_ASM_OUT': '/tmp/a455/rev/r412-m_macro_set.s'}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+GATE1B REFUSED: under the arm selection line 794 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+Traceback (most recent call last):
+  File "/tmp/a455/rev/r412-m_macro_set/sw/builder/test_builder.py", line 10675, in assert_boot_contract
+    verdicts.append(assert_boot_contract(
+                    ~~~~~~~~~~~~~~~~~~~~^
+        selected, docs, csr, makefile, listing, datapath))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/a455/rev/r412-m_macro_set/sw/builder/test_builder.py", line 11747, in assert_boot_contract
+    compiled_census_verdict["resolved"] = assert_resolved_boot_flow(
+                                          ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        census_taken["text"], model,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        units=other_units(makefile_source if makefile is None
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          else makefile))
+                          ^^^^^^^^^^^^^^^
+  File "/tmp/a455/rev/r412-m_macro_set/sw/builder/test_builder.py", line 6829, in assert_resolved_boot_flow
+    assert handed_verdict == [verdict_tag], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/70L2-r412-1-packet/scripts/run_gate1b.py", line 18, in <module>
+    tb.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/tmp/a455/rev/r412-m_macro_set/sw/builder/test_builder.py", line 11769, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "/tmp/a455/rev/r412-m_macro_set/sw/builder/test_builder.py", line 10678, in assert_boot_contract
+    raise AssertionError(
+    ...<3 lines>...
+        f"{exc}") from exc
+AssertionError: under the arm selection line 794 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware enters entity_advertise() with [None] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified. aem_loaded's slot did not cross a call, because: the compiled unit stores to aem_loaded other than milan_init()'s one store of load_aem_image()'s return (resolved: milan_init() stores <call:load_aem_image>, nvm_boot() stores 1)
+# rc 1
