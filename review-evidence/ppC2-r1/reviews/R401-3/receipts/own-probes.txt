@@ -1,0 +1,23 @@
+r401-3-post-ignores-own-fall: rc=2 tally=(196, 4) fails=4 suites=U23,U29 U29-absorbed=3 KILLED
+    U29: a mid-walk PROBE, a one-cycle fall in W_POST: 0 frame(s) owed, INITIAL 0, ABSORBED
+    U29: sDefend, a one-cycle fall in W_POST: 0 frame(s) owed, INITIAL 0, ABSORBED
+    U29: a DEFEND re-announce, a one-cycle fall in W_POST: 0 frame(s) owed, INITIAL 0, ABSORBED
+r401-3-latch-keeps-claim: rc=2 tally=(196, 4) fails=4 suites=U24,U25,U29 U29-absorbed=0 KILLED
+r401-3-latch-defend-only: rc=2 tally=(194, 5) fails=5 suites=U24,U29 U29-absorbed=5 KILLED
+    U29: a mid-walk PROBE, a one-cycle fall in W_ALLOC: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: a mid-walk PROBE, a one-cycle fall in W_GWAIT: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: a mid-walk PROBE, a one-cycle fall in W_WRITE: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: a mid-walk PROBE, a one-cycle fall in W_COMMIT: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: a mid-walk PROBE, a one-cycle fall in W_LANE: 0 frame(s) owed, INITIAL 0, ABSORBED
+r401-3-latch-skips-sdefend: rc=2 tally=(192, 8) fails=8 suites=U24,U25,U29 U29-absorbed=5 KILLED
+    U29: sDefend, a one-cycle fall in W_ALLOC: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: sDefend, a one-cycle fall in W_GWAIT: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: sDefend, a one-cycle fall in W_WRITE: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: sDefend, a one-cycle fall in W_COMMIT: 1 frame(s) owed, INITIAL 0, ABSORBED
+    U29: sDefend, a one-cycle fall in W_LANE: 0 frame(s) owed, INITIAL 0, ABSORBED
+r401-3-ival-announce-only: rc=2 tally=(196, 7) fails=7 suites=U17c,U28,U29 U29-absorbed=1 KILLED
+    U29: a mid-walk PROBE, a one-cycle fall in W_IVAL: 0 frame(s) owed, INITIAL 0, ABSORBED
+round-1 RTL b03d36f2 under the head bench: rc=2 tally=(187, 23) U29 lines=20 absorbed=20
+    FAIL: U29: a one-cycle Release! gives INITIAL (20 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (20 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (20 of 20 falls absorbed)

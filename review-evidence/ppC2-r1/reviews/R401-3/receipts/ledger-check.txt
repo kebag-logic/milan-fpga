@@ -1,0 +1,54 @@
+OK   fit-compare-forced-true [maap] ledger 5 of 196, log 5 of 196
+OK   fit-compare-off-by-one [maap] ledger 7 of 195, log 7 of 195
+OK   seed-clamp-removed [maap] ledger 6 of 196, log 6 of 196
+OK   release-keeps-draw-mark [maap] ledger 9 of 194, log 9 of 194
+OK   validator-maap-version-1-only [rx_validator] ledger 47 of 497, log 47 of 497
+OK   validator-maap-version-1-only [pp_top] ledger 4 of 34, log 4 of 34
+OK   compare-mac-forward [maap] ledger 9 of 194, log 9 of 194
+OK   compare-mac-forward [pp_top] ledger 5 of 34, log 5 of 34
+OK   probe-rprobe-never-yields [maap] ledger 2 of 196, log 2 of 196
+OK   defend-rdefend-ignored [maap] ledger 8 of 194, log 8 of 194
+OK   defend-rdefend-no-tiebreak [maap] ledger 2 of 196, log 2 of 196
+OK   probe-rannounce-tiebreak [maap] ledger 7 of 196, log 7 of 196
+OK   yield-reuses-range [maap] ledger 8 of 196, log 8 of 196
+OK   ival-sends-after-release [maap] ledger 8 of 196, log 8 of 196; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (2 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (2 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (2 of 20 falls absorbed)
+OK   post-publishes-after-release [maap] ledger 4 of 194, log 4 of 194; U29 FAILs 2
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (10 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (10 of 20 falls absorbed)
+OK   tx-path-absorbs-release [maap] ledger 10 of 190, log 10 of 190; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (15 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (15 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (15 of 20 falls absorbed)
+OK   off-waits-for-an-edge [maap] ledger 9 of 189, log 9 of 189; U29 FAILs 1
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (20 of 20 falls absorbed)
+OK   rx-release-returns-to-idle [maap] ledger 3 of 195, log 3 of 195
+OK   seed-clamp-off-by-one [maap] ledger 2 of 196, log 2 of 196
+OK   release-waits-for-draw [maap] ledger 1 of 196, log 1 of 196
+OK   seed-rearmed-on-idle-release-only [maap] ledger 2 of 196, log 2 of 196
+OK   idle-serves-a-latched-expiry-first [maap] ledger 3 of 196, log 3 of 196
+OK   teardown-keeps-announce-timer [maap] ledger 1 of 196, log 1 of 196
+OK   drain-waits-for-the-link [maap] ledger 5 of 196, log 5 of 196
+OK   tx-set-omits-alloc [maap] ledger 3 of 196, log 3 of 196; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+OK   tx-set-omits-gwait [maap] ledger 3 of 196, log 3 of 196; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+OK   tx-set-omits-write [maap] ledger 7 of 192, log 7 of 192; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+OK   tx-set-omits-commit [maap] ledger 3 of 196, log 3 of 196; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+OK   tx-set-omits-lane [maap] ledger 6 of 194, log 6 of 194; U29 FAILs 3
+       FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+       FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+       FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+29 ledger rows, 0 mismatches

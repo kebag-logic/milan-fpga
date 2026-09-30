@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -658,7 +658,7 @@
+ 
+         // ---- Start probe/announce_timer with a fresh random period ------
+         W_IVAL: begin
+-          if (!eng_w) begin
++          if (!eng_w && ival_ann_r) begin
+             // Release! before the entry's frame has a TX slot: the Release!
+             // is ordered first and the entry is dropped whole — no timer
+             // armed, no PDU, no state change (Table B.7 Release!, B.3.2).

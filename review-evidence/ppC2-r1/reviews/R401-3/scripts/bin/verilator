@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Reviewer wrapper: caps Verilator --build parallelism at 8 jobs ("-j 0" -> "-j 8")
+# and execs the pinned Verilator 5.050 named by $PINNED_VERILATOR.
+: "${PINNED_VERILATOR:?set PINNED_VERILATOR to the pinned verilator wrapper}"
+args=(); prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=8; fi
+  [ "$a" = "-j0" ] && a="-j8"
+  args+=("$a"); prev="$a"
+done
+exec "$PINNED_VERILATOR" "${args[@]}"

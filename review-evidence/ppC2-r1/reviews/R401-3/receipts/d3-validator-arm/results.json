@@ -1,0 +1,32 @@
+[
+ {
+  "mutant": "golden-rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "validator_admits_held_aecp",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F28 held AECP",
+   "F28 rx_aecp_held counts both"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 rx_aecp_held counts both got 0",
+   "F28 nothing counted without the hold"
+  ],
+  "verdict": "KILLED"
+ }
+]
