@@ -1,0 +1,13 @@
+head 6dfa64a7506a8660a70d77eaa7c96c5de2886f5d 2026-09-30T04:56:35Z
+=== rc=0 :: MDVENV_PYTHON scripts/docs_check.py
+docs_check: 0 finding(s) across 181 md files + 951 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+=== rc=0 :: MDVENV_PYTHON scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+=== rc=0 :: MDVENV_PYTHON scripts/gen_toc.py --check
+TOC gate: OK (123 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+=== rc=0 :: MDVENV_PYTHON scripts/check_em_dash.py --base ec0cc0c1df7d7ab3e25d973958f53f0074393d2c
+check_em_dash: 0 finding(s) over 474 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ec0cc0c1..HEAD]
+=== rc=0 :: MDVENV_PYTHON scripts/check_doc_paths.py
+doc path gate: OK (860 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+=== rc=0 :: git diff --check ec0cc0c1df7d7ab3e25d973958f53f0074393d2c HEAD
+

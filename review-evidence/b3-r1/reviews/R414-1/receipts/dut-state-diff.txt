@@ -1,0 +1,8 @@
+start: PP_STAT=0x5b000444 nvm_pend(bit11)=0
+  NVM: slot A VD_OK seq 229, slot B VD_OK seq 230, authoritative B, image seq 230, 53 records, 3264 B at 0x7f7ef000, writer live
+  NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+  SLIP_LB dups=0 skips=0; SLIP_TDM dups=333 skips=0; 0x8DC=0x00000100 (upper half 0)
+end: PP_STAT=0x5b000c44 nvm_pend(bit11)=1
+  NVM: slot A VD_OK seq 235, slot B VD_OK seq 236, authoritative B, image seq 236, 53 records, 3264 B at 0x7f7ef000, writer live
+  NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=6 failed=0 captures refused=0 acks refused=0 last=VD_OK
+  SLIP_LB dups=35316 skips=35080; SLIP_TDM dups=999 skips=0; 0x8DC=0x02b40100 (upper half 692)
