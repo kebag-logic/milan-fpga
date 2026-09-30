@@ -1,0 +1,11 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -718,7 +718,7 @@
+         // ---- post-send bookkeeping (the rest of the Table B.7 cell) -----
+         W_POST: begin
+           w_st_r <= W_IDLE;
+-          if (!eng_w || rel_pend_r) begin
++          if (rel_pend_r) begin
+             // the lane took the last frame of an entry a Release! landed
+             // behind: that entry's state change is dropped, so no claim is
+             // published after the fall, and the Release! runs

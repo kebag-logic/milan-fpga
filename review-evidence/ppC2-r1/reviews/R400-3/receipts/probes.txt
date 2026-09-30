@@ -1,0 +1,15 @@
+latch-forgets-release: rc=2 194 checks: 190 PASS, 4 FAIL
+    FAIL: U24: announce path, no claim is valid after the fall
+    FAIL: U24: announce path, the ANNOUNCE drains and a fresh walk probes (2 frames, state 2)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (10 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (10 of 20 falls absorbed)
+latch-keeps-claim: rc=2 196 checks: 192 PASS, 4 FAIL
+    FAIL: U24: sDefend path, the claim is withdrawn at the fall
+    FAIL: U25: the claim is withdrawn for the whole outage (1000 cycles valid, state 2)
+    FAIL: U25: an ALLOC during the outage is refused
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (10 of 20 falls)
+post-ignores-live-fall: rc=2 196 checks: 192 PASS, 4 FAIL
+    FAIL: U23: no claim is valid after the fall (1 of 80 offsets)
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)

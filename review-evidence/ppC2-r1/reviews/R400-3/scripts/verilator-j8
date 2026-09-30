@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Reviewer wrapper: run the Verilator 5.050 named by R400_VERILATOR_ROOT and
+# cap its --build parallelism at 8 (the suites' Makefiles pass -j 0).
+set -euo pipefail
+ROOT_DIR="${R400_VERILATOR_ROOT:?set R400_VERILATOR_ROOT to a Verilator 5.050 root}"
+export VERILATOR_ROOT="$ROOT_DIR"
+args=()
+prev=""
+for a in "$@"; do
+  if [[ "$prev" == "-j" ]]; then
+    if [[ "$a" == "0" || "$a" -gt 8 ]]; then a=8; fi
+  fi
+  args+=("$a"); prev="$a"
+done
+exec "$ROOT_DIR/bin/verilator" "${args[@]}"

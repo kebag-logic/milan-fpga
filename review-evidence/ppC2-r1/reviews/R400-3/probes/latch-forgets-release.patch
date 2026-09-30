@@ -1,0 +1,10 @@
+--- a/hdl/maap/KL_pp_maap.sv
++++ b/hdl/maap/KL_pp_maap.sv
+@@ -589,7 +589,6 @@
+       if (!eng_w && (w_st_r inside {W_ALLOC, W_GWAIT, W_WRITE, W_COMMIT,
+                                     W_LANE})) begin
+         pstate_r   <= P_INITIAL;
+-        rel_pend_r <= 1'b1;
+       end
+ 
+       unique case (w_st_r)

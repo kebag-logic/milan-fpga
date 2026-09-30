@@ -1,0 +1,10 @@
+Assigned path $ASSIGNED_TOOL_DIR/pinned-tool-bin/verilator: ABSENT
+Used: $TOOLS (shared Verilator source build), git describe: v5.050 commit 848d926ebd4addacacd294dc84e35d9d4ae8078c
+Verilator 5.050 2026-07-01 rev v5.050
+verilator_bin sha256 51910d8d47cfa29ee548a42eca10147e94b2f5b6014d68c110de1740274cc26a
+wrapper scripts/verilator-j8 sha256 b0248f9e9f9c5111b2a58c6525e7835e0e0c0412e68ca3960cb92572d9b047a6 (published portable form; the runs used sha256 5ef79de495e271891f76b018a235d1b94a208db9724681149007aeecf53dfb9d, identical logic with R400_VERILATOR_ROOT defaulted to $TOOLS): rewrites -j 0 (or >8) to -j 8
+Comparison run only: host verilator Verilator 5.052 2026-09-05 rev v5.052
+Python 3.14.7
+g++ (GCC) 16.2.1 20260810
+git version 2.55.0
+Wed Sep 30 07:44:27 AM UTC 2026

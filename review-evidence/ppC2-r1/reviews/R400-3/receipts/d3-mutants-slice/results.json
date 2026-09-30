@@ -1,0 +1,62 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "validator_admits_held_aecp",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F28 held AECP",
+   "F28 rx_aecp_held counts both"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 rx_aecp_held counts both got 0",
+   "F28 nothing counted without the hold"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dispatch_not_held",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: without the walk the writer owns every cycle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O1: without the walk the writer owns every cycle (2000 of 2000), the engine runs nothing (1998 busy) and the command waits in its queue",
+   "D3O1: released at 122, terminal at 880, own fell at 880, the held command taken at 0, 880 busy cycles while owned",
+   "D3O2: CLOSED holds AECP (29998 busy cycles, the command still queued) and leaves the listener released",
+   "D3O5: one AECP command held, 5 dropped at the slot gate and counted, 0 answered",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)"
+  ],
+  "verdict": "KILLED"
+ }
+]

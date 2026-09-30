@@ -1,0 +1,149 @@
+diff --git a/tb/rx_validator/README.md b/tb/rx_validator/README.md
+index fc020fc..a57f3d2 100644
+--- a/tb/rx_validator/README.md
++++ b/tb/rx_validator/README.md
+@@ -2,11 +2,7 @@
+ # tb/rx_validator — KL_pp_rx_validator suite
+ 
+ Exit 0 = PASS. `make` builds with Verilator and runs `sim_main.cpp`
+-<<<<<<< 053f979b
+-(tally line: `453 checks: 453 PASS, 0 FAIL`).
+-=======
+-(tally line: `437 checks: 437 PASS, 0 FAIL`).
+->>>>>>> b2db3a97
++(tally line: `497 checks: 497 PASS, 0 FAIL`).
+ 
+ ## What it proves
+ 
+@@ -53,7 +49,7 @@ commit/abort bookkeeping).
+ - **Slot protocol**: commit-on-good with byte-exact slot content; abort on
+   every mid-frame rule failure; a pool-refused alloc is silent here
+   (`rx_overrun` belongs to the pool) — no commit, no abort, no counter (F15).
+-- **MAAP maap_version** (F28, issue #67, IEEE 1722-2016 B.2.3): PROBEs
++- **MAAP maap_version** (F29, issue #67, IEEE 1722-2016 B.2.3): PROBEs
+   carrying maap_version 2 (higher than ours, B.2.3.2), 0 (lower, B.2.3.4)
+   and 31 (all five bits of the lane) are each accepted, committed, demuxed
+   to `PP_PROTO_MAAP`, and deliver the received version in the status lane.
+@@ -82,8 +78,5 @@ commit/abort bookkeeping).
+ | M1 | h/version gate inverted (`!= 4'h0` → `== 4'hF`) | F8/F8b: `rx_version` stays 0, bad frames commit + emit hdr beats instead of aborting (8 FAILs) |
+ | M2 | V1 boundary off-by-one (`pcnt_end >= cdl+12` → `>`) | F1 and every exact-fit frame: counted `rx_length` + aborted instead of committed (101 FAILs) |
+ | M3 | V9 DA-alone routing (MSRP EtherType pair check dropped) | F14: 60 LLDP bytes leak onto the MRP stream (1 FAIL) |
+-<<<<<<< 053f979b
+-| M4 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F28a/F28b/F28c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 453); the same arm fails `tb/pp_top` MP7 |
+-=======
+ | M4 | V10 the AECP hold admission dropped (`held_fail_w` tied 0; `validator_admits_held_aecp` in `tb/pp_top/d3_mutants.py`, which plants it in an extract and runs this suite) | F28: the held AECP frame commits and emits a header beat, `rx_aecp_held` stays 0 (4 FAILs) |
+->>>>>>> b2db3a97
++| M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 497); the same arm fails `tb/pp_top` MP7 |
+diff --git a/tb/rx_validator/sim_main.cpp b/tb/rx_validator/sim_main.cpp
+index 7cdcd29..a71bd49 100644
+--- a/tb/rx_validator/sim_main.cpp
++++ b/tb/rx_validator/sim_main.cpp
+@@ -180,8 +180,8 @@ static void fill_pat(Bytes& f, size_t upto, uint8_t seed) {
+ }
+ 
+ // an Annex B MAAP PDU (Figure B.1): the 42 real bytes, padded to the
+-// 60-byte Ethernet minimum. F22 through F26 and F28 all build their frame
+-// here; maap_version is the 5-bit field @2[7:3] (B.2.3), 1 unless given.
++// 60-byte Ethernet minimum. F22 through F26, F28 and F29 all build their
++// frame here; maap_version is the 5-bit field @2[7:3] (B.2.3), 1 unless given.
+ static Bytes maap_pdu(uint64_t da, uint8_t msg, uint16_t cdl,
+                       uint64_t req_start, uint16_t req_cnt,
+                       uint64_t con_start, uint16_t con_cnt,
+@@ -326,11 +326,8 @@ class RxValidatorSuite {
+   void the_fabric_peers_reference_contract_frame_parses();
+   void v8_still_owns_the_sv_version_nibble_on_maap();
+   void probe_tx_response_carries_the_listeners_unique_id();
+-<<<<<<< 053f979b
+-  void maap_version_2_and_0_reach_the_engine();
+-=======
+   void held_aecp_frames_are_dropped_at_the_slot_gate();
+->>>>>>> b2db3a97
++  void maap_version_2_and_0_reach_the_engine();
+ 
+   const milan::tb::Model<VKL_pp_rx_validator> model;
+   VKL_pp_rx_validator* const d = model.get();
+@@ -679,35 +676,6 @@ void RxValidatorSuite::v8_still_owns_the_sv_version_nibble_on_maap() {
+                               /*vernib=*/0x20));
+ }
+ 
+-// ---- F28: maap_version 2, 0 and 31 cross the validator (B.2.3) --------
+-// B.2.3.2: a version above ours with a known message_type is interpreted as
+-// ours; B.2.3.4: a version below ours is interpreted as that version, whose
+-// fields v1 contains. Neither may be dropped here: each PROBE is accepted,
+-// demuxed to PP_PROTO_MAAP, and the status lane carries the received
+-// version for the engine. 31 sets all five bits of the lane.
+-void RxValidatorSuite::maap_version_2_and_0_reach_the_engine() {
+-  struct VersionCase {
+-    const char* name;
+-    uint8_t version;
+-  };
+-  const VersionCase cases[] = {
+-      {"F28a", 2},
+-      {"F28b", 0},
+-      {"F28c", 31},
+-  };
+-  for (const VersionCase& c : cases) {
+-    Bytes f28 = maap_pdu(DA_MAAP, 1, 16, 0x91E0F0004000ull, 8, 0, 0,
+-                         /*vernib=*/0x00, c.version);
+-    const int commits0 = h.commits;
+-    run_case(c.name, f28);
+-    check_hdr(c.name, classify(f28, true).hdr);
+-    CHECK(h.commits == commits0 + 1 && h.hg.protocol == P_MAAP
+-          && h.hg.status == c.version,
+-          "%s maap_version %u accepted as MAAP, status lane %u", c.name,
+-          unsigned(c.version), unsigned(h.hg.status));
+-  }
+-}
+-
+ // ---- F27: PROBE_TX_RESPONSE carries the LISTENER's unique_id ----------
+ // The listener originates the probe and consumes the answer; its record is
+ // addressed by listener_unique_id @38. Distinct uids are the point: the
+@@ -784,6 +752,35 @@ void RxValidatorSuite::held_aecp_frames_are_dropped_at_the_slot_gate() {
+   CHECK(d->rx_aecp_held_count_o == held0 + 2, "F28 nothing counted without the hold");
+ }
+ 
++// ---- F29: maap_version 2, 0 and 31 cross the validator (B.2.3) --------
++// B.2.3.2: a version above ours with a known message_type is interpreted as
++// ours; B.2.3.4: a version below ours is interpreted as that version, whose
++// fields v1 contains. Neither may be dropped here: each PROBE is accepted,
++// demuxed to PP_PROTO_MAAP, and the status lane carries the received
++// version for the engine. 31 sets all five bits of the lane.
++void RxValidatorSuite::maap_version_2_and_0_reach_the_engine() {
++  struct VersionCase {
++    const char* name;
++    uint8_t version;
++  };
++  const VersionCase cases[] = {
++      {"F29a", 2},
++      {"F29b", 0},
++      {"F29c", 31},
++  };
++  for (const VersionCase& c : cases) {
++    Bytes f29 = maap_pdu(DA_MAAP, 1, 16, 0x91E0F0004000ull, 8, 0, 0,
++                         /*vernib=*/0x00, c.version);
++    const int commits0 = h.commits;
++    run_case(c.name, f29);
++    check_hdr(c.name, classify(f29, true).hdr);
++    CHECK(h.commits == commits0 + 1 && h.hg.protocol == P_MAAP
++          && h.hg.status == c.version,
++          "%s maap_version %u accepted as MAAP, status lane %u", c.name,
++          unsigned(c.version), unsigned(h.hg.status));
++  }
++}
++
+ int RxValidatorSuite::run() {
+   reset_zeroes_the_counters();
+   aecp_aem_command_to_own_unicast_at_the_v1_boundary();
+@@ -812,11 +809,8 @@ int RxValidatorSuite::run() {
+   the_fabric_peers_reference_contract_frame_parses();
+   v8_still_owns_the_sv_version_nibble_on_maap();
+   probe_tx_response_carries_the_listeners_unique_id();
+-<<<<<<< 053f979b
+-  maap_version_2_and_0_reach_the_engine();
+-=======
+   held_aecp_frames_are_dropped_at_the_slot_gate();
+->>>>>>> b2db3a97
++  maap_version_2_and_0_reach_the_engine();
+ 
+   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+   return fails ? 1 : 0;

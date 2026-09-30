@@ -1,0 +1,122 @@
+diff --git a/tb/maap/README.md b/tb/maap/README.md
+index c51072c..ac5d4f8 100644
+--- a/tb/maap/README.md
++++ b/tb/maap/README.md
+@@ -217,10 +217,10 @@ only simulation logs; no expectation comes from RTL text.
+ | `fit-compare-off-by-one` | the fit compare `<=` becomes `<`: the last fitting offset is refused | maap | U17 x3 (no PROBE, the boundary draw refused 1,745 times) and U17b x4: 7 FAIL of 190 |
+ | `seed-clamp-removed` | the footnote-a seed clamp removed: the provisioned offset is probed as given | maap | U18 x4 (claim `…:FF:FF`; PROBE bytes; claim; last-source grant), U18b x2: 6 FAIL of 191 |
+ | `release-keeps-draw-mark` | the fix above removed | maap | U17b phases 1 to 3, U17c x2, U18 x3 and U27 x1, each behind a wedge that the next Release! clears in `W_IVAL`: 9 FAIL of 189 |
+-| `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F28a/F28b/F28c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 453 |
+-| (same arm) | | pp_top `maap-internal` | MP7 x4: neither the version-2 nor the version-0 PROBE is defended: 4 FAIL of 33 |
++| `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 497 |
++| (same arm) | | pp_top `maap-internal` | MP7 x4: neither the version-2 nor the version-0 PROBE is defended: 4 FAIL of 34 |
+ | `compare-mac-forward` | `cmp_mac_true_w = own_mac_i < rxm_sa_r`: compare_MAC in forward octet order (issue #68, B.3.6.4) | maap | U7, U8, U9 x2, U10, U19 x2, U20, U21: 9 FAIL of 189 |
+-| (same arm) | | pp_top `maap-internal` | MP4 x5: the rev-lower, forward-higher ANNOUNCE is ignored, nothing withdrawn: 5 FAIL of 33 |
++| (same arm) | | pp_top `maap-internal` | MP4 x5: the rev-lower, forward-higher ANNOUNCE is ignored, nothing withdrawn: 5 FAIL of 34 |
+ | `probe-rprobe-never-yields` | PROBE / rProbe! never yields | maap | U19 x2: 2 FAIL of 191 |
+ | `defend-rdefend-ignored` | DEFEND / rDefend! ignored (only rAnnounce! can yield in DEFEND) | maap | U21 x4, then U22 x4 behind it: 8 FAIL of 189 |
+ | `defend-rdefend-no-tiebreak` | DEFEND / rDefend! always yields (no compare_MAC) | maap | U20, then U21 (not in DEFEND): 2 FAIL of 191 |
+diff --git a/tb/maap/mutants.py b/tb/maap/mutants.py
+index 10f0d2e..32b214d 100644
+--- a/tb/maap/mutants.py
++++ b/tb/maap/mutants.py
+@@ -25,7 +25,7 @@ MUTANTS = [
+     ('fit-compare-off-by-one', 'maap', 'run', 'U17:'),
+     ('seed-clamp-removed', 'maap', 'run', 'U18:'),
+     ('release-keeps-draw-mark', 'maap', 'run', 'U17b:'),
+-    ('validator-maap-version-1-only', 'rx_validator', 'run', 'F28'),
++    ('validator-maap-version-1-only', 'rx_validator', 'run', 'F29'),
+     ('validator-maap-version-1-only', 'pp_top', 'maap-internal', 'MP7:'),
+     ('compare-mac-forward', 'maap', 'run', 'U7:'),
+     ('compare-mac-forward', 'pp_top', 'maap-internal', 'MP4:'),
+diff --git a/tb/maap/mutations/validator-maap-version-1-only.patch b/tb/maap/mutations/validator-maap-version-1-only.patch
+index bf2b3dd..9d3738f 100644
+--- a/tb/maap/mutations/validator-maap-version-1-only.patch
++++ b/tb/maap/mutations/validator-maap-version-1-only.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/packet_engine/KL_pp_rx_validator.sv
+ +++ b/hdl/packet_engine/KL_pp_rx_validator.sv
+-@@ -260,8 +260,10 @@
++@@ -274,8 +274,10 @@
+                             && (da_own_r | da_mcast_r))
+                        && !((rx_data_i == SUB_MAAP_C)
+                             && (da_own_r | da_maap_r));
+@@ -10,6 +10,6 @@
+ +                      && (rx_data_i[7:4] != 4'h0))         // h and version (V8)
+ +                      || ((pidx_w == 11'd2) && (subtype_r == SUB_MAAP_C)
+ +                          && (rx_data_i[7:3] != 5'd1)));   // maap_version 1 only
+-   assign fail_now_w = sub_fail_w | ver_fail_w;
+- 
+-   assign wr_en_w = pdu_byte_w && in_budget_w && !fail_now_w;
++   //! the AECP hold admission: an AECP frame the subtype gate would pass is
++   //! dropped instead while the hold is on, the slot returned by the abort
++   assign held_fail_w = pdu_byte_w && (pidx_w == 11'd0) && aecp_hold_i
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 5522481..99448d1 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -1129,15 +1129,16 @@ pacing, fairness, late-response and block-change mutation matrix.
+ ## Section MP: the internal MAAP engine (11; IEEE 1722-2016 Annex B)
+ 
+ A second model runs the processor with `cfg_maap_internal_i = 1` from reset.
+-MP1 grades the whole acquisition on the MAC stream, MP2 a byte-exact DEFEND,
+-MP3 the talker granted from the internal claim, MP4 a yield to a conflicting
+-ANNOUNCE, MP5 the DA-qualified subtype gate, and MP6 the descriptor path while
+-MAAP runs.
++MP0 starts both restore walks over an erased device, so AECP is released
++(section D3). MP1 grades the whole acquisition on the MAC stream, MP2 a
++byte-exact DEFEND, MP3 the talker granted from the internal claim, MP4 a
++yield to a conflicting ANNOUNCE, MP5 the DA-qualified subtype gate, and MP6
++the descriptor path while MAAP runs.
+ 
+ **MP4** (issue #68, B.3.6.4): the announcer `F2:11:22:33:44:01` is
+ octet-reversed lower than `OWN_MAC` (`0A:0B:0C:0D:0E:0F`) but forward higher,
+ and a premise check says so. Only the reversed compare_MAC yields to it, so
+-the `tb/maap` campaign's `compare-mac-forward` arm fails MP4 (5 FAIL of 33).
++the `tb/maap` campaign's `compare-mac-forward` arm fails MP4 (5 FAIL of 34).
+ 
+ **MP7** (issue #67, B.2.3): every other MAAP frame in this bench carries
+ maap_version 1. MP7 feeds a conflicting PROBE with maap_version 2 (B.2.3.2),
+@@ -1145,6 +1146,6 @@ then one with maap_version 0 (B.2.3.4), through the real validator and
+ dispatch against the DEFEND-state claim. Each gets a byte-exact DEFEND that
+ carries our version 1, and the claim is kept.
+ 
+-`make maap-internal` builds the bench and runs the MP section alone (33
++`make maap-internal` builds the bench and runs the MP section alone (34
+ checks). The `tb/maap` mutation campaign uses it: its
+-`validator-maap-version-1-only` arm fails MP7 (4 FAIL of 33).
++`validator-maap-version-1-only` arm fails MP7 (4 FAIL of 34).
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 9d5bbee..9b83695 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -10054,23 +10054,17 @@ int main(int argc, char** argv) {
+ #else
+   const bool gsi_only = argc == 2 && std::strcmp(argv[1], "--gsi-internal-only") == 0;
+   const bool name_only = argc == 2 && std::strcmp(argv[1], "--name-writes-only") == 0;
+-<<<<<<< 053f979b
+-  const bool maap_only = argc == 2 && std::strcmp(argv[1], "--maap-internal-only") == 0;
+-  if (maap_only) run_maap_internal(h);
+-  if (!gsi_only && !name_only && !maap_only) Suite(h).run();
+-  if (!name_only && !maap_only) InternalStreamInfoPhase{h}.run();
+-  if (!gsi_only && !maap_only) run_name_writes(h);
+-=======
+   const bool d3_only = argc == 2 && std::strcmp(argv[1], "--d3-only") == 0;
++  const bool maap_only = argc == 2 && std::strcmp(argv[1], "--maap-internal-only") == 0;
+   if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+     run_dr3a(h);
+     return 0;
+   }
+-  if (!gsi_only && !name_only && !d3_only) Suite(h).run();
+-  if (!name_only && !d3_only) InternalStreamInfoPhase{h}.run();
+-  if (!gsi_only && !d3_only) run_name_writes(h);
+-  if (!gsi_only && !name_only) run_d3(h);
+->>>>>>> b2db3a97
++  if (maap_only) run_maap_internal(h);
++  if (!gsi_only && !name_only && !d3_only && !maap_only) Suite(h).run();
++  if (!name_only && !d3_only && !maap_only) InternalStreamInfoPhase{h}.run();
++  if (!gsi_only && !d3_only && !maap_only) run_name_writes(h);
++  if (!gsi_only && !name_only && !maap_only) run_d3(h);
+   const char* const build = "default";
+ #endif
+   //! NOT the canonical tally shape: this binary is ONE of the suite's two
