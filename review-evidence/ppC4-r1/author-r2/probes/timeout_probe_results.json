@@ -1,0 +1,61 @@
+[
+ {
+  "mutant": "probe-hang-after-tally@rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": null,
+  "completed": true,
+  "named_checks": [
+   "F29 BIND_RX cdl 84",
+   "F29 PROBE_TX cdl 84"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F4 counters d/e/s/v/l got 0 0 0 0 1 want 0 0 0 0 0",
+   "F4 commits got 0 want 1",
+   "F4 aborts got 1 want 0",
+   "F4 hdr beats got 0 want 1",
+   "F4 slot bytes exact (got 56 want 36)",
+   "F4 msg_type got 6 want 0",
+   "F4 cdl got 44 want 24",
+   "F4 seq got cafe want 0000",
+   "F4 opcode got 0006 want 0000",
+   "F4 operands got 0000000000000004 want 0000000000000000",
+   "F4 tail fields read as 0",
+   "F29 BIND_RX cdl 84 counters d/e/s/v/l got 0 0 0 0 1 want 0 0 0 0 0",
+   "F29 BIND_RX cdl 84 commits got 0 want 1",
+   "F29 BIND_RX cdl 84 aborts got 1 want 0",
+   "F29 BIND_RX cdl 84 hdr beats got 0 want 1",
+   "F29 BIND_RX cdl 84 slot bytes exact (got 56 want 96)",
+   "F29 BIND_RX cdl 84 cdl got 44 want 84",
+   "F29 BIND_RX cdl 84: the slot holds cdl + 12 = 96 bytes (got 56) and the beat carries cdl 84 (got 44)",
+   "F29 BIND_RX cdl 84: no rx_length count (got +1)",
+   "F29 PROBE_TX cdl 84 counters d/e/s/v/l got 0 0 0 0 1 want 0 0 0 0 0",
+   "F29 PROBE_TX cdl 84 commits got 0 want 1",
+   "F29 PROBE_TX cdl 84 aborts got 1 want 0",
+   "F29 PROBE_TX cdl 84 hdr beats got 0 want 1",
+   "F29 PROBE_TX cdl 84 slot bytes exact (got 56 want 96)",
+   "F29 PROBE_TX cdl 84 cdl got 44 want 84",
+   "F29 PROBE_TX cdl 84: the slot holds cdl + 12 = 96 bytes (got 56) and the beat carries cdl 84 (got 44)",
+   "F29 PROBE_TX cdl 84: no rx_length count (got +1)"
+  ],
+  "timeout": "make run still running after 240 s",
+  "verdict": "SURVIVED/TIMEOUT",
+  "wall_s": 240.0,
+  "left_running": []
+ },
+ {
+  "mutant": "probe-golden-short-timeout@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": null,
+  "run_rc": null,
+  "completed": false,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "timeout": "make gsi-build still running after 3 s",
+  "verdict": "BROKEN/TIMEOUT",
+  "wall_s": 3.0,
+  "left_running": []
+ }
+]

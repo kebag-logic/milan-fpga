@@ -1,0 +1,16 @@
+diff --git a/scripts/test_evidence.budget b/scripts/test_evidence.budget
+index fc04454..bafed26 100644
+--- a/scripts/test_evidence.budget
++++ b/scripts/test_evidence.budget
+@@ -33,7 +33,10 @@
+ #    mutant is reported TIMEOUT and NOT caught, so the arm fails in seconds
+ #    instead of hanging the sweep; the bound is a guard, never an oracle.
+ #    Behavioral protocol timeouts elsewhere advance explicit DUT cycles.
+-3
++#    The fourth is the processor ACMP mutation driver's per-run guard
++#    (processor PR #137): a hung build or run is killed and recorded
++#    SURVIVED/TIMEOUT, never KILLED; the bound is a guard, never an oracle.
++4
+ #
+ # Known processor debt, recorded here so it is inventoried and not implied
+ # covered (review of #282); the fix is upstream, in the submodule:
