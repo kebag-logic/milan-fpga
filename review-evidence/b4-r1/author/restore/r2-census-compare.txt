@@ -1,0 +1,8 @@
+census r2-start vs r2-end:
+{"a_entries": 33, "b_entries": 33}
+{"index": 8, "a": {"role": "dut", "what": "avb", "response": {"cmd": "GET_AVB_INFO", "status": "SUCCESS", "cdl": 36, "payload": "00090000<grandmaster-id>000001780017000106030002"}}, "b": {"role": "dut", "what": "avb", "response": {"cmd": "GET_AVB_INFO", "status": "SUCCESS", "cdl": 36, "payload": "00090000<grandmaster-id>000001790017000106030002"}}}
+{"index": 32, "a": {"role": "peer", "what": "sample-rate", "response": {"cmd": "GET_SAMPLING_RATE", "status": "SUCCESS", "cdl": 20, "payload": "000200000000bb80"}}, "b": {"role": "peer", "what": "sample-rate", "response": {"cmd": "GET_SAMPLING_RATE", "status": "ENTITY_LOCKED", "cdl": 16, "payload": "00020000"}}}
+{"same": 31, "compared": 33}
+
+census session-1 end vs r2-start (unredacted originals):
+{"same": 32, "compared": 33}

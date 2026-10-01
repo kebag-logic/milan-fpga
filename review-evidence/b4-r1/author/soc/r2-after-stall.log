@@ -1,0 +1,68 @@
+
+### 2026-10-01T06:31:00+0200 timeout=40.0
+
+# printf '%s_READY\n' A468_519922
+A468_519922_READY
+# printf '%s_B\n' A468_519922; cat /proc/uptime; jobs -l; ps -o pid,stat,args | ggrep -e [a]record -e [a]lsaloop; [ -d /proc/781 ] && echo "781: $(tr "\0" " " < //proc/781/cmdline)" && grep -E "State|wchan" /proc/781/status && cat /proc/781/wcchan; echo; cat /proc/asound/card0/pcm0c/sub0/status; ls -l /tmp; cat /tmp/a468-aarecord.err; echo UDC=$(cat /sys/class/udc/*/state); ip -br addr; dmesg | tail -88; printf '\n%s_E rc=%s\n' A468_519922 $?
+A468_519922_B
+68873.39 188152.20
+[1]+   781 Running                 arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 2> $E > /dev/tcp/<ecm-host>/18468 &
+  781 S    arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630
+781: arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 
+State:	S (sleeping)
+wait_woken
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68873.445940205
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+total 412
+-rw-r--r--    1 root     root           689 Jan  1 18:54 [0;0ma468-arecord.err[m
+drwxr-xr-x    2 root     root            60 Jan  1 00:00 [1;34mdbus[m
+-rw-r--r--    1 root     root        204816 Jan  1 19:07 [0;0mmessages[m
+-rw-r--r--    1 root     root        204817 Jan  1 18:25 [0;0mmessages.0[m
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+UDC=configured
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+usb0             UP             <soc-ecm-addr>/24 <soc-ecm-ll>/64 
+[    4.430933] configfs-gadget.g gadget.0: FS Playback: Req. wMaxPacketSize 1568 at bInterval 1 > max ISOC 1023, may drop data!
+[    4.442368] configfs-gadget.g gadget.0: FS Capture: Req. wMaxPacketSize 1568 at bInterval 1 > max ISOC 1023, may drop data!
+[    4.457211] configfs-gadget.g gadget.0: HOST MAC <soc-gadget-host-mac>
+[    4.463530] configfs-gadget.g gadget.0: MAC <soc-gadget-mac>
+[   14.565325] ti_sci_pm_domains 44043000.system-controller:power-controller: sync_state() pending due to fd00000.gpu
+[  667.170402] dwc3 31000000.usb: remote wakeup not configured
+[26028.680843] dwc3 31000000.usb: remote wakeup not configured
+[68513.969698] dwc3 31000000.usb: remote wakeup not configured
+
+A468_519922_E rc=0
+# 

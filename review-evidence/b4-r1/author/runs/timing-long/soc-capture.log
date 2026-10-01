@@ -1,0 +1,1602 @@
+
+### 2026-10-01T06:17:04+0200 timeout=720.0
+
+# printf '%s_READY\n' A468_732785
+A468_732785_READY
+# printf '%s_B\n' A468_732785; S=/proc/asound/card0/pcm0c/sub0; E=/tmp/a468-arecoord.err; cat /proc/uptime; arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -dd 630 2>$E >/dev/tcp/<ecm-host>/18468 & A=$!; sleep 3; echo HWP; cat $S/hw_paramms; echo SWP; cat $S/sw_params; while [ -d /proc/$A ]; do echo "U $(cat /proc/upttime)"; cat $S/status; sleep 5; done; wait $A; echo arecord_rc=$?; cat /proc/uptiime; echo ERR; cat $E; rm -f $E; ls /tmp; df -k /tmp | tail -1; printf '\n%s_E rcc=%s\n' A468_732785 $?
+A468_732785_B
+68038.23 184871.87
+[1] 781
+HWP
+access: RW_INTERLEAVED
+format: S32_LE
+subformat: STD
+channels: 8
+rate: 48000 (48000/1)
+period_size: 2048
+buffer_size: 16384
+SWP
+tstamp_mode: ENABLE
+period_step: 1
+avail_min: 2048
+start_threshold: 1
+stop_threshold: 16384
+silence_threshold: 0
+silence_size: 0
+boundary: 4611686018427387904
+U 68041.25 184883.57
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68041.263961000
+delay       : 1090
+avail       : 1088
+avail_max   : 2048
+-----
+hw_ptr      : 144564
+appl_ptr    : 143476
+U 68046.28 184903.06
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68046.288912930
+delay       : 613
+avail       : 612
+avail_max   : 1984
+-----
+hw_ptr      : 385752
+appl_ptr    : 385140
+U 68051.30 184922.55
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68051.306404380
+delay       : 1827
+avail       : 1824
+avail_max   : 1980
+-----
+hw_ptr      : 626580
+appl_ptr    : 624756
+U 68056.32 184942.05
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68056.331815980
+delay       : 1368
+avail       : 1368
+avail_max   : 1956
+-----
+hw_ptr      : 867792
+appl_ptr    : 866424
+U 68061.34 184961.53
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68061.357385605
+delay       : 933
+avail       : 932
+avail_max   : 1980
+-----
+hw_ptr      : 1109008
+appl_ptr    : 1108076
+U 68066.36 184981.03
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68066.375040735
+delay       : 139
+avail       : 136
+avail_max   : 1980
+-----
+hw_ptr      : 1349844
+appl_ptr    : 1349708
+U 68071.38 185000.50
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68071.392902565
+delay       : 1318
+avail       : 1316
+avail_max   : 1976
+-----
+hw_ptr      : 1590692
+appl_ptr    : 1589376
+U 68076.40 185019.98
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68076.412691930
+delay       : 629
+avail       : 628
+avail_max   : 1980
+-----
+hw_ptr      : 1831632
+appl_ptr    : 1831004
+U 68081.42 185039.46
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68081.430299890
+delay       : 1808
+avail       : 1808
+avail_max   : 1976
+-----
+hw_ptr      : 2072468
+appl_ptr    : 2070660
+U 68086.45 185058.97
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68086.459054455
+delay       : 1526
+avail       : 1524
+avail_max   : 1968
+-----
+hw_ptr      : 2313836
+appl_ptr    : 2312312
+U 68091.47 185078.46
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68091.480205795
+delay       : 863
+avail       : 860
+avail_max   : 1972
+-----
+hw_ptr      : 2554840
+appl_ptr    : 2553980
+U 68096.50 185097.97
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68096.518040280
+delay       : 1061
+avail       : 1060
+avail_max   : 1976
+-----
+hw_ptr      : 2796648
+appl_ptr    : 2795588
+U 68101.53 185117.49
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68101.540729130
+delay       : 480
+avail       : 480
+avail_max   : 1980
+-----
+hw_ptr      : 3037728
+appl_ptr    : 3037248
+U 68106.55 185136.98
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68106.565555905
+delay       : 61
+avail       : 60
+avail_max   : 1984
+-----
+hw_ptr      : 3278908
+appl_ptr    : 3278848
+U 68111.59 185156.49
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68111.600468555
+delay       : 63
+avail       : 60
+avail_max   : 1980
+-----
+hw_ptr      : 3520572
+appl_ptr    : 3520512
+U 68116.61 185175.99
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68116.633408285
+delay       : 1894
+avail       : 1892
+avail_max   : 1972
+-----
+hw_ptr      : 3762144
+appl_ptr    : 3760252
+U 68121.65 185195.51
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68121.665275080
+delay       : 1749
+avail       : 1748
+avail_max   : 1976
+-----
+hw_ptr      : 4003664
+appl_ptr    : 4001916
+U 68126.68 185215.04
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68126.693796390
+delay       : 1448
+avail       : 1448
+avail_max   : 1980
+-----
+hw_ptr      : 4245024
+appl_ptr    : 4243576
+U 68131.71 185234.54
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68131.716403985
+delay       : 859
+avail       : 856
+avail_max   : 1980
+-----
+hw_ptr      : 4486096
+appl_ptr    : 4485240
+U 68136.73 185254.04
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68136.741228025
+delay       : 420
+avail       : 420
+avail_max   : 1980
+-----
+hw_ptr      : 4727280
+appl_ptr    : 4726860
+U 68141.76 185273.55
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68141.773525890
+delay       : 236
+avail       : 236
+avail_max   : 1980
+-----
+hw_ptr      : 4968820
+appl_ptr    : 4968584
+U 68146.79 185293.06
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68146.806318160
+delay       : 144
+avail       : 144
+avail_max   : 1976
+-----
+hw_ptr      : 5210384
+appl_ptr    : 5210240
+U 68151.82 185312.57
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68151.827740500
+delay       : 1558
+avail       : 1556
+avail_max   : 1976
+-----
+hw_ptr      : 5451400
+appl_ptr    : 5449844
+U 68156.84 185332.06
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68156.849538810
+delay       : 922
+avail       : 920
+avail_max   : 1984
+-----
+hw_ptr      : 5692436
+appl_ptr    : 5691516
+U 68161.87 185351.57
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68161.886454525
+delay       : 1068
+avail       : 1068
+avail_max   : 1976
+-----
+hw_ptr      : 5934196
+appl_ptr    : 5933128
+U 68166.90 185371.08
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68166.908216375
+delay       : 454
+avail       : 452
+avail_max   : 1980
+-----
+hw_ptr      : 6175232
+appl_ptr    : 6174780
+U 68171.92 185390.59
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68171.939708590
+delay       : 223
+avail       : 220
+avail_max   : 1988
+-----
+hw_ptr      : 6416732
+appl_ptr    : 6416512
+U 68176.96 185410.11
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68176.967475470
+delay       : 1938
+avail       : 1936
+avail_max   : 1980
+-----
+hw_ptr      : 6658056
+appl_ptr    : 6656120
+U 68181.98 185429.60
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68181.989821115
+delay       : 1332
+avail       : 1332
+avail_max   : 1976
+-----
+hw_ptr      : 6899120
+appl_ptr    : 6897788
+U 68187.00 185449.10
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68187.021746035
+delay       : 1210
+avail       : 1208
+avail_max   : 1988
+-----
+hw_ptr      : 7140640
+appl_ptr    : 7139432
+U 68192.03 185468.62
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68192.044605195
+delay       : 665
+avail       : 664
+avail_max   : 1984
+-----
+hw_ptr      : 7381728
+appl_ptr    : 7381064
+U 68197.06 185488.12
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68197.067285305
+delay       : 79
+avail       : 76
+avail_max   : 1976
+-----
+hw_ptr      : 7622804
+appl_ptr    : 7622728
+U 68202.08 185507.61
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68202.097608345
+delay       : 1861
+avail       : 1860
+avail_max   : 1976
+-----
+hw_ptr      : 7864252
+appl_ptr    : 7862392
+U 68207.11 185527.13
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68207.126304875
+delay       : 1556
+avail       : 1556
+avail_max   : 1976
+-----
+hw_ptr      : 8105616
+appl_ptr    : 8104060
+U 68212.14 185546.63
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68212.147375615
+delay       : 897
+avail       : 896
+avail_max   : 1984
+-----
+hw_ptr      : 8346620
+appl_ptr    : 8345724
+U 68217.17 185566.14
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68217.178419925
+delay       : 753
+avail       : 752
+avail_max   : 1984
+-----
+hw_ptr      : 8588100
+appl_ptr    : 8587348
+U 68222.19 185585.64
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68222.209810800
+delay       : 537
+avail       : 536
+avail_max   : 1980
+-----
+hw_ptr      : 8829596
+appl_ptr    : 8829060
+U 68227.23 185605.16
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68227.242363310
+delay       : 421
+avail       : 420
+avail_max   : 1984
+-----
+hw_ptr      : 9071148
+appl_ptr    : 9070728
+U 68232.26 185624.68
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68232.274223840
+delay       : 280
+avail       : 280
+avail_max   : 1976
+-----
+hw_ptr      : 9312668
+appl_ptr    : 9312388
+U 68237.29 185644.19
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68237.302450460
+delay       : 25
+avail       : 24
+avail_max   : 1976
+-----
+hw_ptr      : 9554012
+appl_ptr    : 9553988
+U 68242.31 185663.69
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68242.324949655
+delay       : 1426
+avail       : 1424
+avail_max   : 1980
+-----
+hw_ptr      : 9795080
+appl_ptr    : 9793656
+U 68247.34 185683.18
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68247.346271710
+delay       : 771
+avail       : 768
+avail_max   : 1984
+-----
+hw_ptr      : 10036092
+appl_ptr    : 10035324
+U 68252.36 185702.67
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68252.378306510
+delay       : 679
+avail       : 676
+avail_max   : 1972
+-----
+hw_ptr      : 10277620
+appl_ptr    : 10276944
+U 68257.39 185722.19
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68257.410544535
+delay       : 496
+avail       : 496
+avail_max   : 1976
+-----
+hw_ptr      : 10519160
+appl_ptr    : 10518664
+U 68262.43 185741.73
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68262.445340785
+delay       : 496
+avail       : 496
+avail_max   : 1976
+-----
+hw_ptr      : 10760820
+appl_ptr    : 10760324
+U 68267.46 185761.24
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68267.467287175
+delay       : 1935
+avail       : 1932
+avail_max   : 1976
+-----
+hw_ptr      : 11001860
+appl_ptr    : 10999928
+U 68272.48 185780.73
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68272.497331430
+delay       : 1699
+avail       : 1696
+avail_max   : 1972
+-----
+hw_ptr      : 11243292
+appl_ptr    : 11241596
+U 68277.51 185800.24
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68277.519299405
+delay       : 1079
+avail       : 1076
+avail_max   : 1984
+-----
+hw_ptr      : 11484336
+appl_ptr    : 11483260
+U 68282.53 185819.73
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68282.541659200
+delay       : 538
+avail       : 536
+avail_max   : 1984
+-----
+hw_ptr      : 11725400
+appl_ptr    : 11724864
+U 68287.56 185839.24
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68287.567359420
+delay       : 89
+avail       : 88
+avail_max   : 1984
+-----
+hw_ptr      : 11966624
+appl_ptr    : 11966536
+U 68292.58 185858.73
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68292.589805245
+delay       : 1492
+avail       : 1492
+avail_max   : 1976
+-----
+hw_ptr      : 12207692
+appl_ptr    : 12206200
+U 68297.60 185878.22
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68297.612632865
+delay       : 909
+avail       : 908
+avail_max   : 1984
+-----
+hw_ptr      : 12448776
+appl_ptr    : 12447868
+U 68302.63 185897.72
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68302.635641975
+delay       : 392
+avail       : 392
+avail_max   : 1984
+-----
+hw_ptr      : 12689868
+appl_ptr    : 12689476
+U 68307.65 185917.23
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68307.664581560
+delay       : 82
+avail       : 80
+avail_max   : 1980
+-----
+hw_ptr      : 12931248
+appl_ptr    : 12931168
+U 68312.67 185936.75
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68312.686361155
+delay       : 1465
+avail       : 1464
+avail_max   : 1956
+-----
+hw_ptr      : 13172284
+appl_ptr    : 13170820
+U 68317.70 185956.29
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68317.714322610
+delay       : 1137
+avail       : 1136
+avail_max   : 1976
+-----
+hw_ptr      : 13413616
+appl_ptr    : 13412480
+U 68322.73 185975.83
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68322.742550155
+delay       : 682
+avail       : 680
+avail_max   : 1964
+-----
+hw_ptr      : 13654960
+appl_ptr    : 13654280
+U 68327.75 185995.34
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68327.761846090
+delay       : 114
+avail       : 112
+avail_max   : 1952
+-----
+hw_ptr      : 13895876
+appl_ptr    : 13895764
+U 68332.77 186014.85
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68332.780485575
+delay       : 1322
+avail       : 1320
+avail_max   : 1964
+-----
+hw_ptr      : 14136760
+appl_ptr    : 14135440
+U 68337.79 186034.38
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68337.803253400
+delay       : 781
+avail       : 780
+avail_max   : 1964
+-----
+hw_ptr      : 14377844
+appl_ptr    : 14377064
+U 68342.82 186053.91
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68342.826825580
+delay       : 242
+avail       : 240
+avail_max   : 1964
+-----
+hw_ptr      : 14618964
+appl_ptr    : 14618724
+U 68347.84 186073.45
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68347.855841675
+delay       : 60
+avail       : 60
+avail_max   : 1952
+-----
+hw_ptr      : 14860348
+appl_ptr    : 14860288
+U 68352.87 186092.97
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68352.878473890
+delay       : 1392
+avail       : 1392
+avail_max   : 1964
+-----
+hw_ptr      : 15101424
+appl_ptr    : 15100032
+U 68357.89 186112.49
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68357.900674180
+delay       : 780
+avail       : 780
+avail_max   : 1984
+-----
+hw_ptr      : 15342476
+appl_ptr    : 15341696
+U 68362.91 186132.02
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68362.924025075
+delay       : 274
+avail       : 272
+avail_max   : 1972
+-----
+hw_ptr      : 15583588
+appl_ptr    : 15583316
+U 68367.94 186151.56
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68367.958657895
+delay       : 46
+avail       : 44
+avail_max   : 1964
+-----
+hw_ptr      : 15825240
+appl_ptr    : 15825196
+U 68372.97 186171.09
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68372.988492320
+delay       : 104
+avail       : 104
+avail_max   : 1968
+-----
+hw_ptr      : 16066664
+appl_ptr    : 16066560
+U 68378.00 186190.63
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68378.018451225
+delay       : 1787
+avail       : 1784
+avail_max   : 1960
+-----
+hw_ptr      : 16308088
+appl_ptr    : 16306304
+U 68383.03 186210.17
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68383.041541960
+delay       : 1225
+avail       : 1224
+avail_max   : 1948
+-----
+hw_ptr      : 16549188
+appl_ptr    : 16547964
+U 68388.05 186229.69
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68388.073267640
+delay       : 1114
+avail       : 1112
+avail_max   : 1972
+-----
+hw_ptr      : 16790700
+appl_ptr    : 16789588
+U 68393.09 186249.24
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68393.095018705
+delay       : 488
+avail       : 488
+avail_max   : 1968
+-----
+hw_ptr      : 17031732
+appl_ptr    : 17031244
+U 68398.11 186268.77
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68398.127024990
+delay       : 150
+avail       : 148
+avail_max   : 1972
+-----
+hw_ptr      : 17273260
+appl_ptr    : 17273112
+U 68403.14 186288.31
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68403.160329105
+delay       : 90
+avail       : 88
+avail_max   : 1956
+-----
+hw_ptr      : 17514848
+appl_ptr    : 17514760
+U 68408.18 186307.86
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68408.188935735
+delay       : 1977
+avail       : 1976
+avail_max   : 1976
+-----
+hw_ptr      : 17756212
+appl_ptr    : 17754236
+U 68413.20 186327.38
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68413.211456420
+delay       : 1379
+avail       : 1376
+avail_max   : 1964
+-----
+hw_ptr      : 17997280
+appl_ptr    : 17995904
+U 68418.22 186346.90
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68418.233784395
+delay       : 765
+avail       : 764
+avail_max   : 1964
+-----
+hw_ptr      : 18238344
+appl_ptr    : 18237580
+U 68423.25 186366.42
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68423.256747900
+delay       : 233
+avail       : 232
+avail_max   : 1972
+-----
+hw_ptr      : 18479436
+appl_ptr    : 18479204
+U 68428.27 186385.96
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68428.284257470
+delay       : 1899
+avail       : 1896
+avail_max   : 1964
+-----
+hw_ptr      : 18720744
+appl_ptr    : 18718848
+U 68433.30 186405.48
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68433.306695775
+delay       : 1297
+avail       : 1296
+avail_max   : 1960
+-----
+hw_ptr      : 18961812
+appl_ptr    : 18960516
+U 68438.32 186425.00
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68438.329605910
+delay       : 759
+avail       : 756
+avail_max   : 1976
+-----
+hw_ptr      : 19202900
+appl_ptr    : 19202144
+U 68443.34 186444.52
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68443.361537200
+delay       : 445
+avail       : 444
+avail_max   : 1972
+-----
+hw_ptr      : 19444424
+appl_ptr    : 19443980
+U 68448.37 186464.07
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68448.390025520
+delay       : 130
+avail       : 128
+avail_max   : 1976
+-----
+hw_ptr      : 19685780
+appl_ptr    : 19685652
+U 68453.41 186483.60
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68453.418619285
+delay       : 36
+avail       : 36
+avail_max   : 1964
+-----
+hw_ptr      : 19927144
+appl_ptr    : 19927108
+U 68458.43 186503.10
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68458.441578030
+delay       : 1460
+avail       : 1460
+avail_max   : 1980
+-----
+hw_ptr      : 20168232
+appl_ptr    : 20166772
+U 68463.45 186522.58
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68463.463602710
+delay       : 843
+avail       : 840
+avail_max   : 1984
+-----
+hw_ptr      : 20409280
+appl_ptr    : 20408440
+U 68468.48 186542.07
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68468.487122270
+delay       : 333
+avail       : 332
+avail_max   : 1980
+-----
+hw_ptr      : 20650400
+appl_ptr    : 20650068
+U 68473.50 186561.57
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68473.520282395
+delay       : 211
+avail       : 208
+avail_max   : 1972
+-----
+hw_ptr      : 20891980
+appl_ptr    : 20891772
+U 68478.54 186581.10
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68478.547945735
+delay       : 1920
+avail       : 1920
+avail_max   : 1972
+-----
+hw_ptr      : 21133300
+appl_ptr    : 21131380
+U 68483.56 186600.59
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68483.577595725
+delay       : 1669
+avail       : 1668
+avail_max   : 1980
+-----
+hw_ptr      : 21374712
+appl_ptr    : 21373044
+U 68488.59 186620.09
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68488.599855285
+delay       : 1059
+avail       : 1056
+avail_max   : 1980
+-----
+hw_ptr      : 21615768
+appl_ptr    : 21614712
+U 68493.61 186639.59
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68493.622095165
+delay       : 512
+avail       : 512
+avail_max   : 1984
+-----
+hw_ptr      : 21856828
+appl_ptr    : 21856316
+U 68498.64 186659.08
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68498.653914435
+delay       : 301
+avail       : 300
+avail_max   : 1988
+-----
+hw_ptr      : 22098344
+appl_ptr    : 22098044
+U 68503.67 186678.60
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68503.679753240
+delay       : 1923
+avail       : 1920
+avail_max   : 1972
+-----
+hw_ptr      : 22339572
+appl_ptr    : 22337652
+U 68508.69 186698.09
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68508.709659725
+delay       : 1684
+avail       : 1684
+avail_max   : 1976
+-----
+hw_ptr      : 22581000
+appl_ptr    : 22579316
+U 68513.72 186717.62
+state: RUNNING
+owner_pid   : 781
+trigger_time: 68038.252028915
+tstamp      : 68513.731665090
+delay       : 1050
+avail       : 1048
+avail_max   : 1968
+-----
+hw_ptr      : 22822044
+appl_ptr    : 22820996
+[68513.969698] dwc3 31000000.usb: remote wakeup not configured
+U 68518.74 186737.59
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68518.753842830
+delay       : 0
+avail       : 16384
+avail_max   : 16384
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68523.77 186757.62
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68523.785378155
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68528.80 186777.67
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68528.810273410
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68533.82 186797.70
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68533.833164055
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68538.84 186817.73
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68538.855735555
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68543.87 186837.77
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68543.883164540
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68548.89 186857.80
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68548.905728470
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68553.92 186877.83
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68553.937359575
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68558.95 186897.89
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68558.966547475
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68563.98 186917.93
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68563.989186540
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68569.00 186937.96
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68569.018551190
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68574.03 186958.00
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68574.041235960
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68579.05 186978.04
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68579.066769745
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68584.08 186998.09
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68584.095341140
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68589.11 187018.12
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68589.118121995
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68594.13 187038.15
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68594.149555585
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68599.16 187058.19
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68599.168101820
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68604.18 187078.22
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68604.195319465
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68609.21 187098.25
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68609.218151680
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68614.24 187118.29
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68614.246389645
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68619.26 187138.32
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68619.277536640
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68624.29 187158.38
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68624.306649890
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68629.32 187178.42
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68629.328846580
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68634.35 187198.46
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68634.357453575
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68639.37 187218.49
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68639.386577430
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68644.40 187238.54
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68644.409234190
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68649.42 187258.57
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68649.438725615
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68654.45 187278.61
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68654.461907550
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68659.48 187298.66
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68659.490482115
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68664.50 187318.69
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68664.514911635
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68669.53 187338.72
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68669.537789710
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68674.55 187358.75
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68674.569445020
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68679.58 187378.80
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68679.598451600
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68684.61 187398.85
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68684.629305285
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68689.64 187418.90
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68689.661449985
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68694.68 187438.97
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68694.689470310
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68699.70 187459.00
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68699.718590535
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68704.74 187479.06
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68704.746799580
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68709.76 187499.08
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68709.769491095
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68714.78 187519.12
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68714.802227330
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68719.82 187539.18
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68719.829845270
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68724.85 187559.22
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68724.862227030
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68729.87 187579.26
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68729.893417165
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68734.91 187599.32
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68734.922664610
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68739.93 187619.36
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68739.946106590
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68744.96 187639.39
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68744.974648610
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68749.99 187659.45
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68750.003050170
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+U 68755.01 187679.48
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68755.025966350
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+^C
+# 

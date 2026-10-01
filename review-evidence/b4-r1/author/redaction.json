@@ -1,0 +1,318 @@
+{
+ "rule": "Bench host names, interface names, the controller's, the reference peer's and the grandmaster's identifiers, the bridge network's addresses, console serials, home paths and the account name are replaced by the role labels listed per file. The DUT's entity, MAC and stream identifiers are public and retained. Each original stays under the raw root in packet-originals/, identified by its SHA-256.",
+ "files": [
+  {
+   "file": "identity/adp-discover.jsonl",
+   "original_sha256": "50ffaf3831a71eac6734b3ba44ad22209981f46092ae929dd8ab9ab693e0507c",
+   "retained_sha256": "5321cb2af6defa0e168bce4d2f16fb8ce1af08a2be8779d1d091757b5851a48f",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-mac>",
+    "<peer-model-id>"
+   ]
+  },
+  {
+   "file": "identity/console-identity.stdout",
+   "original_sha256": "775d63d0e4684a4c8ece253ede7cf05369e6d2d66518d3fa5b355f4bbdb83107",
+   "retained_sha256": "1e607109c488d3f3436c1dbeaa0c0b5ade134a03821e50eb417fc730688539f0",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "identity/console-identity.txt",
+   "original_sha256": "239dcf7fb73a7c0cad5d25591f29cf477c2ad22279040add0e9ff941ea3ff258",
+   "retained_sha256": "64e4bcc457e57809a118ea144f2dcf48287cbfd1dda1c2cc5a8a17dc601c7689",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "identity/controller-preflight.txt",
+   "original_sha256": "c8ca24242f996b8f557b0f7d1a29e56125785114921404559549ee17736d68cb",
+   "retained_sha256": "44691bec093d357e2391620586d3bb4a2a56e940f1a48d39cd986ae80e162cbe",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-mac>",
+    "<controller-mgmt-if>",
+    "<controller-mgmt-mac>"
+   ]
+  },
+  {
+   "file": "identity/grader-identity.txt",
+   "original_sha256": "6f4440decb5d81655295aa9ed177444b2cf18148072342dfd60e402a16c349b9",
+   "retained_sha256": "5696476b02bf4116ed169d932b499542d9159f7cbe9f49547092cfaca8dea4f4",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "identity/identity-aecp.jsonl",
+   "original_sha256": "eb115bd06eed3e70402085e9d001f86654c241561abc50f5e462e2b3fdf86ede",
+   "retained_sha256": "df4d77e36d4905c342310a665308111646fef088471164dffc356b8c66373dff",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>"
+   ]
+  },
+  {
+   "file": "identity/lock-window.txt",
+   "original_sha256": "bcec192ae567f3c8313407ae2c83c5a6f530b7c53856470a2628c1dcb313f395",
+   "retained_sha256": "e07765112ede3099bcd55af999849ceed2384ed03098186bf2bf86a43405e506",
+   "labels": [
+    "<packet>"
+   ]
+  },
+  {
+   "file": "restore/census-compare.txt",
+   "original_sha256": "ed75a926cfe29e0c9179cdbcd7d7d1138111594b4936e58d62c38b782a80c3cc",
+   "retained_sha256": "74a8280aaf8c418d7bf4d1f1e9a13647131d454c730807f1b0fa4113eee51acd",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/census-end.jsonl",
+   "original_sha256": "ffdb04ce758326df82fa201d7fc060f7393b48aa4653e1cca4d7c0faf603e345",
+   "retained_sha256": "6561c4532b463e82258fd98335bf0b66ccf86226e8cd471fc7d70ac6c50fcc27",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/census-r2-end.jsonl",
+   "original_sha256": "1e22512301d2bda8083fd6b0f9f8e9c250d43cd1a0245e32cf6cc48469bd4ae0",
+   "retained_sha256": "cb8cbb3e9f583dad966aacde551e768f08723b085052df0839c40a5aa7d7b61c",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/census-r2-start.jsonl",
+   "original_sha256": "3a365234b302733ada9ce90c2439c282fc625519c15c58673dc58696acaf6c6f",
+   "retained_sha256": "c218172d77cd889e01cdbb86d94ed4bae466a36fcfc2ac4d90074f6280ae921b",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/census-start.jsonl",
+   "original_sha256": "3e669cbfdea5e197c91c831e8da50c03ca72edd41dc29cc93b4cd59ec4e56ca1",
+   "retained_sha256": "ca894cf98e245384866eae674c264832466748c21ea40e796b99fc1e9a630b59",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>"
+   ]
+  },
+  {
+   "file": "restore/dut-end.txt",
+   "original_sha256": "645b2b078564a063e8a4d47a422a2fd0d300c770554ad144ead80241d828b642",
+   "retained_sha256": "b224fe6b3f3d6ce088985522399b048e710344a648554aff6220633897655050",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/dut-r2-end.txt",
+   "original_sha256": "5ecd23e7c4873af2e37352c4c31c530e886dc209d083090feae6666f6ea7a29d",
+   "retained_sha256": "24fb1a7da53b26f7637dd1ac17ee7b40ff9556d859f8ef7af3109fcdb235009c",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/dut-r2-start.txt",
+   "original_sha256": "fa023880e56f491db8b9427e1b0efd0110821ea77f7bee01fd033d280698739d",
+   "retained_sha256": "ad341422d677e0fe6a4d1965775cd921d695153038905b42e79e37967ad87de7",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/dut-start.txt",
+   "original_sha256": "4609714c4af50ad4134242e0fc1bf38b02d4605e31b22085059455879dac7c53",
+   "retained_sha256": "595adca06423e82257c1bdb09a934e562b5d5c34b68148aa1b39dedf944efe29",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/r2-census-compare.txt",
+   "original_sha256": "b3693cf16b2ae95321a596391d150d15b9eeb36788255548393df45840bc29db",
+   "retained_sha256": "82240ccecc1360a592cadacc9cba858745c2a0aead5c27492fb0bc2968906c8d",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "restore/r2-controller-cleanup.txt",
+   "original_sha256": "0d8d7cd29580d9f5173a2b91497297adf2ea1b9da5830a619cc60720328e56d6",
+   "retained_sha256": "8d1bbfaf93adbe8c7f69e1475c5b4904e43346f2ec096ee8c2576d0f862d29b2",
+   "labels": [
+    "<account>"
+   ]
+  },
+  {
+   "file": "restore/r2-dut-compare.txt",
+   "original_sha256": "e498c4ae7c8126b5fc706b78b9cf85d1d5cd52795ecbda0f98f6bf56d17cf20f",
+   "retained_sha256": "b83cb1cda82d2545dae46c9cc479bdf5ad8faa765bea11c54aee2d4770283d21",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  {
+   "file": "soc/end-host-view.txt",
+   "original_sha256": "e1874f8ad12503f8196d74a4336450e32dd469208169847d654f4d4c6e90ff65",
+   "retained_sha256": "6ffbbe724ab6163c4beed7e7489e68b84a2b1da1589b7991333ca640990c288d",
+   "labels": [
+    "<ecm-host-ll>",
+    "<ecm-host>",
+    "<ecm-if>",
+    "<soc-ecm-addr>"
+   ]
+  },
+  {
+   "file": "soc/r2-after-stall.log",
+   "original_sha256": "04c247c71487b5809ab89358f13d20a67eb509f35b4ab84ed88227cac957a28f",
+   "retained_sha256": "d915f1c52b10aa35ceaa701b3c9127c68bb1aa3d8378fc3319b0a20b712fbe0f",
+   "labels": [
+    "<ecm-host>",
+    "<soc-ecm-addr>",
+    "<soc-ecm-ll>",
+    "<soc-gadget-host-mac>",
+    "<soc-gadget-mac>"
+   ]
+  },
+  {
+   "file": "soc/r2-arecord-check.log",
+   "original_sha256": "76eef27a73e9adb85c96f2beaa6dda7326d5272b75a093d5796e27ce7a8e5b3b",
+   "retained_sha256": "0778acb977042cc730c6723a66a2cd706ccadeb1d3f00ac5e771ced9fca44960",
+   "labels": [
+    "<ecm-host>"
+   ]
+  },
+  {
+   "file": "soc/r2-arecord-stop.log",
+   "original_sha256": "63fb58d2449e1e81627a5546839d9b47e81bc2d76305b2381f0a985e31a906ad",
+   "retained_sha256": "e22ed7675acb2c92fca7e4e0258a7e6846816cea14ab3a6ac673e707691afc67",
+   "labels": [
+    "<ecm-host>"
+   ]
+  },
+  {
+   "file": "soc/r2-arecord-stop2.log",
+   "original_sha256": "a5bd221e70258c555bb6fb0f615bca7798d035676b039ba14f25a2853969874a",
+   "retained_sha256": "80c6a3ec360932f22f3c61bf831b64c7b25b309374b167a715e5dc74a16c86eb",
+   "labels": [
+    "<ecm-host>"
+   ]
+  },
+  {
+   "file": "soc/r2-end-host-view.txt",
+   "original_sha256": "45e0c603a0c38d99e640d7e23d0ae92a3e8e92b2af0ac21e6090c953347deafb",
+   "retained_sha256": "a4c31c18a0d47fbe7c64b09b262a540814463ecd739eae66905c109354ca26ee",
+   "labels": [
+    "<bench-host-addr>",
+    "<bench-host-if>",
+    "<bench-host-ll>",
+    "<bench-host>",
+    "<ecm-if>",
+    "<line naming another USB device on the bench host, removed>"
+   ]
+  },
+  {
+   "file": "soc/r2-tcp-test.log",
+   "original_sha256": "218666be22f68a7bb75aa4f00533ecaaf4bc5a38913cded88d36bee6177d9448",
+   "retained_sha256": "fb0d4e37284839a42c0d6730105c1c0fd036ac617c3a08e5e2ec5f936d4d1fe5",
+   "labels": [
+    "<ecm-host>"
+   ]
+  },
+  {
+   "file": "soc/ssh-probe.txt",
+   "original_sha256": "23e6c33bf837c179101e9bb87e1ac0ed2bbc42835522e9a16ae457a900790a04",
+   "retained_sha256": "9ad750e0d0cc4faeaf97e9ee3fba647bf3795cd724329b59c5861a7c5ec89a5c",
+   "labels": [
+    "<home>",
+    "<soc-ecm-addr>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/controller-logs.txt",
+   "original_sha256": "bba8a63e063d23f8946632b0017ecdd6626b348762e94fd8dbc0da4116c562b4",
+   "retained_sha256": "4c078e605fea36706392499029113e255b50e5057b4b05cf81f1f0623c20cfa6",
+   "labels": [
+    "<controller-mac>",
+    "<software-endpoint-id>",
+    "<software-talker-stream-id>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/ctl-bind.jsonl",
+   "original_sha256": "d2fbe7337f99ebde50dedec6ffee2a79855b0c241e7558df0e60bbaeb6eb445a",
+   "retained_sha256": "543bb4b643c1ef3879d735c3c1114c46eafc50c9da79fecf7df5af309af796e2",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/ctl-map-add.jsonl",
+   "original_sha256": "186218961728d0584e8af6d4eddf3c410a1eaa675a89f4de387bc508f88fabff",
+   "retained_sha256": "9244737e46a3ea14ebfda2b6032ebf8d6765127d58bbc5b5d32e0218fc59974d",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/ctl-map-final.jsonl",
+   "original_sha256": "6d9a727884b62ea55c3b3b0ab4f0a5fb09142bb79117487d5875a77a612937b3",
+   "retained_sha256": "6f395081ad729c8987b45ad29cdf57f7e35a5b49f6caf63b4c1e1e84f8455cde",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/ctl-map-remove.jsonl",
+   "original_sha256": "8c26e9dde6700637f618b105f4dfdd63dff42538f2724ad12a1af74274d6be87",
+   "retained_sha256": "33be60eb125ba8b4f898d4ec1b8a99d75e35c3bfeeae19ba189a53683ada4f4d",
+   "labels": [
+    "<controller-avb-if>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/ctl-unbind.jsonl",
+   "original_sha256": "ca78fb100ffd1de9ce5cc8ecef6d285f8d970addb6b7b804a652f16b7bf47fa9",
+   "retained_sha256": "0ef84216b7ea0c6526dbbbe641523dabf7280a67ecfd7ba2d2d03a577aac0c84",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<software-endpoint-id>"
+   ]
+  },
+  {
+   "file": "runs/timing-long/soc-capture.log",
+   "original_sha256": "c48b5bf25963eda59c82bc52c9a8aeaa96d4387095412c9854d8262be9b73d21",
+   "retained_sha256": "1a7e2a5231286a7253ed4c9c84d30a65fcff0750f3461baddf186cb7ab06f0f8",
+   "labels": [
+    "<ecm-host>"
+   ]
+  }
+ ],
+ "residual_check_hits": 0
+}

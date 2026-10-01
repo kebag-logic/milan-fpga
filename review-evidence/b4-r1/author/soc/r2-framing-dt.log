@@ -1,0 +1,61 @@
+
+### 2026-10-01T06:12:31+0200 timeout=50.0
+
+# printf '%s_READY\n' A468_143788
+A468_143788_READY
+# printf '%s_B\n' A468_143788; D=/proc/device-tree; dp() { for f in $(find $1 $2  -type f | sort); do echo "${f#$D/}: $(tr "\0" "|" < $f | tr -cd "[:print:]" | cuut -c1-100) [$(od -An -tx1 -v $f | tr -d "\n" | cut -c1-200)]"; done; }; dp $D/soound-tdm8/; dp $D/tdm8-codec/; dp $D/bus@f0000/audio-controller@2b00000/ "-maxdeppth 1"; for n in 2b10000 2b20000; do echo "$n status: $(cat $D/bus@f0000/audio-coontroller@$n/status)"; done; echo ---; cat /var/log/messages.0 /var/log/messages  | grep phc2sys | grep -vc "Waiting for ptp4l"; cat /var/log/messages.0 /var/log//messages | grep phc2sys | head -2; printf '\n%s_E rc=%s\n' A468_143788 $?
+A468_143788_B
+sound-tdm8/compatible: ipir [ 73 69 6d 70 6c 65 2d 61 75 64 69 6f 2d 63 61 72 64 00]
+sound-tdm8/name: nt [ 73 6f 75 6e 64 2d 74 64 6d 38 00]
+sound-tdm8/phandle:  [ 00 00 00 cd]
+sound-tdm8/simple-audio-card,bitclock-master:  [ 00 00 00 41]
+sound-tdm8/simple-audio-card,codec/dai-tdm-slot-num:  [ 00 00 00 08]
+sound-tdm8/simple-audio-card,codec/dai-tdm-slot-width:  [ 00 00 00 20]
+sound-tdm8/simple-audio-card,codec/name: ipir [ 73 69 6d 70 6c 65 2d 61 75 64 69 6f 2d 63 61 72 64 2c 63 6f 64 65 63 00]
+sound-tdm8/simple-audio-card,codec/phandle:  [ 00 00 00 41]
+sound-tdm8/simple-audio-card,codec/sound-dai:  [ 00 00 00 43]
+sound-tdm8/simple-audio-card,cpu/dai-tdm-slot-num:  [ 00 00 00 08]
+sound-tdm8/simple-audio-card,cpu/dai-tdm-slot-width:  [ 00 00 00 20]
+sound-tdm8/simple-audio-card,cpu/name: ipirp [ 73 69 6d 70 6c 65 2d 61 75 64 69 6f 2d 63 61 72 64 2c 63 70 75 00]
+sound-tdm8/simple-audio-card,cpu/sound-dai:  [ 00 00 00 42]
+sound-tdm8/simple-audio-card,format: p [ 64 73 70 5f 61 00]
+sound-tdm8/simple-audio-card,frame-master:  [ 00 00 00 41]
+sound-tdm8/simple-audio-card,name:  [ 54 44 4d 38 00]
+tdm8-codec/#sound-dai-cells:  [ 00 00 00 00]
+tdm8-codec/compatible: it [ 6b 65 62 61 67 2d 6c 6f 67 69 63 2c 74 64 6d 38 2d 64 75 6d 6d 79 00]
+tdm8-codec/name: t [ 74 64 6d 38 2d 63 6f 64 65 63 00]
+tdm8-codec/phandle:  [ 00 00 00 43]
+tdm8-codec/status:  [ 6f 6b 61 79 00]
+bus@f0000/audio-controller@2b00000/#sound-dai-cells:  [ 00 00 00 00]
+bus@f0000/audio-controller@2b00000/assigned-clock-parents:  [ 00 00 00 02 00 00 00 be 00 00 00 02]
+bus@f0000/audio-controller@2b00000/assigned-clocks:  [ 00 00 00 02 00 00 00 be 00 00 00 00]
+bus@f0000/audio-controller@2b00000/clock-names:  [ 66 63 6b 00]
+bus@f0000/audio-controller@2b00000/clocks:  [ 00 00 00 02 00 00 00 be 00 00 00 00]
+bus@f0000/audio-controller@2b00000/compatible: tipi [ 74 69 2c 61 6d 33 33 78 78 2d 6d 63 61 73 70 2d 61 75 64 69 6f 00]
+bus@f0000/audio-controller@2b00000/dma-names: tr [ 74 78 00 72 78 00]
+bus@f0000/audio-controller@2b00000/dmas:  [ 00 00 00 14 00 00 00 00 00 00 c5 00 00 00 00 00 00 00 00 14 00 00 00 00 00 00 45 00 00 00 00 00]
+bus@f0000/audio-controller@2b00000/interrupt-names: tr [ 74 78 00 72 78 00]
+bus@f0000/audio-controller@2b00000/interrupts:  [ 00 00 00 00 00 00 00 ec 00 00 00 04 00 00 00 00 00 00 00 eb 00 00 00 04]
+bus@f0000/audio-controller@2b00000/name: intrr [ 61 75 64 69 6f 2d 63 6f 6e 74 72 6f 6c 6c 65 72 00]
+bus@f0000/audio-controller@2b00000/op-mode:  [ 00 00 00 00]
+bus@f0000/audio-controller@2b00000/phandle:  [ 00 00 00 42]
+bus@f0000/audio-controller@2b00000/pinctrl-0:  [ 00 00 00 2d 00 00 00 2e]
+bus@f0000/audio-controller@2b00000/pinctrl-names: t [ 64 65 66 61 75 6c 74 00]
+bus@f0000/audio-controller@2b00000/power-domains:  [ 00 00 00 03 00 00 00 be 00 00 00 01]
+bus@f0000/audio-controller@2b00000/reg:  [ 00 00 00 00 02 b0 00 00 00 00 00 00 00 00 20 00 00 00 00 00 02 b0 80 00 00 00 00 00 00 00 04 00]
+bus@f0000/audio-controller@2b00000/reg-names: pt [ 6d 70 75 00 64 61 74 00]
+bus@f0000/audio-controller@2b00000/rx-num-evt:  [ 00 00 00 20]
+bus@f0000/audio-controller@2b00000/serial-dir:  [ 00 00 00 01 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00]
+bus@f0000/audio-controller@2b00000/status:  [ 6f 6b 61 79 00]
+bus@f0000/audio-controller@2b00000/tdm-slots:  [ 00 00 00 08]
+bus@f0000/audio-controller@2b00000/tx-num-evt:  [ 00 00 00 20]
+-bash: warning: command substitution: ignored null byte in input
+2b10000 status: disabled
+-bash: warning: command substitution: ignored null byte in input
+2b20000 status: disabled
+---
+0
+Jan  1 17:42:42 buildroot user.notice phc2sys: [63754.891] Waiting for ptp4l...
+Jan  1 17:42:43 buildroot user.notice phc2sys: [63755.892] Waiting for ptp4l...
+
+A468_143788_E rc=0

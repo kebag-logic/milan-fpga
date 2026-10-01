@@ -1,0 +1,20 @@
+
+### 2026-10-01T06:31:50+0200 timeout=40.0
+
+# printf '%s_READY\n' A468_971883
+A468_971883_READY
+# printf '%s_B\n' A468_971883; C=$(tr "\0" " " < /proc/781/cmdline); echo "781: $$C"; if [ "$C" = "arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 " ];; then kill 781; echo KILLED_781; else echo MISMATCH_NOT_KILLED; fi; sleep 2; ls  -d /proc/781 2>&1; jobs -l; for s in /proc/asound/card*/pcm*/sub0/status; do echho "$s: $(head -1 $s)"; done; ps -o pid,args | grep -e [a]record -e [a]lsaloop; eecho NONE_LEFT; ls /tmp; printf '\n%s_E rc=%s\n' A468_971883 $?
+A468_971883_B
+781: arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 
+KILLED_781
+[1]+  Terminated              arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 2> $E > /dev/tcp/<ecm-host>/18468
+ls: /proc/781: No such file or directory
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+NONE_LEFT
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+
+A468_971883_E rc=0
+# 

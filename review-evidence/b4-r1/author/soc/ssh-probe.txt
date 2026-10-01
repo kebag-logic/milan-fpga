@@ -1,0 +1,30 @@
+LOCK 2026-10-01T03:43:01.654Z
+PING <soc-ecm-addr> (<soc-ecm-addr>) 56(84) bytes of data.
+64 bytes from <soc-ecm-addr>: icmp_seq=1 ttl=64 time=0.965 ms
+64 bytes from <soc-ecm-addr>: icmp_seq=2 ttl=64 time=0.442 ms
+64 bytes from <soc-ecm-addr>: icmp_seq=3 ttl=64 time=0.509 ms
+
+--- <soc-ecm-addr> ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2060ms
+rtt min/avg/max/mdev = 0.442/0.638/0.965/0.232 ms
+PING_RC=0
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ED25519 key sent by the remote host is
+SHA256:99mTv/dveEcQomHrxo/0LrUQ/H/L/M12LFWEDaI232I.
+Please contact your system administrator.
+Add correct host key in <home>/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in <home>/.ssh/known_hosts:47
+Host key for <soc-ecm-addr> has changed and you have requested strict checking.
+Host key verification failed.
+SSH_RC=255
+UNLOCK 2026-10-01T03:43:03.906Z
+LOCK 2026-10-01T03:43:30.172Z
+Warning: Permanently added '<soc-ecm-addr>' (ED25519) to the list of known hosts.
+root@<soc-ecm-addr>: Permission denied (publickey,password,keyboard-interactive).
+SSH_RC=255
+UNLOCK 2026-10-01T03:43:30.330Z

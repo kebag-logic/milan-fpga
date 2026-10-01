@@ -1,0 +1,55 @@
+
+### 2026-10-01T06:31:15+0200 timeout=40.0
+
+# printf '%s_READY\n' A468_983882
+A468_983882_READY
+# printf '%s_B\n' A468_983882; C=$(tr "\0" " " < /proc/781/cmdline); echo "781: $$C"; if [ "$C" = "arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 " ];; then kill 781; echo KILLED_781; else echo MISMATCH_NOT_KILLED; fi; sleep 2; ls  -d /proc/781 2>&1; jobs -l; echo ERR; cat /tmp/a468-arecord.err; rm -f /tmp/a4688-arecord.err; ls /tmp; cat /proc/asound/card0/pcm0c/sub0/status; ps -o pid,args  | grep -e [a]record -e [a]lsaloop; echo NONE_LEFT; printf '\n%s_E rc=%s\n' A468__983882 $?
+A468_983882_B
+781: arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 
+KILLED_781
+[1;34m/proc/781[m
+[1]+   781 Running                 arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 2> $E > /dev/tcp/<ecm-host>/18468 &
+ERR
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+Aborted by signal Terminated...
+[1;34mdbus[m        [0;0mmessages[m    [0;0mmessages.0[m
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+tstamp      : 68891.005584485
+delay       : 0
+avail       : 16384
+avail_max   : 0
+-----
+hw_ptr      : 22853632
+appl_ptr    : 22837248
+  781 arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630
+NONE_LEFT
+
+A468_983882_E rc=0
+# 

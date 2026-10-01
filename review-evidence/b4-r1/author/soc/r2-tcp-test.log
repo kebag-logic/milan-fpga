@@ -1,0 +1,32 @@
+
+### 2026-10-01T06:12:20+0200 timeout=20.0
+
+# printf '%s_READY\n' A468_282003
+A468_282003_READY
+# printf '%s_B\n' A468_282003; D=/proc/device-tree/; find $D -name compatible | xxargs grep -l -e simple-audio-card -e mcasp-audio -e tdm8 2>/dev/null; echo ---;  grep -c . /var/log/messages; grep -i -e phc2sys -e ptp4l -e ntp -e chrony -e "cllocksource" /var/log/messages | tail -8; dmesg | grep -i -e clocksource -e "arch__timer" -e "sched_clock" | head -8; echo ---; echo "A468_TCP_TEST $(cat /proc/upttime)" > /dev/tcp/<ecm-host>/18468; echo tcp_rc=$?; printf '\n%s_E rc=%s\n' A4688_282003 $?
+A468_282003_B
+/proc/device-tree/sound-tdm8/compatible
+/proc/device-tree/tdm8-codec/compatible
+/proc/device-tree/bus@f0000/audio-controller@2b20000/compatible
+/proc/device-tree/bus@f0000/audio-controller@2b00000/compatible
+/proc/device-tree/bus@f0000/audio-controller@2b10000/compatible
+---
+1442
+Jan  1 18:49:14 buildroot user.notice phc2sys: [67746.936] Waiting for ptp4l...
+Jan  1 18:49:15 buildroot user.notice phc2sys: [67747.938] Waiting for ptp4l...
+Jan  1 18:49:16 buildroot user.notice phc2sys: [67748.939] Waiting for ptp4l...
+Jan  1 18:49:17 buildroot user.notice phc2sys: [67749.940] Waiting for ptp4l...
+Jan  1 18:49:18 buildroot user.notice phc2sys: [67750.941] Waiting for ptp4l...
+Jan  1 18:49:19 buildroot user.notice phc2sys: [67751.943] Waiting for ptp4l...
+Jan  1 18:49:20 buildroot user.notice phc2sys: [67752.944] Waiting for ptp4l...
+Jan  1 18:49:21 buildroot user.notice phc2sys: [67753.945] Waiting for ptp4l...
+[    0.000000] arch_timer: cp15 timer running at 200.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0x3ffffffffffffff max_cycles: 0x2e2049d3e8, max_idle_ns: 440795210634 ns
+[    0.000001] sched_clock: 58 bits at 200MHz, resolution 5ns, wraps every 4398046511102ns
+[    0.041344] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.124752] clocksource: Switched to clocksource arch_sys_counter
+---
+tcp_rc=0
+
+A468_282003_E rc=0
+# 

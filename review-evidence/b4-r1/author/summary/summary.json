@@ -1,0 +1,295 @@
+{
+ "identity": {
+  "id": "4d494c4e",
+  "version": "00020060",
+  "pp_stat": "5b000444",
+  "aem": "loaded",
+  "crc32": [
+   {
+    "addr": "0x01400000",
+    "bytes": 7352,
+    "crc32": "93742dd2"
+   },
+   {
+    "addr": "0x00000000",
+    "bytes": 53344,
+    "crc32": "acad92b9"
+   },
+   {
+    "addr": "0x01000000",
+    "bytes": 3825788,
+    "crc32": "d178f19a"
+   }
+  ],
+  "nvm": [
+   "NVM: slot A VD_OK seq 235, slot B VD_OK seq 236, authoritative B, image seq 236, 53 records, 3264 B at 0x7f7ef000, writer live",
+   "NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK"
+  ],
+  "grader": "BAREMETAL UART SMOKE: PASS (10/10)",
+  "aecp_vs_qspi": [
+   "ENTITY 0: status=SUCCESS bytes=312 equal_to_qspi_aem_bytes=True entity_id=020000fffe000001 model_id=001bc5c40236ba0e",
+   "CONFIGURATION 0: status=SUCCESS bytes=106 equal_to_qspi_aem_bytes=True",
+   "AECP identity: PASS"
+  ],
+  "verdict": "PASS"
+ },
+ "slip_tdm": {
+  "start": {
+   "t": "2026-10-01T03:42:33.836506Z",
+   "dups": 33474,
+   "skips": 0
+  },
+  "end": {
+   "t": "2026-10-01T03:44:50.156432Z",
+   "dups": 33543,
+   "skips": 0
+  },
+  "seconds": 136.32,
+  "dups_per_s": 0.5062,
+  "ppm_at_one_dup_per_frame": 10.55,
+  "note": "DUT-side comparison of FSYNC with its media grid, not a SoC-board or pin measurement; one count quantization over the window is +-0.15 ppm"
+ },
+ "census": {
+  "compare": {
+   "same": 32,
+   "compared": 33
+  },
+  "differing": [
+   "DUT GET_AVB_INFO propagation delay, live (385 -> 375 ns)"
+  ]
+ },
+ "session_1": {
+  "soc_board": {
+   "console": "login prompt (buildroot login:), no root shell",
+   "key_only_ssh": "refused (publickey)",
+   "ecm_link": "answers ping",
+   "usb_audio_card_on_bench_host": "present",
+   "shell_reads": "none possible"
+  },
+  "timing_item": {
+   "verdict": "NOT RUN",
+   "reason": "no shell on the SoC board: its serial console stands at a login prompt and the lane holds no credential"
+  }
+ },
+ "session_2": {
+  "root_shell": "uid=0(root) on /dev/ttyS3, logged in by the owner 2026-10-01 06:06 CEST; no credential handled by the lane",
+  "framing_record": {
+   "device_tree": {
+    "sound-tdm8": {
+     "compatible": "simple-audio-card",
+     "format": "dsp_a",
+     "bitclock-master": "codec (phandle 0x41)",
+     "frame-master": "codec (phandle 0x41)",
+     "codec dai": "tdm8-codec, kebag-logic,tdm8-dummy",
+     "cpu dai": "McASP0 audio-controller@2b00000",
+     "dai-tdm-slot-num": 8,
+     "dai-tdm-slot-width": 32,
+     "inversion properties": "none"
+    },
+    "mcasp0": {
+     "compatible": "ti,am33xx-mcasp-audio",
+     "op-mode": 0,
+     "tdm-slots": 8,
+     "serial-dir": "AXR0 1 (tx), AXR1 2 (rx), others 0",
+     "rx-num-evt": 32,
+     "tx-num-evt": 32
+    },
+    "mcasp1_mcasp2": "disabled"
+   },
+   "hw_params_during_capture": {
+    "access": "RW_INTERLEAVED",
+    "format": "S32_LE",
+    "channels": 8,
+    "rate": "48000 (48000/1)",
+    "period_size": 2048,
+    "buffer_size": 16384
+   },
+   "sw_params_during_capture": {
+    "tstamp_mode": "ENABLE",
+    "avail_min": 2048,
+    "start_threshold": 1,
+    "stop_threshold": 16384
+   },
+   "arecord_setup": {
+    "msbits": 32,
+    "tstamp_type": "MONOTONIC"
+   },
+   "pcm_id": "davinci-mcasp.0-kl-tdm8-hifi kl-tdm8-hifi-0",
+   "board_clock": "arch_sys_counter 200 MHz clocksource; system clock never set (1970); phc2sys logs only 'Waiting for ptp4l' and no ptp4l runs"
+  },
+  "run": {
+   "name": "timing-long",
+   "talker_s": 700,
+   "capture_requested_s": 630,
+   "capture_received": {
+    "bytes": 730595328,
+    "frames": 22831104,
+    "seconds_at_48k": 475.648,
+    "sha256": "dd201b3a926317a9f488b8290123fa235da7733dae06301f2cd21688da2d36cb",
+    "max_gap_s": 0.0504,
+    "gaps_ge_100ms": 0
+   },
+   "stop": "at SoC uptime 68,513.97 s (04:25:01Z) the bench host's xHCI logged 'WARN Set TR Deq Ptr cmd failed due to incorrect slot or ep state' and the USB device disconnected; the SoC board logged 'dwc3: remote wakeup not configured'; the TCP stream stopped, McASP0 capture went to XRUN at 68,514.39 s, and the UAC2 card and the ECM interface are gone from the bench host. STOP condition: the owner must re-attach the gadget",
+   "decode": {
+    "frames": 22831104,
+    "nominal_seconds": 475.648,
+    "silent_frames": 0,
+    "torn_frames": 0,
+    "ordinal_steps": {
+     "+1": 22768722,
+     "0 (repeat)": 51873,
+     "forward>2": 5554,
+     "+2 (one skipped)": 4954
+    },
+    "jump_sizes": {
+     "0": 51873,
+     "2": 4954,
+     "5": 1991,
+     "6": 52,
+     "8": 104,
+     "9": 119,
+     "10": 157,
+     "11": 282,
+     "12": 2688,
+     "17": 39,
+     "23": 85,
+     "24": 37
+    },
+    "longest_clean_run_frames": 24301,
+    "clusters": 1221,
+    "per_channel": [
+     {
+      "soc_channel": 0,
+      "tags": {
+       "1": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 1,
+      "tags": {
+       "2": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 2,
+      "tags": {
+       "3": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 3,
+      "tags": {
+       "4": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 4,
+      "tags": {
+       "5": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 5,
+      "tags": {
+       "6": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 6,
+      "tags": {
+       "7": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     },
+     {
+      "soc_channel": 7,
+      "tags": {
+       "8": 22831104
+      },
+      "zero_words": 0,
+      "non_pattern_words": 0
+     }
+    ]
+   },
+   "attribution": {
+    "frames": 22831104,
+    "clusters": 1221,
+    "beat": 189,
+    "sender": 16,
+    "unexplained": 1016,
+    "beat_repeats": 3678,
+    "beat_skips": 3867,
+    "alignment_multiple": 7,
+    "late_pdus_logged": 5000,
+    "underrun_clusters_matched": 16,
+    "underrun_clusters": 1032,
+    "kinds": {
+     "unexplained": 1016,
+     "beat": 189,
+     "sender": 16
+    },
+    "note": "the talker's late-PDU log holds at most 5,000 entries and reached that at 292 s, so clusters after it cannot match a logged lateness"
+   },
+   "fs": {
+    "samples": 95,
+    "trigger_time": "68038.252028915",
+    "span_s": 472.46770409,
+    "span_frames": 22677480,
+    "fs_endpoints_hz": 47997.9474,
+    "fs_fit_hz": 47997.9464,
+    "fs_fit_std_error_hz": 0.00093,
+    "ppm_vs_48k_endpoints": -42.763,
+    "ppm_vs_48k_fit": -42.784,
+    "ppm_vs_plan_47999_4893_endpoints": -32.124,
+    "residual_rms_us": 25.71,
+    "residual_max_abs_us": 52.87,
+    "hw_ptr_step_gcd_frames": 4,
+    "endpoint_uncertainty_ppm": 0.124,
+    "one_step_each_end_ppm": 0.353,
+    "fs_uptime_crosscheck_hz": 47997.714,
+    "bclk_hz_endpoints": 12287474.5,
+    "avail_max_frames": 2048
+   },
+   "no_capture_overrun_before_stall": "one trigger (68,038.25 s) for all 95 RUNNING samples; avail_max never above 2,048 of 16,384 frames; arecord's stderr holds no overrun line",
+   "slip_tdm": {
+    "before": 34520,
+    "after_capture": 34915,
+    "seconds_between_reads": 774.27,
+    "dups_per_s": 0.5102
+   }
+  },
+  "restore": {
+   "bridge": "legs 233/234 stopped by PID and restarted with the recorded lines as 1265 (to-host) and 1266 (from-host); PCM states as at the start; UDC configured; BAD=0; SoC /tmp as found",
+   "arecord": "the lane's own arecord (PID 781), blocked on the dead link, ended by two SIGTERMs to that PID after checking its command line; its stderr file removed",
+   "controller": "no gPTP daemon; NIC clock 0.000000 ppb and back on the recorded trajectory (residual 4,547 ns); timestamping tx_type 0 rx_filter 0 as found; staging removed",
+   "dut": "mappings removed and read back empty, stream unbound; census 31/33 equal to the start (the DUT propagation delay, live; the reference peer's GET_SAMPLING_RATE answered ENTITY_LOCKED at the end, SUCCESS at the start, with only read commands sent to it by this lane)",
+   "residuals": [
+    "DUT NVM persistence advanced by the method's map and bind edits: commits ok 0 -> 2, slots 235/236 -> 237/238, pend=1, PP_STAT 5b000444 -> 5b000c44 (bit 11)",
+    "DUT SLIP_LB saturated at 0xFFFF/0xFFFF and RENDER_STAT rails 0 -> 6,264: the talker ended about 55 s before the unbind, because the stalled capture held the SoC console to its timeout; both counters clear only on reset",
+    "bridge legs under new PIDs 1265/1266",
+    "UAC2 card and ECM interface absent from the bench host (owner re-attach)"
+   ]
+  },
+  "timing_item": {
+   "data_one_bclk_after_fsync_edge": "PASS as far as the board shows: dsp_a (one bit of data delay) with 8 x 32-bit slots, and all 22,831,104 frames decode bit-exact in all eight slots, in order",
+   "fs_48k": "fs 47,997.947 Hz, -42.8 ppm against 48 kHz and -32.1 ppm against the plan's 47,999.489 Hz on the SoC board's own clock, +-0.12 ppm timing granularity; the board's crystal tolerance (tens of ppm, #626) is not included",
+   "bclk_12_288_mhz": "256 x fs = 12,287,474 Hz, inferred: the receiver fixes only the first 256 bit clocks of each frame",
+   "capture_of_at_least_10_minutes": "NOT MET: 475.6 s received, STOP at the USB gadget loss",
+   "fsync_width_edge_timing_levels_absolute_ppm": "not shown by the SoC board; #626",
+   "verdict": "STOP"
+  }
+ }
+}

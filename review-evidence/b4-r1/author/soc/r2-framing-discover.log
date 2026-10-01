@@ -1,0 +1,60 @@
+
+### 2026-10-01T06:10:32+0200 timeout=50.0
+
+# printf '%s_READY\n' A468_580309
+A468_580309_READY
+# printf '%s_B\n' A468_580309; D=/proc/device-tree; find $D -name compatible | xaargs grep -l -e simple-audio-card -e mcasp-audio -e snd-soc-dummy -e spdif 2>/devv/null; echo ---; which nc tftp arecord aplay socat busybox; busybox 2>&1 | head  -2; echo ---; busybox --list | tr "\n" " "; echo; echo ---; ps -o pid,args | greep -v "\[" ; echo ---; date; cat /proc/asound/card0/pcm0c/info; cat /proc/asound//card0/pcm0c/sub0/hw_params; cat /proc/asound/card0/pcm0c/sub0/sw_params; printf  '\n%s_E rc=%s\n' A468_580309 $?
+A468_580309_B
+---
+/usr/bin/tftp
+/usr/bin/arecord
+/usr/bin/aplay
+/usr/bin/busybox
+BusyBox v1.38.0 (2026-09-16 14:56:54 CEST) multi-call binary.
+BusyBox is copyrighted by many authors between 1998-2015.
+---
+[ [[ addgroup adduser ar arch arp arping ascii ash awk base32 base64 basename bc blkid bunzip2 bzcat cat chattr chgrp chmod chown chroot chrt chvt cksum clear cmp cp cpio crc32 crond crontab cut date dc dd deallocvt delgroup deluser devmem df diff dirname dmesg dnsd dnsdomainname dos2unix du dumpkmap echo egrep eject env ether-wake expr factor fallocate false fbset fdflush fdformat fdisk fgrep find flock fold free freeramdisk fsck fsfreeze fstrim fuser getfattr getopt getty grep gunzip gzip halt hdparm head hexdump hexedit hostid hostname hwclock i2cdetect i2cdump i2cget i2cset i2ctransfer id ifconfig ifdown ifup inetd init insmod install ip ipaddr ipcrm ipcs iplink ipneigh iproute iprule iptunnel kill killall killall5 klogd last less link linux32 linux64 linuxrc ln loadfont loadkmap logger login logname losetup ls lsattr lsblk lsmod lsof lspci lsscsi lsusb lzcat lzma lzopcat makedevs md5sum mdev mesg microcom mim mkdir mkdosfs mke2fs mkfifo mknod mkpasswd mkswap mktemp modprobe more mount mountpoint mt mv nameif netstat nice nl nohup nologin nproc nslookup nuke od openvt partprobe passwd paste patch pidof ping pipe_progress pivot_root poweroff printenv printf ps pwd rdate readlink readprofile realpath reboot renice reset resize resume rm rmdir rmmod route run-init run-parts runlevel sed seedrng seq setarch setconsole setfattr setkeycodes setlogcons setpriv setserial setsid sh sha1sum sha256sum sha384sum sha3sum sha512sum shred sleep sort ssl_server start-stop-daemon strings stty su sulogin svc svok swapoff swapon switch_root sync sysctl syslogd tail tar tee telnet test tftp time top touch tr traceroute tree true truncate ts tsort tty ubirename udhcpc uevent umount uname uniq unix2dos unlink unlzma unlzop unxz unzip uptime usleep uudecode uuencode uuidgen vconfig vi vlock vmstat w watch watchdog wc wget which who whoami xargs xxd xz xzcat yes zcat 
+---
+PID   COMMAND
+    1 init
+  105 /sbin/syslogd -n
+  109 /sbin/klogd -n
+  121 /sbin/udevd
+  163 /usr/bin/dbus-daemon --system --syslog
+  175 /usr/sbin/crond -f
+  188 /usr/sbin/phc2sys -a -r -S 1.0
+  233 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+  234 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+  246 -bash
+  317 ps -o pid,args
+---
+Thu Jan  1 18:47:32 UTC 1970
+card: 0
+device: 0
+subdevice: 0
+stream: CAPTURE
+id: davinci-mcasp.0-kl-tdm8-hifi kl-tdm8-hifi-0
+name: davinci-mcasp.0-kl-tdm8-hifi kl-tdm8-hifi-0
+subname: subdevice #0
+class: 0
+subclass: 0
+subdevices_count: 1
+subdevices_avail: 0
+access: RW_INTERLEAVED
+format: S32_LE
+subformat: STD
+channels: 8
+rate: 48000 (48000/1)
+period_size: 192
+buffer_size: 1536
+tstamp_mode: NONE
+period_step: 1
+avail_min: 192
+start_threshold: 2147483647
+stop_threshold: 1536
+silence_threshold: 0
+silence_size: 0
+boundary: 6917529027641081856
+
+A468_580309_E rc=0
+# 

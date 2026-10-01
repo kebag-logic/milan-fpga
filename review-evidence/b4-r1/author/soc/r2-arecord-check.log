@@ -1,0 +1,29 @@
+
+### 2026-10-01T06:31:35+0200 timeout=40.0
+
+# printf '%s_READY\n' A468_037991
+A468_037991_READY
+# printf '%s_B\n' A468_037991; cat /proc/uptime; jobs -l; ls -d /proc/781 2>&1; [[ -d /proc/781 ] && grep -E "^(State|SigPnd|ShdPnd|SigCgt)" /proc/781/status && ccat /proc/781/wchan && echo && ls -l /proc/781/fd; head -3 /proc/asound/card0/pcmm0c/sub0/status; cat /proc/net/tcp | head -5; printf '\n%s_E rc=%s\n' A468_0379911 $?
+A468_037991_B
+68908.29 188291.25
+[1]+   781 Running                 arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw -d 630 2> $E > /dev/tcp/<ecm-host>/18468 &
+[1;34m/proc/781[m
+State:	S (sleeping)
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigCgt:	0000000000000222
+wait_woken
+total 0
+lrwx------    1 root     root            64 Jan  1 19:08 [1;36m0[m -> [1;35m/dev/ttyS3[m
+lrwx------    1 root     root            64 Jan  1 19:08 [1;36m1[m -> [1;35msocket:[6351][m
+l-wx------    1 root     root            64 Jan  1 19:08 [1;36m2[m -> [0;0m/tmp/a468-arecord.err (deleted)[m
+lrwx------    1 root     root            64 Jan  1 19:08 [1;36m4[m -> [1;35m/dev/snd/pcmC0D0c[m
+state: XRUN
+owner_pid   : 781
+trigger_time: 68514.389804905
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 2232 1 00000000d0317efb 100 0 0 10 0                      
+   1: 0C07A8C0:8FAA 0107A8C0:4824 01 00020E08:00000000 01:00000114 00000084     0        0 6351 2 00000000c071fb92 326 0 0 1 33                      
+
+A468_037991_E rc=0
+# 
