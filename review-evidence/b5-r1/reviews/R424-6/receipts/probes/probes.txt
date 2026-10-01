@@ -1,0 +1,17 @@
+P0 | control: unmodified candidate | rc=0 | <locked-python> scripts/check_em_dash.py --base ea3fb38877842f223afea97e3bd72a10500455c9
+P0 | control: unmodified candidate | rc=0 | <locked-python> scripts/docs_check.py
+P0 | control: unmodified candidate | rc=0 | <locked-python> scripts/check_doc_paths.py
+P0 | control: unmodified candidate | rc=0 | <locked-python> scripts/gen_toc.py --verify-anchors
+P1 | em dash planted in the composed 117 index row | rc=1 | <locked-python> scripts/check_em_dash.py --base ea3fb38877842f223afea97e3bd72a10500455c9
+P2 | 117 index row link target renamed to a missing file | rc=1 | <locked-python> scripts/docs_check.py
+P2 | 117 index row link target renamed to a missing file | rc=0 | <locked-python> scripts/check_doc_paths.py
+P2 | 117 index row link target renamed to a missing file | rc=0 | <locked-python> scripts/gen_toc.py --verify-anchors
+P3 | 117 page cross-page anchor to 451_TDM8_FIRST_LIGHT broken | rc=0 | <locked-python> scripts/docs_check.py
+P3 | 117 page cross-page anchor to 451_TDM8_FIRST_LIGHT broken | rc=0 | <locked-python> scripts/check_doc_paths.py
+P3 | 117 page cross-page anchor to 451_TDM8_FIRST_LIGHT broken | rc=1 | <locked-python> scripts/gen_toc.py --verify-anchors
+P4 | bad resolution: predecessor 451 timing row dropped from index | rc=0 | <locked-python> scripts/docs_check.py
+P4 | bad resolution: predecessor 451 timing row dropped from index | rc=0 | <locked-python> scripts/check_doc_paths.py
+P4 | bad resolution: predecessor 451 timing row dropped from index | rc=0 | <locked-python> scripts/gen_toc.py --check
+P5 | bad resolution: 117 row duplicated | rc=0 | <locked-python> scripts/docs_check.py
+P5 | bad resolution: 117 row duplicated | rc=0 | <locked-python> scripts/check_doc_style.py
+restored 86726d5e60ced4f7baad6a042890b44abf7d76ed dirty=0
