@@ -1,0 +1,16 @@
+=== 5932380322 https://api.github.com/repos/kebag-logic/milan-fpga/issues/74 2026-10-01T13:24:14Z
+[A10] Bench evidence for this issue, from bench lane B6 (PR #630, #629's bench acceptance, dev `ec0cc0c1` image).
+
+**What was measured.** With the DUT's CLOCK_DOMAIN on INTERNAL, its CRF output stream and its AAF stream differ by 10.64 ppm:
+- the reference peer following the DUT's **AAF** stream measured −10.63 ppm against the DUT's TDM clock;
+- the reference peer following the DUT's **CRF** stream measured −0.07 ppm against the DUT's TDM clock.
+
+A listener that follows the DUT's CRF therefore drops one AAF frame every 1.96 s (case A2: FAIL). Case A1 (following the AAF stream) and the DUT following a CRF talker (direction B) both PASS. R426-1 confirms the diagnosis is backed by measurement (PR #630 comment 5932376922).
+
+**Cause, as the page reads the RTL and `docs/design/TIME_SYNC.md`:** the CRF output divides the physical audio clock, while the AAF stream is timed on a free-running 48 kHz grid. These are the "phase and frequency relationship between `clk_tdm_i`, `clk_audio_i` and `media_tick_p` in INTERNAL and CRF modes" and the "independent-divider drift" items above.
+
+**Why it matters.** A talker's CRF output must represent the same media clock as its AAF streams (Milan v1.2 7.2.3, the CRF Media Clock Output). The fix belongs here.
+
+#74 keeps its milestone and status until the owner schedules it. Do not edit or delete any existing comment.
+=== 5932538721 https://api.github.com/repos/kebag-logic/milan-fpga/issues/74 2026-10-01T13:33:45Z
+[A10] A second bench observation from lane B6 (PR #630), for the "root servo observation" item. While the DUT followed a CRF talker (direction B, PASS: servo LOCKED and 0 net slip in 30.2 M frames), the clock servo also showed its "DRP config mismatch" status bit. It was not analysed in B6, and this is the first time it has been seen on silicon. When this issue is worked, establish what sets the bit in CRF mode and whether it means anything for the reconfiguration path. Do not edit or delete any existing comment.

@@ -1,0 +1,12 @@
+r1: table lines 161, bytes 16010, tables 15, sha256 540ab528a6ad30ff45d173509d2f4de5dac94876ce406de47adf008e4e95d847
+r2: table lines 161, bytes 16010, tables 15, sha256 540ab528a6ad30ff45d173509d2f4de5dac94876ce406de47adf008e4e95d847
+cmp table lines rc=0
+26c26
+< @@ clock-source set; for B CRF, from 20 s after the DUT's servo read LOCKED.
+---
+> @@ DUT's servo first read LOCKED.
+141c141
+< @@ manifest covers every retained file except itself.
+---
+> @@ `cmp` is silent.
+diff tables-with-lead-line rc=1

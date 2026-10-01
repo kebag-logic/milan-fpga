@@ -1,0 +1,18 @@
+== a2
+  cluster 13: steps [23689, -23689, 108, 156, 156, 108, 252, 156, 108, 300, 204, 252, 348] net 2148 net%48=36 loops+0 lost 2148 lost%48000%48=36 rise 44.9984 lost_ms 44.75 gap 29.479 basis 'read-time rise' first 6936546
+  cluster 15: steps [1212, 396, 22392, -22392, 204, 252, 109, 108] net 2281 net%48=25 loops+0 lost 2281 lost%48000%48=25 rise 47.9898 lost_ms 47.5208 gap 69.052 basis 'read-time rise' first 7051601
+  cluster 36: steps [-23999, 23999, 108, 108, 204] net 420 net%48=36 loops+0 lost 420 lost%48000%48=36 rise 8.0068 lost_ms 8.75 gap 16.257 basis 'read-time rise' first 16309175
+  cluster 46: steps [732, 558, 918, 60] net 2268 net%48=12 loops+0 lost 2268 lost%48000%48=12 rise 46.9937 lost_ms 47.25 gap 64.934 basis 'read-time rise' first 20974532
+  cluster 55: steps [7395] net 7395 net%48=3 loops+13 lost 631395 lost%48000%48=3 rise 13151.2302 lost_ms 13154.0625 gap 13328.327 basis 'read-time rise' first 28130434
+  cluster 56: steps [1020] net 1020 net%48=12 loops+0 lost 1020 lost%48000%48=12 rise -155.812 lost_ms 21.25 gap 13328.327 basis 'read gap and 48 n + 12 size' first 28155718
+  clusters after the 13.3 s stall: [(55, 28130434, 13328.327), (56, 28155718, 13328.327)]
+  beat with rise 2.6798 ms at capture_frame 28121160: offset to long-stall clusters (s) [(55, -0.193), (56, -0.72)]
+  beat with rise 176.8061 ms at capture_frame 28147698: offset to long-stall clusters (s) [(55, 0.36), (56, -0.167)]
+== a0
+  cluster 0: steps [1165, 1260, 1068, 60, 540, 300, 60, 348] net 4801 net%48=1 loops+0 lost 4801 lost%48000%48=1 rise 99.9764 lost_ms 100.0208 gap 96.22 basis 'read-time rise' first 14023977
+== a1
+  cluster 13: steps [18626] net 18626 net%48=2 loops+12 lost 594626 lost%48000%48=2 rise 12387.9436 lost_ms 12388.0417 gap 12707.403 basis 'read-time rise' first 22095815
+  cluster 18: steps [23880, -23880, 204, 108, 60, 156, 156, 60, 108] net 852 net%48=36 loops+0 lost 852 lost%48000%48=36 rise 17.0041 lost_ms 17.75 gap 24.58 basis 'read-time rise' first 27131127
+== bcrf
+  cluster 5: steps [-24000, -24000, 60, 348, 204, 300, 444] net -46644 net%48=12 loops+1 lost 1356 lost%48000%48=12 rise 27.9956 lost_ms 28.25 gap 63.908 basis 'read-time rise' first 4582801
+rc=0

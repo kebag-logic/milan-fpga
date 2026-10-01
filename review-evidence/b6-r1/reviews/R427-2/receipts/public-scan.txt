@@ -1,0 +1,35 @@
+packet-scratch/r2-added.txt:137: local-path: '/tmp/b6-loop.bin' :: +python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+packet-scratch/r2-added.txt:137: local-path: '/tmp/b6-loop.bin' :: +python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+packet-scratch/r2-added.txt:138: local-path: '/tmp/b6-controls.json' :: +python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+packet-scratch/r2-added.txt:138: local-path: '/tmp/b6-controls.json' :: +python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+== packet-scratch/r2-added.txt: 4 hit(s)
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:72: n-channel: '4-channel' :: its INTERNAL source. Its AAF stream input carried the 4-channel format
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:73: n-channel: '8-channel' :: `0205022001006000`, and it lists the up-to-8-channel `0215022002006000`.
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:112: n-channel: 'channel 1' :: channel 1 9,973 Hz, both at -1 dBFS, with non-zero start phases. Channels 2 to
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:115: n-channel: 'channel 0' :: spreads like noise. The (channel 0, channel 1) pair of every frame is unique in
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:115: n-channel: 'channel 1' :: spreads like noise. The (channel 0, channel 1) pair of every frame is unique in
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:430: n-channel: '4-channel' :: STREAM_INPUT 0 took the peer talker's 4-channel format, set, read back and
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:619: local-path: '/tmp/b6-loop.bin' :: python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:619: local-path: '/tmp/b6-loop.bin' :: python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:620: local-path: '/tmp/b6-controls.json' :: python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:620: local-path: '/tmp/b6-controls.json' :: python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+== docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md: 10 hit(s)
+packet-scratch/pr-body.md:87: ipv4: '5.3.3.6' :: - Milan v1.2 5.3.3.6 (the CLOCK_SOURCE set of a CLOCK_DOMAIN), 7.2.2 (the CRF Media Clock Input), 7.2.3 (the CRF Media Clock Output), 5.4.2.
+packet-scratch/pr-body.md:87: ipv4: '5.4.2.15' :: - Milan v1.2 5.3.3.6 (the CLOCK_SOURCE set of a CLOCK_DOMAIN), 7.2.2 (the CRF Media Clock Input), 7.2.3 (the CRF Media Clock Output), 5.4.2.
+packet-scratch/pr-body.md:87: ipv4: '5.4.2.16' :: - Milan v1.2 5.3.3.6 (the CLOCK_SOURCE set of a CLOCK_DOMAIN), 7.2.2 (the CRF Media Clock Input), 7.2.3 (the CRF Media Clock Output), 5.4.2.
+packet-scratch/pr-body.md:88: ipv4: '7.4.23.1' :: - IEEE 1722.1-2021 7.2.9 (CLOCK_SOURCE), 7.2.32 (CLOCK_DOMAIN), 7.4.23.1 (SET_CLOCK_SOURCE).
+packet-scratch/pr-body.md:120: local-path: '/tmp/b6-r1.md' :: git show b5e9242e:docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md > /tmp/b6-r1.md
+packet-scratch/pr-body.md:121: local-path: '/tmp/b6-r2.md' :: git show e3f28f2f:docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md > /tmp/b6-r2.md
+packet-scratch/pr-body.md:122: local-path: '/tmp/b6-r1.md' :: grep '^|' /tmp/b6-r1.md > /tmp/b6-r1-tables.txt
+packet-scratch/pr-body.md:122: local-path: '/tmp/b6-r1-tables.txt' :: grep '^|' /tmp/b6-r1.md > /tmp/b6-r1-tables.txt
+packet-scratch/pr-body.md:123: local-path: '/tmp/b6-r2.md' :: grep '^|' /tmp/b6-r2.md > /tmp/b6-r2-tables.txt
+packet-scratch/pr-body.md:123: local-path: '/tmp/b6-r2-tables.txt' :: grep '^|' /tmp/b6-r2.md > /tmp/b6-r2-tables.txt
+packet-scratch/pr-body.md:124: local-path: '/tmp/b6-r1-tables.txt' :: cmp /tmp/b6-r1-tables.txt /tmp/b6-r2-tables.txt
+packet-scratch/pr-body.md:124: local-path: '/tmp/b6-r2-tables.txt' :: cmp /tmp/b6-r1-tables.txt /tmp/b6-r2-tables.txt
+packet-scratch/pr-body.md:129: local-path: '/tmp/b6-loop.bin' :: python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+packet-scratch/pr-body.md:129: local-path: '/tmp/b6-loop.bin' :: python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+packet-scratch/pr-body.md:130: local-path: '/tmp/b6-controls.json' :: python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+packet-scratch/pr-body.md:130: local-path: '/tmp/b6-controls.json' :: python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+== packet-scratch/pr-body.md: 16 hit(s)
+== packet-scratch/commit-msgs.txt: 0 hit(s)
+rc=0

@@ -1,0 +1,90 @@
+
+=== a0
+events: capture 25, listener 520, beat 321, other causes []
+clusters: 10 total, capture-path 10; non-capture []
+capture-path cluster basis: {'read-time rise': 9, 'read gap': 1}
+path1: capture-path steps 25; not a positive 48n+12 skip: [(0, 1165, 13, 'read-time rise')]
+path1: 48n+13 skips [(0, 1165)]; 48n+11 skips []
+rise-basis clusters 9: positive skips 24, of them 48n+12 23
+  non-rise cluster 7: basis='read gap' rise=None gap=49.908 size_sig=True steps=[1164]
+path4: smallest capture-path loss 108; clusters under 98 frames: []
+path2: comb members 321, teeth in window 321.8, residual_max 1.817
+one-frame events of any cause: 841
+rise listener: measurable 497 of 520; median -0.0038; max |.| 0.9979; over 1.05 ms []
+rise beat: measurable 300 of 321; median -0.0028; max |.| 1.0011; over 1.05 ms []
+window: {'frames': 30218880, 'seconds': 629.56, 'start_frame': 1231680, 'end_frame': 31450560}
+dut_reads tags: [('before-bind', 1790854349.897, '00000020'), ('window-0', 1790854375.335, '00000020'), ('window-1', 1790854685.691, '00000020'), ('window-2', 1790854985.769, '00000020'), ('final', 1790855012.769, '00000020')]
+
+=== a1
+events: capture 51, listener 0, beat 315, other causes []
+clusters: 23 total, capture-path 23; non-capture []
+capture-path cluster basis: {'read-time rise': 21, 'read gap': 2}
+path1: capture-path steps 51; not a positive 48n+12 skip: [(13, 18626, 2, 'read-time rise'), (18, 23880, 24, 'read-time rise'), (18, -23880, None, 'read-time rise')]
+path1: 48n+13 skips []; 48n+11 skips []
+rise-basis clusters 21: positive skips 45, of them 48n+12 43
+  non-rise cluster 2: basis='read gap' rise=None gap=28.861 size_sig=True steps=[348, 204, 492, 204]
+  non-rise cluster 9: basis='read gap' rise=None gap=33.452 size_sig=True steps=[60]
+path4: smallest capture-path loss 60; clusters under 98 frames: [(0, 1, [60], 0.9987, 14.907), (3, 1, [60], 0.9947, 16.711), (5, 1, [60], 0.9906, 59.758), (9, 1, [60], None, 33.452)]
+path2: comb members 315, teeth in window 321.8, residual_max 1.754
+path2 a1: min source-frame spacing 93989, max 751924; spacings not ~1 period: [(221, 751924, 8.0)]
+path2 a1: gaps spanning >1 tooth (index, teeth): [(221, 8)]; total missing teeth 7
+path2 a1: min capture-ordinal distance beat member -> capture-path event: 75
+  gap 221: capture 22009946..22166753, 7 missing teeth; capture-path clusters between the two members (capture ordinals): [(13, 594626, 12, 12387.9436), (14, 492, 0, 10.9972)]
+one-frame events of any cause: 315
+rise beat: measurable 312 of 315; median -0.0049; max |.| 0.9952; over 1.05 ms []
+window: {'frames': 29631360, 'seconds': 617.32, 'start_frame': 1226400, 'end_frame': 30857760}
+dut_reads tags: [('before-bind', 1790855032.626, '00000020'), ('window-0', 1790855058.147, '00000020'), ('window-1', 1790855368.418, '00000020'), ('window-2', 1790855668.609, '00000020'), ('final', 1790855689.492, '00000020')]
+
+=== a2
+events: capture 143, listener 674, beat 316, other causes []
+clusters: 61 total, capture-path 61; non-capture []
+capture-path cluster basis: {'read-time rise': 54, 'read gap': 5, 'read gap and 48 n + 12 size': 2}
+path1: capture-path steps 143; not a positive 48n+12 skip: [(13, 23689, 25, 'read-time rise'), (13, -23689, None, 'read-time rise'), (15, 22392, 24, 'read-time rise'), (15, -22392, None, 'read-time rise'), (15, 109, 13, 'read-time rise'), (36, -23999, None, 'read-time rise'), (36, 23999, 47, 'read-time rise'), (46, 558, 30, 'read-time rise'), (46, 918, 6, 'read-time rise'), (55, 7395, 3, 'read-time rise')]
+path1: 48n+13 skips [(15, 109)]; 48n+11 skips []
+rise-basis clusters 54: positive skips 126, of them 48n+12 119
+  non-rise cluster 9: basis='read gap' rise=None gap=22.197 size_sig=True steps=[300]
+  non-rise cluster 10: basis='read gap' rise=None gap=30.674 size_sig=True steps=[684]
+  non-rise cluster 17: basis='read gap and 48 n + 12 size' rise=154.5405 gap=129.917 size_sig=True steps=[60]
+  non-rise cluster 35: basis='read gap' rise=None gap=38.635 size_sig=True steps=[636, 108]
+  non-rise cluster 48: basis='read gap' rise=None gap=45.263 size_sig=True steps=[492, 348, 300]
+  non-rise cluster 56: basis='read gap and 48 n + 12 size' rise=-155.812 gap=13328.327 size_sig=True steps=[1020]
+  non-rise cluster 58: basis='read gap' rise=None gap=235.796 size_sig=True steps=[1212, 972, 1020, 588, 204]
+path4: smallest capture-path loss 60; clusters under 98 frames: [(17, 1, [60], 154.5405, 129.917), (22, 1, [60], 0.9792, 28.308), (24, 1, [60], 0.9818, 42.525), (29, 1, [60], 1.0161, 17.523), (31, 1, [60], 0.9974, 37.787)]
+path2: comb members 316, teeth in window 322.0, residual_max 1.775
+one-frame events of any cause: 990
+rise listener: measurable 135 of 674; median -0.0039; max |.| 1.0067; over 1.05 ms []
+rise beat: measurable 313 of 316; median -0.0048; max |.| 176.8061; over 1.05 ms [2.6798, 176.8061]
+window: {'frames': 29574720, 'seconds': 616.14, 'start_frame': 1228800, 'end_frame': 30803520}
+dut_reads tags: [('before-bind', 1790855711.475, '00000020'), ('window-0', 1790855736.974, '00000020'), ('window-1', 1790856047.42, '00000020'), ('window-2', 1790856347.209, '00000020'), ('final', 1790856368.623, '00000020')]
+
+=== bint
+events: capture 36, listener 507, beat 322, other causes []
+clusters: 21 total, capture-path 21; non-capture []
+capture-path cluster basis: {'read-time rise': 18, 'read gap': 3}
+path1: capture-path steps 36; not a positive 48n+12 skip: []
+path1: 48n+13 skips []; 48n+11 skips []
+rise-basis clusters 18: positive skips 32, of them 48n+12 32
+  non-rise cluster 4: basis='read gap' rise=None gap=133.509 size_sig=True steps=[108]
+  non-rise cluster 6: basis='read gap' rise=None gap=30.796 size_sig=True steps=[780]
+  non-rise cluster 7: basis='read gap' rise=None gap=141.211 size_sig=True steps=[1452, 3900]
+path4: smallest capture-path loss 60; clusters under 98 frames: [(0, 1, [60], 0.9851, 15.961), (3, 1, [60], 0.9903, 204.662), (12, 1, [60], 0.9979, 17.514), (17, 1, [60], 0.9994, 12.75)]
+path2: comb members 322, teeth in window 321.9, residual_max 1.760
+one-frame events of any cause: 829
+rise listener: measurable 485 of 507; median -0.0041; max |.| 0.9999; over 1.05 ms []
+rise beat: measurable 303 of 322; median -0.0027; max |.| 1.0037; over 1.05 ms []
+window: {'frames': 30239040, 'seconds': 629.98, 'start_frame': 1218240, 'end_frame': 31457280}
+dut_reads tags: [('before-bind', 1790856381.578, '00000020'), ('window-0', 1790856406.923, '00000020'), ('window-1', 1790856717.322, '00000020'), ('window-2', 1790857017.06, '00000020'), ('final', 1790857038.535, '00000020')]
+
+=== bcrf
+events: capture 40, listener 0, beat 0, other causes []
+clusters: 17 total, capture-path 17; non-capture []
+capture-path cluster basis: {'read-time rise': 17}
+path1: capture-path steps 40; not a positive 48n+12 skip: [(5, -24000, None, 'read-time rise'), (5, -24000, None, 'read-time rise')]
+path1: 48n+13 skips []; 48n+11 skips []
+rise-basis clusters 17: positive skips 38, of them 48n+12 38
+path4: smallest capture-path loss 60; clusters under 98 frames: [(8, 1, [60], 0.9963, 16.236), (12, 1, [60], 0.993, 17.875), (13, 1, [60], 1.0026, 18.729)]
+path2: no beat comb; beat events 0
+one-frame events of any cause: 0
+window: {'frames': 30237600, 'seconds': 629.95, 'start_frame': 1251840, 'end_frame': 31489440}
+dut_reads tags: [('before-bind', 1790857054.496, '00000020'), ('servo-wait', 1790857054.917, '00000020'), ('servo-wait', 1790857058.081, 'ffaa0033'), ('servo-wait', 1790857061.249, 'ffa10034'), ('window-0', 1790857080.418, 'ffa00034'), ('window-1', 1790857390.674, 'ffa00034'), ('window-2', 1790857690.458, 'ffa10034'), ('final', 1790857711.852, '00000020')]
+rc=0

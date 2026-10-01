@@ -1,0 +1,15 @@
+# Paths: the pinned Markdown environment path is shown by its lock-hash label; every command ran from the review clone root.
+head e3f28f2f69343b54844ddfea368ef4cdd03facb6
+rc=0 :: <pinned-markdown-env, lock 40cdefe08ebd>/bin/python scripts/docs_check.py
+rc=0 :: <pinned-markdown-env, lock 40cdefe08ebd>/bin/python scripts/check_doc_style.py
+rc=0 :: <pinned-markdown-env, lock 40cdefe08ebd>/bin/python scripts/gen_toc.py --check
+rc=0 :: <pinned-markdown-env, lock 40cdefe08ebd>/bin/python scripts/gen_toc.py --verify-anchors
+rc=0 :: <pinned-markdown-env, lock 40cdefe08ebd>/bin/python scripts/check_em_dash.py --base ea3fb38877842f223afea97e3bd72a10500455c9
+rc=0 :: <pinned-markdown-env, lock 40cdefe08ebd>/bin/python scripts/check_doc_paths.py
+rc=0 :: python3 scripts/ci_scope.py --selftest
+rc=0 :: python3 scripts/check_baremetal_only.py --check
+rc=0 :: python3 scripts/check_baremetal_only.py --selftest
+rc=0 :: python3 scripts/check_feature_status.py --self-test
+rc=0 :: git diff --check
+rc=0 :: git diff --check ea3fb38877842f223afea97e3bd72a10500455c9 HEAD
+rc=0 :: git diff --check b5e9242e2e1911bb2bac11221527f8965a4ccaef HEAD
