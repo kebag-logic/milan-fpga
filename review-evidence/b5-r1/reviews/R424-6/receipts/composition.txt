@@ -1,0 +1,77 @@
+candidate 86726d5e60ced4f7baad6a042890b44abf7d76ed tree 84d57ec2af76a43e18ebc5c5d93cff2d01cd1149
+parents ea3fb38877842f223afea97e3bd72a10500455c9 e5ad118783c2ff96e13f1d794f10bf2b63741282
+merge-base(dev,PR head) e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+merge-tree auto-merge tree 84d57ec2af76a43e18ebc5c5d93cff2d01cd1149
+== PR changes (MB..PR head)
+A	docs/findings/117_AUDIO_CONTINUITY.md
+M	docs/findings/README.md
+== predecessor changes (MB..dev)
+A	docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+M	docs/findings/README.md
+== predecessor commits (MB..dev)
+ea3fb3887 Merge PR #627: record the #451 TDM8 timing measured on the SoC board (bench lane B4)
+ae98b30b0 Correct the #451 timing page's talker-to-unbind interval from round-2 review: 60.0 s on the controller host's 
+c39312b48 Correct the #451 timing page's wording from round-1 review: the 630 s recording size, the fs verdict on an unc
+35a60c8d6 Record the #451 timing item's 475.6 s capture as ruled sufficient by the manager, and the USB loss at 475.7 s 
+4461a1f7d Record the #451 timing item measured on the SoC board: framing PASS, fs 47,997.947 Hz on its clock, STOP at 47
+35a8b04da Record the #451 timing-item attempt on the SoC board: identity PASS, STOP at the SoC board's console login, NO
+== candidate vs dev
+A	docs/findings/117_AUDIO_CONTINUITY.md
+M	docs/findings/README.md
+== candidate vs PR head
+A	docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+M	docs/findings/README.md
+blob docs/findings/117_AUDIO_CONTINUITY.md @e4b771f9: e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b:docs/findings/117_AUDIO_CONTINUITY.md
+absent
+blob docs/findings/117_AUDIO_CONTINUITY.md @ea3fb388: ea3fb38877842f223afea97e3bd72a10500455c9:docs/findings/117_AUDIO_CONTINUITY.md
+absent
+blob docs/findings/117_AUDIO_CONTINUITY.md @e5ad1187: 9e2fae6ca7551f97bd945a907370f8ca76b7479d
+blob docs/findings/117_AUDIO_CONTINUITY.md @HEAD: 9e2fae6ca7551f97bd945a907370f8ca76b7479d
+blob docs/findings/451_TDM8_TIMING_SOC_BOARD.md @e4b771f9: e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b:docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+absent
+blob docs/findings/451_TDM8_TIMING_SOC_BOARD.md @ea3fb388: dde50cd9c2520d33677042e4e4175b565a1c0c70
+blob docs/findings/451_TDM8_TIMING_SOC_BOARD.md @e5ad1187: e5ad118783c2ff96e13f1d794f10bf2b63741282:docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+absent
+blob docs/findings/451_TDM8_TIMING_SOC_BOARD.md @HEAD: dde50cd9c2520d33677042e4e4175b565a1c0c70
+blob docs/findings/README.md @e4b771f9: c8880442ea09086445e5de7a9a6ab476b2cce5c8
+blob docs/findings/README.md @ea3fb388: a501c5a9c275ee29ee53ce7056b90d3ee7424e8d
+blob docs/findings/README.md @e5ad1187: 11cca0e2c9ef430f93e148374650d9d400eb902e
+blob docs/findings/README.md @HEAD: 30fe40fd83e020cc729c8e32950e92def3eddbd9
+== README raw diff dev..candidate
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index a501c5a9c..30fe40fd8 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -18,6 +18,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ | [COMMERCIAL_TIMING_395.md](COMMERCIAL_TIMING_395.md) | AX7101 commercial-grade timing at both fixed speed models for the `9e9954e9` shipping checkpoint (#395 items 1, 2 and 5) | Applied constraints meet the recorded margin; rejected constraints belong to #607; physical temperature and oscillator measurements remain open |
+ | [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz after the #590, #592 and #599 repairs, with external markers (#397) | Simulation measurement under the one-hart decision; future duties, physical torture and bench proof remain open |
+ | [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch power cycles, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return inside the 5 s bound (worst 1.60 s) |
++| [117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md) | Audio continuity end to end against the reference peer on dev `ec0cc0c1`: the first-light pattern through the DUT's AAF talker to the peer's listener, recorded from the peer's digital output by an external audio capture; integrity, 660 s of continuity and 30 unbind and rebind restarts (#117 acceptance box 4) | Integrity PASS, bit-exact and in order; restarts PASS, 30 of 30 under 1 s, median 0.028 s; continuity FAIL as measured: one-frame drops every 1.266 s, attributed by inference to the peer's output rate; 236 of the 239 skips of 60 frames or more are stall-aligned capture-path loss; skips of 2 to 59 frames are not separated from a packet-sized drop downstream of the peer's receive counters; direction B NOT RUN |
+ | [ADP shape (historical)](../history/v1/findings/ADP_SHAPE_STATIC_0727.md) | Generated ADP/AEM shape must match the instantiated stream geometry | Fixed; guarded by `scripts/check_entity_shape.py` |
+ | [CBS_DATAPATH_BUG.md](CBS_DATAPATH_BUG.md) | Per-frame classifier sideband timing at the CBS boundary | Fixed; covered by the controller-rate bench |
+ | [Media-clock lock (historical)](../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md) | Media-clock lock observations and the then-open CRF consumption boundary (closed by #74) | Current design input; physical revalidation belongs to #117 |
+== README raw diff PRhead..candidate
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index 11cca0e2c..30fe40fd8 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -9,6 +9,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+ | Document | Scope | State |
+ |---|---|---|
+ | [451_TDM8_FIRST_LIGHT.md](451_TDM8_FIRST_LIGHT.md) | TDM8 first light between the AX7101 J11 header and the SoC board of the #451 amendment, image source `9e9954e9`: slot and channel order in both directions over 70 s each, continuity and the frame-rate offset (#451) | Both directions decoded in all eight slots, in order; DIN frame coherence NOT MET, tracked by [#617](https://github.com/kebag-logic/milan-fpga/issues/617); continuity check, scope and calibrated items NOT RUN. On `ec0cc0c1` the DIN re-run counts 0 torn frames in [617_DIN_FRAME_COHERENCE_BENCH.md](617_DIN_FRAME_COHERENCE_BENCH.md), and [451_USB_AUDIO_CAPTURE.md](451_USB_AUDIO_CAPTURE.md) records the capture through the USB Audio device as FAIL |
++| [451_TDM8_TIMING_SOC_BOARD.md](451_TDM8_TIMING_SOC_BOARD.md) | The #451 timing item (BCLK, FSYNC and DOUT at the AM62x end) measured on the SoC board's McASP0, on dev `ec0cc0c1`; the oscilloscope version is [#626](https://github.com/kebag-logic/milan-fpga/issues/626) | One McASP0 capture of 475.6 s, ruled sufficient by the manager. Data one BCLK after the frame-sync edge PASS (22,831,104 frames bit-exact in all eight slots, 0 torn), fs 47,997.947 Hz on the SoC board's clock (-42.8 ppm, +-0.12 ppm granularity, crystal tolerance excluded) and BCLK 12,287,474 Hz inferred as 256 x fs. The bench host's USB loss at 475.7 s ended the capture and changes no figure. FSYNC pulse width, edge timing, levels and absolute ppm stay with #626 |
+ | [451_USB_AUDIO_CAPTURE.md](451_USB_AUDIO_CAPTURE.md) | Capture of the DUT's rendered pattern on the bench host's USB Audio card through the SoC board's audio bridge, on dev `ec0cc0c1`: slot and channel order and continuity over two 75 s runs; the continuity check (#451) | FAIL: 0 of 3,600,000 frames pass the pattern rule in either run, with a rotating channel order and silent stretches; the direct McASP0 path is bit-exact on the same image. Continuity check, playback direction, scope and calibrated items NOT RUN |
+ | [617_DIN_FRAME_COHERENCE_BENCH.md](617_DIN_FRAME_COHERENCE_BENCH.md) | Bench re-run of the #451 first-light DIN capture on dev `ec0cc0c1`, with the frame-atomic capture handoff of PR #618, and a DOUT re-run (#617 acceptance 4) | 0 torn of 3,360,036 playback frames (first light 67.5%); slot and channel order identity in both directions; render path unchanged |
+ | [75_RECONNECT_RESTART_MEASUREMENT.md](75_RECONNECT_RESTART_MEASUREMENT.md) | Two CRF pairs on `9e9954e9`; disconnect, two-second hold, reconnect (#75) | 100 listener and 97 talker restarts measured; AAF unmeasured. On `13eda870` the talker non-restarts are re-measured in [608_75_WITHDRAWAL_AND_RESTART.md](608_75_WITHDRAWAL_AND_RESTART.md) and the initial bind in [606_FIRST_BIND_MEASUREMENT.md](606_FIRST_BIND_MEASUREMENT.md) |
+== tree-wide references to the two composed pages
+HEAD:docs/findings/README.md:12:| [451_TDM8_TIMING_SOC_BOARD.md](451_TDM8_TIMING_SOC_BOARD.md) | The #451 timing item (BCLK, FSYNC and DOUT at the AM62x end) me
+HEAD:docs/findings/README.md:21:| [117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md) | Audio continuity end to end against the reference peer on dev `ec0cc0c1`:
+== submodule gitlinks
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit b2db3a970cedbbff2f8ba813acb96122c442bc58	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit b2db3a970cedbbff2f8ba813acb96122c442bc58	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

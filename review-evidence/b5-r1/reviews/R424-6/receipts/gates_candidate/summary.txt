@@ -1,0 +1,23 @@
+head 86726d5e60ced4f7baad6a042890b44abf7d76ed tree 84d57ec2af76a43e18ebc5c5d93cff2d01cd1149
+docs_check                         rc=0  <locked-python> scripts/docs_check.py
+em_dash_base_dev                   rc=0  <locked-python> scripts/check_em_dash.py --base ea3fb38877842f223afea97e3bd72a10500455c9
+em_dash_base_mb                    rc=0  <locked-python> scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+em_dash_selftest                   rc=0  <locked-python> scripts/check_em_dash.py --selftest
+doc_style                          rc=0  <locked-python> scripts/check_doc_style.py
+doc_style_selftest                 rc=0  <locked-python> scripts/check_doc_style.py --selftest
+doc_paths                          rc=0  <locked-python> scripts/check_doc_paths.py
+doc_map_check                      rc=0  <locked-python> docs/DOC_MAP.gen.py --check
+doc_map_selftest                   rc=0  <locked-python> docs/DOC_MAP.gen.py --selftest
+solution_docs                      rc=0  <locked-python> scripts/check_solution_docs.py
+feature_status                     rc=0  <locked-python> scripts/check_feature_status.py
+feature_status_self                rc=0  <locked-python> scripts/check_feature_status.py --self-test
+gen_toc_selftest                   rc=0  <locked-python> scripts/gen_toc.py --selftest
+gen_toc_anchors                    rc=0  <locked-python> scripts/gen_toc.py --verify-anchors
+gen_toc_check                      rc=0  <locked-python> scripts/gen_toc.py --check
+hygiene_check                      rc=0  <locked-python> scripts/check_hygiene.py --check
+archive                            rc=0  <locked-python> scripts/check_archive.py
+ci_events_check                    rc=0  <locked-python> scripts/ci_events.py --check
+ci_events_selftest                 rc=0  <locked-python> scripts/ci_events.py --selftest
+module_matrix_check                rc=0  <locked-python> docs/traceability/gen_module_matrix.py --check
+test_evidence_check                rc=0  <locked-python> scripts/measure_test_evidence.py --check
+post-status: 0 dirty paths
