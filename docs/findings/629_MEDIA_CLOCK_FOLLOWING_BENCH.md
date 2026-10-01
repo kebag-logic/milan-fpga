@@ -37,7 +37,7 @@ These are operator observations, not review verdicts.
 ## Contents
 
 - **[Identity and setup](#identity-and-setup)** -- The image's identity readback and the bench as found.
-- **[Method](#method)** -- The tone, the analysis, the bench path, the binding rule, clock sources, the attribution of every discontinuity and the frame-rate ratio.
+- **[Method](#method)** -- The tone, the analysis, the shakedown runs, the bench path, the binding rule, clock sources, the attribution of every discontinuity, what it can absorb, and the frame-rate ratio.
 - **[Tool controls](#tool-controls)** -- The analysis tool on synthetic captures: the floor, a dropped and a repeated frame, 16 ppm and 1 ppm.
 - **[Binding rule and clock-source record](#binding-rule-and-clock-source-record)** -- Every format read and set before each bind, and every clock-source set, read-back and restore.
 - **[Direction A](#direction-a)** -- The DUT's talker to the reference peer's listener: THD+N, SNR, frequency offset and discontinuities per case.
@@ -45,7 +45,7 @@ These are operator observations, not review verdicts.
 - **[The capture path](#the-capture-path)** -- Losses on the bench host's capture path, reported apart from clock effects.
 - **[Bench as left](#bench-as-left)** -- The state at the end against the start, and the residuals.
 - **[Limits](#limits)** -- What the measurements do not show.
-- **[Artifact hashes](#artifact-hashes)** -- Raw files and the lane packet's evidence files.
+- **[Artifact hashes](#artifact-hashes)** -- Raw files, the lane packet's evidence files, and where the packet is published.
 
 ## Identity and setup
 
@@ -89,6 +89,23 @@ Every bench action held the shared lock, and every command had an explicit
 deadline. No flash, reset, power, wiring, instrument setting or USB function
 action occurred. No DUT PHY or CSR register was written. Each case ran as one
 locked action of about 11 minutes with a hard deadline.
+
+**Shakedown runs.** Before the cases the SoC board's two bridge legs were
+stopped by process ID, each command line checked first. At the end they were
+restarted with the recorded command lines. Three tool shakedown runs preceded
+the cases and are not graded:
+
+- `smoke-a0-clkparse` stopped at the as-found check, before any map, bind or
+  playback, because the tool's clock-source parse returned nothing. Nothing
+  was set.
+- `smoke-a0`, A0 with a 30 s window. The board's timing sampler lost its
+  `hw_ptr` line in 107 of 249 samples, and was fixed.
+- `smoke2-a0`, A0 with a 90 s window, a check of the fixed tools.
+
+The last two bound the DUT's AAF stream to the peer under the binding rule,
+set the peer's format and edited the DUT's map, then restored all of it and
+read it back, as the cases did. Their edits are part of the NVM commit count
+in [Bench as left](#bench-as-left).
 
 **Tone.** One loop of 48,000 frames, 1 s, eight channels of S32_LE with the
 24-bit sample in bits 31:8, as at first light. Channel 0 carries 997 Hz and
@@ -136,7 +153,10 @@ captures the DUT's TDM output on the SoC board and discards it, which keeps its
 capture side running for the timing samples. No audio leaves the board.
 
 **Cases.** Each window is 630 s, untouched, from 20 s after the last bind or
-clock-source set; for B CRF, from 20 s after the DUT's servo read LOCKED.
+clock-source set and its read-back. The tool waits in 0.5 s steps, so the
+windows opened 20.0 to 20.5 s after it. B CRF follows the same rule: its
+window opened 20.5 s after the clock-source set, which was 14.0 s after the
+DUT's servo first read LOCKED.
 
 | Case | Peer CLOCK_DOMAIN | DUT CLOCK_DOMAIN | Streams bound |
 |---|---|---|---|
@@ -197,6 +217,52 @@ a 33 ms read stall. A step back of 24,000 frames is exactly the external
 capture's 0.5 s buffer. A0, A2 and B INTERNAL keep their verdicts under either
 rule.
 
+**What the attribution can absorb.** The rules above can hide a listener event
+in five ways. For A1 and B CRF each is checked against the grades
+(`grade.json`, `events.csv`) and the capture read times:
+
+1. **A one-frame drop at the same step as a capture loss.** The two merge into
+   one skip one frame longer than the loss. The rise test's 1 ms + 2 % cannot
+   resolve one frame, 0.02 ms. Such a skip is 48 n + 13 frames, and a merged
+   repeat 48 n + 11.
+   - B CRF: every capture-path skip is 48 n + 12, and its stale replay steps
+     back exactly 24,000 frames twice.
+   - A1: every capture-path skip is 48 n + 12 but two. One is the 23,880-frame
+     edge of its stale replay, which a step back of exactly 23,880 frames
+     cancels. The other is the 12.4 s loss at its 12.7 s read stall, twelve
+     loops and 18,626 frames, whose size has no pattern. A drop at the very
+     edge of that loss cannot be told from lost audio, which every figure
+     leaves out with any event inside it.
+   - A0 and A2 each hold one 48 n + 13 skip; see
+     [The capture path](#the-capture-path).
+2. **A one-frame repeat within 50 frames of a beat tooth.** Comb membership is
+   a 50-frame window with no check of one member per tooth, so such a repeat
+   would count as the DUT's beat.
+   - A1: its 315 members sit one per tooth, at least 93,989 frames apart. Each
+     lies 75 frames or more from a capture-path event, so none can stand in
+     for a beat that lost audio hid. Its 7 missing teeth all fall inside that
+     12.4 s loss.
+   - B CRF has no one-frame event of any kind.
+3. **A capture-loss-sized skip after a read gap, with no loss measured.** Where
+   a rise is measured but does not match, the cluster is still capture path
+   when a read gap of 11 ms or more precedes it and every skip is 48 n + 12.
+   A listener skip of that size after an ordinary read gap would pass.
+   - A1 and B CRF have no cluster on this branch. A2 has two.
+4. **A skip of 2 to 48 frames with no stall.** Such a skip is 1 ms or less, so
+   a rise of zero matches it within 1 ms + 2 %. The read-time floor steps by
+   up to 1.0 ms with no loss at all, which widens that band to about 98
+   frames.
+   - A1 and B CRF: the smallest capture-path loss is 60 frames. Each of their
+     seven clusters under 98 frames is one 60-frame skip, 48 n + 12, after a
+     read gap of 14.9 ms or more. Their rises, 0.99 to 1.00 ms, sit at the
+     floor's step, so for these seven the read gap and the size carry the
+     attribution.
+5. **The gap-only branch.** Where the rise is unmeasurable, a read gap of
+   11 ms or more in the 600 ms before is enough, with no size check. In these
+   windows 16 to 28 % of read positions meet that gap test, so a random
+   multi-frame event would often pass.
+   - A1: both gap-only clusters have every skip at 48 n + 12. B CRF has none.
+
 **Frame-rate ratio.** McASP0 runs on the DUT's TDM clock, and the capture
 records the peer's output. Two estimates:
 
@@ -246,6 +312,14 @@ A rate error therefore shows either as a fitted offset, when the source is
 resampled, or as discontinuities at its rate, when it slips. Both kinds are
 found with their sizes. The 9,973 Hz tone makes a timing error about ten times
 larger, and its blocks with one slip sit 20 dB above the 997 Hz tone's.
+
+The floor itself was checked without the tool. The loop is exactly periodic,
+so a 48,000-point DFT of it has no leakage. Its band, 20 Hz to 20 kHz, gives
+the same THD+N and SNR as the tool for both tones within 0.0001 dB. The
+analytic floor of a -1 dBFS tone over 24-bit rounding in that band is
+-146.05 dB. The controls compare blocks with the tool's own floor, so they
+alone would pass a 3 dB error in the band computation. Against these two
+checks it would show as 3 dB.
 
 ## Binding rule and clock-source record
 
@@ -302,15 +376,18 @@ block whose residual exceeds the tone: a capture-path loss inside it.
 | A1 | 617.32 | 93,990.38 | 321.8 | 0.5111 | 51, 23, 615,026 | 0 | PASS |
 | A2 | 616.14 | 93,990.38 | 322.0 | 0.5096 | 143, 61, 686,656 | 0 | FAIL |
 
-The beat comb's members sit within 1.8 frames of its line in every case. Its
+The beat comb's members sit within 1.82 frames of its line in every case. Its
 rate, 0.5107 per second at 48 kHz, matches the DUT's own `SLIP_TDM` count
 within 0.3 %.
 Teeth missing from the comb fall inside capture-path losses.
 
 **A0.** The peer, on its INTERNAL source, drops one frame every 1.21 s on
-average: 17.1 ppm. The DUT's beat adds one frame every 1.958 s: 10.6 ppm. Net,
-McASP0 runs +6.52 ppm off the peer's output, against +6.44 +-0.72 ppm timed.
-Lane B5 measured 16.4 ppm of drops at the peer's output and the same beat. The
+average. The 519 drops are 17.2 ppm of the window, and 17.1 ppm net of the one
+silent insert, the figure in the verdict table. The DUT's beat adds one frame
+every 1.958 s: 10.6 ppm. Net, McASP0 runs +6.52 ppm off the peer's output,
+against +6.44 +-0.72 ppm timed. Lane B5
+([PR #628](https://github.com/kebag-logic/milan-fpga/pull/628)) measured
+16.46 ppm of drops at the peer's output and the same beat. The
 metric shows the mismatch: 575 of 629 blocks leave the floor, to between -45
 and +8 dB.
 
@@ -330,7 +407,8 @@ one-frame insert. Net, the 494 drops less the 180 inserts equal the DUT's 316
 repeats within two frames. Only 1 block of 616 is at the floor.
 
 The DUT's two outputs run on two clocks at INTERNAL. The CRF talker divides the
-audio MMCM clock by 512 (`hdl/milan/milan_datapath.sv:445`): the physical
+audio MMCM clock by 512 (`hdl/ieee1722/crf/KL_crf_tx.sv`, its header from line
+20, and the port contract at `hdl/milan/milan_datapath.sv:445`): the physical
 sample grid, 47,999.4893 Hz nominal. The AAF talker's packet grid is the
 free-running 48,000.0000 Hz NCO. The two are 10.64 ppm apart, the beat
 ([TIME_SYNC.md](../design/TIME_SYNC.md#talker-capture-handoff)). A listener
@@ -339,6 +417,10 @@ fast and must drop one frame per beat. The DUT's own talker beat already
 repeats one, so the pair nets to zero but leaves two discontinuities per beat.
 Under CRF selection the DUT aligns the packet grid to the physical grid, as the
 B CRF case shows. This disagreement is therefore specific to INTERNAL.
+
+A2's root cause is tracked on #74, "Media clock: select CRF and align the
+audio grid", where this measurement is recorded
+([#74 comment](https://github.com/kebag-logic/milan-fpga/issues/74#issuecomment-5932380322)).
 
 ## Direction B
 
@@ -375,8 +457,9 @@ runs +6.05 ppm off the peer, as in A0. The binding of the CRF input alone does
 not move the DUT's clock.
 
 **B CRF.** SET_CLOCK_SOURCE 1 answered SUCCESS and read back 1. The servo read
-ACQUIRE 3.3 s after the set and LOCKED 6.5 s after it, and it stayed LOCKED
-through the window. Its trim, -6.0 ppm, cancels the +6 ppm the control
+ACQUIRE 3.3 s after the set and LOCKED 6.5 s after it. It read LOCKED at all
+three reads in the window, 5 s, 315 s and 615 s in, while `SLIP_TDM` stayed
+static. Its trim, -6.0 ppm, cancels the +6 ppm the control
 measured. Over the window McASP0 and the peer's output advanced frame for frame:
 0 net steps in 30,237,600 captured frames. `SLIP_TDM` did not move, and the
 DUT's beat is gone. On the same tone path the peer's INTERNAL listener now
@@ -408,8 +491,12 @@ These are separate from every clock effect above.
   in B CRF.
 - 255 of the 265 skips in clusters with a matching rise are 48 n + 12 frames.
   Of the other ten, two are losses longer than a loop and four are the edges of
-  stale replays (next item). Two are one frame off the pattern, and two are
-  parts of a cluster whose total is 48 n + 12.
+  stale replays (next item). Two are parts of a cluster whose total is
+  48 n + 12. Two are one frame off the pattern, at 48 n + 13: A0's 1,165-frame
+  skip, and a 109-frame skip in an A2 stale-replay cluster. Each may hold a
+  one-frame listener drop merged with a capture loss. So A0's 519 and A2's 494
+  listener drops may each be one low, and each counted ratio about 0.03 ppm
+  low.
 - Five clusters also replayed stale audio from about one capture buffer, 24,000
   frames, back: one run of 6 frames in A1, runs of 1 and 2 frames and one
   step back and forth in A2, and in B CRF one cluster that stepped back 24,000
@@ -417,9 +504,16 @@ These are separate from every clock effect above.
   cluster's net step matches its read-time rise.
 - A loss longer than the loop hides any event inside it. That is why the beat
   combs miss a few teeth.
-- One-frame listener events show no read-time rise. The median is 0.00 ms in
-  every case and the largest magnitude 1.0 ms, the host's USB frame step. The
-  two exceptions, 2.7 ms and 177 ms, sit next to A2's 13.3 s stall.
+- One-frame listener events show no read-time rise. A rise is measurable where
+  at least three reads separate the event from each neighbouring event: for
+  497 of A0's 520 listener events, 135 of A2's 674 and 485 of B INTERNAL's
+  507. A2's other 539 sit too close to a neighbour. In each of those cases the
+  median is 0.00 ms and the largest magnitude 1.0 ms, the host's USB frame
+  step, with no exception. A1 and B CRF have no listener event.
+- The DUT's one-frame beat repeats behave the same, measurable for 300 of 321
+  in A0, 312 of 315 in A1, 313 of 316 in A2 and 303 of 322 in B INTERNAL. The
+  two exceptions, 2.7 ms and 177 ms, are A2 beat repeats within 0.4 s of its
+  13.3 s stall.
 
 ## Bench as left
 
@@ -458,11 +552,20 @@ Residuals that no permitted command restores:
 - The A1 and B CRF verdicts rest on the refined capture-path attribution. Under
   the rule as first written both would fail; see
   [Method](#method), "How the attribution was refined".
+- The attribution can absorb a listener event in five ways; see
+  [Method](#method), "What the attribution can absorb". The checks there
+  exclude each in A1 and B CRF, except a one-frame drop at the very edge of
+  A1's 12.4 s loss, which lost audio would hide anyway. In A0 and A2 one skip
+  each is 48 n + 13, so their listener drop counts may each be one low.
 - The timed ratio depends on the bench host's read-time floor. Its interval
   is wide where the capture stalled for seconds (A1, A2).
 - The A2 diagnosis rests on the measured rates and on the code and design
-  reference cited. No CRF timestamp was captured on the wire.
-- The servo's DRP config mismatch bit is recorded, not analysed.
+  reference cited. No CRF timestamp was captured on the wire. Its root cause
+  is tracked on #74.
+- In B CRF the servo's status carried bit 4, DRP config mismatch, from ACQUIRE
+  on. It was observed and not analysed. It is recorded on #74
+  ([comment](https://github.com/kebag-logic/milan-fpga/issues/74#issuecomment-5932538721))
+  for when that issue is worked.
 - Printed precision is not calibrated accuracy.
 
 ## Artifact hashes
@@ -496,6 +599,29 @@ The raw files stay outside the lane packet, on the bench host. Each run's
 
 The lane packet, `b6-a477`, holds the redacted evidence and the tools. Its
 manifest covers every retained file except itself.
+
+**Where the packet is.** It is published on branch `b6-review-evidence`, pinned
+at commit `ff542b62ae79f283b80b7945dd76110f986b0737`. The packet label
+`b6-a477` maps to `review-evidence/b6-r1/author/` there: `summary/a1/grade.json`
+is `review-evidence/b6-r1/author/summary/a1/grade.json`. The archive masks
+labels in some files. For the twelve label-masked files below (each
+`grade.json`, each run's `events.jsonl`, `grade_b6.py` and `run_b6.py`) the
+hash is the unmasked original's. It is recorded as `original_sha256` in
+`review-evidence/b6-r1/MANIFEST.json`, beside the published file's
+`published_sha256`. The raw files' hashes are in the packet's
+`RAW-ARTIFACTS.json`. Two commands reproduce the tone loop and the tool
+controls from the archive:
+
+```sh
+git fetch origin b6-review-evidence
+git checkout ff542b62ae79f283b80b7945dd76110f986b0737 -- review-evidence/b6-r1
+cd review-evidence/b6-r1/author/tools
+python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
+python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
+```
+
+Both exit 0. The first prints the tone loop's hash in the table above, and
+`cmp` is silent.
 
 | Evidence file | Bytes | SHA-256 |
 |---|---|---|
