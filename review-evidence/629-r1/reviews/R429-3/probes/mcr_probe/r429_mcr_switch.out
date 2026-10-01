@@ -1,0 +1,49 @@
+Verilator 5.050 2026-07-01 rev v5.050
+5891b12a91ba1cd91f308c9c2394808d9aebe4bae999e5654859689d9656465f  <review clone>/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+build rc=0
+== 100 MHz: A = 12,500 cycles (125 us), C = 200,000 (2 ms); 40 ms observed; 64 phases over one CRF period
+== then scaled: A = 100, C = 1,600; 400 phases (every 4th cycle of a CRF period)
+design   A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era1     A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era2     A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era3     A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era4     A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo1    A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo10   A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo30   A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo60   A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 48; AAF>=2 16; CRF>=2 1; an output with 0 0
+echo90   A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 32; AAF>=2 32; CRF>=2 2; an output with 0 0
+echo120  A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 16; AAF>=2 48; CRF>=2 3; an output with 0 0
+echo125  A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 16; AAF>=2 48; CRF>=2 3; an output with 0 0
+echo5000 A=12500 C=200000 LAT=40 obs=4000000: trials 64; one toggle on both 0; AAF>=2 64; CRF>=2 64; an output with 0 0
+design   A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era1     A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era2     A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era3     A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+era4     A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo1    A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo10   A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo30   A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 64; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo60   A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 48; AAF>=2 16; CRF>=2 1; an output with 0 0
+echo90   A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 32; AAF>=2 32; CRF>=2 2; an output with 0 0
+echo120  A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 16; AAF>=2 48; CRF>=2 3; an output with 0 0
+echo125  A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 16; AAF>=2 48; CRF>=2 3; an output with 0 0
+echo5000 A=12500 C=200000 LAT=2000 obs=4000000: trials 64; one toggle on both 0; AAF>=2 64; CRF>=2 64; an output with 0 0
+design   A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era1     A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era2     A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era3     A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era4     A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo10   A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo60   A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 384; AAF>=2 16; CRF>=2 1; an output with 0 0
+echo125  A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 176; AAF>=2 224; CRF>=2 14; an output with 0 0
+echo5000 A=100 C=1600 LAT=40 obs=40000: trials 400; one toggle on both 0; AAF>=2 400; CRF>=2 400; an output with 0 0
+design   A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era1     A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era2     A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era3     A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+era4     A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo10   A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo60   A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 400; AAF>=2 0; CRF>=2 0; an output with 0 0
+echo125  A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 368; AAF>=2 32; CRF>=2 1; an output with 0 0
+echo5000 A=100 C=1600 LAT=90 obs=40000: trials 400; one toggle on both 0; AAF>=2 400; CRF>=2 400; an output with 0 0
