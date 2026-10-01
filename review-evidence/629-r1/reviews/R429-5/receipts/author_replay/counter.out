@@ -1,0 +1,14 @@
+== C. the CLOCK_DOMAIN counter row's loss leg: +20 ppm talker, independent +/-1,426 ns, 100 s; 0 to 20 s no loss, 20 to 80 s one PDU lost in every 0.3 s (200 losses), 80 to 100 s no loss. Meter lock and servo state machine modelled. C1 counts edges of 'the servo in LOCKED' (as ruled); C2 counts edges of the reference lock; C0 counts edges of ~tu, which nothing here moves. Counts are [LOCKED, UNLOCKED], from the talker's first PDU
+design: rule b, a held lock kept: first LOCKED 7.32 s; meter restarts 0 before the leg, 0 in it; HOLDOVER entries 0; lock-test drops 0
+   C1 at 20 s [1, 0], at 80 s [1, 0], at 100 s [1, 0]: in the leg LOCKED +0 UNLOCKED +0 -> neither moves; state at 80 s LOCKED; invariant LOCKED - UNLOCKED in {0, 1}: yes
+   C1 edges in the leg: none; after it: none
+   C2 in the leg LOCKED +0 UNLOCKED +0; C0 in the leg +0 +0
+mutant: the meter's held lock cleared on a sequence gap: first LOCKED 7.32 s; meter restarts 0 before the leg, 0 in it; HOLDOVER entries 200; lock-test drops 0
+   C1 at 20 s [1, 0], at 80 s [1, 1], at 100 s [2, 1]: in the leg LOCKED +0 UNLOCKED +1 -> MOVES; state at 80 s ACQUIRE; invariant LOCKED - UNLOCKED in {0, 1}: yes
+   C1 edges in the leg: UNLOCKED at 20.197 s; after it: LOCKED at 82.586 s
+   C2 in the leg LOCKED +200 UNLOCKED +200; C0 in the leg +0 +0
+mutant: restart on any loss (round 3): first LOCKED 7.32 s; meter restarts 0 before the leg, 200 in it; HOLDOVER entries 0; lock-test drops 0
+   C1 at 20 s [1, 0], at 80 s [1, 0], at 100 s [1, 0]: in the leg LOCKED +0 UNLOCKED +0 -> neither moves; state at 80 s LOCKED; invariant LOCKED - UNLOCKED in {0, 1}: yes
+   C1 edges in the leg: none; after it: none
+   C2 in the leg LOCKED +0 UNLOCKED +0; C0 in the leg +0 +0
+

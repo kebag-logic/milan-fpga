@@ -1,0 +1,16 @@
+p, lost/s, 500q^2, exact, valid(approx), valid(exact)
+1.0e-04    0.8 0.0013 0.0013 0.9948 0.9948
+5.0e-04    4.0 0.0318 0.0315 0.8780 0.8789
+1.0e-03    8.0 0.1261 0.1241 0.5966 0.6015
+1.4e-03   11.2 0.2457 0.2402 0.3656 0.3738
+2.0e-03   16.0 0.4969 0.4812 0.1306 0.1393
+3.0e-03   24.0 1.1014 1.0497 0.0110 0.0136
+valid 0.90: exact at 3.61 lost/s, approx at 3.60 lost/s
+valid 0.50: exact at 9.37 lost/s, approx at 9.28 lost/s
+valid 0.10: exact at 17.34 lost/s, approx at 17.03 lost/s
+valid 0.01: exact at 24.88 lost/s, approx at 24.25 lost/s
+round 3: p=3e-5 -> 0.24/s, one per 4.17 s, valid 0.374
+round 3: 1 % at 1.124 lost/s
+300 s at p=0.0001: expected restarts 0.38 (approx 0.38); expected valid 0.981; round-4 row (1, 0.98)
+300 s at p=0.001: expected restarts 37.23 (approx 37.83); expected valid 0.593; round-4 row (41, 0.55)
+fill factor 0.9863

@@ -1,0 +1,491 @@
+== S5. a step in a loss-voided group under rule 1 as round 5 states it (each PDU checked against PDU 0 as it arrives, up to the gap): white +/-1,426 ns, 300 ppm, 24 s, the step 12 s in. (a) the group loses its PDU 0, the step at positions 1 to 15; (b) the group loses its PDU 15, the step at positions 0 to 14. One- and half-sample steps of each sign: 120 cases a variant
+design | (a)                                                   step   20833 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off 22353'] drops=0 closed_max=145
+design | (a)                                                   step   20833 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off 22519'] drops=0 closed_max=170
+design | (a)                                                   step   20833 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off 21442'] drops=0 closed_max=174
+design | (a)                                                   step   20833 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off 22127'] drops=0 closed_max=179
+design | (a)                                                   step   20833 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off 22274'] drops=0 closed_max=119
+design | (a)                                                   step   20833 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off 21820'] drops=0 closed_max=159
+design | (a)                                                   step   20833 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off 22068'] drops=0 closed_max=125
+design | (a)                                                   step   20833 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off 21783'] drops=0 closed_max=217
+design | (a)                                                   step   20833 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off 21921'] drops=0 closed_max=140
+design | (a)                                                   step   20833 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off 21807'] drops=0 closed_max=188
+design | (a)                                                   step   20833 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off 21806'] drops=0 closed_max=141
+design | (a)                                                   step   20833 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off 21922'] drops=0 closed_max=144
+design | (a)                                                   step   20833 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off 21963'] drops=0 closed_max=161
+design | (a)                                                   step   20833 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off 21948'] drops=0 closed_max=143
+design | (a)                                                   step   20833 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off 22140'] drops=0 closed_max=191
+design | (b)                                                   step   20833 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off 21710'] drops=0 closed_max=234
+design | (b)                                                   step   20833 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+design | (b)                                                   step   20833 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+design | (b)                                                   step   20833 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+design | (b)                                                   step   20833 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+design | (b)                                                   step   20833 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+design | (b)                                                   step   20833 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+design | (b)                                                   step   20833 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+design | (b)                                                   step   20833 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+design | (b)                                                   step   20833 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+design | (b)                                                   step   20833 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+design | (b)                                                   step   20833 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+design | (b)                                                   step   20833 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+design | (b)                                                   step   20833 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+design | (b)                                                   step   20833 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+design | (a)                                                   step  -20833 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off -19313'] drops=0 closed_max=145
+design | (a)                                                   step  -20833 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off -19147'] drops=0 closed_max=170
+design | (a)                                                   step  -20833 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off -20224'] drops=0 closed_max=174
+design | (a)                                                   step  -20833 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off -19539'] drops=0 closed_max=179
+design | (a)                                                   step  -20833 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off -19392'] drops=0 closed_max=119
+design | (a)                                                   step  -20833 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off -19846'] drops=0 closed_max=159
+design | (a)                                                   step  -20833 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off -19598'] drops=0 closed_max=125
+design | (a)                                                   step  -20833 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off -19883'] drops=0 closed_max=217
+design | (a)                                                   step  -20833 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off -19745'] drops=0 closed_max=140
+design | (a)                                                   step  -20833 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off -19859'] drops=0 closed_max=188
+design | (a)                                                   step  -20833 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off -19860'] drops=0 closed_max=141
+design | (a)                                                   step  -20833 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off -19744'] drops=0 closed_max=144
+design | (a)                                                   step  -20833 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off -19703'] drops=0 closed_max=161
+design | (a)                                                   step  -20833 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off -19718'] drops=0 closed_max=143
+design | (a)                                                   step  -20833 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off -19526'] drops=0 closed_max=191
+design | (b)                                                   step  -20833 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off -19956'] drops=0 closed_max=234
+design | (b)                                                   step  -20833 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+design | (b)                                                   step  -20833 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+design | (b)                                                   step  -20833 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+design | (b)                                                   step  -20833 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+design | (b)                                                   step  -20833 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+design | (b)                                                   step  -20833 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+design | (b)                                                   step  -20833 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+design | (b)                                                   step  -20833 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+design | (b)                                                   step  -20833 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+design | (b)                                                   step  -20833 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+design | (b)                                                   step  -20833 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+design | (b)                                                   step  -20833 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+design | (b)                                                   step  -20833 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+design | (b)                                                   step  -20833 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+design | (a)                                                   step   10417 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off 11937'] drops=0 closed_max=145
+design | (a)                                                   step   10417 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off 12103'] drops=0 closed_max=170
+design | (a)                                                   step   10417 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off 11026'] drops=0 closed_max=174
+design | (a)                                                   step   10417 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off 11711'] drops=0 closed_max=179
+design | (a)                                                   step   10417 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off 11858'] drops=0 closed_max=119
+design | (a)                                                   step   10417 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off 11404'] drops=0 closed_max=159
+design | (a)                                                   step   10417 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off 11652'] drops=0 closed_max=125
+design | (a)                                                   step   10417 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off 11367'] drops=0 closed_max=217
+design | (a)                                                   step   10417 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off 11505'] drops=0 closed_max=140
+design | (a)                                                   step   10417 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off 11391'] drops=0 closed_max=188
+design | (a)                                                   step   10417 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off 11390'] drops=0 closed_max=141
+design | (a)                                                   step   10417 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off 11506'] drops=0 closed_max=144
+design | (a)                                                   step   10417 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off 11547'] drops=0 closed_max=161
+design | (a)                                                   step   10417 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off 11532'] drops=0 closed_max=143
+design | (a)                                                   step   10417 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off 11724'] drops=0 closed_max=191
+design | (b)                                                   step   10417 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off 11294'] drops=0 closed_max=234
+design | (b)                                                   step   10417 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+design | (b)                                                   step   10417 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+design | (b)                                                   step   10417 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+design | (b)                                                   step   10417 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+design | (b)                                                   step   10417 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+design | (b)                                                   step   10417 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+design | (b)                                                   step   10417 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+design | (b)                                                   step   10417 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+design | (b)                                                   step   10417 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+design | (b)                                                   step   10417 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+design | (b)                                                   step   10417 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+design | (b)                                                   step   10417 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+design | (b)                                                   step   10417 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+design | (b)                                                   step   10417 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+design | (a)                                                   step  -10417 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off -8897'] drops=0 closed_max=145
+design | (a)                                                   step  -10417 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off -8731'] drops=0 closed_max=170
+design | (a)                                                   step  -10417 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off -9808'] drops=0 closed_max=174
+design | (a)                                                   step  -10417 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off -9123'] drops=0 closed_max=179
+design | (a)                                                   step  -10417 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off -8976'] drops=0 closed_max=119
+design | (a)                                                   step  -10417 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off -9430'] drops=0 closed_max=159
+design | (a)                                                   step  -10417 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off -9182'] drops=0 closed_max=125
+design | (a)                                                   step  -10417 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off -9467'] drops=0 closed_max=217
+design | (a)                                                   step  -10417 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off -9329'] drops=0 closed_max=140
+design | (a)                                                   step  -10417 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off -9443'] drops=0 closed_max=188
+design | (a)                                                   step  -10417 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off -9444'] drops=0 closed_max=141
+design | (a)                                                   step  -10417 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off -9328'] drops=0 closed_max=144
+design | (a)                                                   step  -10417 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off -9287'] drops=0 closed_max=161
+design | (a)                                                   step  -10417 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off -9302'] drops=0 closed_max=143
+design | (a)                                                   step  -10417 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off -9110'] drops=0 closed_max=191
+design | (b)                                                   step  -10417 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off -9540'] drops=0 closed_max=234
+design | (b)                                                   step  -10417 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+design | (b)                                                   step  -10417 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+design | (b)                                                   step  -10417 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+design | (b)                                                   step  -10417 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+design | (b)                                                   step  -10417 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+design | (b)                                                   step  -10417 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+design | (b)                                                   step  -10417 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+design | (b)                                                   step  -10417 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+design | (b)                                                   step  -10417 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+design | (b)                                                   step  -10417 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+design | (b)                                                   step  -10417 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+design | (b)                                                   step  -10417 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+design | (b)                                                   step  -10417 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+design | (b)                                                   step  -10417 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+mutant: no check across a gap | (a)                            step   20833 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=2605
+mutant: no check across a gap | (a)                            step   20833 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=2626
+mutant: no check across a gap | (a)                            step   20833 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=2603
+mutant: no check across a gap | (a)                            step   20833 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=2647
+mutant: no check across a gap | (a)                            step   20833 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=2596
+mutant: no check across a gap | (a)                            step   20833 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=2593
+mutant: no check across a gap | (a)                            step   20833 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=2619
+mutant: no check across a gap | (a)                            step   20833 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=2548
+mutant: no check across a gap | (a)                            step   20833 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=2596
+mutant: no check across a gap | (a)                            step   20833 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=2561
+mutant: no check across a gap | (a)                            step   20833 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=2666
+mutant: no check across a gap | (a)                            step   20833 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=2606
+mutant: no check across a gap | (a)                            step   20833 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=2624
+mutant: no check across a gap | (a)                            step   20833 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=2605
+mutant: no check across a gap | (a)                            step   20833 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=2559
+mutant: no check across a gap | (b)                            step   20833 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=2622
+mutant: no check across a gap | (b)                            step   20833 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+mutant: no check across a gap | (b)                            step   20833 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+mutant: no check across a gap | (b)                            step   20833 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+mutant: no check across a gap | (b)                            step   20833 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+mutant: no check across a gap | (b)                            step   20833 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+mutant: no check across a gap | (b)                            step   20833 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+mutant: no check across a gap | (b)                            step   20833 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+mutant: no check across a gap | (b)                            step   20833 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+mutant: no check across a gap | (b)                            step   20833 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+mutant: no check across a gap | (b)                            step   20833 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+mutant: no check across a gap | (b)                            step   20833 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+mutant: no check across a gap | (b)                            step   20833 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+mutant: no check across a gap | (b)                            step   20833 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+mutant: no check across a gap | (b)                            step   20833 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+mutant: no check across a gap | (a)                            step  -20833 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=2603
+mutant: no check across a gap | (a)                            step  -20833 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=2583
+mutant: no check across a gap | (a)                            step  -20833 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=2606
+mutant: no check across a gap | (a)                            step  -20833 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=2561
+mutant: no check across a gap | (a)                            step  -20833 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=2616
+mutant: no check across a gap | (a)                            step  -20833 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=2616
+mutant: no check across a gap | (a)                            step  -20833 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=2589
+mutant: no check across a gap | (a)                            step  -20833 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=2660
+mutant: no check across a gap | (a)                            step  -20833 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=2613
+mutant: no check across a gap | (a)                            step  -20833 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=2663
+mutant: no check across a gap | (a)                            step  -20833 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=2542
+mutant: no check across a gap | (a)                            step  -20833 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=2603
+mutant: no check across a gap | (a)                            step  -20833 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=2614
+mutant: no check across a gap | (a)                            step  -20833 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=2606
+mutant: no check across a gap | (a)                            step  -20833 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=2650
+mutant: no check across a gap | (b)                            step  -20833 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=2600
+mutant: no check across a gap | (b)                            step  -20833 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+mutant: no check across a gap | (b)                            step  -20833 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+mutant: no check across a gap | (b)                            step  -20833 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+mutant: no check across a gap | (b)                            step  -20833 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+mutant: no check across a gap | (b)                            step  -20833 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+mutant: no check across a gap | (b)                            step  -20833 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+mutant: no check across a gap | (b)                            step  -20833 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+mutant: no check across a gap | (b)                            step  -20833 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+mutant: no check across a gap | (b)                            step  -20833 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+mutant: no check across a gap | (b)                            step  -20833 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+mutant: no check across a gap | (b)                            step  -20833 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+mutant: no check across a gap | (b)                            step  -20833 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+mutant: no check across a gap | (b)                            step  -20833 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+mutant: no check across a gap | (b)                            step  -20833 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+mutant: no check across a gap | (a)                            step   10417 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=1322
+mutant: no check across a gap | (a)                            step   10417 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=1333
+mutant: no check across a gap | (a)                            step   10417 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=1301
+mutant: no check across a gap | (a)                            step   10417 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=1345
+mutant: no check across a gap | (a)                            step   10417 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=1318
+mutant: no check across a gap | (a)                            step   10417 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=1291
+mutant: no check across a gap | (a)                            step   10417 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=1317
+mutant: no check across a gap | (a)                            step   10417 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=1246
+mutant: no check across a gap | (a)                            step   10417 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=1294
+mutant: no check across a gap | (a)                            step   10417 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=1283
+mutant: no check across a gap | (a)                            step   10417 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=1364
+mutant: no check across a gap | (a)                            step   10417 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=1326
+mutant: no check across a gap | (a)                            step   10417 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=1346
+mutant: no check across a gap | (a)                            step   10417 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=1303
+mutant: no check across a gap | (a)                            step   10417 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=1257
+mutant: no check across a gap | (b)                            step   10417 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=1343
+mutant: no check across a gap | (b)                            step   10417 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+mutant: no check across a gap | (b)                            step   10417 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+mutant: no check across a gap | (b)                            step   10417 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+mutant: no check across a gap | (b)                            step   10417 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+mutant: no check across a gap | (b)                            step   10417 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+mutant: no check across a gap | (b)                            step   10417 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+mutant: no check across a gap | (b)                            step   10417 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+mutant: no check across a gap | (b)                            step   10417 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+mutant: no check across a gap | (b)                            step   10417 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+mutant: no check across a gap | (b)                            step   10417 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+mutant: no check across a gap | (b)                            step   10417 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+mutant: no check across a gap | (b)                            step   10417 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+mutant: no check across a gap | (b)                            step   10417 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+mutant: no check across a gap | (b)                            step   10417 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+mutant: no check across a gap | (a)                            step  -10417 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=1301
+mutant: no check across a gap | (a)                            step  -10417 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=1281
+mutant: no check across a gap | (a)                            step  -10417 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=1320
+mutant: no check across a gap | (a)                            step  -10417 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=1266
+mutant: no check across a gap | (a)                            step  -10417 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=1314
+mutant: no check across a gap | (a)                            step  -10417 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=1314
+mutant: no check across a gap | (a)                            step  -10417 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=1287
+mutant: no check across a gap | (a)                            step  -10417 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=1358
+mutant: no check across a gap | (a)                            step  -10417 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=1311
+mutant: no check across a gap | (a)                            step  -10417 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=1361
+mutant: no check across a gap | (a)                            step  -10417 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=1251
+mutant: no check across a gap | (a)                            step  -10417 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=1301
+mutant: no check across a gap | (a)                            step  -10417 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=1312
+mutant: no check across a gap | (a)                            step  -10417 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=1327
+mutant: no check across a gap | (a)                            step  -10417 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=1363
+mutant: no check across a gap | (b)                            step  -10417 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=1298
+mutant: no check across a gap | (b)                            step  -10417 at pos  1, lost pos 15: restarts=1 by ['deviation at 1'] drops=0 closed_max=145
+mutant: no check across a gap | (b)                            step  -10417 at pos  2, lost pos 15: restarts=1 by ['deviation at 2'] drops=0 closed_max=170
+mutant: no check across a gap | (b)                            step  -10417 at pos  3, lost pos 15: restarts=1 by ['deviation at 3'] drops=0 closed_max=174
+mutant: no check across a gap | (b)                            step  -10417 at pos  4, lost pos 15: restarts=1 by ['deviation at 4'] drops=0 closed_max=179
+mutant: no check across a gap | (b)                            step  -10417 at pos  5, lost pos 15: restarts=1 by ['deviation at 5'] drops=0 closed_max=119
+mutant: no check across a gap | (b)                            step  -10417 at pos  6, lost pos 15: restarts=1 by ['deviation at 6'] drops=0 closed_max=159
+mutant: no check across a gap | (b)                            step  -10417 at pos  7, lost pos 15: restarts=1 by ['deviation at 7'] drops=0 closed_max=125
+mutant: no check across a gap | (b)                            step  -10417 at pos  8, lost pos 15: restarts=1 by ['deviation at 8'] drops=0 closed_max=217
+mutant: no check across a gap | (b)                            step  -10417 at pos  9, lost pos 15: restarts=1 by ['deviation at 9'] drops=0 closed_max=140
+mutant: no check across a gap | (b)                            step  -10417 at pos 10, lost pos 15: restarts=1 by ['deviation at 10'] drops=0 closed_max=188
+mutant: no check across a gap | (b)                            step  -10417 at pos 11, lost pos 15: restarts=1 by ['deviation at 11'] drops=0 closed_max=141
+mutant: no check across a gap | (b)                            step  -10417 at pos 12, lost pos 15: restarts=1 by ['deviation at 12'] drops=0 closed_max=144
+mutant: no check across a gap | (b)                            step  -10417 at pos 13, lost pos 15: restarts=1 by ['deviation at 13'] drops=0 closed_max=161
+mutant: no check across a gap | (b)                            step  -10417 at pos 14, lost pos 15: restarts=1 by ['deviation at 14'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off 22353'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off 22519'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off 21442'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off 22127'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off 22274'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off 21820'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off 22068'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off 21783'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off 21921'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off 21807'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off 21806'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off 21922'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off 21963'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off 21948'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step   20833 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off 22140'] drops=0 closed_max=191
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off 21710'] drops=0 closed_max=234
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  1, lost pos 15: restarts=1 by ['spacing k4=2 off 22353'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  2, lost pos 15: restarts=1 by ['spacing k4=2 off 22519'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  3, lost pos 15: restarts=1 by ['spacing k4=2 off 21442'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  4, lost pos 15: restarts=1 by ['spacing k4=2 off 22127'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  5, lost pos 15: restarts=1 by ['spacing k4=2 off 22274'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  6, lost pos 15: restarts=1 by ['spacing k4=2 off 21820'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  7, lost pos 15: restarts=1 by ['spacing k4=2 off 22068'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  8, lost pos 15: restarts=1 by ['spacing k4=2 off 21783'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos  9, lost pos 15: restarts=1 by ['spacing k4=2 off 21921'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos 10, lost pos 15: restarts=1 by ['spacing k4=2 off 21807'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos 11, lost pos 15: restarts=1 by ['spacing k4=2 off 21806'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos 12, lost pos 15: restarts=1 by ['spacing k4=2 off 21922'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos 13, lost pos 15: restarts=1 by ['spacing k4=2 off 21963'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (b)     step   20833 at pos 14, lost pos 15: restarts=1 by ['spacing k4=2 off 21948'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off -19313'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off -19147'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off -20224'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off -19539'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off -19392'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off -19846'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off -19598'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off -19883'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off -19745'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off -19859'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off -19860'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off -19744'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off -19703'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off -19718'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step  -20833 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off -19526'] drops=0 closed_max=191
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off -19956'] drops=0 closed_max=234
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  1, lost pos 15: restarts=1 by ['spacing k4=2 off -19313'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  2, lost pos 15: restarts=1 by ['spacing k4=2 off -19147'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  3, lost pos 15: restarts=1 by ['spacing k4=2 off -20224'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  4, lost pos 15: restarts=1 by ['spacing k4=2 off -19539'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  5, lost pos 15: restarts=1 by ['spacing k4=2 off -19392'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  6, lost pos 15: restarts=1 by ['spacing k4=2 off -19846'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  7, lost pos 15: restarts=1 by ['spacing k4=2 off -19598'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  8, lost pos 15: restarts=1 by ['spacing k4=2 off -19883'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos  9, lost pos 15: restarts=1 by ['spacing k4=2 off -19745'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos 10, lost pos 15: restarts=1 by ['spacing k4=2 off -19859'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos 11, lost pos 15: restarts=1 by ['spacing k4=2 off -19860'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos 12, lost pos 15: restarts=1 by ['spacing k4=2 off -19744'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos 13, lost pos 15: restarts=1 by ['spacing k4=2 off -19703'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (b)     step  -20833 at pos 14, lost pos 15: restarts=1 by ['spacing k4=2 off -19718'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off 11937'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off 12103'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off 11026'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off 11711'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off 11858'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off 11404'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off 11652'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off 11367'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off 11505'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off 11391'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off 11390'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off 11506'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off 11547'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off 11532'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step   10417 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off 11724'] drops=0 closed_max=191
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off 11294'] drops=0 closed_max=234
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  1, lost pos 15: restarts=1 by ['spacing k4=2 off 11937'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  2, lost pos 15: restarts=1 by ['spacing k4=2 off 12103'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  3, lost pos 15: restarts=1 by ['spacing k4=2 off 11026'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  4, lost pos 15: restarts=1 by ['spacing k4=2 off 11711'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  5, lost pos 15: restarts=1 by ['spacing k4=2 off 11858'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  6, lost pos 15: restarts=1 by ['spacing k4=2 off 11404'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  7, lost pos 15: restarts=1 by ['spacing k4=2 off 11652'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  8, lost pos 15: restarts=1 by ['spacing k4=2 off 11367'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos  9, lost pos 15: restarts=1 by ['spacing k4=2 off 11505'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos 10, lost pos 15: restarts=1 by ['spacing k4=2 off 11391'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos 11, lost pos 15: restarts=1 by ['spacing k4=2 off 11390'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos 12, lost pos 15: restarts=1 by ['spacing k4=2 off 11506'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos 13, lost pos 15: restarts=1 by ['spacing k4=2 off 11547'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (b)     step   10417 at pos 14, lost pos 15: restarts=1 by ['spacing k4=2 off 11532'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  1, lost pos  0: restarts=1 by ['spacing k4=2 off -8897'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  2, lost pos  0: restarts=1 by ['spacing k4=2 off -8731'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  3, lost pos  0: restarts=1 by ['spacing k4=2 off -9808'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  4, lost pos  0: restarts=1 by ['spacing k4=2 off -9123'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  5, lost pos  0: restarts=1 by ['spacing k4=2 off -8976'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  6, lost pos  0: restarts=1 by ['spacing k4=2 off -9430'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  7, lost pos  0: restarts=1 by ['spacing k4=2 off -9182'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  8, lost pos  0: restarts=1 by ['spacing k4=2 off -9467'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos  9, lost pos  0: restarts=1 by ['spacing k4=2 off -9329'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos 10, lost pos  0: restarts=1 by ['spacing k4=2 off -9443'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos 11, lost pos  0: restarts=1 by ['spacing k4=2 off -9444'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos 12, lost pos  0: restarts=1 by ['spacing k4=2 off -9328'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos 13, lost pos  0: restarts=1 by ['spacing k4=2 off -9287'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos 14, lost pos  0: restarts=1 by ['spacing k4=2 off -9302'] drops=0 closed_max=143
+round-4 reading (verdict at the group's end), design | (a)     step  -10417 at pos 15, lost pos  0: restarts=1 by ['spacing k4=2 off -9110'] drops=0 closed_max=191
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  0, lost pos 15: restarts=1 by ['spacing k4=2 off -9540'] drops=0 closed_max=234
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  1, lost pos 15: restarts=1 by ['spacing k4=2 off -8897'] drops=0 closed_max=145
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  2, lost pos 15: restarts=1 by ['spacing k4=2 off -8731'] drops=0 closed_max=170
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  3, lost pos 15: restarts=1 by ['spacing k4=2 off -9808'] drops=0 closed_max=174
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  4, lost pos 15: restarts=1 by ['spacing k4=2 off -9123'] drops=0 closed_max=179
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  5, lost pos 15: restarts=1 by ['spacing k4=2 off -8976'] drops=0 closed_max=119
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  6, lost pos 15: restarts=1 by ['spacing k4=2 off -9430'] drops=0 closed_max=159
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  7, lost pos 15: restarts=1 by ['spacing k4=2 off -9182'] drops=0 closed_max=125
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  8, lost pos 15: restarts=1 by ['spacing k4=2 off -9467'] drops=0 closed_max=217
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos  9, lost pos 15: restarts=1 by ['spacing k4=2 off -9329'] drops=0 closed_max=140
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos 10, lost pos 15: restarts=1 by ['spacing k4=2 off -9443'] drops=0 closed_max=188
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos 11, lost pos 15: restarts=1 by ['spacing k4=2 off -9444'] drops=0 closed_max=141
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos 12, lost pos 15: restarts=1 by ['spacing k4=2 off -9328'] drops=0 closed_max=144
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos 13, lost pos 15: restarts=1 by ['spacing k4=2 off -9287'] drops=0 closed_max=161
+round-4 reading (verdict at the group's end), design | (b)     step  -10417 at pos 14, lost pos 15: restarts=1 by ['spacing k4=2 off -9302'] drops=0 closed_max=143
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=2605
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=2626
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=2603
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=2647
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=2596
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=2593
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=2619
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=2548
+round-4 reading, no check across a gap | (a)                   step   20833 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=2596
+round-4 reading, no check across a gap | (a)                   step   20833 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=2561
+round-4 reading, no check across a gap | (a)                   step   20833 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=2666
+round-4 reading, no check across a gap | (a)                   step   20833 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=2606
+round-4 reading, no check across a gap | (a)                   step   20833 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=2624
+round-4 reading, no check across a gap | (a)                   step   20833 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=2605
+round-4 reading, no check across a gap | (a)                   step   20833 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=2559
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=2622
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  1, lost pos 15: restarts=0 by - drops=2 closed_max=2605
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  2, lost pos 15: restarts=0 by - drops=2 closed_max=2626
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  3, lost pos 15: restarts=0 by - drops=2 closed_max=2603
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  4, lost pos 15: restarts=0 by - drops=2 closed_max=2647
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  5, lost pos 15: restarts=0 by - drops=2 closed_max=2596
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  6, lost pos 15: restarts=0 by - drops=2 closed_max=2593
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  7, lost pos 15: restarts=0 by - drops=2 closed_max=2619
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  8, lost pos 15: restarts=0 by - drops=2 closed_max=2548
+round-4 reading, no check across a gap | (b)                   step   20833 at pos  9, lost pos 15: restarts=0 by - drops=2 closed_max=2596
+round-4 reading, no check across a gap | (b)                   step   20833 at pos 10, lost pos 15: restarts=0 by - drops=2 closed_max=2561
+round-4 reading, no check across a gap | (b)                   step   20833 at pos 11, lost pos 15: restarts=0 by - drops=2 closed_max=2666
+round-4 reading, no check across a gap | (b)                   step   20833 at pos 12, lost pos 15: restarts=0 by - drops=2 closed_max=2606
+round-4 reading, no check across a gap | (b)                   step   20833 at pos 13, lost pos 15: restarts=0 by - drops=2 closed_max=2624
+round-4 reading, no check across a gap | (b)                   step   20833 at pos 14, lost pos 15: restarts=0 by - drops=2 closed_max=2605
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=2603
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=2583
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=2606
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=2561
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=2616
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=2616
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=2589
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=2660
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=2613
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=2663
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=2542
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=2603
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=2614
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=2606
+round-4 reading, no check across a gap | (a)                   step  -20833 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=2650
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=2600
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  1, lost pos 15: restarts=0 by - drops=2 closed_max=2603
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  2, lost pos 15: restarts=0 by - drops=2 closed_max=2583
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  3, lost pos 15: restarts=0 by - drops=2 closed_max=2606
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  4, lost pos 15: restarts=0 by - drops=2 closed_max=2561
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  5, lost pos 15: restarts=0 by - drops=2 closed_max=2616
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  6, lost pos 15: restarts=0 by - drops=2 closed_max=2616
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  7, lost pos 15: restarts=0 by - drops=2 closed_max=2589
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  8, lost pos 15: restarts=0 by - drops=2 closed_max=2660
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos  9, lost pos 15: restarts=0 by - drops=2 closed_max=2613
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos 10, lost pos 15: restarts=0 by - drops=2 closed_max=2663
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos 11, lost pos 15: restarts=0 by - drops=2 closed_max=2542
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos 12, lost pos 15: restarts=0 by - drops=2 closed_max=2603
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos 13, lost pos 15: restarts=0 by - drops=2 closed_max=2614
+round-4 reading, no check across a gap | (b)                   step  -20833 at pos 14, lost pos 15: restarts=0 by - drops=2 closed_max=2606
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=1322
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=1333
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=1301
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=1345
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=1318
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=1291
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=1317
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=1246
+round-4 reading, no check across a gap | (a)                   step   10417 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=1294
+round-4 reading, no check across a gap | (a)                   step   10417 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=1283
+round-4 reading, no check across a gap | (a)                   step   10417 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=1364
+round-4 reading, no check across a gap | (a)                   step   10417 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=1326
+round-4 reading, no check across a gap | (a)                   step   10417 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=1346
+round-4 reading, no check across a gap | (a)                   step   10417 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=1303
+round-4 reading, no check across a gap | (a)                   step   10417 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=1257
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=1343
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  1, lost pos 15: restarts=0 by - drops=2 closed_max=1322
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  2, lost pos 15: restarts=0 by - drops=2 closed_max=1333
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  3, lost pos 15: restarts=0 by - drops=2 closed_max=1301
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  4, lost pos 15: restarts=0 by - drops=2 closed_max=1345
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  5, lost pos 15: restarts=0 by - drops=2 closed_max=1318
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  6, lost pos 15: restarts=0 by - drops=2 closed_max=1291
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  7, lost pos 15: restarts=0 by - drops=2 closed_max=1317
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  8, lost pos 15: restarts=0 by - drops=2 closed_max=1246
+round-4 reading, no check across a gap | (b)                   step   10417 at pos  9, lost pos 15: restarts=0 by - drops=2 closed_max=1294
+round-4 reading, no check across a gap | (b)                   step   10417 at pos 10, lost pos 15: restarts=0 by - drops=2 closed_max=1283
+round-4 reading, no check across a gap | (b)                   step   10417 at pos 11, lost pos 15: restarts=0 by - drops=2 closed_max=1364
+round-4 reading, no check across a gap | (b)                   step   10417 at pos 12, lost pos 15: restarts=0 by - drops=2 closed_max=1326
+round-4 reading, no check across a gap | (b)                   step   10417 at pos 13, lost pos 15: restarts=0 by - drops=2 closed_max=1346
+round-4 reading, no check across a gap | (b)                   step   10417 at pos 14, lost pos 15: restarts=0 by - drops=2 closed_max=1303
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  1, lost pos  0: restarts=0 by - drops=2 closed_max=1301
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  2, lost pos  0: restarts=0 by - drops=2 closed_max=1281
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  3, lost pos  0: restarts=0 by - drops=2 closed_max=1320
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  4, lost pos  0: restarts=0 by - drops=2 closed_max=1266
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  5, lost pos  0: restarts=0 by - drops=2 closed_max=1314
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  6, lost pos  0: restarts=0 by - drops=2 closed_max=1314
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  7, lost pos  0: restarts=0 by - drops=2 closed_max=1287
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  8, lost pos  0: restarts=0 by - drops=2 closed_max=1358
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos  9, lost pos  0: restarts=0 by - drops=2 closed_max=1311
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos 10, lost pos  0: restarts=0 by - drops=2 closed_max=1361
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos 11, lost pos  0: restarts=0 by - drops=2 closed_max=1251
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos 12, lost pos  0: restarts=0 by - drops=2 closed_max=1301
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos 13, lost pos  0: restarts=0 by - drops=2 closed_max=1312
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos 14, lost pos  0: restarts=0 by - drops=2 closed_max=1327
+round-4 reading, no check across a gap | (a)                   step  -10417 at pos 15, lost pos  0: restarts=0 by - drops=2 closed_max=1363
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  0, lost pos 15: restarts=0 by - drops=2 closed_max=1298
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  1, lost pos 15: restarts=0 by - drops=2 closed_max=1301
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  2, lost pos 15: restarts=0 by - drops=2 closed_max=1281
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  3, lost pos 15: restarts=0 by - drops=2 closed_max=1320
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  4, lost pos 15: restarts=0 by - drops=2 closed_max=1266
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  5, lost pos 15: restarts=0 by - drops=2 closed_max=1314
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  6, lost pos 15: restarts=0 by - drops=2 closed_max=1314
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  7, lost pos 15: restarts=0 by - drops=2 closed_max=1287
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  8, lost pos 15: restarts=0 by - drops=2 closed_max=1358
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos  9, lost pos 15: restarts=0 by - drops=2 closed_max=1311
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos 10, lost pos 15: restarts=0 by - drops=2 closed_max=1361
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos 11, lost pos 15: restarts=0 by - drops=2 closed_max=1251
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos 12, lost pos 15: restarts=0 by - drops=2 closed_max=1301
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos 13, lost pos 15: restarts=0 by - drops=2 closed_max=1312
+round-4 reading, no check across a gap | (b)                   step  -10417 at pos 14, lost pos 15: restarts=0 by - drops=2 closed_max=1327
+-- summary
+design (a): 60 cases; restart once 60 (0 by the deviation check, 60 across the gap); no restart 0 at positions - with LOCKED drops per case -; other 0
+design (b): 60 cases; restart once 60 (56 by the deviation check, 4 across the gap); no restart 0 at positions - with LOCKED drops per case -; other 0
+mutant: no check across a gap (a): 60 cases; restart once 0 (0 by the deviation check, 0 across the gap); no restart 60 at positions [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] with LOCKED drops per case [2]; other 0
+mutant: no check across a gap (b): 60 cases; restart once 56 (56 by the deviation check, 0 across the gap); no restart 4 at positions [0] with LOCKED drops per case [2]; other 0
+round-4 reading (verdict at the group's end), design (a): 60 cases; restart once 60 (0 by the deviation check, 60 across the gap); no restart 0 at positions - with LOCKED drops per case -; other 0
+round-4 reading (verdict at the group's end), design (b): 60 cases; restart once 60 (0 by the deviation check, 60 across the gap); no restart 0 at positions - with LOCKED drops per case -; other 0
+round-4 reading, no check across a gap (a): 60 cases; restart once 0 (0 by the deviation check, 0 across the gap); no restart 60 at positions [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] with LOCKED drops per case [2]; other 0
+round-4 reading, no check across a gap (b): 60 cases; restart once 0 (0 by the deviation check, 0 across the gap); no restart 60 at positions [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] with LOCKED drops per case [2]; other 0
+
