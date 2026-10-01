@@ -1,0 +1,31 @@
+== 1. controller tool revision
+start snapshot (lock 2026-10-01T06:14:48.999Z): staged by scp, then hashed: b5_ctl.py 24208ef21e30d6f41d90e39860de8c6272b4e3ad165a33cf5a18f9d572317566 8642 B, file time Oct  1 06:14
+end snapshot (lock 2026-10-01T06:44:07.898Z): staged by scp, then hashed: b5_ctl.py 47b7387ae4f901ab04a5038e68ee721234b7044f9b61437414cd3f6ff0b73064 9842 B, file time Oct  1 06:44
+the run tool starts the staged agent and records no hash of it (tools/run_a.py, class Agent)
+start census                             mode census start 06:14:57.273Z (controller clock); audio-unit records 0; stamped exchanges 45
+start survey                             mode descs  start 06:14:57.463Z (controller clock); audio-unit records 0; stamped exchanges 32
+survey with the audio unit's children    mode descs  start 06:16:07.727Z (controller clock); audio-unit records 1; stamped exchanges 57
+agent dry run                            mode agent  start 06:20:50.570Z (controller clock); audio-unit records 0; stamped exchanges 5
+run abort-agent-start                    mode agent  start 06:21:53.312Z (controller clock); audio-unit records 0; stamped exchanges 0
+run a-try1                               mode agent  start 06:22:15.310Z (controller clock); audio-unit records 0; stamped exchanges 22
+run diag1                                mode agent  start 06:23:48.033Z (controller clock); audio-unit records 0; stamped exchanges 28
+run a-long                               mode agent  start 06:26:21.985Z (controller clock); audio-unit records 0; stamped exchanges 209
+run cap-test1                            mode agent  start 06:41:48.918Z (controller clock); audio-unit records 0; stamped exchanges 29
+end census                               mode census start 06:44:16.126Z (controller clock); audio-unit records 0; stamped exchanges 45
+start survey: AUDIO_UNIT 0 read SUCCESS, and no audio-unit walk followed it
+so the controller copy changed between the start snapshot and the second survey; that staging has no recorded hash
+
+== 2. Direction B: the reference peer's AEM (restore/peer-descs-2.jsonl)
+configuration 1 descriptor counts: AUDIO_UNIT 1, STREAM_INPUT 10, STREAM_OUTPUT 4, AVB_INTERFACE 2, CLOCK_SOURCE 11, MEMORY_OBJECT 4, LOCALE 1, CONTROL 1, CLOCK_DOMAIN 1
+AUDIO_UNIT 0: stream input ports 1 (base 0), stream output ports 1 (base 0), external input ports 0 (base 0), external output ports 0 (base 0), internal input ports 0 (base 0), internal output ports 0 (base 0), controls 0 (base 0), signal selectors 0 (base 0), mixers 0 (base 0), matrices 0 (base 0), splitters 0 (base 0), combiners 0 (base 0), demultiplexers 0 (base 0), multiplexers 0 (base 0), transcoders 0 (base 0), control blocks 0 (base 0)
+CONTROL 0 (configuration level): control_type 90e0f00000000001 (90e0f00000000001 is IDENTIFY)
+STREAM_PORT_INPUT 0: clusters 16 from index 0; static maps 0; dynamic map SUCCESS, 32 mappings, cluster offsets 0 .. 15 (all within the port's own 16 clusters: True)
+STREAM_PORT_OUTPUT 0: clusters 4 from index 16; static maps 0; dynamic map SUCCESS, 8 mappings, cluster offsets 0 .. 3 (all within the port's own 4 clusters: True)
+walk reads of type 0x0010: indices 0 .. 19 (20), statuses ['NO_SUCH_DESCRIPTOR']
+
+== 3. the walk's descriptor type codes
+repository (avdecc/aem_descriptors.py:103): AUDIO_CLUSTER 0x0014, AUDIO_MAP 0x0017; IEEE 1722.1 Table 7.1 (the table that file cites): EXTERNAL_PORT_INPUT 0x0010, EXTERNAL_PORT_OUTPUT 0x0011, INTERNAL_PORT_INPUT 0x0012
+b5_ctl.py:153 reads external input ports as 0x0011; expected 0x0010: WRONG
+b5_ctl.py:153 reads external output ports as 0x0012; expected 0x0011: WRONG
+b5_ctl.py:160 reads clusters as 0x0010; expected 0x0014: WRONG
+b5_ctl.py:162 reads maps as 0x0014; expected 0x0017: WRONG
