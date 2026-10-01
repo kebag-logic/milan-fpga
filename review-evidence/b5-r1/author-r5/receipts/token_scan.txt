@@ -1,0 +1,9 @@
+tool b5_scan.py sha256 866a1aa26336215e75bd4d34ee2c94ea20703bb681119a21ae000277294baaa7 (round 4 packet b5-a476, unchanged); private literals built in memory from the archive mask (published lane packet at 9006c78e against the local lane packet) and the local host names; labelled patterns passed on stdin and written nowhere; output is labels and places only
+== ranges e216dfe4..e5ad1187 (round 5) and e4b771f9..e5ad1187 (whole PR); files: this directory as finally written, before the scan receipts and MANIFEST.sha256
+patterns: 17 private literals built in memory, 11 labelled patterns; labels: ['SoC product or family', 'USB bus position', 'account name', 'agent tool or model name', 'capture channel number', 'capture-channel-index', 'capture-channel-layout', 'clock-topology word', 'generic MAC address', 'home directory', 'host name', 'host-iface', 'instrument, switch or peer vendor', 'interface name', 'link type', 'soc-usb-function', 'usb-bus-position']
+positive control in memory: 17 of 17 private literals and 11 of 11 labelled patterns hit their planted line
+HIT clock-topology word: e4b771f9..e5ad1187 added docs/findings/117_AUDIO_CONTINUITY.md:424
+scanned: 29 files, 1972 lines in all
+hits: 1
+label rc=1
+reading: the one hit is round 1 text (bf9e5d82, by git blame) in the frozen Restore table's DUT synchronization row, the DUT's own gPTP state; it was :415 at e216dfe4 and is :424 at e5ad1187

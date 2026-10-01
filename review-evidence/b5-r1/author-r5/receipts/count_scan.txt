@@ -1,0 +1,14 @@
+tool b5_count_scan.py sha256 03063749f0719688f2b6ca200dcf52b7831e315aab42713355831b1c0a86f19e (round 4 packet b5-a476, unchanged); counts derived in memory from the local lane packet b5-a472 and never written; output is labels and places only
+allowed EUI-64 (the page's DUT entity, DUT stream and three format values): 0200000000010000,020000fffe000001,0205022001006000,0205022002006000,0215022002006000
+== ranges e216dfe4..e5ad1187 (round 5) and e4b771f9..e5ad1187 (whole PR); files: this directory as finally written, before the scan receipts and MANIFEST.sha256
+derived counts built in memory: 9; labels: ['peer-derived count', 'peer index range', 'peer stream ports', 'unlisted EUI-64']; allowed EUI-64: 5
+positive control in memory: 12 of 12 planted lines hit
+HIT peer-derived count: e4b771f9..e5ad1187 added docs/findings/117_AUDIO_CONTINUITY.md:85
+HIT peer-derived count: e4b771f9..e5ad1187 added docs/findings/117_AUDIO_CONTINUITY.md:252
+HIT peer-derived count: PR-BODY.md:68
+scanned: 29 files, 1972 lines in all
+hits: 3
+count rc=1
+reading of each hit (none is a peer count):
+  docs/findings/117_AUDIO_CONTINUITY.md:85: the DUT's own stream state count, kept (round 4 :76)
+  docs/findings/117_AUDIO_CONTINUITY.md:252 and PR-BODY.md:68: the phrase about the capture's reads around a stall, round 3 page text and the PR body's Round 2 section, as round 4 read them (round 4 :243 and PR-BODY.md:34)

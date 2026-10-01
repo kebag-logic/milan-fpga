@@ -1,0 +1,20 @@
+head e5ad118783c2ff96e13f1d794f10bf2b63741282; worktree clean: yes
+== power check: the page at e216dfe4
+control: planted line hits exact=YES near=YES
+page-at-e216dfe4.md: 16 byte size(s) tested; 3 unexplained hit(s)
+  line 483: exact=YES near=YES
+  line 485: exact=no near=YES
+  line 486: exact=no near=YES (pair row, whole multiple of 6 bytes: explained)
+  line 488: exact=YES near=YES
+RESULT: FAIL
+rc=1
+== the page and index row at the head, and the round 5 texts
+control: planted line hits exact=YES near=YES
+docs/findings/117_AUDIO_CONTINUITY.md: 13 byte size(s) tested; 0 unexplained hit(s)
+  line 496: exact=no near=YES (pair row, whole multiple of 6 bytes: explained)
+docs/findings/README.md: 0 byte size(s) tested; 0 unexplained hit(s)
+PR-BODY.md: 4 byte size(s) tested; 0 unexplained hit(s)
+HANDOFF.md: 3 byte size(s) tested; 0 unexplained hit(s)
+REVIEW-READY.md: 2 byte size(s) tested; 0 unexplained hit(s)
+RESULT: PASS
+rc=0
