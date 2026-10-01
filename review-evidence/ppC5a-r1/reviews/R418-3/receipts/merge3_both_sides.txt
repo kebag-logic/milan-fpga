@@ -1,0 +1,18 @@
+-- .gitattributes: checked
+-- .github/workflows/hdl.yml: checked
+-- docs/00_MILAN_COMPLIANCE_REVIEW.md: checked
+-- docs/architecture/09_verification.md: checked
+## tb/pp_top/Makefile: ours (44a6bb9) added lines not all in merge: 1
+   want 1 have 0: .PHONY: name-writes run gsi-build gsi-internal adp-config deadline d3 hazards budget budget-build aecp-mutants fixture-guards fixture-guards-test clea
+## tb/pp_top/Makefile: theirs (3f3ea56) added lines not all in merge: 1
+   want 1 have 0: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test clean
+-- tb/pp_top/Makefile: checked
+-- tb/pp_top/README.md: checked
+-- tb/pp_top/pp_top_wrap.sv: checked
+## tb/pp_top/sim_main.cpp: ours (44a6bb9) added lines not all in merge: 2
+   want 1 have 0:   const bool one_section = gsi_only || name_only || d3_only || adp_only
+   want 1 have 0:                            || dl_only || hz_only;
+## tb/pp_top/sim_main.cpp: theirs (3f3ea56) added lines not all in merge: 1
+   want 1 have 0:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+-- tb/pp_top/sim_main.cpp: checked
+TOTAL lines-with-shortfall: 5

@@ -1,0 +1,18 @@
+control pp_top budget: rc=0 PASS
+control pp_top deadline: rc=0 PASS
+mvu-echo-slot-std: rc=2 failures=1 named=1 KILLED
+    FAIL: DL8 a read error under a command padded to 540 payload bytes: GET_MILAN_INFO answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 1, 576 bytes)
+mvu-silent: rc=2 failures=12 named=1 KILLED
+    FAIL: TB1 GET_MILAN_INFO at the suite latency: the Figure 5.4 answer, byte-exact
+    FAIL: TB TB1 GET_MILAN_INFO at the suite latency: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB1 GET_MILAN_INFO at the suite latency: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB1 GET_MILAN_INFO at 143 clocks per access: the Figure 5.4 answer, byte-exact
+    FAIL: TB TB1 GET_MILAN_INFO at 143 clocks per access: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB1 GET_MILAN_INFO at 143 clocks per access: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB3 GET_MILAN_INFO behind the fan-out is answered as it is idle
+    FAIL: TB TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB4 GET_MILAN_INFO against a stalled response memory: the Figure 5.4 answer, byte-exact
+    FAIL: TB TB4 GET_MILAN_INFO, response memory at 4,000 clocks: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB4 GET_MILAN_INFO, response memory at 4,000 clocks: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+4 checks: 4 PASS, 0 FAIL

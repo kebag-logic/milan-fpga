@@ -1,0 +1,92 @@
+-- .gitattributes: checked
+-- .github/workflows/hdl.yml: checked
+-- docs/00_MILAN_COMPLIANCE_REVIEW.md: checked
+## docs/architecture/03_packet_engine.md: ours (d4ca85c) added lines not all in merge: 2
+   want 1 have 0: That key costs READ_DESCRIPTOR nothing, because no ACMP step writes a
+   want 1 have 0: descriptor-image field. For GET_DYNAMIC_INFO it is a known limitation. IEEE
+-- docs/architecture/03_packet_engine.md: checked
+-- docs/architecture/06_aecp_engine.md: checked
+## docs/architecture/09_verification.md: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0: Section TB runs in the suite's third build (`make budget`), whose timebase is the
+-- docs/architecture/09_verification.md: checked
+-- docs/guides/integrator.md: checked
+-- hdl/aecp/KL_aecp_engine.sv: checked
+-- hdl/aecp/KL_aecp_ucpu.sv: checked
+-- hdl/aecp/ucode/gen_ucode.py: checked
+## hdl/top/protocol_processor_top.sv: ours (d4ca85c) added lines not all in merge: 3
+   want 1 have 0:   //! key. READ_DESCRIPTOR loses nothing by it: no ACMP step writes a
+   want 1 have 0:   //! descriptor-image field. GET_DYNAMIC_INFO does, a known gap (03 §6):
+   want 1 have 0:   //! its GET_STREAM_INFO records of a STREAM_INPUT read the listener
+-- hdl/top/protocol_processor_top.sv: checked
+## tb/pp_top/Makefile: ours (d4ca85c) added lines not all in merge: 9
+   want 1 have 0: # Three builds of one bench. The first overrides nothing and runs every
+   want 1 have 0: # top-level connection. The third runs the timebase at the nominal clock's
+   want 1 have 0: # rate and section TB alone. Each binary prints its own build's count; the
+   want 1 have 0: # last line is the one canonical tally, summed over the three builds.
+   want 1 have 0: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+   want 1 have 0: # The third build (section TB): the wrap's timebase at the nominal clock's
+   want 1 have 0: # compressed AECP deadline. Its tally lands beside the other two.
+   want 1 have 0: 	rm -rf obj_dir obj_vid obj_tim ltn_rom.hex ucode.hex
+   want 1 have 0: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config deadline d3 hazards budget budget-build aecp-mutants fixture-guards fixture-gu
+## tb/pp_top/Makefile: theirs (16ea10a) added lines not all in merge: 6
+   want 1 have 0: # Three builds of one bench. The first overrides nothing and runs every
+   want 1 have 0: # by a reservation that is not the default's. Each binary prints its own
+   want 1 have 0: # three builds.
+   want 1 have 0: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+   want 1 have 0: 	rm -rf obj_dir obj_vid obj_line ltn_rom.hex ucode.hex
+   want 1 have 0:         line-build aecp-line aecp-dispatch-mutants fixture-guards fixture-guards-test line-guards clean
+-- tb/pp_top/Makefile: checked
+## tb/pp_top/README.md: ours (d4ca85c) added lines not all in merge: 6
+   want 1 have 0: `make`: exit 0 = PASS. It builds the bench three times (sections DV and TB):
+   want 1 have 0: each executable prints its own build's tally, and the last line sums the three
+   want 1 have 0: into the one canonical tally.
+   want 1 have 0:   processor of its own in the third build, whose timebase is the nominal clock's
+   want 1 have 0: builds the bench a second time, and a third for section TB's timebase:
+   want 1 have 0: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and DL among them | 2 (Milan §4.2.7.2.1) |
+## tb/pp_top/README.md: theirs (16ea10a) added lines not all in merge: 5
+   want 1 have 0: `make`: exit 0 = PASS. It builds the bench three times (sections DV and AX):
+   want 1 have 0: each executable prints its own build's tally, and the last line sums them into
+   want 1 have 0: the one canonical tally.
+   want 1 have 0: builds the bench a second time (the third build is section AX's line build):
+   want 1 have 0: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and AX last | 2 (Milan §4.2.7.2.1) |
+-- tb/pp_top/README.md: checked
+## tb/pp_top/pp_top_wrap.sv: ours (d4ca85c) added lines not all in merge: 6
+   want 1 have 0: //                the top's own default and never a copy of it. The third
+   want 1 have 0: //                build defines PP_TOP_TIM_REAL and runs the timebase at
+   want 1 have 0: //                1 ms = 1,000 clk, the nominal clock's own, for section TB's
+   want 1 have 0: //                response budgets.
+   want 1 have 0:     output logic        dbg_sb_barrier_o
+   want 1 have 0:   // section TB's build (the Makefile's third): 1 ms = 1 x 1000 = 1,000 clk,
+-- tb/pp_top/pp_top_wrap.sv: checked
+## tb/pp_top/sim_main.cpp: ours (d4ca85c) added lines not all in merge: 12
+   want 1 have 0: // The suite builds three times (Makefile): the second build overrides the
+   want 1 have 0: // DV alone; the third runs the timebase at the nominal clock's rate and runs
+   want 1 have 0: // section TB alone.
+   want 1 have 0:   void load_descriptor_image(uint16_t entity_cfg = CFGIX,
+   want 1 have 0:                              uint16_t sigmux_len = 312) {
+   want 1 have 0:                           image_sigmux},
+   want 1 have 0: // fan-out). It runs in the suite's third build, whose timebase is the nominal
+   want 1 have 0:     image.load_descriptor_image(CFGIX, SIGMUX_LEN);
+   want 1 have 0:   //! the third build runs section TB alone, at the nominal timebase
+   want 1 have 0:                            || maap_only || dl_only || hz_only;
+   want 1 have 0:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+   want 1 have 0:   //! The Makefile sums the three builds and prints the one canonical line.
+## tb/pp_top/sim_main.cpp: theirs (16ea10a) added lines not all in merge: 6
+   want 1 have 0:   //! run passes none, so its image is byte for byte what it was
+   want 1 have 0:       const std::vector<std::vector<uint8_t>>& extra_bodies = {}) {
+   want 1 have 0:         non_entity_312_descriptor(0)};
+   want 1 have 0:                            || maap_only || aecp_only;
+   want 1 have 0:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+   want 1 have 0:   //! The Makefile sums the builds and prints the one canonical line.
+-- tb/pp_top/sim_main.cpp: checked
+## tb/ucpu/README.md: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0: area: `make` = build + run, exit 0 = PASS, 415 checks (2026-09-30).
+## tb/ucpu/README.md: theirs (16ea10a) added lines not all in merge: 1
+   want 1 have 0: area: `make` = build + run, exit 0 = PASS, 398 checks.
+-- tb/ucpu/README.md: checked
+## tb/ucpu/sim_main.cpp: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0:     dut->disp_batch_i = batch_base >= 0 ? 1 : 0;
+## tb/ucpu/sim_main.cpp: theirs (16ea10a) added lines not all in merge: 1
+   want 1 have 0:     dut->disp_batch_i = batch;
+-- tb/ucpu/sim_main.cpp: checked
+TOTAL lines-with-shortfall: 60

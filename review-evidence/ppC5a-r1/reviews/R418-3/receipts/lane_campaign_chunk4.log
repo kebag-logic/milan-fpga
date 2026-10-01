@@ -1,0 +1,126 @@
+control pp_top hazards: rc=0 PASS
+hz-stream-key-none-talker-step: rc=2 failures=12 named=1 KILLED
+    FAIL: HZ1 SET_STREAM_FORMAT STREAM_OUTPUT 1: admitted STREAM_CFG key 0xfc00 (want STREAM_CFG, key 0x1801)
+    FAIL: HZ1 SET_STREAM_INFO STREAM_OUTPUT 1: admitted STREAM_CFG key 0xfc00 (want STREAM_CFG, key 0x1801)
+    FAIL: HZ1 START_STREAMING STREAM_INPUT 1: admitted STREAM_CFG key 0xfc00 (want STREAM_CFG, key 0x1401)
+    FAIL: HZ1 STOP_STREAMING STREAM_INPUT 1: admitted STREAM_CFG key 0xfc00 (want STREAM_CFG, key 0x1401)
+    FAIL: HZ5 START_STREAMING on the held sink's key: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ5 START_STREAMING on the held sink's key: admitted after the ACMP key frees
+    FAIL: HZ10a STOP_STREAMING on STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ10a STOP_STREAMING on STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ10b a GET_TX_STATE of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10b a GET_TX_STATE of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ10c a DISCONNECT_TX of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10c a DISCONNECT_TX of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-talker-keyed-as-listener: rc=2 failures=18 named=1 KILLED
+    FAIL: HZ1 ACMP GET_TX_STATE source 2: admitted RO_SNAPSHOT key 0x1402 (want RO_SNAPSHOT, key 0x1802)
+    FAIL: HZ1 ACMP GET_TX_CONNECTION source 2: admitted RO_SNAPSHOT key 0x1402 (want RO_SNAPSHOT, key 0x1802)
+    FAIL: HZ1 ACMP PROBE_TX source 2: admitted STREAM_CFG key 0x1402 (want STREAM_CFG, key 0x1802)
+    FAIL: HZ1 ACMP DISCONNECT_TX source 2: admitted STREAM_CFG key 0x1402 (want STREAM_CFG, key 0x1802)
+    FAIL: HZ9d a GET_TX_STATE of source 1 vs a held SET_NAME on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ9d a GET_TX_STATE of source 1 vs a held SET_NAME on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ10b a GET_TX_STATE of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10b a GET_TX_STATE of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ10c a DISCONNECT_TX of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10c a DISCONNECT_TX of source 1 vs a held STOP_STREAMING on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-reads-keyed-none-talker: rc=2 failures=13 named=1 KILLED
+    FAIL: HZ1 GET_STREAM_FORMAT STREAM_OUTPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1801)
+    FAIL: HZ1 GET_STREAM_INFO STREAM_INPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 GET_NAME CLOCK_DOMAIN 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x9000)
+    FAIL: HZ1 GET_SAMPLING_RATE AUDIO_UNIT 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x0800)
+    FAIL: HZ1 GET_CLOCK_SOURCE CLOCK_DOMAIN 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x9000)
+    FAIL: HZ1 GET_CONTROL CONTROL 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x6800)
+    FAIL: HZ1 GET_AVB_INFO AVB_INTERFACE 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x2400)
+    FAIL: HZ1 GET_COUNTERS STREAM_INPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 GET_AUDIO_MAP STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x3800)
+    FAIL: HZ6 GET_STREAM_INFO on the held sink's key: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ6 GET_STREAM_INFO on the held sink's key: admitted after the ACMP key frees
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-setcfg-not-barrier-talker: rc=2 failures=7 named=1 KILLED
+    FAIL: HZ1 SET_CONFIGURATION: admitted RO_SNAPSHOT key 0x0000 (want CFG_BARRIER, key 0x0000)
+    FAIL: HZ2: SET_CONFIGURATION is refused and latches the drain while the ACMP key is held (pending -1)
+    FAIL: HZ2: the barrier is admitted after the ACMP key is released (23103 after 24312)
+    FAIL: HZ3: premise: the barrier's drain is pending while the ACMP key is held
+    FAIL: HZ3: the barrier is admitted first, the queued ACMP head after it (-1, -1)
+    FAIL: HZ11a a GET_TX_STATE of source 1 vs a held SET_CONFIGURATION: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ11a a GET_TX_STATE of source 1 vs a held SET_CONFIGURATION: admitted after the AECP key frees
+hz-lock-not-lockop-talker: rc=2 failures=7 named=1 KILLED
+    FAIL: HZ1 LOCK_ENTITY (lock): admitted RO_SNAPSHOT key 0x0000 (want LOCK_OP, key 0x0000)
+    FAIL: HZ1 LOCK_ENTITY (unlock): admitted RO_SNAPSHOT key 0x0000 (want LOCK_OP, key 0x0000)
+    FAIL: HZ4: LOCK_ENTITY is not admitted while an ACMP stream step holds its key (refused 0 clocks)
+    FAIL: HZ4: LOCK_ENTITY is admitted after the stream step's key frees
+    FAIL: HZ4: the unlock is admitted beside a held GET_RX_STATE, a read
+    FAIL: HZ11b a DISCONNECT_TX of source 1 vs a held LOCK_ENTITY: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ11b a DISCONNECT_TX of source 1 vs a held LOCK_ENTITY: admitted after the AECP key frees
+hz-map-as-ro: rc=2 failures=10 named=1 KILLED
+    FAIL: HZ1 ADD_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0x3800 (want MAP_CFG, key 0x3800)
+    FAIL: HZ1 REMOVE_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0x3800 (want MAP_CFG, key 0x3800)
+    FAIL: HZ7 ADD_AUDIO_MAPPINGS beside any stream step: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ7 ADD_AUDIO_MAPPINGS beside any stream step: admitted after the ACMP key frees
+    FAIL: HZ11d a DISCONNECT_TX of source 1 vs a held ADD_AUDIO_MAPPINGS: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ11d a DISCONNECT_TX of source 1 vs a held ADD_AUDIO_MAPPINGS: admitted after the AECP key frees
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-map-as-ro-talker: rc=2 failures=10 named=1 KILLED
+    FAIL: HZ1 ADD_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0x3800 (want MAP_CFG, key 0x3800)
+    FAIL: HZ1 REMOVE_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0x3800 (want MAP_CFG, key 0x3800)
+    FAIL: HZ7 ADD_AUDIO_MAPPINGS beside any stream step: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ7 ADD_AUDIO_MAPPINGS beside any stream step: admitted after the ACMP key frees
+    FAIL: HZ11d a DISCONNECT_TX of source 1 vs a held ADD_AUDIO_MAPPINGS: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ11d a DISCONNECT_TX of source 1 vs a held ADD_AUDIO_MAPPINGS: admitted after the AECP key frees
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-clock-key-none: rc=2 failures=6 named=1 KILLED
+    FAIL: HZ1 SET_SAMPLING_RATE AUDIO_UNIT 0: admitted CLOCK_CFG key 0xfc00 (want CLOCK_CFG, key 0x0800)
+    FAIL: HZ1 SET_CLOCK_SOURCE CLOCK_DOMAIN 0: admitted CLOCK_CFG key 0xfc00 (want CLOCK_CFG, key 0x9000)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-clock-key-none-talker: rc=2 failures=6 named=1 KILLED
+    FAIL: HZ1 SET_SAMPLING_RATE AUDIO_UNIT 0: admitted CLOCK_CFG key 0xfc00 (want CLOCK_CFG, key 0x0800)
+    FAIL: HZ1 SET_CLOCK_SOURCE CLOCK_DOMAIN 0: admitted CLOCK_CFG key 0xfc00 (want CLOCK_CFG, key 0x9000)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-identify-key-none: rc=2 failures=5 named=1 KILLED
+    FAIL: HZ1 SET_CONTROL CONTROL 0 (identify): admitted IDENTIFY key 0xfc00 (want IDENTIFY, key 0x6800)
+    FAIL: HZ12b SET_CONTROL (IDENTIFY) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b SET_CONTROL (IDENTIFY) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-identify-key-none-talker: rc=2 failures=5 named=1 KILLED
+    FAIL: HZ1 SET_CONTROL CONTROL 0 (identify): admitted IDENTIFY key 0xfc00 (want IDENTIFY, key 0x6800)
+    FAIL: HZ12b SET_CONTROL (IDENTIFY) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b SET_CONTROL (IDENTIFY) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-map-key-none: rc=2 failures=6 named=1 KILLED
+    FAIL: HZ1 ADD_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted MAP_CFG key 0xfc00 (want MAP_CFG, key 0x3800)
+    FAIL: HZ1 REMOVE_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted MAP_CFG key 0xfc00 (want MAP_CFG, key 0x3800)
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-map-key-none-talker: rc=2 failures=6 named=1 KILLED
+    FAIL: HZ1 ADD_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted MAP_CFG key 0xfc00 (want MAP_CFG, key 0x3800)
+    FAIL: HZ1 REMOVE_AUDIO_MAPPINGS STREAM_PORT_INPUT 0: admitted MAP_CFG key 0xfc00 (want MAP_CFG, key 0x3800)
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12c a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+14 checks: 14 PASS, 0 FAIL

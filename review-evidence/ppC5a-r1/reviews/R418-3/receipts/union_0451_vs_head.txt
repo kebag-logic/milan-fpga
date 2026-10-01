@@ -1,0 +1,238 @@
+-- docs/00_MILAN_COMPLIANCE_REVIEW.md: checked
+-- docs/architecture/01_overview.md: checked
+## docs/architecture/03_packet_engine.md: ours (d4ca85c) added lines not all in merge: 2
+   want 1 have 0: That key costs READ_DESCRIPTOR nothing, because no ACMP step writes a
+   want 1 have 0: descriptor-image field. For GET_DYNAMIC_INFO it is a known limitation. IEEE
+-- docs/architecture/03_packet_engine.md: checked
+-- docs/architecture/06_aecp_engine.md: checked
+-- docs/architecture/07_memory_maps.md: checked
+## docs/architecture/08_timing.md: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0: to MAC response byte 0, in the suite's third build, whose timebase is the nominal
+-- docs/architecture/08_timing.md: checked
+## docs/architecture/09_verification.md: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0: Section TB runs in the suite's third build (`make budget`), whose timebase is the
+-- docs/architecture/09_verification.md: checked
+-- docs/architecture/11_maap_engine.md: checked
+-- docs/guides/integrator.md: checked
+-- docs/guides/operator.md: checked
+-- .gitattributes: checked
+-- .github/workflows/hdl.yml: checked
+-- hdl/aecp/KL_aecp_engine.sv: checked
+-- hdl/aecp/KL_aecp_ucpu.sv: checked
+-- hdl/aecp/ucode/gen_ucode.py: checked
+-- hdl/aecp/ucpu_pkg.sv: checked
+-- hdl/maap/KL_pp_maap.sv: checked
+## hdl/top/protocol_processor_top.sv: ours (d4ca85c) added lines not all in merge: 3
+   want 1 have 0:   //! key. READ_DESCRIPTOR loses nothing by it: no ACMP step writes a
+   want 1 have 0:   //! descriptor-image field. GET_DYNAMIC_INFO does, a known gap (03 §6):
+   want 1 have 0:   //! its GET_STREAM_INFO records of a STREAM_INPUT read the listener
+-- hdl/top/protocol_processor_top.sv: checked
+-- scripts/check_m9_opcodes.py: checked
+-- scripts/check_upc_map.py: checked
+-- scripts/run_suites.sh: checked
+-- syn/ooc/README.md: checked
+-- tb/acmp_listener/README.md: checked
+-- tb/acmp_listener/sim_main.cpp: checked
+-- tb/acmp_nvm/sim_main.cpp: checked
+-- tb/maap/maap_wrap.sv: checked
+-- tb/maap/Makefile: checked
+-- tb/maap/mutants.py: checked
+-- tb/maap/mutations/compare-mac-forward.patch: checked
+-- tb/maap/mutations/defend-rdefend-ignored.patch: checked
+-- tb/maap/mutations/defend-rdefend-no-tiebreak.patch: checked
+-- tb/maap/mutations/drain-waits-for-the-link.patch: checked
+-- tb/maap/mutations/fit-compare-forced-true.patch: checked
+-- tb/maap/mutations/fit-compare-off-by-one.patch: checked
+-- tb/maap/mutations/idle-serves-a-latched-expiry-first.patch: checked
+-- tb/maap/mutations/ival-sends-after-release.patch: checked
+-- tb/maap/mutations/off-waits-for-an-edge.patch: checked
+-- tb/maap/mutations/post-publishes-after-release.patch: checked
+-- tb/maap/mutations/probe-rannounce-tiebreak.patch: checked
+-- tb/maap/mutations/probe-rprobe-never-yields.patch: checked
+-- tb/maap/mutations/release-keeps-draw-mark.patch: checked
+-- tb/maap/mutations/release-waits-for-draw.patch: checked
+-- tb/maap/mutations/rx-release-returns-to-idle.patch: checked
+-- tb/maap/mutations/seed-clamp-off-by-one.patch: checked
+-- tb/maap/mutations/seed-clamp-removed.patch: checked
+-- tb/maap/mutations/seed-rearmed-on-idle-release-only.patch: checked
+-- tb/maap/mutations/teardown-keeps-announce-timer.patch: checked
+-- tb/maap/mutations/tx-path-absorbs-release.patch: checked
+-- tb/maap/mutations/tx-set-omits-alloc.patch: checked
+-- tb/maap/mutations/tx-set-omits-commit.patch: checked
+-- tb/maap/mutations/tx-set-omits-gwait.patch: checked
+-- tb/maap/mutations/tx-set-omits-lane.patch: checked
+-- tb/maap/mutations/tx-set-omits-write.patch: checked
+-- tb/maap/mutations/validator-maap-version-1-only.patch: checked
+-- tb/maap/mutations/yield-reuses-range.patch: checked
+-- tb/maap/README.md: checked
+-- tb/maap/sim_main.cpp: checked
+-- tb/pp_top/acmp_mutants.py: checked
+-- tb/pp_top/aecp_dispatch_mutants.py: checked
+-- tb/pp_top/aecp_dispatch_mutations/a5b-reboot-success-arm.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/line-buffer-fixed-592.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-add-mappings.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-dynamic-info.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-get-name.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-remove-mappings.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-set-name.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-format.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-info.patch: checked
+## tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch: theirs (16ea10a) added lines not all in merge: 7
+   want 1 have 0: @@ -2482,7 +2482,7 @@
+   want 1 have 0:    assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w
+   want 1 have 0:                             && !amap_notify_busy_i && !d3_own_w;
+   want 1 have 0: -  assign txs_oversize_o  = (frame_len_r > 11'(TX_STD_BYTES_P));
+   want 1 have 0: +  assign txs_oversize_o  = (frame_len_r >= 11'(TX_STD_BYTES_P));
+   want 1 have 0:    assign txs_wr_addr_o   = TXA_W_C'(bidx_r);
+   want 1 have 0:    assign txs_wr_valid_o  = (a_st_r == A_WR) && byte_ok_w;
+-- tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch: checked
+## tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch: theirs (16ea10a) added lines not all in merge: 4
+   want 1 have 0: @@ -2482,7 +2482,7 @@
+   want 1 have 0:    assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w
+   want 1 have 0:                             && !amap_notify_busy_i && !d3_own_w;
+   want 1 have 0: -  assign txs_oversize_o  = (frame_len_r > 11'(TX_STD_BYTES_P));
+-- tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/ov-top-oversize-dropped.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-base-no-overlay.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-cfg-any.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/rd-tail-uncut.patch: checked
+-- tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: checked
+## tb/pp_top/aecp_mutants.py: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0:     # latency against T-AECP-RESP (section TB, the third build)
+-- tb/pp_top/aecp_mutants.py: checked
+-- tb/pp_top/line_guards.py: checked
+## tb/pp_top/Makefile: ours (d4ca85c) added lines not all in merge: 9
+   want 1 have 0: # Three builds of one bench. The first overrides nothing and runs every
+   want 1 have 0: # top-level connection. The third runs the timebase at the nominal clock's
+   want 1 have 0: # rate and section TB alone. Each binary prints its own build's count; the
+   want 1 have 0: # last line is the one canonical tally, summed over the three builds.
+   want 1 have 0: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+   want 1 have 0: # The third build (section TB): the wrap's timebase at the nominal clock's
+   want 1 have 0: # compressed AECP deadline. Its tally lands beside the other two.
+   want 1 have 0: 	rm -rf obj_dir obj_vid obj_tim ltn_rom.hex ucode.hex
+   want 1 have 0: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config deadline d3 hazards budget budget-build aecp-mutants fixture-guards fixture-gu
+## tb/pp_top/Makefile: theirs (16ea10a) added lines not all in merge: 6
+   want 1 have 0: # Three builds of one bench. The first overrides nothing and runs every
+   want 1 have 0: # by a reservation that is not the default's. Each binary prints its own
+   want 1 have 0: # three builds.
+   want 1 have 0: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+   want 1 have 0: 	rm -rf obj_dir obj_vid obj_line ltn_rom.hex ucode.hex
+   want 1 have 0:         line-build aecp-line aecp-dispatch-mutants fixture-guards fixture-guards-test line-guards clean
+-- tb/pp_top/Makefile: checked
+-- tb/pp_top/mutations/acmp-waits-for-aecp.patch: checked
+-- tb/pp_top/mutations/dl-armed-at-admission.patch: checked
+-- tb/pp_top/mutations/dl-boot-hold-not-exempt.patch: checked
+-- tb/pp_top/mutations/dl-edit-preempted.patch: checked
+-- tb/pp_top/mutations/dl-gdi-runs-on.patch: checked
+-- tb/pp_top/mutations/dl-kill-ack-keeps-owner.patch: checked
+-- tb/pp_top/mutations/dlkill-always-misbehaving.patch: checked
+-- tb/pp_top/mutations/dl-kill-tied-off.patch: checked
+-- tb/pp_top/mutations/dl-lock-preempted.patch: checked
+-- tb/pp_top/mutations/dl-mvu-forced-status-10.patch: checked
+-- tb/pp_top/mutations/dl-non-aem-forced-status-10.patch: checked
+-- tb/pp_top/mutations/dl-preempt-after-effect.patch: checked
+-- tb/pp_top/mutations/dl-registry-preempted.patch: checked
+-- tb/pp_top/mutations/dl-released-before-queued.patch: checked
+-- tb/pp_top/mutations/fanout-never-ends.patch: checked
+-- tb/pp_top/mutations/hz-acmp-reads-as-steps.patch: checked
+-- tb/pp_top/mutations/hz-barrier-no-priority.patch: checked
+-- tb/pp_top/mutations/hz-clock-as-lock.patch: checked
+-- tb/pp_top/mutations/hz-clock-as-ro.patch: checked
+-- tb/pp_top/mutations/hz-clock-key-none.patch: checked
+-- tb/pp_top/mutations/hz-foreign-target-classified.patch: checked
+-- tb/pp_top/mutations/hz-identify-as-ro.patch: checked
+-- tb/pp_top/mutations/hz-identify-key-none.patch: checked
+-- tb/pp_top/mutations/hz-lock-not-lockop.patch: checked
+-- tb/pp_top/mutations/hz-map-as-ro.patch: checked
+-- tb/pp_top/mutations/hz-map-key-none.patch: checked
+-- tb/pp_top/mutations/hz-name-as-ro.patch: checked
+-- tb/pp_top/mutations/hz-name-as-stream.patch: checked
+-- tb/pp_top/mutations/hz-name-key-none.patch: checked
+-- tb/pp_top/mutations/hz-reads-keyed-none.patch: checked
+-- tb/pp_top/mutations/hz-registry-as-ro.patch: checked
+-- tb/pp_top/mutations/hz-response-classified.patch: checked
+-- tb/pp_top/mutations/hz-setcfg-not-barrier.patch: checked
+-- tb/pp_top/mutations/hz-stream-key-none.patch: checked
+-- tb/pp_top/mutations/hz-stub-restored.patch: checked
+-- tb/pp_top/mutations/hz-talker-keyed-as-listener.patch: checked
+-- tb/pp_top/mutations/mvu-echo-slot-std.patch: checked
+-- tb/pp_top/mutations/mvu-fault-status-10.patch: checked
+-- tb/pp_top/mutations/mvu-silent.patch: checked
+-- tb/pp_top/mutations/ucpu-preempt-cuts-a-wait.patch: checked
+-- tb/pp_top/mutations/ucpu-preempt-keeps-the-body.patch: checked
+-- tb/pp_top/mutations/ucpu-preempt-repeats.patch: checked
+## tb/pp_top/pp_top_wrap.sv: ours (d4ca85c) added lines not all in merge: 6
+   want 1 have 0: //                the top's own default and never a copy of it. The third
+   want 1 have 0: //                build defines PP_TOP_TIM_REAL and runs the timebase at
+   want 1 have 0: //                1 ms = 1,000 clk, the nominal clock's own, for section TB's
+   want 1 have 0: //                response budgets.
+   want 1 have 0:     output logic        dbg_sb_barrier_o
+   want 1 have 0:   // section TB's build (the Makefile's third): 1 ms = 1 x 1000 = 1,000 clk,
+-- tb/pp_top/pp_top_wrap.sv: checked
+## tb/pp_top/README.md: ours (d4ca85c) added lines not all in merge: 6
+   want 1 have 0: `make`: exit 0 = PASS. It builds the bench three times (sections DV and TB):
+   want 1 have 0: each executable prints its own build's tally, and the last line sums the three
+   want 1 have 0: into the one canonical tally.
+   want 1 have 0:   processor of its own in the third build, whose timebase is the nominal clock's
+   want 1 have 0: builds the bench a second time, and a third for section TB's timebase:
+   want 1 have 0: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and DL among them | 2 (Milan §4.2.7.2.1) |
+## tb/pp_top/README.md: theirs (16ea10a) added lines not all in merge: 5
+   want 1 have 0: `make`: exit 0 = PASS. It builds the bench three times (sections DV and AX):
+   want 1 have 0: each executable prints its own build's tally, and the last line sums them into
+   want 1 have 0: the one canonical tally.
+   want 1 have 0: builds the bench a second time (the third build is section AX's line build):
+   want 1 have 0: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and AX last | 2 (Milan §4.2.7.2.1) |
+-- tb/pp_top/README.md: checked
+## tb/pp_top/sim_main.cpp: ours (d4ca85c) added lines not all in merge: 12
+   want 1 have 0: // The suite builds three times (Makefile): the second build overrides the
+   want 1 have 0: // DV alone; the third runs the timebase at the nominal clock's rate and runs
+   want 1 have 0: // section TB alone.
+   want 1 have 0:   void load_descriptor_image(uint16_t entity_cfg = CFGIX,
+   want 1 have 0:                              uint16_t sigmux_len = 312) {
+   want 1 have 0:                           image_sigmux},
+   want 1 have 0: // fan-out). It runs in the suite's third build, whose timebase is the nominal
+   want 1 have 0:     image.load_descriptor_image(CFGIX, SIGMUX_LEN);
+   want 1 have 0:   //! the third build runs section TB alone, at the nominal timebase
+   want 1 have 0:                            || maap_only || dl_only || hz_only;
+   want 1 have 0:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+   want 1 have 0:   //! The Makefile sums the three builds and prints the one canonical line.
+## tb/pp_top/sim_main.cpp: theirs (16ea10a) added lines not all in merge: 6
+   want 1 have 0:   //! run passes none, so its image is byte for byte what it was
+   want 1 have 0:       const std::vector<std::vector<uint8_t>>& extra_bodies = {}) {
+   want 1 have 0:         non_entity_312_descriptor(0)};
+   want 1 have 0:                            || maap_only || aecp_only;
+   want 1 have 0:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+   want 1 have 0:   //! The Makefile sums the builds and prints the one canonical line.
+-- tb/pp_top/sim_main.cpp: checked
+-- tb/rx_validator/README.md: checked
+-- tb/rx_validator/sim_main.cpp: checked
+## tb/ucpu/README.md: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0: area: `make` = build + run, exit 0 = PASS, 415 checks (2026-09-30).
+## tb/ucpu/README.md: theirs (16ea10a) added lines not all in merge: 1
+   want 1 have 0: area: `make` = build + run, exit 0 = PASS, 398 checks.
+-- tb/ucpu/README.md: checked
+## tb/ucpu/sim_main.cpp: ours (d4ca85c) added lines not all in merge: 1
+   want 1 have 0:     dut->disp_batch_i = batch_base >= 0 ? 1 : 0;
+## tb/ucpu/sim_main.cpp: theirs (16ea10a) added lines not all in merge: 1
+   want 1 have 0:     dut->disp_batch_i = batch;
+-- tb/ucpu/sim_main.cpp: checked
+TOTAL lines-with-shortfall: 73
