@@ -13,10 +13,11 @@ McASP0 receiver. [#626](https://github.com/kebag-logic/milan-fpga/issues/626)
 holds the oscilloscope version.
 
 The first session stopped at the SoC board's console login. The owner then
-logged the console in, and the second session ran the timing steps. One McASP0
-capture recorded the DUT's DOUT pattern and timed its frames on the SoC board's
-own clock. It ended at 475.7 s of a planned 630 s, when the bench host lost
-the SoC board's USB function.
+logged the console in as root, and the second session ran the timing steps. It
+confirmed the root shell with `id` (uid 0), and no credential was typed or
+stored. One McASP0 capture recorded the DUT's DOUT pattern and timed its frames
+on the SoC board's own clock. It ended at 475.7 s of a planned 630 s, when the
+bench host lost the SoC board's USB function.
 
 The manager ruled the 475.6 s received sufficient, with no re-run
 ([STOP](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924930868),
@@ -32,7 +33,7 @@ effect on the figures.
 | Identity gate, dev `ec0cc0c1` | PASS | See [Identity and setup](#identity-and-setup) |
 | Framing: McASP0 receive configuration and capture parameters | Recorded | `dsp_a`, codec side bit-clock and frame master, eight 32-bit slots, 48 kHz. See [Framing](#framing) |
 | Data one BCLK after the frame-sync edge: bit-exact decode in all eight slots, in order | PASS, as far as the SoC board shows | 22,831,104 frames: 0 torn, 0 invalid and 0 zero words. See [Pattern check](#pattern-check) |
-| FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz: 48 kHz within the SoC board's clock accuracy | -42.8 ppm against 48 kHz, +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |
+| FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz on the SoC board's uncalibrated clock | -42.8 ppm against 48 kHz: -10.64 ppm is the plan, and the remaining -32.1 ppm is the DUT oscillator's error relative to the SoC board's clock, unsplit and unquantified. +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |
 | BCLK at 12.288 MHz | 12,287,474 Hz, inferred as 256 x fs | The receiver fixes 256 bit clocks per frame only as a minimum. See [Frequencies](#frequencies) |
 | Capture length, pattern-checked whole | 475.6 s (ruled sufficient by the manager, [5924930868](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924930868) and [5924950994](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924950994)) | Every received frame was pattern-checked. The USB loss at 475.7 s ended the capture and changes no figure. See [The USB loss, a bench event](#the-usb-loss-a-bench-event) |
 | FSYNC pulse width, edge timing, levels and absolute ppm | Not shown by the SoC board | [#626](https://github.com/kebag-logic/milan-fpga/issues/626). See [What the SoC board can and cannot show](#what-the-soc-board-can-and-cannot-show) |
@@ -57,7 +58,7 @@ These are operator observations, not review verdicts.
 The DUT runs the image of dev `ec0cc0c1df7d7ab3e25d973958f53f0074393d2c`,
 installed on 2026-09-30. The first session's gate repeats the
 [#617 bench page](617_DIN_FRAME_COHERENCE_BENCH.md#identity-and-setup)'s
-readback, and every value equals that page's.
+readback, and every identity value equals that page's.
 
 | Identity check | Result |
 |---|---|
@@ -94,7 +95,8 @@ As found at the second session's start:
 Every bench action held the shared lock. No flash, reset, power, wiring,
 instrument or USB function action occurred. On the SoC board, everything but
 the capture, the bridge legs and one 33-byte TCP test to the bench host was a
-read of the SoC board's status files, hardware description or system log.
+read of the SoC board's status files, hardware description or system log, or
+of the shell's identity with `id` and `tty`.
 
 The two SoC bridge legs were stopped by PID, after checking each command line
 against the bridge script's `status`. They were restarted after the run with
@@ -111,11 +113,11 @@ Bits 7:0 are zero. Channel `c` carries tag `c + 1`.
 Two things differ from that page:
 
 - **The capture streams off the SoC board.** One direct McASP0 capture,
-  `hw:0,0`, was set to record 630 s. The recording, 921.6 MB at full length, exceeds the
-  SoC board's temporary storage, and the SoC board has no `nc`. So the recorder
-  wrote to a TCP connection through the shell's `/dev/tcp`, over the USB
-  network link, to a receiver on the bench host. The receiver hashed the bytes
-  as they arrived.
+  `hw:0,0`, was set to record 630 s. The recording, 967.7 MB at the full
+  630 s, exceeds the SoC board's temporary storage, and the SoC board has no
+  `nc`. So the recorder wrote to a TCP connection through the shell's
+  `/dev/tcp`, over the USB network link, to a receiver on the bench host. The
+  receiver hashed the bytes as they arrived.
 - **The capture's PCM status was sampled.** While the recorder ran, the McASP0
   capture substream's `hw_params` and `sw_params` were read once, and its
   `status` every 5 s. With `tstamp_mode` ENABLE and `tstamp_type` MONOTONIC,
@@ -149,11 +151,14 @@ The capture's PCM parameters, read while it ran:
 | Timestamps | `tstamp_mode` ENABLE, `tstamp_type` MONOTONIC |
 
 In `dsp_a` the McASP receiver takes the first data bit one bit clock after
-the frame-sync edge, then eight 32-bit slots. The pattern makes that
-checkable. One bit early, every word's tag field doubles, so channel 0 reads
-tag 2 or 3 and channels 4 to 7 read tags above 8. One bit late, bit 0 of the
-ordinal lands in bits 7:0, so every odd frame's words go invalid. A slot
-rotation moves a tag to another channel. The capture shows none of these.
+the frame-sync edge, then eight 32-bit slots. That one bit of data delay is
+the McASP driver's mapping of the hardware description's `dsp_a` format. It is
+not a register readback: the lane's rules allowed no direct read of a McASP
+register. The pattern makes the delay checkable. One bit early, every word's
+tag field doubles, so channel 0 reads tag 2 or 3 and channels 4 to 7 read tags
+above 8. One bit late, bit 0 of the ordinal lands in bits 7:0, so every odd
+frame's words go invalid. A slot rotation moves a tag to another channel. The
+capture shows none of these.
 
 ## Pattern check
 
@@ -237,9 +242,12 @@ a gPTP daemon, and none ran. So nothing steered CLOCK_MONOTONIC during the
 capture.
 
 The -32.1 ppm against the plan's
-[divider figure](../litex/CLOCK_DOMAINS.md#audio-variants) is the sum of both
-boards' clock errors. This lane has no reference that splits it. A wrong
-divider, slot count or rate family would sit hundreds of ppm or more away.
+[divider figure](../litex/CLOCK_DOMAINS.md#audio-variants) is the DUT
+oscillator's error relative to the SoC board's clock: about the DUT
+oscillator's error minus the SoC board clock's, since a fast SoC board clock
+lowers the measured fs. This lane has no reference that splits it, and
+neither board's own error is quantified. A wrong divider, slot count or rate
+family would sit hundreds of ppm or more away.
 
 BCLK is not measured. The receiver needs at least eight 32-bit slots after
 each frame-sync edge, and it does not count bit clocks after the eighth slot.
@@ -292,13 +300,24 @@ blocked; the second ended it.
 
 ## What the SoC board can and cannot show
 
-- **Data one BCLK after the frame-sync edge: shown.** The receiver is set for
-  one bit of data delay, and the whole capture decodes bit-exact in all eight
-  slots, in order. A one-bit offset either way would break every class of word
-  check.
-- **fs: shown on the SoC board's clock.** 47,997.947 Hz, with +-0.12 ppm
-  timing granularity, plus the crystal's tolerance. It is 48 kHz at the
-  board's accuracy, but it cannot resolve the plan's -10.64 ppm.
+- **Data one BCLK after the frame-sync edge: shown.** The receiver's one bit
+  of data delay is the McASP driver's mapping of the `dsp_a` format, not a
+  register readback, and the whole capture decodes bit-exact in all eight
+  slots, in order. Each one-bit offset trips different checks, as
+  [Framing](#framing) details. One bit early trips the tag checks and the
+  ordinal steps: channels 0 to 3 carry the wrong tags, channels 4 to 7 read
+  tags above 8, invalid in every frame, and every ordinal step doubles. The
+  torn-frame count, the low byte and the zero-word count stay clean. One bit
+  late trips the tag, low-byte and torn-frame checks: channel 0 reads tag 0,
+  invalid in every frame, bit 0 of the ordinal lands in the low byte of every
+  odd frame's words, the other channels carry the wrong tags, and the decode
+  counts every frame torn. Only the zero-word count stays clean.
+- **fs: shown on the SoC board's clock, which is not calibrated.**
+  47,997.947 Hz, with +-0.12 ppm timing granularity, is -42.8 ppm from
+  48 kHz. Of that, -10.64 ppm is the plan. The remaining -32.1 ppm is the DUT
+  oscillator's error relative to the SoC board's clock. It is not split
+  between the two boards, and neither board's own error is quantified, so the
+  measurement cannot resolve the plan's -10.64 ppm.
 - **BCLK: inferred, not measured.** 256 x fs is 12,287,474 Hz, which assumes
   no idle bit clocks after the eighth slot.
 - **Not shown by the SoC board,** and left to
@@ -328,7 +347,7 @@ Residuals that no permitted command restores:
   many skips per second from the bind on, and is saturated at `0xFFFF` in both
   halves. The render stage's rail count rose from 0 to 6,264. In lane B3's 70 s
   run they rose about 70 per second and from 4 to 134. The talker also ended
-  about 55 s before the unbind, because the stalled capture held the SoC
+  58.7 s before the unbind, because the stalled capture held the SoC
   board's console until its deadline. Both counters clear only on reset.
 
 ## Notes for a later capture
