@@ -1,0 +1,18 @@
+== random: independent loss, 32 seeds per rate (group-level model)
+Window phase: first servo boundary at w0 + 0.512 s; w0 = 0.100 s
+calibrates the no-loss cold start to the page's 7.3 s. Rate valid
+when >= 2,048 group intervals since the last restart; LOCKED from
+the PI and lock count of KL_mmcm_drp_servo, an invalid window
+holding both.
+lost/s  restarts/s  valid(>=8.4s)  lock median; q25..q75; max   drops  unlocked
+  0.8   0.0016      0.993             7.3;    7.3..   7.3;    7.3   0     0
+  4.0   0.0305      0.883             7.3;    7.3..   7.3;   10.9   0     0
+  8.0   0.1232      0.603            11.4;    7.3..  13.0;   22.1   0     0
+ 11.2   0.2470      0.360            16.7;   10.2..  21.6;   37.0   0     0
+ 16.0   0.4822      0.141            29.8;   18.3..  48.2;   71.3   0     0
+ 24.0   1.0445      0.013           260.7;  146.0.. 360.0;  783.5   0     0
+-- sensitivity: window phase uniform per seed (w0 in 0..0.512 s)
+  8.0  lock median 8.8; 7.4..11.7; max 18.9; unlocked 0
+ 11.2  lock median 15.5; 11.4..19.9; max 34.6; unlocked 0
+ 24.0  lock median 338.6; 220.0..454.1; max 736.0; unlocked 0
+no loss: LOCKED at 7.268 s

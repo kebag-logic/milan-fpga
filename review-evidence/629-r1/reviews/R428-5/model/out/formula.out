@@ -1,0 +1,19 @@
+== formula: restart rate and valid fraction, analytic
+lost/s  p        q         500q^2    500q^2(1-q)  approx_valid  exact_valid
+  0.8  1.0e-04  0.001599  0.0013    0.0013       0.9948        0.9948
+  4.0  5.0e-04  0.007970  0.0318    0.0315       0.8780        0.8789
+  8.0  1.0e-03  0.015881  0.1261    0.1241       0.5966        0.6015
+ 11.2  1.4e-03  0.022166  0.2457    0.2402       0.3656        0.3738
+ 16.0  2.0e-03  0.031524  0.4969    0.4812       0.1306        0.1393
+ 24.0  3.0e-03  0.046935  1.1014    1.0497       0.0110        0.0136
+-- loss rate per second at which the exact-rate validity reaches a level
+valid 0.90 at  3.61 lost PDUs/s (p = 4.514e-04)
+valid 0.50 at  9.37 lost PDUs/s (p = 1.171e-03)
+valid 0.10 at 17.34 lost PDUs/s (p = 2.167e-03)
+valid 0.01 at 24.88 lost PDUs/s (p = 3.110e-03)
+-- round 4 single-seed rows, 300 s: expected restarts and validity
+p=1e-04: restarts 0.38; valid exact x fill 0.981; approx x fill 0.981
+p=1e-03: restarts 37.23; valid exact x fill 0.593; approx x fill 0.588
+-- round 3 rule (restart on any loss): valid = exp(-4.096 * 8000 p)
+p=3e-5 (0.24/s): 0.374
+valid 0.01 at 1.124 lost PDUs/s
