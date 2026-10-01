@@ -1,0 +1,164 @@
+== L. linear closed loop: worst |e| per unit J (l1), plant gain g
+||S||_1 at g=1.0 = 2.1250
+g=0.6 stable=True E1 2.9472 (J=1042 3071, J=1426 4203)  E8 0.4802 (J=1042 500, J=1426 685)
+g=0.8 stable=True E1 3.3920 (J=1042 3534, J=1426 4837)  E8 0.4910 (J=1042 512, J=1426 700)
+g=1.0 stable=True E1 4.0137 (J=1042 4182, J=1426 5723)  E8 0.5278 (J=1042 550, J=1426 753)
+g=1.2 stable=True E1 5.0000 (J=1042 5210, J=1426 7130)  E8 0.6239 (J=1042 650, J=1426 890)
+g=1.4 stable=True E1 6.6667 (J=1042 6947, J=1426 9507)  E8 0.8152 (J=1042 849, J=1426 1162)
+g=1.6 stable=True E1 10.0000 (J=1042 10420, J=1426 14260)  E8 1.1324 (J=1042 1180, J=1426 1615)
+E8 worst case reaches 1024 ns at J=1042 for plant gain >= 1.52 (scan 1.00..1.94)
+E8 worst case reaches 1024 ns at J=1426 for plant gain >= 1.32 (scan 1.00..1.94)
+linear loop loses stability at plant gain ~1.99
+open-loop indistinguishability over 512 ms: J/T at J=1042 = 2.035 ppm (1042 ns/window); 2J/T = 4.070 ppm
+
+== T. time-domain, 120 s, talker +0 ppm vs gPTP, servo needs +30.64 ppm, g=1
+J= 1042 indep            E1: locked at 5.63 s; windows<1024 0.996; worst |e| 1152 ns; drops 1; restarts 0; voids 0
+J= 1042 indep            E8: locked at 8.19 s; windows<1024 1.000; worst |e| 177 ns; drops 0; restarts 0; voids 0
+J= 1042 alt_group        E1: locked at 5.12 s; windows<1024 1.000; worst |e| 194 ns; drops 0; restarts 0; voids 0
+J= 1042 alt_group        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1042 rand_sign_group  E1: locked at 22.02 s; windows<1024 0.246; worst |e| 4198 ns; drops 4; restarts 0; voids 0
+J= 1042 rand_sign_group  E8: locked at 8.71 s; windows<1024 1.000; worst |e| 601 ns; drops 0; restarts 0; voids 0
+J= 1042 uniform_group    E1: locked at 20.48 s; windows<1024 0.608; worst |e| 3437 ns; drops 14; restarts 0; voids 0
+J= 1042 uniform_group    E8: locked at 8.19 s; windows<1024 1.000; worst |e| 336 ns; drops 0; restarts 0; voids 0
+J= 1042 sine_0.01        E1: locked at 8.19 s; windows<1024 0.798; worst |e| 1162 ns; drops 44; restarts 0; voids 0
+J= 1042 sine_0.01        E8: locked at 8.71 s; windows<1024 1.000; worst |e| 340 ns; drops 0; restarts 0; voids 0
+J= 1042 square_0.01      E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1042 square_0.01      E8: locked at 8.71 s; windows<1024 1.000; worst |e| 463 ns; drops 0; restarts 0; voids 0
+J= 1042 sine_1.0         E1: locked at 22.02 s; windows<1024 0.152; worst |e| 4174 ns; drops 5; restarts 0; voids 0
+J= 1042 sine_1.0         E8: locked at 8.71 s; windows<1024 1.000; worst |e| 187 ns; drops 0; restarts 0; voids 0
+J= 1042 square_1.0       E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1042 square_1.0       E8: locked at 8.19 s; windows<1024 1.000; worst |e| 552 ns; drops 0; restarts 0; voids 0
+J= 1042 square_2.0       E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1042 square_2.0       E8: locked at 8.19 s; windows<1024 1.000; worst |e| 284 ns; drops 0; restarts 0; voids 0
+J= 1042 tri_1.024        E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1042 tri_1.024        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1042 tri_8.192        E1: locked at 5.63 s; windows<1024 1.000; worst |e| 541 ns; drops 0; restarts 0; voids 0
+J= 1042 tri_8.192        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 187 ns; drops 0; restarts 0; voids 0
+J= 1042 saw_0.512        E1: locked at 5.12 s; windows<1024 1.000; worst |e| 194 ns; drops 0; restarts 0; voids 0
+J= 1042 saw_0.512        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1042 saw_4.096        E1: locked at 6.66 s; windows<1024 0.747; worst |e| 2099 ns; drops 28; restarts 0; voids 0
+J= 1042 saw_4.096        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1042 square_8.192     E1: locked at 6.66 s; windows<1024 0.747; worst |e| 2124 ns; drops 28; restarts 0; voids 0
+J= 1042 square_8.192     E8: locked at 8.19 s; windows<1024 1.000; worst |e| 534 ns; drops 0; restarts 0; voids 0
+J= 1042 rand_block512    E1: locked at 48.13 s; windows<1024 0.214; worst |e| 4164 ns; drops 3; restarts 0; voids 0
+J= 1042 rand_block512    E8: locked at 9.22 s; windows<1024 1.000; worst |e| 510 ns; drops 0; restarts 0; voids 0
+J= 1042 worst            E1: locked at 5.12 s; windows<1024 0.906; worst |e| 4197 ns; drops 3; restarts 0; voids 0
+J= 1042 worst            E8: locked at 8.19 s; windows<1024 1.000; worst |e| 564 ns; drops 0; restarts 0; voids 0
+J= 1426 indep            E1: locked at 5.63 s; windows<1024 0.960; worst |e| 1573 ns; drops 6; restarts 0; voids 0
+J= 1426 indep            E8: locked at 8.19 s; windows<1024 1.000; worst |e| 183 ns; drops 0; restarts 0; voids 0
+J= 1426 alt_group        E1: locked at 5.12 s; windows<1024 1.000; worst |e| 194 ns; drops 0; restarts 0; voids 0
+J= 1426 alt_group        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1426 rand_sign_group  E1: locked at 22.02 s; windows<1024 0.246; worst |e| 5734 ns; drops 4; restarts 0; voids 0
+J= 1426 rand_sign_group  E8: locked at 9.22 s; windows<1024 1.000; worst |e| 734 ns; drops 0; restarts 0; voids 0
+J= 1426 uniform_group    E1: locked at 20.48 s; windows<1024 0.428; worst |e| 4702 ns; drops 4; restarts 0; voids 0
+J= 1426 uniform_group    E8: locked at 8.19 s; windows<1024 1.000; worst |e| 459 ns; drops 0; restarts 0; voids 0
+J= 1426 sine_0.01        E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1426 sine_0.01        E8: locked at 8.71 s; windows<1024 1.000; worst |e| 426 ns; drops 0; restarts 0; voids 0
+J= 1426 square_0.01      E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1426 square_0.01      E8: locked at 8.71 s; windows<1024 1.000; worst |e| 592 ns; drops 0; restarts 0; voids 0
+J= 1426 sine_1.0         E1: locked at 22.53 s; windows<1024 0.100; worst |e| 5703 ns; drops 5; restarts 0; voids 0
+J= 1426 sine_1.0         E8: locked at 8.71 s; windows<1024 1.000; worst |e| 243 ns; drops 0; restarts 0; voids 0
+J= 1426 square_1.0       E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1426 square_1.0       E8: locked at 8.19 s; windows<1024 1.000; worst |e| 742 ns; drops 0; restarts 0; voids 0
+J= 1426 square_2.0       E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1426 square_2.0       E8: locked at 8.19 s; windows<1024 1.000; worst |e| 380 ns; drops 0; restarts 0; voids 0
+J= 1426 tri_1.024        E1: never locks; restarts 0, voids 0, rate-valid windows 1.000
+J= 1426 tri_1.024        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1426 tri_8.192        E1: locked at 5.63 s; windows<1024 1.000; worst |e| 732 ns; drops 0; restarts 0; voids 0
+J= 1426 tri_8.192        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 204 ns; drops 0; restarts 0; voids 0
+J= 1426 saw_0.512        E1: locked at 5.12 s; windows<1024 1.000; worst |e| 194 ns; drops 0; restarts 0; voids 0
+J= 1426 saw_0.512        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1426 saw_4.096        E1: locked at 6.66 s; windows<1024 0.747; worst |e| 2861 ns; drops 28; restarts 0; voids 0
+J= 1426 saw_4.096        E8: locked at 8.19 s; windows<1024 1.000; worst |e| 182 ns; drops 0; restarts 0; voids 0
+J= 1426 square_8.192     E1: locked at 6.66 s; windows<1024 0.747; worst |e| 2899 ns; drops 28; restarts 0; voids 0
+J= 1426 square_8.192     E8: locked at 8.19 s; windows<1024 1.000; worst |e| 723 ns; drops 0; restarts 0; voids 0
+J= 1426 rand_block512    E1: locked at 48.13 s; windows<1024 0.214; worst |e| 5698 ns; drops 3; restarts 0; voids 0
+J= 1426 rand_block512    E8: locked at 9.22 s; windows<1024 1.000; worst |e| 695 ns; drops 0; restarts 0; voids 0
+J= 1426 worst            E1: locked at 5.12 s; windows<1024 0.906; worst |e| 5737 ns; drops 3; restarts 0; voids 0
+J= 1426 worst            E8: locked at 8.19 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+
+== T300. 120 s, talker at +300 ppm and -300 ppm vs gPTP (spacing rule), g=1
+J=1426 delta=+300 indep            E8: locked at 8.71 s; windows<1024 1.000; worst |e| 205 ns; drops 0; restarts 0; voids 0
+J=1426 delta=+300 rand_sign_group  E8: locked at 9.73 s; windows<1024 1.000; worst |e| 687 ns; drops 0; restarts 0; voids 0
+J=1426 delta=+300 square_8.192     E8: locked at 9.22 s; windows<1024 1.000; worst |e| 733 ns; drops 0; restarts 0; voids 0
+J=1426 delta=+300 worst            E8: locked at 8.71 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+J=1426 delta=-300 indep            E8: locked at 8.19 s; windows<1024 1.000; worst |e| 183 ns; drops 0; restarts 0; voids 0
+J=1426 delta=-300 rand_sign_group  E8: locked at 9.22 s; windows<1024 1.000; worst |e| 734 ns; drops 0; restarts 0; voids 0
+J=1426 delta=-300 square_8.192     E8: locked at 8.19 s; windows<1024 1.000; worst |e| 723 ns; drops 0; restarts 0; voids 0
+J=1426 delta=-300 worst            E8: locked at 8.19 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+
+== P. E8 sensitivity: plant gain and servo-boundary phase, J=1426
+g=0.8 worst           : locked at 9.22 s; windows<1024 1.000; worst |e| 711 ns; drops 0; restarts 0; voids 0
+g=0.8 rand_sign_group : locked at 9.22 s; windows<1024 1.000; worst |e| 672 ns; drops 0; restarts 0; voids 0
+g=0.8 square_8.192    : locked at 9.22 s; windows<1024 1.000; worst |e| 711 ns; drops 0; restarts 0; voids 0
+g=1.2 worst           : locked at 8.19 s; windows<1024 1.000; worst |e| 918 ns; drops 0; restarts 0; voids 0
+g=1.2 rand_sign_group : locked at 8.19 s; windows<1024 1.000; worst |e| 834 ns; drops 0; restarts 0; voids 0
+g=1.2 square_8.192    : locked at 8.19 s; windows<1024 1.000; worst |e| 728 ns; drops 0; restarts 0; voids 0
+g=1.4 worst           : locked at 8.19 s; windows<1024 0.894; worst |e| 1186 ns; drops 6; restarts 0; voids 0
+g=1.4 rand_sign_group : locked at 8.19 s; windows<1024 1.000; worst |e| 1002 ns; drops 0; restarts 0; voids 0
+g=1.4 square_8.192    : locked at 8.19 s; windows<1024 1.000; worst |e| 725 ns; drops 0; restarts 0; voids 0
+phase     0 ms worst: locked at 8.71 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+phase   100 ms worst: locked at 8.29 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+phase   255 ms worst: locked at 8.45 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+phase   400 ms worst: locked at 8.59 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+phase   511 ms worst: locked at 8.7 s; windows<1024 1.000; worst |e| 767 ns; drops 0; restarts 0; voids 0
+seed 1 rand_sign_group 300 s: locked at 9.22 s; windows<1024 1.000; worst |e| 739 ns; drops 0; restarts 0; voids 0
+seed 2 rand_sign_group 300 s: locked at 8.19 s; windows<1024 1.000; worst |e| 838 ns; drops 0; restarts 0; voids 0
+seed 3 rand_sign_group 300 s: locked at 8.19 s; windows<1024 1.000; worst |e| 713 ns; drops 0; restarts 0; voids 0
+seed 4 rand_sign_group 300 s: locked at 8.19 s; windows<1024 1.000; worst |e| 824 ns; drops 0; restarts 0; voids 0
+seed 5 rand_sign_group 300 s: locked at 8.71 s; windows<1024 1.000; worst |e| 728 ns; drops 0; restarts 0; voids 0
+
+== V. void rule / tolerance (E8), first restarts by J
+delta=+0 rand_sign_group : first restart at J=2060 (20 ns steps)
+delta=+0 indep           : first restart at J=2060 (20 ns steps)
+delta=+300 rand_sign_group : first restart at J=1760 (20 ns steps)
+delta=+300 indep           : first restart at J=1780 (20 ns steps)
+indep +/-2500 ns 20 s: never locks; restarts 2398, voids 2398, rate-valid windows 0.000
+
+== S. a real step: one sample (20,833 ns) and half sample at each group position
+E1 step +20833: history restart at 16/16 positions
+E1 step -20833: history restart at 16/16 positions
+E1 step +10417: history restart at 16/16 positions
+E1 step -10417: history restart at 16/16 positions
+E8 step +20833: history restart at 16/16 positions
+E8 step -20833: history restart at 16/16 positions
+E8 step +10417: history restart at 16/16 positions
+E8 step -10417: history restart at 16/16 positions
+E1 sub-bound step +2000: locked at 5.12 s; windows<1024 0.981; worst |e| 1995 ns; drops 1; restarts 0; voids 0
+E1 sub-bound step +3000: locked at 5.12 s; windows<1024 0.981; worst |e| 2995 ns; drops 1; restarts 0; voids 0
+E1 sub-bound step -3000: locked at 5.12 s; windows<1024 0.981; worst |e| 3005 ns; drops 1; restarts 0; voids 0
+E1 sub-bound step +3400: locked at 5.12 s; windows<1024 0.981; worst |e| 3395 ns; drops 1; restarts 0; voids 0
+E8 sub-bound step +2000: locked at 8.19 s; windows<1024 1.000; worst |e| 245 ns; drops 0; restarts 0; voids 0
+E8 sub-bound step +3000: locked at 8.19 s; windows<1024 1.000; worst |e| 370 ns; drops 0; restarts 0; voids 0
+E8 sub-bound step -3000: locked at 8.19 s; windows<1024 1.000; worst |e| 380 ns; drops 0; restarts 0; voids 0
+E8 sub-bound step +3400: locked at 8.19 s; windows<1024 1.000; worst |e| 420 ns; drops 0; restarts 0; voids 0
+
+== F. real talker frequency step (after lock), E1 vs E8, J=0
+E1 frequency step  2.0 ppm: drops 0, worst after lock 899 ns
+E1 frequency step  4.0 ppm: drops 1, worst after lock 1797 ns
+E1 frequency step  6.0 ppm: drops 1, worst after lock 2695 ns
+E1 frequency step  8.0 ppm: drops 1, worst after lock 3593 ns
+E1 frequency step  9.0 ppm: drops 1, worst after lock 4042 ns
+E1 frequency step 10.0 ppm: drops 1, worst after lock 4491 ns
+E8 frequency step  2.0 ppm: drops 0, worst after lock 271 ns
+E8 frequency step  4.0 ppm: drops 0, worst after lock 516 ns
+E8 frequency step  6.0 ppm: drops 0, worst after lock 761 ns
+E8 frequency step  8.0 ppm: drops 0, worst after lock 1007 ns
+E8 frequency step  9.0 ppm: drops 1, worst after lock 1131 ns
+E8 frequency step 10.0 ppm: drops 1, worst after lock 1252 ns
+
+== Loss. one lost PDU every K PDUs: rate-valid fraction and lock, E1 vs E8
+loss 1/4000 (0.5 s) E1: rate-valid windows 0.000; never locks; restarts 239, voids 239, rate-valid windows 0.000
+loss 1/4000 (0.5 s) E8: rate-valid windows 0.000; never locks; restarts 239, voids 239, rate-valid windows 0.000
+loss 1/8000 (1.0 s) E1: rate-valid windows 0.487; locked at 9.73 s; windows<1024 1.000; worst |e| 679 ns; drops 0; restarts 119; voids 119
+loss 1/8000 (1.0 s) E8: rate-valid windows 0.000; never locks; restarts 119, voids 119, rate-valid windows 0.000
+loss 1/16000 (2.0 s) E1: rate-valid windows 0.744; locked at 7.68 s; windows<1024 0.994; worst |e| 1174 ns; drops 1; restarts 59; voids 59
+loss 1/16000 (2.0 s) E8: rate-valid windows 0.000; never locks; restarts 59, voids 59, rate-valid windows 0.000
+loss 1/24000 (3.0 s) E1: rate-valid windows 0.833; locked at 5.63 s; windows<1024 0.995; worst |e| 1174 ns; drops 1; restarts 39; voids 39
+loss 1/24000 (3.0 s) E8: rate-valid windows 0.000; never locks; restarts 39, voids 39, rate-valid windows 0.000
+loss 1/40000 (5.0 s) E1: rate-valid windows 0.902; locked at 6.15 s; windows<1024 0.995; worst |e| 1169 ns; drops 1; restarts 23; voids 23
+loss 1/40000 (5.0 s) E8: rate-valid windows 0.184; locked at 24.58 s; windows<1024 1.000; worst |e| 167 ns; drops 0; restarts 23; voids 23
+Clean-run requirement: E1 needs 257 picks = 4,112 PDUs; E8 needs 2,049 picks = 32,784 PDUs.
+P(no loss in span) at PDU loss 1e-06: E1 0.996, E8 0.968
+P(no loss in span) at PDU loss 1e-05: E1 0.960, E8 0.720
+P(no loss in span) at PDU loss 0.0001: E1 0.663, E8 0.038
