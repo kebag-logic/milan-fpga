@@ -1,0 +1,96 @@
+== bound table: 2J + 601k <= B_k < 10417 - 2J - 601k, J = 1426
+k=1 lo=3453 hi<6963.67 window=yes
+k=2 lo=4054 hi<6362.67 window=yes
+k=3 lo=4655 hi<5761.67 window=yes
+k=4 lo=5256 hi<5160.67 window=none
+k=5 lo=5857 hi<4559.67 window=none
+k=1 rate term at 300 ppm = 600.0 ns; tolerance J at 300 ppm <= 1748.0, at 0 ppm <= 2048.0
+k=2 rate term at 300 ppm = 1200.0 ns; tolerance J at 300 ppm <= 1960.0, at 0 ppm <= 2560.0
+== random loss: restarts per second 500 q^2, q = 1-(1-p)^16; Poisson valid fraction exp(-lambda*4.096)
+p=3e-05 lost/s=0.24 restarts/s=0.0001 mean interval=8684.5s valid~1.000
+p=0.0001 lost/s=0.80 restarts/s=0.0013 mean interval=782.4s valid~0.995
+p=0.001 lost/s=8.00 restarts/s=0.1261 mean interval=7.9s valid~0.597
+p=0.0014 lost/s=11.20 restarts/s=0.2457 mean interval=4.1s valid~0.366
+p=0.003 lost/s=24.00 restarts/s=1.1014 mean interval=0.9s valid~0.011
+sim p=0.0001 300s: restarts=1 valid_frac=0.973 drops=0 first_lock=8.317
+sim p=0.001 300s: restarts=35 valid_frac=0.618 drops=0 first_lock=12.413
+sim p=0.0014 300s: restarts=74 valid_frac=0.386 drops=0 first_lock=20.605
+== validity region: every pair of losses shares a group or is >= 32 PDUs apart
+patterns with gap>=32 or same group that restarted: 0
+largest gap (<32, different groups) that restarts at some phase: 31
+== snapshot fill: ideal ts at +100 ppm, PDU 5 of the snapshot group at 3 x 512 ms lost (history from group 0)
+fill=mid: restarts=0 fills=1 n_rates ref/loss=51/51 max|diff|=0 rates_off_by_gt1=0
+fill=next_less_2ms: restarts=0 fills=1 n_rates ref/loss=51/51 max|diff|=25 rates_off_by_gt1=1
+fill=restart: restarts=1 fills=1 n_rates ref/loss=51/48 max|diff|=0 rates_off_by_gt1=0
+midpoint fill, ideal ts at 7 rates from -300 to +300 ppm: max rate diff vs no loss = 0 LSB
+== bound rows: ideal ts at +100 ppm, 10 s
+two losses in adjacent groups: restarts page=1 mutant(any gap accepted)=0
+run of 17: restarts page=1 mutant(any gap accepted)=0
+run of 2 across a group boundary: restarts page=1 mutant(any gap accepted)=0
+run of 2 inside a group: restarts page=0 mutant(any gap accepted)=0
+singles 32 PDUs apart for 10 s: restarts page=0 mutant(any gap accepted)=0
+== tolerance across one voided group, worst correlated shape (+J before the gap, -J after), ideal otherwise
+ppm=300 J=1940: restarts=0
+ppm=300 J=1955: restarts=0
+ppm=300 J=1965: restarts=1
+ppm=300 J=1980: restarts=1
+ppm=0 J=2540: restarts=0
+ppm=0 J=2555: restarts=0
+ppm=0 J=2565: restarts=1
+ppm=0 J=2580: restarts=1
+== closed loop: l1 gain of estimator error -> e, and E8 worst-case coefficient
+plant gain 0.8: l1=2.0000  E8 coefficient=0.4910  at J=1426: 700 ns  bound 2*l1/8*J=713 ns
+plant gain 1.0: l1=2.1250  E8 coefficient=0.5278  at J=1426: 753 ns  bound 2*l1/8*J=758 ns
+plant gain 1.2: l1=2.5049  E8 coefficient=0.6239  at J=1426: 890 ns  bound 2*l1/8*J=893 ns
+== closed loop, worst E8 shape at J=1426, with and without fills (every snapshot group loses PDU 5), servo phase sweep
+loss=none: worst |e| after lock over 8 phases = 756 ns, drops=0, restarts=0, fills=0
+loss=every snapshot group: worst |e| after lock over 8 phases = 370 ns, drops=0, restarts=0, fills=234
+== servo row loss leg: +20 ppm, independent J=1426, one PDU lost every 0.3 s, talker stepped to +24 ppm at leg start (60 s leg after 60 s settle)
+rule=b: restarts=0 first_lock=8.829 drops=0 worst_e=477 trim residual at end=-0.15 ppm state=LOCKED
+rule=restart: restarts=200 first_lock=8.829 drops=0 worst_e=176 trim residual at end=-4.03 ppm state=LOCKED
+== S1: set of rates consistent with error-free data of slope s under +/-J error over span T
+consistent rate offsets: [-2084, 2084] ns per window; minimax error = 2084 ns/window = 4.07 ppm; pairwise J/T = 1042 ns/window = 2.035 ppm
+two-point worst = 2084 ns/window; least-squares worst = 3125 ns/window (2.999 J)
+== steps inside a loss-voided group (loss at PDU 15, or PDU 0 when the step is at 15), J=1426 independent, 300 ppm, 30 s
+page, no deviation check in a lossy group: restart exactly once 64/64, none 0/64, servo drops total 0 in 0 cases
+   step after first LOCKED (20.5 s): restart once 64/64, none 0/64, servo drops total 0 in 0 cases, worst rate error 123 ns
+page, deviation checked on received PDUs of a lossy group: restart exactly once 64/64, none 0/64, servo drops total 0 in 0 cases
+   step after first LOCKED (20.5 s): restart once 64/64, none 0/64, servo drops total 0 in 0 cases, worst rate error 123 ns
+mutant: no check across the gap: restart exactly once 0/64, none 64/64, servo drops total 0 in 0 cases
+   step after first LOCKED (20.5 s): restart once 0/64, none 64/64, servo drops total 128 in 64 cases, worst rate error 2701 ns
+   positions still restarting under the mutant: []
+mutant: no cross check, deviation checked in lossy group: restart exactly once 56/64, none 8/64, servo drops total 0 in 0 cases
+   step after first LOCKED (20.5 s): restart once 56/64, none 8/64, servo drops total 16 in 8 cases, worst rate error 2638 ns
+   positions still restarting under the mutant: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+== loss table: name restarts loss_voids fills n_rates worst_rate_err_vs_planted first_valid_s valid_fell first_lock_s drops worst_e valid_frac
+ind J1426 300ppm loss=none rule=b | 0 | 0 | 0 | 227 | 119 | 4.097875 | False | 8.317 | 0 | 211 | 0.966
+ind J1426 300ppm loss=none rule=restart | 0 | 0 | 0 | 227 | 119 | 4.097875 | False | 8.317 | 0 | 211 | 0.966
+ind J1426 300ppm loss=1s rule=b | 0 | 120 | 0 | 227 | 119 | 4.097875 | False | 8.317 | 0 | 211 | 0.966
+ind J1426 300ppm loss=1s rule=restart | 120 | 120 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+ind J1426 300ppm loss=0.3s rule=b | 0 | 400 | 3 | 227 | 119 | 4.097875 | False | 8.317 | 0 | 158 | 0.966
+ind J1426 300ppm loss=0.3s rule=restart | 400 | 400 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+ind J1426 300ppm loss=snap rule=b | 0 | 234 | 234 | 227 | 76 | 4.099875 | False | 8.317 | 0 | 195 | 0.966
+ind J1426 300ppm loss=snap rule=restart | 234 | 234 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+ind J1426 300ppm loss=32 rule=b | 0 | 30000 | 0 | 227 | 107 | 4.099875 | False | 8.317 | 0 | 138 | 0.966
+ind J1426 300ppm loss=32 rule=restart | 29999 | 30000 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+grp J1426 300ppm loss=none rule=b | 0 | 0 | 0 | 227 | 357 | 4.097875 | False | 8.317 | 0 | 743 | 0.966
+grp J1426 300ppm loss=none rule=restart | 0 | 0 | 0 | 227 | 357 | 4.097875 | False | 8.317 | 0 | 743 | 0.966
+grp J1426 300ppm loss=1s rule=b | 0 | 120 | 0 | 227 | 357 | 4.097875 | False | 8.317 | 0 | 743 | 0.966
+grp J1426 300ppm loss=1s rule=restart | 120 | 120 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+grp J1426 300ppm loss=0.3s rule=b | 0 | 400 | 3 | 227 | 357 | 4.097875 | False | 8.317 | 0 | 743 | 0.966
+grp J1426 300ppm loss=0.3s rule=restart | 400 | 400 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+grp J1426 300ppm loss=snap rule=b | 0 | 234 | 234 | 227 | 357 | 4.099875 | False | 8.317 | 0 | 537 | 0.966
+grp J1426 300ppm loss=snap rule=restart | 234 | 234 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+grp J1426 300ppm loss=32 rule=b | 0 | 30000 | 0 | 227 | 357 | 4.099875 | False | 8.829 | 0 | 695 | 0.966
+grp J1426 300ppm loss=32 rule=restart | 29999 | 30000 | 0 | 0 | None | None | False | None | 0 | 0 | 0.0
+worst J1426 0ppm loss=none | 0 | 0 | 0 | 227 | 357 | 4.097875 | False | 8.317 | 0 | 736 | 0.966
+worst J1426 0ppm loss=snap | 0 | 234 | 234 | 227 | 356 | 4.099875 | False | 8.317 | 0 | 370 | 0.966
+worst J1426 0ppm loss=0.3s | 0 | 400 | 3 | 227 | 357 | 4.097875 | False | 8.317 | 0 | 736 | 0.966
+ideal 0ppm loss=5s rule=restart | 24 | 24 | 0 | 48 | 0 | 4.103875 | True | 24.701 | 0 | 175 | 0.183
+== talker frequency step after lock, ideal timestamps, E8, 16 phases across one servo window: phases with a LOCKED drop
+step 4 ppm: phases dropping LOCKED 0/16
+step 7 ppm: phases dropping LOCKED 0/16
+step 7.5 ppm: phases dropping LOCKED 0/16
+step 8 ppm: phases dropping LOCKED 0/16
+step 8.5 ppm: phases dropping LOCKED 16/16
+step 9 ppm: phases dropping LOCKED 16/16
