@@ -3,7 +3,7 @@
 
 usage: run_a.py <name> <continuity_s> <cycles> <play_s> <raw_root>
 
-With <continuity_s> and <cycles> both 0 it is a diagnostic run: all 20 capture channels
+With <continuity_s> and <cycles> both 0 it is a diagnostic run: all <capture-channel-count> capture channels
 are kept for the whole run, the bind is held 15 s with the peer's STREAM_INPUT 0
 counters read every 5 s, and the run then tears down as below.
 
@@ -14,7 +14,7 @@ external, hardware-clocked audio capture on this host as the observation point.
     check its SHA-256 against the period computed here from the rule (as lane B3).
  2. Controller: start the b5_ctl.py agent; DUT STREAM_PORT_OUTPUT 0 gets eight
     identity mappings (stream channel c <- cluster c), read back.
- 3. This host: start the capture (all 20 channels, S24_3LE, 48 kHz). The reader keeps
+ 3. This host: start the capture (all <capture-channel-count> channels, S24_3LE, 48 kHz). The reader keeps
     channels CAP_L and CAP_R in the raw file, stamps every read with this host's
     clocks, and tracks frame validity online. Ten seconds of all channels are kept
     once the stream is valid, for the channel identification.
@@ -58,7 +58,7 @@ CAP_PERIOD = int(os.environ.get("CAP_PERIOD", "480"))  # capture period and buff
 CAP_BUFFER = int(os.environ.get("CAP_BUFFER", "24000"))
 DUT_EID = "020000fffe000001"
 TALKER_UID, LISTENER_UID = 0, 0
-NCH, CAP_L, CAP_R = 20, 10, 11  # the AES pair, identified by content in the diagnostic run diag1
+NCH, CAP_L, CAP_R = <capture-channel-count>, <capture-channel-index>, <capture-channel-index>  # the peer's output pair, identified by content in the diagnostic run diag1
 FS = 48000
 HOLD_S, AFTER_S, CAP_S = 2.0, 3.0, 30.0
 MIN_RUN = 480  # 10 ms of consecutive valid frames starts a valid run
@@ -123,7 +123,7 @@ class Reader(threading.Thread):
     def keep_full(self, seconds):
         with self.lock:
             if self.full is None:
-                self.full = open(raw / "cap-all-20ch.raw", "wb")
+                self.full = open(raw / "cap-all-<n>ch.raw", "wb")
                 self.full_left = int(seconds * FS)
                 event("full-snippet", start_frame=self.total, frames=self.full_left)
 

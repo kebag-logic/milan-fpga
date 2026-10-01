@@ -6,7 +6,7 @@ usage: grade_a.py <packet_run_dir> <raw_run_dir> <out.json>
 Reads the run's events.jsonl and ctl.jsonl (packet) and the raw capture files:
 cap-lr.raw (the graded pair, S24_3LE, channel 0 then 1), cap-ts.bin (one record per
 pipe read: frames after the read, this host's realtime, monotonic ns) and
-cap-all-20ch.raw (ten seconds of all capture channels).
+cap-all-<n>ch.raw (ten seconds of all capture channels).
 
 Pattern (first light): channel c carries the 24-bit word (tag << 16) | (n & 0xffff),
 tag = c + 1, n the TDM frame ordinal. A frame is valid when channel 0 carries tag 1,
@@ -62,12 +62,12 @@ zero = (L == 0) & (R == 0)
 ordn = L & 0xFFFF
 res = dict(frames_captured=int(NFR))
 
-# --- channel identification (10 s of all 20 channels) ------------------------------
-full = raw_dir / "cap-all-20ch.raw"
+# --- channel identification (10 s of all <capture-channel-count> channels) ------------------------------
+full = raw_dir / "cap-all-<n>ch.raw"
 if full.exists():
-    w = words(full, 20, None)
+    w = words(full, <capture-channel-count>, None)
     ident = []
-    for c in range(20):
+    for c in range(<capture-channel-count>):
         col = w[:, c]
         tags = np.unique(col >> 16)
         pat = [int(t) for t in tags if 1 <= t <= 8]
