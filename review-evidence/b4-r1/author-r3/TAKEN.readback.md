@@ -1,0 +1,7 @@
+[A470] TAKEN
+Branch: `b4-bench-1001` at `c39312b4871c8cc3ca604eb7c57f4b0b45d914e0` (PR #627), local only.
+Authoritative references: the round-3 assignment 5925502698; the round-2 reviews on PR #627, R422-2 (5925427751, NEGATIVE on F1) and R423-2 (5925499736, POSITIVE); the B4 assignment 5924192573 and the manager ruling 5924950994.
+Interpreted scope: one number, docs only. In `docs/findings/451_TDM8_TIMING_SOC_BOARD.md:349-350`, R422-2 F1: the talker-to-unbind interval becomes one the packet supports on a single clock (60.0 s on the controller host's clock), in place of the cross-clock 58.7 s. The PR body's matching round-2 line agrees. R422-2 S1, if cheap: the PR body's FSYNC verdict row mirrors the page's verdict cell (uncalibrated clock; -32.1 ppm as the DUT oscillator's error relative to the SoC board's clock). Nothing else changes, and every measurement table stays byte-identical.
+Validation plan: re-run the review packet's `talker_unbind_interval.py` on the round-1 packet's `runs/timing-long`. `scripts/docs_check.py`, `scripts/check_doc_style.py`, `scripts/gen_toc.py --check`, `scripts/check_em_dash.py --base e4b771f9` and `scripts/check_doc_paths.py` in the pinned Markdown environment; `scripts/ci_scope.py --selftest`, `scripts/check_baremetal_only.py --check`, `scripts/check_feature_status.py --self-test` and `git diff --check`. All rc 0, unpiped, from the physical lane path. A diff proving every measurement table byte-identical. Local commit only, no push.
+Blockers: none. No bench access in this round.
+

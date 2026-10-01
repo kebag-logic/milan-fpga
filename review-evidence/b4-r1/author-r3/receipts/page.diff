@@ -1,0 +1,7 @@
+350,351c350,352
+<   58.7 s before the unbind, because the stalled capture held the SoC
+<   board's console until its deadline. Both counters clear only on reset.
+---
+>   60.0 s before the unbind, on the controller host's clock, because the
+>   stalled capture held the SoC board's console until its deadline. Both
+>   counters clear only on reset.
