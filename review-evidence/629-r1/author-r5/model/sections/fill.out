@@ -1,0 +1,10 @@
+== F. a loss in a snapshot group, ideal timestamps at +100 ppm (lost PDU 5 of the snapshot group at 3 x 512 ms, n = 12,293); rate against the no-loss run, every window
+design (midpoint fill)                       restarts=0 fills=1 valid=0.6667 max|rate - no-loss rate|=0
+mutant: next pick less nominal 2 ms          restarts=0 fills=1 valid=0.6667 max|rate - no-loss rate|=25
+mutant: next pick, uncorrected               restarts=0 fills=1 valid=0.6667 max|rate - no-loss rate|=250025
+mutant: restart on a voided snapshot group   restarts=1 fills=0 valid=0.5417 max|rate - no-loss rate|=0
+mutant: restart on any loss (r3)             restarts=1 fills=0 valid=0.5417 max|rate - no-loss rate|=0
+-- the gap bound: two lost PDUs in adjacent groups (n = 12,300 and 12,310, groups 768 and 769), 12 s
+design                                       restarts=1 lossvoids=2
+mutant: kmax 16                              restarts=0 lossvoids=2
+
