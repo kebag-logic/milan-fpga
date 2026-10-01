@@ -1,0 +1,119 @@
+Lane B6 round-2 attribution checks; inputs and their SHA-256:
+  a0/grade.json 650f0444d2a4a9aef9d1d819909056ba6c4f200c7f5c9b13d0079f9c97b4d09d
+  a0/events.csv 66166cc1353b12604a5a30d79e2e4b0b54869d5b26c78420861fd51d00951c3a
+  a0/grade-full.json 345b207980f843591131efa39beb989ce01d006826327a94ea9fa92bcf6b9449
+  a0/cap-ts.bin 2d76b8fab56182e900a260244e35ac38180f907df88f2d33ddfb97d2ce04494c
+  a1/grade.json 1ab69ed8c43c347b3239dc244c18daf04fd79962a5c6b243447ea63a7ac1ca0f
+  a1/events.csv 584fda4ff0ffb808f783d057d9fff33021ee209567847b0ec59e9e1771286730
+  a1/grade-full.json cc698b080f3c494036ba3e51790c87449176895070e1ad872e974e567377af1b
+  a1/cap-ts.bin 93f04afd37e01a0c3ba7daaa8ccae64d9b5dcbffbf21a0dd64bc8d696bccf7b9
+  a2/grade.json 15058a81cf7640dc942ff7bdf7c3981d9fa54b85660e1df7574069988500243f
+  a2/events.csv b08545249716ac830ddbc345f5c8e5e59f9ae188fa01cf5ef8dbc6cb60195b15
+  a2/grade-full.json 0b076c64514b31fef086795200706815e563b6301229164f67a8fa5932ca2785
+  a2/cap-ts.bin 10d9ffbcae443b505ebaa95bda886d3f85a4761de5187a32c5354b60b982ab5c
+  bint/grade.json 839aa25b7fc366bf2c0597b65f0b005043769ab82a2b8878b593936be1c38dbd
+  bint/events.csv 19bf182a3c2b658cd41bd46c9d742c9c156a9e7e5f253f9311f70f5f8a6b0f60
+  bint/grade-full.json 7e54bb7cf2caa25531ef468dddeb2958bc45d7b05e0ec4381a18d216cbe48776
+  bint/cap-ts.bin 214fe56d676a16cc75c1291135287bb6c5c550c3b1a12b0bd7d1f3e2a01565f1
+  bcrf/grade.json a0cf772ce6e8d4fe2d3ae79264f17f170f91657091ffb25808d97ff6e7883f2a
+  bcrf/events.csv c980c97aae86d2cf95b244062b3d9b95e03a0c24e4f86c29cb6a4f1793950139
+  bcrf/grade-full.json a8c359ee89bca388874dfed7a1e93e0abe7bb1a822086b19e824669f6430b498
+  bcrf/cap-ts.bin 95ce2232a73a6c60ec4a5656707eb36bef8604dd2d08d9880047b7f2086e48c9
+
+=== a0: 10 clusters, 10 capture path; events 866
+  path 1  capture-path skips by size mod 48: {12: 24, 13: 1}
+          off 48n+12: cluster 0 skip 1165 (48n+13): one frame off; basis read-time rise; net 4801, lost 4801, rise 99.9764 ms
+  path 2  one-frame events 841 (repeats 321, skips 519, inserts 1); beat members 321
+          member spacing min 93989 frames, max 93992; teeth with two or more members 0; teeth spanned 321, occupied 321, comb residual max 1.817 frames
+          member nearest capture-path event: min 29 capture frames
+          missing teeth inside the span: 0
+  path 3  clusters on the read gap and size rule with a measured rise: 0 []
+  path 4  smallest capture-path loss 108 frames; clusters with loss <= 48 frames: 0; <= 98 frames: []
+  path 5  gap-only clusters 1; every skip 48n+12: True; [(7, [1164], 49.908)]
+          a read position in the window meets the read-gap test: 10236 of 62844 = 16.3 %
+  item 3  listener: one-frame events 520, measurable rise 497, median -0.004 ms, max |rise| 0.9979 ms, over 1.05 ms []
+  item 3  DUT beat: one-frame events 321, measurable rise 300, median -0.003 ms, max |rise| 1.0011 ms, over 1.05 ms []
+  longest capture-path loss: cluster 8 at capture frame 23712284, lost 9996 frames, gap 575.929 ms
+
+=== a1: 23 clusters, 23 capture path; events 366
+  path 1  capture-path skips by size mod 48: {2: 1, 12: 48, 24: 1}
+          off 48n+12: cluster 13 skip 18626 (48n+2): loss over a loop; basis read-time rise; net 18626, lost 594626, rise 12387.9436 ms
+          off 48n+12: cluster 18 skip 23880 (48n+24): stale-replay cluster; basis read-time rise; net 852, lost 852, rise 17.0041 ms
+          no size test: cluster 13 steps [18626] loops 12 lost 594626 (12388.0417 ms) rise 12387.9436 ms, rise less loss -0.0981 ms, tolerance 248.761 ms
+          no size test: cluster 18 steps [23880, -23880, 204, 108, 60, 156, 156, 60, 108] loops 0 lost 852 (17.75 ms) rise 17.0041 ms, rise less loss -0.7459 ms, tolerance 1.355 ms
+  path 2  one-frame events 315 (repeats 315, skips 0, inserts 0); beat members 315
+          member spacing min 93989 frames, max 751924; teeth with two or more members 0; teeth spanned 322, occupied 315, comb residual max 1.754 frames
+          member nearest capture-path event: min 75 capture frames
+          missing teeth inside the span: 7
+          missing tooth 222 at source frame 22114431: inside [(22095815, 'capture path', 13, 594626)]
+          missing tooth 223 at source frame 22208421: inside [(22095815, 'capture path', 13, 594626)]
+          missing tooth 224 at source frame 22302411: inside [(22095815, 'capture path', 13, 594626)]
+          missing tooth 225 at source frame 22396402: inside [(22095815, 'capture path', 13, 594626)]
+          missing tooth 226 at source frame 22490392: inside [(22095815, 'capture path', 13, 594626)]
+          missing tooth 227 at source frame 22584383: inside [(22095815, 'capture path', 13, 594626)]
+          missing tooth 228 at source frame 22678373: inside [(22095815, 'capture path', 13, 594626)]
+  path 3  clusters on the read gap and size rule with a measured rise: 0 []
+  path 4  smallest capture-path loss 60 frames; clusters with loss <= 48 frames: 0; <= 98 frames: [(0, [60], 0.9987, 14.907, 'read-time rise'), (3, [60], 0.9947, 16.711, 'read-time rise'), (5, [60], 0.9906, 59.758, 'read-time rise'), (9, [60], None, 33.452, 'read gap')]
+  path 5  gap-only clusters 2; every skip 48n+12: True; [(2, [348, 204, 492, 204], 28.861), (9, [60], 33.452)]
+          a read position in the window meets the read-gap test: 14179 of 61579 = 23.0 %
+  item 3  listener: one-frame events 0
+  item 3  DUT beat: one-frame events 315, measurable rise 312, median -0.005 ms, max |rise| 0.9952 ms, over 1.05 ms []
+  longest capture-path loss: cluster 13 at capture frame 22095815, lost 594626 frames, gap 12707.403 ms
+
+=== a2: 61 clusters, 61 capture path; events 1133
+  path 1  capture-path skips by size mod 48: {3: 1, 6: 1, 12: 133, 13: 1, 24: 1, 25: 1, 30: 1, 47: 1}
+          off 48n+12: cluster 13 skip 23689 (48n+25): stale-replay cluster; basis read-time rise; net 2148, lost 2148, rise 44.9984 ms
+          off 48n+12: cluster 15 skip 22392 (48n+24): stale-replay cluster; basis read-time rise; net 2281, lost 2281, rise 47.9898 ms
+          off 48n+12: cluster 15 skip 109 (48n+13): stale-replay cluster; basis read-time rise; net 2281, lost 2281, rise 47.9898 ms
+          off 48n+12: cluster 36 skip 23999 (48n+47): stale-replay cluster; basis read-time rise; net 420, lost 420, rise 8.0068 ms
+          off 48n+12: cluster 46 skip 558 (48n+30): cluster total 48n+12; basis read-time rise; net 2268, lost 2268, rise 46.9937 ms
+          off 48n+12: cluster 46 skip 918 (48n+6): cluster total 48n+12; basis read-time rise; net 2268, lost 2268, rise 46.9937 ms
+          off 48n+12: cluster 55 skip 7395 (48n+3): loss over a loop; basis read-time rise; net 7395, lost 631395, rise 13151.2302 ms
+          no size test: cluster 13 steps [23689, -23689, 108, 156, 156, 108, 252, 156, 108, 300, 204, 252, 348] loops 0 lost 2148 (44.75 ms) rise 44.9984 ms, rise less loss 0.2484 ms, tolerance 1.895 ms
+          no size test: cluster 15 steps [1212, 396, 22392, -22392, 204, 252, 109, 108] loops 0 lost 2281 (47.5208 ms) rise 47.9898 ms, rise less loss 0.469 ms, tolerance 1.95 ms
+          no size test: cluster 36 steps [-23999, 23999, 108, 108, 204] loops 0 lost 420 (8.75 ms) rise 8.0068 ms, rise less loss -0.7432 ms, tolerance 1.175 ms
+          no size test: cluster 55 steps [7395] loops 13 lost 631395 (13154.0625 ms) rise 13151.2302 ms, rise less loss -2.8323 ms, tolerance 264.081 ms
+  path 2  one-frame events 990 (repeats 316, skips 494, inserts 180); beat members 316
+          member spacing min 93989 frames, max 657932; teeth with two or more members 0; teeth spanned 322, occupied 316, comb residual max 1.775 frames
+          member nearest capture-path event: min 22 capture frames
+          missing teeth inside the span: 6
+          missing tooth 287 at source frame 28259647: inside [(28130434, 'capture path', 55, 631395)]
+          missing tooth 288 at source frame 28353637: inside [(28130434, 'capture path', 55, 631395)]
+          missing tooth 289 at source frame 28447628: inside [(28130434, 'capture path', 55, 631395)]
+          missing tooth 290 at source frame 28541618: inside [(28130434, 'capture path', 55, 631395)]
+          missing tooth 291 at source frame 28635609: inside [(28130434, 'capture path', 55, 631395)]
+          missing tooth 292 at source frame 28729599: inside [(28130434, 'capture path', 55, 631395)]
+  path 3  clusters on the read gap and size rule with a measured rise: 2 [(17, [60], 154.5405, 129.917), (56, [1020], -155.812, 13328.327)]
+  path 4  smallest capture-path loss 60 frames; clusters with loss <= 48 frames: 0; <= 98 frames: [(17, [60], 154.5405, 129.917, 'read gap and 48 n + 12 size'), (22, [60], 0.9792, 28.308, 'read-time rise'), (24, [60], 0.9818, 42.525, 'read-time rise'), (29, [60], 1.0161, 17.523, 'read-time rise'), (31, [60], 0.9974, 37.787, 'read-time rise')]
+  path 5  gap-only clusters 5; every skip 48n+12: True; [(9, [300], 22.197), (10, [684], 30.674), (35, [636, 108], 38.635), (48, [492, 348, 300], 45.263), (58, [1212, 972, 1020, 588, 204], 235.796)]
+          a read position in the window meets the read-gap test: 16845 of 61337 = 27.5 %
+  item 3  listener: one-frame events 674, measurable rise 135, median -0.004 ms, max |rise| 1.0067 ms, over 1.05 ms []
+  item 3  DUT beat: one-frame events 316, measurable rise 313, median -0.005 ms, max |rise| 176.8061 ms, over 1.05 ms [('28121160', 'repeat', '2.6798'), ('28147698', 'repeat', '176.8061')]
+  longest capture-path loss: cluster 55 at capture frame 28130434, lost 631395 frames, gap 13328.327 ms
+
+=== bint: 21 clusters, 21 capture path; events 865
+  path 1  capture-path skips by size mod 48: {12: 36}
+  path 2  one-frame events 829 (repeats 322, skips 506, inserts 1); beat members 322
+          member spacing min 93989 frames, max 93992; teeth with two or more members 0; teeth spanned 322, occupied 322, comb residual max 1.760 frames
+          member nearest capture-path event: min 161 capture frames
+          missing teeth inside the span: 0
+  path 3  clusters on the read gap and size rule with a measured rise: 0 []
+  path 4  smallest capture-path loss 60 frames; clusters with loss <= 48 frames: 0; <= 98 frames: [(0, [60], 0.9851, 15.961, 'read-time rise'), (3, [60], 0.9903, 204.662, 'read-time rise'), (12, [60], 0.9979, 17.514, 'read-time rise'), (17, [60], 0.9994, 12.75, 'read-time rise')]
+  path 5  gap-only clusters 3; every skip 48n+12: True; [(4, [108], 133.509), (6, [780], 30.796), (7, [1452, 3900], 141.211)]
+          a read position in the window meets the read-gap test: 15422 of 62851 = 24.5 %
+  item 3  listener: one-frame events 507, measurable rise 485, median -0.004 ms, max |rise| 0.9999 ms, over 1.05 ms []
+  item 3  DUT beat: one-frame events 322, measurable rise 303, median -0.003 ms, max |rise| 1.0037 ms, over 1.05 ms []
+  longest capture-path loss: cluster 7 at capture frame 2825336, lost 5352 frames, gap 141.211 ms
+
+=== bcrf: 17 clusters, 17 capture path; events 40
+  path 1  capture-path skips by size mod 48: {12: 38}
+          no size test: cluster 5 steps [-24000, -24000, 60, 348, 204, 300, 444] loops 1 lost 1356 (28.25 ms) rise 27.9956 ms, rise less loss -0.2544 ms, tolerance 1.565 ms
+  path 2  one-frame events 0 (repeats 0, skips 0, inserts 0); beat members 0
+  path 3  clusters on the read gap and size rule with a measured rise: 0 []
+  path 4  smallest capture-path loss 60 frames; clusters with loss <= 48 frames: 0; <= 98 frames: [(8, [60], 0.9963, 16.236, 'read-time rise'), (12, [60], 0.993, 17.875, 'read-time rise'), (13, [60], 1.0026, 18.729, 'read-time rise')]
+  path 5  gap-only clusters 0; every skip 48n+12: True; []
+          a read position in the window meets the read-gap test: 10080 of 62923 = 16.0 %
+  item 3  listener: one-frame events 0
+  item 3  DUT beat: one-frame events 0
+  longest capture-path loss: cluster 3 at capture frame 4471050, lost 2820 frames, gap 67.768 ms
+

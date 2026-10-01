@@ -1,0 +1,8 @@
+Token scan, round 2 (tools/token_scan.py; the private map and both token lists stay outside this packet)
+Scanned: the diff b5e9242e..e3f28f2f, the page at e3f28f2f, the commit message, and every file in this packet.
+
+HIT PR-BODY.md:87: regex list line 37
+HIT PR-BODY.md:88: regex list line 37
+scanned 41 file(s) against 95 token(s): 2 hit(s)
+
+Disposition: both hits are the IPv4-shaped pattern on four-part Milan and IEEE 1722.1 clause numbers in the PR body's Authoritative references (lines 87 and 88), carried unchanged from the live PR #630 body. They are not addresses. No private name, account name, home path, capture-layout token, interface, serial device, MAC, USB string, instrument, switch, tool or model name was found. Self-test: a planted file with a model name, an account name and gPTP hits on the first two only.
