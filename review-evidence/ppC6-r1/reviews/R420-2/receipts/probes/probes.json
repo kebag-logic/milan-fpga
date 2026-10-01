@@ -1,0 +1,53 @@
+[
+ {
+  "probe": "head_with_probe",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 108 checks, 0 failures",
+  "failing_checks": [],
+  "probe_info": [
+   "[P] RP1: frames 6, third->fourth 15301 clocks",
+   "[P] RP2: an 80 ms press 20 ms after the third frame left: 0 frames after it"
+  ]
+ },
+ {
+  "probe": "wait_ignores_gap",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 106 checks, 0 failures",
+  "failing_checks": [],
+  "probe_info": []
+ },
+ {
+  "probe": "wait_ignores_gap_with_probe",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 108 checks, 1 failures",
+  "failing_checks": [
+   "RP1b: the second burst starts at least T-IDENT-BURST after the third frame (5167 clocks)"
+  ],
+  "probe_info": [
+   "[P] RP1: frames 6, third->fourth 5167 clocks",
+   "[P] RP2: an 80 ms press 20 ms after the third frame left: 3 frames after it"
+  ]
+ },
+ {
+  "probe": "hold_ignores_gap",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 106 checks, 2 failures",
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 166 clocks, want 15000 to 15400",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 166 clocks, want 15000 to 15400"
+  ],
+  "probe_info": []
+ },
+ {
+  "probe": "burst_deadline_one_tick_short",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 106 checks, 0 failures",
+  "failing_checks": [],
+  "probe_info": []
+ }
+]

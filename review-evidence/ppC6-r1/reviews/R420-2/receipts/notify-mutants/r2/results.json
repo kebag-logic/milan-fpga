@@ -1,0 +1,82 @@
+[
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_burst_from_t0",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7i:",
+   "ID5k:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 201 clocks, want 15000 to 15400",
+   "ID5k: no gap shorter than T-IDENT-BURST: the smallest of the six is 14109 clocks, want at least 15000",
+   "ID7i: frame 3 leaves T-IDENT-BURST after frame 2 left, not at a deadline from frame 1: 264 clocks, want 15000 to 15400",
+   "ID7q: frame 3 leaves T-IDENT-BURST after frame 2 left, 173 clocks",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 10001 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_departure_is_retirement",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7d:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID7d: frame 2 leaves T-IDENT-BURST after frame 1 left, not after the engine retired it: 63 clocks, want 15000 to 15400",
+   "ID7q: frame 3 leaves T-IDENT-BURST after frame 2 left, 63 clocks"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_departure_unwired",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7d:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID7d: frame 2 leaves T-IDENT-BURST after frame 1 left, not after the engine retired it: 63 clocks, want 15000 to 15400",
+   "ID7q: frame 3 leaves T-IDENT-BURST after frame 2 left, 63 clocks"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_next_burst_at_once",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID3f:",
+   "ID7r:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 166 clocks, want 15000 to 15400",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 166 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ }
+]
