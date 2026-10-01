@@ -1,0 +1,13 @@
+head c39312b4871c8cc3ca604eb7c57f4b0b45d914e0 cwd $LANES/b4-bench-1001 at 2026-10-01T05:19:09Z
+gate 1 rc=0: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+gate 2 rc=0: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py
+gate 3 rc=0: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+gate 4 rc=0: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base e4b771f9
+gate 5 rc=0: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py
+gate 6 rc=0: python3 scripts/ci_scope.py --selftest
+gate 7 rc=0: python3 scripts/check_baremetal_only.py --check
+gate 8 rc=0: python3 scripts/check_feature_status.py --self-test
+gate 9 rc=0: git diff --check
+gate 10 rc=0: git diff --check e4b771f9 HEAD
+gate 11 rc=0: git diff --check 35a60c8d HEAD
+gate 12 rc=0: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --verify-anchors

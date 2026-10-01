@@ -1,0 +1,4 @@
+6c6
+< | FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz: 48 kHz within the SoC board's clock accuracy | -42.8 ppm against 48 kHz, +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |
+---
+> | FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz on the SoC board's uncalibrated clock | -42.8 ppm against 48 kHz: -10.64 ppm is the plan, and the remaining -32.1 ppm is the DUT oscillator's error relative to the SoC board's clock, unsplit and unquantified. +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |

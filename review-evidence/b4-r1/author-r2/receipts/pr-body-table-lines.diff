@@ -1,0 +1,6 @@
+0a1,5
+> | Case | Torn frames | Low-byte words | Zero words | Tags | Ordinal steps |
+> |---|---|---|---|---|---|
+> | Aligned | 0 | 0 | 0 | Channel `c` carries tag `c + 1` | +1, with the repeat and the skip |
+> | One bit early | 0 | 0 | 0 | Channels 0 to 3 wrong; channels 4 to 7 above 8, invalid in every frame | Doubled: +2, the repeat 0, the skip +4 |
+> | One bit late | Every frame | 16,384 (every odd frame) | 0 | Channel 0 tag 0 in every frame; the others wrong | None, every frame torn |
