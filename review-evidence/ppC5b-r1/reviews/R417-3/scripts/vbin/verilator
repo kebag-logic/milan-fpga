@@ -1,0 +1,9 @@
+#!/bin/sh
+# Reviewer wrapper: the pinned Verilator 5.050, with any "-j 0" (unbounded build jobs)
+# rewritten to "-j 8" so no build exceeds eight parallel jobs.
+PINNED=${PINNED_VERILATOR:-$VALIDATION_TOOLS/pinned-verilator-5.050/verilator}
+n=$#; i=0; prev=
+while [ $i -lt $n ]; do a=$1; shift; i=$((i+1))
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=8; fi
+  set -- "$@" "$a"; prev=$a; done
+exec "$PINNED" "$@"

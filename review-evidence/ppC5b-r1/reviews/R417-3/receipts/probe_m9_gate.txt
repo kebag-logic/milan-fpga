@@ -1,0 +1,54 @@
+[ok] control: unchanged tree: rc 0 (expected 0; head passes)
+      M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+[ok] canonical localparam, new opcode: rc 1 (expected 1; missing from kOpcodes)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C = 0x0077 is decoded by the engine and missing from kOpcodes: its aem_w guard is untested
+[ok] parameter keyword (S1): rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] parameter, existing opcode alias: rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_DUP_C is not written `localparam logic [15:0] OP_PROBE_DUP_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] untyped localparam: rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] int localparam: rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] uppercase radix: rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] bit type: rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] multi-line canonical: rc 1 (expected 1; missing from kOpcodes)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_NEW_C = 0x0077 is decoded by the engine and missing from kOpcodes: its aem_w guard is untested
+[ok] comma list, second name: rc 1 (expected 1; first name unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_A_C is not written `localparam logic [15:0] OP_PROBE_A_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] parameter in a comma list: rc 1 (expected 1; unparsed)
+      M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+      
+        OP_PROBE_A_C is not written `localparam logic [15:0] OP_PROBE_A_C = 16'hXXXX;`, so this gate cannot read its opcode
+[ok] line-commented declaration: rc 0 (expected 0; a comment is not an arm)
+      M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+[ok] comparison, not a declaration: rc 0 (expected 0; no new name)
+      M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+[info] enum member (outside the gate's stated scope): rc 0 (expected None; documented scope: localparam/parameter)
+      M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+[info] macro (outside the gate's stated scope): rc 0 (expected None; documented scope: localparam/parameter)
+      M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+selftest at head: rc 0: M9 OPCODE GATE SELFTEST: 9 of 9 PASS
+selftest with the round-2 pattern: rc 1: SELFTEST FAIL: an OP_*_C parameter fails
+M9 OPCODE GATE SELFTEST: 8 of 9 PASS
+forms: 15, unexpected: 0

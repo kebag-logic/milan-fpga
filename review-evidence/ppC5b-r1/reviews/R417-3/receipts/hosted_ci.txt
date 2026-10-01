@@ -1,0 +1,163 @@
+queried (UTC): 2026-10-01T15:14:23Z
+run 36870303632 hdl event=pull_request status=completed conclusion=success head=441d64630aa0143fa43f1049a6860cd9ed60e71e
+  job docs-gates: completed success 2026-10-01T13:39:35Z -> 2026-10-01T13:39:44Z
+    step 1 Set up job: completed success 2026-10-01T13:39:35Z -> 2026-10-01T13:39:36Z
+    step 2 Run actions/checkout@v4: completed success 2026-10-01T13:39:36Z -> 2026-10-01T13:39:38Z
+    step 3 Link, matrix, parameter, wavedrom and staleness gates: completed success 2026-10-01T13:39:38Z -> 2026-10-01T13:39:42Z
+    step 6 Post Run actions/checkout@v4: completed success 2026-10-01T13:39:42Z -> 2026-10-01T13:39:43Z
+    step 7 Complete job: completed success 2026-10-01T13:39:43Z -> 2026-10-01T13:39:43Z
+  job portability: completed success 2026-10-01T13:39:35Z -> 2026-10-01T13:42:07Z
+    step 1 Set up job: completed success 2026-10-01T13:39:36Z -> 2026-10-01T13:39:36Z
+    step 2 Run actions/checkout@v4: completed success 2026-10-01T13:39:36Z -> 2026-10-01T13:39:38Z
+    step 3 Install yosys + sv2v: completed success 2026-10-01T13:39:38Z -> 2026-10-01T13:39:58Z
+    step 4 Elaborate every top off-vendor: completed success 2026-10-01T13:39:58Z -> 2026-10-01T13:42:04Z
+    step 8 Post Run actions/checkout@v4: completed success 2026-10-01T13:42:04Z -> 2026-10-01T13:42:04Z
+    step 9 Complete job: completed success 2026-10-01T13:42:04Z -> 2026-10-01T13:42:04Z
+  job suites: completed success 2026-10-01T13:39:35Z -> 2026-10-01T15:12:22Z
+    step 1 Set up job: completed success 2026-10-01T13:39:47Z -> 2026-10-01T13:39:48Z
+    step 2 Run actions/checkout@v4: completed success 2026-10-01T13:39:48Z -> 2026-10-01T13:39:49Z
+    step 3 Cache the pinned Verilator build: completed success 2026-10-01T13:39:49Z -> 2026-10-01T13:39:51Z
+    step 4 Build Verilator v5.050: completed skipped 2026-10-01T13:39:51Z -> 2026-10-01T13:39:51Z
+    step 5 Lint (zero tolerance) + every suite: completed success 2026-10-01T13:39:51Z -> 2026-10-01T13:56:08Z
+    step 6 SRP LeaveAll mutation campaign: completed success 2026-10-01T13:56:08Z -> 2026-10-01T14:38:20Z
+    step 7 MAAP mutation campaign: completed success 2026-10-01T14:38:20Z -> 2026-10-01T14:43:34Z
+    step 8 ADP mutation campaign: completed success 2026-10-01T14:43:34Z -> 2026-10-01T14:52:46Z
+    step 9 AECP dispatch mutation campaign: completed success 2026-10-01T14:52:46Z -> 2026-10-01T15:08:06Z
+    step 10 Traceability matrix no-drift + untested budget 0: completed success 2026-10-01T15:08:06Z -> 2026-10-01T15:08:06Z
+    step 11 nvm_port README figures agree with the tree: completed success 2026-10-01T15:08:06Z -> 2026-10-01T15:12:19Z
+    step 21 Post Cache the pinned Verilator build: completed success 2026-10-01T15:12:19Z -> 2026-10-01T15:12:20Z
+    step 22 Post Run actions/checkout@v4: completed success 2026-10-01T15:12:20Z -> 2026-10-01T15:12:20Z
+    step 23 Complete job: completed success 2026-10-01T15:12:20Z -> 2026-10-01T15:12:20Z
+run 36870299862 hdl event=push status=completed conclusion=success head=441d64630aa0143fa43f1049a6860cd9ed60e71e
+  job portability: completed success 2026-10-01T13:39:34Z -> 2026-10-01T13:42:28Z
+    step 1 Set up job: completed success 2026-10-01T13:39:34Z -> 2026-10-01T13:39:35Z
+    step 2 Run actions/checkout@v4: completed success 2026-10-01T13:39:35Z -> 2026-10-01T13:39:36Z
+    step 3 Install yosys + sv2v: completed success 2026-10-01T13:39:36Z -> 2026-10-01T13:39:57Z
+    step 4 Elaborate every top off-vendor: completed success 2026-10-01T13:39:57Z -> 2026-10-01T13:42:26Z
+    step 8 Post Run actions/checkout@v4: completed success 2026-10-01T13:42:26Z -> 2026-10-01T13:42:26Z
+    step 9 Complete job: completed success 2026-10-01T13:42:26Z -> 2026-10-01T13:42:26Z
+  job docs-gates: completed success 2026-10-01T13:39:34Z -> 2026-10-01T13:39:43Z
+    step 1 Set up job: completed success 2026-10-01T13:39:34Z -> 2026-10-01T13:39:35Z
+    step 2 Run actions/checkout@v4: completed success 2026-10-01T13:39:35Z -> 2026-10-01T13:39:36Z
+    step 3 Link, matrix, parameter, wavedrom and staleness gates: completed success 2026-10-01T13:39:36Z -> 2026-10-01T13:39:41Z
+    step 6 Post Run actions/checkout@v4: completed success 2026-10-01T13:39:41Z -> 2026-10-01T13:39:41Z
+    step 7 Complete job: completed success 2026-10-01T13:39:41Z -> 2026-10-01T13:39:41Z
+  job suites: completed success 2026-10-01T13:39:34Z -> 2026-10-01T15:11:14Z
+    step 1 Set up job: completed success 2026-10-01T13:39:35Z -> 2026-10-01T13:39:36Z
+    step 2 Run actions/checkout@v4: completed success 2026-10-01T13:39:36Z -> 2026-10-01T13:39:37Z
+    step 3 Cache the pinned Verilator build: completed success 2026-10-01T13:39:37Z -> 2026-10-01T13:39:40Z
+    step 4 Build Verilator v5.050: completed skipped 2026-10-01T13:39:40Z -> 2026-10-01T13:39:40Z
+    step 5 Lint (zero tolerance) + every suite: completed success 2026-10-01T13:39:40Z -> 2026-10-01T13:56:04Z
+    step 6 SRP LeaveAll mutation campaign: completed success 2026-10-01T13:56:04Z -> 2026-10-01T14:37:34Z
+    step 7 MAAP mutation campaign: completed success 2026-10-01T14:37:34Z -> 2026-10-01T14:42:41Z
+    step 8 ADP mutation campaign: completed success 2026-10-01T14:42:41Z -> 2026-10-01T14:51:41Z
+    step 9 AECP dispatch mutation campaign: completed success 2026-10-01T14:51:41Z -> 2026-10-01T15:06:59Z
+    step 10 Traceability matrix no-drift + untested budget 0: completed success 2026-10-01T15:06:59Z -> 2026-10-01T15:06:59Z
+    step 11 nvm_port README figures agree with the tree: completed success 2026-10-01T15:06:59Z -> 2026-10-01T15:11:11Z
+    step 21 Post Cache the pinned Verilator build: completed success 2026-10-01T15:11:11Z -> 2026-10-01T15:11:11Z
+    step 22 Post Run actions/checkout@v4: completed success 2026-10-01T15:11:11Z -> 2026-10-01T15:11:11Z
+    step 23 Complete job: completed success 2026-10-01T15:11:11Z -> 2026-10-01T15:11:11Z
+
+== AECP dispatch mutation campaign step output, push run (FAIL detail lines omitted; escape sequences stripped)
+##[group]Run export PATH="$HOME/verilator/bin:$PATH"
+export PATH="$HOME/verilator/bin:$PATH"
+make -C tb/pp_top aecp-dispatch-mutants
+shell: /usr/bin/bash -e {0}
+env:
+  VERILATOR_VERSION: v5.050
+##[endgroup]
+make: Entering directory '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/tb/pp_top'
+python3 aecp_dispatch_mutants.py --output "/tmp/aecp-dispatch-mutants" \
+    --verilator "verilator"
+control aecp-dispatch: rc=0 PASS
+control aecp-line: rc=0 PASS
+control line-guards: rc=0 PASS
+m9-guard-set-stream-format: rc=2 failures=9 named=2 KILLED
+m9-guard-set-stream-info: rc=2 failures=9 named=2 KILLED
+m9-guard-set-name: rc=2 failures=9 named=2 KILLED
+m9-guard-get-name: rc=2 failures=7 named=1 KILLED
+m9-guard-add-mappings: rc=2 failures=7 named=1 KILLED
+m9-guard-remove-mappings: rc=2 failures=7 named=1 KILLED
+m9-guard-dynamic-info: rc=2 failures=7 named=1 KILLED
+a5b-reboot-success-arm: rc=2 failures=1 named=1 KILLED
+lk-ssrate-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-ssrate-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sclks-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-sclks-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+lk-sctrl-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-prefix-zero-body: rc=2 failures=7 named=1 KILLED
+sctrl-badarg-zero-body: rc=2 failures=2 named=1 KILLED
+ov-oversize-never: rc=2 failures=18 named=1 KILLED
+ov-oversize-at-576: rc=2 failures=4 named=1 KILLED
+ov-top-oversize-dropped: rc=2 failures=18 named=1 KILLED
+pg-append-524: rc=2 failures=14 named=1 KILLED
+pg-cap-dropped: rc=2 failures=10 named=1 KILLED
+pg-cap-off-by-one: rc=2 failures=4 named=1 KILLED
+rd-base-no-overlay: rc=2 failures=9 named=1 KILLED
+rd-au-image-only: rc=2 failures=2 named=1 KILLED
+rd-au-unset-overlays: rc=2 failures=1 named=1 KILLED
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+rd-cfg-any: rc=2 failures=2 named=1 KILLED
+rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+38 checks: 38 PASS, 0 FAIL
+make: Leaving directory '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/tb/pp_top'
+
+== AECP dispatch mutation campaign step output, pr run (FAIL detail lines omitted; escape sequences stripped)
+##[group]Run export PATH="$HOME/verilator/bin:$PATH"
+export PATH="$HOME/verilator/bin:$PATH"
+make -C tb/pp_top aecp-dispatch-mutants
+shell: /usr/bin/bash -e {0}
+env:
+  VERILATOR_VERSION: v5.050
+##[endgroup]
+make: Entering directory '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/tb/pp_top'
+python3 aecp_dispatch_mutants.py --output "/tmp/aecp-dispatch-mutants" \
+    --verilator "verilator"
+control aecp-dispatch: rc=0 PASS
+control aecp-line: rc=0 PASS
+control line-guards: rc=0 PASS
+m9-guard-set-stream-format: rc=2 failures=9 named=2 KILLED
+m9-guard-set-stream-info: rc=2 failures=9 named=2 KILLED
+m9-guard-set-name: rc=2 failures=9 named=2 KILLED
+m9-guard-get-name: rc=2 failures=7 named=1 KILLED
+m9-guard-add-mappings: rc=2 failures=7 named=1 KILLED
+m9-guard-remove-mappings: rc=2 failures=7 named=1 KILLED
+m9-guard-dynamic-info: rc=2 failures=7 named=1 KILLED
+a5b-reboot-success-arm: rc=2 failures=1 named=1 KILLED
+lk-ssrate-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-ssrate-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sclks-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-sclks-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+lk-sctrl-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-prefix-zero-body: rc=2 failures=7 named=1 KILLED
+sctrl-badarg-zero-body: rc=2 failures=2 named=1 KILLED
+ov-oversize-never: rc=2 failures=18 named=1 KILLED
+ov-oversize-at-576: rc=2 failures=4 named=1 KILLED
+ov-top-oversize-dropped: rc=2 failures=18 named=1 KILLED
+pg-append-524: rc=2 failures=14 named=1 KILLED
+pg-cap-dropped: rc=2 failures=10 named=1 KILLED
+pg-cap-off-by-one: rc=2 failures=4 named=1 KILLED
+rd-base-no-overlay: rc=2 failures=9 named=1 KILLED
+rd-au-image-only: rc=2 failures=2 named=1 KILLED
+rd-au-unset-overlays: rc=2 failures=1 named=1 KILLED
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+rd-cfg-any: rc=2 failures=2 named=1 KILLED
+rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+38 checks: 38 PASS, 0 FAIL
+make: Leaving directory '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/tb/pp_top'

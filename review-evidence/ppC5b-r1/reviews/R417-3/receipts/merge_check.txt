@@ -1,0 +1,50 @@
+base=d5f73bac158276a9fcf549185bad5c65c0498dae
+merge parents: 2acd4025782bff4aabbae73252476be34ea8b00d 3f3ea56ba61829718a6a288600ab4fdac73aa5ba 
+== conflicted paths in an independent re-merge:
+tb/pp_top/README.md
+tb/pp_top/sim_main.cpp
+== classification of every path either side touched:
+BOTH      docs/00_MILAN_COMPLIANCE_REVIEW.md
+BOTH      docs/architecture/09_verification.md
+MAIN-ONLY tb/acmp_listener/README.md merge==main
+MAIN-ONLY tb/acmp_listener/sim_main.cpp merge==main
+MAIN-ONLY tb/acmp_nvm/sim_main.cpp merge==main
+MAIN-ONLY tb/maap/README.md merge==main
+BOTH      tb/pp_top/README.md
+MAIN-ONLY tb/pp_top/acmp_mutants.py merge==main
+BOTH      tb/pp_top/pp_top_wrap.sv
+BOTH      tb/pp_top/sim_main.cpp
+MAIN-ONLY tb/rx_validator/README.md merge==main
+MAIN-ONLY tb/rx_validator/sim_main.cpp merge==main
+lane-only paths: 54, differing from lane: 0
+== paths changed by the merge relative to neither parent's version (non-both):
+== both-touched: lines added by each side (vs base) missing from merge
+docs/00_MILAN_COMPLIANCE_REVIEW.md side=LANE added_lines=19 missing_in_merge=0
+docs/00_MILAN_COMPLIANCE_REVIEW.md side=MAIN added_lines=1 missing_in_merge=0
+docs/00_MILAN_COMPLIANCE_REVIEW.md lines in merge in neither parent: 0
+docs/architecture/09_verification.md side=LANE added_lines=3 missing_in_merge=0
+docs/architecture/09_verification.md side=MAIN added_lines=1 missing_in_merge=0
+docs/architecture/09_verification.md lines in merge in neither parent: 0
+tb/pp_top/pp_top_wrap.sv side=LANE added_lines=30 missing_in_merge=0
+tb/pp_top/pp_top_wrap.sv side=MAIN added_lines=12 missing_in_merge=0
+tb/pp_top/pp_top_wrap.sv lines in merge in neither parent: 0
+tb/pp_top/README.md side=LANE added_lines=219 missing_in_merge=0
+tb/pp_top/README.md side=MAIN added_lines=105 missing_in_merge=0
+tb/pp_top/README.md lines in merge in neither parent: 0
+tb/pp_top/sim_main.cpp side=LANE added_lines=843 missing_in_merge=1
+    MISSING:   const bool one_section = gsi_only || name_only || d3_only || adp_only
+tb/pp_top/sim_main.cpp side=MAIN added_lines=486 missing_in_merge=1
+    MISSING:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+tb/pp_top/sim_main.cpp lines in merge in neither parent: 1
+    NEW:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only
+== merge auto-result vs published merge for non-conflicted paths:
+same docs/00_MILAN_COMPLIANCE_REVIEW.md
+same docs/architecture/09_verification.md
+same tb/acmp_listener/README.md
+same tb/acmp_listener/sim_main.cpp
+same tb/acmp_nvm/sim_main.cpp
+same tb/maap/README.md
+same tb/pp_top/acmp_mutants.py
+same tb/pp_top/pp_top_wrap.sv
+same tb/rx_validator/README.md
+same tb/rx_validator/sim_main.cpp

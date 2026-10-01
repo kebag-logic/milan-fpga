@@ -1,0 +1,43 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "m9-guard-set-stream-format",
+    "patch": "m9-guard-set-stream-format",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-stream-info",
+    "patch": "m9-guard-set-stream-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-name",
+    "patch": "m9-guard-set-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-get-name",
+    "patch": "m9-guard-get-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

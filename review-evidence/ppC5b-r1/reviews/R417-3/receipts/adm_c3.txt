@@ -1,0 +1,26 @@
+control aecp-line: rc=0 PASS
+control line-guards: rc=0 PASS
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 568: must be refused: DESC_LINE_BYTES_P=568 is below 576 (verilator rc 0)
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 1016: must be refused: DESC_LINE_BYTES_P=1016 is above 1008 (verilator rc 1)
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): the 584-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): 618 octets on the wire, want 626
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 584-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 618 octets on the wire, want 626
+    FAIL: RB the whole-line READ_DESCRIPTOR reached the reservation's last byte: 592 bytes written, 600 reserved
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 600)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: byte-exact (status 0, cdl 608)
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: number_of_mappings 176 names exactly the 73 records carried
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: the frame did not leave through slot 4
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: byte-exact (status 0, cdl 24)
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: number_of_mappings 256 names exactly the 0 records carried
+    FAIL: RB no response byte written at or past RESP_BASE_P + 16 + DESC_LINE_BYTES_P (600): 8
+6 checks: 6 PASS, 0 FAIL

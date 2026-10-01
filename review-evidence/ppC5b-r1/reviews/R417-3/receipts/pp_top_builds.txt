@@ -1,0 +1,10 @@
+1:test_compiler_environment_and_arguments (test_fixture_guards.CompilerLocaleTest.test_compiler_environment_and_arguments)
+102:fixture guard default (no override): compiles
+103:fixture guard 5A3C: compiles
+104:fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+105:fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+106:fixture guards: 4 cases PASS
+113:line guards: 6 cases, 0 failing
+247:[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 8367 checks, 0 failures
+370:[build fixture, SRP_DOM_DEF_VID_P 0x5a3c, DESC_LINE_BYTES_P 576] 20 checks, 0 failures
+492:[build line, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 584] 218 checks, 0 failures

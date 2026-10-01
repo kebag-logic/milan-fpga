@@ -1,0 +1,48 @@
+[
+  {
+    "arm": "control aecp-line",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control line-guards",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "line-floor-rounded",
+    "patch": "line-floor-rounded",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-ceiling-dropped",
+    "patch": "line-ceiling-dropped",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-buffer-fixed-592",
+    "patch": "line-buffer-fixed-592",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rb-rounded-buffer-no-page-cap",
+    "patch": "rb-rounded-buffer-no-page-cap",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

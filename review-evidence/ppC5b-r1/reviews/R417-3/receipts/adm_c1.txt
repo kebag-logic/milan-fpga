@@ -1,0 +1,40 @@
+control aecp-dispatch: rc=0 PASS
+m9-guard-set-stream-format: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_STREAM_FORMAT, whole body)
+    FAIL: M9b3: no SET_STREAM_FORMAT reached the store: STREAM_OUTPUT 1's published row (valid 0x00 -> 0x02) is unmoved
+m9-guard-set-stream-info: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_STREAM_INFO, whole body)
+    FAIL: M9b4: no SET_STREAM_INFO reached the store: STREAM_OUTPUT 1's presentation offset (valid 0x00 -> 0x02) is unmoved
+m9-guard-set-name: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_NAME, whole body)
+    FAIL: M9b5: no SET_NAME reached the name table: CLOCK_DOMAIN 0's name reads what it read before the storm
+m9-guard-get-name: rc=2 failures=7 named=1 KILLED
+    FAIL: M9: mt=2 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0011 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+5 checks: 5 PASS, 0 FAIL
