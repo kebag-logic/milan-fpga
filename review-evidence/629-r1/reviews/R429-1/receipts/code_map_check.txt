@@ -1,0 +1,871 @@
+=== configs/endstation_ax7101_1x1_tdm8.yaml:128-128
+128	  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+=== configs/endstation_ax7101_8x8.yaml:146-146
+146	  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+=== configs/endstation_arty_8ch.yaml:132-132
+132	  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+=== configs/endstation_arty_4x4.yaml:96-96
+96	  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+=== configs/endstation_arty_current.yaml:166-166
+166	  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+=== sw/builder/endstation_builder.py:134-141
+134	
+135	#: CLOCK_SOURCE object_name by source type, and the `names.clock_sources`
+136	#: keys a config may declare (schema 1.2). This builder owns these literals:
+137	#: _overlay_clock_sources writes them into the overlay the image is built
+138	#: from. There is no `stream` entry: #389 retired the per-listener
+139	#: INPUT_STREAM source that carried "Stream Clock", so nothing is left to
+140	#: name (_load_names refuses the key by name).
+141	CLOCK_SOURCE_NAMES = {"internal": "Internal", "crf": "CRF Clock"}
+=== sw/builder/endstation_builder.py:2836-2853
+2836	    # The CLOCK_SOURCE shape, by the same rule the AEM ROM svh derives it
+2837	    # (gen_aem_store.clock_source_shape - one function, both emitters). The
+2838	    # ROM svh left every RTL include path with the AECP plane, and the media
+2839	    # plane's selection compare (#74) needs the CRF index from a header
+2840	    # milan_datapath still compiles: this one.
+2841	    n_cs, crf_ix = aem_store.clock_source_shape(overlay["clock_sources"])
+2842	    a("  //! CLOCK_SOURCE set of this shape's CLOCK_DOMAIN: the count, and")
+2843	    a("  //! the index the live SET_CLOCK_SOURCE selection compares against")
+2844	    a("  //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so")
+2845	    a("  //! the compare is structurally false rather than accidentally true")
+2846	    a("  //! (the 0 == 0 trap the milan_datapath banner records). Derived")
+2847	    a("  //! from the config's media_clock_sources - internal first, then the")
+2848	    a("  //! CRF sink's source; no per-listener source since #389 - never a")
+2849	    a("  //! hand literal.")
+2850	    a(f"  localparam int unsigned AEM_N_CLKSRC_C = {n_cs};")
+2851	    a(f"  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd{crf_ix};"
+2852	      if crf_ix is not None else
+2853	      "  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
+=== sw/builder/endstation_builder.py:3292-3301
+3292	    if not feat["media_clock_servo"]:
+3293	        ext = sorted(set(clocking["media_clock_sources"]) - {"internal"})
+3294	        if ext:
+3295	            raise ConfigError(
+3296	                f"board.features.media_clock_servo: false prunes "
+3297	                "KL_mmcm_drp_servo, but clocking.media_clock_sources offers "
+3298	                f"{ext} - those sources are RECOVERED clocks and the servo is "
+3299	                "what disciplines the audio MMCM to them. Restrict "
+3300	                "media_clock_sources to [internal] (and clocking.crf_sink to "
+3301	                "false) or keep the servo.")
+=== sw/builder/endstation_builder.py:3414-3419
+3414	        # #389: the CLOCK_SOURCE set is descriptor STRUCTURE (one descriptor
+3415	        # per source, and the CLOCK_DOMAIN list), so it is model shape.
+3416	        # UNCONDITIONAL, because dropping the per-listener INPUT_STREAM
+3417	        # sources changed every tracked config's descriptor set at once and
+3418	        # 6.2.2.8 requires every one of those ids to move with it.
+3419	        "clock_sources": clk["media_clock_sources"],
+=== sw/builder/endstation_builder.py:3887-3902
+3887	    # #389: an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
+3888	    # accepted and stored while nothing in the fabric followed it (the media
+3889	    # plane resolves the stored index against the CRF source alone, and
+3890	    # INTERNAL free-runs). A config may not claim a source the fabric cannot
+3891	    # follow, so the key is REFUSED rather than accepted and dropped: a
+3892	    # silently ignored key is the same shape of lie one layer up.
+3893	    if "input_stream" in srcs:
+3894	        raise ConfigError(
+3895	            "media_clock_sources: 'input_stream' is not a source this "
+3896	            "fabric can follow (#389: no stream-derived media-clock "
+3897	            "recovery exists; only INTERNAL and the CRF sink drive the "
+3898	            "media clock, Milan v1.2 7.2.2) - declare [internal, crf] or "
+3899	            "[internal]")
+3900	    bad = set(srcs) - {"internal", "crf"}
+3901	    if bad:
+3902	        raise ConfigError(f"media_clock_sources: unknown {sorted(bad)}")
+=== sw/builder/endstation_builder.py:3936-3971
+3936	        raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
+3937	    # #399: the audio MMCM plan is FIXED. _CRG derives the audio clock from a
+3938	    # two-stage integer chain whose error is the achievable optimum from a
+3939	    # 100 MHz reference, and that clock is 24.576 MHz BY CONTRACT - KL_crf_tx
+3940	    # divides it /512 for the 48 kHz CRF event, KL_i2s_playback /2 /8 /512 for
+3941	    # the DAC, KL_mmcm_drp_servo measures it. Re-rating it is roadmap item 6,
+3942	    # so this key cannot DRIVE the plan; what it must not do is be accepted
+3943	    # while disagreeing with it, because then the AES3 serial clock below is
+3944	    # divided out of a reference the gateware does not have. Refuse by name,
+3945	    # against the rate read out of the SoC glue rather than a second copy.
+3946	    soc_pll = soc_audio_const("AUDIO_CLK_HZ", 24_576_000)
+3947	    if clocking["audio_pll_hz"] != soc_pll:
+3948	        raise ConfigError(
+3949	            f"clocking.audio_pll_hz {clocking['audio_pll_hz']} is not the "
+3950	            f"audio clock this fabric produces ({soc_pll} Hz, "
+3951	            f"sw/litex/milan_soc.py AUDIO_CLK_HZ): the audio MMCM is a fixed "
+3952	            f"two-stage integer plan and re-rating it is the MMCM-DRP "
+3953	            f"media-clock servo (roadmap item 6), so a build would elaborate "
+3954	            f"{soc_pll} Hz whatever this says and the AES3 serial clock would "
+3955	            f"be divided out of a reference that does not exist")
+3956	    if clocking["crf_sink"] and "crf" not in srcs:
+3957	        raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
+3958	    # #389, the converse, and the same rule as the retired key above: the CRF
+3959	    # CLOCK_SOURCE's location IS the CRF sink's STREAM_INPUT, so without that
+3960	    # sink there is no stream for it to name and _overlay_clock_sources emits
+3961	    # no descriptor for it. Accepted-and-dropped is the shape of lie this
+3962	    # issue exists to remove: the key still entered model_shape, so two
+3963	    # configs whose descriptors are byte-identical carried different
+3964	    # entity_model_ids, and 6.2.2.8 asks a CHANGED model for a new id, not an
+3965	    # unchanged one for a second.
+3966	    if "crf" in srcs and not clocking["crf_sink"]:
+3967	        raise ConfigError(
+3968	            "media_clock_sources offers 'crf' but clocking.crf_sink is "
+3969	            "false - the CRF CLOCK_SOURCE is located on that sink's "
+3970	            "STREAM_INPUT, so no descriptor can be emitted for it (#389). "
+3971	            "Declare the sink, or drop 'crf' from media_clock_sources")
+=== sw/builder/endstation_builder.py:4262-4267
+4262	def _validate_output_clock_sources(talkers: Sequence[Any], clocking: dict[str, Any]) -> None:
+4263	    """The single shipping clock domain must offer INTERNAL to every output."""
+4264	    if (talkers or clocking["crf_output"]) and "internal" not in clocking["media_clock_sources"]:
+4265	        raise ConfigError(
+4266	            "clocking.media_clock_sources: every Stream Output requires INTERNAL "
+4267	            "among its clock sources (Milan v1.2 5.3.3.6)")
+=== sw/builder/endstation_builder.py:5018-5045
+5018	def _overlay_clock_sources(cfg):
+5019	    """The CLOCK_SOURCE set, mirroring media_clock_sources (internal first,
+5020	    then the CRF sink's INPUT_STREAM source - gen_aem_store order). No
+5021	    source is emitted for an AAF listener: the fabric has no stream-derived
+5022	    media-clock recovery, and a CLOCK_SOURCE a controller can select but
+5023	    nothing follows is a false advertisement (#389; 1722.1-2021 7.2.9.2,
+5024	    Milan v1.2 7.2.2). _load_clocking refuses the key that used to ask for
+5025	    one, so this function cannot be reached with it, and it refuses 'crf'
+5026	    without the sink too, so `n_crf` and `'crf' in media_clock_sources` are
+5027	    the same question here and neither can drop an advertised source. Each
+5028	    name is CLOCK_SOURCE_NAMES' unless `names.clock_sources` declares one."""
+5029	    L, clk = cfg["listeners"], cfg["clocking"]
+5030	    n_crf = 1 if clk["crf_sink"] else 0
+5031	    name = {**CLOCK_SOURCE_NAMES,
+5032	            **(cfg.get("names") or {}).get("clock_sources", {})}
+5033	    clock_sources = []
+5034	    if "internal" in clk["media_clock_sources"]:
+5035	        clock_sources.append(dict(index=len(clock_sources),
+5036	                                  name=name["internal"],
+5037	                                  type="internal",
+5038	                                  location_type="CLOCK_SOURCE",
+5039	                                  location_index=len(clock_sources)))
+5040	    if n_crf:
+5041	        clock_sources.append(dict(index=len(clock_sources), name=name["crf"],
+5042	                                  type="crf",
+5043	                                  location_type="STREAM_INPUT",
+5044	                                  location_index=len(L)))
+5045	    return clock_sources
+=== pre-#389 sw/builder/endstation_builder.py:4180-4203 @aea44c071^
+def _overlay_clock_sources(cfg):
+    """The CLOCK_SOURCE set, mirroring media_clock_sources (internal first,
+    then one per AAF listener stream, then CRF - gen_aem_store order)."""
+    L, clk = cfg["listeners"], cfg["clocking"]
+    n_crf = 1 if clk["crf_sink"] else 0
+    clock_sources = []
+    if "internal" in clk["media_clock_sources"]:
+        clock_sources.append(dict(index=len(clock_sources), name="Internal",
+                                  type="internal",
+                                  location_type="CLOCK_SOURCE",
+                                  location_index=len(clock_sources)))
+    if "input_stream" in clk["media_clock_sources"]:
+        for i in range(len(L)):
+            nm = "Stream Clock" if len(L) == 1 else f"Stream Clock {i}"
+            clock_sources.append(dict(index=len(clock_sources), name=nm,
+                                      type="input_stream",
+                                      location_type="STREAM_INPUT",
+                                      location_index=i))
+    if n_crf:
+        clock_sources.append(dict(index=len(clock_sources), name="CRF Clock",
+                                  type="crf",
+                                  location_type="STREAM_INPUT",
+                                  location_index=len(L)))
+    return clock_sources
+=== avdecc/aem_specs.py:22-35
+22	CS_TYPE = {"internal": 0x0000, "crf": 0x0002}
+23	# Source types that are RETIRED, each with the issue that retired it. They
+24	# are refused by name rather than dropped, exactly as the builder's config
+25	# loader refuses the key that used to ask for one: a source a controller can
+26	# select and nothing follows is a false advertisement, and a row silently
+27	# dropped here would be the same lie one layer down.
+28	#
+29	# #389 retired `input_stream`: the fabric has no stream-derived media-clock
+30	# recovery, so an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
+31	# accepted and stored while nothing followed it. The overlay this consumer
+32	# reads is BUILDER-GENERATED and can no longer carry such a row - the builder
+33	# refuses the key and emits nothing - so this refusal is DEFENCE IN DEPTH for
+34	# a hand-made or future overlay, not a second rule.
+35	CS_RETIRED = {"input_stream": "#389"}
+=== avdecc/aem_specs.py:234-241
+234	    for c in ovl["clock_sources"]:
+235	        if c["type"] in CS_RETIRED:
+236	            raise ValueError(
+237	                f"clock_sources: {c['type']!r} is not a source this fabric "
+238	                f"can follow ({CS_RETIRED[c['type']]}: no stream-derived "
+239	                "media-clock recovery exists; only INTERNAL and the CRF sink "
+240	                "drive the media clock, Milan v1.2 7.2.2) - the builder "
+241	                "refuses the config key that asked for one and emits no such "
+=== avdecc/aem_descriptors.py:428-482
+428	def clock_source_shape(
+429	        clock_sources: Sequence[dict[str, Any]]) -> tuple[int, int | None]:
+430	    """The two CLOCK_SOURCE facts the RTL needs: (count, CRF index or None).
+431	
+432	    One rule for every emitter. The model's spec rows carry the config type
+433	    under 'raw_type' (cs_type is already the 1722.1 encoding, where CRF and
+434	    INPUT_STREAM are both 0x0002 and cannot be told apart); the builder's
+435	    overlay rows carry it under 'type'. Both name the CRF row "crf". The
+436	    generator banner above AEM_N_CLKSRC_C records why this is derived and
+437	    never mirrored: the literals "3"/"2" were only right for a 1-listener
+438	    shape of the pre-#389 set, and since #389 every shipping shape has two
+439	    sources with the CRF at index 1 (AEM_CRF_CLKSRC_C)."""
+440	    crf_ix = next((i for i, c in enumerate(clock_sources)
+441	                   if c.get("raw_type", c.get("type")) == "crf"), None)
+442	    return len(clock_sources), crf_ix
+443	
+444	
+445	def d_clock_source(index: int, name: str, cs_type: int, loc_type: int,
+446	                   loc_index: int) -> bytes:
+447	    """CLOCK_SOURCE descriptor (7.2.9): one selectable media-clock reference.
+448	
+449	    `cs_type` is the 1722.1 encoding (INTERNAL=0 / INPUT_STREAM=2), which is
+450	    why CRF and a stream clock are indistinguishable here and the config's own
+451	    word has to travel separately - see clock_source_shape().
+452	    """
+453	    b = be16(CLOCK_SOURCE) + be16(index)
+454	    b += cstr(name)                     # object_name
+455	    b += be16(NO_STRING)
+456	    b += be16(0x0002)                   # clock_source_flags (STREAM_ID)
+457	    b += be16(cs_type)                  # INTERNAL=0 / INPUT_STREAM=2
+458	    b += be64(0)                        # clock_source_identifier
+459	    b += be16(loc_type)                 # location: descriptor holding the source
+460	    b += be16(loc_index)
+461	    assert len(b) == 86
+462	    return b
+463	
+464	def d_clock_domain(n_sources: int,
+465	                   name: str = OBJECT_NAMES["clock_domain"]) -> bytes:
+466	    """CLOCK_DOMAIN descriptor (7.2.32) listing sources 0..n_sources-1.
+467	
+468	    The list is the identity permutation on purpose: clock_sources_offset
+469	    entries are CLOCK_SOURCE descriptor indices, and this model defines them
+470	    densely, so the domain can select any of them by its own index.
+471	    """
+472	    sources = list(range(n_sources))
+473	    b = be16(CLOCK_DOMAIN) + be16(0)
+474	    b += cstr(name)                     # object_name
+475	    b += be16(NO_STRING)
+476	    b += be16(0)                        # clock_source_index (SET_CLOCK_SOURCE)
+477	    b += be16(76)                       # clock_sources_offset (fixed)
+478	    b += be16(len(sources))
+479	    assert len(b) == 76
+480	    for s in sources:
+481	        b += be16(s)
+482	    return b
+=== avdecc/aem_assemble.py:231-236
+231	    for k, cs in enumerate(spec["clock_sources"]):
+232	        descs.append((CLOCK_SOURCE, k,
+233	                      d_clock_source(k, cs["name"], cs["cs_type"],
+234	                                     cs["loc_type"], cs["loc_index"])))
+235	    descs.append((CLOCK_DOMAIN, 0, d_clock_domain(len(spec["clock_sources"]),
+236	                                                  names["clock_domain"])))
+=== avdecc/aem_emit.py:220-224
+220	    a("// (AEM_CRF_CLKSRC_C = 16'hFFFF when this shape declares no CRF source)")
+221	    a(f"localparam int unsigned AEM_N_CLKSRC_C = {_n_cs};")
+222	    a(f"localparam [15:0] AEM_CRF_CLKSRC_C = 16'd{_crf_ix};"
+223	      if _crf_ix is not None else
+224	      "localparam [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
+=== configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh:54-55
+54	  localparam int unsigned AEM_N_CLKSRC_C = 2;
+55	  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd1;
+=== protocol-processor/hdl/aecp/ucode/gen_ucode.py:1410-1440 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+1410	# THE RANGE CHECK (06 §6 "source ∈ CLOCK_DOMAIN list"; milan-fpga #389). The
+1411	# index is accepted only when clock_source_index < the located domain's
+1412	# clock_sources_count: the generators emit the list as the identity
+1413	# permutation (avdecc/aem_descriptors.py d_clock_domain), so the bound IS
+1414	# the membership test §7.4.23.1 asks for. Anything else is BAD_ARGUMENTS
+1415	# carrying the CURRENT index - the one a GET would read - with nothing
+1416	# stored, marked or notified. Before this an index no descriptor backed was
+1417	# stored, read back and announced while the media plane resolved it to
+1418	# INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+1419	#
+1420	# Two refusal arms share one tail: r6 carries the current index, preloaded
+1421	# with 0 so the NO_SUCH_DESCRIPTOR arm (no domain, no current value) answers
+1422	# zero exactly as before. 32 words: the slot ends at E_TIZ8NS.
+1423	place(E_SCLKS, [
+1424	    u('MOVE', rd=2, ra=0, imm=0),                # reserved @30, and the refusals
+1425	    u('MOVE', rd=6, ra=0, imm=0),                # the current index, 0 until read
+1426	    u('CHECK_LOCK', ra=15, imm=E_LOCKED4),
+1427	    u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the Clock Domain exist?
+1428	    u('BR_STATUS', cnd=0, imm=E_SCLKS + 26),     # miss -> NO_SUCH_DESCRIPTOR
+1429	    u('READ_ST', rd=3, imm=RGN_DYNV + SEL_CLKSRC),
+1430	    u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+1431	    u('READ_ST', rd=6, imm=RGN_DATA + CD_SRCIDX_LANE),   # the image's index
+1432	    u('BR_STATUS', cnd=2, imm=E_SCLKS + 10),     # unset -> the image's stands
+1433	    u('READ_ST', rd=6, imm=RGN_DYN + SEL_CLKSRC),        # set -> the controller's
+1434	    u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),   # E_SCLKS + 10
+1435	    u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+1436	    u('MOVE', rd=9, ra=7, fmt=FMT_W),            # r9 = clock_sources_count
+1437	    u('CHECK_ARG', ra=12, rb=9, fmt=FMT_W,       # index < count, else BAD_ARGS
+1438	      cnd=REL_LT, imm=E_SCLKS + 26),
+1439	    u('WRITE_ST', ra=12, fmt=FMT_W, imm=RGN_DYN + SEL_CLKSRC),
+1440	    u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+=== protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:86-90 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+86	//                0xD); sampling rate on the located AUDIO_UNIT's list, read
+87	//                at 144 with its offset checked, entries 0..count-1 of at
+88	//                most eight, each a whole 32-bit word; clock source index
+89	//                below the located CLOCK_DOMAIN's clock_sources_count
+90	//                (lane 72, bits 47:32); a stream format that the
+=== protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:114-114 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+114	    output logic [15:0] clk_src_index_o,   //! CLOCK_DOMAIN[0].clock_source_index
+=== protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:352-352 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+352	  assign clk_src_index_o = clksrc_r[0];
+=== protocol-processor/docs/architecture/07_memory_maps.md:135-135 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+135	| L6 | CLOCK_SOURCE construction: one INPUT_STREAM per CRF-capable input (or the single AAF input when no CRF input exists); ≥1 INTERNAL if any output; ≥1 CLOCK_SOURCE per CLOCK_DOMAIN; each CLOCK_DOMAIN's `clock_sources` list is the identi
+=== protocol-processor/docs/architecture/07_memory_maps.md:343-343 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+343	| per CLOCK_DOMAIN `clock_source_index` | 16 | yes (§5.3.11.1) |
+=== protocol-processor/docs/architecture/07_memory_maps.md:479-479 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+479	| `0x0A` .. `0x11` | clock source index | CLOCK_DOMAIN | u16 | D3 writer (scalar stage) |
+=== protocol-processor/docs/00_MILAN_COMPLIANCE_REVIEW.md:377-377 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+377	| REQ-AEM-013 | Milan §5.4.2.15/.16 | SET/GET_CLOCK_SOURCE per Clock Domain; persisted | shall | A | [GAP-09](#gap-09); persisted and restored by the D3 writer (#131, `tb/pp_top` D3S1/D3R1) | CLOCK_CFG class; D3 record `0x0A`+domain | 06 §6
+=== protocol-processor/docs/00_MILAN_COMPLIANCE_REVIEW.md:420-420 @b2db3a970cedbbff2f8ba813acb96122c442bc58
+420	| REQ-MDL-005 | Milan §5.3.3.6 | CLOCK_SOURCE construction: one INPUT_STREAM per CRF-capable input (or the single AAF input); ≥1 INTERNAL if any output; gPTP-as-MC only non-redundant single-interface | shall | A | [GAP-08](#gap-08) | model 
+=== hdl/milan/milan_datapath.sv:607-607
+607	  //      The current root cannot select CRF, so the servo stays idle. ----
+=== hdl/milan/milan_datapath.sv:704-706
+704	  wire [15:0] pp_aecp_clk_src_index_w /* verilator public_flat_rd */;
+705	  logic        crf_clk_selected_r /* verilator public_flat_rd */;
+706	  logic [15:0] media_clk_src_r    /* verilator public_flat_rd */;
+=== hdl/milan/milan_datapath.sv:1554-1570
+1554	  `include "gen/adp_shape_defaults.svh"
+1555	  //! the ONE clock-source compare (see the media-clock banner above; the
+1556	  //! block lives here because AEM_CRF_CLKSRC_C exists only after the shape
+1557	  //! include). Registered: a SET_CLOCK_SOURCE lands as a clean gate
+1558	  //! transition at every consumer, and KL_media_clock_restart's own
+1559	  //! clk_src_q_r edge detector sees exactly one change per command.
+1560	  always_ff @(posedge axis_clk) begin : media_clk_resolve
+1561	    if (!axis_resetn) begin
+1562	      media_clk_src_r    <= 16'd0;
+1563	      crf_clk_selected_r <= 1'b0;
+1564	    end
+1565	    else begin
+1566	      media_clk_src_r    <= pp_aecp_clk_src_index_w;
+1567	      crf_clk_selected_r <= (pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
+1568	                            && (AEM_CRF_CLKSRC_C != 16'hFFFF);
+1569	    end
+1570	  end : media_clk_resolve
+=== hdl/milan/milan_datapath.sv:2576-2576
+2576	    .i_pcmrx_ts           (avtprx_last_ts),
+=== hdl/milan/milan_datapath.sv:3108-3156
+3108	  //  IEEE 1722-2016 4.4.4.3: the mr (media clock restart) level. The clause
+3109	  //  is a shall for a talker whose timestamps come from a received CRF
+3110	  //  stream - "any streams deriving timestamps from the CRF stream shall
+3111	  //  toggle the mr bit if a disruption of the CRF stream occurs" - and that
+3112	  //  is exactly this fabric when clk_src selects the CRF media clock (2).
+3113	  //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
+3114	  //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
+3115	  //  is the debounced verdict, not a per-PDU twitch.
+3116	  //
+3117	  //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
+3118	  //  an internal media clock there is no CRF stream to be disrupted, so
+3119	  //  toggling mr would be a false alarm to every listener. A PHC-only
+3120	  //  re-base is not a restart request (#602, below).
+3121	  // --------------------------------------------------------------------------
+3122	  //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+3123	  //! the selected media clock source. The clause's OTHER mandatory trigger, a
+3124	  //! change of the media clock SOURCE (PICS Table F.7 AAF-5, AAF:M), is
+3125	  //! detected INSIDE KL_media_clock_restart from clk_src_i, so all of 4.4.4.3
+3126	  //! lives in the one module.
+3127	  logic tkd_crflk_q_r;
+3128	  always_ff @(posedge axis_clk) begin : mcr_trigger
+3129	    if (!axis_resetn) tkd_crflk_q_r <= 1'b0;
+3130	    else              tkd_crflk_q_r <= crf_locked_w;
+3131	  end : mcr_trigger
+3132	  //! ... and the THIRD trigger, the one 4.4.4.3 names beside the disruption:
+3133	  //! "or if the mr bit in the CRF stream has been toggled". crf_mr_toggle_p_w
+3134	  //! is that echo, straight off the accepted PDU (gh #62 H2a). It joins the
+3135	  //! disruption pulse INSIDE the same clock-source gate, which is 10.4.3's
+3136	  //! own scoping and not a convenience: "If a Listener is receiving both a
+3137	  //! media stream and a CRF stream, only the mr bit from the stream being
+3138	  //! used by the Listener for recovering the media clock is valid" - on an
+3139	  //! internal media clock the received CRF bit governs nothing here, and
+3140	  //! echoing it would restart every listener's clock over a stream this
+3141	  //! device is not slaved to.
+3142	  //! crf_clk_selected_r - the LIVE verdict (#74): with INTERNAL selected,
+3143	  //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+3144	  //! clock and must not toggle mr on our streams; with the CRF source
+3145	  //! selected, it is exactly the mandatory trigger, now reachable.
+3146	  //! #602 ruling 5859297355 supersedes #387's PHC-step restart cause.
+3147	  //! A PHC-only re-base changes presentation time, not the INTERNAL/CRF
+3148	  //! media-clock source. It keeps mr and MEDIA_RESET unchanged; tu and
+3149	  //! its holdover still signal the gPTP discontinuity (4.4.4.7/10.4.5).
+3150	  //! Keep the re-base pulse for the render recentre below. Real source
+3151	  //! changes and selected-CRF disruption/mr propagation still request a
+3152	  //! restart (4.4.4.3/10.4.3), even alongside a PHC step. The restart
+3153	  //! engine retains its per-stream eight-PDU hold and pending merge.
+3154	  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+3155	  wire mcr_restart_p_w = crf_clk_selected_r
+3156	                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+=== hdl/milan/milan_datapath.sv:3180-3203
+3180	  localparam int MCR_CTX_C = N_STREAMS + 1;
+3181	  wire [MCR_CTX_C-1:0] mcr_streaming_w = {cfg_crft_en, aaf_stream_en_w};
+3182	  wire [MCR_CTX_C-1:0] mcr_mr_v_w;
+3183	  KL_media_clock_restart #(.N_TALKERS_P(MCR_CTX_C)) media_clock_restart (
+3184	    .clk_i (axis_clk), .rst_n (axis_resetn),
+3185	    .restart_p_i (mcr_restart_p_w),
+3186	    //! LIVE (#74): the 4.4.4.3 source-change trigger fires on a real
+3187	    //! SET_CLOCK_SOURCE now - the module's clk_src_q_r edge detector was
+3188	    //! built for this and spent its first months watching a constant
+3189	    .clk_src_i   (media_clk_src_r),
+3190	    .streaming_i (mcr_streaming_w),
+3191	    //! the SAME muxed PDU feed KL_talker_diag_ctx takes below (AAF strobe or
+3192	    //! the deferred CRF strobe, never both in a cycle) ...
+3193	    .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
+3194	    .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
+3195	    //! ... and the mr bit the announced PDU really carried, per side: the
+3196	    //! packetizer's stamped bit for an AAF frame, KL_crf_tx's mr_last_o for
+3197	    //! the CRF PDU. Feeding the wire's own bit (not the granted level) is
+3198	    //! what makes the hold count eight TRANSMITTED PDUs at the new value.
+3199	    .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
+3200	    .mr_o        (mcr_mr_v_w)
+3201	  );
+3202	  assign aaf_mr_w  = mcr_mr_v_w[N_STREAMS-1:0];
+3203	  assign crft_mr_w = mcr_mr_v_w[N_STREAMS];
+=== hdl/milan/milan_datapath.sv:3469-3475
+3469	  //!   * media clock: ~clkv_tu_w. Milan leaves "locked" explicitly open
+3470	  //!     ("the definition of locked is left open to each manufacturer",
+3471	  //!     5.3.11.2); this build's definition is the active-owner CLKV verdict -
+3472	  //!     the SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0056).
+3473	  //!     One clock-validity authority, two views; a LOCKED count that
+3474	  //!     disagreed with the tu bit on the wire would be two answers to one
+3475	  //!     question. tu resets 1 (unknown is NOT valid), so locked resets LOW.
+=== hdl/milan/milan_datapath.sv:3492-3492
+3492	  wire ctr_ckd_lock_edge_w = (~clkv_tu_w) != ctr_mclk_q_r;
+=== hdl/milan/milan_datapath.sv:5418-5446
+5418	  avtp_stream_parser #(
+5419	    .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (N_STREAMS)
+5420	  ) avtp_rx_parser (
+5421	    .clk (axis_clk), .resetn (axis_resetn),
+5422	    .cfg_stream_id_i (strtbl_sid_w),
+5423	    .cfg_stream_en_i (strtbl_en_w),
+5424	    //! PRE-FILTER tap: an accepted AVTP stream is a fabric-media input and must
+5425	    //! not depend on the station-address policy applied to protocol observers.
+5426	    .s_tdata_i  (rx_axis_from_mac.tdata),
+5427	    .s_tkeep_i  (rx_axis_from_mac.tkeep),
+5428	    .s_tvalid_i (rx_axis_from_mac.tvalid),
+5429	    .s_tready_i (rx_axis_from_mac.tready),
+5430	    .s_tlast_i  (rx_axis_from_mac.tlast),
+5431	    .match_valid_o (avtprx_match),
+5432	    .match_index_o (avtprx_idx),
+5433	    .stream_id_o   (avtprx_sid_frame),
+5434	    .avtp_ts_o     (avtprx_ts),
+5435	    .subtype_o     (avtprx_subtype),
+5436	    .ts_valid_o    (avtprx_tv_bit),
+5437	    .media_restart_o(avtprx_mr_bit),
+5438	    .seq_num_o     (avtprx_seq),
+5439	    .ts_uncertain_o(avtprx_tu_bit),
+5440	    .fsh_o         (avtprx_fsh),
+5441	    .fsh2_o        (avtprx_fsh2),
+5442	    .parse_valid_o (avtprx_parse_p),
+5443	    .b3_o          (avtprx_b3),
+5444	    .avtp_frames_o (aprb_parsed_w),
+5445	    .matched_frames_o (aprb_matched_w)
+5446	  );
+=== hdl/milan/milan_datapath.sv:5508-5512
+5508	  KL_crf_rx #(
+5509	    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+5510	    .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
+5511	  ) crf_rx (
+5512	    .clk_i (axis_clk), .rst_n (axis_resetn),
+=== hdl/milan/milan_datapath.sv:5537-5538
+5537	    .en_i        (cfg_crf_en | acmpl1_bound),
+5538	    .sid_i       (acmpl1_bound ? acmpl1_sid : cfg_crf_sid),
+=== hdl/milan/milan_datapath.sv:5576-5578
+5576	  //  The actuator can consume the KL_crf_rx rate measurement, but the current
+5577	  //  root hardwires INTERNAL against NONE and cannot select it. If selected by
+5578	  //  a future dynamic root connection, it steers the SoC audio MMCM through
+=== hdl/milan/milan_datapath.sv:5608-5612
+5608	    .clk_src_i     (media_clk_src_r),
+5609	    .crf_src_idx_i (AEM_CRF_CLKSRC_C),
+5610	    .crf_locked_i  (crf_locked_w),
+5611	    .crf_rate_i    (crf_rate_w),
+5612	    .crf_rate_valid_i (crf_rate_valid_w),
+=== hdl/milan/milan_datapath.sv:5713-5718
+5713	  //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media
+5714	  //  clock = free-run, slips accepted"): crf_clk_selected_r low disengages
+5715	  //  the align loop entirely and the grid is bit-for-bit the divider that
+5716	  //  shipped at 0x0040, so every bench measurement on record stands. The
+5717	  //  junction slip counters keep counting there - the INTERNAL slip is
+5718	  //  accepted, not hidden.
+=== hdl/milan/milan_datapath.sv:5733-5748
+5733	  KL_media_grid_align #(
+5734	    .CLK_FREQ_HZ_P      (MILAN_CLK_FREQ_HZ),
+5735	    .FS_HZ_P            (48_000),
+5736	    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)
+5737	  ) media_grid_align (
+5738	    .clk_i      (axis_clk),
+5739	    .rst_n      (axis_resetn),
+5740	    .sel_i      (crf_clk_selected_r),
+5741	    .frame_ev_i (aafcap_pv_w &&
+5742	                 (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1)),
+5743	    .tick_i     (media_tick_q_r),
+5744	    .u_o        (mnco_servo_trim_w),
+5745	    .engaged_o  (mga_engaged_w),
+5746	    .err_cyc_o      (mga_err_w)
+5747	  );
+5748	  assign mnco_servo_en_w = crf_clk_selected_r;
+=== hdl/milan/milan_datapath.sv:5756-5758
+5756	  KL_crf_tx crf_tx (
+5757	    .clk_i (axis_clk), .rst_n (axis_resetn),
+5758	    .clk_audio_i (clk_audio_i),
+=== hdl/milan/milan_datapath.sv:5858-5865
+5858	    //! LIVE wiring, INERT consumer (#74, [R1] finding 2): the monitor
+5859	    //! declares these ports for a media-lock rule it does not implement
+5860	    //! yet - clk_src_i/servo_conv_i are folded unused inside. Wired live
+5861	    //! anyway, like i2s_playback's servo_en_i below, so the day the rule
+5862	    //! lands the truth is already at the port and no root edit can be
+5863	    //! forgotten. No behavior rides on this today.
+5864	    .clk_src_i      (media_clk_src_r),
+5865	    .servo_conv_i   (i2spb_converged),
+=== hdl/milan/milan_datapath.sv:6079-6126
+6079	  localparam int unsigned SRC_SETTLE_ERR_C   = (MILAN_CLK_FREQ_HZ / 48_000) / 64;
+6080	  localparam int unsigned SRC_SETTLE_TICKS_C = 2048;
+6081	  localparam int unsigned SRC_SETTLE_CEIL_C  = 32768;
+6082	  logic [15:0] src_recentre_q_r;   //! the selected index last seen
+6083	  logic        src_pend_r;         //! a recentre awaits the settle
+6084	  logic        mga_engaged_q_r;
+6085	  logic [15:0] src_band_ticks_r;   //! ticks with the grid inside the band
+6086	  logic [15:0] src_eng_ticks_r;    //! ticks with the aligner engaged
+6087	  //! public: the milan_dp true-ratio leg counts the pulse under a live
+6088	  //! selection
+6089	  logic        src_recentre_p_r /* verilator public_flat_rd */;
+6090	  wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
+6091	  wire src_grid_ok_w = !crf_clk_selected_r ||
+6092	                       (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
+6093	  wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
+6094	                       (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
+6095	  always_ff @(posedge axis_clk) begin : g_src_recentre
+6096	    if (!axis_resetn) begin
+6097	      src_recentre_q_r <= 16'd0;
+6098	      src_pend_r       <= 1'b0;
+6099	      mga_engaged_q_r  <= 1'b0;
+6100	      src_band_ticks_r <= 16'd0;
+6101	      src_eng_ticks_r  <= 16'd0;
+6102	      src_recentre_p_r <= 1'b0;
+6103	    end else begin
+6104	      src_recentre_q_r <= media_clk_src_r;
+6105	      mga_engaged_q_r  <= mga_engaged_w;
+6106	      src_recentre_p_r <= 1'b0;
+6107	      if ((media_clk_src_r != src_recentre_q_r) ||
+6108	          (mga_engaged_w && !mga_engaged_q_r)) begin
+6109	        src_pend_r       <= 1'b1;
+6110	        src_band_ticks_r <= 16'd0;
+6111	        src_eng_ticks_r  <= 16'd0;
+6112	      end else if (src_pend_r) begin
+6113	        if (media_tick_p) begin
+6114	          src_band_ticks_r <= src_grid_ok_w ? src_band_ticks_r + 16'd1 : 16'd0;
+6115	          src_eng_ticks_r  <= (crf_clk_selected_r && mga_engaged_w)
+6116	                              ? src_eng_ticks_r + 16'd1 : 16'd0;
+6117	        end
+6118	        if (src_settled_w) begin
+6119	          src_pend_r       <= 1'b0;
+6120	          src_recentre_p_r <= 1'b1;
+6121	          src_band_ticks_r <= 16'd0;
+6122	          src_eng_ticks_r  <= 16'd0;
+6123	        end
+6124	      end
+6125	    end
+6126	  end : g_src_recentre
+=== hdl/milan/milan_datapath.sv:6153-6153
+6153	    .servo_en_i   (crf_clk_selected_r),
+=== hdl/milan/milan_datapath.sv:7529-7535
+7529	      //! CONSUMED since #74: `pp_aecp_clk_src_index_w` is the value
+7530	      //! SET_CLOCK_SOURCE writes, and media_clk_resolve (beside the shape
+7531	      //! include) turns it into the media plane's one registered verdict -
+7532	      //! the round the old note here promised.
+7533	      .aecp_cur_config_o   (pp_aecp_cur_config_w),
+7534	      .aecp_identify_o     (pp_aecp_identify_w),
+7535	      .aecp_clk_src_index_o(pp_aecp_clk_src_index_w),
+=== hdl/ieee1722/crf/KL_crf_rx.sv:21-36
+21	                Outputs (CSR-read, all captured per accepted PDU):
+22	                  delta_o : crf_ts - ptp_now (signed 32) - the phase error
+23	                            the fabric media-clock servo consumes (same
+24	                            contract as the AAF ts_delta CSR 0x6EC).
+25	                  rate_o  : accumulated (crf_ts[n] - crf_ts[n-256]) minus
+26	                            nominal 256*2ms, signed ns per 512 ms window -
+27	                            the frequency error input. Updates one clk after
+28	                            the accepted PDU (the 256-entry ts history lives
+29	                            in a single-port READ_FIRST BRAM ring; the read
+30	                            lands the cycle after the accept - a fixed +1
+31	                            clk skew, invisible to the ms-scale CSR poll).
+32	                            Holds the last clean value while rate_valid_o
+33	                            is low after tu edges, timestamp jumps or gaps.
+34	                  locked_o: 8 clean consecutive PDUs consumed while started
+35	                            establish lock; drops after 100 ms
+36	                            without a consumed accepted PDU (mirrors the
+=== hdl/ieee1722/crf/KL_crf_rx.sv:275-298
+275	  localparam logic [31:0] NOM_PDU_NS_C  = 32'd2_000_000;
+276	  localparam int unsigned RATE_LOG2_C   = 8;   // 256-PDU rate window
+277	  localparam logic [63:0] NOM_WIN_NS_C  = 64'(NOM_PDU_NS_C) << RATE_LOG2_C;
+278	
+279	  //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
+280	  //! Assume the media oscillator meets IEEE 802.1AS Annex B.1.1's
+281	  //! +/-100 ppm LocalClock bound. Milan v1.2 section 7.4 requires media
+282	  //! sources better than +/-50 ppm; 100 ppm is a conservative margin.
+283	  //! Assume the remote talker shares our PHC envelope: +/-200 ppm trim
+284	  //! (TIME_SYNC) and <384 ns timestamp quantisation (incr + adj).
+285	  //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.
+286	  //! Add two such quantisation errors (the local #539 rationale assumed
+287	  //! for the remote talker), then round 1369 ns up to 2048 ns. This is
+288	  //! below the plane's smallest step (>20 us), without copying #539's
+289	  //! per-cycle 4096 ns threshold. Arrival/network jitter is absent here.
+290	  localparam int unsigned RATE_DRIFT_NS_C =
+291	    (NOM_PDU_NS_C * (200 + 100) + (1_000_000 - 100) - 1)
+292	      / (1_000_000 - 100);
+293	  localparam logic [63:0] TS_JUMP_NS_C =
+294	    64'd1 << $clog2(RATE_DRIFT_NS_C + 2 * 384);
+295	
+296	  //! lock: 8 clean consecutive PDUs in, 100 ms silence out (AAF contract)
+297	  localparam int unsigned SETTLE_C   = 8;
+298	  localparam int unsigned TOUT_CYC_C = CLK_FREQ_HZ_P / 10;
+=== hdl/ieee1722/crf/KL_crf_rx.sv:320-331
+320	  //! ring of accepted ts (the 512 ms frequency-error window) in ONE
+321	  //! single-port READ_FIRST block RAM - never a multi-read-port LUTRAM
+322	  //! replica structure (the 0x4B read-port-divergence rule). The only
+323	  //! access the algorithm needs is read-old + write-new at hidx_r on an
+324	  //! accepted PDU; same-port READ_FIRST returns the pre-write content, so
+325	  //! both happen in one well-defined access. Entries keep ts[31:0] only:
+326	  //! rate_o is a 32-bit truncation and subtraction is congruent mod 2^32,
+327	  //! so the high half can never influence the result (bit-exact vs 64-bit
+328	  //! storage for all inputs; the flop-file original was pruned the same
+329	  //! way by synthesis).
+330	  (* ram_style = "block" *)
+331	  logic [31:0] ts_hist_r [0:(1<<RATE_LOG2_C)-1];
+=== hdl/ieee1722/crf/KL_crf_rx.sv:390-403
+390	  //! IEEE 1722-2016 4.4.4.3/4.4.4.7, CRF mapping 10.4.5: tu is
+391	  //! uncertainty, not a rate. Either edge separates timestamp eras. A
+392	  //! constant high level does not block recovery. Sequence gaps cannot
+393	  //! represent 256 consecutive intervals either, so they restart the ring.
+394	  wire [63:0] ts_spacing_ns_w = w_crf_ts - prev_ts_ns_r;
+395	  wire ts_jump_w = (ts_spacing_ns_w < (64'(NOM_PDU_NS_C) - TS_JUMP_NS_C))
+396	                || (ts_spacing_ns_w > (64'(NOM_PDU_NS_C) + TS_JUMP_NS_C));
+397	  wire tu_change_w = tu_i != prev_tu_r;
+398	  wire rate_break_w = w_acc && rate_seeded_r &&
+399	    (tu_change_w || ts_jump_w || (have_seq_r && (seq_i != exp_seq_r)));
+400	  //! Include the accept-edge verdict: a simultaneous servo boundary must
+401	  //! not snapshot stale validity before the registered invalidation lands.
+402	  assign rate_valid_o = rate_valid_r && en_i && !stop_i &&
+403	                        !w_bind_rise_w && !rate_break_w;
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:20-30
+20	                  error   e = local_rate - crf_rate  (both are "gPTP-ns
+21	                          per 512 ms of media events": KL_crf_rx rate_o
+22	                          measures the TALKER media clock against gPTP
+23	                          over its 256-PDU field-timestamp ring; this
+24	                          block measures OUR audio clock against the
+25	                          same gPTP time over a 2^WIN_LOG2_P-tick local
+26	                          window, so e > 0  <=>  we run slow).
+27	                          1 ppm == 512 units. CRF_DELTA (0x744) is NOT a
+28	                          loop input: it contains the arbitrary
+29	                          talker+transit phase constant; the wire-truth
+30	                          loop quantity is the differential rate.
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:166-170
+166	                States (status_o[2:0]): IDLE (CRF not selected: no DRP
+167	                access, no PS steps, u = 0), VERIFY, REPAIR, ACQUIRE,
+168	                LOCKED (|e| < LOCK_THR_P for LOCK_WIN_P windows),
+169	                HOLDOVER (CRF unlock: u frozen, stepping continues at
+170	                the held rate), FAULT (repair relock timeout).
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:232-233
+232	  parameter int signed   LOCK_THR_P       = 1_024,    //! 2 ppm
+233	  parameter int unsigned LOCK_WIN_P       = 4,
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:263-273
+263	  input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
+264	  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
+265	  //! set is internal then CRF (1 on every shipping shape since #389 dropped
+266	  //! the per-listener sources; it was 2 on a 1-listener shape and 9 on an
+267	  //! 8-listener one before). The datapath feeds this from the generated
+268	  //! AEM (AEM_CRF_CLKSRC_C); a wrong value here engages the servo on the
+269	  //! wrong source, silently.
+270	  input  wire [15:0]  crf_src_idx_i,
+271	  input  wire         crf_locked_i,   //! KL_crf_rx locked_o
+272	  input  wire         crf_rate_valid_i, //! RX ring spans one timestamp era
+273	  input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:411-411
+411	  wire servo_sel_w = (clk_src_i == crf_src_idx_i);
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:538-579
+538	        IDLE_S: begin
+539	          u_cmd_r <= '0; integ_r <= '0; acc_r <= '0;
+540	          win_valid_r <= 1'b0; lock_cnt_r <= '0;
+541	          disc_run_r <= '0; disc_cnt_r <= '0;
+542	          verified_r <= 1'b0; mismatch_r <= 1'b0; drp_fault_r <= 1'b0;
+543	          mmcm_rst_o <= 1'b0; ps_hold_r <= 1'b0;
+544	          if (servo_sel_w && crf_locked_i) begin
+545	            state_r     <= VERIFY_S;
+546	            dstate_r    <= D_RD_EN_S;
+547	            rd_second_r <= 1'b0;
+548	            drp_pass_r  <= 1'b1;
+549	            repairing_r <= 1'b0;
+550	          end
+551	        end
+552	
+553	        VERIFY_S, REPAIR_S: begin
+554	          if (!servo_sel_w) begin
+555	            //! abort: never leave the MMCM in reset
+556	            mmcm_rst_o <= 1'b0;
+557	            dstate_r   <= D_IDLE_S;
+558	            state_r    <= IDLE_S;
+559	          end
+560	        end
+561	
+562	        ACQUIRE_S, LOCKED_S: begin
+563	          if (!servo_sel_w)          state_r <= IDLE_S;
+564	          else if (!crf_locked_i)    state_r <= HOLDOVER_S;
+565	          else if (state_r == ACQUIRE_S && lock_cnt_r >=
+566	                   ($bits(lock_cnt_r))'(LOCK_WIN_P)) state_r <= LOCKED_S;
+567	          else if (state_r == LOCKED_S && lock_cnt_r == '0)
+568	                                     state_r <= ACQUIRE_S;
+569	        end
+570	
+571	        HOLDOVER_S: begin
+572	          //! u frozen (stepping continues below) until CRF returns
+573	          if (!servo_sel_w)          state_r <= IDLE_S;
+574	          else if (crf_locked_i) begin
+575	            state_r    <= ACQUIRE_S;
+576	            win_skip_r <= 2'd2;      //! crf_rate ring refills for 512 ms
+577	            lock_cnt_r <= '0;
+578	          end
+579	        end
+=== hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:609-615
+609	            pp_rate_r   <= crf_rate_i;
+610	            win_slew_r  <= phc_slew_q_r;
+611	            //! Invalid remote history holds PI and lock; local step/slew
+612	            //! guards retain their own independent window policy.
+613	            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
+614	                           && !slew_window_w
+615	                           && crf_rate_valid_i;
+=== hdl/ieee1722/crf/KL_media_grid_align.sv:38-41
+38	                clock_source = INTERNAL never reaches this module: sel_i is
+39	                the live CRF selection, and 0 disengages everything, keeping
+40	                the NCO's bit-exact free-run (USER rule: internal media
+41	                clock = free-run, slips accepted - KL_media_nco.sv).
+=== hdl/ieee1722/crf/KL_media_grid_align.sv:95-100
+95	                FEED WATCHDOG. No frame marker for TIMEOUT_C cycles (a dead
+96	                TDM plane, a bench without the audio clock) = disengage:
+97	                u -> 0, the NCO free-runs at nominal, and the next frame
+98	                re-engages from a fresh reference. A CRF-selected build
+99	                with no physical feed therefore degrades to today's exact
+100	                behaviour rather than stalling or running away.
+=== hdl/ieee1722/crf/KL_media_grid_align.sv:257-272
+257	    else if (!engaged_r || quiet_r >= TOW_C'(TIMEOUT_C)) begin
+258	      //! CRF selected but not (or no longer) locked to a feed: hold the
+259	      //! safe state - u at 0, the NCO free-runs at nominal - and close the
+260	      //! loop on the next frame with a FRESH reference. Freshly-selected
+261	      //! and feed-died land here on the same terms, so re-engagement can
+262	      //! never run against a stale reference.
+263	      tst_r     <= tst_next_w;
+264	      slip_r    <= '0;
+265	      quiet_r   <= frame_ev_i ? '0
+266	                 : (quiet_r >= TOW_C'(TIMEOUT_C)) ? quiet_r : quiet_r + 1'b1;
+267	      engaged_r <= frame_ev_i;
+268	      err_r     <= '0;
+269	      acc_r     <= '0;
+270	      u_o       <= '0;
+271	      if (frame_ev_i) ref_r <= ref_keep_w;
+272	    end
+=== hdl/ieee1722/crf/KL_crf_tx.sv:20-28
+20	                The timestamp grid is the REAL media clock: a self-contained
+21	                /512 divider of clk_audio_i (24.576 MHz MMCM => 48.000 kHz
+22	                sample ticks, the same derivation as the I2S front-ends)
+23	                counts 96 sample events, and each 96th event crosses into
+24	                cd_milan (cdc_pulse) where ptp_ns_i is latched as that
+25	                event's gPTP time. The stream therefore carries the actual
+26	                audio-MMCM rate as seen by the PHC - a listener's KL_crf_rx
+27	                measures the true media-clock/gPTP ratio, not a synthetic
+28	                2 ms accumulator.
+=== hdl/ieee1722/avtp/KL_media_clock_restart.sv:211-264
+211	  //! shadow of the media clock source; a difference is a source-change edge
+212	  logic [15:0]              clk_src_q_r;
+213	  wire                      src_change_w = (clk_src_q_r != clk_src_i);
+214	  //! per-talker transmitted-PDU count since this talker's level last changed
+215	  logic [HOLDW_C-1:0]       hold_r [N_TALKERS_P];
+216	
+217	  wire                      idx_ok_w = 32'(frame_idx_i) < N_TALKERS_P;
+218	  wire [IXW_C-1:0]          fidx_w   = frame_idx_i[IXW_C-1:0];
+219	
+220	  always_ff @(posedge clk_i) begin : mcr_track
+221	    if (!rst_n) begin
+222	      tgt_r <= '0;
+223	      mr_o  <= '0;
+224	      clk_src_q_r <= 16'd0;
+225	      for (int t = 0; t < N_TALKERS_P; t++)
+226	        //! start satisfied: the first PDU of a fresh stream may carry the
+227	        //! current truth immediately
+228	        hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
+229	    end else begin
+230	      clk_src_q_r <= clk_src_i;
+231	      //! request on EITHER input: restart_p_i OR a media-clock source change.
+232	      //! A no-op SET (same source) does not fire. Every talker's target
+233	      //! becomes the complement of the level it stamps: a talker with a
+234	      //! restart pending (tgt_r != mr_o) keeps its target, so the second
+235	      //! request merges instead of cancelling the first (#387).
+236	      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;
+237	      //! ... and so does a streaming talker whose adopted level no reported
+238	      //! PDU has carried yet (hold_r still 0 since the adoption): no listener
+239	      //! has seen that toggle, so the request merges into it and the target
+240	      //! stays the level just adopted (#387, ruling 5818091077). The first
+241	      //! PDU at that level moves hold_r off 0 and ends the window.
+242	      //! streaming_i keeps a stop on hold_r == 0 tracking the new target,
+243	      //! like every non-streaming talker, instead of merging that request.
+244	      for (int t = 0; t < N_TALKERS_P; t++)
+245	        if ((restart_p_i | src_change_w) && streaming_i[t] && (hold_r[t] == '0))
+246	          tgt_r[t] <= mr_o[t];
+247	
+248	      //! a completed PDU that carried this talker's CURRENT level counts
+249	      //! toward its hold (saturating - only the >= comparison matters)
+250	      if (frame_p_i && idx_ok_w && (frame_mr_i == mr_o[fidx_w])
+251	          && (hold_r[fidx_w] != HOLDW_C'(HOLD_PDU_P)))
+252	        hold_r[fidx_w] <= hold_r[fidx_w] + 1'b1;
+253	
+254	      for (int t = 0; t < N_TALKERS_P; t++) begin
+255	        if (!streaming_i[t]) begin
+256	          //! no continuous stream to protect: stay adoptable and track the
+257	          //! target directly, so nothing starts up with a stale bit
+258	          mr_o[t]   <= tgt_r[t];
+259	          hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
+260	        end
+261	        else if ((mr_o[t] != tgt_r[t]) && (hold_r[t] == HOLDW_C'(HOLD_PDU_P))) begin : g_adopt
+262	          mr_o[t]   <= tgt_r[t];
+263	          hold_r[t] <= '0;
+264	        end
+=== hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:218-218
+218	  output logic [31:0] last_ts_o,         //! stream-0 last accepted avtp_ts
+=== hdl/ieee1722/aaf/KL_aaf_packetizer.sv:720-726
+720	        if (nsamp_r[pown_t_w] == '0 && pown_o_w == '0) begin
+721	          //! first pair of the epoch: latch the presentation time with
+722	          //! THIS talker's own transit offset (per-context entry)
+723	          tsw_pend_r <= 1'b1;
+724	          tsw_t_r    <= pown_t_w;
+725	          tsw_val_r  <= ptp_ns_i[31:0]
+726	                        + transit_ns_i[32*(32'(pown_t_w)) +: 32];
+=== hdl/common/csr/milan_csr.sv:396-396
+396	  input  wire [31:0]             i_pcmrx_ts,            //! last accepted avtp_ts (RO 0x6C8)
+=== hdl/common/csr/milan_csr.sv:2562-2581
+2562	  //! reads at/above 0x800 return 0 unless a mapped block claims them: the
+2563	  //! 0x800 stream window (strm_hit, priority above) or the servo word at
+2564	  //! 0x8F8 (2026-07-23: this term was missing, so A_MCSRV_STAT read 0 on
+2565	  //! EVERY build while the servo ran fine - caught by the [SERVO] dp-TB leg)
+2566	  wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] ||
+2567	                      (rd_addr_q == A_MCSRV_STAT) ||
+2568	                      (rd_addr_q == A_MCSRV_CTRL) ||
+2569	                      //! item-11 LTAP group (CTRL 0x870 + 16 RO words) lives
+2570	                      //! >=0x800, so it needs the same carve-out as the servo
+2571	                      ((rd_addr_q >= A_LTAP_CTRL) && (rd_addr_q < A_LTAP_END)) ||
+2572	                      //! parser-probe group 0x8B4-0x8C4, same carve-out
+2573	                      ((rd_addr_q >= A_APRB_BASE) && (rd_addr_q < A_APRB_END)) ||
+2574	                      //! reserved inert gap 0x8C8-0x8D0 reads zero
+2575	                      ((rd_addr_q >= A_RSVD_GAP_BASE)
+2576	                       && (rd_addr_q < A_RSVD_GAP_END)) ||
+2577	                      //! slip counter pair 0x8D4/0x8D8, same carve-out
+2578	                      (rd_addr_q == A_SLIP_LB) ||
+2579	                      (rd_addr_q == A_SLIP_TDM) ||
+2580	                      (rd_addr_q == A_RENDER_STAT) ||
+2581	                      //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
+=== docs/reference/FR_NFR.md:237-238
+237	| FR-CLK-03 | The media clock MUST be selectable (CLOCK_DOMAIN → CLOCK_SOURCE) among the sources the media plane follows, and only those: INTERNAL and the CRF sink's INPUT_STREAM source. No CLOCK_SOURCE is advertised on an AAF listener, and
+238	| FR-CLK-04 | As a media-clock talker the entity MUST source a CRF stream; as a follower it MUST recover the media clock from CRF. Stream-derived recovery from an AAF input stream is neither provided nor advertised (#389). | M | T |
+=== docs/reference/REGISTER_MAP.md:1833-1833
+1833	`0x8E0` to `0x8F4` remain unmapped and read zero.
+=== docs/design/TIME_SYNC.md:141-145
+141	Only two sources are advertised since issue #389.
+142	
+143	They are INTERNAL and the CRF sink.
+144	
+145	An AAF listener carries no CLOCK_SOURCE, because nothing follows one.
+=== docs/design/TIME_SYNC.md:198-198
+198	| Stream-derived recovery | No | Not advertised: no INPUT_STREAM source on an AAF listener (#389) |
