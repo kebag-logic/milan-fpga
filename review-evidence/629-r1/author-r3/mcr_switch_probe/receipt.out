@@ -1,0 +1,21 @@
+Verilator 5.050 2026-07-01 rev v5.050
+5891b12a91ba1cd91f308c9c2394808d9aebe4bae999e5654859689d9656465f  $LANES/629-media-clock-follow/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+build rc=0
+== scaled clock: A = 100 cycles per AAF PDU, C = 1,600; every switch phase across one CRF period
+design      A=100 C=1600 LAT=40 L=4000: trials 1600; exactly one toggle on both outputs 1600; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+late        A=100 C=1600 LAT=40 L=4000: trials 1600; exactly one toggle on both outputs 0; AAF >=2 1600; CRF >=2 1600; any output >=2 1600; any output 0 0
+disruption  A=100 C=1600 LAT=40 L=4000: trials 1600; exactly one toggle on both outputs 1600; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+era_fall    A=100 C=1600 LAT=40 L=4000: trials 6400; exactly one toggle on both outputs 6400; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+first_pdu   A=100 C=1600 LAT=40 L=4000: trials 20000; exactly one toggle on both outputs 16549; AAF >=2 3248; CRF >=2 210; any output >=2 3451; any output 0 0
+design      A=100 C=1600 LAT=90 L=4000: trials 1600; exactly one toggle on both outputs 1600; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+late        A=100 C=1600 LAT=90 L=4000: trials 1600; exactly one toggle on both outputs 0; AAF >=2 1600; CRF >=2 1600; any output >=2 1600; any output 0 0
+era_fall    A=100 C=1600 LAT=90 L=4000: trials 6400; exactly one toggle on both outputs 6400; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+== real clock: 100 MHz (milan_datapath.sv:67), A = 12,500 cycles (125 us), C = 200,000 (2 ms); L = 5 ms; 32 phases across one CRF period
+design      A=12500 C=200000 LAT=40 L=500000: trials 32; exactly one toggle on both outputs 32; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+late        A=12500 C=200000 LAT=40 L=500000: trials 32; exactly one toggle on both outputs 0; AAF >=2 32; CRF >=2 32; any output >=2 32; any output 0 0
+disruption  A=12500 C=200000 LAT=40 L=500000: trials 32; exactly one toggle on both outputs 32; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+era_fall    A=12500 C=200000 LAT=40 L=500000: trials 128; exactly one toggle on both outputs 128; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+design      A=12500 C=200000 LAT=2000 L=500000: trials 32; exactly one toggle on both outputs 32; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+late        A=12500 C=200000 LAT=2000 L=500000: trials 32; exactly one toggle on both outputs 0; AAF >=2 32; CRF >=2 32; any output >=2 32; any output 0 0
+era_fall    A=12500 C=200000 LAT=2000 L=500000: trials 128; exactly one toggle on both outputs 128; AAF >=2 0; CRF >=2 0; any output >=2 0; any output 0 0
+first_pdu   A=12500 C=200000 LAT=40 L=500000: trials 320; exactly one toggle on both outputs 234; AAF >=2 77; CRF >=2 14; any output >=2 86; any output 0 0
