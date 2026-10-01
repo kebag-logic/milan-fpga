@@ -1,0 +1,47 @@
+page at c5804007630b4ef39b93f725807019f46e700ecd (git show), archive b5-review-evidence
+archive 8e6be4329008137a152f9171638e48a43e549fb7, 355 manifest entries, 24 path_redacted
+page docs/findings/117_AUDIO_CONTINUITY.md: 20 cited SHA-256 values
+  :465 2183d57f0646 = original_sha256 of author-r2/receipts/a-long-reads.u16; path_redacted=true; published blob matches published_sha256 8897abce3930
+  :480 2ac666fb5ff6 not a manifest file hash; quoted in 7 published file(s): author-r2/receipts/a-long-wholerun.json, author-r2/tools/b5_attrib.py, author-r3/receipts/zero_frame_ordinals.txt, author-r3/tools/b5_round3.py ...
+  :481 717141923d15 not a manifest file hash; quoted in 9 published file(s): author-r2/receipts/a-long-reads.json, author-r2/receipts/attribution.txt, author-r2/receipts/derive.txt, author-r2/tools/b5_attrib.py ...
+  :482 f334406790ef not a manifest file hash; quoted in 3 published file(s): author/RAW-ARTIFACTS.json, author/runs/a-long/console.txt, author/runs/a-long/events.jsonl
+  :483 e06fa4602138 not a manifest file hash; quoted in 1 published file(s): author/RAW-ARTIFACTS.json
+  :484 b8cc1f50fc54 not a manifest file hash; quoted in 1 published file(s): author/RAW-ARTIFACTS.json
+  :485 c8d34f62402a not a manifest file hash; quoted in 3 published file(s): author/RAW-ARTIFACTS.json, author/runs/cap-test1/console.txt, author/runs/cap-test1/events.jsonl
+  :486 e23aaf2e9f82 not a manifest file hash; quoted in 3 published file(s): author/RAW-ARTIFACTS.json, author/runs/a-try1/console.txt, author/runs/a-try1/events.jsonl
+  :487 7eabb3761ba1 not a manifest file hash; quoted in 1 published file(s): author/RAW-ARTIFACTS.json
+  :488 b6a92e9724e9 not a manifest file hash; quoted in 10 published file(s): author/runs/a-long/console.txt, author/runs/a-long/events.jsonl, author/runs/a-try1/console.txt, author/runs/a-try1/events.jsonl ...
+  :492 dcc616aea784 = original_sha256 of author/tools/run_a.py; path_redacted=true; published blob matches published_sha256 145f3c107800
+  :493 37e7dd967a4e = original_sha256 of author/tools/grade_a.py; path_redacted=true; published blob matches published_sha256 01fa8216da29
+  :494 4f9e79fce9c3 = original_sha256 of author/tools/b5_tables.py; path_redacted=false; published blob matches published_sha256 4f9e79fce9c3
+  :495 47b7387ae4f9 = original_sha256 of author/tools/b5_ctl.py; path_redacted=false; published blob matches published_sha256 47b7387ae4f9
+  :496 172836966609 = original_sha256 of author/tools/avdecc_ro.py; path_redacted=false; published blob matches published_sha256 172836966609
+  :497 652d6f839b1d = original_sha256 of author/tools/console_read.py; path_redacted=false; published blob matches published_sha256 652d6f839b1d
+  :522 24208ef21e30 not a manifest file hash; quoted in 2 published file(s): author-r2/receipts/records.txt, author/restore/controller-start.txt
+  :529 f1d9b2ba4566 = original_sha256 of author-r2/tools/b5_attrib.py; path_redacted=false; published blob matches published_sha256 f1d9b2ba4566
+  :532 c68ecf7b47b8 = original_sha256 of author-r2/tools/b5_records.py; path_redacted=false; published blob matches published_sha256 c68ecf7b47b8
+  :536 415ef1b0e7d2 = original_sha256 of author-r3/tools/b5_round3.py; path_redacted=false; published blob matches published_sha256 415ef1b0e7d2
+result: PASS (0 problem(s))
+check rc=0
+
+local lane packet originals against original_sha256 (15 path_redacted author/ files):
+  author/HANDOFF.md original_sha256 ef6ab4183b31 published_sha256 e9f2cb1f3e11
+  author/RAW-ARTIFACTS.json original_sha256 7196ed5867b0 published_sha256 f12006b787e8
+  author/gates/gates.txt original_sha256 6606d73d7461 published_sha256 89587ebb5eb2
+  author/restore/host-end.txt original_sha256 ba5e7baf3a7b published_sha256 c25aa9f18275
+  author/restore/host-start.txt original_sha256 9faa8dbcb5f9 published_sha256 a365a8d7fb56
+  author/runs/a-long/console.txt original_sha256 e30097c3c067 published_sha256 effe6d61e51c
+  author/runs/a-long/events.jsonl original_sha256 38bb623564df published_sha256 3d1ace1ed5e3
+  author/runs/cap-test1/console.txt original_sha256 029750e1de86 published_sha256 2dfc434fb753
+  author/runs/cap-test1/events.jsonl original_sha256 2658086c93e4 published_sha256 fe666d01461c
+  author/runs/diag1/console.txt original_sha256 501b7b54cbe1 published_sha256 09a19c428d54
+  author/runs/diag1/events.jsonl original_sha256 d5e7ceb57136 published_sha256 0e6610e8097a
+  author/summary/a-long/summary.json original_sha256 0c49d72309b7 published_sha256 7b96b7deac81
+  author/summary/cap-test1/summary.json original_sha256 f476507824c9 published_sha256 6c47f95a2785
+  author/tools/grade_a.py original_sha256 37e7dd967a4e published_sha256 01fa8216da29
+  author/tools/run_a.py original_sha256 dcc616aea784 published_sha256 145f3c107800
+15 of 15: the local lane packet copy hashes to original_sha256
+
+published masked tools, parse check:
+  author/tools/run_a.py: python parse rc=1 (nonzero: the mask replaced code constants; the copy does not run as published)
+  author/tools/grade_a.py: python parse rc=1 (nonzero: the mask replaced code constants; the copy does not run as published)

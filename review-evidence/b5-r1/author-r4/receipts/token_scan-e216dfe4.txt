@@ -1,0 +1,10 @@
+tool b5_scan.py sha256 866a1aa26336215e75bd4d34ee2c94ea20703bb681119a21ae000277294baaa7 (unchanged from round 4); private literals built in memory from the 8e6be432 mask and local host names; labelled patterns rebuilt in memory and passed on stdin; output is labels and places only
+labelled lists rebuilt in memory: 152 listed spellings in 5 word lists plus a capture-channel pattern; each listed spelling hits a labelled pattern in memory: True
+== ranges c5804007..e216dfe4 (addendum), cf38633a..e216dfe4 (round 4) and e4b771f9..e216dfe4 (whole PR); files: this directory as finally written, before this receipt and MANIFEST.sha256
+patterns: 17 private literals built in memory, 9 labelled patterns; labels: ['account name', 'agent tool or model name', 'capture channel number', 'capture-channel-index', 'capture-channel-layout', 'clock-topology word', 'generic MAC address', 'home directory', 'host name', 'host-iface', 'instrument, switch or peer vendor', 'interface name', 'link type', 'soc-usb-function', 'usb-bus-position']
+positive control in memory: 17 of 17 private literals and 9 of 9 labelled patterns hit their planted line
+HIT clock-topology word: e4b771f9..e216dfe4 added docs/findings/117_AUDIO_CONTINUITY.md:415
+scanned: 50 files, 2097 lines in all
+hits: 1
+scan rc=1
+reading: the one hit is round 1 text (bf9e5d82, by git blame) in the frozen Restore table's DUT synchronization row, the DUT's own gPTP state; it was :414 at c5804007 and is :415 at e216dfe4

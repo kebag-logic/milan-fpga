@@ -1,0 +1,8 @@
+tool b5_scan.py sha256 866a1aa26336215e75bd4d34ee2c94ea20703bb681119a21ae000277294baaa7; private literals built in memory from the 8e6be432 mask and local host names; labelled patterns on stdin; output is labels and places only
+== ranges cf38633a..c5804007 (round 4) and e4b771f9..c5804007 (whole PR); files: this directory as finally written
+patterns: 17 private literals built in memory, 9 labelled patterns; labels: ['account name', 'agent tool or model name', 'capture channel number', 'capture-channel-index', 'capture-channel-layout', 'clock-topology word', 'generic MAC address', 'home directory', 'host name', 'host-iface', 'instrument, switch or peer vendor', 'interface name', 'link type', 'soc-usb-function', 'usb-bus-position']
+positive control in memory: 17 of 17 private literals and 9 of 9 labelled patterns hit their planted line
+HIT clock-topology word: e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b..c5804007630b4ef39b93f725807019f46e700ecd added docs/findings/117_AUDIO_CONTINUITY.md:414
+scanned: 27 files, 1412 lines in all
+hits: 1
+scan rc=1 (1: the one whole-PR hit below, round 1 text)

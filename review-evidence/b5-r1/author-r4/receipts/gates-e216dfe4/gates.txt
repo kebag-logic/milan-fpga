@@ -1,0 +1,16 @@
+head e216dfe4f0cab7b0c7352d7973acb4d33c157f70 cwd $LANES/b5-bench-1001 at 2026-10-01T10:24:13Z; worktree changed paths before the gates: 0
+status before, with ignored: !! scripts/__pycache__/ 
+gate 1 rc=0: md-venv python scripts/docs_check.py
+gate 2 rc=0: md-venv python scripts/check_doc_style.py
+gate 3 rc=0: md-venv python scripts/gen_toc.py --check
+gate 4 rc=0: md-venv python scripts/check_em_dash.py --base e4b771f9
+gate 5 rc=0: md-venv python scripts/check_doc_paths.py
+gate 6 rc=0: python3 scripts/ci_scope.py --selftest
+gate 7 rc=0: python3 scripts/check_baremetal_only.py --check
+gate 8 rc=0: python3 scripts/check_feature_status.py --self-test
+gate 9 rc=0: git diff --check
+gate 10 rc=0: git diff --check e4b771f9 HEAD
+gate 11 rc=0: git diff --check cf38633a HEAD
+gate 12 rc=0: md-venv python scripts/gen_toc.py --verify-anchors
+gate 13 rc=0: git diff --check c5804007 HEAD (extra: the addendum commit)
+status after, with ignored: !! scripts/__pycache__/ 

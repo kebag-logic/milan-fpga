@@ -1,0 +1,5 @@
+restart_distribution: {"below_1s": 30, "count": 30, "max": 0.13578, "mean": 0.031686, "median": 0.027928, "min": 0.026223, "p95": 0.038898}
+cycles: 30 keys: ['after_3s', 'bind_frame', 'capture_stalls_bind_to_first_valid', 'cmd_to_response_ms', 'cycle', 'demonstrated_restart', 'first_valid_frame', 'flowing_before', 'frames_before_first_valid', 'hold_s', 'label', 'last_valid_after_unbind_s', 'offset_ms', 'offset_unc_ms', 'pass_1s', 'restart_from_command_s', 'restart_s', 'status', 'stopped', 'unbind_frame', 'unbind_status', 'valid_frames_in_hold']
+n=30; nearest rank ceil(0.95*n)=29: srt[28]=0.038898 s (grade_a.py rule)
+linear interpolation (numpy default): 0.034357 s
+28th, 29th, 30th sorted: 0.028806 0.038898 0.135780

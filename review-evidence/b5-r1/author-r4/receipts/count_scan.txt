@@ -1,0 +1,40 @@
+tool b5_count_scan.py sha256 03063749f0719688f2b6ca200dcf52b7831e315aab42713355831b1c0a86f19e; counts derived in memory from the local lane packet b5-a472 (restore/census-start.jsonl, restore/peer-descs-2.jsonl) and never written; output is labels and places only
+allowed EUI-64 (the page's DUT entity, DUT stream and three format values): 0200000000010000,020000fffe000001,0205022001006000,0205022002006000,0215022002006000
+
+== scan at e216dfe4: ranges c5804007..e216dfe4 (addendum), cf38633a..e216dfe4 (round 4), e4b771f9..e216dfe4 (whole PR, the whole page); files: this directory as finally written, before this receipt and MANIFEST.sha256
+derived counts built in memory: 9; labels: ['peer-derived count', 'peer index range', 'peer stream ports', 'unlisted EUI-64']; allowed EUI-64: 5
+positive control in memory: 12 of 12 planted lines hit
+HIT peer-derived count: c5804007..e216dfe4 added docs/findings/117_AUDIO_CONTINUITY.md:76
+HIT peer-derived count: cf38633a..e216dfe4 added docs/findings/117_AUDIO_CONTINUITY.md:76
+HIT peer-derived count: e4b771f9..e216dfe4 added docs/findings/117_AUDIO_CONTINUITY.md:76
+HIT peer-derived count: e4b771f9..e216dfe4 added docs/findings/117_AUDIO_CONTINUITY.md:243
+HIT peer-derived count: PR-BODY.md:34
+scanned: 49 files, 2057 lines in all
+hits: 5
+scan rc=1
+reading of each hit (none is a peer count):
+  docs/findings/117_AUDIO_CONTINUITY.md:76 (in all three ranges): the DUT's own stream state count, kept
+  docs/findings/117_AUDIO_CONTINUITY.md:243 and PR-BODY.md:34: a phrase about the capture's reads around a stall: round 3 page text (cf38633a, by git blame) and the PR body's Round 2 section
+
+== power check at c5804007: range e4b771f9..c5804007 (the whole page at the round 4 head); file: the round 3 PR body (b5-a474/PR-BODY.md)
+derived counts built in memory: 9; labels: ['peer-derived count', 'peer index range', 'peer stream ports', 'unlisted EUI-64']; allowed EUI-64: 5
+positive control in memory: 12 of 12 planted lines hit
+HIT peer-derived count: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:76
+HIT peer-derived count: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:242
+HIT peer-derived count: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:374
+HIT peer-derived count: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:394
+HIT peer index range: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:394
+HIT peer-derived count: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:395
+HIT peer stream ports: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:395
+HIT peer stream ports: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:396
+HIT peer-derived count: e4b771f9..c5804007 added docs/findings/117_AUDIO_CONTINUITY.md:409
+HIT peer-derived count: PR-BODY.md:34
+HIT peer-derived count: PR-BODY.md:46
+HIT peer-derived count: PR-BODY.md:57
+HIT peer-derived count: PR-BODY.md:60
+HIT peer index range: PR-BODY.md:60
+HIT peer stream ports: PR-BODY.md:60
+scanned: 1 files, 634 lines in all
+hits: 15
+power check rc=1
+reading: every line the ruling names hits (page :76, :374, :394, :395, :396, :409 at c5804007; PR body :46, :57, :60); the other two hits are the capture-read phrase above (page :242 at c5804007, PR body :34)

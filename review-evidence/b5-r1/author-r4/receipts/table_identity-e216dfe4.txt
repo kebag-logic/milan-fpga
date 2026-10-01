@@ -1,0 +1,75 @@
+note: the removed Restore cell's counts are masked here as <stream-count> and <census-count>, the subject of the stream-count ruling (4 places); every other byte is the tools' and diff's raw output
+tool b5_table_proof.py (round 2 packet b5-a473, published at archive 8e6be432, unchanged) sha256 5eb78c7f6a015a52dbac4d631f0a838b1943fc86536e0f9bc1ab44f313a0c7eb
+
+==== c5804007630b4ef39b93f725807019f46e700ecd -> e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+page docs/findings/117_AUDIO_CONTINUITY.md: c5804007630b4ef39b93f725807019f46e700ecd against e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+tables: 15 at the old revision, 15 at the new
+table  1 (line 21 -> 21, 8 lines, header ['Item', 'Verdict', 'Evidence']...): byte-identical sha256 a335230169b7c635
+table  2 (line 60 -> 60, 10 lines, header ['Identity check', 'Result']...): byte-identical sha256 ec2504e3313d040b
+table  3 (line 86 -> 87, 3 lines, header ['Binding', 'Talker output', 'Listener input']...): byte-identical sha256 d8f28897b75e6b6e
+table  4 (line 90 -> 91, 4 lines, header ['Stream format', 'As found', 'Meaning']...): byte-identical sha256 3534a99bbd80482d
+table  5 (line 143 -> 144, 6 lines, header ['Run', 'Purpose', 'Result']...): byte-identical sha256 28f6694e7b9a8e06
+table  6 (line 157 -> 158, 5 lines, header ['Bind', 'Talker format', 'Listener format read']...): byte-identical sha256 22ec52bf6ca36a60
+table  7 (line 172 -> 173, 4 lines, header ['Stream channel', 'Expected tag', 'Captured words']...): byte-identical sha256 d5af01436365f91f
+table  8 (line 177 -> 178, 3 lines, header ['Frames', 'Valid', 'Torn']...): byte-identical sha256 e8a25144b01a150d
+table  9 (line 191 -> 192, 7 lines, header ['Class', 'Events', 'Frames']...): byte-identical sha256 0c019843233ff3db
+table 10 (line 311 -> 312, 3 lines, header ['Population', 'Count', 'Below 1 s']...): byte-identical sha256 a126beb2ab5fbfba
+table 11 (line 315 -> 316, 3 lines, header ['First ten median, s', 'Last ten median, s', 'Slope, s per cycle']...): byte-identical sha256 ce7ca10e8c837052
+table 12 (line 337 -> 338, 32 lines, header ['Cycle', 'Hold, s', 'Stopped in hold']...): byte-identical sha256 18c1d56496c35bfd
+table 13 (line 407 -> 408, 11 lines, header ['State', 'As left']...): CHANGED sha256 b162f7311ff46aa5 -> b98eb3bbc237af3e
+  row 3: first 2 cells DIFFER ['Stream states, DUT and reference peer', "All <stream-count> unbound; the end census equals the start in <census-count> of <census-count> entries, the other being the DUT's live propagation delay"]; figures of the old row []; missing from the new row: none; new figures []
+table 14 (line 478 -> 479, 11 lines, header ['Artifact', 'Bytes', 'SHA-256']...): byte-identical sha256 10c375c0e23e9e5a
+table 15 (line 490 -> 491, 9 lines, header ['Tool', 'Role', 'SHA-256']...): byte-identical sha256 16e238896dda1c0a
+14 of 15 tables byte-identical; 1 changed
+index docs/findings/README.md: 0 line(s) changed
+proof rc=0
+
+== plain diff of every table line (lines starting with '|'), c5804007 -> e216dfe4
+table lines: 119 old, 119 new
+91c91
+< | Stream states, DUT and reference peer | All <stream-count> unbound; the end census equals the start in <census-count> of <census-count> entries, the other being the DUT's live propagation delay |
+---
+> | Stream states, DUT and reference peer | All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay |
+diff rc=1 (1 = differences shown above)
+
+== docs/findings/README.md, c5804007 -> e216dfe4
+README diff lines: 0
+
+==== cf38633ad9a5bdb05517bedba73ce50965af967b -> e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+page docs/findings/117_AUDIO_CONTINUITY.md: cf38633ad9a5bdb05517bedba73ce50965af967b against e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+tables: 15 at the old revision, 15 at the new
+table  1 (line 21 -> 21, 8 lines, header ['Item', 'Verdict', 'Evidence']...): CHANGED sha256 7529c6ab8c53c0ac -> a335230169b7c635
+  row 8: first 2 cells identical ['#117 audio continuity row', 'FAIL as measured']; figures of the old row ['1.266']; missing from the new row: none; new figures ['108', '2', '59', '72,', '78']
+table  2 (line 60 -> 60, 10 lines, header ['Identity check', 'Result']...): byte-identical sha256 ec2504e3313d040b
+table  3 (line 86 -> 87, 3 lines, header ['Binding', 'Talker output', 'Listener input']...): byte-identical sha256 d8f28897b75e6b6e
+table  4 (line 90 -> 91, 4 lines, header ['Stream format', 'As found', 'Meaning']...): byte-identical sha256 3534a99bbd80482d
+table  5 (line 143 -> 144, 6 lines, header ['Run', 'Purpose', 'Result']...): byte-identical sha256 28f6694e7b9a8e06
+table  6 (line 157 -> 158, 5 lines, header ['Bind', 'Talker format', 'Listener format read']...): byte-identical sha256 22ec52bf6ca36a60
+table  7 (line 172 -> 173, 4 lines, header ['Stream channel', 'Expected tag', 'Captured words']...): byte-identical sha256 d5af01436365f91f
+table  8 (line 177 -> 178, 3 lines, header ['Frames', 'Valid', 'Torn']...): byte-identical sha256 e8a25144b01a150d
+table  9 (line 191 -> 192, 7 lines, header ['Class', 'Events', 'Frames']...): byte-identical sha256 0c019843233ff3db
+table 10 (line 310 -> 312, 3 lines, header ['Population', 'Count', 'Below 1 s']...): byte-identical sha256 a126beb2ab5fbfba
+table 11 (line 314 -> 316, 3 lines, header ['First ten median, s', 'Last ten median, s', 'Slope, s per cycle']...): byte-identical sha256 ce7ca10e8c837052
+table 12 (line 334 -> 338, 32 lines, header ['Cycle', 'Hold, s', 'Stopped in hold']...): byte-identical sha256 18c1d56496c35bfd
+table 13 (line 399 -> 408, 11 lines, header ['State', 'As left']...): CHANGED sha256 b162f7311ff46aa5 -> b98eb3bbc237af3e
+  row 3: first 2 cells DIFFER ['Stream states, DUT and reference peer', "All <stream-count> unbound; the end census equals the start in <census-count> of <census-count> entries, the other being the DUT's live propagation delay"]; figures of the old row []; missing from the new row: none; new figures []
+table 14 (line 458 -> 479, 11 lines, header ['Artifact', 'Bytes', 'SHA-256']...): byte-identical sha256 10c375c0e23e9e5a
+table 15 (line 470 -> 491, 9 lines, header ['Tool', 'Role', 'SHA-256']...): byte-identical sha256 16e238896dda1c0a
+13 of 15 tables byte-identical; 2 changed
+index docs/findings/README.md: 0 line(s) changed
+proof rc=0
+
+== plain diff of every table line (lines starting with '|'), cf38633a -> e216dfe4
+table lines: 119 old, 119 new
+8c8
+< | #117 audio continuity row | FAIL as measured | The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames, and the smaller skips are not attributed, so a clean window was not recorded. |
+---
+> | #117 audio continuity row | FAIL as measured | The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded. |
+91c91
+< | Stream states, DUT and reference peer | All <stream-count> unbound; the end census equals the start in <census-count> of <census-count> entries, the other being the DUT's live propagation delay |
+---
+> | Stream states, DUT and reference peer | All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay |
+diff rc=1 (1 = differences shown above)
+
+== docs/findings/README.md, cf38633a -> e216dfe4
+README diff lines: 0
