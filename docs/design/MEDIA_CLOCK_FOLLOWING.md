@@ -486,8 +486,8 @@ ideal grid at the talker's own rate. The basis:
 
 #### The jump bound
 
-The bound on the spacing of two adjacent picks is 4,096 ns. It is derived the
-way `KL_crf_rx` derives its own (`hdl/ieee1722/crf/KL_crf_rx.sv:279-294`), with
+The spacing of two adjacent picks may stray from 2 ms by at most 4,096 ns. The
+bound is derived the way `KL_crf_rx` derives its own (`hdl/ieee1722/crf/KL_crf_rx.sv:279-294`), with
 the 10.8 term in place of the local-PHC assumption:
 
 - two picks, each up to 1,426 ns off the grid: 2,852 ns;
@@ -548,7 +548,8 @@ LOCKED (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:567-568`).
   `mr`-toggle pulse; and a status word with the lock, the rate validity, the
   followed listener, a history-restart count and the largest
   `|ts_i - ts_0 - i * 125,000|` seen this era. The last two are the bench's
-  measurement of a talker's timestamp regularity.
+  measurement of a talker's timestamp regularity. The largest deviation also
+  holds the talker's rate offset across a group: about 190 ns at 100 ppm.
 
 ### Selection decode and gating
 
@@ -691,7 +692,7 @@ source in holdover reads LOCKED.
 |---|---|---|---|
 | C0 | `~tu`, unchanged | One authority; the rule stands; no counter moves on a servo excursion | Holdover, and a following that never converges, both read LOCKED. The loss shows only in the Stream Input's MEDIA_UNLOCKED (Milan v1.2 Table 5.6) and in the servo status word `MCSRV_STAT` (`0x8F8`). |
 | **C1, recommended** | `~tu`, and either INTERNAL selected or the servo in LOCKED | Counts what Table 5.7 names, "the media clock used in the Clock Domain", while following. Equal to C0 at INTERNAL. | **Reverses the recorded rule while following:** during holdover the wire's `tu` reads 0 while the domain counts UNLOCKED. The counters also move when the servo drops from LOCKED to ACQUIRE on one window outside 2 ppm (`KL_mmcm_drp_servo.sv:567-568`, `:689-694`). Re-qualifying takes four 512 ms windows, so that is at most one pair per about 2.5 s. |
-| C2 | `~tu`, and either INTERNAL selected or the followed measurement locked (8 PDUs in, 100 ms out) | Counts the followed stream's loss and return exactly; never moves on a servo excursion | Reverses the rule the same way. Reads LOCKED while the servo is still acquiring, and when a following never converges. |
+| C2 | `~tu`, and either INTERNAL selected or the reference lock the servo sees: the followed measurement's lock (8 PDUs in, 100 ms out), held low one cycle at a switch | Counts the followed stream's loss and return exactly, and one pair per switch; never moves on a servo excursion | Reverses the rule the same way. Reads LOCKED while the servo is still acquiring, and when a following never converges. |
 | C3, not recommended | Keep one authority by also raising `tu` while a followed source is not locked | One level for both views | Widens `tu` beyond IEEE 1722-2016 4.4.4.7, which is about gPTP discontinuities, and tells every listener of this entity's streams to stop recovering its media clock (4.4.4.7 NOTE) |
 
 **Why C1's reversal is acceptable.** Once the domain can follow a stream, "is
@@ -819,7 +820,7 @@ pass.
 | Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels | Exactly one toggle per output per switch, held 8 PDUs; each output's MEDIA_RESET moves once; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a second toggle on outputs. Separately, the disruption trigger unmasked at a switch: the era-start lock fall requests a second restart. Separately, AAF triggers ungated by the selection: phantom toggles at INTERNAL |
 | Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | AAF lock-fall trigger removed: no toggle |
 | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
-| Same | CLOCK_DOMAIN counters across a holdover, a return and a switch | As D5 rules. Under C1: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again. Under C0: neither moves while `tu` is 0. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | The other option's level: C0 under C1, or C1 under C0 |
+| Same | CLOCK_DOMAIN counters across a holdover, a return and a switch | As D5 rules. Under C1: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again. Under C2: UNLOCKED at the loss and the switch, LOCKED when the reference lock returns (8 PDUs after a return, one cycle after a switch onto a locked CRF stream). Under C0: neither moves while `tu` is 0. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | Another option's level: C0 under C1 or C2, C1 under C0 |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
