@@ -1,0 +1,27 @@
+tb/ucpu/sim_main.cpp at 44a6bb90: check-label literals by ID (count of literal sites)
+     13 "P19a
+      6 "P19b
+      6 "P19c
+      5 "P19d
+      5 "P20a
+      3 "P20b
+      5 "P20c
+      4 "P20d
+      4 "P20e
+      3 "P20f
+      3 "P20g
+      2 "P20h
+first/last line of a "P19x literal: 1087/1152 (GET_AUDIO_MAP section)
+first/last line of a "P20x literal: 1520/1608 (deadline section)
+campaign ucpu named checks:
+45:     "P20c the program's own SUCCESS"),
+49:     "P20e the waiting locate was answered"),
+51:     "run", "P20f header only"),
+53:     "P20a completes: one redirect"),
+55:     "P20d ENTITY_LOCKED kept"),
+literal sites starting "P20a completes: one redirect": 1; starting "P19a completes": 1
+HZ banner and maap_on at head:
+777:  bool maap_on = false;
+9784:    h.maap_on = true;
+11559:    io.maap_on = true;
+0

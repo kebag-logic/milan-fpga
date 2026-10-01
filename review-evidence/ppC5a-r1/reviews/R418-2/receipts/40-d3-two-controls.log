@@ -1,0 +1,15 @@
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "hold_released_at_go", "verdict": "KILLED", "missing": []}
+{"mutant": "dispatch_not_held", "verdict": "KILLED", "missing": []}
+D3 mutations: 2 of 2 KILLED by their named checks; goldens PASS
+head rc=0
+applied dl-kill-tied-off to the scratch export
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "dispatch_not_held", "verdict": "KILLED", "missing": []}
+{"mutant": "hold_released_at_go", "verdict": "KILLED", "missing": []}
+D3 mutations: 2 of 2 KILLED by their named checks; goldens PASS
+tied-off rc=0
+head hold_released_at_go failures=17 D3O6=1
+head dispatch_not_held failures=6 D3O6=1
+tied hold_released_at_go failures=16 D3O6=0
+tied dispatch_not_held failures=5 D3O6=0

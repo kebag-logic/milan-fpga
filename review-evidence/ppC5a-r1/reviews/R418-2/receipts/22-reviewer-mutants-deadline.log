@@ -1,0 +1,22 @@
+control deadline: rc=0 failures=0 PASS
+r-fault-echo-alloc-removed [deadline] (the A_ALLOC fault rebuild loses the non-AEM echo (A_WR keeps it)): rc=1 failures=2 named=2 KILLED
+    FAIL: DL8 a response-memory write error: GET_MILAN_INFO answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 10, 60 bytes)
+    FAIL: DL8 a tied-off response memory: GET_MILAN_INFO answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 10, 60 bytes)
+r-fault-echo-wr-removed [deadline] (the A_WR fault rebuild loses the non-AEM echo (A_ALLOC keeps it)): rc=1 failures=2 named=2 KILLED
+    FAIL: DL8 a response-memory read error: GET_MILAN_INFO answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 10, 60 bytes)
+    FAIL: DL8 a read error under a 540-byte command: GET_MILAN_INFO answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 10, 60 bytes)
+r-fault-echo-len-60 [deadline] (both fault rebuilds keep the 60-byte header length, truncating a long echo): rc=1 failures=1 named=1 KILLED
+    FAIL: DL8 a read error under a 540-byte command: GET_MILAN_INFO answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 1, 60 bytes)
+r-st-echo-bucket-only [deadline] (the echo guard reads the validator bucket only, so AVC/HDCP/EXTENDED in the AEM bucket get status 10): rc=1 failures=3 named=3 KILLED
+    FAIL: DL9 AVC past its deadline: NOT_IMPLEMENTED with the command echoed, byte-exact, never status 10 (status 10, 60 bytes)
+    FAIL: DL9 HDCP_APM past its deadline: NOT_IMPLEMENTED with the command echoed, byte-exact, never status 10 (status 10, 60 bytes)
+    FAIL: DL9 EXTENDED past its deadline: NOT_IMPLEMENTED with the command echoed, byte-exact, never status 10 (status 10, 60 bytes)
+r-registry-and-lock-preempted [deadline] (both registry-face exemptions removed together): rc=1 failures=4 named=4 KILLED
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY: the lock it answered for is held
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION: the registration took effect, another controller's SET_NAME is pushed to it
+r-kill-not-gated-by-owner [deadline] (the kill stays raised after the AECP hold has ended (stale id and deadline)): rc=1 failures=3 named=3 KILLED
+    FAIL: DL1: the kill rose at the T-BUDGET-AECP-WC deadline, -60 clocks after reception
+    FAIL: DL1: the key stayed held from the expiry to the forced response's hand-off (67 clocks free) and was free after it (0)
+    FAIL: DL2: premise: the deadline passed while the SET_NAME was in flight (kill at -110, response at 18969)

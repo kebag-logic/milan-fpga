@@ -1,0 +1,30 @@
+## port/parameter lines changed under hdl/, base 0451d83d -> head
++    input  wire                dl_kill_i,
++    output logic               dl_queued_o,
++      .preempt_i          (ucpu_preempt_w),
++      .preempt_upc_i      (UPC_DLKILL_C),
++      .preempted_o        (ucpu_pre_w),
++    input  wire         preempt_i,
++    input  wire  [10:0] preempt_upc_i,
++    output logic        preempted_o,
+-      .kill_valid_i       (1'b0),
+-      .kill_id_i          (3'd0),
+-      .kill_resp_queued_i (1'b0),
+-      .kill_ack_o         (sb_kill_ack_nc_w),
++      .kill_valid_i       (aecp_dl_kill_w),
++      .kill_id_i          (aecp_sb_id_r),
++      .kill_resp_queued_i (aecp_dl_queued_w),
++      .kill_ack_o         (sb_kill_ack_w),
++                                         input logic [15:0] ix);
++      .dl_kill_i          (aecp_dl_kill_w),
++      .dl_queued_o        (aecp_dl_queued_w),
+## same, round 2 only (f963fe9a -> head)
+## top-level module header (ports/params) diff base->head, lines 1-470
+top port/parameter declarations identical
+## files added/renamed under hdl/
+M	hdl/aecp/KL_aecp_engine.sv
+M	hdl/aecp/KL_aecp_ucpu.sv
+M	hdl/aecp/ucode/gen_ucode.py
+M	hdl/top/protocol_processor_top.sv
+## gitlinks in head tree
+0

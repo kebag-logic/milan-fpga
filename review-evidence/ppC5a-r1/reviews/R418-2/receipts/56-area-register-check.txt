@@ -1,0 +1,10 @@
+Structural check of the area record's register explanation (syn/ooc/README.md at 44a6bb90); Vivado itself was not run by this reviewer
+KL_pp_scoreboard hold table: MAX_HOLDS_P at the top = KL_pp_scoreboard #(.MAX_HOLDS_P(8))
+162:  logic [MAX_HOLDS_P-1:0] valid_r;
+163:  logic [3:0]             cls_r [0:MAX_HOLDS_P-1];
+164:  logic [15:0]            key_r [0:MAX_HOLDS_P-1];
+165:  logic                   barrier_pend_r;
+8 x (4 + 16) + 8 + 1 = 169 registers when class and key are live, the README's head figure for u_scoreboard (169)
+base stub (0451d83d): class drawn from {RO_SNAPSHOT 0, STREAM_CFG 2, MAP_CFG 3} and key from the protocol number, so most of those bits were constant there
+top: +33 = 32-bit aecp_dl_r + 1-bit aecp_boot_held_r (3608:  logic [31:0] aecp_dl_r; 3609:  logic        aecp_boot_held_r; )
+sum of the named deltas: scoreboard +96, dispatch +23, normalizer +18, top +33, u_ucpu +3 = 173 of the +174 total

@@ -1,0 +1,15 @@
+r-registry-lock-preempted [pp_top deadline]: rc=2 failures=4 KILLED
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY: the lock it answered for is held
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION: the registration took effect, another controller's SET_NAME is pushed to it
+r-registry-lock-preempted [ucpu run]: rc=0 failures=0 SURVIVED
+r-effects-short [pp_top deadline]: rc=0 failures=0 SURVIVED
+r-effects-short [ucpu run]: rc=0 failures=0 SURVIVED
+r-kill-ack-keeps-owner [pp_top deadline]: rc=2 failures=2 KILLED
+    FAIL: DL1: the honoured kill ended the AECP owner, so the RX-slot return after it released no hold id again (1 stray releases)
+    FAIL: DL11: across the section every normal release named a live hold (19 named a free one)
+r-queued-counts-unsolicited [pp_top deadline]: rc=0 failures=0 SURVIVED
+r-kill-latched-unsolicited [pp_top deadline]: rc=0 failures=0 SURVIVED
+r-mvu-no-echo [pp_top deadline]: rc=2 failures=1 KILLED
+    FAIL: DL3: the queued GET_MILAN_INFO past its deadline answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 1, 60 bytes)

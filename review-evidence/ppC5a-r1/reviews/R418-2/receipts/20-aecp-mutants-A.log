@@ -1,0 +1,76 @@
+Verilator 5.050 2026-07-01 rev v5.050
+control pp_top d3: rc=0 PASS
+control pp_top deadline: rc=0 PASS
+control ucpu run: rc=0 PASS
+dl-kill-tied-off: rc=2 failures=28 named=1 KILLED
+    FAIL: DL1: the stalled GET_COUNTERS is answered ENTITY_MISBEHAVING, header only, byte-exact (status 0, 174 bytes)
+    FAIL: DL1: the forced response's first byte 33505 clocks after reception, after the deadline and inside T-AECP-RESP (24000)
+    FAIL: DL1: the program stopped at an op boundary: 33 of 33 quadlets asked
+    FAIL: DL1: the µCPU was redirected once (0)
+    FAIL: DL1: the scoreboard honoured the kill once, in the clock the forced response was queued (0 kills, 1 queued)
+    FAIL: DL1: the key stayed held from the expiry to the forced response's hand-off (0 clocks free) and was free after it (1)
+    FAIL: DL3: the stall ahead of it is answered by the forced response (status 0)
+    FAIL: DL3: the queued GET_MILAN_INFO past its deadline answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 0, 60 bytes)
+    FAIL: DL3: its first byte 33624 clocks after its own reception: past T-BUDGET-AECP-WC and inside T-AECP-RESP
+    FAIL: DL3: the stall's answer inside T-AECP-RESP too (33505)
+    FAIL: DL3: both preempted, both keys released at their responses (0 redirects, 0 kills)
+    FAIL: DL4: the batch past its deadline is voided: ENTITY_MISBEHAVING, empty, byte-exact (status -1, 0 bytes)
+    FAIL: DL4: its first byte -89025 clocks after reception, after the deadline and inside T-AECP-RESP
+    FAIL: DL4: the key released at the response
+    FAIL: DL5: the stall is answered and the response frame is not (0 bytes)
+    FAIL: DL5: the frame was dropped, one kill honoured, every hold free (drops 1, kills 0, holds 00)
+    FAIL: DL9 ADDRESS_ACCESS: premise: the stall ahead is forced and the queued command preempted too (0 redirects)
+    FAIL: DL9 ADDRESS_ACCESS: its first byte 33618 clocks after its reception: past T-BUDGET-AECP-WC and inside T-AECP-RESP
+    FAIL: DL9 AVC: premise: the stall ahead is forced and the queued command preempted too (0 redirects)
+    FAIL: DL9 AVC: its first byte 33618 clocks after its reception: past T-BUDGET-AECP-WC and inside T-AECP-RESP
+    FAIL: DL9 HDCP_APM: premise: the stall ahead is forced and the queued command preempted too (0 redirects)
+    FAIL: DL9 HDCP_APM: its first byte 33618 clocks after its reception: past T-BUDGET-AECP-WC and inside T-AECP-RESP
+    FAIL: DL9 EXTENDED: premise: the stall ahead is forced and the queued command preempted too (0 redirects)
+    FAIL: DL9 EXTENDED: its first byte 33618 clocks after its reception: past T-BUDGET-AECP-WC and inside T-AECP-RESP
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION: premise: the stall ahead is forced and the command is answered past its own deadline (33618 clocks)
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 0, 0 redirects)
+    FAIL: DL10 LOCK_ENTITY: premise: the stall ahead is forced and the command is answered past its own deadline (33630 clocks)
+    FAIL: DL10 LOCK_ENTITY past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 0, 0 redirects)
+dl-released-before-queued: rc=2 failures=3 named=1 KILLED
+    FAIL: DL1: the scoreboard honoured the kill once, in the clock the forced response was queued (1 kills, 1 queued)
+    FAIL: DL1: the key stayed held from the expiry to the forced response's hand-off (3410 clocks free) and was free after it (0)
+    FAIL: DL5: the frame was dropped, one kill honoured, every hold free (drops 1, kills 2, holds 00)
+dl-armed-at-admission: rc=2 failures=6 named=1 KILLED
+    FAIL: DL3: the queued GET_MILAN_INFO past its deadline answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 0, 60 bytes)
+    FAIL: DL3: both preempted, both keys released at their responses (1 redirects, 1 kills)
+    FAIL: DL9 ADDRESS_ACCESS: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+    FAIL: DL9 AVC: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+    FAIL: DL9 HDCP_APM: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+    FAIL: DL9 EXTENDED: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+dl-boot-hold-not-exempt: rc=2 failures=1 named=1 KILLED
+    FAIL: D3O6: at the terminal the held command is answered byte-exact, 5 dropped and counted, 0 of them answered
+dl-gdi-runs-on: rc=2 failures=4 named=1 KILLED
+    FAIL: DL4: the batch past its deadline is voided: ENTITY_MISBEHAVING, empty, byte-exact (status -1, 0 bytes)
+    FAIL: DL4: its first byte -48532 clocks after reception, after the deadline and inside T-AECP-RESP
+    FAIL: DL4: the key released at the response
+    FAIL: DL5: the frame was dropped, one kill honoured, every hold free (drops 1, kills 2, holds 00)
+dl-edit-preempted: rc=2 failures=6 named=1 KILLED
+    FAIL: DL6: the edit answers its own SUCCESS, byte-exact (status 10)
+    FAIL: DL6: both records committed, the µCPU never redirected (0 rows, 1 redirects)
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY: the lock it answered for is held
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION: the registration took effect, another controller's SET_NAME is pushed to it
+dl-registry-preempted: rc=2 failures=2 named=1 KILLED
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION: the registration took effect, another controller's SET_NAME is pushed to it
+dl-lock-preempted: rc=2 failures=2 named=1 KILLED
+    FAIL: DL10 LOCK_ENTITY past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY: the lock it answered for is held
+dl-kill-ack-keeps-owner: rc=2 failures=2 named=1 KILLED
+    FAIL: DL1: the honoured kill ended the AECP owner, so the RX-slot return after it released no hold id again (1 stray releases)
+    FAIL: DL11: across the section every normal release named a live hold (19 named a free one)
+dl-preempt-after-effect: rc=2 failures=4 named=1 KILLED
+    FAIL: P20c the program's own SUCCESS carrying the rate: status 10 len 12
+    FAIL: P20c every effect exactly once, no partial commit: 1 writes, 1 commits, 1 marks, 0 notifies
+    FAIL: P20c never redirected after an effect
+    FAIL: P20d ENTITY_LOCKED kept, header only: status 10 len 12
+dl-preempt-after-effect-top: rc=2 failures=2 named=1 KILLED
+    FAIL: DL2: past its NAME_WR the SET_NAME answers its own SUCCESS, byte-exact (status 10)
+    FAIL: DL2: the µCPU was never redirected (1)
+14 checks: 14 PASS, 0 FAIL

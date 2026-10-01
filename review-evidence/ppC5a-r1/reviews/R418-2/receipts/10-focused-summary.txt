@@ -1,0 +1,12 @@
+Focused runs at exact head 44a6bb9082d31dbf933087ef007ad78a110e7053, from a git-archive export, pinned simulator 5.050, C++ build capped at -j 8
+10-ucpu-run: 415 checks: 415 PASS, 0 FAIL 0 FAIL lines
+11-pp_top-all: 8240 checks: 8240 PASS, 0 FAIL 0 FAIL lines
+12-pp_top-gsi-build:  0 FAIL lines
+13-pp_top-deadline: [build default, SRP_DOM_DEF_VID_P 0x0002] 64 checks, 0 failures 0 FAIL lines
+14-pp_top-hazards: [build default, SRP_DOM_DEF_VID_P 0x0002] 176 checks, 0 failures 0 FAIL lines
+15-pp_top-d3: [build default, SRP_DOM_DEF_VID_P 0x0002] 133 checks, 0 failures 0 FAIL lines
+16-pp_top-budget: [build timebase, SRP_DOM_DEF_VID_P 0x0002] 56 checks, 0 failures 0 FAIL lines
+DL timings:  [DL1] kill 9943 clocks after reception, forced response's first byte at 13354 (budget 10000, T-AECP-RESP 24000); [DL2] kill 9919 clocks after reception, the SET_NAME's own response at 18969; [DL3] the stall answered at 13354, the queued GET_MILAN_INFO at 13396 clocks after its reception; [DL4] the voided batch answered 12085 clocks after reception; [DL6] kill 9929 clocks after reception, the edit's own response at 12225;
+TB worst AECP case:  [TB] TB3 GET_DYNAMIC_INFO with all thirteen getters behind a 15-frame fan-out, at 143 24681 clocks 0.1028 % of T-AECP-RESP;
+author campaign (aecp_mutants.py, 4 chunks): controls 8 PASS lines (5 distinct suite/target pairs), arms KILLED 55, UNPROVEN 0; per-arm counts vs README: receipts/21
+reviewer arms: 10 KILLED of 10

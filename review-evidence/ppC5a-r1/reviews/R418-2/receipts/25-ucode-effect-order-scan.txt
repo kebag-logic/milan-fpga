@@ -1,0 +1,15 @@
+hdl/aecp/ucode/gen_ucode.py at 44a6bb90: per place()d program (and the set_name list placed as E_SNAME),
+the effect ops in textual order; the question is whether a WRITE_ST or NAME_WR precedes every COMMIT/NVM_MARK/NOTIFY_ENQ
+E_SETSR: first effect WRITE_ST (line 484) -> WRITE_ST/NAME_WR first; WRITE_ST COMMIT NVM_MARK NOTIFY_ENQ
+E_NAME: first effect NAME_WR (line 502) -> WRITE_ST/NAME_WR first; NAME_WR
+E_FMT: first effect WRITE_ST (line 561) -> WRITE_ST/NAME_WR first; WRITE_ST WRITE_ST WRITE_ST
+E_SCLKS: first effect WRITE_ST (line 1453) -> WRITE_ST/NAME_WR first; WRITE_ST NVM_MARK NOTIFY_ENQ
+E_SCTRL: first effect WRITE_ST (line 1614) -> WRITE_ST/NAME_WR first; WRITE_ST NOTIFY_ENQ
+E_SCFG: first effect WRITE_ST (line 1692) -> WRITE_ST/NAME_WR first; WRITE_ST NVM_MARK NOTIFY_ENQ
+E_AMADD: first effect COMMIT (line 1805) -> COMMIT-class first; COMMIT NVM_MARK NOTIFY_ENQ
+E_STRMBAD: first effect WRITE_ST (line 1942) -> WRITE_ST/NAME_WR first; WRITE_ST NVM_MARK NOTIFY_ENQ
+E_SINFO: first effect WRITE_ST (line 2019) -> WRITE_ST/NAME_WR first; WRITE_ST NVM_MARK NOTIFY_ENQ
+E_SNAME (set_name list): first effect NAME_WR (line 2103) -> WRITE_ST/NAME_WR first; NAME_WR COMMIT NVM_MARK NOTIFY_ENQ
+E_SNAME's COMMIT follows its NAME_WR loop and is branched over when no lane changed (BR_STATUS to E_SNAME+len+5).
+E_SETSR is straight-line: CHECK_LOCK, DESC_ADDR, BR_STATUS, MOVE, MOVE, CHECK_ARG, WRITE_ST, COMMIT, ...
+E_AMADD (and E_AMREMOVE, which branches into it) is never preempted: amap_edit_r in ucpu_preempt_w, KL_aecp_engine.sv:1719-1720.

@@ -1,0 +1,27 @@
+  [R418-PB] SET_NAME STREAM_INPUT 1: answered status 0, 110 bytes
+FAIL: HZ premise: the ACMP command (message 4) is admitted and held behind the stalled MAC
+FAIL: R418-PB NAME_WR SET_NAME STREAM_OUTPUT 1 vs held GET_TX_STATE source 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+  [R418-PB] SET_NAME STREAM_OUTPUT 1: answered status 0
+  [R418-PB] SET_SAMPLING_RATE(STREAM_INPUT 1): answered status 11
+  [R418-PB] SET_CONTROL(STREAM_INPUT 1): answered status 11
+  [R418-PB] REGISTER beside the held read: answered status 0
+  [R418-PC] idle, GET_TX_STATE: frame first byte at 0, admitted at 86, hold ended at 89, key held 3 clocks
+  [R418-PC] idle, DISCONNECT_TX: frame first byte at 0, admitted at 86, hold ended at 102, key held 16 clocks
+  [R418-PC] idle, GET_TX_CONNECTION: frame first byte at 0, admitted at 86, hold ended at 102, key held 16 clocks
+  [R418-PC] idle, PROBE_TX: frame first byte at 0, admitted at 86, hold ended at 102, key held 16 clocks
+  [R418-PC] idle, GET_RX_STATE (listener control): frame first byte at 0, admitted at 86, hold ended at 176, key held 90 clocks
+  [R418-PC] idle, UNBIND_RX (listener control): frame first byte at 0, admitted at 86, hold ended at 189, key held 103 clocks
+  [R418-PC] TX pool filled, GET_TX_STATE: frame first byte at 0, admitted at 86, hold ended at 89, key held 3 clocks
+  [R418-PC] TX pool filled, DISCONNECT_TX: frame first byte at 0, admitted at 86, hold ended at 102, key held 16 clocks
+  [R418-PC] TX pool filled, GET_TX_CONNECTION: frame first byte at 0, admitted at 86, hold ended at 102, key held 16 clocks
+  [R418-PC] TX pool filled, PROBE_TX: frame first byte at 0, admitted at 86, hold ended at 102, key held 16 clocks
+  [R418-PC] TX pool filled, GET_RX_STATE (listener control): frame first byte at 0, admitted at 86, hold ended at -1, key held -1 clocks
+  [R418-PC] TX pool filled, UNBIND_RX (listener control): frame first byte at 0, admitted at 86, hold ended at -1, key held -1 clocks
+  [R418-PD] GET_TX_STATE source 1 then SET_NAME STREAM_OUTPUT 1, gap 0: ACMP admitted at 86, its hold ended at 89; SET_NAME first byte at 74, admitted at 190, refused 0 clocks, answered status 0
+  [R418-PD] GET_TX_STATE source 1 then SET_NAME STREAM_OUTPUT 1, gap 16: ACMP admitted at 86, its hold ended at 89; SET_NAME first byte at 90, admitted at 206, refused 0 clocks, answered status 0
+  [R418-PD] GET_TX_STATE source 1 then SET_NAME STREAM_OUTPUT 1, gap 64: ACMP admitted at 86, its hold ended at 89; SET_NAME first byte at 138, admitted at 254, refused 0 clocks, answered status 0
+  [R418-PD] GET_RX_STATE sink 1 then SET_NAME STREAM_INPUT 1, gap 0: ACMP admitted at 86, its hold ended at 176; SET_NAME first byte at 74, admitted at 190, refused 0 clocks, answered status 0
+  [R418-PD] GET_RX_STATE sink 1 then SET_NAME STREAM_INPUT 1, gap 16: ACMP admitted at 86, its hold ended at 176; SET_NAME first byte at 90, admitted at 206, refused 0 clocks, answered status 0
+  [R418-PD] GET_RX_STATE sink 1 then SET_NAME STREAM_INPUT 1, gap 64: ACMP admitted at 86, its hold ended at 176; SET_NAME first byte at 138, admitted at 254, refused 0 clocks, answered status 0
+HZ: 190 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 190 checks, 2 failures
