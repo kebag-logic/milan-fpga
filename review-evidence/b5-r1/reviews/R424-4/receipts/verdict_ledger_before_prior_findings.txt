@@ -1,0 +1,20 @@
+[R424] verdict and ledger written 2026-10-01T10:47:57Z, before any prior review report or finding text was read.
+Exact head e216dfe4f0cab7b0c7352d7973acb4d33c157f70, tree 15e18903484842dcb6302159b9f9f1f27d8fc3ed.
+Verdict: NEGATIVE, on one MINOR (F1, lenses Docs and Tests).
+
+F1 MINOR Docs, Tests - docs/findings/117_AUDIO_CONTINUITY.md:511-513 (and PR body Round 4 item 1):
+  the page says b5_attrib.py and b5_round3.py read the masked a-long events.jsonl and still reproduce;
+  in the published reproduction neither figures command opens events.jsonl (receipts/tool_inputs_strace.txt),
+  and deleting it leaves both outputs byte-identical (receipts/mutation_probe.txt).
+S1 SUGGESTION Docs - page header :6-13 names rounds 1 to 3 but no round 4 executor or assignment.
+S2 SUGGESTION Docs, Robustness - archive residuals the page links into (manager-owned): pinned tree still
+  carries the peer stream counts in earlier-round packet files; pre-mask history is reachable; a history
+  rewrite would orphan the page's pin. Decide before merge.
+
+Ledger:
+lens        | state   | covering round | head
+Conformance | CLEAN   | R424-4         | e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+RTL         | CLEAN   | R424-4         | e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+Robustness  | CLEAN   | R424-4         | e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+Tests       | UNCLEAN | R424-4 (F1)    | e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+Docs        | UNCLEAN | R424-4 (F1)    | e216dfe4f0cab7b0c7352d7973acb4d33c157f70

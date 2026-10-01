@@ -1,0 +1,313 @@
+archive tip cae94a6b1ef8e8b38e538976d45a76bb36dd085f; mask 8e6be432 over ef3a7091; page head e216dfe4f0cab7b0c7352d7973acb4d33c157f70
+derived mask labels: capture-channel-count (1 value(s)), capture-channel-index (3 value(s)), capture-channel-layout (1 value(s)), host-iface (1 value(s)), n (1 value(s)), peer-channel-map (4 value(s)), soc-usb-function (1 value(s)), usb-bus-position (2 value(s))
+labelled lines not paired by the generic derivation: 5 (peer map handled by phrase)
+derived peer stream-count values: 7 (from the round 3 page)
+patterns: 41; planted controls hit: 41 of 41
+targets: added-lines 1, archive 405, commits 1, index 1, page 1, pr-body 1 (archive: every text file under review-evidence/b5-r1 at the tip)
+
+hits by family, class and target (absent = 0):
+  DERIVED  mask:peer-channel-map                    archive      2
+  DERIVED  peer-stream-count                        archive      33
+  DERIVED  peer-stream-count                        pr-body      2
+  GENERIC  clock-topology                           added-lines  1
+  GENERIC  clock-topology                           archive      61
+  GENERIC  clock-topology                           page         1
+  GENERIC  host-name                                archive      1
+  GENERIC  interface-name                           archive      1
+  GENERIC  link-type                                archive      1
+  GENERIC  peer-stream-count-generic                added-lines  4
+  GENERIC  peer-stream-count-generic                archive      163
+  GENERIC  peer-stream-count-generic                commits      1
+  GENERIC  peer-stream-count-generic                page         4
+  GENERIC  peer-stream-count-generic                pr-body      6
+  GENERIC  wiring                                   archive      6
+classes with 0 hits on every target: 21 of 29
+
+hit detail:
+  DERIVED mask:peer-channel-map archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:35
+  DERIVED mask:peer-channel-map archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:37
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/REVIEW-READY.md:53
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/REVIEW-READY.readback.md:53
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R424-1/REPORT.md:67
+  DERIVED peer-stream-count pr-body PR #628 body (live):88
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r4/HANDOFF.md:108
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r4/PR-BODY.md:88
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r4/REVIEW-READY.md:23
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r4/REVIEW-READY.readback.md:23
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r4/receipts/raw_index_check.txt:2
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R424-1/REPORT.md:64
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:35
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:37
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:44
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:35
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/REVIEW-READY.md:53
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/REVIEW-READY.readback.md:53
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R424-1/REPORT.md:66
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:52
+  DERIVED peer-stream-count pr-body PR #628 body (live):111
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r2/PR-BODY.md:54
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r3/PR-BODY.md:79
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r4/PR-BODY.md:111
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/REVIEW-READY.md:53
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/REVIEW-READY.readback.md:53
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author/restore/census-compare.txt:1
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R424-1/REPORT.md:66
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:52
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r2/PR-BODY.md:46
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r2/REVIEW-READY.md:28
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r2/REVIEW-READY.readback.md:28
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r3/PR-BODY.md:46
+  DERIVED peer-stream-count archive review-evidence/b5-r1/author-r3/PR-BODY.md:57
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:59
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R424-3/REPORT.md:60
+  DERIVED peer-stream-count archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:47
+  GENERIC interface-name archive review-evidence/b5-r1/author/restore/host-start.txt:11
+  GENERIC link-type archive review-evidence/b5-r1/reviews/R425-2/tools/r425_public_scan.py:14
+  GENERIC host-name archive review-evidence/b5-r1/reviews/R425-2/tools/r425_public_scan.py:12
+  GENERIC wiring archive review-evidence/b5-r1/reviews/R425-2/receipts/public_scan.txt:10
+  GENERIC wiring archive review-evidence/b5-r1/reviews/R425-2/receipts/public_scan.txt:31
+  GENERIC wiring archive review-evidence/b5-r1/reviews/R425-2/receipts/public_scan.txt:52
+  GENERIC wiring archive review-evidence/b5-r1/reviews/R425-2/receipts/public_scan.txt:63
+  GENERIC wiring archive review-evidence/b5-r1/reviews/R425-2/tools/r425_public_scan.py:14
+  GENERIC wiring archive review-evidence/b5-r1/reviews/R425-2/tools/r425_public_scan.py:17
+  GENERIC clock-topology page docs/findings/117_AUDIO_CONTINUITY.md@e216dfe4:415: | DUT synchronization | SYNC=1, ASCAPABLE=1, TU=0, grandmaster unchanged; UART grader 10 of 10 |
+  GENERIC clock-topology added-lines added lines e4b771f9..e216dfe4:415: | DUT synchronization | SYNC=1, ASCAPABLE=1, TU=0, grandmaster unchanged; UART grader 10 of 10 |
+  GENERIC clock-topology archive review-evidence/b5-r1/author/identity/adp-discover.jsonl:3
+  GENERIC clock-topology archive review-evidence/b5-r1/author/identity/adp-discover.jsonl:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/identity/console-identity.stdout:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/identity/console-identity.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/identity/grader-identity.txt:5
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:10
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:23
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:30
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:37
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:52
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:61
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:72
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:95
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:102
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:117
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:184
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:191
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:198
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:205
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:212
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:219
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:236
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:243
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:269
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:296
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:303
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:310
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:317
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:324
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:331
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:348
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:355
+  GENERIC clock-topology archive review-evidence/b5-r1/author/redaction.json:362
+  GENERIC clock-topology archive review-evidence/b5-r1/author/restore/census-compare.txt:2
+  GENERIC clock-topology archive review-evidence/b5-r1/author/restore/census-end.jsonl:9
+  GENERIC clock-topology archive review-evidence/b5-r1/author/restore/census-start.jsonl:9
+  GENERIC clock-topology archive review-evidence/b5-r1/author/restore/dut-end.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/restore/dut-start.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/restore/grader-end.txt:5
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-long/dut-after-cycles.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-long/dut-before-bind.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-long/dut-cont-0.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-long/dut-cont-1.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-long/dut-cont-2.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-long/dut-final.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-try1/dut-before-bind.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/a-try1/dut-final.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/abort-agent-start/dut-final.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/cap-test1/dut-after-cycles.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/cap-test1/dut-before-bind.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/cap-test1/dut-cont-0.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/cap-test1/dut-cont-1.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/cap-test1/dut-cont-2.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/cap-test1/dut-final.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/diag1/dut-before-bind.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/diag1/dut-diag-bound.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/runs/diag1/dut-final.txt:4
+  GENERIC clock-topology archive review-evidence/b5-r1/author/tools/avdecc_ro.py:20
+  GENERIC clock-topology archive review-evidence/b5-r1/author/tools/avdecc_ro.py:159
+  GENERIC clock-topology archive review-evidence/b5-r1/reviews/R424-3/scripts/indep_figures.py:92
+  GENERIC clock-topology archive review-evidence/b5-r1/reviews/R424-3/scripts/indep_figures.py:93
+  GENERIC peer-stream-count-generic page docs/findings/117_AUDIO_CONTINUITY.md@e216dfe4:76: - All 4 DUT stream states and every reference-peer stream state were
+  GENERIC peer-stream-count-generic page docs/findings/117_AUDIO_CONTINUITY.md@e216dfe4:262: - 284 of them, 5,386 frames, fall in the 222 clusters that hold a skip of 60
+  GENERIC peer-stream-count-generic page docs/findings/117_AUDIO_CONTINUITY.md@e216dfe4:266: - The other 237, 1,790 frames, fall in 121 clusters away from any stall. In
+  GENERIC peer-stream-count-generic page docs/findings/117_AUDIO_CONTINUITY.md@e216dfe4:442: are not explained. They concentrate at the 121 clusters away from any
+  GENERIC peer-stream-count-generic pr-body PR #628 body (live):42: - The 284 smaller skips inside stall clusters are consistent with that, in aggregate.
+  GENERIC peer-stream-count-generic pr-body PR #628 body (live):43: - The 237 smaller skips away from any stall, in 121 clusters, never come with a deficit step of their size: 95 clusters stay within 3 frames, 22 step by 1 ms, and 4 match neither.
+  GENERIC peer-stream-count-generic pr-body PR #628 body (live):46: - **Direction B (R425-1 F3).** The reason now states only what was observed. The peer's dynamic map on STREAM_PORT_OUTPUT 0 draws only from the clusters that port owns. Its AUDIO_UNIT declares no external or internal por
+  GENERIC peer-stream-count-generic pr-body PR #628 body (live):57: - **Direction B reason (R425-2 F2, item 1).** The page no longer says the clusters' source is not visible over AEM. It says what was observed: a dynamic map on STREAM_PORT_OUTPUT 0 that draws only from the clusters that 
+  GENERIC peer-stream-count-generic pr-body PR #628 body (live):64: - **Where the 1 ms steps fall (R424-2 S1, R425-2 S1, item 4).** Stated as an observation, without attribution: 22 of the 121 off-stall clusters step by 1 ms, against about 0.26 by chance. The chance figure is 7 one-milli
+  GENERIC peer-stream-count-generic pr-body PR #628 body (live):97: - As found (`:76-77`): every reference-peer stream state was unbound. The DUT's own stream state count is kept.
+  GENERIC peer-stream-count-generic commits messages e4b771f9..e216dfe4:2: State the #117 B5 reference peer's stream states, stream ports and clusters without counts, under the round 4 stream-count ruling
+  GENERIC peer-stream-count-generic added-lines added lines e4b771f9..e216dfe4:76: - All 4 DUT stream states and every reference-peer stream state were
+  GENERIC peer-stream-count-generic added-lines added lines e4b771f9..e216dfe4:262: - 284 of them, 5,386 frames, fall in the 222 clusters that hold a skip of 60
+  GENERIC peer-stream-count-generic added-lines added lines e4b771f9..e216dfe4:266: - The other 237, 1,790 frames, fall in 121 clusters away from any stall. In
+  GENERIC peer-stream-count-generic added-lines added lines e4b771f9..e216dfe4:442: are not explained. They concentrate at the 121 clusters away from any
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/HANDOFF.md:48
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/HANDOFF.md:50
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/HANDOFF.md:65
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/HANDOFF.md:66
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/HANDOFF.md:67
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/PR-BODY.md:42
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/PR-BODY.md:43
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/PR-BODY.md:46
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/REVIEW-READY.md:22
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/REVIEW-READY.md:23
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/REVIEW-READY.md:28
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/REVIEW-READY.readback.md:22
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/REVIEW-READY.readback.md:23
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/REVIEW-READY.readback.md:28
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:28
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:49
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:50
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:51
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:52
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:53
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:54
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution.txt:55
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:11
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:12
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:13
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:14
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:15
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:16
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:27
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:28
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:29
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:30
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:31
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:32
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:43
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:44
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:45
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:46
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:47
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:48
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:59
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:60
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:61
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:62
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:63
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:64
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:75
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:76
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:77
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:78
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:79
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:80
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:91
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:92
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:93
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:94
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:95
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:96
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:107
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:108
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:109
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:110
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:111
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/attribution_sensitivity.txt:112
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/records.txt:22
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/records.txt:23
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/receipts/records.txt:30
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r2/tools/b5_records.py:95
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/HANDOFF.md:29
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/HANDOFF.md:34
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/PR-BODY.md:42
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/PR-BODY.md:43
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/PR-BODY.md:46
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/PR-BODY.md:57
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/PR-BODY.md:64
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/REVIEW-READY.md:24
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/REVIEW-READY.readback.md:24
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/TAKEN.md:9
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/TAKEN.readback.md:9
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/receipts/round3_figures.txt:16
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/receipts/round3_figures.txt:21
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/receipts/round3_figures.txt:49
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/receipts/round3_figures.txt:50
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/tools/b5_round3.py:18
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/tools/b5_round3.py:112
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r3/tools/b5_round3.py:199
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/HANDOFF.md:24
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/HANDOFF.md:28
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/HANDOFF.md:29
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/PR-BODY.md:42
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/PR-BODY.md:43
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/PR-BODY.md:46
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/PR-BODY.md:57
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/PR-BODY.md:64
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/PR-BODY.md:97
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/receipts/count_scan.txt:16
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/receipts/table_identity-e216dfe4.txt:20
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/receipts/table_identity-e216dfe4.txt:55
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/tools/b5_count_scan.py:20
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author-r4/tools/b5_count_scan.py:60
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author/HANDOFF.md:39
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author/REVIEW-READY.md:53
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author/REVIEW-READY.readback.md:53
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/author/tools/b5_ctl.py:145
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-1/REPORT.md:62
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-1/REPORT.md:67
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:36
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:37
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:39
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:59
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:132
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:136
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/REPORT.md:162
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/receipts/rederive.txt:15
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/receipts/rederive.txt:33
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/scripts/rederive.py:10
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-2/scripts/rederive.py:104
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-3/REPORT.md:50
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-3/REPORT.md:60
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-3/peer_walk.txt:18
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-3/peer_walk.txt:19
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R424-3/scripts/indep_figures.py:61
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-1/REPORT.md:35
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:43
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:47
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:52
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:64
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:65
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:66
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/REPORT.md:67
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:32
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:54
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:55
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:56
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:57
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:58
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:59
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_bypass.txt:60
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:28
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:49
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:50
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:51
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:52
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:53
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:54
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/author_figures_on_reconstruction.txt:55
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_published_record.txt:17
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_published_record.txt:18
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_published_record.txt:19
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_published_record.txt:20
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_published_record.txt:21
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_reconstructed_record.txt:17
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_reconstructed_record.txt:18
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_reconstructed_record.txt:19
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_reconstructed_record.txt:20
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/receipts/rederive_reconstructed_record.txt:21
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/tools/r425_rederive.py:66
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-2/tools/r425_rederive.py:101
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-3/REPORT.md:64
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-3/REPORT.md:66
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-3/REPORT.md:72
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-3/receipts/audio_unit_check.txt:3
+  GENERIC peer-stream-count-generic archive review-evidence/b5-r1/reviews/R425-3/receipts/audio_unit_check.txt:4
