@@ -8,6 +8,9 @@ Refs #117. Operator [A472], measured 2026-10-01, under the
 Round 2 [A473], analysis only with no bench access, restates the attributions
 and publishes their analysis under the
 [round 2 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5926598386).
+Round 3 [A474], docs only with no bench access, restates the Direction B
+reason and names exactly which skips each figure covers, under the
+[round 3 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5927406852).
 
 This page measures the audio continuity row of #117 acceptance box 4, end to
 end. The [first-light pattern](451_TDM8_FIRST_LIGHT.md#method) enters the
@@ -19,9 +22,9 @@ records the peer's digital output.
 |---|---|---|
 | Identity gate | PASS | Every readback equals lanes B3 and B4. See [Identity and setup](#identity-and-setup). |
 | Integrity: stream channels 0 and 1 bit-exact at the captured 24 bits, in order | PASS | 31,569,594 of the window's 31,569,600 frames are pattern frames, 0 torn and 0 invalid. The other six are single zero frames. See [Integrity](#integrity). |
-| Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: those of 60 or more are stall-aligned capture-path loss; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
+| Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
 | Restarts: 30 unbind and rebind cycles, rebind to the first valid sample | PASS, 30 of 30 under 1 s | Median 0.0279 s, maximum 0.1358 s; no growth. See [Restarts](#restarts). |
-| Direction B, the peer's talker to the DUT's listener | NOT RUN | No known signal reaches the peer's talker channels without an instrument or wiring change. See [Direction B](#direction-b). |
+| Direction B, the peer's talker to the DUT's listener | NOT RUN | It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b). |
 | #117 audio continuity row | FAIL as measured | The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames, and the smaller skips are not attributed, so a clean window was not recorded. |
 
 These are operator measurements, not review verdicts.
@@ -30,7 +33,10 @@ This page reads the row as follows. Over at least 10 minutes every frame is
 bit-exact and in order. No frame is missing, repeated or silent. The one
 exception is the INTERNAL beat that
 [TIME_SYNC.md](../design/TIME_SYNC.md#talker-capture-handoff) documents: one
-whole-frame repeat every 1.958 s. The restart bound is #75's 1 s.
+whole-frame repeat every 1.958 s. The register map's
+[slip counters](../reference/REGISTER_MAP.md#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture)
+record that beat as the standing free-run rule, slips accepted. The restart
+bound is #75's 1 s.
 
 ## Contents
 
@@ -117,7 +123,9 @@ all 480,000 frames. No other channel carries a pattern word.
 `(1 << 16) | n` and channel 1's is `(2 << 16) | n`, with the same `n`. Every
 captured bit then matches. A frame with both tags right and two ordinals is
 torn. Between consecutive valid frames, the ordinal step is 1 in order, 0 a
-whole-frame repeat, and `d` greater than 1 a skip of `d - 1` frames.
+whole-frame repeat, and `d` greater than 1 a skip of `d - 1` frames. Steps
+are taken modulo 65,536, and one of 32,768 or more is a backward step. In
+order means 0 backward steps.
 
 **Restart timing.** The restart runs from the `CONNECT_RX` response to the first
 frame of the first run of 480 valid frames, 10 ms.
@@ -170,8 +178,9 @@ on the bench host's clock, untouched.
 |---|---|---|---|---|
 | 31,569,600 | 31,569,594 | 0 | 0 | 6 |
 
-Across the whole run, 39,356,186 frames, every non-zero word of channel 0
-carries tag 1 and every one of channel 1 tag 2, with no torn frame. The
+The window has 0 backward steps. Across the whole run, 39,356,186 frames,
+every non-zero word of channel 0 carries tag 1 and every one of channel 1
+tag 2, with no torn frame. The
 3,407,496 zero frames are the silence before the first bind, in the holds and
 after the last unbind, and the window's six. The lane packet `b5-a473` derives
 these counts from the raw pair.
@@ -191,7 +200,11 @@ The window holds 657.7 s of captured audio in 660.15 s on the bench host's
 clock: the capture delivered 117,653 frames fewer than 48 kHz would. Each cause
 below is stated only as strongly as the published analysis carries it. The lane
 packet `b5-a473` holds that analysis: `b5_attrib.py`, the derived read record
-of the window and the receipts that every figure below comes from.
+of the window and the receipts that every figure below comes from. The round 3
+packet `b5-a474` adds `b5_round3.py` and the receipts of the figures round 3
+adds. As published, the read record is gzip-compressed: restore it with
+`gunzip -kf a-long-reads.u16.gz` before running either tool. The steps are
+under [Artifact hashes](#artifact-hashes).
 
 **Repeats: the DUT's INTERNAL beat.** Counted in content frames, the repeats
 fall 93,989 to 93,992 frames apart. That is the 1.958 s beat, one whole-frame
@@ -215,17 +228,26 @@ was.
   than 16 reads apart are taken together, as one cluster.
 - Controls: across the 267 beat repeats and the 419 one-frame skips clear of
   other skips, the floor moves by at most 3.2 frames. A planted loss of 6, 12
-  or 24 frames is recovered within 5. Over the 51,828 read positions clear of
-  skips of two frames or more, it moves by more than 4 frames at 9 places, 7
-  of them by 1 ms, 48 frames, where no frame is missing.
+  or 24 frames is recovered within 5, by construction: the step is linear in
+  a loss, so a plant reads back as the floor's own step there plus the plant.
+  That control checks where the floor windows sit, not the test's power.
+  Over the 51,828 read positions clear of skips of two frames or more, the
+  floor moves by more than 4 frames at 9 places, 7 of them by 1 ms, 48
+  frames, where no frame is missing.
 
-**Skips of 60 frames or more: stall-aligned capture-path loss.**
+**Skips of 60 frames or more: 236 of the 239 are stall-aligned capture-path
+loss.**
 
-- 236 of the 239 fall one or two reads after a stall. Each of the 220 stalls
-  is followed by exactly one skip of 240 frames or more. The other three, 72
-  to 108 frames, fall in read intervals stretched by 1.8 to 2.1 ms.
+- 236 of the 239, 109,670 frames, fall one or two reads after a stall. Each
+  of the 220 stalls is followed by exactly one skip of 240 frames or more.
+- The other three, 258 frames, are not stall-aligned, and the stall
+  attribution does not cover them. One skip of 72 frames falls 34.0 s into
+  the window. Skips of 78 and 108 frames fall on consecutive reads 634.0 s
+  in. Each falls in a read interval stretched by 1.8 to 2.1 ms, against 1.50
+  to 2.25 ms of audio skipped, and the nearest stall is 125 reads or more
+  away.
 - The stalls' excess over the 10 ms period sums to 109,069 frames, against
-  109,928 in those skips.
+  109,670 in the 236 stall-aligned skips. All 239 hold 109,928.
 - The DUT's talker sent 8,000 packets a second throughout, by `AAF_FRAMES`.
   The peer's listener counted no sequence mismatch, late or early timestamp.
 - A 125 ms capture period lost frames at the same rate (`cap-test1`).
@@ -243,6 +265,11 @@ packet-sized drop.
   none of them does the deficit step by the frames skipped. In 95, whose skips
   total 12 to 36 frames each, it stays within 3 frames. In 22 it steps by
   1 ms, and in 4 it matches neither.
+- The 1 ms steps concentrate at these clusters. At the 51,828 clear read
+  positions the floor steps by 1 ms at 7 places. One floor test spans 16
+  reads, so that is 7 in about 3,240 windows, and about 0.26 of the 121
+  clusters would step by 1 ms by chance, against the 22 observed. This is an
+  observation; the page does not attribute it.
 - So the record shows no capture-path loss of their size. They are not
   separated from a packet-sized drop downstream of the peer's receive
   counters, or from a drop at the capture's input.
@@ -253,6 +280,11 @@ packet-sized drop.
 - 514 events are a single one-frame skip.
 - Six take the form skip, zero frame, skip, six frames apart. They are the six
   silent stretches. No other zero frame occurs in the window.
+- The grader leaves the two transitions next to each zero frame ungraded, so
+  round 3 read those ordinals from the graded pair. Each zero frame sits
+  between consecutive ordinals and replaces no pattern frame. Each of these
+  six events drops two frames and inserts one zero frame: one frame fewer in
+  all, like a single skip.
 - Consecutive events fall 60,546 to 60,923 content frames apart, median
   60,768, or 1.266 s. One spacing is two periods, where a capture loss hid an
   event.
@@ -334,21 +366,29 @@ independent errors with constant variance.
 
 ## Direction B
 
-NOT RUN. The reference peer's STREAM_PORT_OUTPUT 0 owns four audio clusters,
-and its dynamic audio map takes the talker's stream channels from those
-clusters only. Its AUDIO_UNIT declares no external or internal port and no
-routing element, so what feeds those clusters is not visible over AEM. A known
-signal on the peer's talker channels would therefore need an instrument or
-wiring change, and this lane allows neither. The external capture was used as
-a capture point only.
+NOT RUN. The lane runs Direction B only if a known signal can drive the
+reference peer's talker channels without a wiring change, and that was not
+established. The peer's STREAM_PORT_OUTPUT 0 owns four audio clusters, and
+its dynamic audio map takes the talker's stream channels from those clusters
+only. Its AUDIO_UNIT declares no external or internal port and no routing
+element. Each AUDIO_CLUSTER descriptor names its cluster's signal source, in
+its `signal_type`, `signal_index` and `signal_output` fields (IEEE 1722.1
+7.2.16). Those descriptors were not read, because the survey walk is
+defective, as the next paragraph records. So whether a known signal can reach
+the peer's talker channels without a wiring change is open. The external
+capture was used as a capture point only.
 
-The survey's walk of the audio unit is defective for reuse. It read the audio
-clusters with descriptor type 0x0010 and the maps with 0x0014. IEEE 1722.1
-Table 7.1, as the repository encodes it in `avdecc/aem_descriptors.py`, gives
-AUDIO_CLUSTER 0x0014 and AUDIO_MAP 0x0017. The walk's external port types are
-each one too high by the same table; with no external port declared, none of
-those reads was sent. Every cluster read asked for EXTERNAL_PORT_INPUT and
-answered NO_SUCH_DESCRIPTOR, so no AUDIO_CLUSTER descriptor was read.
+The survey's walk of the audio unit is defective for reuse. Its code reads
+the audio clusters with descriptor type 0x0010 and the maps with 0x0014.
+IEEE 1722.1 Table 7.1, as the repository encodes it in
+`avdecc/aem_descriptors.py`, gives AUDIO_CLUSTER 0x0014 and AUDIO_MAP 0x0017.
+The walk's external port types are each one too high by the same table. What
+it sent was 20 reads of type 0x0010, EXTERNAL_PORT_INPUT, at indices 0 to 19,
+those of the two stream ports' 20 clusters, each answered NO_SUCH_DESCRIPTOR.
+It sent no map read, because both stream ports declare no static map, and no
+external port read, because the audio unit declares no external port. So no
+AUDIO_CLUSTER or AUDIO_MAP descriptor was read. The dynamic maps above came
+from GET_AUDIO_MAP.
 
 The DUT's STREAM_INPUT 0 lists `0205022002006000` and `0215022002006000`. It
 could therefore take the peer's four-channel talker format under the binding
@@ -372,7 +412,7 @@ The bridge legs run under new process IDs. No other residual remains.
 
 ## Limits
 
-- Skips of two frames or more removed 0.37% of the frames, 0.35% in the
+- Skips of two frames or more removed 0.37% of the frames, 0.35% in the 236
   stall-aligned skips of 60 frames or more. A discontinuity inside a lost
   stretch cannot be seen: four beat repeats and one slip event were hidden
   that way.
@@ -387,7 +427,8 @@ The bridge legs run under new process IDs. No other residual remains.
   Whether a capture path that loses no frames removes them is open.
 - The floor test assumes that a frame lost inside the capture path delays
   every later read. It resolves about 4 frames. The 1 ms steps it also finds
-  are not explained.
+  are not explained. They concentrate at the 121 clusters away from any
+  stall: 22 of them, against about 0.26 by chance.
 - One run, at the DUT's and the peer's INTERNAL clock sources only.
 - Only stream channels 0 and 1 are observed.
 - The restart is timed to the sample's arrival on the bench host, not to the
@@ -402,7 +443,17 @@ identified by size and SHA-256. The round 2 packet `b5-a473` holds the
 analysis tools, their receipts and the window's derived read record:
 131,540 bytes, SHA-256
 `2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961`, derived
-from the `a-long` read times below.
+from the `a-long` read times below. As published, the packet carries that
+record gzip-compressed, as `a-long-reads.u16.gz`. To reproduce the figures:
+
+1. In the round 2 packet's receipts, run `gunzip -kf a-long-reads.u16.gz`.
+   The `-f` replaces the `a-long-reads.u16` published beside it, a copy with
+   three bytes masked by the archive step. Then `sha256sum a-long-reads.u16`
+   must print the hash above.
+2. Run `b5_attrib.py figures` with the lane packet and that receipts
+   directory. Its output equals the round 2 packet's `attribution.txt`.
+3. Run `b5_round3.py figures` from the round 3 packet `b5-a474` with the same
+   two directories. Its output equals that packet's `round3_figures.txt`.
 
 | Artifact | Bytes | SHA-256 |
 |---|---|---|
@@ -444,3 +495,10 @@ derives the window's read record and computes the attribution figures. It
 also adds `b5_records.py`
 (`c68ecf7b47b8bfc7a765b11140bf751b6f90266178dde0448997bdf3a38ac738`), which
 checks the controller revision record and the peer's descriptors.
+
+Round 3 adds `b5_round3.py`
+(`415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d`). It
+computes the figures round 3 adds from the same published inputs: which skips
+the stall alignment covers, the 1 ms steps against clear positions, the
+planted control's linearity and the descriptor reads the survey sent. It also
+reads the ordinals around the window's zero frames from the local graded pair.
