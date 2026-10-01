@@ -73,7 +73,8 @@ readback.
 
 As found:
 
-- All 4 DUT and 14 reference-peer stream states were unbound.
+- All 4 DUT stream states and every reference-peer stream state were
+  unbound.
 - Both DUT audio maps were empty, and the DUT selected clock source 0,
   INTERNAL, at 48 kHz.
 - The reference peer was in configuration 1 at 48 kHz, on its clock source 0,
@@ -371,10 +372,10 @@ It assumes independent errors with constant variance.
 
 NOT RUN. The lane runs Direction B only if a known signal can drive the
 reference peer's talker channels without a wiring change, and that was not
-established. The peer's STREAM_PORT_OUTPUT 0 owns four audio clusters, and
-its dynamic audio map takes the talker's stream channels from those clusters
-only. Its AUDIO_UNIT declares no external or internal port and no routing
-element. Each AUDIO_CLUSTER descriptor records its cluster's signal source in
+established. The peer's dynamic audio map on its STREAM_PORT_OUTPUT 0 takes
+the talker's stream channels only from the audio clusters that port owns. Its
+AUDIO_UNIT declares no external or internal port and no routing element. Each
+AUDIO_CLUSTER descriptor records its cluster's signal source in
 its `signal_type`, `signal_index` and `signal_output` fields (IEEE 1722.1
 7.2.16). That source need not be a physical input. The repository's own
 encoding writes `signal_type` INVALID for a stream input port's cluster and
@@ -391,10 +392,10 @@ the audio clusters with descriptor type 0x0010 and the maps with 0x0014.
 IEEE 1722.1 Table 7.1, as the repository encodes it in
 `avdecc/aem_descriptors.py`, gives AUDIO_CLUSTER 0x0014 and AUDIO_MAP 0x0017.
 The walk's external port types are each one too high by the same table. What
-it sent was 20 reads of type 0x0010, EXTERNAL_PORT_INPUT, at indices 0 to 19,
-those of the two stream ports' 20 clusters, each answered NO_SUCH_DESCRIPTOR.
-It sent no map read, because both stream ports declare no static map, and no
-external port read, because the audio unit declares no external port. So no
+it sent was one read of type 0x0010, EXTERNAL_PORT_INPUT, at the index of
+each cluster the peer's stream ports own, each answered NO_SUCH_DESCRIPTOR. It
+sent no map read, because the peer's stream ports declare no static map, and
+no external port read, because the audio unit declares no external port. So no
 AUDIO_CLUSTER or AUDIO_MAP descriptor was read. The dynamic maps above came
 from GET_AUDIO_MAP.
 
@@ -406,7 +407,7 @@ rule.
 
 | State | As left |
 |---|---|
-| Stream states, DUT and reference peer | All 18 unbound; the end census equals the start in 45 of 46 entries, the other being the DUT's live propagation delay |
+| Stream states, DUT and reference peer | All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay |
 | Reference peer STREAM_INPUT 0 format | `0205022001006000`, as found, read back after every run |
 | DUT audio maps | Both empty, read back |
 | DUT console words | Equal to the start but for live counters (`AAF_FRAMES`, `AAF_PAIRS`, `SLIP_TDM`, `GPTP_PDELAY`, time) |
