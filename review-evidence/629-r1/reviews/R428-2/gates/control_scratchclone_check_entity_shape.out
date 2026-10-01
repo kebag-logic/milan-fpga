@@ -1,0 +1,47 @@
+  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp/Makefile: $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS', 'tb/verilator/milan_dp/Makefile: $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS', 'tb/verilator/milan_dp/Makefile: $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS', 'tb/verilator/milan_dp/Makefile: $(RTL_DIR)/common/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS', 'tb/verilator/milan_dp_render/Makefile: $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh cannot be resolved and is not classified in CLASSIFIED_CONSUMERS'], expected []
+  [ok]   H include resolution is unambiguous = []
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   pp_shadow: exactly one parameter map = 1
+  [ok]   pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C = ['AEM_N_AUDIO_UNIT_C']
+  [ok]   pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C = ['AEM_N_CLKDOM_C']
+  [ok]   pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C = ['AEM_N_CONTROL_C']
+  [ok]   u_pp: exactly one parameter map = 1
+  [ok]   u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P = ['N_AUDIO_UNIT_P']
+  [ok]   u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P = ['N_CLK_DOM_P']
+  [ok]   u_pp.N_CONTROL_P derives from N_CONTROL_P = ['N_CONTROL_P']
+  [ok]   milan_datapath includes the generated shape = True
+  [ok]   ACMP talker contexts sized by ADP_TALKER_SRC_C = True
+  [ok]   ACMP sink contexts sized by ADP_LISTENER_SINK_C = True
+  [ok]   no ADP shape threaded through the milan_csr port map = False
+  [ok]   milan_csr includes the generated shape = True
+  [ok]   0x618 word is built from ADP_TALKER_SRC_C = True
+  [ok]   0x61C word is built from ADP_LISTENER_SINK_C = True
+  [ok]   0x618 has a defaults-ROM arm = True
+  [ok]   0x61C has a defaults-ROM arm = True
+  [ok]   0x618 has NO write arm = False
+  [ok]   0x61C has NO write arm = False
+  [ok]   0x618 is NOT plain-RW = False
+  [ok]   0x61C is NOT plain-RW = False
+Traceback (most recent call last):
+  File "<probe-clone>/scripts/check_entity_shape.py", line 885, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<probe-clone>/scripts/check_entity_shape.py", line 862, in main
+    run()
+    ~~~^^
+  File "<probe-clone>/scripts/check_entity_shape.py", line 845, in run
+    check_config(builder, p)
+    ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "<probe-clone>/scripts/check_entity_shape.py", line 531, in check_config
+    cfg = builder.load_config(path)
+  File "<probe-clone>/sw/builder/endstation_builder.py", line 4354, in load_config
+    gptp = _load_gptp(cfg)
+  File "<probe-clone>/sw/builder/endstation_builder.py", line 4087, in _load_gptp
+    pins = gptp_engine_pins()
+  File "<probe-clone>/sw/builder/endstation_builder.py", line 3584, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "<probe-clone>/sw/builder/endstation_builder.py", line 3524, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
