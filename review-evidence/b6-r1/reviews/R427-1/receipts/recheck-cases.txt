@@ -1,0 +1,108 @@
+===== a0 (A0)
+ causes: {('listener', 'skip'): 519, ('DUT beat', 'repeat'): 321, ('listener', 'insert'): 1, ('capture path', 'skip'): 25}
+ listener drops 519 frames 519 repeats 0 inserts 1 listener sizes Counter({('skip', '1'): 519, ('insert', '1'): 1})
+ beat repeats 321 all 1-frame repeats: True
+ capture events 25 clusters 10 lost 26173 | grade attribution lost 26173
+ multi-frame clusters NOT capture path: []
+ capture-cluster bases: {'read-time rise': 9, 'read gap': 1}
+ clusters lost <= 49 frames (rise test cannot exclude a zero rise): []
+ rise-basis residual ms: n 9 min -0.743 max 0.750 | rises below 1.5 ms: []
+ non-rise-basis capture clusters: [(23486941, [1164], None, 49.908, 'read gap', 0)]
+ clusters with whole loops added: []
+ capture clusters with a step back: []
+ capture skips: 25 48n+12: 24 others: [1165]
+ one-frame events read_jump: n 797 median 0.005 max|.| 1.001 over 1.05 ms: []
+ tone: blocks 629 clean 54 invalid 1 torn 0 events_across_invalid 1 maxdev 0.000541 0.000139
+ blocks by content: {'clean': 54, 'LB': 259, 'L': 247, 'B': 56, 'LBI': 1, 'BC': 2, 'LC': 7, 'LBC': 3}
+ clean-block max |ppm| either tone: 3.1e-07
+ beat comb: {'period_frames': 93990.3852, 'members': 321, 'one_frame_repeats': 321, 'teeth_in_window': 321.7888, 'residual_max': 1.8167, 'slip_tdm_delta': 312, 'slip_tdm_seconds': 610.433, 'slip_tdm_per_s': 0.5111, 'comb_per_s_at_48k': 0.5107}
+ counted ppm 6.519 steps 197 frames 30218880 | timed 6.44 +- 0.72 halves 5.35 / 6.68 | ext reads 62844
+ mcasp board rate 47997.928 playback: {'ratio_ppm': 6.447149519583917, 'ratio_ppm_halfwidth95': 0.7620977734479815, 'error': None}
+ capture reads 62844 stalls>15ms 105 max gap ms 575.929
+ window s 629.56 effective offsets {'all_events': 872.633, 'without_capture_path': 6.519, 'listener_only': 17.142}
+===== a1 (A1)
+ causes: {('DUT beat', 'repeat'): 315, ('capture path', 'skip'): 50, ('capture path', 'repeat'): 1}
+ listener drops 0 frames 0 repeats 0 inserts 0 listener sizes Counter()
+ beat repeats 315 all 1-frame repeats: True
+ capture events 51 clusters 23 lost 615026 | grade attribution lost 615026
+ multi-frame clusters NOT capture path: []
+ capture-cluster bases: {'read-time rise': 21, 'read gap': 2}
+ clusters lost <= 49 frames (rise test cannot exclude a zero rise): []
+ rise-basis residual ms: n 21 min -0.760 max 0.750 | rises below 1.5 ms: [0.991, 0.995, 0.999]
+ non-rise-basis capture clusters: [(12147530, [348, 204, 492, 204], None, 28.861, 'read gap', 0), (18440321, [60], None, 33.452, 'read gap', 0)]
+ clusters with whole loops added: [(22095815, 18626, 12, 594626, 12387.9436)]
+ capture clusters with a step back: [(27131127, [23880, -23880, 204, 108, 60, 156, 156, 60, 108], 17.0041)]
+ capture skips: 50 48n+12: 48 others: [18626, 23880]
+ one-frame events read_jump: n 312 median -0.005 max|.| 0.995 over 1.05 ms: []
+ tone: blocks 617 clean 291 invalid 0 torn 0 events_across_invalid 0 maxdev 0.000195 0.000103
+ blocks by content: {'B': 305, 'clean': 291, 'BC': 10, 'C': 11}
+ clean-block max |ppm| either tone: 1.9e-07
+ beat comb: {'period_frames': 93990.3847, 'members': 315, 'one_frame_repeats': 315, 'teeth_in_window': 321.803, 'residual_max': 1.7538, 'slip_tdm_delta': 312, 'slip_tdm_seconds': 610.461, 'slip_tdm_per_s': 0.5111, 'comb_per_s_at_48k': 0.5107}
+ counted ppm -10.631 steps -315 frames 29631360 | timed -12.19 +- 2.44 halves -13.07 / -14.39 | ext reads 61579
+ mcasp board rate 47997.913 playback: {'ratio_ppm': -12.163782682317326, 'ratio_ppm_halfwidth95': 2.4558419613701403, 'error': None}
+ capture reads 61579 stalls>15ms 232 max gap ms 12707.403
+ window s 617.32 effective offsets {'all_events': 1306.42, 'without_capture_path': -10.631, 'listener_only': 0.0}
+===== a2 (A2)
+ causes: {('listener', 'skip'): 494, ('listener', 'insert'): 180, ('DUT beat', 'repeat'): 316, ('capture path', 'skip'): 140, ('capture path', 'repeat'): 3}
+ listener drops 494 frames 494 repeats 0 inserts 180 listener sizes Counter({('skip', '1'): 494, ('insert', '1'): 180})
+ beat repeats 316 all 1-frame repeats: True
+ capture events 143 clusters 61 lost 686656 | grade attribution lost 686656
+ multi-frame clusters NOT capture path: []
+ capture-cluster bases: {'read-time rise': 54, 'read gap': 5, 'read gap and 48 n + 12 size': 2}
+ clusters lost <= 49 frames (rise test cannot exclude a zero rise): []
+ rise-basis residual ms: n 54 min -2.832 max 0.757 | rises below 1.5 ms: [0.979, 0.982, 0.997, 1.016]
+ non-rise-basis capture clusters: [(4662140, [300], None, 22.197, 'read gap', 0), (5272342, [684], None, 30.674, 'read gap', 0), (7141984, [60], 154.5405, 129.917, 'read gap and 48 n + 12 size', 0), (16155422, [636, 108], None, 38.635, 'read gap', 0), (21408229, [492, 348, 300], None, 45.263, 'read gap', 0), (28155718, [1020], -155.812, 13328.327, 'read gap and 48 n + 12 size', 0), (29230612, [1212, 972, 1020, 588, 204], None, 235.796, 'read gap', 0)]
+ clusters with whole loops added: [(28130434, 7395, 13, 631395, 13151.2302)]
+ capture clusters with a step back: [(6936546, [23689, -23689, 108, 156, 156, 108, 252, 156, 108, 300, 204, 252, 348], 44.9984), (7051601, [1212, 396, 22392, -22392, 204, 252, 109, 108], 47.9898), (16309175, [-23999, 23999, 108, 108, 204], 8.0068)]
+ capture skips: 140 48n+12: 133 others: [109, 558, 918, 7395, 22392, 23689, 23999]
+ one-frame events read_jump: n 448 median -0.005 max|.| 176.806 over 1.05 ms: [2.68, 176.806]
+ tone: blocks 616 clean 1 invalid 180 torn 0 events_across_invalid 180 maxdev 0.000261 5e-06
+ blocks by content: {'LI': 153, 'BC': 24, 'L': 117, 'B': 276, 'LB': 5, 'LC': 12, 'LCI': 18, 'LBC': 1, 'clean': 1, 'LBI': 8, 'LBCI': 1}
+ clean-block max |ppm| either tone: 2.2e-07
+ beat comb: {'period_frames': 93990.3845, 'members': 316, 'one_frame_repeats': 316, 'teeth_in_window': 321.9625, 'residual_max': 1.7751, 'slip_tdm_delta': 311, 'slip_tdm_seconds': 610.235, 'slip_tdm_per_s': 0.5096, 'comb_per_s_at_48k': 0.5107}
+ counted ppm -0.068 steps -2 frames 29574720 | timed -0.59 +- 1.24 halves -0.53 / -1.76 | ext reads 61337
+ mcasp board rate 47997.959 playback: {'ratio_ppm': -0.6052041245929729, 'ratio_ppm_halfwidth95': 1.2609896713742472, 'error': None}
+ capture reads 61337 stalls>15ms 316 max gap ms 13328.327
+ window s 616.14 effective offsets {'all_events': 2118.499, 'without_capture_path': -0.068, 'listener_only': 10.617}
+===== bint (BINT)
+ causes: {('listener', 'skip'): 506, ('DUT beat', 'repeat'): 322, ('capture path', 'skip'): 36, ('listener', 'insert'): 1}
+ listener drops 506 frames 506 repeats 0 inserts 1 listener sizes Counter({('skip', '1'): 506, ('insert', '1'): 1})
+ beat repeats 322 all 1-frame repeats: True
+ capture events 36 clusters 21 lost 15552 | grade attribution lost 15552
+ multi-frame clusters NOT capture path: []
+ capture-cluster bases: {'read-time rise': 18, 'read gap': 3}
+ clusters lost <= 49 frames (rise test cannot exclude a zero rise): []
+ rise-basis residual ms: n 18 min -0.265 max 0.753 | rises below 1.5 ms: [0.985, 0.99, 0.998, 0.999]
+ non-rise-basis capture clusters: [(2198758, [108], None, 133.509, 'read gap', 0), (2355775, [780], None, 30.796, 'read gap', 0), (2825336, [1452, 3900], None, 141.211, 'read gap', 0)]
+ clusters with whole loops added: []
+ capture clusters with a step back: []
+ capture skips: 36 48n+12: 36 others: []
+ one-frame events read_jump: n 788 median -0.004 max|.| 1.004 over 1.05 ms: []
+ tone: blocks 629 clean 57 invalid 1 torn 0 events_across_invalid 1 maxdev 0.000544 0.000116
+ blocks by content: {'LB': 245, 'L': 241, 'LC': 8, 'B': 64, 'clean': 57, 'LBC': 9, 'LBI': 1, 'BC': 2, 'C': 2}
+ clean-block max |ppm| either tone: 3.1e-07
+ beat comb: {'period_frames': 93990.3844, 'members': 322, 'one_frame_repeats': 322, 'teeth_in_window': 321.8903, 'residual_max': 1.7599, 'slip_tdm_delta': 311, 'slip_tdm_seconds': 610.137, 'slip_tdm_per_s': 0.5097, 'comb_per_s_at_48k': 0.5107}
+ counted ppm 6.052 steps 183 frames 30239040 | timed 6.85 +- 1.46 halves 8.70 / 6.43 | ext reads 62851
+ mcasp board rate 47997.962 playback: {'ratio_ppm': 6.896849882087608, 'ratio_ppm_halfwidth95': 1.4786603608953728, 'error': None}
+ capture reads 62851 stalls>15ms 211 max gap ms 212.184
+ window s 629.98 effective offsets {'all_events': 520.354, 'without_capture_path': 6.052, 'listener_only': 16.7}
+===== bcrf (BCRF)
+ causes: {('capture path', 'skip'): 38, ('capture path', 'repeat'): 2}
+ listener drops 0 frames 0 repeats 0 inserts 0 listener sizes Counter()
+ beat repeats 0 all 1-frame repeats: True
+ capture events 40 clusters 17 lost 12216 | grade attribution lost 12216
+ multi-frame clusters NOT capture path: []
+ capture-cluster bases: {'read-time rise': 17}
+ clusters lost <= 49 frames (rise test cannot exclude a zero rise): []
+ rise-basis residual ms: n 17 min -0.733 max 0.747 | rises below 1.5 ms: [0.993, 0.996, 1.003]
+ non-rise-basis capture clusters: []
+ clusters with whole loops added: [(4582801, -46644, 1, 1356, 27.9956)]
+ capture clusters with a step back: [(4582801, [-24000, -24000, 60, 348, 204, 300, 444], 27.9956)]
+ capture skips: 38 48n+12: 38 others: []
+ tone: blocks 629 clean 611 invalid 0 torn 0 events_across_invalid 0 maxdev 0.000487 2.6e-05
+ blocks by content: {'clean': 611, 'C': 18}
+ clean-block max |ppm| either tone: 2.9e-07
+ counted ppm 0.000 steps 0 frames 30237600 | timed -0.01 +- 0.65 halves 0.18 / 1.30 | ext reads 62923
+ mcasp board rate 47997.671 playback: {'ratio_ppm': -0.0565693559773095, 'ratio_ppm_halfwidth95': 0.5410780320736566, 'error': None}
+ capture reads 62923 stalls>15ms 97 max gap ms 81.238
+ window s 629.95 effective offsets {'all_events': -1183.427, 'without_capture_path': 0.0, 'listener_only': 0.0}

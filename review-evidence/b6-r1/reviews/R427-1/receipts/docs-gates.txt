@@ -1,0 +1,10 @@
+head b5e9242e2e1911bb2bac11221527f8965a4ccaef tree 06140cbdf91f0722643609b5520ef32c6179854d; markdown venv named for lock sha256 40cdefe0..., lock sha256 40cdefe08ebda5e63f0ed13f5437f96dc58f8b2d64a6fb045f3ba02441ed2817
+rc=0  scripts/docs_check.py :: docs_check: 0 finding(s) across 183 md files + 954 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0  scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=0  scripts/check_em_dash.py --base ea3fb38877842f223afea97e3bd72a10500455c9 :: check_em_dash: 0 finding(s) over 535 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ea3fb388..HEAD]
+rc=0  scripts/check_em_dash.py --selftest :: check_em_dash selftest: PASS (339 arm(s))
+rc=0  scripts/gen_toc.py --check :: TOC gate: OK (125 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0  scripts/check_doc_paths.py :: doc path gate: OK (861 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0  scripts/gen_toc.py --verify-anchors :: anchor check: 285 existing cross-page fragment links reproduced
+rc=0  scripts/check_feature_status.py --self-test :: feature_status: 0 finding(s)
+rc=0  git diff --check ea3fb388 HEAD

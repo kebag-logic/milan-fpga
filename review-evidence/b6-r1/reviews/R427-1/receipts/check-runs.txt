@@ -1,0 +1,106 @@
+== a0
+   as-found {"fmt-peer-in-<i>": "0205022001006000", "fmt-peer-in-<i>": "041060010000bb80", "fmt-dut-in-0": "0205022002006000", "fmt-dut-in-1": "041060010000bb80", "fmt-dut-out-0": "0205022002006000", "fmt-dut-out-1": "041060010000bb80", "clk-peer": 0, "clk
+  format-check dut-out-0 -> peer-in-<i> talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] echoed 0205022002006000 GET after 0205022002006000 ok True
+  bind ('dut-out-0', 'peer-in-<i>') status 0 conn 1 format-checked before: True
+   window-start {"frame": 1231680, "samples": 105}
+   window-end {"frame": 31450560, "samples": 3116}
+   clock-final {"who": "peer", "source": 0, "as_found": 0}
+   clock-final {"who": "dut", "source": 0, "as_found": 0}
+  unbind dut-out-0 -> peer-in-<i> status 0 conn 0
+   peer-format-restore {"fmt": "0205022001006000", "status": ["SUCCESS"]}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "0205022001006000", "equal_to_found": true}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "041060010000bb80", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   map-final {"readback": "000f00000000000100000000"}
+  window start - last bind/set: 20.21 s; window length 630.11 s (wall)
+== a1
+   as-found {"fmt-peer-in-<i>": "0205022001006000", "fmt-peer-in-<i>": "041060010000bb80", "fmt-dut-in-0": "0205022002006000", "fmt-dut-in-1": "041060010000bb80", "fmt-dut-out-0": "0205022002006000", "fmt-dut-out-1": "041060010000bb80", "clk-peer": 0, "clk
+  format-check dut-out-0 -> peer-in-<i> talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] echoed 0205022002006000 GET after 0205022002006000 ok True
+  bind ('dut-out-0', 'peer-in-<i>') status 0 conn 1 format-checked before: True
+  set-clock case who peer src <peer-src> SUCCESS readback equal to set: True ok True
+   window-start {"frame": 1226400, "samples": 106}
+   window-end {"frame": 30857760, "samples": 3116}
+  set-clock restore who peer src 0 SUCCESS readback equal to set: True ok True
+   clock-final {"who": "peer", "source": 0, "as_found": 0}
+   clock-final {"who": "dut", "source": 0, "as_found": 0}
+  unbind dut-out-0 -> peer-in-<i> status 0 conn 0
+   peer-format-restore {"fmt": "0205022001006000", "status": ["SUCCESS"]}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "0205022001006000", "equal_to_found": true}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "041060010000bb80", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   map-final {"readback": "000f00000000000100000000"}
+  window start - last bind/set: 20.05 s; window length 630.13 s (wall)
+== a2
+   as-found {"fmt-peer-in-<i>": "0205022001006000", "fmt-peer-in-<i>": "041060010000bb80", "fmt-dut-in-0": "0205022002006000", "fmt-dut-in-1": "041060010000bb80", "fmt-dut-out-0": "0205022002006000", "fmt-dut-out-1": "041060010000bb80", "clk-peer": 0, "clk
+  format-check dut-out-0 -> peer-in-<i> talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] echoed 0205022002006000 GET after 0205022002006000 ok True
+  bind ('dut-out-0', 'peer-in-<i>') status 0 conn 1 format-checked before: True
+  format-check dut-out-1 -> peer-in-<i> talker 041060010000bb80 listener 041060010000bb80 set None None echoed None GET after 041060010000bb80 ok True
+  bind ('dut-out-1', 'peer-in-<i>') status 0 conn 1 format-checked before: True
+  set-clock case who peer src <peer-src> SUCCESS readback equal to set: True ok True
+   window-start {"frame": 1228800, "samples": 105}
+   window-end {"frame": 30803520, "samples": 3117}
+  set-clock restore who peer src 0 SUCCESS readback equal to set: True ok True
+   clock-final {"who": "peer", "source": 0, "as_found": 0}
+   clock-final {"who": "dut", "source": 0, "as_found": 0}
+  unbind dut-out-1 -> peer-in-<i> status 0 conn 0
+  unbind dut-out-0 -> peer-in-<i> status 0 conn 0
+   peer-format-restore {"fmt": "0205022001006000", "status": ["SUCCESS"]}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "0205022001006000", "equal_to_found": true}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "041060010000bb80", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   map-final {"readback": "000f00000000000100000000"}
+  window start - last bind/set: 20.01 s; window length 630.45 s (wall)
+== bint
+   as-found {"fmt-peer-in-<i>": "0205022001006000", "fmt-peer-in-<i>": "041060010000bb80", "fmt-dut-in-0": "0205022002006000", "fmt-dut-in-1": "041060010000bb80", "fmt-dut-out-0": "0205022002006000", "fmt-dut-out-1": "041060010000bb80", "clk-peer": 0, "clk
+  format-check dut-out-0 -> peer-in-<i> talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] echoed 0205022002006000 GET after 0205022002006000 ok True
+  bind ('dut-out-0', 'peer-in-<i>') status 0 conn 1 format-checked before: True
+  format-check peer-out-<i> -> dut-in-1 talker 041060010000bb80 listener 041060010000bb80 set None None echoed None GET after 041060010000bb80 ok True
+  bind ('peer-out-<i>', 'dut-in-1') status 0 conn 1 format-checked before: True
+   window-start {"frame": 1218240, "samples": 105}
+   window-end {"frame": 31457280, "samples": 3117}
+   clock-final {"who": "peer", "source": 0, "as_found": 0}
+   clock-final {"who": "dut", "source": 0, "as_found": 0}
+  unbind peer-out-<i> -> dut-in-1 status 0 conn 0
+  unbind dut-out-0 -> peer-in-<i> status 0 conn 0
+   peer-format-restore {"fmt": "0205022001006000", "status": ["SUCCESS"]}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "0205022001006000", "equal_to_found": true}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "041060010000bb80", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   map-final {"readback": "000f00000000000100000000"}
+  window start - last bind/set: 20.01 s; window length 630.32 s (wall)
+== bcrf
+   as-found {"fmt-peer-in-<i>": "0205022001006000", "fmt-peer-in-<i>": "041060010000bb80", "fmt-dut-in-0": "0205022002006000", "fmt-dut-in-1": "041060010000bb80", "fmt-dut-out-0": "0205022002006000", "fmt-dut-out-1": "041060010000bb80", "clk-peer": 0, "clk
+  format-check dut-out-0 -> peer-in-<i> talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] echoed 0205022002006000 GET after 0205022002006000 ok True
+  bind ('dut-out-0', 'peer-in-<i>') status 0 conn 1 format-checked before: True
+  format-check peer-out-<i> -> dut-in-1 talker 041060010000bb80 listener 041060010000bb80 set None None echoed None GET after 041060010000bb80 ok True
+  bind ('peer-out-<i>', 'dut-in-1') status 0 conn 1 format-checked before: True
+  set-clock case who dut src 1 SUCCESS readback equal to set: True ok True
+   window-start {"frame": 1251840, "samples": 107}
+   window-end {"frame": 31489440, "samples": 3117}
+  set-clock restore who dut src 0 SUCCESS readback equal to set: True ok True
+   clock-final {"who": "peer", "source": 0, "as_found": 0}
+   clock-final {"who": "dut", "source": 0, "as_found": 0}
+  unbind peer-out-<i> -> dut-in-1 status 0 conn 0
+  unbind dut-out-0 -> peer-in-<i> status 0 conn 0
+   peer-format-restore {"fmt": "0205022001006000", "status": ["SUCCESS"]}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "0205022001006000", "equal_to_found": true}
+   format-final {"key": "fmt-peer-in-<i>", "fmt": "041060010000bb80", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   format-final {"key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   map-final {"readback": "000f00000000000100000000"}
+  window start - last bind/set: 20.50 s; window length 630.21 s (wall)
+== probe
+   as-found {"fmt-dut-in-0": "0205022002006000", "clk-dut": 0, "clk-peer": 0, "rx-dut-0": {"status": 0, "conn_count": 0, "stream_id": "0000000000000000"}, "map-dut-in": "000e00000000000100000000"}
+  format-check peer-out-<i> -> dut-in-0 talker 0205022001006000 listener 0205022002006000 set 0205022001006000 ['SUCCESS'] echoed 0205022001006000 GET after 0205022001006000 ok True
+  bind ('peer-out-<i>', 'dut-in-0') status 0 conn 1 format-checked before: True
+  unbind None -> None status 0 conn 0
+   map-final {"readback": "000e00000000000100000000", "as_found": "000e00000000000100000000"}
+   format-restore {"fmt": "0205022002006000", "status": ["SUCCESS"]}
+   format-final {"fmt": "0205022002006000", "equal_to_found": true}
+   clock-final {"who": "peer", "source": 0, "as_found": 0}
+   clock-final {"who": "dut", "source": 0, "as_found": 0}
+BAD 0

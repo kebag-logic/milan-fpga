@@ -1,0 +1,8 @@
+Exposure of the published attribution to its two weak branches, per case
+(a) rise branch blind band: capture-path clusters whose total loss is <= 49 frames (a zero rise would also match)
+(b) unmeasurable-rise branch: read gap alone; coincidence estimate = 1-(1-stalls_over_15ms/reads)^63 (a lower bound, the rule's threshold is 11 ms)
+a0    clusters  10  smallest loss    108 frames  in blind band 0  gap-only 1 (all 48n+12: True)  coincidence >= 10.0%
+a1    clusters  23  smallest loss     60 frames  in blind band 0  gap-only 2 (all 48n+12: True)  coincidence >= 21.2%
+a2    clusters  61  smallest loss     60 frames  in blind band 0  gap-only 5 (all 48n+12: True)  coincidence >= 27.8%
+bint  clusters  21  smallest loss     60 frames  in blind band 0  gap-only 3 (all 48n+12: True)  coincidence >= 19.1%
+bcrf  clusters  17  smallest loss     60 frames  in blind band 0  gap-only 0 (all 48n+12: True)  coincidence >= 9.3%
