@@ -1,0 +1,27 @@
+0451d83d: clean
+44a6bb9: clean
+3f3ea56b: clean
+d4ca85c: clean
+16ea10ac: clean
+
+commit shape (round 3 / 3b commits):
+ee0e2b7 parents=d4ca85c 16ea10a subject_len=Merge main 16ea10ac (#138) into the 
+d4ca85c parents=e4c70b5 subject_len=Bound each AECP hold an ACMP transaction can
+e4c70b5 parents=97fe22f subject_len=Make the classifier's NONE-key comment true 
+97fe22f parents=44a6bb9 3f3ea56 subject_len=Merge main 3f3ea56b (#135, #137) int
+e4c70b5 body_lines=0 trailers=0
+d4ca85c body_lines=0 trailers=0
+97fe22f body_lines=0 trailers=0
+ee0e2b7 body_lines=0 trailers=0
+
+ancestry:
+44a6bb9 ancestor of head
+3f3ea56b ancestor of head
+16ea10ac ancestor of head
+0451d83d ancestor of head
+files in hdl changed by round 3/3b vs 44a6bb9 excluding main's:
+ hdl/aecp/KL_aecp_engine.sv        | 130 +++++++++++++++++++--
+ hdl/aecp/KL_aecp_ucpu.sv          |  68 +++++++++++
+ hdl/aecp/ucode/gen_ucode.py       |  14 +++
+ hdl/top/protocol_processor_top.sv | 231 ++++++++++++++++++++++++++++++++------
+ 4 files changed, 403 insertions(+), 40 deletions(-)

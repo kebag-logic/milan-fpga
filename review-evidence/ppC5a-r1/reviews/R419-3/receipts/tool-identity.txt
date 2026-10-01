@@ -1,0 +1,7 @@
+simulator: Verilator 5.050 2026-07-01 rev v5.050
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+python: Python 3.14.7
+git: git version 2.55.0
+make: GNU Make 4.4.1
+cpu mask for every run: taskset -c 0-7 (static gates on 8-15, single process)
+trees: scratch git-archive exports of ee0e2b72 (head, probe, campaign copies) and 16ea10ac (main originals); the reviewed clone was never built in

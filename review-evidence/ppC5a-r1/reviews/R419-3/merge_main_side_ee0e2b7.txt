@@ -1,0 +1,131 @@
+== docs/architecture/03_packet_engine.md
+  EXTRA+ x1: That key costs READ_DESCRIPTOR nothing, because no ACMP step writes what it
+  EXTRA+ x1: reads: a descriptor-image field, or the current sampling rate, clock source or
+  EXTRA+ x1: stream format it overlays on one (issue #82), rows only the AECP engine writes.
+  EXTRA+ x1: For GET_DYNAMIC_INFO it is a known limitation. IEEE
+== docs/architecture/08_timing.md
+  EXTRA+ x1: to MAC response byte 0, in the suite's fourth build, whose timebase is the nominal
+== docs/architecture/09_verification.md
+  EXTRA+ x1: Section TB runs in the suite's fourth build (`make budget`), whose timebase is the
+== hdl/top/protocol_processor_top.sv
+  EXTRA+ x1:   //! key. READ_DESCRIPTOR loses nothing by it: no ACMP step writes what it
+  EXTRA+ x1:   //! reads, a descriptor-image field or the current sampling rate, clock
+  EXTRA+ x1:   //! source or stream format it overlays on one (issue #82), rows only the
+  EXTRA+ x1:   //! AECP engine's state port writes. GET_DYNAMIC_INFO does, a known gap
+  EXTRA+ x1:   //! (03 §6): its GET_STREAM_INFO records of a STREAM_INPUT read the listener
+== tb/pp_top/Makefile
+  LOST+ x1: # Three builds of one bench. The first overrides nothing and runs every
+  LOST+ x1: # by a reservation that is not the default's. Each binary prints its own
+  LOST+ x1: # three builds.
+  LOST+ x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+  LOST+ x1: 	rm -rf obj_dir obj_vid obj_line ltn_rom.hex ucode.hex
+  LOST+ x1:         line-build aecp-line aecp-dispatch-mutants fixture-guards fixture-guards-test line-guards clean
+  NOTREMOVED- x1: # Two builds of one bench. The first overrides nothing and runs every
+  NOTREMOVED- x1: # top-level connection. Each binary prints its own build's count; the last
+  NOTREMOVED- x1: # line is the one canonical tally, summed over both builds.
+  NOTREMOVED- x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 2) {print "FAIL: " NR " build tallies, expected 2"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+  NOTREMOVED- x1: 	rm -rf obj_dir obj_vid ltn_rom.hex ucode.hex
+  NOTREMOVED- x1: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test clean
+  EXTRA+ x1: # Four builds of one bench. The first overrides nothing and runs every
+  EXTRA+ x1: # by a reservation that is not the default's. The fourth runs the timebase at
+  EXTRA+ x1: # the nominal clock's rate and section TB alone. Each binary prints its own
+  EXTRA+ x1: # four builds.
+  EXTRA+ x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 4) {print "FAIL: " NR " build tallies, expected 4"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+  EXTRA+ x1: # The fourth build (section TB): the wrap's timebase at the nominal clock's
+  EXTRA+ x1: # compressed AECP deadline. Its tally lands beside the other three.
+  EXTRA+ x1: 	rm -rf obj_dir obj_vid obj_line obj_tim ltn_rom.hex ucode.hex
+  EXTRA+ x1:         line-build aecp-line aecp-dispatch-mutants deadline d3 hazards budget budget-build \
+  EXTRA+ x1:         aecp-mutants fixture-guards fixture-guards-test line-guards clean
+== tb/pp_top/README.md
+  LOST+ x1: `make`: exit 0 = PASS. It builds the bench three times (sections DV and AX):
+  LOST+ x1: each executable prints its own build's tally, and the last line sums them into
+  LOST+ x1: the one canonical tally.
+  LOST+ x1: builds the bench a second time (the third build is section AX's line build):
+  LOST+ x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and AX last | 2 (Milan §4.2.7.2.1) |
+  NOTREMOVED- x1: `make`: exit 0 = PASS. It builds the bench twice (section DV): each executable
+  NOTREMOVED- x1: prints its own build's tally, and the last line sums both into the one canonical
+  NOTREMOVED- x1: tally.
+  NOTREMOVED- x1: builds the bench twice:
+  NOTREMOVED- x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV last | 2 (Milan §4.2.7.2.1) |
+  EXTRA+ x1: `make`: exit 0 = PASS. It builds the bench four times (sections DV, AX and
+  EXTRA+ x1: TB): each executable prints its own build's tally, and the last line sums the
+  EXTRA+ x1: four into the one canonical tally.
+  EXTRA+ x1:   processor of its own in the fourth build, whose timebase is the nominal clock's
+  EXTRA+ x1: builds the bench a second time; the third build is section AX's line build,
+  EXTRA+ x1: and the fourth section TB's timebase:
+  EXTRA+ x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV, AX and DL among them | 2 (Milan §4.2.7.2.1) |
+== tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch
+  LOST+ x1: @@ -2482,7 +2482,7 @@
+  LOST+ x1:    assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w
+  LOST+ x1:                             && !amap_notify_busy_i && !d3_own_w;
+  LOST+ x1: -  assign txs_oversize_o  = (frame_len_r > 11'(TX_STD_BYTES_P));
+  LOST+ x1: +  assign txs_oversize_o  = (frame_len_r >= 11'(TX_STD_BYTES_P));
+  LOST+ x1:    assign txs_wr_addr_o   = TXA_W_C'(bidx_r);
+  LOST+ x1:    assign txs_wr_valid_o  = (a_st_r == A_WR) && byte_ok_w;
+  EXTRA+ x1: @@ -2580,7 +2580,7 @@
+  EXTRA+ x1:    assign echo_len_w      = (11'(FRAME_HDR_C) + pld_cmd_r < 11'(ETH_MIN_C))
+  EXTRA+ x1:                             ? 11'(ETH_MIN_C) : (11'(FRAME_HDR_C) + pld_cmd_r);
+  EXTRA+ x1: -  assign txs_oversize_o  = (frame_len_r > 11'(TX_STD_BYTES_P))
+  EXTRA+ x1: +  assign txs_oversize_o  = (frame_len_r >= 11'(TX_STD_BYTES_P))
+  EXTRA+ x1:                             || (st_echo_w
+  EXTRA+ x1:                                 && (echo_len_w > 11'(TX_STD_BYTES_P)));
+== tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch
+  LOST+ x1: @@ -2482,7 +2482,7 @@
+  LOST+ x1:    assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w
+  LOST+ x1:                             && !amap_notify_busy_i && !d3_own_w;
+  LOST+ x1: -  assign txs_oversize_o  = (frame_len_r > 11'(TX_STD_BYTES_P));
+  EXTRA+ x1: @@ -2580,9 +2580,7 @@
+  EXTRA+ x1:    assign echo_len_w      = (11'(FRAME_HDR_C) + pld_cmd_r < 11'(ETH_MIN_C))
+  EXTRA+ x1:                             ? 11'(ETH_MIN_C) : (11'(FRAME_HDR_C) + pld_cmd_r);
+  EXTRA+ x1: -  assign txs_oversize_o  = (frame_len_r > 11'(TX_STD_BYTES_P))
+  EXTRA+ x1: -                           || (st_echo_w
+  EXTRA+ x1: -                               && (echo_len_w > 11'(TX_STD_BYTES_P)));
+== tb/pp_top/aecp_mutants.py
+  EXTRA+ x1:     # latency against T-AECP-RESP (section TB, the fourth build)
+== tb/pp_top/pp_top_wrap.sv
+  LOST+ x1:     output logic        dbg_d3_agg_fired_o,
+  NOTREMOVED- x1: //                the top's own default and never a copy of it.
+  NOTREMOVED- x1:     output logic        dbg_d3_agg_fired_o
+  EXTRA+ x1: //                The fourth build defines PP_TOP_TIM_REAL and runs the
+  EXTRA+ x1: //                timebase at 1 ms = 1,000 clk, the nominal clock's own, for
+  EXTRA+ x1: //                section TB's response budgets.
+  EXTRA+ x1:     output logic        dbg_sb_barrier_o,
+  EXTRA+ x1:   // section TB's build (the Makefile's fourth): 1 ms = 1 x 1000 = 1,000 clk,
+== tb/pp_top/sim_main.cpp
+  LOST+ x1:   //! run passes none, so its image is byte for byte what it was
+  LOST+ x1:       const std::vector<std::vector<uint8_t>>& extra_bodies = {}) {
+  LOST+ x1:         non_entity_312_descriptor(0)};
+  LOST+ x1:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only
+  LOST+ x1:                            || maap_only || aecp_only;
+  LOST+ x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+  LOST+ x1:   //! canonical line here would drop the other builds' checks from the total.
+  LOST+ x1:   //! The Makefile sums the builds and prints the one canonical line.
+  NOTREMOVED- x1:   void load_descriptor_image(uint16_t entity_cfg = CFGIX) {
+  NOTREMOVED- x1:                           non_entity_312_descriptor(0)},
+  NOTREMOVED- x1:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+  NOTREMOVED- x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's two
+  NOTREMOVED- x1:   //! canonical line here would drop the other build's checks from the total.
+  NOTREMOVED- x1:   //! The Makefile sums both builds and prints the one canonical line.
+  EXTRA+ x1: // The suite builds four times (Makefile): the second build overrides the
+  EXTRA+ x1: // DV alone; the third overrides DESC_LINE_BYTES_P and runs section AX alone;
+  EXTRA+ x1: // the fourth runs the timebase at the nominal clock's rate and runs section
+  EXTRA+ x1: // TB alone.
+  EXTRA+ x1:   //! run passes none, so its image is byte for byte what it was.
+  EXTRA+ x1:       const std::vector<std::vector<uint8_t>>& extra_bodies = {},
+  EXTRA+ x1:       uint16_t sigmux_len = 312) {
+  EXTRA+ x1:         image_sigmux};
+  EXTRA+ x1: // fan-out). It runs in the suite's fourth build, whose timebase is the nominal
+  EXTRA+ x1:     image.load_descriptor_image(CFGIX, {}, {}, SIGMUX_LEN);
+  EXTRA+ x1:   //! the fourth build runs section TB alone, at the nominal timebase
+  EXTRA+ x1:                            || maap_only || aecp_only || dl_only || hz_only;
+  EXTRA+ x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's four
+  EXTRA+ x1:   //! The Makefile sums the four builds and prints the one canonical line.
+== tb/ucpu/README.md
+  LOST+ x1: area: `make` = build + run, exit 0 = PASS, 398 checks.
+  NOTREMOVED- x1: area: `make` = build + run, exit 0 = PASS, 342 checks.
+  EXTRA+ x1: area: `make` = build + run, exit 0 = PASS, 427 checks (2026-10-01).
+== tb/ucpu/sim_main.cpp
+  LOST+ x1:     dut->disp_batch_i = batch;
+  NOTREMOVED- x1:     dut->disp_batch_i = 0;
+  EXTRA+ x1:     dut->disp_batch_i = (batch || batch_base >= 0) ? 1 : 0;
+files compared: 62; side-added lines not carried: 33

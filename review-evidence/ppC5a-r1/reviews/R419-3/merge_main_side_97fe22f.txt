@@ -1,0 +1,10 @@
+== tb/pp_top/Makefile
+  LOST+ x1: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test clean
+  NOTREMOVED- x1: .PHONY: name-writes run gsi-build gsi-internal adp-config fixture-guards fixture-guards-test clean
+  EXTRA+ x1: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config deadline d3 hazards budget budget-build aecp-mutants fixture-guards fixture-gu
+== tb/pp_top/sim_main.cpp
+  LOST+ x1:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+  NOTREMOVED- x1:   const bool one_section = gsi_only || name_only || d3_only || adp_only;
+  EXTRA+ x1:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only
+  EXTRA+ x1:                            || maap_only || dl_only || hz_only;
+files compared: 48; side-added lines not carried: 2
