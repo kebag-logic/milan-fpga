@@ -74,10 +74,10 @@ res = dict(case=ev("start")[0]["case"], name=ev("start")[0]["name"])
 # 1. channel identification
 full = raw_dir / "cap-all-<n>ch.raw"
 if full.exists():
-    w = words24(full, 20)
+    w = words24(full, <capture-channel-count>)
     tab = T.table()
     ident = []
-    for c in range(20):
+    for c in range(<capture-channel-count>):
         col = w[:, c]
         ident.append(dict(channel=c, frames=int(len(col)), zero=int((col == 0).sum()),
                           peak=int(np.abs(col).max()),
