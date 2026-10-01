@@ -1,0 +1,49 @@
+== 2345dba changes
+2345dba7219c4f317d042556ddc55ea9a11c5116 Correct the read-record restore command (A474)
+
+ review-evidence/b5-r1/MANIFEST.json                           | 4 ++--
+ review-evidence/b5-r1/author-r2/receipts/a-long-reads.NOTE.md | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+== 2a40015 changes
+2a40015e54d2bc0c6f40ef73041f37c5238ed164 Publish the byte-identical A473 read record (R425-2 F1)
+
+ review-evidence/b5-r1/MANIFEST.json                     |  12 ++++++++++++
+ .../b5-r1/author-r2/receipts/a-long-reads.NOTE.md       |  10 ++++++++++
+ .../b5-r1/author-r2/receipts/a-long-reads.u16.gz        | Bin 0 -> 84435 bytes
+ 3 files changed, 22 insertions(+)
+== .gz blob at 2a40015 and at tip
+774d4f3d6dee47fb111265a47abff831258a46ae
+774d4f3d6dee47fb111265a47abff831258a46ae
+== 227a654 changes (paths only)
+227a6541159dddb237c1d3cec7dc71fbf4063f31 Archive A474 round-3 packet for issue 117 bench B5
+
+ review-evidence/b5-r1/MANIFEST.json                              | 168 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/HANDOFF.md                       | 125 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/MANIFEST.sha256                  |  27 ++++++++++++++
+ review-evidence/b5-r1/author-r3/PR-BODY.md                       |  85 +++++++++++++++++++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/REVIEW-READY.md                  |  55 ++++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/REVIEW-READY.readback.md         |  56 ++++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/TAKEN.md                         |  13 +++++++
+ review-evidence/b5-r1/author-r3/TAKEN.readback.md                |  14 +++++++
+ review-evidence/b5-r1/author-r3/receipts/f1_reproduction.txt     |  23 ++++++++++++
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-1.txt        |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-10.txt       |   0
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-11.txt       |   0
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-12.txt       |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-2.txt        |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-3.txt        |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-4.txt        |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-5.txt        |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-6.txt        |  87 +++++++++++++++++++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-7.txt        |   1 +
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-8.txt        |  48 ++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/receipts/gates/gate-9.txt        |   0
+ review-evidence/b5-r1/author-r3/receipts/gates/gates.txt         |  15 ++++++++
+ review-evidence/b5-r1/author-r3/receipts/round3_figures.txt      |  52 ++++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/receipts/table_identity.txt      |  47 ++++++++++++++++++++++++
+ review-evidence/b5-r1/author-r3/receipts/token_scan.txt          |  11 ++++++
+ review-evidence/b5-r1/author-r3/receipts/zero_frame_ordinals.txt |  15 ++++++++
+ review-evidence/b5-r1/author-r3/review-ready-url.txt             |   1 +
+ review-evidence/b5-r1/author-r3/taken-url.txt                    |   1 +
+ review-evidence/b5-r1/author-r3/tools/b5_round3.py               | 255 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 29 files changed, 1105 insertions(+)

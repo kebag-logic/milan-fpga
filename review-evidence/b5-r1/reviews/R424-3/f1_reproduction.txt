@@ -1,0 +1,30 @@
+archive: branch b5-review-evidence at 227a6541159dddb237c1d3cec7dc71fbf4063f31
+== published files
+8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc  a-long-reads.u16
+6e0028a6cf5d7e9e01ba1e3c3e96daa7b88b8024b937cbff48fa66a30eb06d03  a-long-reads.u16.gz
+== NOTE command lines
+5:`a-long-reads.u16.gz` holds the original record unchanged. Restore it with `gunzip -kf a-long-reads.u16.gz`, then check. The `-f` is needed because it overwrites the masked copy beside it; without it gunzip refuses with rc 2.
+== gunzip -k (without -f), masked copy present
+gzip: a-long-reads.u16 already exists;	not overwritten
+rc=2
+== page step 1: gunzip -kf
+rc=0
+2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961  a-long-reads.u16
+131540 bytes
+== page step 2: b5_attrib.py figures <lane packet> <receipts>
+rc=0
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138  attrib_out.txt
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138  author-r2/receipts/attribution.txt
+attribution.txt: IDENTICAL
+== page step 3: b5_round3.py figures <lane packet> <receipts>
+rc=0
+9fa0f02714c0b37147bb6aa620d1339cf32bd825ebdb76cd79be1d9e7bb14c67  r3_out.txt
+9fa0f02714c0b37147bb6aa620d1339cf32bd825ebdb76cd79be1d9e7bb14c67  author-r3/receipts/round3_figures.txt
+round3_figures.txt: IDENTICAL
+== negative control: the masked copy is refused by the tool's hash pin
+rc=1 (nonzero expected)
+AssertionError
+== tool hashes
+f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40  author-r2/tools/b5_attrib.py
+c68ecf7b47b8bfc7a765b11140bf751b6f90266178dde0448997bdf3a38ac738  author-r2/tools/b5_records.py
+415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d  author-r3/tools/b5_round3.py

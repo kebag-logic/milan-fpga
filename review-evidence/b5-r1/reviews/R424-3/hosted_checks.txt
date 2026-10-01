@@ -1,0 +1,16 @@
+head cf38633ad9a5bdb05517bedba73ce50965af967b
+docs | docs-check | IN_PROGRESS | 
+elaborate | elaborate | COMPLETED | SUCCESS
+rtl-fast | changes | COMPLETED | SUCCESS
+rtl-full | full-ci-gate | COMPLETED | SUCCESS
+rtl-full | Verilator shard ${{ matrix.shard }}/${{ matrix.total }} | COMPLETED | SKIPPED
+docs | wire-accountability | COMPLETED | SUCCESS
+rtl-fast | bdd-conformance | COMPLETED | SUCCESS
+rtl-fast | verilator-lint | COMPLETED | SKIPPED
+rtl-full | Physical gPTP (nightly and manual) | COMPLETED | SKIPPED
+docs | docs-check-no-git | COMPLETED | SUCCESS
+rtl-fast | yosys-elaboration | COMPLETED | SKIPPED
+rtl-full | Yosys shard ${{ matrix.shard }}/${{ matrix.total }} | COMPLETED | SKIPPED
+rtl-full | verilator-suites | COMPLETED | SKIPPED
+rtl-fast | rtl-fast | COMPLETED | SUCCESS
+rtl-full | yosys-portability | COMPLETED | SKIPPED

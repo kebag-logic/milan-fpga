@@ -1,0 +1,17 @@
+gate-01 rc=0  <pinned-markdown-venv>/bin/python scripts/docs_check.py
+gate-02 rc=0  <pinned-markdown-venv>/bin/python scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+gate-03 rc=0  <pinned-markdown-venv>/bin/python scripts/check_em_dash.py --selftest
+gate-04 rc=0  <pinned-markdown-venv>/bin/python scripts/check_doc_style.py
+gate-05 rc=0  <pinned-markdown-venv>/bin/python scripts/check_doc_style.py --selftest
+gate-06 rc=0  <pinned-markdown-venv>/bin/python scripts/check_doc_paths.py
+gate-07 rc=0  <pinned-markdown-venv>/bin/python scripts/gen_toc.py --selftest
+gate-08 rc=0  <pinned-markdown-venv>/bin/python scripts/gen_toc.py --verify-anchors
+gate-09 rc=0  <pinned-markdown-venv>/bin/python scripts/gen_toc.py --check
+gate-10 rc=0  <pinned-markdown-venv>/bin/python scripts/check_feature_status.py --self-test
+gate-11 rc=0  <pinned-markdown-venv>/bin/python scripts/check_feature_status.py
+gate-12 rc=0  <pinned-markdown-venv>/bin/python scripts/check_archive.py
+gate-13 rc=0  <pinned-markdown-venv>/bin/python scripts/check_hygiene.py --check
+gate-14 rc=0  <pinned-markdown-venv>/bin/python scripts/ci_scope.py --selftest
+gate-15 rc=0  <pinned-markdown-venv>/bin/python scripts/check_baremetal_only.py --check (rerun with pyyaml in the scratch venv; first attempt rc=2, pyyaml unavailable)
+gate-16 rc=0  git diff --check e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b HEAD
+gate-17 rc=0  git diff --check e29d12b1d5ee858eaf4684aaa8dc6647f6309857 HEAD

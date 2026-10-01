@@ -1,0 +1,18 @@
+record sha256 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961 131540 B
+skips one-frame: 526 events, 526 frames
+skips 2..59: 521 events, 7176 frames
+skips >=60: 239 events, 109928 frames
+skips >=240: 220 events, 106754 frames
+repeats 334
+stalls 220, excess 109069.3 frames
+stall spacing s: min 2.990 median 3.0011 max 3.020
+>=60 stall-aligned (stall 0..2 reads before): 236, 109670 frames, lags {1: 130, 2: 106}
+  NOT aligned: 72 frames, read 3390, host 34.03 s, longest interval 11.76 ms, nearest stall 125 reads
+  NOT aligned: 78 frames, read 63168, host 634.03 s, longest interval 12.11 ms, nearest stall 127 reads
+  NOT aligned: 108 frames, read 63169, host 634.04 s, longest interval 12.11 ms, nearest stall 128 reads
+stalls by number of >=240 skips 0..2 reads after: {1: 220}
+clusters 343; off-stall (2..59 only) 121, of them with a stall 0
+off-stall clusters with a 1 ms floor step: 22
+clear positions 51828; groups |step|>4: 9, 1 ms groups 7
+chance, 16-read window per cluster: 0.26; with each cluster's own span (16 + b - a): 0.27; cluster spans min 16 median 16 max 30
+planted control: max |recovered - unplanted - plant| over 300 positions x 3 plants = 0

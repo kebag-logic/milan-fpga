@@ -1,0 +1,25 @@
+r1: 15 tables, 119 table lines
+r2: 15 tables, 119 table lines
+r3: 15 tables, 119 table lines
+table  1 lines   8 r3 7529c6ab8c53c0ac same-as-r2 False same-as-r1 False header '| Item | Verdict | Evidence |'
+   r2->r3 changed: row 4 cell 2
+     r2: 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: those of 60 or more are stall-aligned capture-path loss; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
+     r3: 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
+   r2->r3 changed: row 6 cell 2
+     r2: No known signal reaches the peer's talker channels without an instrument or wiring change. See [Direction B](#direction-b). |
+     r3: It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b). |
+table  2 lines  10 r3 ec2504e3313d040b same-as-r2 True same-as-r1 True header '| Identity check | Result |'
+table  3 lines   3 r3 d8f28897b75e6b6e same-as-r2 True same-as-r1 True header '| Binding | Talker output | Listener input |'
+table  4 lines   4 r3 3534a99bbd80482d same-as-r2 True same-as-r1 True header '| Stream format | As found | Meaning |'
+table  5 lines   6 r3 28f6694e7b9a8e06 same-as-r2 True same-as-r1 True header '| Run | Purpose | Result |'
+table  6 lines   5 r3 22ec52bf6ca36a60 same-as-r2 True same-as-r1 True header '| Bind | Talker format | Listener format read | Set | Listen'
+table  7 lines   4 r3 d5af01436365f91f same-as-r2 True same-as-r1 True header '| Stream channel | Expected tag | Captured words | Words wit'
+table  8 lines   3 r3 e8a25144b01a150d same-as-r2 True same-as-r1 True header '| Frames | Valid | Torn | Invalid non-zero | Zero |'
+table  9 lines   7 r3 0c019843233ff3db same-as-r2 True same-as-r1 True header '| Class | Events | Frames | Per second |'
+table 10 lines   3 r3 a126beb2ab5fbfba same-as-r2 True same-as-r1 True header '| Population | Count | Below 1 s | Min, s | Median, s | p95,'
+table 11 lines   3 r3 ce7ca10e8c837052 same-as-r2 True same-as-r1 True header '| First ten median, s | Last ten median, s | Slope, s per cy'
+table 12 lines  32 r3 18c1d56496c35bfd same-as-r2 True same-as-r1 True header '| Cycle | Hold, s | Stopped in hold | Last valid after unbin'
+table 13 lines  11 r3 b162f7311ff46aa5 same-as-r2 True same-as-r1 True header '| State | As left |'
+table 14 lines  11 r3 10c375c0e23e9e5a same-as-r2 True same-as-r1 True header '| Artifact | Bytes | SHA-256 |'
+table 15 lines   9 r3 16e238896dda1c0a same-as-r2 True same-as-r1 True header '| Tool | Role | SHA-256 |'
+identical to r2: 14 of 15; identical to r1: 14 of 15
