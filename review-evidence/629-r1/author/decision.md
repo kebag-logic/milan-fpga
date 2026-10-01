@@ -1,0 +1,27 @@
+[A482] DECISION
+
+Lane M1, design only. Head: `78d4fef220c0ad4873a89b138828c0543c2bcad0` on `629-media-clock-follow`, one commit on dev `d4dd7426`, local and not pushed. It adds `docs/design/MEDIA_CLOCK_FOLLOWING.md` and its row in the design index (`docs/README.md`). No RTL, builder, generator, config or processor change. Markdown gates in the pinned environment (`docs_check`, `check_doc_style`, `gen_toc --check`, `check_em_dash --base d4dd7426`, `check_doc_paths`) and `git diff --check`: all rc 0, none piped.
+
+**Double check (item 1), by clause.**
+- **(a) Yes, an INPUT_STREAM source per AAF Stream Input may sit beside the CRF source.** Milan v1.2 5.3.3.6 is a minimum: exactly one per CRF input (or for the single AAF input when no CRF input exists), and INTERNAL when there is an output. It neither requires nor forbids AAF sources beside CRF. IEEE 1722.1-2021 7.2.9.2 allows the location; 7.2.32 caps the list at 216 and sets no order. The only order rule is the processor's own: an identity list, because its check is `index < clock_sources_count`.
+- **(b) On loss** the listener keeps the selection, with no silent fallback (Milan v1.2 5.3.11.1 saved state; 5.4.2.15 no non-ATDECC change while locked), and counts UNLOCKED (5.3.11.2) and MEDIA_UNLOCKED (Table 5.6). It may hold over and re-acquire (IEEE 1722-2016 4.4.4.7 NOTE, 4.4.4.3, 10.4.3). Milan sets no holdover time.
+- **(c) `mr`:** toggle on a source change, held 8 PDUs (4.4.4.3; PICS F.7 AAF-5/6). The disruption and echo shalls (4.4.4.3 third paragraph, 10.4.3) name CRF only; for a followed AAF stream they are permitted, and recommended. The phase rules for the same talker, 10.8 (+/-5 % of a sample period) and 4.3.5 (whole periods), are not met by the frequency-only servo today.
+- **(d) Wrong today:** 5.3.3.6 read as an exclusive set (FR-CLK-03, the FR status row, L6, TIME_SYNC); BAD_ARGUMENTS attached to Milan 5.4.2.15/.16, where it follows from IEEE 1722.1-2021 7.2.32 and Table 7-141; Milan 7.2.2 cited for "only INTERNAL and CRF"; Milan 7.2.3 cited for A2, whose real basis is 1722.1 7.2.32 with 7.2.6 (both outputs name CLOCK_DOMAIN 0); #629's "applies to AAF and CRF alike" for the disruption shall; stale RTL comments at `milan_datapath.sv:607` and `:5576-5578`; the compliance matrix 7.2.3 row without an A2 caveat.
+
+**Design (item 3).** It reuses everything after the servo's input. A new AAF clock meter takes the selected listener's AVTPDUs from the parser bundle. It keeps one presentation timestamp in 96/spf (16 at Milan's 6 samples per PDU), which is the CRF 96-sample, 2 ms spacing. It then runs `KL_crf_rx`'s 256-entry ring, era and lock rules, so its rate has the servo's units. `media_clk_resolve` decodes against a generated per-index table and drives the servo (now a one-bit select), the aligner, the NCO enable, the #386 settle and the I2S servo on "a stream source is selected". Holdover is the servo's existing HOLDOVER: trim frozen, indefinite, index unchanged. One `mr` toggle per disruption and per switch, merged by #387's law. **Under following this fixes A2**, as B6's B CRF already shows for CRF. **At INTERNAL it does not** (D4). Area: about 300 to 430 LUT, 220 to 340 FF and 1 RAMB18, scaled from `KL_crf_rx` at 433 LUT / 544 FF / 1 RAMB18 (Yosys out-of-context, 1x1 TDM8 shape, run for this lane). Processor: no RTL or microcode change. Its documentation (L6, REQ-MDL-005) and tests change under their own protocol-processor issue, to be filed.
+
+**Options and recommendation:**
+
+| ID | Question | Options | Recommendation |
+|---|---|---|---|
+| D1 | Source order | L1: INTERNAL 0, CRF 1, AAF input k at 2 + k. L2: the pre-#389 order, CRF last | **L1**: CRF stays at index 1, so saved selections (Milan 5.3.11.1) and controller scripts keep their meaning |
+| D2 | AAF measurement | M0: AAF timestamps against the packet grid. M1: one meter on the selected input. M2: one meter per input. M3: share `KL_crf_rx`'s ring | **M1**. M0 makes a second master; M2 costs 8 RAMB18 on 8x8; M3 changes the proven CRF receiver and `CRF_RATE` |
+| D3 | Switch between two followed sources | W1: through servo IDLE (trim reset). W2: hold over and re-acquire, with the reference shown unlocked for one cycle | **W2**: no trim step, and the aligner stays engaged |
+| D4 | A2 at INTERNAL | A2-a: aligner engaged at INTERNAL too. A2-b: CRF stamped from the packet grid. A2-c: A2-a plus an open-loop plan trim. A2-0: leave it on #74 | **A2-a**, about one gate. It reverses the recorded INTERNAL free-run rule (`milan_datapath.sv:5713-5718`), so it needs an explicit decision |
+| D5 | CLOCK_DOMAIN LOCKED/UNLOCKED | C0: clock validity only. C1: also requires INTERNAL or servo LOCKED | **C1** |
+| D6 | Shipping configs | all five, or 1x1 TDM8 first | **All five** in one regeneration (one `entity_model_id` move each) |
+| D7 | Phase alignment (1722-2016 10.8, 4.3.5) | in #629, or a new issue | **A new issue**: pre-existing on the CRF path, outside #629's acceptance |
+
+**Lanes this implies:** requirements + builder + model (FR-CLK-03/04, the config key, the overlay, the shape tables, regeneration); fabric (the meter, the decode, the servo select, the AAF `mr` triggers, D4/D5 as decided, the CSR words in the unmapped `0x8E0`-`0x8F4` window); a protocol-processor issue (docs and tests); bench lane B7 by B6's method (B AAF, B CRF, the INTERNAL control, A1, A2 at INTERNAL, lock loss).
+
+PR body prepared with "Relates to #629"; pushing and the PR are left to the manager. **STOP** here for the owner or manager decision.
