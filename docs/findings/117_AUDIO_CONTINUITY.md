@@ -5,6 +5,9 @@
 
 Refs #117. Operator [A472], measured 2026-10-01, under the
 [bench lane B5 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5925737609).
+Round 2 [A473], analysis only with no bench access, restates the attributions
+and publishes their analysis under the
+[round 2 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5926598386).
 
 This page measures the audio continuity row of #117 acceptance box 4, end to
 end. The [first-light pattern](451_TDM8_FIRST_LIGHT.md#method) enters the
@@ -16,10 +19,10 @@ records the peer's digital output.
 |---|---|---|
 | Identity gate | PASS | Every readback equals lanes B3 and B4. See [Identity and setup](#identity-and-setup). |
 | Integrity: stream channels 0 and 1 bit-exact at the captured 24 bits, in order | PASS | 31,569,594 of the window's 31,569,600 frames are pattern frames, 0 torn and 0 invalid. The other six are single zero frames. See [Integrity](#integrity). |
-| Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. At the peer's output, 520 one-frame drops, one every 1.266 s, six of them with a single zero frame. The capture path lost 117,104 more frames. See [Continuity](#continuity). |
+| Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: those of 60 or more are stall-aligned capture-path loss; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
 | Restarts: 30 unbind and rebind cycles, rebind to the first valid sample | PASS, 30 of 30 under 1 s | Median 0.0279 s, maximum 0.1358 s; no growth. See [Restarts](#restarts). |
 | Direction B, the peer's talker to the DUT's listener | NOT RUN | No known signal reaches the peer's talker channels without an instrument or wiring change. See [Direction B](#direction-b). |
-| #117 audio continuity row | FAIL as measured | The peer's output drops one frame every 1.266 s. The capture path also loses frames, so a clean window was not recorded. |
+| #117 audio continuity row | FAIL as measured | The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames, and the smaller skips are not attributed, so a clean window was not recorded. |
 
 These are operator measurements, not review verdicts.
 
@@ -170,7 +173,8 @@ on the bench host's clock, untouched.
 Across the whole run, 39,356,186 frames, every non-zero word of channel 0
 carries tag 1 and every one of channel 1 tag 2, with no torn frame. The
 3,407,496 zero frames are the silence before the first bind, in the holds and
-after the last unbind.
+after the last unbind, and the window's six. The lane packet `b5-a473` derives
+these counts from the raw pair.
 
 ## Continuity
 
@@ -183,8 +187,11 @@ after the last unbind.
 | Skip of 60 frames or more | 239 | 109,928 | 0.363 |
 | Silent stretch, one frame each | 6 | 6 | - |
 
-The window holds 657.7 s of captured audio in 660.15 s, because the capture
-path lost 2.4 s. The classes separate by cause.
+The window holds 657.7 s of captured audio in 660.15 s on the bench host's
+clock: the capture delivered 117,653 frames fewer than 48 kHz would. Each cause
+below is stated only as strongly as the published analysis carries it. The lane
+packet `b5-a473` holds that analysis: `b5_attrib.py`, the derived read record
+of the window and the receipts that every figure below comes from.
 
 **Repeats: the DUT's INTERNAL beat.** Counted in content frames, the repeats
 fall 93,989 to 93,992 frames apart. That is the 1.958 s beat, one whole-frame
@@ -193,27 +200,55 @@ repeat per crossing ([TIME_SYNC.md](../design/TIME_SYNC.md#talker-capture-handof
 640.47 s apart: 0.511 per second. Four spacings are two beats, where capture
 losses hid a repeat: 338 beats in 660.15 s, 0.512 per second.
 
-**Skips of two frames or more: the capture path.** These are frames the
-bench host's USB path never delivered.
+**How the read-time record places a loss.** The bench host stamped every read
+of the capture: one capture period of 480 frames, nominally 10 ms apart. A
+frame lost inside the capture path, after the capture samples it, delays every
+later read by its duration. The capture's delivery deficit, host time against
+the frames delivered at 48 kHz, then steps up by the frames lost. A frame
+already missing from the signal the capture samples leaves the deficit as it
+was.
 
-- 236 of the 239 skips of 60 frames or more line up with a capture stall.
-  The read interval stretches beyond its 10 ms period by the lost duration:
-  for example 10.51 ms for 10.62 ms lost, and 16.28 ms for 16.88 ms. The
-  stalls recur about every 2.99 s. The other three, 72 to 108 frames, fall
-  in read intervals stretched by 1.8 to 2.1 ms.
-- The stalls' excess sums to 109,069 frames, against 109,928 in those skips.
-- The captured frame count fell behind the bench host's clock by 115,614
-  frames over the window. That also covers most of the 7,176 frames in the
-  smaller skips.
+- A stall is a read interval over 15 ms, the grader's definition. The window
+  holds 220, one every 3.00 s (2.99 to 3.02 s).
+- The step across a skip compares the deficit's floor over 11 reads on each
+  side, which removes read-to-read jitter. Skips of two frames or more fewer
+  than 16 reads apart are taken together, as one cluster.
+- Controls: across the 267 beat repeats and the 419 one-frame skips clear of
+  other skips, the floor moves by at most 3.2 frames. A planted loss of 6, 12
+  or 24 frames is recovered within 5. Over the 51,828 read positions clear of
+  skips of two frames or more, it moves by more than 4 frames at 9 places, 7
+  of them by 1 ms, 48 frames, where no frame is missing.
+
+**Skips of 60 frames or more: stall-aligned capture-path loss.**
+
+- 236 of the 239 fall one or two reads after a stall. Each of the 220 stalls
+  is followed by exactly one skip of 240 frames or more. The other three, 72
+  to 108 frames, fall in read intervals stretched by 1.8 to 2.1 ms.
+- The stalls' excess over the 10 ms period sums to 109,069 frames, against
+  109,928 in those skips.
 - The DUT's talker sent 8,000 packets a second throughout, by `AAF_FRAMES`.
   The peer's listener counted no sequence mismatch, late or early timestamp.
-- Each lost USB microframe holds six frames at 48 kHz. That is also the AAF
-  packet size, so frame counts alone cannot separate the two.
 - A 125 ms capture period lost frames at the same rate (`cap-test1`).
 
-**One-frame skips: the peer's output rate.** A capture loss cannot drop one
-frame, because each USB microframe carries about six. The 526 one-frame skips
-form 520 slip events, each of which removes one frame.
+**Skips of 2 to 59 frames: not separated.** 507 of the 521 are whole multiples
+of six frames, 354 exactly six. Six frames is both a USB microframe at 48 kHz
+and an AAF packet, so frame counts alone cannot separate a capture loss from a
+packet-sized drop.
+
+- 284 of them, 5,386 frames, fall in the 222 clusters that hold a skip of 60
+  frames or more. Across those clusters the deficit steps by 116,138 frames in
+  all, against 115,314 in their skips. That is consistent with capture-path
+  loss, though no single cluster separates its smaller skips.
+- The other 237, 1,790 frames, fall in 121 clusters away from any stall. In
+  none of them does the deficit step by the frames skipped. In 95, whose skips
+  total 12 to 36 frames each, it stays within 3 frames. In 22 it steps by
+  1 ms, and in 4 it matches neither.
+- So the record shows no capture-path loss of their size. They are not
+  separated from a packet-sized drop downstream of the peer's receive
+  counters, or from a drop at the capture's input.
+
+**One-frame skips: attributed to the peer's output rate by inference.** The
+526 one-frame skips form 520 slip events, each of which removes one frame.
 
 - 514 events are a single one-frame skip.
 - Six take the form skip, zero frame, skip, six frames apart. They are the six
@@ -221,13 +256,14 @@ form 520 slip events, each of which removes one frame.
 - Consecutive events fall 60,546 to 60,923 content frames apart, median
   60,768, or 1.266 s. One spacing is two periods, where a capture loss hid an
   event.
-- That is a constant rate difference of 16.4 ppm between the stream and the
-  peer's output.
-- On the bench host's clock, uncalibrated, the stream carries its samples at
-  0.8 ppm below 48 kHz, and the peer's output runs 17.3 ppm below. The window's
-  end times bound both to about 2 ppm.
-- The peer's media clock source is its INTERNAL source, not the stream. So it
-  drops one frame each time the stream runs one frame ahead of its output.
+- That is one frame in 60,768, a constant rate difference of 16.46 ppm between
+  the stream and the recorded output.
+- At the 419 clear of other skips the capture's delivery deficit stays within
+  3 frames, so the capture path did not lose them after sampling.
+- The peer's media clock source is its INTERNAL source, not the stream. An
+  output on its own clock that drops one frame each time the stream runs one
+  frame ahead fits the period. That is an inference: a drop at the capture's
+  input would look the same in this record.
 
 No silent stretch is longer than one frame.
 
@@ -298,11 +334,21 @@ independent errors with constant variance.
 
 ## Direction B
 
-NOT RUN. The reference peer's talker channels carry its own physical inputs:
-its STREAM_PORT_OUTPUT 0 map takes them from its input clusters. No known
-signal drives those inputs. Driving one would need an instrument output or a
+NOT RUN. The reference peer's STREAM_PORT_OUTPUT 0 owns four audio clusters,
+and its dynamic audio map takes the talker's stream channels from those
+clusters only. Its AUDIO_UNIT declares no external or internal port and no
+routing element, so what feeds those clusters is not visible over AEM. A known
+signal on the peer's talker channels would therefore need an instrument or
 wiring change, and this lane allows neither. The external capture was used as
 a capture point only.
+
+The survey's walk of the audio unit is defective for reuse. It read the audio
+clusters with descriptor type 0x0010 and the maps with 0x0014. IEEE 1722.1
+Table 7.1, as the repository encodes it in `avdecc/aem_descriptors.py`, gives
+AUDIO_CLUSTER 0x0014 and AUDIO_MAP 0x0017. The walk's external port types are
+each one too high by the same table; with no external port declared, none of
+those reads was sent. Every cluster read asked for EXTERNAL_PORT_INPUT and
+answered NO_SUCH_DESCRIPTOR, so no AUDIO_CLUSTER descriptor was read.
 
 The DUT's STREAM_INPUT 0 lists `0205022002006000` and `0215022002006000`. It
 could therefore take the peer's four-channel talker format under the binding
@@ -326,13 +372,22 @@ The bridge legs run under new process IDs. No other residual remains.
 
 ## Limits
 
-- The capture path lost 0.37% of the frames. A discontinuity inside a lost
+- Skips of two frames or more removed 0.37% of the frames, 0.35% in the
+  stall-aligned skips of 60 frames or more. A discontinuity inside a lost
   stretch cannot be seen: four beat repeats and one slip event were hidden
   that way.
-- The attribution of the one-frame skips to the peer's output rate rests on
-  their period and on the bench host's uncalibrated clock. A run with the
+- The attribution of the one-frame skips to the peer's output rate is an
+  inference from their period and the peer's INTERNAL clock source. A drop at
+  the capture's input would look the same in this record. A run with the
   peer's media clock following the stream would test it. That needs a clock
   source change on the peer, outside this lane.
+- The 237 skips of 2 to 59 frames away from any stall are not attributed. The
+  read-time record shows no capture-path loss of their size, but it cannot
+  place them between the peer's receive counters and the capture's input.
+  Whether a capture path that loses no frames removes them is open.
+- The floor test assumes that a frame lost inside the capture path delays
+  every later read. It resolves about 4 frames. The 1 ms steps it also finds
+  are not explained.
 - One run, at the DUT's and the peer's INTERNAL clock sources only.
 - Only stream channels 0 and 1 are observed.
 - The restart is timed to the sample's arrival on the bench host, not to the
@@ -343,7 +398,11 @@ The bridge legs run under new process IDs. No other residual remains.
 
 The lane packet `b5-a472` holds the tools, per-action evidence, summaries and
 the raw-artifact index. Raw files stay outside the tree and the packet, each
-identified by size and SHA-256.
+identified by size and SHA-256. The round 2 packet `b5-a473` holds the
+analysis tools, their receipts and the window's derived read record:
+131,540 bytes, SHA-256
+`2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961`, derived
+from the `a-long` read times below.
 
 | Artifact | Bytes | SHA-256 |
 |---|---|---|
@@ -369,3 +428,19 @@ identified by size and SHA-256.
 
 `a-long` ran the `run_a.py` revision before the capture-period option, whose
 default is the value it used. `cap-test1` ran the listed revision.
+
+`b5_ctl.py` is listed at the revision the end snapshot staged and hashed. The
+revision that ran the binds and format sets cannot be established from the
+packet's records. The start snapshot hashed
+`24208ef21e30d6f41d90e39860de8c6272b4e3ad165a33cf5a18f9d572317566`
+(8,642 bytes), and its descriptor survey had no audio-unit walk. The survey
+70 s later carries that walk, so the controller copy changed with no hash
+recorded. The run tool records none either. The binding rule record rests on
+the logged exchanges, not on the tool's identity.
+
+Round 2 adds `b5_attrib.py`
+(`f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40`), which
+derives the window's read record and computes the attribution figures. It
+also adds `b5_records.py`
+(`c68ecf7b47b8bfc7a765b11140bf751b6f90266178dde0448997bdf3a38ac738`), which
+checks the controller revision record and the peer's descriptors.
