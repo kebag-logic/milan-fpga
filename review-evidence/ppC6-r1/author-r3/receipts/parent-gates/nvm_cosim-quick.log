@@ -1,0 +1,11 @@
+make: Entering directory '$VALIDATION_STORAGE/c6r3-parent/src/tb/verilator/nvm_cosim'
+python3 -B run_cases.py --shapes 1x1 --jobs 8 --pool 8 --skip-mutants
+building 2 build(s)
+[contract-1x1] 62 case run(s): 315 ok, 0 bad, 0 not expressible
+nvm_cosim: 315 checks: 315 PASS, 0 FAIL (0 not expressible)
+RESULT: PASS
+make: Leaving directory '$VALIDATION_STORAGE/c6r3-parent/src/tb/verilator/nvm_cosim'
+
+real	0m30.021s
+user	2m44.671s
+sys	0m2.449s

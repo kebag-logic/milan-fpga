@@ -1,0 +1,67 @@
+{"mutant": "golden-pp_top-obj_idn_Vpp_top_idn", "verdict": "PASS"}
+{"mutant": "ident_two_frames", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_seq_per_frame", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_no_rearm", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_rearm_from_third_frame", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_100ms", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_t0_at_request", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_from_t0", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_departure_is_retirement", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_departure_unwired", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_next_burst_at_once", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_wait_ignores_gap", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 11 of 11 KILLED by their named checks; goldens PASS
+
+real	4m19.091s
+user	11m32.547s
+sys	0m28.510s
+{"mutant": "golden-aecp_notify-identify", "verdict": "PASS"}
+{"mutant": "golden-pp_top-identify-only", "verdict": "PASS"}
+{"mutant": "golden-pp_top-obj_idn_Vpp_top_idn", "verdict": "PASS"}
+{"mutant": "ident_press_not_latched", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_press_not_latched", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_departure_ignores_ready", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_cut_on_release", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_release_ignored", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_unicast_da", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_face_taken_mid_job", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_built_at_default", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_deadline_one_tick_short", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_t0_same_ms", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 10 of 10 KILLED by their named checks; goldens PASS
+
+real	4m37.249s
+user	11m4.009s
+sys	0m24.200s
+{"mutant": "golden-pp_top-notify-only", "verdict": "PASS"}
+{"mutant": "enq_dropped_configuration", "verdict": "KILLED", "missing": []}
+{"mutant": "enq_dropped_stream_info", "verdict": "KILLED", "missing": []}
+{"mutant": "class_4_mapped_to_rate", "verdict": "KILLED", "missing": []}
+{"mutant": "class_9_mapped_to_control", "verdict": "KILLED", "missing": []}
+{"mutant": "requester_not_excluded", "verdict": "KILLED", "missing": []}
+{"mutant": "entry_seq_not_advanced", "verdict": "KILLED", "missing": []}
+{"mutant": "stream_info_get_body", "verdict": "KILLED", "missing": []}
+{"mutant": "counter_limit_500ms", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 8 of 8 KILLED by their named checks; goldens PASS
+
+real	2m28.816s
+user	8m24.370s
+sys	0m21.176s
+{"mutant": "golden-originator-run", "verdict": "PASS"}
+{"mutant": "golden-pp_top-notify-only", "verdict": "PASS"}
+{"mutant": "fan_out_skips_row_0", "verdict": "KILLED", "missing": []}
+{"mutant": "refresh_resets_seq", "verdict": "KILLED", "missing": []}
+{"mutant": "foreign_unlock_allowed", "verdict": "KILLED", "missing": []}
+{"mutant": "lock_taker_notified", "verdict": "KILLED", "missing": []}
+{"mutant": "deregister_keeps_row", "verdict": "KILLED", "missing": []}
+{"mutant": "registry_holds_15", "verdict": "KILLED", "missing": []}
+{"mutant": "set_control_ignores_lock", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_highest_free_id", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_match_ignores_seq", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_cancel_keeps_timer", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_shared_seq", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 11 of 11 KILLED by their named checks; goldens PASS
+
+real	2m48.630s
+user	8m40.711s
+sys	0m22.129s
