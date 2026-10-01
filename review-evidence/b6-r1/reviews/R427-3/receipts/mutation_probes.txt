@@ -1,0 +1,37 @@
+ok
+== dup_629_row
+FAIL: candidate tree differs from mechanical merge
+FAIL: row 629_MEDIA_CLOCK_FOLLOWING_BENCH.md appears 2 times
+FAIL: row order ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md'] != expected ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md']
+docs_check: 0 finding(s) across 184 md files + 955 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_em_dash: 0 finding(s) over 688 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d4dd7426..HEAD]
+ok
+== drop_117_row
+FAIL: candidate tree differs from mechanical merge
+FAIL: row order ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md'] != expected ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md']
+compose_check: FAIL
+docs_check: 0 finding(s) across 184 md files + 955 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_em_dash: 0 finding(s) over 687 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d4dd7426..HEAD]
+ok
+== broken_link
+FAIL: candidate tree differs from mechanical merge
+FAIL: row order ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md'] != expected ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md']
+FAIL: row 629_MEDIA_CLOCK_FOLLOWING.md not byte-equal to its introducing head
+docs/findings/README.md:15: broken link -> 629_MEDIA_CLOCK_FOLLOWING.md
+docs_check: 1 finding(s) across 184 md files + 955 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_em_dash: 0 finding(s) over 687 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d4dd7426..HEAD]
+ok
+== swap_order
+FAIL: candidate tree differs from mechanical merge
+FAIL: row order ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md'] != expected ['451_TDM8_FIRST_LIGHT.md', '451_TDM8_TIMING_SOC_BOARD.md', '451_USB_AUDIO_CAPTURE.md', '617_DIN_FRAME_COHERENCE_BENCH.md', '629_MEDIA_CLOCK_FOLLOWING_BENCH.md', '75_RECONNECT_RESTART_MEASUREMENT.md', '606_FIRST_BIND_MEASUREMENT.md', '608_75_WITHDRAWAL_AND_RESTART.md', 'COMMERCIAL_TIMING_395.md', '397_SERVICE_BUDGET.md', '117_GPTP_SILICON_EVIDENCE.md', '117_AUDIO_CONTINUITY.md', '../history/v1/findings/ADP_SHAPE_STATIC_0727.md', 'CBS_DATAPATH_BUG.md', '../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md', '../history/v1/findings/PP_SHADOW_AREA_0812.md', '../history/v1/findings/PERFORMANCE_GOAL.md']
+compose_check: FAIL
+docs_check: 0 finding(s) across 184 md files + 955 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_em_dash: 0 finding(s) over 687 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d4dd7426..HEAD]
+ok
+== em_dash
+FAIL: candidate tree differs from mechanical merge
+FAIL: row 629_MEDIA_CLOCK_FOLLOWING_BENCH.md not byte-equal to its introducing head
+compose_check: FAIL
+docs_check: 0 finding(s) across 184 md files + 955 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs/findings/README.md:15: U+2014 (em dash) in an added table row -- write --, a colon or a plain sentence
+check_em_dash: 1 finding(s) over 687 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d4dd7426..HEAD]

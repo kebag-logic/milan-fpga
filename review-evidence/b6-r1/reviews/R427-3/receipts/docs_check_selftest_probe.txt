@@ -1,0 +1,11 @@
+$ <venv>/bin/python scripts/docs_check.py --help
+head=df943ae83af96553362ccf58ff96089d1c31ee04
+usage: docs_check.py [-h] [--selftest]
+
+Docs gate: link integrity + wording deny-list + bare/dead references + local
+info.
+
+options:
+  -h, --help  show this help message and exit
+  --selftest  run the rule-5 scrub and rule-7 routing arms and stop
+exit=0
