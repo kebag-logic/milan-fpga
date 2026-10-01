@@ -1,0 +1,14 @@
+
+### 2026-10-01T08:26:15+0200 timeout=180.0
+
+# printf '%s_READY\n' A472_751641
+A472_751641_READY
+# printf '%s_B\n' A472_751641; cat /proc/uptime; awk 'BEGIN{for(n=0;n<65536;n++){{h=sprintf("00%02x%02x",n%256,int(n/256));s="";for(c=1;c<=8;c++)s=s h sprintf("%002x",c);print s}}' | xxd -r -p > /tmp/a472-din.raw; echo build_rc=$?; cat /proc/uuptime; wc -c < /tmp/a472-din.raw; echo 'b6a92e9724e945354c3f8fc5178cec7bb8fd0e622d52bd9ee7f13ed5347bfa97c  /tmp/a472-din.raw' | sha256sum -c; printf '\n%s_E rc=%%s\n' A472_751641 $?
+A472_751641_B
+75789.11 207333.79
+build_rc=0
+75793.43 207345.79
+2097152
+/tmp/a472-din.raw: OK
+
+A472_751641_E rc=0

@@ -1,0 +1,40 @@
+LOCK_REQUEST 2026-10-01T06:23:41.452Z diag1 0 0 60
+LOCK 2026-10-01T06:23:41.457Z
+{"t": 1790835821.608074, "kind": "pattern-period", "frames": 65536, "bytes": 2097152, "sha256": "b6a92e9724e945354c3f8fc5178cec7bb8fd0e62d52bd9ee7f13ed5347bfa97c"}
+{"t": 1790835821.608208, "kind": "start", "name": "diag1", "continuity_s": 0.0, "cycles": 0, "play_s": 60}
+{"t": 1790835826.300826, "kind": "soc", "tag": "build", "rc": 0}
+{"t": 1790835826.627163, "kind": "sync", "n": 5, "t0": 1790835826.626995, "t1": 1790835826.627156, "rt": 1790835828.0347745, "rtt_ms": 0.162, "offset_ms": 1407.699}
+{"t": 1790835826.627662, "kind": "peer-format-found", "fmt": "0205022001006000"}
+{"t": 1790835826.628334, "kind": "map-add", "status": ["SUCCESS", "SUCCESS"], "readback": "000f0000000000010008000000000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700070000"}
+{"t": 1790835826.630317, "kind": "full-snippet", "start_frame": 0, "frames": 2880000}
+{"t": 1790835826.630396, "kind": "capture-started", "diag": true}
+{"t": 1790835829.916743, "kind": "soc", "tag": "play-start", "rc": 0}
+{"t": 1790835830.082929, "kind": "dut", "tag": "before-bind", "rc": 0}
+{"t": 1790835831.118676, "kind": "format-check", "ok": true, "tag": "initial", "talker": "0205022002006000", "listener": "0205022001006000", "set": {"fmt": "0205022002006000", "status": ["SUCCESS"], "echoed": "0205022002006000"}, "listener_after": "0205022002006000"}
+{"t": 1790835831.119307, "kind": "sync", "n": 7, "t0": 1790835831.118959, "t1": 1790835831.119129, "rt": 1790835832.5267587, "rtt_ms": 0.17, "offset_ms": 1407.714}
+{"t": 1790835831.138637, "kind": "bind", "status": 0, "t_tx": 1790835832.527158, "t_rx": 1790835832.535107, "conn_count": 1, "stream_id": "0200000000010000", "flags": "0x0002"}
+{"t": 1790835831.139267, "kind": "sync", "n": 11, "t0": 1790835831.139095, "t1": 1790835831.139262, "rt": 1790835832.5468924, "rtt_ms": 0.167, "offset_ms": 1407.714}
+{"t": 1790835846.317032, "kind": "dut", "tag": "diag-bound", "rc": 0}
+{"t": 1790835846.317103, "kind": "diag-done", "frame": 940320}
+{"t": 1790835846.31712, "kind": "teardown"}
+{"t": 1790835846.318146, "kind": "sync", "n": 14, "t0": 1790835846.31797, "t1": 1790835846.318141, "rt": 1790835847.7258, "rtt_ms": 0.172, "offset_ms": 1407.745}
+{"t": 1790835846.326428, "kind": "unbind", "status": 0, "t_tx": 1790835847.726035, "t_rx": 1790835847.726523, "conn_count": 0, "stream_id": "0000000000000000", "flags": "0x0000"}
+{"t": 1790835848.344198, "kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+{"t": 1790835848.362261, "kind": "peer-format-final", "fmt": "0205022001006000", "equal_to_found": true}
+{"t": 1790835848.36265, "kind": "map-remove", "status": ["SUCCESS", "SUCCESS"], "readback": "000f00000000000100000000"}
+{"t": 1790835848.362943, "kind": "map-final", "readback": "000f00000000000100000000"}
+{"t": 1790835848.364105, "kind": "sync", "n": 17, "t0": 1790835848.363956, "t1": 1790835848.3641, "rt": 1790835849.7717752, "rtt_ms": 0.143, "offset_ms": 1407.747}
+{"t": 1790835848.379468, "kind": "agent-exit", "rc": 0}
+{"t": 1790835850.787701, "kind": "soc", "tag": "play-stop", "rc": 0}
+{"t": 1790835851.951534, "kind": "capture-exit", "rc": 1}
+{"t": 1790835851.951654, "kind": "reader", "frames": 1201943, "error": null, "segments": 0}
+{"t": 1790835852.1218, "kind": "dut", "tag": "final", "rc": 0}
+{"t": 1790835852.273526, "kind": "soc", "tag": "cleanup", "rc": 0}
+{"t": 1790835852.273801, "kind": "raw-file", "file": "arecord.log", "bytes": 749, "sha256": "7c9984c9378352db1f7389e6f717a9956924ffa40e6d62a70043499c6842c167"}
+{"t": 1790835852.329501, "kind": "raw-file", "file": "cap-all-20ch.raw", "bytes": 72000000, "sha256": "cd4cb2b4a66e755d562a91f1b2f7104d607333c27bbd06378ff4b6feb63bd6c4"}
+{"t": 1790835852.33507, "kind": "raw-file", "file": "cap-lr.raw", "bytes": 7211658, "sha256": "89c9c3c24abe4e70968970568bd871b9748b398b6a54c36299ca377bee4dbfe1"}
+{"t": 1790835852.335192, "kind": "raw-file", "file": "cap-ts.bin", "bytes": 60120, "sha256": "7dc850cf43a756c1f8eebd8799b5abac8d772ea9bc587cd0e37665b7c3f216e9"}
+{"t": 1790835852.335223, "kind": "end"}
+ACTION_RC=0
+UNLOCK 2026-10-01T06:24:12.351Z
+LOCK_RC=0 2026-10-01T06:24:12.353Z

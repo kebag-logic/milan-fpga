@@ -1,0 +1,23 @@
+
+### 2026-10-01T08:37:25+0200 timeout=20.0
+
+# printf '%s_READY\n' A472_863501
+A472_863501_READY
+printf '%s_B\n' A472_863501; cat# printf '%s_B\n' A472_863501; cat /proc/uptime; ps -o pid,args | grep -E '[a]plaay|[c]at /tmp/a472-din.raw'; for s in /proc/asound/card0/pcm0p/sub0/status; do heead -8 $s; done; printf '\n%s_E rc=%s\n' A472_863501 $?
+A472_863501_B
+76459.00 209985.44
+ 1629 sh -c while cat /tmp/a472-din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 1500; echo aplay_rc=$?
+ 1631 sh -c while cat /tmp/a472-din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 1500; echo aplay_rc=$?
+ 1632 aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 1500
+ 2121 cat /tmp/a472-din.raw
+state: RUNNING
+owner_pid   : 1632
+trigger_time: 75796.135007815
+tstamp      : 76459.024901950
+delay       : 14730
+avail       : 1660
+avail_max   : 14336
+-----
+
+A472_863501_E rc=0
+# 

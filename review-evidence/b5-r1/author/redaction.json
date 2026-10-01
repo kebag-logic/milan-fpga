@@ -1,0 +1,366 @@
+{
+ "rule": "literal and regex substitutions from a private map; originals kept outside the packet",
+ "files": {
+  "identity/adp-discover.jsonl": {
+   "original_sha256": "c19b892afd273dda8aa35d422be76e8c5665cd016d5cbb12b4a5b72a942b2024",
+   "retained_sha256": "340193976dbade117f80b9ff5ada501a13bf62da8c7b54c702471d8ff2d8023b",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<mac>",
+    "<other-controller-entity-id>",
+    "<other-controller-mac>",
+    "<peer-entity-id>",
+    "<peer-mac>",
+    "<peer-model-id>"
+   ]
+  },
+  "identity/console-identity.stdout": {
+   "original_sha256": "dd6a24b3da457becf65719ccac71d38faf2a593875e9d8af51c468bc137ff6b5",
+   "retained_sha256": "263402cb565a0d1787bcefe975e2272bea50e7b1ffb9960b05c98e278e7d2a5c",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "identity/console-identity.txt": {
+   "original_sha256": "a74a04d706f58c7c337624980699f1e9ec85592903a6ee47ab2bacf8a95ae4a1",
+   "retained_sha256": "28e0bb99330c11189e0c3eeb95d31eff50de2d48916bcbbde0d0c6ab83302537",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "identity/grader-identity.txt": {
+   "original_sha256": "190b4dcc07edcbf7cb47bd72bbe817994b6f47402f71259d405963e3900474ee",
+   "retained_sha256": "5d82061ab6b2a8a9eac587c2e22acee0ad8950fc4be0c2f66a286ec240c25cdc",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "identity/identity-aecp.jsonl": {
+   "original_sha256": "e6a5d01fff7743bad3e162e599a2abf15b5b1741e685db3b7753d51c6ffbfc02",
+   "retained_sha256": "423a2a55c1b9b73a8654923f868509f8aa9dd3d052af8cfdee763132d38fd964",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>"
+   ]
+  },
+  "restore/census-compare.txt": {
+   "original_sha256": "6603c58b62bb3e74bd9e464b84beb106416198e767d8bf40d66e3e120abf1b62",
+   "retained_sha256": "10cfc3af684d4276a8db31c57d538028ae8076a81b26430309f4b9c32215a807",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/census-end.jsonl": {
+   "original_sha256": "77714a8fd010e73890adef8813553a00803e5bef25a898d4fa9f8df814b8579f",
+   "retained_sha256": "f911d7f84f847c71adf5ee07c5184f18c61858d16159b8efb4c5250fcc92d7f3",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "restore/census-start.jsonl": {
+   "original_sha256": "752f041ecc7a9603ac9b0f9061af5e6adf76472c83cc1ec55fdc4467d86fe7bb",
+   "retained_sha256": "6ed185674efef3053f38e60d8bee229719704089807bffc62f06a696b5d0b3f0",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "restore/controller-end.txt": {
+   "original_sha256": "fb645c8a58135e30cf3229a9e30889833429ed024bd723ce020046934d0e0bfe",
+   "retained_sha256": "c4d9b3d09483fac19036d9fe6967b1264a829a354902176fbc818b1a48618ce5",
+   "labels": [
+    "<operator> <operator>"
+   ]
+  },
+  "restore/controller-start.txt": {
+   "original_sha256": "3946521b71c0fe0c432a3f3a730ca1baa5db3fe235c740124b39fba1a8835768",
+   "retained_sha256": "34b98f7830ef81661dff483b87f43f22a5297ade02ea6e3baf121f69c8f2f670",
+   "labels": [
+    "<operator> <operator>"
+   ]
+  },
+  "restore/dut-end.txt": {
+   "original_sha256": "78db47392abe86c9259862afccc6392c59112773acf25bfa657186c867221c9e",
+   "retained_sha256": "cf8a3402aba14ae8ee0c6b829308c2d718e847a28af47b2ce696d4e19a190a6f",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/dut-start.txt": {
+   "original_sha256": "08a6fe04bf226a22af123b162e0486db2161d8f57cbe0ace0bf6f01d6092c392",
+   "retained_sha256": "af370257fb1603ef45a0fce961b33bbb6acc86a5106932cf63c7fa41b0d99ba9",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/dut-stream-descs.jsonl": {
+   "original_sha256": "2a23d45bf007323c9d33a0af6d009f31050ca1b0f5ce760efd4381b4e35d26d5",
+   "retained_sha256": "06913efceba2aa8caf095c63f3dc1c295d8779f80bc69460cbb528e785965b52",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>"
+   ]
+  },
+  "restore/grader-end.txt": {
+   "original_sha256": "91dc599e209b551403068b6bd8b7557fa65d265a5a2d81e67075fc47e46ea780",
+   "retained_sha256": "97e8a8615116d39457bfb3a3de09cc347907d94b1381ba9f9e28f3c5daa69e9c",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/host-end.txt": {
+   "original_sha256": "f4e412a9d4835af73f2d19c9468a50f9d20fc0ea6abad2cf19f79bc951e91f78",
+   "retained_sha256": "ba5e7baf3a7bdbd6daf43ba517cd6a355c7dc9bbc0a07ceac7d0535c2b470199",
+   "labels": [
+    "<dut-console>",
+    "<external-capture-id>",
+    "<external-capture>",
+    "<mac>",
+    "<other-serial-device>",
+    "<soc-console>"
+   ]
+  },
+  "restore/host-start.txt": {
+   "original_sha256": "349cbd0a1de3e111c530b98985a8a71f5ef2f34119a7c552a64214959d88eae2",
+   "retained_sha256": "9faa8dbcb5f978970708de7d92f3f9cb6ad4ce1f0bba5c0c65473eecf080b2ac",
+   "labels": [
+    "<dut-console>",
+    "<external-capture-id>",
+    "<external-capture>",
+    "<mac>",
+    "<other-serial-device>",
+    "<soc-console>"
+   ]
+  },
+  "restore/peer-descs-2.jsonl": {
+   "original_sha256": "3b552911e884d331d955bbf0863b656cb41c0245463e22124515d849f15b6548",
+   "retained_sha256": "9e4a53d3a65b2f046b60e26cf9b0a88f0087b5d44ef6aba8e7326d7156db2cfa",
+   "labels": [
+    "<controller-avb-if>",
+    "<peer-clock-id-2>",
+    "<peer-clock-id>",
+    "<peer-entity-descriptor-redacted>",
+    "<peer-entity-id>",
+    "<peer-mac-2>",
+    "<peer-mac>"
+   ]
+  },
+  "restore/peer-descs.jsonl": {
+   "original_sha256": "33ff95312c8da2030fdcec9cb237c583b78a53cf68779e5db34abb34233ba21f",
+   "retained_sha256": "9d4a1cd5619cd3d9f773b2773568153d5b34154fc07f715e93853e083f16e2b7",
+   "labels": [
+    "<controller-avb-if>",
+    "<peer-clock-id-2>",
+    "<peer-clock-id>",
+    "<peer-entity-descriptor-redacted>",
+    "<peer-entity-id>",
+    "<peer-mac-2>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a-long/ctl.jsonl": {
+   "original_sha256": "52ae6c9a381bded724ed07050271bea838172c898286ec7960e08df6823bcfeb",
+   "retained_sha256": "189161e80ad061d05cf5fb010825db9759052c6cec9cf6d75cd7a096d9e3c248",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a-long/dut-after-cycles.txt": {
+   "original_sha256": "5b63910b9e67e0c4b3fd96ba19c891c6c1f7d16123b13776603bac78be1c03c5",
+   "retained_sha256": "820296c7bb1c194bbe7b634b215965ecc7a312dc60d4074a17e21f90e444a3d3",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-long/dut-before-bind.txt": {
+   "original_sha256": "7b61d308849fc017066cfa0e66d5c41fc17835adef3cd6dbd0eb1308d7734020",
+   "retained_sha256": "22ff3735ef6d177131b7bd9ab86955353b9ed839c5521a94321263ad85fcf6e2",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-long/dut-cont-0.txt": {
+   "original_sha256": "dd4b327354e61944b9f7d7fde86244d9934e9d3c7e44a66151feef3f4fbb5bea",
+   "retained_sha256": "eb7230ec40e00d9dc1ae129539420ac10b6a91d91992028be22cbf9de2d4d7db",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-long/dut-cont-1.txt": {
+   "original_sha256": "1e26fed6d441ebfa2f3a16a3820f305076f25e05fdf3726deb709e2a8c4a0bb3",
+   "retained_sha256": "038da0445a0fd72f3cf9ceae792c81bbcd974b6cb2b4c679ce2330ff620d730e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-long/dut-cont-2.txt": {
+   "original_sha256": "b125a58a7c7c678e2d1fc87496a124ce27b9361d4acd87b472f38f03f82b57b6",
+   "retained_sha256": "7f389bd2d0c41171f9d392c9c5651b54f45e0590aa592f1e872120c26c5a308a",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-long/dut-final.txt": {
+   "original_sha256": "0e5371e837b3ec3e8c3060d70ef23b1e281e7065ed881d573a2134e25cd133e7",
+   "retained_sha256": "241ea18230289264b0a4621918c60f674e70ed1b77c584aabeb580d418eefad2",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-try1/ctl.jsonl": {
+   "original_sha256": "468c50dd1c60cce97266a5d1549c6c8ca8270ffa2a4205d9f6858327d48f402a",
+   "retained_sha256": "db8e2316fcef73dceba2dd72ddc7b2859bae45cc01f628efa2b3276b85554ad2",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a-try1/dut-before-bind.txt": {
+   "original_sha256": "81187a2cfe9db899f6da36347cee596a93ac0b6509ee81e40b7fb58c854d374a",
+   "retained_sha256": "8c89b42e60ca7a59b36fd875d66c05815549283ea6bba7291db015c3d1d84666",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a-try1/dut-final.txt": {
+   "original_sha256": "3ebfb49e3b576bff7617e1b8a73f57564083e6860d64898cc0b9d470df18fed7",
+   "retained_sha256": "e90c86a4310d9da786f35f36f45c7a343c2b9fb4c8a75e70babe05237706e34e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/abort-agent-start/console.txt": {
+   "original_sha256": "a5833cbda84181b5c7ebb22c96c1f41ec69fc6b6db28d28ca537373f4c9966c9",
+   "retained_sha256": "b9ebc5a5ec2265f40ee44e4fbc278bd44f911c1315f541a2d21434bb375dfbf7",
+   "labels": [
+    "<controller-avb-if>",
+    "<home>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/abort-agent-start/ctl.jsonl": {
+   "original_sha256": "7f9e55b6bd7bdb8bfd9eeb2f6b4f3366641c14e05278436bfb9445e5212fd5c5",
+   "retained_sha256": "99d0bc0a6675becb6a6bcb1865bac22c8920bb767010ecabc49c856914c54597",
+   "labels": [
+    "<controller-avb-if>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/abort-agent-start/dut-final.txt": {
+   "original_sha256": "1408d69d3ceb9d2f8eb6932b9c9f06c627a425449d7bc428a70427e60e85ea45",
+   "retained_sha256": "86f6555acd5d5a864f5cd2a60963198b496ec5fa5b7637505c0e60fcac1d47a9",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/agent-dryrun.txt": {
+   "original_sha256": "6bbe46e330ead37439f6ff15fadfeb3a910645fb532ad7638f77e04a66b289cf",
+   "retained_sha256": "4800c014f2b9ee2135591fc81e433b1ec046a1f65de12cd378c080bc19eeea5a",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/cap-test1/ctl.jsonl": {
+   "original_sha256": "7874e1ba929a901440f08fff7c8bc648570231fc2e2db5c3fa092259ba0938ca",
+   "retained_sha256": "95ab6c01458a04bbb5169fffb38affcd3f46f28b45971f6e40484c574ba5a5db",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/cap-test1/dut-after-cycles.txt": {
+   "original_sha256": "7396a6a01ba5f0f353d3777fc0cc745ad50509691a7c40b8dec6023974d9058b",
+   "retained_sha256": "c1c4b50ee65e52a39fb62048930c405632c4ff75ad0bb19d6ca0f6db368f6800",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/cap-test1/dut-before-bind.txt": {
+   "original_sha256": "fb3b47943f426aac02b0ae37266d4f8117f8fb56e0596b06bf33fa8996a654b5",
+   "retained_sha256": "4679406f480ed2c073e35b1a45be48d59d37d7a2d0a2fecde5648ae518b9d29e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/cap-test1/dut-cont-0.txt": {
+   "original_sha256": "c89090ed55cd64a0327d9993e243efe7577ee0ae74b988f19fd60b96e780d907",
+   "retained_sha256": "ae439fa1184c6f5b620d87546f8bcfbd93e14bdd062e08f4fdbf892bfed1f8f4",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/cap-test1/dut-cont-1.txt": {
+   "original_sha256": "ffdce906bff18c3c353c9c05e2741a11f0a5ba51f1083bea0c6f3a24c30dbe08",
+   "retained_sha256": "58ebfcac8008cac34f31ed338b109759d14e8ca4526053295489935caf8bf2f1",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/cap-test1/dut-cont-2.txt": {
+   "original_sha256": "83c7ffc58903e3ae16c0de68bd14755c6ce6593079750dddd003334e065a3467",
+   "retained_sha256": "3cdbcd1dc89faeddec764d59aca2f3a21ef8168476ca885eb7a1ef73691c7d0e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/cap-test1/dut-final.txt": {
+   "original_sha256": "a68c848d5bb315440a749e8f669430dc53cb4ef0bb38347d5c1aa76df15cb4fd",
+   "retained_sha256": "167ff007792df6fb33cc876d6269beb29d5dbcbf80b2a17507848759510c8056",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/diag1/ctl.jsonl": {
+   "original_sha256": "842b71099ab25b203057b9fc026275caaaed61a35fb82a567eb51dd847eb013d",
+   "retained_sha256": "bb2ca7dc2aaa1ca35c8a6c3dcff08fb6350f6543b3d4183b9bb74b1cf7d0394d",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/diag1/dut-before-bind.txt": {
+   "original_sha256": "7164dc3fcc5e8e408bcd8c6a7c109a87f4438564881c5b013bc3dac7f15c4cee",
+   "retained_sha256": "40f3fc2086f6e2787bfd7c489518eaa295e09cb05f8009fb1fa60c70d867c0c5",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/diag1/dut-diag-bound.txt": {
+   "original_sha256": "0a9cd560b32c0ef910ba2de49bd3da9df7105c1c789d33f3e3737002b3c1bfdd",
+   "retained_sha256": "9697f7ca5562d57b3d5a788157d8bbc4938f7f4e879773d2422647527733d1d8",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/diag1/dut-final.txt": {
+   "original_sha256": "ecf4b36d125d4c0f0f8136be40065dc712ee6ff33ec630c60303bd963cfb912e",
+   "retained_sha256": "d4882450497fe1884932af7b33586555df72f4c7b23388abbe49f11a071b40a6",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  }
+ }
+}

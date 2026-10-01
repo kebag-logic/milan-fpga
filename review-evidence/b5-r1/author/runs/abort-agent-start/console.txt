@@ -1,0 +1,21 @@
+LOCK_REQUEST 2026-10-01T06:21:46.751Z a-long 660 30 1500
+LOCK 2026-10-01T06:21:46.756Z
+{"t": 1790835706.906691, "kind": "pattern-period", "frames": 65536, "bytes": 2097152, "sha256": "b6a92e9724e945354c3f8fc5178cec7bb8fd0e62d52bd9ee7f13ed5347bfa97c"}
+{"t": 1790835706.90681, "kind": "start", "name": "a-long", "continuity_s": 660.0, "cycles": 30, "play_s": 1500}
+{"t": 1790835711.576757, "kind": "soc", "tag": "build", "rc": 0}
+{"t": 1790835711.905319, "kind": "teardown"}
+{"t": 1790835713.071974, "kind": "dut", "tag": "final", "rc": 0}
+{"t": 1790835713.221573, "kind": "soc", "tag": "cleanup", "rc": 0}
+{"t": 1790835713.221705, "kind": "end"}
+Traceback (most recent call last):
+  File "<home>/milan-fpga-management/2026-09-23/b5-a472/tools/run_a.py", line 310, in <module>
+    ag = Agent()
+  File "<home>/milan-fpga-management/2026-09-23/b5-a472/tools/run_a.py", line 188, in __init__
+    assert '"agent-ready"' in line, line
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {"type":"start","mode":"agent","argv":["agent","<controller-avb-if>","<peer-entity-id>","<peer-mac>"],"t":1790835713.312307}
+
+ACTION_RC=1
+UNLOCK 2026-10-01T06:21:53.245Z
+LOCK_RC=0 2026-10-01T06:21:53.248Z
+EXIT=0

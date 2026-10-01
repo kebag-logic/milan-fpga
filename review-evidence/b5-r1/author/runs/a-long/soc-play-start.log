@@ -1,0 +1,24 @@
+
+### 2026-10-01T08:26:22+0200 timeout=30.0
+
+# printf '%s_READY\n' A472_435457
+A472_435457_READY
+# printf '%s_B\n' A472_435457; cat /proc/uptime; grep dma-controller /proc/interrrupts; nohup sh -c 'while cat /tmp/a472-din.raw; do :; done | aplay -v -D hw:0,0  -t raw -c 8 -f S32_LE -r 48000 -d 1500; echo aplay_rc=$?' > /tmp/a472-play.log 22>&1 < /dev/null & sleep 1; ps -o pid,args | grep -E '[a]play|[c]at /tmp/a472-dinn.raw'; cat /proc/uptime; printf '\n%s_E rc=%s\n' A472_435457 $?
+A472_435457_B
+75796.10 207356.25
+ 95:       1304          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:          8          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   18508760          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:     462466          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+[1] 1629
+ 1629 sh -c while cat /tmp/a472-din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 1500; echo aplay_rc=$?
+ 1631 sh -c while cat /tmp/a472-din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 1500; echo aplay_rc=$?
+ 1632 aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 1500
+ 1634 cat /tmp/a472-din.raw
+75797.13 207360.27
+
+A472_435457_E rc=0
+# 
