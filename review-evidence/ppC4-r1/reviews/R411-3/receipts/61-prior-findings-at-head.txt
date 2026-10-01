@@ -1,0 +1,35 @@
+== F-1/R411-1 S2: GAP-15 cell + caption
+337:| REQ-ACMP-001 | Milan §5.5.2.2 | Send truncated 56-B ACMPDU; accept 56-B an
+366:| REQ-AEM-002 | Milan §5.4.2.1 | ACQUIRE_ENTITY implemented but never SUCCES
+386:| REQ-AEM-022 | Milan §5.4.2.29 / IEEE §7.4.76 | GET_DYNAMIC_INFO: fixed-siz
+509:| [GAP-15](#gap-15) | Info | Conventions + parser rules + status policies | 
+3:509:| [GAP-15](#gap-15) | Info | Conve
+513:The **Open residue** column records the audit of 2026-09-18 at main `6a878f6`: each finding was
+== S-2: 09 row
+62:| 96-B IEEE 1722.1-2021 ACMPDU (cdl 84) and 56-B Milan ACMPDU (cdl 44, the IEEE 1722.1-2013 length) | both accepted (V3) |
+== S-1: AS6 q_acmp empty
+4268:    CHECK(h.amap_edit_mutations == before && h.q_acmp.empty()
+9149:    CHECK(h2.q_acmp.empty(),
+9151:          "(%zu ACMP frames)", h2.q_acmp.size());
+9267:    CHECK(h2.q_acmp.empty() && !lv,
+9269:          "Listener Lv", h2.q_acmp.size());
+9319:    CHECK(h2.q_acmp.empty(),
+9321:          "(%zu)", h2.q_acmp.size());
+9330:    CHECK(h2.q_acmp.empty(),
+9332:          h2.q_acmp.size());
+9528:    CHECK(h.q_adp.empty() && h.q_acmp.empty(),
+9976:    CHECK(h.q_acmp.empty() && !d->restore_busy_o && !d->restore_done_o,
+9986:    CHECK(bw_ops(ops1, 0, 0x20) == 2 && h.q_acmp.empty() && d->restore_busy_o
+== S-3: unbind response read
+9295:    auto u = wait_acmp(9, 0x4815, 400);
+== S-4: F4 label
+tb/rx_validator/README.md:37:  IEEE 2013 short form accepted with tail fields (sequence_id @48,
+tb/rx_validator/sim_main.cpp:465:// ---- F4: IEEE 2013 short-form ACMPDU, cdl 24: tail reads 0 (V3) -------
+== R411-1 S1: acmp_nvm editions
+176:// IEEE 1722.1-2021 Table 8-2 (IEEE 1722.1-2013 Table 8.1) message types under
+185:// ACMP flags (IEEE 1722.1-2021 Table 8-4; IEEE 1722.1-2013 Table 8.3)
+== R411-1 S4: driver vs 616cbdf
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+0
+== R411-1 S3: hdl vs 616cbdf/lane base
+

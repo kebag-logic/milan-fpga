@@ -1,0 +1,33 @@
+docs/00_MILAN_COMPLIANCE_REVIEW.md: lane -1/+1  merged -1/+1  IDENTICAL after renames
+docs/architecture/09_verification.md: lane -1/+1  merged -1/+1  IDENTICAL after renames
+tb/acmp_listener/README.md: lane -1/+31  merged -1/+31  IDENTICAL after renames
+tb/acmp_listener/sim_main.cpp: lane -0/+94  merged -0/+94  IDENTICAL after renames
+tb/acmp_nvm/sim_main.cpp: lane -2/+3  merged -2/+3  IDENTICAL after renames
+tb/maap/README.md: lane -0/+0  merged -1/+1  2 line(s) differ
+  removed: merged-only: | `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 497 |
+  added: merged-only: | `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 555 |
+tb/pp_top/README.md: lane -0/+105  merged -0/+105  IDENTICAL after renames
+tb/pp_top/acmp_mutants.py: lane -0/+266  merged -0/+266  IDENTICAL after renames
+tb/pp_top/pp_top_wrap.sv: lane -0/+12  merged -0/+12  IDENTICAL after renames
+tb/pp_top/sim_main.cpp: lane -4/+489  merged -1/+486  12 line(s) differ
+  removed: lane-only:   if (!gsi_only && !name_only && !d3_only) Suite(h).run();
+  removed: lane-only:   if (!name_only && !d3_only) InternalStreamInfoPhase{h}.run();
+  removed: lane-only:   if (!gsi_only && !d3_only) run_name_writes(h);
+  removed: lane-only:   if (!gsi_only && !name_only) run_d3(h);
+  removed: merged-only:   const bool one_section = gsi_only || name_only || d3_only || adp_only || maap_only;
+  added: lane-only:   if (!gsi_only && !name_only && !d3_only && !acmp_only) Suite(h).run();
+  added: lane-only:   if (!name_only && !d3_only && !acmp_only) InternalStreamInfoPhase{h}.run();
+  added: lane-only:   if (!gsi_only && !d3_only && !acmp_only) run_name_writes(h);
+  added: lane-only:   if (!gsi_only && !name_only && !acmp_only) run_d3(h);
+  added: lane-only:   if (!gsi_only && !name_only && !d3_only) run_acmp(h);
+  added: merged-only:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+  added: merged-only:   if (!one_section || acmp_only) run_acmp(h);
+tb/rx_validator/README.md: lane -2/+8  merged -3/+9  6 line(s) differ
+  removed: lane-only: (tally line: `437 checks: 437 PASS, 0 FAIL`).
+  removed: merged-only: (tally line: `497 checks: 497 PASS, 0 FAIL`).
+  removed: merged-only: | M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 497); the same arm fails `tb/pp_top` MP7 |
+  added: lane-only: (tally line: `495 checks: 495 PASS, 0 FAIL`).
+  added: merged-only: (tally line: `555 checks: 555 PASS, 0 FAIL`).
+  added: merged-only: | M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 555); the same arm fails `tb/pp_top` MP7 |
+tb/rx_validator/sim_main.cpp: lane -0/+47  merged -0/+47  IDENTICAL after renames
+TOTAL differing lines: 20
