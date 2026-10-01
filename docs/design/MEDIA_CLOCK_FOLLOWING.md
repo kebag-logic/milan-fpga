@@ -25,18 +25,23 @@ part as
 [protocol-processor #141](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/141),
 and sent D4 to the owner. The
 [round 2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935864862)
-re-opened D1 and D5. [Decisions](#decisions) lists each one with its state.
+re-opened D1 and D5. The
+[round 3 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5936791368)
+asked for a meter that passes the servo's lock test under every timestamp
+error shape inside IEEE 1722-2016 10.8's bound, which adds D8, and for D5 to be
+restated on that evidence. [Decisions](#decisions) lists each one with its
+state.
 
 ## Contents
 
 - **[Baseline](#baseline)** -- What bench lane B6 measured on the shipping image: CRF following works, AAF following is absent, and the two outputs disagree at INTERNAL.
 - **[Clause findings](#clause-findings)** -- The clause reading by question: a source per AAF input, a stopped stream, the `mr` rules, and what the current reading gets wrong.
 - **[Current state](#current-state)** -- The builder, entity model, processor and fabric as they are at dev `d4dd7426`, each fact with its `path:line`.
-- **[Design](#design)** -- The chain, the source order, the AAF clock meter, selection, switching, holdover, `mr`, A2, the domain counters, the phase gap and the area, with options.
+- **[Design](#design)** -- The chain, the source order, the AAF clock meter and its rate estimator, selection, switching, holdover, `mr`, A2, the domain counters, the phase gap and the area, with options.
 - **[Parent-visible changes](#parent-visible-changes)** -- Every requirement, configuration, builder, model, RTL, register, gate and document change in this repository.
 - **[Protocol-processor changes](#protocol-processor-changes)** -- The cross-repository plan under protocol-processor #141: no processor RTL change, its documentation and tests.
 - **[Test plan](#test-plan)** -- Simulation cases each with a failing mutant, and the bench cases by the B6 method.
-- **[Decisions](#decisions)** -- Each of the seven choices with its options, the recommendation and whether it is ruled, re-opened or with the owner.
+- **[Decisions](#decisions)** -- Each of the eight choices with its options, the recommendation and whether it is ruled, re-opened, new or with the owner.
 - **[Limits](#limits)** -- What this design does not establish.
 
 ## Baseline
@@ -97,12 +102,16 @@ What the clauses require:
 
 What the clauses permit:
 
-- **An entity-initiated change of source.** Milan v1.2 5.3.11.1: "The PAAD-AE
-  is able to dynamically change the clock source to any of the CLOCK_SOURCE
-  descriptors associated with the Clock Domain". While no controller holds the
-  lock, a fallback to another listed source is therefore permitted.
-- **Free-wheel.** IEEE 1722-2016 10.6: when CRF timestamps are lost, "the media
-  clock free-wheels until the CRF stream resumes". 4.4.4.7, NOTE: a listener
+- **An entity-initiated change of source, while no controller holds the
+  lock.** No clause forbids one outside 5.4.2.15's locked scope, so a fallback
+  to another listed source is permitted then. Milan v1.2 5.3.11.1 says the
+  PAAD-AE "is able to dynamically change the clock source to any of the
+  CLOCK_SOURCE descriptors associated with the Clock Domain", but the same
+  clause expects the user to set each domain's source correctly, so it reads
+  as a capability rather than as a licence for the entity to choose.
+- **Free-wheel.** IEEE 1722-2016 10.6: when CRF timestamps are lost due to
+  network packet loss, "the media clock free-wheels until the CRF stream
+  resumes". 4.4.4.7, NOTE: a listener
   that sees `tu` usually stops adjusting its media clock and lets it
   free-wheel. No clause says what a listener does when a followed AAF stream
   stops; these are the nearest cases.
@@ -376,15 +385,22 @@ Milan v1.2 6.2 fixes 6 samples and one timestamp per PDU at 48 kHz, in normal
 timestamp mode. So 16 PDUs span 96 samples, exactly the CRF
 `timestamp_interval` (Milan v1.2 7.3.2).
 
-Decision D2 is ruled M1. Round 2 fixes the meter's input contract inside it:
-the supported format, the pick and the jump bound below.
+Decision D2 is ruled M1, in the
+[rulings](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935520588)'
+words "one meter on the selected input keeps one AAF timestamp in 16 and
+feeds the existing servo unchanged". Round 2 fixed the meter's input contract
+inside it: the supported format, the jump bound and the pick, which keeps the
+mean of each 16 rather than one timestamp in 16. Round 3 changes the rate
+estimator the pick feeds (D8, [The rate estimator](#the-rate-estimator)). The
+servo stays unchanged under both, and both wording changes are for the
+manager to confirm.
 
 | Option | What | For | Against |
 |---|---|---|---|
 | M0 | Compare AAF timestamps with the local packet grid and steer the NCO (the #389 option (b) wording) | No new ring | Makes the packet grid a second master beside the aligner, and the audio MMCM does not follow, so the TDM I/O keeps slipping |
-| **M1, ruled** | One AAF clock meter, measuring only the selected AAF Stream Input | `KL_crf_rx` stays bit for bit; one ring; the servo sees the units it already takes | A switch between AAF inputs restarts the measurement, 512 ms before the rate is valid |
+| **M1, ruled** | One AAF clock meter, measuring only the selected AAF Stream Input | `KL_crf_rx` stays bit for bit; one ring; the servo sees the units it already takes | A switch between AAF inputs restarts the measurement: 512 ms before the rate is valid under E1, 4.096 s under E8 |
 | M2 | One meter per AAF Stream Input | A switch finds a warm rate | 8 rings on the 8x8 shape, for a switch that holds over anyway |
-| M3 | Share `KL_crf_rx`'s ring through a source mux | Saves one RAMB18 | Changes the proven CRF receiver and the meaning of `CRF_RATE`, which the bench reads |
+| M3 | Share `KL_crf_rx`'s ring through a source mux | Saves one RAMB18 under E1; nothing under E8, which needs none | Changes the proven CRF receiver and the meaning of `CRF_RATE`, which the bench reads |
 
 #### Where the meter sits and what it reads
 
@@ -430,12 +446,13 @@ why:
 - other rates: the audio MMCM plan is fixed at 24.576 MHz (see
   [Limits](#limits));
 - sparse mode: a timestamp in every eighth PDU only (7.2.4);
-- any other sample count at 48 kHz. Under the 16-PDU pick below, 3, 12, 24, 48
-  and 96 samples per PDU would also survive the sequence wrap, because 96
-  divided by the count divides 256. 1, 2, 4, 8, 16 and 32 would not: the
-  picked spacing breaks at every wrap (round-1 external review's probe). None
-  of them is a Milan base format at 48 kHz, so the meter refuses them all
-  rather than carry a per-format divisor.
+- any other sample count at 48 kHz. Under the fixed 16-PDU pick below every
+  count stays aligned across the wrap, but the pick spacing is no longer 2 ms.
+  A per-format pick of 96 samples, 96 / count PDUs, would keep 2 ms and would
+  survive the wrap for 3, 12, 24, 48 and 96 samples per PDU, because 96 / count
+  divides 256. For 1, 2, 4, 8, 16 and 32 it would break at every wrap (round-1
+  external review's probe). None of them is a Milan base format at 48 kHz, so
+  the meter refuses them all rather than carry a per-format divisor.
 
 #### The pick
 
@@ -453,15 +470,16 @@ pick = ts_0 + (sum over i = 0..15 of (ts_i - ts_0 - i * 125,000 ns)) / 16
 
 125,000 ns is one PDU's 6 samples at 48 kHz, exactly. The arithmetic is exact
 modulo 2^32, like the ring's (`hdl/ieee1722/crf/KL_crf_rx.sv:320-329`). The
-truncation of the division is the same in every pick, so it cancels in the
-ring difference. Every PDU of the group is required. A sequence gap voids the
-group, and so does any `|ts_i - ts_0 - i * 125,000|` above the jump bound
-below.
+division floors, so each pick is low by less than 1 ns, by an amount that
+varies with its group's remainder. A rate difference therefore carries at most
+1 ns of it, inside the 1-LSB tolerance of the meter suite's first row. Every
+PDU of the group is required. A sequence gap voids the group, and so does any
+`|ts_i - ts_0 - i * 125,000|` above the jump bound below.
 
 | Option | Kept value | For | Against |
 |---|---|---|---|
-| P1 | The group's first PDU, as round 1 proposed | `KL_crf_rx`'s rule exactly; no adder | Independent per-PDU timestamp error passes straight into the servo's 2 ppm lock test (table below) |
-| **P2, chosen** | The group mean | Independent error falls by a factor of 4 (the square root of 16); error alternating per PDU cancels | About 80 to 130 LUT more; a lost PDU anywhere in the group restarts the history, not only a lost first PDU |
+| P1 | The group's first PDU, as round 1 proposed | `KL_crf_rx`'s rule exactly; no adder | Independent per-PDU error reaches the rate whole: under round 2's estimator it fails the servo's lock test; under E8 it passes, with four times the rate noise of P2 |
+| **P2, chosen** | The group mean | Independent error falls by a factor of 4 (the square root of 16) in the rate the servo follows; error alternating per PDU cancels | About 80 to 130 LUT more; a lost PDU anywhere in the group restarts the history, not only a lost first PDU, and under E8 a restart holds the servo's trim for 4.096 s |
 
 #### The timestamp-quality assumption
 
@@ -498,8 +516,22 @@ the 10.8 term in place of the local-PHC assumption:
 It stays far below one sample period, 20,833 ns. A one-sample step in the
 talker's timestamps splits across at most two consecutive group means, one of
 which moves by at least half a sample, 10,417 ns, so it is caught. A step below
-the bound enters the rate as a transient: one or two 512 ms windows, at most
-about 8 ppm.
+the bound that the void does not catch enters the rate as a transient. Under
+E8 ([The rate estimator](#the-rate-estimator)) that is an eighth of the step
+for eight windows.
+
+**The tolerance the two rules give.** The in-group void and the pick spacing
+compare with the same 4,096 ns. Two adjacent group means are 2 ms apart within
+2J plus the 600 ns rate term, and an in-group deviation is within 2J plus
+562.5 ns (15 PDUs at 300 ppm), for error of peak J per timestamp. So the meter
+accepts every error shape up to +/-1,748 ns per timestamp at 300 ppm, and up to
++/-2,048 ns at 0 ppm. Correlated error meets the spacing limit first.
+Independent error meets the in-group limit, +/-1,766 ns at 300 ppm, first,
+because the mean of 16 rarely moves far. The design point, +/-1,426 ns, is
+322 ns inside. The round-3 desk model finds the first restarts between
++/-1,740 and +/-1,760 ns for correlated error and between +/-1,760 and
++/-1,800 ns for independent error at 300 ppm, and between +/-2,040 and
++/-2,060 ns at 0 ppm.
 
 | Option | Bound | For | Against |
 |---|---|---|---|
@@ -507,49 +539,173 @@ about 8 ppm.
 | **B2, chosen** | 4,096 ns, from 10.8 Equation (15) | Validates the 10.8 talker; still catches a one-sample step | A sub-bound phase step is followed as a transient |
 | B3 | 16,384 ns, from Equation (16) | Tolerates any stream a CRF listener must accept | Equation (16) is the CRF domain's acceptance, not a talker bound; a one-sample step against error in the opposite direction comes within reach |
 
-A desk model of these rules (the round 2 evidence on PR #631) gives the
-fraction of picks with a valid rate over 120 s, and the fraction of 512 ms
-windows whose rate noise is under the servo's 1,024 ns lock threshold. It is a
-model of the rules, not of any talker. Two error shapes bound the cases:
-"group" gives every PDU of a group the same sign, alternating per group, the
-shape no averaging removes; "independent" draws each PDU's error uniformly.
-0.996 is the run's ceiling, because the first 256 picks are never valid.
+#### The rate estimator
 
-| Error, peak per timestamp | Rate offset | B1 + P1 | B2 + P1 | B2 + P2 |
+Decision D8, new in round 3.
+
+**The test the rate must pass.** The servo samples the reference rate once per
+512 ms window and subtracts it from its own measurement of the audio clock
+over a window: `e = locerr - rate`
+(`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:609`, `:643`). One window with `|e|`
+at or above 1,024 ns, 2 ppm, drops LOCKED to ACQUIRE, and LOCKED needs four
+clean windows in a row (`:232-233`, `:648`, `:564-568`). Whatever error the
+meter's rate carries reaches `e`.
+
+**No estimator over 512 ms can pass it for every error shape.** IEEE 1722-2016
+10.8 Equation (15) bounds the size of a talker's timestamp error, not its
+shape. Over a span T, a phase ramp of 2J across the span cannot be told from a
+rate offset of 2J / T. At J = 1,042 ns and T = 512 ms that is 4.07 ppm. Every
+unbiased linear rate estimator over a span T has a worst case of at least
+2J / T, because its weights must sum to zero and weigh the sample times to
+one. The two-point difference attains that bound. A least-squares slope
+reaches 3J / T, the worst case being a 2J step at mid-span, and helps only
+error that is independent from sample to sample. Round 2's two-point
+difference over 512 ms (E1) therefore fails correlated error in the 10.8
+range. Round 2's "group" shape, alternating per group, was its best case: the
+servo's window spans 256 picks, which is even, so the pattern cancels
+exactly.
+
+**The servo amplifies what the estimator lets through.** The servo's PI
+(`:228-229`: the error shifted right by 1 into the integrator, by 2 for the
+proportional term) drives a plant of gain 1 by design, one window late. From
+estimator error to `e` the worst-case (l1) gain of that loop is 2.125. For a
+two-point difference over N windows of 512 ms, the worst-case `|e|` per
+nanosecond of J is:
+
+| N | Span | Open loop (2 / N) | Closed loop | At J = 1,042 ns | At J = 1,426 ns |
+|---|---|---|---|---|---|
+| 1 (E1) | 512 ms | 2.00 | 4.01 | 4,182 ns | 5,723 ns |
+| 4 (E4) | 2,048 ms | 0.50 | 1.02 | 1,058 ns | 1,448 ns |
+| 6 | 3,072 ms | 0.33 | 0.70 | 726 ns | 993 ns |
+| **8 (E8)** | 4,096 ms | 0.25 | 0.53 | 550 ns | 753 ns |
+
+At a plant gain of 0.8 or 1.2, E8's figure at 1,426 ns is 700 or 890 ns.
+
+**E8, recommended.** The meter's rate becomes a two-point difference over
+8 x 256 picks, 4.096 s, in the servo's units:
+
+```text
+rate = (P_now - P_8_snapshots_ago - 8 * 512,000,000) >>> 3
+```
+
+Every 256 picks the meter writes the current pick into an 8-entry ring and
+reads, at the same address, the snapshot it overwrites, which is 8 snapshots
+old: `KL_crf_rx`'s read-old, write-new ring
+(`hdl/ieee1722/crf/KL_crf_rx.sv:320-325`) at 8 entries instead of 256. The
+difference is exact modulo 2^32 as the ring's is, because the deviation stays
+far inside +/-2^31 ns. The rate is valid once 2,048 fresh intervals have passed
+since the history last restarted, and it updates every 512 ms; between updates
+the servo samples the held value. Every history-restart rule stays as stated.
+
+- **Bound.** For every error shape within +/-J, the rate is within 2J / 8 of the
+  talker's, 357 ns at +/-1,426 ns, and the servo's window error after it locks
+  stays under 753 ns. The desk model, which adds +/-20 ns of quantisation to
+  the local window, finds at most 773 ns.
+- **Area.** The 256-entry block-RAM ring goes, and with it the meter's RAMB18.
+  The 8 x 32-bit ring is 256 FF, or about 24 LUT of distributed RAM behind one
+  address. A 3-bit index, a 4-bit fill count and a fresh count widened from
+  9 to 12 bits add a few FF. Against round 2's meter: one RAMB18 fewer, about
+  10 to 30 LUT and under 10 FF more.
+- **Latency.** The rate is valid 4.096 s after a history restart, against
+  512 ms under E1. It is the mean rate over the last 4.096 s, so it lags a real
+  frequency change by about 2 s. In the desk model the servo reads LOCKED
+  7.3 s after an ideal talker's first PDU, from the MMCM plan's 10.64 ppm
+  offset, against 3.7 s under E1. A history restart holds the servo's trim
+  and state for 4.096 s, because the servo runs no PI on an invalid rate
+  (`:613-615`).
+- **What it also buys.** A real talker frequency step below about 8 ppm keeps
+  the servo LOCKED: it reaches `e` at a quarter of its size. Under E1 a 2 ppm
+  step drops LOCKED. A sub-bound phase step reaches the rate at an eighth of its
+  size.
+- **Residual.** Correlated error beyond the meter's own tolerance, +/-1,748 ns
+  at 300 ppm, restarts the history continuously. The rate then never validates,
+  and the servo holds its trim and its state; the meter's restart count shows
+  it. The bound also assumes a plant gain near 1; at 1.2 it is 890 ns.
+
+| Option | Estimator | Lock test under every shape of 10.8 size | Area against round 2's meter | Latency to a valid rate |
 |---|---|---|---|---|
-| group, +/-1,042 ns | 0 ppm | valid 0.000 | valid 0.996, windows 1.000 | valid 0.996, windows 1.000 |
-| group, +/-1,426 ns | 300 ppm | valid 0.000 | valid 0.996, windows 1.000 | valid 0.996, windows 1.000 |
-| independent, +/-1,042 ns | 300 ppm | valid 0.000 | valid 0.996, windows 0.744 | valid 0.996, windows 1.000 |
-| independent, +/-1,426 ns | 0 ppm | valid 0.000 | valid 0.996, windows 0.560 | valid 0.996, windows 1.000 |
-| independent, +/-2,500 ns | 0 ppm | valid 0.000 | valid 0.000 | valid 0.996, windows 0.987 |
+| E1 | Two-point over 512 ms: round 2, `KL_crf_rx`'s rule | No: worst case 5,723 ns at +/-1,426 ns | none | 512 ms |
+| LS1 | Least-squares slope over 512 ms | No: worst case 3J open loop; 1 s and 2 s periodic error fail | one DSP48 and about 100 to 150 LUT of running sums | 512 ms |
+| E4 | Two-point over 2,048 ms | Open loop yes (713 ns); closed loop no (1,448 ns) | as E8, with 4 entries | 2,048 ms |
+| **E8, recommended** | Two-point over 4,096 ms | Yes: 357 ns open loop, 753 ns closed loop | one RAMB18 fewer, about 10 to 30 LUT more | 4,096 ms |
+| L | E1, with the servo's lock rule changed: qualify on the mean of eight windows, or widen the threshold | Yes, if wide enough | small | 512 ms |
 
-The bound fixes the restarts, and the mean keeps independent error out of the
-servo's lock test. With P1, a talker at the 10.8 limit would leave a quarter
-or more of the windows outside 2 ppm, so the servo would keep dropping out of
-LOCKED (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:567-568`).
+L is not recommended. It changes the servo, which D2 keeps unchanged, and
+unless it is made per source it also weakens what LOCKED means on the CRF
+path.
+
+**The desk model.** The round-3 model applies every rule this page states,
+including the within-group void that the round-2 model omitted, and grades
+each estimator open loop and in closed loop against the servo's PI (the
+round 3 evidence on PR #631). It models the rules, not any talker. Each case
+runs 120 s. "Windows" is the fraction of 512 ms windows, after the servo first
+locks, whose `|e|` is under 1,024 ns; "worst" is the largest `|e|`; "drops"
+counts LOCKED-to-ACQUIRE transitions. The worst-case shape holds +/-J over each
+512 ms block, with the sign pattern of the loop's impulse response.
+
+| Error, peak per timestamp; 0 ppm unless stated | E1 + P2, round 2 | E8 + P2 |
+|---|---|---|
+| independent per PDU, +/-1,426 ns, 300 ppm | windows 0.960, worst 1,618 ns, 5 drops | 1.000, worst 197 ns |
+| alternating sign per group, +/-1,426 ns | 1.000, worst 137 ns | 1.000, worst 137 ns |
+| random sign per group, +/-1,042 ns | 0.286, worst 4,195 ns, 4 drops | 1.000, worst 539 ns |
+| random sign per group, +/-1,426 ns, 300 ppm | 0.316, worst 5,694 ns, 6 drops | 1.000, worst 696 ns |
+| uniform per group, +/-1,426 ns | 0.380, worst 4,381 ns, 7 drops | 1.000, worst 458 ns |
+| 10 ms periodic, +/-1,042 ns | 0.799, 45 drops | 1.000, worst 272 ns |
+| 10 ms periodic, +/-1,426 ns | never locks | 1.000, worst 345 ns |
+| 1 s periodic, +/-1,426 ns | 0.099, worst 5,703 ns, 5 drops | 1.000, worst 316 ns |
+| 2 s periodic, +/-1,426 ns | never locks | 1.000, worst 127 ns |
+| worst case for the estimator, +/-1,426 ns | worst 5,736 ns, 3 drops | 1.000, worst 773 ns |
+| independent per PDU, +/-2,500 ns | never valid: about 120 groups voided per second | never valid |
+
+E8 has no drop in any row. No row restarts the history except the last. In the
+same model E4 drops LOCKED 12 times in 120 s under a random sign per group at
++/-1,426 ns, and LS1 never locks under 2 s periodic error. A one-sample step
+(+/-20,833 ns) and a half-sample step restart the history at all 16 group
+positions under both estimators, so a real step is still rejected. Sub-bound
+steps of 2,000 and 3,000 ns that neither rule catches leave E8 LOCKED, with at
+most 432 ns of window error; under E1 they drop LOCKED. Round 2's +/-2,500 ns
+row (valid 0.996, windows 0.987) came from a model without the void rule. With
+the rule applied the history never validates, as the tolerance above
+predicts.
+
+P2 is kept under E8, although the bound does not need it: E8 with P1 passes
+every row too. The mean keeps four times less independent error in the rate
+the servo turns into recovered-clock wander: the largest window error is 104
+against 351 ns at +/-1,426 ns.
 
 #### History, lock, era and outputs
 
 - **History restarts:** `KL_crf_rx`'s rules (`:390-403`), on a `tu` edge, a pick
   spacing outside 2 ms +/- 4,096 ns, a voided group, the bind edge, 100 ms of
   silence, a change of the followed listener, and entry into AAF following.
-  The rate is valid after 256 fresh intervals.
+  Under E8 the rate is valid after 2,048 fresh intervals.
 - **Lock:** 8 clean consecutive accepted PDUs in, 100 ms without one out
   (`hdl/ieee1722/crf/KL_crf_rx.sv:296-298`), the AAF media-lock contract
   `KL_crf_rx` mirrors.
+- **Enable.** The meter runs only while `aaf_clk_selected_r` is high. That is
+  the one selection gate on its outputs, `mr` pulses included. While it is low
+  the meter holds its era reset: no lock, no rate, no pulse.
 - **Era and the `mr` seed.** The received-`mr` reference is seeded silently by
   the first accepted PDU of an era, as `KL_crf_rx` seeds its own (`:380`,
   `:586-587`). An era starts at the followed Stream Input's bind edge, after
   100 ms of silence, at every change of the followed listener, and at entry
-  into AAF following from INTERNAL or CRF. Each start clears, in one cycle, the
-  lock (with no disruption trigger, see [`mr`](#mr)), the settle run, the
-  ring and the seed.
-- **Outputs:** `locked`; the rate in ns per 512 ms; `rate_valid`; a one-cycle
-  `mr`-toggle pulse; and a status word with the lock, the rate validity, the
-  followed listener, a history-restart count and the largest
-  `|ts_i - ts_0 - i * 125,000|` seen this era. The last two are the bench's
-  measurement of a talker's timestamp regularity. The largest deviation also
-  holds the talker's rate offset across a group: about 190 ns at 100 ppm.
+  into AAF following from INTERNAL or CRF. Each start clears the settle run,
+  the history and the seed in one cycle.
+- **Lock falls, and which one is a disruption.** Only the meter's own 100 ms
+  timeout is a disruption: it drops the lock and pulses `disrupt_p` once,
+  as the CRF receiver's timeout drops its lock
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:529-537`). A change of the followed listener,
+  entry into AAF following and exit from it also clear the lock in one cycle,
+  because the measurement no longer describes the stream now followed, but
+  they pulse nothing. The bind edge clears no lock, as in `KL_crf_rx`
+  (`:619-624`): an unbind is declared by the timeout that follows it.
+- **Outputs:** `locked`; the rate in ns per 512 ms; `rate_valid`; the one-cycle
+  pulses `disrupt_p` and `mr_toggle_p`; and a status word with the lock, the
+  rate validity, the followed listener, a history-restart count and the
+  largest `|ts_i - ts_0 - i * 125,000|` seen this era. The last two are the
+  bench's measurement of a talker's timestamp regularity. The largest
+  deviation also holds the talker's rate offset across a group: about 190 ns
+  at 100 ppm.
 
 ### Selection decode and gating
 
@@ -575,7 +731,7 @@ An index without a table entry decodes as no source to follow, as the
 | #386 settle (`:6091-6092`, `:6115`) | `crf_clk_selected_r` | `follow_sel_r` |
 | I2S playback `servo_en_i` (`:6153`) | `crf_clk_selected_r` | `follow_sel_r` |
 | `mr` CRF triggers (`:3155-3156`) | `crf_clk_selected_r` | unchanged |
-| `mr` AAF triggers | none | the meter's lock fall and received toggle, gated by `aaf_clk_selected_r` (see [`mr`](#mr)) |
+| `mr` AAF triggers | none | the meter's `disrupt_p` and `mr_toggle_p`, ORed into the restart request beside the CRF terms; the meter's enable, `aaf_clk_selected_r`, is their one gate (see [`mr`](#mr)) |
 | `KL_media_clock_restart` source change (`:3189`) | the stored index | unchanged |
 
 The servo's reference ports are renamed from `crf_*` to `ref_*`, because they
@@ -591,9 +747,10 @@ Decision D3 is ruled W2.
 | **W2, ruled** | A switch between two followed sources keeps `follow_sel_r` high. On every change of the followed source the root presents the reference as unlocked for at least one cycle, so the servo always passes HOLDOVER, trim frozen, into ACQUIRE with its two-window skip and its lock count cleared (`:571-579`) | The existing HOLDOVER path; no trim step; the aligner stays engaged, so the packet grid never re-engages | A switch onto a CRF input that is already locked would otherwise keep LOCKED across the change; the one-cycle presentation is what prevents it, so a test grades it |
 
 Under W2 a switch between two streams is declared by one `mr` toggle, one #386
-recentre once the grid settles, and a few seconds of HOLDOVER and ACQUIRE. A
+recentre once the grid settles, and a few seconds of HOLDOVER and ACQUIRE:
+about 3 s onto a CRF input, and about 6 s onto an AAF input under E8. A
 switch onto an AAF input also starts a new meter era: the meter re-locks after
-8 PDUs, and its rate is valid 512 ms later. The switch leaves no frame slip,
+8 PDUs, and under E8 its rate is valid 4.096 s later. The switch leaves no frame slip,
 because the fine phase shift steps the audio clock glitch-free and the aligner
 holds the packet grid on it. A switch to or from INTERNAL behaves as the CRF
 switch does today: servo IDLE and an aligner disengage, or the reverse. Under
@@ -617,8 +774,9 @@ The same rules apply to either kind of followed source.
 3. **Declared.** One `mr` toggle on every output; the Stream Input's
    MEDIA_UNLOCKED; and the CLOCK_DOMAIN's UNLOCKED if decision D5 takes C1 or
    C2.
-4. **Restart.** The stream returns. The measurement locks after 8 PDUs and its
-   rate is valid 512 ms later. The servo re-enters ACQUIRE with its two-window
+4. **Restart.** The stream returns. The measurement locks after 8 PDUs, and its
+   rate is valid 512 ms later for CRF and 4.096 s later for AAF under E8. The
+   servo re-enters ACQUIRE with its two-window
    skip, and reads LOCKED after four windows within 2 ppm
    (`KL_mmcm_drp_servo.sv:232-233`). The return itself raises no second toggle.
    Each disruption toggles once.
@@ -629,23 +787,37 @@ The same rules apply to either kind of followed source.
   edge on the stored index (`KL_media_clock_restart.sv:236`). That includes the
   CRF output, which is a CRF talker for 10.4.3.
 - **A followed CRF stream** keeps today's two triggers.
-- **A followed AAF stream** gains the same two, from the meter: its lock fall
-  while the followed source is unchanged, and a toggle of its received `mr`. A
-  source that is not followed is ignored (4.4.4.3 and 10.4.3, last
-  paragraphs).
+- **A followed AAF stream** gains the same two, from the meter: `disrupt_p`,
+  when its own 100 ms timeout drops its lock, and `mr_toggle_p`, a toggle of
+  its received `mr`. A source that is not followed is ignored (4.4.4.3 and
+  10.4.3, last paragraphs): the meter runs only while an AAF source is
+  selected, and measures only that one.
 - **One request per switch, by construction.** A switch is declared by the
-  source-change edge alone. The meter's era start at the switch clears its
-  lock without a disruption trigger, because the trigger requires the followed
-  source to be unchanged. Its new `mr` seed is taken silently from the new
+  source-change edge alone. The meter's era start at the switch, and its exit
+  when AAF following ends, clear its lock with no `disrupt_p`, because only
+  its timeout pulses it. Its new `mr` seed is taken silently from the new
   input's first PDU. So nothing but the source change requests a restart on a
   switch.
 
-  This matters because the merge lasts only until each output's first PDU at
-  the adopted level (`KL_media_clock_restart.sv:236-246`). At 8,000 AAF PDUs
-  per second that window is at most 125 us. A second request from the new
-  input's first PDU, or from a meter lock fall, would land after it on about
-  half the outputs, and they would put a second toggle on the wire after their
-  8-PDU hold.
+  How much this matters depends on when the second request would land. A
+  request merges while an output's adopted level has not yet been carried by
+  a reported PDU (`KL_media_clock_restart.sv:236-246`). Per output, that
+  window ends with the first PDU launched after the switch: within one AAF
+  period, 125 us, plus its launch-to-report time on an AAF output, and within
+  one CRF period, 2 ms, on the CRF output.
+  - Were the lock clear at the switch to pulse `disrupt_p`, its request would
+    land a few cycles after the source-change edge. That is inside every
+    output's window, because a PDU launched after the switch cannot be
+    reported within a few cycles, so it merges and the wire cannot show it.
+    The rule is still kept, because the request is wrong, and the test plan
+    grades it where it is visible.
+  - A stale seed's echo lands at the new input's first accepted PDU. With the
+    new talker already streaming that is within 125 us, inside some outputs'
+    windows and after others'. With a talker that starts later it lands after
+    every window, and each output puts a second toggle on the wire after its
+    8-PDU hold.
+  - A 100 ms lock fall lands after every window. It is a real disruption, and
+    its toggle is the declared one.
 - **Merging.** A loss of the followed stream and a SET_CLOCK_SOURCE in the
   same moment still merge into one toggle per output (#387).
 
@@ -673,7 +845,8 @@ A2-a costs a gate. It can ride the fabric lane of this design or stay on #74.
 
 ### CLOCK_DOMAIN LOCKED and UNLOCKED
 
-Decision D5, re-opened in round 2.
+Decision D5, re-opened in round 2 and restated in round 3 on the corrected
+evidence of [The rate estimator](#the-rate-estimator).
 
 **The recorded rule.** The domain's LOCKED and UNLOCKED count edges of
 `~clkv_tu_w`, the gPTP clock-validity verdict that the `tu` bit also stamps into
@@ -691,8 +864,8 @@ source in holdover reads LOCKED.
 | Option | Locked level | For | Against |
 |---|---|---|---|
 | C0 | `~tu`, unchanged | One authority; the rule stands; no counter moves on a servo excursion | Holdover, and a following that never converges, both read LOCKED. The loss shows only in the Stream Input's MEDIA_UNLOCKED (Milan v1.2 Table 5.6) and in the servo status word `MCSRV_STAT` (`0x8F8`). |
-| **C1, recommended** | `~tu`, and either INTERNAL selected or the servo in LOCKED | Counts what Table 5.7 names, "the media clock used in the Clock Domain", while following. Equal to C0 at INTERNAL. | **Reverses the recorded rule while following:** during holdover the wire's `tu` reads 0 while the domain counts UNLOCKED. The counters also move when the servo drops from LOCKED to ACQUIRE on one window outside 2 ppm (`KL_mmcm_drp_servo.sv:567-568`, `:689-694`). Re-qualifying takes four 512 ms windows, so that is at most one pair per about 2.5 s. |
-| C2 | `~tu`, and either INTERNAL selected or the reference lock the servo sees: the followed measurement's lock (8 PDUs in, 100 ms out), held low one cycle at a switch | Counts the followed stream's loss and return exactly, and one pair per switch; never moves on a servo excursion | Reverses the rule the same way. Reads LOCKED while the servo is still acquiring, and when a following never converges. |
+| **C1, recommended with E8** | `~tu`, and either INTERNAL selected or the servo in LOCKED | Counts what Table 5.7 names, "the media clock used in the Clock Domain", while following: LOCKED means frequency lock to the source. Equal to C0 at INTERNAL. | **Reverses the recorded rule while following:** during holdover the wire's `tu` reads 0 while the domain counts UNLOCKED. The counters also move when the servo drops from LOCKED to ACQUIRE on one window outside 2 ppm (`KL_mmcm_drp_servo.sv:567-568`, `:689-694`). Under E8 a talker inside the design assumption never causes that; it takes error beyond the assumption or a talker frequency step above about 8 ppm. Under E1, correlated error inside 10.8 causes it: 45 drops in 120 s in the desk model's 10 ms periodic row. LOCKED returns late, about 7 s after a return under E8. |
+| C2, recommended if D8 keeps E1 | `~tu`, and either INTERNAL selected or the reference lock the servo sees: the followed measurement's lock (8 PDUs in, 100 ms out), held low one cycle at a switch | Counts the followed stream's loss and return exactly, and one pair per switch; never moves on a servo excursion; LOCKED returns 8 PDUs after a return | Reverses the rule the same way. Reads LOCKED while the servo is still acquiring, and when a following never converges. |
 | C3, not recommended | Keep one authority by also raising `tu` while a followed source is not locked | One level for both views | Widens `tu` beyond IEEE 1722-2016 4.4.4.7, which is about gPTP discontinuities, and tells every listener of this entity's streams to stop recovering its media clock (4.4.4.7 NOTE) |
 
 **Why C1's reversal is acceptable.** Once the domain can follow a stream, "is
@@ -702,10 +875,17 @@ meaning. Table 5.7 asks the second. C1 still counts edges of one registered
 level, so the 5.3.11.2 invariant stays structural. Under C1 the banner at
 `:3469-3475` is rewritten to say this, and the test plan grades the counters.
 
-C2 is the choice if counters that never move on a servo excursion matter more
-than a counter that tracks frequency lock. C0 is the choice if the recorded
-rule should stand. The Stream Input's MEDIA_UNLOCKED counts the loss under
-every option.
+**Restated on the round-3 evidence.** C1 stays recommended, together with E8.
+Under E8 the servo stays LOCKED for every error shape inside the design
+assumption, so C1's counters move at a loss, at a return and at a switch, the
+same events C2 counts. C1 counts the return when the frequency lock is real,
+about 7 s later; C2 counts it when the reference arrives. The round-2 cost,
+"at most one pair per about 2.5 s" on a servo excursion, is withdrawn: under
+E1 such excursions are routine for correlated error inside 10.8, and under E8
+they do not occur inside the assumption. If D8 keeps E1, C2 is recommended
+instead, because C1 would then count each excursion as an unlock of the media
+clock. C0 is the choice if the recorded rule should stand. The Stream Input's
+MEDIA_UNLOCKED counts the loss under every option.
 
 ### Phase alignment is a separate gap
 
@@ -728,19 +908,20 @@ reproduced it. That is a Yosys estimate, not a placement.
 
 | Block | LUT | FF | RAMB18 | Basis |
 |---|---:|---:|---:|---|
-| M1 meter | 330 to 480 | 270 to 400 | 1 | `KL_crf_rx` without its ten Milan v1.2 Table 5.6 counters, interval tick and late/early checks; plus the format check, the group mean (a 32-bit subtract, a 21-bit offset accumulator, a 17-bit sum and a 32-bit add: about 80 to 130 LUT and 70 to 100 FF), the era logic and the status word |
+| M1 meter, E8 | 340 to 510 | 270 to 410 | 0 | `KL_crf_rx` without its ten Milan v1.2 Table 5.6 counters, interval tick and late/early checks; plus the format check, the group mean (a 32-bit subtract, a 21-bit offset accumulator, a 17-bit sum and a 32-bit add: about 80 to 130 LUT and 70 to 100 FF), the era logic, the two pulses and the status word; and E8's 8-entry ring in place of the 256-entry block-RAM ring (about 10 to 30 LUT and under 10 FF more, one RAMB18 fewer) |
 | Decode table and reference mux | 50 to 80 | 20 to 40 | 0 | a table of at most 10 entries and a 34-bit two-way mux |
 | Servo select | about -10 | 0 | 0 | the 16-bit compare leaves the servo |
 | A2-a | under 5 | 0 | 0 | one gate |
 | D5 under C1 or C2 | under 5 | 0 | 0 | one gate and a state compare |
-| **Total** | **about 380 to 560** | **about 290 to 440** | **1** | |
+| **Total** | **about 390 to 590** | **about 290 to 450** | **0** | Under E1 the meter keeps its RAMB18 and about 20 LUT less |
 
 For scale, the servo itself is 871 LUT and 792 FF at this commit, as the round-1
 internal review re-measured it with `syn/yosys/ooc.sh KL_mmcm_drp_servo` at the
 same shape. [Area budget](AREA_BUDGET.md#isolated-synthesis-estimates) lists 814
-LUT and 789 FF from an earlier record. M2 would cost one meter per AAF input: 8
-RAMB18 and about 2,600 to 3,800 LUT on the 8x8 shape. M3 would save the RAMB18
-and add about 40 LUT of muxing. The figures are re-measured by
+LUT and 789 FF from an earlier record. M2 would cost one meter per AAF input:
+about 2,700 to 4,100 LUT on the 8x8 shape, and 8 RAMB18 under E1. M3 would
+have saved the RAMB18 that E8 removes anyway, for about 40 LUT of muxing. The
+figures are re-measured by
 `syn/yosys/ooc.sh` once the RTL exists, and the release fit is decided by the
 placed report.
 
@@ -752,9 +933,9 @@ placed report.
 | Configuration | `clocking.media_clock_sources` admits `input_stream` again, meaning one source per AAF listener. The five shipping configurations add it (D6). At the update every unit refuses its saved state once and comes up on INTERNAL (see [Source list and order](#source-list-and-order)); the release note says so. | `configs/endstation_*.yaml`, the lines listed under [Builder and entity model](#builder-and-entity-model) |
 | Builder | `_load_clocking` accepts `input_stream`. `_overlay_clock_sources` emits the class order of D1 on every shape. `CLOCK_SOURCE_NAMES` gains a stream entry, and `_load_names` stops refusing `names.clock_sources.stream`. The servo prune gate is unchanged: `input_stream` needs the servo. The shape header gains the per-index kind and STREAM_INPUT tables beside `AEM_N_CLKSRC_C`. The two-source assertions of the builder's own test change. | `sw/builder/endstation_builder.py:3887-3902`, `:5018-5045`, `:2836-2853`, `:141`, `:3784-3790`; `sw/builder/test_builder.py:19580-19590` |
 | Entity model | `CS_TYPE` gains `input_stream` (INPUT_STREAM, `0x0002`), and `CS_RETIRED` loses it. `clock_source_shape` returns the tables. `aem_emit.py` emits them into the ROM header. The CLOCK_DOMAIN keeps the identity list. The `clock_source_flags` value is decided ((d) item 8). Every regenerated image gets a new `entity_model_id` (IEEE 1722.1-2021 6.2.2.8). | `avdecc/aem_specs.py:22`, `:35`, `:234-241`; `avdecc/aem_descriptors.py:428-442`, `:456`; `avdecc/aem_emit.py:220-224` |
-| Generated | Every shape header and AEM image, by `sw/builder/endstation_builder.py` per configuration, and the tracked `hdl/common/gen` copy by its `--write-rtl` | `configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh`, `configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh`, `configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh`, `configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh`, `configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh` |
-| RTL, new | The M1 meter on `axis_clk`, as designed above: the format check, the group-mean pick, the 4,096 ns bound, the era rules and the status word. Generated only when the shape declares an AAF source. | beside `hdl/ieee1722/crf/KL_crf_rx.sv` |
-| RTL, root | The decode and its consumers, as in [Selection decode and gating](#selection-decode-and-gating), with the one-cycle unlocked presentation; the meter on the parser bundle, its `tu` from the common-header bit; the AAF `mr` triggers with the switch rule; A2-a and D5 as decided; under C1 or C2 the banner at `:3469-3475` rewritten; the three stale comments corrected | `hdl/milan/milan_datapath.sv:607`, `:1560-1570`, `:3112`, `:3155-3156`, `:3469-3475`, `:3492`, `:5576-5578`, `:5594-5627`, `:5740`, `:5748`, `:6091-6115`, `:6153` |
+| Generated | Every shape header and AEM image, by `sw/builder/endstation_builder.py` per configuration, and the tracked `hdl/common/gen` copy by its `--write-rtl` | `hdl/common/gen/adp_shape_defaults.svh`, `configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh`, `configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh`, `configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh`, `configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh`, `configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh` |
+| RTL, new | The M1 meter on `axis_clk`, as designed above: the format check, the group-mean pick, the 4,096 ns bound, the estimator D8 rules (E8: the 8-entry snapshot ring), the enable, the era rules, `disrupt_p` and `mr_toggle_p`, and the status word. Generated only when the shape declares an AAF source. | beside `hdl/ieee1722/crf/KL_crf_rx.sv` |
+| RTL, root | The decode and its consumers, as in [Selection decode and gating](#selection-decode-and-gating), with the one-cycle unlocked presentation; the meter on the parser bundle, its `tu` from the common-header bit, its enable from `aaf_clk_selected_r`; the meter's two pulses ORed into the restart request, which gains a `public_flat_rd` tap like the nets at `:704-706`; A2-a and D5 as decided; under C1 or C2 the banner at `:3469-3475` rewritten; the three stale comments corrected | `hdl/milan/milan_datapath.sv:607`, `:1560-1570`, `:3112`, `:3155-3156`, `:3469-3475`, `:3492`, `:5576-5578`, `:5594-5627`, `:5740`, `:5748`, `:6091-6115`, `:6153` |
 | RTL, servo | `clk_src_i` and `crf_src_idx_i` become a one-bit `sel_i`; `crf_locked_i`, `crf_rate_i` and `crf_rate_valid_i` become `ref_*`. Behaviour is unchanged. The harnesses that bind these ports change with them. | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:263-273`, `:411`; `tb/verilator/mmcm_servo/`, `tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp`, `tb/verilator/crf_rx/crf_talker_wrap.sv`, `tb/verilator/milan_dp/sim_main.cpp` |
 | RTL, unchanged | `KL_crf_rx`, `KL_crf_tx`, `KL_media_grid_align`, `KL_media_nco`, `KL_media_clock_restart` | |
 | Ports, pins, parameters | No new top-level port, pin, SoC change or root parameter. The meter's presence derives from the shape header, not a new knob. | |
@@ -806,24 +987,48 @@ pass.
 | Suite | Case | Pass | Failing mutant |
 |---|---|---|---|
 | A new meter suite under `tb/verilator` | A synthetic AAF stream at 0, +/-10.64, +/-50 and +/-100 ppm, ideal timestamps | `rate_valid` high; the rate equals `KL_crf_rx`'s on the equivalent CRF stimulus within 1 LSB | Decimation by 1 (every PDU kept): every 125 us spacing is outside 2 ms +/- 4,096 ns, so `rate_valid` never rises |
-| Same | Timestamp error at the design bound: group-shaped +/-1,426 ns at +300 ppm, and independent +/-1,426 ns | No restart; `rate_valid` high; in the independent case at least 99 % of 512 ms windows inside +/-1,024 ns | Bound 2,048 ns (B1): the group case restarts at every pick. First-PDU pick (P1): the independent case's window check fails |
-| Same | Beyond the bound: group-shaped +/-2,200 ns; one one-sample step (20,833 ns) | The restart count moves and `rate_valid` falls, returning 256 picks after the error stops; the step restarts once | Bound 16,384 ns (B3): the +/-2,200 ns case raises no restart |
+| Same | Timestamp error at the design point, +/-1,426 ns at +300 ppm, in four shapes: independent per PDU; a random sign per group; 10 ms periodic; and the worst case for the estimator, +/-1,426 ns held per 512 ms block with the signs of the loop's impulse response | No restart; `rate_valid` high; every rate within 360 ns of the planted rate (2J / 8, plus rounding); in the independent case within 256 ns | Rate over 512 ms (E1): the random-sign, periodic and worst-case rates leave 360 ns. Separately, bound 2,048 ns (B1): the independent case voids groups and restarts. Separately, first-PDU pick (P1): the independent case leaves 256 ns |
+| Same | Beyond the tolerance: a random sign per group at +/-1,800 ns and +300 ppm, and independent +/-2,100 ns at 0 ppm; a one-sample step (+/-20,833 ns) and a half-sample step at each of the 16 group positions | Each error case restarts the history, and `rate_valid` stays low until the error stops and returns 2,048 picks later; each step restarts the history once | Bound 16,384 ns (B3): the +/-1,800 ns case raises no restart. Separately, the within-group void removed: the +/-2,100 ns case raises no restart |
 | Same | Format: 6 samples per PDU accepted; 12 and 8 samples per PDU at 48 kHz, sparse mode, `nsr` 96 kHz and INT_24BIT refused | Only the 6-sample stream locks the meter; for the others the servo stays in HOLDOVER or IDLE | The `stream_data_length` check removed: the 12-sample stream locks the meter |
-| Same | Sequence wrap: 10 s continuous, 312 wraps | Zero restarts; `rate_valid` high throughout | Pick continuity compared without the 8-bit wrap: a restart at every wrap |
+| Same | Sequence wrap: 10 s continuous, 312 wraps | Zero restarts; `rate_valid` high from 4.1 s on | Pick continuity compared without the 8-bit wrap: a restart at every wrap |
 | Same | Lock and unlock | Lock after 8 PDUs; unlock 100 ms after the last | Timeout disabled: no unlock |
-| Same | History restarts: `tu` edge on the common-header bit, a lost PDU, a selection change, entry into AAF following, the bind edge, a 32-bit timestamp wrap | `rate_valid` falls and returns after 256 intervals; the timestamp wrap does not restart | No restart on the `tu` edge. Separately, `tu` taken from the `tv` net (the CRF wiring): the `tu` case fails |
+| Same | History restarts: `tu` edge on the common-header bit, a lost PDU, a selection change, entry into AAF following, the bind edge, a 32-bit timestamp wrap | `rate_valid` falls and returns after 2,048 intervals; the timestamp wrap does not restart | No restart on the `tu` edge. Separately, `tu` taken from the `tv` net (the CRF wiring): the `tu` case fails |
 | Same | Selection | Another listener's PDUs, wrong subtype, `tv` clear, a STOPPED input: none is measured | The listener compare ignored: the meter follows the wrong stream |
-| Same | The `mr` seed: a switch between two talkers at opposite `mr` levels; entry from INTERNAL onto a talker at `mr` 1 | No `mr` pulse from the meter at either | No re-seed on a selection change: a pulse at the new input's first PDU |
+| Same | The meter's pulses, counted at its ports. While locked: a change of the followed listener onto a talker at the opposite `mr` level; entry from INTERNAL onto a talker at `mr` 1; exit to CRF; 100 ms of silence; an unbind and a rebind; a toggle of the followed talker's `mr`. With the enable low: talker 0 toggling its `mr` | Exact counts: no `disrupt_p` and no `mr_toggle_p` at the change, the entry or the exit; one `disrupt_p` at the silence and one at the unbind's timeout, none at the rebind; one `mr_toggle_p` at the toggle; nothing while the enable is low | No re-seed at an era start: one `mr_toggle_p` at the new talker's first PDU. Separately, an era-start lock clear reported on `disrupt_p`: one pulse at the change. Separately, `disrupt_p` tied low: none at the silence. Separately, the enable tied high: pulses while it is low |
 | `tb/verilator/mmcm_servo` | One-bit select; a reference switch with the select held | HOLDOVER, then ACQUIRE with the integrator kept, then LOCKED | Switch through IDLE (W1): the integrator-kept check fails |
+| Same, with the meter driving the servo's reference ports | A synthetic AAF talker at +20 ppm with +/-1,426 ns of timestamp error, 60 s in the worst-case shape, then 60 s with a random sign per group | LOCKED within 10 s of the first PDU and never left; every window's `|e|` under 1,024 ns after the first LOCKED | Rate over 512 ms (E1): LOCKED is left, or never reached |
 | `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, with an AAF talker and a CRF talker both present at different planted offsets (for example +20 and -15 ppm) | The media clock follows the selected talker's offset within 0.5 ppm with zero junction slips; INTERNAL as decided under D4 | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running. Separately, the reference mux stuck on `KL_crf_rx`: AAF selected, the clock lands on the CRF talker's offset |
 | Same | W2 at the root: following AAF input 0 with the servo LOCKED, a switch to a CRF stream already locked | `MCSRV_STAT` shows HOLDOVER, then ACQUIRE with the lock count cleared and the integrator kept, then LOCKED | The one-cycle unlocked presentation removed: the servo stays LOCKED across the switch |
-| Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels | Exactly one toggle per output per switch, held 8 PDUs; each output's MEDIA_RESET moves once; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a second toggle on outputs. Separately, the disruption trigger unmasked at a switch: the era-start lock fall requests a second restart. Separately, AAF triggers ungated by the selection: phantom toggles at INTERNAL |
-| Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | AAF lock-fall trigger removed: no toggle |
+| Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels: (i) both talkers streaming, each switch repeated at 16 phases across one CRF output period; (ii) AAF input 0 to input 1 with input 1's talker silent at the switch and starting 5 ms after it; (iii) an INTERNAL dwell with AAF talker 0 toggling its `mr` | At a `public_flat_rd` tap on the restart request: no pulse at any switch, one per disruption. On the wire: exactly one toggle per output per switch, held 8 PDUs, at every phase of (i) and in (ii); none in (iii). Each output's MEDIA_RESET moves once per switch; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a request pulse at every switch onto the other talker, and in (ii) a second toggle on every output. Separately, the meter's raw lock-fall edge wired as the disruption, as the CRF term is: a request pulse at every switch. Separately, the meter's enable tied high: requests and toggles in (iii) |
+| Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss |
 | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
 | Same | CLOCK_DOMAIN counters across a holdover, a return and a switch | As D5 rules. Under C1: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again. Under C2: UNLOCKED at the loss and the switch, LOCKED when the reference lock returns (8 PDUs after a return, one cycle after a switch onto a locked CRF stream). Under C0: neither moves while `tu` is 0. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | Another option's level: C0 under C1 or C2, C1 under C0 |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
+
+**Why the switch row has three checks.** The round 3 evidence on PR #631
+drives the unmodified `KL_media_clock_restart.sv` in the pinned HDL simulator
+with an AAF output and a CRF output, each PDU reported some cycles after its
+launch:
+
+- the switch alone gives exactly one toggle per output at every switch phase:
+  1,600 of 1,600 at cycle resolution on a scaled clock, and 32 of 32 at
+  100 MHz with 125 us and 2 ms PDU periods;
+- a missing re-seed with the new talker starting 5 ms after the switch gives
+  a second toggle on both outputs at every phase, 1,600 of 1,600 and 32 of 32,
+  so check (ii) kills it whatever the phase;
+- the same mutant with the new talker already streaming shows on the wire at
+  only some phases, 17 % scaled and 27 % at 100 MHz, so check (i) alone could
+  pass with it;
+- a second request 1 to 4 cycles after the switch, which is what an era-start
+  lock clear on `disrupt_p` would raise, never reached the wire: 0 of 13,056
+  trials over two report latencies on each clock.
+
+So the era-start rule has no wire-level mutant. It is graded at the meter's
+ports and at the request tap, where every one of its mutants fails at every
+switch. The request tap is a harness probe on a net, as `crf_clk_selected_r`
+already is (`hdl/milan/milan_datapath.sv:705`); it adds no port or register.
 
 ### Bench
 
@@ -834,7 +1039,7 @@ listener and read back, and a full restore with read-back.
 
 | Case | Set-up | Pass |
 |---|---|---|
-| B AAF | The reference peer's AAF talker bound to the DUT's STREAM_INPUT 0; the DUT's CLOCK_DOMAIN set to the source located there (index 2 under L1) and read back; the tone runs from the DUT's TDM input through its AAF talker to the peer's listener on the peer's own clock | Servo LOCKED; 0 net steps between the DUT's TDM clock and the peer's output; tone blocks at the 24-bit floor outside capture-path losses; `SLIP_TDM` static; the meter's history-restart count unchanged after lock. Its largest timestamp deviation is recorded: the measurement of the reference peer's AAF timestamp regularity that the design's assumption lacks |
+| B AAF | The reference peer's AAF talker bound to the DUT's STREAM_INPUT 0; the DUT's CLOCK_DOMAIN set to the source located there (index 2 under L1) and read back; the tone runs from the DUT's TDM input through its AAF talker to the peer's listener on the peer's own clock | Servo LOCKED within 15 s of the set and never left during the capture; 0 net steps between the DUT's TDM clock and the peer's output; tone blocks at the 24-bit floor outside capture-path losses; `SLIP_TDM` static; the meter's history-restart count unchanged after lock. Its largest timestamp deviation is recorded: the measurement of the reference peer's AAF timestamp regularity that the design's assumption lacks |
 | B CRF | B6's case B CRF repeated on the new image | As B6 |
 | B INTERNAL, control | The DUT on INTERNAL with the peer's streams bound | The metric shows the mismatch, as in B6 |
 | A1 on the new image | The DUT on INTERNAL; the peer follows the DUT's AAF stream, as B6 ran it | Passes, as in B6 |
@@ -849,12 +1054,13 @@ listener and read back, and a full restore with read-back.
 | ID | Question | Options | Recommendation | State |
 |---|---|---|---|---|
 | D1 | Source order | L1, L2 | **L1**: the CRF index stays 1 on every shape that declares INTERNAL and CRF, independent of the listener count, so procedures, scripts and checks that select CRF by index keep their meaning. The saved-state reason given in round 1 is withdrawn: no saved selection crosses the update under either order | Re-opened in round 2, for decision |
-| D2 | AAF measurement | M0, M1, M2, M3 | **M1**, with round 2's input contract: the 48 kHz base format only, the group-mean pick (P2) and the 4,096 ns bound (B2) | Ruled M1 |
+| D2 | AAF measurement | M0, M1, M2, M3 | **M1**, with round 2's input contract: the 48 kHz base format only, the group-mean pick (P2) and the 4,096 ns bound (B2). The ruling's words "keeps one AAF timestamp in 16" become "keeps the mean of each 16", and its rate estimator is D8 | Ruled M1; the two wording changes are for the manager to confirm |
 | D3 | Switching between two followed sources | W1, W2 | **W2** | Ruled W2 |
 | D4 | A2 at INTERNAL | A2-a, A2-b, A2-c, A2-0 | **A2-a**, also the manager's recommendation. It reverses the recorded INTERNAL free-run rule; otherwise A2-0 and #74 keeps it | With the owner |
-| D5 | CLOCK_DOMAIN LOCKED and UNLOCKED | C0, C1, C2, C3 | **C1**: unlocked while a followed source's servo is not LOCKED. It reverses the recorded LOCKED-equals-`~tu` rule while following, for the reason given above | Re-opened in round 2, for decision |
+| D5 | CLOCK_DOMAIN LOCKED and UNLOCKED | C0, C1, C2, C3 | **C1 with E8**: unlocked while a followed source's servo is not LOCKED. It reverses the recorded LOCKED-equals-`~tu` rule while following, for the reason given above. Under E8 the counters move only at a loss, a return and a switch. **C2 if D8 keeps E1**, whose servo excursions C1 would count | Re-opened in round 2, restated in round 3, for decision |
 | D6 | Shipping configurations | all five, or the AX7101 1x1 TDM8 first | **All five**, in one regeneration, because each moves `entity_model_id` once. Every unit loses its saved state at that update | Ruled all five |
 | D7 | Phase alignment (IEEE 1722-2016 10.8, 4.3.5) | in #629, or a new issue | **A new issue** | Filed as #632 |
+| D8 | The AAF meter's rate estimator | E1, LS1, E4, E8, L | **E8**: a two-point difference over 4.096 s from an 8-entry snapshot ring. It is the only option that meets the servo's lock test under every error shape of 10.8 size without changing the servo: 753 ns worst case in closed loop at +/-1,426 ns. One RAMB18 fewer than round 2's meter; the rate is valid 4.096 s after a history restart instead of 512 ms | New in round 3, for decision |
 
 The `mr` treatment of a followed AAF stream (a toggle on its loss and an echo
 of its toggles) and the holdover without fallback are this design's choices
@@ -863,9 +1069,24 @@ ruling can change either.
 
 ## Limits
 
-- **Desk work only.** No simulation was run for this page. The area estimate
-  rests on one out-of-context measurement of `KL_crf_rx`. The meter's numbers
-  come from a desk model of its rules, not of any talker.
+- **Desk work only.** No RTL of this design exists, so none was simulated.
+  Round 3 ran the unmodified `KL_media_clock_restart.sv` in the pinned HDL
+  simulator to grade the switch test. The area estimate rests on one
+  out-of-context measurement of `KL_crf_rx`. The meter's numbers come from a
+  desk model of its rules, not of any talker.
+- **The closed-loop figures are a model of the servo's PI, not of its RTL.**
+  The model takes the PI's shifts, clamps and slew limit and the lock rule
+  from `KL_mmcm_drp_servo.sv`, on a plant of gain 1 one window late, with
+  +/-20 ns of local window quantisation. The fine phase-shift actuator, the
+  PHC step and policy-slew guards and the gPTP plane's own wander are not
+  modelled. The E8 bound has 271 ns of margin at a plant gain of 1, and 134 ns
+  at 1.2. The servo row with the meter in front of it is what proves it.
+- **The CRF path has the same property.** `KL_crf_rx`'s 512 ms two-point rate
+  meets the lock test under every error shape only for error under about
+  255 ns per timestamp in closed loop (1,024 / 4.01); it assumes 384 ns
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:283-284`). B6 found the CRF path locked on
+  the bench. The ruling keeps `KL_crf_rx` unchanged, so this is outside #629
+  and is proposed as a separate issue.
 - **The baseline is unmerged.** B6's findings page is cited through PR #630,
   not through a tracked path.
 - **No measured AAF timestamp quality.** The meter is designed for the 10.8
