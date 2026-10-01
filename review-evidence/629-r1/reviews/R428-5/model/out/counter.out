@@ -1,0 +1,8 @@
+== counter: the counter row's 60 s loss leg, one PDU lost in every 0.3 s
+Talker at +20 ppm, no step; leg from 20 s to 80 s, losses from 20.1 s.
+design   C1: first LOCKED 7.173 s; HOLDOVER entries 0; in leg UNLOCKED 0 [] LOCKED 0; LOCKED after leg []; last loss 79.800; PI runs in leg 117
+mutant   C1: first LOCKED 7.173 s; HOLDOVER entries 200; in leg UNLOCKED 1 [20.1] LOCKED 0; LOCKED after leg [82.437]; last loss 79.800; PI runs in leg 0
+         LOCKED 2.637 s after the last loss
+design   C0: first LOCKED 7.173 s; HOLDOVER entries 0; in leg UNLOCKED 0 [] LOCKED 0; LOCKED after leg []; last loss 79.800; PI runs in leg 117
+design   C2: first LOCKED 7.173 s; HOLDOVER entries 0; in leg UNLOCKED 0 [] LOCKED 0; LOCKED after leg []; last loss 79.800; PI runs in leg 117
+anyloss  C1: first LOCKED 7.173 s; HOLDOVER entries 0; in leg UNLOCKED 0 [] LOCKED 0; LOCKED after leg []; last loss 79.800; PI runs in leg 0
