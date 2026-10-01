@@ -1,0 +1,50 @@
+control maap run: rc=0 tally=(196, 0) PASS
+tx-path-absorbs-release [maap]: rc=2 tally=(190, 10) named=3 KILLED
+    FAIL: U25: the claim is withdrawn for the whole outage (1000 cycles valid, state 2)
+    FAIL: U25: an ALLOC during the outage is refused
+    FAIL: U25: the DEFEND drains and a fresh walk probes (1 frames, state 2)
+off-waits-for-an-edge [maap]: rc=2 tally=(189, 9) named=3 KILLED
+    FAIL: U26: W_IDLE, a 1-cycle Release! is followed by a fresh walk's PROBE
+    FAIL: U26: W_IDLE, a 2-cycle Release! is followed by a fresh walk's PROBE
+    FAIL: U26: W_RX, a 1-cycle Release! is followed by a fresh walk's PROBE
+rx-release-returns-to-idle [maap]: rc=2 tally=(195, 3) named=2 KILLED
+    FAIL: U26: W_RX, a 1-cycle Release! gives INITIAL
+    FAIL: U26: W_RX, a 1-cycle Release! is followed by a fresh walk's PROBE
+seed-rearmed-on-idle-release-only [maap]: rc=2 tally=(196, 2) named=2 KILLED
+    FAIL: U27: the W_ADDR arc, the next engagement probes the seed first (got 91e0f00026a4)
+    FAIL: U27: the W_ADDR arc, the seeded PROBE is byte-exact
+seed-clamp-off-by-one [maap]: rc=2 tally=(196, 2) named=2 KILLED
+    FAIL: U18b: seed 0xfdf9 is clamped: probes 0xfdf8 (got 91e0f000fdf9, 0 draws)
+    FAIL: U18b: seed 0xfdf9, the PROBE is byte-exact
+release-waits-for-draw [maap]: rc=2 tally=(196, 1) named=1 KILLED
+    FAIL: U17c: a draw in flight at the fall is abandoned, never adopted (3 of 5 offsets)
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U28: no new TX slot request follows the fall (a request already pending is retried until granted), in any walker state, for 33 s (1 of 17 falls)
+    FAIL: U28: at most the one frame requested before the fall drains (1 of 17 falls)
+    FAIL: U28: no claim after the fall, and INITIAL (1 of 17 falls)
+teardown-keeps-announce-timer [maap]: rc=2 tally=(196, 1) named=1 KILLED
+    FAIL: U28: the timers are stopped: no expiry for 33 s after the fall (3 of 17 falls)
+drain-waits-for-the-link [maap]: rc=2 tally=(196, 5) named=2 KILLED
+    FAIL: U23: at most the one frame requested before the fall drains: the ANNOUNCE, byte-exact, and no new slot request after it (32 of 43 offsets)
+    FAIL: U23: the drained ANNOUNCE reaches the lane within 63 cycles of the fall (32 of 43 offsets late)
+tx-set-omits-alloc [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-gwait [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-write [maap]: rc=2 tally=(192, 7) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-commit [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+15 checks: 15 PASS, 0 FAIL

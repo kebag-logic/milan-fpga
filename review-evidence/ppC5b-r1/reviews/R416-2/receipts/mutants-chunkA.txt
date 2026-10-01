@@ -1,0 +1,95 @@
+control aecp-dispatch: rc=0 PASS
+control aecp-line: rc=0 PASS
+control line-guards: rc=0 PASS
+lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: ENTITY_LOCKED byte-exact (status 0, cdl 17)
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: no unsolicited frame reached the registered holder
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: no dynamic-store write, NVM mark or notification (1, 0, 1)
+    FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 0, cdl 17)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: no unsolicited frame reached the registered holder
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: no dynamic-store write, NVM mark or notification (1, 0, 1)
+    FAIL: LK3 ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK6 IDENTIFY 0: ...one store write and 1 notification enqueued (1, 0)
+lk-prefix-zero-body: rc=2 failures=7 named=1 KILLED
+    FAIL: LK1 unset rate row, foreign SET_SAMPLING_RATE(48000) carries the image's 96000: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK1 unset clock-source row, foreign SET_CLOCK_SOURCE(1) carries the image's 2: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK3 foreign SET_SAMPLING_RATE(96000) carries the stored 48000: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK3 foreign SET_CLOCK_SOURCE(2) carries the stored 1: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 3, cdl 17)
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+sctrl-badarg-zero-body: rc=2 failures=2 named=1 KILLED
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+rd-base-no-overlay: rc=2 failures=9 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD1 STREAM_INPUT 0 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+rd-au-image-only: rc=2 failures=2 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+rd-au-unset-overlays: rc=2 failures=1 named=1 KILLED
+    FAIL: RD0 AUDIO_UNIT 0, rate unset: READ_DESCRIPTOR byte-exact, @136 carrying 0x17700
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+    FAIL: RD0 STREAM_INPUT 0, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD0 STREAM_OUTPUT 1, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+rd-cfg-any: rc=2 failures=2 named=1 KILLED
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): the 534-byte descriptor, byte-exact
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: the 534-byte descriptor, byte-exact
+rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD1 STREAM_INPUT 0 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact, its image whole (cdl -1)
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 568: must be refused: DESC_LINE_BYTES_P=568 is below 576 (verilator rc 0)
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 1016: must be refused: DESC_LINE_BYTES_P=1016 is above 1008 (verilator rc 1)
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): the 584-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): 618 octets on the wire, want 626
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 584-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 618 octets on the wire, want 626
+    FAIL: RB the whole-line READ_DESCRIPTOR reached the reservation's last byte: 592 bytes written, 600 reserved
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 600)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: byte-exact (status 0, cdl 608)
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: number_of_mappings 176 names exactly the 73 records carried
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: the frame did not leave through slot 4
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: byte-exact (status 0, cdl 24)
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: number_of_mappings 256 names exactly the 0 records carried
+    FAIL: RB no response byte written at or past RESP_BASE_P + 16 + DESC_LINE_BYTES_P (600): 8
+19 checks: 19 PASS, 0 FAIL

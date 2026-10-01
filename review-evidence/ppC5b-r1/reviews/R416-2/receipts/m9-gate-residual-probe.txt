@@ -1,0 +1,4 @@
+one declarator per statement (the engine's form): parsed ['0x10', '0x4'], gate FAIL
+   OP_SET_NAME_C = 0x0010 is decoded by the engine and missing from kOpcodes: its aem_w guard is untested
+a well-formed opcode plus two declarators in one statement: parsed ['0x4'], gate FAIL
+   OP_GET_NAME_C is not written `localparam logic [15:0] OP_GET_NAME_C = 16'hXXXX;`, so this gate cannot read its opcode

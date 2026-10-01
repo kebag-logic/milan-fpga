@@ -1,0 +1,58 @@
+## merge a4ba9f7: parents
+a4ba9f72e81d4db0cad26f960b547e24265b3064 54c1e2b11c90e7063fc5882b15ddea5e4335d411 d5f73bac158276a9fcf549185bad5c65c0498dae
+merge-base of the parents: 0451d83d9d3f2ed5f4513c59ac5ac219ad9dd7ff
+lane-side files: 50; main-side files: 42
+files changed on both sides:
+  docs/00_MILAN_COMPLIANCE_REVIEW.md
+  tb/pp_top/Makefile
+  tb/pp_top/README.md
+  tb/pp_top/sim_main.cpp
+main-only files differing from main at the merge: 0
+lane-only files differing from the lane at the merge: 0
+both-side files: sorted +/- line multiset of (merge vs other parent) equals (that side's own change)?
+  docs/00_MILAN_COMPLIANCE_REVIEW.md main-side=equal lane-side=equal
+  tb/pp_top/Makefile main-side=hand-resolved lane-side=hand-resolved
+  tb/pp_top/README.md main-side=equal lane-side=equal
+  tb/pp_top/sim_main.cpp main-side=hand-resolved lane-side=hand-resolved
+## the two hand-resolved files: combined diff of the merge
+diff --cc tb/pp_top/Makefile
+index 8bb815f,1ccfcc6..cdd895f
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@@ -109,5 -101,4 +113,5 @@@ ucode.hex: $(HDL)/aecp/ucode/gen_ucode.
+  clean:
+  	rm -rf obj_dir obj_vid ltn_rom.hex ucode.hex
+  
+- .PHONY: name-writes run gsi-build gsi-internal adp-config aecp-dispatch aecp-mutants \
+-         fixture-guards fixture-guards-test clean
+ -.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test clean
+++.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config aecp-dispatch \
+++        aecp-mutants fixture-guards fixture-guards-test clean
+diff --cc tb/pp_top/sim_main.cpp
+index 7249fdf,dd0fed9..72ec89e
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@@ -10982,17 -10412,15 +11052,19 @@@ int main(int argc, char** argv) 
+    const bool gsi_only = argc == 2 && std::strcmp(argv[1], "--gsi-internal-only") == 0;
+    const bool name_only = argc == 2 && std::strcmp(argv[1], "--name-writes-only") == 0;
+    const bool d3_only = argc == 2 && std::strcmp(argv[1], "--d3-only") == 0;
++   const bool maap_only = argc == 2 && std::strcmp(argv[1], "--maap-internal-only") == 0;
+    const bool adp_only = argc == 2 && std::strcmp(argv[1], "--adp-only") == 0;
+ +  const bool aecp_only = argc == 2
+ +                         && std::strcmp(argv[1], "--aecp-dispatch-only") == 0;
+    if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+      run_dr3a(h);
+      return 0;
+    }
+ -  const bool one_section = gsi_only || name_only || d3_only || adp_only || maap_only;
+ +  const bool one_section = gsi_only || name_only || d3_only || adp_only
+-                            || aecp_only;
+++                           || maap_only || aecp_only;
++   if (maap_only) run_maap_internal(h);
+    if (!one_section) Suite(h).run();
+ +  if (aecp_only) run_aecp_dispatch_focus(h);
+    if (!one_section || gsi_only) InternalStreamInfoPhase{h}.run();
+    if (!one_section || name_only) run_name_writes(h);
+    if (!one_section || d3_only) run_d3(h);
+## patches moved by 9437b16 as pure renames (similarity 100%), of 34 existing then (35th, rd-str-short-guard-nop, added after):
+34

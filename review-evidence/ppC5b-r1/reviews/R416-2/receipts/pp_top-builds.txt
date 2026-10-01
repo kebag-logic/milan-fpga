@@ -1,0 +1,12 @@
+130:fixture guards: 4 cases PASS
+131:line guard 576: lints clean
+132:line guard 584: lints clean
+133:line guard 1008: lints clean
+134:line guard 568: refused: DESC_LINE_BYTES_P=568 is below 576
+135:line guard 1016: refused: DESC_LINE_BYTES_P=1016 is above 1008
+136:line guard 580: refused: DESC_LINE_BYTES_P=580 is not a multiple of 8
+137:line guards: 6 cases, 0 failing
+293:[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 8324 checks, 0 failures
+440:[build fixture, SRP_DOM_DEF_VID_P 0x5a3c, DESC_LINE_BYTES_P 576] 20 checks, 0 failures
+586:[build line, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 584] 218 checks, 0 failures
+587:8562 checks: 8562 PASS, 0 FAIL

@@ -1,0 +1,161 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control aecp-line",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control line-guards",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "lk-sctrl-lock-nop",
+    "patch": "lk-sctrl-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 12,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-prefix-zero-body",
+    "patch": "lk-prefix-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sctrl-badarg-zero-body",
+    "patch": "sctrl-badarg-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-base-no-overlay",
+    "patch": "rd-base-no-overlay",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-au-image-only",
+    "patch": "rd-au-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-au-unset-overlays",
+    "patch": "rd-au-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cd-image-only",
+    "patch": "rd-cd-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-unset-overlays",
+    "patch": "rd-str-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-so-reads-input-row",
+    "patch": "rd-so-reads-input-row",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cfg-any",
+    "patch": "rd-cfg-any",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-tail-uncut",
+    "patch": "rd-tail-uncut",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-short-guard-nop",
+    "patch": "rd-str-short-guard-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-floor-rounded",
+    "patch": "line-floor-rounded",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-ceiling-dropped",
+    "patch": "line-ceiling-dropped",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-buffer-fixed-592",
+    "patch": "line-buffer-fixed-592",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rb-rounded-buffer-no-page-cap",
+    "patch": "rb-rounded-buffer-no-page-cap",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

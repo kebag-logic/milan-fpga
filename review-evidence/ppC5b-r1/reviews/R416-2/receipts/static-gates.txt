@@ -1,0 +1,16 @@
+lint_hdl.sh rc=0
+LINT OK  KL_srp_vlan
+LINT OK  KL_mrp_strip
+LINT OK  protocol_processor_top
+make check rc=0
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 994 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (94 rows, 0 untested)
+parameters: top 26, guide 26, diagram 26, OK
+matrix: OK (94 rows, 0 untested)
+gen_matrix --check rc=0
+test_gen_desc_image rc=0
+
+OK

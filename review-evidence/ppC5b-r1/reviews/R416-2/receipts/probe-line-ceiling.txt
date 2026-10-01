@@ -1,0 +1,8 @@
+reviewer probe: tb/pp_top section AX alone at DESC_LINE_BYTES_P 1008 (the range ceiling) and 1000, exact head 2acd4025, pinned Verilator 5.050 (scripts/probe_line_build.sh)
+## line 1008
+AX: 218 checks, 0 failures
+[build line, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 1008] 218 checks, 0 failures
+## line 1000
+AX: 218 checks, 0 failures
+[build line, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 1000] 218 checks, 0 failures
+every RB check passed at both lines: the top elaborated the bench's line, no strobed response byte at or past RESP_BASE_P + 16 + line, and OV1's whole-line read reached the reservation's last byte (cdl 16 + line)
