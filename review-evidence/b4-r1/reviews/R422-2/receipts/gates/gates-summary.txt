@@ -1,0 +1,14 @@
+head c39312b4871c8cc3ca604eb7c57f4b0b45d914e0 tree d9b3febc6f776dce41435775941fe960f1e1b6f1
+gate-1 rc=0: <packet>/scratch/mdenv/bin/python scripts/docs_check.py
+gate-2 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_doc_style.py
+gate-3 rc=0: <packet>/scratch/mdenv/bin/python scripts/gen_toc.py --check
+gate-4 rc=0: <packet>/scratch/mdenv/bin/python scripts/gen_toc.py --verify-anchors
+gate-5 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+gate-6 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_em_dash.py --base 35a60c8d6ee742216f98232c85926b435ab01b91
+gate-7 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_doc_paths.py
+gate-8 rc=0: <packet>/scratch/mdenv/bin/python scripts/ci_scope.py --selftest
+gate-9 rc=2: <packet>/scratch/mdenv/bin/python scripts/check_baremetal_only.py --check
+gate-10 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_feature_status.py --self-test
+gate-11 rc=0: git diff --check e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b HEAD
+gate-12 rc=0: git diff --check 35a60c8d6ee742216f98232c85926b435ab01b91 HEAD
+gate-9b rc=0: python3 (system, pyyaml 6.0.3) scripts/check_baremetal_only.py --check

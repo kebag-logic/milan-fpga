@@ -1,0 +1,243 @@
+{
+ "frames": 64,
+ "decoder": "scratch/ev/review-evidence/b4-r1/author/tools/decode_capture.py",
+ "decoder_sha256": "cfb7121b589fe231e139012646fe567b76022e694e08d3bb89d8a7481bda2568",
+ "cases": {
+  "aligned": {
+   "decoder": {
+    "torn_frames": 0,
+    "silent": 0,
+    "ordinal_steps": {
+     "+1": 62,
+     "forward>2": 1
+    },
+    "per_channel": {
+     "0": {
+      "tags": {
+       "1": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "1": {
+      "tags": {
+       "2": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "2": {
+      "tags": {
+       "3": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "3": {
+      "tags": {
+       "4": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "4": {
+      "tags": {
+       "5": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "5": {
+      "tags": {
+       "6": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "6": {
+      "tags": {
+       "7": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "7": {
+      "tags": {
+       "8": 64
+      },
+      "zero": 0,
+      "non_pattern": 0
+     }
+    }
+   },
+   "own": {
+    "torn": 0,
+    "low_byte_words": 0,
+    "zero_words": 0,
+    "tag_out_of_range_words": 0,
+    "wrong_channel_tag_words": 0,
+    "steps": {
+     "1": 62,
+     "32737": 1
+    }
+   },
+   "ch0_first_two_frames_hex": [
+    "017ff000",
+    "017ff100"
+   ]
+  },
+  "early": {
+   "decoder": {
+    "torn_frames": 0,
+    "silent": 0,
+    "ordinal_steps": {
+     "+2 (one skipped)": 62,
+     "backward": 1
+    },
+    "per_channel": {
+     "0": {
+      "tags": {
+       "2": 32,
+       "3": 32
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "1": {
+      "tags": {
+       "4": 32,
+       "5": 32
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "2": {
+      "tags": {
+       "6": 32,
+       "7": 32
+      },
+      "zero": 0,
+      "non_pattern": 0
+     },
+     "3": {
+      "tags": {
+       "8": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "4": {
+      "tags": {},
+      "zero": 0,
+      "non_pattern": 64
+     },
+     "5": {
+      "tags": {},
+      "zero": 0,
+      "non_pattern": 64
+     },
+     "6": {
+      "tags": {},
+      "zero": 0,
+      "non_pattern": 64
+     },
+     "7": {
+      "tags": {},
+      "zero": 0,
+      "non_pattern": 64
+     }
+    }
+   },
+   "own": {
+    "torn": 0,
+    "low_byte_words": 0,
+    "zero_words": 0,
+    "tag_out_of_range_words": 288,
+    "wrong_channel_tag_words": 224,
+    "steps": {
+     "2": 62,
+     "65474": 1
+    }
+   },
+   "ch0_first_two_frames_hex": [
+    "02ffe000",
+    "02ffe200"
+   ]
+  },
+  "late": {
+   "decoder": {
+    "torn_frames": 64,
+    "silent": 0,
+    "ordinal_steps": {},
+    "per_channel": {
+     "0": {
+      "tags": {},
+      "zero": 0,
+      "non_pattern": 64
+     },
+     "1": {
+      "tags": {
+       "1": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "2": {
+      "tags": {
+       "1": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "3": {
+      "tags": {
+       "2": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "4": {
+      "tags": {
+       "2": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "5": {
+      "tags": {
+       "3": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "6": {
+      "tags": {
+       "3": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     },
+     "7": {
+      "tags": {
+       "4": 32
+      },
+      "zero": 0,
+      "non_pattern": 32
+     }
+    }
+   },
+   "own": {
+    "torn": 64,
+    "low_byte_words": 256,
+    "zero_words": 0,
+    "tag_out_of_range_words": 64,
+    "wrong_channel_tag_words": 448,
+    "steps": {}
+   },
+   "ch0_first_two_frames_hex": [
+    "00bff800",
+    "00bff880"
+   ]
+  }
+ }
+}
