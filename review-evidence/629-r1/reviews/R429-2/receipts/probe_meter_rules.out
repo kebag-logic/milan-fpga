@@ -1,0 +1,86 @@
+== A. lock test under 10.8-sized error, rules as the page states (B = 4,096 ns, VOID on), 120 s per case
+shape        J_ns  ppm  rule   void  rate_valid  restarts/s  win_open  win_pi
+white        1042    0  first  on        0.9957        0.00     0.748   0.530
+white        1042    0  mean   on        0.9957        0.00     1.000   1.000
+white        1042  300  first  on        0.9957        0.00     0.748   0.530
+white        1042  300  mean   on        0.9957        0.00     1.000   1.000
+white        1426    0  first  on        0.9957        0.00     0.615   0.406
+white        1426    0  mean   on        0.9957        0.00     1.000   0.953
+white        1426  300  first  on        0.9957        0.00     0.615   0.406
+white        1426  300  mean   on        0.9957        0.00     1.000   0.953
+galt         1042    0  first  on        0.9957        0.00     1.000   1.000
+galt         1042    0  mean   on        0.9957        0.00     1.000   1.000
+galt         1042  300  first  on        0.9957        0.00     1.000   1.000
+galt         1042  300  mean   on        0.9957        0.00     1.000   1.000
+galt         1426    0  first  on        0.9957        0.00     1.000   1.000
+galt         1426    0  mean   on        0.9957        0.00     1.000   1.000
+galt         1426  300  first  on        0.9957        0.00     1.000   1.000
+galt         1426  300  mean   on        0.9957        0.00     1.000   1.000
+grand        1042    0  first  on        0.9957        0.00     0.752   0.556
+grand        1042    0  mean   on        0.9957        0.00     0.752   0.556
+grand        1042  300  first  on        0.9957        0.00     0.752   0.556
+grand        1042  300  mean   on        0.9957        0.00     0.752   0.556
+grand        1426    0  first  on        0.9957        0.00     0.607   0.474
+grand        1426    0  mean   on        0.9957        0.00     0.607   0.474
+grand        1426  300  first  on        0.9957        0.00     0.607   0.474
+grand        1426  300  mean   on        0.9957        0.00     0.607   0.474
+gsign        1042    0  first  on        0.9957        0.00     0.483   0.244
+gsign        1042    0  mean   on        0.9957        0.00     0.483   0.244
+gsign        1042  300  first  on        0.9957        0.00     0.483   0.244
+gsign        1042  300  mean   on        0.9957        0.00     0.483   0.244
+gsign        1426    0  first  on        0.9957        0.00     0.483   0.244
+gsign        1426    0  mean   on        0.9957        0.00     0.483   0.244
+gsign        1426  300  first  on        0.9957        0.00     0.483   0.244
+gsign        1426  300  mean   on        0.9957        0.00     0.483   0.244
+wander1.0    1042    0  first  on        0.9957        0.00     0.312   0.158
+wander1.0    1042    0  mean   on        0.9957        0.00     0.321   0.158
+wander1.0    1042  300  first  on        0.9957        0.00     0.312   0.158
+wander1.0    1042  300  mean   on        0.9957        0.00     0.321   0.158
+wander1.0    1426    0  first  on        0.9957        0.00     0.235   0.111
+wander1.0    1426    0  mean   on        0.9957        0.00     0.226   0.111
+wander1.0    1426  300  first  on        0.9957        0.00     0.235   0.111
+wander1.0    1426  300  mean   on        0.9957        0.00     0.226   0.111
+wander2.0    1042    0  first  on        0.9957        0.00     0.483   0.415
+wander2.0    1042    0  mean   on        0.9957        0.00     0.483   0.415
+wander2.0    1042  300  first  on        0.9957        0.00     0.483   0.415
+wander2.0    1042  300  mean   on        0.9957        0.00     0.483   0.415
+wander2.0    1426    0  first  on        0.9957        0.00     0.342   0.299
+wander2.0    1426    0  mean   on        0.9957        0.00     0.342   0.299
+wander2.0    1426  300  first  on        0.9957        0.00     0.342   0.299
+wander2.0    1426  300  mean   on        0.9957        0.00     0.342   0.299
+wander5.0    1042    0  first  on        0.9957        0.00     1.000   1.000
+wander5.0    1042    0  mean   on        0.9957        0.00     1.000   1.000
+wander5.0    1042  300  first  on        0.9957        0.00     1.000   1.000
+wander5.0    1042  300  mean   on        0.9957        0.00     1.000   1.000
+wander5.0    1426    0  first  on        0.9957        0.00     1.000   1.000
+wander5.0    1426    0  mean   on        0.9957        0.00     1.000   1.000
+wander5.0    1426  300  first  on        0.9957        0.00     1.000   1.000
+wander5.0    1426  300  mean   on        0.9957        0.00     1.000   1.000
+wander20.0   1042    0  first  on        0.9957        0.00     1.000   1.000
+wander20.0   1042    0  mean   on        0.9957        0.00     1.000   1.000
+wander20.0   1042  300  first  on        0.9957        0.00     1.000   1.000
+wander20.0   1042  300  mean   on        0.9957        0.00     1.000   1.000
+wander20.0   1426    0  first  on        0.9957        0.00     1.000   1.000
+wander20.0   1426    0  mean   on        0.9957        0.00     1.000   1.000
+wander20.0   1426  300  first  on        0.9957        0.00     1.000   1.000
+wander20.0   1426  300  mean   on        0.9957        0.00     1.000   1.000
+
+== B. the page's +/-2,500 ns independent row: void off (the desk model) against void on (the page's rule :457-459)
+white  2500    0  mean   off        0.9957        0.00     0.932   0.752
+white  2500  300  mean   off        0.9957        0.00     0.932   0.752
+white  2500    0  mean   on         0.0000      122.19     0.000   0.000
+white  2500  300  mean   on         0.0000      129.85     0.000   0.000
+
+== C. in-group worst case at the design point: max over a group of |ts_i - ts_0 - i*125,000| for +/-1,426 ns and 300 ppm
+analytic worst = 2*1426 + 15*125,000*300e-6 = 3414.5 ns (bound 4,096: inside)
+
+== D. phase-step rejection: white +/-1,426 ns, 300 ppm, P2, B = 4,096 ns, void on; 64 step positions per size over one group + one PDU; caught = a history restart within 2 groups
+step    1024 ns: caught  0 of 64
+step    2048 ns: caught  0 of 64
+step    3000 ns: caught  1 of 64
+step    4096 ns: caught 63 of 64
+step    6000 ns: caught 64 of 64
+step   10417 ns: caught 64 of 64
+step   20833 ns: caught 64 of 64
+step  -20833 ns: caught 64 of 64
+rc=0
