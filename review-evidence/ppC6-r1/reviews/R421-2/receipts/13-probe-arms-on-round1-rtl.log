@@ -1,0 +1,40 @@
+build=0
+  [i] ID1c: gaps 15264 and 15000 clocks
+  [i] ID2c: gaps 15264 and 15000 clocks
+  [i] ID2c: gaps 15199 and 15000 clocks
+  [i] ID2c: gaps 15199 and 15000 clocks
+  [i] ID2d: burst 2 starts 100265 clocks after burst 1
+  [i] ID2d: burst 3 starts 100200 clocks after burst 2
+  [i] ID3c: gaps 15264 and 15000 clocks
+  [i] ID3e: gaps 15194 and 15000 clocks
+  [i] ID3f: the new burst follows the third frame by 106 clocks
+FAIL: ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 106 clocks, want 15000 to 15400
+  [i] ID5e: gaps 15200 and 15000 clocks
+  [i] ID5i: fan-out at frame 1 + 14450 clocks: gaps 15775 and 14493
+  [i] ID5i: fan-out at frame 1 + 14700 clocks: gaps 15897 and 14340
+  [i] ID5i: fan-out at frame 1 + 14950 clocks: gaps 16147 and 14109
+FAIL: ID5k: no gap shorter than T-IDENT-BURST: the smallest of the six is 14109 clocks, want at least 15000
+  [i] ID6d: gaps 15174 and 15000 clocks
+  [i] ID7: stall inside frame 1: it left 40167 clocks after the press; gaps 63 and 207
+FAIL: ID7d: frame 2 leaves T-IDENT-BURST after frame 1 left, not after the engine retired it: 63 clocks, want 15000 to 15400
+FAIL: ID7e: frame 3 keeps its gap, 207 clocks
+  [i] ID7f: stall after frame 1: gaps 40093 and 164 clocks
+FAIL: ID7i: frame 3 leaves T-IDENT-BURST after frame 2 left, not at a deadline from frame 1: 164 clocks, want 15000 to 15400
+  [i] ID7j: stall after frame 2: gaps 15190 and 25093 clocks
+  [i] ID7n: gaps 90060, 63 | 10111 | 15199, 15000 clocks
+FAIL: ID7q: frame 3 leaves T-IDENT-BURST after frame 2 left, 63 clocks
+FAIL: ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 10111 clocks, want 15000 to 15400
+  [i] ID7s: gaps 15199 and 15000 clocks
+  [i] R421a: eof-beat stall of frame 1: gaps 63 and 169 clocks
+FAIL: R421a: gap 1->2 is 63 clocks, want at least T-IDENT-BURST 15000 after the stalled last byte was taken
+FAIL: R421a: gap 2->3 is 169 clocks, want at least T-IDENT-BURST 15000 after the stalled last byte was taken
+  [i] R421b: eof-beat stall of frame 2: gaps 55267 and 63 clocks
+FAIL: R421b: gap 2->3 is 63 clocks, want at least T-IDENT-BURST 15000 after the stalled last byte was taken
+  [i] R421d: a 200 ms press 2 ms after frame 3: 6 frames
+  [i] R421d: next burst 367 clocks after frame 3
+FAIL: R421d: the next burst's first frame is 367 clocks after the third frame, want at least T-IDENT-BURST 15000 (the documented gap)
+  [i] R421c: a 30 ms press 2 ms after frame 3: 6 frames
+  [i] R421c: next burst 367 clocks after frame 3
+FAIL: R421c: the next burst's first frame is 367 clocks after the third frame, want at least T-IDENT-BURST 15000 (the documented gap)
+ID: 116 checks, 12 failures
+[build identify, SRP_DOM_DEF_VID_P 0x0002] 116 checks, 12 failures

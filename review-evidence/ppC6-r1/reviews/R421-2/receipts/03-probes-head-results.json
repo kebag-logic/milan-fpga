@@ -1,0 +1,104 @@
+[
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "p_wait_gap_dropped",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "ID"
+  ],
+  "missing": [
+   "ID"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "p_hold_gap_dropped",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 166 clocks, want 15000 to 15400",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 166 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "p_t0_same_ms",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "ID"
+  ],
+  "missing": [
+   "ID"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "p_burst_deadline_150",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "ID"
+  ],
+  "missing": [
+   "ID"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "p_busy_clear_at_sof",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID7d: frame 2 leaves T-IDENT-BURST after frame 1 left, not after the engine retired it: 63 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "p_busy_clear_without_ready",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "ID"
+  ],
+  "missing": [
+   "ID"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ }
+]

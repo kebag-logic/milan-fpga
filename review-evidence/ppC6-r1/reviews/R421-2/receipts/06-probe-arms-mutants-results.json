@@ -1,0 +1,45 @@
+[
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "a_busy_clear_without_ready",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "R421a:",
+   "R421b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "R421a: gap 1->2 is 63 clocks, want at least T-IDENT-BURST 15000 after the stalled last byte was taken",
+   "R421b: gap 2->3 is 63 clocks, want at least T-IDENT-BURST 15000 after the stalled last byte was taken"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "a_wait_gap_dropped",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "R421d:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "R421d: the next burst's first frame is 367 clocks after the third frame, want at least T-IDENT-BURST 15000 (the documented gap)"
+  ],
+  "verdict": "KILLED"
+ }
+]
