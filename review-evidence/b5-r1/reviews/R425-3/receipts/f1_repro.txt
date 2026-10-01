@@ -1,0 +1,30 @@
+-- archive inputs
+8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc  receipts/a-long-reads.u16
+6e0028a6cf5d7e9e01ba1e3c3e96daa7b88b8024b937cbff48fa66a30eb06d03  receipts/a-long-reads.u16.gz
+7feb33bcb84ff649a8bcf8627b7fe146169eebb74195e4c12bf7aab2d39ee7f4  receipts/a-long-reads.json
+f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40  b5_attrib.py
+415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d  b5_round3.py
+-- gunzip -k with the masked copy present (expect refusal)
+gzip: a-long-reads.u16 already exists;	not overwritten
+rc=2
+8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc  a-long-reads.u16
+-- page step 1: gunzip -kf
+rc=0
+2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961  a-long-reads.u16
+131540 bytes
+-- page step 2: b5_attrib.py figures author receipts
+rc=0
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138  attribution.txt
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138  $PKT/scratch/pub/review-evidence/b5-r1/author-r2/receipts/attribution.txt
+attribution.txt: identical
+-- page step 3: b5_round3.py figures author receipts
+rc=0
+9fa0f02714c0b37147bb6aa620d1339cf32bd825ebdb76cd79be1d9e7bb14c67  round3_figures.txt
+9fa0f02714c0b37147bb6aa620d1339cf32bd825ebdb76cd79be1d9e7bb14c67  $PKT/scratch/pub/review-evidence/b5-r1/author-r3/receipts/round3_figures.txt
+round3_figures.txt: identical
+-- negative control: masked record (as published) through b5_attrib.py
+rc=1
+masked: differs (control bites)
+Traceback (most recent call last):
+  File "$PKT/scratch/f1/b5_attrib.py", line 383, in <module>
+    figures(*sys.argv[2:4])

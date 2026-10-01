@@ -1,0 +1,30 @@
+bf9e5d82: 15 tables, 119 table lines
+e29d12b1: 15 tables, 119 table lines
+cf38633a: 15 tables, 119 table lines
+table | head | =round2 | =round1 | header
+ 0 | 5b9ead9f4f577e71 | False | False | | Item | Verdict | Evidence |
+ 1 | d099cc353b0e10fd | True | True | | Identity check | Result |
+ 2 | 0ffd9507180193b9 | True | True | | Binding | Talker output | Listener input |
+ 3 | 7674f86fc4b93314 | True | True | | Stream format | As found | Meaning |
+ 4 | 55740cce025e7433 | True | True | | Run | Purpose | Result |
+ 5 | ed7cd4072b30fedb | True | True | | Bind | Talker format | Listener format read | Set | Listen
+ 6 | 6743c2d4132fd10a | True | True | | Stream channel | Expected tag | Captured words | Words wit
+ 7 | d3dd4a06b4c4c020 | True | True | | Frames | Valid | Torn | Invalid non-zero | Zero |
+ 8 | 4b62a11e6a895d8a | True | True | | Class | Events | Frames | Per second |
+ 9 | f64987b23087a869 | True | True | | Population | Count | Below 1 s | Min, s | Median, s | p95,
+10 | 93d945c5162c59a7 | True | True | | First ten median, s | Last ten median, s | Slope, s per cy
+11 | 35bf91e66ee97952 | True | True | | Cycle | Hold, s | Stopped in hold | Last valid after unbin
+12 | cf82f500f0925bd0 | True | True | | State | As left |
+13 | e3f27ede68e391f4 | True | True | | Artifact | Bytes | SHA-256 |
+14 | b60866266c662814 | True | True | | Tool | Role | SHA-256 |
+summary row changed: | Continuity over 660 s: silent stretche cells [2]
+summary row changed: | Direction B, the peer's talker to the  cells [2]
+restarts n=30 below1s=30 min=0.0262 median=0.0279 p95=0.0344 max=0.1358
+first10 median=0.0275 last10 median=0.0280 slope=-0.000665 ci=[-0.001496, 0.000166] df=28
+from-command min=0.0344 max=0.1439; response delay ms 7.2..8.3; last-valid 0.0144..0.0246
+skips 2..59: 521 events, 7176 frames; multiples of 6: 507; exactly 6: 354
+skips >=60: 239 events, 109928 frames; one-frame 526
+per second repeat: 0.508 (over 657.7 s captured)
+per second one: 0.800 (over 657.7 s captured)
+per second 2-59: 0.792 (over 657.7 s captured)
+per second >=60: 0.363 (over 657.7 s captured)

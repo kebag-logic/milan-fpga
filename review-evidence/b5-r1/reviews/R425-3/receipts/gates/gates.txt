@@ -1,0 +1,14 @@
+head cf38633ad9a5bdb05517bedba73ce50965af967b tree 150f848bdb9c85bf6bd0b005bce4579724ed6aa8
+rc=0  docs_check: <pinned-python> scripts/docs_check.py
+rc=0  check_doc_style: <pinned-python> scripts/check_doc_style.py
+rc=0  gen_toc_check: <pinned-python> scripts/gen_toc.py --check
+rc=0  gen_toc_anchors: <pinned-python> scripts/gen_toc.py --verify-anchors
+rc=0  em_dash: <pinned-python> scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+rc=0  em_dash_selftest: <pinned-python> scripts/check_em_dash.py --selftest
+rc=0  doc_paths: <pinned-python> scripts/check_doc_paths.py
+rc=0  ci_scope_selftest: python3 scripts/ci_scope.py --selftest
+rc=0  baremetal_only: python3 scripts/check_baremetal_only.py --check
+rc=0  feature_status: python3 scripts/check_feature_status.py --self-test
+rc=0  diff_check_base: git diff --check e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b HEAD
+rc=0  diff_check_r2: git diff --check e29d12b1d5ee858eaf4684aaa8dc6647f6309857 HEAD
+rc=0  status_after: git status --porcelain=v1 --untracked-files=all

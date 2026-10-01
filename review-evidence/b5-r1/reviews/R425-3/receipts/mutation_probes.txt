@@ -1,0 +1,19 @@
+P1 rc=1
+  baseline:   stall-aligned, a stall 0 to 2 reads before: 236, 109670 frames; reads before {1: 130, 2: 106}
+  baseline:   not stall-aligned: 3, 258 frames
+flattened read 224
+P2 rc=0
+stalls 219; excess over the 10 ms period 108564.9 frames; interval 18.80 .. 28.09 ms
+stalls followed by a skip of 240 frames or more within 2 reads: 219 of 219; skips per such stall: [1]
+  baseline: stalls 220; excess over the 10 ms period 109069.3 frames; interval 18.80 .. 28.09 ms
+  baseline: stalls followed by a skip of 240 frames or more within 2 reads: 220 of 220; skips per such stall: [1]
+planted +1 ms at read 24
+P3 rc=1
+  baseline: off-stall clusters (skips of 2 to 59 only, no stall): 121; floor steps by 1 ms (48 +- 4 frames): 22
+P1b rc=0
+stalls 219; excess over the 10 ms period 108564.9 frames
+  stall-aligned, a stall 0 to 2 reads before: 235, 109160 frames; reads before {1: 129, 2: 106}
+  not stall-aligned: 4, 768 frames
+P3b rc=0
+off-stall clusters (skips of 2 to 59 only, no stall): 121; floor steps by 1 ms (48 +- 4 frames): 21
+clear read positions: 51828; groups with |step| > 4: 9, 7 of them a 1 ms step
