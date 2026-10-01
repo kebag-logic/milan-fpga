@@ -60,7 +60,8 @@ or processor change comes with it.
 
 Bench lane B6 measured the image of dev `ec0cc0c1`
 ([PR #630](https://github.com/kebag-logic/milan-fpga/pull/630), its findings
-page at head `26dfc82f`, not merged when this page was written):
+page at head `26dfc82f`, merged into dev at `7f0927bb` after this page's
+base):
 
 - **The DUT follows a CRF talker.** With CLOCK_SOURCE 1 selected the servo
   read LOCKED 6.5 s after the set, and the DUT's TDM clock and the reference
@@ -666,7 +667,8 @@ counted on the group grid, so a lost PDU moves neither
 - **Residual.** Correlated error beyond the meter's own tolerance, +/-1,748 ns
   at 300 ppm, restarts the history continuously. The rate then never validates,
   and the servo holds its trim and its state; the meter's restart count shows
-  it. Loss beyond the loss rule's bound does the same
+  it. Loss beyond the loss rule's bound restarts the history too, and costs
+  the rate's validity in proportion to how often it comes
   ([Lost PDUs](#lost-pdus)). The bound also assumes a plant gain near 1; at
   1.2 it is 890 ns.
 
@@ -732,9 +734,10 @@ item 2). An isolated lost PDU voids its own group but does not restart E8's
 history.
 
 **What round 3 cost.** Under round 3's rules any lost PDU restarted the
-history. The rate needs 2,048 intervals, 32,784 consecutive PDUs, so a lost
-PDU every 4.1 s or more often kept it invalid for good. From a cold start the
-servo then never left ACQUIRE, and a locked servo held its trim.
+history. The rate needs 2,048 intervals, 32,784 consecutive PDUs, so lost
+PDUs that came at least once in every 4.1 s kept it invalid for good. From a
+cold start the servo then never left ACQUIRE, and a locked servo held its
+trim. Random loss at the same mean rate left it valid about 37 % of the time.
 
 **The clause basis.** IEEE 1722-2016 4.4.4.6: a listener can use
 `sequence_num` to detect AVTPDUs lost in transit. 10.1 lists tolerance of lost
@@ -749,6 +752,11 @@ media clock. The rule gives the meter the same property for isolated losses.
    in, whether the PDU was lost or not consumed (a clear `tv`, or another
    format). `KL_crf_rx` restarts its rate on any gap
    (`hdl/ieee1722/crf/KL_crf_rx.sv:398-400`); the meter keeps its history.
+   The deviation check still runs up to the gap. Each PDU is compared with
+   the group's PDU 0 as it arrives, so a deviation before the gap restarts
+   the history at once, as in a fully received group (rule 2). The PDUs after
+   the gap, to the group's end, are neither checked nor used, and a group
+   that lost its PDU 0 has no reference and is not checked.
 2. **Every other restart stays.** A deviation void (an in-group
    `|ts_i - ts_0 - i * 125,000|` above 4,096 ns), a pick spacing outside
    2 ms +/- 4,096 ns, a `tu` edge, the bind edge, 100 ms of silence, a change
@@ -756,24 +764,33 @@ media clock. The rule gives the meter the same property for isolated losses.
    history, as in round 3.
 3. **Continuity across the gap is checked.** The next valid pick is compared
    with the last one across k group intervals, k taken from the two groups'
-   `sequence_num[7:4]`, modulo 16. With one voided group between them
-   (k = 2) the spacing must be 4 ms +/- 5,120 ns. With two or more (k >= 3)
-   the history restarts. A gap of 256 PDUs or more aliases in
-   `sequence_num`, but its timestamps then miss k x 2 ms by at least 32 ms,
-   so the check fails and the history restarts.
+   `sequence_num[7:4]`, modulo 16. k = 1 is rule 2's adjacent check. With one
+   voided group between them (k = 2) the spacing must be 4 ms +/- 5,120 ns.
+   Every other k restarts the history: k >= 3, two or more voided groups,
+   and k = 0, which is 16 group intervals. Longer gaps alias. 17 and 18
+   intervals read as k = 1 and 2, and a run of 256 lost PDUs, or a multiple,
+   leaves no sequence gap at all. Each then misses k x 2 ms, or a PDU's
+   125 us inside its group, by a multiple of 32 ms, so its check fails and
+   the history restarts. In the round-5 desk model every run of 2 to 33
+   whole lost groups, and of 255, 256, 257 and 512 lost PDUs from a group's
+   PDU 0 or its PDU 5, restarts the history once. One lost group restarts
+   nothing.
 4. **Snapshots stay on the group grid.** The meter counts group intervals
    since the restart, k at a time, and writes a snapshot when the count
    reaches a multiple of 256. When the snapshot group itself is loss-voided,
    the snapshot is the midpoint of its two neighbours,
    `last + ((new - last) >>> 1)` modulo 2^32. The midpoint is exact for any
-   talker rate, and its error is the mean of two picks' errors, so it is at
-   most J, like a pick's. The rate is valid once the count reaches 2,048, as
-   before.
+   constant talker rate; a rate change inside those 4 ms moves it by at most
+   1 ns per ppm of change. Its error is the mean of two picks' errors, so it
+   is at most J, like a pick's. The rate is valid once the count reaches
+   2,048, as before.
 
 A real step is still caught. Inside a fully received group it voids the group
 by its deviation, and at a group boundary it fails the pick spacing (rule 2).
-In or beside a loss-voided group, the check across the gap sees the whole step
-(rule 3).
+In a loss-voided group the deviation check still sees a step between the
+group's PDU 0 and its gap (rule 1). The check across the gap sees the whole of
+any other step in or beside the voided group: one at its PDU 0, one after the
+gap, or one in a group that lost its PDU 0 (rule 3).
 
 **The bound.** A single bound B_k across k group intervals must admit the
 design point and still catch a half-sample step:
@@ -798,6 +815,16 @@ group the meter tolerates +/-1,960 ns per timestamp at 300 ppm and
 tolerance unchanged. The round-4 desk model finds the same edges with one PDU
 lost in every 0.3 s.
 
+The value is graded at both edges, with ideal timestamps and the step at the
+lost PDU 0 of a group, so that only the check across the gap can see it. At
++300 ppm a +3,900 ns step, the step that picks at -1,950 and +1,950 ns make,
+inside the +/-1,960 ns above, lands 5,100 ns from 4 ms and must not restart. At -300 ppm a half-sample step, opposed by picks at
++J before the gap and -J after it, lands 6,365 ns off and must restart. In the
+round-5 desk model the first restarts under any bound below 5,100 ns, and the
+second escapes any bound from 6,365 ns, so the pair passes only for a bound
+from 5,100 to 6,364 ns. k = 1's 4,096 ns fails the first, and 6,400 or
+8,192 ns fails the second.
+
 **What it holds under.** The rate stays valid, within E8's bound, and the servo
 stays LOCKED, under every loss pattern in which each loss-voided group has two
 fully received neighbours. Lost PDUs always meet that, at any phase, when any
@@ -813,23 +840,64 @@ come from a run of 17 or more lost PDUs, a shorter run that crosses a group
 boundary, or two losses in adjacent groups. A locked servo then holds its trim
 and stays LOCKED through the 4.096 s refill. The invalid rate holds the PI and
 the lock count (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:613-615`), and LOCKED
-falls only on a lock count of zero (`:567-568`). From a cold start the rate
-validates once 4.096 s pass without such a gap. The rate never validates only if these gaps
-recur within every 4.1 s. For independent loss at a rate p per PDU, two
-adjacent groups are voided about 500 q^2 times a second, with
-q = 1 - (1 - p)^16:
+falls only on a lock count of zero (`:567-568`). The rate validates again once
+4.096 s pass without such a gap. Gaps that recur within every 4.1 s keep it
+invalid for good, as a 2-PDU run across a group boundary once a second does
+in the table below.
 
-- p = 1e-4, 0.8 lost PDUs a second: one restart in about 13 minutes;
-- p = 1.4e-3, 11 lost PDUs a second: one restart in 4.1 s, the cliff.
+**Random loss degrades the rate gradually, with no cliff.** Under independent
+loss at a rate p per PDU a group is voided with probability
+q = 1 - (1 - p)^16. Runs of two or more voided groups begin about 500 q^2
+times a second, and exactly 500 q^2 (1 - q), because 500 q^2 counts every
+adjacent pair, so a run of three twice. The rate is valid when no such run has
+begun in the last 4.096 s, so it is valid about e^(-4.096 x 500 q^2) of the
+time. A cold start still locks. LOCKED needs about seven valid windows, three
+to converge from the MMCM plan's 10.64 ppm and four to qualify, and an invalid
+rate holds the PI and the lock count, so those windows may come from separate
+valid stretches. The round-5 desk model ran 32 seeds at each rate, 600 s each
+and 1,200 s from 16 lost PDUs a second, with independent error of
++/-1,042 ns:
 
-Round 3's rule reached its cliff at p = 3e-5, one lost PDU in 4.1 s.
+| Lost PDUs a second (p) | Restarts a second: 500 q^2; model | Rate valid: e^(-4.096 x 500 q^2); model | Cold-start LOCKED: median; middle half; slowest |
+|---|---|---|---|
+| 0.8 (1e-4) | 0.0013; 0.0011 | 0.995; 0.995 | 7.3 s; 7.3 s; 7.3 s |
+| 4 (5e-4) | 0.032; 0.031 | 0.88; 0.88 | 7.3 s; 7.3 to 8.9 s; 15.0 s |
+| 8 (1e-3) | 0.126; 0.122 | 0.60; 0.60 | 7.8 s; 7.3 to 11.4 s; 26.3 s |
+| 11 (1.4e-3) | 0.246; 0.242 | 0.37; 0.37 | 17.3 s; 10.4 to 26.8 s; 37.0 s |
+| 16 (2e-3) | 0.497; 0.482 | 0.13; 0.14 | 29.1 s; 16.0 to 41.1 s; 74.9 s |
+| 24 (3e-3) | 1.10; 1.05 | 0.011; 0.015 | 288 s; 159 to 387 s; 968 s |
+
+The model's validity counts the windows from 8.4 s on, after the cold-start
+fill. Every seed locked, and no case dropped LOCKED. The approximate formula
+is within 0.01 of the model at every rate up to 16 a second. At 24 a second
+its 0.011 is below the model's 0.015; the exact run rate gives 0.014. Both
+round-4 reviews found the same falloff: 37 to 39 % valid at 11 a second, and a
+cold start that locks there. The internal review's median, 18.5 s over 8
+seeds, waits for one restart-free stretch long enough for the whole lock. The
+servo does not have to, which puts the model's median at 17.3 s. The external
+review's single run, locked at 20.6 s, lies inside the model's middle half.
+
+So validity falls smoothly. By the exact rate it is 90 % at about 3.6 lost
+PDUs a second, 50 % at 9.4, 10 % at 17 and 1 % at about 25. Round 3's rule
+restarted on every lost PDU, so its validity was e^(-4.096 x 8,000 p): 37 % at
+one lost PDU in 4.1 s on average (p = 3e-5), and 1 % at 1.1 a second.
+
+The loss table below keeps round 4's single-seed rows at p = 1e-4 and 1e-3,
+300 s each. They fit the formula within one run's spread. They had 1 and 41
+restarts against 0.38 and 37.2 expected, and validity of 0.98 and 0.55
+against 0.98 and 0.59. That expectation counts every window, as those rows
+do, so it is the formula times the 0.986 of 300 s that the 4.1 s cold fill
+leaves. One 300 s run at p = 1e-3 spreads by about 0.05 across the round-5
+seeds.
 
 **The desk model with losses.** The round-4 model runs each case from the
 talker's first PDU, for 120 s unless stated, with independent error. The
 periodic rows ran at +/-1,042 ns (0 ppm) and at +/-1,426 ns (300 ppm), and the
 two agree except where a range is given; the rows that name one amplitude ran
 at that one. "Valid" is the fraction of all 512 ms windows with a valid rate.
-0.966 is the no-loss figure: the first 4.1 s are the fill.
+0.966 is the no-loss figure: the first 4.1 s are the fill. The round-5 model
+re-ran this table with the same seeds and rule 1's deviation check up to the
+gap, and every row is unchanged (the round 5 evidence on PR #631).
 
 | Loss pattern | Loss rule (b) | Restart on any loss (round 3) |
 |---|---|---|
@@ -852,15 +920,35 @@ worst-case shape at plant gains 0.8 and 1.2, with and without fills: 204 cases
 in all. None restarts the history or drops LOCKED, and every window after the
 first LOCKED stays under 1,024 ns. Without fills the worst case is unchanged:
 773 ns at a plant gain of 1, and 868 ns at 1.2. With every snapshot filled it
-falls to 425 ns, because a fill averages two picks. A one-sample and a
-half-sample step of either sign inside a loss-voided group, at each of the 16
-positions, restarts the history exactly once: 64 cases. With the check across
-the gap removed none restarts, and LOCKED drops twice.
+falls to 425 ns, because a fill averages two picks. The round-5 model re-ran
+the 204 cases, and every figure is unchanged.
+
+**Steps in a loss-voided group.** The round-5 model places the steps as the
+step row of the test plan does: at positions 1 to 15 of a group that lost its
+PDU 0, and at positions 0 to 14 of one that lost its PDU 15, a one-sample and
+a half-sample step of each sign, 120 cases. Each restarts the history exactly
+once. 56 restart at the step's PDU, by the deviation check before the gap:
+positions 1 to 14 of the second placement. The other 64 restart at the next
+valid pick, across the gap. With the check across the gap removed those 64 do
+not restart, and LOCKED drops twice in each of them; the 56 still restart.
+
+Round 4's model took the deviation verdict at a group's last PDU, so a
+loss-voided group was never checked. Its 64 steps, each in a group that lost
+its PDU 15 (its PDU 0 for a step at 15), met only the check across the gap,
+and without it none restarted, each case dropping LOCKED twice. Rule 1 now
+states the check up to the gap, which is what a compare made as each PDU
+arrives does without holding a verdict to the group's end. The other round-4
+sections re-run line for line, except five cases beyond the tolerance with
+loss. Those are never valid in either model, and restart a little more often
+because their partial groups are now checked. The tolerance edges are
+unchanged.
 
 **Area.** About 40 to 70 LUT and under 10 FF: k from `sequence_num[7:4]`; a
 second spacing and bound (4 ms, 5,120 ns); a group counter that steps by 1 or
 2 in place of the fresh count; and the midpoint adder on the ring's write
-data.
+data. The deviation check up to a gap adds nothing: it is the compare that the
+void and the status word's largest deviation already make at each PDU, gated
+off after a gap.
 
 The meter counts no loss itself. The Stream Input's SEQ_NUM_MISMATCH and
 STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
@@ -870,15 +958,19 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
 
 - **History restarts:** `KL_crf_rx`'s rules (`:390-403`) except its
   restart on a sequence gap. They are a `tu` edge, a pick spacing outside
-  2 ms +/- 4,096 ns, a group voided by its deviation, the bind edge, 100 ms of
-  silence, a change of the followed listener, and entry into AAF following.
-  The loss rule adds a gap of two or more voided groups, and a failed check
-  across a gap ([Lost PDUs](#lost-pdus)). Under E8 the rate is valid after
-  2,048 group intervals.
+  2 ms +/- 4,096 ns, a group voided by its deviation (before a gap too), the
+  bind edge, 100 ms of silence, a change of the followed listener, and entry
+  into AAF following. The loss rule adds a gap of two or more voided groups
+  (every k other than 1 and 2), and a failed check across a gap
+  ([Lost PDUs](#lost-pdus)). Under E8 the rate is valid after 2,048 group
+  intervals.
 - **Lock:** 8 clean consecutive accepted PDUs in, 100 ms without one out
   (`hdl/ieee1722/crf/KL_crf_rx.sv:296-298`), the AAF media-lock contract
   `KL_crf_rx` mirrors. As there, a sequence gap breaks the settle run before
-  lock and does not drop a lock already held (`:569-570`).
+  lock and does not drop a lock already held (`:569-570`). The servo-with-meter
+  and counter rows of the test plan grade the second half: with a held lock
+  cleared on a gap, every lost PDU would put the servo in HOLDOVER
+  (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:564`).
 - **Enable.** The meter runs only while `aaf_clk_selected_r` is high. That is
   the one selection gate on its outputs, `mr` pulses included. While it is low
   the meter holds its era reset: no lock, no rate, no pulse.
@@ -1091,7 +1183,9 @@ inside the assumption. Had D8 kept E1, C2 would have been the choice, because
 C1 would then count each excursion as an unlock of the media clock. The loss
 rule keeps this true under PDU loss. A lost PDU restarts nothing, and a
 restart beyond the bound holds the servo in LOCKED, so neither moves C1's
-counters ([Lost PDUs](#lost-pdus)). The Stream Input's MEDIA_UNLOCKED counts
+counters ([Lost PDUs](#lost-pdus)). Nor does a gap clear the meter's held
+lock, which would send the servo to HOLDOVER and count an UNLOCKED; the
+counter row's loss leg grades that. The Stream Input's MEDIA_UNLOCKED counts
 the loss of the stream under every option.
 
 ### Phase alignment is a separate gap
@@ -1203,17 +1297,18 @@ pass.
 | Same | Periodic single-PDU loss: one PDU lost in every 1 s, and separately in every 0.3 s, each for 120 s at the design point (+/-1,426 ns, +300 ppm), independent per PDU and with a random sign per group | No history restart; `rate_valid` high from 4.1 s on and never falls; every rate within 360 ns of the planted rate | Restart on any loss (round 3's rule): `rate_valid` never rises in any of the four cases, because every restart lands inside the 4.096 s fill |
 | Same | A loss in a snapshot group: ideal timestamps at +100 ppm, PDU 5 of the snapshot group at 3 x 512 ms lost, against the same stream without the loss | No restart; every rate equals the no-loss run's within 1 LSB | The snapshot taken from the next pick less 2 ms: one rate 25 ns off. Separately, a voided snapshot group restarting the history: one restart |
 | Same | The bound, at +100 ppm, ideal timestamps: two lost PDUs in adjacent groups; a run of 17; a run of 2 across a group boundary; a run of 2 inside a group; single losses 32 PDUs apart for 10 s | Exactly one restart for each of the first three; none for the last two | A gap of more than one voided group accepted: no restart in the first three |
-| Same | A step inside a loss-voided group: a one-sample and a half-sample step of each sign, at each of the 16 positions of a group that also loses its PDU 15 (PDU 0 when the step is at 15), at the design point | Each restarts the history exactly once | No check across a gap: no restart, and the rate carries the step |
+| Same | The gap bound's value, ideal timestamps, the step at the lost PDU 0 of a group: (a) at +300 ppm, a +3,900 ns step, 5,100 ns from 4 ms across the gap; (b) at -300 ppm, a half-sample step (+10,417 ns), with every timestamp before it at +1,426 ns and every one from it at -1,426 ns, 6,365 ns off | No restart in (a); exactly one in (b) | The gap bound at k = 1's 4,096 ns: a restart in (a). Separately, the bound scaled with k, 8,192 ns: no restart in (b). Any bound below 5,100 ns fails (a), and any from 6,365 ns fails (b) |
+| Same | A step inside a loss-voided group, at the design point: a one-sample and a half-sample step of each sign, (a) at each of positions 1 to 15 of a group that loses its PDU 0, and (b) at each of positions 0 to 14 of a group that loses its PDU 15 | Each restarts the history exactly once: in (a) and at position 0 of (b) at the next valid pick, across the gap; at positions 1 to 14 of (b) at the step's PDU, by the deviation check before the gap | No check across a gap: no restart in any case of (a), nor at position 0 of (b), and the rate carries the step; positions 1 to 14 of (b) still restart |
 | Same | Selection | Another listener's PDUs, wrong subtype, `tv` clear, a STOPPED input: none is measured | The listener compare ignored: the meter follows the wrong stream |
 | Same | The meter's pulses, counted at its ports. While locked: a change of the followed listener onto a talker at the opposite `mr` level; entry from INTERNAL onto a talker at `mr` 1; exit to CRF; 100 ms of silence; an unbind and a rebind; a toggle of the followed talker's `mr`. With the enable low: talker 0 toggling its `mr` | Exact counts: no `disrupt_p` and no `mr_toggle_p` at the change, the entry or the exit; one `disrupt_p` at the silence and one at the unbind's timeout, none at the rebind; one `mr_toggle_p` at the toggle; nothing while the enable is low | No re-seed at an era start: one `mr_toggle_p` at the new talker's first PDU. Separately, an era-start lock clear reported on `disrupt_p`: one pulse at the change. Separately, `disrupt_p` tied low: none at the silence. Separately, the enable tied high: pulses while it is low |
 | `tb/verilator/mmcm_servo` | One-bit select; a reference switch with the select held | HOLDOVER, then ACQUIRE with the integrator kept, then LOCKED | Switch through IDLE (W1): the integrator-kept check fails |
-| Same, with the meter driving the servo's reference ports | A synthetic AAF talker at +20 ppm with +/-1,426 ns of timestamp error, 60 s in the worst-case shape, then 60 s with a random sign per group, then 60 s with independent error, one PDU lost in every 0.3 s and the talker stepped to +24 ppm at the leg's start | LOCKED within 10 s of the first PDU and never left; every window's `\|e\|` under 1,024 ns after the first LOCKED; by the end of the loss leg the servo's trim has followed the 4 ppm step within 0.5 ppm | Rate over 512 ms (E1): LOCKED is left, or never reached. Separately, restart on any loss: the rate never validates in the loss leg, so the trim stays 4 ppm off. LOCKED is held, so only the trim check fails |
+| Same, with the meter driving the servo's reference ports | A synthetic AAF talker at +20 ppm with +/-1,426 ns of timestamp error, 60 s in the worst-case shape, then 60 s with a random sign per group, then 60 s with independent error, one PDU lost in every 0.3 s and the talker stepped to +24 ppm at the leg's start | LOCKED within 10 s of the first PDU and never left; every window's `\|e\|` under 1,024 ns after the first LOCKED; by the end of the loss leg the servo's trim has followed the 4 ppm step within 0.5 ppm | Rate over 512 ms (E1): LOCKED is left, or never reached. Separately, restart on any loss: the rate never validates in the loss leg, so the trim stays 4 ppm off. LOCKED is held, so only the trim check fails. Separately, the meter's held lock cleared on a sequence gap: LOCKED is left at the loss leg's first lost PDU for HOLDOVER and not regained in the leg, and the trim stays 4 ppm off |
 | `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, with an AAF talker and a CRF talker both present at different planted offsets (for example +20 and -15 ppm) | The media clock follows the selected talker's offset within 0.5 ppm with zero junction slips; at INTERNAL the aligner stays engaged and `SLIP_TDM` stays static (D4 = A2-a) | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running. Separately, the reference mux stuck on `KL_crf_rx`: AAF selected, the clock lands on the CRF talker's offset. Separately, the aligner left disengaged at INTERNAL (no A2-a): `SLIP_TDM` moves at INTERNAL |
 | Same | W2 at the root: following AAF input 0 with the servo LOCKED, a switch to a CRF stream already locked | `MCSRV_STAT` shows HOLDOVER, then ACQUIRE with the lock count cleared and the integrator kept, then LOCKED | The one-cycle unlocked presentation removed: the servo stays LOCKED across the switch |
 | Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels: (i) both talkers streaming, each switch repeated at 16 phases across one CRF output period; (ii) AAF input 0 to input 1 with input 1's talker silent at the switch and starting 5 ms after it; (iii) an INTERNAL dwell with AAF talker 0 toggling its `mr` | At a `public_flat_rd` tap on the restart request: no pulse at any switch, one per disruption. On the wire: exactly one toggle per output per switch, held 8 PDUs, at every phase of (i) and in (ii); none in (iii). Each output's MEDIA_RESET moves once per switch; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a request pulse at every switch onto the other talker, and in (ii) a second toggle on every output. Separately, the meter's raw lock-fall edge wired as the disruption, as the CRF term is: a request pulse at every switch. Separately, the meter's enable tied high: requests and toggles in (iii) |
 | Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss |
 | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
-| Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED |
+| Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED. Separately, the meter's held lock cleared on a sequence gap: the servo enters HOLDOVER at the leg's first lost PDU, so UNLOCKED moves there, and each later loss, 0.3 s on, returns it to HOLDOVER before its two-window skip ends, so LOCKED moves only after the leg: 2.6 s after it ends in the round-5 desk model. The loss leg grades this mutant alone: under C0's level, C2's level or restart on any loss neither counter moves in it |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
@@ -1285,12 +1380,14 @@ ruling can change either.
   Round 3 ran the unmodified `KL_media_clock_restart.sv` in the pinned HDL
   simulator to grade the switch test. The area estimate rests on one
   out-of-context measurement of `KL_crf_rx`. The meter's numbers come from a
-  desk model of its rules, not of any talker or network, and round 4's loss
-  rule is shown there only.
+  desk model of its rules, not of any talker or network. Round 4's loss rule
+  and round 5's deviation check up to a gap are shown there only.
 - **The closed-loop figures are a model of the servo's PI, not of its RTL.**
   The model takes the PI's shifts, clamps and slew limit and the lock rule
   from `KL_mmcm_drp_servo.sv`, on a plant of gain 1 one window late, with
-  +/-20 ns of local window quantisation. The fine phase-shift actuator, the
+  +/-20 ns of local window quantisation. For the loss legs, round 5 adds the
+  state machine's HOLDOVER and two-window skip (`:562-579`, `:613-618`) and
+  the meter's lock. The fine phase-shift actuator, the
   PHC step and policy-slew guards and the gPTP plane's own wander are not
   modelled. The E8 bound has 271 ns of margin at a plant gain of 1, and 134 ns
   at 1.2. The servo row with the meter in front of it is what proves it.
@@ -1318,12 +1415,18 @@ ruling can change either.
   their 100 MHz input instead (`:228-230`), to which the same arithmetic
   applies.
 - **PDU loss beyond the loss rule's bound.** Two adjacent voided groups
-  restart E8's history, and if that recurs within every 4.1 s the rate never
-  validates: about 11 lost PDUs a second under independent loss
-  ([Lost PDUs](#lost-pdus)). A locked servo then holds its trim and stays
-  LOCKED; a cold start does not lock. The meter's restart count shows it.
-- **The baseline is unmerged.** B6's findings page is cited through PR #630,
-  not through a tracked path.
+  restart E8's history, and the rate is then invalid for 4.096 s. Under
+  independent loss that costs validity gradually, with no threshold. The rate
+  is valid about e^(-4.096 x 500 q^2) of the time, with
+  q = 1 - (1 - p)^16: about 60 % at 8 lost PDUs a second, 37 % at 11, and
+  about 1 % at 24 ([Lost PDUs](#lost-pdus)). A locked servo holds its trim and
+  stays LOCKED while the rate is invalid. A cold start still locks, later as
+  loss grows: in the desk model's median, 7.8 s at 8 lost PDUs a second,
+  17.3 s at 11 and 288 s at 24. Only gaps that recur within every 4.1 s keep
+  the rate invalid for good. The meter's restart count shows it.
+- **The baseline is cited through PR #630.** B6's findings page merged into
+  dev at `7f0927bb`, after this page's base, so this branch does not carry
+  it.
 - **No measured AAF timestamp quality.** The meter is designed for the 10.8
   talker bound plus the CRF timing points' error. An AAF talker on its own
   clock has no clause bound; the bench lane measures the reference peer's.
