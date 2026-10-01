@@ -1,0 +1,55 @@
+tb/pp_top/acmp_mutants.py (main's C4 campaign) at 441d64630aa0143fa43f1049a6860cd9ed60e71e, --jobs 1, two --only chunks, each rc=0
+
+## chunk 1
+{"mutant": "golden-acmp_listener", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-rx_validator", "verdict": "PASS"}
+{"mutant": "msg_ok_forced@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "msg_ok_forced@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_ctlr_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_eid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_uid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@rx_validator", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 7 of 7 KILLED by their named checks; goldens PASS
+
+## chunk 2
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "st_ls_settle_as_withdraw@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_as_declare@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_sid_da_swapped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_state_none@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_vid_dropped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_index_zero@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_latched@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_dmac_from_sid@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_cleared@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_da_ignored@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_vid_ignored@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 12 of 12 KILLED by their named checks; goldens PASS
+
+## failing checks per row (results.json)
+golden-acmp_listener PASS 0 failing missing []
+golden-pp_top PASS 0 failing missing []
+golden-rx_validator PASS 0 failing missing []
+msg_ok_forced@acmp_listener KILLED 93 failing missing []
+msg_ok_forced@pp_top KILLED 1 failing missing []
+guard_ctlr_dropped@acmp_listener KILLED 50 failing missing []
+guard_talker_eid_dropped@acmp_listener KILLED 40 failing missing []
+guard_talker_uid_dropped@acmp_listener KILLED 30 failing missing []
+cdl_not_44_rejected@rx_validator KILLED 27 failing missing []
+cdl_not_44_rejected@pp_top KILLED 19 failing missing []
+golden-pp_top PASS 0 failing missing []
+st_ls_settle_as_withdraw@pp_top KILLED 7 failing missing []
+st_ls_teardown_as_declare@pp_top KILLED 1 failing missing []
+st_ls_sid_da_swapped@pp_top KILLED 7 failing missing []
+st_ls_state_none@pp_top KILLED 7 failing missing []
+st_ls_vid_dropped@pp_top KILLED 7 failing missing []
+st_ls_index_zero@pp_top KILLED 6 failing missing []
+st_ls_teardown_lost@pp_top KILLED 2 failing missing []
+bound_view_not_latched@pp_top KILLED 2 failing missing []
+bound_dmac_from_sid@pp_top KILLED 2 failing missing []
+bound_view_not_cleared@pp_top KILLED 1 failing missing []
+matcher_da_ignored@pp_top KILLED 5 failing missing []
+matcher_vid_ignored@pp_top KILLED 5 failing missing []

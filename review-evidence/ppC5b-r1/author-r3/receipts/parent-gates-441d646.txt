@@ -1,0 +1,50 @@
+parent consumer set at milan-fpga dev e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b (scratch export, 976 regular files equal to the trusted index) + parent-c4-disposition.patch (git apply; committed d390e67), protocol-processor gitlink 441d64630aa0143fa43f1049a6860cd9ed60e71e; run in the scratch parent one at a time
+
+python3 scripts/check_cpp_idiom.py | rc=0
+    build without warnings: 0 <= 0
+python3 scripts/check_py_idiom.py | rc=0
+    over-long line: 0 <= 0
+python3 scripts/xvlog_gate.py --check | rc=0 seconds=142
+    xvlog gate: 4 finding(s) across 4 module(s)
+    xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+python3 scripts/check_rtl_source_lists.py | rc=0
+    RTL source-list gate: OK (107 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 36/42 tops, 6 recorded)
+python3 scripts/pp_srcs.py --check --selftest | rc=0
+    pp source list: 46 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+python3 sw/builder/test_builder.py | rc=0 seconds=1160
+    [gate 11] SKIP: real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+    - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+    ALL GATES PASS EXCEPT 1 NOT RUN
+make -C tb/verilator/pp_shadow -j8 | rc=0 seconds=223
+    pp_shadow: 646 checks, 0 failures
+    RESULT: PASS
+    pp_shadow: 606 checks, 0 failures
+    RESULT: PASS
+    pp_shadow: 311 checks, 0 failures
+    RESULT: PASS
+python3 scripts/check_port_contracts.py | rc=0
+    port contract gate: OK (3789 first-party port(s): hdl 1916, gptp-processor 125, protocol-processor 1748; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wil
+python3 scripts/measure_naming.py --check | rc=0
+    NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+python3 scripts/measure_test_evidence.py --check | rc=0
+    TEST-EVIDENCE RATCHET: PASS (72 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+    the mutation ratchet can be lowered to 72
+python3 scripts/docs_check.py | rc=0
+    docs_check: 0 finding(s) across 181 md files + 952 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+make -C tb/verilator/nvm_cosim lint | rc=0 seconds=1
+    2 verilator --lint-only invocations
+make -C tb/verilator/nvm_cosim quick | rc=0 seconds=31
+    nvm_cosim: 315 checks: 315 PASS, 0 FAIL (0 not expressible)
+    RESULT: PASS
+make -C tb/verilator/milan_dp -j8 | rc=0 seconds=1578 (detached, awaited)
+    9 x RESULT: PASS, every leg; nxndv leg: checks: 1847   failures: 0
+make -C tb/verilator/milan_dp_render -j8 | rc=0 seconds=345
+    RESULT: PASS
+    RESULT: PASS
+python3 scripts/lint_rtl.py --check | rc=0 seconds=8
+    LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+
+control: scripts/measure_test_evidence.py from e4b771f9 without the patch (a scratch copy of the script, removed after), --check:
+    protocol-processor/tb/pp_top/acmp_mutants.py: UNEXPLAINED
+    FAIL: 1 unexplained DUT-source reader(s) > ratchet 0; stale dispositions: []
+    rc=1

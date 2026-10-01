@@ -1,0 +1,237 @@
+other campaigns at 441d64630aa0143fa43f1049a6860cd9ed60e71e (each one invocation, rc 0; make targets are the HDL workflow's commands, run with MUTANT_OUTPUT in scratch)
+
+== python3 tb/pp_top/name_wr_mutant.py
+Name-write mutation: decode killed; golden and restored PASS
+rc=0 seconds=45
+
+== python3 tb/desc_mem_guard/mutate.py
+hold-deleted mutant: make rc=2; completed byte assertion detected=True
+rc=0 seconds=6
+
+== make -C tb/maap mutants
+control maap run: rc=0 tally=(196, 0) PASS
+control pp_top maap-internal: rc=0 tally=(34, 0) PASS
+control rx_validator run: rc=0 tally=(555, 0) PASS
+fit-compare-forced-true [maap]: rc=2 tally=(196, 5) named=4 KILLED
+fit-compare-off-by-one [maap]: rc=2 tally=(195, 7) named=3 KILLED
+seed-clamp-removed [maap]: rc=2 tally=(196, 6) named=4 KILLED
+release-keeps-draw-mark [maap]: rc=2 tally=(194, 9) named=3 KILLED
+validator-maap-version-1-only [rx_validator]: rc=2 tally=(555, 47) named=47 KILLED
+validator-maap-version-1-only [pp_top]: rc=2 tally=(34, 4) named=4 KILLED
+compare-mac-forward [maap]: rc=2 tally=(194, 9) named=1 KILLED
+compare-mac-forward [pp_top]: rc=2 tally=(34, 5) named=5 KILLED
+probe-rprobe-never-yields [maap]: rc=2 tally=(196, 2) named=2 KILLED
+defend-rdefend-ignored [maap]: rc=2 tally=(194, 8) named=4 KILLED
+defend-rdefend-no-tiebreak [maap]: rc=2 tally=(196, 2) named=1 KILLED
+probe-rannounce-tiebreak [maap]: rc=2 tally=(196, 7) named=2 KILLED
+yield-reuses-range [maap]: rc=2 tally=(196, 8) named=1 KILLED
+ival-sends-after-release [maap]: rc=2 tally=(196, 8) named=1 KILLED
+post-publishes-after-release [maap]: rc=2 tally=(194, 4) named=2 KILLED
+tx-path-absorbs-release [maap]: rc=2 tally=(190, 10) named=3 KILLED
+off-waits-for-an-edge [maap]: rc=2 tally=(189, 9) named=3 KILLED
+rx-release-returns-to-idle [maap]: rc=2 tally=(195, 3) named=2 KILLED
+seed-rearmed-on-idle-release-only [maap]: rc=2 tally=(196, 2) named=2 KILLED
+seed-clamp-off-by-one [maap]: rc=2 tally=(196, 2) named=2 KILLED
+release-waits-for-draw [maap]: rc=2 tally=(196, 1) named=1 KILLED
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(196, 3) named=3 KILLED
+teardown-keeps-announce-timer [maap]: rc=2 tally=(196, 1) named=1 KILLED
+drain-waits-for-the-link [maap]: rc=2 tally=(196, 5) named=2 KILLED
+tx-set-omits-alloc [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-gwait [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-write [maap]: rc=2 tally=(192, 7) named=3 KILLED
+tx-set-omits-commit [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+32 checks: 32 PASS, 0 FAIL
+rc=0 seconds=272
+
+== make -C tb/adp_engine mutants
+control adp_engine run: rc=0 PASS
+control pp_top adp-config: rc=0 PASS
+cfg-read-live: rc=2 failures=1 named=1 KILLED
+cfg-dependent-field: rc=2 failures=14 named=3 KILLED
+cfg-dependent-field-top: rc=2 failures=7 named=1 KILLED
+cfg-frozen-at-top: rc=2 failures=4 named=2 KILLED
+cfg-overlay-only: rc=2 failures=4 named=2 KILLED
+cfg-nonzero-for-valid: rc=2 failures=3 named=2 KILLED
+cfg-valid-not-sticky: rc=2 failures=7 named=2 KILLED
+cfg-valid-any-selector: rc=2 failures=1 named=1 KILLED
+cfg-valid-ucpu-bus: rc=2 failures=3 named=2 KILLED
+cfg-valid-hard-reset: rc=2 failures=2 named=2 KILLED
+cfg-valid-no-reset: rc=2 failures=5 named=2 KILLED
+gate-enable-dropped: rc=2 failures=30 named=4 KILLED
+gate-enable-dropped-top: rc=2 failures=3 named=2 KILLED
+walk-down-answers-discover: rc=2 failures=16 named=4 KILLED
+walk-delay-ignores-link-down: rc=2 failures=4 named=4 KILLED
+walk-down-answers-gm-change: rc=2 failures=8 named=4 KILLED
+walk-down-shutdown-departs: rc=2 failures=1 named=1 KILLED
+walk-delay-answers-discover: rc=2 failures=9 named=4 KILLED
+walk-delay-shutdown-silent: rc=2 failures=4 named=4 KILLED
+walk-stale-draw-arms: rc=2 failures=4 named=2 KILLED
+walk-departing-keeps-index: rc=2 failures=6 named=1 KILLED
+walk-foreign-discover-answered: rc=2 failures=8 named=4 KILLED
+walk-link-down-keeps-timer: rc=2 failures=3 named=1 KILLED
+disc-fresh-checks-gm: rc=2 failures=3 named=3 KILLED
+disc-not-discovered-checks-index: rc=2 failures=14 named=3 KILLED
+disc-not-discovered-checks-interface: rc=2 failures=3 named=3 KILLED
+disc-restart-not-rediscovered: rc=2 failures=4 named=1 KILLED
+disc-departing-ignores-interface: rc=2 failures=3 named=3 KILLED
+disc-stray-noadp-departs: rc=2 failures=2 named=1 KILLED
+disc-unbind-keeps-timer: rc=2 failures=2 named=1 KILLED
+32 checks: 32 PASS, 0 FAIL
+rc=0 seconds=412
+
+== make -C tb/srp_top mutants
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms : rc=0 PASS
+control srp_top armdelay: rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+control srp_top timers: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+expiry-event: rc=2 failures=81 KILLED tags=K1,K11,K12,K2,K4,K5,K9
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+pending-peer-ignored: rc=2 failures=26 KILLED tags=M1,M10,M2,M3
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp: rc=2 failures=8 KILLED tags=M1,M2,M3,M4
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+round-completion-lost: rc=2 failures=1 KILLED tags=N13
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+leaveall-expiry-lost: rc=2 failures=16 KILLED tags=M1,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+preparation-before-slot: rc=2 failures=21 KILLED tags=M1,M11,M12,M5,M6,M8
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-expiry-pulse: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+expiry-only-redraw: rc=2 failures=15 KILLED tags=P1,P3
+mvrp-expiry-only-redraw: rc=2 failures=17 KILLED tags=P2,P3,P6
+stale-expiry-honoured: rc=2 failures=7 KILLED tags=M10
+mvrp-stale-expiry-honoured: rc=2 failures=7 KILLED tags=P6
+mvrp-passive-lost: rc=2 failures=6 KILLED tags=P4,P5,P6,P7
+mvrp-flag-at-expiry: rc=2 failures=11 KILLED tags=P4,P5,P6,P7
+rearm-at-issue: rc=2 failures=8 KILLED tags=P8
+r-rearm-no-inflight: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-inflight: rc=2 failures=6 KILLED tags=P6
+r-rearm-no-deadline: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-deadline: rc=2 failures=8 KILLED tags=P8
+r-flag-ignores-edge-peer: rc=2 failures=1 KILLED tags=P7
+join-ms-400: rc=2 failures=2 KILLED tags=Q1,Q2
+periodic-ms-3000: rc=2 failures=1 KILLED tags=Q2
+draw-kind-0: rc=2 failures=6 KILLED tags=Q1,Q2,Q3,Q4
+licence-ignores-join: rc=2 failures=3 KILLED tags=R1,R3
+licence-ignores-join: rc=2 failures=3 KILLED tags=T ACTIVE drops when the VID membership is gone,T not ACTIVE on another VID's transmitted join,T not ACTIVE while the VID's join is untransmitted
+join-sent-at-handover: rc=2 failures=3 KILLED tags=R1,R3
+count-up-unsends: rc=2 failures=3 KILLED tags=R2,R3
+listener-lane-cut: rc=2 failures=3 KILLED tags=R4
+join-sent-at-handover: rc=2 failures=3 KILLED tags=W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent,W4 re-joined VID 7 waits for its New to leave
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+tx-strobe-any-app: rc=2 failures=1 KILLED tags=W1 no strobe for an MSRP MRPDU
+90 checks: 90 PASS, 0 FAIL
+rc=0 seconds=1923
+
+== python3 tb/pp_top/gsi_mutants.py
+golden: build_rc=0 run_rc=0 passed=True named_failures=0
+latency-trigger-removed: build_rc=0 run_rc=1 passed=True named_failures=4
+latency-cmp-low8: build_rc=0 run_rc=1 passed=True named_failures=1
+latency-cmp-low16: build_rc=0 run_rc=1 passed=True named_failures=1
+latency-cmp-high16: build_rc=0 run_rc=1 passed=True named_failures=1
+latency-cmp-low31: build_rc=0 run_rc=1 passed=True named_failures=1
+latency-cmp-high2: build_rc=0 run_rc=1 passed=True named_failures=1
+latency-cmp-bit31-dropped: build_rc=0 run_rc=1 passed=True named_failures=1
+failure-code-zero: build_rc=0 run_rc=1 passed=True named_failures=1
+failure-bridge-zero: build_rc=0 run_rc=1 passed=True named_failures=1
+pbsta-zero: build_rc=0 run_rc=1 passed=True named_failures=3
+acmpsta-zero: build_rc=0 run_rc=1 passed=True named_failures=1
+wrong-sink: build_rc=0 run_rc=1 passed=True named_failures=1
+integrator-path: build_rc=0 run_rc=1 passed=True named_failures=1
+missing-descriptor-leak: build_rc=0 run_rc=1 passed=True named_failures=1
+status-notification-zero: build_rc=0 run_rc=1 passed=True named_failures=3
+rebind-started-trigger-removed: build_rc=0 run_rc=1 passed=True named_failures=1
+failure-change-strobe-removed: build_rc=0 run_rc=1 passed=True named_failures=1
+failure-change-redeclares: build_rc=0 run_rc=1 passed=True named_failures=1
+index-guard-removed: build_rc=0 run_rc=1 passed=True named_failures=1
+bridge-gate-removed: build_rc=0 run_rc=1 passed=True named_failures=1
+restored: build_rc=0 run_rc=0 passed=True named_failures=0
+GSI mutations: 20 detected by named checks; golden and restored PASS
+rc=0 seconds=958
+
+== python3 tb/srp_admission/mutants.py
+control admission-2: rc=0 PASS
+control admission-8: rc=0 PASS
+control srp-top: rc=0 PASS
+stale-evaluation admission-2: rc=2 PASS
+stale-evaluation admission-8: rc=2 PASS
+stale-evaluation srp-top: rc=2 PASS
+pending-absent admission-2: rc=2 PASS
+pending-absent admission-8: rc=2 PASS
+pending-absent srp-top: rc=2 PASS
+discarded-round-strobes admission-2: rc=2 PASS
+discarded-round-strobes admission-8: rc=2 PASS
+discarded-round-strobes srp-top: rc=2 PASS
+12 checks: 12 PASS, 0 FAIL
+rc=0 seconds=715
+
+== python3 tb/acmp_talker/retry_mutants.py (one invocation, all mutations)
+PASS: 62 mutants killed; 7 equivalence controls; 1 performance controls; baseline and restored rc 0
+rc=0 seconds=416
+
+== make -C tb/nvm_port figures (refs/pull/13/head fetched, as the workflow does)
+46 Verilator builds: 1 baseline + 12 arms + 22 mutations + 6 models + 5 matrix
+baseline: 136 checks, 136 PASS, 0 FAIL
+47 figure rows, 47 [ok ]
+rc=0 seconds=262
+
+== tb/ucpu by hand in scratch (copies of hdl, tb/common, tb/ucpu; golden, then the D8 flag ignored, the batch exception dropped, and rd-tail-uncut.patch)
+golden: make rc=0 398 checks: 398 PASS, 0 FAIL
+d8-ignored: make rc=2 398 checks: 396 PASS, 2 FAIL
+FAIL: P11b filled to 588 (72 qwords) got 524
+FAIL: P11b the elements past 524 are written, the 72nd at 580
+batch-dropped: make rc=2 398 checks: 396 PASS, 2 FAIL
+FAIL: P11c in a batch capped at 524 got 588
+FAIL: P11c in a batch nothing past 524
+tail-uncut: make rc=2 398 checks: 397 PASS, 1 FAIL
+FAIL: P9b len 20 (48 - 40 bytes) got 60

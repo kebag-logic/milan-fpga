@@ -1,0 +1,13 @@
+make -C tb/pp_top fixture-guards line-guards at 441d64630aa0143fa43f1049a6860cd9ed60e71e (lane tree), rc=0
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guards: 4 cases PASS
+line guard 576: lints clean
+line guard 584: lints clean
+line guard 1008: lints clean
+line guard 568: refused: DESC_LINE_BYTES_P=568 is below 576
+line guard 1016: refused: DESC_LINE_BYTES_P=1016 is above 1008
+line guard 580: refused: DESC_LINE_BYTES_P=580 is not a multiple of 8
+line guards: 6 cases, 0 failing

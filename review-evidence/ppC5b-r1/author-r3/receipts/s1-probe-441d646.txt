@@ -1,0 +1,32 @@
+S1 probe: check_m9_opcodes.py at 441d646 (new) and at 2acd4025 (old), on scratch copies of the script, the engine and the bench
+
+## new gate: --selftest
+M9 OPCODE GATE SELFTEST: 9 of 9 PASS
+rc=0
+## new gate: the head's engine and bench
+M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+rc=0
+
+## old gate: --selftest
+M9 OPCODE GATE SELFTEST: 8 of 8 PASS
+rc=0
+## old gate: the head's engine and bench
+M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+rc=0
+
+## new gate: the engine with an added 'parameter logic [15:0] OP_PROBE_NEW_C = 16'h0077;' (not in kOpcodes)
+1
+M9 OPCODE GATE: FAIL - tb/pp_top M9's kOpcodes is not the engine's OP_*_C set
+
+  OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so this gate cannot read its opcode
+rc=1
+
+## old gate: the engine with an added 'parameter logic [15:0] OP_PROBE_NEW_C = 16'h0077;' (not in kOpcodes)
+1
+M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+rc=0
+
+## the old gate's code on the new selftest fixtures (RE_DECLARED reverted to localparam only)
+SELFTEST FAIL: an OP_*_C parameter fails
+M9 OPCODE GATE SELFTEST: 8 of 9 PASS
+rc=1

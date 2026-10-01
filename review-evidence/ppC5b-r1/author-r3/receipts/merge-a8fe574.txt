@@ -1,0 +1,32 @@
+merge a8fe57448bbaa8dabc7e842600aa4f10e04336e3
+parents 2acd4025782bff4aabbae73252476be34ea8b00d 3f3ea56ba61829718a6a288600ab4fdac73aa5ba
+subject Merge main 3f3ea56b (#137) into the AECP dispatch lane, keeping both sides: pp_top's acmp-only and aecp-dispatch modes, section AC beside section AX
+merge-base 2acd4025 3f3ea56b = d5f73bac158276a9fcf549185bad5c65c0498dae
+
+## git merge-tree --write-tree 2acd4025 3f3ea56b (the automatic merge): conflicted files
+tb/pp_top/README.md
+tb/pp_top/sim_main.cpp
+
+
+## files that differ between the automatic merge's tree and the published merge
+tb/pp_top/README.md
+tb/pp_top/sim_main.cpp
+
+lane-only files: 54, differing from 2acd4025 at the merge: 0
+main-only files: 7, differing from 3f3ea56b at the merge: 0
+both-sided files: docs/00_MILAN_COMPLIANCE_REVIEW.md docs/architecture/09_verification.md tb/pp_top/pp_top_wrap.sv tb/pp_top/README.md tb/pp_top/sim_main.cpp 
+
+## each side's added lines present in the merge (line multisets)
+docs/00_MILAN_COMPLIANCE_REVIEW.md: lines added by a side missing from the merge: 0
+docs/architecture/09_verification.md: lines added by a side missing from the merge: 0
+tb/pp_top/pp_top_wrap.sv: lines added by a side missing from the merge: 0
+tb/pp_top/README.md: lines added by a side missing from the merge: 0
+tb/pp_top/sim_main.cpp: lines added by a side missing from the merge: 2
+    ('lane', '  const bool one_section = gsi_only || name_only || d3_only || adp_only')
+    ('main', '  const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || ma')
+
+## git apply --check of every campaign patch (163) on clean git archive exports of the merge and of the lane side
+git apply --check on a clean export of a8fe574: 163 apply, 0 refused; hunks applying at an offset: 156
+git apply --check on a clean export of 2acd4025: 163 apply, 0 refused; hunks applying at an offset: 156
+every hunk offset at the merge equals its offset at 2acd4025 (no anchor moved)
+acmp_mutants.py anchors: 19 mutant rows, 0 edits not found exactly once

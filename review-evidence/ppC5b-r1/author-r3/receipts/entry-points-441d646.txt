@@ -1,0 +1,24 @@
+entry points at 441d64630aa0143fa43f1049a6860cd9ed60e71e
+
+## ./scripts/lint_hdl.sh (lane tree) rc=0, 41 modules LINT OK
+
+## make check (lane tree) rc=0
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 994 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (94 rows, 0 untested)
+parameters: top 26, guide 26, diagram 26, OK
+
+## python3 scripts/gen_matrix.py --check rc=0
+matrix: OK (94 rows, 0 untested)
+
+## git diff --check 0451d83d HEAD rc=0; git diff --check 3f3ea56b HEAD rc=0
+
+## python3 tb/desc_store/test_gen_desc_image.py rc=0
+Ran 6 tests in 1.110s
+
+OK
+
+## ./syn/yosys/run.sh (clean export) rc=0, Yosys 0.66, 36 tops YOSYS OK
+YOSYS XILINX OK  KL_aecp_engine
