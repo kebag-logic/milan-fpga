@@ -1,0 +1,28 @@
+== 1. The continuity bound per k (page: 2J + 601k <= B_k < 10,417 - 2J - 601k)
+k=1 voided=0: lower 3453 upper(excl) 6964 window 3453..6963; 4096 in: True; 5120 in: True
+k=2 voided=1: lower 4054 upper(excl) 6363 window 4054..6362; 4096 in: True; 5120 in: True
+k=3 voided=2: lower 4655 upper(excl) 5762 window 4655..5761; 4096 in: False; 5120 in: True
+k=4 voided=3: lower 5256 upper(excl) 5161 window none; 4096 in: False; 5120 in: False
+k=5 voided=4: lower 5857 upper(excl) 4560 window none; 4096 in: False; 5120 in: False
+tolerance per timestamp across one voided group: 300 ppm 1959.0 ns, 0 ppm 2560.0 ns; adjacent: 300 ppm 1747.5, 0 ppm 2048.0
+== 2. Midpoint fill against the true pick, ideal timestamps, rates -300..+300 ppm
+largest |fill - true pick| over 40 cases (incl. 2^32 wrap): 0 ns
+== 7. l1 gains of the servo loop as the page describes it (e = x - r_err; u = I + e/4, I += e/2; plant gain g one window late)
+g=0.8: l1 gain from rate error 2.000; E8 composite from snapshot error 0.4910 -> worst |e| at J=1426: 700 ns; product bound 2.125*2J/8 = 758
+g=1.0: l1 gain from rate error 2.125; E8 composite from snapshot error 0.5278 -> worst |e| at J=1426: 753 ns; product bound 2.125*2J/8 = 758
+g=1.2: l1 gain from rate error 2.505; E8 composite from snapshot error 0.6239 -> worst |e| at J=1426: 890 ns; product bound 2.125*2J/8 = 758
+== 6. Independent loss at rate p per PDU: restarts, valid fraction, cold-start lock
+   group-level Monte Carlo: each group voided w.p. q = 1-(1-p)^16; two voided groups in a row restart;
+   rate valid from 2,048 groups after a restart; 'lockable' = a restart-free run of >= 7.3 s (the page's
+   cold-start LOCKED time from first PDU).
+p=3.0e-05 (  0.2 lost/s): restarts/s model 0.000 vs 500q^2 0.000; valid fraction 0.992 (renewal e^-4.096L = 1.000); seeds reaching a 7.3 s run 8/8, median first at 7.298 s
+p=1.0e-04 (  0.8 lost/s): restarts/s model 0.001 vs 500q^2 0.001; valid fraction 0.987 (renewal e^-4.096L = 0.995); seeds reaching a 7.3 s run 8/8, median first at 7.298 s
+p=1.0e-03 (  8.0 lost/s): restarts/s model 0.117 vs 500q^2 0.126; valid fraction 0.621 (renewal e^-4.096L = 0.597); seeds reaching a 7.3 s run 8/8, median first at 12.09 s
+p=1.4e-03 ( 11.2 lost/s): restarts/s model 0.242 vs 500q^2 0.246; valid fraction 0.369 (renewal e^-4.096L = 0.366); seeds reaching a 7.3 s run 8/8, median first at 18.486 s
+p=2.0e-03 ( 16.0 lost/s): restarts/s model 0.485 vs 500q^2 0.497; valid fraction 0.144 (renewal e^-4.096L = 0.131); seeds reaching a 7.3 s run 8/8, median first at 68.666 s
+p=3.0e-03 ( 24.0 lost/s): restarts/s model 1.073 vs 500q^2 1.101; valid fraction 0.011 (renewal e^-4.096L = 0.011); seeds reaching a 7.3 s run 4/8, median first at 197.498 s
+p=4.0e-03 ( 32.0 lost/s): restarts/s model 1.856 vs 500q^2 1.929; valid fraction 0.000 (renewal e^-4.096L = 0.000); seeds reaching a 7.3 s run 0/8, median first at None s
+p=5.0e-03 ( 40.0 lost/s): restarts/s model 2.768 vs 500q^2 2.970; valid fraction 0.000 (renewal e^-4.096L = 0.000); seeds reaching a 7.3 s run 0/8, median first at None s
+-- round 3's rule (restart on any loss): lambda = 8000 p
+p=3.0e-05: restarts/s 0.240, renewal valid fraction 0.374
+p=1.0e-04: restarts/s 0.800, renewal valid fraction 0.038

@@ -1,0 +1,28 @@
+== 4. Test-row mutants (page Test plan, meter suite)
+1 PDU per 1.0 s, independent, design: restarts 0 valid rates 227 worst 113
+1 PDU per 1.0 s, independent, restart_any_loss: restarts 120 valid rates 0 worst None
+1 PDU per 1.0 s, random_sign_group, design: restarts 0 valid rates 227 worst 357
+1 PDU per 1.0 s, random_sign_group, restart_any_loss: restarts 120 valid rates 0 worst None
+1 PDU per 0.3 s, independent, design: restarts 0 valid rates 227 worst 113
+1 PDU per 0.3 s, independent, restart_any_loss: restarts 399 valid rates 0 worst None
+1 PDU per 0.3 s, random_sign_group, design: restarts 0 valid rates 227 worst 357
+1 PDU per 0.3 s, random_sign_group, restart_any_loss: restarts 399 valid rates 0 worst None
+-- snapshot-group loss, ideal, +100 ppm, PDU 5 of the snapshot group at 3 x 512 ms
+design: restarts 0 fills 1 rates 16 vs 16; rates differing by > 1 LSB: 0, largest 0 ns
+fill_next_less_2ms: restarts 0 fills 1 rates 16 vs 16; rates differing by > 1 LSB: 1, largest 25 ns
+voided_snapshot_restarts: restarts 1 fills 0 rates 13 vs 16; rates differing by > 1 LSB: 0, largest 0 ns
+-- the bound row, +100 ppm, ideal
+two lost PDUs in adjacent groups, design: restarts 1
+two lost PDUs in adjacent groups, accept_k3: restarts 0
+a run of 17, design: restarts 1
+a run of 17, accept_k3: restarts 0
+a run of 2 across a group boundary, design: restarts 1
+a run of 2 across a group boundary, accept_k3: restarts 0
+a run of 2 inside a group, design: restarts 0
+a run of 2 inside a group, accept_k3: restarts 0
+single losses 32 apart for 10 s, design: restarts 0
+single losses 32 apart for 10 s, accept_k3: restarts 0
+-- alias: a gap of exactly 16 voided groups + 1 (k mod 16 = 1), and of 15 (k = 0)
+15 whole groups lost: restarts 1
+16 whole groups lost: restarts 1
+17 whole groups lost: restarts 1
