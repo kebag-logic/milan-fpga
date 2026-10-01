@@ -1,0 +1,43 @@
+head 26dfc82f80b6e69fbc6126ef7ba7fddbf1e43778 tree 2872e3c91325d55590158f413485ea532d26d089 status-porcelain-lines 0
+== <packet>/scratch/mdvenv/bin/python scripts/docs_check.py
+docs_check: 0 finding(s) across 183 md files + 954 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== <packet>/scratch/mdvenv/bin/python scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== <packet>/scratch/mdvenv/bin/python scripts/gen_toc.py --check
+TOC gate: OK (125 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== <packet>/scratch/mdvenv/bin/python scripts/gen_toc.py --verify-anchors
+anchor check: 285 existing cross-page fragment links reproduced
+rc=0
+== <packet>/scratch/mdvenv/bin/python scripts/check_em_dash.py --base ea3fb38877842f223afea97e3bd72a10500455c9
+check_em_dash: 0 finding(s) over 687 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ea3fb388..HEAD]
+rc=0
+== <packet>/scratch/mdvenv/bin/python scripts/check_doc_paths.py
+doc path gate: OK (862 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 scripts/ci_scope.py --selftest
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+rc=0
+== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 952 tracked first-party file(s))
+rc=0
+== python3 scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (700 arm(s))
+rc=0
+== python3 scripts/check_feature_status.py --self-test
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+== git diff --check
+rc=0
+== git diff --check ea3fb38877842f223afea97e3bd72a10500455c9 26dfc82f80b6e69fbc6126ef7ba7fddbf1e43778
+rc=0
+== git diff --check e3f28f2f69343b54844ddfea368ef4cdd03facb6 26dfc82f80b6e69fbc6126ef7ba7fddbf1e43778
+rc=0

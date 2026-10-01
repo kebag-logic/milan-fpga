@@ -1,0 +1,27 @@
+a0: 10 capture-path clusters, basis {'read-time rise': 9, 'read gap': 1}
+a1: 23 capture-path clusters, basis {'read-time rise': 21, 'read gap': 2}
+a2: 61 capture-path clusters, basis {'read-time rise': 54, 'read gap': 5, 'read gap and 48 n + 12 size': 2}
+bint: 21 capture-path clusters, basis {'read-time rise': 18, 'read gap': 3}
+bcrf: 17 capture-path clusters, basis {'read-time rise': 17}
+OK       gap-only clusters (rise unmeasurable) A0/A1/A2/BINT/BCRF: got [1, 2, 5, 3, 0], page [1, 2, 5, 3, 0]
+OK       every skip in those eleven is 48n+12: got True, page True
+OK       measured non-matching clusters A0/A1/A2/BINT/BCRF: got [0, 0, 2, 0, 0], page [0, 0, 2, 0, 0]
+OK       A2 non-matching cluster ids: got [17, 56], page [17, 56]
+OK       A2 non-matching (rise ms, lost frames): got [(-155.8, 1020), (154.5, 60)], page [(-155.8, 1020), (154.5, 60)]
+OK       A2 non-matching every step 48n+12 and basis: got [(True, 'read gap and 48 n + 12 size', True), (True, 'read gap and 48 n + 12 size', True)], page [(True, 'read gap and 48 n + 12 size', True), (True, 'read gap and 48 n + 12 size', True)]
+   (basis of the two: ['read gap and 48 n + 12 size', 'read gap and 48 n + 12 size'] )
+OK       all other capture-path clusters match within 1 ms + 2 %: got True, page True
+OK       A1+B CRF clusters under 98 frames: got 7, page 7
+OK       each is one 60-frame skip: got True, page True
+OK       min read gap of the seven >= 14.9 ms: got True, page True
+OK       number with a measured rise: got 6, page 6
+OK       measured rises within 0.99..1.00 ms: got True, page True
+OK       the unmeasurable one is A1 cluster 9: got [('a1', 9)], page [('a1', 9)]
+   (its read gap ms and basis: [(33.452, 'read gap')] )
+OK       A1 cluster 9 is among A1's gap-only clusters: got True, page True
+OK       smallest A1/B CRF capture-path loss (frames): got 60, page 60
+   A1/B CRF member steps not 48n+12 (case, cluster, step, steps-in-cluster): [('a1', 13, 18626, 1), ('a1', 18, 23880, 9), ('a1', 18, -23880, 9), ('bcrf', 5, -24000, 7), ('bcrf', 5, -24000, 7)]
+OK       non-48n+12 members are stale-replay edges (+-23,880/+-24,000) or the lone 18,626: got True, page True
+OK       A1 18,626-frame loss: lost ms and the 1 ms + 2 % band (about 249 ms): got [249], page [249]
+RESULT PASS
+rc=0
