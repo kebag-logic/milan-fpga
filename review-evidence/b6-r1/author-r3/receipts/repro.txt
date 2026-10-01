@@ -1,0 +1,10 @@
+archive 422dcf91008a09cb882dcc2b760779ce22e530cd, review-evidence/b6-r1 taken with git archive into a scratch directory (no checkout)
+d188a1a9ac0c3d94a2dab7d7b44ff7487490c87b969ea8c7d1b69382743179ac  tools/b6_tone.py
+d4673f55642b850f57601b27d8fc930cc5382c2138f54edb1a7296bb4653a95f  tools/b6_thdn.py
+7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e  controls/controls.json
+python3 b6_tone.py <loop.bin>: rc 0
+566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588  b6-loop.bin
+python3 b6_thdn.py controls <controls.json>: rc 0
+cmp with the archive's controls/controls.json: rc 0 (silent)
+controls stdout: 8 lines; ALL_PASS True
+interpreter 3.14.7 numpy 2.5.3

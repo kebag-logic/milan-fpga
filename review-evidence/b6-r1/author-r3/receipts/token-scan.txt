@@ -1,0 +1,22 @@
+Token scan, round 3 (tools/token_scan.py; the private map and both token lists stay outside this packet)
+Scanned: the diff e3f28f2f..26dfc82f, the page at 26dfc82f, the commit message, and every file in this packet (including PR-BODY.md, HANDOFF.md and REVIEW-READY.md).
+
+HIT page-new.md:111: regex list line 13
+HIT page-new.md:112: regex list line 13
+HIT page-new.md:115: regex list line 13
+HIT PR-BODY.md:116: regex list line 17
+HIT PR-BODY.md:117: regex list line 17
+HIT gates.txt:1: regex list line 20
+scanned 36 file(s) against 76 token(s): 6 hit(s)
+
+Disposition: no private name, account name, home path, capture-layout token, interface, serial device, MAC, USB string, instrument, switch, board, tool or model name. The round-3 diff and the commit message have no hit.
+- page-new.md:111, 112, 115 (channel-number pattern): the DUT-side tone loop's channels in Method, "Tone", round-1 text unchanged since b5e9242e; they describe the DUT's TDM input, not the external capture.
+- PR-BODY.md:116, 117 (IPv4-shaped pattern): four-part Milan and IEEE 1722.1 clause numbers in Authoritative references, carried unchanged from the live PR #630 body.
+- gates.txt:1 (data-path pattern): the physical lane worktree path the gates ran from, recorded as gate evidence; it names no host or account.
+
+Self-test: a planted file with a model name, an account name, a capture-layout phrase and a benign line naming gPTP, AES17 and Milan:
+HIT planted.txt:1: regex list line 39
+HIT planted.txt:2: regex list line 40
+HIT planted.txt:4: regex list line 3
+scanned 1 file(s) against 76 token(s): 3 hit(s)
+The three planted tokens hit; the benign line does not.

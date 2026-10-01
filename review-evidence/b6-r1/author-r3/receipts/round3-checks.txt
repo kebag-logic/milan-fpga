@@ -1,0 +1,39 @@
+archive 422dcf91008a09cb882dcc2b760779ce22e530cd
+item 4: A1 and B CRF capture-path clusters under 98 frames
+    a1 cluster 0: steps [60], rise 0.9987 ms, read gap 14.907 ms, basis 'read-time rise'
+    a1 cluster 3: steps [60], rise 0.9947 ms, read gap 16.711 ms, basis 'read-time rise'
+    a1 cluster 5: steps [60], rise 0.9906 ms, read gap 59.758 ms, basis 'read-time rise'
+    a1 cluster 9: steps [60], rise None ms, read gap 33.452 ms, basis 'read gap'
+    bcrf cluster 8: steps [60], rise 0.9963 ms, read gap 16.236 ms, basis 'read-time rise'
+    bcrf cluster 12: steps [60], rise 0.993 ms, read gap 17.875 ms, basis 'read-time rise'
+    bcrf cluster 13: steps [60], rise 1.0026 ms, read gap 18.729 ms, basis 'read-time rise'
+  HOLDS  seven clusters, each one 60-frame skip
+  HOLDS  every read gap 14.9 ms or more
+  HOLDS  six have a measured rise, 0.9906 to 1.0026 ms (0.99 to 1.00 ms)
+  HOLDS  the seventh is A1 cluster 9: no measurable rise, basis 'read gap' (gap-only), after a 33 ms read gap
+  HOLDS  A1's two gap-only clusters are 2 and 9, so cluster 9 is one of item 5's two
+item 6: member steps of every capture-path cluster in A1 and B CRF
+    a1: 51 member steps; not 48 n + 12: [(13, 18626, 1), (18, 23880, 9), (18, -23880, 9)]
+    bcrf: 40 member steps; not 48 n + 12: [(5, -24000, 7), (5, -24000, 7)]
+  HOLDS  A1: the only other steps are the 23,880 replay edge and its exact -23,880 return, and the 18,626 of the 12.4 s loss, the only step in its cluster
+  HOLDS  B CRF: the only other steps are two exact -24,000 replay steps
+  HOLDS  A1's 12.4 s loss: 12388.0417 ms lost, tolerance 1 ms + 2 % = 248.76 ms (about 249 ms)
+  HOLDS  a0: no one-frame event carries a cluster (841 one-frame events)
+  HOLDS  a1: no one-frame event carries a cluster (315 one-frame events)
+  HOLDS  a2: no one-frame event carries a cluster (990 one-frame events)
+  HOLDS  bint: no one-frame event carries a cluster (829 one-frame events)
+  HOLDS  bcrf: no one-frame event carries a cluster (0 one-frame events)
+capture-path bullet: clusters without a matching measured rise
+  HOLDS  a0: 1 gap-only clusters [7], rise unmeasurable, every skip 48 n + 12
+  HOLDS  a1: 2 gap-only clusters [2, 9], rise unmeasurable, every skip 48 n + 12
+  HOLDS  a2: 5 gap-only clusters [9, 10, 35, 48, 58], rise unmeasurable, every skip 48 n + 12
+  HOLDS  bint: 3 gap-only clusters [4, 6, 7], rise unmeasurable, every skip 48 n + 12
+  HOLDS  bcrf: 0 gap-only clusters [], rise unmeasurable, every skip 48 n + 12
+  HOLDS  11 gap-only clusters in all
+    a2 cluster 17: rise 154.5405 ms, loss 60 frames (1.25 ms), read gap 129.917 ms
+    a2 cluster 56: rise -155.812 ms, loss 1020 frames (21.25 ms), read gap 13328.327 ms
+  HOLDS  only A2 clusters 17 and 56 passed on the read gap and size rule
+  HOLDS  cluster 17: 154.5 ms against 60 frames
+  HOLDS  cluster 56: -155.8 ms against 1,020 frames
+  HOLDS  cluster 56 follows cluster 55 and its look-back holds the 13328.327 ms (13.3 s) stall
+RESULT PASS
