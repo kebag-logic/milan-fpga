@@ -1,0 +1,23 @@
+published record: 131540 B sha256 8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc
+page cites:       2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961; equal: False
+record json pins: 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961; equal: False
+archive manifest: {"file": "author-r2/receipts/a-long-reads.u16", "original_sha256": "2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961", "published_sha256": "8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc", "path_redacted": true}
+sum of gaps 660150189 us; json elapsed_us_record 660151085; difference -896 us
+run of 3 bytes 0x23 at byte offsets 114032..114034 (read intervals 57016..57017)
+author figures, unmodified inputs: rc=1; last stderr line: AssertionError
+author figures, hash pin moved to the published bytes: rc=0
+diff against the published receipt: 7 changed lines
+--- published attribution.txt
++++ figures on published record
+@@ -2 +2 @@
+-derived read record a-long-reads.u16 131540 B sha256 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
++derived read record a-long-reads.u16 131540 B sha256 8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc
+@@ -8 +8 @@
+-read record, first to last read of the window: 660.151085 s; deficit D(R) - D(0) = 117652.1 frames
++read record, first to last read of the window: 660.150189 s; deficit D(R) - D(0) = 117609.1 frames
+@@ -31 +31 @@
+-control, every read position clear of skips of 2 or more: 51828; step percentiles 0.01/1/50/99/99.99: [-3.6, -2.1, +0.0, +2.2, +48.9]; positions with |step| > 4: 106, in 9 groups, 7 of them a step of 48 +- 4 frames (1 ms)
++control, every read position clear of skips of 2 or more: 51828; step percentiles 0.01/1/50/99/99.99: [-43.1, -2.1, +0.0, +2.2, +48.9]; positions with |step| > 4: 123, in 10 groups, 7 of them a step of 48 +- 4 frames (1 ms)
+@@ -40,0 +41 @@
++  group at reads 57005 .. 57021: largest |step| -43.3 frames
+evidence branch b5-review-evidence head: 1116f856f881190471e5320de869b9095a1a0537; blob 0fbea6efe617c8e67b05b926d280a8a61e4d7a63

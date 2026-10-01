@@ -1,0 +1,36 @@
+== record rest sha256 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
+record gaps 65770, sum 660151085 us
+count drift from window_time: 117652.9 frames
+stalls 220; spacing median 3.001 s min 2.990 max 3.020
+stall excess 109069.3 frames
+skips >=60: 239, 109928 frames; 1-2 reads after a stall: 236; 0 reads after: 0
+stalls with exactly one >=240 skip 1-2 reads after: 220 of 220
+  unaligned skip 72: longest interval 11.76 ms
+  unaligned skip 78: longest interval 12.11 ms
+  unaligned skip 108: longest interval 12.11 ms
+skips 2-59: 521, 7176 frames; multiples of 6 507; exactly 6 354
+clusters 343: with a >=60 skip 222 (small skips 284, 5386 frames; steps 116137.6 vs 115314 frames)
+small-only clusters 121 (with stall 0): skips 237, 1790 frames
+  |step|<=3: 95 (cluster frames 12..36); 1 ms: 22; step = frames: 0; other: 4 steps [23.6, 23.1, 89.4, 29.6] frames [42, 48, 60, 42]
+background, 3240 non-overlapping clear spans: 1 ms step 6, |step|>4 7; small-only clusters: 1 ms 22 of 121, |step|>4 26 of 121
+one-frame skips 526 -> 520 events (514 single, 6 paired); spacing 60546..60923 median 60768 = 1.2660 s, 16.46 ppm; doubles [121565]
+repeat spacing 93989..93992; doubles 4
+share >=2 0.370%, >=60 0.347%
+== record pub sha256 8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc
+record gaps 65770, sum 660150189 us
+count drift from window_time: 117652.9 frames
+stalls 220; spacing median 3.001 s min 2.990 max 3.020
+stall excess 109069.3 frames
+skips >=60: 239, 109928 frames; 1-2 reads after a stall: 236; 0 reads after: 0
+stalls with exactly one >=240 skip 1-2 reads after: 220 of 220
+  unaligned skip 72: longest interval 11.76 ms
+  unaligned skip 78: longest interval 12.11 ms
+  unaligned skip 108: longest interval 12.11 ms
+skips 2-59: 521, 7176 frames; multiples of 6 507; exactly 6 354
+clusters 343: with a >=60 skip 222 (small skips 284, 5386 frames; steps 116137.6 vs 115314 frames)
+small-only clusters 121 (with stall 0): skips 237, 1790 frames
+  |step|<=3: 95 (cluster frames 12..36); 1 ms: 22; step = frames: 0; other: 4 steps [23.6, 23.1, 89.4, 29.6] frames [42, 48, 60, 42]
+background, 3240 non-overlapping clear spans: 1 ms step 6, |step|>4 8; small-only clusters: 1 ms 22 of 121, |step|>4 26 of 121
+one-frame skips 526 -> 520 events (514 single, 6 paired); spacing 60546..60923 median 60768 = 1.2660 s, 16.46 ppm; doubles [121565]
+repeat spacing 93989..93992; doubles 4
+share >=2 0.370%, >=60 0.347%
