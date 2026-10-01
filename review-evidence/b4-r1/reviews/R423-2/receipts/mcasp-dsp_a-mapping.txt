@@ -1,0 +1,18 @@
+upstream Linux 7.1.13 sound/soc/ti/davinci-mcasp.c sha256 81ec9bbd89289ffa1568086a3f60e5aac79ee1f2ce8363bc3bbed3dcc89ea3f1 (local read-only copy; path withheld)
+	case SND_SOC_DAIFMT_DSP_A:
+		mcasp_clr_bits(mcasp, DAVINCI_MCASP_TXFMCTL_REG, FSXDUR);
+		mcasp_clr_bits(mcasp, DAVINCI_MCASP_RXFMCTL_REG, FSRDUR);
+		/* 1st data bit occur one ACLK cycle after the frame sync */
+		data_delay = 1;
+		break;
+	case SND_SOC_DAIFMT_DSP_B:
+	case SND_SOC_DAIFMT_AC97:
+		mcasp_clr_bits(mcasp, DAVINCI_MCASP_TXFMCTL_REG, FSXDUR);
+		mcasp_clr_bits(mcasp, DAVINCI_MCASP_RXFMCTL_REG, FSRDUR);
+		/* No delay after FS */
+		data_delay = 0;
+		break;
+	mcasp_mod_bits(mcasp, DAVINCI_MCASP_TXFMT_REG, FSXDLY(data_delay),
+		       FSXDLY(3));
+	mcasp_mod_bits(mcasp, DAVINCI_MCASP_RXFMT_REG, FSRDLY(data_delay),
+		       FSRDLY(3));

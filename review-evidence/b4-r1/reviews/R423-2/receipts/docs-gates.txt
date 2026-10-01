@@ -1,0 +1,32 @@
+head c39312b4871c8cc3ca604eb7c57f4b0b45d914e0 tree d9b3febc6f776dce41435775941fe960f1e1b6f1 at 2026-10-01T05:28:39Z
+md env: $TOOLS/md-venv-40cdefe08ebd python 3.14.7; pip freeze sha256: 9dede7186fb00e15
+cmarkgfm==2025.10.22
+html5lib==1.1
+gate 1 rc=0: $MDPY scripts/docs_check.py
+    docs_check: 0 finding(s) across 182 md files + 953 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+gate 2 rc=0: $MDPY scripts/check_doc_style.py
+    documentation style: OK (22 current documents)
+gate 3 rc=0: $MDPY scripts/gen_toc.py --check
+    TOC gate: OK (124 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+gate 4 rc=0: $MDPY scripts/gen_toc.py --verify-anchors
+    anchor check: 283 existing cross-page fragment links reproduced
+gate 5 rc=0: $MDPY scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+    check_em_dash: 0 finding(s) over 393 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [e4b771f9..HEAD]
+gate 6 rc=0: $MDPY scripts/check_em_dash.py --selftest
+    check_em_dash selftest: PASS (339 arm(s))
+gate 7 rc=0: $MDPY scripts/check_doc_paths.py
+    doc path gate: OK (861 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+gate 8 rc=0: python3 scripts/ci_scope.py --selftest
+      ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+      ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+    selftest: PASS
+gate 9 rc=0: python3 scripts/check_baremetal_only.py --check
+    baremetal-only: OK (0 findings across 951 tracked first-party file(s))
+gate 10 rc=0: python3 scripts/check_feature_status.py --self-test
+      PASS  boot order needs two steps
+    feature_status self-test: 46/46 passed
+    feature_status: 0 finding(s)
+gate 11 rc=0: git diff --check e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b HEAD
+    
+gate 12 rc=0: git diff --check 35a60c8d6ee742216f98232c85926b435ab01b91 HEAD
+    

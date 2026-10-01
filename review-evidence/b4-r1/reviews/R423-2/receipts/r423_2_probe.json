@@ -1,0 +1,583 @@
+{
+ "head": "c39312b4871c8cc3ca604eb7c57f4b0b45d914e0",
+ "arith": {
+  "capture_s_planned": 630.0,
+  "bytes_at_630s": 967680000,
+  "mb_at_630s": 967.68,
+  "mb_at_600s": 921.6,
+  "raw_bytes": 730595328,
+  "raw_frames": 22831104,
+  "raw_seconds": 475.648,
+  "talker_end_t": 1790828918.128055,
+  "unbind_t": 1790828976.782734,
+  "talker_end_to_unbind_s": 58.655,
+  "plan_audio_hz": 24575738.529,
+  "plan_fs_hz": 47999.4893,
+  "plan_ppm": -10.639
+ },
+ "fs": {
+  "samples": 95,
+  "triggers": [
+   "68038.252028915"
+  ],
+  "window_s": 472.468,
+  "frames": 22677480,
+  "fs_endpoints": 47997.9474,
+  "fs_lsq": 47997.9464,
+  "ppm_48k_endpoints": -42.76,
+  "ppm_48k_lsq": -42.78,
+  "ppm_plan_endpoints": -32.12,
+  "bclk_endpoints": 12287474.5,
+  "resid_rms_frames": 1.234,
+  "resid_last_frames": -1.17,
+  "hw_ptr_deltas_mod4": {
+   "0": 94
+  },
+  "last_tstamp_after_trigger_s": 475.48
+ },
+ "text": {
+  "tables_new": 12,
+  "tables_old": 12,
+  "tables": [
+   {
+    "new_line": 31,
+    "old_line": 30,
+    "rows": [
+     9,
+     9
+    ],
+    "sha256_new": "6536d7fc133efe0b",
+    "identical": false,
+    "changed_rows": [
+     5
+    ]
+   },
+   {
+    "new_line": 63,
+    "old_line": 62,
+    "rows": [
+     9,
+     9
+    ],
+    "sha256_new": "3997248ba53ed8a9",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 131,
+    "old_line": 129,
+    "rows": [
+     11,
+     11
+    ],
+    "sha256_new": "344cbe69b6978187",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 145,
+    "old_line": 143,
+    "rows": [
+     7,
+     7
+    ],
+    "sha256_new": "8415b907df624bed",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 168,
+    "old_line": 163,
+    "rows": [
+     3,
+     3
+    ],
+    "sha256_new": "5a8e56f4ca305a99",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 173,
+    "old_line": 168,
+    "rows": [
+     10,
+     10
+    ],
+    "sha256_new": "f670f2950f976b70",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 190,
+    "old_line": 185,
+    "rows": [
+     7,
+     7
+    ],
+    "sha256_new": "c5c137278341e8d5",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 222,
+    "old_line": 217,
+    "rows": [
+     3,
+     3
+    ],
+    "sha256_new": "92947329c80fe6a2",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 277,
+    "old_line": 269,
+    "rows": [
+     7,
+     7
+    ],
+    "sha256_new": "242332fea89998f7",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 333,
+    "old_line": 314,
+    "rows": [
+     7,
+     7
+    ],
+    "sha256_new": "c711865c32b07bb8",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 373,
+    "old_line": 354,
+    "rows": [
+     3,
+     3
+    ],
+    "sha256_new": "428075a8c73a3c87",
+    "identical": true,
+    "changed_rows": []
+   },
+   {
+    "new_line": 380,
+    "old_line": 361,
+    "rows": [
+     13,
+     13
+    ],
+    "sha256_new": "351329f84be9d62e",
+    "identical": true,
+    "changed_rows": []
+   }
+  ],
+  "absent": {
+   "48 kHz within the SoC board's clock accuracy": true,
+   "48 kHz at the board's accuracy": true,
+   "sum of both boards' clock errors": true,
+   "every class of word check": true,
+   "921.6 MB": true,
+   "about 55 s before the unbind": true
+  },
+  "present": {
+   "967.7 MB at the full 630 s": true,
+   "47,997.947 Hz on the SoC board's uncalibrated clock": true,
+   "-10.64 ppm is the plan, and the remaining -32.1 ppm is the DUT oscillator's error relative to the SoC board's clock, unsplit and unquantified": true,
+   "since a fast SoC board clock lowers the measured fs": true,
+   "One bit early trips the tag checks and the ordinal steps": true,
+   "The torn-frame count, the low byte and the zero-word count stay clean": true,
+   "One bit late trips the tag, low-byte and torn-frame checks": true,
+   "Only the zero-word count stays clean": true,
+   "not a register readback": true,
+   "58.7 s before the unbind": true,
+   "with `id` (uid 0)": true,
+   "every identity value equals that page's": true
+  },
+  "within_contexts": [
+   " beat that page describes. - **16 underrun clusters** start within 60 ms after a talker PDU sent 150 us or more late. - "
+  ],
+  "page_sha256": "f7878ecf69609445047e97e7577773b7f5736c4ecf3643e2586e14beaeb394e3"
+ },
+ "offset": {
+  "frames": 70000,
+  "seed": 423,
+  "first_ordinal": 42338,
+  "wraps": 1,
+  "aligned_expected_steps": {
+   "0": 28,
+   "1": 69906,
+   "2": 51,
+   "7": 14
+  },
+  "decoder_sha256": "cfb7121b589fe231e139012646fe567b76022e694e08d3bb89d8a7481bda2568",
+  "aligned_D1": {
+   "own": {
+    "frames": 70000,
+    "torn": 0,
+    "zero": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "invalid": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "low_byte": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tag_above_8": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "valid_wrong_tag": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tag_ok_frames": [
+     70000,
+     70000,
+     70000,
+     70000,
+     70000,
+     70000,
+     70000,
+     70000
+    ],
+    "step_hist": {
+     "0": 28,
+     "1": 69906,
+     "2": 51,
+     "7": 14
+    }
+   },
+   "packet_decoder": {
+    "torn": 0,
+    "silent": 0,
+    "non_pattern": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "zero": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tags": [
+     {
+      "1": 70000
+     },
+     {
+      "2": 70000
+     },
+     {
+      "3": 70000
+     },
+     {
+      "4": 70000
+     },
+     {
+      "5": 70000
+     },
+     {
+      "6": 70000
+     },
+     {
+      "7": 70000
+     },
+     {
+      "8": 70000
+     }
+    ],
+    "ordinal_steps": {
+     "+1": 69906,
+     "+2 (one skipped)": 51,
+     "0 (repeat)": 28,
+     "forward>2": 14
+    }
+   }
+  },
+  "one_bit_early_D0": {
+   "own": {
+    "frames": 70000,
+    "torn": 0,
+    "zero": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "invalid": [
+     0,
+     0,
+     0,
+     37278,
+     70000,
+     70000,
+     70000,
+     70000
+    ],
+    "low_byte": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tag_above_8": [
+     0,
+     0,
+     0,
+     37278,
+     70000,
+     70000,
+     70000,
+     70000
+    ],
+    "valid_wrong_tag": [
+     70000,
+     70000,
+     70000,
+     32722,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tag_ok_frames": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "step_hist": {
+     "0": 28,
+     "2": 69906,
+     "4": 51,
+     "14": 14
+    }
+   },
+   "packet_decoder": {
+    "torn": 0,
+    "silent": 0,
+    "non_pattern": [
+     0,
+     0,
+     0,
+     37278,
+     70000,
+     70000,
+     70000,
+     70000
+    ],
+    "zero": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tags": [
+     {
+      "2": 32722,
+      "3": 37278
+     },
+     {
+      "4": 32722,
+      "5": 37278
+     },
+     {
+      "6": 32722,
+      "7": 37278
+     },
+     {
+      "8": 32722
+     },
+     {},
+     {},
+     {},
+     {}
+    ],
+    "ordinal_steps": {
+     "+2 (one skipped)": 69906,
+     "forward>2": 65,
+     "0 (repeat)": 28
+    }
+   }
+  },
+  "one_bit_late_D2": {
+   "own": {
+    "frames": 70000,
+    "torn": 70000,
+    "zero": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "invalid": [
+     70000,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999
+    ],
+    "low_byte": [
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999
+    ],
+    "tag_above_8": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "valid_wrong_tag": [
+     0,
+     35001,
+     35001,
+     35001,
+     35001,
+     35001,
+     35001,
+     35001
+    ],
+    "tag_ok_frames": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "step_hist": {}
+   },
+   "packet_decoder": {
+    "torn": 70000,
+    "silent": 0,
+    "non_pattern": [
+     70000,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999,
+     34999
+    ],
+    "zero": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tags": [
+     {},
+     {
+      "1": 35001
+     },
+     {
+      "1": 35001
+     },
+     {
+      "2": 35001
+     },
+     {
+      "2": 35001
+     },
+     {
+      "3": 35001
+     },
+     {
+      "3": 35001
+     },
+     {
+      "4": 35001
+     }
+    ],
+    "ordinal_steps": {}
+   }
+  }
+ }
+}
