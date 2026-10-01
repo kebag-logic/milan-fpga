@@ -11,6 +11,15 @@ and publishes their analysis under the
 Round 3 [A474], docs only with no bench access, restates the Direction B
 reason and names exactly which skips each figure covers, under the
 [round 3 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5927406852).
+Round 4 [A476], docs only with no bench access, states where the packets are
+published and which cited hashes are the masked files' originals, under the
+[round 4 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5928569912),
+and names the reference peer's streams without counting them, under the
+[stream-count ruling](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5929406675).
+Round 5 [A478], docs only with no bench access, withholds the every-channel
+captures' sizes, re-pins the evidence archive and names the one masked input
+the reproduction reads, under the
+[round 5 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5929901339).
 
 This page measures the audio continuity row of #117 acceptance box 4, end to
 end. The [first-light pattern](451_TDM8_FIRST_LIGHT.md#method) enters the
@@ -450,8 +459,8 @@ The bridge legs run under new process IDs. No other residual remains.
 ## Artifact hashes
 
 The three packets are public on branch `b5-review-evidence`, pinned at commit
-`8e6be4329008137a152f9171638e48a43e549fb7`:
-[`review-evidence/b5-r1`](https://github.com/kebag-logic/milan-fpga/tree/8e6be4329008137a152f9171638e48a43e549fb7/review-evidence/b5-r1).
+`9006c78e354d5a2f244fd606c55790a825304bd3`:
+[`review-evidence/b5-r1`](https://github.com/kebag-logic/milan-fpga/tree/9006c78e354d5a2f244fd606c55790a825304bd3/review-evidence/b5-r1).
 The lane packet `b5-a472` is its `author/` directory, the round 2 packet
 `b5-a473` is `author-r2/` and the round 3 packet `b5-a474` is `author-r3/`.
 Its `MANIFEST.json` records each published file's `original_sha256` and
@@ -460,8 +469,9 @@ label-masked. The steps below run on those three directories at that commit.
 
 The lane packet `b5-a472` holds the tools, per-action evidence, summaries and
 the raw-artifact index. Raw files stay outside the tree and the packet, each
-identified by size and SHA-256. The round 2 packet `b5-a473` holds the
-analysis tools, their receipts and the window's derived read record:
+identified by SHA-256, and all but the every-channel captures by size too. The
+round 2 packet `b5-a473` holds the analysis tools, their receipts and the
+window's derived read record:
 131,540 bytes, SHA-256
 `2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961`, derived
 from the `a-long` read times below. As published, the packet carries that
@@ -480,12 +490,12 @@ record gzip-compressed, as `a-long-reads.u16.gz`. To reproduce the figures:
 |---|---|---|
 | `a-long` graded pair, 24-bit | 236137116 | `2ac666fb5ff6284cc665887758ad6f2754918e5b7932258a06ea7efeeec99bdf` |
 | `a-long` read times | 1967832 | `717141923d15fc32f09e998d3af779b9e95d8a263091c039e7165bc3c7728262` |
-| `a-long` every channel, 10 s | 28800000 | `f334406790ef4e769d3b682ff56506568467277b9224acf82e168ab8af838d89` |
+| `a-long` every channel, 10 s | withheld | `f334406790ef4e769d3b682ff56506568467277b9224acf82e168ab8af838d89` |
 | `a-long` full grade | 180433 | `e06fa4602138c30b84f19f7ba78db88b4e394d07bedc8939474dafa2ac07ed88` |
-| `diag1` every channel, 25 s | 72116580 | `b8cc1f50fc54ba4bf5bb803056af6ab229e574798bb337249400879098f341be` |
+| `diag1` every channel, 25 s | withheld | `b8cc1f50fc54ba4bf5bb803056af6ab229e574798bb337249400879098f341be` |
 | `cap-test1` graded pair | 14472180 | `c8d34f62402a0af3a1c20b47325a9c859975cea88426a4a3029dabbddd422616` |
 | `a-try1` watched pair | 11474046 | `e23aaf2e9f82fbfdb0d89a72ebeb782ae036692af73eec32c6c8c2aa7c5805dc` |
-| Capture as found, every channel, 3 s | 8640000 | `7eabb3761ba13566ceb3e826d66a742cd865f23f7ca5eebce23af50ea4bf465f` |
+| Capture as found, every channel, 3 s | withheld | `7eabb3761ba13566ceb3e826d66a742cd865f23f7ca5eebce23af50ea4bf465f` |
 | Pattern period, built on the SoC board | 2097152 | `b6a92e9724e945354c3f8fc5178cec7bb8fd0e62d52bd9ee7f13ed5347bfa97c` |
 
 | Tool | Role | SHA-256 |
@@ -508,11 +518,12 @@ beside the `.gz` is recorded with `path_redacted`. In the lane packet,
 `HANDOFF.md`, `RAW-ARTIFACTS.json`, `gates/gates.txt`, the two
 `restore/host-*.txt`, the `console.txt` and `events.jsonl` of `a-long`, `diag1`
 and `cap-test1`, and the `summary.json` of `a-long` and `cap-test1` are
-published label-masked too. The page cites no hash of them. `b5_attrib.py` and
-`b5_round3.py` read the masked `a-long` `summary.json` and `events.jsonl`, and
-still reproduce both receipts byte for byte at the pinned commit. The other
-tool hashes match the published bytes, and the masked `RAW-ARTIFACTS.json`
-keeps every raw file's size and SHA-256.
+published label-masked too. The page cites no hash of them. Of these,
+`b5_attrib.py` and `b5_round3.py` read only the `a-long` `summary.json`, and
+both still reproduce their receipts byte for byte at the pinned commit. The
+other tool hashes match the published bytes. The masked `RAW-ARTIFACTS.json`
+keeps every raw file's SHA-256, and every size but the every-channel
+captures', which it withholds, as the table above does.
 
 `a-long` ran the `run_a.py` revision before the capture-period option, whose
 default is the value it used. `cap-test1` ran the listed revision.
