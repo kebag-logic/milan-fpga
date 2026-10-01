@@ -1,0 +1,11 @@
+OK  repeats: got 1 want 1
+OK  skip histogram: got {'1': 1, '6': 1, '100': 1} want {'1': 1, '6': 1, '100': 1}
+OK  backward: got 1 want 1
+OK  torn: got 1 want 1
+OK  invalid_nonzero (torn + wrong tag + bit flip): got 3 want 3
+OK  zero_frames: got 6 want 6
+OK  silent stretches: got [1, 5] want [1, 5]
+OK  valid: got 959971 want 959971
+OK  initial first_valid_frame: got 4800 want 4800
+OK  initial restart_s (upper bound by 1 ms read latency): got 0.051 want 0.051
+RESULT PASS

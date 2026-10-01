@@ -1,0 +1,18 @@
+Inputs: the published packet review-evidence/b5-r1 at commit ef3a709151f9bdbd4718c0783d0b8991ede7fd36
+(fetched read-only; author dir below = <ev>/review-evidence/b5-r1/author), and the review clone at
+bf9e5d82a401d167a8ffc786677a19dc7aac0cf2. Python 3 with numpy (grader probe only).
+
+python3 -I scripts/rederive_continuity.py <author> 1   } -> receipts/rederive_continuity.txt (both runs, "== ZADV=n")
+python3 -I scripts/rederive_continuity.py <author> 2   }
+python3 -I scripts/rederive_restarts.py <author>                         -> receipts/rederive_restarts.txt
+python3 -I scripts/slip_tdm_reads.py <author>/runs/a-long/dut-{before-bind,cont-0,cont-1,cont-2,after-cycles,final}.txt
+                                                                          -> receipts/slip_tdm_a-long.txt
+(cd <author> && python3 -I scripts/binding_rule_audit.py runs/*/ctl.jsonl)  -> receipts/binding_rule_audit.txt (rc 0)
+binding_rule_audit.py on four mutants of runs/a-long/ctl.jsonl (talker SET, missing listener read,
+  no restore, read-back mismatch)                                         -> receipts/binding_rule_audit_mutants.txt (each rc 1)
+python3 -I scripts/grade_a_fault_probe.py <author> <scratch>              -> receipts/grade_a_fault_probe.txt (RESULT PASS)
+python3 -I scripts/misc_checks.py <author>                               -> receipts/misc_checks.txt
+docs gates at the review head, pinned renderer from tools/markdown/requirements.txt -> receipts/docs_gates.txt
+  (first block: system interpreter without the renderer, rc 2 where the renderer is required; second block: rc 0 all)
+Packet integrity: every MANIFEST.json published_sha256 matched (142 entries); author MANIFEST.sha256 mismatches
+  only on the 3 entries MANIFEST.json marks path_redacted (gates/gates.txt, restore/host-start.txt, restore/host-end.txt).

@@ -1,0 +1,13 @@
+cycles 30 statuses {0} unbind statuses {0}
+all stopped True valid in hold 0 flowing before True
+restart n 30 below1 30 min 0.0262 median 0.0279 p95 0.0389 max 0.1358
+max cycle 1
+slope -0.000664 ci95 [-0.001495, +0.000166] df 28; first10 median 0.0274 last10 0.0280
+last valid after unbind 14.4 to 24.6 ms
+cmd to response 7.203 to 8.253 ms; from command 34.4 to 143.9 ms
+holds 2.016952 2.021536
+stalls in restart [(20, [19.761])]
+frames before first valid non-zero []
+after_3s {'repeats': 45, 'skip_events': 207, 'skipped_frames': 15714, 'invalid_nonzero': 0, 'torn': 0, 'zero_frames': 0}
+offset unc ms max 0.111
+initial 0.267565 {'zero': 12843, 'valid': 0, 'other': 0} 9.065

@@ -1,0 +1,8 @@
+m1-talker-set.jsonl: binds 31 unbinds 31 sets [('dut', '0006', '0205022002006000', 'SUCCESS'), ('peer', '0005', '0205022001006000', 'SUCCESS')] -> ['SET on dut dtype 0006: talker or non-listener changed']
+rc=1
+m2-missing-read.jsonl: binds 31 unbinds 31 sets [('peer', '0005', '0205022002006000', 'SUCCESS'), ('peer', '0005', '0205022001006000', 'SUCCESS')] -> ['bind 2: missing read (talker True, listener False)']
+rc=1
+m3-no-restore.jsonl: binds 31 unbinds 31 sets [('peer', '0005', '0205022002006000', 'SUCCESS'), ('peer', '0005', '0205022002006000', 'SUCCESS')] -> ['set 0205022002006000 read back 0205022001006000', 'restore after last unbind: set 0205022002006000 read 0205022001006000']
+rc=1
+m4-readback.jsonl: binds 31 unbinds 31 sets [('peer', '0005', '0205022002006000', 'SUCCESS'), ('peer', '0005', '0205022001006000', 'SUCCESS')] -> ['set 0205022002006000 read back 0205022001006000', 'bind 1: formats differ at bind 0205022002006000 0205022001006000']
+rc=1
