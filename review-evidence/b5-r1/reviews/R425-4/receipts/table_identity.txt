@@ -1,0 +1,65 @@
+== cf38633a -> e216dfe4: 15 tables -> 15 tables, 119 -> 119 table lines
+  table  1 CHANGED    | Item | Verdict | Evidence |
+     line 7: cell 3 old sha256 672da08f976c06d9 -> new: The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded.
+     line 7: first cell unchanged: True (#117 audio continuity row)
+  table  2 identical  d099cc353b0e10fd  | Identity check | Result |
+  table  3 identical  0ffd9507180193b9  | Binding | Talker output | Listener input |
+  table  4 identical  7674f86fc4b93314  | Stream format | As found | Meaning |
+  table  5 identical  55740cce025e7433  | Run | Purpose | Result |
+  table  6 identical  ed7cd4072b30fedb  | Bind | Talker format | Listener format read | Set | Listen
+  table  7 identical  6743c2d4132fd10a  | Stream channel | Expected tag | Captured words | Words wit
+  table  8 identical  d3dd4a06b4c4c020  | Frames | Valid | Torn | Invalid non-zero | Zero |
+  table  9 identical  4b62a11e6a895d8a  | Class | Events | Frames | Per second |
+  table 10 identical  f64987b23087a869  | Population | Count | Below 1 s | Min, s | Median, s | p95,
+  table 11 identical  93d945c5162c59a7  | First ten median, s | Last ten median, s | Slope, s per cy
+  table 12 identical  35bf91e66ee97952  | Cycle | Hold, s | Stopped in hold | Last valid after unbin
+  table 13 CHANGED    | State | As left |
+     line 2: cell 2 old sha256 34b27257d1741739 -> new: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+     line 2: first cell unchanged: True (Stream states, DUT and reference peer)
+  table 14 identical  e3f27ede68e391f4  | Artifact | Bytes | SHA-256 |
+  table 15 identical  b60866266c662814  | Tool | Role | SHA-256 |
+  identical 13 of 15
+== c5804007 -> e216dfe4: 15 tables -> 15 tables, 119 -> 119 table lines
+  table  1 identical  189047964e5fa7b6  | Item | Verdict | Evidence |
+  table  2 identical  d099cc353b0e10fd  | Identity check | Result |
+  table  3 identical  0ffd9507180193b9  | Binding | Talker output | Listener input |
+  table  4 identical  7674f86fc4b93314  | Stream format | As found | Meaning |
+  table  5 identical  55740cce025e7433  | Run | Purpose | Result |
+  table  6 identical  ed7cd4072b30fedb  | Bind | Talker format | Listener format read | Set | Listen
+  table  7 identical  6743c2d4132fd10a  | Stream channel | Expected tag | Captured words | Words wit
+  table  8 identical  d3dd4a06b4c4c020  | Frames | Valid | Torn | Invalid non-zero | Zero |
+  table  9 identical  4b62a11e6a895d8a  | Class | Events | Frames | Per second |
+  table 10 identical  f64987b23087a869  | Population | Count | Below 1 s | Min, s | Median, s | p95,
+  table 11 identical  93d945c5162c59a7  | First ten median, s | Last ten median, s | Slope, s per cy
+  table 12 identical  35bf91e66ee97952  | Cycle | Hold, s | Stopped in hold | Last valid after unbin
+  table 13 CHANGED    | State | As left |
+     line 2: cell 2 old sha256 34b27257d1741739 -> new: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+     line 2: first cell unchanged: True (Stream states, DUT and reference peer)
+  table 14 identical  e3f27ede68e391f4  | Artifact | Bytes | SHA-256 |
+  table 15 identical  b60866266c662814  | Tool | Role | SHA-256 |
+  identical 14 of 15
+== bf9e5d82 -> e216dfe4: 15 tables -> 15 tables, 119 -> 119 table lines
+  table  1 CHANGED    | Item | Verdict | Evidence |
+     line 4: cell 3 old sha256 3b3f6dba28c3e12c -> new: 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity).
+     line 4: first cell unchanged: True (Continuity over 660 s: silent stretches, repeats and skips)
+     line 6: cell 3 old sha256 12db93c942b21bb9 -> new: It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b).
+     line 6: first cell unchanged: True (Direction B, the peer's talker to the DUT's listener)
+     line 7: cell 3 old sha256 4cf99b2a151ab9a9 -> new: The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded.
+     line 7: first cell unchanged: True (#117 audio continuity row)
+  table  2 identical  d099cc353b0e10fd  | Identity check | Result |
+  table  3 identical  0ffd9507180193b9  | Binding | Talker output | Listener input |
+  table  4 identical  7674f86fc4b93314  | Stream format | As found | Meaning |
+  table  5 identical  55740cce025e7433  | Run | Purpose | Result |
+  table  6 identical  ed7cd4072b30fedb  | Bind | Talker format | Listener format read | Set | Listen
+  table  7 identical  6743c2d4132fd10a  | Stream channel | Expected tag | Captured words | Words wit
+  table  8 identical  d3dd4a06b4c4c020  | Frames | Valid | Torn | Invalid non-zero | Zero |
+  table  9 identical  4b62a11e6a895d8a  | Class | Events | Frames | Per second |
+  table 10 identical  f64987b23087a869  | Population | Count | Below 1 s | Min, s | Median, s | p95,
+  table 11 identical  93d945c5162c59a7  | First ten median, s | Last ten median, s | Slope, s per cy
+  table 12 identical  35bf91e66ee97952  | Cycle | Hold, s | Stopped in hold | Last valid after unbin
+  table 13 CHANGED    | State | As left |
+     line 2: cell 2 old sha256 34b27257d1741739 -> new: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+     line 2: first cell unchanged: True (Stream states, DUT and reference peer)
+  table 14 identical  e3f27ede68e391f4  | Artifact | Bytes | SHA-256 |
+  table 15 identical  b60866266c662814  | Tool | Role | SHA-256 |
+  identical 13 of 15

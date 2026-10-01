@@ -1,0 +1,13 @@
+Classification of the direct hits in receipts/public_scan.txt (archive only; page,
+index row, added lines, PR body and commit messages have 0 direct hits).
+Values are never printed; contexts were read with digits masked.
+
+archive-tip author-r4/REVIEW-READY.md:20 and REVIEW-READY.readback.md:20
+  capture-channel-count pattern "all <v>": FALSE POSITIVE, a sentence counting the
+  page's SHA-256 values.
+reviews/R424-2/REPORT.md:61,143; reviews/R425-1/REPORT.md:35; reviews/R425-2/REPORT.md:42
+  capture-channel-count pattern "all <v>": NOT a capture count; each states the survey
+  walk's read count, one read per peer cluster, so a peer cluster count (finding F2).
+reviews/R425-2/tools/r425_public_scan.py:14
+  link-type: a generic word-list regex of a prior review's scan tool; it lists many
+  link types and does not single out the masked one. Not a finding.

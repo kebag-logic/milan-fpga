@@ -1,0 +1,70 @@
+power capture-channel-count#0: planted hit, original packet hit
+power capture-channel-count#1: planted hit, original packet hit
+power capture-channel-count#2: planted hit, original packet hit
+power capture-channel-count#3: planted hit, original packet no hit
+power capture-channel-count#4: planted hit, original packet no hit
+power capture-channel-index#0: planted hit, original packet hit
+power capture-channel-index#1: planted hit, original packet no hit
+power capture-channel-index#2: planted hit, original packet no hit
+power capture-channel-index#3: planted hit, original packet hit
+power capture-channel-index#4: planted hit, original packet no hit
+power capture-channel-index#5: planted hit, original packet no hit
+power capture-channel-index#6: planted hit, original packet no hit
+power capture-channel-index#7: planted hit, original packet no hit
+power capture-channel-index#8: planted hit, original packet hit
+power capture-channel-layout#0: planted hit, original packet hit
+power capture-channel-layout#1: planted hit, original packet hit
+power interface-name#0: generic list, every one of 7 alternatives planted: hit
+power interface-name#1: planted hit, original packet hit
+power link-type#0: planted hit, original packet hit
+power link-type#1: generic list, every one of 12 alternatives planted: hit
+power soc-product#0: generic list, every one of 11 alternatives planted: hit
+power soc-product#1: planted hit, original packet hit
+power usb-bus-position#0: planted hit, original packet hit
+power usb-bus-position#1: planted hit, original packet hit
+classes: capture-channel-count=5, capture-channel-index=9, capture-channel-layout=2, interface-name=2, link-type=2, soc-product=2, usb-bus-position=2
+derived private values per class (count only): capture-channel-count=1, capture-channel-index=3, capture-channel-layout=2, cycles=1, external-capture=1, host-iface=1, link-type=1, mac=1, soc-usb-function=1, usb-bus-position=2
+DERIVE page capture-channel-count from '117_AUDIO_CONTINUITY.md' every-channel row (10 s): YES, bytes/(s*48000*3) is the masked count
+DERIVE page capture-channel-count from '117_AUDIO_CONTINUITY.md' every-channel row (25 s): no
+DERIVE page capture-channel-count from '117_AUDIO_CONTINUITY.md' every-channel row (3 s): YES, bytes/(s*48000*3) is the masked count
+TOTAL page: 0 direct hits
+TOTAL index: 0 direct hits
+DERIVE added capture-channel-count from 'added-lines.txt' every-channel row (10 s): YES, bytes/(s*48000*3) is the masked count
+DERIVE added capture-channel-count from 'added-lines.txt' every-channel row (25 s): no
+DERIVE added capture-channel-count from 'added-lines.txt' every-channel row (3 s): YES, bytes/(s*48000*3) is the masked count
+TOTAL added: 0 direct hits
+TOTAL prbody: 0 direct hits
+TOTAL commits: 0 direct hits
+DERIVE archive-tip peer-stream-count from per-index labels in author/restore/census-end.jsonl: YES
+DERIVE archive-tip peer-stream-count from per-index labels in author/restore/census-start.jsonl: YES
+DERIVE archive-tip capture-channel-count from 'author/runs/a-long/console.txt' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-tip capture-channel-count from 'author/runs/a-long/events.jsonl' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-tip peer-stream-count from per-index labels in author/runs/agent-dryrun.txt: YES
+DERIVE archive-tip capture-channel-count from 'author/runs/cap-test1/console.txt' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-tip capture-channel-count from 'author/runs/cap-test1/events.jsonl' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-tip capture-channel-count from 'author/runs/diag1/console.txt' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-tip capture-channel-count from 'author/runs/diag1/events.jsonl' cap-all size: YES, an integer number of seconds at the masked count
+HIT archive-tip capture-channel-count author-r4/REVIEW-READY.md:20
+HIT archive-tip capture-channel-count author-r4/REVIEW-READY.readback.md:20
+HIT archive-tip capture-channel-count reviews/R424-2/REPORT.md:61
+HIT archive-tip capture-channel-count reviews/R424-2/REPORT.md:143
+HIT archive-tip capture-channel-count reviews/R425-1/REPORT.md:35
+HIT archive-tip capture-channel-count reviews/R425-2/REPORT.md:42
+HIT archive-tip link-type reviews/R425-2/tools/r425_public_scan.py:14
+TOTAL archive-tip: 7 direct hits
+DERIVE archive-pin peer-stream-count from per-index labels in author/restore/census-end.jsonl: YES
+DERIVE archive-pin peer-stream-count from per-index labels in author/restore/census-start.jsonl: YES
+DERIVE archive-pin capture-channel-count from 'author/runs/a-long/console.txt' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-pin capture-channel-count from 'author/runs/a-long/events.jsonl' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-pin peer-stream-count from per-index labels in author/runs/agent-dryrun.txt: YES
+DERIVE archive-pin capture-channel-count from 'author/runs/cap-test1/console.txt' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-pin capture-channel-count from 'author/runs/cap-test1/events.jsonl' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-pin capture-channel-count from 'author/runs/diag1/console.txt' cap-all size: YES, an integer number of seconds at the masked count
+DERIVE archive-pin capture-channel-count from 'author/runs/diag1/events.jsonl' cap-all size: YES, an integer number of seconds at the masked count
+HIT archive-pin capture-channel-count reviews/R424-2/REPORT.md:61
+HIT archive-pin capture-channel-count reviews/R424-2/REPORT.md:143
+HIT archive-pin capture-channel-count reviews/R425-1/REPORT.md:35
+HIT archive-pin capture-channel-count reviews/R425-2/REPORT.md:42
+HIT archive-pin link-type reviews/R425-2/tools/r425_public_scan.py:14
+TOTAL archive-pin: 5 direct hits
+POWER FAILURES 0

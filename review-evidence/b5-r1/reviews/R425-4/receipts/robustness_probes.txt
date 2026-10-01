@@ -1,0 +1,15 @@
+## P1: gunzip -k without -f beside the masked copy
+rc=2
+## P2: step 2 on the MASKED copy (reader skipped step 1)
+rc=1
+output differs from attribution.txt (65 differing lines); stderr: AssertionError
+## P3: step 3 on the MASKED copy
+rc=1
+output differs (52 differing lines); stderr: AssertionError: record sha256 8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc is not the page's 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
+## P4: steps 1-3 run from an unrelated working directory
+attribution identical rc=0
+round3 identical rc=0
+## P5: a one-byte change to the restored record is detected by the receipts
+attribution identical after a 1-bit flip rc=1 (nonzero = detected)
+## P6: the unmasked-figure inputs the tools read, masked in the archive?
+summary.json channel_identification: <capture-channel-layout>
