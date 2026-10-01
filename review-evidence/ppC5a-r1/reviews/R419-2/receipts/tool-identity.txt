@@ -1,0 +1,10 @@
+instructed path: $VALIDATION_STORAGE/tmp/372-manager-candidate1/pinned-tool-bin/verilator -> ls: cannot access '$VALIDATION_STORAGE/tmp/372-manager-candidate1/pinned-tool-bin/verilator': No such file or directory
+used wrapper: $VALIDATION_STORAGE/tmp/372-manager-r2/pinned-tool-bin/verilator
+version: Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_STORAGE/tmp/372-manager-r2/pinned-tool-bin/verilator
+fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf  <pinned-overlay>/usr/bin/verilator
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  <pinned-overlay>/usr/bin/verilator_bin
+host default (not used): Verilator 5.052 2026-09-05 rev v5.052
+packet wrapper: scratch/bin/verilator execs the used wrapper; first on PATH for every build
+python3 3.14.7; g++ 16.2.1
+build parallelism: first gsi-build of the head used the Makefile's -j 0; every later build -j 8 (single) or -j 2 x 4 shards (campaign), -j 2 x 3 (reviewer arms)

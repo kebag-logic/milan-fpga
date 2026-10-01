@@ -1,0 +1,12 @@
+snapshot 2026-10-01T08:19:41Z
+36832325836 hdl push in_progress null
+== run 36832325836 jobs
+  suites: in_progress null | Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; SRP LeaveAll mutation campaign=null; ADP mutation campaign=null; AECP deadline and hazard-class mutation campaign=null; Traceability matrix no-drift + untested budget 0=null; nvm_port README figures agree with the tree=null; Post Cache the pinned Verilator build=null; Post Run actions/checkout@v4=null
+  docs-gates: completed success | Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  portability: completed success | Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+== commit status contexts
+portability completed success
+docs-gates completed success
+suites in_progress null
+== PR closing references
+{"closing":[57],"draft":false,"head":"44a6bb9082d31dbf933087ef007ad78a110e7053","mergeable":"CONFLICTING"}

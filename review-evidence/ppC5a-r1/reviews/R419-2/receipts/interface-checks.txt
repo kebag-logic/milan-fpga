@@ -1,0 +1,49 @@
+== top module header (parameters + ports) base 0451d83d vs head
+IDENTICAL (674 lines)
+== KL_aecp_engine header f963fe9 vs head
+IDENTICAL
+== KL_aecp_engine header base vs head (round-1 internal ports)
+>     //! ---- the transaction deadline (03 §6 rule (e), 08 §4) ----
+>     //! level from the top: the solicited command in flight is past its
+>     //! T-BUDGET-AECP-WC deadline. Its µprogram is preempted into E_DLKILL at
+>     //! the next instruction boundary before its first effect (see the
+>     //! DEADLINE KILL banner); a command whose change rides a gather face
+>     //! (REGISTER/DEREGISTER, LOCK_ENTITY, ADD/REMOVE_AUDIO_MAPPINGS) runs to
+>     //! its own answer.
+>     input  wire                dl_kill_i,
+>     //! one clock: a solicited response was handed to its TX lane (the
+>     //! scoreboard's kill_resp_queued_i: rule (e) releases the key only then)
+>     output logic               dl_queued_o,
+> 
+== KL_aecp_ucpu header f963fe9 vs head
+IDENTICAL
+== KL_aecp_ucpu header base vs head (round-1 internal ports)
+>     //! 03 §6 rule (e): the deadline engine's preempt. While 1, the sequencer
+>     //! is redirected to `preempt_upc_i` at the next instruction boundary (an
+>     //! op retiring, or an empty E stage), once per dispatch, and only before
+>     //! the program's first effect op (WRITE_ST, NAME_WR, COMMIT, NVM_MARK,
+>     //! NOTIFY_ENQ, SEND_RESP), never as one retires: a program that has
+>     //! changed state or sent its answer ends with its own response. Outside a
+>     //! batch the response cursor and length return to 12, so the forced
+>     //! response carries no partial body. Tie 0 where no deadline engine runs.
+>     input  wire         preempt_i,
+>     //! the redirect target: the E_DLKILL entry (gen_ucode.py)
+>     input  wire  [10:0] preempt_upc_i,
+> 
+>     //! this dispatch was redirected by `preempt_i`: a level from the redirect
+>     //! until the next dispatch
+>     output logic        preempted_o,
+== instantiations of the changed modules outside the processor top
+hdl/aecp/KL_aecp_desc_store.sv
+hdl/aecp/KL_aecp_dyn_state.sv
+hdl/aecp/KL_aecp_engine.sv
+hdl/aecp/KL_aecp_notify.sv
+hdl/aecp/KL_aecp_resp_buf.sv
+hdl/aecp/KL_aecp_ucpu.sv
+hdl/aecp/ucpu_pkg.sv
+hdl/common/pp_pkg.sv
+hdl/packet_engine/KL_pp_dispatch.sv
+hdl/packet_engine/KL_pp_nvm_mgr_arb.sv
+hdl/top/protocol_processor_top.sv
+== RTL files added/renamed/deleted
+none

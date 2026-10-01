@@ -1,0 +1,9 @@
+r-registry-lock-preempted [pp_top deadline]: rc=2 failures=4 KILLED
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY past its deadline answers its own SUCCESS, byte-exact, and is never redirected (status 10, 2 redirects)
+    FAIL: DL10 LOCK_ENTITY: the lock it answered for is held
+    FAIL: DL10 REGISTER_UNSOLICITED_NOTIFICATION: the registration took effect, another controller's SET_NAME is pushed to it
+r-registry-lock-preempted [ucpu run]: rc=0 failures=0 SURVIVED
+r-effects-short [pp_top deadline]: rc=0 failures=0 SURVIVED
+r-effects-short [ucpu run]: rc=0 failures=0 SURVIVED
+rc=0
