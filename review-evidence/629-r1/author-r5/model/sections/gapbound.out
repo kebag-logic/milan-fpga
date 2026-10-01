@@ -1,0 +1,26 @@
+== G. the gap bound's value: ideal timestamps, 24 s, a step at PDU n0 = 96,000 (a group's PDU 0, 12 s in), which is lost in the 'gap' cases. (a) +300 ppm, a +3,900 ns step: across the gap 3,900 + 1,200 ns. (b) -300 ppm, a half-sample step (+10,417 ns) with every timestamp before n0 at +1,426 ns and every one from n0 at -1,426 ns, so the error and the rate both oppose it: across the gap 10,417 - 2,852 - 1,200 ns. 'no gap' is the same step with nothing lost (k = 1, 4,096 ns). Swept over the gap bound
+(a) gap    gap bound  4096: restarts=1 largest deviation across a gap   5100 ns; by spacing k4=2 off 5100; drops=0
+(b) gap    gap bound  4096: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  5000: restarts=1 largest deviation across a gap   5100 ns; by spacing k4=2 off 5100; drops=0
+(b) gap    gap bound  5000: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  5099: restarts=1 largest deviation across a gap   5100 ns; by spacing k4=2 off 5100; drops=0
+(b) gap    gap bound  5099: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  5100: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  5100: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  5120: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  5120: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  6000: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  6000: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  6363: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  6363: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  6364: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  6364: restarts=1 largest deviation across a gap   6365 ns; by spacing k4=2 off 6365; drops=0
+(a) gap    gap bound  6365: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  6365: restarts=0 largest deviation across a gap   6365 ns; by -; drops=0
+(a) gap    gap bound  6400: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  6400: restarts=0 largest deviation across a gap   6365 ns; by -; drops=0
+(a) gap    gap bound  8192: restarts=0 largest deviation across a gap   5100 ns; by -; drops=0
+(b) gap    gap bound  8192: restarts=0 largest deviation across a gap   6365 ns; by -; drops=0
+(a) no gap gap bound  5120: restarts=1 largest deviation across a gap      0 ns; by spacing k4=1 off 4500; drops=0
+(b) no gap gap bound  5120: restarts=1 largest deviation across a gap      0 ns; by spacing k4=1 off 6965; drops=0
+

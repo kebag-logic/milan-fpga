@@ -1,0 +1,17 @@
+== K. the gap bound: a continuity bound B_k across k group intervals must admit the design point (2J + 601 k, J = 1,426 ns, 300 ppm; 601 ns is KL_crf_rx's rate term per 2 ms) and still catch a half-sample step (B_k < 10,417 - 2J - 601 k)
+k=1: need  3453 <= B_k <  6964  window exists; B=4096 inside; tolerance at 300 ppm J <= 1747 ns, at 0 ppm J <= 2048 ns
+k=2: need  4054 <= B_k <  6363  window exists; BGAP=5120 inside; tolerance at 300 ppm J <= 1959 ns, at 0 ppm J <= 2560 ns
+k=3: need  4655 <= B_k <  5762  window exists; BGAP=5120 inside; tolerance at 300 ppm J <= 1658 ns, at 0 ppm J <= 2560 ns
+k=4: need  5256 <= B_k <  5161  NO window; BGAP=5120 outside; tolerance at 300 ppm J <= 1358 ns, at 0 ppm J <= 2560 ns
+k=5: need  5857 <= B_k <  4560  NO window; BGAP=5120 outside; tolerance at 300 ppm J <= 1057 ns, at 0 ppm J <= 2560 ns
+generic E8 closed-loop bound for ANY sequence of E8 rates (|rate error| <= 2J/8): 2.125 * 2 * 1426 / 8 = 758 ns
+random independent PDU loss p: a restart needs two adjacent loss-voided groups; groups per second 500; rate ~ 500 q^2, q = 1 - (1-p)^16
+p= 1.0e-06 (  0.008 lost/s): restarts ~ 1.28e-07/s (one per  7812617.2 s); r3 rule restart rate  8.00e-03/s
+p= 1.0e-05 (  0.080 lost/s): restarts ~ 1.28e-05/s (one per    78136.7 s); r3 rule restart rate  8.00e-02/s
+p= 1.0e-04 (  0.800 lost/s): restarts ~ 1.28e-03/s (one per      782.4 s); r3 rule restart rate  8.00e-01/s
+p= 3.0e-04 (  2.400 lost/s): restarts ~ 1.15e-02/s (one per       87.2 s); r3 rule restart rate  2.40e+00/s
+p= 1.0e-03 (  8.000 lost/s): restarts ~ 1.26e-01/s (one per        7.9 s); r3 rule restart rate  8.00e+00/s
+p= 1.4e-03 ( 11.200 lost/s): restarts ~ 2.46e-01/s (one per        4.1 s); r3 rule restart rate  1.12e+01/s
+p= 3.0e-03 ( 24.000 lost/s): restarts ~ 1.10e+00/s (one per        0.9 s); r3 rule restart rate  2.40e+01/s
+p= 1.0e-02 ( 80.000 lost/s): restarts ~ 1.10e+01/s (one per        0.1 s); r3 rule restart rate  8.00e+01/s
+

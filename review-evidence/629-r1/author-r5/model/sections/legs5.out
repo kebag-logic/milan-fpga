@@ -1,0 +1,5 @@
+== V5. the servo row's loss leg (section V) with the meter lock and the servo state machine: +20 ppm talker, independent +/-1,426 ns, 120 s; from 60 s one PDU lost in every 0.3 s and the talker stepped by +4 ppm (2,048 in the servo's units)
+design: rule b, a held lock kept: restarts=0 first LOCKED 7.32 s; LOCKED left at never (0 times); HOLDOVER entries 0; lock-test drops 0; worst|e| after LOCKED 510; state at the end LOCKED; u_at_60s=5446 u_end=3447 trim moved 1999 (step 2048; within 0.5 ppm = 256: yes)
+mutant: restart on any loss (round 3): restarts=200 first LOCKED 7.32 s; LOCKED left at never (0 times); HOLDOVER entries 0; lock-test drops 0; worst|e| after LOCKED 232; state at the end LOCKED; u_at_60s=5446 u_end=5459 trim moved -13 (step 2048; within 0.5 ppm = 256: no)
+mutant: the meter's held lock cleared on a sequence gap: restarts=0 first LOCKED 7.32 s; LOCKED left at 60.097 (1 times); HOLDOVER entries 200; lock-test drops 0; worst|e| after LOCKED 232; state at the end ACQUIRE; u_at_60s=5446 u_end=5459 trim moved -13 (step 2048; within 0.5 ppm = 256: no)
+
