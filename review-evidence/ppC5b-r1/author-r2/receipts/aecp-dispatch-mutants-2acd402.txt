@@ -1,0 +1,40 @@
+make -C tb/pp_top aecp-dispatch-mutants at 2acd4025782bff4aabbae73252476be34ea8b00d (one invocation, rc 0, 7 min 31 s)
+control aecp-dispatch: rc=0 PASS
+control aecp-line: rc=0 PASS
+control line-guards: rc=0 PASS
+m9-guard-set-stream-format: rc=2 failures=9 named=2 KILLED
+m9-guard-set-stream-info: rc=2 failures=9 named=2 KILLED
+m9-guard-set-name: rc=2 failures=9 named=2 KILLED
+m9-guard-get-name: rc=2 failures=7 named=1 KILLED
+m9-guard-add-mappings: rc=2 failures=7 named=1 KILLED
+m9-guard-remove-mappings: rc=2 failures=7 named=1 KILLED
+m9-guard-dynamic-info: rc=2 failures=7 named=1 KILLED
+a5b-reboot-success-arm: rc=2 failures=1 named=1 KILLED
+lk-ssrate-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-ssrate-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sclks-lock-nop: rc=2 failures=9 named=1 KILLED
+lk-sclks-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+lk-sctrl-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+lk-prefix-zero-body: rc=2 failures=7 named=1 KILLED
+sctrl-badarg-zero-body: rc=2 failures=2 named=1 KILLED
+ov-oversize-never: rc=2 failures=18 named=1 KILLED
+ov-oversize-at-576: rc=2 failures=4 named=1 KILLED
+ov-top-oversize-dropped: rc=2 failures=18 named=1 KILLED
+pg-append-524: rc=2 failures=14 named=1 KILLED
+pg-cap-dropped: rc=2 failures=10 named=1 KILLED
+pg-cap-off-by-one: rc=2 failures=4 named=1 KILLED
+rd-base-no-overlay: rc=2 failures=9 named=1 KILLED
+rd-au-image-only: rc=2 failures=2 named=1 KILLED
+rd-au-unset-overlays: rc=2 failures=1 named=1 KILLED
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+rd-cfg-any: rc=2 failures=2 named=1 KILLED
+rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+38 checks: 38 PASS, 0 FAIL

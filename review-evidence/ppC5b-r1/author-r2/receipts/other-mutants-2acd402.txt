@@ -1,0 +1,101 @@
+other campaigns at 2acd4025782bff4aabbae73252476be34ea8b00d (each rc 0)
+== tb/pp_top/name_wr_mutant.py
+Name-write mutation: decode killed; golden and restored PASS
+== tb/maap/mutants.py --only, 2 chunks
+control maap run: rc=0 tally=(196, 0) PASS
+control pp_top maap-internal: rc=0 tally=(34, 0) PASS
+control rx_validator run: rc=0 tally=(497, 0) PASS
+validator-maap-version-1-only [rx_validator]: rc=2 tally=(497, 47) named=47 KILLED
+validator-maap-version-1-only [pp_top]: rc=2 tally=(34, 4) named=4 KILLED
+compare-mac-forward [maap]: rc=2 tally=(194, 9) named=1 KILLED
+compare-mac-forward [pp_top]: rc=2 tally=(34, 5) named=5 KILLED
+7 checks: 7 PASS, 0 FAIL
+control maap run: rc=0 tally=(196, 0) PASS
+fit-compare-forced-true [maap]: rc=2 tally=(196, 5) named=4 KILLED
+fit-compare-off-by-one [maap]: rc=2 tally=(195, 7) named=3 KILLED
+seed-clamp-removed [maap]: rc=2 tally=(196, 6) named=4 KILLED
+release-keeps-draw-mark [maap]: rc=2 tally=(194, 9) named=3 KILLED
+probe-rprobe-never-yields [maap]: rc=2 tally=(196, 2) named=2 KILLED
+defend-rdefend-ignored [maap]: rc=2 tally=(194, 8) named=4 KILLED
+defend-rdefend-no-tiebreak [maap]: rc=2 tally=(196, 2) named=1 KILLED
+probe-rannounce-tiebreak [maap]: rc=2 tally=(196, 7) named=2 KILLED
+yield-reuses-range [maap]: rc=2 tally=(196, 8) named=1 KILLED
+ival-sends-after-release [maap]: rc=2 tally=(196, 8) named=1 KILLED
+post-publishes-after-release [maap]: rc=2 tally=(194, 4) named=2 KILLED
+tx-path-absorbs-release [maap]: rc=2 tally=(190, 10) named=3 KILLED
+off-waits-for-an-edge [maap]: rc=2 tally=(189, 9) named=3 KILLED
+rx-release-returns-to-idle [maap]: rc=2 tally=(195, 3) named=2 KILLED
+seed-rearmed-on-idle-release-only [maap]: rc=2 tally=(196, 2) named=2 KILLED
+seed-clamp-off-by-one [maap]: rc=2 tally=(196, 2) named=2 KILLED
+release-waits-for-draw [maap]: rc=2 tally=(196, 1) named=1 KILLED
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(196, 3) named=3 KILLED
+teardown-keeps-announce-timer [maap]: rc=2 tally=(196, 1) named=1 KILLED
+drain-waits-for-the-link [maap]: rc=2 tally=(196, 5) named=2 KILLED
+tx-set-omits-alloc [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-gwait [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-write [maap]: rc=2 tally=(192, 7) named=3 KILLED
+tx-set-omits-commit [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+26 checks: 26 PASS, 0 FAIL
+== tb/srp_top/mutants.py --only, 8 chunks
+c1: 13 checks: 13 PASS, 0 FAIL
+c2: 11 checks: 11 PASS, 0 FAIL
+c3: 13 checks: 13 PASS, 0 FAIL
+c4: 13 checks: 13 PASS, 0 FAIL
+c5: 14 checks: 14 PASS, 0 FAIL
+c6: 13 checks: 13 PASS, 0 FAIL
+c7: 14 checks: 14 PASS, 0 FAIL
+c8: 21 checks: 21 PASS, 0 FAIL
+srp_top arm rows KILLED: 78
+== tb/adp_engine/mutants.py --only, 3 chunks
+c1: 12 checks: 12 PASS, 0 FAIL
+c2: 12 checks: 12 PASS, 0 FAIL
+c3: 11 checks: 11 PASS, 0 FAIL
+adp_engine arms KILLED: 30
+== tb/acmp_talker/retry_mutants.py --only, 2 halves
+PASS: 34 mutants killed; 1 equivalence controls; 0 performance controls; baseline and restored rc 0
+PASS: 28 mutants killed; 6 equivalence controls; 1 performance controls; baseline and restored rc 0
+== tb/desc_mem_guard/mutate.py
+hold-deleted mutant: make rc=2; completed byte assertion detected=True
+== make -C tb/nvm_port figures
+46 Verilator builds: 1 baseline + 12 arms + 22 mutations + 6 models + 5 matrix
+baseline: 136 checks, 136 PASS, 0 FAIL
+  [ok ]  222 S_WEREQ    measured=0    readme=0
+  [ok ]  231 S_WEWAIT   measured=76   readme=76
+  [ok ]  241 S_WWREQ    measured=0    readme=0
+  [ok ]  251 S_WHPUMP   measured=64   readme=64
+  [ok ]  264 S_WDPUMP   measured=52   readme=52
+  [ok ]  274 S_WWAIT    measured=39   readme=39
+  [ok ]  285 S_RHREQ    measured=2    readme=2
+  [ok ]  295 S_RHCOLL   measured=43   readme=43
+  [ok ]  313 S_RHWAIT   measured=38   readme=38
+  [ok ]  340 S_RPREQ    measured=0    readme=0
+== tb/pp_top/gsi_mutants.py (one invocation, 13 min, run in the background and awaited in the foreground)
+"variant": "golden" "variant": "latency-trigger-removed" "variant": "latency-cmp-low8" "variant": "latency-cmp-low16" "variant": "latency-cmp-high16" "variant": "latency-cmp-low31" "variant": "latency-cmp-high2" "variant": "latency-cmp-bit31-dropped" "variant": "failure-code-zero" "variant": "failure-bridge-zero" "variant": "pbsta-zero" "variant": "acmpsta-zero" "variant": "wrong-sink" "variant": "integrator-path" "variant": "missing-descriptor-leak" "variant": "status-notification-zero" "variant": "rebind-started-trigger-removed" "variant": "failure-change-strobe-removed" "variant": "failure-change-redeclares" "variant": "index-guard-removed" "variant": "bridge-gate-removed" "variant": "restored" 
+GSI mutations: 20 detected by named checks; golden and restored PASS
+gsi_mutants rc=0 end 05:33:42
+== tb/srp_admission/mutants.py (one invocation, about 12 min, run in the background and awaited in the foreground)
+control admission-2: rc=0 PASS
+control admission-8: rc=0 PASS
+control srp-top: rc=0 PASS
+stale-evaluation admission-2: rc=2 PASS
+stale-evaluation admission-8: rc=2 PASS
+stale-evaluation srp-top: rc=2 PASS
+pending-absent admission-2: rc=2 PASS
+pending-absent admission-8: rc=2 PASS
+pending-absent srp-top: rc=2 PASS
+discarded-round-strobes admission-2: rc=2 PASS
+discarded-round-strobes admission-8: rc=2 PASS
+discarded-round-strobes srp-top: rc=2 PASS
+12 checks: 12 PASS, 0 FAIL
+srp_admission mutants rc=0 end 05:45:28
+== tb/ucpu by hand in scratch (golden; reviewer probe patches D8-ignored and batch-dropped; the rd-tail-uncut patch)
+golden: 398 checks: 398 PASS, 0 FAIL
+d8-ignored: 398 checks: 396 PASS, 2 FAIL
+    FAIL: P11b filled to 588 (72 qwords) got 524
+    FAIL: P11b the elements past 524 are written, the 72nd at 580
+batch-dropped: 398 checks: 396 PASS, 2 FAIL
+    FAIL: P11c in a batch capped at 524 got 588
+    FAIL: P11c in a batch nothing past 524
+tail-uncut: 398 checks: 397 PASS, 1 FAIL
+    FAIL: P9b len 20 (48 - 40 bytes) got 60
