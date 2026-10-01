@@ -1,0 +1,11 @@
+gate 1 rc=0: md-venv python scripts/docs_check.py
+gate 2 rc=0: md-venv python scripts/check_doc_style.py
+gate 3 rc=0: md-venv python scripts/gen_toc.py --check
+gate 4 rc=0: md-venv python scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+gate 5 rc=0: md-venv python scripts/check_em_dash.py --selftest
+gate 6 rc=0: md-venv python scripts/check_doc_paths.py
+gate 7 rc=0: md-venv python scripts/gen_toc.py --verify-anchors
+gate 8 rc=0: python3 scripts/ci_scope.py --selftest
+gate 9 rc=0: python3 scripts/check_baremetal_only.py --check
+gate 10 rc=0: python3 scripts/check_feature_status.py --self-test
+gate 11 rc=0: git diff --check e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b e29d12b1d5ee858eaf4684aaa8dc6647f6309857

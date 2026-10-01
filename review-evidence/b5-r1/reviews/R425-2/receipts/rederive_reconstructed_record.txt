@@ -1,0 +1,23 @@
+record sha256 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
+events 1620; skips 1286; repeats 334
+window_time 660.151102 s -> 48 kHz 31687252.9 frames; captured 31569600; deficit 117652.9 (rounded 117653)
+record elapsed 660151085 us -> deficit 117652.1
+captured audio 657.70 s in 660.15 s
+stalls (>15 ms) 220; interval 18.80..28.09 ms
+stall spacing s: min 2.990 median 3.0011 max 3.020; window/stalls 3.001
+stall excess over 10 ms: 109069.3 frames
+skips >=60: 239, 109928 frames; stall 0..2 reads before: 236; lags {1: 130, 2: 106}
+stalls with a >=240 skip 0..2 reads after: 220 of 220; counts per stall [1]; >=240 skips 220
+  unaligned skip 72 frames: longest interval in the 3 reads up to it 11.76 ms
+  unaligned skip 78 frames: longest interval in the 3 reads up to it 12.11 ms
+  unaligned skip 108 frames: longest interval in the 3 reads up to it 12.11 ms
+skips 2..59: 521, 7176 frames; multiples of 6: 507; exactly 6: 354
+clusters 343: with a >=60 skip 222 (2..59 inside: 284, 5386 frames); 2..59 only 121 (237 skips, 1790 frames)
+off-stall 2..59 skips: reads to the nearest stall min 17, median 67
+floor W=11 GB=3 GA=2: off-stall clusters {'none': 95, '1ms': 22, 'match': 0, 'other': 4}; stall-cluster step sum 116137.6 vs 115314
+floor W=7 GB=3 GA=2: off-stall clusters {'none': 95, '1ms': 22, 'match': 0, 'other': 4}; stall-cluster step sum 116148.6 vs 115314
+floor W=16 GB=4 GA=3: off-stall clusters {'none': 94, '1ms': 22, 'match': 0, 'other': 5}; stall-cluster step sum 116144.1 vs 115314
+floor W=21 GB=3 GA=2: off-stall clusters {'none': 88, '1ms': 22, 'match': 0, 'other': 11}; stall-cluster step sum 116180.0 vs 115314
+clear positions 51828; 1 ms step groups 7; independent windows ~3239; rate per window 0.0022; expected among 121 clusters 0.26
+one-frame skips 526 -> slip events 520 (6 pairs); spacing min 60546 median 60768 max 60923; doubles [121565]
+  1.2660 s; 16.46 ppm

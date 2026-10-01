@@ -1,0 +1,70 @@
+record a-long-reads.u16: 131540 B, published sha256 8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc
+expected by a-long-reads.json and the page: 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
+match: False
+BYPASS: record-hash check wrapped for the record path only
+== inputs
+derived read record a-long-reads.u16 131540 B sha256 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
+  from a-long/cap-ts.bin 1967832 B sha256 717141923d15fc32f09e998d3af779b9e95d8a263091c039e7165bc3c7728262
+window frames 227040 .. 31796640: 31569600 frames, 65770 reads of 480 frames
+events 1620: repeats 334, skips 1286
+== window and count drift (bench host clock, uncalibrated)
+summary.json window_time 660.151102 s: 48 kHz gives 31687252.9 frames; captured 31569600; deficit 117652.9 frames (2.451 s)
+read record, first to last read of the window: 660.150189 s; deficit D(R) - D(0) = 117609.1 frames
+skipped frames: all 117630; skips of 2 or more 117104 (760 skips); one-frame 526
+deficit less the frames in skips of 2 or more: 548.9 frames
+share of captured plus skipped frames (31686704) in skips of 2 or more: 117104 frames, 0.370%
+share of captured plus skipped frames (31686704) in skips of 60 or more: 109928 frames, 0.347%
+share of captured plus skipped frames (31686704) in skips of 2 to 59: 7176 frames, 0.023%
+the round-1 figure 115,614 is not reproduced by either clock reading
+== stalls (read interval over 15 ms)
+stalls 220; excess over the 10 ms period 109069.3 frames; interval 18.80 .. 28.09 ms
+recurrence: spacing median 3.0011 s, min 2.990 s, max 3.020 s
+skips of 240 frames or more: 220, 106754 frames; with a stall 0 to 2 reads before: 220, reads before {1: 116, 2: 104}
+skips of 60 to 239 frames: 19, 3174 frames; with a stall 0 to 2 reads before: 16, reads before {1: 14, 2: 2}
+skips of 2 to 59 frames: 521, 7176 frames; with a stall 0 to 2 reads before: 221, reads before {0: 38, 1: 143, 2: 40}
+stalls followed by a skip of 240 frames or more within 2 reads: 220 of 220; skips per such stall: [1]
+per stall, excess less the frames of every skip of 2 or more 0 to 2 reads after it, percentiles 0/5/25/50/75/95/100: [-88.8, -57.9, -42.3, -20.5, -11.8, +9.2, +60.3]
+  skip of 72 frames with no stall 0 to 2 reads before: longest read interval there 11.76 ms (1.76 ms over the period, 1.50 ms lost)
+  skip of 78 frames with no stall 0 to 2 reads before: longest read interval there 12.11 ms (2.11 ms over the period, 1.62 ms lost)
+  skip of 108 frames with no stall 0 to 2 reads before: longest read interval there 12.11 ms (2.11 ms over the period, 2.25 ms lost)
+stall excess 109069.3 frames against 106754 in the skips of 240 or more and 109928 in the skips of 60 or more
+== delivery deficit steps (floor test)
+floor width W=11 reads, guards 3 before and 2 after; clusters join skips of 2 or more within 16 reads; a step matches within 4 frames
+control, repeats (DUT beat) clear of skips of 2 or more: 267; step percentiles [-3.1, -1.2, -0.3, -0.0, +0.2, +0.9, +3.2]; |step| > 4: 0
+control, one-frame skips clear of skips of 2 or more: 419; step percentiles [-2.2, -1.1, -0.3, -0.0, +0.2, +1.1, +2.8]; |step| > 4: 0
+control, every read position clear of skips of 2 or more: 51828; step percentiles 0.01/1/50/99/99.99: [-43.1, -2.1, +0.0, +2.2, +48.9]; positions with |step| > 4: 123, in 10 groups, 7 of them a step of 48 +- 4 frames (1 ms)
+  group at reads 4613 .. 4628: largest |step| +46.6 frames
+  group at reads 8243 .. 8257: largest |step| +47.5 frames
+  group at reads 9865 .. 9865: largest |step| +4.1 frames
+  group at reads 13729 .. 13748: largest |step| +5.9 frames
+  group at reads 20594 .. 20608: largest |step| +47.2 frames
+  group at reads 25816 .. 25830: largest |step| +48.0 frames
+  group at reads 33104 .. 33108: largest |step| +47.9 frames
+  group at reads 39663 .. 39677: largest |step| +49.0 frames
+  group at reads 52041 .. 52055: largest |step| +49.0 frames
+  group at reads 57005 .. 57021: largest |step| -43.3 frames
+planted step of 6 frames at 300 clear positions: recovered less planted [-2.3, -1.1, -0.3, -0.0, +0.2, +1.0, +4.6]
+planted step of 12 frames at 300 clear positions: recovered less planted [-2.3, -1.1, -0.3, -0.0, +0.2, +1.0, +4.6]
+planted step of 24 frames at 300 clear positions: recovered less planted [-2.3, -1.1, -0.3, -0.0, +0.2, +1.0, +4.6]
+clusters 343; at the window's edge (no step) 0: sizes []
+clusters with a skip of 60 or more: 222 (with a stall 220); skips of 60 or more 239, 109928 frames; skips of 2 to 59 in them 284, 5386 frames
+  step less all their skip frames, percentiles [-43.2, -25.7, -18.1, -1.4, +24.8, +36.5, +48.7]; sum of steps 116137.6 against 115314 frames
+  step less the frames of 60 or more only, percentiles [-24.2, -12.4, +5.6, +18.5, +59.1, +66.2, +108.2]
+clusters of skips of 2 to 59 only: 121 (with a stall 0); skips 237, 1790 frames
+  no step: 95 clusters, 184 skips, 1287 frames; cluster frames 12 .. 36; steps [-1.7, -1.4, -0.7, -0.2, +0.3, +1.9, +2.6]
+  1 ms step only: 22 clusters, 43 skips, 311 frames; cluster frames 11 .. 36; steps [+46.3, +46.3, +47.5, +48.3, +48.9, +49.8, +50.1]
+  step = skip frames: 0 clusters, 0 skips, 0 frames
+  step = skip frames + 1 ms: 0 clusters, 0 skips, 0 frames
+  ambiguous: 0 clusters, 0 skips, 0 frames
+  other: 4 clusters, 10 skips, 192 frames; cluster frames 42 .. 60; steps [+23.1, +23.2, +23.5, +26.6, +44.5, +80.4, +89.4]; [([30, 6, 6], 23.6), ([36, 6, 6], 23.1), ([6, 7, 47], 89.4), ([42], 29.6)]
+skips of 2 to 59: 521 = 284 in clusters with a skip of 60 or more + 237 in clusters of 2 to 59 only + 0 at the window's edge
+== one-frame skips and repeats (content positions)
+one-frame skips 526 form 520 slip events: 514 single, 6 of the form skip, zero frame, skip (6 with the zero between; gaps [12] frames); zero frames in the window 6
+slip spacing, content frames: min 60546, median 60768, max 60923; doubles [121565]
+  median 1.2660 s; one frame in 60768 is 16.46 ppm (range 16.41 .. 16.52)
+repeat spacing, content frames: min 93989, max 93992, median 93989; doubles [187981, 187984, 187981, 187981]
+  (content positions take each zero frame as inserted between consecutive ordinals)
+== round-1 absolute rates (dropped from the page)
+stream: 31687223 frames in 660.151102 s, -0.94 ppm against 48 kHz on the bench host's clock
+recorded output, every skip of 2 or more counted as a capture loss: 31686703 frames in 660.151102 s, -17.35 ppm against 48 kHz on the bench host's clock
+  identity: the second figure is captured frames plus the frames in skips of 2 or more (117103)

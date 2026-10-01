@@ -1,0 +1,65 @@
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: mac: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: ipv4: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: home path: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: iface: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: hostname-like: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: em dash: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: digital audio connector/format: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: clock wiring words: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: numbered channel map: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: cable/patch: 0
+<clone>/docs/findings/117_AUDIO_CONTINUITY.md: serial-like: 10
+    60: | Live ENTITY and CONFIGURATION | Byte-equal to the AEM bytes the console dumps from QSPI, `0x110` (312 bytes) and `0x248` (106 bytes); enti
+    82: | Direction A | DUT STREAM_OUTPUT 0, stream `0200000000010000` | Reference peer STREAM_INPUT 0 |
+    86: | DUT STREAM_OUTPUT 0 | `0205022002006000` | AAF, 48 kHz, INT32, 8 channels, 6 frames per packet |
+    87: | Reference peer STREAM_INPUT 0 | `0205022001006000` | The same with 4 channels; the input advertises `0215022002006000`, up to 8 channels |
+    151: | `a-long` initial | `0205022002006000` | `0205022001006000` | `0205022002006000`, SUCCESS | `0205022002006000` |
+    152: | `a-long` cycles 1 to 30 | `0205022002006000` | `0205022002006000` | none, equal | `0205022002006000` |
+    153: | `a-try1`, `diag1` and `cap-test1` | `0205022002006000` | `0205022001006000` | `0205022002006000`, SUCCESS | `0205022002006000` |
+    156: unbind the listener's format was set back to `0205022001006000` and read back
+    353: The DUT's STREAM_INPUT 0 lists `0205022002006000` and `0215022002006000`. It
+    362: | Reference peer STREAM_INPUT 0 format | `0205022001006000`, as found, read back after every run |
+<work>/added-lines.txt: mac: 0
+<work>/added-lines.txt: ipv4: 0
+<work>/added-lines.txt: home path: 0
+<work>/added-lines.txt: iface: 0
+<work>/added-lines.txt: hostname-like: 0
+<work>/added-lines.txt: em dash: 0
+<work>/added-lines.txt: digital audio connector/format: 0
+<work>/added-lines.txt: clock wiring words: 0
+<work>/added-lines.txt: numbered channel map: 0
+<work>/added-lines.txt: cable/patch: 0
+<work>/added-lines.txt: serial-like: 10
+    60: +| Live ENTITY and CONFIGURATION | Byte-equal to the AEM bytes the console dumps from QSPI, `0x110` (312 bytes) and `0x248` (106 bytes); ent
+    82: +| Direction A | DUT STREAM_OUTPUT 0, stream `0200000000010000` | Reference peer STREAM_INPUT 0 |
+    86: +| DUT STREAM_OUTPUT 0 | `0205022002006000` | AAF, 48 kHz, INT32, 8 channels, 6 frames per packet |
+    87: +| Reference peer STREAM_INPUT 0 | `0205022001006000` | The same with 4 channels; the input advertises `0215022002006000`, up to 8 channels 
+    151: +| `a-long` initial | `0205022002006000` | `0205022001006000` | `0205022002006000`, SUCCESS | `0205022002006000` |
+    152: +| `a-long` cycles 1 to 30 | `0205022002006000` | `0205022002006000` | none, equal | `0205022002006000` |
+    153: +| `a-try1`, `diag1` and `cap-test1` | `0205022002006000` | `0205022001006000` | `0205022002006000`, SUCCESS | `0205022002006000` |
+    156: +unbind the listener's format was set back to `0205022001006000` and read back
+    353: +The DUT's STREAM_INPUT 0 lists `0205022002006000` and `0215022002006000`. It
+    362: +| Reference peer STREAM_INPUT 0 format | `0205022001006000`, as found, read back after every run |
+<work>/commit-msgs.txt: mac: 0
+<work>/commit-msgs.txt: ipv4: 0
+<work>/commit-msgs.txt: home path: 0
+<work>/commit-msgs.txt: iface: 0
+<work>/commit-msgs.txt: hostname-like: 0
+<work>/commit-msgs.txt: em dash: 0
+<work>/commit-msgs.txt: digital audio connector/format: 0
+<work>/commit-msgs.txt: clock wiring words: 0
+<work>/commit-msgs.txt: numbered channel map: 0
+<work>/commit-msgs.txt: cable/patch: 0
+<work>/commit-msgs.txt: serial-like: 0
+<work>/pr-body.md: mac: 0
+<work>/pr-body.md: ipv4: 0
+<work>/pr-body.md: home path: 0
+<work>/pr-body.md: iface: 0
+<work>/pr-body.md: hostname-like: 0
+<work>/pr-body.md: em dash: 0
+<work>/pr-body.md: digital audio connector/format: 0
+<work>/pr-body.md: clock wiring words: 0
+<work>/pr-body.md: numbered channel map: 0
+<work>/pr-body.md: cable/patch: 0
+<work>/pr-body.md: serial-like: 0
+total hits 20
