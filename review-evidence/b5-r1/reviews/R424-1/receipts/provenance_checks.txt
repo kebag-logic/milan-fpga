@@ -1,0 +1,16 @@
+page run_a.py dcc616aea784 packet dcc616aea784 EQUAL
+page grade_a.py 37e7dd967a4e packet 37e7dd967a4e EQUAL
+page b5_tables.py 4f9e79fce9c3 packet 4f9e79fce9c3 EQUAL
+page b5_ctl.py 47b7387ae4f9 packet 47b7387ae4f9 EQUAL
+page avdecc_ro.py 172836966609 packet 172836966609 EQUAL
+page console_read.py 652d6f839b1d packet 652d6f839b1d EQUAL
+controller-start.txt: avdecc_ro.py 172836966609
+controller-start.txt: b5_ctl.py 24208ef21e30
+controller-end.txt: avdecc_ro.py 172836966609
+controller-end.txt: b5_ctl.py 47b7387ae4f9
+AAF_FRAMES rate 7999.997/s over 320.232 s
+AAF_FRAMES rate 7999.996/s over 320.242 s
+SLIP_TDM dups 38500 -> 38827 (+327) skips 0 -> 0 over 640.474 s = 0.5106/s
+restore/dut-start.txt: SLIP_TDM dups 38142 skips 0 at 2026-10-01 06:14:55.154600
+restore/dut-end.txt: SLIP_TDM dups 39040 skips 0 at 2026-10-01 06:44:14.071267
+divider plan A audio clock 24575738.529 Hz, offset -10.6393 ppm, beat 93991.4 frames = 1.9582 s

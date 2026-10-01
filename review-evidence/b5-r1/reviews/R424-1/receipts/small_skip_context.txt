@@ -1,0 +1,10 @@
+small skips within 10 ms of a >=60-frame skip: 232 of 521, frames 4941
+small skips within 100 ms of a >=60-frame skip: 268 of 521, frames 5290
+small skips within 500 ms of a >=60-frame skip: 363 of 521, frames 6034
+small skips within 1000 ms of a >=60-frame skip: 446 of 521, frames 6658
+six-frame skips: 354 median distance to nearest large skip, s 0.29572916666666665
+large-skip spacing median s 2.9913333333333334 -> uniform expectation of median distance about 0.7478333333333333 s
+small-skip spacing: median s 0.3754895833333333 share within 50 ms of previous small skip 0.41346153846153844
+small skip size histogram [(5, 1), (6, 354), (7, 5), (23, 2), (24, 48), (25, 2), (29, 3), (30, 46), (36, 46), (42, 6), (47, 1), (48, 6), (54, 1)]
+window host time 660.151102 s; captured 31569600; host-clock frames 31687252.9; captured deficit 117652.9; skipped >=2 117104; difference 548.9 (= 17.32 ppm of the window, the peer output's rate offset if every >=2 skip is a capture loss)
+page figure 115,614 implies captured deficit short of the >=2 skips by 1490 frames; adding a 17.3 ppm peer offset ( 548 frames ) leaves 2038

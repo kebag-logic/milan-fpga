@@ -1,0 +1,13 @@
+clean 0..999: {'repeats': 0, 'skip_events': 0, 'torn': 0, 'zero_frames': 0, 'invalid_nonzero': 0, 'backward': 0} OK
+one repeat: {'repeats': 1, 'skip_events': 0} OK
+one-frame skip: {'skip_events': 1, 'skip_single_frame': 1, 'skipped_frames': 1} OK
+six-frame skip: {'skip_events': 1, 'skip_whole_packets': 1, 'skipped_frames': 6} OK
+backward: {'backward': 1} OK
+wrap 65535->0: {'skip_events': 0, 'repeats': 0, 'backward': 0} OK
+zero frame inserted: {'zero_frames': 1, 'skip_events': 0} OK
+zero frame replacing (hidden skip): {'zero_frames': 1, 'skip_events': 0} OK
+torn frame: 1 invalid_nonzero 1 OK
+wrong tag: 1 OK
+both ordinals flipped (bit error in both words): {'repeats': 1, 'skip_events': 1, 'backward': 0} detected
+ALL PLANTED CASES AS EXPECTED
+note: a zero frame that replaces a content frame is not graded as a skip (transitions next to it are ungraded)
