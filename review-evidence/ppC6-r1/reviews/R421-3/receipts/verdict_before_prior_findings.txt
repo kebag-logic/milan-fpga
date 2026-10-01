@@ -1,0 +1,11 @@
+R421-3 verdict and ledger, fixed before reading any prior-round finding text
+recorded: 2026-10-01T20:16:05Z
+exact head 9624ef4c452d708de68a901d5e645bdfa1f5d6f5
+verdict: POSITIVE (no open MINOR/MAJOR/BLOCKER from the independent pass)
+ledger:
+  Conformance  CLEAN  (Figure 7-142 WAITING answered for every press after a release; 150 ms floor; seq per burst)
+  RTL          CLEAN  (prs_r latch: set in gap / in burst after release; cleared at both starts; every start gated by !gap_r)
+  Robustness   CLEAN  (16 seeded random-press campaigns, 8 with random MAC stalls: 0 lost presses, 0 unexplained bursts, min gap 15,230 >= 15,000)
+  Tests        CLEAN  (ID 178/178; head tests on r2 RTL 29/155 fail; 40/40 lane controls KILLED; reviewer latch mutants 7/7 non-equivalent KILLED by section ID)
+  Docs         CLEAN  (operator, integrator 6, 06 7, 08 F08.1, 09 8.3, READMEs agree with RTL)
+suggestion only: FT4 could add the ms-last-clock departure phase (re-arm margin 3 clocks there, 4 at FT's phase)

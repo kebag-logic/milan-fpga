@@ -1,0 +1,260 @@
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 82 programs
+$REVIEWS/ppC6-r421-3-packet/scripts/verilator-j8.sh --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra" "+define+PP_TOP_EN_IDENT" \
+    -CFLAGS "-DPP_TOP_EN_IDENT -Wall -Wextra" \
+    --Mdir obj_idn ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_nvm_writer.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_idn
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:542:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  542 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:544:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+  544 |       .aecp_clk_src_index_o  (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:552:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  552 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:598:42: ... Location of port declaration
+  598 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:599:42: ... Location of port declaration
+  599 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_active_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:604:42: ... Location of port declaration
+  604 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_sr_admitted_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:610:42: ... Location of port declaration
+  610 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:611:42: ... Location of port declaration
+  611 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_src_fail_code_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:612:42: ... Location of port declaration
+  612 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:613:42: ... Location of port declaration
+  613 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:614:42: ... Location of port declaration
+  614 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_over_limit_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:615:42: ... Location of port declaration
+  615 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:616:42: ... Location of port declaration
+  616 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:617:42: ... Location of port declaration
+  617 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:619:42: ... Location of port declaration
+  619 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:495:5: Instance has missing pin: 'adp_next_avail_index_o'
+  495 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:648:42: ... Location of port declaration
+  648 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+make[1]: Entering directory '$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top/obj_idn'
+g++  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -c -o verilated.o <PINNED_VERILATOR_PREFIX>/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -c -o verilated_dpi.o <PINNED_VERILATOR_PREFIX>/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -c -o verilated_threads.o <PINNED_VERILATOR_PREFIX>/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.fast.gch
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap_vm_classes_0.cpp
+g++ -Os  -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++   -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.slow.gch
+g++   -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -I<PINNED_VERILATOR_PREFIX>/share/verilator/include -I<PINNED_VERILATOR_PREFIX>/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top -Wall -Wextra -DPP_TOP_EN_IDENT -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_idn
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/ppC6-r421-3-packet/scratch/pp-c6-mutant-wqf4_r_v/tb/pp_top/obj_idn'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 16.732 MB sources in 49 modules, into 6.386 MB in 14 C++ files needing 0.002 MB
+- Verilator: Walltime 64.620 s (elab=0.240, cvt=1.811, bld=62.277); cpu 2.334 s on 1 threads; allocated 90.688 MB
+  [i] ID1c: gaps 15264 and 15300 clocks
+FAIL: ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 12
+  [i] ID2c: gaps 15264 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2d: burst 2 starts 45865 clocks after burst 1
+FAIL: ID2d: burst 2 starts 45865 clocks after burst 1, want T-IDENT-REARM 100000 to 100400 (no faster than 1 s, from the first frame)
+  [i] ID2d: burst 3 starts 100300 clocks after burst 2
+FAIL: ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (12 frames)
+FAIL: ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 04 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 04 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 04 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID3c: gaps 15264 and 15300 clocks
+FAIL: ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 06 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 06 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 06 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID3e: gaps 15299 and 15300 clocks
+  [i] ID3f: the new burst follows the third frame by 15301 clocks
+FAIL: ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 07 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 06 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 07 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 06 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 07 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 06 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID5e: gaps 15300 and 15300 clocks
+FAIL: ID5i: three presses, each a burst of three, with a fan-out fed at frame 1 + 14450, 14700 and 14950 clocks (0)
+FAIL: ID5l: a fan-out delayed frame 2 (largest gap 1->2 0 clocks, more than 15400)
+  [i] ID8: the gap's expiry came 63 clocks into its deadline's ms
+FAIL: ID8b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 11
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0b 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 11
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0b 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 11
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0b 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8c: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8d: gaps 15299 and 15300 clocks
+FAIL: ID8f: a 200 ms press made 2 ms after a burst's third frame left sends one burst: 9 frames in all, want 3 + 3
+FAIL: ID8k: k = -1: a press at the gap's end sends one burst, never none and never two: 9 frames in all, want 3 + 3
+FAIL: ID8k: k = 0: a press at the gap's end sends one burst, never none and never two: 9 frames in all, want 3 + 3
+FAIL: ID8k: k = 1: a press at the gap's end sends one burst, never none and never two: 9 frames in all, want 3 + 3
+FAIL: ID8k: k = 2: a press at the gap's end sends one burst, never none and never two: 9 frames in all, want 3 + 3
+FAIL: ID8p: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 22
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 16 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8p: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 22
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 16 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8p: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 22
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 16 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8p: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 23
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 20 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 17 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8p: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 23
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 20 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 17 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8p: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 23
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 20 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 17 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8q: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+FAIL: ID8t: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 24
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 21 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 18 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8t: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 24
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 21 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 18 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8t: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 24
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 21 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 18 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8t: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 25
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 22 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 19 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8t: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 25
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 22 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 19 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8t: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 25
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 22 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 19 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8u: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+FAIL: ID9: frame 1's last byte held 400 ms by the MAC (premise: the stall began, 1) still sends a burst of three, got 6
+FAIL: ID9e: frame 2's last byte held 400 ms by the MAC (premise: the stall began, 1) still sends a burst of three, got 6
+  [i] ID6d: gaps 15274 and 15300 clocks
+FAIL: ID7: a 400 ms MAC stall inside frame 1 still sends a burst of three, got 6
+FAIL: ID7f: a 400 ms MAC stall after frame 1 still sends a burst of three, got 6
+FAIL: ID7j: a 250 ms MAC stall after frame 2 still sends a burst of three, got 6
+FAIL: ID7o: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 07 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 04 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID7o: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 07 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 04 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID7o: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 07 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 04 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID7o: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 08 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID7o: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 08 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID7o: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 08 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 05 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID7n: gaps 90060, 15273 | 15301 | 15299, 15300 clocks
+  [i] ID7s: gaps 15299 and 15300 clocks
+  [r] burst 9 at 5068297 unexplained (prev first 5022397)
+  [r] burst 14 at 5405597 unexplained (prev first 5359705)
+  [r] burst 21 at 5958297 unexplained (prev first 5912397)
+  [r] burst 29 at 6503497 unexplained (prev first 6457642)
+  [r] burst 34 at 6869897 unexplained (prev first 6823997)
+  [r] burst 51 at 8415897 unexplained (prev first 8370048)
+  [r] burst 53 at 8533497 unexplained (prev first 8487642)
+  [r] burst 62 at 9049397 unexplained (prev first 9003497)
+  [r] burst 67 at 9325797 unexplained (prev first 9279897)
+  [r] burst 79 at 10050997 unexplained (prev first 10005097)
+  [r] burst 96 at 11391297 unexplained (prev first 11345446)
+  [r] burst 99 at 11632897 unexplained (prev first 11587035)
+  [r] burst 104 at 11996297 unexplained (prev first 11950381)
+  [r] burst 108 at 12226997 unexplained (prev first 12181085)
+  [r] burst 129 at 13728397 unexplained (prev first 13682497)
+  [r] burst 137 at 14258897 unexplained (prev first 14212997)
+  [r] burst 140 at 14436597 unexplained (prev first 14390747)
+  [r] burst 144 at 14706097 unexplained (prev first 14660209)
+FAIL: R421R4: 147 bursts, each answers a press edge or is the re-arm of a held button: 18 unexplained
+  [i] R421R: seed default stall 0: 120 steps, 120 edges, 147 bursts (32 re-arms), 0 stalls, smallest gap 15230, press-to-first-frame 167..45296 clocks (stall-free)
+ID: 123 checks, 46 failures
+[build identify, SRP_DOM_DEF_VID_P 0x0002] 123 checks, 46 failures
