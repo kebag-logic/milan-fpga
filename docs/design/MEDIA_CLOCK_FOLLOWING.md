@@ -813,8 +813,8 @@ come from a run of 17 or more lost PDUs, a shorter run that crosses a group
 boundary, or two losses in adjacent groups. A locked servo then holds its trim
 and stays LOCKED through the 4.096 s refill. The invalid rate holds the PI and
 the lock count (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:613-615`), and LOCKED
-falls only on a lock count of zero (`:567-568`). A cold start locks once
-4.096 s pass without such a gap. The rate never validates only if these gaps
+falls only on a lock count of zero (`:567-568`). From a cold start the rate
+validates once 4.096 s pass without such a gap. The rate never validates only if these gaps
 recur within every 4.1 s. For independent loss at a rate p per PDU, two
 adjacent groups are voided about 500 q^2 times a second, with
 q = 1 - (1 - p)^16:
@@ -825,10 +825,11 @@ q = 1 - (1 - p)^16:
 Round 3's rule reached its cliff at p = 3e-5, one lost PDU in 4.1 s.
 
 **The desk model with losses.** The round-4 model runs each case from the
-talker's first PDU, for 120 s unless stated, with independent error at
-+/-1,042 ns (0 ppm) and +/-1,426 ns (300 ppm); the two agree except where a
-figure is given. "Valid" is the fraction of all 512 ms windows with a valid
-rate. 0.966 is the no-loss figure: the first 4.1 s are the fill.
+talker's first PDU, for 120 s unless stated, with independent error. The
+periodic rows ran at +/-1,042 ns (0 ppm) and at +/-1,426 ns (300 ppm), and the
+two agree except where a range is given; the rows that name one amplitude ran
+at that one. "Valid" is the fraction of all 512 ms windows with a valid rate.
+0.966 is the no-loss figure: the first 4.1 s are the fill.
 
 | Loss pattern | Loss rule (b) | Restart on any loss (round 3) |
 |---|---|---|
@@ -836,25 +837,25 @@ rate. 0.966 is the no-loss figure: the first 4.1 s are the fill.
 | 1 PDU in 1 s | valid 0.966; 0 restarts; 0 drops; LOCKED at 7.3 s | never valid; never locks |
 | 1 PDU in 0.3 s | the same | never valid; never locks |
 | 1 PDU in 5 s | the same | valid 0.18; LOCKED at 15.5 s |
-| 1 PDU in every snapshot group (every 512 ms) | 234 fills; 0 restarts; worst `\|e\|` 175 ns | never valid |
+| 1 PDU in every snapshot group (every 512 ms) | 234 fills; 0 restarts; worst `\|e\|` 123 to 175 ns | never valid |
 | 1 PDU in 32 (every 4 ms) | 29,999 voided groups; 0 restarts; 0 drops | never valid |
 | a 2-PDU run inside a group, 1 in 1 s | 0 restarts | never valid |
 | a 2-PDU run across a group boundary, 1 in 1 s | beyond the bound: never valid; never locks | the same |
-| the same from 20 s on, after the first LOCKED | the rate invalid from 20 s; LOCKED kept, 0 drops; the trim held | not run |
-| independent, p = 1e-4, 300 s | valid 0.98; 1 restart; 0 drops | valid 0.02 |
-| independent, p = 1e-3, 300 s | valid 0.55; 41 restarts; 0 drops | never valid |
+| the same from 20 s on, after the first LOCKED, 60 s at +/-1,426 ns | the rate invalid from 20 s; LOCKED kept, 0 drops; the trim held | not run |
+| independent loss, p = 1e-4, 300 s at +/-1,042 ns | valid 0.98; 1 restart; 0 drops | valid 0.02 |
+| independent loss, p = 1e-3, 300 s at +/-1,042 ns | valid 0.55; 41 restarts; 0 drops | never valid |
 
 **The error-shape results still hold.** The model re-ran every round-3 shape
 (ten shapes, two amplitudes, 0 and 300 ppm) five times: without loss, and with
 1 PDU lost in 1 s, in 0.3 s, in every snapshot group and in 32. It added the
 worst-case shape at plant gains 0.8 and 1.2, with and without fills: 204 cases
 in all. None restarts the history or drops LOCKED, and every window after the
-first LOCKED stays under 1,024 ns. The worst case is unchanged without fills,
-773 ns. With every snapshot filled it falls to 425 ns, because a fill averages
-two picks. A one-sample and a half-sample step of either sign inside a
-loss-voided group, at each of the 16 positions, restarts the history exactly
-once: 64 cases. With the check across the gap removed none restarts, and LOCKED
-drops twice.
+first LOCKED stays under 1,024 ns. Without fills the worst case is unchanged:
+773 ns at a plant gain of 1, and 868 ns at 1.2. With every snapshot filled it
+falls to 425 ns, because a fill averages two picks. A one-sample and a
+half-sample step of either sign inside a loss-voided group, at each of the 16
+positions, restarts the history exactly once: 64 cases. With the check across
+the gap removed none restarts, and LOCKED drops twice.
 
 **Area.** About 40 to 70 LUT and under 10 FF: k from `sequence_num[7:4]`; a
 second spacing and bound (4 ms, 5,120 ns); a group counter that steps by 1 or
@@ -1037,7 +1038,7 @@ fabric lane. Its INTERNAL accuracy is a known risk (see [Limits](#limits)).
 
 | Option | Change | For | Against |
 |---|---|---|---|
-| **A2-a, decided by the owner** | Engage the aligner at INTERNAL too, whenever the TDM feed is live | One clock in every mode: the CRF output, the AAF streams and the TDM I/O agree, and the INTERNAL beat goes away | Reverses the recorded INTERNAL free-run rule (`hdl/milan/milan_datapath.sv:5713-5718`). INTERNAL then runs at the MMCM plan, 10.64 ppm under nominal, plus the board oscillator's own error: inside Milan v1.2 7.4's +/-50 ppm only for an oscillator grade of +/-39 ppm or better. Tests that pin the INTERNAL free run change. |
+| **A2-a, decided by the owner** | Engage the aligner at INTERNAL too, whenever the TDM feed is live | One clock in every mode: the CRF output, the AAF streams and the TDM I/O agree, and the INTERNAL beat goes away | Reverses the recorded INTERNAL free-run rule (`hdl/milan/milan_datapath.sv:5713-5718`). INTERNAL then runs at the MMCM plan, 10.64 ppm under nominal (plan A), plus the board oscillator's own error: inside Milan v1.2 7.4's +/-50 ppm only for an oscillator grade of +/-39 ppm or better. Tests that pin the INTERNAL free run change. |
 | A2-b | Stamp the CRF output from the packet grid, every 96 ticks | Keeps the free-run rule | The TDM I/O still beats against both outputs. `KL_crf_tx` loses its physical event source. |
 | A2-c | A2-a, plus a fixed open-loop trim of the MMCM by the plan's 10.64 ppm at INTERNAL | Puts INTERNAL on nominal against the board oscillator | Adds a servo mode, and the aligner is still needed |
 | A2-0 | Leave INTERNAL as it is | No change | A2 stays at INTERNAL, tracked on #74 |
@@ -1306,9 +1307,9 @@ ruling can change either.
   derived from. The plan is 10.64 ppm under nominal (plan A); a TDM-master
   shape takes plan B, 0.66 ppm under (`sw/litex/milan_soc.py:347-356`). On
   the AX7101 shapes the source is the board's 200 MHz oscillator
-  (`:232`, `:341`). So A2-a meets Milan v1.2 7.4's +/-50 ppm at INTERNAL only
-  for an oscillator grade of +/-39 ppm or better. The part does not mark its
-  grade. By the
+  (`:232`, `:341`). So, on plan A, A2-a meets Milan v1.2 7.4's +/-50 ppm at
+  INTERNAL only for an oscillator grade of +/-39 ppm or better (+/-49 ppm on
+  plan B). The part does not mark its grade. By the
   [owner's decision](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5937848189)
   the grade is assumed adequate, and it is unconfirmed. No PLL-plan search or
   per-grade analysis is required, and a closer plan may be taken only if it
