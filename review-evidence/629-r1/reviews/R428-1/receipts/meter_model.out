@@ -1,0 +1,33 @@
+part 1: sequence_num modulo 96/spf across the 8-bit wrap
+  spf= 1 96/spf=96 256%n=64 picked spacings (samples)=[64, 96] NON-UNIFORM
+  spf= 2 96/spf=48 256%n=16 picked spacings (samples)=[32, 96] NON-UNIFORM
+  spf= 3 96/spf=32 256%n= 0 picked spacings (samples)=[96] uniform
+  spf= 4 96/spf=24 256%n=16 picked spacings (samples)=[64, 96] NON-UNIFORM
+  spf= 6 96/spf=16 256%n= 0 picked spacings (samples)=[96] uniform
+  spf= 8 96/spf=12 256%n= 4 picked spacings (samples)=[32, 96] NON-UNIFORM
+  spf=12 96/spf= 8 256%n= 0 picked spacings (samples)=[96] uniform
+  spf=16 96/spf= 6 256%n= 4 picked spacings (samples)=[64, 96] NON-UNIFORM
+  spf=24 96/spf= 4 256%n= 0 picked spacings (samples)=[96] uniform
+  spf=32 96/spf= 3 256%n= 1 picked spacings (samples)=[32, 96] NON-UNIFORM
+  spf=48 96/spf= 2 256%n= 0 picked spacings (samples)=[96] uniform
+  spf=96 96/spf= 1 256%n= 0 picked spacings (samples)=[96] uniform
+part 2: TS_JUMP_NS=2048 (KL_crf_rx derivation), 400000 picks per case
+  jitter_ns  offset_ppm  restarts_per_s  rate_valid_fraction
+          0           0           0.000               0.9994
+          0          50           0.000               0.9994
+          0         100           0.000               0.9994
+        250           0           0.000               0.9994
+        250          50           0.000               0.9994
+        250         100           0.000               0.9994
+        500           0           0.000               0.9994
+        500          50           0.000               0.9994
+        500         100           0.000               0.9994
+        750           0           0.000               0.9994
+        750          50           0.000               0.9994
+        750         100           0.000               0.9994
+       1000           0           0.000               0.9994
+       1000          50           0.175               0.9150
+       1000         100           1.423               0.4875
+       1250           0          16.184               0.0008
+       1250          50          17.157               0.0001
+       1250         100          19.442               0.0000
