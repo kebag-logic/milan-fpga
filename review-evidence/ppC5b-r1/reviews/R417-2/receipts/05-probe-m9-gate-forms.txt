@@ -1,0 +1,16 @@
+control: equal sets: gate pass (as expected)
+comma list hides a second OP_*_C: gate fail (as expected)
+    OP_GET_NAME_C is not written `localparam logic [15:0] OP_GET_NAME_C = 16'hXXXX;`, so this gate cannot read its opcode
+lower-case 16'h with spaces: gate fail (as expected)
+    OP_GET_NAME_C is not written `localparam logic [15:0] OP_GET_NAME_C = 16'hXXXX;`, so this gate cannot read its opcode
+11-bit width: gate fail (as expected)
+    OP_GET_NAME_C is not written `localparam logic [15:0] OP_GET_NAME_C = 16'hXXXX;`, so this gate cannot read its opcode
+decimal radix: gate fail (as expected)
+    OP_GET_NAME_C is not written `localparam logic [15:0] OP_GET_NAME_C = 16'hXXXX;`, so this gate cannot read its opcode
+parameter instead of localparam: gate pass (UNEXPECTED)
+multi-line declaration: gate fail (as expected)
+    OP_GET_NAME_C = 0x0011 is decoded by the engine and missing from kOpcodes: its aem_w guard is untested
+block-commented OP_*_C: gate fail (as expected)
+    OP_GET_NAME_C = 0x0011 is decoded by the engine and missing from kOpcodes: its aem_w guard is untested
+line-commented OP_*_C: gate pass (as expected)
+probe: 9 forms, 1 unexpected

@@ -1,0 +1,114 @@
+control aecp-dispatch: rc=0 PASS
+control aecp-line: rc=0 PASS
+control line-guards: rc=0 PASS
+ov-top-oversize-dropped: rc=2 failures=18 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the 576-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): 576 octets on the wire, want 618
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the frame left through slot 4
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the 536-byte descriptor, byte-exact
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): 576 octets on the wire, want 578
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the frame left through slot 4
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 576-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 576 octets on the wire, want 618
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the frame left through slot 4
+pg-append-524: rc=2 failures=14 named=1 KILLED
+    FAIL: PG2 a 63-mapping page: SUCCESS above cdl 524 (528), a standard slot: byte-exact (status 0, cdl 520)
+    FAIL: PG2 a 63-mapping page: SUCCESS above cdl 524 (528), a standard slot: number_of_mappings 63 names exactly the 62 records carried
+    FAIL: PG3 a 64-mapping page (eight 8-channel Stream Outputs in one subset): SUCCESS, cdl 536: byte-exact (status 0, cdl 520)
+    FAIL: PG3 a 64-mapping page (eight 8-channel Stream Outputs in one subset): SUCCESS, cdl 536: number_of_mappings 64 names exactly the 62 records carried
+    FAIL: PG4 a 65-mapping page: SUCCESS, cdl 544, frame 570, a standard slot: byte-exact (status 0, cdl 520)
+    FAIL: PG4 a 65-mapping page: SUCCESS, cdl 544, frame 570, a standard slot: number_of_mappings 65 names exactly the 62 records carried
+    FAIL: PG5 a 66-mapping page: SUCCESS, cdl 552, frame 578, the oversize slot: byte-exact (status 0, cdl 520)
+    FAIL: PG5 a 66-mapping page: SUCCESS, cdl 552, frame 578, the oversize slot: number_of_mappings 66 names exactly the 62 records carried
+    FAIL: PG5 a 66-mapping page: SUCCESS, cdl 552, frame 578, the oversize slot: one TX-slot grant, the oversize request raised, slot 0
+    FAIL: PG5 a 66-mapping page: SUCCESS, cdl 552, frame 578, the oversize slot: the frame left through slot 4
+    FAIL: PG6 a 71-mapping page, the cap: SUCCESS, cdl 592, frame 618, the oversize slot: byte-exact (status 0, cdl 520)
+    FAIL: PG6 a 71-mapping page, the cap: SUCCESS, cdl 592, frame 618, the oversize slot: number_of_mappings 71 names exactly the 62 records carried
+pg-cap-dropped: rc=2 failures=10 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 592)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: number_of_mappings 72 names exactly the 71 records carried
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: byte-exact (status 0, cdl 592)
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: number_of_mappings 176 names exactly the 71 records carried
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: the frame did not leave through slot 4
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: byte-exact (status 0, cdl 24)
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: number_of_mappings 256 names exactly the 0 records carried
+pg-cap-off-by-one: rc=2 failures=4 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 592)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: number_of_mappings 72 names exactly the 71 records carried
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+rd-base-no-overlay: rc=2 failures=9 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD1 STREAM_INPUT 0 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+rd-au-image-only: rc=2 failures=2 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+rd-au-unset-overlays: rc=2 failures=1 named=1 KILLED
+    FAIL: RD0 AUDIO_UNIT 0, rate unset: READ_DESCRIPTOR byte-exact, @136 carrying 0x17700
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+    FAIL: RD0 STREAM_INPUT 0, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD0 STREAM_OUTPUT 1, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+rd-cfg-any: rc=2 failures=2 named=1 KILLED
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): the 534-byte descriptor, byte-exact
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: the 534-byte descriptor, byte-exact
+rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD1 STREAM_INPUT 0 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact, its image whole (cdl -1)
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 568: must be refused: DESC_LINE_BYTES_P=568 is below 576 (verilator rc 0)
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 1016: must be refused: DESC_LINE_BYTES_P=1016 is above 1008 (verilator rc 1)
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): the 584-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): 618 octets on the wire, want 626
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 584-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 618 octets on the wire, want 626
+    FAIL: RB the whole-line READ_DESCRIPTOR reached the reservation's last byte: 592 bytes written, 600 reserved
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 600)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: byte-exact (status 0, cdl 608)
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: number_of_mappings 176 names exactly the 73 records carried
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: the frame did not leave through slot 4
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: byte-exact (status 0, cdl 24)
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: number_of_mappings 256 names exactly the 0 records carried
+    FAIL: RB no response byte written at or past RESP_BASE_P + 16 + DESC_LINE_BYTES_P (600): 8
+20 checks: 20 PASS, 0 FAIL
+rc=0

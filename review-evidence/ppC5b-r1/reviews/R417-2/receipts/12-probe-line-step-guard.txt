@@ -1,0 +1,11 @@
+planted: gen_g_line_step removed
+line guard 576: lints clean
+line guard 584: lints clean
+line guard 1008: lints clean
+line guard 568: refused: DESC_LINE_BYTES_P=568 is below 576
+line guard 1016: refused: DESC_LINE_BYTES_P=1016 is above 1008
+FAIL: line guard 580: must be refused: DESC_LINE_BYTES_P=580 is not a multiple of 8 (verilator rc 1)
+    %Warning-USERERROR: ../../hdl/aecp/KL_aecp_desc_store.sv:257:5: LINE_BYTES_P=580 must be a multiple of 8 (64-bit lanes)
+line guards: 6 cases, 1 failing
+make: *** [Makefile:131: line-guards] Error 1
+line-guards rc=2

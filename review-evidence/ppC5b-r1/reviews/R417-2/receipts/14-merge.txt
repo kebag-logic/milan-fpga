@@ -1,0 +1,77 @@
+git merge-tree --write-tree 54c1e2b d5f73bac158276a9fcf549185bad5c65c0498dae:
+tb/pp_top/Makefile
+tb/pp_top/README.md
+tb/pp_top/sim_main.cpp
+
+files where the published merge differs from the automatic merge result:
+tb/pp_top/Makefile
+tb/pp_top/README.md
+tb/pp_top/sim_main.cpp
+== tb/pp_top/Makefile: lines the resolution removes or adds besides the conflict markers
+-.PHONY: name-writes run gsi-build gsi-internal adp-config aecp-dispatch aecp-mutants \
+-        fixture-guards fixture-guards-test clean
+-.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config fixture-guards fixture-guards-test cl
++.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config aecp-dispatch \
++        aecp-mutants fixture-guards fixture-guards-test clean
+== tb/pp_top/sim_main.cpp: lines the resolution removes or adds besides the conflict markers
+-                           || aecp_only;
+-  const bool one_section = gsi_only || name_only || d3_only || adp_only || maap_only;
++                           || maap_only || aecp_only;
+== tb/pp_top/README.md: lines the resolution removes or adds besides the conflict markers
++## Section MP: the internal MAAP engine (11; IEEE 1722-2016 Annex B)
++
++A second model runs the processor with `cfg_maap_internal_i = 1` from reset.
++MP0 starts both restore walks over an erased device, so AECP is released
++(section D3). MP1 grades the whole acquisition on the MAC stream, MP2 a
++byte-exact DEFEND, MP3 the talker granted from the internal claim, MP4 a
++yield to a conflicting ANNOUNCE, MP5 the DA-qualified subtype gate, and MP6
++the descriptor path while MAAP runs.
++
++**MP4** (issue #68, B.3.6.4): the announcer `F2:11:22:33:44:01` is
++octet-reversed lower than `OWN_MAC` (`0A:0B:0C:0D:0E:0F`) but forward higher,
++and a premise check says so. Only the reversed compare_MAC yields to it, so
++the `tb/maap` campaign's `compare-mac-forward` arm fails MP4 (5 FAIL of 34).
++
++**MP7** (issue #67, B.2.3): every other MAAP frame in this bench carries
++maap_version 1. MP7 feeds a conflicting PROBE with maap_version 2 (B.2.3.2),
++then one with maap_version 0 (B.2.3.4), through the real validator and
++dispatch against the DEFEND-state claim. Each gets a byte-exact DEFEND that
++carries our version 1, and the claim is kept.
++
++`make maap-internal` builds the bench and runs the MP section alone (34
++checks). The `tb/maap` mutation campaign uses it: its
++`validator-maap-version-1-only` arm fails MP7 (4 FAIL of 34).
++
+-## Section MP: the internal MAAP engine (11; IEEE 1722-2016 Annex B)
+-
+-A second model runs the processor with `cfg_maap_internal_i = 1` from reset.
+-MP0 starts both restore walks over an erased device, so AECP is released
+-(section D3). MP1 grades the whole acquisition on the MAC stream, MP2 a
+-byte-exact DEFEND, MP3 the talker granted from the internal claim, MP4 a
+-yield to a conflicting ANNOUNCE, MP5 the DA-qualified subtype gate, and MP6
+-the descriptor path while MAAP runs.
+-
+-**MP4** (issue #68, B.3.6.4): the announcer `F2:11:22:33:44:01` is
+-octet-reversed lower than `OWN_MAC` (`0A:0B:0C:0D:0E:0F`) but forward higher,
+-and a premise check says so. Only the reversed compare_MAC yields to it, so
+-the `tb/maap` campaign's `compare-mac-forward` arm fails MP4 (5 FAIL of 34).
+-
+-**MP7** (issue #67, B.2.3): every other MAAP frame in this bench carries
+-maap_version 1. MP7 feeds a conflicting PROBE with maap_version 2 (B.2.3.2),
+-then one with maap_version 0 (B.2.3.4), through the real validator and
+-dispatch against the DEFEND-state claim. Each gets a byte-exact DEFEND that
+-carries our version 1, and the claim is kept.
+-
+-`make maap-internal` builds the bench and runs the MP section alone (34
+-checks). The `tb/maap` mutation campaign uses it: its
+-`validator-maap-version-1-only` arm fails MP7 (4 FAIL of 34).
+hdl/maap at HEAD vs main d5f73bac158276a9fcf549185bad5c65c0498dae: equal
+tb/maap at HEAD vs main d5f73bac158276a9fcf549185bad5c65c0498dae: equal
+tb/rx_validator at HEAD vs main d5f73bac158276a9fcf549185bad5c65c0498dae: equal
+tb/adp_engine at HEAD vs main d5f73bac158276a9fcf549185bad5c65c0498dae: equal
+tb/srp_top at HEAD vs main d5f73bac158276a9fcf549185bad5c65c0498dae: equal
+.github at HEAD vs main d5f73bac158276a9fcf549185bad5c65c0498dae: equal
+hdl/aecp at merge a4ba9f7 vs lane 54c1e2b: equal
+hdl/top at merge a4ba9f7 vs lane 54c1e2b: equal
+tb/ucpu at merge a4ba9f7 vs lane 54c1e2b: equal
+merge parents: 54c1e2b11c90e7063fc5882b15ddea5e4335d411 d5f73bac158276a9fcf549185bad5c65c0498dae 

@@ -1,0 +1,51 @@
+### python3 scripts/check_upc_map.py
+UPC MAP GATE: PASS (58 engine constants, 86 entry points, all agree)
+rc=0
+### python3 scripts/check_m9_opcodes.py --selftest
+M9 OPCODE GATE SELFTEST: 8 of 8 PASS
+rc=0
+### python3 scripts/check_m9_opcodes.py
+M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+rc=0
+### git diff --check d5f73bac158276a9fcf549185bad5c65c0498dae HEAD
+rc=0
+### git diff --check 0451d83d HEAD
+rc=0
+### ./scripts/lint_hdl.sh
+LINT OK  KL_pp_maap
+LINT OK  KL_pp_dispatch
+LINT OK  KL_pp_event_router
+LINT OK  KL_pp_normalizer
+LINT OK  KL_pp_nvm_mgr_arb
+LINT OK  KL_pp_nvm_port
+LINT OK  KL_pp_originator
+LINT OK  KL_pp_release_merge
+LINT OK  KL_pp_rx_slots
+LINT OK  KL_pp_rx_validator
+LINT OK  KL_pp_scoreboard
+LINT OK  KL_pp_side_port
+LINT OK  KL_pp_trace_ring
+LINT OK  KL_pp_tx_arbiter
+LINT OK  KL_pp_tx_slots
+LINT OK  KL_srp_admission
+LINT OK  KL_srp_decoder
+LINT OK  KL_srp_domain
+LINT OK  KL_srp_encoder
+LINT OK  KL_srp_listener_fsm
+LINT OK  KL_srp_talker_fsm
+LINT OK  KL_srp_top
+LINT OK  KL_srp_vlan
+LINT OK  KL_mrp_strip
+LINT OK  protocol_processor_top
+rc=0
+### make check
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 994 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (94 rows, 0 untested)
+parameters: top 26, guide 26, diagram 26, OK
+rc=0
+### python3 scripts/gen_matrix.py --check
+matrix: OK (94 rows, 0 untested)
+rc=0

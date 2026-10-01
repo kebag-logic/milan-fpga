@@ -1,0 +1,23 @@
+R417-2 environment
+2026-10-01T04:49:35Z
+clone: $REVIEWS/r417-2-ppC5b
+HEAD 2acd4025782bff4aabbae73252476be34ea8b00d tree f48cee13fd42ee303ec28e488277a3b0f17be65f
+# branch.oid 2acd4025782bff4aabbae73252476be34ea8b00d
+# branch.head (detached)
+submodules:
+scoped Verilator path $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator: ls: cannot access '$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator': No such file or directory
+used: packet scratch wrapper -> container overlay 9517af57.../usr/bin/verilator
+Verilator 5.050 2026-07-01 rev v5.050
+verilator script sha256 fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf; verilator_bin sha256 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+(the same overlay the 372-manager-r2 pinned wrapper execs)
+system verilator: Verilator 5.052 2026-09-05 rev v5.052 (not used for graded runs unless stated)
+Python 3.14.7
+g++ (GCC) 16.2.1 20260810
+git version 2.55.0
+16
+
+notes added at publication:
+- receipts write <VL5050-ROOT> for the local container-overlay directory of the Verilator 5.050 binary above, and ~ for the local home directory.
+- every graded build used that Verilator 5.050 (VERILATOR= and PATH), including scripts/lint_hdl.sh.
+- parallelism: 02-pp_top-make, 03-probe-line1008 and 04-mutants-c1 ran with the bench's own `--build -j 0` and no CPU pin (up to the host's 16 cores for C++ compile); every later run was pinned with `taskset -c 0-7` (8 CPUs). No step ran more than one bench at a time.
+- all builds and probes ran in packet scratch (a `git archive` export of the head); the clone was only read, and 15-clone-verify.txt verifies it.

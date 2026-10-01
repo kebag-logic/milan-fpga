@@ -1,0 +1,11 @@
+make: Entering directory '$REVIEWS/ppC5b-r417-2-packet/scratch/tmp/aecp-dispatch-mutants-ap3j9r_p/tb/pp_top'
+line guard 576: lints clean
+line guard 584: lints clean
+line guard 1008: lints clean
+line guard 568: refused: DESC_LINE_BYTES_P=568 is below 576
+FAIL: line guard 1016: must be refused: DESC_LINE_BYTES_P=1016 is above 1008 (verilator rc 1)
+    %Warning-USERERROR: ../../hdl/aecp/KL_aecp_ucpu.sv:273:5: RESP_D8_CAP_BYTES_P=1032 outside 524..1024 (the 10-bit cursor)
+line guard 580: refused: DESC_LINE_BYTES_P=580 is not a multiple of 8
+line guards: 6 cases, 1 failing
+make: *** [Makefile:131: line-guards] Error 1
+make: Leaving directory '$REVIEWS/ppC5b-r417-2-packet/scratch/tmp/aecp-dispatch-mutants-ap3j9r_p/tb/pp_top'

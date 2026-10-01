@@ -1,0 +1,20 @@
+clone integrity after probes (no probe wrote into the clone; all builds ran in packet scratch)
+2026-10-01T05:20:19Z
+HEAD 2acd4025782bff4aabbae73252476be34ea8b00d tree f48cee13fd42ee303ec28e488277a3b0f17be65f
+status --porcelain --ignored:
+!! .venv-wavedrom/
+!! scripts/__pycache__/
+(end status)
+index+worktree == HEAD: yes
+worktree == index: yes
+index (mode blob path) digest ddb583f3f8c294d92947b198fbadb9a92bdd037045fcb6f66738eeab37023eb5  -
+HEAD  (mode blob path) digest ddb583f3f8c294d92947b198fbadb9a92bdd037045fcb6f66738eeab37023eb5  -
+index modes/blobs == HEAD: yes
+worktree blob rehash:
+0 mismatching blobs of 424
+gitlinks (mode 160000) in HEAD: 0 (the processor repo carries no submodules)
+
+removed the two ignored artifacts this review created (.venv-wavedrom from make check at 04:50Z, scripts/__pycache__ from the gate probe at 05:05Z)
+status --porcelain --ignored after removal:
+(end status)
+index+worktree == HEAD: yes
