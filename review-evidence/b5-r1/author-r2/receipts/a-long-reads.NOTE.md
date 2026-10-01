@@ -2,7 +2,7 @@
 
 The archive step's text redaction masked 3 bytes of `a-long-reads.u16` (offsets 114032-114034 replaced by `###`). Those bytes were read-interval data that happened to match a redaction pattern. So the published `a-long-reads.u16` hashes to `8897abce...`, not the page's `2183d57f...` (R425-2 F1).
 
-`a-long-reads.u16.gz` holds the original record unchanged. Restore it with `gunzip -k a-long-reads.u16.gz`, then check:
+`a-long-reads.u16.gz` holds the original record unchanged. Restore it with `gunzip -kf a-long-reads.u16.gz`, then check. The `-f` is needed because it overwrites the masked copy beside it; without it gunzip refuses with rc 2.
 
     sha256sum a-long-reads.u16
     2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961
