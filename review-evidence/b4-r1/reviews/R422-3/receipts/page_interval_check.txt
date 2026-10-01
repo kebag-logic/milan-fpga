@@ -1,0 +1,45 @@
+## A: page at ae98b30b vs packet
+{
+ "page_stated_s": 60.0,
+ "page_names_controller_clock": true,
+ "single_clock_s": 60.038,
+ "mixed_clocks_s": 58.655,
+ "verdict": "AGREE"
+}
+rc=0
+## B: page at c39312b4 (round-2 text) vs packet, expected DISAGREE
+{
+ "page_stated_s": 58.7,
+ "page_names_controller_clock": false,
+ "single_clock_s": 60.038,
+ "mixed_clocks_s": 58.655,
+ "verdict": "DISAGREE"
+}
+rc=1
+## C: mutation, page value perturbed to 60.1 s, expected DISAGREE
+{
+ "page_stated_s": 60.1,
+ "page_names_controller_clock": true,
+ "single_clock_s": 60.038,
+ "mixed_clocks_s": 58.655,
+ "verdict": "DISAGREE"
+}
+rc=1
+## D: mutation, clock clause removed, expected DISAGREE
+{
+ "page_stated_s": 60.0,
+ "page_names_controller_clock": false,
+ "single_clock_s": 60.038,
+ "mixed_clocks_s": 58.655,
+ "verdict": "DISAGREE"
+}
+rc=1
+## E: mutation, packet copy with the unbind stamp moved to the orchestrator's clock, expected DISAGREE
+{
+ "page_stated_s": 60.0,
+ "page_names_controller_clock": true,
+ "single_clock_s": 58.655,
+ "mixed_clocks_s": 58.655,
+ "verdict": "DISAGREE"
+}
+rc=1

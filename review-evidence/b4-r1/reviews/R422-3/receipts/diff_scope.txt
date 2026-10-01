@@ -1,0 +1,37 @@
+## git diff --raw e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b ae98b30b
+:000000 100644 000000000 dde50cd9c A	docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+:100644 100644 c8880442e a501c5a9c M	docs/findings/README.md
+## git diff --raw c39312b4 ae98b30b
+:100644 100644 7c3f54673 dde50cd9c M	docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+## numstat c39312b4 ae98b30b
+3	2	docs/findings/451_TDM8_TIMING_SOC_BOARD.md
+## hunks
+@@ -350,2 +350,3 @@ Residuals that no permitted command restores:
+## gitlinks base vs head
+gitlinks-identical
+## hdl/ rtl paths changed since base
+0
+## RTL premise lines at head
+1012:      .DATA_DELAY_P (1'b1)
+1057:      .DATA_DELAY_P (1'b1)
+1092:      .DATA_DELAY_P (1'b1)
+                CLOCKING. bclk = SLOTS_P x WORD_BITS_P x fs. At the shipping
+                24.576 MHz audio MMCM, TDM8 x 32-bit slots @ 48 kHz needs
+                8*32*48000 = 12.288 MHz = clk_audio_i / 2, i.e. a half-period
+                of ONE clk_audio_i cycle (BCLK_HALF_P = 1). fsync is a
+                one-bclk PULSE at the start of slot 0 (the TI/McASP shape);
+                KL_tdm_capture accepts both that and the 50%-duty long frame,
+                so a board that loops our own master back into the slave
+                interoperates.
+
+                DATA. We drive bclk and fsync and SAMPLE tdm_data_i on the
+                bclk RISING edge, the same convention the slave uses, so a
+                codec shifting on the falling edge meets setup. DATA_DELAY_P
+                keeps the same meaning (0 = slot-0 MSB on the fsync edge,
+                1 = one bclk later / Philips-heritage) and is applied HERE,
+                ONCE - never also in a TB chip model (the double-Philips-delay
+                history, 78bbabe).
+
+## commit message
+Correct the #451 timing page's talker-to-unbind interval from round-2 review: 60.0 s on the controller host's clock, not 58.7 s across two hosts' clocks; no measured figure or table changes$
+$

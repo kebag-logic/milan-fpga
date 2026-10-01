@@ -1,0 +1,13 @@
+head ae98b30b04e95f38df784ba490da208c57534303 tree bae15aec6847292bd50025203035e3b902bdac79
+gate-1 rc=0: <packet>/scratch/mdenv/bin/python scripts/docs_check.py
+gate-2 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_doc_style.py
+gate-3 rc=0: <packet>/scratch/mdenv/bin/python scripts/gen_toc.py --check
+gate-4 rc=0: <packet>/scratch/mdenv/bin/python scripts/gen_toc.py --verify-anchors
+gate-5 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_em_dash.py --base e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b
+gate-6 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_em_dash.py --base c39312b4871c8cc3ca604eb7c57f4b0b45d914e0
+gate-7 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_doc_paths.py
+gate-8 rc=0: <packet>/scratch/mdenv/bin/python scripts/ci_scope.py --selftest
+gate-9 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_baremetal_only.py --check
+gate-10 rc=0: <packet>/scratch/mdenv/bin/python scripts/check_feature_status.py --self-test
+gate-11 rc=0: git diff --check e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b HEAD
+gate-12 rc=0: git diff --check c39312b4871c8cc3ca604eb7c57f4b0b45d914e0 HEAD

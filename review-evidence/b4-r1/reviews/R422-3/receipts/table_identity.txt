@@ -1,0 +1,32 @@
+### c39312b4 -> ae98b30b
+tables: old=12 new=12
+table 0: old line 31 new line 31 rows 9 identical=True sha256[:16]=6536d7fc133efe0b header=b'| #451 timing item | Verdict | Evidence |'
+table 1: old line 63 new line 63 rows 9 identical=True sha256[:16]=3997248ba53ed8a9 header=b'| Identity check | Result |'
+table 2: old line 131 new line 131 rows 11 identical=True sha256[:16]=344cbe69b6978187 header=b'| Node | Property | Value |'
+table 3: old line 145 new line 145 rows 7 identical=True sha256[:16]=8415b907df624bed header=b'| Parameter | Value |'
+table 4: old line 168 new line 168 rows 3 identical=True sha256[:16]=5a8e56f4ca305a99 header=b'| Run | Frames | Seconds | Torn | Invalid words | Zero words'
+table 5: old line 173 new line 173 rows 10 identical=True sha256[:16]=f670f2950f976b70 header=b'| SoC capture channel | TDM slot | Recovered tag | Valid wor'
+table 6: old line 190 new line 190 rows 7 identical=True sha256[:16]=c5c137278341e8d5 header=b'| Ordinal step between frames | Count |'
+table 7: old line 222 new line 222 rows 3 identical=True sha256[:16]=92947329c80fe6a2 header=b'| Run | Samples | Window | Frames in window | fs, first to l'
+table 8: old line 277 new line 277 rows 7 identical=True sha256[:16]=242332fea89998f7 header=b'| Time | Event |'
+table 9: old line 333 new line 333 rows 7 identical=True sha256[:16]=c711865c32b07bb8 header=b'| State | As left |'
+table 10: old line 373 new line 374 rows 3 identical=True sha256[:16]=428075a8c73a3c87 header=b'| Raw file | Bytes | SHA-256 |'
+table 11: old line 380 new line 381 rows 13 identical=True sha256[:16]=351329f84be9d62e header=b'| Evidence file | Bytes | SHA-256 |'
+differing table lines: 0
+### 35a60c8d -> ae98b30b
+tables: old=12 new=12
+table 0: old line 30 new line 31 rows 9 identical=False sha256[:16]=6536d7fc133efe0b header=b'| #451 timing item | Verdict | Evidence |'
+  OLD: | FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz: 48 kHz within the SoC board's clock accuracy | -42.8 ppm against 48 kHz, +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |
+  NEW: | FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz on the SoC board's uncalibrated clock | -42.8 ppm against 48 kHz: -10.64 ppm is the plan, and the remaining -32.1 ppm is the DUT oscillator's error relative to the SoC board's clock, unsplit and unquantified. +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |
+table 1: old line 62 new line 63 rows 9 identical=True sha256[:16]=3997248ba53ed8a9 header=b'| Identity check | Result |'
+table 2: old line 129 new line 131 rows 11 identical=True sha256[:16]=344cbe69b6978187 header=b'| Node | Property | Value |'
+table 3: old line 143 new line 145 rows 7 identical=True sha256[:16]=8415b907df624bed header=b'| Parameter | Value |'
+table 4: old line 163 new line 168 rows 3 identical=True sha256[:16]=5a8e56f4ca305a99 header=b'| Run | Frames | Seconds | Torn | Invalid words | Zero words'
+table 5: old line 168 new line 173 rows 10 identical=True sha256[:16]=f670f2950f976b70 header=b'| SoC capture channel | TDM slot | Recovered tag | Valid wor'
+table 6: old line 185 new line 190 rows 7 identical=True sha256[:16]=c5c137278341e8d5 header=b'| Ordinal step between frames | Count |'
+table 7: old line 217 new line 222 rows 3 identical=True sha256[:16]=92947329c80fe6a2 header=b'| Run | Samples | Window | Frames in window | fs, first to l'
+table 8: old line 269 new line 277 rows 7 identical=True sha256[:16]=242332fea89998f7 header=b'| Time | Event |'
+table 9: old line 314 new line 333 rows 7 identical=True sha256[:16]=c711865c32b07bb8 header=b'| State | As left |'
+table 10: old line 354 new line 374 rows 3 identical=True sha256[:16]=428075a8c73a3c87 header=b'| Raw file | Bytes | SHA-256 |'
+table 11: old line 361 new line 381 rows 13 identical=True sha256[:16]=351329f84be9d62e header=b'| Evidence file | Bytes | SHA-256 |'
+differing table lines: 1
