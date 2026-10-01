@@ -1,0 +1,57 @@
+head e216dfe4f: 15 tables, 119 table lines
+  T01   8 lines sha256/16 189047964e5fa7b6 | Item | Verdict | Evidence |
+  T02  10 lines sha256/16 d099cc353b0e10fd | Identity check | Result |
+  T03   3 lines sha256/16 0ffd9507180193b9 | Binding | Talker output | Listener input |
+  T04   4 lines sha256/16 7674f86fc4b93314 | Stream format | As found | Meaning |
+  T05   6 lines sha256/16 55740cce025e7433 | Run | Purpose | Result |
+  T06   5 lines sha256/16 ed7cd4072b30fedb | Bind | Talker format | Listener format read | Set | Listener format 
+  T07   4 lines sha256/16 6743c2d4132fd10a | Stream channel | Expected tag | Captured words | Words with the expe
+  T08   3 lines sha256/16 d3dd4a06b4c4c020 | Frames | Valid | Torn | Invalid non-zero | Zero |
+  T09   7 lines sha256/16 4b62a11e6a895d8a | Class | Events | Frames | Per second |
+  T10   3 lines sha256/16 f64987b23087a869 | Population | Count | Below 1 s | Min, s | Median, s | p95, s | Max, 
+  T11   3 lines sha256/16 93d945c5162c59a7 | First ten median, s | Last ten median, s | Slope, s per cycle | 95% 
+  T12  32 lines sha256/16 35bf91e66ee97952 | Cycle | Hold, s | Stopped in hold | Last valid after unbind, s | Res
+  T13  11 lines sha256/16 eed0dbdc2fba47fc | State | As left |
+  T14  11 lines sha256/16 e3f27ede68e391f4 | Artifact | Bytes | SHA-256 |
+  T15   9 lines sha256/16 b60866266c662814 | Tool | Role | SHA-256 |
+
+bf9e5d82a vs e216dfe4f: 15 tables, 119 table lines
+  T01 CHANGED (8 -> 8 lines)
+    line 5: row 'Continuity over 660 s: silent stretches, repeats and skips', changed cell index [2] of 3
+      cell 2: old sha256/16 f59cc8074d3846e6; head text: 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity).
+    line 7: row 'Direction B, the peer's talker to the DUT's listener', changed cell index [2] of 3
+      cell 2: old sha256/16 7b8a6fedf1a1bf9c; head text: It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b).
+    line 8: row '#117 audio continuity row', changed cell index [2] of 3
+      cell 2: old sha256/16 01438dad7475d1a6; head text: The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded.
+  T13 CHANGED (11 -> 11 lines)
+    line 3: row 'Stream states, DUT and reference peer', changed cell index [1] of 2
+      cell 1: old sha256/16 ff6f751ec1754d23; head text: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+  identical: 13 of 15
+
+e29d12b1d vs e216dfe4f: 15 tables, 119 table lines
+  T01 CHANGED (8 -> 8 lines)
+    line 5: row 'Continuity over 660 s: silent stretches, repeats and skips', changed cell index [2] of 3
+      cell 2: old sha256/16 3d03c2fc2ff4f1fe; head text: 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity).
+    line 7: row 'Direction B, the peer's talker to the DUT's listener', changed cell index [2] of 3
+      cell 2: old sha256/16 7b8a6fedf1a1bf9c; head text: It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b).
+    line 8: row '#117 audio continuity row', changed cell index [2] of 3
+      cell 2: old sha256/16 3ecb2eb53a4e4679; head text: The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded.
+  T13 CHANGED (11 -> 11 lines)
+    line 3: row 'Stream states, DUT and reference peer', changed cell index [1] of 2
+      cell 1: old sha256/16 ff6f751ec1754d23; head text: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+  identical: 13 of 15
+
+cf38633ad vs e216dfe4f: 15 tables, 119 table lines
+  T01 CHANGED (8 -> 8 lines)
+    line 8: row '#117 audio continuity row', changed cell index [2] of 3
+      cell 2: old sha256/16 3ecb2eb53a4e4679; head text: The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded.
+  T13 CHANGED (11 -> 11 lines)
+    line 3: row 'Stream states, DUT and reference peer', changed cell index [1] of 2
+      cell 1: old sha256/16 ff6f751ec1754d23; head text: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+  identical: 13 of 15
+
+c58040076 vs e216dfe4f: 15 tables, 119 table lines
+  T13 CHANGED (11 -> 11 lines)
+    line 3: row 'Stream states, DUT and reference peer', changed cell index [1] of 2
+      cell 1: old sha256/16 ff6f751ec1754d23; head text: All unbound; the end census equals the start in every entry but one, the DUT's live propagation delay
+  identical: 14 of 15
