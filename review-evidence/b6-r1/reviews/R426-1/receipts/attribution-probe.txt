@@ -1,0 +1,15 @@
+grade rc 0 
+attribution: {'DUT beat': (62, 0, 62), 'listener': (99, 99, 0), 'capture path': (6, 6, 0)}
+cluster [1164] read gap capture_path True rise_ms None lost_ms 24.25 gap_ms 30.0
+cluster [60] read-time rise capture_path True rise_ms 1.25 lost_ms 1.25 gap_ms 30.0
+cluster [541] read-time rise capture_path True rise_ms 11.25 lost_ms 11.2708 gap_ms 30.0
+cluster [1260] read gap capture_path True rise_ms None lost_ms 26.25 gap_ms 30.0
+cluster [204] read-time rise capture_path True rise_ms 4.25 lost_ms 4.25 gap_ms 30.0
+cluster [60] read gap and 48 n + 12 size capture_path True rise_ms 0.0 lost_ms 1.25 gap_ms 18.0
+cluster [60] read-time rise capture_path False rise_ms 0.0 lost_ms 1.25 gap_ms 10.0
+L_beat listener repeat   planted at capture frame ~988749: [(988728, 'repeat', -1, 'DUT beat'), (988749, 'repeat', -1, 'DUT beat')]
+L_adj                    planted at capture frame ~1923576: [(1923576, 'skip', 541, 'capture path')]
+L_near                   planted at capture frame ~2662241: [(2662236, 'skip', 1260, 'capture path'), (2662241, 'skip', 1, 'listener')]
+L_multi                  planted at capture frame ~4076772: [(4076772, 'skip', 60, 'capture path')]
+L_multi2                 planted at capture frame ~4796772: [(4796772, 'skip', 60, 'listener')]
+plain listener drops planted (whole run): 99 ; listener-cause events in window: 99 ; beat-cause: 62 ; beats planted: 61

@@ -1,0 +1,12 @@
+rerun sha 7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e
+published sha 7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e
+equal as JSON: True
+clean pass True True events 0 clean 10 ch0_all_ppm_med -0.0 ch1 -0.0 disc thdn ch0/ch1 None None clean thdn -146.06 -145.99 invalid 0 first ev [] spacing None
+drop1 pass True True events 1 clean 9 ch0_all_ppm_med -0.0 ch1 -0.0 disc thdn ch0/ch1 -29.72 -9.45 clean thdn -146.06 -145.99 invalid 0 first ev [(216777, 'skip', 1)] spacing None
+repeat1 pass True True events 1 clean 9 ch0_all_ppm_med -0.0 ch1 -0.0 disc thdn ch0/ch1 -34.03 -14.4 clean thdn -146.06 -145.99 invalid 0 first ev [(289234, 'repeat', 1)] spacing None
+rate16ppm-resampled pass True True events 7 clean 0 ch0_all_ppm_med 16.0 ch1 16.0 disc thdn ch0/ch1 -146.02 -146.02 clean thdn None None invalid 479992 first ev [(62500, 'skip', 1), (125000, 'skip', 1), (187500, 'skip', 1)] spacing None
+rate1ppm-resampled pass True True events 0 clean 0 ch0_all_ppm_med 1.0 ch1 1.0 disc thdn ch0/ch1 -145.99 -146.02 clean thdn None None invalid 479999 first ev [] spacing None
+rate16ppm-slips pass True True events 23 clean 7 ch0_all_ppm_med 18.2045 ch1 17.896407 disc thdn ch0/ch1 -28.48 -8.1 clean thdn -146.06 -145.99 invalid 0 first ev [(62500, 'skip', 1), (125000, 'skip', 1), (187500, 'skip', 1)] spacing [62500]
+rate1ppm-slips pass True True events 4 clean 86 ch0_all_ppm_med 0.0 ch1 -0.0 disc thdn ch0/ch1 -28.6 -8.25 clean thdn -146.06 -145.99 invalid 0 first ev [(1000000, 'skip', 1), (2000000, 'skip', 1), (3000000, 'skip', 1)] spacing [1000000]
+floor [(-146.065, 146.067), (-145.993, 145.993)]
+clean max dev 1.3682583528407122e-06 2.7029712725834543e-06

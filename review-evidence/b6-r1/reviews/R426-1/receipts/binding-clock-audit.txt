@@ -1,0 +1,112 @@
+Per run: every bind preceded by a format check whose listener read-back equals the talker format; every clock set and its read-back
+== a0: binds 1, format checks 1, clock sets 0, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
+== a1: binds 1, format checks 1, clock sets 2, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   set-clock case who=peer src=3 SUCCESS readback=3
+   set-clock restore who=peer src=0 SUCCESS readback=0
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
+== a2: binds 2, format checks 2, clock sets 2, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   format-check dut-out-1->peer-in-8 talker 041060010000bb80 listener 041060010000bb80 set None None after 041060010000bb80 ok True
+   bind dut-out-1->peer-in-8 status 0 conn 1 format-check-before True
+   set-clock case who=peer src=1 SUCCESS readback=1
+   set-clock restore who=peer src=0 SUCCESS readback=0
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "dut-out-1", "listener": "peer-in-8", "status": 0, "conn_count": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
+== bcrf: binds 2, format checks 2, clock sets 2, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   format-check peer-out-2->dut-in-1 talker 041060010000bb80 listener 041060010000bb80 set None None after 041060010000bb80 ok True
+   bind peer-out-2->dut-in-1 status 0 conn 1 format-check-before True
+   set-clock case who=dut src=1 SUCCESS readback=1
+   set-clock restore who=dut src=0 SUCCESS readback=0
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "peer-out-2", "listener": "dut-in-1", "status": 0, "conn_count": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
+== bint: binds 2, format checks 2, clock sets 0, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   format-check peer-out-2->dut-in-1 talker 041060010000bb80 listener 041060010000bb80 set None None after 041060010000bb80 ok True
+   bind peer-out-2->dut-in-1 status 0 conn 1 format-check-before True
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "peer-out-2", "listener": "dut-in-1", "status": 0, "conn_count": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
+== probe: binds 1, format checks 1, clock sets 0, window-start False
+   format-check peer-out-0->dut-in-0 talker 0205022001006000 listener 0205022002006000 set 0205022001006000 ['SUCCESS'] after 0205022001006000 ok True
+   bind None->None status 0 conn 1 format-check-before False
+   {"kind": "unbind", "status": 0, "conn_count": 0}
+   {"kind": "map-final", "readback": "000e00000000000100000000", "as_found": "000e00000000000100000000"}
+   {"kind": "format-restore", "fmt": "0205022002006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+== smoke-a0-clkparse: binds 0, format checks 0, clock sets 0, window-start False
+   {"kind": "clock-final", "who": "peer", "source": null, "as_found": null}
+   {"kind": "clock-final", "who": "dut", "source": null, "as_found": null}
+== smoke-a0: binds 1, format checks 1, clock sets 0, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
+== smoke2-a0: binds 1, format checks 1, clock sets 0, window-start True
+   format-check dut-out-0->peer-in-0 talker 0205022002006000 listener 0205022001006000 set 0205022002006000 ['SUCCESS'] after 0205022002006000 ok True
+   bind dut-out-0->peer-in-0 status 0 conn 1 format-check-before True
+   {"kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+   {"kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+   {"kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0}
+   {"kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+   {"kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+   {"kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+   {"kind": "map-final", "readback": "000f00000000000100000000"}
