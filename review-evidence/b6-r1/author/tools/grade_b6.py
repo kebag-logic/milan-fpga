@@ -83,8 +83,8 @@ if full.exists():
                           peak=int(np.abs(col).max()),
                           loop_ch0_values=int(np.isin(col, T.loop()[:, 0]).sum()),
                           loop_ch1_values=int(np.isin(col, T.loop()[:, 1]).sum())))
-    pair = T.decode(w[:, 10], w[:, 11], tab)
-    res["channel_identification"] = dict(channels=ident, pair_10_11_decoded=int((pair >= 0).sum()),
+    pair = T.decode(w[:, <capture-channel-index>], w[:, <capture-channel-index>], tab)
+    res["channel_identification"] = dict(channels=ident, pair_decoded=int((pair >= 0).sum()),
                                          frames=int(len(pair)))
 
 # 2. tone grade over the window
