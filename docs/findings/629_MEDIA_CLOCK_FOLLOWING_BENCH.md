@@ -45,7 +45,7 @@ These are operator observations, not review verdicts.
 - **[The capture path](#the-capture-path)** -- Losses on the bench host's capture path, reported apart from clock effects.
 - **[Bench as left](#bench-as-left)** -- The state at the end against the start, and the residuals.
 - **[Limits](#limits)** -- What the measurements do not show.
-- **[Artifact hashes](#artifact-hashes)** -- Raw files, the lane packet's evidence files, and where the packet is published.
+- **[Artifact hashes](#artifact-hashes)** -- Raw files, the lane packet's evidence files, and where the packets are published.
 
 ## Identity and setup
 
@@ -218,7 +218,7 @@ capture's 0.5 s buffer. A0, A2 and B INTERNAL keep their verdicts under either
 rule.
 
 **What the attribution can absorb.** The rules above can hide a listener event
-in five ways. For A1 and B CRF each is checked against the grades
+in six ways. For A1 and B CRF each is checked against the grades
 (`grade.json`, `events.csv`) and the capture read times:
 
 1. **A one-frame drop at the same step as a capture loss.** The two merge into
@@ -254,14 +254,23 @@ in five ways. For A1 and B CRF each is checked against the grades
    frames.
    - A1 and B CRF: the smallest capture-path loss is 60 frames. Each of their
      seven clusters under 98 frames is one 60-frame skip, 48 n + 12, after a
-     read gap of 14.9 ms or more. Their rises, 0.99 to 1.00 ms, sit at the
-     floor's step, so for these seven the read gap and the size carry the
-     attribution.
+     read gap of 14.9 ms or more. Six have a measured rise, 0.99 to 1.00 ms,
+     at the floor's step, so for them the read gap and the size carry the
+     attribution. The seventh, A1's skip after a 33 ms read stall (cluster 9
+     in its `grade.json`), has no measurable rise. It passed on the read gap
+     alone, the gap-only branch of item 5.
 5. **The gap-only branch.** Where the rise is unmeasurable, a read gap of
    11 ms or more in the 600 ms before is enough, with no size check. In these
    windows 16 to 28 % of read positions meet that gap test, so a random
    multi-frame event would often pass.
    - A1: both gap-only clusters have every skip at 48 n + 12. B CRF has none.
+6. **A multi-frame listener step within 300 ms of a capture loss.** It joins
+   that loss's cluster, and the rise test applies to the cluster's net step,
+   within 1 ms + 2 % of the loss: about 249 ms at A1's 12.4 s loss. A one-frame
+   event never joins a cluster.
+   - A1 and B CRF: the per-step sizes of item 1 exclude it. Every member step
+     is 48 n + 12, an exact stale-replay edge, or the 12.4 s loss's own 18,626
+     frames, the only step in its cluster.
 
 **Frame-rate ratio.** McASP0 runs on the DUT's TDM clock, and the capture
 records the peer's output. Two estimates:
@@ -486,9 +495,14 @@ These are separate from every clock effect above.
 | B CRF | 62,923 | 97 | 17 | 12,216 | 81 ms |
 
 - Every capture-path cluster's read-time rise matches its loss within
-  1 ms + 2 %, except clusters whose rise is unmeasurable. Those meet the read
-  gap and size rule instead: 1 in A0, 2 in A1, 7 in A2, 3 in B INTERNAL and none
-  in B CRF.
+  1 ms + 2 %, except two kinds of cluster. Where the rise is unmeasurable, the
+  cluster passed on the read gap alone, the gap-only branch: 1 in A0, 2 in A1,
+  5 in A2, 3 in B INTERNAL and none in B CRF. Every skip in these eleven is
+  still 48 n + 12. In two A2 clusters a rise was measured and does not match:
+  154.5 ms for a 60-frame loss, and -155.8 ms for a 1,020-frame loss just after
+  the 13.3 s stall (clusters 17 and 56 in its `grade.json`). These two passed
+  on the read gap and size rule, item 3 of
+  [Method](#method), "What the attribution can absorb".
 - 255 of the 265 skips in clusters with a matching rise are 48 n + 12 frames.
   Of the other ten, two are losses longer than a loop and four are the edges of
   stale replays (next item). Two are parts of a cluster whose total is
@@ -552,7 +566,7 @@ Residuals that no permitted command restores:
 - The A1 and B CRF verdicts rest on the refined capture-path attribution. Under
   the rule as first written both would fail; see
   [Method](#method), "How the attribution was refined".
-- The attribution can absorb a listener event in five ways; see
+- The attribution can absorb a listener event in six ways; see
   [Method](#method), "What the attribution can absorb". The checks there
   exclude each in A1 and B CRF, except a one-frame drop at the very edge of
   A1's 12.4 s loss, which lost audio would hide anyway. In A0 and A2 one skip
@@ -601,27 +615,39 @@ The lane packet, `b6-a477`, holds the redacted evidence and the tools. Its
 manifest covers every retained file except itself.
 
 **Where the packet is.** It is published on branch `b6-review-evidence`, pinned
-at commit `ff542b62ae79f283b80b7945dd76110f986b0737`. The packet label
+at commit `422dcf91008a09cb882dcc2b760779ce22e530cd`. The packet label
 `b6-a477` maps to `review-evidence/b6-r1/author/` there: `summary/a1/grade.json`
 is `review-evidence/b6-r1/author/summary/a1/grade.json`. The archive masks
 labels in some files. For the twelve label-masked files below (each
-`grade.json`, each run's `events.jsonl`, `grade_b6.py` and `run_b6.py`) the
-hash is the unmasked original's. It is recorded as `original_sha256` in
-`review-evidence/b6-r1/MANIFEST.json`, beside the published file's
-`published_sha256`. The raw files' hashes are in the packet's
-`RAW-ARTIFACTS.json`. Two commands reproduce the tone loop and the tool
-controls from the archive:
+`grade.json`, each graded case's `events.jsonl`, `grade_b6.py` and
+`run_b6.py`) the hash is the unmasked original's. It is recorded as
+`original_sha256` in `review-evidence/b6-r1/MANIFEST.json`, beside the
+published file's `published_sha256`. The raw files' hashes are in the packet's
+`RAW-ARTIFACTS.json`.
+
+The round-2 packet, `b6-a480`, is `review-evidence/b6-r1/author-r2/` at the
+same commit. Its `floor_check.py` repeats the floor check in
+[Tool controls](#tool-controls) from the archive alone. Its
+`attribution_checks.py` and receipt hold the checks of items 1 to 5 in "What
+the attribution can absorb", including the gap share of item 5. That tool reads
+the raw files, which stay on the bench host, and its receipt records their
+hashes.
+
+Two commands reproduce the tone loop and the tool controls from the archive.
+Run them in a fresh clone or a disposable worktree: the checkout writes the
+archive into the working tree and stages it.
 
 ```sh
 git fetch origin b6-review-evidence
-git checkout ff542b62ae79f283b80b7945dd76110f986b0737 -- review-evidence/b6-r1
+git checkout 422dcf91008a09cb882dcc2b760779ce22e530cd -- review-evidence/b6-r1
 cd review-evidence/b6-r1/author/tools
 python3 b6_tone.py /tmp/b6-loop.bin && sha256sum /tmp/b6-loop.bin   # the page's tone-loop hash, 566d3dfa...
 python3 b6_thdn.py controls /tmp/b6-controls.json && cmp /tmp/b6-controls.json ../controls/controls.json
 ```
 
 Both exit 0. The first prints the tone loop's hash in the table above, and
-`cmp` is silent.
+`cmp` is silent. They were reproduced at this pin with Python 3.14.7 and NumPy
+2.5.3. The versions of the original run were not recorded.
 
 | Evidence file | Bytes | SHA-256 |
 |---|---|---|
