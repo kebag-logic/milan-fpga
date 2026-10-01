@@ -1,0 +1,297 @@
+== latency, ideal stream, history start at t = 0
+ppm=  0: first valid rate 4.098 s; first LOCKED 7.68 s
+ppm= 10: first valid rate 4.098 s; first LOCKED 7.68 s
+ppm=100: first valid rate 4.098 s; first LOCKED 7.68 s
+
+== void and spacing tolerance (B = 4,096 ns), 30 s each. Analytic: correlated 2J + 600 <= B at 300 ppm -> 1,748; in-group 2J + 562.5 <= B -> 1,766; 2J <= B at 0 ppm -> 2,048
+gsign  J= 1426 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 1740 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 1748 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 1749 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 1760 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 1800 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 2040 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 2048 ppm=   0 restarts=     0 rate_ever_valid=True
+gsign  J= 2049 ppm=   0 restarts=  7500 rate_ever_valid=False
+gsign  J= 2060 ppm=   0 restarts=  7388 rate_ever_valid=False
+gsign  J= 2500 ppm=   0 restarts=  7451 rate_ever_valid=False
+gsign  J= 1426 ppm= 300 restarts=     0 rate_ever_valid=True
+gsign  J= 1740 ppm= 300 restarts=     0 rate_ever_valid=True
+gsign  J= 1748 ppm= 300 restarts=     0 rate_ever_valid=True
+gsign  J= 1749 ppm= 300 restarts=  3804 rate_ever_valid=False
+gsign  J= 1760 ppm= 300 restarts=  3746 rate_ever_valid=False
+gsign  J= 1800 ppm= 300 restarts=  3780 rate_ever_valid=False
+gsign  J= 2040 ppm= 300 restarts=  3719 rate_ever_valid=False
+gsign  J= 2048 ppm= 300 restarts=  3753 rate_ever_valid=False
+gsign  J= 2049 ppm= 300 restarts=  3787 rate_ever_valid=False
+gsign  J= 2060 ppm= 300 restarts=  3748 rate_ever_valid=False
+gsign  J= 2500 ppm= 300 restarts=  7567 rate_ever_valid=False
+white  J= 1426 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 1740 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 1748 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 1749 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 1760 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 1800 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 2040 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 2048 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 2049 ppm=   0 restarts=     0 rate_ever_valid=True
+white  J= 2060 ppm=   0 restarts=     5 rate_ever_valid=True
+white  J= 2500 ppm=   0 restarts=  3631 rate_ever_valid=False
+white  J= 1426 ppm= 300 restarts=     0 rate_ever_valid=True
+white  J= 1740 ppm= 300 restarts=     0 rate_ever_valid=True
+white  J= 1748 ppm= 300 restarts=     0 rate_ever_valid=True
+white  J= 1749 ppm= 300 restarts=     0 rate_ever_valid=True
+white  J= 1760 ppm= 300 restarts=     0 rate_ever_valid=True
+white  J= 1800 ppm= 300 restarts=     2 rate_ever_valid=True
+white  J= 2040 ppm= 300 restarts=   585 rate_ever_valid=False
+white  J= 2048 ppm= 300 restarts=   536 rate_ever_valid=False
+white  J= 2049 ppm= 300 restarts=   594 rate_ever_valid=False
+white  J= 2060 ppm= 300 restarts=   612 rate_ever_valid=False
+white  J= 2500 ppm= 300 restarts=  3921 rate_ever_valid=False
+
+== steps on gsign +/-1,042 ns at 20 s (after LOCKED), every group position; a rejected step restarts the history (restarts >= 1)
+step   20833 ns pos  0 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step   20833 ns pos  0 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step   20833 ns pos  1 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step   20833 ns pos  1 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step   20833 ns pos  2 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step   20833 ns pos  2 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step   20833 ns pos  3 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step   20833 ns pos  3 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step   20833 ns pos  4 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step   20833 ns pos  4 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step   20833 ns pos  5 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step   20833 ns pos  5 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step   20833 ns pos  6 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step   20833 ns pos  6 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step   20833 ns pos  7 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step   20833 ns pos  7 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step   20833 ns pos  8 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step   20833 ns pos  8 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step   20833 ns pos  9 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step   20833 ns pos  9 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step   20833 ns pos 10 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step   20833 ns pos 10 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step   20833 ns pos 11 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step   20833 ns pos 11 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step   20833 ns pos 12 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step   20833 ns pos 12 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step   20833 ns pos 13 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step   20833 ns pos 13 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step   20833 ns pos 14 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step   20833 ns pos 14 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step   20833 ns pos 15 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step   20833 ns pos 15 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  0 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  0 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  1 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  1 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  2 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  2 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  3 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  3 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  4 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  4 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  5 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step  -20833 ns pos  5 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step  -20833 ns pos  6 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  6 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  7 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  7 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  8 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  8 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step  -20833 ns pos  9 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step  -20833 ns pos  9 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 10 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step  -20833 ns pos 10 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step  -20833 ns pos 11 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 11 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 12 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step  -20833 ns pos 12 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step  -20833 ns pos 13 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 13 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 14 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 14 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step  -20833 ns pos 15 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step  -20833 ns pos 15 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step   10417 ns pos  0 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step   10417 ns pos  0 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step   10417 ns pos  1 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step   10417 ns pos  1 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step   10417 ns pos  2 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step   10417 ns pos  2 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step   10417 ns pos  3 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step   10417 ns pos  3 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step   10417 ns pos  4 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step   10417 ns pos  4 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step   10417 ns pos  5 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step   10417 ns pos  5 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step   10417 ns pos  6 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step   10417 ns pos  6 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step   10417 ns pos  7 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step   10417 ns pos  7 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step   10417 ns pos  8 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step   10417 ns pos  8 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step   10417 ns pos  9 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step   10417 ns pos  9 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step   10417 ns pos 10 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step   10417 ns pos 10 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step   10417 ns pos 11 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step   10417 ns pos 11 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step   10417 ns pos 12 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step   10417 ns pos 12 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step   10417 ns pos 13 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step   10417 ns pos 13 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step   10417 ns pos 14 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step   10417 ns pos 14 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step   10417 ns pos 15 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step   10417 ns pos 15 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  0 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  0 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  474 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  1 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  1 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  510 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  2 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  2 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  3 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  3 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  487 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  4 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  4 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  460 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  5 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step  -10417 ns pos  5 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  516 drops= 0 t_lock_s=8.19
+step  -10417 ns pos  6 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  6 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  617 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  7 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  7 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  518 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  8 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  8 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  490 drops= 0 t_lock_s=7.68
+step  -10417 ns pos  9 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step  -10417 ns pos  9 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  477 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 10 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step  -10417 ns pos 10 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  543 drops= 0 t_lock_s=7.68
+step  -10417 ns pos 11 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 11 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  512 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 12 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step  -10417 ns pos 12 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  484 drops= 0 t_lock_s=7.68
+step  -10417 ns pos 13 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 13 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  493 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 14 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 14 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  554 drops= 0 t_lock_s=8.19
+step  -10417 ns pos 15 ppm=   0              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step  -10417 ns pos 15 ppm= 300              restarts=   1 windows_ok=1.000 worst_e=  536 drops= 0 t_lock_s=7.68
+step       0 ns pos  0 ppm=   0              restarts=   0 windows_ok=1.000 worst_e=  503 drops= 0 t_lock_s=7.68
+
+== shapes: E8 + P2, B = 4,096 ns, 120 s each; worst_e and drops counted after the first LOCKED
+gsign    J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  515 drops= 0 t_lock_s=7.68
+gsign    J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  582 drops= 0 t_lock_s=7.68
+gsign    J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  541 drops= 0 t_lock_s=8.19
+gsign    J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  736 drops= 0 t_lock_s=8.19
+gsign    J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  723 drops= 0 t_lock_s=8.19
+gsign    J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  701 drops= 0 t_lock_s=7.68
+bsign    J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  521 drops= 0 t_lock_s=7.68
+bsign    J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  530 drops= 0 t_lock_s=7.68
+bsign    J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  546 drops= 0 t_lock_s=7.68
+bsign    J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  728 drops= 0 t_lock_s=8.70
+bsign    J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  695 drops= 0 t_lock_s=7.68
+bsign    J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  763 drops= 0 t_lock_s=7.68
+galt     J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  160 drops= 0 t_lock_s=7.68
+galt     J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  147 drops= 0 t_lock_s=7.68
+galt     J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  147 drops= 0 t_lock_s=7.68
+galt     J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  160 drops= 0 t_lock_s=7.68
+galt     J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  154 drops= 0 t_lock_s=7.68
+galt     J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  128 drops= 0 t_lock_s=7.68
+palt     J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  151 drops= 0 t_lock_s=7.68
+palt     J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  159 drops= 0 t_lock_s=7.68
+palt     J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  175 drops= 0 t_lock_s=7.68
+palt     J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  126 drops= 0 t_lock_s=7.68
+palt     J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  129 drops= 0 t_lock_s=7.68
+palt     J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  160 drops= 0 t_lock_s=7.68
+white    J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  138 drops= 0 t_lock_s=7.68
+white    J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  165 drops= 0 t_lock_s=7.68
+white    J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  152 drops= 0 t_lock_s=7.68
+white    J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  312 drops= 0 t_lock_s=7.68
+white    J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  122 drops= 0 t_lock_s=7.68
+white    J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  128 drops= 0 t_lock_s=7.68
+sine10   J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  283 drops= 0 t_lock_s=7.68
+sine10   J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  241 drops= 0 t_lock_s=7.68
+sine10   J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  297 drops= 0 t_lock_s=7.68
+sine10   J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  385 drops= 0 t_lock_s=7.68
+sine10   J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  340 drops= 0 t_lock_s=7.68
+sine10   J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  377 drops= 0 t_lock_s=7.68
+sine1000 J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  275 drops= 0 t_lock_s=7.68
+sine1000 J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  259 drops= 0 t_lock_s=7.68
+sine1000 J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  182 drops= 0 t_lock_s=7.68
+sine1000 J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  309 drops= 0 t_lock_s=7.68
+sine1000 J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  283 drops= 0 t_lock_s=7.68
+sine1000 J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  233 drops= 0 t_lock_s=7.68
+sine2000 J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=   97 drops= 0 t_lock_s=7.68
+sine2000 J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  117 drops= 0 t_lock_s=7.68
+sine2000 J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  123 drops= 0 t_lock_s=7.68
+sine2000 J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  112 drops= 0 t_lock_s=7.68
+sine2000 J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  101 drops= 0 t_lock_s=7.68
+sine2000 J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  178 drops= 0 t_lock_s=7.68
+sine4096 J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  130 drops= 0 t_lock_s=7.68
+sine4096 J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  114 drops= 0 t_lock_s=7.68
+sine4096 J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  147 drops= 0 t_lock_s=7.68
+sine4096 J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  145 drops= 0 t_lock_s=7.68
+sine4096 J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  157 drops= 0 t_lock_s=7.68
+sine4096 J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  131 drops= 0 t_lock_s=7.68
+sine8192 J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  184 drops= 0 t_lock_s=7.68
+sine8192 J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  182 drops= 0 t_lock_s=7.68
+sine8192 J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  184 drops= 0 t_lock_s=7.68
+sine8192 J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  240 drops= 0 t_lock_s=7.68
+sine8192 J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  240 drops= 0 t_lock_s=7.68
+sine8192 J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  239 drops= 0 t_lock_s=7.68
+tri4096  J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  125 drops= 0 t_lock_s=7.68
+tri4096  J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  173 drops= 0 t_lock_s=7.68
+tri4096  J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  141 drops= 0 t_lock_s=7.68
+tri4096  J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  163 drops= 0 t_lock_s=7.68
+tri4096  J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  143 drops= 0 t_lock_s=7.68
+tri4096  J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  142 drops= 0 t_lock_s=7.68
+tri8192  J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  156 drops= 0 t_lock_s=7.68
+tri8192  J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  156 drops= 0 t_lock_s=7.68
+tri8192  J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  154 drops= 0 t_lock_s=7.68
+tri8192  J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  203 drops= 0 t_lock_s=7.68
+tri8192  J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  207 drops= 0 t_lock_s=7.68
+tri8192  J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  197 drops= 0 t_lock_s=7.68
+tri1000  J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  193 drops= 0 t_lock_s=7.68
+tri1000  J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  186 drops= 0 t_lock_s=7.68
+tri1000  J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  262 drops= 0 t_lock_s=7.68
+tri1000  J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  244 drops= 0 t_lock_s=7.68
+tri1000  J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  250 drops= 0 t_lock_s=7.68
+tri1000  J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  273 drops= 0 t_lock_s=7.68
+saw4096  J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  168 drops= 0 t_lock_s=7.68
+saw4096  J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  162 drops= 0 t_lock_s=7.68
+saw4096  J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  199 drops= 0 t_lock_s=7.68
+saw4096  J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  131 drops= 0 t_lock_s=7.68
+saw4096  J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  141 drops= 0 t_lock_s=7.68
+saw4096  J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  193 drops= 0 t_lock_s=7.68
+saw2048  J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  139 drops= 0 t_lock_s=7.68
+saw2048  J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  163 drops= 0 t_lock_s=7.68
+saw2048  J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  195 drops= 0 t_lock_s=7.68
+saw2048  J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  146 drops= 0 t_lock_s=7.68
+saw2048  J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  137 drops= 0 t_lock_s=7.68
+saw2048  J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  228 drops= 0 t_lock_s=7.68
+saw512   J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  147 drops= 0 t_lock_s=7.68
+saw512   J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  160 drops= 0 t_lock_s=7.68
+saw512   J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  170 drops= 0 t_lock_s=7.68
+saw512   J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  139 drops= 0 t_lock_s=7.68
+saw512   J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  126 drops= 0 t_lock_s=7.68
+saw512   J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  171 drops= 0 t_lock_s=7.68
+adv      J= 1042 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  567 drops= 0 t_lock_s=7.68
+adv      J= 1042 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  559 drops= 0 t_lock_s=7.68
+adv      J= 1042 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  564 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  762 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  761 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  767 drops= 0 t_lock_s=7.68
+adv      J=-1426 ppm=   0 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  762 drops= 0 t_lock_s=7.68
+adv      J=-1426 ppm= 300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  758 drops= 0 t_lock_s=7.68
+adv      J=-1426 ppm=-300 g=1.0 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  763 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm=   0 g=1.0 phase=0.0ms  restarts=   0 windows_ok=1.000 worst_e=  782 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm=   0 g=1.0 phase=1.0ms  restarts=   0 windows_ok=1.000 worst_e=  741 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm=   0 g=1.0 phase=255.9ms restarts=   0 windows_ok=1.000 worst_e=  742 drops= 0 t_lock_s=7.42
+adv      J= 1426 ppm=   0 g=1.0 phase=511.9ms restarts=   0 windows_ok=1.000 worst_e=  755 drops= 0 t_lock_s=7.68
+adv      J= 1426 ppm=   0 g=0.8 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  683 drops= 0 t_lock_s=8.19
+gsign    J= 1426 ppm= 300 g=0.8 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  641 drops= 0 t_lock_s=8.19
+adv      J= 1426 ppm=   0 g=1.2 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  869 drops= 0 t_lock_s=7.68
+gsign    J= 1426 ppm= 300 g=1.2 phase=0.37ms restarts=   0 windows_ok=1.000 worst_e=  839 drops= 0 t_lock_s=7.68
+

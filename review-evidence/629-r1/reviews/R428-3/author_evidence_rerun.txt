@@ -1,0 +1,29 @@
+Author round-3 desk model re-run at review time (python3 -I meter_rules_model_r3.py all)
+published model sha256: 2796b16069bcf91ceb2c63e9170337d9f06145606c8af7a64866ec077a6f75b4
+published output sha256: faed21653dd532f64ee505d7fa1e2b893834ed8bf8bbbf54ff19b9581b805029
+re-run output sha256:    faed21653dd532f64ee505d7fa1e2b893834ed8bf8bbbf54ff19b9581b805029
+cmp: BYTE-IDENTICAL
+source: commit d3234c72ef07cda426cc2dbfd81c231d88f1a6ef review-evidence/629-r1/author-r3/
+
+Author packet MANIFEST.sha256 check (sha256sum -c, published tree):
+./gates/check_doc_paths.out: FAILED open or read
+./gates/check_doc_paths.rc: FAILED open or read
+./gates/check_doc_style.out: FAILED open or read
+./gates/check_doc_style.rc: FAILED open or read
+./gates/check_em_dash.out: FAILED open or read
+./gates/check_em_dash.rc: FAILED open or read
+./gates/check_entity_shape.out: FAILED open or read
+./gates/check_entity_shape.rc: FAILED open or read
+./gates/diff_check_wt.out: FAILED open or read
+./gates/diff_check_wt.rc: FAILED open or read
+./gates/docs_check.out: FAILED open or read
+./gates/docs_check.rc: FAILED open or read
+./gates/gen_toc_anchors.out: FAILED open or read
+./gates/gen_toc_anchors.rc: FAILED open or read
+./gates/gen_toc_check.out: FAILED open or read
+./gates/gen_toc_check.rc: FAILED open or read
+./mcr_switch_probe/receipt.out: FAILED
+./mcr_switch_probe/run_probe.sh: FAILED
+sha256sum: WARNING: 16 listed files could not be read
+sha256sum: WARNING: 2 computed checksums did NOT match
+listed entries: 46; listed under ./gates/ (not in the published tree, which has ./gates-head/): 16
