@@ -1,0 +1,50 @@
+== diff name-status/modes e4b771f9..HEAD
+:000000 100644 000000000 9e2fae6ca A	docs/findings/117_AUDIO_CONTINUITY.md
+:100644 100644 c8880442e 11cca0e2c M	docs/findings/README.md
+== gitlinks at HEAD vs base
+gitlinks identical: 4
+== TIME_SYNC beat
+169:| Free-running offset | -10.64 ppm; one sample slips every 1.9582 s | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
+180:| Grid-aligner lock target | Engagement phase, the frame close kept 256 cycles off the capture walk's crossing ([Talker capture handoff](#talker-capture-handoff)); the module default is 1/128 sample | `KL_media_grid_align`, `milan_datapath` `MGA_KEEPOFF_CYC_C` |
+375:| TDM8 frame pin, slot k | + the bank walk and frame commit, MEASURED at 9 axis cycles, which is 180 ns on the shipping AX7101 (its `milan` axis clock is 50 MHz) and 90 ns on the leg's 100 MHz model axis clock, + the adopt wait `phi`, + (32k + 1) bit periods at 12.288 MHz (81.4 ns each, so slot k adds 2.6042 us and 8 slots make one 20.834 us frame). `phi` covers the frame CDC and the wait for the next serial frame start: one axis cycle plus serial-domain time, MEASURED at 0.219 to 21.049 us on the model axis clock and therefore 0.229 to 21.059 us as shipped. It is held constant per slot under CRF by #74's aligner, walks at `+10.6844` ppm at INTERNAL and steps by exactly one frame once per 1.958 s beat. That sign is the MEASURED one, the same the walk table below and the [channel map](../CHANNEL_MAP_64.md) carry: the instrument divides `(phi_last - phi_first)` by the elapsed time, so a positive walk is a LENGTHENING wait. It is not the audio clock's own free-running offset, which the loop table above states separately as -10.64 ppm; the two are different quantities | SHIPPED on the AX7101 1x1 TDM8 shape (#447): `KL_tdm_render_master` on `tdm.dout`, scheduled from the capture master's exported bit-clock enables. Every term above is measured by `make -C tb/verilator/milan_dp_render tdm8render`, not modelled. Silicon measurement of this path stays with #386 acceptance 4 and #117 |
+463:### Talker capture handoff
+478:| Beat at INTERNAL | one whole-frame slip every 1.958 s, counted once on `SLIP_TDM` | the loop table's rate, unchanged |
+== REGISTER_MAP slip counters
+132:   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
+203:  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), stopping under a CRF selection; they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
+242:| `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
+1254:| `0x6D8` | `I2SPB_STAT` | RO/W1C | I2S playback drift rails: `[31:16]` underruns (silence frames), `[15:0]` overruns (pairs dropped). They measure free-running-48k drift; at the power-on INTERNAL selection that drift free-runs by the standing free-run rule, and since #74 a CRF selection engages the servo chain that retires it. Both rails saturate at `0xFFFF`; **W1C per half (2026-07-22, gaps 5b)**: a write with any bit of a half set restarts that half's counter (the other half is untouched; a zero write is inert; readback stays the live count). W1C was chosen over clear-on-bind: the rails are engine diagnostics, not Milan Table 5.6 stream counters. A bind-triggered clear would erase evidence mid-diagnosis and add a bind-path dependency, while W1C leaves the observation window entirely under software control |
+1831:`0x8D4` and `0x8D8` carry the media-boundary slip counters since `0x0058`
+== aem_descriptors.py:585-592
+    on why truncating to the 2013 length was a compliance defect.
+    """
+    b = be16(AUDIO_CLUSTER) + be16(index)
+    b += cstr(name)                     # object_name
+    b += be16(NO_STRING)
+    b += be16(signal_type)              # 0xFFFF (input) / AUDIO_UNIT (output)
+    b += be16(0) + be16(0)              # signal_index, signal_output
+    b += be32(500) + be32(500)          # path/block latency
+== aem_assemble.py:287-295
+        raise ValueError(f"cluster name count {len(names_in)}/{len(names_out)}"
+                         f" != cluster count {n_in}/{n_out}")
+    for k in range(n_in):
+        descs.append((AUDIO_CLUSTER, k,
+                      d_audio_cluster(k, names_in[k], NO_STRING)))
+    for k in range(n_in, n_in + n_out):
+        descs.append((AUDIO_CLUSTER, k,
+                      d_audio_cluster(k, names_out[k - n_in], AUDIO_UNIT)))
+    for k, rows in enumerate(spec["audio_maps"]):
+== descriptor type codes
+103:AUDIO_CLUSTER, AUDIO_MAP, CONTROL, CLOCK_DOMAIN = 0x0014, 0x0017, 0x001A, 0x0024
+== 451 method anchor
+142:## Method
+
+
+# ---------------------------------------------------------------- model ----
+# Descriptor type codes (IEEE 1722.1-2021 Table 7.1)
+ENTITY, CONFIGURATION, AUDIO_UNIT, STREAM_INPUT, STREAM_OUTPUT = (
+    0x0000, 0x0001, 0x0002, 0x0005, 0x0006)
+AVB_INTERFACE, CLOCK_SOURCE, LOCALE, STRINGS = 0x0009, 0x000A, 0x000C, 0x000D
+STREAM_PORT_INPUT, STREAM_PORT_OUTPUT = 0x000E, 0x000F
+AUDIO_CLUSTER, AUDIO_MAP, CONTROL, CLOCK_DOMAIN = 0x0014, 0x0017, 0x001A, 0x0024
+
