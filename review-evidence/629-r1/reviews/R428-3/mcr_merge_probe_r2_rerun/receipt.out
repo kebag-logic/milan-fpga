@@ -1,0 +1,8 @@
+source change only (the design)                            toggles talker0=1 talker1=1
+source change + request at +2 cycles                       toggles talker0=1 talker1=1
+source change + request at +3 cycles (era-start fall)      toggles talker0=1 talker1=1
+source change + request at +5 cycles                       toggles talker0=1 talker1=1
+source change + request at +30 cycles                      toggles talker0=1 talker1=1
+source change + request at +600 cycles (late first PDU)    toggles talker0=1 talker1=2
+source change + request at +1,600 cycles                   toggles talker0=2 talker1=2
+RESULT design=2 early_requests=2,2,2,2 late_requests=3,4

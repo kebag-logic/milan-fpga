@@ -1,0 +1,35 @@
+sensitivity S impulse first taps (g=1): [-1.0, 0.75, -0.0625, 0.17188, 0.02734, 0.0498]
+||S||_1 (g=1) = 2.1250
+g=0.5 poles |z| = 0.3536, 0.3536; ||S||_1 = 2.0000
+g=0.8 poles |z| = 0.4472, 0.4472; ||S||_1 = 2.0000
+g=1.0 poles |z| = 0.5000, 0.5000; ||S||_1 = 2.1250
+g=1.2 poles |z| = 0.5477, 0.5477; ||S||_1 = 2.5049
+g=1.5 poles |z| = 0.6124, 0.6124; ||S||_1 = 4.0000
+
+N  g    open 2/N  closed ||H_N||_1  J=1042   J=1426   J=1748
+1  0.8   2.0000          3.3920     3534     4837     5929
+2  0.8   1.0000          1.6624     1732     2371     2906
+4  0.8   0.5000          0.9192      958     1311     1607
+6  0.8   0.3333          0.6413      668      914     1121
+8  0.8   0.2500          0.4910      512      700      858
+16 0.8   0.1250          0.2498      260      356      437
+1  1.0   2.0000          4.0137     4182     5723     7016
+2  1.0   1.0000          1.7773     1852     2534     3107
+4  1.0   0.5000          1.0155     1058     1448     1775
+6  1.0   0.3333          0.6967      726      993     1218
+8  1.0   0.2500          0.5278      550      753      923
+16 1.0   0.1250          0.2656      277      379      464
+1  1.2   2.0000          5.0000     5210     7130     8740
+2  1.2   1.0000          1.9009     1981     2711     3323
+4  1.2   0.5000          1.1803     1230     1683     2063
+6  1.2   0.3333          0.8234      858     1174     1439
+8  1.2   0.2500          0.6239      650      890     1091
+16 1.2   0.1250          0.3131      326      446      547
+
+ramp bound 2J/T: J=1042 T=512 ms -> 4.070 ppm = 2084 ns per 512 ms window (lock threshold 1,024 ns = 2 ppm)
+ramp bound 2J/T: J=1042 T=2048 ms -> 1.018 ppm = 521 ns per 512 ms window (lock threshold 1,024 ns = 2 ppm)
+ramp bound 2J/T: J=1042 T=4096 ms -> 0.509 ppm = 260 ns per 512 ms window (lock threshold 1,024 ns = 2 ppm)
+ramp bound 2J/T: J=1426 T=512 ms -> 5.570 ppm = 2852 ns per 512 ms window (lock threshold 1,024 ns = 2 ppm)
+ramp bound 2J/T: J=1426 T=2048 ms -> 1.393 ppm = 713 ns per 512 ms window (lock threshold 1,024 ns = 2 ppm)
+ramp bound 2J/T: J=1426 T=4096 ms -> 0.696 ppm = 356 ns per 512 ms window (lock threshold 1,024 ns = 2 ppm)
+indistinguishability: for every estimator the worst case over a span T is >= 2J/T (half the width 4J/T of the consistent set)
