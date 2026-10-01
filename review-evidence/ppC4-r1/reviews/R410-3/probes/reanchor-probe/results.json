@@ -1,0 +1,105 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "cdl_not_44_rejected@rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F29 BIND_RX cdl 84",
+   "F29 PROBE_TX cdl 84"
+  ],
+  "missing": [
+   "F29 BIND_RX cdl 84",
+   "F29 PROBE_TX cdl 84"
+  ],
+  "failing_checks": [
+   "F4 counters d/e/s/v/l got 0 0 0 0 1 want 0 0 0 0 0",
+   "F4 commits got 0 want 1",
+   "F4 aborts got 1 want 0",
+   "F4 hdr beats got 0 want 1",
+   "F4 slot bytes exact (got 56 want 36)",
+   "F4 msg_type got 6 want 0",
+   "F4 cdl got 44 want 24",
+   "F4 seq got cafe want 0000",
+   "F4 opcode got 0006 want 0000",
+   "F4 operands got 0000000000000004 want 0000000000000000",
+   "F4 tail fields read as 0",
+   "F30 BIND_RX cdl 84 counters d/e/s/v/l got 0 0 0 0 1 want 0 0 0 0 0",
+   "F30 BIND_RX cdl 84 commits got 0 want 1",
+   "F30 BIND_RX cdl 84 aborts got 1 want 0",
+   "F30 BIND_RX cdl 84 hdr beats got 0 want 1",
+   "F30 BIND_RX cdl 84 slot bytes exact (got 56 want 96)",
+   "F30 BIND_RX cdl 84 cdl got 44 want 84",
+   "F30 BIND_RX cdl 84: the slot holds cdl + 12 = 96 bytes (got 56) and the beat carries cdl 84 (got 44)",
+   "F30 BIND_RX cdl 84: no rx_length count (got +1)",
+   "F30 PROBE_TX cdl 84 counters d/e/s/v/l got 0 0 0 0 1 want 0 0 0 0 0",
+   "F30 PROBE_TX cdl 84 commits got 0 want 1",
+   "F30 PROBE_TX cdl 84 aborts got 1 want 0",
+   "F30 PROBE_TX cdl 84 hdr beats got 0 want 1",
+   "F30 PROBE_TX cdl 84 slot bytes exact (got 56 want 96)",
+   "F30 PROBE_TX cdl 84 cdl got 44 want 84",
+   "F30 PROBE_TX cdl 84: the slot holds cdl + 12 = 96 bytes (got 56) and the beat carries cdl 84 (got 44)",
+   "F30 PROBE_TX cdl 84: no rx_length count (got +1)"
+  ],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "cdl_not_44_rejected@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AL1: a 96-B UNBIND_RX",
+   "AL2: a 96-B BIND_RX",
+   "AL3: the 96-B PROBE_TX",
+   "AL4: no 96-B frame was dropped"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AL1: a 96-B UNBIND_RX is answered by the 56-B cdl-44 UNBIND_RX_RESPONSE",
+   "AL2: a 96-B BIND_RX gets the same 56-B cdl-44 response as AI1's truncated BIND_RX, byte for byte",
+   "AL2: PROBE_TX #2 regenerated from the long BIND_RX's fields, byte-exact (seq 1)",
+   "AL3: the 96-B PROBE_TX gets the same 56-B cdl-44 response, byte for byte",
+   "AL4: no 96-B frame was dropped or counted at the front end (rx_length 3)",
+   "AS1: PROBE_TX #2 unanswered: its exact duplicate follows",
+   "AS1: discovery then T-ACMP-DELAY: PROBE_TX #3 byte-exact (seq 2)",
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream (bound 1, sid 0000000000000000, da 000000000000, vid 0)",
+   "AS2: GET_RX_STATE settled: bound values and the response's {stream_id, DA, VLAN} (Milan Table 5.38), byte-exact",
+   "AS3: GET_RX_STATE still settled on the recorded stream",
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: class-D: Listener READY declared, Talker ADVERTISE registered for sink 1 (decl 0, reg 0)",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener",
+   "AS4: GET_RX_STATE in SETTLED_RSV_OK, REGISTERING_FAILED 0 (Milan Table 5.39), byte-exact",
+   "AS5: 11.5 s after the settle: no re-probe (4 ACMP frames) and no Listener Lv",
+   "AS5: Listener READY still declared, Talker still registered (decl 0, reg 0)",
+   "AS5: GET_RX_STATE still carries the settled stream past T-ACMP-NOTK",
+   "AS5: the bound view still carries the settled stream",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ }
+]

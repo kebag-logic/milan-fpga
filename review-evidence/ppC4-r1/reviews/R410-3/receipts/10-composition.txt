@@ -1,0 +1,115 @@
+merge 5609f8f parents: 616cbdf1e54a56420e35b53cd161116702f7172d d5f73bac158276a9fcf549185bad5c65c0498dae
+merge-base(R2, MAIN) = b2db3a970cedbbff2f8ba813acb96122c442bc58
+== files: lane (BASE..R2) vs merged (MAIN..HEAD) numstat
+5a6
+> 1	1	tb/maap/README.md
+9,10c10,11
+< 489	4	tb/pp_top/sim_main.cpp
+< 8	2	tb/rx_validator/README.md
+---
+> 486	1	tb/pp_top/sim_main.cpp
+> 9	3	tb/rx_validator/README.md
+== MAIN..HEAD -- hdl: 0 files
+== paths outside the lane's 11 files and tb/maap/README.md touched by MAIN..HEAD:
+  none
+== lane diff replayed on MAIN (git apply -3), file vs HEAD:
+  SAME docs/00_MILAN_COMPLIANCE_REVIEW.md
+  SAME docs/architecture/09_verification.md
+  SAME tb/acmp_listener/README.md
+  SAME tb/acmp_listener/sim_main.cpp
+  SAME tb/acmp_nvm/sim_main.cpp
+  DIFF tb/pp_top/README.md
+  DIFF tb/pp_top/acmp_mutants.py
+  SAME tb/pp_top/pp_top_wrap.sv
+  DIFF tb/pp_top/sim_main.cpp
+  DIFF tb/rx_validator/README.md
+  DIFF tb/rx_validator/sim_main.cpp
+  DIFF tb/maap/README.md
+== hunk-level difference, lane (BASE..R2) vs merged (MAIN..HEAD), per DIFF file:
+##### tb/pp_top/README.md
+##### tb/pp_top/sim_main.cpp
+485,493c485,487
+< -  if (!gsi_only && !name_only && !d3_only) Suite(h).run();
+< -  if (!name_only && !d3_only) InternalStreamInfoPhase{h}.run();
+< -  if (!gsi_only && !d3_only) run_name_writes(h);
+< -  if (!gsi_only && !name_only) run_d3(h);
+< +  if (!gsi_only && !name_only && !d3_only && !acmp_only) Suite(h).run();
+< +  if (!name_only && !d3_only && !acmp_only) InternalStreamInfoPhase{h}.run();
+< +  if (!gsi_only && !d3_only && !acmp_only) run_name_writes(h);
+< +  if (!gsi_only && !name_only && !acmp_only) run_d3(h);
+< +  if (!gsi_only && !name_only && !d3_only) run_acmp(h);
+---
+> -  const bool one_section = gsi_only || name_only || d3_only || adp_only || maap_only;
+> +  const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+> +  if (!one_section || acmp_only) run_acmp(h);
+##### tb/rx_validator/README.md
+1,2c1,2
+< -(tally line: `437 checks: 437 PASS, 0 FAIL`).
+< +(tally line: `495 checks: 495 PASS, 0 FAIL`).
+---
+> -(tally line: `497 checks: 497 PASS, 0 FAIL`).
+> +(tally line: `555 checks: 555 PASS, 0 FAIL`).
+6c6
+< +  accepted whole, as a BIND_RX and as a PROBE_TX (F29, issue #45): committed
+---
+> +  accepted whole, as a BIND_RX and as a PROBE_TX (F30, issue #45): committed
+10c10,12
+< +| M5 | ACMP accepted only at cdl 44: `v1_pass_w` also requires `cdl == 44` for subtype 0xFC (`cdl_not_44_rejected` in `tb/pp_top/acmp_mutants.py`, which plants it in an extract and runs this suite) | F29: both 96-B forms abort and count `rx_length`, with no commit and no header beat; F4's cdl-24 short form fails the same way (27 FAILs) |
+---
+> -| M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 497); the same arm fails `tb/pp_top` MP7 |
+> +| M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 555); the same arm fails `tb/pp_top` MP7 |
+> +| M6 | ACMP accepted only at cdl 44: `v1_pass_w` also requires `cdl == 44` for subtype 0xFC (`cdl_not_44_rejected` in `tb/pp_top/acmp_mutants.py`, which plants it in an extract and runs this suite) | F30: both 96-B forms abort and count `rx_length`, with no commit and no header beat; F4's cdl-24 short form fails the same way (27 FAILs) |
+##### tb/rx_validator/sim_main.cpp
+2c2
+< +// ---- F29: the 96-B IEEE 1722.1-2021 ACMPDU, cdl 84 (V3; F09.4; #45) ---
+---
+> +// ---- F30: the 96-B IEEE 1722.1-2021 ACMPDU, cdl 84 (V3; F09.4; #45) ---
+16,17c16,17
+< +  static constexpr Form kForms[] = {{"F29 BIND_RX cdl 84", 0x06, 0x0004},
+< +                                    {"F29 PROBE_TX cdl 84", 0x00, 0x0003}};
+---
+> +  static constexpr Form kForms[] = {{"F30 BIND_RX cdl 84", 0x06, 0x0004},
+> +                                    {"F30 PROBE_TX cdl 84", 0x00, 0x0003}};
+21c21
+< +    run_case("F29 truncated reference", shortf);
+---
+> +    run_case("F30 truncated reference", shortf);
+##### tb/pp_top/acmp_mutants.py
+97c97
+< +           ("F29 BIND_RX cdl 84", "F29 PROBE_TX cdl 84")),
+---
+> +           ("F30 BIND_RX cdl 84", "F30 PROBE_TX cdl 84")),
+##### tb/maap/README.md
+0a1,2
+> -| `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 497 |
+> +| `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 555 |
+== 4e55849 alone:
+4e558491c608dc88efc7963a77cb6b49bce2a46e Restate the maap_version validator arm at the merged head: the same 47 FAIL, now of 555 rx_validator checks
+
+ tb/maap/README.md         | 2 +-
+ tb/rx_validator/README.md | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+diff --git a/tb/maap/README.md b/tb/maap/README.md
+index 20c4ff4..e69be4e 100644
+--- a/tb/maap/README.md
++++ b/tb/maap/README.md
+@@ -238,7 +238,7 @@ only simulation logs; no expectation comes from RTL text.
+ | `fit-compare-off-by-one` | the fit compare `<=` becomes `<`: the last fitting offset is refused | maap | U17 x3 (no PROBE, the boundary draw refused 1,745 times) and U17b x4: 7 FAIL of 195 |
+ | `seed-clamp-removed` | the footnote-a seed clamp removed: the provisioned offset is probed as given | maap | U18 x4 (claim `…:FF:FF`; PROBE bytes; claim; last-source grant), U18b x2: 6 FAIL of 196 |
+ | `release-keeps-draw-mark` | the fix above removed | maap | U17b phases 1 to 3, U17c x2, U18 x3 and U27 x1, each behind a wedge that the next Release! clears in `W_IVAL`: 9 FAIL of 194 |
+-| `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 497 |
++| `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 555 |
+ | (same arm) | | pp_top `maap-internal` | MP7 x4: neither the version-2 nor the version-0 PROBE is defended: 4 FAIL of 34 |
+ | `compare-mac-forward` | `cmp_mac_true_w = own_mac_i < rxm_sa_r`: compare_MAC in forward octet order (issue #68, B.3.6.4) | maap | U7, U8, U9 x2, U10, U19 x2, U20, U21: 9 FAIL of 194 |
+ | (same arm) | | pp_top `maap-internal` | MP4 x5: the rev-lower, forward-higher ANNOUNCE is ignored, nothing withdrawn: 5 FAIL of 34 |
+diff --git a/tb/rx_validator/README.md b/tb/rx_validator/README.md
+index c2c7182..a187afd 100644
+--- a/tb/rx_validator/README.md
++++ b/tb/rx_validator/README.md
+@@ -84,5 +84,5 @@ commit/abort bookkeeping).
+ | M2 | V1 boundary off-by-one (`pcnt_end >= cdl+12` → `>`) | F1 and every exact-fit frame: counted `rx_length` + aborted instead of committed (101 FAILs) |
+ | M3 | V9 DA-alone routing (MSRP EtherType pair check dropped) | F14: 60 LLDP bytes leak onto the MRP stream (1 FAIL) |
+ | M4 | V10 the AECP hold admission dropped (`held_fail_w` tied 0; `validator_admits_held_aecp` in `tb/pp_top/d3_mutants.py`, which plants it in an extract and runs this suite) | F28: the held AECP frame commits and emits a header beat, `rx_aecp_held` stays 0 (4 FAILs) |
+-| M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 497); the same arm fails `tb/pp_top` MP7 |
++| M5 | a `maap_version == 1` acceptance rule added to the V8 drop (`tb/maap/mutations/validator-maap-version-1-only.patch`, run by `make -C tb/maap mutants`) | F29a/F29b/F29c: each PROBE counted `rx_version`, aborted, no hdr beat (47 FAIL of 555); the same arm fails `tb/pp_top` MP7 |
+ | M6 | ACMP accepted only at cdl 44: `v1_pass_w` also requires `cdl == 44` for subtype 0xFC (`cdl_not_44_rejected` in `tb/pp_top/acmp_mutants.py`, which plants it in an extract and runs this suite) | F30: both 96-B forms abort and count `rx_length`, with no commit and no header beat; F4's cdl-24 short form fails the same way (27 FAILs) |

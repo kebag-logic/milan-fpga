@@ -1,0 +1,103 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "bound_view_not_latched@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream",
+   "AS5: the bound view still carries the settled stream"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream (bound 1, sid 0000000000000000, da 000000000000, vid 0)",
+   "AS5: the bound view still carries the settled stream"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "matcher_vid_ignored@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+   "AS3: near misses register nothing",
+   "AS3: no TK_ATTR_REGISTERED{1}"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration on the wire",
+   "AS3: near misses register nothing (decl 2, reg 1)",
+   "AS3: no TK_ATTR_REGISTERED{1} reached the listener",
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "bound_view_not_cleared@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS6: the bound view is cleared with the binding"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS6: the bound view is cleared with the binding (bound 0, sid 0202000aa1a10001, da 91e0f0a1a101, vid 2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "bound_dmac_from_sid@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream (bound 1, sid 0202000aa1a10001, da 000aa1a10001, vid 2)",
+   "AS5: the bound view still carries the settled stream"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "matcher_da_ignored@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration",
+   "AS3: near misses register nothing",
+   "AS3: no TK_ATTR_REGISTERED{1}"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS3: near misses (DA, VLAN, stream_id) put no Listener declaration on the wire",
+   "AS3: near misses register nothing (decl 2, reg 1)",
+   "AS3: no TK_ATTR_REGISTERED{1} reached the listener",
+   "AS4: the matching Talker Advertise yields Listener Ready New, byte-exact",
+   "AS4: exactly one TK_ATTR_REGISTERED{1} reached the listener"
+  ],
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,167 @@
+Verilator 5.050 2026-07-01 rev v5.050
+suite-rx_validator rc=0 wall=5s cmd=make -C tb/rx_validator
+  rx_validator tally: 555 checks: 555 PASS, 0 FAIL
+suite-acmp_listener rc=0 wall=5s cmd=make -C tb/acmp_listener
+  acmp_listener tally: 2988 checks: 2988 PASS, 0 FAIL
+suite-acmp_nvm rc=0 wall=5s cmd=make -C tb/acmp_nvm
+  acmp_nvm tally: 360 checks: 360 PASS, 0 FAIL
+suite-maap rc=0 wall=7s cmd=make -C tb/maap
+  maap tally: 196 checks: 196 PASS, 0 FAIL
+suite-adp_engine rc=0 wall=5s cmd=make -C tb/adp_engine
+  adp_engine tally: 1367 checks: 1367 PASS, 0 FAIL
+suite-pp_top rc=0 wall=291s cmd=make -C tb/pp_top
+  pp_top: GI latency walks added: 5568 checks, 0 failures
+  pp_top: NW: 85 checks, 0 failures
+  pp_top: D3: 133 checks, 0 failures
+  pp_top: ACMP: 43 checks, 0 failures
+  pp_top: AD: 55 checks, 0 failures
+  pp_top: [build default, SRP_DOM_DEF_VID_P 0x0002] 7972 checks, 0 failures
+  pp_top: [build fixture, SRP_DOM_DEF_VID_P 0x5a3c] 20 checks, 0 failures
+  pp_top: 7992 checks: 7992 PASS, 0 FAIL
+lint_hdl rc=0 wall=11s cmd=./scripts/lint_hdl.sh
+make_check rc=0 wall=29s cmd=make check
+gen_matrix rc=0 wall=0s cmd=python3 scripts/gen_matrix.py --check
+diff_check_d5 rc=0 wall=0s cmd=git diff --check d5f73bac158276a9fcf549185bad5c65c0498dae 4e558491c608dc88efc7963a77cb6b49bce2a46e
+diff_check_lane rc=0 wall=0s cmd=git diff --check b2db3a970cedbbff2f8ba813acb96122c442bc58 4e558491c608dc88efc7963a77cb6b49bce2a46e
+check_upc_map rc=0 wall=0s cmd=python3 scripts/check_upc_map.py
+pp_top-entry--acmp-only rc=0 wall=5s cmd=./obj_dir/Vpp_top_sim --acmp-only
+  --acmp-only: ACMP: 43 checks, 0 failures
+  --acmp-only: [build default, SRP_DOM_DEF_VID_P 0x0002] 43 checks, 0 failures
+pp_top-entry--adp-only rc=0 wall=9s cmd=./obj_dir/Vpp_top_sim --adp-only
+  --adp-only: AD: 55 checks, 0 failures
+  --adp-only: [build default, SRP_DOM_DEF_VID_P 0x0002] 55 checks, 0 failures
+pp_top-entry--maap-internal-only rc=0 wall=1s cmd=./obj_dir/Vpp_top_sim --maap-internal-only
+  --maap-internal-only: [build default, SRP_DOM_DEF_VID_P 0x0002] 34 checks, 0 failures
+pp_top-entry--gsi-internal-only rc=0 wall=24s cmd=./obj_dir/Vpp_top_sim --gsi-internal-only
+  --gsi-internal-only: GI latency walks added: 5568 checks, 0 failures
+  --gsi-internal-only: [build default, SRP_DOM_DEF_VID_P 0x0002] 6182 checks, 0 failures
+pp_top-entry--name-writes-only rc=0 wall=0s cmd=./obj_dir/Vpp_top_sim --name-writes-only
+  --name-writes-only: NW: 85 checks, 0 failures
+  --name-writes-only: [build default, SRP_DOM_DEF_VID_P 0x0002] 85 checks, 0 failures
+pp_top-entry--d3-only rc=0 wall=56s cmd=./obj_dir/Vpp_top_sim --d3-only
+  --d3-only: D3: 133 checks, 0 failures
+  --d3-only: [build default, SRP_DOM_DEF_VID_P 0x0002] 133 checks, 0 failures
+acmp_mutants_A rc=0 wall=55s cmd=python3 tb/pp_top/acmp_mutants.py --output $REVIEWS/ppC4-r410-3-packet/receipts/acmp_mutants_A --verilator $VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator --jobs 8 --only msg_ok_forced guard_ctlr_dropped guard_talker_eid_dropped guard_talker_uid_dropped cdl_not_44_rejected
+{"mutant": "golden-acmp_listener", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-rx_validator", "verdict": "PASS"}
+{"mutant": "msg_ok_forced@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@rx_validator", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_eid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_ctlr_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_uid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "msg_ok_forced@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 7 of 7 KILLED by their named checks; goldens PASS
+acmp_mutants_B rc=0 wall=79s cmd=python3 tb/pp_top/acmp_mutants.py --output $REVIEWS/ppC4-r410-3-packet/receipts/acmp_mutants_B --verilator $VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator --jobs 8 --only st_ls_settle_as_withdraw st_ls_teardown_as_declare st_ls_sid_da_swapped st_ls_state_none st_ls_vid_dropped st_ls_index_zero st_ls_teardown_lost
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "st_ls_vid_dropped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_index_zero@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_state_none@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_sid_da_swapped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_settle_as_withdraw@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_as_declare@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 7 of 7 KILLED by their named checks; goldens PASS
+acmp_mutants_C rc=0 wall=62s cmd=python3 tb/pp_top/acmp_mutants.py --output $REVIEWS/ppC4-r410-3-packet/receipts/acmp_mutants_C --verilator $VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator --jobs 8 --only bound_view_not_latched bound_dmac_from_sid bound_view_not_cleared matcher_da_ignored matcher_vid_ignored
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "bound_view_not_latched@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_vid_ignored@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_cleared@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_dmac_from_sid@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_da_ignored@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 5 of 5 KILLED by their named checks; goldens PASS
+adp_mutants rc=0 wall=350s cmd=make -C tb/adp_engine mutants MUTANT_OUTPUT=$REVIEWS/ppC4-r410-3-packet/receipts/adp_mutants VERILATOR=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator
+disc-fresh-checks-gm: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0) (5.6.4.5.2 step 3): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+disc-not-discovered-checks-index: rc=2 failures=14 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4) (5.6.4.5.1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0) (5.6.4.5.1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): reached
+    FAIL: P13 T-ADP-NOADP armed and expired
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): reached
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 BIND x TK_DISCOVERED (sink 0): reached
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+disc-not-discovered-checks-interface: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0) (5.6.4.5.1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+disc-restart-not-rediscovered: rc=2 failures=4 named=1 KILLED
+    FAIL: P9e restart fires a pair, got 1
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 1 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+disc-departing-ignores-interface: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7) (5.6.4.5.3 step 1): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7): no event, got 1 events
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7): no T-ADP-NOADP operation
+disc-stray-noadp-departs: rc=2 failures=2 named=1 KILLED
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): no event, got 1 events
+disc-unbind-keeps-timer: rc=2 failures=2 named=1 KILLED
+    FAIL: P9k NOADP cancelled
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): T-ADP-NOADP stopped once
+32 checks: 32 PASS, 0 FAIL
+make: Leaving directory '$REVIEWS/ppC4-r410-3-packet/scratch/run/tb/adp_engine'
+maap_mutants rc=0 wall=246s cmd=make -C tb/maap mutants MUTANT_OUTPUT=$REVIEWS/ppC4-r410-3-packet/receipts/maap_mutants VERILATOR=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin/verilator
+    FAIL: U26: W_RX, a 1-cycle Release! is followed by a fresh walk's PROBE
+seed-rearmed-on-idle-release-only [maap]: rc=2 tally=(196, 2) named=2 KILLED
+    FAIL: U27: the W_ADDR arc, the next engagement probes the seed first (got 91e0f00026a4)
+    FAIL: U27: the W_ADDR arc, the seeded PROBE is byte-exact
+seed-clamp-off-by-one [maap]: rc=2 tally=(196, 2) named=2 KILLED
+    FAIL: U18b: seed 0xfdf9 is clamped: probes 0xfdf8 (got 91e0f000fdf9, 0 draws)
+    FAIL: U18b: seed 0xfdf9, the PROBE is byte-exact
+release-waits-for-draw [maap]: rc=2 tally=(196, 1) named=1 KILLED
+    FAIL: U17c: a draw in flight at the fall is abandoned, never adopted (3 of 5 offsets)
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U28: no new TX slot request follows the fall (a request already pending is retried until granted), in any walker state, for 33 s (1 of 17 falls)
+    FAIL: U28: at most the one frame requested before the fall drains (1 of 17 falls)
+    FAIL: U28: no claim after the fall, and INITIAL (1 of 17 falls)
+teardown-keeps-announce-timer [maap]: rc=2 tally=(196, 1) named=1 KILLED
+    FAIL: U28: the timers are stopped: no expiry for 33 s after the fall (3 of 17 falls)
+drain-waits-for-the-link [maap]: rc=2 tally=(196, 5) named=2 KILLED
+    FAIL: U23: at most the one frame requested before the fall drains: the ANNOUNCE, byte-exact, and no new slot request after it (32 of 43 offsets)
+    FAIL: U23: the drained ANNOUNCE reaches the lane within 63 cycles of the fall (32 of 43 offsets late)
+tx-set-omits-alloc [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-gwait [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-write [maap]: rc=2 tally=(192, 7) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-commit [maap]: rc=2 tally=(196, 3) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+32 checks: 32 PASS, 0 FAIL
+make: Leaving directory '$REVIEWS/ppC4-r410-3-packet/scratch/run/tb/maap'
+d3_small rc=0 wall=37s n=12
+D3 mutations: 12 of 12 KILLED by their named checks; goldens PASS
+d3_pp0 rc=0 wall=319s n=16
+D3 mutations: 16 of 16 KILLED by their named checks; goldens PASS
+d3_pp1 rc=0 wall=335s n=16
+D3 mutations: 16 of 16 KILLED by their named checks; goldens PASS
+d3_pp2 rc=0 wall=356s n=16
+D3 mutations: 16 of 16 KILLED by their named checks; goldens PASS
+d3_pp3 rc=0 wall=359s n=16
+D3 mutations: 16 of 16 KILLED by their named checks; goldens PASS
+d3_pp4 rc=0 wall=176s n=7
+D3 mutations: 7 of 7 KILLED by their named checks; goldens PASS
