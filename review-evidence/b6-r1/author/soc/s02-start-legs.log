@@ -1,0 +1,83 @@
+
+### 2026-10-01T14:40:24+0200 timeout=60.0 typed='wget -qO- http://<link-host-addr>:38471/A477_334490.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/39015 2>&1
+printf '%s_B\n' A477_334490
+ps -o pid,args | grep [a]lsaloop; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; if ps -o args | grep -q [a]lsaloop; then echo LEGS_PRESENT_NOT_STARTED; else cd /; nohup alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z >/dev/null 2>&1 </dev/null & echo $! > /run/tdm8/to-host.pid; nohup alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z >/dev/null 2>&1 </dev/null & echo $! > /run/tdm8/from-host.pid; disown -a; echo STARTED; fi; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid /run/tdm8/from-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+printf '\n%s_E rc=%s\n' A477_334490 $?
+### reply:
+A477_334490_B
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+STARTED
+98240.33 274996.56
+--- bridge ---
+from-host: running (pid 22950)
+to-host: running (pid 22949)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 22949
+trigger_time: 98240.318973725
+tstamp      : 0.000000000
+delay       : 808
+avail       : 808
+avail_max   : 1539
+-----
+hw_ptr      : 6872
+appl_ptr    : 6064
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 22950
+trigger_time: 98237.350785270
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 1536
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 22950
+trigger_time: 98237.343049155
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 22949
+trigger_time: 98237.343097780
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 1152
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+22949
+22950
+22949 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+22950 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+UDC=configured
+BAD=0
+0
+ 95:     102168          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         30          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   22746709          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:     566416          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+[87180.298723] dwc3 31000000.usb: remote wakeup not configured
+[87587.632901] dwc3 31000000.usb: remote wakeup not configured
+
+A477_334490_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

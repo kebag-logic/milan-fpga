@@ -1,0 +1,57 @@
+LOCK_REQUEST 2026-10-01T11:28:26.590Z smoke2-a0 A0 90
+LOCK 2026-10-01T11:28:26.596Z
+{"t": 1790854106.707225, "mono_raw_ns": 5141672871806, "kind": "start", "name": "smoke2-a0", "case": "A0", "window_s": 90.0, "play_s": 390, "samples": 1450, "tone_sha256": "566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588", "tone_frames": 48000, "settle_s": 20.0}
+{"t": 1790854107.296629, "mono_raw_ns": 5142262272857, "kind": "soc", "tag": "fetch", "rc": 0}
+{"t": 1790854107.637183, "mono_raw_ns": 5142602813708, "kind": "sync", "n": 5, "t0": 1790854107.637024, "t1": 1790854107.637177, "rt": 1790854107.7262008, "rtt_ms": 0.153, "offset_ms": 89.1}
+{"t": 1790854107.641382, "mono_raw_ns": 5142607012249, "kind": "as-found", "fmt-peer-in-0": "0205022001006000", "fmt-peer-in-8": "041060010000bb80", "fmt-dut-in-0": "0205022002006000", "fmt-dut-in-1": "041060010000bb80", "fmt-dut-out-0": "0205022002006000", "fmt-dut-out-1": "041060010000bb80", "fmt-peer-out-2": "041060010000bb80", "clk-peer": 0, "clk-dut": 0, "rx-peer-0": {"status": 0, "conn_count": 0, "stream_id": "0000000000000000"}, "rx-peer-8": {"status": 0, "conn_count": 0, "stream_id": "0000000000000000"}, "rx-dut-0": {"status": 0, "conn_count": 0, "stream_id": "0000000000000000"}, "rx-dut-1": {"status": 0, "conn_count": 0, "stream_id": "0000000000000000"}}
+{"t": 1790854107.642028, "mono_raw_ns": 5142607658198, "kind": "map-add", "status": ["SUCCESS", "SUCCESS"], "readback": "000f0000000000010008000000000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700070000"}
+{"t": 1790854107.654285, "mono_raw_ns": 5142619919168, "kind": "capture-started"}
+{"t": 1790854111.241385, "mono_raw_ns": 5146207024529, "kind": "soc", "tag": "play-start", "rc": 0}
+{"t": 1790854112.82591, "mono_raw_ns": 5147791548888, "kind": "soc", "tag": "sampler-start", "rc": 0}
+{"t": 1790854112.987866, "mono_raw_ns": 5147953504375, "kind": "dut", "tag": "before-bind", "rc": 0, "words": {"0x8f8": "00000020", "0x8fc": "00000000", "0x738": "00000000", "0x748": "00000000", "0x74c": "00000000", "0x8d4": "ffffffff", "0x8d8": "0000ba87", "0x8dc": "18780100"}}
+{"t": 1790854113.023988, "mono_raw_ns": 5147989618489, "kind": "format-check", "ok": true, "tag": "aaf", "talker": "dut-out-0", "listener": "peer-in-0", "talker_fmt": "0205022002006000", "listener_fmt": "0205022001006000", "set": {"fmt": "0205022002006000", "status": ["SUCCESS"], "echoed": "0205022002006000"}, "listener_after": "0205022002006000"}
+{"t": 1790854113.024557, "mono_raw_ns": 5147990186882, "kind": "sync", "n": 8, "t0": 1790854113.024408, "t1": 1790854113.024553, "rt": 1790854113.11359, "rtt_ms": 0.145, "offset_ms": 89.109}
+{"t": 1790854113.044828, "mono_raw_ns": 5148010458774, "kind": "bind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 1, "stream_id": "0200000000010000", "flags": "0x0002"}
+{"t": 1790854113.045398, "mono_raw_ns": 5148011028468, "kind": "sync", "n": 10, "t0": 1790854113.045079, "t1": 1790854113.045235, "rt": 1790854113.1342654, "rtt_ms": 0.156, "offset_ms": 89.108}
+{"t": 1790854113.145614, "mono_raw_ns": 5148111253110, "kind": "initial-valid", "frame": 261188, "f0": 257280}
+{"t": 1790854113.145785, "mono_raw_ns": 5148111415704, "kind": "full-snippet", "start_frame": 263040, "frames": 480000}
+{"t": 1790854113.146785, "mono_raw_ns": 5148112415003, "kind": "sync", "n": 14, "t0": 1790854113.146599, "t1": 1790854113.14678, "rt": 1790854113.2358, "rtt_ms": 0.181, "offset_ms": 89.111}
+{"t": 1790854133.151318, "mono_raw_ns": 5168116948565, "kind": "window-start", "frame": 1223520, "samples": 105}
+{"t": 1790854138.310541, "mono_raw_ns": 5173276181953, "kind": "dut", "tag": "window-0", "rc": 0, "words": {"0x8f8": "00000020", "0x8fc": "00000000", "0x738": "00000000", "0x748": "00000000", "0x74c": "00000000", "0x8d4": "ffffffff", "0x8d8": "0000ba94", "0x8dc": "18780100"}}
+{"t": 1790854138.312841, "mono_raw_ns": 5173278471519, "kind": "sync", "n": 16, "t0": 1790854138.312493, "t1": 1790854138.312645, "rt": 1790854138.4017239, "rtt_ms": 0.153, "offset_ms": 89.155}
+{"t": 1790854178.503415, "mono_raw_ns": 5213469067253, "kind": "dut", "tag": "window-1", "rc": 0, "words": {"0x8f8": "00000020", "0x8fc": "00000000", "0x738": "00000000", "0x748": "00000000", "0x74c": "00000000", "0x8d4": "ffffffff", "0x8d8": "0000baa9", "0x8dc": "18780100"}}
+{"t": 1790854178.507136, "mono_raw_ns": 5213472766123, "kind": "sync", "n": 19, "t0": 1790854178.506701, "t1": 1790854178.506909, "rt": 1790854178.5960283, "rtt_ms": 0.207, "offset_ms": 89.223}
+{"t": 1790854208.68937, "mono_raw_ns": 5243655010315, "kind": "dut", "tag": "window-2", "rc": 0, "words": {"0x8f8": "00000020", "0x8fc": "00000000", "0x738": "00000000", "0x748": "00000000", "0x74c": "00000000", "0x8d4": "ffffffff", "0x8d8": "0000bab8", "0x8dc": "18780100"}}
+{"t": 1790854208.69413, "mono_raw_ns": 5243659760383, "kind": "sync", "n": 22, "t0": 1790854208.693738, "t1": 1790854208.693917, "rt": 1790854208.7831037, "rtt_ms": 0.179, "offset_ms": 89.277}
+{"t": 1790854223.197526, "mono_raw_ns": 5258163179285, "kind": "window-end", "frame": 5543040, "samples": 534}
+{"t": 1790854223.19767, "mono_raw_ns": 5258163300868, "kind": "teardown"}
+{"t": 1790854225.786098, "mono_raw_ns": 5260751738594, "kind": "soc", "tag": "stop", "rc": 0}
+{"t": 1790854225.787408, "mono_raw_ns": 5260753038164, "kind": "sync", "n": 26, "t0": 1790854225.787191, "t1": 1790854225.787402, "rt": 1790854225.8766105, "rtt_ms": 0.211, "offset_ms": 89.314}
+{"t": 1790854225.78797, "mono_raw_ns": 5260753599426, "kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+{"t": 1790854225.788414, "mono_raw_ns": 5260754044995, "kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+{"t": 1790854225.797632, "mono_raw_ns": 5260763261636, "kind": "unbind", "talker": "dut-out-0", "listener": "peer-in-0", "status": 0, "conn_count": 0, "stream_id": "0000000000000000", "flags": "0x0000"}
+{"t": 1790854227.815518, "mono_raw_ns": 5262781149890, "kind": "peer-format-restore", "fmt": "0205022001006000", "status": ["SUCCESS"]}
+{"t": 1790854227.833544, "mono_raw_ns": 5262799174108, "kind": "format-final", "key": "fmt-peer-in-0", "fmt": "0205022001006000", "equal_to_found": true}
+{"t": 1790854227.834097, "mono_raw_ns": 5262799726787, "kind": "format-final", "key": "fmt-peer-in-8", "fmt": "041060010000bb80", "equal_to_found": true}
+{"t": 1790854227.834536, "mono_raw_ns": 5262800165756, "kind": "format-final", "key": "fmt-dut-in-0", "fmt": "0205022002006000", "equal_to_found": true}
+{"t": 1790854227.834897, "mono_raw_ns": 5262800527028, "kind": "format-final", "key": "fmt-dut-in-1", "fmt": "041060010000bb80", "equal_to_found": true}
+{"t": 1790854227.835454, "mono_raw_ns": 5262801083944, "kind": "map-remove", "status": ["SUCCESS", "SUCCESS"], "readback": "000f00000000000100000000"}
+{"t": 1790854227.835777, "mono_raw_ns": 5262801407199, "kind": "map-final", "readback": "000f00000000000100000000"}
+{"t": 1790854227.838639, "mono_raw_ns": 5262804269364, "kind": "sync", "n": 29, "t0": 1790854227.838495, "t1": 1790854227.838635, "rt": 1790854227.927883, "rtt_ms": 0.14, "offset_ms": 89.318}
+{"t": 1790854227.871997, "mono_raw_ns": 5262837647863, "kind": "agent-exit", "rc": 0}
+{"t": 1790854228.887546, "mono_raw_ns": 5263853189050, "kind": "capture-exit", "rc": 1}
+{"t": 1790854228.887701, "mono_raw_ns": 5263853331163, "kind": "reader", "frames": 5815681, "error": null}
+{"t": 1790854229.414689, "mono_raw_ns": 5264380336852, "kind": "samples", "lines": 535, "connections": 1}
+{"t": 1790854229.576684, "mono_raw_ns": 5264542322765, "kind": "dut", "tag": "final", "rc": 0, "words": {"0x8f8": "00000020", "0x8fc": "00000000", "0x738": "00000000", "0x748": "00000000", "0x74c": "00000000", "0x8d4": "ffffffff", "0x8d8": "0000bac3", "0x8dc": "18780100"}}
+{"t": 1790854230.160766, "mono_raw_ns": 5265126409091, "kind": "soc", "tag": "cleanup", "rc": 0}
+{"t": 1790854230.510182, "mono_raw_ns": 5265475821565, "kind": "raw-file", "file": "arecord.log", "bytes": 749, "sha256": "7c9984c9378352db1f7389e6f717a9956924ffa40e6d62a70043499c6842c167"}
+{"t": 1790854230.550779, "mono_raw_ns": 5265516416464, "kind": "raw-file", "file": "cap-all-<n>ch.raw", "bytes": "<withheld>", "sha256": "f252ff70498c3f78a3142be531df4e406dda7ce756dd371cf63a4471b7979784"}
+{"t": 1790854230.589983, "mono_raw_ns": 5265555619153, "kind": "raw-file", "file": "cap-lr.raw", "bytes": 34894086, "sha256": "8450ca1517faefb0d2e18f04b7f029eb9f35b60f5a870f0c159b3434ea153b88"}
+{"t": 1790854230.590477, "mono_raw_ns": 5265556108808, "kind": "raw-file", "file": "cap-ts.bin", "bytes": 290544, "sha256": "3549c8bc8b1be2ff0d9e71aa278541215b3a4134d0f85c386edcc4915a1616a7"}
+{"t": 1790854230.590643, "mono_raw_ns": 5265556273595, "kind": "raw-file", "file": "samples.txt", "bytes": 65505, "sha256": "b793376a933ab865fce1467e78f50f9ea4e31e9b40f92aa013a9b959733018eb"}
+{"t": 1790854230.590705, "mono_raw_ns": 5265556335688, "kind": "raw-file", "file": "serve/sampler.sh", "bytes": 1008, "sha256": "b0170d626941d65fdeeec4857924aec1a495dcb73a00b1632436288b363cadaa"}
+{"t": 1790854230.59315, "mono_raw_ns": 5265558781769, "kind": "raw-file", "file": "serve/tone.raw", "bytes": 1536000, "sha256": "566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588"}
+{"t": 1790854230.593193, "mono_raw_ns": 5265558823332, "kind": "end"}
+ACTION_RC=0
+UNLOCK 2026-10-01T11:30:30.617Z
+LOCK_RC=0 2026-10-01T11:30:30.619Z

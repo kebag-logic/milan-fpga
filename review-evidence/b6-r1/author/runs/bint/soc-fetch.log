@@ -1,0 +1,20 @@
+
+### 2026-10-01T14:06:15+0200 timeout=120.0 typed='wget -qO- http://<link-host-addr>:46849/A477_988029.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/46557 2>&1
+printf '%s_B\n' A477_988029
+cat /proc/uptime; wget -q -O /tmp/a477-tone.raw http://<link-host-addr>:43065/tone.raw; echo wget_rc=$?; wget -q -O /tmp/a477-sampler.sh http://<link-host-addr>:43065/sampler.sh; echo wget2_rc=$?; wc -c < /tmp/a477-tone.raw; df -k /tmp | tail -1; echo '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588  /tmp/a477-tone.raw' | sha256sum -c && echo '778bde1e575dbfa0c92fea6c8786c217f1c1a6b8dbd34340dd0059a8837eaf38  /tmp/a477-sampler.sh' | sha256sum -c
+printf '\n%s_E rc=%s\n' A477_988029 $?
+### reply:
+A477_988029_B
+96188.12 266980.28
+wget_rc=0
+wget2_rc=0
+1536000
+tmpfs                   209564      1844    207720   1% /tmp
+/tmp/a477-tone.raw: OK
+/tmp/a477-sampler.sh: OK
+
+A477_988029_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

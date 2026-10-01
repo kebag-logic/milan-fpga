@@ -1,0 +1,26 @@
+
+### 2026-10-01T14:39:56+0200 timeout=90.0 typed='wget -qO- http://<link-host-addr>:35961/A477_091345.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/44759 2>&1
+printf '%s_B\n' A477_091345
+cat /proc/uptime; arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 2 /tmp/a477-probe.raw; echo arecord_rc=$?; ls -l /tmp/a477-probe.raw; od -An -v -t d4 -w32 /tmp/a477-probe.raw | awk '{for(c=1;c<=8;c++){v=$c/256; if(v!=0)nz[c]++; if(NR==1||v<mn[c])mn[c]=v; if(NR==1||v>mx[c])mx[c]=v; ss[c]+=v*v; k=c SUBSEP v; if(NR<=4096&&!(k in seen)){seen[k]=1; nd[c]++}}} END{for(c=1;c<=8;c++) printf "CH %d frames %d nonzero %d min %d max %d meansquare %.3f distinct4096 %d\n", c-1, NR, nz[c], mn[c], mx[c], ss[c]/NR, nd[c]}'; rm -f /tmp/a477-probe.raw; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A477_091345 $?
+### reply:
+A477_091345_B
+98209.04 274890.45
+Recording raw data '/tmp/a477-probe.raw' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+arecord_rc=0
+-rw-r--r--    1 root     root       3072000 Jan  2 03:16 /tmp/a477-probe.raw
+CH 0 frames 96000 nonzero 51004 min -2 max 0 meansquare 0.535 distinct4096 3
+CH 1 frames 96000 nonzero 50812 min -2 max 0 meansquare 0.533 distinct4096 3
+CH 2 frames 96000 nonzero 46870 min -1 max 0 meansquare 0.488 distinct4096 2
+CH 3 frames 96000 nonzero 46825 min -1 max 0 meansquare 0.488 distinct4096 2
+CH 4 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+CH 5 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+CH 6 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+CH 7 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+98225.31 274940.61
+
+A477_091345_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

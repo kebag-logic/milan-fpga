@@ -1,0 +1,45 @@
+
+### 2026-10-01T13:13:58+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:42535/A477_562049.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/32991 2>&1
+printf '%s_B\n' A477_562049
+bash --version | head -1; bash -c "echo EPOCH=\$EPOCHREALTIME"; aplay --version; aplay --help 2>&1 | grep -iE "tstamp|period|buffer|test"; ls -l /proc/timer_list; busybox 2>&1 | head -2; for a in sleep od awk wget sha256sum seq timeout xxd base64 tftp; do printf "%s:%s " $a "$(command -v $a)"; done; echo; sleep 0.25 && echo FRACSLEEP_OK; cat /proc/asound/card0/pcm0p/sub0/hw_params; cat /proc/asound/card0/pcm0c/sub0/hw_params; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A477_562049 $?
+### reply:
+A477_562049_B
+GNU bash, version 5.2.37(1)-release (aarch64-buildroot-linux-gnu)
+EPOCH=93058.018159
+aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>
+-F, --period-time=#     distance between interrupts is # microseconds
+-B, --buffer-time=#     buffer duration is # microseconds
+    --period-size=#     distance between interrupts is # frames
+    --buffer-size=#     buffer duration is # frames
+                        (relative to buffer size if <= 0)
+    --test-position     test ring buffer position
+    --test-coef=#       test coefficient for ring buffer position (default 8)
+                        expression for validation is: coef * (buffer_size / 2)
+    --test-nowait       do not wait for ring buffer - eats whole CPU
+-r--------    1 root     root             0 Jan  2 01:50 /proc/timer_list
+BusyBox v1.38.0 (2026-09-16 14:56:54 CEST) multi-call binary.
+BusyBox is copyrighted by many authors between 1998-2015.
+sleep:/usr/bin/sleep od:/usr/bin/od awk:/usr/bin/awk wget:/usr/bin/wget sha256sum:/usr/bin/sha256sum seq:/usr/bin/seq timeout: xxd:/usr/bin/xxd base64:/usr/bin/base64 tftp:/usr/bin/tftp 
+FRACSLEEP_OK
+access: RW_INTERLEAVED
+format: S32_LE
+subformat: STD
+channels: 8
+rate: 48000 (48000/1)
+period_size: 192
+buffer_size: 1536
+access: RW_INTERLEAVED
+format: S32_LE
+subformat: STD
+channels: 8
+rate: 48000 (48000/1)
+period_size: 192
+buffer_size: 1536
+93051.11 255307.59
+
+A477_562049_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

@@ -1,0 +1,53 @@
+
+### 2026-10-01T13:21:36+0200 timeout=60.0 typed='wget -qO- http://<link-host-addr>:45299/A477_274004.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/37543 2>&1
+printf '%s_B\n' A477_274004
+S=$(tdm8-uac2.sh status); echo "$S" | sed -n '/bridge/,/PCM/p'; A=$(tr '\0' ' ' < /proc/2339/cmdline); B=$(tr '\0' ' ' < /proc/2340/cmdline); echo "2339: $A"; echo "2340: $B"; if echo "$S" | grep -q 'to-host: running (pid 2339)' && echo "$S" | grep -q 'from-host: running (pid 2340)' && [ "$A" = 'alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z ' ] && [ "$B" = 'alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z ' ]; then kill 2339 2340; echo KILLED; else echo MISMATCH_NOT_KILLED; fi; sleep 2; ls -d /proc/2339 /proc/2340 2>&1; for s in /proc/asound/card*/pcm*/sub0/status; do echo "$s: $(head -1 $s)"; done; sleep 3; cat /proc/uptime; tdm8-uac2.sh status | sed -n '/bridge/,$p'; cat /run/tdm8/to-host.pid /run/tdm8/from-host.pid; ps -o pid,args | grep [a]lsaloop; echo UDC=$(cat /sys/class/udc/*/state); echo BAD=$(dmesg | grep -ciE 'self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops'); cat /proc/sys/kernel/tainted; grep dma-controller /proc/interrupts; dmesg | tail -2
+printf '\n%s_E rc=%s\n' A477_274004 $?
+### reply:
+A477_274004_B
+--- bridge ---
+from-host: running (pid 2340)
+to-host: running (pid 2339)
+--- PCM state ---
+2339: alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+2340: alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+KILLED
+ls: /proc/2339: No such file or directory
+ls: /proc/2340: No such file or directory
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+93514.40 256567.02
+--- bridge ---
+from-host: DEAD
+to-host: DEAD
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+closed
+== /proc/asound/card0/pcm0p/sub0/status
+closed
+== /proc/asound/card1/pcm0c/sub0/status
+closed
+== /proc/asound/card1/pcm0p/sub0/status
+closed
+2339
+2340
+UDC=configured
+BAD=0
+0
+ 95:      21544          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         14          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   22665290          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:     566389          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+[87180.298723] dwc3 31000000.usb: remote wakeup not configured
+[87587.632901] dwc3 31000000.usb: remote wakeup not configured
+
+A477_274004_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

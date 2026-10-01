@@ -1,0 +1,17 @@
+
+### 2026-10-01T13:54:59+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:36507/A477_543637.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/43889 2>&1
+printf '%s_B\n' A477_543637
+head -c 9600 /dev/urandom > /tmp/a477-odtest.raw; od -An -v -t d4 -w32 /tmp/a477-odtest.raw | awk '{for(c=1;c<=8;c++){v=$c/256; if(v!=0)nz[c]++; if(NR==1||v<mn[c])mn[c]=v; if(NR==1||v>mx[c])mx[c]=v; ss[c]+=v*v; k=c SUBSEP v; if(NR<=4096&&!(k in seen)){seen[k]=1; nd[c]++}}} END{for(c=1;c<=8;c++) printf "CH %d frames %d nonzero %d min %d max %d rms %.3f distinct4096 %d\n", c-1, NR, nz[c], mn[c], mx[c], sqrt(ss[c]/NR), nd[c]}'; rm -f /tmp/a477-odtest.raw; ls /tmp
+printf '\n%s_E rc=%s\n' A477_543637 $?
+### reply:
+A477_543637_B
+awk: cmd. line:1: Math support is not compiled in
+dbus
+messages
+messages.0
+
+A477_543637_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

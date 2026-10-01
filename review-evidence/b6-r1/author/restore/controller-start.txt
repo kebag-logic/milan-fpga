@@ -1,0 +1,10 @@
+PGREP_RC=1
+1299 bash -c pgrep -a ptp4l; echo PGREP_RC=$?;   pgrep -af b6_ctl; echo PGREP2_RC=$?; cd /tmp/a477 && sha256sum *.py; ls -la /tmp/a477
+PGREP2_RC=0
+172836966609645d6e12adf19a8341a145a4dadc51edb81c6d29a23aae1fd75a  avdecc_ro.py
+ee10a9f7ac2523148454b683af5fb8315a9c6fd2b93ceebcbe518b914d884c60  b6_ctl.py
+total 24
+drwxr-xr-x  2 <operator> <operator>    80 Oct  1 11:11 .
+drwxrwxrwt 11 root root   260 Oct  1 11:06 ..
+-rw-r--r--  1 <operator> <operator> 10263 Oct  1 11:11 avdecc_ro.py
+-rw-r--r--  1 <operator> <operator> 11624 Oct  1 11:11 b6_ctl.py

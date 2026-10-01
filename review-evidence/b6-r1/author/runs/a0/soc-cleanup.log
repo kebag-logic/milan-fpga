@@ -1,0 +1,16 @@
+
+### 2026-10-01T13:43:32+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:46755/A477_771253.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/39493 2>&1
+printf '%s_B\n' A477_771253
+rm -f /tmp/a477-tone.raw /tmp/a477-sampler.sh /tmp/a477-play.log /tmp/a477-cap.log; ls /tmp
+printf '\n%s_E rc=%s\n' A477_771253 $?
+### reply:
+A477_771253_B
+dbus
+messages
+messages.0
+
+A477_771253_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

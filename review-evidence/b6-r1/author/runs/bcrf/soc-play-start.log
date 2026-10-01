@@ -1,0 +1,21 @@
+
+### 2026-10-01T14:17:31+0200 timeout=40.0 typed='wget -qO- http://<link-host-addr>:35733/A477_688020.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/44895 2>&1
+printf '%s_B\n' A477_688020
+cat /proc/uptime; nohup sh -c 'while cat /tmp/a477-tone.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930; echo aplay_rc=$?' > /tmp/a477-play.log 2>&1 < /dev/null & nohup sh -c 'arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 > /dev/null; echo arecord_rc=$?' > /tmp/a477-cap.log 2>&1 < /dev/null & sleep 1; ps -o pid,args | grep -E '[a]play|[a]record|[c]at /tmp/a477-tone.raw'; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A477_688020 $?
+### reply:
+A477_688020_B
+96863.86 269598.10
+19101 sh -c while cat /tmp/a477-tone.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930; echo aplay_rc=$?
+19102 sh -c arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 > /dev/null; echo arecord_rc=$?
+19104 sh -c while cat /tmp/a477-tone.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930; echo aplay_rc=$?
+19105 arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930
+19106 aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930
+19108 cat /tmp/a477-tone.raw
+96864.88 269602.05
+
+A477_688020_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

@@ -1,0 +1,142 @@
+
+### 2026-10-01T13:11:09+0200 timeout=60.0 typed='wget -qO- http://<link-host-addr>:37701/A477_759460.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/33481 2>&1
+printf '%s_B\n' A477_759460
+cat /proc/uptime; uname -a; tdm8-uac2.sh status; echo PIDFILES; cat /run/tdm8/*.pid; for p in $(cat /run/tdm8/*.pid); do echo "PID $p: $(tr "\0" " " < /proc/$p/cmdline)"; done; ps -o pid,args | grep -E "[a]lsaloop|[a]play|[a]record"; echo UDC=$(cat /sys/class/udc/*/state); for s in /proc/asound/card*/pcm*/sub0/status; do echo "== $s"; head -3 $s; done; cat /proc/asound/cards; df -k /tmp | tail -1; free -k | head -2; ls /tmp; echo BAD=$(dmesg | grep -ciE "self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops"); cat /proc/sys/kernel/tainted; dmesg | tail -3; grep -n alsaloop $(which tdm8-uac2.sh); sha256sum $(which tdm8-uac2.sh); cat /proc/uptime; grep dma-controller /proc/interrupts; sleep 5; cat /proc/uptime; grep dma-controller /proc/interrupts
+printf '\n%s_E rc=%s\n' A477_759460 $?
+### reply:
+A477_759460_B
+92881.87 254850.45
+Linux buildroot 7.1.0-tdm8-pb2 #6 SMP PREEMPT Mon Sep 28 11:59:54 CEST 2026 aarch64 GNU/Linux
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: running (pid 2340)
+to-host: running (pid 2339)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 2339
+trigger_time: 92881.919770845
+tstamp      : 0.000000000
+delay       : 251
+avail       : 248
+avail_max   : 1536
+-----
+hw_ptr      : 3956
+appl_ptr    : 3948
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 2340
+trigger_time: 76849.897447715
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 2340
+trigger_time: 76849.889686735
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 2339
+trigger_time: 76849.889754355
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 96
+-----
+hw_ptr      : 768
+appl_ptr    : 2304
+PIDFILES
+2340
+2339
+PID 2340: alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+PID 2339: alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+ 2339 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+ 2340 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+UDC=configured
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 2339
+trigger_time: 92881.919770845
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 2340
+trigger_time: 76849.897447715
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 2340
+trigger_time: 76849.889686735
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 2339
+trigger_time: 76849.889754355
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+tmpfs                   209564       284    209280   0% /tmp
+              total        used        free      shared  buff/cache   available
+Mem:         419128       47876      296460         420       74792      360276
+dbus
+messages
+messages.0
+BAD=0
+0
+[68513.969698] dwc3 31000000.usb: remote wakeup not configured
+[87180.298723] dwc3 31000000.usb: remote wakeup not configured
+[87587.632901] dwc3 31000000.usb: remote wakeup not configured
+14:#   FPGA 8 slots out -> McASP AXR rx -> hw:TDM8 capture  -> alsaloop -> gadget playback -> USB IN  -> host
+15:#   host -> USB OUT  -> gadget capture -> alsaloop -> hw:TDM8 playback -> McASP AXR tx -> FPGA 8 slots in
+27:# runs a single alsaloop leg.
+204:	command -v alsaloop >/dev/null 2>&1 \
+205:		|| die "alsaloop is missing (BR2_PACKAGE_ALSA_UTILS_ALSALOOP)"
+206:	alsaloop -C "$capt" -P "$play" \
+56dbe517728d11fffc7eb940a43799d4e1c15632a699afaa7364015ff4d919f9  /usr/sbin/tdm8-uac2.sh
+92882.16 254850.86
+ 95:      21544          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         14          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   22508810          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:     562476          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+92887.18 254864.42
+ 95:      21544          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         14          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   22510063          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:     562507          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+
+A477_759460_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

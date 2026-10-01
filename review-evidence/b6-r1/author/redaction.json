@@ -1,0 +1,908 @@
+{
+ "rule": "literal and regex substitutions from a private map; originals kept outside the packet",
+ "files": {
+  "HANDOFF.md": {
+   "original_sha256": "12fbfad63236ccd4cb6dd078cec0e16c7dd4a3417874ca7a5392912b15faef94",
+   "retained_sha256": "f20bbe22f2526172d30e6819331c25cfe7efb104bfc8fea8b858340875a00bfc",
+   "labels": [
+    "<link-host-addr>",
+    "<link-if>"
+   ]
+  },
+  "identity/adp-discover.jsonl": {
+   "original_sha256": "f711f21f68f11a723e19f4e310cb9ad022ace3560576ed44809d829d813f5843",
+   "retained_sha256": "6c1f64475ecfb5b06b26162b8540e02068bd130e9d99b3be8bbd91822a39b718",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<mac>",
+    "<peer-entity-id>",
+    "<peer-mac>",
+    "<peer-model-id>"
+   ]
+  },
+  "identity/console-identity.stdout": {
+   "original_sha256": "fc9711ae39b7a0a8002a7831daf156c086cc976df67d6a2ca083373b6fe503d6",
+   "retained_sha256": "1e0bad3f059337db381c845e10d39e730a7e2a1749636ea32dcf0819f910b666",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "identity/console-identity.txt": {
+   "original_sha256": "9441eea345a2e69a9efb2d84b1f3f3b3c4c20a286c5c562c72eed750d8745620",
+   "retained_sha256": "ea8a6d413bc9c7f30eb96b4cebf0a76cd7c9778c348b2e818812da075ebda0c2",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "identity/grader-identity.txt": {
+   "original_sha256": "b019ef8cdddd61c1a2bdee6e257d3959f3ad2fe1e5a4dd6363bd3cebd020d933",
+   "retained_sha256": "16b0b31b7c1834d1a1c0fc0963fdedfa39f851e9616f362030889ae211970857",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "identity/identity-aecp.jsonl": {
+   "original_sha256": "05b9a773859f2af3cb2c3ab19c57478ca4ceb64ea168f31e79274452a5c59e16",
+   "retained_sha256": "39dc5f1f3d7cef8f061cdd769ea237fd80380ad9009fb84ebd640df570700a88",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>"
+   ]
+  },
+  "precheck/host-view.txt": {
+   "original_sha256": "f43734f11b91839151ccda6546b052437a59311747a89ed03d6d98edfa68ffa1",
+   "retained_sha256": "7d5ea5617a4f88ed2b5f16969b989f6eeeb39bbe8364324316b36fcad760eee0",
+   "labels": [
+    "<link-host-addr>",
+    "<link-if>"
+   ]
+  },
+  "restore/census-compare.txt": {
+   "original_sha256": "56252b8408049c8be5401a350f3a75cbc8970b9ddd4cacf1a3297d8208c0e096",
+   "retained_sha256": "5a2fdfc8916d617a112eee6d54adb618a3d3b2c6c97419bce8f0bab644e09b34",
+   "labels": [
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-id>"
+   ]
+  },
+  "restore/census-end.jsonl": {
+   "original_sha256": "bee6995cc292842837e8341fd66df0548a4157216babcd18410d7a1ed942854d",
+   "retained_sha256": "ea61fb53d1bc631b7f9c8b402242ae68ddbd08deeee71b2b075df8f1ed43d485",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-id>",
+    "<peer-mac>"
+   ]
+  },
+  "restore/census-start.jsonl": {
+   "original_sha256": "eaad734599aec65b53d22fb7bf901f81535f86af3f89ff43027fdb41b67cc014",
+   "retained_sha256": "a45350867bd90efc01fa49a0be5cb90247e8d0963dda75a5b9476b253dfd0662",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<grandmaster-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "restore/controller-end.txt": {
+   "original_sha256": "6e049ad8845c34fa81b25eda24680aeb5747ab98467c1ab0f3509c17cc35a674",
+   "retained_sha256": "67a45a1ca8efbc4973d491799e4ecc2b30506a838af0a43e0de253edffbf3feb",
+   "labels": [
+    "<operator>"
+   ]
+  },
+  "restore/controller-start.txt": {
+   "original_sha256": "eae610ef726896180024d71d31c625fdc87598484446cf245d5089bad865c681",
+   "retained_sha256": "e0be3fe30b96691d90bd56d447341b6213d4564fe0b956b2ebb0cb6cb5afac6b",
+   "labels": [
+    "<operator>"
+   ]
+  },
+  "restore/dut-descs.jsonl": {
+   "original_sha256": "afc51d52a6483b3ee372cfff865f57ad1fc887adc62aa1735652d19230bb0e1e",
+   "retained_sha256": "6b997dd313a221925e80cc633b99680fe1200fe46269fdaaa1293145913e8e3f",
+   "labels": [
+    "<controller-avb-if>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "restore/dut-end.txt": {
+   "original_sha256": "501c3d27addf4c4517399a376454c99017b2e543e1934101ffdb9d5da7f1d052",
+   "retained_sha256": "69ac54d69c36d39488e3b2b5e3183ed650f9d83d26329440a9cd198addce4d32",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/dut-start.txt": {
+   "original_sha256": "73e18d22224de1c2ec4a6907a204415c6075653e1344f881d19b73c1b2574e3c",
+   "retained_sha256": "aae07e8526efae4ba0eb7d772e868b06d13f68d977ceac05347816be5e25240c",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/grader-end.txt": {
+   "original_sha256": "04dbb1959122bbb811a51110a9e5983af20687109f448b651db8c11bd48f38ff",
+   "retained_sha256": "f572c4640b918232bba360ca758bbc3e5559021355c8109d823a6725e47031c4",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "restore/host-end.txt": {
+   "original_sha256": "de37dd17fc2f89fd76a171bfa39fe55d1af81f35eb8ab1a26a2c9fbe6310fcbe",
+   "retained_sha256": "861788ab58ff2e0b760f6810dc7c74a91076fdc8490414a28ec1d42805f402bf",
+   "labels": [
+    "<dut-console>",
+    "<external-capture-id>",
+    "<external-capture>",
+    "<lan-addr>",
+    "<link-host-addr>",
+    "<link-if>",
+    "<mac>",
+    "<other-serial-device>",
+    "<soc-console>"
+   ]
+  },
+  "restore/host-start.txt": {
+   "original_sha256": "de37dd17fc2f89fd76a171bfa39fe55d1af81f35eb8ab1a26a2c9fbe6310fcbe",
+   "retained_sha256": "861788ab58ff2e0b760f6810dc7c74a91076fdc8490414a28ec1d42805f402bf",
+   "labels": [
+    "<dut-console>",
+    "<external-capture-id>",
+    "<external-capture>",
+    "<lan-addr>",
+    "<link-host-addr>",
+    "<link-if>",
+    "<mac>",
+    "<other-serial-device>",
+    "<soc-console>"
+   ]
+  },
+  "restore/peer-descs.jsonl": {
+   "original_sha256": "6a370ca5ab8c66e550867998323b8d33d56964b559da9c32e07b5241e3246786",
+   "retained_sha256": "186e6667fe2422d015fd8c02557e002f18f7b34a7f763fcb3a59138aa4cda43b",
+   "labels": [
+    "<controller-avb-if>",
+    "<peer-clock-id>",
+    "<peer-entity-descriptor-redacted>",
+    "<peer-entity-id>",
+    "<peer-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a0/ctl.jsonl": {
+   "original_sha256": "698a3ce6887d3a400b0fced22c228f689ecabf42ceba285219fa2bb0849b119b",
+   "retained_sha256": "9648f1458c08c9205438f5fda78208c422186993a2682874b1187925aade7fd9",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a0/dut-before-bind.txt": {
+   "original_sha256": "92acfd7236bd37ef8f9ce0274e55612b760bcba6c5b7b2aa4fb38a5e35b18c35",
+   "retained_sha256": "b2fa28dc5437ce034f0b5b5a7e794c96ccb36707a0f4aadb10dbda30335b4fba",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a0/dut-final.txt": {
+   "original_sha256": "7e6be9ff00b9dfcdaef3e8c5c82c04e0cfe7f991fee3ab8a2eb59c4bd359bb33",
+   "retained_sha256": "3a6662b29bd1a3aece491d8ca769c39e2b22f5491fc642547c7b4441d2e8d7f2",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a0/dut-window-0.txt": {
+   "original_sha256": "7023933eb074613a6d216d847708419f214a7141b0b586122a7c8282c05e873e",
+   "retained_sha256": "e43bff7d2b37be80d49a73ca0393c4273e1f8f423749a3bb1d45906bbe3e1a9f",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a0/dut-window-1.txt": {
+   "original_sha256": "afc481d2db1c85f1dc901274e9f694ae6c0a270f6de6e62b54caeba518fa1a65",
+   "retained_sha256": "d4bb44638ebe82b0d50f3f24fcd507cfbcb0e6f374caea631c6ea77cbc8c725a",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a0/dut-window-2.txt": {
+   "original_sha256": "66a2700ab88e5341ab66d8ca6880c6972b2302c3279c529313ce5446db467259",
+   "retained_sha256": "c4dac9e489edfd21c0678e5f18ad10760245f593faa0b77201be289127ad147a",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a0/soc-cleanup.log": {
+   "original_sha256": "a1207b49f065466b288626bc03efd0be2cfa7a40d038d68ec90cea5179369f4b",
+   "retained_sha256": "cdce47ea690b7456a220d084f57e039a4d60d06bee8c80f8ce907f601ece7601",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a0/soc-fetch.log": {
+   "original_sha256": "ae258b84c75662e651046d5d432bd97d40fe576f382a429d44e32caec0f32812",
+   "retained_sha256": "82638c1d11f97acaee328778423a6c7479282872a962d203fc47a0eff19c5cb1",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a0/soc-play-start.log": {
+   "original_sha256": "b64d07294b80952713bddc640706f919c7fbdc3ddfc8f5ad85ff87bd5186a605",
+   "retained_sha256": "3ff498dc51d1d5d61899b4a8118f9cc6a3daab3edcb0368919145812b531e3a5",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a0/soc-sampler-start.log": {
+   "original_sha256": "3f3105f9cc1ed597bfc6fc233eb08d7f5103acc4f01520b8398967dc091ea1f2",
+   "retained_sha256": "e496c2978e65f9ec6cf707c6803296add49cef570107fa0bfa384ca84b535832",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a0/soc-stop.log": {
+   "original_sha256": "0b911bfff8f868973f17e1a1cbe5dac0641b60fc582eb9af9bc47e804d441ce1",
+   "retained_sha256": "742bfec99d5c2dd85da54ca18e6b13966e59cc74d510f43ac5dc025496567b24",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a1/ctl.jsonl": {
+   "original_sha256": "8877b5ed1275d00f16e6faa6ac1276aa25a3bbf76495db3597a91e5a48ddd575",
+   "retained_sha256": "4db88f10475daef4a39d8421ab987af95b8e5b2e45c1a0ed4b9c1c8e8107be84",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a1/dut-before-bind.txt": {
+   "original_sha256": "6212075a54ac13d4dd3a0c9fc1cb1b9e46f1d8038a58efd65dc08f9cfd1f236f",
+   "retained_sha256": "a5848610295c8bc3fbab0192cb5fd4cb58e1a8f9dbc799d32cacae95263a789e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a1/dut-final.txt": {
+   "original_sha256": "6157054e30189b917cc8eae671362b8ba2593598f72b9d5fdc4b226b608e3c59",
+   "retained_sha256": "a639d0e3ea237503c98bf9b569cf245fb81256fd267195a63a06079c2e4348d4",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a1/dut-window-0.txt": {
+   "original_sha256": "51e13f0bb0aa703f1ef29444717c5f4da07f97a96d223e6dae87ad0a15f15863",
+   "retained_sha256": "345119d3817a46ca9ceebf6bf0e98520a74fcb2e691ac8054e0df1ea323af2a3",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a1/dut-window-1.txt": {
+   "original_sha256": "de2b5d503eb3b494fdece5f036acac4630078c8b9601cb7bf33093c9cc791ec2",
+   "retained_sha256": "74c6ccbc0fbac2652039e1c8061278bc60afec44dcb8d70c2e46afdcff09a7b1",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a1/dut-window-2.txt": {
+   "original_sha256": "f86a683b9588e3e11e474ecb0010cbaca9ee0585939f7ca32de1e378d4f9a4ac",
+   "retained_sha256": "04397f741274201aec83f3c0b6e9e61fc87b1fddcc495a3fa59eba5353221876",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a1/soc-cleanup.log": {
+   "original_sha256": "e26853ec4dc0da189f4e8e64ef861a0244bf2162ec859ade67e20ff09492d99a",
+   "retained_sha256": "f737bc8dbff9403dd3008f4c8447d2fc62b0fc3196e12e7cb840919844e5c7f4",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a1/soc-fetch.log": {
+   "original_sha256": "3f9f3b63a61d3043513d55a7db0377ff5cdd7389b0d28fdcd3cf6bfe733f3df7",
+   "retained_sha256": "6b429874fa4312b39b50301d9188cd04c562600a4f3a707627902f8f8c0f8102",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a1/soc-play-start.log": {
+   "original_sha256": "1d43f66c8dff08848ab0dd9eec7b44c7c7ad275d4775f49c00c76d39d96c8e4a",
+   "retained_sha256": "382da5024d441de24515c9d7470bab6527c41792b0bf61aef7e7aa7f76dbb317",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a1/soc-sampler-start.log": {
+   "original_sha256": "283eb3bcb5893766a5c343c56fccde6ae29c6b26593b1908b09664307dd8d35f",
+   "retained_sha256": "e39448ad59b1045e3de4d2d8c6ba45908ef937f1bdd3a1ef1ae7d10a3921d10d",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a1/soc-stop.log": {
+   "original_sha256": "6e027ebecbd4ddb8ddd38fcab57cea727756cc46d226612106ca3d2f18ceebd0",
+   "retained_sha256": "d14ab1377582c5d09f9162eb09af8978d386d292092027c75d77181fc18aca7f",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a2/ctl.jsonl": {
+   "original_sha256": "270b97abac1121b96d02d604cd52c4866860a889408b75e5b53c42d23479834c",
+   "retained_sha256": "f78b1d77405ec7fbfaf3e777444f6818bbe0adb4d30c8a6295c603d29b5ecb6e",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/a2/dut-before-bind.txt": {
+   "original_sha256": "e015cdef1bea27c2631c57fd5f78c18fab36f10f7eba555f11a94b8c22124bef",
+   "retained_sha256": "14350bbf336f9662143fee3d8793f107c9e7001bb4b7c1a333999f1adc6e1b39",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a2/dut-final.txt": {
+   "original_sha256": "0bdf82ba19f2bad7fb7493a93170d620f0157ac3b747d0d0d1b3118f0dd9a735",
+   "retained_sha256": "d0429931d83d064e5174861d8487ac7cddc013e0844be3378309092269870b19",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a2/dut-window-0.txt": {
+   "original_sha256": "cced93584f4821ec78bcdd408f2f48c04bd817da52c349be8c7196ba203aa54d",
+   "retained_sha256": "41eee56b94a9441f1c737e6df919cc6a7d1b675ef6f683f445ff71afdbbfee35",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a2/dut-window-1.txt": {
+   "original_sha256": "fde7c1452eed09b8d57616784efdc84a46bb6983f01c607eb4dfdc26a12b4ac7",
+   "retained_sha256": "828f9e4188a59850b0aa285f732be5f23f04a770abe3a760a32c0e0b0d78b822",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a2/dut-window-2.txt": {
+   "original_sha256": "faea927293cbb2c1ec05ac633ec0933347ae2c1f8b8e34922870e67ea03932aa",
+   "retained_sha256": "592e6bc6f224406613c85f6035a99f6980ef23b363ba6083f48920baf118fa12",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/a2/soc-cleanup.log": {
+   "original_sha256": "3c5f02167a2df39ea0239cadb0acc0de4a38d26fe9ce57f67ffaffff2bdb2b41",
+   "retained_sha256": "180553db50094fb8323f40cfc1fa5d330950d79badffa5ec787061633b4aa688",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a2/soc-fetch.log": {
+   "original_sha256": "0877122f54ac051195c42468da5e8abfcf39aba515e4c94316bf49c5ea6dd2d2",
+   "retained_sha256": "a8675653b488fc17d8c12365d7c41185489395653c90e5d3ec97385197da17b5",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a2/soc-play-start.log": {
+   "original_sha256": "e7ec59d9c8fd1b70f52667cd5bbd3fe6bb6ae6f416c60cd1ee49953d0ce045ec",
+   "retained_sha256": "7569045f5c21cbcc4f683b497d14c0c2f8fdd697ee5b4db906aa5d66dee6ddc4",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a2/soc-sampler-start.log": {
+   "original_sha256": "a23a3e7de106a11c75ae0b1aff5ceb600bdd771b39d1b019b3c0d7f7d8d3a4fa",
+   "retained_sha256": "74ced557cf18b21ce4733392bc63eeeae5dd2cdaab6db37459d6e682f223ef89",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/a2/soc-stop.log": {
+   "original_sha256": "fe0d44243a739d37141c057141e4cb4380d713799f490aba23ca9b9b11f00065",
+   "retained_sha256": "59acfbb0cd02ba39ed7f594a8c5250dd7ceeb1f01ae1e9e681d05cdb6a7b4715",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bcrf/ctl.jsonl": {
+   "original_sha256": "728fa578c43444fc6a3d22f65cc99da1e80ae1dc18d8588bf552f88ca60ae261",
+   "retained_sha256": "453cb0dd59f4c4bfbec2fa934d21bd0b3b3a7c33b01a28428efb31a449b8abb5",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/bcrf/dut-before-bind.txt": {
+   "original_sha256": "2079fd883199e171d0c78240dcc2104e3ead2a31d0ae093aecc66413108c3977",
+   "retained_sha256": "07302fa5650071e6c410bd01d5cea96017684fa8e44b23d62f30f08b6a7cef2e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bcrf/dut-final.txt": {
+   "original_sha256": "0c3fa223139b947fb60d233d1feb934b04d7386bc64e585d2220cacc355bbb8d",
+   "retained_sha256": "72a6c31da94ff443c3cc97c8f5a9d90447f9872e0e9a65d369057819ce4a3be9",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bcrf/dut-servo-wait.txt": {
+   "original_sha256": "6ba44101c30640571f2ee1e0f7e7a96555fb5184790202eb6b523ec2b39e1a42",
+   "retained_sha256": "ab8f42cd5b36f9b84cc2d4d5377f031af249006a6c56d41fb827cc7e3dfbf574",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bcrf/dut-window-0.txt": {
+   "original_sha256": "b3eb42e2b65e558ab8b53eafc3bd30c1e3e3ad23dda7606b16af01ac62d078aa",
+   "retained_sha256": "830a534e1e2b72205fc0d6cc664c12aff8f545a2a57eb2dca1cdb9400570381c",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bcrf/dut-window-1.txt": {
+   "original_sha256": "4af26514c8f70d99ad27e420eb56f185567993b8cf23c46874da65f0a250d484",
+   "retained_sha256": "2b7cd616edc0aec44825c4b58c247db48c21f350eac790523cc7ab49becc6b55",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bcrf/dut-window-2.txt": {
+   "original_sha256": "d1a10c5918093d371e8f2173c7b67e3f664eb10ce98fdc40eb6216d99518de39",
+   "retained_sha256": "d2ca36db6e25d02341fd2fa587ad93fae928ecc5017df778bb1d540e166ccc13",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bcrf/soc-cleanup.log": {
+   "original_sha256": "22d55d1452d9e62ada474f82bc0a077ad2118311b78542cf761fa6ede5ae90b7",
+   "retained_sha256": "73678fd04f8b19f0406215175a27db6ee379b93a9a1136748c00252271ed25b8",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bcrf/soc-fetch.log": {
+   "original_sha256": "5635697fe0ba3f293e2c967a2f360effa87e20acae3e51776a1464874ceee0a2",
+   "retained_sha256": "4c03ee925c3f5179e0265de7c68b61c21dd426c4a2f3424ac9d9e0ba272a69c7",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bcrf/soc-play-start.log": {
+   "original_sha256": "64c57dcaad40949801ec8566ac8f6b119924e5197b3504ac0885d5f51f8057e2",
+   "retained_sha256": "b6bd66286eef890fa32c4baff7ff3d7ad33c6308c817fe0234c8ef843a16fa02",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bcrf/soc-sampler-start.log": {
+   "original_sha256": "549e126f4bc40bcc3f662a71e0d5cfa6d439b5dbc64baa4da89fe3fd23934273",
+   "retained_sha256": "908d361a0a5e049de2fb83d8791db679be0476a13b4e971dabab02625981bcf1",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bcrf/soc-stop.log": {
+   "original_sha256": "42f6372c526922e1731b9a92cfd58b33e80125b78584d889aa7be80e6897716a",
+   "retained_sha256": "1ad45ac34d1d1f8ec5dcf42990154488b5e564720bb2f4a13477de505e130e87",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bint/ctl.jsonl": {
+   "original_sha256": "3c07dc7a891e0f490e2cd54d78eec360c3389e920407b5b9fb57efb5d58f3be7",
+   "retained_sha256": "720f1c84b7346f90a2ba3b03af17a9fdcf8a8a6f113d07a42944f3df2612aa98",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/bint/dut-before-bind.txt": {
+   "original_sha256": "f5365cf3c2e3a519426dfdad74f59f5c2e3f081744b2445fde581a58b150b938",
+   "retained_sha256": "e23b88b27cb8cd875dc3ec8b26fb3ef927ffa09198935c557d14b86a962bb86a",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bint/dut-final.txt": {
+   "original_sha256": "60aef2fbcb5a49268793a1243b448c4a05f1ed95d2314223d3c22578828c3007",
+   "retained_sha256": "c47b195f42d82a98df23b14d0cd09031faff34b25e80976d7422d15188acb13d",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bint/dut-window-0.txt": {
+   "original_sha256": "e88d44ec7a0773f19a2a246abd1157cb33e6a1a9ecd15a02a43091b62c235e2b",
+   "retained_sha256": "a0b5d2cf3bd6bb55bca82877373427e631b2008d62b5c54692f891da6ddbd95e",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bint/dut-window-1.txt": {
+   "original_sha256": "1137b5c3eb28678d2f9bb693c7bf2ea926f40acb8f3f83c9a675ca1012530b22",
+   "retained_sha256": "6c73a68517e0a53d77880033a1f076ac76cd8ebff6ba8059ddddf00876cae572",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bint/dut-window-2.txt": {
+   "original_sha256": "18237c3818cd05ee16935171f42784f1fbbb00fffa26dbdfc8bb7c7748c0d69e",
+   "retained_sha256": "d0789ce49fbde32f9b0aa19bae8fee6c239a24260acccfd0394f664155a35d48",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/bint/soc-cleanup.log": {
+   "original_sha256": "38bec83160d72b193650929b216a1220eaf218eff96e3beeb0a2654d8a10674d",
+   "retained_sha256": "c91c8c9d7fdff0a7db4cf1eee3e7839c221a87cd6c0f9adbae0874411fe4d164",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bint/soc-fetch.log": {
+   "original_sha256": "53bf93519f3a3e6798a227b684a86ba445a6f068094e1c391a5789f2df066f9d",
+   "retained_sha256": "e1005c604923faeee3fbcc9aa5f2f620c7fd69664b0739be0ed9505b87205337",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bint/soc-play-start.log": {
+   "original_sha256": "4fd1b188d76519eeda684d9be27ea9649424b90510b6a37d9a673d2fbb28154a",
+   "retained_sha256": "8cec0e0c0a9ccd64bafe990bc1fad03bd76589ef6b45a839fa89fff0a2c9c828",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bint/soc-sampler-start.log": {
+   "original_sha256": "bc71123b36e9d5ce502aae8b7c9468e7bd8455a65d220001aa02a254deaf6f7d",
+   "retained_sha256": "96e0de6710e7508adf140d6fa80eb26b548ddc969cbddd72274038418f1c4153",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/bint/soc-stop.log": {
+   "original_sha256": "92e52de3ded292b37f4c4b54d3a5a80659f216da8c5af1e0f4667050356728bf",
+   "retained_sha256": "11e87c7d3141a8bb397308a829b19314232ba7297f87c5251fd8ab3445ed3817",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/probe/ctl.jsonl": {
+   "original_sha256": "54f8f1b04c412b656551d95d1a5e0295520522cd7e65e61239b6fa0d0390c890",
+   "retained_sha256": "5fa2f1a7932533e493e7c67a2c1db3856aa0f41fbcc93095865e5416499265bc",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/probe/soc-cleanup.log": {
+   "original_sha256": "f6192ef4b5eeb839fa5a382800d0378e8352afb22eb73bb40bb2288af7ddd554",
+   "retained_sha256": "afd5eaeddf29b5b8814b4b1c95156a6a3f11ba770fbc204584ad451e9c3dfa2d",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/probe/soc-record.log": {
+   "original_sha256": "2333c55c8ae63605da18c9d5264feeffc91326ea45c052e7314c5e4e2d8dd154",
+   "retained_sha256": "1b7ac6e8b721a07cf88516782b9240cd55bf96a57a45e3e9297a8f4e7df59ca8",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0/ctl.jsonl": {
+   "original_sha256": "7dd4d4f927ee143b691798d1ab67b149f8cb6dea7999b76d25c029d568243b51",
+   "retained_sha256": "aad837622f62d2b54fe6127b8f68f0e119602221dec618a626ea360cfbbbd6eb",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/smoke-a0/dut-before-bind.txt": {
+   "original_sha256": "a0b5847f7de5a62dcbd66184c34a6d34c55fd477cf8f84c5c518da72230e7bad",
+   "retained_sha256": "c509e8e0fbca7b191ae798492e51489c2a6e51e374c7d63733246098766dac54",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke-a0/dut-final.txt": {
+   "original_sha256": "c8a827a81ad004c53d8d431b38ac7dddcd73f49ea191300f460f2f96b7d9c281",
+   "retained_sha256": "ddb90287f20593380fb5e54964f83da6661ecb9c4d83f8392f1af1ca513c4ad4",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke-a0/dut-window-0.txt": {
+   "original_sha256": "df7dc04865fc1e96761e9466b4cbff55a6bbc137c99a95325c01707ff0542dbe",
+   "retained_sha256": "40a4c972dbd98d19a845e1dc6c5c06eea0f75eb5934137653cb96872c3991a16",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke-a0/dut-window-1.txt": {
+   "original_sha256": "08608dace0607c2eaa9f2ca96a982c98786963247b7ebd9c2515cb2edd6d6c31",
+   "retained_sha256": "20935dad11347fa935982c12c427c75186c3941cc7761024f8c8f4e4e80ac64b",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke-a0/dut-window-2.txt": {
+   "original_sha256": "c0f3f42c6908865dd55b7e58c19cbef38da6831fe1c7566ac004aa4daae28eb3",
+   "retained_sha256": "ba84c514aea8a2ffaa5f8484cf83deb9ba7c5cae63b78bc60d523569b194367c",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke-a0/soc-cleanup.log": {
+   "original_sha256": "c22b9c768ca3723f26aac648e2070c9faf340e0005b682f2a83ad4eab74b7b43",
+   "retained_sha256": "0e5aa23cfa1666878049c5a3e973f99f5f0594d11e0e0c9b49f1bb3901b456d9",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0/soc-fetch.log": {
+   "original_sha256": "25db481d6e19b82e07c9154a7a14911425323c1984e507278e69a8a35167a4a8",
+   "retained_sha256": "06bdebf84163f78b1cd037de3345e5887aebc10a64b14aa41d90c778fe3f84f5",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0/soc-play-start.log": {
+   "original_sha256": "695b1a0e2f2c7f81dc52c96eb93f23f79a8b343530ac7fb044a6f5191778a959",
+   "retained_sha256": "8defee1c1f13109332f7618b547ac289a7b0b5301776e13acab94c104fd8c4f5",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0/soc-sampler-start.log": {
+   "original_sha256": "a332bf19813daa6c77308d069302fb16b4d42900ee6b18e714512faf83111f26",
+   "retained_sha256": "95dd7f55cb21d84959f385fdf2b8ce2f99b8c5ce33fc59202db1be516a584f45",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0/soc-stop.log": {
+   "original_sha256": "2b9e43dc8bc18d2a6fef4037f0cc188794ad5612d1fd58f266e79d8221c6a077",
+   "retained_sha256": "e643d56fba73b80a5bd5b101f11d94d931c08696261b383b80fe6486cb7a6b24",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0-clkparse/ctl.jsonl": {
+   "original_sha256": "b2de0c71b81c533e7df8fd60fb8c85b07e31f2615778f417537713e4ededc18b",
+   "retained_sha256": "1a78fe2c73763e076b8998f0d20f4f7be8ecbd4314d1cf7099032918357d09b8",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/smoke-a0-clkparse/dut-final.txt": {
+   "original_sha256": "2723011e13ba4876e219da944efa4801945d5190430d28527d72e676fe5fcf2d",
+   "retained_sha256": "a91e22ef8877fbaf3151568c1d2985ce5feb0c47e621e798c8ad7b71af22f110",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke-a0-clkparse/soc-cleanup.log": {
+   "original_sha256": "cfd225fcb5db04b00ba661073c670c3b3e925b72cf6575ddf756a826777a18b6",
+   "retained_sha256": "c80a3e8ab979f5b78ca2e0b7d4461615a0df9e9ba1e7f60a586158a8c5ea2a68",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0-clkparse/soc-fetch.log": {
+   "original_sha256": "c4fef146710d1afd2ffe1727a14ff9b49314429625ecd26bb08407f3bf35111f",
+   "retained_sha256": "6378ef945041339a77c8c476911bd2948eb801c3ad0ea64def2e6ac8c47d3795",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke-a0-importfail-lock.txt": {
+   "original_sha256": "f4aa1e61a9a240c2192343d7fcb94ef24b317ef424a1f97c6bb9ae805632b6d2",
+   "retained_sha256": "5bf9af546cab8d7491540e769e7ad6561c2fb4da163985069916c13a796e2711",
+   "labels": [
+    "<home>"
+   ]
+  },
+  "runs/smoke2-a0/ctl.jsonl": {
+   "original_sha256": "e3207a1cb3cab0356dcef9a434fb7c964239ea02e377bc469ced6194923139ad",
+   "retained_sha256": "4034cdba0c2f2f5a0668b37d219ce60f6695f1db1c60bd4fd22c66abc1bdeb88",
+   "labels": [
+    "<controller-avb-if>",
+    "<controller-entity-id>",
+    "<peer-entity-id>",
+    "<peer-mac>"
+   ]
+  },
+  "runs/smoke2-a0/dut-before-bind.txt": {
+   "original_sha256": "7707cddf8b1e96d4b81fdcc89e12b737b309d806ce46f234ed30583540f688db",
+   "retained_sha256": "9c052edffb81b06fc64aca5571d309c3a01554cfbfd64aeaa4a26c3d7e103818",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke2-a0/dut-final.txt": {
+   "original_sha256": "9ba42f0c001777a73303f9300c30f0a9d4c88b239e89c9322624eff30aad19f6",
+   "retained_sha256": "8ab599ac1587f643042f7adcc1db0c0ea59d171c00b034241b3c2d246b04c036",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke2-a0/dut-window-0.txt": {
+   "original_sha256": "426d5faa5d8841b68520ba2423b711d642490e32550a236a46a15cba0b7bec87",
+   "retained_sha256": "1484b952e4d141d282d2c590dbc610b0a1c6fa852ac4934ba4a0a9ae280500d4",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke2-a0/dut-window-1.txt": {
+   "original_sha256": "33af638b309af894679c887f80b4701b05d02d344489235b67c77b714204481e",
+   "retained_sha256": "4c665bbf8a9418d4f5104fe2ecbc8f9caacfef9975595419b0581673e81cb826",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke2-a0/dut-window-2.txt": {
+   "original_sha256": "feb6e6d4d0d60d54dc0e2c83be09972b2899784a89d282b56411e70e619311a3",
+   "retained_sha256": "8872d8d35dc8379fa721706dd4fcbf7b8101d6a7296e092c716ac15fe4fe6753",
+   "labels": [
+    "<grandmaster-id>"
+   ]
+  },
+  "runs/smoke2-a0/soc-cleanup.log": {
+   "original_sha256": "9a5629d233fc7ac005101e2c964e921134007db3c35b4dc4119d42e148655365",
+   "retained_sha256": "3add95559e5477209e7e06344dc481e7f6f0008dc811c197f0f86cfa5962ec8b",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke2-a0/soc-fetch.log": {
+   "original_sha256": "204c6e712493f51fdc6ab85f5ffef80ec370c7f17d5624471cdd6efbbcaa3fc6",
+   "retained_sha256": "bc30081709a809e83ee9c1a92c9bedb63ab295698c3338ac9d5cbd8fa1c1ad3b",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke2-a0/soc-play-start.log": {
+   "original_sha256": "0855f67affafcf409c561d8807cb165067db700da11685d4d9d44dc4365d2be2",
+   "retained_sha256": "bbc87371bf25a33d48060158108b1250a22629da957930fce434ef81c439b024",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke2-a0/soc-sampler-start.log": {
+   "original_sha256": "78c3208c5741a007a8478ea18362d9efc4cf811691fef445423725feb65ea50b",
+   "retained_sha256": "c5894539315f518d5cafd8575f5503ee43cfab230a0ebd8be2c16ef2b16c6720",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "runs/smoke2-a0/soc-stop.log": {
+   "original_sha256": "18c93a67d25aec904fef2512d876a7698687719aa3595e607c21c65192ed7935",
+   "retained_sha256": "ba685f2933c2914a2b918ee3b7abb3362f172e8b35c7b4fd95eda228e79ad5d1",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/capability.log": {
+   "original_sha256": "1ae847c98cfd126ce6f193d56b3dc060eb21ce480678914623f6e1f14ee299eb",
+   "retained_sha256": "f9588931a8a47fd25abff6c577044068faf46b57bcb81b1d0fdfefc4afa76c3d",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/end-health.log": {
+   "original_sha256": "92db11cf490ab196409c9980eeec6f91b3fb0a1b4d7166a4f3febde92035e6d4",
+   "retained_sha256": "4202ae66bac768852e9c9c436a221e3551abdb296bce6021e0ffa44ec6eae2a0",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/od-test.log": {
+   "original_sha256": "3d10db891467e43d634bf2075125ee5d9c6706ef63f884a89db12de5d89627d8",
+   "retained_sha256": "551f2d071955bae3345d5f7937c5e33893d25f128b2bd293ed91641e5511b60c",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/s01-stop-legs.log": {
+   "original_sha256": "abcd04c50c4b428a84a7277a2ccf22ebea603e2a124add8adfd3ef279eeae881",
+   "retained_sha256": "8bfe6f3b0fe8620c2a0856b7fab857ee292ecbd9e5ea891e785b965a391071df",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/s02-start-legs.log": {
+   "original_sha256": "3ef6e6da753b9d288e9c1c23c2323180a80726c7b7bda564378f8ccad09c1cc5",
+   "retained_sha256": "7d8021eb03add7f9bd9734fdbde9e0c82277aef43c1e8caab931797c13b56359",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/shell-check-net.log": {
+   "original_sha256": "f713b88bbff39a85f2b8257262174fcc484e1ab99e8675c3b72c5aefe7448ffa",
+   "retained_sha256": "c1233afc37f09ebec7bbdcaf98dee48c9fe04d0dfd41edadc1b5ec65a295bddc",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  },
+  "soc/start-health.log": {
+   "original_sha256": "3b1f467c4fb3dc243d41c6be974f0b77653543aebca7be4c0c93ab1aceef070b",
+   "retained_sha256": "401b3ef41155e3928baf09dc9d1a806a9a85d2a82d241bea19654896af5ac03d",
+   "labels": [
+    "<link-board-addr>",
+    "<link-host-addr>"
+   ]
+  }
+ }
+}

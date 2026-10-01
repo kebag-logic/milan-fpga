@@ -1,0 +1,19 @@
+LOCK 2026-10-01T12:39:52.889Z
+{"t": 1790858393.294123, "kind": "as-found", "fmt-dut-in-0": "0205022002006000", "fmt-peer-out-0": "0205022001006000", "clk-dut": 0, "clk-peer": 0, "rx-dut-0": {"status": 0, "conn_count": 0, "stream_id": "0000000000000000"}, "map-dut-in": "000e00000000000100000000"}
+{"t": 1790858393.294857, "kind": "format-check", "ok": true, "talker": "peer-out-0", "listener": "dut-in-0", "talker_fmt": "0205022001006000", "listener_fmt": "0205022002006000", "set": {"fmt": "0205022001006000", "status": ["SUCCESS"], "echoed": "0205022001006000"}, "listener_after": "0205022001006000"}
+{"t": 1790858393.295242, "kind": "map-add", "status": ["SUCCESS", "SUCCESS"], "readback": "000e000000000001000400000000000000000000000000010001000000000002000200000000000300030000"}
+{"t": 1790858393.295617, "kind": "bind", "status": 0, "conn_count": 1, "stream_id": "0000000000000000"}
+{"t": 1790858412.907653, "kind": "soc", "tag": "record", "rc": 0}
+{"t": 1790858412.908799, "kind": "teardown"}
+{"t": 1790858412.909179, "kind": "unbind", "status": 0, "conn_count": 0}
+{"t": 1790858413.910323, "kind": "map-remove", "status": ["SUCCESS", "SUCCESS"], "readback": "000e00000000000100000000"}
+{"t": 1790858413.910636, "kind": "map-final", "readback": "000e00000000000100000000", "as_found": "000e00000000000100000000"}
+{"t": 1790858413.910995, "kind": "format-restore", "fmt": "0205022002006000", "status": ["SUCCESS"]}
+{"t": 1790858413.911305, "kind": "format-final", "fmt": "0205022002006000", "equal_to_found": true}
+{"t": 1790858413.911729, "kind": "clock-final", "who": "peer", "source": 0, "as_found": 0}
+{"t": 1790858413.911987, "kind": "clock-final", "who": "dut", "source": 0, "as_found": 0}
+{"t": 1790858413.927582, "kind": "agent-exit", "rc": 0}
+{"t": 1790858414.512815, "kind": "soc", "tag": "cleanup", "rc": 0}
+{"t": 1790858414.512886, "kind": "end"}
+ACTION_RC=0
+UNLOCK 2026-10-01T12:40:14.519Z

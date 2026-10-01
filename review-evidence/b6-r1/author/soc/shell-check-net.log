@@ -1,0 +1,17 @@
+
+### 2026-10-01T13:10:00+0200 timeout=20.0 typed='wget -qO- http://<link-host-addr>:41755/A477_881292.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/34355 2>&1
+printf '%s_B\n' A477_881292
+id; readlink /proc/$PPID/fd/0; cat /proc/$PPID/cmdline | tr "\0" " "; echo; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A477_881292 $?
+### reply:
+A477_881292_B
+uid=0(root) gid=0(root) groups=0(root),10(wheel)
+/dev/ttyS3
+-bash 
+92813.44 254665.43
+
+A477_881292_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

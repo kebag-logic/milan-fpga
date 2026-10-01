@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/tmp/a477/b6_ctl.py", line 272, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/a477/b6_ctl.py", line 263, in main
+    agent(c)
+    ~~~~~^^^
+  File "/tmp/a477/b6_ctl.py", line 220, in agent
+    c.get_fmt(q["who"], STREAM_INPUT if q["dir"] == "in" else STREAM_OUTPUT, int(q["idx"]))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/a477/b6_ctl.py", line 77, in get_fmt
+    r = self.aem(who, 0x0009, struct.pack(">HH", dtype, idx), f"format-{who}-{dtype}-{idx}")
+  File "/tmp/a477/b6_ctl.py", line 53, in aem
+    target, mac = self.ent[who]
+                  ~~~~~~~~^^^^^
+KeyError: 'fmt'

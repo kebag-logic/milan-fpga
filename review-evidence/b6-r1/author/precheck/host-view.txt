@@ -1,0 +1,196 @@
+### 2026-10-01T10:58:57.438Z bench host view (read-only; no bench lock needed: local host state only)
+## ALSA cards
+ 0 [Intel          ]: HDA-Intel - HDA Intel
+                      HDA Intel at 0x82440000 irq 330
+ 1 [<external-capture-id>     ]: USB-Audio - <external-capture>
+                      <external-capture> at <usb-bus-position>, high speed
+ 2 [UAC2           ]: USB-Audio - <soc-usb-function>
+                      Kebag-Logic <soc-usb-function> at <usb-bus-position>, high speed
+## IPv4 addresses (all interfaces)
+lo               UNKNOWN        127.0.0.1/8 
+<host-iface>           UP             <lan-address> 
+docker0          DOWN           172.17.0.1/16 
+## SoC board USB network link interface
+4: <link-if>: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 1000
+    link/ether <mac> brd <mac>
+    altname enx<mac>
+## serial adapters by id
+<other-serial-device>
+<soc-console>
+<dut-console>
+## network manager device state
+<host-iface>:ethernet:connected:Wired connection 1
+<host-iface>:ethernet:connecting (getting IP configuration):Wired connection 2
+lo:loopback:connected (externally):lo
+docker0:bridge:connected (externally):docker0
+<link-if>:ethernet:disconnected:
+## network manager profiles (name:type:device)
+Wired connection 1:802-3-ethernet:<host-iface>
+Wired connection 2:802-3-ethernet:<host-iface>
+lo:loopback:lo
+docker0:bridge:docker0
+<static-link-profile>:802-3-ethernet:
+Wired connection 3:802-3-ethernet:
+## static link profile: interface-name, mac, ipv4 method, ipv4 addresses, autoconnect, autoconnect priority (one per line)
+$
+$
+manual$
+<link-host-addr>/24$
+yes$
+50$
+## auto-created profile on the link: interface-name, mac, ipv4 method, autoconnect
+<link-if>$
+$
+auto$
+yes$
+## host boot time
+2026-10-01 12:02:44
+## journal: link interface events this boot (activation starts and failures)
+2026-10-01T12:03:18+02:00 <bench-host> kernel: cdc_ether 3-1.3:1.3 <link-if>: renamed from usb0
+2026-10-01T12:03:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790848998.0664] device (usb0): interface index 4 renamed iface from 'usb0' to '<link-if>'
+2026-10-01T12:03:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790848998.0740] settings: (<link-if>): created default wired connection 'Wired connection 3'
+2026-10-01T12:03:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790848998.0743] device (<link-if>): carrier: link connected
+2026-10-01T12:03:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790848998.0748] device (<link-if>): state change: unavailable -> disconnected (reason 'carrier-changed', managed-type: 'full')
+2026-10-01T12:03:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790848998.0755] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:03:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790848998.0763] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:04:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849043.3500] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:04:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849043.3503] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:04:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849043.3541] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:04:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849043.3552] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:04:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849043.3558] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:04:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849088.3544] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:04:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849088.3547] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:04:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849088.3640] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:04:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849088.3652] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:04:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849088.3659] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:05:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849133.3545] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:05:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849133.3555] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:05:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849133.3640] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:05:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849133.3651] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:05:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849133.3658] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:06:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849178.3577] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:06:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849178.3583] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:06:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849178.3620] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:11:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849478.3463] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:11:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849478.3478] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:12:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849523.3551] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:12:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849523.3554] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:12:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849523.3591] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:12:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849523.3608] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:12:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849523.3620] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:12:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849568.3554] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:12:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849568.3565] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:12:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849568.3640] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:12:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849568.3659] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:12:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849568.3676] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:13:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849613.3538] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:13:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849613.3540] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:13:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849613.3591] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:13:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849613.3607] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:13:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849613.3620] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:14:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849658.3579] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:14:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790849658.3586] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:14:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849658.3671] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:19:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849958.3554] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:19:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790849958.3574] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:20:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850003.3536] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:20:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850003.3552] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:20:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850003.3630] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:20:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850003.3645] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:20:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850003.3659] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:20:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850048.3455] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:20:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850048.3468] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:20:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850048.3541] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:20:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850048.3551] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:20:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850048.3568] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:21:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850093.3549] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:21:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850093.3587] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:21:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850093.3731] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:21:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850093.3767] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:21:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850093.3787] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:22:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850138.3585] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:22:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850138.3616] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:22:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850138.3690] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:27:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850438.3585] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:27:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850438.3609] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:28:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850483.3549] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:28:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850483.3573] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:28:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850483.3651] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:28:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850483.3677] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:28:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850483.3695] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:28:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850528.3544] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:28:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850528.3555] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:28:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850528.3630] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:28:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850528.3651] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:28:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850528.3668] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:29:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850573.3537] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:29:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850573.3547] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:29:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850573.3650] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:29:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850573.3669] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:29:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850573.3685] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:30:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850618.3581] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:30:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850618.3601] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:30:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850618.3681] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:35:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850918.3553] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:35:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850918.3572] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:36:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850963.3533] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:36:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790850963.3544] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:36:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850963.3601] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:36:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850963.3620] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:36:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790850963.3635] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:36:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851008.3550] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:36:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851008.3562] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:36:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851008.3700] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:36:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851008.3722] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:36:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851008.3738] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:37:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851053.3541] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:37:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851053.3546] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:37:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851053.3650] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:37:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851053.3665] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:37:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851053.3681] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:38:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851098.3577] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:38:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851098.3587] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:38:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851098.3661] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:43:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851398.3575] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:43:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851398.3611] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:44:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851443.3549] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:44:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851443.3572] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:44:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851443.3671] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:44:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851443.3692] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:44:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851443.3702] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:44:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851488.3552] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:44:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851488.3555] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:44:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851488.3670] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:44:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851488.3684] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:44:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851488.3693] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:45:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851533.3549] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:45:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851533.3551] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:45:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851533.3590] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:45:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851533.3606] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:45:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851533.3615] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:46:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851578.3584] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:46:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851578.3609] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:46:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851578.3702] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:51:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851878.3558] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:51:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851878.3578] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:52:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851923.3545] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:52:03+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851923.3552] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:52:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851923.3620] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:52:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851923.3636] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:52:03+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851923.3642] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:52:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851968.3550] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:52:48+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790851968.3557] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:52:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851968.3610] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:52:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851968.3629] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:52:48+02:00 <bench-host> NetworkManager[2176]: <info>  [1790851968.3646] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:53:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790852013.3549] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:53:33+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790852013.3556] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:53:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790852013.3640] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:53:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790852013.3658] device (<link-if>): Activation: starting connection 'Wired connection 3' (982cb1d2-921f-3853-879b-f5fdf9eae016)
+2026-10-01T12:53:33+02:00 <bench-host> NetworkManager[2176]: <info>  [1790852013.3673] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+2026-10-01T12:54:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790852058.3581] device (<link-if>): state change: ip-config -> failed (reason 'ip-config-unavailable', managed-type: 'full')
+2026-10-01T12:54:18+02:00 <bench-host> NetworkManager[2176]: <warn>  [1790852058.3588] device (<link-if>): Activation: failed for connection 'Wired connection 3'
+2026-10-01T12:54:18+02:00 <bench-host> NetworkManager[2176]: <info>  [1790852058.3660] dhcp4 (<link-if>): activation: beginning transaction (timeout in 45 seconds)
+## counts
+activation_starts=28
+activation_failures=28
