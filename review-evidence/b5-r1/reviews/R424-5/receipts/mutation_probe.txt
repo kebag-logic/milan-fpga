@@ -1,0 +1,19 @@
+--- P1: one flipped byte in the restored read record must break step 2
+mutated cmp rc=1 (non-zero expected)
+restored cmp rc=0 (0 expected)
+--- P2: the masked-by-step-1 copy (gunzip without -f) must not reproduce
+published masked copy sha256 prefix: 8897abce
+masked-copy cmp rc=1 (non-zero expected)
+restored sha256 prefix: 2183d57f
+--- P3: a broken intra-page anchor, then a broken cross-page link, on the page (probe clone)
+probe lines changed: 1
+docs_check on broken intra-page anchor rc=0 (recorded: 0 means the gate does not judge intra-page anchors)
+gen_toc --verify-anchors on mutated page rc=0
+probe lines changed: 1
+docs_check on broken cross-page link rc=1 (non-zero expected)
+docs_check on restored probe rc=0 (0 expected)
+--- P4: a withheld size planted back into a copy of the head page must hit the size scan
+<packet>/scratch/p4.md: 1 hit(s)
+  :495 withheld size
+  info :496 whole multiple of the derived frame width, no stated duration matches
+targets total hits: 1

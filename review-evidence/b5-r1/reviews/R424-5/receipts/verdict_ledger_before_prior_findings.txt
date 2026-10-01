@@ -1,0 +1,8 @@
+Written after the independent pass over the diff, before reading any prior public review report text.
+Head e5ad118783c2ff96e13f1d794f10bf2b63741282, tree d79bb19b5e635b1f8bbc458e5c05c1e7e19afa9b.
+Provisional verdict: POSITIVE (no open BLOCKER/MAJOR/MINOR found).
+Provisional findings:
+  S1 SUGGESTION Docs - page :461-463 pin 9006c78e: its linked b5-r1 tree still carries the diag1 every-channel size in two receipts outside the three cited directories (author-r4 raw_index_check.txt, reviews/R424-4 hash_check.txt); 2be652c3 masks them and its three packet trees are identical (tree ids equal). Owner top-only rule and the round 5 assignment's explicit pin keep it non-blocking.
+  S2 SUGGESTION Docs - PR body Status/DoD "12 of 12" local gates, while How to validate lists 10 commands.
+Ledger (provisional):
+  Conformance CLEAN | RTL CLEAN | Robustness CLEAN | Tests CLEAN | Docs CLEAN (S1, S2 are SUGGESTION only)

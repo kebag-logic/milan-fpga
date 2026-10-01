@@ -1,0 +1,6 @@
+Classification of every public_scan.txt hit (read by line at e5ad1187; no hit names a device or states a private value):
+page:36, page:383, page:396, pr_body:55, pr_body:93, pr_body:228  wiring - the abstract condition "without a wiring change" from the B5 assignment's Direction B rule; states no wiring.
+page:108  wiring - "No flash, reset, power, wiring, instrument setting or USB function action occurred"; a negative statement, no topology.
+page:239, page:271, page:275, page:451, pr_body:77  count - clusters of analysis skips ("one cluster", "222 clusters", "121 clusters"), not the peer's audio clusters.
+commit_messages:3  count - the round 4 subject "stream states, stream ports and clusters without counts"; no number.
+Not a scan hit but checked by reading: page:85 "All 4 DUT stream states" is the DUT's own count (allowed); page:89, :306, :438 the peer's media clock source selection (kept by ruling 5929406675 item 2); page:102-103, :411-412 stream-format channel counts (kept by ruling 5929901339 item 1); page:424 "grandmaster unchanged" is the DUT's gPTP state and names no device.
