@@ -1,0 +1,52 @@
+== inputs
+derived read record a-long-reads.u16 131540 B sha256 2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961; 65770 reads; window frames 227040 .. 31796640
+events 1620; skips 1286; skips of 2 or more 760
+== A. skips of 60 frames or more against the stalls (read interval over 15 ms)
+stalls 220; excess over the 10 ms period 109069.3 frames
+skips of 60 or more: 239, 109928 frames
+  stall-aligned, a stall 0 to 2 reads before: 236, 109670 frames; reads before {1: 130, 2: 106}
+  not stall-aligned: 3, 258 frames
+    72 frames at window frame 1627162 (33.90 s of captured audio), read 3390 at 34.03 s on the host clock; longest read interval of the 3 up to it 11.76 ms (1.76 ms over the period, 1.50 ms of audio skipped); nearest stall 125 reads away
+    78 frames at window frame 30320350 (631.67 s of captured audio), read 63168 at 634.03 s on the host clock; longest read interval of the 3 up to it 12.11 ms (2.11 ms over the period, 1.62 ms of audio skipped); nearest stall 127 reads away
+    108 frames at window frame 30320914 (631.69 s of captured audio), read 63169 at 634.04 s on the host clock; longest read interval of the 3 up to it 12.11 ms (2.11 ms over the period, 2.25 ms of audio skipped); nearest stall 128 reads away
+stall excess 109069.3 frames against 109670 in the 236 stall-aligned skips and 109928 in all 239
+share of captured plus skipped frames (31686704) in the 760 skips of 2 or more: 117104 frames, 0.370%
+share of captured plus skipped frames (31686704) in the 239 skips of 60 or more: 109928 frames, 0.347%
+share of captured plus skipped frames (31686704) in the 236 stall-aligned skips: 109670 frames, 0.346%
+== B. 1 ms floor steps: off-stall clusters against clear positions
+off-stall clusters (skips of 2 to 59 only, no stall): 121; floor steps by 1 ms (48 +- 4 frames): 22
+clear read positions: 51828; groups with |step| > 4: 9, 7 of them a 1 ms step
+one floor test spans 16 reads, so the clear positions hold 51828 / 16 = 3239.25 windows
+1 ms steps per window at clear positions: 7 / 3239.25 = 0.00216
+expected among 121 clusters at that rate: 0.26; observed 22 (18.2% of the clusters against 0.22% of the windows)
+== C. the planted-loss control is linear in the plant
+planted 6 frames at the same 300 positions as b5_attrib.py: recovered less planted less the unplanted step there, largest |difference| 0.00e+00 frames; recovered less planted [-2.3, -1.1, -0.3, -0.0, +0.2, +1.0, +4.6]
+planted 12 frames at the same 300 positions as b5_attrib.py: recovered less planted less the unplanted step there, largest |difference| 0.00e+00 frames; recovered less planted [-2.3, -1.1, -0.3, -0.0, +0.2, +1.0, +4.6]
+planted 24 frames at the same 300 positions as b5_attrib.py: recovered less planted less the unplanted step there, largest |difference| 0.00e+00 frames; recovered less planted [-2.3, -1.1, -0.3, -0.0, +0.2, +1.0, +4.6]
+so a planted loss reads back as the unplanted step plus the plant: the control locates the floor windows, it does not measure detection power
+== D. what the second descriptor survey sent (restore/peer-descs-2.jsonl)
+exchanges 57
+  GET_AUDIO_MAP    0x000e SUCCESS: 1
+  GET_AUDIO_MAP    0x000f SUCCESS: 1
+  READ_DESCRIPTOR  0x0000 SUCCESS: 1
+  READ_DESCRIPTOR  0x0001 SUCCESS: 1
+  READ_DESCRIPTOR  0x0002 SUCCESS: 2
+  READ_DESCRIPTOR  0x0005 SUCCESS: 10
+  READ_DESCRIPTOR  0x0006 SUCCESS: 4
+  READ_DESCRIPTOR  0x0009 SUCCESS: 2
+  READ_DESCRIPTOR  0x000a SUCCESS: 11
+  READ_DESCRIPTOR  0x000e SUCCESS: 1
+  READ_DESCRIPTOR  0x000f SUCCESS: 1
+  READ_DESCRIPTOR  0x0010 NO_SUCH_DESCRIPTOR: 20
+  READ_DESCRIPTOR  0x001a SUCCESS: 1
+  READ_DESCRIPTOR  0x0024 SUCCESS: 1
+READ_DESCRIPTOR of type 0x0010, the walk's cluster reads (0x0010 is EXTERNAL_PORT_INPUT): 20
+READ_DESCRIPTOR of type 0x0011, the walk's external input port reads: 0
+READ_DESCRIPTOR of type 0x0012, the walk's external output port reads: 0
+READ_DESCRIPTOR of type 0x0014, the walk's map reads (0x0014 is AUDIO_CLUSTER): 0
+READ_DESCRIPTOR of type 0x0017, AUDIO_MAP: 0
+  type 0x0010 indices 0 .. 19, 20 reads
+STREAM_PORT_INPUT 0: clusters 16 from index 0; static maps (number_of_maps) 0
+STREAM_PORT_OUTPUT 0: clusters 4 from index 16; static maps (number_of_maps) 0
+AUDIO_UNIT 0: external input ports 0, external output ports 0
+so no AUDIO_CLUSTER and no AUDIO_MAP descriptor was read; the dynamic maps came from GET_AUDIO_MAP

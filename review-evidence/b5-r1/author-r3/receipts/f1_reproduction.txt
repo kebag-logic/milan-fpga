@@ -1,0 +1,23 @@
+== F1 reproduction from the public archive b5-review-evidence at 2a40015e54d2bc0c6f40ef73041f37c5238ed164
+files fetched read-only from review-evidence/b5-r1/: author/summary/a-long/summary.json, author/summary/a-long/continuity-events.csv, author/runs/a-long/events.jsonl, author/restore/peer-descs-2.jsonl, author-r2/tools/b5_attrib.py, author-r2/receipts/a-long-reads.json, a-long-reads.u16 and a-long-reads.u16.gz
+-- as published
+8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc  a-long-reads.u16
+6e0028a6cf5d7e9e01ba1e3c3e96daa7b88b8024b937cbff48fa66a30eb06d03  a-long-reads.u16.gz
+7feb33bcb84ff649a8bcf8627b7fe146169eebb74195e4c12bf7aab2d39ee7f4  a-long-reads.json
+f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40  tools/b5_attrib.py
+-- $ gunzip -k a-long-reads.u16.gz   (the archive note's command, with the masked copy present)
+gzip: a-long-reads.u16 already exists;	not overwritten
+rc=2
+8897abce393078140112a1a86c5c732953d4a43f9cbf5847fff885ca0d244abc  a-long-reads.u16
+-- $ gunzip -kf a-long-reads.u16.gz
+rc=0
+2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961  a-long-reads.u16
+131540 bytes
+-- $ python3 tools/b5_attrib.py figures author receipts > attribution.txt
+rc=0
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138  attribution.txt (this run)
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138  author-r2/receipts/attribution.txt (archive)
+cmp with the archive's attribution.txt: identical
+-- $ python3 b5_round3.py figures author receipts > round3_figures.txt   (b5_round3.py sha256 415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d)
+rc=0
+cmp with this packet's receipts/round3_figures.txt: identical

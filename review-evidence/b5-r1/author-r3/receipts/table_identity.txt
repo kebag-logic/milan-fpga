@@ -1,0 +1,47 @@
+tool b5_table_proof.py (round 2 packet b5-a473, unchanged) sha256 5eb78c7f6a015a52dbac4d631f0a838b1943fc86536e0f9bc1ab44f313a0c7eb
+page docs/findings/117_AUDIO_CONTINUITY.md: e29d12b1d5ee858eaf4684aaa8dc6647f6309857 against cf38633ad9a5bdb05517bedba73ce50965af967b
+tables: 15 at the old revision, 15 at the new
+table  1 (line 18 -> 21, 8 lines, header ['Item', 'Verdict', 'Evidence']...): CHANGED sha256 9341286ba1354308 -> 7529c6ab8c53c0ac
+  row 5: first 2 cells identical ['Continuity over 660 s: silent stretches, repeats and skips', 'FAIL']; figures of the old row ['334', '520', '1.266', '117,104', '60', '2', '59']; missing from the new row: none; new figures ['108', '236', '239', '72,', '78']
+  row 7: first 2 cells identical ["Direction B, the peer's talker to the DUT's listener", 'NOT RUN']; figures of the old row []; missing from the new row: none; new figures []
+table  2 (line 54 -> 60, 10 lines, header ['Identity check', 'Result']...): byte-identical sha256 ec2504e3313d040b
+table  3 (line 80 -> 86, 3 lines, header ['Binding', 'Talker output', 'Listener input']...): byte-identical sha256 d8f28897b75e6b6e
+table  4 (line 84 -> 90, 4 lines, header ['Stream format', 'As found', 'Meaning']...): byte-identical sha256 3534a99bbd80482d
+table  5 (line 135 -> 143, 6 lines, header ['Run', 'Purpose', 'Result']...): byte-identical sha256 28f6694e7b9a8e06
+table  6 (line 149 -> 157, 5 lines, header ['Bind', 'Talker format', 'Listener format read']...): byte-identical sha256 22ec52bf6ca36a60
+table  7 (line 164 -> 172, 4 lines, header ['Stream channel', 'Expected tag', 'Captured words']...): byte-identical sha256 d5af01436365f91f
+table  8 (line 169 -> 177, 3 lines, header ['Frames', 'Valid', 'Torn']...): byte-identical sha256 e8a25144b01a150d
+table  9 (line 182 -> 191, 7 lines, header ['Class', 'Events', 'Frames']...): byte-identical sha256 0c019843233ff3db
+table 10 (line 278 -> 310, 3 lines, header ['Population', 'Count', 'Below 1 s']...): byte-identical sha256 a126beb2ab5fbfba
+table 11 (line 282 -> 314, 3 lines, header ['First ten median, s', 'Last ten median, s', 'Slope, s per cycle']...): byte-identical sha256 ce7ca10e8c837052
+table 12 (line 302 -> 334, 32 lines, header ['Cycle', 'Hold, s', 'Stopped in hold']...): byte-identical sha256 18c1d56496c35bfd
+table 13 (line 359 -> 399, 11 lines, header ['State', 'As left']...): byte-identical sha256 b162f7311ff46aa5
+table 14 (line 407 -> 458, 11 lines, header ['Artifact', 'Bytes', 'SHA-256']...): byte-identical sha256 10c375c0e23e9e5a
+table 15 (line 419 -> 470, 9 lines, header ['Tool', 'Role', 'SHA-256']...): byte-identical sha256 16e238896dda1c0a
+14 of 15 tables byte-identical; 1 changed
+index docs/findings/README.md: 1 line(s) changed
+  row 1: first 2 cells identical ['[117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md)', "Audio continuity end to end against the reference peer on dev `ec0cc0c1`: the first-light pattern through the DUT's AAF talker to the peer's listener, recorded from the peer's digital output by an external audio capture; integrity, 660 s of continuity and 30 unbind and rebind restarts (#117 acceptance box 4)"]; figures of the old row ['30', '30', '1', '0.028', '1.266', '60', '2', '59']; missing from the new row: none; new figures ['236', '239']
+proof rc=0
+
+== literal diff of every table line of the page (all lines starting with '|'), e29d12b1 then cf38633a
+$ diff <(git show e29d12b1:docs/findings/117_AUDIO_CONTINUITY.md | grep "^|") <(git show cf38633a:docs/findings/117_AUDIO_CONTINUITY.md | grep "^|")
+5c5
+< | Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: those of 60 or more are stall-aligned capture-path loss; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
+---
+> | Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
+7c7
+< | Direction B, the peer's talker to the DUT's listener | NOT RUN | No known signal reaches the peer's talker channels without an instrument or wiring change. See [Direction B](#direction-b). |
+---
+> | Direction B, the peer's talker to the DUT's listener | NOT RUN | It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b). |
+diff rc=1 (1: the differences shown above are the only ones)
+table lines: e29d12b1 119, cf38633a 119
+
+== the same against the round 1 record bf9e5d82: every table but the summary verdict table
+diff rc=0 (0: table lines 9 onward, every table after the summary verdict table, are byte-identical to round 1)
+
+== index table docs/findings/README.md, e29d12b1 then cf38633a
+12c12
+< | [117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md) | Aud
+---
+> | [117_AUDIO_CONTINUITY.md](117_AUDIO_CONTINUITY.md) | Aud
+(lines cut at 60 characters; the changed line is the 117_AUDIO_CONTINUITY.md index row, above in full)
