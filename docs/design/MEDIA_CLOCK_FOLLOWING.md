@@ -13,10 +13,19 @@ CLOCK_DOMAIN. The decision is recorded in #629's body (2026-10-01). It reverses
 #389 option (a) for AAF Stream Inputs, and the CRF path stays.
 
 This page records the clause reading behind the change, the current state, the
-design options with a recommendation, the change lists for this repository and
-for the protocol processor, and the test plan. No RTL, builder, model,
-configuration or processor change comes with it. The choices it needs are
-listed under [Decisions requested](#decisions-requested).
+design with its options, the change lists for this repository and for the
+protocol processor, and the test plan. No RTL, builder, model, configuration
+or processor change comes with it.
+
+**Where the decisions stand.** The
+[rulings on round 1](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935520588)
+accepted D2, D3 and D6, filed D7 as
+[#632](https://github.com/kebag-logic/milan-fpga/issues/632) and the processor
+part as
+[protocol-processor #141](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/141),
+and sent D4 to the owner. The
+[round 2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935864862)
+re-opened D1 and D5. [Decisions](#decisions) lists each one with its state.
 
 ## Contents
 
@@ -24,10 +33,10 @@ listed under [Decisions requested](#decisions-requested).
 - **[Clause findings](#clause-findings)** -- The clause reading by question: a source per AAF input, a stopped stream, the `mr` rules, and what the current reading gets wrong.
 - **[Current state](#current-state)** -- The builder, entity model, processor and fabric as they are at dev `d4dd7426`, each fact with its `path:line`.
 - **[Design](#design)** -- The chain, the source order, the AAF clock meter, selection, switching, holdover, `mr`, A2, the domain counters, the phase gap and the area, with options.
-- **[Parent-visible changes](#parent-visible-changes)** -- Every requirement, configuration, builder, model, RTL, register and document change in this repository.
-- **[Protocol-processor changes](#protocol-processor-changes)** -- The cross-repository plan: no processor RTL change, its documentation and tests, under its own issue.
+- **[Parent-visible changes](#parent-visible-changes)** -- Every requirement, configuration, builder, model, RTL, register, gate and document change in this repository.
+- **[Protocol-processor changes](#protocol-processor-changes)** -- The cross-repository plan under protocol-processor #141: no processor RTL change, its documentation and tests.
 - **[Test plan](#test-plan)** -- Simulation cases each with a failing mutant, and the bench cases by the B6 method.
-- **[Decisions requested](#decisions-requested)** -- The seven choices a decision on #629 settles, each with a recommendation.
+- **[Decisions](#decisions)** -- Each of the seven choices with its options, the recommendation and whether it is ruled, re-opened or with the owner.
 - **[Limits](#limits)** -- What this design does not establish.
 
 ## Baseline
@@ -54,49 +63,73 @@ page at head `26dfc82f`, not merged when this page was written):
 
 | Clause | What it says | Consequence |
 |---|---|---|
-| Milan v1.2 5.3.3.6 | Each Clock Domain has at least one CLOCK_SOURCE. For each Stream Input that supports the CRF Media Clock Stream Format, or for the single AAF Stream Input when the Configuration has no CRF input, there is exactly one INPUT_STREAM CLOCK_SOURCE located on that STREAM_INPUT. At least one INTERNAL source exists when the Configuration has a Stream Output. | A minimum set. It neither requires nor forbids an INPUT_STREAM source on an AAF input when a CRF input exists. "Exactly one" rules out two sources on one input. |
+| Milan v1.2 5.3.3.6 | Each Clock Domain has at least one CLOCK_SOURCE. For each Stream Input that supports the CRF Media Clock Stream Format, or for the single AAF Stream Input when the Configuration has no CRF input, there is exactly one INPUT_STREAM CLOCK_SOURCE located on that STREAM_INPUT. At least one INTERNAL source exists when the Configuration has a Stream Output. | A minimum set. "Exactly one" binds each CRF-capable input, and the single AAF input of a Configuration without a CRF input. No clause sets a count for an AAF input beside a CRF input. |
 | IEEE 1722.1-2021 7.2.9, 7.2.9.2 (Table 7-17) | INPUT_STREAM: "the clock is sourced from the media clock of an Input Stream". The location type and index name the descriptor that holds it. | An AAF STREAM_INPUT is a valid location. |
 | IEEE 1722.1-2021 7.2.32 (Table 7-61) | `clock_sources` lists the CLOCK_SOURCE indices the domain's `clock_source_index` may be set to. `clock_sources_count` is at most 216. | No ordering or grouping rule. The bound is far above the 10 sources of the 8x8 shape. |
 | Milan v1.2 7.2.2 | An AAF Media Talker, and a listener with two or more AAF inputs, implements a CRF Media Clock Input per clock domain. | The CRF input must exist. The clause restricts no source. |
-| Milan v1.2 7.6.2 | One Media Clock Domain per Clock Domain. | This entity has one domain, so every source sits in CLOCK_DOMAIN 0. |
+| Milan v1.2 7.6, 7.6.2 | 7.6 is a recommendation. Its model "only deals with" followers that receive their media clock "through separate CRF Streams". 7.6.2 associates each Clock Domain with one Media Clock Domain. | AAF sources sit outside 7.6's media-clock-management model, so a controller working by 7.6 does not select them. That this entity has one Clock Domain is a fact of its model, not of 7.6.2. |
 
 **Answer.** An INPUT_STREAM CLOCK_SOURCE per AAF Stream Input may sit beside
-the CRF input's source. The clauses allow at most one per Stream Input, require
-the CRF input's, and cap the list at 216. They set no order. The protocol
-processor adds one rule of its own: the list is the identity permutation
-0..count-1, because its SET_CLOCK_SOURCE membership test is
-`index < clock_sources_count` ([`07_memory_maps.md:135`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L135),
+the CRF input's source. The clauses require the CRF input's source, set no
+count for an AAF input beside it, cap the list at 216, and set no order. One
+source per AAF Stream Input is this design's choice. The protocol processor
+adds one rule of its own: the list is the identity permutation 0..count-1,
+because its SET_CLOCK_SOURCE membership test is `index < clock_sources_count`
+([`07_memory_maps.md:135`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L135),
 `protocol-processor/hdl/aecp/ucode/gen_ucode.py:1410-1419`).
 
 ### (b) When the selected stream stops
 
-What the listener must do:
+What the clauses require:
 
-- **Keep the selection.** Milan v1.2 5.3.11.1: at any time the domain uses one
-  of its listed sources, and the current source is saved state. Milan v1.2
-  5.4.2.15: while locked by a controller, the entity does not change a clock
-  source by non-ATDECC means. So the index is not rewritten on a loss, and
-  GET_CLOCK_SOURCE keeps reading the stream source. There is no silent
-  fallback to INTERNAL.
-- **Count the loss.** Milan v1.2 5.3.11.2 (Tables 5.7 and 5.15): LOCKED and
-  UNLOCKED move on each lock and unlock of the media clock the domain uses, with
+- **A listed source in use, and the selection saved.** Milan v1.2 5.3.11.1: at
+  any time the domain uses one of its listed sources, and the current source
+  is saved in non-volatile memory and restored after a power cycle.
+- **No non-ATDECC change while locked.** Milan v1.2 5.4.2.15: "If the PAAD-AE
+  is locked by a controller", it changes no clock source by non-ATDECC means.
+  The clause sets nothing for an entity that no controller has locked.
+- **The counters.** Milan v1.2 5.3.11.2 (Table 5.7): LOCKED and UNLOCKED count
+  each lock and unlock of "the media clock used in the Clock Domain", with
   LOCKED equal to UNLOCKED or one more. The meaning of "locked" is left to the
-  manufacturer. The Stream Input's own MEDIA_UNLOCKED (Milan v1.2 Table 5.6)
-  counts the stream's loss.
-- **Signal it on its own streams,** if it is also a talker: the `mr` rules
-  in (c).
+  manufacturer. The Stream Input keeps its own MEDIA_LOCKED and MEDIA_UNLOCKED
+  (Milan v1.2 Table 5.6).
+- **`mr` on its own streams,** if it is also a talker: see (c).
 
-What it may do:
+What the clauses permit:
 
-- **Hold the recovered clock.** IEEE 1722-2016 4.4.4.7, NOTE: a listener that
-  sees `tu` usually stops adjusting its media clock and lets it free-wheel,
-  which corrupts the media least.
-- **Recover any way it sees fit.** IEEE 1722-2016 4.4.4.3 and 10.4.3: the
-  restart "need not be seamless", and the listener takes "any appropriate action
-  to minimize the disruption".
-- **Re-acquire** when the stream returns.
+- **An entity-initiated change of source.** Milan v1.2 5.3.11.1: "The PAAD-AE
+  is able to dynamically change the clock source to any of the CLOCK_SOURCE
+  descriptors associated with the Clock Domain". While no controller holds the
+  lock, a fallback to another listed source is therefore permitted.
+- **Free-wheel.** IEEE 1722-2016 10.6: when CRF timestamps are lost, "the media
+  clock free-wheels until the CRF stream resumes". 4.4.4.7, NOTE: a listener
+  that sees `tu` usually stops adjusting its media clock and lets it
+  free-wheel. No clause says what a listener does when a followed AAF stream
+  stops; these are the nearest cases.
+- **Re-acquire** when the stream returns. Milan sets no holdover duration.
 
-Milan sets no holdover duration and no fallback rule.
+What this design chooses:
+
+- **No fallback, at any time.** The selection stays until a controller changes
+  it, whether or not a controller holds the lock, and the media clock holds
+  over (see [Lock loss, holdover and restart](#lock-loss-holdover-and-restart)).
+  The reasons:
+  - 5.4.2.15 requires it while locked, so one rule covers both cases;
+  - 5.3.11.1 expects the user to set each domain's source correctly, and a
+    silent change would leave GET_CLOCK_SOURCE reading a source the user did
+    not set;
+  - the stored index belongs to the protocol processor, which publishes
+    CLOCK_DOMAIN 0's index to the fabric as an output only
+    (`protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:114`, `:352`). A fabric
+    fallback would need a write path, a saved-state write and the
+    unsolicited notification of IEEE 1722.1-2021 7.4.23, none of which exist.
+
+  A ruling can change this choice. Milan permits a fallback while unlocked.
+
+The phrases "need not be seamless" and "any appropriate action to minimize the
+disruption" (IEEE 1722-2016 4.4.4.3, first paragraph, and 10.4.3) describe a
+listener's reaction to a talker-signalled media clock restart, the `mr` toggle.
+They do not describe a stopped stream, so this page uses them under (c) only.
 
 ### (c) `mr` for a talker whose media clock follows a received stream
 
@@ -104,18 +137,23 @@ Milan sets no holdover duration and no fallback rule.
   in the source of its media clock, and holds the new value for at least eight
   AVTPDUs of a continuous stream. PICS Table F.7 items AAF-5 and AAF-6 make both
   mandatory for AAF.
+- **Reacting to a received toggle.** 4.4.4.3, first paragraph: a listener "may"
+  use the bit to adjust quickly to the new media clock; the change "need not be
+  seamless", and the listener may take "any appropriate action to minimize the
+  disruption". 10.4.3 makes the quick adjustment a shall for a CRF listener.
 - **CRF disruption and echo.** 4.4.4.3, third paragraph: when a talker receives
   a CRF stream, every stream deriving timestamps from it shall toggle `mr` if
   the CRF stream is disrupted or its `mr` toggles. 10.4.3: a CRF listener shall
-  use `mr` to adjust its recovered clock quickly, and shall toggle `mr` in the
-  outgoing streams that derive timestamps from the CRF stream. Both shalls name
-  CRF only.
+  toggle `mr` in the outgoing streams that derive timestamps from the CRF
+  stream. Both shalls name CRF only.
 - **Which `mr` counts.** 4.4.4.3 last paragraph and 10.4.3 last paragraph: a
   listener uses only the `mr` of the stream it recovers its media clock from.
-- **A followed AAF stream.** No clause makes a disruption or a received toggle
-  a shall here. The source-change rule applies, and a talker toggles "each time
-  a media clock restart is needed", so treating either as a restart is
-  permitted. This design recommends it, for symmetry with CRF.
+- **A followed AAF stream.** No clause makes its disruption or its received
+  toggle a shall. Two readings permit acting on them. The talker toggles "each
+  time a media clock restart is needed" (4.4.4.3). PICS AAF-5 asks whether
+  `mr` is toggled "when the device's media clock source has changed", which
+  can be read to cover the entity falling into holdover when its followed
+  stream stops. This design acts on both, for symmetry with CRF.
 - **Phase, for the same talker.** IEEE 1722-2016 10.8, Equation (15): a talker
   that recovers its clock from CRF keeps its timestamps within +/-5.0 % of a
   sample period of the CRF timing points, modulo whole periods (+/-1,041.7 ns at
@@ -140,7 +178,12 @@ Milan sets no holdover duration and no fallback rule.
    and 7.4.23.1 names no status for an unlisted index. The refusal
    follows from 7.2.32 (the list is the set the index may take) and Table 7-141
    (BAD_ARGUMENTS: a value "deemed to be bad"). 7.4.23.1 adds the rule the
-   processor already keeps: a failed response carries the current value.
+   processor already keeps: a failed response carries the current value. Three
+   places credit 7.4.23.1 with the membership test itself: L6 in this
+   repository ([`PP_DESCRIPTOR_OWNERSHIP.md:89`](../reference/PP_DESCRIPTOR_OWNERSHIP.md)),
+   the processor's L6
+   ([`07_memory_maps.md:135`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L135))
+   and its range-check comment (`protocol-processor/hdl/aecp/ucode/gen_ucode.py:1414`).
 3. **Milan 7.2.2 is cited for a restriction it does not make.** The builder
    (`sw/builder/endstation_builder.py:3893-3899` and the docstring at
    `:5019-5028`) and the model consumer (`avdecc/aem_specs.py:234-241`) cite it
@@ -154,18 +197,25 @@ Milan sets no holdover duration and no fallback rule.
    "the Clock Domain providing the media clock for the Stream". Both outputs
    name CLOCK_DOMAIN 0. Milan v1.2 7.1's informative note says the same. A2 is
    a real defect on that basis.
-5. **`mr` on an AAF disruption is a choice, not a shall.** #629's body says the
-   4.4.4.3 disruption rule "applies to AAF and CRF following alike". The literal
-   shall names CRF only (see (c)). Applying it to AAF is what this page
-   recommends.
-6. **Two RTL comments are stale since #74.** `hdl/milan/milan_datapath.sv:607`
-   says the root cannot select CRF, and `:5576-5578` says it "hardwires INTERNAL
-   against NONE".
+5. **`mr` on an AAF disruption is a reading, not the literal shall.** #629's
+   body says the 4.4.4.3 disruption rule "applies to AAF and CRF following
+   alike". The literal shall names CRF only. Under the PICS AAF-5 reading in
+   (c) the statement is defensible, and this design applies it either way.
+6. **Three RTL comments are stale.** `hdl/milan/milan_datapath.sv:607` says the
+   root cannot select CRF, and `:5576-5578` says it "hardwires INTERNAL against
+   NONE", both untrue since #74. `:3112` says the CRF media clock is source
+   "(2)", an index from before #389.
 7. **The compliance matrix.** The 7.2.3 row
    ([`MILAN_COMPLIANCE_MATRIX.md:187`](../reference/MILAN_COMPLIANCE_MATRIX.md)) reads implemented with no
    A2 caveat. The 5.4.2.15/.16 row (`:120`), the 5.3.11.1 row (`:175`) and the
    7.2.2 row (`:186`) restate the #389 set. No row records IEEE 1722-2016 10.8 or
    4.3.5.
+8. **A flag label.** `avdecc/aem_descriptors.py:456` emits `clock_source_flags`
+   `0x0002` and labels it STREAM_ID. IEEE 1722.1-2021 Table 7-16 puts STREAM_ID
+   at bit 15 and LOCAL_ID at bit 14, and the standard numbers bit 0 as the most
+   significant, so `0x0002` is LOCAL_ID. Milan v1.2 5.3.3.6 leaves the value
+   unimposed, so this is not a conformance defect. The per-AAF sources would
+   inherit the value, so the model lane decides it.
 
 ## Current state
 
@@ -176,15 +226,20 @@ Milan sets no holdover duration and no fallback rule.
 | Every shipping configuration declares `media_clock_sources: [internal, crf]` | `configs/endstation_ax7101_1x1_tdm8.yaml:128`, `configs/endstation_ax7101_8x8.yaml:146`, `configs/endstation_arty_8ch.yaml:132`, `configs/endstation_arty_4x4.yaml:96`, `configs/endstation_arty_current.yaml:166` |
 | `_load_clocking` refuses `input_stream` by name and admits only `internal` and `crf` | `sw/builder/endstation_builder.py:3887-3902` |
 | `crf` needs the CRF sink, and the sink needs `crf` | `sw/builder/endstation_builder.py:3956-3971` |
-| The CLOCK_SOURCE overlay: INTERNAL at 0, then the CRF source located on STREAM_INPUT `len(L)`, the sink after the AAF listeners | `sw/builder/endstation_builder.py:5018-5045` |
+| The CLOCK_SOURCE overlay: INTERNAL at 0 when declared, then the CRF source located on STREAM_INPUT `len(L)`, the sink after the AAF listeners | `sw/builder/endstation_builder.py:5018-5045` (INTERNAL only when declared, `:5034`) |
+| `CLOCK_SOURCE_NAMES` has no stream entry, and `_load_names` refuses `names.clock_sources.stream` | `sw/builder/endstation_builder.py:141`, `:3784-3790` |
 | Before #389 the order was INTERNAL, one source per AAF listener, then CRF | `sw/builder/endstation_builder.py:4180-4203` at `aea44c071^` |
 | The source set is model shape, so a change moves `entity_model_id` (IEEE 1722.1-2021 6.2.2.8) | `sw/builder/endstation_builder.py:3414-3419` |
 | A config that prunes the servo may offer only `internal` | `sw/builder/endstation_builder.py:3292-3301` |
-| Every Stream Output requires INTERNAL | `sw/builder/endstation_builder.py:4262-4267` |
+| Every Stream Output requires INTERNAL; a configuration without outputs may omit it | `sw/builder/endstation_builder.py:4262-4267` |
 | The model consumer knows `internal` and `crf`, and refuses `input_stream` as retired | `avdecc/aem_specs.py:22`, `:35`, `:234-241` |
 | One rule gives the RTL its two facts, the count and the CRF index | `avdecc/aem_descriptors.py:428-442` |
-| CLOCK_SOURCE descriptor, and a CLOCK_DOMAIN listing the identity permutation | `avdecc/aem_descriptors.py:445-462`, `:464-482`; emitted at `avdecc/aem_assemble.py:231-236` |
+| CLOCK_SOURCE descriptor, and a CLOCK_DOMAIN listing the identity permutation, reset selection index 0 | `avdecc/aem_descriptors.py:445-462`, `:464-482` (`:476`); emitted at `avdecc/aem_assemble.py:231-236` |
+| Every advertised input format has 6 samples per PDU | `avdecc/aem_descriptors.py:133` |
 | The shape header carries `AEM_N_CLKSRC_C` and `AEM_CRF_CLKSRC_C` (`16'hFFFF` when no CRF source) | `sw/builder/endstation_builder.py:2836-2853`; generated `configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh:54-55` |
+| The builder's own test asserts two sources and CRF at index 1 on every shipping shape | `sw/builder/test_builder.py:19580-19590` |
+| Two gates pin the CRF compare's source text | `scripts/check_gptp_docs.py:114`, `docs/diagrams/timesync_chain.gen.py:49` |
+| A saved-state image is refused whole when its `entity_model_id` differs from the running image's | `sw/firmware/milan_baremetal/milan_baremetal.c:634-636`; [`SAVED_STATE_FASTCONNECT.md:638-640`](SAVED_STATE_FASTCONNECT.md), [`SAVED_STATE_MATERIALIZATION.md:1153-1158`](SAVED_STATE_MATERIALIZATION.md) |
 
 ### Protocol processor
 
@@ -193,7 +248,7 @@ Milan sets no holdover duration and no fallback rule.
 | SET_CLOCK_SOURCE accepts an index below the located domain's `clock_sources_count`, stores it, marks it for persistence and notifies; otherwise BAD_ARGUMENTS with the current index | `protocol-processor/hdl/aecp/ucode/gen_ucode.py:1410-1419`, `:1433-1440` |
 | The list shape the check relies on (L6, identity permutation) | [`07_memory_maps.md:135`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L135) |
 | The selection is saved state, D3 record `0x0A` + domain, u16 | [`07_memory_maps.md:343`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L343), [`07_memory_maps.md:479`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L479); REQ-AEM-013 at [`00_MILAN_COMPLIANCE_REVIEW.md:377`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/00_MILAN_COMPLIANCE_REVIEW.md?plain=1#L377) |
-| A restored index is accepted only below the domain's count | `protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:86-90` |
+| A restored index is accepted only below the domain's count | the compare at `protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:501-503`; the rule stated at `:84-90` |
 | Only CLOCK_DOMAIN 0's index is exported to the parent | `protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:114`, `:352` |
 | The 5.3.3.6 paraphrase as a model rule | REQ-MDL-005 at [`00_MILAN_COMPLIANCE_REVIEW.md:420`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/00_MILAN_COMPLIANCE_REVIEW.md?plain=1#L420) |
 
@@ -209,22 +264,31 @@ packet grid.
 | The stored index arrives as `pp_aecp_clk_src_index_w` | `hdl/milan/milan_datapath.sv:704`, `:7529-7535` |
 | One registered compare makes `crf_clk_selected_r` (index equals `AEM_CRF_CLKSRC_C`) | `hdl/milan/milan_datapath.sv:1554-1570` |
 | CRF receiver: bound by the ACMP sink-1 bind or the CSR lever | `hdl/milan/milan_datapath.sv:5508-5572` (`:5537-5538`) |
+| Its `tu_i` takes the parser's `tv` net, because the CRF header carries `tu` where the common header carries `tv` | `hdl/milan/milan_datapath.sv:5530-5534` |
 | Its rate is a 256-PDU, 512 ms window of CRF timestamps, in ns per window | `hdl/ieee1722/crf/KL_crf_rx.sv:21-33`, `:275-277` |
+| Its jump bound is 2,048 ns, derived for a CRF talker inside the local PHC envelope with no arrival jitter | `hdl/ieee1722/crf/KL_crf_rx.sv:279-294` |
 | Its lock: 8 clean PDUs in, 100 ms of silence out | `hdl/ieee1722/crf/KL_crf_rx.sv:34-36`, `:296-298` |
 | Its rate history restarts on a `tu` edge, a timestamp jump, a sequence gap, the bind edge or silence | `hdl/ieee1722/crf/KL_crf_rx.sv:390-403` |
+| Its received-`mr` reference is seeded silently by an era's first accepted PDU; the bind edge and the silence re-seed | `hdl/ieee1722/crf/KL_crf_rx.sv:380`, `:586-587`, `:548-555`, `:619-624` |
 | Servo: frequency only; the error is local rate minus remote rate per 512 ms; CRF_DELTA is not a loop input | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:20-30` |
 | Servo select is `clk_src_i == crf_src_idx_i` | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:263-273`, `:411`; bound at `hdl/milan/milan_datapath.sv:5608-5612` |
+| The servo samples the reference rate once per 512 ms window, and runs PI only on a valid rate | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:609`, `:613-615` |
+| Lock qualification is an error under 1,024 ns per window (2 ppm) for four windows; one window outside drops LOCKED to ACQUIRE | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:232-233`, `:648`, `:567-568`, `:689-694` |
 | Servo IDLE clears the trim and integrator; HOLDOVER freezes the trim and re-enters ACQUIRE with a two-window skip | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:538-551`, `:571-579` |
 | Grid aligner and NCO steering engage only on `crf_clk_selected_r` | `hdl/milan/milan_datapath.sv:5733-5748` |
 | INTERNAL is a free-running packet grid by a recorded rule, slips accepted | `hdl/milan/milan_datapath.sv:5713-5718`, `hdl/ieee1722/crf/KL_media_grid_align.sv:38-41` |
 | The aligner disengages on a dead TDM feed | `hdl/ieee1722/crf/KL_media_grid_align.sv:95-100`, `:257-272` |
 | `mr` CRF triggers (disruption, received toggle) are gated on `crf_clk_selected_r` | `hdl/milan/milan_datapath.sv:3108-3156` |
 | `mr` source-change trigger: any change of the stored index, every output including the CRF output | `hdl/milan/milan_datapath.sv:3180-3203`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv:211-213`, `:230` |
+| A second restart request merges only until the output's first PDU at the adopted level | `hdl/ieee1722/avtp/KL_media_clock_restart.sv:236-246`, `:252`, `:261` |
 | #386 render recentre after a settled source change | `hdl/milan/milan_datapath.sv:6079-6126` |
-| CLOCK_DOMAIN LOCKED and UNLOCKED count edges of the gPTP clock-validity verdict, not of the followed source | `hdl/milan/milan_datapath.sv:3469-3475`, `:3492` |
+| CLOCK_DOMAIN LOCKED and UNLOCKED count edges of the gPTP clock-validity verdict that `tu` also carries, by a recorded rule | `hdl/milan/milan_datapath.sv:3469-3475`, `:3492` |
 | The RX parser hands every matched AVTPDU's listener index, timestamp, `tv`, `tu`, `mr`, sequence number and format header to the fabric | `hdl/milan/milan_datapath.sv:5418-5446` |
+| The format header holds AAF's format, `nsr`, `channels_per_frame`, `bit_depth`, `stream_data_length` and `sp`; the common-header `tu` is byte o+3 bit 0 | `hdl/ieee1722/avtp/avtp_stream_parser.sv:165-177` |
+| The AAF listener's format check is a family compare (subtype, format, `nsr`, depth, a nonzero channel count, `sp` clear), with no samples-per-PDU check | `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:465-491` |
 | The RX monitor's media-lock ports for an external clock are wired but unused | `hdl/milan/milan_datapath.sv:5858-5865` (#74 ledger item 3) |
 | `PCMRX_TS` (`0x6C8`) is stream 0's last accepted timestamp, a CSR snapshot | `hdl/milan/milan_datapath.sv:2576`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:218`, `hdl/common/csr/milan_csr.sv:396` |
+| CSR words at or above `0x800` read zero unless the read window claims them | `hdl/common/csr/milan_csr.sv:2562-2581` |
 | The AAF talker latches its presentation time on the packet grid | `hdl/ieee1722/aaf/KL_aaf_packetizer.sv:720-726` |
 
 ### The CRF output's clock (A2)
@@ -262,10 +326,42 @@ one the selection names.
 
 ### Source list and order
 
+Decision D1, re-opened in round 2. The order is a builder rule. The RTL decodes
+the stored index through a generated table
+([Selection decode and gating](#selection-decode-and-gating)), so the order
+reaches only people and scripts that select a source by its index.
+
 | Option | Order | For | Against |
 |---|---|---|---|
-| **L1, recommended** | INTERNAL 0, CRF 1, then the AAF Stream Input k at 2 + k, located on STREAM_INPUT k | Index 1 keeps meaning CRF on every shape. A unit whose saved selection (Milan v1.2 5.3.11.1) is CRF restores onto CRF after the update, and a controller script that sets 1 still selects CRF. | Descriptor order is not STREAM_INPUT order. No clause asks for that. |
-| L2 | The pre-#389 order: INTERNAL, AAF 0..N-1, then CRF at N + 1 | Follows STREAM_INPUT order | CRF moves to 2 on the 1x1 shape and to 9 on the 8x8 shape. A saved CRF selection, index 1, would restore onto AAF input 0 and silently follow a different clock. |
+| **L1, recommended** | By class: INTERNAL, then CRF, then one source per AAF Stream Input in STREAM_INPUT order. On the five shipping shapes: INTERNAL 0, CRF 1, AAF input k at 2 + k | The CRF index does not depend on the listener count: it is 1 wherever INTERNAL and CRF are both declared, as today. B6's procedure (SET_CLOCK_SOURCE 1), the builder's own check (`sw/builder/test_builder.py:19588`) and the notes that state the index (`sw/litex/milan_soc.py:872-874`, `tb/verilator/mmcm_servo/sim_main.cpp:197`) keep their meaning. Adding or removing AAF listeners moves only the AAF indices. | CLOCK_SOURCE order is not STREAM_INPUT order: the CRF source sits on STREAM_INPUT N but is index 1. No clause asks for either order. |
+| L2 | The pre-#389 order: INTERNAL, AAF 0..N-1, then CRF at N + 1 | CLOCK_SOURCE k + 1 sits on STREAM_INPUT k for every stream source, CRF included | CRF's index becomes N + 1: 2 on the 1x1 shape, 9 on the 8x8 shape. Every procedure, script and check that selects CRF by its index becomes shape-dependent. |
+
+**Saved state does not decide it.** Round 1 argued that a saved CRF selection
+restores onto CRF under L1 and onto AAF input 0 under L2. That is withdrawn.
+The source set is model shape, so this change moves `entity_model_id`
+(`sw/builder/endstation_builder.py:3414-3419`), and a saved-state image whose
+model id differs is refused whole
+(`sw/firmware/milan_baremetal/milan_baremetal.c:634-636`;
+[`SAVED_STATE_FASTCONNECT.md:638-640`](SAVED_STATE_FASTCONNECT.md)). The
+clock-source restore rule is defence in depth "for a configuration that pins
+its id; no shipped configuration does"
+([`SAVED_STATE_MATERIALIZATION.md:1153-1158`](SAVED_STATE_MATERIALIZATION.md)).
+So no saved selection crosses this update under either order. Within one
+image both orders persist the selection the same way (Milan v1.2 5.3.11.1).
+
+**What the update does to saved state.** Each regenerated image moves its
+model id once (D6). On first boot each unit refuses its saved image, so none
+of its saved records is restored, its clock source included. The domain comes
+up on the CLOCK_DOMAIN descriptor's initial index, 0
+(`avdecc/aem_descriptors.py:476`), which is INTERNAL on every shipping shape.
+The release note says so.
+
+**Shapes without INTERNAL or CRF.** The class order holds on every shape, and
+an absent class takes no index. A configuration without outputs may omit
+INTERNAL (`sw/builder/endstation_builder.py:4262-4267`), and the overlay emits
+INTERNAL only when it is declared (`:5034`). On such a shape CRF is index 0 and
+AAF input k is 1 + k. "CRF is index 1" therefore holds where both INTERNAL and
+CRF are declared, which all five shipping shapes do.
 
 Under either option the CLOCK_DOMAIN keeps the identity list, so the
 processor's range check stays the membership test. The 8x8 shape grows from 2
@@ -278,41 +374,181 @@ An AAF talker's media clock is in its presentation times (IEEE 1722-2016 4.3.2:
 the presentation time "is also used to recover the stream's media clock").
 Milan v1.2 6.2 fixes 6 samples and one timestamp per PDU at 48 kHz, in normal
 timestamp mode. So 16 PDUs span 96 samples, exactly the CRF
-`timestamp_interval` (Milan v1.2 7.3.2). One AAF timestamp in 16 is therefore
-the same measurement a CRF PDU carries.
+`timestamp_interval` (Milan v1.2 7.3.2).
+
+Decision D2 is ruled M1. Round 2 fixes the meter's input contract inside it:
+the supported format, the pick and the jump bound below.
 
 | Option | What | For | Against |
 |---|---|---|---|
 | M0 | Compare AAF timestamps with the local packet grid and steer the NCO (the #389 option (b) wording) | No new ring | Makes the packet grid a second master beside the aligner, and the audio MMCM does not follow, so the TDM I/O keeps slipping |
-| **M1, recommended** | One AAF clock meter, measuring only the selected AAF Stream Input | `KL_crf_rx` stays bit for bit; one ring; the servo sees the units it already takes | A switch between AAF inputs restarts the measurement, 512 ms before the rate is valid |
+| **M1, ruled** | One AAF clock meter, measuring only the selected AAF Stream Input | `KL_crf_rx` stays bit for bit; one ring; the servo sees the units it already takes | A switch between AAF inputs restarts the measurement, 512 ms before the rate is valid |
 | M2 | One meter per AAF Stream Input | A switch finds a warm rate | 8 rings on the 8x8 shape, for a switch that holds over anyway |
 | M3 | Share `KL_crf_rx`'s ring through a source mux | Saves one RAMB18 | Changes the proven CRF receiver and the meaning of `CRF_RATE`, which the bench reads |
 
-**The M1 meter.** It is a new module beside `KL_crf_rx`, on `axis_clk`, with
-no new clock crossing.
+#### Where the meter sits and what it reads
 
-- **Input:** the parser bundle (`hdl/milan/milan_datapath.sv:5418-5446`), the
-  same tap `KL_crf_rx` uses. `PCMRX_TS` is not usable: it is a stream-0 CSR
-  snapshot without a per-PDU strobe.
-- **Accept:** a matched PDU of the selected listener; subtype AAF; `tv` set;
-  the Stream Input bound and started (the Milan v1.2 5.3.8.7 discard, as
-  `KL_crf_rx`'s `stop_i`); `nsr` 48 kHz; `spf` dividing 96. Anything else
-  never locks, so the servo holds over rather than following a guess.
-- **Decimate:** one PDU in 96/`spf`, picked by `sequence_num` modulo 96/`spf`,
-  so picked timestamps sit 96 samples, 2 ms nominal, apart.
-- **Rate:** `KL_crf_rx`'s ring and arithmetic: 256 picked timestamps, a 512 ms
-  window, ns per window (`hdl/ieee1722/crf/KL_crf_rx.sv:275-277`, `:320-331`).
-  The 32-bit AVTP timestamp is enough, because the ring is already 32-bit and
-  subtraction is exact modulo 2^32.
-- **History restarts:** `KL_crf_rx`'s rules (`:390-403`): a `tu` edge, a
-  picked-timestamp spacing outside 2 ms plus or minus the jump bound, a missing
-  picked PDU, the bind edge, 100 ms of silence, and a change of the selected
-  listener. The rate is valid after 256 fresh intervals.
-- **Lock:** 8 clean consecutive accepted PDUs in, 100 ms without one out, the
-  AAF media-lock contract `KL_crf_rx` mirrors.
-- **Outputs:** `locked`, `rate`, `rate_valid`, a one-cycle `mr`-toggle pulse
-  seeded per era as `KL_crf_rx` seeds its own, and the measured listener index
-  for status.
+It is a new module beside `KL_crf_rx`, on `axis_clk`, with no new clock
+crossing. Its input is the parser bundle (`hdl/milan/milan_datapath.sv:5418-5446`),
+the tap `KL_crf_rx` uses. `PCMRX_TS` is not usable: it is a stream-0 CSR
+snapshot without a per-PDU strobe.
+
+| Field | Net or source | Use |
+|---|---|---|
+| match and listener index | `avtprx_match`, `avtprx_idx` | the PDU belongs to the followed Stream Input |
+| `subtype` | `avtprx_subtype` | AAF (`0x02`) |
+| `tv` | `avtprx_tv_bit` | set; a clear `tv` means the timestamp is ignored (IEEE 1722-2016 4.4.4.5) |
+| `tu` | `avtprx_tu_bit`, byte o+3 bit 0 | history restart on either edge. Not the `tv` net that `KL_crf_rx` takes for the CRF header (`hdl/milan/milan_datapath.sv:5530-5534`): copying that wiring would never see an AAF `tu` edge |
+| `mr` | `avtprx_mr_bit` | the received restart |
+| `sequence_num` | `avtprx_seq` | the pick, and gap detection |
+| `avtp_timestamp` | `avtprx_ts`, 32 bits | the measurement |
+| `format`, `nsr`, `channels_per_frame`, `stream_data_length`, `sp` | `avtprx_fsh` (`hdl/ieee1722/avtp/avtp_stream_parser.sv:176-177`; IEEE 1722-2016 7.3, Figure 26) | the supported-format check |
+
+The meter keeps no Milan v1.2 Table 5.6 counter. The Stream Input's counters
+stay in the RX monitor.
+
+#### The supported format
+
+The meter consumes only Milan v1.2 6.2's 48 kHz Base format: `format`
+INT_32BIT, `nsr` 48 kHz, `sp` clear (normal timestamp mode, a timestamp in
+every PDU: IEEE 1722-2016 7.2.4, 7.5), and 6 samples per PDU.
+
+AAF carries no samples-per-PDU field. The meter derives it from the PDU's own
+fields: `stream_data_length` must equal 6 x 4 x `channels_per_frame` octets,
+with `channels_per_frame` nonzero (IEEE 1722-2016 7.3.3, 7.3.5). Every PDU of a
+stream carries the same number of samples (7.3.5), so the check is stable for
+a stream. The RX monitor's family compare does not check the sample count
+(`hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:486-491`), so the meter must.
+The bound input's current format agrees on every shipping shape, because every
+advertised input format has 6 samples per PDU
+(`avdecc/aem_descriptors.py:133`). The meter therefore keeps no second check.
+
+A PDU outside this format is not consumed. A stream of it never locks the
+meter, so the servo holds over rather than following a guess. Refused, and
+why:
+
+- other rates: the audio MMCM plan is fixed at 24.576 MHz (see
+  [Limits](#limits));
+- sparse mode: a timestamp in every eighth PDU only (7.2.4);
+- any other sample count at 48 kHz. Under the 16-PDU pick below, 3, 12, 24, 48
+  and 96 samples per PDU would also survive the sequence wrap, because 96
+  divided by the count divides 256. 1, 2, 4, 8, 16 and 32 would not: the
+  picked spacing breaks at every wrap (round-1 external review's probe). None
+  of them is a Milan base format at 48 kHz, so the meter refuses them all
+  rather than carry a per-format divisor.
+
+#### The pick
+
+The meter keeps one value per group of 16 PDUs, the PDUs whose `sequence_num`
+modulo 16 runs from 0 to 15. 16 PDUs of 6 samples are 96 samples, 2 ms
+nominal. `sequence_num` is 8 bits and wraps from 255 to 0 (IEEE 1722-2016
+4.4.4.6). 16 divides 256, so the groups stay aligned across every wrap.
+
+The kept value is the group mean, with `ts_i` the timestamp of the group's
+PDU i:
+
+```text
+pick = ts_0 + (sum over i = 0..15 of (ts_i - ts_0 - i * 125,000 ns)) / 16
+```
+
+125,000 ns is one PDU's 6 samples at 48 kHz, exactly. The arithmetic is exact
+modulo 2^32, like the ring's (`hdl/ieee1722/crf/KL_crf_rx.sv:320-329`). The
+truncation of the division is the same in every pick, so it cancels in the
+ring difference. Every PDU of the group is required. A sequence gap voids the
+group, and so does any `|ts_i - ts_0 - i * 125,000|` above the jump bound
+below.
+
+| Option | Kept value | For | Against |
+|---|---|---|---|
+| P1 | The group's first PDU, as round 1 proposed | `KL_crf_rx`'s rule exactly; no adder | Independent per-PDU timestamp error passes straight into the servo's 2 ppm lock test (table below) |
+| **P2, chosen** | The group mean | Independent error falls by a factor of 4 (the square root of 16); error alternating per PDU cancels | About 80 to 130 LUT more; a lost PDU anywhere in the group restarts the history, not only a lost first PDU |
+
+#### The timestamp-quality assumption
+
+The meter is designed for AAF presentation times within +/-1,426 ns of an
+ideal grid at the talker's own rate. The basis:
+
+- **A talker that follows CRF.** IEEE 1722-2016 10.8, Equation (15): its
+  timestamps stay within +/-5.0 % of a sample period of the received CRF timing
+  points, +/-1,041.7 ns at 48 kHz. Those timing points carry the CRF talker's
+  own error. `KL_crf_rx` assumes under 384 ns for it
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:283-284`). The sum is about 1,426 ns.
+- **What a CRF listener must accept.** Equation (16): a listener slaving to CRF
+  accepts streams within +/-25 % of a sample period (+/-5,208 ns), and "may
+  interpret the stream as invalid" beyond. That bounds tolerance in the CRF
+  case only.
+- **A talker on its own clock.** No clause bounds the regularity of its
+  presentation times. 4.3.2 sets no tolerance, and Milan v1.2 7.4 bounds only
+  the oscillator's frequency, +/-50 ppm.
+- **Measurement.** This repository holds no measurement of a real talker's AAF
+  timestamps. The bench lane measures the reference peer's through the meter's
+  status word (see [Bench](#bench)).
+
+#### The jump bound
+
+The bound on the spacing of two adjacent picks is 4,096 ns. It is derived the
+way `KL_crf_rx` derives its own (`hdl/ieee1722/crf/KL_crf_rx.sv:279-294`), with
+the 10.8 term in place of the local-PHC assumption:
+
+- two picks, each up to 1,426 ns off the grid: 2,852 ns;
+- the rate term over 2 ms at 300 ppm (200 ppm PHC trim and a 100 ppm
+  oscillator margin, `:280-292`): 601 ns;
+- 3,453 ns in all, rounded up to a power of two: 4,096 ns.
+
+It stays far below one sample period, 20,833 ns. A one-sample step in the
+talker's timestamps splits across at most two consecutive group means, one of
+which moves by at least half a sample, 10,417 ns, so it is caught. A step below
+the bound enters the rate as a transient: one or two 512 ms windows, at most
+about 8 ppm.
+
+| Option | Bound | For | Against |
+|---|---|---|---|
+| B1 | 2,048 ns, `KL_crf_rx`'s | none beyond reuse | Never validates a talker at the 10.8 limit: round 1's external review drove `KL_crf_rx` at +/-1,041 ns and `rate_valid` never rose |
+| **B2, chosen** | 4,096 ns, from 10.8 Equation (15) | Validates the 10.8 talker; still catches a one-sample step | A sub-bound phase step is followed as a transient |
+| B3 | 16,384 ns, from Equation (16) | Tolerates any stream a CRF listener must accept | Equation (16) is the CRF domain's acceptance, not a talker bound; a one-sample step against error in the opposite direction comes within reach |
+
+A desk model of these rules (the round 2 evidence on PR #631) gives the
+fraction of picks with a valid rate over 120 s, and the fraction of 512 ms
+windows whose rate noise is under the servo's 1,024 ns lock threshold. It is a
+model of the rules, not of any talker. Two error shapes bound the cases:
+"group" gives every PDU of a group the same sign, alternating per group, the
+shape no averaging removes; "independent" draws each PDU's error uniformly.
+0.996 is the run's ceiling, because the first 256 picks are never valid.
+
+| Error, peak per timestamp | Rate offset | B1 + P1 | B2 + P1 | B2 + P2 |
+|---|---|---|---|---|
+| group, +/-1,042 ns | 0 ppm | valid 0.000 | valid 0.996, windows 1.000 | valid 0.996, windows 1.000 |
+| group, +/-1,426 ns | 300 ppm | valid 0.000 | valid 0.996, windows 1.000 | valid 0.996, windows 1.000 |
+| independent, +/-1,042 ns | 300 ppm | valid 0.000 | valid 0.996, windows 0.744 | valid 0.996, windows 1.000 |
+| independent, +/-1,426 ns | 0 ppm | valid 0.000 | valid 0.996, windows 0.560 | valid 0.996, windows 1.000 |
+| independent, +/-2,500 ns | 0 ppm | valid 0.000 | valid 0.000 | valid 0.996, windows 0.987 |
+
+The bound fixes the restarts, and the mean keeps independent error out of the
+servo's lock test. With P1, a talker at the 10.8 limit would leave a quarter
+or more of the windows outside 2 ppm, so the servo would keep dropping out of
+LOCKED (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:567-568`).
+
+#### History, lock, era and outputs
+
+- **History restarts:** `KL_crf_rx`'s rules (`:390-403`), on a `tu` edge, a pick
+  spacing outside 2 ms +/- 4,096 ns, a voided group, the bind edge, 100 ms of
+  silence, a change of the followed listener, and entry into AAF following.
+  The rate is valid after 256 fresh intervals.
+- **Lock:** 8 clean consecutive accepted PDUs in, 100 ms without one out
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:296-298`), the AAF media-lock contract
+  `KL_crf_rx` mirrors.
+- **Era and the `mr` seed.** The received-`mr` reference is seeded silently by
+  the first accepted PDU of an era, as `KL_crf_rx` seeds its own (`:380`,
+  `:586-587`). An era starts at the followed Stream Input's bind edge, after
+  100 ms of silence, at every change of the followed listener, and at entry
+  into AAF following from INTERNAL or CRF. Each start clears, in one cycle, the
+  lock (with no disruption trigger, see [`mr`](#mr)), the settle run, the
+  ring and the seed.
+- **Outputs:** `locked`; the rate in ns per 512 ms; `rate_valid`; a one-cycle
+  `mr`-toggle pulse; and a status word with the lock, the rate validity, the
+  followed listener, a history-restart count and the largest
+  `|ts_i - ts_0 - i * 125,000|` seen this era. The last two are the bench's
+  measurement of a talker's timestamp regularity.
 
 ### Selection decode and gating
 
@@ -333,11 +569,12 @@ An index without a table entry decodes as no source to follow, as the
 |---|---|---|
 | Servo select (`:5608-5609`) | `clk_src_i == crf_src_idx_i` inside the servo | a one-bit `sel_i` = `follow_sel_r`; the compare leaves the servo |
 | Servo reference (`:5610-5612`) | `KL_crf_rx` | `KL_crf_rx` under CRF, the meter under AAF, through one registered mux |
+| Servo reference lock | `crf_locked_w` | the selected measurement's lock, held low for one cycle on every change of the followed source (W2) |
 | Aligner `sel_i` and NCO enable (`:5740`, `:5748`) | `crf_clk_selected_r` | `follow_sel_r` |
 | #386 settle (`:6091-6092`, `:6115`) | `crf_clk_selected_r` | `follow_sel_r` |
 | I2S playback `servo_en_i` (`:6153`) | `crf_clk_selected_r` | `follow_sel_r` |
 | `mr` CRF triggers (`:3155-3156`) | `crf_clk_selected_r` | unchanged |
-| `mr` AAF triggers | none | the meter's lock fall and received toggle, gated by `aaf_clk_selected_r` |
+| `mr` AAF triggers | none | the meter's lock fall and received toggle, gated by `aaf_clk_selected_r` (see [`mr`](#mr)) |
 | `KL_media_clock_restart` source change (`:3189`) | the stored index | unchanged |
 
 The servo's reference ports are renamed from `crf_*` to `ref_*`, because they
@@ -345,19 +582,21 @@ no longer carry only CRF. Its state machine and arithmetic are unchanged.
 
 ### Switching sources
 
+Decision D3 is ruled W2.
+
 | Option | Behaviour | For | Against |
 |---|---|---|---|
 | W1 | Every switch passes through servo IDLE | No servo change beyond the select | IDLE clears the trim (`KL_mmcm_drp_servo.sv:538-551`): each switch between two streams steps the audio clock back to the bare MMCM plan, then re-runs VERIFY and acquisition from zero |
-| **W2, recommended** | A switch between two followed sources keeps `follow_sel_r` high. On every change of the followed source the root presents the reference as unlocked for at least one cycle, so the servo always passes HOLDOVER, trim frozen, into ACQUIRE with its two-window skip and its lock count cleared (`:571-579`) | The existing HOLDOVER path; no trim step; the aligner stays engaged, so the packet grid never re-engages | A switch onto a CRF input that is already locked would otherwise keep LOCKED across the change; the one-cycle presentation is what prevents it, so a test grades it |
+| **W2, ruled** | A switch between two followed sources keeps `follow_sel_r` high. On every change of the followed source the root presents the reference as unlocked for at least one cycle, so the servo always passes HOLDOVER, trim frozen, into ACQUIRE with its two-window skip and its lock count cleared (`:571-579`) | The existing HOLDOVER path; no trim step; the aligner stays engaged, so the packet grid never re-engages | A switch onto a CRF input that is already locked would otherwise keep LOCKED across the change; the one-cycle presentation is what prevents it, so a test grades it |
 
 Under W2 a switch between two streams is declared by one `mr` toggle, one #386
 recentre once the grid settles, and a few seconds of HOLDOVER and ACQUIRE. A
-switch onto an AAF input also waits for the meter, which restarts on the new
-selection. The switch leaves no frame slip, because the fine phase shift steps
-the audio clock glitch-free and the aligner holds the packet grid on it. A
-switch to or from INTERNAL behaves as the CRF switch does today: servo IDLE and
-an aligner disengage, or the reverse. Under A2-a the aligner stays engaged
-there too.
+switch onto an AAF input also starts a new meter era: the meter re-locks after
+8 PDUs, and its rate is valid 512 ms later. The switch leaves no frame slip,
+because the fine phase shift steps the audio clock glitch-free and the aligner
+holds the packet grid on it. A switch to or from INTERNAL behaves as the CRF
+switch does today: servo IDLE and an aligner disengage, or the reverse. Under
+A2-a the aligner stays engaged there too.
 
 ### Lock loss, holdover and restart
 
@@ -366,42 +605,61 @@ The same rules apply to either kind of followed source.
 1. **Loss.** The selected measurement's `locked` falls after 100 ms with no
    accepted PDU: the stream stopped, was unbound or STOPPED, or was rejected.
 2. **Holdover.** The servo enters HOLDOVER: the trim is frozen and the audio
-   clock keeps the last followed rate (`KL_mmcm_drp_servo.sv:166-170`). The
-   aligner keeps the packet grid on the physical grid, because the TDM feed is
-   unaffected. Holdover lasts until the stream returns or the selection
-   changes. There is no timeout and no fallback: the selected index and
-   GET_CLOCK_SOURCE are unchanged, as (b) requires.
+   clock keeps the last followed rate (`KL_mmcm_drp_servo.sv:166-170`). While
+   the TDM feed is live, the aligner keeps the packet grid on the physical
+   grid. On a dead feed its watchdog disengages it and the packet grid
+   free-runs (`KL_media_grid_align.sv:95-100`). Holdover lasts until the
+   stream returns or the selection changes. There is no timeout and no
+   fallback: the selected index and GET_CLOCK_SOURCE are unchanged. That is
+   this design's choice under (b); Milan requires it only while a controller
+   holds the lock (5.4.2.15).
 3. **Declared.** One `mr` toggle on every output; the Stream Input's
-   MEDIA_UNLOCKED; and, under decision D5 below, the CLOCK_DOMAIN's UNLOCKED.
+   MEDIA_UNLOCKED; and the CLOCK_DOMAIN's UNLOCKED if decision D5 takes C1 or
+   C2.
 4. **Restart.** The stream returns. The measurement locks after 8 PDUs and its
    rate is valid 512 ms later. The servo re-enters ACQUIRE with its two-window
    skip, and reads LOCKED after four windows within 2 ppm
    (`KL_mmcm_drp_servo.sv:232-233`). The return itself raises no second toggle.
-   Each disruption toggles once, as 4.4.4.3 asks.
+   Each disruption toggles once.
 
 ### `mr`
 
 - **A source change** toggles every output's `mr` once, through the existing
-  edge on the stored index. That includes the CRF output, which is a CRF talker
-  for 10.4.3.
+  edge on the stored index (`KL_media_clock_restart.sv:236`). That includes the
+  CRF output, which is a CRF talker for 10.4.3.
 - **A followed CRF stream** keeps today's two triggers.
 - **A followed AAF stream** gains the same two, from the meter: its lock fall
-  and a toggle of its received `mr`. A source that is not followed is ignored
-  (4.4.4.3 and 10.4.3, last paragraphs).
-- **Merging.** A switch raises a source-change request and, under W2, a lock
-  fall in the same moment. `KL_media_clock_restart` merges a request landing on
-  a pending one (#387), so each stream carries exactly one toggle. A test
-  grades it.
+  while the followed source is unchanged, and a toggle of its received `mr`. A
+  source that is not followed is ignored (4.4.4.3 and 10.4.3, last
+  paragraphs).
+- **One request per switch, by construction.** A switch is declared by the
+  source-change edge alone. The meter's era start at the switch clears its
+  lock without a disruption trigger, because the trigger requires the followed
+  source to be unchanged. Its new `mr` seed is taken silently from the new
+  input's first PDU. So nothing but the source change requests a restart on a
+  switch.
+
+  This matters because the merge lasts only until each output's first PDU at
+  the adopted level (`KL_media_clock_restart.sv:236-246`). At 8,000 AAF PDUs
+  per second that window is at most 125 us. A second request from the new
+  input's first PDU, or from a meter lock fall, would land after it on about
+  half the outputs, and they would put a second toggle on the wire after their
+  8-PDU hold.
+- **Merging.** A loss of the followed stream and a SET_CLOCK_SOURCE in the
+  same moment still merge into one toggle per output (#387).
 
 ### The CRF output and A2
 
-**Under following, this design fixes A2.** With either kind of stream source
-selected, the servo carries the followed rate into the physical clock and the
-aligner holds the packet grid on it. The CRF output and the AAF streams are
-then one clock. B6's case B CRF shows it for CRF: `SLIP_TDM` stayed static.
-AAF following inherits the same chain.
+**Under following, this design fixes A2, while the TDM feed is live.** With
+either kind of stream source selected, the servo carries the followed rate into
+the physical clock and the aligner holds the packet grid on it. The CRF output
+and the AAF streams are then one clock. B6's case B CRF shows it for CRF:
+`SLIP_TDM` stayed static. AAF following inherits the same chain. On a dead TDM
+feed the aligner disengages (`KL_media_grid_align.sv:95-100`) and the packet
+grid free-runs, as at INTERNAL today.
 
-**At INTERNAL it does not.** That needs its own decision:
+**At INTERNAL it does not.** That is decision D4, with the owner. The manager
+also recommends A2-a.
 
 | Option | Change | For | Against |
 |---|---|---|---|
@@ -414,18 +672,39 @@ A2-a costs a gate. It can ride the fabric lane of this design or stay on #74.
 
 ### CLOCK_DOMAIN LOCKED and UNLOCKED
 
-Today the domain's LOCKED and UNLOCKED count edges of the gPTP clock-validity
-verdict (`hdl/milan/milan_datapath.sv:3469-3475`). Milan v1.2 5.3.11.2 leaves
-"locked" to the manufacturer, so that is not wrong. But a followed source in
-holdover still reads as locked.
+Decision D5, re-opened in round 2.
 
-| Option | Locked level |
-|---|---|
-| C0 | Unchanged: clock validity only |
-| **C1, recommended** | Clock validity, and either INTERNAL selected or the servo in LOCKED |
+**The recorded rule.** The domain's LOCKED and UNLOCKED count edges of
+`~clkv_tu_w`, the gPTP clock-validity verdict that the `tu` bit also stamps into
+every AVTPDU (`hdl/milan/milan_datapath.sv:3469-3475`, `:3492`). The banner's
+reason is "One clock-validity authority, two views; a LOCKED count that
+disagreed with the tu bit on the wire would be two answers to one question".
+Milan v1.2 5.3.11.2 leaves "locked" to the manufacturer, so the rule is
+conformant. The rule was written on 2026-08-14 (commit `c947acd8d`, VERSION
+0x0047). The stored clock source first reached the media plane on 2026-09-02
+(commit `c92159ac9`, #74); until then the root held the CRF selection at zero.
+So when the rule was written the media clock was always INTERNAL, and its
+validity and gPTP validity were one question. Under the rule, a followed
+source in holdover reads LOCKED.
 
-C1 keeps the counters edges of one level, so the clause's invariant stays
-structural.
+| Option | Locked level | For | Against |
+|---|---|---|---|
+| C0 | `~tu`, unchanged | One authority; the rule stands; no counter moves on a servo excursion | Holdover, and a following that never converges, both read LOCKED. The loss shows only in the Stream Input's MEDIA_UNLOCKED (Milan v1.2 Table 5.6) and in the servo status word `MCSRV_STAT` (`0x8F8`). |
+| **C1, recommended** | `~tu`, and either INTERNAL selected or the servo in LOCKED | Counts what Table 5.7 names, "the media clock used in the Clock Domain", while following. Equal to C0 at INTERNAL. | **Reverses the recorded rule while following:** during holdover the wire's `tu` reads 0 while the domain counts UNLOCKED. The counters also move when the servo drops from LOCKED to ACQUIRE on one window outside 2 ppm (`KL_mmcm_drp_servo.sv:567-568`, `:689-694`). Re-qualifying takes four 512 ms windows, so that is at most one pair per about 2.5 s. |
+| C2 | `~tu`, and either INTERNAL selected or the followed measurement locked (8 PDUs in, 100 ms out) | Counts the followed stream's loss and return exactly; never moves on a servo excursion | Reverses the rule the same way. Reads LOCKED while the servo is still acquiring, and when a following never converges. |
+| C3, not recommended | Keep one authority by also raising `tu` while a followed source is not locked | One level for both views | Widens `tu` beyond IEEE 1722-2016 4.4.4.7, which is about gPTP discontinuities, and tells every listener of this entity's streams to stop recovering its media clock (4.4.4.7 NOTE) |
+
+**Why C1's reversal is acceptable.** Once the domain can follow a stream, "is
+gPTP time valid" and "is the media clock locked to its source" are two
+questions. The `tu` bit keeps answering the first, which is its 4.4.4.7
+meaning. Table 5.7 asks the second. C1 still counts edges of one registered
+level, so the 5.3.11.2 invariant stays structural. Under C1 the banner at
+`:3469-3475` is rewritten to say this, and the test plan grades the counters.
+
+C2 is the choice if counters that never move on a servo excursion matter more
+than a counter that tracks frequency lock. C0 is the choice if the recorded
+rule should stand. The Stream Input's MEDIA_UNLOCKED counts the loss under
+every option.
 
 ### Phase alignment is a separate gap
 
@@ -434,29 +713,33 @@ Nothing aligns the DUT's talker presentation times with the followed stream's
 timing points, so IEEE 1722-2016 10.8 (+/-5 % of a sample period, for a talker
 following CRF) and 4.3.5 (whole periods, for streams generated from a recovered
 stream) hold only by chance. That is true of the CRF path today, and AAF
-following would inherit it. It is outside #629's acceptance, so it should be a
-new issue. Closing it needs a phase term in the chain, for example the CRF
-delta or the AAF timestamp against the local grid, feeding the aligner's lock
-target rather than a second master.
+following would inherit it. It is outside #629's acceptance and is filed as
+[#632](https://github.com/kebag-logic/milan-fpga/issues/632) (D7). Closing it
+needs a phase term in the chain, for example the CRF delta or the AAF
+timestamp against the local grid, feeding the aligner's lock target rather than
+a second master.
 
 ### Area estimate
 
 `syn/yosys/ooc.sh KL_crf_rx`, run for this page at the AX7101 1x1 TDM8 shape,
-reports 433 LUT, 544 FF, 1 RAMB18 and 147 CARRY4. That is a Yosys estimate,
-not a placement.
+reports 433 LUT, 544 FF, 1 RAMB18 and 147 CARRY4. Both round-1 reviews
+reproduced it. That is a Yosys estimate, not a placement.
 
 | Block | LUT | FF | RAMB18 | Basis |
 |---|---:|---:|---:|---|
-| M1 meter | 250 to 350 | 200 to 300 | 1 | `KL_crf_rx` without its ten Milan v1.2 Table 5.6 counters, interval tick and late/early checks; plus selection and decimation |
+| M1 meter | 330 to 480 | 270 to 400 | 1 | `KL_crf_rx` without its ten Milan v1.2 Table 5.6 counters, interval tick and late/early checks; plus the format check, the group mean (a 32-bit subtract, a 21-bit offset accumulator, a 17-bit sum and a 32-bit add: about 80 to 130 LUT and 70 to 100 FF), the era logic and the status word |
 | Decode table and reference mux | 50 to 80 | 20 to 40 | 0 | a table of at most 10 entries and a 34-bit two-way mux |
 | Servo select | about -10 | 0 | 0 | the 16-bit compare leaves the servo |
 | A2-a | under 5 | 0 | 0 | one gate |
-| **Total** | **about 300 to 430** | **about 220 to 340** | **1** | |
+| D5 under C1 or C2 | under 5 | 0 | 0 | one gate and a state compare |
+| **Total** | **about 380 to 560** | **about 290 to 440** | **1** | |
 
-For scale, the servo itself is 814 LUT and 789 FF in
-[Area budget](AREA_BUDGET.md#isolated-synthesis-estimates). M2 would cost one
-meter per AAF input: 8 RAMB18 and about 2,400 LUT on the 8x8 shape. M3 would
-save the RAMB18 and add about 40 LUT of muxing. The figures are re-measured by
+For scale, the servo itself is 871 LUT and 792 FF at this commit, as the round-1
+internal review re-measured it with `syn/yosys/ooc.sh KL_mmcm_drp_servo` at the
+same shape. [Area budget](AREA_BUDGET.md#isolated-synthesis-estimates) lists 814
+LUT and 789 FF from an earlier record. M2 would cost one meter per AAF input: 8
+RAMB18 and about 2,600 to 3,800 LUT on the 8x8 shape. M3 would save the RAMB18
+and add about 40 LUT of muxing. The figures are re-measured by
 `syn/yosys/ooc.sh` once the RTL exists, and the release fit is decided by the
 placed report.
 
@@ -464,37 +747,41 @@ placed report.
 
 | Area | Change | Where |
 |---|---|---|
-| Requirements | FR-CLK-03: the selectable set is INTERNAL, the CRF source and one INPUT_STREAM source per AAF Stream Input; an unlisted index is refused per IEEE 1722.1-2021 7.2.32 and Table 7-141. FR-CLK-04: as a follower the entity recovers the media clock from the selected CRF or AAF stream. The status row restates the #389 record as reversed for AAF. | [`FR_NFR.md:155`](../reference/FR_NFR.md), `:237`, `:238` |
-| Configuration | `clocking.media_clock_sources` admits `input_stream` again, meaning one source per AAF listener. The five shipping configurations add it (decision D6). | `configs/endstation_*.yaml`, the lines listed under [Builder and entity model](#builder-and-entity-model) |
-| Builder | `_load_clocking` accepts `input_stream`. `_overlay_clock_sources` appends one source per AAF listener after CRF (L1), named from `CLOCK_SOURCE_NAMES` with a restored stream entry. The servo prune gate is unchanged: `input_stream` needs the servo. The shape header gains the per-index kind and STREAM_INPUT tables beside `AEM_N_CLKSRC_C`. | `sw/builder/endstation_builder.py:3887-3902`, `:5018-5045`, `:2836-2853`, `:134-140` |
-| Entity model | `CS_TYPE` gains `input_stream` (INPUT_STREAM, `0x0002`), and `CS_RETIRED` loses it. `clock_source_shape` returns the tables. `aem_emit.py` emits them into the ROM header. The CLOCK_DOMAIN keeps the identity list. Every regenerated image gets a new `entity_model_id` (IEEE 1722.1-2021 6.2.2.8). | `avdecc/aem_specs.py:22`, `:35`, `:234-241`; `avdecc/aem_descriptors.py:428-442`; `avdecc/aem_emit.py:220-224` |
+| Requirements | FR-CLK-03: the selectable set is INTERNAL, the CRF source and one INPUT_STREAM source per AAF Stream Input; an unlisted index is refused per IEEE 1722.1-2021 7.2.32 and Table 7-141. FR-CLK-04: as a follower the entity recovers the media clock from the selected CRF or AAF stream, for the 48 kHz base format; on loss it holds over with no fallback, as this design's choice. The status row restates the #389 record as reversed for AAF. | [`FR_NFR.md:155`](../reference/FR_NFR.md), `:237`, `:238` |
+| Configuration | `clocking.media_clock_sources` admits `input_stream` again, meaning one source per AAF listener. The five shipping configurations add it (D6). At the update every unit refuses its saved state once and comes up on INTERNAL (see [Source list and order](#source-list-and-order)); the release note says so. | `configs/endstation_*.yaml`, the lines listed under [Builder and entity model](#builder-and-entity-model) |
+| Builder | `_load_clocking` accepts `input_stream`. `_overlay_clock_sources` emits the class order of D1 on every shape. `CLOCK_SOURCE_NAMES` gains a stream entry, and `_load_names` stops refusing `names.clock_sources.stream`. The servo prune gate is unchanged: `input_stream` needs the servo. The shape header gains the per-index kind and STREAM_INPUT tables beside `AEM_N_CLKSRC_C`. The two-source assertions of the builder's own test change. | `sw/builder/endstation_builder.py:3887-3902`, `:5018-5045`, `:2836-2853`, `:141`, `:3784-3790`; `sw/builder/test_builder.py:19580-19590` |
+| Entity model | `CS_TYPE` gains `input_stream` (INPUT_STREAM, `0x0002`), and `CS_RETIRED` loses it. `clock_source_shape` returns the tables. `aem_emit.py` emits them into the ROM header. The CLOCK_DOMAIN keeps the identity list. The `clock_source_flags` value is decided ((d) item 8). Every regenerated image gets a new `entity_model_id` (IEEE 1722.1-2021 6.2.2.8). | `avdecc/aem_specs.py:22`, `:35`, `:234-241`; `avdecc/aem_descriptors.py:428-442`, `:456`; `avdecc/aem_emit.py:220-224` |
 | Generated | Every shape header and AEM image, by `sw/builder/endstation_builder.py` per configuration, and the tracked `hdl/common/gen` copy by its `--write-rtl` | `configs/generated/*/gen/adp_shape_defaults.svh` |
-| RTL, new | The M1 meter, on `axis_clk`, generated only when the shape declares an AAF source | beside `hdl/ieee1722/crf/KL_crf_rx.sv` |
-| RTL, root | The decode and its consumers, as in [Selection decode and gating](#selection-decode-and-gating); the meter on the parser bundle; the AAF `mr` triggers; A2-a and C1 if taken; the two stale comments corrected | `hdl/milan/milan_datapath.sv:607`, `:1560-1570`, `:3155-3156`, `:3469-3475`, `:5576-5578`, `:5594-5627`, `:5740`, `:5748`, `:6091-6115`, `:6153` |
-| RTL, servo | `clk_src_i` and `crf_src_idx_i` become a one-bit `sel_i`; `crf_locked_i`, `crf_rate_i` and `crf_rate_valid_i` become `ref_*`. Behaviour is unchanged. | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:263-273`, `:411` |
+| RTL, new | The M1 meter on `axis_clk`, as designed above: the format check, the group-mean pick, the 4,096 ns bound, the era rules and the status word. Generated only when the shape declares an AAF source. | beside `hdl/ieee1722/crf/KL_crf_rx.sv` |
+| RTL, root | The decode and its consumers, as in [Selection decode and gating](#selection-decode-and-gating), with the one-cycle unlocked presentation; the meter on the parser bundle, its `tu` from the common-header bit; the AAF `mr` triggers with the switch rule; A2-a and D5 as decided; under C1 or C2 the banner at `:3469-3475` rewritten; the three stale comments corrected | `hdl/milan/milan_datapath.sv:607`, `:1560-1570`, `:3112`, `:3155-3156`, `:3469-3475`, `:3492`, `:5576-5578`, `:5594-5627`, `:5740`, `:5748`, `:6091-6115`, `:6153` |
+| RTL, servo | `clk_src_i` and `crf_src_idx_i` become a one-bit `sel_i`; `crf_locked_i`, `crf_rate_i` and `crf_rate_valid_i` become `ref_*`. Behaviour is unchanged. The harnesses that bind these ports change with them. | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:263-273`, `:411`; `tb/verilator/mmcm_servo/`, `tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp`, `tb/verilator/crf_rx/crf_talker_wrap.sv`, `tb/verilator/milan_dp/sim_main.cpp` |
 | RTL, unchanged | `KL_crf_rx`, `KL_crf_tx`, `KL_media_grid_align`, `KL_media_nco`, `KL_media_clock_restart` | |
 | Ports, pins, parameters | No new top-level port, pin, SoC change or root parameter. The meter's presence derives from the shape header, not a new knob. | |
-| Registers | Two read-only words in the unmapped `0x8E0` to `0x8F4` window beside `MCSRV_STAT`: the meter's status (locked, rate valid, the measured listener, a history-restart count) and its rate in `CRF_RATE`'s units. VERSION moves. | [`REGISTER_MAP.md:1833`](../reference/REGISTER_MAP.md), `hdl/common/csr/milan_csr.sv` |
-| Documentation | the time-synchronization design's [Media boundary](TIME_SYNC.md#media-boundary); the compliance matrix rows of (d); [`PP_DESCRIPTOR_OWNERSHIP.md:89`](../reference/PP_DESCRIPTOR_OWNERSHIP.md); [`ENDSTATION_BUILDER.md:990`](../ENDSTATION_BUILDER.md); [`README-parameters.md:118-119`](../../sw/builder/README-parameters.md); the feature-status ledger; this page's status | |
+| Registers | Two read-only words in the unmapped `0x8E0` to `0x8F4` window beside `MCSRV_STAT`: the meter's status (locked, rate valid, the followed listener, the history-restart count, the largest timestamp deviation) and its rate in `CRF_RATE`'s units. Each needs its term in the CSR read window, or it reads zero: the trap that once hid `MCSRV_STAT`. VERSION moves. | [`REGISTER_MAP.md:1833`](../reference/REGISTER_MAP.md), `hdl/common/csr/milan_csr.sv:2562-2581` |
+| Gates and diagrams | Under L1 the CRF row of the decode can keep the text `pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C`, which two gates pin; if the decode replaces it, both change with it | `scripts/check_gptp_docs.py:114`, `docs/diagrams/timesync_chain.gen.py:49` |
+| Documentation | the time-synchronization design's [Media boundary](TIME_SYNC.md#media-boundary); the compliance matrix rows of (d); L6 at [`PP_DESCRIPTOR_OWNERSHIP.md:89`](../reference/PP_DESCRIPTOR_OWNERSHIP.md), with its 7.4.23.1 credit; [`ENDSTATION_BUILDER.md:990`](../ENDSTATION_BUILDER.md); [`README-parameters.md:118-119`](../../sw/builder/README-parameters.md); the feature-status ledger; this page's status | |
 
 ## Protocol-processor changes
 
-These are a cross-repository plan, under their own protocol-processor issue,
+These are a cross-repository plan, filed as
+[protocol-processor #141](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/141),
 "SET/GET_CLOCK_SOURCE over INTERNAL, CRF and one source per AAF input
-(milan-fpga #629)". It is to be filed with the decision.
+(milan-fpga #629)".
 
 - **RTL and microcode: none required.** The SET_CLOCK_SOURCE range check
   (`protocol-processor/hdl/aecp/ucode/gen_ucode.py:1410-1440`) and the restore
-  check (`protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:86-90`) accept any
-  index below `clock_sources_count` over an identity list, of any length. GET
-  reads the stored index. The export is CLOCK_DOMAIN 0 only
+  compare (`protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:501-503`) accept
+  any index below `clock_sources_count` over an identity list, of any length.
+  GET reads the stored index. The export is CLOCK_DOMAIN 0 only
   (`protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:114`, `:352`), which is
   the one domain.
 - **Documentation:** L6 ([`07_memory_maps.md:135`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/architecture/07_memory_maps.md?plain=1#L135))
   and REQ-MDL-005 ([`00_MILAN_COMPLIANCE_REVIEW.md:420`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/b2db3a970cedbbff2f8ba813acb96122c442bc58/docs/00_MILAN_COMPLIANCE_REVIEW.md?plain=1#L420))
   state the 5.3.3.6 set as a minimum, and allow one INPUT_STREAM source per AAF
-  input beside the CRF input's.
-- **Tests,** at the processor's top-level bench:
+  input beside the CRF input's. They and the range-check comment
+  (`protocol-processor/hdl/aecp/ucode/gen_ucode.py:1414`) credit BAD_ARGUMENTS
+  to IEEE 1722.1-2021 7.2.32 and Table 7-141, not to 7.4.23.1.
+- **Tests,** at the processor's top-level bench, each with a failing mutant:
   - SET_CLOCK_SOURCE over a 10-source domain accepts index 9, notifies once,
     and reads back;
   - index 10 answers BAD_ARGUMENTS carrying the current index, stores and
@@ -511,21 +798,31 @@ These are a cross-repository plan, under their own protocol-processor issue,
 ### Simulation
 
 Each new check is shown failing at the base or under a named mutant before it
-is trusted, as in `tb/verilator/media_grid_align`.
+is trusted, as in `tb/verilator/media_grid_align`. Every row that compares a
+rate also asserts `rate_valid`, so a rate frozen at its reset value cannot
+pass.
 
 | Suite | Case | Pass | Failing mutant |
 |---|---|---|---|
-| A new meter suite under `tb/verilator` | A synthetic AAF stream at 0, +/-10.64, +/-50 and +/-100 ppm | The meter's rate equals `KL_crf_rx`'s on the equivalent CRF stimulus within 1 LSB | Decimation by 1 instead of 96/`spf`: the rate is off by the decimation ratio |
+| A new meter suite under `tb/verilator` | A synthetic AAF stream at 0, +/-10.64, +/-50 and +/-100 ppm, ideal timestamps | `rate_valid` high; the rate equals `KL_crf_rx`'s on the equivalent CRF stimulus within 1 LSB | Decimation by 1 (every PDU kept): every 125 us spacing is outside 2 ms +/- 4,096 ns, so `rate_valid` never rises |
+| Same | Timestamp error at the design bound: group-shaped +/-1,426 ns at +300 ppm, and independent +/-1,426 ns | No restart; `rate_valid` high; in the independent case at least 99 % of 512 ms windows inside +/-1,024 ns | Bound 2,048 ns (B1): the group case restarts at every pick. First-PDU pick (P1): the independent case's window check fails |
+| Same | Beyond the bound: group-shaped +/-2,200 ns; one one-sample step (20,833 ns) | The restart count moves and `rate_valid` falls, returning 256 picks after the error stops; the step restarts once | Bound 16,384 ns (B3): the +/-2,200 ns case raises no restart |
+| Same | Format: 6 samples per PDU accepted; 12 and 8 samples per PDU at 48 kHz, sparse mode, `nsr` 96 kHz and INT_24BIT refused | Only the 6-sample stream locks the meter; for the others the servo stays in HOLDOVER or IDLE | The `stream_data_length` check removed: the 12-sample stream locks the meter |
+| Same | Sequence wrap: 10 s continuous, 312 wraps | Zero restarts; `rate_valid` high throughout | Pick continuity compared without the 8-bit wrap: a restart at every wrap |
 | Same | Lock and unlock | Lock after 8 PDUs; unlock 100 ms after the last | Timeout disabled: no unlock |
-| Same | History restarts: `tu` edge, timestamp jump, lost picked PDU, selection change, bind edge, 32-bit timestamp wrap | `rate_valid` falls and returns after 256 intervals; the wrap does not restart | No restart on the `tu` edge |
-| Same | Selection | Another listener's PDUs, wrong subtype, `tv` clear, STOPPED input, non-48 kHz format: none is measured | The listener compare ignored: the meter follows the wrong stream |
+| Same | History restarts: `tu` edge on the common-header bit, a lost PDU, a selection change, entry into AAF following, the bind edge, a 32-bit timestamp wrap | `rate_valid` falls and returns after 256 intervals; the timestamp wrap does not restart | No restart on the `tu` edge. Separately, `tu` taken from the `tv` net (the CRF wiring): the `tu` case fails |
+| Same | Selection | Another listener's PDUs, wrong subtype, `tv` clear, a STOPPED input: none is measured | The listener compare ignored: the meter follows the wrong stream |
+| Same | The `mr` seed: a switch between two talkers at opposite `mr` levels; entry from INTERNAL onto a talker at `mr` 1 | No `mr` pulse from the meter at either | No re-seed on a selection change: a pulse at the new input's first PDU |
 | `tb/verilator/mmcm_servo` | One-bit select; a reference switch with the select held | HOLDOVER, then ACQUIRE with the integrator kept, then LOCKED | Switch through IDLE (W1): the integrator-kept check fails |
-| `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, against talkers at planted rate offsets | The media clock follows the selected talker within 0.5 ppm with zero junction slips; INTERNAL as decided under D4 | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running |
-| Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1 | One `mr` toggle per output per switch, held 8 PDUs; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | AAF triggers ungated by the selection: phantom toggles at INTERNAL |
+| `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, with an AAF talker and a CRF talker both present at different planted offsets (for example +20 and -15 ppm) | The media clock follows the selected talker's offset within 0.5 ppm with zero junction slips; INTERNAL as decided under D4 | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running. Separately, the reference mux stuck on `KL_crf_rx`: AAF selected, the clock lands on the CRF talker's offset |
+| Same | W2 at the root: following AAF input 0 with the servo LOCKED, a switch to a CRF stream already locked | `MCSRV_STAT` shows HOLDOVER, then ACQUIRE with the lock count cleared and the integrator kept, then LOCKED | The one-cycle unlocked presentation removed: the servo stays LOCKED across the switch |
+| Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels | Exactly one toggle per output per switch, held 8 PDUs; each output's MEDIA_RESET moves once; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a second toggle on outputs. Separately, the disruption trigger unmasked at a switch: the era-start lock fall requests a second restart. Separately, AAF triggers ungated by the selection: phantom toggles at INTERNAL |
 | Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | AAF lock-fall trigger removed: no toggle |
 | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
-| Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index and reads back; count answers BAD_ARGUMENTS with the current index | A model whose list is not the identity permutation is refused by the builder |
-| `sw/builder` tests | `input_stream` accepted; L1 order; the servo prune refusal; the shape tables; `entity_model_id` moves | All pass on every shipping configuration | A planted overlay in L2 order fails the order check |
+| Same | CLOCK_DOMAIN counters across a holdover, a return and a switch | As D5 rules. Under C1: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again. Under C0: neither moves while `tu` is 0. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | The other option's level: C0 under C1, or C1 under C0 |
+| Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
+| Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
+| `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
 ### Bench
 
@@ -536,42 +833,51 @@ listener and read back, and a full restore with read-back.
 
 | Case | Set-up | Pass |
 |---|---|---|
-| B AAF | The reference peer's AAF talker bound to the DUT's STREAM_INPUT 0; the DUT's CLOCK_DOMAIN set to the source located there (index 2 under L1) and read back; the tone runs from the DUT's TDM input through its AAF talker to the peer's listener on the peer's own clock | Servo LOCKED; 0 net steps between the DUT's TDM clock and the peer's output; tone blocks at the 24-bit floor outside capture-path losses; `SLIP_TDM` static |
+| B AAF | The reference peer's AAF talker bound to the DUT's STREAM_INPUT 0; the DUT's CLOCK_DOMAIN set to the source located there (index 2 under L1) and read back; the tone runs from the DUT's TDM input through its AAF talker to the peer's listener on the peer's own clock | Servo LOCKED; 0 net steps between the DUT's TDM clock and the peer's output; tone blocks at the 24-bit floor outside capture-path losses; `SLIP_TDM` static; the meter's history-restart count unchanged after lock. Its largest timestamp deviation is recorded: the measurement of the reference peer's AAF timestamp regularity that the design's assumption lacks |
 | B CRF | B6's case B CRF repeated on the new image | As B6 |
 | B INTERNAL, control | The DUT on INTERNAL with the peer's streams bound | The metric shows the mismatch, as in B6 |
 | A1 on the new image | The DUT on INTERNAL; the peer follows the DUT's AAF stream, as B6 ran it | Passes, as in B6 |
 | A2 at INTERNAL | As B6 | Passes only under A2-a; otherwise fails as in B6 |
 | A2 under following | Not run as a bench case: a peer that follows the DUT while the DUT follows the peer has no reference (see [Limits](#limits)). B AAF and B CRF grade the same chain: a static `SLIP_TDM` means the DUT's packet grid and physical grid agree, and so do its AAF and CRF outputs | Graded through B AAF and B CRF |
-| Lock loss | Unbind the followed stream for 10 s, then rebind | Servo HOLDOVER, then LOCKED; the DUT talker's MEDIA_RESET counter (Milan v1.2 Table 5.4) moves once; GET_CLOCK_SOURCE unchanged throughout |
+| Switch | The DUT switches between the peer's AAF and CRF streams while its talker streams to the peer's listener | One MEDIA_RESET per switch on the DUT's talker (Milan v1.2 Table 5.4); the servo LOCKED again after each; tone at the floor outside the switch |
+| Lock loss | Unbind the followed stream for 10 s, then rebind | Servo HOLDOVER, then LOCKED; the DUT talker's MEDIA_RESET moves once; GET_CLOCK_SOURCE unchanged throughout; the CLOCK_DOMAIN's LOCKED and UNLOCKED move as D5 rules and keep the 5.3.11.2 invariant |
 | Synthetic controls | Slips and drift planted in a synthetic capture | Each found at its planted size |
 
-## Decisions requested
+## Decisions
 
-| ID | Question | Options | Recommendation |
-|---|---|---|---|
-| D1 | Source order | L1, L2 | **L1**: CRF stays at index 1, so saved selections and controller scripts keep their meaning |
-| D2 | AAF measurement | M0, M1, M2, M3 | **M1**: one meter on the selected input; `KL_crf_rx` untouched |
-| D3 | Switching between two followed sources | W1, W2 | **W2**: hold over and re-acquire, no trim reset |
-| D4 | A2 at INTERNAL | A2-a, A2-b, A2-c, A2-0 | **A2-a**: one clock in every mode. It reverses the recorded INTERNAL free-run rule, so it needs an explicit decision; otherwise A2-0 and #74 keeps it |
-| D5 | CLOCK_DOMAIN LOCKED and UNLOCKED | C0, C1 | **C1**: unlocked while the followed source is not LOCKED |
-| D6 | Shipping configurations | all five, or the AX7101 1x1 TDM8 first | **All five**, in one regeneration, because each moves `entity_model_id` once |
-| D7 | Phase alignment (IEEE 1722-2016 10.8, 4.3.5) | in #629, or a new issue | **A new issue**: it is a pre-existing gap of the CRF path, outside #629's acceptance |
+| ID | Question | Options | Recommendation | State |
+|---|---|---|---|---|
+| D1 | Source order | L1, L2 | **L1**: the CRF index stays 1 on every shape that declares INTERNAL and CRF, independent of the listener count, so procedures, scripts and checks that select CRF by index keep their meaning. The saved-state reason given in round 1 is withdrawn: no saved selection crosses the update under either order | Re-opened in round 2, for decision |
+| D2 | AAF measurement | M0, M1, M2, M3 | **M1**, with round 2's input contract: the 48 kHz base format only, the group-mean pick (P2) and the 4,096 ns bound (B2) | Ruled M1 |
+| D3 | Switching between two followed sources | W1, W2 | **W2** | Ruled W2 |
+| D4 | A2 at INTERNAL | A2-a, A2-b, A2-c, A2-0 | **A2-a**, also the manager's recommendation. It reverses the recorded INTERNAL free-run rule; otherwise A2-0 and #74 keeps it | With the owner |
+| D5 | CLOCK_DOMAIN LOCKED and UNLOCKED | C0, C1, C2, C3 | **C1**: unlocked while a followed source's servo is not LOCKED. It reverses the recorded LOCKED-equals-`~tu` rule while following, for the reason given above | Re-opened in round 2, for decision |
+| D6 | Shipping configurations | all five, or the AX7101 1x1 TDM8 first | **All five**, in one regeneration, because each moves `entity_model_id` once. Every unit loses its saved state at that update | Ruled all five |
+| D7 | Phase alignment (IEEE 1722-2016 10.8, 4.3.5) | in #629, or a new issue | **A new issue** | Filed as #632 |
 
-The recommended `mr` treatment of a followed AAF stream (a toggle on its loss
-and an echo of its toggles) and the indefinite holdover without fallback follow
-from (b) and (c), so they are stated in the design rather than asked.
+The `mr` treatment of a followed AAF stream (a toggle on its loss and an echo
+of its toggles) and the holdover without fallback are this design's choices
+under (b) and (c). They are stated in the design rather than asked, and a
+ruling can change either.
 
 ## Limits
 
 - **Desk work only.** No simulation was run for this page. The area estimate
-  rests on one out-of-context measurement of `KL_crf_rx`.
+  rests on one out-of-context measurement of `KL_crf_rx`. The meter's numbers
+  come from a desk model of its rules, not of any talker.
 - **The baseline is unmerged.** B6's findings page is cited through PR #630,
   not through a tracked path.
+- **No measured AAF timestamp quality.** The meter is designed for the 10.8
+  talker bound plus the CRF timing points' error. An AAF talker on its own
+  clock has no clause bound; the bench lane measures the reference peer's.
 - **No loop detection.** Two entities that each follow the other's stream have
   no reference. Milan v1.2 5.3.11.1 leaves correct clock sources to the user,
   and 7.6 leaves election to a controller.
-- **48 kHz only.** The audio MMCM plan is fixed at 24.576 MHz
-  (`sw/builder/endstation_builder.py:3936-3955`) and the CRF base frequency is
-  48 kHz, so the meter refuses other rates rather than scaling them.
+- **48 kHz, 6 samples per PDU, normal timestamp mode only.** The audio MMCM
+  plan is fixed at 24.576 MHz (`sw/builder/endstation_builder.py:3937-3955`)
+  and the CRF base frequency is 48 kHz, so the meter refuses other rates and
+  formats rather than scaling them.
+- **Saved state at the update.** Every unit loses its saved state once when the
+  regenerated image first boots.
 - **Rx media lock is unchanged.** The RX monitor's unused external-clock
   media-lock rule stays #74's ledger item 3.
