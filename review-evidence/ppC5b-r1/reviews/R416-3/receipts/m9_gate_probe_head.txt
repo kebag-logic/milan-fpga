@@ -1,0 +1,20 @@
+M9 OPCODE GATE SELFTEST: 9 of 9 PASS
+rc=0
+M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+rc=0
+OK  head as is: gate PASS (want PASS)
+OK  localparam canonical new opcode 0x0077: gate FAIL (want FAIL) - OP_PROBE_NEW_C = 0x0077 is decoded by the engine and missing from kOpcodes: its aem_w guar
+OK  parameter keyword (R417-2 S1): gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+OK  parameter, no type: gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+OK  localparam without logic: gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+OK  localparam int decimal: gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+OK  localparam 16-bit decimal: gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+OK  two names in one declaration: gate FAIL (want FAIL) - OP_PROBE_A_C is not written `localparam logic [15:0] OP_PROBE_A_C = 16'hXXXX;`, so this ga
+OK  parameter in a #( ) port list: gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+OK  a duplicate name for 0x0004: gate FAIL (want FAIL) - 0x0004 is carried by both OP_PROBE_DUP_C and OP_READ_DESCRIPTOR_C
+OK  line comment only (not a declaration): gate PASS (want PASS)
+OK  non-opcode GDI localparam: gate PASS (want PASS)
+OK  a reference to an OP_*_C on a right-hand side: gate PASS (want PASS)
+OK  canonical, upper-case hex and spaces before ;: gate FAIL (want FAIL) - OP_PROBE_NEW_C is not written `localparam logic [15:0] OP_PROBE_NEW_C = 16'hXXXX;`, so thi
+14 forms, 0 unexpected; engine opcodes at head 30, kOpcodes 30
+rc=0

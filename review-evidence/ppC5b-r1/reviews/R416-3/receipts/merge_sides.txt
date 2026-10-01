@@ -1,0 +1,21 @@
+merge a8fe57448bbaa8dabc7e842600aa4f10e04336e3 parents lane 2acd4025782bff4aabbae73252476be34ea8b00d main 3f3ea56ba61829718a6a288600ab4fdac73aa5ba base d5f73bac158276a9fcf549185bad5c65c0498dae
+docs/00_MILAN_COMPLIANCE_REVIEW.md: clean automatic merge, equal to the published merge
+docs/architecture/09_verification.md: clean automatic merge, equal to the published merge
+tb/pp_top/pp_top_wrap.sv: clean automatic merge, equal to the published merge
+## tb/pp_top/README.md: 1 conflict region(s)
+conflict 0: lane 95 lines (missing in order: 0), main 104 lines (missing in order: 0)
+context 1308 lines, missing in order: 0
+merged 1508 lines = context 1308 + resolution 200; sides total 199
+## tb/pp_top/sim_main.cpp: 3 conflict region(s)
+conflict 0: lane 5 lines (missing in order: 0), main 3 lines (missing in order: 0)
+conflict 1: lane 12 lines (missing in order: 0), main 2 lines (missing in order: 0)
+conflict 2: lane 2 lines (missing in order: 1), main 1 lines (missing in order: 1)
+  lane-missing:   const bool one_section = gsi_only || name_only || d3_only || adp_only
+  main-missing:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only;
+context 11704 lines, missing in order: 0
+merged 11734 lines = context 11704 + resolution 30; sides total 25
+main-only files: 7, differing from that side at the merge: 0
+lane-only files: 54, differing from that side at the merge: 0
+run_acmp: 3f3ea56b 8 lines, 441d646 8 lines, IDENTICAL
+run_aecp_dispatch_focus: 2acd4025 18 lines, 441d646 18 lines, IDENTICAL
+run_aecp_response: 2acd4025 6 lines, 441d646 6 lines, IDENTICAL
