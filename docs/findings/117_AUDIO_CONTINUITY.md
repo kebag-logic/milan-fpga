@@ -25,7 +25,7 @@ records the peer's digital output.
 | Continuity over 660 s: silent stretches, repeats and skips | FAIL | 334 repeats at the DUT's documented INTERNAL beat. 520 one-frame drops, one every 1.266 s, six of them with a single zero frame, attributed by inference to the peer's output rate. 117,104 more frames in skips of two frames or more: 236 of the 239 of 60 or more are stall-aligned capture-path loss, and the other three, of 72, 78 and 108 frames, are not stall-aligned; those of 2 to 59 are not separated from a packet-sized drop downstream of the peer's receive counters. See [Continuity](#continuity). |
 | Restarts: 30 unbind and rebind cycles, rebind to the first valid sample | PASS, 30 of 30 under 1 s | Median 0.0279 s, maximum 0.1358 s; no growth. See [Restarts](#restarts). |
 | Direction B, the peer's talker to the DUT's listener | NOT RUN | It was not established whether a known signal can reach the peer's talker channels without a wiring change. The descriptors naming each cluster's signal source were not read, because the survey walk is defective. See [Direction B](#direction-b). |
-| #117 audio continuity row | FAIL as measured | The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames, and the smaller skips are not attributed, so a clean window was not recorded. |
+| #117 audio continuity row | FAIL as measured | The recorded output drops one frame every 1.266 s, attributed by inference to the peer's output rate. The capture path also loses frames. The skips of 2 to 59 frames, and the three of 72, 78 and 108 frames that are not stall-aligned, are not attributed, so a clean window was not recorded. |
 
 These are operator measurements, not review verdicts.
 
@@ -49,7 +49,7 @@ bound is #75's 1 s.
 - **[Direction B](#direction-b)** -- Why the peer-to-DUT direction was not run.
 - **[Restore](#restore)** -- The bench as left and the one residual.
 - **[Limits](#limits)** -- What this run does not show.
-- **[Artifact hashes](#artifact-hashes)** -- Raw capture and tool identities.
+- **[Artifact hashes](#artifact-hashes)** -- Where the three packets are published, and the raw capture and tool identities.
 
 ## Identity and setup
 
@@ -203,8 +203,9 @@ packet `b5-a473` holds that analysis: `b5_attrib.py`, the derived read record
 of the window and the receipts that every figure below comes from. The round 3
 packet `b5-a474` adds `b5_round3.py` and the receipts of the figures round 3
 adds. As published, the read record is gzip-compressed: restore it with
-`gunzip -kf a-long-reads.u16.gz` before running either tool. The steps are
-under [Artifact hashes](#artifact-hashes).
+`gunzip -kf a-long-reads.u16.gz` before running either tool. Where the
+packets are published, and the steps, are under
+[Artifact hashes](#artifact-hashes).
 
 **Repeats: the DUT's INTERNAL beat.** Counted in content frames, the repeats
 fall 93,989 to 93,992 frames apart. That is the 1.958 s beat, one whole-frame
@@ -315,8 +316,10 @@ the unbind response plus 0.5 s to the bind response.
 |---|---|---|---|---|
 | 0.0274 | 0.0280 | -0.000664 | [-0.001495, +0.000166] | 28 |
 
-The interval uses ordinary least squares and Student's t. It assumes
-independent errors with constant variance.
+The p95 is the nearest-rank 95th percentile, as `grade_a.py` computes it: the
+29th of the 30 sorted restarts, cycle 20's. Linear interpolation over the same
+30 gives 0.0344 s. The interval uses ordinary least squares and Student's t.
+It assumes independent errors with constant variance.
 
 - **Stop.** In every cycle the last valid frame arrived 14.4 to 24.6 ms after
   the `DISCONNECT_RX` response, and the hold stayed silent.
@@ -371,12 +374,17 @@ reference peer's talker channels without a wiring change, and that was not
 established. The peer's STREAM_PORT_OUTPUT 0 owns four audio clusters, and
 its dynamic audio map takes the talker's stream channels from those clusters
 only. Its AUDIO_UNIT declares no external or internal port and no routing
-element. Each AUDIO_CLUSTER descriptor names its cluster's signal source, in
+element. Each AUDIO_CLUSTER descriptor records its cluster's signal source in
 its `signal_type`, `signal_index` and `signal_output` fields (IEEE 1722.1
-7.2.16). Those descriptors were not read, because the survey walk is
-defective, as the next paragraph records. So whether a known signal can reach
-the peer's talker channels without a wiring change is open. The external
-capture was used as a capture point only.
+7.2.16). That source need not be a physical input. The repository's own
+encoding writes `signal_type` INVALID for a stream input port's cluster and
+AUDIO_UNIT for a stream output port's cluster
+(`avdecc/aem_descriptors.py:590`, `avdecc/aem_assemble.py:289-294`). A peer
+that follows the same convention would name its audio unit, so reading those
+descriptors might not settle the question either. They were not read, because
+the survey walk is defective, as the next paragraph records. So whether a
+known signal can reach the peer's talker channels without a wiring change is
+open. The external capture was used as a capture point only.
 
 The survey's walk of the audio unit is defective for reuse. Its code reads
 the audio clusters with descriptor type 0x0010 and the maps with 0x0014.
@@ -425,6 +433,9 @@ The bridge legs run under new process IDs. No other residual remains.
   read-time record shows no capture-path loss of their size, but it cannot
   place them between the peer's receive counters and the capture's input.
   Whether a capture path that loses no frames removes them is open.
+- The three skips of 72, 78 and 108 frames that are not stall-aligned,
+  258 frames, are not attributed either. The stall attribution does not cover
+  them.
 - The floor test assumes that a frame lost inside the capture path delays
   every later read. It resolves about 4 frames. The 1 ms steps it also finds
   are not explained. They concentrate at the 121 clusters away from any
@@ -436,6 +447,15 @@ The bridge legs run under new process IDs. No other residual remains.
 - Printed precision is not calibrated accuracy.
 
 ## Artifact hashes
+
+The three packets are public on branch `b5-review-evidence`, pinned at commit
+`8e6be4329008137a152f9171638e48a43e549fb7`:
+[`review-evidence/b5-r1`](https://github.com/kebag-logic/milan-fpga/tree/8e6be4329008137a152f9171638e48a43e549fb7/review-evidence/b5-r1).
+The lane packet `b5-a472` is its `author/` directory, the round 2 packet
+`b5-a473` is `author-r2/` and the round 3 packet `b5-a474` is `author-r3/`.
+Its `MANIFEST.json` records each published file's `original_sha256` and
+`published_sha256`, and `path_redacted` marks the files published
+label-masked. The steps below run on those three directories at that commit.
 
 The lane packet `b5-a472` holds the tools, per-action evidence, summaries and
 the raw-artifact index. Raw files stay outside the tree and the packet, each
@@ -476,6 +496,22 @@ record gzip-compressed, as `a-long-reads.u16.gz`. To reproduce the figures:
 | `avdecc_ro.py` | raw AVDECC reader, lane B3's copy | `172836966609645d6e12adf19a8341a145a4dadc51edb81c6d29a23aae1fd75a` |
 | `console_read.py` | read-only DUT console reader, lane B3's copy | `652d6f839b1dff74c5ddbdfc4fc9fd42c250f0cd2b7e2eeeb5b7cc838a74ee63` |
 | [UART grader](../../scripts/baremetal_uart_smoke.py) at the lane base | identity and restore | in the lane packet |
+
+The `run_a.py` and `grade_a.py` hashes above are the unmasked originals',
+recorded as `original_sha256` in the archive's `MANIFEST.json`. Their
+published copies are label-masked, recorded with `path_redacted`, so check
+them against `published_sha256` instead. The mask replaces code constants in
+both, so those copies are for reading and do not run as published. The read
+record's hash above is likewise its `original_sha256`, and the copy published
+beside the `.gz` is recorded with `path_redacted`. In the lane packet,
+`HANDOFF.md`, `RAW-ARTIFACTS.json`, `gates/gates.txt`, the two
+`restore/host-*.txt`, the `console.txt` and `events.jsonl` of `a-long`, `diag1`
+and `cap-test1`, and the `summary.json` of `a-long` and `cap-test1` are
+published label-masked too. The page cites no hash of them. `b5_attrib.py` and
+`b5_round3.py` read the masked `a-long` `summary.json` and `events.jsonl`, and
+still reproduce both receipts byte for byte at the pinned commit. The other
+tool hashes match the published bytes, and the masked `RAW-ARTIFACTS.json`
+keeps every raw file's size and SHA-256.
 
 `a-long` ran the `run_a.py` revision before the capture-period option, whose
 default is the value it used. `cap-test1` ran the listed revision.
