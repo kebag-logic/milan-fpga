@@ -347,8 +347,9 @@ Residuals that no permitted command restores:
   many skips per second from the bind on, and is saturated at `0xFFFF` in both
   halves. The render stage's rail count rose from 0 to 6,264. In lane B3's 70 s
   run they rose about 70 per second and from 4 to 134. The talker also ended
-  58.7 s before the unbind, because the stalled capture held the SoC
-  board's console until its deadline. Both counters clear only on reset.
+  60.0 s before the unbind, on the controller host's clock, because the
+  stalled capture held the SoC board's console until its deadline. Both
+  counters clear only on reset.
 
 ## Notes for a later capture
 
