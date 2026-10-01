@@ -15,10 +15,17 @@ holds the oscilloscope version.
 The first session stopped at the SoC board's console login. The owner then
 logged the console in, and the second session ran the timing steps. One McASP0
 capture recorded the DUT's DOUT pattern and timed its frames on the SoC board's
-own clock. After 475.6 s of a planned 630 s, the bench host lost the SoC
-board's USB function. The rules make that a STOP, so the capture of at least
-10 minutes is not met. Everything up to the loss was measured and is reported
-below.
+own clock. It ended at 475.7 s of a planned 630 s, when the bench host lost
+the SoC board's USB function.
+
+The manager ruled the 475.6 s received sufficient, with no re-run
+([STOP](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924930868),
+[ruling](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924950994)).
+The 10 minutes in the assignment were the manager's margin. Over 475.6 s the
+timing granularity is +-0.12 ppm, far below the SoC board crystal's tolerance
+of tens of ppm, which bounds every frequency figure here. A longer capture
+would not change the stated uncertainty. The USB loss is a bench event with no
+effect on the figures.
 
 | #451 timing item | Verdict | Evidence |
 |---|---|---|
@@ -27,7 +34,7 @@ below.
 | Data one BCLK after the frame-sync edge: bit-exact decode in all eight slots, in order | PASS, as far as the SoC board shows | 22,831,104 frames: 0 torn, 0 invalid and 0 zero words. See [Pattern check](#pattern-check) |
 | FSYNC at 48 kHz: fs against the SoC board's monotonic clock | 47,997.947 Hz: 48 kHz within the SoC board's clock accuracy | -42.8 ppm against 48 kHz, +-0.12 ppm timing granularity. See [Frequencies](#frequencies) |
 | BCLK at 12.288 MHz | 12,287,474 Hz, inferred as 256 x fs | The receiver fixes 256 bit clocks per frame only as a minimum. See [Frequencies](#frequencies) |
-| One capture of at least 10 minutes, pattern-checked whole | NOT MET: 475.6 s, then STOP | The bench host lost the USB function. See [Why the run stopped](#why-the-run-stopped) |
+| Capture length, pattern-checked whole | 475.6 s (ruled sufficient by the manager, [5924930868](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924930868) and [5924950994](https://github.com/kebag-logic/milan-fpga/issues/451#issuecomment-5924950994)) | Every received frame was pattern-checked. The USB loss at 475.7 s ended the capture and changes no figure. See [The USB loss, a bench event](#the-usb-loss-a-bench-event) |
 | FSYNC pulse width, edge timing, levels and absolute ppm | Not shown by the SoC board | [#626](https://github.com/kebag-logic/milan-fpga/issues/626). See [What the SoC board can and cannot show](#what-the-soc-board-can-and-cannot-show) |
 
 These are operator observations, not review verdicts.
@@ -39,10 +46,10 @@ These are operator observations, not review verdicts.
 - **[Framing](#framing)** -- The SoC board's DAI format and clock roles, and the capture's PCM parameters.
 - **[Pattern check](#pattern-check)** -- The whole received capture decoded: slots, channels and frame continuity.
 - **[Frequencies](#frequencies)** -- fs against the SoC board's monotonic clock, its uncertainty, and BCLK.
-- **[Why the run stopped](#why-the-run-stopped)** -- The USB function loss at 475.6 s and what it ended.
+- **[The USB loss, a bench event](#the-usb-loss-a-bench-event)** -- The USB function loss at 475.7 s, which ended the capture, and why it changes no figure.
 - **[What the SoC board can and cannot show](#what-the-soc-board-can-and-cannot-show)** -- What the McASP0 measurement establishes for each part of the item, and what stays with #626.
 - **[Bench as left](#bench-as-left)** -- DUT, controller and SoC board state at the end, against the start, and the residuals.
-- **[Rerun](#rerun)** -- What the rerun needs, and what this run teaches about it.
+- **[Notes for a later capture](#notes-for-a-later-capture)** -- No re-run follows; what this run teaches any later McASP0 capture on the SoC board.
 - **[Artifact hashes](#artifact-hashes)** -- The raw capture and the lane packet's evidence files.
 
 ## Identity and setup
@@ -244,7 +251,18 @@ duplicates in 774.3 s across the run, 0.510 per second. That is 10.63 ppm
 between FSYNC and the DUT's media grid. It is the DUT comparing its own two
 clocks, not a SoC board measurement.
 
-## Why the run stopped
+## The USB loss, a bench event
+
+The capture ended at 475.7 s, when the bench host lost the SoC board's USB
+function. The manager accepted the 475.6 s received, with no re-run. The loss
+has no effect on the figures:
+
+- **Pattern check.** The decode covers every byte received. The capture
+  dropped no frame before the event: all 95 status samples share one trigger,
+  and the buffer never held more than 2,048 of its 16,384 frames.
+- **fs.** The window ends at the 95th status sample, 475.480 s after the
+  trigger. That is 0.24 s before the SoC board logged the event. The last
+  sample's residual, -1.17 frames, is inside the fit's 1.23 frames rms.
 
 The events, in order, on the bench host's clock:
 
@@ -261,7 +279,8 @@ of its uptime. With the stream stopped, the recorder blocked writing to it, and
 McASP0 capture overran 0.42 s after that line. It stayed in XRUN. The USB Audio card and the USB network
 interface are gone from the bench host, and they did not come back. The bench
 host is a virtual machine, which does not regain the device on its own. The
-rules make that a STOP, and the owner must re-attach it.
+rules made that a STOP. The owner re-attaches the device, and no lane touches
+the SoC board's USB until then.
 
 The cause is not established. The stream had run for 475 s at 1.536 MB/s.
 Whether that load contributed is open.
@@ -312,10 +331,10 @@ Residuals that no permitted command restores:
   about 55 s before the unbind, because the stalled capture held the SoC
   board's console until its deadline. Both counters clear only on reset.
 
-## Rerun
+## Notes for a later capture
 
-The rerun needs the owner to re-attach the SoC board's USB function to the
-bench host. The assignment can then run unchanged. This run adds four points:
+No re-run follows: the manager ruled the 475.6 s capture sufficient. This run
+leaves four notes for any later McASP0 capture on the SoC board:
 
 - The SoC board has no `nc`. The shell's `/dev/tcp` streamed the capture with
   no gap of 100 ms or more for 475 s.
@@ -325,8 +344,7 @@ bench host. The assignment can then run unchanged. This run adds four points:
   a larger cap to attribute every underrun.
 - If the stream's load is suspected, fs needs no data off the board. A capture
   discarded on the SoC board times its frames the same way, with no USB
-  traffic. The pattern check of that same capture still needs the data. Which
-  to run is an owner decision.
+  traffic. The pattern check of that same capture still needs the data.
 
 ## Artifact hashes
 
