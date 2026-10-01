@@ -1,0 +1,46 @@
+=== e216dfe4 -> e5ad1187
+tables: old 15 (119 lines), new 15 (119 lines)
+table  1 'Item': byte-identical, 8 lines
+table  2 'Identity check': byte-identical, 10 lines
+table  3 'Binding': byte-identical, 3 lines
+table  4 'Stream format': byte-identical, 4 lines
+table  5 'Run': byte-identical, 6 lines
+table  6 'Bind': byte-identical, 5 lines
+table  7 'Stream channel': byte-identical, 4 lines
+table  8 'Frames': byte-identical, 3 lines
+table  9 'Class': byte-identical, 7 lines
+table 10 'Population': byte-identical, 3 lines
+table 11 'First ten median, s': byte-identical, 3 lines
+table 12 'Cycle': byte-identical, 32 lines
+table 13 'State': byte-identical, 11 lines
+table 14 'Artifact': DIFFERS (11 -> 11 lines)
+  row '`a-long` every channel, 10 s': cells changed in column(s) ['Bytes']
+  row '`diag1` every channel, 25 s': cells changed in column(s) ['Bytes']
+  row 'Capture as found, every channel, 3 s': cells changed in column(s) ['Bytes']
+table 15 'Tool': byte-identical, 9 lines
+byte-identical: 14 of 15
+=== bf9e5d82 (round 1) -> e5ad1187
+tables: old 15 (119 lines), new 15 (119 lines)
+table  1 'Item': DIFFERS (8 -> 8 lines)
+  row 'Continuity over 660 s: silent stretches, repeats and skips': cells changed in column(s) ['Evidence']
+  row 'Direction B, the peer's talker to the DUT's listener': cells changed in column(s) ['Evidence']
+  row '#117 audio continuity row': cells changed in column(s) ['Evidence']
+table  2 'Identity check': byte-identical, 10 lines
+table  3 'Binding': byte-identical, 3 lines
+table  4 'Stream format': byte-identical, 4 lines
+table  5 'Run': byte-identical, 6 lines
+table  6 'Bind': byte-identical, 5 lines
+table  7 'Stream channel': byte-identical, 4 lines
+table  8 'Frames': byte-identical, 3 lines
+table  9 'Class': byte-identical, 7 lines
+table 10 'Population': byte-identical, 3 lines
+table 11 'First ten median, s': byte-identical, 3 lines
+table 12 'Cycle': byte-identical, 32 lines
+table 13 'State': DIFFERS (11 -> 11 lines)
+  row 'Stream states, DUT and reference peer': cells changed in column(s) ['As left']
+table 14 'Artifact': DIFFERS (11 -> 11 lines)
+  row '`a-long` every channel, 10 s': cells changed in column(s) ['Bytes']
+  row '`diag1` every channel, 25 s': cells changed in column(s) ['Bytes']
+  row 'Capture as found, every channel, 3 s': cells changed in column(s) ['Bytes']
+table 15 'Tool': byte-identical, 9 lines
+byte-identical: 12 of 15

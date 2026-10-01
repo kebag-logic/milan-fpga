@@ -1,0 +1,46 @@
+pin: 9006c78e354d5a2f244fd606c55790a825304bd3
+files extracted: 207
+manifest check: 207 files, 0 mismatches, 0 unlisted
+path_redacted files in the three directories: 18
+  redacted: author-r2/receipts/a-long-reads.u16
+  redacted: author-r2/receipts/gates/gates.txt
+  redacted: author-r3/receipts/gates/gates.txt
+  redacted: author/HANDOFF.md
+  redacted: author/RAW-ARTIFACTS.json
+  redacted: author/gates/gates.txt
+  redacted: author/restore/host-end.txt
+  redacted: author/restore/host-start.txt
+  redacted: author/runs/a-long/console.txt
+  redacted: author/runs/a-long/events.jsonl
+  redacted: author/runs/cap-test1/console.txt
+  redacted: author/runs/cap-test1/events.jsonl
+  redacted: author/runs/diag1/console.txt
+  redacted: author/runs/diag1/events.jsonl
+  redacted: author/summary/a-long/summary.json
+  redacted: author/summary/cap-test1/summary.json
+  redacted: author/tools/grade_a.py
+  redacted: author/tools/run_a.py
+--- step 1
+gunzip rc=0
+2183d57f0646cf94405b95aea5547b83f5ff0b9190ac0bd1bdcc87760c919961  a-long-reads.u16
+bytes=131540
+--- step 2
+b5_attrib rc=0 stderr_bytes=0
+cmp attribution.txt rc=0
+18ebbfc14cbe6336853a3d0141e93791a6f16e4c561d92ca589bd9bf45538138
+--- step 3
+b5_round3 rc=0 stderr_bytes=0
+cmp round3_figures.txt rc=0
+9fa0f02714c0b37147bb6aa620d1339cf32bd825ebdb76cd79be1d9e7bb14c67
+--- packet files opened (successful openat, relative to the archive root)
+[attrib]
+  author-r2/receipts/a-long-reads.json
+  author-r2/receipts/a-long-reads.u16
+  author/summary/a-long/continuity-events.csv
+  author/summary/a-long/summary.json
+[round3]
+  author-r2/receipts/a-long-reads.json
+  author-r2/receipts/a-long-reads.u16
+  author/restore/peer-descs-2.jsonl
+  author/summary/a-long/continuity-events.csv
+  author/summary/a-long/summary.json
