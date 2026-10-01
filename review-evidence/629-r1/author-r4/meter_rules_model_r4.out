@@ -1,0 +1,672 @@
+== K. the gap bound: a continuity bound B_k across k group intervals must admit the design point (2J + 601 k, J = 1,426 ns, 300 ppm; 601 ns is KL_crf_rx's rate term per 2 ms) and still catch a half-sample step (B_k < 10,417 - 2J - 601 k)
+k=1: need  3453 <= B_k <  6964  window exists; B=4096 inside; tolerance at 300 ppm J <= 1747 ns, at 0 ppm J <= 2048 ns
+k=2: need  4054 <= B_k <  6363  window exists; BGAP=5120 inside; tolerance at 300 ppm J <= 1959 ns, at 0 ppm J <= 2560 ns
+k=3: need  4655 <= B_k <  5762  window exists; BGAP=5120 inside; tolerance at 300 ppm J <= 1658 ns, at 0 ppm J <= 2560 ns
+k=4: need  5256 <= B_k <  5161  NO window; BGAP=5120 outside; tolerance at 300 ppm J <= 1358 ns, at 0 ppm J <= 2560 ns
+k=5: need  5857 <= B_k <  4560  NO window; BGAP=5120 outside; tolerance at 300 ppm J <= 1057 ns, at 0 ppm J <= 2560 ns
+generic E8 closed-loop bound for ANY sequence of E8 rates (|rate error| <= 2J/8): 2.125 * 2 * 1426 / 8 = 758 ns
+random independent PDU loss p: a restart needs two adjacent loss-voided groups; groups per second 500; rate ~ 500 q^2, q = 1 - (1-p)^16
+p= 1.0e-06 (  0.008 lost/s): restarts ~ 1.28e-07/s (one per  7812617.2 s); r3 rule restart rate  8.00e-03/s
+p= 1.0e-05 (  0.080 lost/s): restarts ~ 1.28e-05/s (one per    78136.7 s); r3 rule restart rate  8.00e-02/s
+p= 1.0e-04 (  0.800 lost/s): restarts ~ 1.28e-03/s (one per      782.4 s); r3 rule restart rate  8.00e-01/s
+p= 3.0e-04 (  2.400 lost/s): restarts ~ 1.15e-02/s (one per       87.2 s); r3 rule restart rate  2.40e+00/s
+p= 1.0e-03 (  8.000 lost/s): restarts ~ 1.26e-01/s (one per        7.9 s); r3 rule restart rate  8.00e+00/s
+p= 1.4e-03 ( 11.200 lost/s): restarts ~ 2.46e-01/s (one per        4.1 s); r3 rule restart rate  1.12e+01/s
+p= 3.0e-03 ( 24.000 lost/s): restarts ~ 1.10e+00/s (one per        0.9 s); r3 rule restart rate  2.40e+01/s
+p= 1.0e-02 ( 80.000 lost/s): restarts ~ 1.10e+01/s (one per        0.1 s); r3 rule restart rate  8.00e+01/s
+
+== R. regression, no loss: rule b equals the round-3 rules (each pair must match exactly)
+white    J= 1042 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+white    J= 1042 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   92 | closed<2ppm= 1.000 closed_max=  152 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   92 | closed<2ppm= 1.000 closed_max=  152 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+white    J= 1426 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  104 | closed<2ppm= 1.000 closed_max=  184 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  104 | closed<2ppm= 1.000 closed_max=  184 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+white    J= 1426 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+gsign    J= 1042 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  539 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  539 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+gsign    J= 1042 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  541 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  541 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+gsign    J= 1426 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  754 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  754 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+gsign    J= 1426 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  696 drops=  0 lockedfrac=1.000 t_lock_s=  8.35
+gsign    J= 1426 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  696 drops=  0 lockedfrac=1.000 t_lock_s=  8.35   [match]
+sine10   J= 1042 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  272 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  272 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+sine10   J= 1042 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  263 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  263 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+sine10   J= 1426 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  345 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  345 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+sine10   J= 1426 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  361 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  361 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+adv      J= 1042 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  582 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  582 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+adv      J= 1042 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  559 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  559 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+adv      J= 1426 ppm=  0 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  773 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=  0 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  773 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+adv      J= 1426 ppm=300 E8-P2 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  760 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 E8-P2 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  760 drops=  0 lockedfrac=1.000 t_lock_s=  7.32   [match]
+
+== F. a loss in a snapshot group, ideal timestamps at +100 ppm (lost PDU 5 of the snapshot group at 3 x 512 ms, n = 12,293); rate against the no-loss run, every window
+design (midpoint fill)                       restarts=0 fills=1 valid=0.6667 max|rate - no-loss rate|=0
+mutant: next pick less nominal 2 ms          restarts=0 fills=1 valid=0.6667 max|rate - no-loss rate|=25
+mutant: next pick, uncorrected               restarts=0 fills=1 valid=0.6667 max|rate - no-loss rate|=250025
+mutant: restart on a voided snapshot group   restarts=1 fills=0 valid=0.5417 max|rate - no-loss rate|=0
+mutant: restart on any loss (r3)             restarts=1 fills=0 valid=0.5417 max|rate - no-loss rate|=0
+-- the gap bound: two lost PDUs in adjacent groups (n = 12,300 and 12,310, groups 768 and 769), 12 s
+design                                       restarts=1 lossvoids=2
+mutant: kmax 16                              restarts=0 lossvoids=2
+
+== M. the first-PDU pick mutant (P1) against the 256 ns independent-error criterion, white +/-1,426 ns, 300 ppm, pinned seed, 120 s; open-loop rate error per servo window
+P2: windows with a valid rate 227, over 256 ns 0, open_max 124 ns, closed_max 197 ns
+P1: windows with a valid rate 227, over 256 ns 13, open_max 348 ns, closed_max 494 ns
+-- the window-error quantity (R428-3 S1): white +/-1,426 ns, 0 ppm
+P2: open-loop rate error max 104 ns; closed-loop |e| max 184 ns
+P1: open-loop rate error max 351 ns; closed-loop |e| max 465 ns
+
+== P. PDU loss, independent error, E8-P2; rule b (design) against rule r3 (round 3, the restart-on-any-loss mutant); 120 s unless stated
+none                               J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+none                               J= 1042 ppm=  0 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+none                               J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+none                               J= 1426 ppm=300 rule=r3 valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 1 s (8000)                    J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 1 s (8000)                    J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 1 s (8000)                    J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 1 s (8000)                    J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 0.3 s (2400)                  J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 0.3 s (2400)                  J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  399 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 0.3 s (2400)                  J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 0.3 s (2400)                  J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  399 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 0.5 s (4000)                  J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=   239 fills=  2 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 0.5 s (4000)                  J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  239 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 0.5 s (4000)                  J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=   239 fills=  2 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 0.5 s (4000)                  J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  239 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 2 s                           J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=    59 fills=  2 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 2 s                           J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=   59 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 2 s                           J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=    59 fills=  2 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 2 s                           J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=   59 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 5 s                           J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=    23 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 5 s                           J= 1042 ppm=  0 rule=r3 valid=0.1830 restarts=   23 lossvoids=     0 fills=  0 open_max=   60 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s= 15.51
+1 in 5 s                           J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=    23 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 5 s                           J= 1426 ppm=300 rule=r3 valid=0.1830 restarts=   23 lossvoids=     0 fills=  0 open_max=   68 | closed<2ppm= 1.000 closed_max=  146 drops=  0 lockedfrac=1.000 t_lock_s= 15.51
+1 in 512 ms on the snapshot group  J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   67 | closed<2ppm= 1.000 closed_max=  175 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 512 ms on the snapshot group  J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  234 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 512 ms on the snapshot group  J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   91 | closed<2ppm= 1.000 closed_max=  123 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 512 ms on the snapshot group  J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  234 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 32 PDUs (4 ms)                J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   67 | closed<2ppm= 1.000 closed_max=  175 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 32 PDUs (4 ms)                J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=29999 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 32 PDUs (4 ms)                J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   91 | closed<2ppm= 1.000 closed_max=  123 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 32 PDUs (4 ms)                J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=29999 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 48 PDUs (6 ms)                J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids= 19999 fills= 78 open_max=   70 | closed<2ppm= 1.000 closed_max=  171 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 48 PDUs (6 ms)                J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=19999 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 48 PDUs (6 ms)                J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids= 19999 fills= 78 open_max=   86 | closed<2ppm= 1.000 closed_max=  154 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 48 PDUs (6 ms)                J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=19999 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 33 PDUs                       J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids= 29090 fills=112 open_max=   81 | closed<2ppm= 1.000 closed_max=  171 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 33 PDUs                       J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=29090 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 33 PDUs                       J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids= 29090 fills=112 open_max=   98 | closed<2ppm= 1.000 closed_max=  162 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+1 in 33 PDUs                       J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=29090 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 24 PDUs (beyond: adjacent groups) J= 1042 ppm=  0 rule=b  valid=0.0000 restarts=19999 lossvoids= 39999 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 24 PDUs (beyond: adjacent groups) J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=39999 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 24 PDUs (beyond: adjacent groups) J= 1426 ppm=300 rule=b  valid=0.0000 restarts=19999 lossvoids= 39999 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+1 in 24 PDUs (beyond: adjacent groups) J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=39999 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 1 s inside a group    J= 1042 ppm=  0 rule=b  valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+2-burst 1 in 1 s inside a group    J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 1 s inside a group    J= 1426 ppm=300 rule=b  valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+2-burst 1 in 1 s inside a group    J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 1 s across a group edge J= 1042 ppm=  0 rule=b  valid=0.0000 restarts=  119 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 1 s across a group edge J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 1 s across a group edge J= 1426 ppm=300 rule=b  valid=0.0000 restarts=  119 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 1 s across a group edge J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+2-burst 1 in 5 s across a group edge J= 1042 ppm=  0 rule=b  valid=0.1830 restarts=   23 lossvoids=    23 fills=  0 open_max=   67 | closed<2ppm= 1.000 closed_max=  151 drops=  0 lockedfrac=1.000 t_lock_s= 19.61
+2-burst 1 in 5 s across a group edge J= 1042 ppm=  0 rule=r3 valid=0.1830 restarts=   23 lossvoids=     0 fills=  0 open_max=   67 | closed<2ppm= 1.000 closed_max=  151 drops=  0 lockedfrac=1.000 t_lock_s= 19.61
+2-burst 1 in 5 s across a group edge J= 1426 ppm=300 rule=b  valid=0.1830 restarts=   23 lossvoids=    23 fills=  0 open_max=   69 | closed<2ppm= 1.000 closed_max=  143 drops=  0 lockedfrac=1.000 t_lock_s= 19.61
+2-burst 1 in 5 s across a group edge J= 1426 ppm=300 rule=r3 valid=0.1830 restarts=   23 lossvoids=     0 fills=  0 open_max=   69 | closed<2ppm= 1.000 closed_max=  143 drops=  0 lockedfrac=1.000 t_lock_s= 19.61
+17-burst 1 in 1 s                  J= 1042 ppm=  0 rule=b  valid=0.0000 restarts=  119 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+17-burst 1 in 1 s                  J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+17-burst 1 in 1 s                  J= 1426 ppm=300 rule=b  valid=0.0000 restarts=  119 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+17-burst 1 in 1 s                  J= 1426 ppm=300 rule=r3 valid=0.0000 restarts=  119 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+beyond the bound from 20 s: 2-burst across an edge 1 in 1 s J= 1426 ppm=300 rule=b  valid=0.2735 restarts=   40 lossvoids=    40 fills=  0 open_max=   80 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+beyond the bound from 20 s: 1 in 24 PDUs J= 1426 ppm=300 rule=b  valid=0.2650 restarts= 6666 lossvoids= 13333 fills=  0 open_max=   80 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+random p=1e-05                     J= 1042 ppm=  0 rule=b  valid=0.9863 restarts=    0 lossvoids=    24 fills=  0 open_max=   88 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+random p=1e-05                     J= 1042 ppm=  0 rule=r3 valid=0.7082 restarts=   24 lossvoids=     0 fills=  0 open_max=   82 | closed<2ppm= 1.000 closed_max=  162 drops=  0 lockedfrac=1.000 t_lock_s= 13.47
+random p=1e-04                     J= 1042 ppm=  0 rule=b  valid=0.9795 restarts=    1 lossvoids=   250 fills=  1 open_max=   97 | closed<2ppm= 1.000 closed_max=  126 drops=  0 lockedfrac=1.000 t_lock_s=  9.37
+random p=1e-04                     J= 1042 ppm=  0 rule=r3 valid=0.0188 restarts=  250 lossvoids=     0 fills=  0 open_max=   40 | closed<2ppm= 1.000 closed_max=  145 drops=  0 lockedfrac=1.000 t_lock_s=198.30
+random p=3e-04                     J= 1042 ppm=  0 rule=b  valid=0.9113 restarts=    6 lossvoids=   729 fills=  1 open_max=   91 | closed<2ppm= 1.000 closed_max=  206 drops=  0 lockedfrac=1.000 t_lock_s= 13.47
+random p=3e-04                     J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts=  729 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+random p=1e-03                     J= 1042 ppm=  0 rule=b  valid=0.5461 restarts=   41 lossvoids=  2442 fills=  9 open_max=   86 | closed<2ppm= 1.000 closed_max=  175 drops=  0 lockedfrac=1.000 t_lock_s= 17.56
+random p=1e-03                     J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts= 2442 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+random p=3e-03                     J= 1042 ppm=  0 rule=b  valid=0.0137 restarts=  319 lossvoids=  7249 fills= 18 open_max=   33 | closed<2ppm= 1.000 closed_max=  199 drops=  0 lockedfrac=1.000 t_lock_s=254.62
+random p=3e-03                     J= 1042 ppm=  0 rule=r3 valid=0.0000 restarts= 7249 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 0.000 closed_max=    0 drops=  0 lockedfrac=0.000 t_lock_s=  none
+
+== S. steps: white +/-1,426 ns, 300 ppm, E8-P2, rule b; the step lands 12 s in (after lock) at each group position. 'in gap': the same group also loses one PDU, so the step meets the continuity check across the gap, not the in-group void
+no loss                step   20833 ns at pos  0, lost pos  -: restarts=1 lossvoids=0 voids=0 closed_max=  234 drops=0
+in gap                 step   20833 ns at pos  0, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  234 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  0, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2622 drops=2
+no loss                step   20833 ns at pos  1, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  145 drops=0
+in gap                 step   20833 ns at pos  1, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  145 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  1, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2605 drops=2
+no loss                step   20833 ns at pos  2, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  170 drops=0
+in gap                 step   20833 ns at pos  2, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  170 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  2, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2626 drops=2
+no loss                step   20833 ns at pos  3, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  174 drops=0
+in gap                 step   20833 ns at pos  3, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  174 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  3, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2603 drops=2
+no loss                step   20833 ns at pos  4, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  179 drops=0
+in gap                 step   20833 ns at pos  4, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  179 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  4, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2647 drops=2
+no loss                step   20833 ns at pos  5, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  119 drops=0
+in gap                 step   20833 ns at pos  5, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  119 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  5, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2596 drops=2
+no loss                step   20833 ns at pos  6, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  159 drops=0
+in gap                 step   20833 ns at pos  6, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  159 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  6, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2593 drops=2
+no loss                step   20833 ns at pos  7, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  125 drops=0
+in gap                 step   20833 ns at pos  7, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  125 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  7, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2619 drops=2
+no loss                step   20833 ns at pos  8, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  217 drops=0
+in gap                 step   20833 ns at pos  8, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  217 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  8, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2548 drops=2
+no loss                step   20833 ns at pos  9, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  140 drops=0
+in gap                 step   20833 ns at pos  9, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  140 drops=0
+in gap, mutant no-chk  step   20833 ns at pos  9, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2596 drops=2
+no loss                step   20833 ns at pos 10, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  188 drops=0
+in gap                 step   20833 ns at pos 10, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  188 drops=0
+in gap, mutant no-chk  step   20833 ns at pos 10, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2561 drops=2
+no loss                step   20833 ns at pos 11, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  141 drops=0
+in gap                 step   20833 ns at pos 11, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  141 drops=0
+in gap, mutant no-chk  step   20833 ns at pos 11, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2666 drops=2
+no loss                step   20833 ns at pos 12, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  144 drops=0
+in gap                 step   20833 ns at pos 12, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  144 drops=0
+in gap, mutant no-chk  step   20833 ns at pos 12, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2606 drops=2
+no loss                step   20833 ns at pos 13, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  161 drops=0
+in gap                 step   20833 ns at pos 13, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  161 drops=0
+in gap, mutant no-chk  step   20833 ns at pos 13, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2624 drops=2
+no loss                step   20833 ns at pos 14, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  143 drops=0
+in gap                 step   20833 ns at pos 14, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  143 drops=0
+in gap, mutant no-chk  step   20833 ns at pos 14, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2605 drops=2
+no loss                step   20833 ns at pos 15, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  191 drops=0
+in gap                 step   20833 ns at pos 15, lost pos  0: restarts=1 lossvoids=1 voids=0 closed_max=  191 drops=0
+in gap, mutant no-chk  step   20833 ns at pos 15, lost pos  0: restarts=0 lossvoids=1 voids=0 closed_max= 2559 drops=2
+no loss                step  -20833 ns at pos  0, lost pos  -: restarts=1 lossvoids=0 voids=0 closed_max=  234 drops=0
+in gap                 step  -20833 ns at pos  0, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  234 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  0, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2600 drops=2
+no loss                step  -20833 ns at pos  1, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  145 drops=0
+in gap                 step  -20833 ns at pos  1, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  145 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  1, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2603 drops=2
+no loss                step  -20833 ns at pos  2, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  170 drops=0
+in gap                 step  -20833 ns at pos  2, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  170 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  2, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2583 drops=2
+no loss                step  -20833 ns at pos  3, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  174 drops=0
+in gap                 step  -20833 ns at pos  3, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  174 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  3, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2606 drops=2
+no loss                step  -20833 ns at pos  4, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  179 drops=0
+in gap                 step  -20833 ns at pos  4, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  179 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  4, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2561 drops=2
+no loss                step  -20833 ns at pos  5, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  119 drops=0
+in gap                 step  -20833 ns at pos  5, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  119 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  5, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2616 drops=2
+no loss                step  -20833 ns at pos  6, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  159 drops=0
+in gap                 step  -20833 ns at pos  6, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  159 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  6, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2616 drops=2
+no loss                step  -20833 ns at pos  7, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  125 drops=0
+in gap                 step  -20833 ns at pos  7, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  125 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  7, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2589 drops=2
+no loss                step  -20833 ns at pos  8, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  217 drops=0
+in gap                 step  -20833 ns at pos  8, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  217 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  8, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2660 drops=2
+no loss                step  -20833 ns at pos  9, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  140 drops=0
+in gap                 step  -20833 ns at pos  9, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  140 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos  9, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2613 drops=2
+no loss                step  -20833 ns at pos 10, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  188 drops=0
+in gap                 step  -20833 ns at pos 10, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  188 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos 10, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2663 drops=2
+no loss                step  -20833 ns at pos 11, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  141 drops=0
+in gap                 step  -20833 ns at pos 11, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  141 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos 11, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2542 drops=2
+no loss                step  -20833 ns at pos 12, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  144 drops=0
+in gap                 step  -20833 ns at pos 12, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  144 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos 12, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2603 drops=2
+no loss                step  -20833 ns at pos 13, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  161 drops=0
+in gap                 step  -20833 ns at pos 13, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  161 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos 13, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2614 drops=2
+no loss                step  -20833 ns at pos 14, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  143 drops=0
+in gap                 step  -20833 ns at pos 14, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  143 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos 14, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 2606 drops=2
+no loss                step  -20833 ns at pos 15, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  191 drops=0
+in gap                 step  -20833 ns at pos 15, lost pos  0: restarts=1 lossvoids=1 voids=0 closed_max=  191 drops=0
+in gap, mutant no-chk  step  -20833 ns at pos 15, lost pos  0: restarts=0 lossvoids=1 voids=0 closed_max= 2650 drops=2
+no loss                step   10417 ns at pos  0, lost pos  -: restarts=1 lossvoids=0 voids=0 closed_max=  234 drops=0
+in gap                 step   10417 ns at pos  0, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  234 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  0, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1343 drops=2
+no loss                step   10417 ns at pos  1, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  145 drops=0
+in gap                 step   10417 ns at pos  1, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  145 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  1, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1322 drops=2
+no loss                step   10417 ns at pos  2, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  170 drops=0
+in gap                 step   10417 ns at pos  2, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  170 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  2, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1333 drops=2
+no loss                step   10417 ns at pos  3, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  174 drops=0
+in gap                 step   10417 ns at pos  3, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  174 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  3, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1301 drops=2
+no loss                step   10417 ns at pos  4, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  179 drops=0
+in gap                 step   10417 ns at pos  4, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  179 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  4, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1345 drops=2
+no loss                step   10417 ns at pos  5, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  119 drops=0
+in gap                 step   10417 ns at pos  5, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  119 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  5, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1318 drops=2
+no loss                step   10417 ns at pos  6, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  159 drops=0
+in gap                 step   10417 ns at pos  6, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  159 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  6, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1291 drops=2
+no loss                step   10417 ns at pos  7, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  125 drops=0
+in gap                 step   10417 ns at pos  7, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  125 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  7, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1317 drops=2
+no loss                step   10417 ns at pos  8, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  217 drops=0
+in gap                 step   10417 ns at pos  8, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  217 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  8, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1246 drops=2
+no loss                step   10417 ns at pos  9, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  140 drops=0
+in gap                 step   10417 ns at pos  9, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  140 drops=0
+in gap, mutant no-chk  step   10417 ns at pos  9, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1294 drops=2
+no loss                step   10417 ns at pos 10, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  188 drops=0
+in gap                 step   10417 ns at pos 10, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  188 drops=0
+in gap, mutant no-chk  step   10417 ns at pos 10, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1283 drops=2
+no loss                step   10417 ns at pos 11, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  141 drops=0
+in gap                 step   10417 ns at pos 11, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  141 drops=0
+in gap, mutant no-chk  step   10417 ns at pos 11, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1364 drops=2
+no loss                step   10417 ns at pos 12, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  144 drops=0
+in gap                 step   10417 ns at pos 12, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  144 drops=0
+in gap, mutant no-chk  step   10417 ns at pos 12, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1326 drops=2
+no loss                step   10417 ns at pos 13, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  161 drops=0
+in gap                 step   10417 ns at pos 13, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  161 drops=0
+in gap, mutant no-chk  step   10417 ns at pos 13, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1346 drops=2
+no loss                step   10417 ns at pos 14, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  143 drops=0
+in gap                 step   10417 ns at pos 14, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  143 drops=0
+in gap, mutant no-chk  step   10417 ns at pos 14, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1303 drops=2
+no loss                step   10417 ns at pos 15, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  191 drops=0
+in gap                 step   10417 ns at pos 15, lost pos  0: restarts=1 lossvoids=1 voids=0 closed_max=  191 drops=0
+in gap, mutant no-chk  step   10417 ns at pos 15, lost pos  0: restarts=0 lossvoids=1 voids=0 closed_max= 1257 drops=2
+no loss                step  -10417 ns at pos  0, lost pos  -: restarts=1 lossvoids=0 voids=0 closed_max=  234 drops=0
+in gap                 step  -10417 ns at pos  0, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  234 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  0, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1298 drops=2
+no loss                step  -10417 ns at pos  1, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  145 drops=0
+in gap                 step  -10417 ns at pos  1, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  145 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  1, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1301 drops=2
+no loss                step  -10417 ns at pos  2, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  170 drops=0
+in gap                 step  -10417 ns at pos  2, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  170 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  2, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1281 drops=2
+no loss                step  -10417 ns at pos  3, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  174 drops=0
+in gap                 step  -10417 ns at pos  3, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  174 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  3, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1320 drops=2
+no loss                step  -10417 ns at pos  4, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  179 drops=0
+in gap                 step  -10417 ns at pos  4, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  179 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  4, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1266 drops=2
+no loss                step  -10417 ns at pos  5, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  119 drops=0
+in gap                 step  -10417 ns at pos  5, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  119 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  5, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1314 drops=2
+no loss                step  -10417 ns at pos  6, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  159 drops=0
+in gap                 step  -10417 ns at pos  6, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  159 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  6, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1314 drops=2
+no loss                step  -10417 ns at pos  7, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  125 drops=0
+in gap                 step  -10417 ns at pos  7, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  125 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  7, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1287 drops=2
+no loss                step  -10417 ns at pos  8, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  217 drops=0
+in gap                 step  -10417 ns at pos  8, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  217 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  8, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1358 drops=2
+no loss                step  -10417 ns at pos  9, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  140 drops=0
+in gap                 step  -10417 ns at pos  9, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  140 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos  9, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1311 drops=2
+no loss                step  -10417 ns at pos 10, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  188 drops=0
+in gap                 step  -10417 ns at pos 10, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  188 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos 10, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1361 drops=2
+no loss                step  -10417 ns at pos 11, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  141 drops=0
+in gap                 step  -10417 ns at pos 11, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  141 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos 11, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1251 drops=2
+no loss                step  -10417 ns at pos 12, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  144 drops=0
+in gap                 step  -10417 ns at pos 12, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  144 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos 12, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1301 drops=2
+no loss                step  -10417 ns at pos 13, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  161 drops=0
+in gap                 step  -10417 ns at pos 13, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  161 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos 13, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1312 drops=2
+no loss                step  -10417 ns at pos 14, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  143 drops=0
+in gap                 step  -10417 ns at pos 14, lost pos 15: restarts=1 lossvoids=1 voids=0 closed_max=  143 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos 14, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max= 1327 drops=2
+no loss                step  -10417 ns at pos 15, lost pos  -: restarts=1 lossvoids=0 voids=1 closed_max=  191 drops=0
+in gap                 step  -10417 ns at pos 15, lost pos  0: restarts=1 lossvoids=1 voids=0 closed_max=  191 drops=0
+in gap, mutant no-chk  step  -10417 ns at pos 15, lost pos  0: restarts=0 lossvoids=1 voids=0 closed_max= 1363 drops=2
+control in gap         step       0 ns at pos  0, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max=  234 drops=0
+control in gap         step       0 ns at pos  7, lost pos 15: restarts=0 lossvoids=1 voids=0 closed_max=  125 drops=0
+
+== T. tolerance of the void and spacing rules with and without loss (1 in 0.3 s), 30 s per case
+white  J= 1426 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1426 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1740 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1740 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1748 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1748 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1749 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1749 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1760 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1760 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1800 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1800 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 2040 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 2040 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 2048 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 2048 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 2049 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 2049 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 2060 ppm=  0 loss=none         restarts=    10 voids=    10 lossvoids=    0 valid=0.2034
+white  J= 2060 ppm=  0 loss=per:2400:777 restarts=    10 voids=    10 lossvoids=   99 valid=0.2034
+white  J= 2500 ppm=  0 loss=none         restarts=  3569 voids=  3569 lossvoids=    0 valid=0.0000
+white  J= 2500 ppm=  0 loss=per:2400:777 restarts=  3547 voids=  3547 lossvoids=   99 valid=0.0000
+white  J= 1426 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1426 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1740 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1740 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1748 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1748 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1749 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1749 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1760 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+white  J= 1760 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+white  J= 1800 ppm=300 loss=none         restarts=     3 voids=     3 lossvoids=    0 valid=0.6441
+white  J= 1800 ppm=300 loss=per:2400:777 restarts=     3 voids=     3 lossvoids=   99 valid=0.6441
+white  J= 2040 ppm=300 loss=none         restarts=   526 voids=   526 lossvoids=    0 valid=0.0000
+white  J= 2040 ppm=300 loss=per:2400:777 restarts=   521 voids=   521 lossvoids=   99 valid=0.0000
+white  J= 2048 ppm=300 loss=none         restarts=   634 voids=   634 lossvoids=    0 valid=0.0000
+white  J= 2048 ppm=300 loss=per:2400:777 restarts=   629 voids=   629 lossvoids=   99 valid=0.0000
+white  J= 2049 ppm=300 loss=none         restarts=   599 voids=   599 lossvoids=    0 valid=0.0000
+white  J= 2049 ppm=300 loss=per:2400:777 restarts=   589 voids=   589 lossvoids=   99 valid=0.0000
+white  J= 2060 ppm=300 loss=none         restarts=   656 voids=   656 lossvoids=    0 valid=0.0000
+white  J= 2060 ppm=300 loss=per:2400:777 restarts=   652 voids=   652 lossvoids=   99 valid=0.0000
+white  J= 2500 ppm=300 loss=none         restarts=  3920 voids=  3920 lossvoids=    0 valid=0.0000
+white  J= 2500 ppm=300 loss=per:2400:777 restarts=  3893 voids=  3893 lossvoids=   99 valid=0.0000
+gsign  J= 1426 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1426 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1740 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1740 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1748 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1748 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1749 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1749 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1760 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1760 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1800 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1800 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 2040 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 2040 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 2048 ppm=  0 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 2048 ppm=  0 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 2049 ppm=  0 loss=none         restarts=  7520 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2049 ppm=  0 loss=per:2400:777 restarts=  7422 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2060 ppm=  0 loss=none         restarts=  7518 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2060 ppm=  0 loss=per:2400:777 restarts=  7422 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2500 ppm=  0 loss=none         restarts=  7463 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2500 ppm=  0 loss=per:2400:777 restarts=  7365 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 1426 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1426 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1740 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1740 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1748 ppm=300 loss=none         restarts=     0 voids=     0 lossvoids=    0 valid=0.8644
+gsign  J= 1748 ppm=300 loss=per:2400:777 restarts=     0 voids=     0 lossvoids=   99 valid=0.8644
+gsign  J= 1749 ppm=300 loss=none         restarts=  3790 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 1749 ppm=300 loss=per:2400:777 restarts=  3749 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 1760 ppm=300 loss=none         restarts=  3737 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 1760 ppm=300 loss=per:2400:777 restarts=  3684 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 1800 ppm=300 loss=none         restarts=  3805 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 1800 ppm=300 loss=per:2400:777 restarts=  3760 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2040 ppm=300 loss=none         restarts=  3789 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2040 ppm=300 loss=per:2400:777 restarts=  3755 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2048 ppm=300 loss=none         restarts=  3763 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2048 ppm=300 loss=per:2400:777 restarts=  3739 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2049 ppm=300 loss=none         restarts=  3722 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2049 ppm=300 loss=per:2400:777 restarts=  3698 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2060 ppm=300 loss=none         restarts=  3703 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2060 ppm=300 loss=per:2400:777 restarts=  3676 voids=     0 lossvoids=   99 valid=0.0000
+gsign  J= 2500 ppm=300 loss=none         restarts=  7495 voids=     0 lossvoids=    0 valid=0.0000
+gsign  J= 2500 ppm=300 loss=per:2400:777 restarts=  7424 voids=     0 lossvoids=   99 valid=0.0000
+
+== Q. a real talker frequency step of D ppm, 20 s in, after lock, at 16 phases across one servo window; full meter and servo, ideal timestamps, 40 s
+E1 step  1.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   308 to   532 ns across phases
+E1 step  1.5 ppm: drops LOCKED at  0 of 16 phases; worst |e|   448 to   784 ns across phases
+E1 step  2.0 ppm: drops LOCKED at  1 of 16 phases; worst |e|   595 to  1037 ns across phases
+E1 step  2.5 ppm: drops LOCKED at  8 of 16 phases; worst |e|   746 to  1289 ns across phases
+E1 step  3.0 ppm: drops LOCKED at 13 of 16 phases; worst |e|   897 to  1542 ns across phases
+E1 step  3.5 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1048 to  1794 ns across phases
+E1 step  4.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1198 to  2047 ns across phases
+E1 step  5.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1500 to  2552 ns across phases
+E1 step  6.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1800 to  3057 ns across phases
+E1 step  7.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  2102 to  3561 ns across phases
+E1 step  8.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  2404 to  4066 ns across phases
+E1 step  8.5 ppm: drops LOCKED at 16 of 16 phases; worst |e|  2554 to  4319 ns across phases
+E1 step  9.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  2705 to  4571 ns across phases
+E1 step  9.5 ppm: drops LOCKED at 16 of 16 phases; worst |e|  2856 to  4824 ns across phases
+E1 step 10.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  3007 to  5076 ns across phases
+E1 step 11.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  3307 to  5581 ns across phases
+E8 step  1.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   174 to   174 ns across phases
+E8 step  1.5 ppm: drops LOCKED at  0 of 16 phases; worst |e|   210 to   214 ns across phases
+E8 step  2.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   272 to   276 ns across phases
+E8 step  2.5 ppm: drops LOCKED at  0 of 16 phases; worst |e|   334 to   338 ns across phases
+E8 step  3.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   395 to   401 ns across phases
+E8 step  3.5 ppm: drops LOCKED at  0 of 16 phases; worst |e|   457 to   463 ns across phases
+E8 step  4.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   518 to   526 ns across phases
+E8 step  5.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   642 to   650 ns across phases
+E8 step  6.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   765 to   775 ns across phases
+E8 step  7.0 ppm: drops LOCKED at  0 of 16 phases; worst |e|   888 to   899 ns across phases
+E8 step  8.0 ppm: drops LOCKED at  1 of 16 phases; worst |e|  1011 to  1025 ns across phases
+E8 step  8.5 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1073 to  1086 ns across phases
+E8 step  9.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1135 to  1149 ns across phases
+E8 step  9.5 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1196 to  1212 ns across phases
+E8 step 10.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1258 to  1274 ns across phases
+E8 step 11.0 ppm: drops LOCKED at 16 of 16 phases; worst |e|  1381 to  1398 ns across phases
+
+== V. the servo row's loss leg: +20 ppm talker, independent +/-1,426 ns, 120 s; from 60 s one PDU lost in every 0.3 s and the talker stepped by +4 ppm (2,048 in the servo's units)
+rule=b  restarts=0 drops=0 worst|e|=510 first_lock_window=14 u_at_60s=5446 u_end=3447 trim moved 1999 (step 2048; within 0.5 ppm = 256: yes)
+rule=r3 restarts=200 drops=0 worst|e|=232 first_lock_window=14 u_at_60s=5446 u_end=5459 trim moved -13 (step 2048; within 0.5 ppm = 256: no)
+
+== A. lock test by error shape with losses, E8-P2, rule b, B = 4,096 ns, BGAP = 5,120 ns, 120 s per case
+white    J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   92 | closed<2ppm= 1.000 closed_max=  152 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  104 | closed<2ppm= 1.000 closed_max=  184 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  165 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  156 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  137 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  539 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  541 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  754 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  696 drops=  0 lockedfrac=1.000 t_lock_s=  8.35
+guni     J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  245 | closed<2ppm= 1.000 closed_max=  325 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  241 | closed<2ppm= 1.000 closed_max=  348 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  346 | closed<2ppm= 1.000 closed_max=  458 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  316 | closed<2ppm= 1.000 closed_max=  466 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  272 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  263 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  345 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  361 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   33 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   33 | closed<2ppm= 1.000 closed_max=  158 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   45 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   45 | closed<2ppm= 1.000 closed_max=  181 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   78 | closed<2ppm= 1.000 closed_max=  264 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   78 | closed<2ppm= 1.000 closed_max=  247 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  106 | closed<2ppm= 1.000 closed_max=  316 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  106 | closed<2ppm= 1.000 closed_max=  282 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   40 | closed<2ppm= 1.000 closed_max=  120 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   40 | closed<2ppm= 1.000 closed_max=   94 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   54 | closed<2ppm= 1.000 closed_max=  127 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=   54 | closed<2ppm= 1.000 closed_max=  133 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  141 | closed<2ppm= 1.000 closed_max=  191 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  141 | closed<2ppm= 1.000 closed_max=  178 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  192 | closed<2ppm= 1.000 closed_max=  212 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  192 | closed<2ppm= 1.000 closed_max=  228 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  582 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  559 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=  0 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  773 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=1.0 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  760 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   92 | closed<2ppm= 1.000 closed_max=  152 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  104 | closed<2ppm= 1.000 closed_max=  184 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  165 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  156 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  137 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=    0 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  539 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  541 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  754 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  696 drops=  0 lockedfrac=1.000 t_lock_s=  8.35
+guni     J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  245 | closed<2ppm= 1.000 closed_max=  325 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  241 | closed<2ppm= 1.000 closed_max=  348 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  346 | closed<2ppm= 1.000 closed_max=  458 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  316 | closed<2ppm= 1.000 closed_max=  466 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  272 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  231 | closed<2ppm= 1.000 closed_max=  263 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  345 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  317 | closed<2ppm= 1.000 closed_max=  361 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   33 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   33 | closed<2ppm= 1.000 closed_max=  158 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   45 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   45 | closed<2ppm= 1.000 closed_max=  181 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   78 | closed<2ppm= 1.000 closed_max=  264 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   78 | closed<2ppm= 1.000 closed_max=  247 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  106 | closed<2ppm= 1.000 closed_max=  316 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  106 | closed<2ppm= 1.000 closed_max=  282 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   40 | closed<2ppm= 1.000 closed_max=  120 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   40 | closed<2ppm= 1.000 closed_max=   94 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   54 | closed<2ppm= 1.000 closed_max=  127 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=   54 | closed<2ppm= 1.000 closed_max=  133 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  141 | closed<2ppm= 1.000 closed_max=  191 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  141 | closed<2ppm= 1.000 closed_max=  178 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  192 | closed<2ppm= 1.000 closed_max=  212 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  192 | closed<2ppm= 1.000 closed_max=  228 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  582 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  261 | closed<2ppm= 1.000 closed_max=  559 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=  0 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  773 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=1.0 loss=per:8000:1234 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   119 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  760 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   81 | closed<2ppm= 1.000 closed_max=  153 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   92 | closed<2ppm= 1.000 closed_max=  152 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  104 | closed<2ppm= 1.000 closed_max=  184 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  124 | closed<2ppm= 1.000 closed_max=  197 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  261 | closed<2ppm= 1.000 closed_max=  269 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  261 | closed<2ppm= 1.000 closed_max=  290 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  357 | closed<2ppm= 1.000 closed_max=  369 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  357 | closed<2ppm= 1.000 closed_max=  385 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  261 | closed<2ppm= 1.000 closed_max=  539 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  261 | closed<2ppm= 1.000 closed_max=  541 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  357 | closed<2ppm= 1.000 closed_max=  754 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  357 | closed<2ppm= 1.000 closed_max=  673 drops=  0 lockedfrac=1.000 t_lock_s=  8.35
+guni     J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  245 | closed<2ppm= 1.000 closed_max=  330 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  241 | closed<2ppm= 1.000 closed_max=  344 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  346 | closed<2ppm= 1.000 closed_max=  458 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  316 | closed<2ppm= 1.000 closed_max=  466 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  231 | closed<2ppm= 1.000 closed_max=  272 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  231 | closed<2ppm= 1.000 closed_max=  263 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  317 | closed<2ppm= 1.000 closed_max=  345 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  317 | closed<2ppm= 1.000 closed_max=  361 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   33 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   33 | closed<2ppm= 1.000 closed_max=  158 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   45 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   45 | closed<2ppm= 1.000 closed_max=  181 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   78 | closed<2ppm= 1.000 closed_max=  264 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   78 | closed<2ppm= 1.000 closed_max=  247 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  106 | closed<2ppm= 1.000 closed_max=  316 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  106 | closed<2ppm= 1.000 closed_max=  282 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   40 | closed<2ppm= 1.000 closed_max=  120 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   40 | closed<2ppm= 1.000 closed_max=   94 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   54 | closed<2ppm= 1.000 closed_max=  127 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=   54 | closed<2ppm= 1.000 closed_max=  133 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  141 | closed<2ppm= 1.000 closed_max=  191 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  141 | closed<2ppm= 1.000 closed_max=  178 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  192 | closed<2ppm= 1.000 closed_max=  212 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  192 | closed<2ppm= 1.000 closed_max=  228 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  261 | closed<2ppm= 1.000 closed_max=  582 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  261 | closed<2ppm= 1.000 closed_max=  559 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=  0 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  357 | closed<2ppm= 1.000 closed_max=  773 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=1.0 loss=per:2400:777 E8-P2-b valid=0.9660 restarts=    0 lossvoids=   399 fills=  3 open_max=  357 | closed<2ppm= 1.000 closed_max=  760 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   67 | closed<2ppm= 1.000 closed_max=  175 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   58 | closed<2ppm= 1.000 closed_max=  138 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   61 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   91 | closed<2ppm= 1.000 closed_max=  123 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  161 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  151 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  131 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  129 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  499 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  464 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  635 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  686 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  204 | closed<2ppm= 1.000 closed_max=  288 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  207 | closed<2ppm= 1.000 closed_max=  327 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  296 | closed<2ppm= 1.000 closed_max=  475 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  237 | closed<2ppm= 1.000 closed_max=  336 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  103 | closed<2ppm= 1.000 closed_max=  114 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  103 | closed<2ppm= 1.000 closed_max=  105 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  142 | closed<2ppm= 1.000 closed_max=  128 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  141 | closed<2ppm= 1.000 closed_max=  144 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   33 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   33 | closed<2ppm= 1.000 closed_max=  157 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   45 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   45 | closed<2ppm= 1.000 closed_max=  181 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   78 | closed<2ppm= 1.000 closed_max=  264 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   78 | closed<2ppm= 1.000 closed_max=  247 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  106 | closed<2ppm= 1.000 closed_max=  316 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  106 | closed<2ppm= 1.000 closed_max=  282 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   40 | closed<2ppm= 1.000 closed_max=  120 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   40 | closed<2ppm= 1.000 closed_max=   94 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   54 | closed<2ppm= 1.000 closed_max=  127 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=   54 | closed<2ppm= 1.000 closed_max=  133 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  141 | closed<2ppm= 1.000 closed_max=  191 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  141 | closed<2ppm= 1.000 closed_max=  178 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  192 | closed<2ppm= 1.000 closed_max=  212 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  192 | closed<2ppm= 1.000 closed_max=  228 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  311 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  310 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=  0 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  425 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=1.0 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  415 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   67 | closed<2ppm= 1.000 closed_max=  175 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   58 | closed<2ppm= 1.000 closed_max=  138 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   61 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+white    J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   91 | closed<2ppm= 1.000 closed_max=  123 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  161 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  151 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  131 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+galt     J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  129 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  499 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  464 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  635 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+gsign    J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  686 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  204 | closed<2ppm= 1.000 closed_max=  288 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  207 | closed<2ppm= 1.000 closed_max=  327 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  296 | closed<2ppm= 1.000 closed_max=  475 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+guni     J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  237 | closed<2ppm= 1.000 closed_max=  336 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  103 | closed<2ppm= 1.000 closed_max=  114 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  103 | closed<2ppm= 1.000 closed_max=  105 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  142 | closed<2ppm= 1.000 closed_max=  128 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine10   J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  141 | closed<2ppm= 1.000 closed_max=  144 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   33 | closed<2ppm= 1.000 closed_max=  134 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   33 | closed<2ppm= 1.000 closed_max=  157 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   45 | closed<2ppm= 1.000 closed_max=  174 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine100  J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   45 | closed<2ppm= 1.000 closed_max=  181 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   78 | closed<2ppm= 1.000 closed_max=  264 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   78 | closed<2ppm= 1.000 closed_max=  247 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  106 | closed<2ppm= 1.000 closed_max=  316 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine1000 J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  106 | closed<2ppm= 1.000 closed_max=  282 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   40 | closed<2ppm= 1.000 closed_max=  120 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   40 | closed<2ppm= 1.000 closed_max=   94 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   54 | closed<2ppm= 1.000 closed_max=  127 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine2000 J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=   54 | closed<2ppm= 1.000 closed_max=  133 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  141 | closed<2ppm= 1.000 closed_max=  191 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  141 | closed<2ppm= 1.000 closed_max=  178 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  192 | closed<2ppm= 1.000 closed_max=  212 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+sine5000 J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  192 | closed<2ppm= 1.000 closed_max=  228 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  311 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1042 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  261 | closed<2ppm= 1.000 closed_max=  310 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=  0 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  425 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=1.0 loss=per:32:3     E8-P2-b valid=0.9660 restarts=    0 lossvoids= 29999 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  415 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=0.8 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  695 drops=  0 lockedfrac=1.000 t_lock_s=  7.83
+adv      J= 1426 ppm=300 g=1.2 loss=none         E8-P2-b valid=0.9660 restarts=    0 lossvoids=     0 fills=  0 open_max=  357 | closed<2ppm= 1.000 closed_max=  868 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+adv      J= 1426 ppm=300 g=0.8 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  441 drops=  0 lockedfrac=1.000 t_lock_s=  7.83
+adv      J= 1426 ppm=300 g=1.2 loss=per:4096:5   E8-P2-b valid=0.9660 restarts=    0 lossvoids=   234 fills=234 open_max=  357 | closed<2ppm= 1.000 closed_max=  388 drops=  0 lockedfrac=1.000 t_lock_s=  7.32
+
