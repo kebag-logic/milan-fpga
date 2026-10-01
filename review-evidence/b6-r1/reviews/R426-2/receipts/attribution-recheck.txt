@@ -1,0 +1,75 @@
+===== a0: events 866
+capture-path skips 25; not 48n+12: [(1165, 13, '0')]
+capture-path skips at 48n+13: [1165]; at 48n+11: []
+capture-path repeats: []
+basis 'read-time rise': 9 clusters; capture_path=9
+basis 'read gap': 1 clusters; capture_path=1
+   cluster 7 steps [1164] rise None gap 49.908 sig True mod48 [12]
+skips in rise-matched clusters 24; 48n+12 23; others [1165]
+capture clusters lost<98: 0: 
+smallest capture-cluster loss 108; smallest capture skip 60
+non-capture clusters: []
+cause/kind/size counts: {('DUT beat', 'repeat', 1): 321, ('capture path', 'skip', '>=3'): 25, ('listener', 'insert', 1): 1, ('listener', 'skip', 1): 519}
+listener: 520 events, measurable rise 497; median -0.0038; max |rise| 0.9979; |rise|>1.01 ms: []
+DUT beat: 321 events, measurable rise 300; median -0.00285; max |rise| 1.0011; |rise|>1.01 ms: []
+===== a1: events 366
+capture-path skips 50; not 48n+12: [(18626, 2, '13'), (23880, 24, '18')]
+capture-path skips at 48n+13: []; at 48n+11: []
+capture-path repeats: [(23880, '18')]
+basis 'read-time rise': 21 clusters; capture_path=21
+basis 'read gap': 2 clusters; capture_path=2
+   cluster 2 steps [348, 204, 492, 204] rise None gap 28.861 sig True mod48 [12, 12, 12, 12]
+   cluster 9 steps [60] rise None gap 33.452 sig True mod48 [12]
+skips in rise-matched clusters 45; 48n+12 43; others [18626, 23880]
+capture clusters lost<98: 4: c0 steps [60] lost 60 rise 0.9987 gap 14.907 basis read-time rise; c3 steps [60] lost 60 rise 0.9947 gap 16.711 basis read-time rise; c5 steps [60] lost 60 rise 0.9906 gap 59.758 basis read-time rise; c9 steps [60] lost 60 rise None gap 33.452 basis read gap
+smallest capture-cluster loss 60; smallest capture skip 60
+non-capture clusters: []
+cause/kind/size counts: {('DUT beat', 'repeat', 1): 315, ('capture path', 'repeat', '>=3'): 1, ('capture path', 'skip', '>=3'): 50}
+DUT beat: 315 events, measurable rise 312; median -0.0049; max |rise| 0.9952; |rise|>1.01 ms: []
+===== a2: events 1133
+capture-path skips 140; not 48n+12: [(23689, 25, '13'), (22392, 24, '15'), (109, 13, '15'), (23999, 47, '36'), (558, 30, '46'), (918, 6, '46'), (7395, 3, '55')]
+capture-path skips at 48n+13: [109]; at 48n+11: []
+capture-path repeats: [(23689, '13'), (22392, '15'), (23999, '36')]
+basis 'read-time rise': 54 clusters; capture_path=54
+basis 'read gap': 5 clusters; capture_path=5
+   cluster 9 steps [300] rise None gap 22.197 sig True mod48 [12]
+   cluster 10 steps [684] rise None gap 30.674 sig True mod48 [12]
+   cluster 35 steps [636, 108] rise None gap 38.635 sig True mod48 [12, 12]
+   cluster 48 steps [492, 348, 300] rise None gap 45.263 sig True mod48 [12, 12, 12]
+   cluster 58 steps [1212, 972, 1020, 588, 204] rise None gap 235.796 sig True mod48 [12, 12, 12, 12, 12]
+basis 'read gap and 48 n + 12 size': 2 clusters; capture_path=2
+   cluster 17 steps [60] rise 154.5405 gap 129.917 sig True mod48 [12]
+   cluster 56 steps [1020] rise -155.812 gap 13328.327 sig True mod48 [12]
+skips in rise-matched clusters 126; 48n+12 119; others [23689, 22392, 109, 23999, 558, 918, 7395]
+capture clusters lost<98: 5: c17 steps [60] lost 60 rise 154.5405 gap 129.917 basis read gap and 48 n + 12 size; c22 steps [60] lost 60 rise 0.9792 gap 28.308 basis read-time rise; c24 steps [60] lost 60 rise 0.9818 gap 42.525 basis read-time rise; c29 steps [60] lost 60 rise 1.0161 gap 17.523 basis read-time rise; c31 steps [60] lost 60 rise 0.9974 gap 37.787 basis read-time rise
+smallest capture-cluster loss 60; smallest capture skip 60
+non-capture clusters: []
+cause/kind/size counts: {('DUT beat', 'repeat', 1): 316, ('capture path', 'repeat', '>=3'): 3, ('capture path', 'skip', '>=3'): 140, ('listener', 'insert', 1): 180, ('listener', 'skip', 1): 494}
+listener: 674 events, measurable rise 135; median -0.0039; max |rise| 1.0067; |rise|>1.01 ms: []
+DUT beat: 316 events, measurable rise 313; median -0.0048; max |rise| 176.8061; |rise|>1.01 ms: [2.6798, 176.8061]
+===== bint: events 865
+capture-path skips 36; not 48n+12: []
+capture-path skips at 48n+13: []; at 48n+11: []
+capture-path repeats: []
+basis 'read-time rise': 18 clusters; capture_path=18
+basis 'read gap': 3 clusters; capture_path=3
+   cluster 4 steps [108] rise None gap 133.509 sig True mod48 [12]
+   cluster 6 steps [780] rise None gap 30.796 sig True mod48 [12]
+   cluster 7 steps [1452, 3900] rise None gap 141.211 sig True mod48 [12, 12]
+skips in rise-matched clusters 32; 48n+12 32; others []
+capture clusters lost<98: 4: c0 steps [60] lost 60 rise 0.9851 gap 15.961 basis read-time rise; c3 steps [60] lost 60 rise 0.9903 gap 204.662 basis read-time rise; c12 steps [60] lost 60 rise 0.9979 gap 17.514 basis read-time rise; c17 steps [60] lost 60 rise 0.9994 gap 12.75 basis read-time rise
+smallest capture-cluster loss 60; smallest capture skip 60
+non-capture clusters: []
+cause/kind/size counts: {('DUT beat', 'repeat', 1): 322, ('capture path', 'skip', '>=3'): 36, ('listener', 'insert', 1): 1, ('listener', 'skip', 1): 506}
+listener: 507 events, measurable rise 485; median -0.0041; max |rise| 0.9999; |rise|>1.01 ms: []
+DUT beat: 322 events, measurable rise 303; median -0.0027; max |rise| 1.0037; |rise|>1.01 ms: []
+===== bcrf: events 40
+capture-path skips 38; not 48n+12: []
+capture-path skips at 48n+13: []; at 48n+11: []
+capture-path repeats: [(24000, '5'), (24000, '5')]
+basis 'read-time rise': 17 clusters; capture_path=17
+skips in rise-matched clusters 38; 48n+12 38; others []
+capture clusters lost<98: 3: c8 steps [60] lost 60 rise 0.9963 gap 16.236 basis read-time rise; c12 steps [60] lost 60 rise 0.993 gap 17.875 basis read-time rise; c13 steps [60] lost 60 rise 1.0026 gap 18.729 basis read-time rise
+smallest capture-cluster loss 60; smallest capture skip 60
+non-capture clusters: []
+cause/kind/size counts: {('capture path', 'repeat', '>=3'): 2, ('capture path', 'skip', '>=3'): 38}
