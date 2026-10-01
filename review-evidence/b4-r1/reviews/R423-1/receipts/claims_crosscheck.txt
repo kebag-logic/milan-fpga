@@ -1,0 +1,17 @@
+CHECK frames 22,831,104 = bytes/32 OK 22831104
+CHECK raw sha256 OK dd201b3a926317a9
+CHECK torn 0, silent 0 OK (0, 0)
+CHECK channel c carries only tag c+1, all frames OK [['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8']]
+CHECK 0 invalid, 0 zero words OK 
+CHECK steps sum = frames-1 OK 22831103
+CHECK steps table OK {'+1': 22768722, '0 (repeat)': 51873, 'forward>2': 5554, '+2 (one skipped)': 4954}
+CHECK clusters 1,221 OK 1221
+CHECK 189 beat / 16 sender / 1,016 unmatched OK 
+CHECK beat 3,678 repeats / 3,867 skips OK 
+CHECK 816 jump 5,5,8..12 OK 816
+CHECK 838 spaced 22,000-26,000 OK 838
+CHECK SLIP_TDM 395 in 774.3 s, 10.63 ppm OK (0.5102, 10.63)
+CHECK upload bytes/hash, no gap >=100 ms OK (0.0504, 0)
+CHECK 8,330 PDUs >= 1 ms, max 31.8 ms OK (8330, 31842780)
+CHECK late-PDU list 5,000 entries, threshold 150 us OK 
+SUMMARY 16 of 16 OK
