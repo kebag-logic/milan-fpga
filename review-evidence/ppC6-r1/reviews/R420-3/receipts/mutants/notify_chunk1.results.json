@@ -1,0 +1,217 @@
+[
+ {
+  "mutant": "golden-aecp_notify-identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_next_burst_at_once",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID3f:",
+   "ID7r:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 166 clocks, want 15000 to 15400",
+   "ID8c: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 367 clocks, want 15000 to 15400",
+   "ID8e: the burst started when the gap ended: its first frame left -15068 clocks after the IDENT-BURST expiry, want 1 to 400",
+   "ID8h: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 367 clocks, want 15000 to 15400",
+   "ID8j: k = -1: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15599 clocks, want 15000 to 15400",
+   "ID8n: k = -1: the burst starts 464 clocks after the expiry, want -15068 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8j: k = 0: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15600 clocks, want 15000 to 15400",
+   "ID8n: k = 0: the burst starts 465 clocks after the expiry, want -15068 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8j: k = 1: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15601 clocks, want 15000 to 15400",
+   "ID8n: k = 1: the burst starts 466 clocks after the expiry, want -15068 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8j: k = 2: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15602 clocks, want 15000 to 15400",
+   "ID8n: k = 2: the burst starts 467 clocks after the expiry, want -15067 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8q: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 166 clocks, want 15000 to 15400",
+   "ID8r: it starts at the gap's end as ID8's latched press did: -15069 clocks after the expiry, ID8 -15068",
+   "ID8u: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 167 clocks, want 15000 to 15400",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 166 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_wait_ignores_gap",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID8c:",
+   "ID8h:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID8c: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 367 clocks, want 15000 to 15400",
+   "ID8e: the burst started when the gap ended: its first frame left -15068 clocks after the IDENT-BURST expiry, want 1 to 400",
+   "ID8h: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 367 clocks, want 15000 to 15400",
+   "ID8j: k = -1: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15599 clocks, want 15000 to 15400",
+   "ID8n: k = -1: the burst starts 464 clocks after the expiry, want -15068 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8j: k = 0: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15600 clocks, want 15000 to 15400",
+   "ID8n: k = 0: the burst starts 465 clocks after the expiry, want -15068 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8j: k = 1: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15601 clocks, want 15000 to 15400",
+   "ID8n: k = 1: the burst starts 466 clocks after the expiry, want -15068 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8j: k = 2: the gap ended on the clock predicted from its arm and ID8's sweep (363), so the press is placed against it",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 15602 clocks, want 15000 to 15400",
+   "ID8n: k = 2: the burst starts 467 clocks after the expiry, want -15067 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8q: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 3168 clocks, want 15000 to 15400",
+   "ID8r: it starts at the gap's end as ID8's latched press did: -15067 clocks after the expiry, ID8 -15068",
+   "ID8u: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 167 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_press_not_latched",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID8: a 30 ms press"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID8: a 30 ms press made 2 ms after a burst's third frame left (inside the T-IDENT-BURST gap) still sends one burst: 3 frames in all, want 3 + 3",
+   "ID8g: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 13",
+   "ID8g: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 13",
+   "ID8g: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 13",
+   "ID8i: it starts at the gap's end as the latched 30 ms press did: 166 clocks after the expiry, ID8 -1",
+   "ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 15",
+   "ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 15",
+   "ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 15",
+   "ID8n: k = -1: the burst starts 166 clocks after the expiry, want -1 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 17",
+   "ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 17",
+   "ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 17",
+   "ID8n: k = 0: the burst starts 166 clocks after the expiry, want -1 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 19",
+   "ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 19",
+   "ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 19",
+   "ID8n: k = 1: the burst starts 166 clocks after the expiry, want -1 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 21",
+   "ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 21",
+   "ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 21",
+   "ID8n: k = 2: the burst starts 167 clocks after the expiry, want 0 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8p: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 22",
+   "ID8p: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 22",
+   "ID8p: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 22",
+   "ID8p: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 23",
+   "ID8p: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 23",
+   "ID8p: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 23",
+   "ID8r: it starts at the gap's end as ID8's latched press did: 166 clocks after the expiry, ID8 -1",
+   "ID8t: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 24",
+   "ID8t: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 24",
+   "ID8t: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 24",
+   "ID8t: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 25",
+   "ID8t: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 25",
+   "ID8t: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 25",
+   "ID8v: it starts at the gap's end as ID8's latched press did: 166 clocks after the expiry, ID8 -1",
+   "ID9b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26",
+   "ID9b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26",
+   "ID9b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26",
+   "ID9f: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27",
+   "ID9f: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27",
+   "ID9f: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_burst_press_not_latched",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID8o:",
+   "ID8s:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID8o: a release and a new press inside a burst, let go 30 ms after its third frame left (inside the gap): one more burst: 3 frames in all, want 3 + 3",
+   "ID8s: a release and a new 30 ms press between frames 1 and 2, let go before the burst ended: one more burst: 3 frames in all, want 3 + 3",
+   "ID9b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26",
+   "ID9b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26",
+   "ID9b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26",
+   "ID9f: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27",
+   "ID9f: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27",
+   "ID9f: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_departure_ignores_ready",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID9d:",
+   "ID9h:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID9d: frame 2 leaves T-IDENT-BURST after frame 1's last byte was taken, not after it was first presented: 63 clocks, want 15000 to 15400",
+   "ID9h: frame 3 leaves T-IDENT-BURST after frame 2's last byte was taken, not after it was first presented: 63 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_burst_deadline_one_tick_short",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT2: frame 1 left two clocks before a ms boundary, and frame 2 is presented T-IDENT-BURST after that boundary, never one tick sooner: 14900004 clocks, want 15000000 to 15000008"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_t0_same_ms",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT4: held, the next burst starts at Figure 7-142's timeout, T-IDENT-REARM after the boundary two clocks after the first frame left, never one tick sooner: 99900004 clocks, want 100000000 to 100000008"
+  ],
+  "verdict": "KILLED"
+ }
+]

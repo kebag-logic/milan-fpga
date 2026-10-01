@@ -1,0 +1,64 @@
+[
+ {
+  "probe": "head_with_probe",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 180 checks, 0 failures",
+  "failing_checks": [],
+  "probe_info": [
+   "[P] RP1: frames 6, third->fourth 15301 clocks",
+   "[P] RP2: an 80 ms press 20 ms after the third frame left: 3 frames after it"
+  ]
+ },
+ {
+  "probe": "head_with_sweeps",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 184 checks, 0 failures",
+  "failing_checks": [],
+  "probe_info": [
+   "[P] RS1: stall 100 ms after frame 1: gaps 15233 and 15300",
+   "[P] RS1: stall 200 ms after frame 1: gaps 20060 and 15306",
+   "[P] RS1: stall 250 ms after frame 1: gaps 25093 and 15306",
+   "[P] RS1: stall 320 ms after frame 1: gaps 32060 and 15272",
+   "[P] RS1: stall 400 ms after frame 1: gaps 40060 and 15305",
+   "[P] RS1: stall 100 ms after frame 2: gaps 15298 and 15300",
+   "[P] RS1: stall 200 ms after frame 2: gaps 15233 and 20060",
+   "[P] RS1: stall 250 ms after frame 2: gaps 15233 and 25060",
+   "[P] RS1: stall 320 ms after frame 2: gaps 15233 and 32060",
+   "[P] RS1: stall 400 ms after frame 2: gaps 15233 and 40060",
+   "[P] RS2: 31 bursts; smallest gap 15232, largest 1->2 16250 clocks"
+  ]
+ },
+ {
+  "probe": "wait_ignores_gap",
+  "verdict": "REFUSED",
+  "reason": "hdl/aecp/KL_aecp_notify.sv: anchor occurs 0 times"
+ },
+ {
+  "probe": "wait_ignores_gap_with_probe",
+  "verdict": "REFUSED",
+  "reason": "hdl/aecp/KL_aecp_notify.sv: anchor occurs 0 times"
+ },
+ {
+  "probe": "hold_ignores_gap",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 178 checks, 4 failures",
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 166 clocks, want 15000 to 15400",
+   "ID8q: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 166 clocks, want 15000 to 15400",
+   "ID8r: it starts at the gap's end as ID8's latched press did: -15069 clocks after the expiry, ID8 166",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 166 clocks, want 15000 to 15400"
+  ],
+  "probe_info": []
+ },
+ {
+  "probe": "burst_deadline_one_tick_short",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tally": "[build identify, SRP_DOM_DEF_VID_P 0x0002] 178 checks, 0 failures",
+  "failing_checks": [],
+  "probe_info": []
+ }
+]

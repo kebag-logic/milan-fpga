@@ -1,0 +1,5 @@
+diff-check base..head rc=0
+diff-check r2..head rc=0
+hdl/top/protocol_processor_top.sv
++    parameter bit          EN_IDENTIFY_NOTIF_P = 1'b0,
++    input  wire         identify_button_i,

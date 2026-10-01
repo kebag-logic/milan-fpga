@@ -1,0 +1,104 @@
+[
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "enq_dropped_configuration",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1 SET_CONFIGURATION(1): exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1 SET_CONFIGURATION(1): exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP1b SET_CONFIGURATION(0): exactly one unsolicited response of this command at the other registered controller, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "enq_dropped_stream_info",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP3 SET_STREAM_INFO: exactly one unsolicited response of this command at the other registered controller, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "class_4_mapped_to_rate",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP4 SET_CONTROL(IDENTIFY 255): exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP4 SET_CONTROL(IDENTIFY 255): exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP4b SET_CONTROL(IDENTIFY 0): exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (6 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "class_9_mapped_to_control",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP6 STOP_STREAMING: exactly one"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP6 STOP_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0",
+   "NP7 START_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "requester_not_excluded",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1 SET_CONFIGURATION(1): the requester receives no"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1 SET_CONFIGURATION(1): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP1b SET_CONFIGURATION(0): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP2 SET_STREAM_FORMAT: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP3 SET_STREAM_INFO: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP4 SET_CONTROL(IDENTIFY 255): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP4b SET_CONTROL(IDENTIFY 0): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP5 SET_SAMPLING_RATE(48000): the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP6 STOP_STREAMING: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP7 START_STREAMING: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: the requester receives no unsolicited response (Milan 5.4.5.2)",
+   "ST1c: the requester receives only its solicited response",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (23 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,196 @@
+[
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "entry_seq_not_advanced",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1b SET_CONFIGURATION(0): it is byte-exact"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1b SET_CONFIGURATION(0): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 1, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP2 SET_STREAM_FORMAT: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP4 SET_CONTROL(IDENTIFY 255): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 4, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP4b SET_CONTROL(IDENTIFY 0): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 5, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP5 SET_SAMPLING_RATE(48000): it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 6, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP6 STOP_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 8, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP7 START_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 9, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)",
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (16, 5, 5)",
+   "ST1b: one change from row 15 reaches the other fifteen rows byte-exact, each at its own sequence_id (0, 1 or 2), 5 of 15",
+   "ST2c: 368 GET_COUNTERS notifications, every one byte-exact at its row's own sequence_id (367 not)",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (26 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "stream_info_get_body",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_limit_500ms",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ST2: descriptor 0005:0",
+   "ST2b: descriptor 0005:0"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0005:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0005:1 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0005:1 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0006:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0006:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0009:0 churned at 10 Hz for 5000 ms emitted 7 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0009:0 rounds 60512 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST2: descriptor 0024:0 churned at 10 Hz for 5000 ms emitted 2 rounds, want at least 3 and at most one per second",
+   "ST2b: descriptor 0024:0 rounds 49916 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+   "ST3: every solicited probe under the storm was answered (3 missing of 10)",
+   "ST3b: GET_CONFIGURATION answered within T-BUDGET-AECP-WC under the storm: worst 434030 clocks, bound 100001"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fan_out_skips_row_0",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ST1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0",
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (16, 4, 9)",
+   "ST1b: one change from row 15 reaches the other fifteen rows byte-exact, each at its own sequence_id (0, 1 or 2), 14 of 15",
+   "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0005:1 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0006:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0009:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "ST2: descriptor 0024:0 churned at 10 Hz for 5000 ms emitted 0 rounds, want at least 3 and at most one per second",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (27 of 2218 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "refresh_resets_seq",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (25 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "foreign_unlock_allowed",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (420 of 2233 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_taker_notified",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (16 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "deregister_keeps_row",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (75 of 2203 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_holds_15",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (15, 5, 10)",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (51 of 2225 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "set_control_ignores_lock",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (398 of 2249 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ }
+]

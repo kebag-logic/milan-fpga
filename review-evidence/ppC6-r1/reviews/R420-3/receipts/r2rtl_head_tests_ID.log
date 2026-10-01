@@ -1,0 +1,105 @@
+  [i] ID1c: gaps 15264 and 15300 clocks
+  [i] ID2c: gaps 15264 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2d: burst 2 starts 100265 clocks after burst 1
+  [i] ID2d: burst 3 starts 100300 clocks after burst 2
+  [i] ID3c: gaps 15264 and 15300 clocks
+  [i] ID3e: gaps 15299 and 15300 clocks
+  [i] ID3f: the new burst follows the third frame by 15301 clocks
+  [i] ID5e: gaps 15300 and 15300 clocks
+  [i] ID5i: fan-out at frame 1 + 14450 clocks: gaps 15775 and 15293
+  [i] ID5i: fan-out at frame 1 + 14700 clocks: gaps 15897 and 15240
+  [i] ID5i: fan-out at frame 1 + 14950 clocks: gaps 16147 and 15309
+  [i] ID8: the gap's expiry came 63 clocks into its deadline's ms
+FAIL: ID8: a 30 ms press made 2 ms after a burst's third frame left (inside the T-IDENT-BURST gap) still sends one burst: 3 frames in all, want 3 + 3
+FAIL: ID8g: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 13
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0c 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0d 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8g: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 13
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0c 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0d 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8g: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 13
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0c 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0d 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8h: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+FAIL: ID8i: it starts at the gap's end as the latched 30 ms press did: 166 clocks after the expiry, ID8 -1
+FAIL: ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 15
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0e 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 15
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0e 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 15
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0e 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 0f 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = -1: the burst starts 166 clocks after the expiry
+FAIL: ID8n: k = -1: the burst starts 166 clocks after the expiry, want -1 (ID8's start, plus the edges the press came after the gap's first free one)
+FAIL: ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 17
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 10 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 11 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 17
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 10 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 11 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 17
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 10 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 11 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = 0: the burst starts 166 clocks after the expiry
+FAIL: ID8n: k = 0: the burst starts 166 clocks after the expiry, want -1 (ID8's start, plus the edges the press came after the gap's first free one)
+FAIL: ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 19
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 12 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 13 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 19
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 12 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 13 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 19
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 12 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 13 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = 1: the burst starts 166 clocks after the expiry
+FAIL: ID8n: k = 1: the burst starts 166 clocks after the expiry, want -1 (ID8's start, plus the edges the press came after the gap's first free one)
+FAIL: ID8l: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 21
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 14 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 15 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 21
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 14 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 15 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID8l: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 21
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 14 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 15 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID8m: the press's burst follows the third frame by 15302 clocks, 167 after the gap ended
+  [i] ID8n: k = 2: the burst starts 167 clocks after the expiry
+FAIL: ID8n: k = 2: the burst starts 167 clocks after the expiry, want 0 (ID8's start, plus the edges the press came after the gap's first free one)
+FAIL: ID8o: a release and a new press inside a burst, let go 30 ms after its third frame left (inside the gap): one more burst: 3 frames in all, want 3 + 3
+FAIL: ID8s: a release and a new 30 ms press between frames 1 and 2, let go before the burst ended: one more burst: 3 frames in all, want 3 + 3
+FAIL: ID9b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 17 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1a 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID9b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 17 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1a 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID9b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 26
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 17 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1a 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID9: frame 1's last byte was held 40001 clocks; gaps 15232 and 15300 clocks
+FAIL: ID9f: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 18 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1b 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID9f: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 18 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1b 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: ID9f: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 27
+  got (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 18 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 91 e0 f0 01 00 01 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 90 e0 f0 ff fe 01 00 01 00 1b 80 26 00 1a 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  [i] ID9e: frame 2's last byte was held 40001 clocks; gaps 55267 and 15299 clocks
+  [i] ID6d: gaps 15274 and 15300 clocks
+  [i] ID7: stall inside frame 1: it left 40167 clocks after the press; gaps 15270 and 15300
+  [i] ID7f: stall after frame 1: gaps 40093 and 15264 clocks
+  [i] ID7j: stall after frame 2: gaps 15290 and 25093 clocks
+  [i] ID7n: gaps 90060, 15273 | 15301 | 15299, 15300 clocks
+  [i] ID7s: gaps 15299 and 15300 clocks
+ID: 155 checks, 29 failures
+[build identify, SRP_DOM_DEF_VID_P 0x0002] 155 checks, 29 failures
+rc=1
