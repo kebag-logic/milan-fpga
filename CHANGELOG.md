@@ -43,6 +43,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - An AECP command past its 100 ms deadline is answered.
 - Its answer is ENTITY_MISBEHAVING unless a refusal was chosen.
 - Non-AEM messages on that path answer NOT_IMPLEMENTED, echoed.
+- So does a non-AEM command whose response memory fails.
+- GET_MILAN_INFO is one; at `b2db3a97` it answered ENTITY_MISBEHAVING.
+- Processor PR #140 cites Milan Table 5.19 for this.
 - AECP and ACMP work now serialize by hazard class.
 - Locked `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE` and `SET_CONTROL` refusals carry the value in force.
 - `SET_CONTROL`'s out-of-range refusal carries it too.
