@@ -1,0 +1,80 @@
+model_rules-349 KILLED | ctx.bad("stream-layout", where, f"{count} formats at {offset} run past "
+model_rules-428 KILLED | ctx.bad("entity-count", (0, D.ENTITY, None), "the model has no ENTITY descriptor")
+model_rules-441 KILLED | ctx.bad("configurations-count", where,
+model_rules-444 KILLED | ctx.bad("current-configuration", where,
+model_rules-452 KILLED | ctx.bad("configuration-descriptors", (0, D.CONFIGURATION, None),
+model_rules-468 KILLED | ctx.bad("descriptor-counts", where, f"{count} counts at {offset} run past its "
+model_rules-590 KILLED | ctx.bad("talker-base-format", (0, D.STREAM_OUTPUT, None),
+model_rules-593 KILLED | ctx.bad("listener-base-format", (0, D.STREAM_INPUT, None),
+model_rules-639 KILLED | ctx.bad("stream-layout", where, f"formats_offset {offset}, not {FORMATS_OFFSET} "
+model_rules-642 KILLED | ctx.bad("stream-layout", where, f"redundant_offset {redundant}, not {formats_end}")
+model_rules-644 KILLED | ctx.bad("stream-layout", where, f"number_of_redundant_streams {tail} in the Table 7-8 "
+model_rules-647 KILLED | ctx.bad("stream-layout", where, f"number_of_redundant_streams {tail}, above "
+model_rules-652 KILLED | ctx.bad("stream-layout", where, f"is {len(body)} bytes; {made} make {end}")
+model_rules-782 KILLED | ctx.bad("identify-format", where, "; ".join(wrong))
+model_rules-799 KILLED | ctx.bad("identify-index", (0, D.CONTROL, None),
+model_rules-804 KILLED | ctx.bad("identify-driven", (0, D.CONTROL, driven),
+model_rules-818 KILLED | ctx.bad("model-id-valid", where, f"entity_model_id 0x{model_id:016X} is not a valid EUI-64
+model_rules-821 KILLED | ctx.bad("model-id-driven", where,
+model_rules-827 KILLED | ctx.bad("model-id-recorded", where,
+model_rules-916 KILLED | ctx.bad("descriptor-extent", where, f"the offset at {offset_at} is {offset}, not {size}")
+model_rules-918 KILLED | ctx.bad("descriptor-extent", where, f"is {len(body)} bytes; {count} entries of "
+model_rules-286 KILLED | self.bad(check, where, f"is {len(body)} bytes; the field at {offset} "
+model_rules-368 KILLED | ctx.bad("child-exists", parent, f"names {type_name(child)} {k}, which does not exist")
+model_rules-425 KILLED | ctx.bad("entity-count", (cfg, D.ENTITY, index),
+model_rules-448 KILLED | ctx.bad("configuration-descriptors", (cfg, D.CONFIGURATION, index),
+model_rules-475 KILLED | ctx.bad("descriptor-counts", where, f"lists {type_name(dtype)} twice")
+model_rules-482 KILLED | ctx.bad("descriptor-counts", where, f"lists {type_name(dtype)}, which is not a "
+model_rules-500 KILLED | ctx.bad("audio-unit-for-aaf", (cfg, D.AUDIO_UNIT, None),
+model_rules-546 KILLED | ctx.bad("parent-order", (cfg, D.CONTROL, max(top)),
+model_rules-557 KILLED | ctx.bad("stream-presence", (cfg, None, None), "no STREAM_INPUT and no STREAM_OUTPUT")
+model_rules-587 KILLED | ctx.bad("base-rate-uniformity", (cfg, D.STREAM_INPUT, None),
+model_rules-726 KILLED | ctx.bad("internal-source", (cfg, D.CLOCK_SOURCE, None),
+model_rules-730 KILLED | ctx.bad("gptp-source-interfaces", (cfg, D.CLOCK_SOURCE, gptp[0]),
+model_rules-830 KILLED | ctx.bad("model-digest", where,
+model_rules-884 KILLED | ctx.bad(check + "-driven", (0, D.ENTITY, 0 if entity else None),
+model_rules-910 KILLED | ctx.bad("descriptor-extent", where, f"is {len(body)} bytes; §7.2 makes {size}")
+model_rules-485 KILLED | ctx.bad("descriptor-counts", where,
+model_rules-495 KILLED | ctx.bad("required-type", (cfg, dtype, None), f"configuration {cfg} has no "
+model_rules-507 KILLED | ctx.bad("stream-port-for-aaf", (cfg, ptype, None),
+model_rules-519 KILLED | ctx.bad("single-parent", (cfg, ctype, k), f"claimed by {names}")
+model_rules-537 KILLED | ctx.bad("parent-order", (cfg, parent[0], parent[1]),
+model_rules-667 KILLED | ctx.bad("interface-index", (cfg, D.AVB_INTERFACE, index),
+model_rules-683 KILLED | ctx.bad("domain-source-offset", where,
+model_rules-686 KILLED | ctx.bad("domain-source-count", where, "clock_sources_count 0")
+model_rules-688 KILLED | ctx.bad("domain-source-length", where,
+model_rules-694 KILLED | ctx.bad("domain-source-identity", where,
+model_rules-718 KILLED | ctx.bad("crf-input-source", (cfg, D.STREAM_INPUT, stream),
+model_rules-723 KILLED | ctx.bad("aaf-input-source", (cfg, D.CLOCK_SOURCE, None),
+model_rules-741 KILLED | ctx.bad("input-port-maps", (cfg, D.STREAM_PORT_INPUT, port),
+model_rules-746 KILLED | ctx.bad("cluster-channels", (cfg, D.AUDIO_CLUSTER, index),
+model_rules-758 KILLED | ctx.bad("unique-mapping", where, "its mappings run past the descriptor")
+model_rules-845 KILLED | ctx.bad("rate-offset", where,
+model_rules-850 KILLED | ctx.bad("rate-count", where, f"sampling_rates_count {count}; SET_SAMPLING_RATE "
+model_rules-853 KILLED | ctx.bad("rate-empty", where, "sampling_rates_count 0")
+model_rules-855 KILLED | ctx.bad("rate-length", where,
+model_rules-861 KILLED | ctx.bad("current-rate", where,
+model_rules-879 KILLED | ctx.bad(check, (0, D.ENTITY, 0),
+model_rules-513 KILLED | ctx.bad("port-cluster-minimum", (cfg, ptype, port),
+model_rules-523 KILLED | ctx.bad("has-parent", (cfg, ctype, k), "no descriptor's range claims it")
+model_rules-568 KILLED | ctx.bad("crf-format", where, "lists CRF format "
+model_rules-605 KILLED | ctx.bad("class-a", where, f"stream_flags 0x{flags:04X} without CLASS_A")
+model_rules-616 KILLED | ctx.bad("format-count", where, f"number_of_formats {len(words)}, "
+model_rules-619 KILLED | ctx.bad("format-family", where, "lists both CRF and AAF formats")
+model_rules-622 KILLED | ctx.bad("current-format", where,
+model_rules-699 KILLED | ctx.bad("domain-source-exists", where,
+model_rules-763 KILLED | ctx.bad("unique-mapping", where,
+model_rules-898 KILLED | ctx.bad("descriptor-maximum", where, f"is {len(body)} bytes, above "
+model_rules-582 KILLED | ctx.bad("base-channel-completeness", where,
+model_rules-609 KILLED | ctx.bad("buffer-length", where, f"buffer_length {length} ns, "
+model_lint-229 KILLED | raise ValueError(f"has a type that is neither a name nor a code: {item['type']!r}")
+model_lint-235 KILLED | raise ValueError("is not an object")
+model_lint-240 KILLED | raise ValueError(f"unknown keys {unknown}, missing keys {missing}")
+model_lint-244 KILLED | raise ValueError(f"names no check {check!r}")
+model_lint-246 KILLED | raise ValueError(f"names rule {item['rule']}, and {check} is a {CHECKS[check][0]} check")
+model_lint-249 KILLED | raise ValueError("carries no reason naming a tracking issue (repo#N)")
+model_lint-251 KILLED | raise ValueError("gives one of first and last")
+model_lint-254 KILLED | raise ValueError(f"has the empty range {first}..{last}")
+model_lint-224 KILLED | raise ValueError(f"has a {key} that is not a string: {item[key]!r}")
+model_lint-227 KILLED | raise ValueError(f"has a {key} that is not an integer: {item[key]!r}")
+79 of 79 KILLED; 0 SURVIVED

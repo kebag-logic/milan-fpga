@@ -1,0 +1,12 @@
+buf-short KILLED FAILED (failures=14, errors=20) | rerecord=False | Listener buffer_length 1 ns under Milan 5.3.3.4
+buf-short-rerec KILLED FAILED (failures=13, errors=20) | rerecord=True | the same, with the digest re-recorded
+talkers2-rerec KILLED FAILED (failures=14, errors=20) | rerecord=True | ENTITY talker_stream_sources not the maximum
+emid-rerec KILLED FAILED (failures=13, errors=21) | rerecord=True | entity_model_id 0
+emid-norec KILLED FAILED (failures=5, errors=4) | rerecord=False | a new entity_model_id not recorded
+ifflags-rerec SURVIVED OK | rerecord=True | AVB_INTERFACE interface_flags without GPTP/SRP_SUPPORTED (disclosed as not linted)
+ifflags-norec KILLED FAILED (failures=2, errors=4) | rerecord=False | the same, digest record left as is
+caps-rerec SURVIVED OK | rerecord=True | ENTITY entity_capabilities 0 (disclosed as not linted)
+cluster-ch2-rerec KILLED FAILED (failures=7, errors=19) | rerecord=True | a stereo AUDIO_CLUSTER
+srcloc-rerec KILLED FAILED (failures=14, errors=20) | rerecord=True | the CRF input's source moved to the AAF input
+curfmt-rerec KILLED FAILED (failures=13, errors=19) | rerecord=True | Talker current_format not in its list
+cluster-pad-rerec KILLED FAILED (failures=8, errors=19) | rerecord=True | AUDIO_CLUSTER 0 four octets longer than IEEE 7.2.16's 90

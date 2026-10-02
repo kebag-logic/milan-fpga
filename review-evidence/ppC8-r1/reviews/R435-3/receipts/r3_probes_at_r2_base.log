@@ -1,0 +1,139 @@
+milan_min digest lines at TREE: ['model digest sha256 6d7982fbd1657a88838ff40bbe0746eaa8600e5be7bebae670e1de0c6f46ae20 (IEEE 1722.1-2021 §6.2.2.8)']
+model_ids.json at TREE: {'0x020000FFFE00C801': '6d7982fbd1657a88838ff40bbe0746eaa8600e5be7bebae670e1de0c6f46ae20'}
+UNEXPECTED   A1 every stream in Annex C, R=0
+             expect PACK; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1; Milan 5.3.3.4 'may use ... for any'
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: is 144 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 1: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   A2 Annex C output, R=1 (index not paired: pair rules are not linted, 07 3.1)
+             expect PACK; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1; ruling 5956187186: pair rules on the Not linted list
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 1 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   A3 Annex C output, R=8 (cap value)
+             expect PACK; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1 R max 8
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 8 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 160 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   A4 Annex C input pair, each naming the other, R=1
+             expect PACK; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1; Milan 'Redundant Pair' definition
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: number_of_redundant_streams 1 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 1: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   A5 Annex C output, N=46, R=0 (504 octets)
+             expect PACK; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1; 508-octet 7.2 maximum
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 504, not 506 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 504 bytes; 46 formats make 506 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   A6 Annex C output, N=46, R=2 (508 octets, the 7.2 maximum)
+             expect PACK; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1; 508-octet 7.2 maximum
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 504, not 506 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 2 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 508 bytes; 46 formats make 506 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  A7 control: Table 7-8 relaid by this script, R=0
+             expect PACK; got PACK; basis IEEE 1722.1-2021 Table 7-8
+as-expected  B1 Annex C N=46 R=3 (510 octets)
+             expect REFUSE L12; got REFUSE L12 descriptor-maximum; L4 stream-layout; basis IEEE 7.2 508 octets
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 504, not 506 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 3 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 510 bytes; 46 formats make 506 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  B2 Annex C N=47 R=0 (512 octets; C.1 says N<=47 but 7.2 caps at 508)
+             expect REFUSE L4 format-count; got REFUSE L12 descriptor-maximum; L4 format-count; L4 stream-layout; basis IEEE 7.2 508 octets; 07 3.1 N<=46
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 512, not 514 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 512 bytes; 47 formats make 514 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 format-count: cfg 0 STREAM_OUTPUT 0: number_of_formats 47, above 46 (IEEE 1722.1-2021 §7.2, §7.2.6 Table 7-8)
+UNEXPECTED   B3 Annex C R=9
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1 R max 8
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 9 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 162 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   B4 Table 7-8 with R=1 tail of consistent length
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan 5.3.3.4: redundant-pair streams shall use Annex C
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 1 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 148 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   B5 Annex C with Table 7-8's redundant_offset
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1 redundant_offset 136+8N
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 144 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  B6 Table 7-8 with Annex C's redundant_offset
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis IEEE 1722.1-2021 Table 7-8 redundant_offset 138+8N
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  B7 Annex C counting R=1, tail absent
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1 2*R tail
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 1 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 144 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   B8 Annex C, R=0 with two stray tail octets
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  B9 Annex C, R=1 with two stray tail octets
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 1 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 148 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  B10 Table 7-8 body with only formats_offset changed to 136
+             expect REFUSE L4 stream-layout; got REFUSE L3 talker-base-format; L4 current-format; L4 stream-layout; basis offset/length disagree
+             | L3 talker-base-format: cfg 0 STREAM_OUTPUT: the entity is a Talker and no Stream Output lists a Base format (Milan v1.2 §6.3)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 current-format: cfg 0 STREAM_OUTPUT 0: current_format 0x0205022000806000 is not in its list (Milan v1.2 §5.3.3.4)
+as-expected  B11 formats_offset 137
+             expect REFUSE L4 stream-layout; got REFUSE L3 talker-base-format; L4 current-format; L4 stream-layout; basis neither table
+             | L3 talker-base-format: cfg 0 STREAM_OUTPUT: the entity is a Talker and no Stream Output lists a Base format (Milan v1.2 §6.3)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 137, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 current-format: cfg 0 STREAM_OUTPUT 0: current_format 0x0205022000806000 is not in its list (Milan v1.2 §5.3.3.4)
+as-expected  B12 list moved to 140, offsets consistent
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis neither table
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 140, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 148, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 148 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+UNEXPECTED   B13 Annex C R=0x8000 (huge), no tail
+             expect REFUSE L4 stream-layout; got REFUSE L4 stream-layout; basis Milan v1.2 Annex C Table C.1 R max 8
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 32768 on a non-redundant PAAD (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 144 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+as-expected  C1 Annex C input whose current_format is outside its list
+             expect REFUSE L4 current-format; got REFUSE L4 current-format; L4 stream-layout; basis Milan 5.3.3.4 current_format in list
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: redundant_offset 144, not 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_INPUT 0: is 144 bytes; 1 formats make 146 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 current-format: cfg 0 STREAM_INPUT 0: current_format 0x0123456789ABCDEF is not in its list (Milan v1.2 §5.3.3.4)
+as-expected  C2 Annex C output listing AAF and CRF
+             expect REFUSE L4 format-family; got REFUSE L4 format-family; L4 stream-layout; basis Milan 5.3.3.4
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 152, not 154 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 152 bytes; 2 formats make 154 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 format-family: cfg 0 STREAM_OUTPUT 0: lists both CRF and AAF formats (Milan v1.2 §5.3.3.4)
+as-expected  C3 format-count reads N from an Annex C list
+             expect REFUSE L4 format-count; got REFUSE L12 descriptor-maximum; L4 format-count; L4 stream-layout; basis 07 3.1 N<=46
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 136, not 138 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 512, not 514 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 512 bytes; 47 formats make 514 (Milan v1.2 §5.3.3.4; IEEE 1722.1-2021 §7.2.6 Table 7-8)
+             | L4 format-count: cfg 0 STREAM_OUTPUT 0: number_of_formats 47, above 46 (IEEE 1722.1-2021 §7.2, §7.2.6 Table 7-8)
+as-expected  D1 Annex C relayout moves the digest (structure, IEEE 6.2.2.8)
+             expect moves; got moves; basis 6.2.2.8
+as-expected  D2 Annex C current_format first octet: digest kept
+             expect True; got True; basis IEEE 6.2.2.8
+as-expected  D2 Annex C current_format last octet: digest kept
+             expect True; got True; basis IEEE 6.2.2.8
+as-expected  D2 Annex C formats_offset: digest moves
+             expect False; got False; basis IEEE 6.2.2.8
+as-expected  D2 Annex C first format octet at 136: digest moves
+             expect False; got False; basis IEEE 6.2.2.8
+as-expected  D2 Annex C redundant_streams[0] octet: digest moves
+             expect False; got False; basis IEEE 6.2.2.8
+UNEXPECTED   E1 model_lint.beside is gen_desc_image._beside
+             expect True; got False; basis R435-2 S1
+as-expected  E2 no model_lint/model_rules in sys.modules
+             expect []; got []; basis S3 round 2
+31 probes, 12 unexpected

@@ -1,0 +1,32 @@
+cap45 KILLED rc=1 Ran 58 tests in 4.188s FAILED (errors=1) | N cap one too strict (45)
+cap47 KILLED rc=1 Ran 58 tests in 3.436s FAILED (failures=1) | N cap one too loose (47)
+buf-1 KILLED rc=1 Ran 58 tests in 4.039s FAILED (failures=1) | buffer floor 1 ns low
+buf-le KILLED rc=1 Ran 58 tests in 4.000s FAILED (failures=13, errors=20) | buffer floor 1 ns high
+rates7 KILLED rc=1 Ran 58 tests in 3.473s FAILED (errors=1) | rate cap one too strict (7)
+rates9 KILLED rc=1 Ran 58 tests in 3.583s FAILED (failures=1) | rate cap one too loose (9)
+ratelen-lt KILLED rc=1 Ran 58 tests in 3.139s FAILED (failures=1) | AUDIO_UNIT may be longer than its list
+ident-perm KILLED rc=1 Ran 58 tests in 3.124s FAILED (failures=1) | clock_sources permutation accepted
+aaf-ge1 KILLED rc=1 Ran 58 tests in 2.962s FAILED (failures=1) | several INPUT_STREAM sources at AAF inputs accepted
+crf-ge1 KILLED rc=1 Ran 58 tests in 2.610s FAILED (failures=1) | two INPUT_STREAM sources at one CRF input accepted
+l11-min KILLED rc=1 Ran 58 tests in 2.678s FAILED (failures=1) | talker maximum taken as minimum
+emid-ones KILLED rc=1 Ran 58 tests in 2.673s FAILED (failures=1) | all-ones entity_model_id accepted
+stale-off KILLED rc=1 Ran 58 tests in 2.850s FAILED (failures=3) | a waiver whose check passes is not stale
+waiver-anytype KILLED rc=1 Ran 58 tests in 2.843s FAILED (failures=1) | a waiver excuses its check on every descriptor type of the configuration
+waiver-anycfg KILLED rc=1 Ran 58 tests in 2.952s FAILED (failures=1) | a waiver excuses its check in every configuration
+reason-any KILLED rc=1 Ran 58 tests in 2.947s FAILED (failures=1) | any reason accepted
+class-b KILLED rc=1 Ran 58 tests in 2.949s FAILED (failures=13, errors=20) | CLASS_B bit tested for CLASS_A
+chan-no8 KILLED rc=1 Ran 58 tests in 2.926s FAILED (failures=1) | 8-channel Base format dropped from completeness
+covers-eq KILLED rc=1 Ran 58 tests in 2.924s FAILED (failures=13, errors=20) | the ut (up to) bit ignored for current_format
+gptp-gt2 KILLED rc=1 Ran 58 tests in 2.906s FAILED (failures=1) | gPTP media clock with two interfaces
+order-control-only INVALID (pattern occurs 0 times) | L2 ordering applied to multi-level CONTROL only (IEEE 7.2 wording)
+map-key3 KILLED rc=1 Ran 58 tests in 2.577s FAILED (failures=1) | a duplicate mapping differing in cluster offset accepted
+entity-cfg KILLED rc=1 Ran 58 tests in 2.635s FAILED (failures=1) | an ENTITY outside configuration 0 accepted
+curcfg-gt KILLED rc=1 Ran 58 tests in 2.550s FAILED (failures=1) | current_configuration == count accepted
+tail-off INVALID (pattern occurs 0 times) | redundant streams accepted
+iface-subset INVALID (pattern occurs 0 times) | L5 compares only the indices both configurations hold
+lint-default-off KILLED rc=1 Ran 58 tests in 2.590s FAILED (failures=140, errors=4) | lint off by default
+cli-never-lints KILLED rc=1 Ran 58 tests in 2.368s FAILED (failures=3) | the CLI never lints
+digest-no-curfmt KILLED rc=1 Ran 58 tests in 2.424s FAILED (failures=4, errors=4) | current_format no longer excluded from the digest
+rate-empty-off KILLED rc=1 Ran 58 tests in 2.383s FAILED (failures=1) | an empty rate list accepted
+parent-single KILLED rc=1 Ran 58 tests in 2.371s FAILED (failures=1) | a descriptor with two parents accepted
+lint-before-layout KILLED rc=1 Ran 58 tests in 1.873s FAILED (failures=3, errors=163) | the lint result discarded (never called)

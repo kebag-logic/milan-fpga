@@ -1,0 +1,11 @@
+== dev cdf49d1a (extraction of sw avdecc configs docs scripts hdl/milan/KL_pp_shadow.sv)
+c4c6 check rc=0
+c4c6 apply rc=0
+c8 check rc=0
+c8 apply rc=0
+== PR #634 d81198c2 (same paths): c4c6 applied rc 0; c8 applied with --exclude=avdecc/aem_assemble.py rc 0; its one hunk ported below
+606c606,607
+<                 PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
+---
+>                 PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap,
+>                 LINT_WAIVERS=spec.get("lint_waivers", []))
