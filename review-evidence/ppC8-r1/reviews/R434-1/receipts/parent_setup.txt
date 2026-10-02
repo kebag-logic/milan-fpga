@@ -1,0 +1,23 @@
+Parent scratch setup (reviewer):
+milan-fpga dev: cdf49d1a28527562888f0a903de51b6b15b1244f (git archive into scratch/pwork)
+patches (from milan-fpga fec8f8ad review-evidence/ppC8-r1/author, sha256 matched MANIFEST.json):
+904a252ce4979f3a19a5bb5ae22a05efc2cde00fdc95b05e1ab52d5021a9d1cf  parent-c4-disposition.patch
+aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209  parent-adoption-c8-cdf49d1a.patch
+applied with git apply --index: c4 then c8, both clean
+scratch diff vs dev:
+ avdecc/aem_assemble.py             |  3 ++-
+ avdecc/aem_specs.py                |  1 +
+ avdecc/gen_aemi_image.py           |  2 ++
+ configs/endstation_ax7101_8x8.yaml | 14 ++++++++++++++
+ docs/ENDSTATION_BUILDER.md         |  3 ++-
+ protocol-processor                 |  1 +
+ scripts/measure_test_evidence.py   |  4 ++++
+ sw/builder/endstation_builder.py   |  7 +++++++
+ sw/builder/test_builder.py         | 13 +++++++++----
+ 9 files changed, 42 insertions(+), 6 deletions(-)
+gitlink: 160000 e6cca1ff0114f10ea1a5d402d4aa7f45f2c986df 0	protocol-processor
+protocol-processor HEAD: e6cca1ff0114f10ea1a5d402d4aa7f45f2c986df
+gptp-processor: codeload tarball 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d; external: efeb541ae5fe1e078332d8462dca2fc2d9cb8db5; third_party/verilog-axis: 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+first builder run failed at gate 1b on a missing verilog-axis source (scratch setup, submodule empty); rerun after populating it (receipts/parent_test_builder.log)
+PR #634 heads 57f4b742b504f5e69293aaa3e00d0470aa9b6071 and d81198c2001756fd84c353d93c312c133c5af66b: c4 applied clean; c8 applied clean except avdecc/aem_assemble.py hunk (context moved), ported by the identical one-line LINT_WAIVERS edit
+Python 3.14.7

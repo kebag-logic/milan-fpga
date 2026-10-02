@@ -1,0 +1,73 @@
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... ok
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... ok
+test_example_needs_no_lint (__main__.CommandLineTest.test_example_needs_no_lint)
+The layout vector packs with --no-lint and is refused without it. ... ok
+test_milan_min (__main__.CommandLineTest.test_milan_min)
+The positive model with every check, the map holding the report. ... ok
+test_refusal_writes_nothing (__main__.CommandLineTest.test_refusal_writes_nothing)
+A refused model exits 1 naming the check, and leaves no file. ... ok
+test_checks_need_the_lint (__main__.IdentityTest.test_checks_need_the_lint)
+A check asked for with the lint off, or an unknown one, is refused. ... ok
+test_driven_values_agree (__main__.IdentityTest.test_driven_values_agree)
+Driven values equal to the model's pass, and the report says so. ... ok
+test_excluded_fields_keep_the_digest (__main__.IdentityTest.test_excluded_fields_keep_the_digest)
+IEEE 1722.1-2021 6.2.2.8 exclusions and the unit identity move nothing. ... ok
+test_record_is_current (__main__.IdentityTest.test_record_is_current)
+model_ids.json records milan_min.json's digest as packed today. ... ok
+test_configuration_gap (__main__.LayoutRefusalTest.test_configuration_gap)
+A descriptor in configuration 2 of a one-configuration model. ... ok
+test_duplicate (__main__.LayoutRefusalTest.test_duplicate)
+A second AUDIO_CLUSTER 0 is a duplicate key. ... ok
+test_entity_index (__main__.LayoutRefusalTest.test_entity_index)
+A second, named ENTITY at index 1. ... ok
+test_index_gap (__main__.LayoutRefusalTest.test_index_gap)
+AUDIO_CLUSTER 3 renumbered 4: indices are not dense (L2). ... ok
+test_mixed_names (__main__.LayoutRefusalTest.test_mixed_names)
+One unnamed AUDIO_CLUSTER in a named run. ... ok
+test_every_check_has_a_mutation (__main__.LintTest.test_every_check_has_a_mutation)
+One negative case per refusal: no check of the lint goes untested. ... ok
+test_example_is_a_layout_vector (__main__.LintTest.test_example_is_a_layout_vector)
+example_milan_8.json packs with the lint off, and is no Milan model. ... ok
+test_milan_min_packs (__main__.LintTest.test_milan_min_packs)
+milan_min.json packs with the lint on and reports what it requires. ... ok
+test_mutations (__main__.LintTest.test_mutations)
+Each mutation is refused with its check and packs with the lint off. ... ok
+test_normalised_and_two_configurations_pack (__main__.LintTest.test_normalised_and_two_configurations_pack)
+The mutations' starting points are positive cases too. ... ok
+test_configuration_scope (__main__.WaiverTest.test_configuration_scope)
+A check that names a configuration takes a waiver without a range. ... ok
+test_lint_off_reports_unevaluated_waivers (__main__.WaiverTest.test_lint_off_reports_unevaluated_waivers)
+With the lint off the waivers are counted, not judged. ... ok
+test_malformed_waivers (__main__.WaiverTest.test_malformed_waivers)
+Each malformed waiver is refused with what is wrong with it. ... ok
+test_waiver_applies_and_is_reported (__main__.WaiverTest.test_waiver_applies_and_is_reported)
+The waived finding packs, and the report names the waiver and its reason. ... ok
+test_waiver_excuses_only_its_check (__main__.WaiverTest.test_waiver_excuses_only_its_check)
+Another L1 check on the same model still refuses. ... ok
+test_waiver_excuses_only_its_scope (__main__.WaiverTest.test_waiver_excuses_only_its_scope)
+Two stereo clusters, one waived: the other is refused. ... ok
+test_waiver_on_a_fixed_model_is_stale (__main__.WaiverTest.test_waiver_on_a_fixed_model_is_stale)
+The same waiver on a model whose port has clusters is refused. ... ok
+test_waiver_past_the_descriptors_is_stale (__main__.WaiverTest.test_waiver_past_the_descriptors_is_stale)
+A range naming a port that does not exist is refused. ... ok
+test_without_the_waiver_the_rule_refuses (__main__.WaiverTest.test_without_the_waiver_the_rule_refuses)
+Removing the waiver brings back the L1 refusal. ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 2.111s
+
+OK
+
+real	0m2.217s
+user	0m1.703s
+sys	0m0.503s
