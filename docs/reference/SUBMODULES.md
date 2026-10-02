@@ -111,9 +111,9 @@ The parent can observe these processor changes.
 |---|---|
 | C6 adds input `identify_button_i` and parameter `EN_IDENTIFY_NOTIF_P`, default 0 | `KL_pp_shadow` ties both to 0 until a board button exists |
 | C6 draws that input in processor diagram 21 | The parent keeps no copy of that diagram |
-| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor |
+| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor, and the three scoreboard kill tie-offs left the processor top |
 | C5a answers a non-AEM command whose response memory fails NOT_IMPLEMENTED, with the command echoed ([processor PR 140](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/140); Milan v1.2 Section 5.4.3.3, Table 5.19) | No top port or parameter; GET_MILAN_INFO is such a command, and at `b2db3a97` the same fault answered ENTITY_MISBEHAVING |
-| C5a serializes AECP and ACMP work by hazard class | No top port; three scoreboard kill tie-offs left the processor top |
+| C5a serializes AECP and ACMP work by hazard class | No top port or parameter |
 | C5b accepts `DESC_LINE_BYTES_P` from 576 to 1008, in steps of 8 | The parent binds 576, the floor |
 | C3 carries a SET_CONFIGURATION index in the ADPDU | The parent image declares one configuration; the wire is unchanged while `ADP_IDX0` is 0 |
 | C2 fixes the internal MAAP engine | The parent ties `cfg_maap_internal_i` to 0, so it stays inactive |
