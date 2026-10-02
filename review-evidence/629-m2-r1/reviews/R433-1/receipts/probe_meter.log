@@ -1,0 +1,55 @@
+PROBE P1 random loss p=1e-04 300 s                               got=restarts 2 valid 0.972       want=~0.4 / ~0.995          AGREE
+PROBE P1 random loss p=1e-03 300 s                               got=restarts 40 valid 0.529      want=~37.2 / ~0.597         AGREE
+PROBE P1 random loss p=2e-03 300 s                               got=restarts 143 valid 0.153     want=~144.4 / ~0.131        AGREE
+PROBE P2 run of 255 from PDU 0                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 255 from PDU 5                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 256 from PDU 0                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 256 from PDU 5                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 257 from PDU 0                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 257 from PDU 5                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 512 from PDU 0                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 run of 512 from PDU 5                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 1 whole lost group(s)                                   got=restarts 0                   want=0                      AGREE
+PROBE P2 2 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 3 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 4 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 5 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 6 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 7 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 8 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 9 whole lost group(s)                                   got=restarts 1                   want=1                      AGREE
+PROBE P2 10 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 11 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 12 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 13 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 14 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 15 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 16 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 17 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 18 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 19 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 20 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 21 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 22 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 23 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 24 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 25 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 26 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 27 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 28 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 29 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 30 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 31 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 32 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P2 33 whole lost group(s)                                  got=restarts 1                   want=1                      AGREE
+PROBE P3 rsign 1,700 @+300, 60 s                                 got=restarts 0 valid 1.000       want=0 / 1.000              AGREE
+PROBE P3 rsign 1,700 @-300, 60 s                                 got=restarts 0 valid 1.000       want=0 / 1.000              AGREE
+PROBE P3 indep 1,740 @+300, 60 s                                 got=restarts 0 valid 1.000       want=0 / 1.000              AGREE
+PROBE P3 indep 1,740 @-300, 60 s                                 got=restarts 0 valid 1.000       want=0 / 1.000              AGREE
+PROBE P3 indep 2,000 @0, 60 s                                    got=restarts 0 valid 1.000       want=0 / 1.000              AGREE
+PROBE P3 rsign 2,000 @0, 60 s                                    got=restarts 0 valid 1.000       want=0 / 1.000              AGREE
+PROBE P4 swapped pair once a second, 30 s                        got=restarts 0 valid 1           want=0 / 1                  AGREE
+PROBE P4 duplicate PDU once a second, 30 s                       got=restarts 0 valid 1           want=0 / 1                  AGREE
+PROBE P4 tv clear on one PDU a second, 30 s                      got=restarts 0 valid 1           want=0 / 1                  AGREE
+PROBE P5 first valid rate, ideal 0 ppm (PDU index)               got=32783                        want=32767..32800           AGREE
+probe_meter: 0 disagreement(s)

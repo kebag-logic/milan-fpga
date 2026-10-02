@@ -1,0 +1,13 @@
+docs-check	Capture measurement census and clock gate	﻿2026-10-02T06:32:46.3561724Z ##[group]Run python3 scripts/check_nvm_capture.py
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:46.3562347Z python3 scripts/check_nvm_capture.py
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:46.3628345Z shell: /usr/bin/bash -e {0}
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:46.3628631Z ##[endgroup]
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1016605Z FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 13210, 'records': 164, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3290, 'records': 54, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}}, measured-for={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1020176Z CONTROL bytes: detected
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1020559Z CONTROL records: detected
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1020917Z CONTROL clock: detected
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1021330Z CONTROL configured-clock: detected
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1021747Z CONTROL system-clock: detected
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1022482Z CONTROL ignore-off-timing: detected planted grading change
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1023113Z CONTROL off-time-limit: boundary and one-tick-over detected
+docs-check	Capture measurement census and clock gate	2026-10-02T06:32:47.1174976Z ##[error]Process completed with exit code 1.
