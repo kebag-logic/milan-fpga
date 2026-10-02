@@ -1,0 +1,19 @@
+# probe W15 model pristine: S_RHREQ not gated by owed: the owed command's err credited to the new restore
+# rc 0
+# tally 326 326 0
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 7.864 s (elab=0.001, cvt=0.029, bld=7.811); cpu 0.022 s on 16 threads; allocated 499.484 MB
+326 checks: 326 PASS, 0 FAIL

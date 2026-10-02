@@ -1,0 +1,56 @@
+A1__pristine	2	16 13 3	binding manager reads a zero-byte DEADLINE as blank
+A2__pristine	2	365 359 6	binding manager's crc16 term forced true (torn record accepted)
+A3__pristine	2	16 11 5	port deadline removed (acmp_nvm both builds)
+A4__pristine	2	16 15 1	port deadline leaves nothing owed (acmp_nvm)
+V1000__coinc	2	326 323 3	harness and port at MEM_TIMEOUT_CYC_P=1000 (no defect)
+V1000__pristine	2	326 323 3	harness and port at MEM_TIMEOUT_CYC_P=1000 (no defect)
+V1000__short	2	326 249 77	harness and port at MEM_TIMEOUT_CYC_P=1000 (no defect)
+V1000__silent	2	326 110 216	harness and port at MEM_TIMEOUT_CYC_P=1000 (no defect)
+V1000__unsol	2	326 323 3	harness and port at MEM_TIMEOUT_CYC_P=1000 (no defect)
+V37__coinc	2	326 322 4	harness and port at MEM_TIMEOUT_CYC_P=37 (no defect)
+V37__pristine	2	326 322 4	harness and port at MEM_TIMEOUT_CYC_P=37 (no defect)
+V37__short	2	326 248 78	harness and port at MEM_TIMEOUT_CYC_P=37 (no defect)
+V37__silent	2	326 110 216	harness and port at MEM_TIMEOUT_CYC_P=37 (no defect)
+V37__unsol	2	326 322 4	harness and port at MEM_TIMEOUT_CYC_P=37 (no defect)
+W10__pristine	2	326 322 4	quarantine released by time: a later deadline clears the owed command
+W10__silent	2	326 94 232	quarantine released by time: a later deadline clears the owed command
+W11__pristine	2	326 324 2	owed command ended only by done, never by err
+W12__pristine	2	326 303 23	owed READ never drained
+W12__silent	2	326 110 216	owed READ never drained
+W13__pristine	2	326 323 3	owed kind overwritten by a later deadline (drain stops)
+W13__silent	2	326 110 216	owed kind overwritten by a later deadline (drain stops)
+W14__pristine	2	326 321 5	device request not gated by the owed command
+W14__silent	2	326 94 232	device request not gated by the owed command
+W15__pristine	0	326 326 0	S_RHREQ not gated by owed: the owed command's err credited to the new restore
+W15b__pristine	0	326 326 0	S_WEREQ not gated by owed: the owed command's err credited to the new commit
+W16__pristine	0	326 326 0	drained owed-READ bytes are not progress
+W16__silent	2	326 110 216	drained owed-READ bytes are not progress
+W17__pristine	2	326 324 2	verdict never ends S_RPWAIT
+W18__pristine	2	326 324 2	S_RHWAIT not owed (no deadline on a missing header-read terminal)
+W19__pristine	2	326 299 27	DEADLINE reported as cause DEVICE
+W1__pristine	2	326 293 33	verdict one cycle early (tmo_hit at TMO-1)
+W20__pristine	2	326 318 8	busy held while a command is owed
+W21__coinc	2	326 321 5	refusal (d) off in S_WDPUMP
+W21__pristine	2	326 321 5	refusal (d) off in S_WDPUMP
+W21__short	2	326 247 79	refusal (d) off in S_WDPUMP
+W22__coinc	2	326 311 15	refusal (d) off in S_RPPUMP
+W22__pristine	2	326 311 15	refusal (d) off in S_RPPUMP
+W22__short	2	326 160 166	refusal (d) off in S_RPPUMP
+W23__coinc	2	326 319 7	refusal (d) off in S_WHPUMP
+W23__pristine	2	326 319 7	refusal (d) off in S_WHPUMP
+W23__short	2	326 245 81	refusal (d) off in S_WHPUMP
+W24__pristine	2	326 325 1	S_RPWAIT dropped from the ownership window (deadline there leaves nothing owed)
+W25__pristine	2	326 295 31	verdict ignores an event in the verdict cycle
+W26__pristine	2	326 274 52	deadline never fires (watchdog removed)
+W26__silent	2	326 59 267	deadline never fires (watchdog removed)
+W27__pristine	2	326 322 4	owed command's terminal released while a new request is in the REQ state only (owed cleared on dl only in REQ)
+W2__pristine	2	326 291 35	verdict one cycle late (tmo_hit at TMO+1)
+W3__pristine	2	326 317 9	an unowned done counts as progress
+W3__unsol	2	326 317 9	an unowned done counts as progress
+W4__pristine	ANCHOR	-	manager write stall charged to the device (S_WDPUMP owed without wvalid)
+W5__pristine	2	326 324 2	manager read stall charged to the device (S_RPPUMP owed without rready)
+W6__pristine	0	326 326 0	count held (not cleared) across unowed cycles: accumulates, not 'in a row'
+W7__pristine	2	326 297 29	deadline in an owned state leaves nothing owed
+W7__silent	2	326 94 232	deadline in an owned state leaves nothing owed
+W8__pristine	2	326 303 23	late registered grant after a deadline not owed
+W9__pristine	2	326 324 2	late grant owed even when its terminal rides it

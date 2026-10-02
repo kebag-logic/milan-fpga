@@ -1,0 +1,52 @@
+# cmd: env PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin python3 tb/pp_top/d3_mutants.py --output ../d3out2 --verilator $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --jobs 8 --only rollback_ignores_debt closed_releases_the_entity no_backoff_d3 fourth_attempt alarm_forgiven_by_success no_backoff_binding fourth_attempt_binding alarm_forgiven_binding backoff_derivation backoff_holds_dispatch disagree_one_direction rollback_one_cycle pass1_read_not_drained judge_wait_unwatched rate_walk_stuck_on_first_lane rate_walk_unbounded no_aggregate_deadline aggregate_mirrored aggregate_from_the_walk per_wait_floor agg_closes_before_proof binding_walk_ignores_aggregate proof_reads_records_past_bound agg_not_in_rollback agg_not_stopped_at_terminal agg_fires_with_event_in_hand drain_misses_issue_cycle drain_misses_issue_cycle_m1 issue_arm_cross_intent issue_arm_ignores_we issue_arm_write_too issue_arm_stale_we owned_arm_write_too owned_arm_cross_intent cross_own_m1_drains_m0 agg_closes_during_proof proof_past_needs_fire proof_default_only_from_img proof_past_bound_needs_fired agg_o_pulse aecp_hold_unbounded held_drop_uncounted resident_never_returned validator_admits_held_aecp
+# dir: scratch/d3
+# start: 2026-10-02T17:58:19+02:00
+{"mutant": "golden-acmp_nvm", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-rx_validator", "verdict": "PASS"}
+{"mutant": "no_backoff_binding", "verdict": "KILLED", "missing": []}
+{"mutant": "fourth_attempt_binding", "verdict": "KILLED", "missing": []}
+{"mutant": "alarm_forgiven_binding", "verdict": "KILLED", "missing": []}
+{"mutant": "alarm_forgiven_by_success", "verdict": "KILLED", "missing": []}
+{"mutant": "rollback_ignores_debt", "verdict": "KILLED", "missing": []}
+{"mutant": "fourth_attempt", "verdict": "KILLED", "missing": []}
+{"mutant": "no_backoff_d3", "verdict": "KILLED", "missing": []}
+{"mutant": "backoff_holds_dispatch", "verdict": "KILLED", "missing": []}
+{"mutant": "backoff_derivation", "verdict": "KILLED", "missing": []}
+{"mutant": "disagree_one_direction", "verdict": "KILLED", "missing": []}
+{"mutant": "closed_releases_the_entity", "verdict": "KILLED", "missing": []}
+{"mutant": "pass1_read_not_drained", "verdict": "KILLED", "missing": []}
+{"mutant": "judge_wait_unwatched", "verdict": "KILLED", "missing": []}
+{"mutant": "rollback_one_cycle", "verdict": "KILLED", "missing": []}
+{"mutant": "aggregate_from_the_walk", "verdict": "KILLED", "missing": []}
+{"mutant": "no_aggregate_deadline", "verdict": "KILLED", "missing": []}
+{"mutant": "rate_walk_unbounded", "verdict": "KILLED", "missing": []}
+{"mutant": "rate_walk_stuck_on_first_lane", "verdict": "KILLED", "missing": []}
+{"mutant": "aggregate_mirrored", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_closes_before_proof", "verdict": "KILLED", "missing": []}
+{"mutant": "binding_walk_ignores_aggregate", "verdict": "KILLED", "missing": []}
+{"mutant": "per_wait_floor", "verdict": "KILLED", "missing": []}
+{"mutant": "drain_misses_issue_cycle_m1", "verdict": "KILLED", "missing": []}
+{"mutant": "issue_arm_cross_intent", "verdict": "KILLED", "missing": []}
+{"mutant": "issue_arm_ignores_we", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_reads_records_past_bound", "verdict": "KILLED", "missing": []}
+{"mutant": "issue_arm_write_too", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_not_in_rollback", "verdict": "KILLED", "missing": []}
+{"mutant": "issue_arm_stale_we", "verdict": "KILLED", "missing": []}
+{"mutant": "owned_arm_write_too", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_not_stopped_at_terminal", "verdict": "KILLED", "missing": []}
+{"mutant": "owned_arm_cross_intent", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_fires_with_event_in_hand", "verdict": "KILLED", "missing": []}
+{"mutant": "cross_own_m1_drains_m0", "verdict": "KILLED", "missing": []}
+{"mutant": "drain_misses_issue_cycle", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_past_needs_fire", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_default_only_from_img", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_closes_during_proof", "verdict": "KILLED", "missing": []}
+{"mutant": "agg_o_pulse", "verdict": "KILLED", "missing": []}
+{"mutant": "aecp_hold_unbounded", "verdict": "KILLED", "missing": []}
+{"mutant": "proof_past_bound_needs_fired", "verdict": "KILLED", "missing": []}
+{"mutant": "validator_admits_held_aecp", "verdict": "KILLED", "missing": []}
+{"mutant": "held_drop_uncounted", "verdict": "KILLED", "missing": []}
+{"mutant": "resident_never_returned", "verdict": "KILLED", "missing": []}
+D3 mutations: 44 of 44 KILLED by their named checks; goldens PASS
+# end: 2026-10-02T18:08:59+02:00 rc=0

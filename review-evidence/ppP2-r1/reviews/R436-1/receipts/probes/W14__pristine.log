@@ -1,0 +1,29 @@
+# probe W14 model pristine: device request not gated by the owed command
+# rc 2
+# tally 326 321 5
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 0)
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 3)
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc 1, cause 3, ops 0)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc 1, cause 3, ops 0)
+FAIL: RW3 no device command was requested while the backend still owed one (771 cycles)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 7.653 s (elab=0.005, cvt=0.025, bld=7.604); cpu 0.024 s on 16 threads; allocated 883.496 MB
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 0)
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 3)
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc 1, cause 3, ops 0)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc 1, cause 3, ops 0)
+FAIL: RW3 no device command was requested while the backend still owed one (771 cycles)
+326 checks: 321 PASS, 5 FAIL
+make: *** [Makefile:19: run] Error 1

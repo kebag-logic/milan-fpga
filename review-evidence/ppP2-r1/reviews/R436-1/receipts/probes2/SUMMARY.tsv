@@ -1,0 +1,10 @@
+H0__rtest	0	333 333 0	no defect (head RTL)
+W10__rtest	2	333 329 4	quarantine released by time: a later deadline clears the owed command
+W11__rtest	2	333 326 7	owed command ended only by done, never by err
+W12__rtest	2	333 309 24	owed READ never drained
+W14__rtest	2	333 328 5	device request not gated by the owed command
+W15__rtest	2	333 332 1	S_RHREQ not gated by owed: the owed command's err credited to the new restore
+W15b__rtest	2	333 330 3	S_WEREQ not gated by owed: the owed command's err credited to the new commit
+W16__rtest	2	333 332 1	drained owed-READ bytes are not progress
+W4b__pristine	2	326 323 3	manager write stall charged to the device (S_WDPUMP owed without wvalid)
+W6__rtest	0	333 333 0	count held (not cleared) across unowed cycles: accumulates, not 'in a row'

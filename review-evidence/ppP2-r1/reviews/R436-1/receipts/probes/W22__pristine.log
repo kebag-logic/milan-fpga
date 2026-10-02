@@ -1,0 +1,49 @@
+# probe W22 model pristine: refusal (d) off in S_RPPUMP
+# rc 2
+# tally 326 311 15
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T27 a the payload READ ended after 10 of 40 bytes (S_RPPUMP): one err, cause DEVICE, never done, 1 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 a the payload READ ended after 10 of 40 bytes (S_RPPUMP): the next restore is served at once
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): one err, cause DEVICE, never done, 2 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): the next restore is served at once
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): one err, cause DEVICE, never done, 2 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): 0 bytes forwarded, nothing left owed
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): the next restore is served at once
+FAIL: T27 d the WRITE ended after 5 header bytes (S_WHPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 0)
+FAIL: T27 d ...and the next commit is served
+FAIL: T27 e the WRITE ended after 20 of 48 bytes (S_WDPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 0)
+FAIL: T27 e ...and the next commit is served
+FAIL: T27 f the WRITE completed on its own grant (S_WHPUMP): one err, cause DEVICE, never done, no byte sent (rc 1, cause 3)
+FAIL: T27 f ...and the next commit and restore are served byte-exact
+FAIL: RW4 no DEADLINE where the device was not silent (13)
+FAIL: RW6 every READ the device ended short was answered with one err, cause DEVICE, never done (1 of 2 not)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 7.656 s (elab=0.001, cvt=0.010, bld=7.637); cpu 0.020 s on 16 threads; allocated 371.355 MB
+FAIL: T27 a the payload READ ended after 10 of 40 bytes (S_RPPUMP): one err, cause DEVICE, never done, 1 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 a the payload READ ended after 10 of 40 bytes (S_RPPUMP): the next restore is served at once
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): one err, cause DEVICE, never done, 2 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): the next restore is served at once
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): one err, cause DEVICE, never done, 2 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): 0 bytes forwarded, nothing left owed
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): the next restore is served at once
+FAIL: T27 d the WRITE ended after 5 header bytes (S_WHPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 0)
+FAIL: T27 d ...and the next commit is served
+FAIL: T27 e the WRITE ended after 20 of 48 bytes (S_WDPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 0)
+FAIL: T27 e ...and the next commit is served
+FAIL: T27 f the WRITE completed on its own grant (S_WHPUMP): one err, cause DEVICE, never done, no byte sent (rc 1, cause 3)
+FAIL: T27 f ...and the next commit and restore are served byte-exact
+FAIL: RW4 no DEADLINE where the device was not silent (13)
+FAIL: RW6 every READ the device ended short was answered with one err, cause DEVICE, never done (1 of 2 not)
+326 checks: 311 PASS, 15 FAIL
+make: *** [Makefile:19: run] Error 1

@@ -1,0 +1,67 @@
+# probe W19 model pristine: DEADLINE reported as cause DEVICE
+# rc 2
+# tally 326 299 27
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 S_WEREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WEWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WWREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WHPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WDPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RHREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RHCOLL: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RHWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 1, pairs 1)
+FAIL: T24 a grant the backend never decided: DEADLINE, no command taken (rc 1, late 0, ops 0)
+FAIL: T24 served branch: the restore ended DEADLINE with the READ still owed
+FAIL: T24 DEADLINE branch: the commit ended DEADLINE with the ERASE still owed
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 1)
+FAIL: T24 a READ abandoned for three deadlines
+FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 1)
+FAIL: T24 dones for no command during an ungranted request do not hold the deadline off (rc 1, pulse 102 cycles after the accept)
+FAIL: T24 contained: a WRITE whose device stops taking bytes at 20 ends DEADLINE
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc 1, cause 1, ops 0)
+FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc 1)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc 1, cause 1, ops 0)
+FAIL: T24 contained: restore 1 after it ends DEADLINE, no command, nothing forwarded (rc 1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+FAIL: T24 contained: ...and the next request ends DEADLINE with no command
+# ---- tail
+into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 7.555 s (elab=0.001, cvt=0.012, bld=7.527); cpu 0.023 s on 16 threads; allocated 1395.500 MB
+FAIL: T24 S_WEREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WEWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WWREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WHPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WDPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_WWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RHREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RHCOLL: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RHWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 1, pairs 1)
+FAIL: T24 a grant the backend never decided: DEADLINE, no command taken (rc 1, late 0, ops 0)
+FAIL: T24 served branch: the restore ended DEADLINE with the READ still owed
+FAIL: T24 DEADLINE branch: the commit ended DEADLINE with the ERASE still owed
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 1)
+FAIL: T24 a READ abandoned for three deadlines
+FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 1)
+FAIL: T24 dones for no command during an ungranted request do not hold the deadline off (rc 1, pulse 102 cycles after the accept)
+FAIL: T24 contained: a WRITE whose device stops taking bytes at 20 ends DEADLINE
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc 1, cause 1, ops 0)
+FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc 1)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc 1, cause 1, ops 0)
+FAIL: T24 contained: restore 1 after it ends DEADLINE, no command, nothing forwarded (rc 1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+FAIL: T24 contained: ...and the next request ends DEADLINE with no command
+326 checks: 299 PASS, 27 FAIL
+make: *** [Makefile:19: run] Error 1

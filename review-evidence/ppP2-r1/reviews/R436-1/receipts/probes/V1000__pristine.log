@@ -1,0 +1,25 @@
+# probe V1000 model pristine: harness and port at MEM_TIMEOUT_CYC_P=1000 (no defect)
+# rc 2
+# tally 326 323 3
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 a manager stalling 3000 cycles on every commit byte is never charged to the device: done, byte-exact (rc -1)
+FAIL: T24 ...nor on every restore byte: done, byte-exact (rc -1)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.559 s (elab=0.002, cvt=0.032, bld=8.507); cpu 0.026 s on 16 threads; allocated 1139.500 MB
+FAIL: T24 a manager stalling 3000 cycles on every commit byte is never charged to the device: done, byte-exact (rc -1)
+FAIL: T24 ...nor on every restore byte: done, byte-exact (rc -1)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)
+326 checks: 323 PASS, 3 FAIL
+make: *** [Makefile:19: run] Error 1

@@ -1,0 +1,77 @@
+# probe W25 model pristine: verdict ignores an event in the verdict cycle
+# rc 2
+# tally 326 295 31
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 S_WEREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WEWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WEWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_WWREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WWREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_WHPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WDPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 a device answering every event 100 cycles late commits, done and byte-exact, over 141 cycles
+FAIL: T24 ...and restores byte-exact over 201 cycles
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+# ---- tail
+d by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.092 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.286 s (elab=0.004, cvt=0.022, bld=8.242); cpu 0.022 s on 16 threads; allocated 755.500 MB
+FAIL: T24 S_WEREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WEWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WEWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_WWREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WWREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_WHPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WDPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 a device answering every event 100 cycles late commits, done and byte-exact, over 141 cycles
+FAIL: T24 ...and restores byte-exact over 201 cycles
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+326 checks: 295 PASS, 31 FAIL
+make: *** [Makefile:19: run] Error 1

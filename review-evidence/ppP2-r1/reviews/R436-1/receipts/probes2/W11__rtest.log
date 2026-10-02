@@ -1,0 +1,33 @@
+# probe W11 model rtest: owed command ended only by done, never by err
+# rc 2
+# tally 333 326 7
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 1 1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+FAIL: R436a owed READ ended by err while a restore waits in S_RHREQ: credited to no operation, the restore is served (rc 1 cause 3 ops 0)
+FAIL: R436b setup: ERASE abandoned, owed
+FAIL: R436b owed ERASE ended by err while a commit waits in S_WEREQ: credited to no operation, the commit is served (rc 1 cause 3 ops 0)
+FAIL: R436c setup: slow payload READ abandoned at byte 10, owed
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 133 cycles (rc 1 cause 3)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 7.697 s (elab=0.001, cvt=0.020, bld=7.663); cpu 0.024 s on 16 threads; allocated 755.492 MB
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 1 1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+FAIL: R436a owed READ ended by err while a restore waits in S_RHREQ: credited to no operation, the restore is served (rc 1 cause 3 ops 0)
+FAIL: R436b setup: ERASE abandoned, owed
+FAIL: R436b owed ERASE ended by err while a commit waits in S_WEREQ: credited to no operation, the commit is served (rc 1 cause 3 ops 0)
+FAIL: R436c setup: slow payload READ abandoned at byte 10, owed
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 133 cycles (rc 1 cause 3)
+333 checks: 326 PASS, 7 FAIL
+make: *** [Makefile:19: run] Error 1

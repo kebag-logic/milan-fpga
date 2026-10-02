@@ -1,0 +1,35 @@
+# probe W20 model pristine: busy held while a command is owed
+# rc 2
+# tally 326 318 8
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 S_WEWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_WHPUMP: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_WDPUMP: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_WWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RHCOLL: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RHWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RPPUMP: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RPWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.095 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 6.955 s (elab=0.001, cvt=0.022, bld=6.914); cpu 0.021 s on 16 threads; allocated 755.496 MB
+FAIL: T24 S_WEWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_WHPUMP: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_WDPUMP: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_WWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RHCOLL: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RHWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RPPUMP: busy low at the pulse, 102 cycles after the last event (want 102)
+FAIL: T24 S_RPWAIT: busy low at the pulse, 102 cycles after the last event (want 102)
+326 checks: 318 PASS, 8 FAIL
+make: *** [Makefile:19: run] Error 1

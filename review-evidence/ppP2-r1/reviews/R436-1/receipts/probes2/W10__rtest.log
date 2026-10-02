@@ -1,0 +1,27 @@
+# probe W10 model rtest: quarantine released by time: a later deadline clears the owed command
+# rc 2
+# tally 333 329 4
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc 1, cause 3, ops 0)
+FAIL: RW3 no device command was requested while the backend still owed one (505 cycles)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 9.130 s (elab=0.001, cvt=0.011, bld=9.110); cpu 0.023 s on 16 threads; allocated 563.496 MB
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc 1, cause 3, ops 0)
+FAIL: RW3 no device command was requested while the backend still owed one (505 cycles)
+333 checks: 329 PASS, 4 FAIL
+make: *** [Makefile:19: run] Error 1

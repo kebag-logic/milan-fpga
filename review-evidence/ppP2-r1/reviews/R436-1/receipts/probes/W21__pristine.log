@@ -1,0 +1,29 @@
+# probe W21 model pristine: refusal (d) off in S_WDPUMP
+# rc 2
+# tally 326 321 5
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T27 e the WRITE ended after 20 of 48 bytes (S_WDPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 20)
+FAIL: T27 e ...and the next commit is served
+FAIL: T27 f the WRITE completed on its own grant (S_WHPUMP): one err, cause DEVICE, never done, no byte sent (rc 1, cause 3)
+FAIL: T27 f ...and the next commit and restore are served byte-exact
+FAIL: RW4 no DEADLINE where the device was not silent (5)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 7.762 s (elab=0.001, cvt=0.025, bld=7.718); cpu 0.021 s on 16 threads; allocated 819.352 MB
+FAIL: T27 e the WRITE ended after 20 of 48 bytes (S_WDPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 20)
+FAIL: T27 e ...and the next commit is served
+FAIL: T27 f the WRITE completed on its own grant (S_WHPUMP): one err, cause DEVICE, never done, no byte sent (rc 1, cause 3)
+FAIL: T27 f ...and the next commit and restore are served byte-exact
+FAIL: RW4 no DEADLINE where the device was not silent (5)
+326 checks: 321 PASS, 5 FAIL
+make: *** [Makefile:19: run] Error 1

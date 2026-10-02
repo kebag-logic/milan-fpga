@@ -1,0 +1,94 @@
+# probe X4 model pristine: #14/#21 latch armed in every state
+# rc 2
+# tally 326 276 50
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T19a the commit still completes with done, byte-exact on the bus
+FAIL: T19a the stray done was not consumed as the ERASE's: nothing requested (6) or answered (1) while the backend still owed one
+FAIL: T19b the pulse landed with the ERASE requested and ungranted (dones 0, req 0, ops -1)
+FAIL: T19b the commit still completes with done, byte-exact on the bus
+FAIL: T19b a done before the grant is not the granted command's: nothing requested (101) or answered (1) while the backend still owed one
+FAIL: T19c the pulse landed with the WRITE requested and ungranted (dones 0, req 0, ops -1)
+FAIL: T19c the commit still completes with done, byte-exact on the bus
+FAIL: T19c the commit was not answered on someone else's done: nothing requested (101) or answered (1) while the backend still owed one
+FAIL: T20a the pulse landed with the header READ requested and ungranted (dones 0, req 0, ops -1)
+FAIL: T20a the restore still completes with done, stream byte-exact
+FAIL: T20a READ hdr then READ payload, both issued
+FAIL: T20a the header read was not closed on a stray done: nothing requested (101), answered (1) or forwarded from the header buffer (0) while the backend still owed one
+FAIL: T20b the backend pulsed one done between the two reads, -1 header bytes forwarded (dones 0, req 0, ops -1)
+FAIL: T20b the restore still completes with done, stream byte-exact
+FAIL: T20b the payload read was not closed on the header read's leftover: nothing requested (101), answered (1) or forwarded (0) while the backend still owed one
+FAIL: T20c the pulse landed with the payload READ requested and ungranted (dones 0, req 0, ops -1)
+FAIL: T20c the restore still completes with done, stream byte-exact
+FAIL: T20c the payload read was not closed before its own done: nothing requested (101), answered (1) or forwarded (0) while the backend still owed one
+FAIL: T21 the backend answered ERASE on its own grant cycle (0 pairs)
+FAIL: T21 the sticky done_seen_r latch: the commit takes a completion that rode the grant, rc=1
+FAIL: T21 ERASE then WRITE, both issued
+FAIL: T21 the grant's done closed the ERASE only: nothing requested (101) or answered (1) while the backend still owed one
+FAIL: T22a the backend answered the WRITE on the edge that moved its last byte (0 such completions)
+FAIL: T22a the sticky done_seen_r latch: the commit takes a completion that rode the last byte, rc=1
+FAIL: T22a one completion closed one command: nothing requested (101) or answered (1) while the backend still owed one
+FAIL: T22b the header-only WRITE was answered on its last byte (0, 0 ops)
+FAIL: T22b the sticky done_seen_r latch: the zero-payload commit completes on that completion, rc=1
+FAIL: T22c both reads were answered on their last byte (0)
+FAIL: T22c the sticky done_seen_r latch: the restore takes both completions, stream byte-exact, rc=1
+FAIL: T22c neither read was closed early: nothing requested (101), answered (1) or forwarded (0) while the backend still owed one
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: no device request while the backend owed one (101)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: no device request while the backend owed one (101)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 served branch: it issued its own two READs after the owed one (1 commands)
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 3)
+FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: RW3 no device command was requested while the backend still owed one (3038 cycles)
+FAIL: RW4 no DEADLINE where the device was not silent (9)
+# ---- tail
+ (0) while the backend still owed one
+FAIL: T21 the backend answered ERASE on its own grant cycle (0 pairs)
+FAIL: T21 the sticky done_seen_r latch: the commit takes a completion that rode the grant, rc=1
+FAIL: T21 ERASE then WRITE, both issued
+FAIL: T21 the grant's done closed the ERASE only: nothing requested (101) or answered (1) while the backend still owed one
+FAIL: T22a the backend answered the WRITE on the edge that moved its last byte (0 such completions)
+FAIL: T22a the sticky done_seen_r latch: the commit takes a completion that rode the last byte, rc=1
+FAIL: T22a one completion closed one command: nothing requested (101) or answered (1) while the backend still owed one
+FAIL: T22b the header-only WRITE was answered on its last byte (0, 0 ops)
+FAIL: T22b the sticky done_seen_r latch: the zero-payload commit completes on that completion, rc=1
+FAIL: T22c both reads were answered on their last byte (0)
+FAIL: T22c the sticky done_seen_r latch: the restore takes both completions, stream byte-exact, rc=1
+FAIL: T22c neither read was closed early: nothing requested (101), answered (1) or forwarded (0) while the backend still owed one
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: no device request while the backend owed one (101)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: no device request while the backend owed one (101)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 served branch: it issued its own two READs after the owed one (1 commands)
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 3)
+FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: RW3 no device command was requested while the backend still owed one (3038 cycles)
+FAIL: RW4 no DEADLINE where the device was not silent (9)
+326 checks: 276 PASS, 50 FAIL
+make: *** [Makefile:19: run] Error 1

@@ -1,0 +1,25 @@
+# probe W15b model rtest: S_WEREQ not gated by owed: the owed command's err credited to the new commit
+# rc 2
+# tally 333 330 3
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: R436b owed ERASE ended by err while a commit waits in S_WEREQ: credited to no operation, the commit is served (rc 1 cause 1 ops 0)
+FAIL: R436c setup: slow payload READ abandoned at byte 10, owed
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 396 cycles (rc 1 cause 2)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.334 s (elab=0.001, cvt=0.012, bld=8.302); cpu 0.063 s on 16 threads; allocated 691.488 MB
+FAIL: R436b owed ERASE ended by err while a commit waits in S_WEREQ: credited to no operation, the commit is served (rc 1 cause 1 ops 0)
+FAIL: R436c setup: slow payload READ abandoned at byte 10, owed
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 396 cycles (rc 1 cause 2)
+333 checks: 330 PASS, 3 FAIL
+make: *** [Makefile:19: run] Error 1

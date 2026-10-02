@@ -1,0 +1,23 @@
+# probe W11 model pristine: owed command ended only by done, never by err
+# rc 2
+# tally 326 324 2
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 1 1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.446 s (elab=0.001, cvt=0.016, bld=8.413); cpu 0.023 s on 16 threads; allocated 947.492 MB
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 1 1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+326 checks: 324 PASS, 2 FAIL
+make: *** [Makefile:19: run] Error 1

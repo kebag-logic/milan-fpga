@@ -1,0 +1,67 @@
+# probe W12 model rtest: owed READ never drained
+# rc 2
+# tally 333 309 24
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 133 cycles (rc 1 cause 3)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.091 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.513 s (elab=0.001, cvt=0.011, bld=8.486); cpu 0.051 s on 16 threads; allocated 691.496 MB
+FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 133 cycles (rc 1 cause 3)
+333 checks: 309 PASS, 24 FAIL
+make: *** [Makefile:19: run] Error 1

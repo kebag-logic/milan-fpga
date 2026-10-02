@@ -1,0 +1,23 @@
+# probe W18 model pristine: S_RHWAIT not owed (no deadline on a missing header-read terminal)
+# rc 2
+# tally 326 324 2
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: T24 S_RHWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RHWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.147 s (elab=0.001, cvt=0.013, bld=8.124); cpu 0.025 s on 16 threads; allocated 947.496 MB
+FAIL: T24 S_RHWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RHWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+326 checks: 324 PASS, 2 FAIL
+make: *** [Makefile:19: run] Error 1

@@ -1,0 +1,21 @@
+# probe W16 model rtest: drained owed-READ bytes are not progress
+# rc 2
+# tally 333 332 1
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 133 cycles (rc 1 cause 3)
+# ---- tail
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.095 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.623 s (elab=0.003, cvt=0.026, bld=8.582); cpu 0.024 s on 16 threads; allocated 1011.496 MB
+FAIL: R436c a waiting restore is never refused while the owed READ's drained bytes keep moving: served after 133 cycles (rc 1 cause 3)
+333 checks: 332 PASS, 1 FAIL
+make: *** [Makefile:19: run] Error 1
