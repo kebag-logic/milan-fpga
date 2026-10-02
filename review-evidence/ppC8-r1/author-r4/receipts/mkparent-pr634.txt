@@ -1,0 +1,10 @@
+tree 3cc8846c933b348b09bec80f4a1a6b3543c7842b parent 3cc8846c933b348b09bec80f4a1a6b3543c7842b
+applied parent-adoption-c4c6-ea3fb388.patch 
+pins: gptp 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce pp bd86f6466baa77113eea2266c00044c3a29678f2
+ 3 files changed, 16 insertions(+), 2 deletions(-)
+applied c8 except aem_assemble.py
+606:                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
+error: patch failed: avdecc/aem_assemble.py:600
+error: avdecc/aem_assemble.py: patch does not apply
+full c8 --check rc=1
+ C8 patch: 7 files changed, 37 insertions(+), 6 deletions(-) (aem_assemble.py by hand, six by git apply)
