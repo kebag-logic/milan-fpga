@@ -1,0 +1,55 @@
+== dev: protocol-processor dir entries before: 0
+-- c4c6 check:
+rc=0
+c4c6 apply rc=0
+-- c8 check:
+rc=0
+Applied patch docs/ENDSTATION_BUILDER.md cleanly.
+Applied patch sw/builder/endstation_builder.py cleanly.
+Applied patch sw/builder/test_builder.py cleanly.
+c8 apply rc=0
+ M avdecc/aem_assemble.py
+ M avdecc/aem_specs.py
+ M avdecc/gen_aemi_image.py
+ M configs/endstation_ax7101_8x8.yaml
+ M docs/ENDSTATION_BUILDER.md
+ M hdl/milan/KL_pp_shadow.sv
+ M scripts/measure_test_evidence.py
+ M sw/builder/endstation_builder.py
+ M sw/builder/test_builder.py
+== pr634: protocol-processor dir entries before: 0
+-- c4c6 check:
+rc=0
+c4c6 apply rc=0
+-- c8 check:
+error: patch failed: avdecc/aem_assemble.py:600
+error: avdecc/aem_assemble.py: patch does not apply
+rc=1
+Applied patch docs/ENDSTATION_BUILDER.md cleanly.
+Applied patch sw/builder/endstation_builder.py cleanly.
+Applied patch sw/builder/test_builder.py cleanly.
+c8 apply rc=0
+ M avdecc/aem_specs.py
+ M avdecc/gen_aemi_image.py
+ M configs/endstation_ax7101_8x8.yaml
+ M docs/ENDSTATION_BUILDER.md
+ M hdl/milan/KL_pp_shadow.sv
+ M scripts/measure_test_evidence.py
+ M sw/builder/endstation_builder.py
+ M sw/builder/test_builder.py
+?? avdecc/aem_assemble.py.rej
+port: identical one-line LINT_WAIVERS edit at pr634 (context moved)
+diff --git a/avdecc/aem_assemble.py b/avdecc/aem_assemble.py
+index efc9092..5e931fe 100644
+--- a/avdecc/aem_assemble.py
++++ b/avdecc/aem_assemble.py
+@@ -603,7 +603,8 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
+                 CLKSRC_TABLE=clock_source_table(spec["clock_sources"]),
+                 L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
+                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
+-                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
++                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap,
++                LINT_WAIVERS=spec.get("lint_waivers", []))
+ 
+ 
+ #: Render-crossbar DEPTH: how many physical output channels
