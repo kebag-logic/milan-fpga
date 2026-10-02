@@ -1,0 +1,15 @@
+plan -10.6393 ppm; mode c
+
+[AAF0] INTERNAL -> AAF input 0 (talker -6.0 ppm)
+  AAF0: LOCKED at 6.708 s, trim +4.438 ppm
+
+[W2] the followed source moves from AAF input 0 to the locked CRF input
+  from state 4, trim +4.438: HOLDOVER seen, now state 3, trim +4.438
+  CRF: LOCKED at 10.804 s, trim -3.312 ppm
+  CRF: media clock -13.9974 ppm over 2 s (talker -14.0, plan -10.6393), trim -3.062
+
+  C1 counters at the end: LOCKED 3, UNLOCKED 2; 0 bad samples
+simulated 14.804 s
+== milan_dp_mclk: checks: 32   failures: 0 ==
+RESULT: PASS
+legC rc=0

@@ -1,0 +1,6 @@
+hosted run 37002531093 job 110823266548 (docs-check) at head d81198c2, step 51 "Entity shape gate"; lines carrying the step command, [FAIL], the tally, RESULT and the error:
+docs-check	Entity shape gate	﻿2026-10-02T12:13:09.6968348Z ##[group]Run python3 scripts/check_entity_shape.py --self-test
+docs-check	Entity shape gate	2026-10-02T12:13:14.0371081Z   [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+docs-check	Entity shape gate	2026-10-02T12:13:59.9138225Z checks: 219   failures: 1
+docs-check	Entity shape gate	2026-10-02T12:13:59.9142015Z RESULT: FAIL
+docs-check	Entity shape gate	2026-10-02T12:13:59.9263999Z ##[error]Process completed with exit code 1.

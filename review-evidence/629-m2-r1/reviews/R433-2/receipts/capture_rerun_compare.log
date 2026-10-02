@@ -1,0 +1,42 @@
+== 8x8 50 MHz traffic off: independent re-run vs receipt rows
+index 0: rerun sys_cycles=1367682 receipt=1367682 EQUAL
+index 1: rerun sys_cycles=1368947 receipt=1368947 EQUAL
+index 2: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 3: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 4: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 5: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 6: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 7: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 8: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 9: rerun sys_cycles=1369030 receipt=1369030 EQUAL
+index 10: rerun sys_cycles=1369030 receipt=1369030 EQUAL
+index 11: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 12: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 13: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 14: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+index 15: rerun sys_cycles=1369390 receipt=1369390 EQUAL
+16 of 16 re-run captures equal the receipt's rows (receipt has 16)
+rc=0
+-- harness measurement.json summary
+{'shape': 'endstation_ax7101_8x8', 'cpu_hz': 50000000, 'traffic': 'off', 'minimum_ms': 13.67682, 'maximum_ms': 13.6939, 'margin': 3.578235564740505}
+== 8x8 50 MHz traffic on: independent re-run vs receipt rows
+index 0: rerun sys_cycles=1385074 receipt=1385074 EQUAL (traffic counters rerun 86480/91/3549, receipt 86480/91/3549)
+index 1: rerun sys_cycles=1386484 receipt=1386484 EQUAL (traffic counters rerun 86569/92/3587, receipt 86569/92/3587)
+index 2: rerun sys_cycles=1386318 receipt=1386318 EQUAL (traffic counters rerun 86559/91/3549, receipt 86559/91/3549)
+index 3: rerun sys_cycles=1384836 receipt=1384836 EQUAL (traffic counters rerun 86466/91/3559, receipt 86466/91/3559)
+index 4: rerun sys_cycles=1385052 receipt=1385052 EQUAL (traffic counters rerun 86479/91/3549, receipt 86479/91/3549)
+index 5: rerun sys_cycles=1385722 receipt=1385722 EQUAL (traffic counters rerun 86521/91/3569, receipt 86521/91/3569)
+index 6: rerun sys_cycles=1385678 receipt=1385678 EQUAL (traffic counters rerun 86518/92/3558, receipt 86518/92/3558)
+index 7: rerun sys_cycles=1384836 receipt=1384836 EQUAL (traffic counters rerun 86466/91/3559, receipt 86466/91/3559)
+index 8: rerun sys_cycles=1385110 receipt=1385110 EQUAL (traffic counters rerun 86483/92/3558, receipt 86483/92/3558)
+index 9: rerun sys_cycles=1384836 receipt=1384836 EQUAL (traffic counters rerun 86466/91/3559, receipt 86466/91/3559)
+index 10: rerun sys_cycles=1385074 receipt=1385074 EQUAL (traffic counters rerun 86481/91/3549, receipt 86481/91/3549)
+index 11: rerun sys_cycles=1386318 receipt=1386318 EQUAL (traffic counters rerun 86558/91/3549, receipt 86558/91/3549)
+index 12: rerun sys_cycles=1384932 receipt=1384932 EQUAL (traffic counters rerun 86472/91/3549, receipt 86472/91/3549)
+index 13: rerun sys_cycles=1386318 receipt=1386318 EQUAL (traffic counters rerun 86558/91/3549, receipt 86558/91/3549)
+index 14: rerun sys_cycles=1384932 receipt=1384932 EQUAL (traffic counters rerun 86472/91/3549, receipt 86472/91/3549)
+index 15: rerun sys_cycles=1386318 receipt=1386318 EQUAL (traffic counters rerun 86558/91/3549, receipt 86558/91/3549)
+16 of 16 re-run captures equal the receipt's rows (receipt has 16)
+rc=0
+-- harness measurement.json summary
+{'shape': 'endstation_ax7101_8x8', 'cpu_hz': 50000000, 'traffic': 'on', 'minimum_ms': 13.848360000000001, 'maximum_ms': 13.86484, 'margin': 3.5341193984207537}

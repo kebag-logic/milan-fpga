@@ -1,0 +1,28 @@
+== HEAD d81198c2, pristine copy, GNU make 4.3 first on PATH: check_entity_shape.py --self-test
+GNU Make 4.3
+rc=1
+  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+checks: 219   failures: 1
+  I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+RESULT: FAIL
+== cdf49d1a28527562888f0a903de51b6b15b1244f, make 4.3: check_entity_shape.py --self-test
+rc=1
+  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: $(MCLK_GEN)/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+  I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: $(MCLK_GEN)/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+== cdf49d1a28527562888f0a903de51b6b15b1244f, make 4.4.1
+rc=1
+== 57f4b742b504f5e69293aaa3e00d0470aa9b6071, make 4.3: check_entity_shape.py --self-test
+rc=1
+  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+  I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+== 57f4b742b504f5e69293aaa3e00d0470aa9b6071, make 4.4.1
+rc=0
+== base cdf49d1a (clean checkout), make 4.3: check_entity_shape.py --self-test
+rc=0
+checks: 219   failures: 0
+RESULT: PASS
+NOTE (reviewer): the first 'cdf49d1a' entry above was run by 'git checkout <rev> -- .' over the head tree, which left the head-only tb/verilator/milan_dp_mclk in place; it is superseded by the clean-checkout base entry that follows it.
+== disposable probe (NOT a proposed patch): the expanded frozen-prerequisite token also classified, make 4.3
+rc=0
+checks: 219   failures: 0
+RESULT: PASS
