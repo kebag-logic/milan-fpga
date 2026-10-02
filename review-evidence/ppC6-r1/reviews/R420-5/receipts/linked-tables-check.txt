@@ -1,0 +1,33 @@
+linked body sha256 a72a4fde9b40b6f807d2a00ccdc6e3401bf7904cafa43ce225806ad11cf1a324
+== A. validation sections verbatim in the linked body
+PASS Round 1 '## Validation': first body author == linked (4227 bytes, linked 4227 bytes)
+PASS Round 1 '## Validation': last-full body author-r3 == linked (4227 bytes, linked 4227 bytes)
+     linked section: 3 table(s), 38 table lines
+PASS Round 2 '### Validation, round 2': first body author-r2 == linked (5695 bytes, linked 5695 bytes)
+PASS Round 2 '### Validation, round 2': last-full body author-r3 == linked (5695 bytes, linked 5695 bytes)
+     linked section: 4 table(s), 43 table lines
+PASS Round 3 '### Validation, round 3': first body author-r3 == linked (5523 bytes, linked 5523 bytes)
+PASS Round 3 '### Validation, round 3': last-full body author-r3 == linked (5523 bytes, linked 5523 bytes)
+     linked section: 3 table(s), 37 table lines
+PASS Round 4 '### Validation, round 4': first body author-r4 == linked (6300 bytes, linked 6300 bytes)
+PASS Round 4 '### Validation, round 4': last-full body author-r4 == linked (6300 bytes, linked 6300 bytes)
+     linked section: 3 table(s), 40 table lines
+== B. R420-4 figure comparison, source round section -> linked round section
+PASS Round 1: 138 distinct figures in author-r3, missing from linked: []
+PASS Round 1: whole round section of author-r3 byte-identical to linked (19516 bytes; linked adds '' as the separator before the next round)
+PASS Round 2: 122 distinct figures in author-r3, missing from linked: []
+PASS Round 2: whole round section of author-r3 byte-identical to linked (18768 bytes; linked adds '' as the separator before the next round)
+PASS Round 3: 90 distinct figures in author-r3, missing from linked: []
+PASS Round 3: whole round section of author-r3 byte-identical to linked (13879 bytes; linked adds '\n' as the separator before the next round)
+PASS Round 4: 97 distinct figures in author-r4, missing from linked: []
+PASS Round 4: whole round section of author-r4 byte-identical to linked (12677 bytes; linked adds '' as the separator before the next round)
+== C. every R420-4 dropped entry present in the linked body's round section
+PASS 67 dropped entries checked, 0 not found (figure and verbatim context)
+== D. live body pointers
+PASS Round 1: '## Validation' opens with the pointer naming "Validation"
+PASS Round 2: '### Validation, round 2' opens with the pointer naming "Validation, round 2"
+PASS Round 3: '### Validation, round 3' opens with the pointer naming "Validation, round 3"
+PASS Round 4: '### Validation, round 4' opens with the pointer naming "Validation, round 4"
+PASS one link definition, to https://github.com/kebag-logic/milan-fpga/blob/ca50262850d156308a45ce5237e9adff64419f89/review-evidence/ppC6-r1/author-r4/PR-BODY.md: ['https://github.com/kebag-logic/milan-fpga/blob/ca50262850d156308a45ce5237e9adff64419f89/review-evidence/ppC6-r1/author-r4/PR-BODY.md']
+PASS reference used 4 times (expected 4)
+TOTAL FAIL 0
