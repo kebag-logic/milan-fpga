@@ -1,0 +1,40 @@
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10_EMPTY
+  [gate 36b] unlisted current rate: L10_CURRENT
+  [gate 36b] current pull mismatch: L10_CURRENT
+  [gate 36b] wrong offset: L10_OFFSET
+  [gate 36b] ninth rate: L10_COUNT
+  [gate 36b] count exceeds extent: L10_COUNT_EXTENT
+  [gate 36b] one byte short: L10_PARTIAL_WORD
+  [gate 36b] one word extra: L10_EXTRA_WORDS
+  [gate 36b] reversed sources: L6_ORDER
+  [gate 36b] source gap: L6_GAP
+  [gate 36b] duplicate source: L6_DUPLICATE
+  [gate 36b] short audio header: L10_HEADER
+  [gate 36b] short domain header: L6_HEADER
+  [gate 36b] empty sources: L6_EMPTY
+  [gate 36b] short source list: L6_EXTENT
+  [gate 36b] source list in header: L6_OFFSET
+  [gate 36b] padded source offset: L6_OFFSET
+test_shipping_image_contract_presence:
+  [gate 36b] absent row, configuration 0: L10_MISSING
+  [gate 36b] zero row count, configuration 0: L10_MISSING
+  [gate 36b] absent row, configuration 0: L6_MISSING
+  [gate 36b] zero row count, configuration 0: L6_MISSING
+  [gate 36b] absent row, configuration 1: L10_MISSING
+  [gate 36b] zero row count, configuration 1: L10_MISSING
+  [gate 36b] absent row, configuration 1: L6_MISSING
+  [gate 36b] zero row count, configuration 1: L6_MISSING
+  [gate 36b] header configuration count 0: IMAGE_CONFIGS
+  [gate 36b] header configuration count 3: L10_MISSING
+test_pp_shadow_audio_unit_rates_match_config:
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+  - [gate 11] real report not on disk ($VALIDATION_STORAGE/629-a500/elab-home/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 2 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 2 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them

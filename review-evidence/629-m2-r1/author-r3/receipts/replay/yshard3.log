@@ -1,0 +1,15 @@
+replay .github/workflows/rtl.yml :: yosys-shards at 0b066b6e66df2a3ba3167805a6a591f8b96fa449
+HOME: $VALIDATION_STORAGE/629-a500/home-yosys; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a500/replay/yshard3/bin/make -> $VALIDATION_STORAGE/629-a500/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] PASS  rc=0      0.0s  Fetch RTL dependencies  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard3/bin/make, GNU Make 4.3)
+[03] PASS  rc=0      0.0s  Record the tree this worker validates  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard3/bin/make, GNU Make 4.3)
+[04] USES  Cache the pinned Yosys build: treated as a cache hit: the pinned tool or cache exists on this host
+[05] SKIP  Build Yosys from source on cache miss  (if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }})
+[06] PASS  rc=0      0.0s  Install the pinned Yosys and prove the version  [SUBSTITUTED (runner provisioning)]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard3/bin/make, GNU Make 4.3)
+[07] PASS  rc=0      0.4s  Install the pinned sv2v release  [SUBSTITUTED (runner provisioning)]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard3/bin/make, GNU Make 4.3)
+[08] USES  Restore the portability result cache seeded from dev: treated as a cache hit: the pinned tool or cache exists on this host
+[09] PASS  rc=0     56.5s  Run this weighted portability shard  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard3/bin/make, GNU Make 4.3)
+[10] USES  Upload per-top and structural evidence: not uploaded (local replay)
+steps: 10  failed: 0
+rc=0

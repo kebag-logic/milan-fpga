@@ -1,0 +1,35 @@
+{
+ "head": "0b066b6e66df2a3ba3167805a6a591f8b96fa449",
+ "workflow": ".github/workflows/rtl-fast.yml",
+ "job": "bdd-conformance",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Fetch the processor model inputs",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-bdd/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "03",
+   "name": "Install behave",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-bdd/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 3.8
+  },
+  {
+   "step": "04",
+   "name": "Run the specification-facing suite",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-bdd/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 1.7
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+PASS(clean)  clean_control
+CAUGHT       max_dev_not_cleared_at_era_start
+      [FAIL] [M1 max_dev, listener change] the new era's largest deviation reads 0 got=187 exp=0
+      [FAIL] [M1 max_dev, exit] reads 0 while not following got=187 exp=0
+      [FAIL] [M1 max_dev, entry] the new era's largest deviation reads 0 got=187 exp=0
+      [FAIL] [M1 max_dev, bind edge] the new era's largest deviation reads 0 got=187 exp=0
+      [FAIL] [M1 max_dev, timeout] reads 0 once the timeout starts an era got=187 exp=0
+      [FAIL] [M1 max_dev, timeout] the new era's largest deviation reads 0 got=187 exp=0
+CAUGHT       tu_edge_clears_held_lock
+      [FAIL] [M7 tu edge] the held lock is kept through the event got=1 exp=0
+    RESULT: FAIL
+CAUGHT       tu_edge_pulses_disrupt
+      [FAIL] [M7 tu edge] no disrupt_p pulse          got=1 exp=0
+    RESULT: FAIL
+CAUGHT       max_dev_no_saturation
+      [FAIL] [M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+      [FAIL] [M1 max_dev, step +100000 @5] reads min(|step|, 65,535) after it got=34464 exp=65535
+      [FAIL] [M1 max_dev, step -100000 @5] reads min(|step|, 65,535) after it got=34464 exp=65535
+    RESULT: FAIL
+CAUGHT       max_dev_includes_gap_pdus
+      [FAIL] [M1 max_dev, entry] the new era's largest deviation reads 0 got=63224 exp=0
+      [FAIL] [M1 max_dev, a lost PDU] the PDU after the gap is no deviation got=59464 exp=0
+    RESULT: FAIL
+rc=0

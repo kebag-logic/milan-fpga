@@ -1,0 +1,22 @@
+### step: Standalone LiteX simulation aggregate
+### cwd: $LANES/629-m2-impl
+  [ok]   green control: a sandbox where everything passes exits 0
+  [ok]   a planted failing simulation turns the aggregate red, named
+  [ok]   a script that fails but exits 0 is a FAIL (masked verdict)
+  [ok]   a deleted inventory member is a FAIL (MISSING), not a silence
+  [ok]   a test_*.py outside the inventory is a FAIL (UNLISTED)
+  [ok]   no usable interpreter: every member a declared skip, exit 90
+  [ok]   an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED
+  [ok]   a member-declared skip is SKIPPED with its reason, exit 90
+  [ok]   a member-declared skip is not counted as a pass
+  [ok]   a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure
+
+run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL
+RESULT: PASS
+PASS     test_cpu_memory_port_cdc
+PASS     test_gptp_tx_timestamp
+PASS     test_pp_boot_bus_freeze
+PASS     test_pp_mem_bridge
+----------------------------------------------------------------
+simulations: 4   passed: 4   failed: 0   skipped: 0   timed out: 0
+logs: $VALIDATION_STORAGE/629-a500/replay/elaborate/runner_temp/litex-sim-logs
