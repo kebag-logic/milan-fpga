@@ -1,0 +1,55 @@
+== endstation_arty_4x4: PACKED, 10112 bytes; driven ADP values checked
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC557FC6ABBC8  (driven value checked)
+     talker_sources_i   5  (driven value checked)
+     listener_sinks_i   5  (driven value checked)
+     identify_index_i   0
+   model digest sha256 ddb422a6a33248c61ddf02f370a83f423dc5e4ac7352f932d84fca4da2c5d1b0 (IEEE 1722.1-2021 §6.2.2.8)
+== endstation_arty_8ch: PACKED, 15360 bytes; driven ADP values checked
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC507C86F4172  (driven value checked)
+     talker_sources_i   5  (driven value checked)
+     listener_sinks_i   5  (driven value checked)
+     identify_index_i   0
+   model digest sha256 5ffe3f71698b4f0ef37a3d8644ed3236d00eb5b78651dae0401e412e732ff7a6 (IEEE 1722.1-2021 §6.2.2.8)
+== endstation_arty_current: PACKED, 5792 bytes; driven ADP values checked
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC50AC1000005  (driven value checked)
+     talker_sources_i   1  (driven value checked)
+     listener_sinks_i   2  (driven value checked)
+     identify_index_i   0
+   model digest sha256 23e32632c84472a8ff54d889fba9ea5e93ef097a37974c0e511a8bba9a584ed2 (IEEE 1722.1-2021 §6.2.2.8)
+== endstation_ax7101_1x1_tdm8: PACKED, 7352 bytes; driven ADP values checked
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC5C40236BA0E  (driven value checked)
+     talker_sources_i   2  (driven value checked)
+     listener_sinks_i   2  (driven value checked)
+     identify_index_i   0
+   model digest sha256 40bdd02a813bc8448029f6db8e54abe8339405f6cb40ad2ae4b0489c0da78b5d (IEEE 1722.1-2021 §6.2.2.8)
+== endstation_ax7101_8x8: PACKED, 18288 bytes; driven ADP values checked
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 1
+     waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0..7: 8 finding(s) waived; reason: kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC572F79BC5D1  (driven value checked)
+     talker_sources_i   9  (driven value checked)
+     listener_sinks_i   9  (driven value checked)
+     identify_index_i   0
+   model digest sha256 974c1f157d59a80ca88533e1a7fbf55ab95a1736f53528ffaa5a54330dac243c (IEEE 1722.1-2021 §6.2.2.8)
+== endstation_ax7101_8x8 without its waivers: REFUSED, 8 line(s)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 1: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 2: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 3: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 4: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 5: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 6: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 7: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
