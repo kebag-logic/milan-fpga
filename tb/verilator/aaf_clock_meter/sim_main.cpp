@@ -103,6 +103,7 @@ struct Seen {
     int64_t worst_crf_diff = 0;                   //! |rate - KL_crf_rx rate|, max
     std::vector<int32_t> rates;                   //! every published rate
     int64_t last_restart_cyc = -1;
+    uint64_t lock_falls = 0;                      //! locked_o 1 -> 0 transitions
 };
 
 class MeterBench {
@@ -186,6 +187,7 @@ class MeterBench {
     milan::tb::Checker& check_;
     uint8_t restart_q_ = 0;
     bool valid_q_ = false;
+    bool locked_q_ = false;
     bool rate_pending_ = false;
 
     void drive_pdu(const Talker& t, int idx, uint64_t i) {
@@ -208,6 +210,9 @@ class MeterBench {
             restart_q_ = restarts;
         }
         if (dut->disrupt_p_o) ++seen.disrupts;
+        const bool lk = locked();
+        if (!lk && locked_q_) ++seen.lock_falls;
+        locked_q_ = lk;
         if (dut->mr_toggle_p_o) ++seen.mr_toggles;
         const bool valid = rate_valid();
         if (valid && seen.first_valid_cyc < 0) seen.first_valid_cyc = static_cast<int64_t>(cyc);
@@ -306,6 +311,27 @@ bool valid_by_42_and_held(const MeterBench& b, int64_t start_cyc) {
            !b.seen.valid_fell;
 }
 
+//! Run `seconds` of talker `t` on listener 0 and return the cycle at which
+//! its PDU `mark` was driven (-1 when the run never reached it).
+int64_t run_marking(MeterBench& b, Talker& t, double seconds, uint64_t mark) {
+    int64_t at = -1;
+    const auto slots = static_cast<uint64_t>(seconds * 8000.0);
+    for (uint64_t k = 0; k < slots; ++k) {
+        if (t.n == mark) at = static_cast<int64_t>(b.cyc);
+        b.slot(t, 0);
+    }
+    return at;
+}
+
+//! The design's "a deviation above the jump bound restarts the history at
+//! once": the one restart lands inside the slot of the PDU that carried the
+//! step, so a verdict deferred to the group's PDU 15 (round 4's rule) or to
+//! the spacing check at the group's end fails it.
+bool restart_at_pdu(const MeterBench& b, int64_t pdu_cyc) {
+    return pdu_cyc >= 0 && b.seen.restarts == 1 && b.seen.last_restart_cyc > pdu_cyc &&
+           b.seen.last_restart_cyc - pdu_cyc <= kSlotCyc;
+}
+
 std::string fmt(const char* pattern, double v) {
     std::array<char, 160> buf{};
     std::snprintf(buf.data(), buf.size(), pattern, v);
@@ -314,7 +340,9 @@ std::string fmt(const char* pattern, double v) {
 
 // ------------------------------------------------------------------------
 //  M1: synthetic streams at seven rates, ideal timestamps, against
-//  KL_crf_rx on the equivalent CRF stimulus. Mutant: decimation by 1.
+//  KL_crf_rx on the equivalent CRF stimulus, and the largest deviation the
+//  meter reports (max_dev_ns_o, the wrapper's status_o[31:16]). Mutants:
+//  decimation by 1; the largest deviation not tracked.
 // ------------------------------------------------------------------------
 void case_rates(MeterBench& b, Checker& ck) {
     for (const double ppm : {0.0, 10.64, -10.64, 50.0, -50.0, 100.0, -100.0}) {
@@ -332,6 +360,12 @@ void case_rates(MeterBench& b, Checker& ck) {
               b.seen.worst_crf_diff <= 1);
         named(ck, fmt("[M1 %+.2f ppm] rate equals the planted rate within 1 LSB", ppm),
               b.seen.worst_rate_err <= 1);
+        //! ideal timestamps deviate from PDU 0 only by the offset, which
+        //! accumulates over a group's 15 spacings; the floors add up to 1 ns
+        const double dev = 15.0 * static_cast<double>(kPduNs) * std::fabs(ppm) * 1e-6;
+        const auto max_dev = static_cast<double>(b.dut->status_o >> 16);
+        named(ck, fmt("[M1 %+.2f ppm] the largest deviation is the offset over 15 spacings", ppm),
+              std::fabs(max_dev - dev) <= 1.5);
         std::printf("  info: M1 %+.2f ppm: %llu updates, worst |rate - planted| %lld, "
                     "|rate - crf| %lld\n", ppm,
                     static_cast<unsigned long long>(b.seen.rate_updates),
@@ -413,19 +447,27 @@ void case_beyond(MeterBench& b, Checker& ck) {
             Talker t;
             t.step_at = 30 * kGroupPdus + static_cast<uint64_t>(pos);
             t.step_ns = step;
-            b.run_seconds(t, 0.12);
-            std::array<char, 96> label{};
+            const int64_t at = run_marking(b, t, 0.12, t.step_at);
+            std::array<char, 112> label{};
             std::snprintf(label.data(), label.size(),
                           "[M3 step %+lld @%d] restarts the history once",
                           static_cast<long long>(step), pos);
             ck.dec(label.data(), b.seen.restarts, 1);
+            //! a step at PDU 0 moves the group's own reference, so only the
+            //! spacing check at the group's end can see it
+            if (pos == 0) continue;
+            std::snprintf(label.data(), label.size(),
+                          "[M3 step %+lld @%d] the restart lands at the step's PDU",
+                          static_cast<long long>(step), pos);
+            named(ck, label.data(), restart_at_pdu(b, at));
         }
     }
 }
 
 // ------------------------------------------------------------------------
 //  M4: only the 48 kHz Base format with 6 samples per PDU is consumed.
-//  Mutant: the stream_data_length check removed.
+//  Mutants: the stream_data_length check removed; channels_per_frame 0
+//  accepted (its stream_data_length, 0, matches 24 x 0).
 // ------------------------------------------------------------------------
 void case_format(MeterBench& b, Checker& ck) {
     struct Fmt {
@@ -433,13 +475,14 @@ void case_format(MeterBench& b, Checker& ck) {
         uint64_t fsh;
         bool locks;
     };
-    const std::array<Fmt, 6> fmts = {{
+    const std::array<Fmt, 7> fmts = {{
         {"6-sample INT_32BIT 48k", aaf_fsh(0x02, 0x5, 8, 6, false), true},
         {"12-sample", aaf_fsh(0x02, 0x5, 8, 12, false), false},
         {"8-sample", aaf_fsh(0x02, 0x5, 8, 8, false), false},
         {"sparse", aaf_fsh(0x02, 0x5, 8, 6, true), false},
         {"nsr 96 kHz", aaf_fsh(0x02, 0x7, 8, 6, false), false},
         {"INT_24BIT", aaf_fsh(0x03, 0x5, 8, 6, false), false},
+        {"0 channels", aaf_fsh(0x02, 0x5, 0, 6, false), false},
     }};
     for (const Fmt& f : fmts) {
         follow(b, 0.0);
@@ -467,8 +510,9 @@ void case_wrap(MeterBench& b, Checker& ck) {
 }
 
 // ------------------------------------------------------------------------
-//  M6: lock after 8 consumed PDUs, unlock 100 ms after the last. Mutant:
-//  the timeout disabled.
+//  M6: lock after 8 consumed PDUs, unlock 100 ms after the last; a sequence
+//  gap before lock restarts the settle run. Mutants: the timeout disabled; a
+//  gap that does not break the settle run.
 // ------------------------------------------------------------------------
 void case_lock(MeterBench& b, Checker& ck) {
     follow(b, 0.0);
@@ -485,14 +529,30 @@ void case_lock(MeterBench& b, Checker& ck) {
     named(ck, "[M6] unlocks 100 ms after the last PDU", !b.locked() && after >= tout &&
               after <= tout + 8);
     named(ck, "[M6] the unlock is one disruption pulse", b.seen.disrupts == 1);
+    // five clean PDUs, PDU 5 lost: the PDU after the gap counts nothing, so
+    // the lock needs eight clean PDUs after it
+    follow(b, 0.0);
+    Talker g;
+    g.lost = [](uint64_t i) { return i == 5; };
+    for (int k = 0; k < 6; ++k) b.slot(g, 0);
+    for (int k = 0; k < 8; ++k) b.slot(g, 0);
+    named(ck, "[M6 gap before lock] not locked at the gap PDU and 7 clean PDUs after it",
+          !b.locked());
+    b.slot(g, 0);
+    named(ck, "[M6 gap before lock] locked at the 8th clean PDU after the gap", b.locked());
 }
 
 // ------------------------------------------------------------------------
-//  M7: the history restarts. Mutants: no restart on the tu edge; tu read
-//  from the tv net.
+//  M7: the history restarts, and what each does to a held lock: a tu edge
+//  and the bind edge keep it, a change of the followed listener and entry
+//  clear it, silently. Mutants: no restart on the tu edge; a listener change
+//  keeping the lock; the bind edge clearing it. The meter takes tu as a
+//  port, so the design's "tu taken from the tv net" is a wiring mutant and
+//  runs at the root (tb/verilator/milan_dp_mclk, mutant 15).
 // ------------------------------------------------------------------------
 void restart_event(MeterBench& b, Checker& ck, const char* name,
-                   const std::function<void(Talker&, Talker&)>& event, bool two) {
+                   const std::function<void(Talker&, Talker&)>& event, bool two,
+                   uint64_t lock_falls) {
     follow(b, 100.0);
     Talker a;
     a.ppm = 100.0;
@@ -504,13 +564,20 @@ void restart_event(MeterBench& b, Checker& ck, const char* name,
     }
     const std::string tag = std::string("[M7 ") + name + "] ";
     named(ck, tag + "rate valid before the event", b.rate_valid());
+    named(ck, tag + "locked before the event", b.locked());
     b.seen.valid_fell = false;
     b.seen.first_valid_cyc = -1;
+    const uint64_t lf0 = b.seen.lock_falls;
+    const uint64_t d0 = b.seen.disrupts;
     event(a, c);
     for (int k = 0; k < 800; ++k) {
         if (two) b.slot2(a, c); else b.slot(a, 0);
     }
     named(ck, tag + "rate_valid falls at the event", b.seen.valid_fell || !b.rate_valid());
+    ck.dec((tag + (lock_falls ? "the held lock clears at the event"
+                              : "the held lock is kept through the event")).c_str(),
+           b.seen.lock_falls - lf0, lock_falls);
+    ck.dec((tag + "no disrupt_p pulse").c_str(), b.seen.disrupts - d0, 0);
     for (int k = 0; k < static_cast<int>(4.2 * 8000); ++k) {
         if (two) b.slot2(a, c); else b.slot(a, 0);
     }
@@ -518,20 +585,20 @@ void restart_event(MeterBench& b, Checker& ck, const char* name,
 }
 
 void case_restarts(MeterBench& b, Checker& ck) {
-    restart_event(b, ck, "tu edge", [](Talker& a, Talker&) { a.tu = true; }, false);
+    restart_event(b, ck, "tu edge", [](Talker& a, Talker&) { a.tu = true; }, false, 0);
     named(ck, "[M7 tu edge] counted as a data restart", b.seen.restarts == 1);
     restart_event(b, ck, "listener change",
-                  [&b](Talker&, Talker&) { b.dut->follow_idx_i = 1; }, true);
+                  [&b](Talker&, Talker&) { b.dut->follow_idx_i = 1; }, true, 1);
     restart_event(b, ck, "entry", [&b](Talker&, Talker&) {
         b.dut->en_i = 0;
         b.idle(kSlotCyc);
         b.dut->en_i = 1;
-    }, false);
+    }, false, 1);
     restart_event(b, ck, "bind edge", [&b](Talker&, Talker&) {
         b.dut->bind_rise_i = 1;
         b.tick();
         b.dut->bind_rise_i = 0;
-    }, false);
+    }, false, 0);
     // the 32-bit timestamp wrap is not a discontinuity
     follow(b, 100.0);
     Talker t;
@@ -681,13 +748,25 @@ void case_step_in_gap(MeterBench& b, Checker& ck) {
                 t.lost = [lost_pdu](uint64_t i) { return i == lost_pdu; };
                 t.step_at = g + static_cast<uint64_t>(pos);
                 t.step_ns = step;
-                b.run_seconds(t, 0.1);
-                std::array<char, 112> label{};
+                const int64_t at = run_marking(b, t, 0.1, t.step_at);
+                std::array<char, 128> label{};
                 std::snprintf(label.data(), label.size(),
                               "[M12 %s, step %+lld @%d] restarts the history once",
                               lose15 ? "PDU 15 lost" : "PDU 0 lost",
                               static_cast<long long>(step), pos);
                 ck.dec(label.data(), b.seen.restarts, 1);
+                //! rule 1, the deviation check up to the gap: a group that
+                //! keeps its PDU 0 and loses its PDU 15 is checked at each
+                //! PDU as it arrives, so the restart comes at the step's PDU,
+                //! before the gap. A group that loses its PDU 0 has no
+                //! reference, and a step at PDU 0 moves it: those 64 cases
+                //! are the check across the gap's, graded by the count alone
+                if (!lose15 || pos == 0) continue;
+                std::snprintf(label.data(), label.size(),
+                              "[M12 PDU 15 lost, step %+lld @%d] the deviation check restarts "
+                              "it at the step's PDU, before the gap",
+                              static_cast<long long>(step), pos);
+                named(ck, label.data(), restart_at_pdu(b, at));
             }
         }
     }

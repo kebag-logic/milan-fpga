@@ -12,8 +12,8 @@ restart request and CLOCK_DOMAIN counters.
 ## Contents
 
 - **[The elaboration](#the-elaboration)** -- The two-stream shape, the 4 MHz fabric and true-ratio audio clocks, the modelled MMCM fine phase shift and the `tu` test double.
-- **[The legs](#the-legs)** -- The planted talker offsets and which rows legs A and B run.
-- **[Mutants](#mutants)** -- The fourteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
+- **[The legs](#the-legs)** -- The planted talker offsets and which rows legs A, B and C run.
+- **[Mutants](#mutants)** -- The sixteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
 - **[Running](#running)** -- The default target, the pool width and the single legs.
 - **[Limits](#limits)** -- Where this suite departs from the design's test plan, and why.
 
@@ -46,9 +46,9 @@ level, CRF at -14 ppm. The plan alone is -10.64 ppm.
 
 | Leg | Rows |
 |---|---|
-| A | AAF input 0 selected from INTERNAL, LOCKED, followed within 0.5 ppm; the CSR words; the echo; one PDU lost in every 0.3 s for 3 s; a 150 ms lock loss and return |
+| A | AAF input 0 selected from INTERNAL, LOCKED, followed within 0.5 ppm; the CSR words; the echo; one PDU lost in every 0.3 s for 3 s; a 150 ms lock loss and return; the talker's `tu` set, then cleared, each edge one history restart and no request (IEEE 1722-2016 4.4.4.7) |
 | C | AAF input 0 LOCKED, then W2 onto the locked CRF input, LOCKED and followed within 0.5 ppm |
-| B | the CRF input selected and LOCKED; its lock loss and return; the switch sweep at 16 phases of the CRF output; one recentre per switch kind; a switch onto a silent talker; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
+| B | the CRF input selected and LOCKED; its lock loss and return; the switch sweep at 16 phases of the CRF output; one recentre per switch kind; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
 
 Every leg grades the C1 invariant every millisecond: LOCKED equals UNLOCKED
 or UNLOCKED + 1. Leg C repeats A's AAF lock so the pool runs the two side by
@@ -56,9 +56,10 @@ side.
 
 ## Mutants
 
-`mclk_mutants.py` plants the design's fourteen named root defects once, as
-mutant schemata. Each copy of `milan_datapath.sv`, `KL_aaf_clock_meter.sv` and
-`milan_csr.sv` reads `+MCLK_MUT=<id>`; id 0 is the tracked RTL. Each mutant
+`mclk_mutants.py` plants the design's named root defects, and two the
+round-1 reviews of PR #634 found unplanted, once, as mutant schemata. Each
+copy of `milan_datapath.sv`, `KL_aaf_clock_meter.sv` and `milan_csr.sv`
+reads `+MCLK_MUT=<id>`; id 0 is the tracked RTL. Each mutant
 runs a short leg that must fail its named check. The schemata at id 0 must
 pass every short leg.
 
@@ -78,12 +79,14 @@ pass every short leg.
 | 12 | the meter's held lock cleared on a sequence gap | `--loss` | loss leg: the servo stays LOCKED through single lost PDUs |
 | 13 | the read-window terms missing | `--csr` | CSR: AAFM_STAT reads the meter's status word |
 | 14 | the decode table one source short | `--switch` | switch: AAF1 decodes as listener 1 and the meter follows it |
+| 15 | `tu` taken from the `tv` net (the CRF wiring) | `--tu` | tu: the followed talker's tu edge restarts the meter's history |
+| 16 | a change of the followed listener keeping a held lock | `--silent` | switch (iv): the meter's lock clears at the switch |
 
 ## Running
 
 `make` builds the leg and runs `mclk_mutants.py`, which builds the schemata
 and runs the three legs, the controls and the mutants `SIM_JOBS` at a time
-(default 4). The suite took 452 s inside a local sweep (27 of 27); leg A,
+(default 4). The suite took 438 s under GNU make 4.3 (31 of 31); leg A,
 about 20 simulated seconds, is its critical path. `make mclk` runs leg A alone; `./obj_mclk/Vmilan_dp_mclk --b`
 and `--c` run the others.
 

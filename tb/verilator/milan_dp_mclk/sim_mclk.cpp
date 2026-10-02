@@ -98,6 +98,7 @@ struct Talker {
     bool muted = false;
     double ppm = 0.0;
     int mr = 0;
+    int tu = 0;                          //! the AAF common header's tu bit
     uint8_t seq = 0;
     uint64_t n = 0;                      //! the next PDU's index
     long double anchor_ns = 0.0L;        //! media time of PDU anchor_n
@@ -255,6 +256,8 @@ class MclkHarness {
     void row_switch_sweep(int phases, bool grade_slips);
     void row_switch_recentres();
     void row_switch_onto_a_silent_talker();
+    void row_switch_past_the_timeout(Talker& to, uint16_t ix, unsigned listener);
+    void row_tu_edge(bool full);
     void row_internal_dwell();
     void leg_a();
     void leg_b();
@@ -366,7 +369,7 @@ void MclkHarness::send_aaf(Talker& t) {
     f[14] = 0x02;                                         // AAF
     f[15] = static_cast<uint8_t>(0x81 | (t.mr ? 0x08 : 0x00));   // sv, mr, tv
     f[16] = t.seq;
-    f[17] = 0x00;                                         // tu clear
+    f[17] = static_cast<uint8_t>(t.tu ? 0x01 : 0x00);     // tu (o+3 bit 0)
     const std::array<uint8_t, 8> sid = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, t.uid};
     std::memcpy(f.data() + 18, sid.data(), sid.size());
     const uint32_t ts = static_cast<uint32_t>(
@@ -1007,6 +1010,57 @@ void MclkHarness::row_switch_onto_a_silent_talker() {
     ckv("switch (ii): the meter locked on listener 1 once it started", meter_stat() & 0xF5u, 0x15);
 }
 
+//! A switch onto a listener whose talker stays silent past the meter's
+//! 100 ms timeout. A change of the followed listener clears the held lock
+//! silently, so the timeout that follows finds the meter unlocked and pulses
+//! no disruption: the switch stays one request. A meter that kept the lock
+//! across the change would time out "locked" and raise a second.
+void MclkHarness::row_switch_past_the_timeout(Talker& to, uint16_t ix, unsigned listener) {
+    std::printf("\n[SWITCH-TIMEOUT] onto AAF input %u with its talker silent for 150 ms\n", listener);
+    to.muted = true;
+    run_for_ns(2'000'000);
+    const long rq0 = restart_pulses;
+    const long at0 = aaf_out.toggles;
+    const long ct0 = crf_out.toggles;
+    ckv("switch (iv): the meter is locked before the switch (AAFM_STAT[0])", meter_stat() & 1u, 1);
+    select(ix);
+    cycles(8);
+    ckv("switch (iv): the meter's lock clears at the switch (AAFM_STAT[0])", meter_stat() & 1u, 0);
+    run_for_ns(150'000'000);
+    ckv("switch (iv): no request at the meter's timeout (the lock was already clear)",
+        static_cast<uint64_t>(restart_pulses - rq0), 0);
+    ckv("switch (iv): exactly one mr toggle on the AAF output", static_cast<uint64_t>(aaf_out.toggles - at0), 1);
+    ckv("switch (iv): exactly one mr toggle on the CRF output", static_cast<uint64_t>(crf_out.toggles - ct0), 1);
+    to.muted = false;
+    run_for_ns(10'000'000);
+    ckv("switch (iv): the meter locked on the new listener once its talker started",
+        meter_stat() & 0xF5u, 0x05u | (listener << 4));
+}
+
+//! IEEE 1722-2016 4.4.4.7: the followed talker's tu, read from the AAF
+//! common header (o+3 bit 0) on the parser bundle, restarts the meter's
+//! history at each edge and is no disruption. KL_crf_rx takes its tu from
+//! the tv net, where the CRF header carries it; that wiring on the meter
+//! would never see this edge (mutant 15).
+void MclkHarness::row_tu_edge(bool full) {
+    std::printf("\n[TU] the followed AAF0 raises, then clears, its tu bit\n");
+    const uint8_t rs0 = static_cast<uint8_t>(meter_stat() >> 8);
+    const long rq0 = restart_pulses;
+    aaf0.tu = 1;
+    run_for_ns(5'000'000);
+    ckv("tu: the followed talker's tu edge restarts the meter's history (AAFM_STAT[15:8])",
+        static_cast<uint8_t>(static_cast<uint8_t>(meter_stat() >> 8) - rs0), 1);
+    if (full) {
+        ckv("tu: ...so the meter's rate is not valid (AAFM_STAT[1])", (meter_stat() >> 1) & 1u, 0);
+        ckv("tu: ...and the meter keeps its lock (AAFM_STAT[0])", meter_stat() & 1u, 1);
+    }
+    aaf0.tu = 0;
+    run_for_ns(5'000'000);
+    ckv("tu: the falling edge restarts it again",
+        static_cast<uint8_t>(static_cast<uint8_t>(meter_stat() >> 8) - rs0), 2);
+    ckv("tu: no restart request at either edge", static_cast<uint64_t>(restart_pulses - rq0), 0);
+}
+
 //! Row (iii): an INTERNAL dwell with AAF0 toggling its mr.
 void MclkHarness::row_internal_dwell() {
     std::printf("\n[DWELL] INTERNAL with AAF0 toggling its mr\n");
@@ -1043,6 +1097,7 @@ void MclkHarness::leg_a() {
     row_echo();
     row_loss_leg(3'000'000'000);
     row_aaf_loss(true);
+    row_tu_edge(true);
     report_counters();
 }
 
@@ -1067,6 +1122,7 @@ void MclkHarness::leg_b() {
     row_switch_sweep(16, true);
     row_switch_recentres();
     row_switch_onto_a_silent_talker();
+    row_switch_past_the_timeout(aaf0, kSrcAaf0, 0);
     row_internal_dwell();
     row_internal(0);
     report_counters();
@@ -1094,7 +1150,12 @@ int MclkHarness::run(const std::string& mode) {
         select(kSrcAaf0);
         run_for_ns(kSwitchGapNs);
         row_switch_sweep(1, false);
-    } else if (mode == "dwell") row_internal_dwell();
+    } else if (mode == "silent") {
+        select(kSrcAaf0);
+        run_for_ns(kSwitchGapNs);
+        row_switch_past_the_timeout(aaf1, kSrcAaf1, 1);
+    } else if (mode == "tu") { row_select_aaf0(); row_tu_edge(false); }
+    else if (mode == "dwell") row_internal_dwell();
     else check_.fail("unknown mode");
     std::printf("simulated %.3f s\n", now_s());
     return 0;

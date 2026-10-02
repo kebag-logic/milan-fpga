@@ -10,7 +10,7 @@ left in obj_mclk) must pass, and each mutant must make its short leg FAIL by
 its OWN verdict, with the named check among the failures. A crash, an abort or
 a failure of some other check is not a catch.
 
-ONE ELABORATION FOR FOURTEEN MUTANTS (mutant schemata). Fourteen rebuilds of
+ONE ELABORATION FOR SIXTEEN MUTANTS (mutant schemata). Sixteen rebuilds of
 the whole datapath do not fit the suite's 1800 s guard beside the leg itself.
 So every mutation is planted once, into copies of milan_datapath.sv,
 KL_aaf_clock_meter.sv and milan_csr.sv, each guarded by a selector the run
@@ -58,10 +58,10 @@ SOURCES = {
 }
 
 #: where each copy declares its selector: (file, the unique line it goes
-#: before)
+#: before, ahead of every planted site in that file)
 SELECTOR_ANCHOR = {
     "dp": '  `include "gen/adp_shape_defaults.svh"\n',
-    "meter": "  wire acc_w = en_w && match_p_i",
+    "meter": "  wire               en_w = en_i;\n",
     "csr": "  localparam logic [ADDR_WIDTH-1:0] A_AAFM_STAT",
 }
 SELECTOR = ("  //! #629 mutant schemata (tb/verilator/milan_dp_mclk/mclk_mutants.py)\n"
@@ -129,6 +129,10 @@ EDITS = [
          "((rd_addr_q == A_AAFM_STAT) && mclk_mut_r != 13) ||"),
     Edit("csr", "(rd_addr_q == A_AAFM_RATE) ||",
          "((rd_addr_q == A_AAFM_RATE) && mclk_mut_r != 13) ||"),
+    Edit("dp", "      .tu_i          (avtprx_tu_bit),",
+         "      .tu_i          ((mclk_mut_r == 15) ? avtprx_tv_bit : avtprx_tu_bit),"),
+    Edit("meter", "wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w;",
+         "wire lock_clr_w  = en_rise_w || en_fall_w || (idx_chg_w && mclk_mut_r != 16) || !en_w;"),
     Edit("dp", "      if (pp_aecp_clk_src_index_w == 16'(k)) begin\n",
          "      if (pp_aecp_clk_src_index_w == 16'(k)"
          " && !(mclk_mut_r == 14 && k == AEM_N_CLKSRC_C - 1)) begin\n"),
@@ -163,13 +167,17 @@ MUTANTS = [
            "CSR: AAFM_STAT reads the meter's status word"),
     Mutant(14, "the decode table one source short (the previous shape's)", "switch",
            "switch: AAF1 decodes as listener 1 and the meter follows it"),
+    Mutant(15, "tu taken from the tv net (the CRF wiring)", "tu",
+           "tu: the followed talker's tu edge restarts the meter's history"),
+    Mutant(16, "a change of the followed listener keeping a held lock", "silent",
+           "switch (iv): the meter's lock clears at the switch"),
 ]
 
 
 #: simulated seconds each short leg runs, so the pool starts the long ones
 #: first and the short ones fill in behind them
 MODE_SECONDS = {"loss": 9.0, "internal": 4.1, "refmux": 3.2, "aafloss": 0.4,
-                "switch": 0.4, "echo": 0.2, "dwell": 0.2}
+                "switch": 0.4, "silent": 0.3, "echo": 0.2, "dwell": 0.2, "tu": 0.1}
 
 
 def plant(work: Path) -> dict[str, Path] | str:

@@ -5,9 +5,11 @@
 
 The mutants are the ones docs/design/MEDIA_CLOCK_FOLLOWING.md's test plan
 names for the meter rows, the servo row with the meter in front of it, and
-the servo's W2 switch (#629). Each is a set of exact source replacements to
-KL_aaf_clock_meter or KL_mmcm_drp_servo, every anchor required to occur
-exactly once, applied to a scratch copy: no checkout file is edited. A mutant
+the servo's W2 switch (#629), and the meter rules the PR #634 round-1 review
+(R432-1 F5) showed no check could fail, planted with that review's own edits.
+Each is a set of exact source replacements to KL_aaf_clock_meter or
+KL_mmcm_drp_servo, every anchor required to occur exactly once, applied to a
+scratch copy: no checkout file is edited. A mutant
 counts as killed only when its build succeeds, the harness exits 1, and the
 named check is among its failures; a compiler error or abnormal exit never
 counts. A clean build of the meter harness runs first, as the positive
@@ -143,6 +145,56 @@ MUTANTS = (
      (("        if (s2_gap_r)                              settle_r <= '0;",
        "        if (s2_gap_r) begin settle_r <= '0; locked_o <= 1'b0; end"),),
      "servo", "[S2] LOCKED never left after the first LOCKED"),
+    # R432-1 F5 (a): round 4's rule, the deviation verdict taken only at a
+    # group's PDU 15, so a group that loses its PDU 15 restarts later, by the
+    # check across the gap, instead of at the step's PDU (rule 1)
+    ("deviation_verdict_deferred_to_pdu15", "meter",
+     (("  logic        pdu_restart_r;\n",
+       "  logic        pdu_restart_r;\n  logic        dev_bad_r;\n"),
+      ("      pdu_restart_r <= 1'b0;\n      max_dev_r <= '0;",
+       "      pdu_restart_r <= 1'b0; dev_bad_r <= 1'b0;\n      max_dev_r <= '0;"),
+      ("          grp_id_r  <= s2_gid_w;\n        end else",
+       "          grp_id_r  <= s2_gid_w; dev_bad_r <= 1'b0;\n        end else"),
+      ("          if (!s2_in_bound_w) begin\n"
+       "            grp_act_r     <= 1'b0;\n"
+       "            pdu_restart_r <= 1'b1;\n"
+       "          end else if (s2_pos_w == 4'd15) begin",
+       "          if (s2_pos_w == 4'd15 && (dev_bad_r || !s2_in_bound_w)) begin\n"
+       "            grp_act_r     <= 1'b0;\n"
+       "            pdu_restart_r <= 1'b1;\n"
+       "          end else if (s2_pos_w == 4'd15) begin"),
+      ("          end else begin\n            grp_sum_r <= grp_sum_r + 20'(s2_dev_r);",
+       "          end else begin\n            if (!s2_in_bound_w) dev_bad_r <= 1'b1;\n"
+       "            grp_sum_r <= grp_sum_r + 20'(s2_dev_r);")),
+     "cases:step_in_gap",
+     "[M12 PDU 15 lost, step +20833 @1] the deviation check restarts it at the step's PDU, "
+     "before the gap"),
+    # R432-1 F5 (b): a change of the followed listener keeps a held lock
+    ("listener_change_keeps_lock", "meter",
+     (("wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w;",
+       "wire lock_clr_w  = en_rise_w || en_fall_w || !en_w;"),),
+     "cases:restarts", "[M7 listener change] the held lock clears at the event"),
+    # R432-1 F5 (c): a sequence gap no longer breaks the settle run
+    ("gap_does_not_break_settle", "meter",
+     (("        if (s2_gap_r)                              settle_r <= '0;\n"
+       "        else if (settle_r",
+       "        if (settle_r"),),
+     "cases:lock", "[M6 gap before lock] not locked at the gap PDU and 7 clean PDUs after it"),
+    # R432-1 F5 (d): the bind edge clears a held lock
+    ("bind_edge_clears_lock", "meter",
+     (("wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w;",
+       "wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w || bind_rise_w;"),),
+     "cases:restarts", "[M7 bind edge] the held lock is kept through the event"),
+    # R432-1 F5 (e): channels_per_frame 0 accepted
+    ("cpf_zero_accepted", "meter",
+     (("               && !f_sp_w && (f_cpf_w != 10'd0)",
+       "               && !f_sp_w"),),
+     "cases:format", "[M4 0 channels] does not lock"),
+    # the largest deviation not tracked (R432-1's probe, graded at the root
+    # too): max_dev_ns_o is the meter's own boundary since round 2
+    ("max_dev_not_tracked", "meter",
+     (("          else if (16'(s2_abs_w) > max_dev_r)  max_dev_r <= 16'(s2_abs_w);\n", "\n"),),
+     "cases:rates", "[M1 +10.64 ppm] the largest deviation is the offset over 15 spacings"),
     ("switch_through_idle_W1", "servo",
      (("          else if (!ref_locked_i)    state_r <= HOLDOVER_S;",
        "          else if (!ref_locked_i)    state_r <= IDLE_S;"),),
