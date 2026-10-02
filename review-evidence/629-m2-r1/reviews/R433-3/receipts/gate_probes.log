@@ -1,0 +1,40 @@
+===== make43: GNU Make 4.3
+-- 1. database of tb/verilator/milan_dp_mclk/Makefile
+   "# Files" sections: 1
+   rule: mclk-build: ltn_rom.hex ucode.hex obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh ../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh
+-- 2. classified_frozen_targets
+   tb/verilator/milan_dp/Makefile []
+   tb/verilator/milan_dp_mclk/Makefile ['tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh']
+-- 3. plain gate
+   rc=0
+   checks: 166   failures: 0
+   RESULT: PASS
+-- 4. stray prerequisite planted in tb/verilator/milan_dp_mclk/Makefile
+   rc=1 (must be non-zero)
+   1:  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_stray/endstation_stray/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_stray/endstation_stray/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+   186:  I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_stray/endstation_stray/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_stray/endstation_stray/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+-- 5. round-2 nested derivation (no MAKEFLAGS=) and the database read
+   MAKEFLAGS= lines left: 0
+   plain gate rc=0
+   rule: mclk-build: ltn_rom.hex ucode.hex obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh ../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh
+===== host: GNU Make 4.4.1
+-- 1. database of tb/verilator/milan_dp_mclk/Makefile
+   "# Files" sections: 1
+   rule: mclk-build: ltn_rom.hex ucode.hex obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh ../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh
+-- 2. classified_frozen_targets
+   tb/verilator/milan_dp/Makefile []
+   tb/verilator/milan_dp_mclk/Makefile ['tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh']
+-- 3. plain gate
+   rc=0
+   checks: 166   failures: 0
+   RESULT: PASS
+-- 4. stray prerequisite planted in tb/verilator/milan_dp_mclk/Makefile
+   rc=1 (must be non-zero)
+   1:  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_stray/endstation_stray/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_stray/endstation_stray/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+   186:  I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_stray/endstation_stray/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_stray/endstation_stray/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+-- 5. round-2 nested derivation (no MAKEFLAGS=) and the database read
+   MAKEFLAGS= lines left: 0
+   plain gate rc=0
+   rule: SRCS_DP := # GNU Make 4.4.1 # Built for x86_64-pc-l [REDACTED by the reviewer: make database dump of the nested make, including the host environment]
+   stop: Makefile:64: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+copy restored: no tracked change
