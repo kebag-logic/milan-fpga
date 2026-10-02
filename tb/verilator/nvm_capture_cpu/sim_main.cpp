@@ -61,17 +61,32 @@ public:
             }
             if (dut.traffic_tx_last) {
                 if (traced_ < 5) {
-                    std::printf("\nTX_FRAME bytes=%zu header=", response_.size());
-                    for (unsigned i = 0; i < std::min<std::size_t>(46, response_.size()); ++i)
-                        std::printf("%02x", response_[i]);
-                    std::printf("\n");
-                    std::fflush(stdout);
+                    // Held for flush_trace(): the trace and the firmware's
+                    // UART share stdout, and a trace written mid-line split
+                    // a CAPTURE row the grader reads (#629, round 2).
+                    std::array<char, 48> text{};
+                    std::snprintf(text.data(), text.size(), "TX_FRAME bytes=%zu header=",
+                                  response_.size());
+                    trace_ += text.data();
+                    for (unsigned i = 0; i < std::min<std::size_t>(46, response_.size()); ++i) {
+                        std::snprintf(text.data(), text.size(), "%02x", response_[i]);
+                        trace_ += text.data();
+                    }
+                    trace_ += '\n';
                     ++traced_;
                 }
                 if (active_ && good_response()) ++dut.probe_responses;
                 response_.clear();
             }
         }
+    }
+
+    //! Write the held TX traces once the console stands at a line start.
+    void flush_trace(bool line_start) {
+        if (!line_start || trace_.empty()) return;
+        std::fputs(trace_.c_str(), stdout);
+        std::fflush(stdout);
+        trace_.clear();
     }
 
     void drive(Vsim& dut) const {
@@ -97,6 +112,7 @@ private:
     std::uint16_t sequence_ = 0;
     bool active_ = false;
     unsigned traced_ = 0;
+    std::string trace_;
 };
 
 void initialize(Vsim& dut) {
@@ -133,6 +149,7 @@ std::string simulate(Vsim& dut) {
     std::string output;
     Controller controller;
     bool complete = false;
+    bool line_start = true;
     constexpr std::uint64_t max_time_ps = 30000000000000ULL;
     while (!Verilated::gotFinish()) {
         const auto time_ps = *std::min_element(next.begin(), next.end());
@@ -149,6 +166,7 @@ std::string simulate(Vsim& dut) {
                 const auto ch = static_cast<char>(dut.serial_source_data);
                 std::putchar(ch);
                 std::fflush(stdout);
+                line_start = ch == '\n';
                 output += ch;
                 complete = output.find("CAPTURE_DONE") != std::string::npos
                     || output.find("CAPTURE_FAILED") != std::string::npos;
@@ -169,8 +187,10 @@ std::string simulate(Vsim& dut) {
         if (edge[0] > 128) dut.sys_reset = 0;
         dut.eval();
         if (!dut.milan_clk) { controller.drive(dut); dut.eval(); }
+        controller.flush_trace(line_start);
         if (complete) break;
     }
+    controller.flush_trace(true);
     return output;
 }
 } // namespace
