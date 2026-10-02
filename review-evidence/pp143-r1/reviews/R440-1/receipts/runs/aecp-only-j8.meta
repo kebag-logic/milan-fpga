@@ -1,0 +1,6 @@
+tag=aecp-only-j8 cpus=10-11
+cmd=python3 tb/pp_top/aecp_mutants.py --output $REVIEWS/pp143-r440-1-packet/receipts/aecp-only-j8 --jobs 8 --only dl-kill-tied-off,dl-released-before-queued,dl-boot-hold-not-exempt,dl-preempt-after-effect,ucpu-preempt-cuts-a-wait,ucpu-preempt-keeps-the-body,ucpu-preempt-repeats,dlkill-always-misbehaving,mvu-silent,fanout-never-ends,acmp-waits-for-aecp,hz-stub-restored,hz-setcfg-not-barrier
+verilator=Verilator 5.050 2026-07-01 rev v5.050
+start=2026-10-02T22:57:43Z 1790981863
+end=2026-10-02T23:08:45Z 1790982525
+wall_s=662

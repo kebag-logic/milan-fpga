@@ -1,0 +1,6 @@
+tag=gsi-only-j1 cpus=0-1
+cmd=python3 tb/pp_top/gsi_mutants.py --output $REVIEWS/pp143-r440-1-packet/receipts/gsi-only-j1 --verilator verilator --jobs 1 --only bridge-gate-removed wrong-sink latency-cmp-low8 failure-code-zero
+verilator=Verilator 5.050 2026-07-01 rev v5.050
+start=2026-10-02T22:28:18Z 1790980098
+end=2026-10-02T22:37:53Z 1790980673
+wall_s=575

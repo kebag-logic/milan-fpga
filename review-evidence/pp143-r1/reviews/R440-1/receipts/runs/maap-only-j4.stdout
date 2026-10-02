@@ -1,0 +1,13 @@
+control maap run: rc=0 tally=(196, 0) PASS
+control pp_top maap-internal: rc=0 tally=(34, 0) PASS
+compare-mac-forward [maap]: rc=2 tally=(194, 9) named=1 KILLED
+    FAIL: U7: claim kept — compare_MAC TRUE takes no action
+compare-mac-forward [pp_top]: rc=2 tally=(34, 5) named=5 KILLED
+    FAIL: MP4: the conflict fan-out closed the DA gate
+    FAIL: MP4: the contested claim was withdrawn
+    FAIL: MP4: one re-address counted
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+    FAIL: U29: a one-cycle Release! gives INITIAL (3 of 20 falls did not)
+    FAIL: U29: no claim is valid after a one-cycle Release! until the fresh walk claims (3 of 20 falls)
+    FAIL: U29: a one-cycle Release! is followed by a fresh walk: 4 byte-exact PROBEs of one range, then its ANNOUNCE (3 of 20 falls absorbed)
+5 checks: 5 PASS, 0 FAIL

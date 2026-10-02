@@ -1,0 +1,6 @@
+tag=retry-only-j4 cpus=0-3
+cmd=env PYTHONDONTWRITEBYTECODE=1 python3 tb/acmp_talker/retry_mutants.py --logs $REVIEWS/pp143-r440-1-packet/receipts/retry-only-j4 --jobs 4 --only no_pacing kill_w_no_off
+verilator=Verilator 5.050 2026-07-01 rev v5.050
+start=2026-10-02T23:09:50Z 1790982590
+end=2026-10-02T23:10:07Z 1790982607
+wall_s=17

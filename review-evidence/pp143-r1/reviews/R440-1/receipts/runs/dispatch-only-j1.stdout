@@ -1,0 +1,69 @@
+control aecp-dispatch: rc=0 PASS
+control aecp-line: rc=0 PASS
+control d3: rc=0 PASS
+control line-guards: rc=0 PASS
+m9-guard-set-stream-format: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_STREAM_FORMAT, whole body)
+    FAIL: M9b3: no SET_STREAM_FORMAT reached the store: STREAM_OUTPUT 1's published row (valid 0x00 -> 0x02) is unmoved
+m9-guard-set-name: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_NAME, whole body)
+    FAIL: M9b5: no SET_NAME reached the name table: CLOCK_DOMAIN 0's name reads what it read before the storm
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact, its image whole (cdl -1)
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 568: must be refused: DESC_LINE_BYTES_P=568 is below 576 (verilator rc 0)
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 1016: must be refused: DESC_LINE_BYTES_P=1016 is above 1008 (verilator rc 1)
+line-buffer-fixed-592: rc=2 failures=7 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): the 584-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): 618 octets on the wire, want 626
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 584-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: cdl 592 off the wire, want 600 (above 524)
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 618 octets on the wire, want 626
+    FAIL: RB the whole-line READ_DESCRIPTOR reached the reservation's last byte: 592 bytes written, 600 reserved
+rb-rounded-buffer-no-page-cap: rc=2 failures=10 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 600)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: byte-exact (status 0, cdl 608)
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: number_of_mappings 176 names exactly the 73 records carried
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: the frame did not leave through slot 4
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: byte-exact (status 0, cdl 24)
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: number_of_mappings 256 names exactly the 0 records carried
+    FAIL: RB no response byte written at or past RESP_BASE_P + 16 + DESC_LINE_BYTES_P (600): 8
+sclks-bound-three: rc=2 failures=11 named=1 KILLED
+    FAIL: D3C1: SET_CLOCK_SOURCE(9) over the ten-source domain answers SUCCESS byte-exact, carrying 9 (1 responses)
+    FAIL: D3C1 notify: exactly one unsolicited SET_CLOCK_SOURCE carrying 9 reaches the second controller, sequence 0 (0 frames)
+    FAIL: D3C1 effects: one store write, one NVM_MARK, one NOTIFY_ENQ (0, 0, 0)
+    FAIL: D3C1 readback: GET_CLOCK_SOURCE reads 9 byte-exact, the row holds 9 with its valid flag and the top exports 9 (row 0 valid 0, export 0)
+    FAIL: D3C3 save: record 0x0A carrying 9 erased and written once, byte-exact, nothing unflushed, no other record (0 erases, 0 writes, 0 other operations)
+    FAIL: D3C2: SET_CLOCK_SOURCE(10), the count, answers BAD_ARGUMENTS byte-exact carrying the 9 in force (1 responses)
+    FAIL: D3C2 readback: GET_CLOCK_SOURCE still reads 9, the row and the export hold 9 (row 0, export 0)
+    FAIL: D3C3 restore: COMPLETE from cleared rows with the saved record applied (applied 0 refused 0 blank 27 of 27)
+    FAIL: D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the top exports it (row 0 valid 0, export 0)
+    FAIL: D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 0 refused 0 blank 27 of 27)
+    FAIL: D3C4 above the count: the saved 9 over 3 sources is refused, COMPLETE (applied 0 refused 0 blank 27 of 27)
+sclks-bound-inclusive: rc=2 failures=6 named=1 KILLED
+    FAIL: D3C2: SET_CLOCK_SOURCE(10), the count, answers BAD_ARGUMENTS byte-exact carrying the 9 in force (1 responses)
+    FAIL: D3C2 effects: the refusal writes, marks and enqueues nothing (1, 1, 1) and the second controller hears nothing (1 frames)
+    FAIL: D3C2 readback: GET_CLOCK_SOURCE still reads 9, the row and the export hold 9 (row 10, export 10)
+    FAIL: D3C2 saved: nothing pending and no device operation for two windows after the refusal (49893 pending cycles, 2 operations)
+    FAIL: D3C3 restore: COMPLETE from cleared rows with the saved record applied (applied 0 refused 1 blank 26 of 27)
+    FAIL: D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the top exports it (row 0 valid 0, export 0)
+13 checks: 13 PASS, 0 FAIL

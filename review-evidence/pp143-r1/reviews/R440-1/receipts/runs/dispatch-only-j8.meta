@@ -1,0 +1,6 @@
+tag=dispatch-only-j8 cpus=4-5
+cmd=python3 tb/pp_top/aecp_dispatch_mutants.py --output $REVIEWS/pp143-r440-1-packet/receipts/dispatch-only-j8 --verilator verilator --jobs 8 --only m9-guard-set-stream-format,m9-guard-set-name,rd-str-short-guard-nop,line-floor-rounded,line-ceiling-dropped,line-buffer-fixed-592,rb-rounded-buffer-no-page-cap,sclks-bound-three,sclks-bound-inclusive
+verilator=Verilator 5.050 2026-07-01 rev v5.050
+start=2026-10-02T22:47:56Z 1790981276
+end=2026-10-02T22:58:14Z 1790981894
+wall_s=618
