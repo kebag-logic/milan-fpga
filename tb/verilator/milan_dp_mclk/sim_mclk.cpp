@@ -358,17 +358,17 @@ void MclkHarness::talker_due(Talker& t) {
 
 void MclkHarness::send_aaf(Talker& t) {
     std::vector<uint8_t> f(38 + kAafPayload, 0);
-    const uint8_t dmac[6] = {0x91, 0xE0, 0xF0, 0x00, 0x2A, static_cast<uint8_t>(0x02 + 2 * t.uid)};
-    const uint8_t src[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
-    std::memcpy(f.data(), dmac, 6);
-    std::memcpy(f.data() + 6, src, 6);
+    const std::array<uint8_t, 6> dmac = {0x91, 0xE0, 0xF0, 0x00, 0x2A, static_cast<uint8_t>(0x02 + 2 * t.uid)};
+    const std::array<uint8_t, 6> src = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+    std::memcpy(f.data(), dmac.data(), dmac.size());
+    std::memcpy(f.data() + 6, src.data(), src.size());
     f[12] = 0x22; f[13] = 0xF0;
     f[14] = 0x02;                                         // AAF
     f[15] = static_cast<uint8_t>(0x81 | (t.mr ? 0x08 : 0x00));   // sv, mr, tv
     f[16] = t.seq;
     f[17] = 0x00;                                         // tu clear
-    const uint8_t sid[8] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, t.uid};
-    std::memcpy(f.data() + 18, sid, 8);
+    const std::array<uint8_t, 8> sid = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, t.uid};
+    std::memcpy(f.data() + 18, sid.data(), sid.size());
     const uint32_t ts = static_cast<uint32_t>(
         static_cast<uint64_t>(std::floor(t.media_ns(t.n))) + kPresentNs);
     f[26] = static_cast<uint8_t>(ts >> 24); f[27] = static_cast<uint8_t>(ts >> 16);
@@ -384,17 +384,17 @@ void MclkHarness::send_aaf(Talker& t) {
 
 void MclkHarness::send_crf(Talker& t) {
     std::vector<uint8_t> f(64, 0);
-    const uint8_t dmac[6] = {0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x03};
-    const uint8_t src[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
-    std::memcpy(f.data(), dmac, 6);
-    std::memcpy(f.data() + 6, src, 6);
+    const std::array<uint8_t, 6> dmac = {0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x03};
+    const std::array<uint8_t, 6> src = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+    std::memcpy(f.data(), dmac.data(), dmac.size());
+    std::memcpy(f.data() + 6, src.data(), src.size());
     f[12] = 0x22; f[13] = 0xF0;
     f[14] = 0x04;                                         // CRF
     f[15] = static_cast<uint8_t>(0x80 | (t.mr ? 0x08 : 0x00));
     f[16] = t.seq;
     f[17] = 0x01;                                         // CRF_AUDIO_SAMPLE
-    const uint8_t sid[8] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, t.uid};
-    std::memcpy(f.data() + 18, sid, 8);
+    const std::array<uint8_t, 8> sid = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, t.uid};
+    std::memcpy(f.data() + 18, sid.data(), sid.size());
     f[28] = 0xBB; f[29] = 0x80;                           // pull 0, 48000
     f[31] = 0x08;                                         // crf_data_length
     f[33] = 96;                                           // timestamp_interval
@@ -926,7 +926,7 @@ MclkHarness::SwitchDelta MclkHarness::switch_once(uint16_t to, int64_t gap_ns) {
 void MclkHarness::row_switch_sweep(int phases, bool grade_slips) {
     std::printf("\n[SWITCH] AAF0 -> CRF -> AAF0 -> AAF1 -> AAF0 at %d phases of the CRF output\n", phases);
     auto* rp = dut->rootp;
-    const uint16_t order[4] = {kSrcCrf, kSrcAaf0, kSrcAaf1, kSrcAaf0};
+    const std::array<uint16_t, 4> order = {kSrcCrf, kSrcAaf0, kSrcAaf1, kSrcAaf0};
     long n = 0;
     long bad_pulse = 0;
     long bad_toggle = 0;
@@ -975,7 +975,7 @@ void MclkHarness::row_switch_sweep(int phases, bool grade_slips) {
 //! past that ceiling, and the sweep above grades that none is ever queued.
 void MclkHarness::row_switch_recentres() {
     std::printf("\n[SWITCH-RECENTRE] one #386 recentre per switch, over 0.8 s gaps\n");
-    const uint16_t order[4] = {kSrcCrf, kSrcAaf0, kSrcAaf1, kSrcAaf0};
+    const std::array<uint16_t, 4> order = {kSrcCrf, kSrcAaf0, kSrcAaf1, kSrcAaf0};
     long bad = 0;
     long bad_other = 0;
     for (uint16_t to : order) {
