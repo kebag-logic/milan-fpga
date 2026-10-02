@@ -1,0 +1,20 @@
+control aecp-dispatch: rc=0 PASS
+error: patch failed: hdl/aecp/ucode/gen_ucode.py:1427
+error: hdl/aecp/ucode/gen_ucode.py: patch does not apply
+Traceback (most recent call last):
+  File "<packet>/scratch/head/tb/pp_top/aecp_dispatch_mutants.py", line 229, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<packet>/scratch/head/tb/pp_top/aecp_dispatch_mutants.py", line 220, in main
+    records = campaign(tree, args.output, selected, args.verilator)
+  File "<packet>/scratch/head/tb/pp_top/aecp_dispatch_mutants.py", line 183, in campaign
+    plant(tree, patch)
+    ~~~~~^^^^^^^^^^^^^
+  File "<packet>/scratch/head/tb/pp_top/aecp_dispatch_mutants.py", line 157, in plant
+    subprocess.run(["git", "apply", "--check", path], cwd=tree, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'apply', '--check', '<packet>/scratch/head/tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch']' returned non-zero exit status 1.
+rc=1

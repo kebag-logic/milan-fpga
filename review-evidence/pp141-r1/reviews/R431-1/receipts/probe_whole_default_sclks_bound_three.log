@@ -1,0 +1,35 @@
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+GI latency walks added: 5568 checks, 0 failures
+NW: 85 checks, 0 failures
+FAIL: D3C1: SET_CLOCK_SOURCE(9) over the ten-source domain answers SUCCESS byte-exact, carrying 9 (1 responses)
+  got (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 38 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 dc 01 00 16 00 24 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 dc 01 00 16 00 24 00 00 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: D3C1 notify: exactly one unsolicited SET_CLOCK_SOURCE carrying 9 reaches the second controller, sequence 0 (0 frames)
+FAIL: D3C1 effects: one store write, one NVM_MARK, one NOTIFY_ENQ (0, 0, 0)
+FAIL: D3C1 readback: GET_CLOCK_SOURCE reads 9 byte-exact, the row holds 9 with its valid flag and the top exports 9 (row 0 valid 0, export 0)
+FAIL: D3C3 save: record 0x0A carrying 9 erased and written once, byte-exact, nothing unflushed, no other record (0 erases, 0 writes, 0 other operations)
+FAIL: D3C2: SET_CLOCK_SOURCE(10), the count, answers BAD_ARGUMENTS byte-exact carrying the 9 in force (1 responses)
+  got (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 38 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 dc 03 00 16 00 24 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 38 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 dc 03 00 16 00 24 00 00 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: D3C2 readback: GET_CLOCK_SOURCE still reads 9, the row and the export hold 9 (row 0, export 0)
+FAIL: D3C3 restore: COMPLETE from cleared rows with the saved record applied (applied 0 refused 0 blank 27 of 27)
+FAIL: D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the top exports it (row 0 valid 0, export 0)
+FAIL: D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 0 refused 0 blank 27 of 27)
+FAIL: D3C4 above the count: the saved 9 over 3 sources is refused, COMPLETE (applied 0 refused 0 blank 27 of 27)
+D3: 150 checks, 11 failures
+  AC: 18924 ms of simulated time on its own model
+ACMP: 43 checks, 0 failures
+AD: 55 checks, 0 failures
+AX: 218 checks, 0 failures
+  [DL1] kill 9943 clocks after reception, forced response's first byte at 13354 (budget 10000, T-AECP-RESP 24000)
+  [DL2] kill 9919 clocks after reception, the SET_NAME's own response at 18969
+  [DL3] the stall answered at 13354, the queued GET_MILAN_INFO at 13396 clocks after its reception
+  [DL4] the voided batch answered 12085 clocks after reception
+  [DL6] kill 9929 clocks after reception, the edit's own response at 12225
+DL: 64 checks, 0 failures
+HZ: 176 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 8624 checks, 11 failures
+Command exited with non-zero status 1
+wall 305.11 s
+rc=1

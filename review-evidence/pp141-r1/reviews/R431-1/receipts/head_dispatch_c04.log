@@ -1,0 +1,32 @@
+control aecp-dispatch: rc=0 PASS
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+    FAIL: RD0 STREAM_INPUT 0, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD0 STREAM_OUTPUT 1, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+rd-cfg-any: rc=2 failures=2 named=1 KILLED
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): the 534-byte descriptor, byte-exact
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: the 534-byte descriptor, byte-exact
+rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD1 STREAM_INPUT 0 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact, its image whole (cdl -1)
+7 checks: 7 PASS, 0 FAIL
+rc=0

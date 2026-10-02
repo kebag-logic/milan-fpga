@@ -1,0 +1,61 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "rd-cd-image-only",
+    "patch": "rd-cd-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-unset-overlays",
+    "patch": "rd-str-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-so-reads-input-row",
+    "patch": "rd-so-reads-input-row",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cfg-any",
+    "patch": "rd-cfg-any",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-tail-uncut",
+    "patch": "rd-tail-uncut",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-short-guard-nop",
+    "patch": "rd-str-short-guard-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

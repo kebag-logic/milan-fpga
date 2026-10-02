@@ -1,0 +1,103 @@
+# d3_mutants.py at head 4a40b179, run in 7 --only chunks (receipts head_d3_mutants_*.log); measured failing-check counts vs README rows
+== tb/pp_top/README.md (75 rows)
+TRG_clks: measured=10 readme=10 AGREE
+clks_restore_bound_inclusive: measured=4 readme=4 AGREE
+clks_restore_count_narrowed: measured=2 readme=2 AGREE
+clks_restore_index_narrowed: measured=4 readme=4 AGREE
+clks_row_two_bits: measured=10 readme=10 AGREE
+RPL_clks: measured=5 readme=5 AGREE
+TRG_cfg: measured=3 readme=3 AGREE
+TRG_rate: measured=3 readme=3 AGREE
+dispatch_not_held: measured=6 readme=6 AGREE
+done_without_d3: measured=45 readme=45 AGREE
+hold_released_at_go: measured=17 readme=17 AGREE
+image_unproven_continues: measured=9 readme=9 AGREE
+latch_ignores_program: measured=3 readme=3 AGREE
+own_taken_at_the_walk: measured=10 readme=10 AGREE
+rule_ignored: measured=7 readme=7 AGREE
+unframed_reads_as_device_error: measured=42 readme=42 AGREE
+RPL_cfg: measured=6 readme=6 AGREE
+RPL_fmti: measured=2 readme=2 AGREE
+RPL_fmto: measured=2 readme=2 AGREE
+RPL_ptof: measured=6 readme=6 AGREE
+RPL_rate: measured=6 readme=6 AGREE
+TRG_fmti: measured=4 readme=4 AGREE
+TRG_fmto: measured=4 readme=4 AGREE
+TRG_ptof: measured=24 readme=24 AGREE
+clear_by_group: measured=8 readme=8 AGREE
+clear_by_index: measured=14 readme=14 AGREE
+clear_wins_same_edge: measured=1 readme=1 AGREE
+identify_is_a_change: measured=1 readme=1 AGREE
+passes_may_disagree: measured=3 readme=3 AGREE
+taint_ignored: measured=1 readme=1 AGREE
+unchanged_compare_ignores_validity: measured=1 readme=1 AGREE
+blank_ignores_d3: measured=1 readme=1 AGREE
+closed_releases_the_entity: measured=2 readme=2 AGREE
+desc_error_is_a_refusal: measured=6 readme=6 AGREE
+device_error_reads_as_blank: measured=5 readme=5 AGREE
+dyn_not_rolled_back: measured=4 readme=4 AGREE
+enable_not_released_by_restore: measured=4 readme=4 AGREE
+no_backoff_d3: measured=2 readme=2 AGREE
+no_restore_watchdog: measured=7 readme=7 AGREE
+no_rollback: measured=17 readme=17 AGREE
+quarantine_released_by_time: measured=10 readme=10 AGREE
+restore_writes_are_changes: measured=1 readme=1 AGREE
+rollback_ignores_debt: measured=3 readme=3 AGREE
+store_not_cleared: measured=17 readme=17 AGREE
+store_not_rolled_back: measured=3 readme=3 AGREE
+valid_not_cleared: measured=17 readme=17 AGREE
+aggregate_mirrored: measured=19 readme=19 AGREE
+alarm_forgiven_by_success: measured=1 readme=1 AGREE
+backoff_derivation: measured=2 readme=2 AGREE
+backoff_holds_dispatch: measured=1 readme=1 AGREE
+disagree_one_direction: measured=1 readme=1 AGREE
+fourth_attempt: measured=2 readme=2 AGREE
+judge_wait_unwatched: measured=1 readme=1 AGREE
+no_aggregate_deadline: measured=16 readme=16 AGREE
+pass1_read_not_drained: measured=1 readme=1 AGREE
+rate_walk_stuck_on_first_lane: measured=1 readme=1 AGREE
+rate_walk_unbounded: measured=1 readme=1 AGREE
+rollback_one_cycle: measured=1 readme=1 AGREE
+agg_closes_before_proof: measured=11 readme=11 AGREE
+agg_fires_with_event_in_hand: measured=2 readme=2 AGREE
+agg_not_in_rollback: measured=4 readme=4 AGREE
+agg_not_stopped_at_terminal: measured=3 readme=3 AGREE
+aggregate_from_the_walk: measured=21 readme=21 AGREE
+binding_walk_ignores_aggregate: measured=10 readme=10 AGREE
+drain_misses_issue_cycle: measured=2 readme=2 AGREE
+per_wait_floor: measured=1 readme=1 AGREE
+proof_reads_records_past_bound: measured=6 readme=6 AGREE
+aecp_hold_unbounded: measured=7 readme=7 AGREE
+agg_closes_during_proof: measured=2 readme=2 AGREE
+agg_o_pulse: measured=3 readme=3 AGREE
+held_drop_uncounted: measured=5 readme=5 AGREE
+proof_default_only_from_img: measured=3 readme=3 AGREE
+proof_past_bound_needs_fired: measured=2 readme=2 AGREE
+proof_past_needs_fire: measured=2 readme=2 AGREE
+resident_never_returned: measured=1 readme=1 AGREE
+== tb/acmp_nvm/README.md
+alarm_forgiven_binding: measured=1 readme=1 AGREE
+fourth_attempt_binding: measured=3 readme=3 AGREE
+no_backoff_binding: measured=1 readme=1 AGREE
+drain_misses_issue_cycle_m1: measured=4 readme=4 AGREE
+issue_arm_cross_intent: measured=1 readme=1 AGREE
+issue_arm_ignores_we: measured=1 readme=1 AGREE
+issue_arm_stale_we: measured=3 readme=3 AGREE
+issue_arm_write_too: measured=1 readme=1 AGREE
+owned_arm_write_too: measured=1 readme=1 AGREE
+cross_own_m1_drains_m0: measured=1 readme=1 AGREE
+owned_arm_cross_intent: measured=1 readme=1 AGREE
+== tb/rx_validator/README.md (row M4 records '4 FAILs')
+validator_admits_held_aecp: measured=4 readme=4 (M4 row, free-form) AGREE
+== verdict lines
+     87       1 "verdict": "KILLED", "missing": []}
+      1       1 "verdict": "PASS"}
+      1       3 "verdict": "PASS"}
+      1       7 "verdict": "PASS"}
+D3 mutations: 11 of 11 KILLED by their named checks; goldens PASS
+D3 mutations: 15 of 15 KILLED by their named checks; goldens PASS
+D3 mutations: 15 of 15 KILLED by their named checks; goldens PASS
+D3 mutations: 15 of 15 KILLED by their named checks; goldens PASS
+D3 mutations: 15 of 15 KILLED by their named checks; goldens PASS
+D3 mutations: 11 of 11 KILLED by their named checks; goldens PASS
+D3 mutations: 5 of 5 KILLED by their named checks; goldens PASS

@@ -1,0 +1,120 @@
+OK aecp_dispatch_mutations/a5b-reboot-success-arm.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/line-buffer-fixed-592.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/line-ceiling-dropped.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/line-floor-rounded.patch offset_or_fuzz_hunks=0
+REFUSED aecp_dispatch_mutations/lk-prefix-zero-body.patch
+    Checking patch hdl/aecp/ucode/gen_ucode.py...
+    Hunk #1 succeeded at 153 (offset 9 lines).
+    Hunk #2 succeeded at 166 (offset 9 lines).
+    Hunk #3 succeeded at 1503 (offset 209 lines).
+    Hunk #4 succeeded at 1534 (offset 209 lines).
+    error: while searching for:
+    # stored, read back and announced while the media plane resolved it to
+    # INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+    #
+    # Every refusal shares one tail: r6 carries the current index, preloaded with
+    # 0 so the NO_SUCH_DESCRIPTOR arm (no domain, no current value) answers zero
+    # exactly as before. The lock is checked after the current index is read, for
+    # E_SSRATE's reason (IEEE 1722.1-2021 §7.4.23.1: "The response always contains
+    # the current value ... the old value if it fails"; issue #53), and a locate
+    # miss meets it before NO_SUCH_DESCRIPTOR. The slot ends at E_TIZ8NS, so the
+    # shared tail lives out of line at E_SCLKSRF.
+    SCLKS_REFUSE = E_SCLKSRF                         # the miss arm: the lock first
+    SCLKS_EMIT = E_SCLKSRF + 1                       # the tail every refusal shares
+    place(E_SCLKS, [
+        u('MOVE', rd=2, ra=0, imm=0),                # reserved @30, and the refusals
+        u('MOVE', rd=6, ra=0, imm=0),                # the current index, 0 until read
+        u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the Clock Domain exist?
+        u('BR_STATUS', cnd=0, imm=SCLKS_REFUSE),     # miss -> the lock, then NSD
+        u('READ_ST', rd=3, imm=RGN_DYNV + SEL_CLKSRC),
+        u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+        u('READ_ST', rd=6, imm=RGN_DATA + CD_SRCIDX_LANE),   # the image's index
+        u('BR_STATUS', cnd=2, imm=E_SCLKS + 9),      # unset -> the image's stands
+        u('READ_ST', rd=6, imm=RGN_DYN + SEL_CLKSRC),        # set -> the controller's
+        u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # E_SCLKS + 9: ENTITY_LOCKED
+        u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),
+        u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+        u('MOVE', rd=9, ra=7, fmt=FMT_W),            # r9 = clock_sources_count
+        u('CHECK_ARG', ra=12, rb=9, fmt=FMT_W,       # index < count, else BAD_ARGS
+          cnd=REL_LT, imm=SCLKS_EMIT),
+        u('WRITE_ST', ra=12, fmt=FMT_W, imm=RGN_DYN + SEL_CLKSRC),
+        u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+        u('SET_STATUS', imm=ST_OK),
+    
+    error: patch failed: hdl/aecp/ucode/gen_ucode.py:1427
+    error: hdl/aecp/ucode/gen_ucode.py: patch does not apply
+OK aecp_dispatch_mutations/lk-sclks-lock-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/lk-sctrl-lock-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/lk-ssrate-lock-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-add-mappings.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-dynamic-info.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-get-name.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-remove-mappings.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-set-name.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-set-stream-format.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/m9-guard-set-stream-info.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/ov-oversize-at-576.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/ov-oversize-never.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/ov-top-oversize-dropped.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/pg-append-524.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/pg-cap-dropped.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/pg-cap-off-by-one.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-au-image-only.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-au-unset-overlays.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-base-no-overlay.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-cd-image-only.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-cfg-any.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-so-reads-input-row.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-str-short-guard-nop.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-str-unset-overlays.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/rd-tail-uncut.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/sclks-bound-inclusive.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/sclks-bound-three.patch offset_or_fuzz_hunks=0
+OK aecp_dispatch_mutations/sctrl-badarg-zero-body.patch offset_or_fuzz_hunks=0
+OK mutations/acmp-waits-for-aecp.patch offset_or_fuzz_hunks=0
+OK mutations/dl-armed-at-admission.patch offset_or_fuzz_hunks=0
+OK mutations/dl-boot-hold-not-exempt.patch offset_or_fuzz_hunks=0
+OK mutations/dl-edit-preempted.patch offset_or_fuzz_hunks=0
+OK mutations/dl-gdi-runs-on.patch offset_or_fuzz_hunks=0
+OK mutations/dl-kill-ack-keeps-owner.patch offset_or_fuzz_hunks=0
+OK mutations/dlkill-always-misbehaving.patch offset_or_fuzz_hunks=0
+OK mutations/dl-kill-tied-off.patch offset_or_fuzz_hunks=0
+OK mutations/dl-lock-preempted.patch offset_or_fuzz_hunks=0
+OK mutations/dl-mvu-forced-status-10.patch offset_or_fuzz_hunks=0
+OK mutations/dl-non-aem-forced-status-10.patch offset_or_fuzz_hunks=0
+OK mutations/dl-preempt-after-effect.patch offset_or_fuzz_hunks=0
+OK mutations/dl-registry-preempted.patch offset_or_fuzz_hunks=0
+OK mutations/dl-released-before-queued.patch offset_or_fuzz_hunks=0
+OK mutations/fanout-never-ends.patch offset_or_fuzz_hunks=0
+OK mutations/hz-acmp-reads-as-steps.patch offset_or_fuzz_hunks=0
+OK mutations/hz-barrier-no-priority.patch offset_or_fuzz_hunks=0
+OK mutations/hz-clock-as-lock.patch offset_or_fuzz_hunks=0
+OK mutations/hz-clock-as-ro.patch offset_or_fuzz_hunks=0
+OK mutations/hz-clock-key-none.patch offset_or_fuzz_hunks=0
+OK mutations/hz-foreign-target-classified.patch offset_or_fuzz_hunks=0
+OK mutations/hz-identify-as-ro.patch offset_or_fuzz_hunks=0
+OK mutations/hz-identify-key-none.patch offset_or_fuzz_hunks=0
+OK mutations/hz-lock-not-lockop.patch offset_or_fuzz_hunks=0
+OK mutations/hz-map-as-ro.patch offset_or_fuzz_hunks=0
+OK mutations/hz-map-key-none.patch offset_or_fuzz_hunks=0
+OK mutations/hz-name-as-ro.patch offset_or_fuzz_hunks=0
+OK mutations/hz-name-as-stream.patch offset_or_fuzz_hunks=0
+OK mutations/hz-name-key-none.patch offset_or_fuzz_hunks=0
+OK mutations/hz-reads-keyed-none.patch offset_or_fuzz_hunks=0
+OK mutations/hz-registry-as-ro.patch offset_or_fuzz_hunks=0
+OK mutations/hz-response-classified.patch offset_or_fuzz_hunks=0
+OK mutations/hz-setcfg-not-barrier.patch offset_or_fuzz_hunks=0
+OK mutations/hz-stream-key-none.patch offset_or_fuzz_hunks=0
+OK mutations/hz-stub-restored.patch offset_or_fuzz_hunks=0
+OK mutations/hz-talker-keyed-as-listener.patch offset_or_fuzz_hunks=0
+OK mutations/mvu-echo-slot-std.patch offset_or_fuzz_hunks=0
+OK mutations/mvu-fault-status-10.patch offset_or_fuzz_hunks=0
+OK mutations/mvu-silent.patch offset_or_fuzz_hunks=0
+OK mutations/ucpu-preempt-cuts-a-wait.patch offset_or_fuzz_hunks=0
+OK mutations/ucpu-preempt-keeps-the-body.patch offset_or_fuzz_hunks=0
+OK mutations/ucpu-preempt-repeats.patch offset_or_fuzz_hunks=0
+rc=1

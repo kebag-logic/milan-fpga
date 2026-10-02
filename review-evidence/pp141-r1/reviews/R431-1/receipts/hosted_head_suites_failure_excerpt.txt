@@ -1,0 +1,8 @@
+# hosted run 36969624563 (push, exact head 4a40b179), job 110720664530 'suites': step 10 'AECP dispatch mutation campaign' failure; excerpt of gh run view --log-failed
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:48.8622745Z lk-sctrl-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:48.8670501Z error: patch failed: hdl/aecp/ucode/gen_ucode.py:1427
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:48.8670857Z error: hdl/aecp/ucode/gen_ucode.py: patch does not apply
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:48.9933327Z     raise CalledProcessError(retcode, process.args,
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:48.9934280Z subprocess.CalledProcessError: Command '['git', 'apply', '--check', '<hosted-checkout>/tb/pp_top/aecp_disp
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:49.0064490Z make: *** [Makefile:105: aecp-dispatch-mutants] Error 1
+suites	AECP dispatch mutation campaign	2026-10-02T06:41:49.0081837Z ##[error]Process completed with exit code 2.

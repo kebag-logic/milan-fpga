@@ -1,0 +1,18 @@
+#!/bin/sh
+# Verilator wrapper: replaces a "-j 0" build-parallelism argument with
+# "-j ${R431_VJOBS:-8}" so no build exceeds the review's job cap.
+# R431_VERILATOR names the real binary (default: verilator on PATH; this review
+# pointed it at the pinned 5.050 build).
+V="${R431_VERILATOR:-verilator}"
+J="${R431_VJOBS:-8}"
+out=""
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a="$J"; fi
+  prev="$a"
+  set -- "$@" "$a"
+done
+# drop the original arguments (first half) and keep the rewritten copy
+n=$(( $# / 2 ))
+shift $n
+exec "$V" "$@"

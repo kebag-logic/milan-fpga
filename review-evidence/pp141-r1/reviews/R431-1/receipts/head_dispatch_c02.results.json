@@ -1,0 +1,61 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "lk-sctrl-lock-nop",
+    "patch": "lk-sctrl-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 12,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-miss-lock-nop",
+    "patch": "lk-sctrl-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sctrl-badarg-zero-body",
+    "patch": "sctrl-badarg-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-never",
+    "patch": "ov-oversize-never",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-at-576",
+    "patch": "ov-oversize-at-576",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-top-oversize-dropped",
+    "patch": "ov-top-oversize-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

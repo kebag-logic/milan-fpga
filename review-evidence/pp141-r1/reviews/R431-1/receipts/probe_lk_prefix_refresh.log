@@ -1,0 +1,12 @@
+refreshed patch applies at head
+control aecp-dispatch: rc=0 PASS
+lk-prefix-zero-body: rc=2 failures=7 named=1 KILLED
+    FAIL: LK1 unset rate row, foreign SET_SAMPLING_RATE(48000) carries the image's 96000: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK1 unset clock-source row, foreign SET_CLOCK_SOURCE(1) carries the image's 2: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK3 foreign SET_SAMPLING_RATE(96000) carries the stored 48000: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK3 foreign SET_CLOCK_SOURCE(2) carries the stored 1: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 3, cdl 17)
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+2 checks: 2 PASS, 0 FAIL
+rc=0

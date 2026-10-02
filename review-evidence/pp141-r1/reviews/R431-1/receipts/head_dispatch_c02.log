@@ -1,0 +1,52 @@
+control aecp-dispatch: rc=0 PASS
+lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: ENTITY_LOCKED byte-exact (status 0, cdl 17)
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: no unsolicited frame reached the registered holder
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: no dynamic-store write, NVM mark or notification (1, 0, 1)
+    FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 0, cdl 17)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: no unsolicited frame reached the registered holder
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: no dynamic-store write, NVM mark or notification (1, 0, 1)
+    FAIL: LK3 ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK6 IDENTIFY 0: ...one store write and 1 notification enqueued (1, 0)
+lk-sctrl-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: LK4 foreign SET_CONTROL on CONTROL 3 (absent): ENTITY_LOCKED byte-exact (status 2, cdl 17)
+sctrl-badarg-zero-body: rc=2 failures=2 named=1 KILLED
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+ov-oversize-never: rc=2 failures=18 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the 576-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): 576 octets on the wire, want 618
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the frame left through slot 4
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the 536-byte descriptor, byte-exact
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): 576 octets on the wire, want 578
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the frame left through slot 4
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 576-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 576 octets on the wire, want 618
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the frame left through slot 4
+ov-oversize-at-576: rc=2 failures=4 named=1 KILLED
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): one TX-slot grant, the oversize request clear, slot 4
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): the frame did not leave through slot 4
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: the frame did not leave through slot 4
+ov-top-oversize-dropped: rc=2 failures=18 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the 576-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): 576 octets on the wire, want 618
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the frame left through slot 4
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the 536-byte descriptor, byte-exact
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): 576 octets on the wire, want 578
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the frame left through slot 4
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 576-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 576 octets on the wire, want 618
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the frame left through slot 4
+7 checks: 7 PASS, 0 FAIL
+rc=0
