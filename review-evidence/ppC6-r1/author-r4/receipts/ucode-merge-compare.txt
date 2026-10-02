@@ -1,0 +1,8 @@
+ucode.hex from gen_ucode.py at main 16ea10ac, the lane 9624ef4c and the merge 651839e1 (2048 words each)
+sha256 main   94afc35852e6609d446d34b3ca8a2404ea7b703e15c9c8af645cc2db31e53336
+sha256 lane   b4755390ca2d412b9a99c6ae31405108138161eff5978da89022304283ac381a
+sha256 merge  23d2213d784bb6368ae7bb9de379fef4a71d774783f9582cc66b75be8f00ea08
+merge vs main: 27 words differ, 464..500
+E_IDNOTIF  lane[2000:2006] == merge[464:470]: True
+E_SINFOUNS lane[2016:2037] == merge[480:501]: True
+merge 464..500 outside the two bodies (470..479) equal main's fill: True
