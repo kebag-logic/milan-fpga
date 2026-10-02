@@ -1,0 +1,30 @@
+variant=round2 changed:  M scripts/entity_shape_selftest.py  M scripts/shape_consumer_inventory.py  M tb/verilator/milan_dp_mclk/Makefile 
+==== make: GNU Make 4.3
+plain gate rc=1
+  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+RESULT: FAIL
+self-test rc=1
+  [FAIL] I every shape-header consumer resolves: got ['tb/verilator/milan_dp_mclk/Makefile: obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh -> tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh is outside the tracked tree and is not classified'], expected []
+checks: 219   failures: 1
+RESULT: FAIL
+frozen shape prerequisites in the root suite's database:
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+    print('   classified_frozen_targets:', sorted(i.classified_frozen_targets('tb/verilator/milan_dp_mclk/Makefile')))
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'shape_consumer_inventory' has no attribute 'classified_frozen_targets'
+   (True, ['obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh'])
+==== make: GNU Make 4.4.1
+plain gate rc=0
+RESULT: PASS
+self-test rc=0
+checks: 219   failures: 0
+RESULT: PASS
+frozen shape prerequisites in the root suite's database:
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+    print('   classified_frozen_targets:', sorted(i.classified_frozen_targets('tb/verilator/milan_dp_mclk/Makefile')))
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'shape_consumer_inventory' has no attribute 'classified_frozen_targets'
+   (True, [])
+restored: 0 changed paths

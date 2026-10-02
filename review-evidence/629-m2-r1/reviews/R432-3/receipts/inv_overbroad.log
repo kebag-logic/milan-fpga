@@ -1,0 +1,24 @@
+variant=overbroad changed:  M scripts/shape_consumer_inventory.py 
+==== make: GNU Make 4.3
+plain gate rc=0
+RESULT: PASS
+self-test rc=1
+  [FAIL] MUTATION rejected: a classified reference matched by its text alone: got False, expected True
+  [FAIL] MUTATION rejected: a classified reference frozen before its definition: got False, expected True
+checks: 222   failures: 2
+RESULT: FAIL
+frozen shape prerequisites in the root suite's database:
+   (True, ['obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh'])
+   classified_frozen_targets: ['tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh']
+==== make: GNU Make 4.4.1
+plain gate rc=0
+RESULT: PASS
+self-test rc=1
+  [FAIL] MUTATION rejected: a classified reference matched by its text alone: got False, expected True
+  [FAIL] MUTATION rejected: a classified reference frozen before its definition: got False, expected True
+checks: 222   failures: 2
+RESULT: FAIL
+frozen shape prerequisites in the root suite's database:
+   (True, ['obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh'])
+   classified_frozen_targets: ['tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh']
+restored: 0 changed paths
