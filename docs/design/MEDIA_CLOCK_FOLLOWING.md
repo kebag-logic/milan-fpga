@@ -5,7 +5,7 @@
 
 Relates to #629. **A design proposal, not implemented.** It was written against
 dev `d4dd7426`. Every code citation is `path:line` at that commit, and every
-`protocol-processor/` path is at the pinned submodule commit `b2db3a97`.
+`protocol-processor/` path is at the then-pinned submodule commit `b2db3a97`.
 
 The end station is to follow either an AAF talker's media clock or a CRF
 talker's media clock, with exactly one source selected at a time through its
@@ -1275,6 +1275,15 @@ These are a cross-repository plan, filed as
 - **Order:** the processor issue lands first, or with the parent change. The
   parent then bumps the submodule pin, which carries the tests even though no
   processor RTL moves.
+- **Status: landed at `631eeb34`.**
+  [Processor PR 142](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/142)
+  merged the documentation and the four tests as D3C1 to D3C4 in
+  `protocol-processor/tb/pp_top`, with six mutants that each fail a named D3C
+  check; D3C3 is the D3S1/D3R1 pair for an AAF index. Its only `hdl/` change
+  is a comment in the microcode generator. #635 moves the parent's pin to `631eeb34`. The line citations
+  above are at `b2db3a97`; at `631eeb34` the range-check comment is
+  `protocol-processor/hdl/aecp/ucode/gen_ucode.py:1654-1663`, and the
+  SET_CLOCK_SOURCE program with its refusal tail is `:1674-1711`.
 
 ## Test plan
 
