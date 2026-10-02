@@ -698,9 +698,11 @@ class MediaGridAlignmentHarness {
         // (a pull to the 256-cycle keep-off settles over about a second, a
         // phase walk of under 1 ppm), which is alignment, not drift. What
         // A2-a owes at INTERNAL is the design's row: the loop engaged and
-        // SLIP_TDM static.
-        ck("INTERNAL: the plan's -10.64 ppm drift is gone (more than 5 ppm from it)",
-           std::fabs(ppm_int - ppm_exp) > 5.0, 1);
+        // SLIP_TDM static. The rate is graded two-sided, near zero, with that
+        // pull-in's room: inside 5 ppm of the frame's rate, which is also more
+        // than 5 ppm from the plan's drift (#629 R433-1 S2).
+        ck("INTERNAL: the grids hold one rate within 5 ppm (the plan's -10.64 ppm drift gone)",
+           std::fabs(ppm_int) < 5.0 && std::fabs(ppm_int - ppm_exp) > 5.0, 1);
         {
             long e = static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
             if (e < 0) e = -e;

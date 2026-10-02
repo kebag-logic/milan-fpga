@@ -200,7 +200,7 @@ Each link has exactly one master.
 | CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.ref_rate_valid_i` |
 | AAF lost PDU | Voids its own group of 16; the rate history and the servo lock stay | `KL_aaf_clock_meter` |
 | Reference unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
-| Source switch | HOLDOVER for one cycle, then ACQUIRE with the trim kept (W2) | `milan_datapath` `ref_src_chg_w`, `KL_mmcm_drp_servo` |
+| Source switch | HOLDOVER for at least one cycle, until the new reference reads locked, then ACQUIRE with the trim kept (W2) | `milan_datapath` `ref_src_chg_w`, `KL_mmcm_drp_servo` |
 | MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A policy slew uses its separate overlap guard (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | MMCM servo on a policy slew | Every overlapping window discarded and counted; integrator, trim and LOCKED held. Clean windows resume directly (#545) | `KL_mmcm_drp_servo.phc_slew_active_i`, `MCSRV_STAT[15:10]` |
 | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
