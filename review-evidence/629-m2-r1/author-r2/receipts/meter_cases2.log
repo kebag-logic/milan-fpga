@@ -1,0 +1,46 @@
+make: Entering directory '$LANES/629-m2-impl/tb/verilator/aaf_clock_meter'
+verilator --cc --exe --build -j 0 --top-module meter_wrap -GCLK_HZ_P=200000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000" -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv meter_wrap.sv sim_main.cpp -o Vmeter_sim
+make[1]: Entering directory '$LANES/629-m2-impl/tb/verilator/aaf_clock_meter/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmeter_wrap__ALL.a    -pthread -lpthread -latomic   -o Vmeter_sim
+make[1]: Leaving directory '$LANES/629-m2-impl/tb/verilator/aaf_clock_meter/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.673 s (elab=0.000, cvt=0.000, bld=1.672); cpu 0.001 s on 32 threads; allocated 16.492 MB
+======================================================================
+./obj_dir/Vmeter_sim
+---- rates ----
+  info: M1 +0.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 +10.64 ppm: 5 updates, worst |rate - planted| 1, |rate - crf| 1
+  info: M1 -10.64 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 1
+  info: M1 +50.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 -50.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 +100.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 -100.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+---- shapes ----
+  info: M2 indep: 0 restarts, 227 rates, worst 100 ns
+  info: M2 rsign: 0 restarts, 227 rates, worst 357 ns
+  info: M2 p10ms: 0 restarts, 227 rates, worst 317 ns
+  info: M2 worst: 0 restarts, 227 rates, worst 357 ns
+---- beyond ----
+  info: M3 rsign1800: 1468 restarts; valid 819202 cycles after the last
+  info: M3 indep2100: 48 restarts; valid 819605 cycles after the last
+---- format ----
+---- wrap ----
+  info: M5: 312 sequence wraps
+---- lock ----
+---- restarts ----
+---- loss_periodic ----
+  info: M8 indep 1 s: worst 101 ns
+  info: M8 indep 0.3 s: worst 152 ns
+  info: M8 rsign 1 s: worst 357 ns
+  info: M8 rsign 0.3 s: worst 357 ns
+---- loss_snapshot ----
+---- bound ----
+---- gap_value ----
+---- step_in_gap ----
+---- selection ----
+---- pulses ----
+== aaf_clock_meter: checks: 446   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '$LANES/629-m2-impl/tb/verilator/aaf_clock_meter'
