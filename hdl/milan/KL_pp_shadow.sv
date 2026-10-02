@@ -1094,7 +1094,10 @@ module KL_pp_shadow #(
       .DESC_IDX_ENTRIES_P  (DESC_IDX_ENTRIES_P),
       .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
-      .RESP_BASE_P         (RESP_BASE_P)
+      .RESP_BASE_P         (RESP_BASE_P),
+      //! P-EN-IDENTIFY-NOTIFICATION stays 0 until a debounced board button is
+      //! wired to identify_button_i (processor lane C6, manager ruling on #80)
+      .EN_IDENTIFY_NOTIF_P (1'b0)
       //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (each restore wait's
       //! deadline), NVM_RS_AGG_CYC_P (the whole restore's, from restore_go_i)
       //! and NVM_RETRY_BACKOFF_CYC_P (the gap between record write attempts).
@@ -1132,6 +1135,9 @@ module KL_pp_shadow #(
       .listener_caps_i     (listener_caps_i),
       .current_cfg_i       (current_cfg_i),
       .identify_index_i    (identify_index_i),
+      //! no identification button on this board yet: tied off, and never read
+      //! while EN_IDENTIFY_NOTIF_P is 0 (IEEE 1722.1-2021 7.5.1, Milan 5.4.5.4)
+      .identify_button_i   (1'b0),
 
       .entity_enable_i     (enable_i),
       .link_up_i           (link_up_i),
