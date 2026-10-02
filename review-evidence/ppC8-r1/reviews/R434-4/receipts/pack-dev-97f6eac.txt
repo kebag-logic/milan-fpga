@@ -1,0 +1,78 @@
+== endstation_arty_4x4: PACKED builder 10112 B sha256 1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff; build(adp=) 10112 B sha256 1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff; same=True
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC557FC6ABBC8  (driven value checked)
+     talker_sources_i   5  (driven value checked)
+     listener_sinks_i   5  (driven value checked)
+     identify_index_i   0
+   model digest sha256 ddb422a6a33248c61ddf02f370a83f423dc5e4ac7352f932d84fca4da2c5d1b0 (IEEE 1722.1-2021 §6.2.2.8)
+   map sha256 46872eea429a6effef05422f7d9fb282681f140ad041a5edc15655c60375b1a1
+   CLOCK_DOMAIN cfg 0 0: [0, 1]
+     CLOCK_SOURCE 0: INTERNAL at type 0x000a index 0
+     CLOCK_SOURCE 1: INPUT_STREAM at type 0x0005 index 4
+== endstation_arty_8ch: PACKED builder 15360 B sha256 2b5c008cf3a2ff1eca11ef5e24c5a2e391e97f25435854430e563758de516b9b; build(adp=) 15360 B sha256 2b5c008cf3a2ff1eca11ef5e24c5a2e391e97f25435854430e563758de516b9b; same=True
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC507C86F4172  (driven value checked)
+     talker_sources_i   5  (driven value checked)
+     listener_sinks_i   5  (driven value checked)
+     identify_index_i   0
+   model digest sha256 5ffe3f71698b4f0ef37a3d8644ed3236d00eb5b78651dae0401e412e732ff7a6 (IEEE 1722.1-2021 §6.2.2.8)
+   map sha256 7b04e2c1b84002b10d5a46aea0ebad3f7d5443f74688c55cca5e7a9ee0e41398
+   CLOCK_DOMAIN cfg 0 0: [0, 1]
+     CLOCK_SOURCE 0: INTERNAL at type 0x000a index 0
+     CLOCK_SOURCE 1: INPUT_STREAM at type 0x0005 index 4
+== endstation_arty_current: PACKED builder 5792 B sha256 ac833c3ccde42a2d9a78b517d660b9f7da03c4b3d31227aa65dcaf9e8def6192; build(adp=) 5792 B sha256 ac833c3ccde42a2d9a78b517d660b9f7da03c4b3d31227aa65dcaf9e8def6192; same=True
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC50AC1000005  (driven value checked)
+     talker_sources_i   1  (driven value checked)
+     listener_sinks_i   2  (driven value checked)
+     identify_index_i   0
+   model digest sha256 23e32632c84472a8ff54d889fba9ea5e93ef097a37974c0e511a8bba9a584ed2 (IEEE 1722.1-2021 §6.2.2.8)
+   map sha256 049615dfbe663f17f26e2d62da16fc95d72a3b68ad14c1f308e90ba18e609042
+   CLOCK_DOMAIN cfg 0 0: [0, 1]
+     CLOCK_SOURCE 0: INTERNAL at type 0x000a index 0
+     CLOCK_SOURCE 1: INPUT_STREAM at type 0x0005 index 1
+== endstation_ax7101_1x1_tdm8: PACKED builder 7352 B sha256 9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404; build(adp=) 7352 B sha256 9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404; same=True
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 0
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC5C40236BA0E  (driven value checked)
+     talker_sources_i   2  (driven value checked)
+     listener_sinks_i   2  (driven value checked)
+     identify_index_i   0
+   model digest sha256 40bdd02a813bc8448029f6db8e54abe8339405f6cb40ad2ae4b0489c0da78b5d (IEEE 1722.1-2021 §6.2.2.8)
+   map sha256 e323109fbf171fa60ef2358c92f205d31b81806f1b2d6123cb6081d2a77a9826
+   CLOCK_DOMAIN cfg 0 0: [0, 1]
+     CLOCK_SOURCE 0: INTERNAL at type 0x000a index 0
+     CLOCK_SOURCE 1: INPUT_STREAM at type 0x0005 index 1
+== endstation_ax7101_8x8: PACKED builder 18288 B sha256 193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4; build(adp=) 18288 B sha256 193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4; same=True
+   semantic lint: on (07 §3.1 rules L1 to L12)
+   lint waivers applied: 1
+     waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0..7: 8 finding(s) waived; reason: kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER
+   ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+     entity_model_id_i  0x001BC572F79BC5D1  (driven value checked)
+     talker_sources_i   9  (driven value checked)
+     listener_sinks_i   9  (driven value checked)
+     identify_index_i   0
+   model digest sha256 974c1f157d59a80ca88533e1a7fbf55ab95a1736f53528ffaa5a54330dac243c (IEEE 1722.1-2021 §6.2.2.8)
+   map sha256 315f92926583d343d37a67f4cf19615532360962ed05a0a177bd6293b9c54e63
+   CLOCK_DOMAIN cfg 0 0: [0, 1]
+     CLOCK_SOURCE 0: INTERNAL at type 0x000a index 0
+     CLOCK_SOURCE 1: INPUT_STREAM at type 0x0005 index 8
+   without waivers: REFUSED
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 1: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 2: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 3: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 4: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 5: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 6: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+      L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 7: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+   widened waiver: REFUSED
+      lint waiver 0 (L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0..8) is stale: STREAM_PORT_INPUT 8 does not exist; remove or narrow it
+rc=0

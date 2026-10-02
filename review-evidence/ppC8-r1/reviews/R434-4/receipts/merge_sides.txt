@@ -1,0 +1,35 @@
+# main side (P141) preserved: diff(base,main) vs diff(lane,merge) per file
+DIFFER docs/00_MILAN_COMPLIANCE_REVIEW.md
+SAME   docs/architecture/06_aecp_engine.md
+DIFFER docs/architecture/07_memory_maps.md
+SAME   docs/architecture/09_verification.md
+SAME   hdl/aecp/ucode/gen_ucode.py
+SAME   tb/pp_top/README.md
+SAME   tb/pp_top/aecp_dispatch_mutants.py
+SAME   tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
+SAME   tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
+SAME   tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
+SAME   tb/pp_top/d3_mutants.py
+SAME   tb/pp_top/d3_phases.hpp
+SAME   tb/pp_top/pp_top_wrap.sv
+SAME   tb/pp_top/sim_main.cpp
+# lane side preserved: diff(base,lane) vs diff(main,merge) per file
+DIFFER docs/00_MILAN_COMPLIANCE_REVIEW.md
+SAME   docs/architecture/01_overview.md
+SAME   docs/architecture/04_adp_engine.md
+DIFFER docs/architecture/07_memory_maps.md
+SAME   docs/architecture/09_verification.md
+SAME   docs/guides/integrator.md
+SAME   hdl/aecp/KL_aecp_desc_store.sv
+SAME   hdl/aecp/desc/example_milan_8.json
+SAME   hdl/aecp/desc/gen_desc_image.py
+SAME   hdl/aecp/desc/milan_min.json
+SAME   hdl/aecp/desc/model_ids.json
+SAME   hdl/aecp/desc/model_lint.py
+DIFFER hdl/aecp/desc/model_rules.py
+SAME   tb/desc_store/Makefile
+SAME   tb/desc_store/README.md
+SAME   tb/desc_store/lint_mutations.py
+SAME   tb/desc_store/lint_suppression.py
+SAME   tb/desc_store/test_gen_desc_image.py
+SAME   tb/pp_top/README.md

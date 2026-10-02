@@ -1,0 +1,33 @@
+re-merge: checkout 97f6eace064901f223e13abed7026f96bc4df805; git merge --no-ff --no-commit 631eeb342ca1e3fa80e734077a56a943aee76ff1
+unmerged paths:
+docs/00_MILAN_COMPLIANCE_REVIEW.md
+docs/architecture/07_memory_maps.md
+auto-merged paths vs the published merge 3bfc7c6:
+  SAME docs/architecture/06_aecp_engine.md
+  SAME docs/architecture/09_verification.md
+  SAME hdl/aecp/ucode/gen_ucode.py
+  SAME tb/pp_top/README.md
+  SAME tb/pp_top/aecp_dispatch_mutants.py
+  SAME tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
+  SAME tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
+  SAME tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
+  SAME tb/pp_top/d3_mutants.py
+  SAME tb/pp_top/d3_phases.hpp
+  SAME tb/pp_top/pp_top_wrap.sv
+  SAME tb/pp_top/sim_main.cpp
+paths outside the two conflicts that differ between the trial merge's worktree and 3bfc7c6:
+  hdl/aecp/desc/model_rules.py
+that difference:
+  diff --git a/hdl/aecp/desc/model_rules.py b/hdl/aecp/desc/model_rules.py
+  index 0ce6b7a..e283f53 100644
+  --- a/hdl/aecp/desc/model_rules.py
+  +++ b/hdl/aecp/desc/model_rules.py
+  @@ -171,7 +171,7 @@ CHECKS = {
+       "domain-source-offset": ("L6", IEEE + "§7.2.32; 06 §6.4", "clock_sources_offset 76"),
+       "domain-source-count": ("L6", MILAN + "§5.3.3.6", "at least one CLOCK_SOURCE per CLOCK_DOMAIN"),
+       "domain-source-length": ("L6", IEEE + "§7.2.32", "CLOCK_DOMAIN length 76 + 2 x count"),
+  -    "domain-source-identity": ("L6", IEEE + "§7.2.32; 06 §6.4",
+  +    "domain-source-identity": ("L6", IEEE + "§7.4.23.1; 06 §6.4",
+                                  "clock_sources is the identity list 0..count-1"),
+       "domain-source-exists": ("L6", IEEE + "§7.2.32", "clock_sources names existing CLOCK_SOURCEs"),
+       "crf-input-source": ("L6", MILAN + "§5.3.3.6", "exactly one INPUT_STREAM source per CRF input"),

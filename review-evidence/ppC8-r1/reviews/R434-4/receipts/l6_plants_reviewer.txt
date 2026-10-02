@@ -1,0 +1,15 @@
+control gate4: rc=0 PASS
+control merge: rc=0 PASS
+aaf-at-most-one-beside-crf: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+aaf-none-beside-crf: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf', 'test_boundaries_pack __main__.LintTest.test_boundaries_pack']; merge KILLED ['test_boundaries_pack __main__.LintTest.test_boundaries_pack']
+domain-count-cap-8: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+domain-count-cap-9: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+input-stream-sources-at-most-two: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+aaf-source-only-below-input-2: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+sources-at-most-stream-inputs: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf', 'test_boundaries_pack __main__.LintTest.test_boundaries_pack']; merge KILLED ['test_boundaries_pack __main__.LintTest.test_boundaries_pack']
+one-aaf-input-with-a-source: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+crf-source-after-aaf-sources: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf', 'test_boundaries_pack __main__.LintTest.test_boundaries_pack']; merge KILLED ['test_boundaries_pack __main__.LintTest.test_boundaries_pack']
+clock-source-descriptors-cap-9: head KILLED ['test_a_source_per_aaf_input_beside_crf __main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf']; merge SURVIVED []
+order-internal-first: head SURVIVED []; merge SURVIVED []
+domain-count-cap-215: head SURVIVED []; merge SURVIVED []
+rc=0

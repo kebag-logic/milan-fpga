@@ -1,0 +1,42 @@
+== tree bd86f64
+control: milan_min: PACKS
+D1 order, 8 AAF inputs, 10 sources (the new case's shape): PACKS
+D1 order, 1 AAF input, 3 sources: PACKS
+order: AAF sources first, then CRF, then INTERNAL: PACKS
+order: CRF first, INTERNAL last: PACKS
+order: AAF interleaved reverse: PACKS
+two INPUT_STREAM sources at each AAF input beside CRF: PACKS
+no CRF input, a source at each of two AAF inputs: REFUSED
+    L6 aaf-input-source: cfg 0 CLOCK_SOURCE: no CRF input, and 2 INPUT_STREAM sources at AAF inputs [0, 1, 2] (Milan v1.2 §5.3.3.6)
+no CRF input, one AAF source (control): PACKS
+214 AAF inputs: 216 sources (508-octet CLOCK_DOMAIN): PACKS
+215 AAF inputs: 217 sources (510-octet CLOCK_DOMAIN): REFUSED
+    L12 descriptor-maximum: cfg 0 CLOCK_DOMAIN 0: is 510 bytes, above 508 (IEEE 1722.1-2021 §7.2)
+== tree 3bfc7c6
+control: milan_min: PACKS
+D1 order, 8 AAF inputs, 10 sources (the new case's shape): PACKS
+D1 order, 1 AAF input, 3 sources: PACKS
+order: AAF sources first, then CRF, then INTERNAL: PACKS
+order: CRF first, INTERNAL last: PACKS
+order: AAF interleaved reverse: PACKS
+two INPUT_STREAM sources at each AAF input beside CRF: PACKS
+no CRF input, a source at each of two AAF inputs: REFUSED
+    L6 aaf-input-source: cfg 0 CLOCK_SOURCE: no CRF input, and 2 INPUT_STREAM sources at AAF inputs [0, 1, 2] (Milan v1.2 §5.3.3.6)
+no CRF input, one AAF source (control): PACKS
+214 AAF inputs: 216 sources (508-octet CLOCK_DOMAIN): PACKS
+215 AAF inputs: 217 sources (510-octet CLOCK_DOMAIN): REFUSED
+    L12 descriptor-maximum: cfg 0 CLOCK_DOMAIN 0: is 510 bytes, above 508 (IEEE 1722.1-2021 §7.2)
+== tree 97f6eac
+control: milan_min: PACKS
+D1 order, 8 AAF inputs, 10 sources (the new case's shape): PACKS
+D1 order, 1 AAF input, 3 sources: PACKS
+order: AAF sources first, then CRF, then INTERNAL: PACKS
+order: CRF first, INTERNAL last: PACKS
+order: AAF interleaved reverse: PACKS
+two INPUT_STREAM sources at each AAF input beside CRF: PACKS
+no CRF input, a source at each of two AAF inputs: REFUSED
+    L6 aaf-input-source: cfg 0 CLOCK_SOURCE: no CRF input, and 2 INPUT_STREAM sources at AAF inputs [0, 1, 2] (Milan v1.2 §5.3.3.6)
+no CRF input, one AAF source (control): PACKS
+214 AAF inputs: 216 sources (508-octet CLOCK_DOMAIN): PACKS
+215 AAF inputs: 217 sources (510-octet CLOCK_DOMAIN): REFUSED
+    L12 descriptor-maximum: cfg 0 CLOCK_DOMAIN 0: is 510 bytes, above 508 (IEEE 1722.1-2021 §7.2)

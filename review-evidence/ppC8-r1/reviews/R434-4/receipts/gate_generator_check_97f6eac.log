@@ -1,0 +1,122 @@
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... ok
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... ok
+test_example_needs_no_lint (__main__.CommandLineTest.test_example_needs_no_lint)
+The layout vector packs with --no-lint and is refused without it. ... ok
+test_import_by_path_touches_no_search_path (__main__.CommandLineTest.test_import_by_path_touches_no_search_path)
+Loading the packer by its path loads the lint by path too: nothing is ... ok
+test_milan_min (__main__.CommandLineTest.test_milan_min)
+The positive model with every check, the map holding the report. ... ok
+test_model_ids_file_without_models (__main__.CommandLineTest.test_model_ids_file_without_models)
+A --model-ids file with no 'models' object exits 1 and writes nothing. ... ok
+test_one_guarded_loader (__main__.CommandLineTest.test_one_guarded_loader)
+model_lint and model_rules load through the packer's one loader, and ... ok
+test_refusal_writes_nothing (__main__.CommandLineTest.test_refusal_writes_nothing)
+A refused model exits 1 naming the check, and leaves no file. ... ok
+test_annex_c_layout (__main__.ConformingModelTest.test_annex_c_layout)
+Every stream re-laid in Milan v1.2 Annex C Table C.1 with R = 0 packs, ... ok
+test_identify_value_type_flags (__main__.ConformingModelTest.test_identify_value_type_flags)
+An IDENTIFY whose control_value_type carries the r or the u flag is ... ok
+test_interface_first_in_a_later_configuration (__main__.ConformingModelTest.test_interface_first_in_a_later_configuration)
+Configuration 1 adds AVB_INTERFACE 1 (port 2), which configuration 0 ... ok
+test_jack_control_is_not_top_level (__main__.ConformingModelTest.test_jack_control_is_not_top_level)
+JACK_INPUT 0 owns CONTROL 1 (§7.2.7): descriptor_counts lists the ... ok
+test_other_control_owners (__main__.ConformingModelTest.test_other_control_owners)
+A CONTROL an AVB_INTERFACE (§7.2.8), a CONTROL_BLOCK (§7.2.33), a ... ok
+test_second_interface_optional_per_configuration (__main__.ConformingModelTest.test_second_interface_optional_per_configuration)
+Configuration 0 holds ports 1 and 2, configuration 1 only port 1 at ... ok
+test_single_level_ranges_have_no_order (__main__.ConformingModelTest.test_single_level_ranges_have_no_order)
+The output port's clusters numbered before the input port's: §7.2 ... ok
+test_unit_and_port_controls_in_walk_order (__main__.ConformingModelTest.test_unit_and_port_controls_in_walk_order)
+AUDIO_UNIT 0 owns CONTROL 1 and its input port CONTROL 2 (§7.2's walk); ... ok
+test_unit_signal_selector_is_not_top_level (__main__.ConformingModelTest.test_unit_signal_selector_is_not_top_level)
+A SIGNAL_SELECTOR AUDIO_UNIT 0 owns (§7.2.3) is not counted at the top. ... ok
+test_checks_need_the_lint (__main__.IdentityTest.test_checks_need_the_lint)
+A check asked for with the lint off, or an unknown one, is refused. ... ok
+test_driven_values_agree (__main__.IdentityTest.test_driven_values_agree)
+Driven values equal to the model's pass, and the report says so. ... ok
+test_excluded_fields_keep_the_digest (__main__.IdentityTest.test_excluded_fields_keep_the_digest)
+IEEE 1722.1-2021 6.2.2.8 exclusions and the unit identity move nothing. ... ok
+test_exclusions_are_the_clause (__main__.IdentityTest.test_exclusions_are_the_clause)
+§6.2.2.8 field by field, for every value family it names: each ... ok
+test_fixed_exclusions_are_the_clause (__main__.IdentityTest.test_fixed_exclusions_are_the_clause)
+§6.2.2.8 field by field, for every fixed-offset field it names: the ... ok
+test_malformed_checks_are_refused (__main__.IdentityTest.test_malformed_checks_are_refused)
+A malformed recorded-digest map or driven value is an ImageError ... ok
+test_object_name_is_the_clause (__main__.IdentityTest.test_object_name_is_the_clause)
+§6.2.2.8 excludes object_name "in all descriptors": octets 4 to 67 of ... ok
+test_record_is_current (__main__.IdentityTest.test_record_is_current)
+model_ids.json records milan_min.json's digest as packed today. ... ok
+test_selector_structure_moves_the_digest (__main__.IdentityTest.test_selector_structure_moves_the_digest)
+A selector CONTROL's option is structure and its current is not ... ok
+test_configuration_gap (__main__.LayoutRefusalTest.test_configuration_gap)
+A descriptor in configuration 2 of a one-configuration model. ... ok
+test_duplicate (__main__.LayoutRefusalTest.test_duplicate)
+A second AUDIO_CLUSTER 0 is a duplicate key. ... ok
+test_entity_index (__main__.LayoutRefusalTest.test_entity_index)
+A second, named ENTITY at index 1. ... ok
+test_index_gap (__main__.LayoutRefusalTest.test_index_gap)
+AUDIO_CLUSTER 3 renumbered 4: indices are not dense (L2). ... ok
+test_mixed_names (__main__.LayoutRefusalTest.test_mixed_names)
+One unnamed AUDIO_CLUSTER in a named run. ... ok
+test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+The caps accept their own value: 46 formats (IEEE 1722.1-2021 Table ... ok
+test_every_check_has_a_mutation (__main__.LintTest.test_every_check_has_a_mutation)
+One negative case per refusal: no check of the lint goes untested. ... ok
+test_example_is_a_layout_vector (__main__.LintTest.test_example_is_a_layout_vector)
+example_milan_8.json packs with the lint off, and is no Milan model: ... ok
+test_fixed_extents (__main__.LintTest.test_fixed_extents)
+Each fixed-size Milan-subset type two octets long is refused with its ... ok
+test_milan_min_packs (__main__.LintTest.test_milan_min_packs)
+milan_min.json packs with the lint on and reports what it requires. ... ok
+test_mutations (__main__.LintTest.test_mutations)
+Each mutation is refused with its check, on the arm its detail names, ... ok
+test_normalised_and_two_configurations_pack (__main__.LintTest.test_normalised_and_two_configurations_pack)
+The mutations' starting points are positive cases too. ... ok
+test_short_descriptor (__main__.LintTest.test_short_descriptor)
+A field a rule needs past the descriptor's end is that rule's finding. ... ok
+test_configuration_scope (__main__.WaiverTest.test_configuration_scope)
+A check that names a configuration takes a waiver without a range. ... ok
+test_lint_off_reports_unevaluated_waivers (__main__.WaiverTest.test_lint_off_reports_unevaluated_waivers)
+With the lint off the waivers are counted, not judged. ... ok
+test_malformed_waivers (__main__.WaiverTest.test_malformed_waivers)
+Each malformed waiver is refused with what is wrong with it. ... ok
+test_overlapping_waivers_are_refused (__main__.WaiverTest.test_overlapping_waivers_are_refused)
+A second waiver of the same check that shares a descriptor with an ... ok
+test_partly_overlapping_waivers_are_refused (__main__.WaiverTest.test_partly_overlapping_waivers_are_refused)
+Waivers of AUDIO_CLUSTER 1..2 and 2..3 share cluster 2 only: the ... ok
+test_waiver_applies_and_is_reported (__main__.WaiverTest.test_waiver_applies_and_is_reported)
+The waived finding packs, and the report names the waiver and its reason. ... ok
+test_waiver_excuses_only_its_check (__main__.WaiverTest.test_waiver_excuses_only_its_check)
+Another L1 check on the same model still refuses. ... ok
+test_waiver_excuses_only_its_scope (__main__.WaiverTest.test_waiver_excuses_only_its_scope)
+Two stereo clusters, one waived: the other is refused. ... ok
+test_waiver_naming_a_missing_configuration_is_stale (__main__.WaiverTest.test_waiver_naming_a_missing_configuration_is_stale)
+A waiver for configuration 1 of a one-configuration model is refused. ... ok
+test_waiver_on_a_fixed_model_is_stale (__main__.WaiverTest.test_waiver_on_a_fixed_model_is_stale)
+The same waiver on a model whose port has clusters is refused. ... ok
+test_waiver_past_the_descriptors_is_stale (__main__.WaiverTest.test_waiver_past_the_descriptors_is_stale)
+A range naming a port that does not exist is refused. ... ok
+test_waiver_scope_is_its_configuration (__main__.WaiverTest.test_waiver_scope_is_its_configuration)
+A configuration 0 waiver does not excuse the same port in ... ok
+test_waiver_scope_is_its_type (__main__.WaiverTest.test_waiver_scope_is_its_type)
+A STREAM_PORT_INPUT 0 waiver does not excuse STREAM_PORT_OUTPUT 0: ... ok
+test_waivers_are_a_list (__main__.WaiverTest.test_waivers_are_a_list)
+A lint_waivers that is not a list is refused, lint on or off. ... ok
+test_without_the_waiver_the_rule_refuses (__main__.WaiverTest.test_without_the_waiver_the_rule_refuses)
+Removing the waiver brings back the L1 refusal. ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 2.162s
+
+OK
+rc=0
