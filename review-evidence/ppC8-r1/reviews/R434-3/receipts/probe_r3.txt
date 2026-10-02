@@ -1,0 +1,79 @@
+== A: L4 stream-layout, Milan v1.2 Annex C Table C.1 and IEEE 1722.1-2021 Table 7-8
+[ok] A0 milan_min (Table 7-8 everywhere): PACK []
+[ok] A1 every stream Annex C, R=0: PACK []
+[ok] A2 Annex C output, R=1 naming itself (pairing not linted): PACK []
+[ok] A3 redundant pair of outputs on two interfaces, R=1 each: PACK []
+[ok] A4 Annex C R=8: PACK []
+[ok] A5 Annex C R=9: REFUSE ['L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 9, above 8']
+[ok] A6 Annex C N=44 R=8 (504 octets): PACK []
+[ok] A7 Annex C N=45 R=8 (512 octets, past 508): REFUSE ['L12 descriptor-maximum: cfg 0 STREAM_INPUT 0: is 512 bytes, above 508']
+[ok] A8 Annex C N=46 R=0 (504 octets): PACK []
+[ok] A9 formats_offset 136 but timing kept (list really at 138): REFUSE ['L3 talker-base-format: cfg 0 STREAM_OUTPUT: the entity is a Talker and no Stream Output lists a Base format', 'L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 146 bytes; 1 formats make 144', 'L4 current-format: cfg 0 STREAM_OUTPUT 0: current_format 0x0205022000806000 is not in its list']
+[ok] A10 Annex C, Table 7-8's redundant_offset: REFUSE ['L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 146, not 144']
+[ok] A11 Annex C, R=0 but a 2-octet tail: REFUSE ['L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 146 bytes; 1 formats make 144']
+[ok] A12 Annex C, R=1 but two indices: REFUSE ['L4 stream-layout: cfg 0 STREAM_OUTPUT 0: is 148 bytes; 1 formats and 1 redundant streams make 146']
+[ok] A13 Table 7-8 R=1 with a consistent tail: REFUSE ["L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 1 in the Table 7-8 layout; a redundant pair's streams use Annex C"]
+[ok] A14 Table 7-8 with Annex C's redundant_offset: REFUSE ['L4 stream-layout: cfg 0 STREAM_OUTPUT 0: redundant_offset 144, not 146']
+[ok] A15 formats_offset 137: REFUSE ['L3 talker-base-format: cfg 0 STREAM_OUTPUT: the entity is a Talker and no Stream Output lists a Base format', 'L4 stream-layout: cfg 0 STREAM_OUTPUT 0: formats_offset 137, not 138 (Table 7-8) or 136 (Annex C)', 'L4 current-format: cfg 0 STREAM_OUTPUT 0: current_format 0x0205022000806000 is not in its list']
+[ok] A16 Annex C input, current_format outside its list (the list is read at 136): REFUSE ['L4 current-format: cfg 0 STREAM_INPUT 0: current_format 0x0102030405060708 is not in its list']
+[ok] A17 Table 7-8 R=9 (both arms): REFUSE ["L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 9 in the Table 7-8 layout; a redundant pair's streams use Annex C", 'L4 stream-layout: cfg 0 STREAM_OUTPUT 0: number_of_redundant_streams 9, above 8']
+== B: identify-format value type flags (IEEE 1722.1-2021 7.3.6.1)
+[ok] B control_value_type 0x8001: PACK []
+[ok] B control_value_type 0x4001: PACK []
+[ok] B control_value_type 0xC001: PACK []
+[ok] B control_value_type 0x2001: REFUSE ['L8 identify-format: cfg 0 CONTROL 0: control_value_type 8193, not 1']
+[ok] B control_value_type 0x0002: REFUSE ['L8 identify-format: cfg 0 CONTROL 0: control_value_type 2, not 1']
+== C: 508-octet maximum (IEEE 1722.1-2021 7.2)
+[ok] C a 507-octet CONTROL: PACK []
+[ok] C a 508-octet CONTROL: PACK []
+[ok] C a 509-octet CONTROL: REFUSE ['L12 descriptor-maximum: cfg 0 CONTROL 1: is 509 bytes, above 508']
+== D: digest octet partition against 6.2.2.8 (reviewer's own field table)
+[ok] D type 0x0000 (ENTITY) 312 octets: 286 octets keep the digest
+[ok] D type 0x0001 (CONFIGURATION) 78 octets: 64 octets keep the digest
+[ok] D type 0x0002 (AUDIO_UNIT) 148 octets: 68 octets keep the digest
+[ok] D type 0x0005 (STREAM_INPUT) 146 octets: 72 octets keep the digest
+[ok] D type 0x0006 (STREAM_OUTPUT) 144 octets: 72 octets keep the digest
+[ok] D type 0x0007 (JACK_INPUT) 78 octets: 64 octets keep the digest
+[ok] D type 0x0008 (JACK_OUTPUT) 78 octets: 64 octets keep the digest
+[ok] D type 0x0009 (AVB_INTERFACE) 102 octets: 88 octets keep the digest
+[ok] D type 0x000A (CLOCK_SOURCE) 86 octets: 74 octets keep the digest
+[ok] D type 0x000B (MEMORY_OBJECT) 108 octets: 72 octets keep the digest
+[ok] D type 0x000C (LOCALE) 76 octets: 0 octets keep the digest
+[ok] D type 0x000D (STRINGS) 86 octets: 0 octets keep the digest
+[ok] D type 0x000E (STREAM_PORT_INPUT) 20 octets: 0 octets keep the digest
+[ok] D type 0x000F (STREAM_PORT_OUTPUT) 20 octets: 0 octets keep the digest
+[ok] D type 0x0010 (EXTERNAL_PORT_INPUT) 20 octets: 0 octets keep the digest
+[ok] D type 0x0013 (INTERNAL_PORT_OUTPUT) 20 octets: 0 octets keep the digest
+[ok] D type 0x0014 (AUDIO_CLUSTER) 90 octets: 64 octets keep the digest
+[ok] D type 0x0015 (VIDEO_CLUSTER) 121 octets: 80 octets keep the digest
+[ok] D type 0x0016 (SENSOR_CLUSTER) 104 octets: 76 octets keep the digest
+[ok] D type 0x0017 (AUDIO_MAP) 16 octets: 0 octets keep the digest
+[ok] D type 0x001B (SIGNAL_SELECTOR) 96 octets: 70 octets keep the digest
+[ok] D type 0x001E (0x001E) 14 octets: 0 octets keep the digest
+[ok] D type 0x0024 (CLOCK_DOMAIN) 80 octets: 66 octets keep the digest
+[ok] D type 0x0025 (CONTROL_BLOCK) 82 octets: 64 octets keep the digest
+[ok] D type 0x0026 (TIMING) 90 octets: 64 octets keep the digest
+[ok] D type 0x0027 (PTP_INSTANCE) 90 octets: 64 octets keep the digest
+[ok] D type 0x0028 (0x0028) 90 octets: 64 octets keep the digest
+[ok] D CONTROL LINEAR_UINT8 N=1: 65 octets keep the digest
+[ok] D CONTROL LINEAR_INT16 N=2: 68 octets keep the digest
+[ok] D CONTROL LINEAR_INT8 N=1: 64 octets keep the digest
+[ok] D CONTROL SELECTOR_UINT16 N=2: 66 octets keep the digest
+[ok] D CONTROL SELECTOR_STRING N=2: 66 octets keep the digest
+[ok] D CONTROL ARRAY_UINT8 N=3: 67 octets keep the digest
+[ok] D CONTROL ARRAY_FLOAT N=2: 72 octets keep the digest
+[ok] D CONTROL UTF8: 84 octets keep the digest
+[ok] D CONTROL SAMPLE_RATE: 68 octets keep the digest
+[ok] D CONTROL VENDOR: 76 octets keep the digest
+[ok] D CONTROL BODE N=1: 76 octets keep the digest
+[ok] D MIXER LINEAR_UINT8: 65 octets keep the digest
+[ok] D MIXER SELECTOR_UINT8 N=1 (not named for MIXER): 64 octets keep the digest
+[ok] D MATRIX ARRAY_UINT8 N=2: 66 octets keep the digest
+[ok] D MATRIX UTF8 (CONTROL only): 64 octets keep the digest
+[ok] D SIGNAL_TRANSCODER SELECTOR_UINT8 N=2: 65 octets keep the digest
+== E: milan_min digest
+    model_ids.json: {"0x020000FFFE00C801": "6d7982fbd1657a88838ff40bbe0746eaa8600e5be7bebae670e1de0c6f46ae20"}
+    head report digest: 6d7982fbd1657a88838ff40bbe0746eaa8600e5be7bebae670e1de0c6f46ae20
+    round-2 head report digest: 6d7982fbd1657a88838ff40bbe0746eaa8600e5be7bebae670e1de0c6f46ae20 equal
+unexpected: 0
+rc=0

@@ -1,0 +1,64 @@
+== pdev
+c4c6 check rc=0
+c4c6 apply rc=0
+c8 check rc=0
+Checking patch avdecc/aem_assemble.py...
+Checking patch avdecc/aem_specs.py...
+Checking patch avdecc/gen_aemi_image.py...
+Checking patch configs/endstation_ax7101_8x8.yaml...
+Checking patch docs/ENDSTATION_BUILDER.md...
+Checking patch sw/builder/endstation_builder.py...
+Checking patch sw/builder/test_builder.py...
+Applied patch avdecc/aem_assemble.py cleanly.
+Applied patch avdecc/aem_specs.py cleanly.
+Applied patch avdecc/gen_aemi_image.py cleanly.
+Applied patch configs/endstation_ax7101_8x8.yaml cleanly.
+Applied patch docs/ENDSTATION_BUILDER.md cleanly.
+Applied patch sw/builder/endstation_builder.py cleanly.
+Applied patch sw/builder/test_builder.py cleanly.
+c8 apply rc=0
+== p634
+c4c6 check rc=0
+c4c6 apply rc=0
+error: patch failed: avdecc/aem_assemble.py:600
+error: avdecc/aem_assemble.py: patch does not apply
+c8 check rc=1
+Checking patch avdecc/aem_assemble.py...
+error: while searching for:
+                CRF_CLKSRC=_crf_ix,
+                L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
+                RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
+                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
+
+
+#: Render-crossbar DEPTH: how many physical output channels
+
+error: patch failed: avdecc/aem_assemble.py:600
+Checking patch avdecc/aem_specs.py...
+Hunk #1 succeeded at 297 (offset 1 line).
+Checking patch avdecc/gen_aemi_image.py...
+Checking patch configs/endstation_ax7101_8x8.yaml...
+Checking patch docs/ENDSTATION_BUILDER.md...
+Checking patch sw/builder/endstation_builder.py...
+Hunk #1 succeeded at 4430 (offset 33 lines).
+Hunk #2 succeeded at 5234 (offset 43 lines).
+Checking patch sw/builder/test_builder.py...
+Hunk #1 succeeded at 28193 (offset 67 lines).
+Hunk #2 succeeded at 28254 (offset 67 lines).
+Hunk #3 succeeded at 28268 (offset 67 lines).
+Hunk #4 succeeded at 28330 (offset 67 lines).
+Applying patch avdecc/aem_assemble.py with 1 reject...
+Rejected hunk #1.
+Applied patch avdecc/aem_specs.py cleanly.
+Applied patch avdecc/gen_aemi_image.py cleanly.
+Applied patch configs/endstation_ax7101_8x8.yaml cleanly.
+Applied patch docs/ENDSTATION_BUILDER.md cleanly.
+Applied patch sw/builder/endstation_builder.py cleanly.
+Applied patch sw/builder/test_builder.py cleanly.
+c8 apply rc=1
+avdecc/aem_assemble.py.rej
+p634: aem_assemble.py hunk ported by the identical one-line LINT_WAIVERS edit (context moved); .rej removed
+<packet>/scratch/pdev/avdecc/aem_assemble.py:604:                LINT_WAIVERS=spec.get("lint_waivers", []))
+<packet>/scratch/p634/avdecc/aem_assemble.py:607:                LINT_WAIVERS=spec.get("lint_waivers", []))
+processor in pdev,p634 = git archive 97f6eace; in pdev_r2,p634_r2 = git archive 9610098a
+gptp-processor in all four parent trees = git archive 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d (the gitlink at dev cdf49d1a and at #634 d81198c2)

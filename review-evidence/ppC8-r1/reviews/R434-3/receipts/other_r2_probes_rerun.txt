@@ -1,0 +1,183 @@
+as-expected  A1 output stream in Annex C Table C.1 layout (R=0)
+    expect: PACK
+    got:    PACK
+    basis:  Milan v1.2 §5.3.3.4 last paragraph + Annex C: permitted for any stream
+as-expected  A2 every stream in Annex C layout (R=0)
+    expect: PACK
+    got:    PACK
+    basis:  Milan v1.2 §5.3.3.4 + Annex C
+as-expected  B1 IDENTIFY default/current 255
+    expect: PACK
+    got:    PACK
+    basis:  §7.3.5.2 fixes min/max/step/unit only
+as-expected  B2 IDENTIFY with string ref, signal fields, latency
+    expect: PACK
+    got:    PACK
+    basis:  Milan §5.3.3.10 does not require block/control latency or signal_* valid
+as-expected  B3 IDENTIFY control_value_type with the read_only flag
+    expect: PACK
+    got:    PACK
+    basis:  §7.3.6.1: flags are not the value_type
+as-expected  B4 IDENTIFY step 1
+    expect: REFUSE L8 identify-format
+    got:    REFUSE L8 identify-format
+    basis:  §7.3.5.2 step 255
+as-expected  B5 IDENTIFY unit multiplier 1
+    expect: REFUSE L8 identify-format
+    got:    REFUSE L8 identify-format
+    basis:  §7.3.5.2 multiplier 0
+as-expected  B6 IDENTIFY as CONTROL_LINEAR_INT8
+    expect: REFUSE L8 identify-format
+    got:    REFUSE L8 identify-format
+    basis:  §7.3.5.2 UINT8
+as-expected  B7 IDENTIFY values_offset 106
+    expect: REFUSE L8 identify-format
+    got:    REFUSE L8 identify-format
+    basis:  §7.2.22 values_offset 104
+as-expected  B8 a second IDENTIFY owned by a JACK
+    expect: PACK
+    got:    PACK
+    basis:  §7.3.5.2 child of a Jack
+as-expected  C1 a 508-octet vendor CONTROL
+    expect: PACK
+    got:    PACK
+    basis:  IEEE §7.2 max 508
+as-expected  C2 a 509-octet vendor CONTROL
+    expect: REFUSE L12 descriptor-maximum
+    got:    REFUSE L12 descriptor-maximum
+    basis:  IEEE §7.2 max 508
+as-expected  C3 CONFIGURATION lists JACK_INPUT with count 0
+    expect: PACK
+    got:    PACK
+    basis:  §7.2.2: 74 + 4N with N pairs; a zero count is a count
+as-expected  C4 AVB_INTERFACE interface_flags changed
+    expect: PACK
+    got:    PACK
+    basis:  no rule names it
+as-expected  C5 AUDIO_CLUSTER 92 octets
+    expect: REFUSE L12 descriptor-extent
+    got:    REFUSE L12 descriptor-extent
+    basis:  §7.2.16: 90
+as-expected  D1 ENTITY available_index, association_id, firmware_version, serial_number
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D2 ENTITY entity_capabilities
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D3 ENTITY vendor_name_string
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D4 IDENTIFY current 255
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D5 IDENTIFY default 255 (structural)
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D6 IDENTIFY control_type changed to MUTE (structural CONTROL change)
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L8 identify-index; L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D7 AVB_INTERFACE mac + gPTP dataset
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D8 AVB_INTERFACE port_number
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D9 CLOCK_DOMAIN clock_source_index
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D10 CLOCK_SOURCE flags + identifier
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D11 CLOCK_SOURCE clock_source_location_index
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D12 STREAM_OUTPUT current_format (to a listed word)
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D13 STREAM_INPUT buffer_length +1
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+as-expected  D14 AUDIO_CLUSTER object_name
+    expect: PACK
+    got:    PACK
+    basis:  §6.2.2.8
+as-expected  D15 AUDIO_CLUSTER localized_description
+    expect: REFUSE L9 model-digest
+    got:    REFUSE L9 model-digest
+    basis:  §6.2.2.8
+info         E0 base waived model (input port 0 has no cluster)
+    expect: info
+    got:    PACK
+    basis:  -
+as-expected  E1 waiver first=0.0
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a first that is not an integer
+    basis:  S2 strict JSON types
+as-expected  E1 waiver first=True
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a first that is not an integer
+    basis:  S2 strict JSON types
+as-expected  E1 waiver configuration='0'
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a configuration that is not an integer
+    basis:  S2 strict JSON types
+as-expected  E1 waiver configuration=False
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a configuration that is not an integer
+    basis:  S2 strict JSON types
+as-expected  E1 waiver type=True
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a type that is neither a name nor a code
+    basis:  S2 strict JSON types
+as-expected  E1 waiver type=None
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a type that is neither a name nor a code
+    basis:  S2 strict JSON types
+as-expected  E1 waiver rule=1
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a rule that is not a string
+    basis:  S2 strict JSON types
+as-expected  E1 waiver reason=['x#1']
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a reason that is not a string
+    basis:  S2 strict JSON types
+as-expected  E1 waiver last=0.7
+    expect: REFUSE lint waiver 0
+    got:    REFUSE L1 port-cluster-minimum; lint waiver 0 has a last that is not an integer
+    basis:  S2 strict JSON types
+as-expected  E2 waiver type as the numeric code 0x000E
+    expect: PACK
+    got:    PACK
+    basis:  type a name or a code
+as-expected  E3 the same waiver twice
+    expect: REFUSE lint waiver 1
+    got:    REFUSE lint waiver 1 (L1 port-cluster-minimum
+    basis:  S2 overlap
+as-expected  E4 overlapping ranges 0..0 and 0..3
+    expect: REFUSE lint waiver 1
+    got:    REFUSE lint waiver 1 (L1 port-cluster-minimum
+    basis:  S2 overlap
+as-expected  E5 a second waiver of another check (stale, not an overlap)
+    expect: REFUSE lint waiver 1
+    got:    REFUSE lint waiver 1 (L7 cluster-channels
+    basis:  stale
+as-expected  F1 by-path load beside shadowing consumer modules
+    expect: PACK, path unchanged
+    got:    sys.path unchanged: True | model_rules/model_lint in sys.modules: []
+    basis:  S3
+
+0 unexpected of 45
+rc=0

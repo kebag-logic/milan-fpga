@@ -1,0 +1,5 @@
+plant_r2: 37 KILLED, 0 SURVIVED, 0 BADPLANT of 37
+plant_r435_titles: 8 KILLED, 0 SURVIVED, 0 BADPLANT of 8
+plant: 24 KILLED, 1 SURVIVED, 4 BADPLANT of 29
+plant_r3: 40 KILLED, 0 SURVIVED, 0 BADPLANT of 40
+Notes: 'plant' is the R434-1 round-1 script run unchanged. Its 1 SURVIVED is the expected-pass control min-new-entity-id(expect-pass), which must stay green. Its 4 BADPLANT targets (iface-count-only, order-no-control-arm, covers-ut-current, cli-writes-first) are code that round 2 rewrote; each is ported as P-* in plant_r2 and KILLED there.
