@@ -77,6 +77,10 @@ CLASSIFIED_CONSUMERS = {
     ("tb/verilator/milan_dp/gen_divergent_shape.py",
      "gen_divergent/gen/adp_shape_defaults.svh"):
         "the same generated file, named by the script that writes it",
+    ("tb/verilator/milan_dp_mclk/Makefile",
+     "$(MCLK_GEN)/gen/adp_shape_defaults.svh"):
+        "written by the builder from the #629 root suite's generated "
+        "two-stream config (gen_mclk_shape.py) during the suite, never tracked",
 }
 
 #: Repo-root-anchored prefixes: a reference starting with one of these is
