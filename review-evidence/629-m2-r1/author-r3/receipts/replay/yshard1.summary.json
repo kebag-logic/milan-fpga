@@ -1,0 +1,77 @@
+{
+ "head": "0b066b6e66df2a3ba3167805a6a591f8b96fa449",
+ "workflow": ".github/workflows/rtl.yml",
+ "job": "yosys-shards",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Fetch RTL dependencies",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard1/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "03",
+   "name": "Record the tree this worker validates",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard1/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "04",
+   "name": "Cache the pinned Yosys build",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "05",
+   "name": "Build Yosys from source on cache miss",
+   "result": "SKIPPED (if: false)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "06",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard1/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "07",
+   "name": "Install the pinned sv2v release",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard1/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.6
+  },
+  {
+   "step": "08",
+   "name": "Restore the portability result cache seeded from dev",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "09",
+   "name": "Run this weighted portability shard",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/yshard1/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 245.1
+  },
+  {
+   "step": "10",
+   "name": "Upload per-top and structural evidence",
+   "result": "ACTION: not uploaded (local replay)",
+   "rc": 0,
+   "seconds": 0.0
+  }
+ ]
+}

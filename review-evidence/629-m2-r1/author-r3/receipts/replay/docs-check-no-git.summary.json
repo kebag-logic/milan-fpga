@@ -1,0 +1,21 @@
+{
+ "head": "0b066b6e66df2a3ba3167805a6a591f8b96fa449",
+ "workflow": ".github/workflows/docs.yml",
+ "job": "docs-check-no-git",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Strip git metadata, then run the docs gate",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/docs-check-no-git/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 4.6
+  }
+ ]
+}

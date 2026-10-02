@@ -1,0 +1,77 @@
+{
+ "head": "0b066b6e66df2a3ba3167805a6a591f8b96fa449",
+ "workflow": ".github/workflows/rtl-fast.yml",
+ "job": "yosys-elaboration",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Fetch RTL dependencies",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "03",
+   "name": "Cache the pinned Yosys build",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "04",
+   "name": "Build Yosys from source on cache miss",
+   "result": "SKIPPED (if: false)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "05",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "06",
+   "name": "Install the pinned sv2v release",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.7
+  },
+  {
+   "step": "07",
+   "name": "Elaborate the integration-heavy tops",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 35.7
+  },
+  {
+   "step": "08",
+   "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 510.5
+  },
+  {
+   "step": "09",
+   "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 28.9
+  },
+  {
+   "step": "10",
+   "name": "Prove the result cache refuses a planted entry",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/rf-yosys-elab/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 47.7
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+replay .github/workflows/rtl.yml :: verilator-suites at 0b066b6e66df2a3ba3167805a6a591f8b96fa449
+HOME: $VALIDATION_STORAGE/629-a500/home-light; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a500/replay/verilator-suites/bin/make -> $VALIDATION_STORAGE/629-a500/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] USES  Download every shard's logs: not downloaded: the aggregate reads this replay's own shard outputs
+[03] PASS  rc=0      0.1s  Require every shard to have validated this run's SHA  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/verilator-suites/bin/make, GNU Make 4.3)
+[04] PASS  rc=0      0.5s  Prove exhaustive ownership and tally every log  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/verilator-suites/bin/make, GNU Make 4.3)
+[05] PASS  rc=0      0.0s  Require every Verilator worker to pass  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/verilator-suites/bin/make, GNU Make 4.3)
+steps: 5  failed: 0
+rc=0

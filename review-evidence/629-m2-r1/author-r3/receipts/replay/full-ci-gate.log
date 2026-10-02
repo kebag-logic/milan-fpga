@@ -1,0 +1,10 @@
+replay .github/workflows/rtl.yml :: full-ci-gate at 0b066b6e66df2a3ba3167805a6a591f8b96fa449
+HOME: $VALIDATION_STORAGE/629-a500/home-light; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a500/replay/full-ci-gate/bin/make -> $VALIDATION_STORAGE/629-a500/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] PASS  rc=0      0.0s  Print the event and pin the one SHA this run validates  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/full-ci-gate/bin/make, GNU Make 4.3)
+[03] PASS  rc=0      0.2s  Assert the repository default branch is dev  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/full-ci-gate/bin/make, GNU Make 4.3)
+[04] PASS  rc=0      1.9s  Hold every workflow file to its contract  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/full-ci-gate/bin/make, GNU Make 4.3)
+[05] PASS  rc=0      5.0s  Decide whether this exact head needs the exhaustive gates  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a500/replay/full-ci-gate/bin/make, GNU Make 4.3)
+steps: 5  failed: 0
+rc=0
