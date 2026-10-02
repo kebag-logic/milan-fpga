@@ -1,0 +1,134 @@
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:597:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  597 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:599:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+  599 |       .aecp_clk_src_index_o  (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:607:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  607 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:608:42: ... Location of port declaration
+  608 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:609:42: ... Location of port declaration
+  609 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_active_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:614:42: ... Location of port declaration
+  614 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_sr_admitted_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:620:42: ... Location of port declaration
+  620 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:621:42: ... Location of port declaration
+  621 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_src_fail_code_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:622:42: ... Location of port declaration
+  622 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:623:42: ... Location of port declaration
+  623 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:624:42: ... Location of port declaration
+  624 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_over_limit_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:625:42: ... Location of port declaration
+  625 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:626:42: ... Location of port declaration
+  626 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:627:42: ... Location of port declaration
+  627 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:629:42: ... Location of port declaration
+  629 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:550:5: Instance has missing pin: 'adp_next_avail_index_o'
+  550 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:658:42: ... Location of port declaration
+  658 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+  [i] ID1c: gaps 15264 and 15300 clocks
+  [i] ID2c: gaps 15264 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2d: burst 2 starts 100265 clocks after burst 1
+  [i] ID2d: burst 3 starts 100300 clocks after burst 2
+  [i] ID3c: gaps 15264 and 15300 clocks
+  [i] ID3e: gaps 15299 and 15300 clocks
+  [i] ID3f: the new burst follows the third frame by 15301 clocks
+  [i] ID5e: gaps 15300 and 15300 clocks
+  [i] ID5i: fan-out at frame 1 + 14450 clocks: gaps 15775 and 15293
+  [i] ID5i: fan-out at frame 1 + 14700 clocks: gaps 15897 and 15240
+  [i] ID5i: fan-out at frame 1 + 14950 clocks: gaps 16147 and 15309
+  [i] ID8: the gap's expiry came 63 clocks into its deadline's ms
+  [i] ID8c: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8d: gaps 15299 and 15300 clocks
+  [i] ID8h: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = -1: the burst starts 166 clocks after the expiry
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = 0: the burst starts 166 clocks after the expiry
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = 1: the burst starts 166 clocks after the expiry
+  [i] ID8m: the press's burst follows the third frame by 15302 clocks, 167 after the gap ended
+  [i] ID8n: k = 2: the burst starts 167 clocks after the expiry
+  [i] ID8q: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8u: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID9: frame 1's last byte was held 40001 clocks; gaps 15232 and 15300 clocks
+  [i] ID9e: frame 2's last byte was held 40001 clocks; gaps 55267 and 15299 clocks
+  [i] ID6d: gaps 15274 and 15300 clocks
+  [i] ID7: stall inside frame 1: it left 40167 clocks after the press; gaps 15270 and 15300
+  [i] ID7f: stall after frame 1: gaps 40093 and 15264 clocks
+  [i] ID7j: stall after frame 2: gaps 15290 and 25093 clocks
+  [i] ID7n: gaps 90060, 15273 | 15301 | 15299, 15300 clocks
+  [i] ID7s: gaps 15299 and 15300 clocks
+  [i] R421a: eof-beat stall of frame 1: gaps 15232 and 15300 clocks
+  [i] R421b: eof-beat stall of frame 2: gaps 55267 and 15299 clocks
+  [i] R421d: a 200 ms press 2 ms after frame 3: 6 frames
+  [i] R421d: next burst 15301 clocks after frame 3
+  [i] R421c: a 30 ms press 2 ms after frame 3: 6 frames
+  [i] R421c: next burst 15301 clocks after frame 3
+ID: 188 checks, 0 failures
+[build identify, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 188 checks, 0 failures

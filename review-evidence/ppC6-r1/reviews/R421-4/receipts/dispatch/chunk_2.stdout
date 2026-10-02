@@ -1,0 +1,48 @@
+control aecp-dispatch: rc=0 PASS
+control line-guards: rc=0 PASS
+m9-guard-set-stream-info: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 000E must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_STREAM_INFO, whole body)
+    FAIL: M9b4: no SET_STREAM_INFO reached the store: STREAM_OUTPUT 1's presentation offset (valid 0x00 -> 0x02) is unmoved
+m9-guard-dynamic-info: rc=2 failures=7 named=1 KILLED
+    FAIL: M9: mt=2 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 004B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+lk-sclks-miss-lock-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: LK4 foreign SET_CLOCK_SOURCE on CLOCK_DOMAIN 3 (absent): ENTITY_LOCKED byte-exact (status 2, cdl 20)
+ov-oversize-never: rc=2 failures=18 named=1 KILLED
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the 576-byte descriptor, byte-exact
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): 576 octets on the wire, want 618
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV1 AUDIO_MAP 0 (576 B, the whole line: cdl 592, frame 618): the frame left through slot 4
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the 536-byte descriptor, byte-exact
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): 576 octets on the wire, want 578
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV2 AUDIO_MAP 1 (536 B: cdl 552, frame 578): the frame left through slot 4
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the 576-byte descriptor, byte-exact
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: 576 octets on the wire, want 618
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: one TX-slot grant, the oversize request raised, slot 0
+    FAIL: OV5 AUDIO_MAP 0 again: slot 4 is reusable: the frame left through slot 4
+pg-cap-off-by-one: rc=2 failures=4 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 592)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: number_of_mappings 72 names exactly the 71 records carried
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+rd-str-unset-overlays: rc=2 failures=4 named=1 KILLED
+    FAIL: RD0 STREAM_INPUT 0, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD0 STREAM_OUTPUT 1, format unset: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+line-floor-rounded: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 568: must be refused: DESC_LINE_BYTES_P=568 is below 576 (verilator rc 0)
+9 checks: 9 PASS, 0 FAIL

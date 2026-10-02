@@ -1,0 +1,35 @@
+== tb/ucpu with E_IDNOTIF/E_SINFOUNS at 2000/2016 (round 3's addresses)
+FAIL: N6 IDENTIFY_NOTIFICATION completes
+FAIL: N6 SUCCESS, payload 4, one send (st 0 len 16 sends 0)
+FAIL: N6 CONTROL @24, index 5 @26, got eeee 0000
+FAIL: N7 SET_STREAM_INFO body completes
+FAIL: N7 SUCCESS, the 84-byte Figure 7-40 body, one send (st 0 len 16)
+FAIL: N7 {STREAM_OUTPUT, 3} and MSRP_ACC_LAT_VALID alone (flags 20 00 00 00), got 0000eeee, 00 00 0000
+FAIL: N7 the offset in force at @48, got 0000eeee
+FAIL: N7 every other field zero
+437 checks: 429 PASS, 8 FAIL
+== check_upc_map with the engine's UPC constants at 2000/2016
+UPC MAP GATE: FAIL — the engine and the µcode disagree
+
+  UPC_IDNOTIF_C = 2000 but E_IDNOTIF = 464. The engine dispatches +1536 words away from the program.
+  UPC_SINFOUNS_C = 2016 but E_SINFOUNS = 480. The engine dispatches +1536 words away from the program.
+
+A wrong µPC does not fail to elaborate and does not warn; it
+executes the ROM fill and answers with a well-formed response
+carrying garbage. Fix the constant, do not widen this gate.
+== pp_top identify build, engine at 2000/2016
+FAIL: ID1b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0
+FAIL: ID1b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0
+FAIL: ID1b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0
+ID: 178 checks, 84 failures
+[build identify, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 178 checks, 84 failures
+== pp_top --notify-only, engine at 2000/2016
+FAIL: NP3 SET_STREAM_INFO: exactly one unsolicited response of this command at the other registered controller, got 0
+FAIL: NP4 SET_CONTROL(IDENTIFY 255): the solicited response is SUCCESS, byte-exact (premise)
+FAIL: NP4 SET_CONTROL(IDENTIFY 255): exactly one unsolicited response of this command at the other registered controller, got 0
+FAIL: NP4b SET_CONTROL(IDENTIFY 0): the solicited response is SUCCESS, byte-exact (premise)
+FAIL: NP4b SET_CONTROL(IDENTIFY 0): exactly one unsolicited response of this command at the other registered controller, got 0
+NP: 44 checks, 5 failures
+ST: 18 checks, 0 failures
+RN: 4 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 66 checks, 5 failures

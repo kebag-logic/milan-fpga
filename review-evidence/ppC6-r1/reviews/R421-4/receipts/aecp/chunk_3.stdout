@@ -1,0 +1,108 @@
+control pp_top budget: rc=0 PASS
+control pp_top deadline: rc=0 PASS
+control pp_top hazards: rc=0 PASS
+control ucpu run: rc=0 PASS
+dl-armed-at-admission: rc=2 failures=6 named=1 KILLED
+    FAIL: DL3: the queued GET_MILAN_INFO past its deadline answers MVU NOT_IMPLEMENTED with the command echoed, byte-exact (status 0, 60 bytes)
+    FAIL: DL3: both preempted, both keys released at their responses (1 redirects, 1 kills)
+    FAIL: DL9 ADDRESS_ACCESS: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+    FAIL: DL9 AVC: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+    FAIL: DL9 HDCP_APM: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+    FAIL: DL9 EXTENDED: premise: the stall ahead is forced and the queued command preempted too (1 redirects)
+dl-kill-ack-keeps-owner: rc=2 failures=2 named=1 KILLED
+    FAIL: DL1: the honoured kill ended the AECP owner, so the RX-slot return after it released no hold id again (1 stray releases)
+    FAIL: DL11: across the section every normal release named a live hold (19 named a free one)
+dlkill-always-misbehaving: rc=2 failures=1 named=1 KILLED
+    FAIL: P20d ENTITY_LOCKED kept, header only: status 10 len 12
+fanout-never-ends: rc=2 failures=23 named=1 KILLED
+    FAIL: TB3 GET_MILAN_INFO behind the fan-out is answered as it is idle
+    FAIL: TB3 GET_MILAN_INFO: premise: asked with the fan-out in flight (0 of 15 frames sent, 496 in all)
+    FAIL: TB TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB3 premise: the SET_CLOCK_SOURCE ahead of the oversize READ_DESCRIPTOR is accepted
+    FAIL: TB3 oversize READ_DESCRIPTOR behind the fan-out is answered as it is idle
+    FAIL: TB3 oversize READ_DESCRIPTOR: premise: asked with the fan-out in flight (496 of 15 frames sent, 993 in all)
+    FAIL: TB TB3 oversize READ_DESCRIPTOR behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 oversize READ_DESCRIPTOR behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB3 premise: the SET_CLOCK_SOURCE ahead of the GET_DYNAMIC_INFO with all thirteen getters is accepted
+    FAIL: TB3 GET_DYNAMIC_INFO with all thirteen getters behind the fan-out is answered as it is idle
+    FAIL: TB3 GET_DYNAMIC_INFO with all thirteen getters: premise: asked with the fan-out in flight (497 of 15 frames sent, 993 in all)
+    FAIL: TB TB3 GET_DYNAMIC_INFO with all thirteen getters behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 GET_DYNAMIC_INFO with all thirteen getters behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB4 GET_MILAN_INFO against a stalled response memory: the Figure 5.4 answer, byte-exact
+    FAIL: TB TB4 GET_MILAN_INFO, response memory at 4,000 clocks: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB4 GET_MILAN_INFO, response memory at 4,000 clocks: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB5 GET_RX_STATE and GET_TX_STATE answered idle
+    FAIL: TB TB5 GET_RX_STATE, idle: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+    FAIL: TB TB5 GET_TX_STATE, idle: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+    FAIL: TB TB5 GET_RX_STATE beside an oversize READ_DESCRIPTOR, at 143: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+    FAIL: TB5 GET_TX_STATE during the fan-out: -1 clocks, at most idle -1 plus one frame
+    FAIL: TB TB5 GET_TX_STATE during a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+hz-reads-keyed-none: rc=2 failures=13 named=1 KILLED
+    FAIL: HZ1 GET_STREAM_FORMAT STREAM_OUTPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1801)
+    FAIL: HZ1 GET_STREAM_INFO STREAM_INPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 GET_NAME CLOCK_DOMAIN 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x9000)
+    FAIL: HZ1 GET_SAMPLING_RATE AUDIO_UNIT 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x0800)
+    FAIL: HZ1 GET_CLOCK_SOURCE CLOCK_DOMAIN 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x9000)
+    FAIL: HZ1 GET_CONTROL CONTROL 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x6800)
+    FAIL: HZ1 GET_AVB_INFO AVB_INTERFACE 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x2400)
+    FAIL: HZ1 GET_COUNTERS STREAM_INPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 GET_AUDIO_MAP STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x3800)
+    FAIL: HZ6 GET_STREAM_INFO on the held sink's key: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ6 GET_STREAM_INFO on the held sink's key: admitted after the ACMP key frees
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-acmp-reads-as-steps: rc=2 failures=23 named=1 KILLED
+    FAIL: HZ1 ACMP GET_RX_STATE sink 1: admitted STREAM_CFG key 0x1401 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 ACMP GET_TX_STATE source 2: admitted STREAM_CFG key 0x1802 (want RO_SNAPSHOT, key 0x1802)
+    FAIL: HZ1 ACMP GET_TX_CONNECTION source 2: admitted STREAM_CFG key 0x1802 (want RO_SNAPSHOT, key 0x1802)
+    FAIL: HZ4: the unlock is admitted beside a held GET_RX_STATE, a read
+    FAIL: HZ6 GET_STREAM_INFO beside a GET_RX_STATE of the same sink (two reads): admitted beside the held ACMP command
+    FAIL: HZ9a SET_NAME on STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ9a SET_NAME on STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ9d a GET_TX_STATE of source 1 vs a held SET_NAME on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ9d a GET_TX_STATE of source 1 vs a held SET_NAME on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ9f a GET_RX_STATE of sink 1 vs a held SET_NAME on STREAM_INPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ9f a GET_RX_STATE of sink 1 vs a held SET_NAME on STREAM_INPUT 1: admitted after the AECP key frees
+    FAIL: HZ10f a GET_TX_STATE of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: admitted beside the held AECP command
+    FAIL: HZ11c a GET_TX_STATE of source 1 vs a held LOCK_ENTITY: admitted beside the held AECP command
+    FAIL: HZ11e a GET_TX_STATE of source 1 vs a held ADD_AUDIO_MAPPINGS: admitted beside the held AECP command
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ12b SET_CONTROL (IDENTIFY) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b SET_CONTROL (IDENTIFY) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12b a GET_TX_STATE of source 1 vs a held SET_CONTROL (IDENTIFY) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ12c ADD_AUDIO_MAPPINGS (MAP_CFG) naming STREAM_INPUT 0 vs a held GET_RX_STATE of sink 1: admitted beside the held ACMP command
+hz-name-key-none-held: rc=2 failures=7 named=1 KILLED
+    FAIL: HZ1 SET_NAME CLOCK_DOMAIN 0: admitted NAME_WR key 0xfc00 (want NAME_WR, key 0x9000)
+    FAIL: HZ9a SET_NAME on STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ9a SET_NAME on STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ9d a GET_TX_STATE of source 1 vs a held SET_NAME on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ9d a GET_TX_STATE of source 1 vs a held SET_NAME on STREAM_OUTPUT 1: admitted after the AECP key frees
+    FAIL: HZ9f a GET_RX_STATE of sink 1 vs a held SET_NAME on STREAM_INPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ9f a GET_RX_STATE of sink 1 vs a held SET_NAME on STREAM_INPUT 1: admitted after the AECP key frees
+hz-reads-keyed-none-talker: rc=2 failures=13 named=1 KILLED
+    FAIL: HZ1 GET_STREAM_FORMAT STREAM_OUTPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1801)
+    FAIL: HZ1 GET_STREAM_INFO STREAM_INPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 GET_NAME CLOCK_DOMAIN 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x9000)
+    FAIL: HZ1 GET_SAMPLING_RATE AUDIO_UNIT 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x0800)
+    FAIL: HZ1 GET_CLOCK_SOURCE CLOCK_DOMAIN 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x9000)
+    FAIL: HZ1 GET_CONTROL CONTROL 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x6800)
+    FAIL: HZ1 GET_AVB_INFO AVB_INTERFACE 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x2400)
+    FAIL: HZ1 GET_COUNTERS STREAM_INPUT 1: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x1401)
+    FAIL: HZ1 GET_AUDIO_MAP STREAM_PORT_INPUT 0: admitted RO_SNAPSHOT key 0xfc00 (want RO_SNAPSHOT, key 0x3800)
+    FAIL: HZ6 GET_STREAM_INFO on the held sink's key: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ6 GET_STREAM_INFO on the held sink's key: admitted after the ACMP key frees
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ10e a DISCONNECT_TX of source 1 vs a held GET_STREAM_INFO on STREAM_OUTPUT 1: admitted after the AECP key frees
+hz-clock-key-none-talker: rc=2 failures=6 named=1 KILLED
+    FAIL: HZ1 SET_SAMPLING_RATE AUDIO_UNIT 0: admitted CLOCK_CFG key 0xfc00 (want CLOCK_CFG, key 0x0800)
+    FAIL: HZ1 SET_CLOCK_SOURCE CLOCK_DOMAIN 0: admitted CLOCK_CFG key 0xfc00 (want CLOCK_CFG, key 0x9000)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1: admitted after the ACMP key frees
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ12a a GET_TX_STATE of source 1 vs a held SET_SAMPLING_RATE (CLOCK_CFG) naming STREAM_OUTPUT 1: admitted after the AECP key frees
+13 checks: 13 PASS, 0 FAIL

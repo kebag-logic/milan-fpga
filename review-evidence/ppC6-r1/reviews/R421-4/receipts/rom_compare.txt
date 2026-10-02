@@ -1,0 +1,24 @@
+lane_r3_9624ef4c 9624ef4c452d708de68a901d5e645bdfa1f5d6f5: 2048 words, 82 programs, 1004 occupied, sha256 b4755390ca2d412b9a99c6ae31405108138161eff5978da89022304283ac381a
+main_16ea10ac 16ea10ace6c755c91bb9e864b2b855acb240b09b: 2048 words, 86 programs, 1078 occupied, sha256 94afc35852e6609d446d34b3ca8a2404ea7b703e15c9c8af645cc2db31e53336
+merge_r4_651839e 651839e1ce9d3a36adfbfae0297dd091a02a2def: 2048 words, 88 programs, 1105 occupied, sha256 23d2213d784bb6368ae7bb9de379fef4a71d774783f9582cc66b75be8f00ea08
+main_03c842a7 03c842a780064048b0a1a3de29214174a1c13934: 2048 words, 87 programs, 1080 occupied, sha256 3559d0a64b51062a4dc47744ead112a0cc839f389bb2d16ba0133b03baf4b053
+head_95a78c0 95a78c099ee5aa914521975355adc1dfef99d01c: 2048 words, 89 programs, 1107 occupied, sha256 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8
+
+main_16ea10ac vs merge_r4_651839e: words differ at 464..469, 480..500; occupancy differs at 464..469, 480..500
+lane_r3_9624ef4c vs merge_r4_651839e: words differ at 432..445, 448..455, 464..469, 480..500, 805..827, 1144..1150, 1153..1161, 1164, 1167..1183, 1186..1193, 1197, 1210..1215, 1232..1238, 1280..1306, 1312..1318, 1536..1552, 1768..1777, 1780..1789, 1957, 1961, 1967, 1971, 1977, 1981, 1987, 1991, 2000..2045; occupancy differs at 432..445, 448..455, 464..469, 480..500, 822..827, 1144..1150, 1183, 1210..1215, 1232..1238, 1305..1306, 1312..1318, 1536..1552, 1768..1777, 1780..1789, 2006..2015, 2037..2045
+main_03c842a7 vs head_95a78c0: words differ at 464..469, 480..500; occupancy differs at 464..469, 480..500
+merge_r4_651839e vs head_95a78c0: words differ at 6..7; occupancy differs at 6..7
+
+E_IDNOTIF: lane 2000 (6 words) -> head 464 (6 words); identical: True
+E_SINFOUNS: lane 2016 (21 words) -> head 480 (21 words); identical: True
+E_IDNOTIF 464..469 occupied in main_16ea10ac: none
+E_IDNOTIF 464..469 occupied in main_03c842a7: none
+E_SINFOUNS 480..500 occupied in main_16ea10ac: none
+E_SINFOUNS 480..500 occupied in main_03c842a7: none
+word 2000 occupied in main_16ea10ac: True
+word 2016 occupied in main_16ea10ac: True
+word 2000 occupied in main_03c842a7: True
+word 2016 occupied in main_03c842a7: True
+E_DLKILL 6..7 in head occupied; in lane_r3 occupied: [False, False]; lane bodies overlap it: False
+words occupied in merge_r4_651839e but not in head: none
+words occupied in main_03c842a7 but not in head: none

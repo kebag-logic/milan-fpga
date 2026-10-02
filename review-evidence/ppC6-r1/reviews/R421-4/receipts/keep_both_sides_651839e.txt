@@ -1,0 +1,117 @@
+merge 651839e p1 9624ef4c452d708de68a901d5e645bdfa1f5d6f5 p2 16ea10ace6c755c91bb9e864b2b855acb240b09b base 3f3ea56ba61829718a6a288600ab4fdac73aa5ba files 76
+BINARY docs/diagrams/21-integration-faces.png:
+   base blob 2a7db15347b6298b113d7ee35699300a745bd9f1
+   p1 blob 3ac47e16f8aa72a12d2c64510cdee88f705c2dd2
+   p2 blob 2a7db15347b6298b113d7ee35699300a745bd9f1
+   merge blob 3ac47e16f8aa72a12d2c64510cdee88f705c2dd2
+== hdl/aecp/KL_aecp_engine.sv: 2 line(s) below both-sides count, 2 merge-own line(s)
+   LOST have=0 want>=1:   localparam logic [10:0] UPC_IDNOTIF_C  = 11'd2000; // E_IDNOTIF
+   LOST have=0 want>=1:   localparam logic [10:0] UPC_SINFOUNS_C = 11'd2016; // E_SINFOUNS
+   OWN  x1:   localparam logic [10:0] UPC_IDNOTIF_C  = 11'd464;  // E_IDNOTIF
+   OWN  x1:   localparam logic [10:0] UPC_SINFOUNS_C = 11'd480;  // E_SINFOUNS
+== hdl/aecp/ucode/gen_ucode.py: 4 line(s) below both-sides count, 6 merge-own line(s)
+   LOST have=0 want>=1: #! IDENTIFY_NOTIFICATION (IEEE 7.4.39) takes the front of the free tail after
+   LOST have=0 want>=1: #! the rate walk, on a 16-word boundary.
+   LOST have=0 want>=1: E_IDNOTIF = 2000    # unsolicited IDENTIFY_NOTIFICATION body (7.4.39.1)
+   LOST have=0 want>=1: E_SINFOUNS = 2016   # unsolicited SET_STREAM_INFO body (7.4.15.1, Figure 7-40)
+   OWN  x1: #! IDENTIFY_NOTIFICATION (IEEE 7.4.39) and the unsolicited SET_STREAM_INFO
+   OWN  x1: #! body take the free 456..511 run after E_COPYT, each on a 16-word boundary:
+   OWN  x1: #! overlays (issue #82).
+   OWN  x1: #! the tail after the rate walk holds READ_DESCRIPTOR's current-value
+   OWN  x1: E_IDNOTIF = 464     # unsolicited IDENTIFY_NOTIFICATION body (7.4.39.1)
+   OWN  x1: E_SINFOUNS = 480    # unsolicited SET_STREAM_INFO body (7.4.15.1, Figure 7-40)
+== tb/pp_top/Makefile: 14 line(s) below both-sides count, 10 merge-own line(s)
+   LOST have=0 want>=2: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+   LOST have=0 want>=1: 	rm -rf obj_dir obj_vid obj_idn ltn_rom.hex ucode.hex
+   LOST have=0 want>=1: 	rm -rf obj_dir obj_vid obj_line ltn_rom.hex ucode.hex
+   LOST have=0 want>=1:         line-build aecp-line aecp-dispatch-mutants fixture-guards fixture-guards-test line-guards clean
+   LOST have=0 want>=1: # LINE_FIXTURE and runs section AX alone, so its response writes are bounded
+   LOST have=0 want>=2: # Three builds of one bench. The first overrides nothing and runs every
+   LOST have=0 want>=1: # binary prints its own build's count; the last line is the one canonical
+   LOST have=0 want>=1: # build's count; the last line is the one canonical tally, summed over the
+   LOST have=0 want>=1: # by a reservation that is not the default's. Each binary prints its own
+   LOST have=0 want>=1: # runs section ID alone; the first grades the default 0 (section ID0). Each
+   LOST have=0 want>=1: # tally, summed over the three builds.
+   LOST have=0 want>=1: # three builds.
+   LOST have=0 want>=1: # top-level connection. The third overrides DESC_LINE_BYTES_P with
+   LOST have=0 want>=1: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config identify-build identify fixture-guards fixture-guards-test clean
+   OWN  x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 4) {print "FAIL: " NR " build tallies, expected 4"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - 
+   OWN  x1: 	rm -rf obj_dir obj_vid obj_idn obj_line ltn_rom.hex ucode.hex
+   OWN  x1:         fixture-guards fixture-guards-test line-guards clean
+   OWN  x1:         line-build aecp-line aecp-dispatch-mutants identify-build identify \
+   OWN  x1: # Four builds of one bench. The first overrides nothing and runs every
+   OWN  x1: # alone, so its response writes are bounded by a reservation that is not the
+   OWN  x1: # default's. Each binary prints its own build's count; the last line is the
+   OWN  x1: # fourth overrides DESC_LINE_BYTES_P with LINE_FIXTURE and runs section AX
+   OWN  x1: # one canonical tally, summed over the four builds.
+   OWN  x1: # runs section ID alone; the first grades the default 0 (section ID0). The
+== tb/pp_top/README.md: 8 line(s) below both-sides count, 9 merge-own line(s)
+   LOST have=0 want>=1: The third build, `obj_line` (`make aecp-line` alone), runs section AX at
+   LOST have=0 want>=1: `make`: exit 0 = PASS. It builds the bench three times (sections DV and AX):
+   LOST have=0 want>=1: `make`: exit 0 = PASS. It builds the bench three times (sections DV and ID): each
+   LOST have=0 want>=1: builds the bench a second time (the third build is section AX's line build):
+   LOST have=0 want>=1: each executable prints its own build's tally, and the last line sums them into
+   LOST have=0 want>=1: executable prints its own build's tally, and the last line sums the three into
+   LOST have=0 want>=2: the one canonical tally.
+   LOST have=0 want>=1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and AX last | 2 (Milan §4.2.7.2.1) |
+   OWN  x1: The fourth build, `obj_line` (`make aecp-line` alone), runs section AX at
+   OWN  x1: `make`: exit 0 = PASS. It builds the bench four times (sections DV, ID and AX):
+   OWN  x1: builds the bench a second time (the third build is section ID's identify build,
+   OWN  x1: each executable prints its own build's tally, and the last line sums the four
+   OWN  x1: into the one canonical tally.
+   OWN  x1: the fourth section AX's line build):
+   OWN  x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV, AX and lane C6's ID0, NP, ST and RN last | 2 (Milan §4.2.7.2.1) |
+   OWN  x1: | `obj_idn/Vpp_top_idn` | `EN_IDENTIFY_NOTIF_P = 1` (`PP_TOP_EN_IDENT`) | ID alone | 2 |
+   OWN  x1: | `obj_line/Vpp_top_line` | `DESC_LINE_BYTES_P` (section AX) | AX alone |
+== tb/pp_top/notify_mutants.py: 3 line(s) below both-sides count, 4 merge-own line(s)
+   LOST have=0 want>=1:          nop_for("u('CHECK_LOCK', ra=15, imm=E_LOCKED1)")),),
+   LOST have=0 want>=1:         (UCODE, "    u('CHECK_LOCK', ra=15, imm=E_LOCKED1),       # held by another controller?\n",
+   LOST have=0 want>=1: TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+\] \d+ checks, \d+ failures"
+   OWN  x1:                    r" \d+ checks, \d+ failures"
+   OWN  x1:          nop_for("u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT)")),),
+   OWN  x1:         (UCODE, "    u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT),      # held by another controller?\n",
+   OWN  x1: TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+== tb/pp_top/pp_top_wrap.sv: 12 line(s) below both-sides count, 10 merge-own line(s)
+   LOST have=0 want>=1:       //! the first two grade the top's own default, 0
+   LOST have=0 want>=1:       //! the third build's verification-only fixture (see the banner)
+   LOST have=0 want>=1:     output logic        dbg_ident_gap_end_o
+   LOST have=0 want>=1: //                PP_TOP_EN_IDENT, so the first build grades the top's own
+   LOST have=0 want>=1: //                PP_TOP_SRP_DOM_DEF_VID (Makefile), and EN_IDENTIFY_NOTIF_P
+   LOST have=0 want>=1: //                PP_TOP_SRP_DOM_DEF_VID, and DESC_LINE_BYTES_P ONLY when the
+   LOST have=0 want>=2: //                The two parameters the suite builds again: SRP_DOM_DEF_VID_P
+   LOST have=0 want>=1: //                build grades the top's own defaults and never a copy of them.
+   LOST have=0 want>=1: //                defaults and never a copy of them.
+   LOST have=0 want>=1: //                is overridden ONLY when the second build defines
+   LOST have=0 want>=1: //                is set to 1 ONLY when the third build defines
+   LOST have=0 want>=1: //                third defines PP_TOP_DESC_LINE_BYTES (Makefile), so the first
+   OWN  x1:       //! every other build grades the top's own default, 0
+   OWN  x1:       //! the fourth build's verification-only fixture (see the banner)
+   OWN  x1:     output logic        dbg_ident_gap_end_o,
+   OWN  x1: //                DESC_LINE_BYTES_P ONLY when the fourth defines
+   OWN  x1: //                PP_TOP_DESC_LINE_BYTES (Makefile), so the first build grades
+   OWN  x1: //                SRP_DOM_DEF_VID_P is overridden ONLY when the second build
+   OWN  x1: //                The three parameters the suite builds again:
+   OWN  x1: //                defines PP_TOP_SRP_DOM_DEF_VID, EN_IDENTIFY_NOTIF_P is set
+   OWN  x1: //                the top's own defaults and never a copy of them.
+   OWN  x1: //                to 1 ONLY when the third build defines PP_TOP_EN_IDENT, and
+== tb/pp_top/sim_main.cpp: 8 line(s) below both-sides count, 6 merge-own line(s)
+   LOST have=0 want>=1:                            || ident_only || notify_only;
+   LOST have=0 want>=1:                            || maap_only || aecp_only;
+   LOST have=0 want>=2:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+   LOST have=0 want>=1:   //! The Makefile sums all three builds and prints the one canonical line.
+   LOST have=0 want>=1:   //! The Makefile sums the builds and prints the one canonical line.
+   LOST have=0 want>=1:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only
+   LOST have=0 want>=1: // ID alone (notify_phases.hpp).
+   LOST have=0 want>=1: // The suite builds three times (Makefile): the second build overrides the
+   OWN  x1:                            || maap_only || aecp_only || ident_only || notify_only;
+   OWN  x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's four
+   OWN  x1:   //! The Makefile sums all four builds and prints the one canonical line.
+   OWN  x1: // DESC_LINE_BYTES_P with a verification-only fixture and runs section AX
+   OWN  x1: // ID alone (notify_phases.hpp); the fourth, the line build, overrides
+   OWN  x1: // The suite builds four times (Makefile): the second build overrides the
+== tb/ucpu/sim_main.cpp: 2 line(s) below both-sides count, 2 merge-own line(s)
+   LOST have=0 want>=1: constexpr uint16_t E_IDNOTIF = 2000;   // gen_ucode.py: the IDENTIFY_NOTIFICATION body
+   LOST have=0 want>=1: constexpr uint16_t E_SINFOUNS = 2016;  // gen_ucode.py: the unsolicited SET_STREAM_INFO body
+   OWN  x1: constexpr uint16_t E_IDNOTIF = 464;    // gen_ucode.py: the IDENTIFY_NOTIFICATION body
+   OWN  x1: constexpr uint16_t E_SINFOUNS = 480;   // gen_ucode.py: the unsolicited SET_STREAM_INFO body
+files needing review: 8

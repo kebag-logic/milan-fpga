@@ -1,0 +1,24 @@
+base_3f3ea56b: 26 parameters, 211 port names
+lane3_9624ef4c: 27 parameters, 212 port names
+main_03c842a7: 26 parameters, 211 port names
+head_95a78c0: 27 parameters, 212 port names
+
+lane3_9624ef4c vs head:
+  params only in head: []
+  params only in lane3_9624ef4c : []
+  params whose default differs: []
+  ports only in head: []
+  ports only in lane3_9624ef4c : []
+  ports whose declaration differs: []
+
+main_03c842a7 vs head:
+  params only in head: ['EN_IDENTIFY_NOTIF_P']
+  params only in main_03c842a7 : []
+  params whose default differs: []
+  ports only in head: ['identify_button_i']
+  ports only in main_03c842a7 : []
+  ports whose declaration differs: []
+
+lane's own additions over base: params ['EN_IDENTIFY_NOTIF_P'] ports ['identify_button_i']
+main's additions over base: params [] ports []
+head params == main + lane additions: True ; ports: True

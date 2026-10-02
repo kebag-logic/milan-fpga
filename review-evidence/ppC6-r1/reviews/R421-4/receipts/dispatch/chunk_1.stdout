@@ -1,0 +1,50 @@
+control aecp-dispatch: rc=0 PASS
+m9-guard-set-stream-format: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0008 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_STREAM_FORMAT, whole body)
+    FAIL: M9b3: no SET_STREAM_FORMAT reached the store: STREAM_OUTPUT 1's published row (valid 0x00 -> 0x02) is unmoved
+m9-guard-remove-mappings: rc=2 failures=7 named=1 KILLED
+    FAIL: M9: mt=2 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 002D must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+lk-sclks-lock-nop: rc=2 failures=9 named=1 KILLED
+    FAIL: LK1 unset clock-source row, foreign SET_CLOCK_SOURCE(1) carries the image's 2: ENTITY_LOCKED byte-exact (status 0, cdl 20)
+    FAIL: LK1 unset clock-source row, foreign SET_CLOCK_SOURCE(1) carries the image's 2: no unsolicited frame reached the registered holder
+    FAIL: LK1 unset clock-source row, foreign SET_CLOCK_SOURCE(1) carries the image's 2: no dynamic-store write, NVM mark or notification (1, 1, 1)
+    FAIL: LK2 clock source 1: ...one store write and 1 notification enqueued (1, 0)
+    FAIL: LK3 foreign SET_CLOCK_SOURCE(2) carries the stored 1: ENTITY_LOCKED byte-exact (status 0, cdl 20)
+    FAIL: LK3 foreign SET_CLOCK_SOURCE(2) carries the stored 1: no unsolicited frame reached the registered holder
+    FAIL: LK3 foreign SET_CLOCK_SOURCE(2) carries the stored 1: no dynamic-store write, NVM mark or notification (1, 1, 1)
+    FAIL: LK3 ...and GET_CLOCK_SOURCE still reads 1
+    FAIL: LK6 clock source 2: ...one store write and 1 notification enqueued (1, 0)
+sctrl-badarg-zero-body: rc=2 failures=2 named=1 KILLED
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+pg-cap-dropped: rc=2 failures=10 named=1 KILLED
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: byte-exact (status 0, cdl 592)
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: number_of_mappings 72 names exactly the 71 records carried
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG7 a 72-mapping page: NO_RESOURCES, no record claimed: the frame did not leave through slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: byte-exact (status 0, cdl 592)
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: number_of_mappings 176 names exactly the 71 records carried
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: PG8 a 176-mapping page (Milan 5.4.2.26's ceiling): NO_RESOURCES: the frame did not leave through slot 4
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: byte-exact (status 0, cdl 24)
+    FAIL: PG9 a 256-mapping page (the count's low byte is 0): NO_RESOURCES: number_of_mappings 256 names exactly the 0 records carried
+rd-cd-image-only: rc=2 failures=3 named=1 KILLED
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact, its image whole (cdl -1)
+8 checks: 8 PASS, 0 FAIL

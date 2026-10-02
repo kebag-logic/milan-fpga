@@ -1,0 +1,56 @@
+tb/pp_top/aecp_mutants.py:57:    # latency against T-AECP-RESP (section TB, the fifth build)
+tb/pp_top/README.md:20:`make`: exit 0 = PASS. It builds the bench five times (sections DV, ID, AX and
+tb/pp_top/README.md:254:  `./obj_dir/Vpp_top_sim --d3-only` after `make gsi-build`.
+tb/pp_top/README.md:603:  10 §6.1 F10.2, F01.5 `P-SRP-DOM-DEF-VID`), in both builds on a fresh model:
+tb/pp_top/README.md:706:  processor of its own in the fifth build, whose timebase is the nominal clock's
+tb/pp_top/README.md:827:| M31 | control, not a defect: `KL_srp_top`'s own `DOM_DEF_VID_P` default changed from 2 to 7, binding intact | both builds PASS, 1,391 and 20: the child's default is no longer a source |
+tb/pp_top/README.md:1417:builds the bench a second time; the third build is section ID's identify build,
+tb/pp_top/README.md:1437:the DUT, and the wrap overrides nothing in the first build.
+tb/pp_top/README.md:1453:`obj_dir`/`obj_vid`. This check does not replace the two executable builds or
+tb/pp_top/README.md:1462:DV runs on a fresh model in both builds, after reset and with the link down:
+tb/pp_top/README.md:1705:The fourth build, `obj_line` (`make aecp-line` alone), runs section AX at
+tb/pp_top/README.md:1726:`make identify` builds and runs the third build and ID0.
+tb/pp_top/README.md:1728:### The third build: `P-EN-IDENTIFY-NOTIFICATION`
+tb/pp_top/README.md:1739:`PP_TOP_EN_IDENT`, so the first build grades the top's own default.
+tb/pp_top/Makefile:4:# Five builds of one bench. The first overrides nothing and runs every
+tb/pp_top/Makefile:14:# the one canonical tally, summed over the five builds.
+tb/pp_top/Makefile:88:# the third build alone (section ID), for the identify mutation campaign
+tb/pp_top/Makefile:135:	@rm -f obj_dir/build_tally.txt
+tb/pp_top/Makefile:149:	@awk '{c += $$1; f += $$2} END {if (NR != 5) {print "FAIL: " NR " build tallies, expected 5"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+tb/pp_top/Makefile:150:	    obj_dir/build_tally.txt
+tb/pp_top/Makefile:152:# The fifth build (section TB): the wrap's timebase at the nominal clock's
+tb/pp_top/notify_phases.hpp:6://        7.4.39, 7.5.1 and Figure 7-142; Milan 5.4.5.4), in the third build,
+tb/pp_top/notify_mutants.py:14:the identify sequencer in the third build of tb/pp_top (section ID), its one-tick
+tb/pp_top/notify_mutants.py:15:timer margins in the second build of tb/aecp_notify (section FT, the full
+tb/pp_top/sim_main.cpp:20:// The suite builds five times (Makefile): the second build overrides the
+tb/pp_top/sim_main.cpp:109://! P-SRP-DOM-DEF-VID as THIS build asked for it (section DV). The first build
+tb/pp_top/sim_main.cpp:110://! overrides nothing, so it expects Milan §4.2.7.2.1's 2; the second build is
+tb/pp_top/sim_main.cpp:8956:// only show in the second build, whose fixture the child cannot produce.
+tb/pp_top/sim_main.cpp:8967:  //! a bridge's Class A Domain VID, distinct from both builds' defaults
+tb/pp_top/sim_main.cpp:12376:// fan-out). It runs in the suite's fifth build, whose timebase is the nominal
+tb/pp_top/sim_main.cpp:13567:  //! their own in two builds each, so each has one path; in the fixture and
+tb/pp_top/sim_main.cpp:13573:  //! first build grades; the fixture build runs section DV alone
+tb/pp_top/sim_main.cpp:13577:  //! the third build sets P-EN-IDENTIFY-NOTIFICATION to 1 and runs section
+tb/pp_top/sim_main.cpp:13586:  //! the fifth build runs section TB alone, at the nominal timebase
+tb/pp_top/sim_main.cpp:13629:  //! The Makefile sums all five builds and prints the one canonical line.
+tb/pp_top/sim_main.cpp:13632:  FILE* acc = fopen("obj_dir/build_tally.txt", "a");
+tb/pp_top/pp_top_wrap.sv:30://                SRP_DOM_DEF_VID_P is overridden ONLY when the second build
+tb/pp_top/pp_top_wrap.sv:32://                to 1 ONLY when the third build defines PP_TOP_EN_IDENT, and
+tb/pp_top/pp_top_wrap.sv:34://                PP_TOP_DESC_LINE_BYTES (Makefile), so the first build grades
+tb/pp_top/pp_top_wrap.sv:36://                The fifth build defines PP_TOP_TIM_REAL and runs the
+tb/pp_top/pp_top_wrap.sv:56:    //! identifyButtonPressed; the third build (PP_TOP_EN_IDENT) is the only
+tb/pp_top/pp_top_wrap.sv:478:    //! really has, the default in the first build and the line build's own
+tb/pp_top/pp_top_wrap.sv:483:  // section TB's build (the Makefile's fifth): 1 ms = 1 x 1000 = 1,000 clk,
+tb/pp_top/pp_top_wrap.sv:523:      //! the second build's verification-only fixture (see the banner)
+tb/pp_top/pp_top_wrap.sv:527:      //! the third build: P-EN-IDENTIFY-NOTIFICATION = 1 (see the banner);
+tb/pp_top/pp_top_wrap.sv:532:      //! the fourth build's verification-only fixture (see the banner)
+docs/10_RESOURCE_AND_EFFORT.md:66:Both builds below are the same board (ALINX AX7101, `xc7a100t-fgg484-2`), the
+docs/10_RESOURCE_AND_EFFORT.md:97:during integration and it moved a long way. The first substitution build hit
+docs/00_MILAN_COMPLIANCE_REVIEW.md:188:section ID, third build; section ID0 at the default). Every notifying command class
+docs/00_MILAN_COMPLIANCE_REVIEW.md:419:| REQ-AEM-026 | IEEE §7.4.39, Milan §5.4.5.4 | IDENTIFY_NOTIFICATION: unsolicited-only (command ⇒ BAD_ARGUMENTS); multicast DA 91-E0-F0-01-00-01; 3× @150 ms; 1 s re-arm | should | A | [GAP-06](#gap-06) | KL_aecp_notify identify sequencer behind P-EN-IDENTIFY-NOTIFICATION (landed; default 0); pp_top ID (third build), ID0, A6 | 06 §7 | TIM |
+docs/architecture/09_verification.md:258:Section TB runs in the suite's fifth build (`make budget`), whose timebase is the
+docs/architecture/09_verification.md:279:`--identify-only`, and the suite's third build for section ID), plus one section of
+docs/architecture/09_verification.md:284:| TIM | ID (third build, `P-EN-IDENTIFY-NOTIFICATION` = 1) | IDENTIFY_NOTIFICATION byte-exact to 91-E0-F0-01-00-01, three frames spaced `T-IDENT-BURST` from each previous frame's departure, identifySequenceID per burst, the `T-IDENT-REARM` re-arm while held, release, a release and press inside a burst, a held engine, a 15-row fan-out (also at frame 2's deadline), a MAC stall inside and between frames, on a frame's last byte and past the timeout, the command forms, and no press lost: a short and a long press in the gap after a burst, a press on the gap's last clock and either side of it, and a new press inside a burst let go before the gap ends, each a burst of its own when the gap ends |
+docs/architecture/09_verification.md:285:| TIM | `tb/aecp_notify` FT (second build, `P-EN-IDENTIFY-NOTIFICATION` = 1) | the schedule's one-tick margins at the full timebase (the F01.5 default `P-CLK-HZ`; the pp_top bench's compressed tick cannot resolve them): a frame that leaves two clocks before a ms boundary is followed `T-IDENT-BURST` after that boundary, never a tick sooner; Figure 7-142's timeout counts from the boundary after the first frame left |
+docs/architecture/08_timing.md:167:to MAC response byte 0, in the suite's fifth build, whose timebase is the nominal
+docs/architecture/06_aecp_engine.md:884:the `tb/pp_top` third build (section ID) and silent at 0 (section ID0); the command

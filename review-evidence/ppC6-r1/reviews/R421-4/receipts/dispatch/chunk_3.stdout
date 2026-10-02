@@ -1,0 +1,50 @@
+control aecp-dispatch: rc=0 PASS
+control line-guards: rc=0 PASS
+m9-guard-set-name: rc=2 failures=9 named=2 KILLED
+    FAIL: M9: mt=2 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=6 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=8 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=10 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=12 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=14 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: mt=4 word 0010 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND / SET_NAME, whole body)
+    FAIL: M9b5: no SET_NAME reached the name table: CLOCK_DOMAIN 0's name reads what it read before the storm
+a5b-reboot-success-arm: rc=2 failures=1 named=1 KILLED
+    FAIL: A5b: REBOOT (7.4.43, Figure 7-68): the response is not the echoed command
+lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: ENTITY_LOCKED byte-exact (status 0, cdl 17)
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: no unsolicited frame reached the registered holder
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: no dynamic-store write, NVM mark or notification (1, 0, 1)
+    FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 0, cdl 17)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: no unsolicited frame reached the registered holder
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: no dynamic-store write, NVM mark or notification (1, 0, 1)
+    FAIL: LK3 ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK6 IDENTIFY 0: ...one store write and 1 notification enqueued (1, 0)
+ov-oversize-at-576: rc=2 failures=4 named=1 KILLED
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): one TX-slot grant, the oversize request clear, slot 4
+    FAIL: OV4 CLOCK_DOMAIN 0 (534 B: frame 576, the standard slot's own size): the frame did not leave through slot 4
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: one TX-slot grant, the oversize request clear, slot 4
+    FAIL: RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: the frame did not leave through slot 4
+rd-base-no-overlay: rc=2 failures=9 named=1 KILLED
+    FAIL: RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(0): READ_DESCRIPTOR byte-exact, @70 carrying 0x0
+    FAIL: RD1 CLOCK_DOMAIN 0 after SET_CLOCK_SOURCE(1): READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD1 STREAM_INPUT 0 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+    FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+    FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+rd-so-reads-input-row: rc=2 failures=4 named=1 KILLED
+    FAIL: RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD1 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+    FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+    FAIL: RD3 STREAM_OUTPUT 0, never set, still its image: READ_DESCRIPTOR byte-exact, @74 carrying 0xa0020140000800
+line-ceiling-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: line guard 1016: must be refused: DESC_LINE_BYTES_P=1016 is above 1008 (verilator rc 1)
+9 checks: 9 PASS, 0 FAIL
