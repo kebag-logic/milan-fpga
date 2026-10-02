@@ -1,0 +1,38 @@
+ancestor b2db3a97 of 631eeb34: yes
+first-parent b2db3a97..631eeb34 (sha parents | subject):
+631eeb342ca1e3fa80e734077a56a943aee76ff1 2ebd4fe8d31e88c44559e934bd624e1c50515ad5 a90ca735844a3e7a5bdfd2d1baeba24c95608992 | Merge pull request #142 from Mister-M-alt/pp141-clock-sources
+2ebd4fe8d31e88c44559e934bd624e1c50515ad5 03c842a780064048b0a1a3de29214174a1c13934 95a78c099ee5aa914521975355adc1dfef99d01c | Merge pull request #139 from Mister-M-alt/c6-notifications
+03c842a780064048b0a1a3de29214174a1c13934 16ea10ace6c755c91bb9e864b2b855acb240b09b ee0e2b72ea10c83f983ec9e35878fb0193223ccb | Merge pull request #140 from Mister-M-alt/c5a-aecp-deadlines
+16ea10ace6c755c91bb9e864b2b855acb240b09b 3f3ea56ba61829718a6a288600ab4fdac73aa5ba 441d64630aa0143fa43f1049a6860cd9ed60e71e | Merge pull request #138 from Mister-M-alt/c5b-aecp-dispatch
+3f3ea56ba61829718a6a288600ab4fdac73aa5ba d5f73bac158276a9fcf549185bad5c65c0498dae 4e558491c608dc88efc7963a77cb6b49bce2a46e | Merge pull request #137 from Mister-M-alt/c4-acmp-coverage
+d5f73bac158276a9fcf549185bad5c65c0498dae 0451d83d9d3f2ed5f4513c59ac5ac219ad9dd7ff 47afa74d5cb7cf67ec1f606a0b8ea05fda3e3346 | Merge pull request #135 from Mister-M-alt/c2-maap-coverage
+0451d83d9d3f2ed5f4513c59ac5ac219ad9dd7ff b2db3a970cedbbff2f8ba813acb96122c442bc58 20ec92b7b190d03c46e40be89d236bc9a0702a59 | Merge pull request #136 from Mister-M-alt/c3-adp-coverage
+commits in range: 105
+631eeb34 tree: 877a0f78e3b6f15c1159899c10d7ba5e3ca3c836
+
+hdl/ diff stat b2db3a97..631eeb34:
+ hdl/README.md                     |   6 +-
+ hdl/adp/KL_adp_engine.sv          |  19 +-
+ hdl/aecp/KL_aecp_engine.sv        | 255 ++++++++++++++++++++--
+ hdl/aecp/KL_aecp_notify.sv        | 273 ++++++++++++++++++++++-
+ hdl/aecp/KL_aecp_ucpu.sv          |  98 ++++++++-
+ hdl/aecp/ucode/gen_ucode.py       | 441 +++++++++++++++++++++++++++++++-------
+ hdl/aecp/ucpu_pkg.sv              |   7 +
+ hdl/common/pp_pkg.sv              |  12 ++
+ hdl/maap/KL_pp_maap.sv            | 113 ++++++++--
+ hdl/top/protocol_processor_top.sv | 346 +++++++++++++++++++++++++-----
+ 10 files changed, 1391 insertions(+), 179 deletions(-)
+hdl/ diff stat 2ebd4fe8..631eeb34 (PR 142 net):
+ hdl/aecp/ucode/gen_ucode.py | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+upstream PR records (number state merged merge_commit head):
+135 closed merged=true mc=d5f73bac158276a9fcf549185bad5c65c0498dae head=47afa74d5cb7cf67ec1f606a0b8ea05fda3e3346
+136 closed merged=true mc=0451d83d9d3f2ed5f4513c59ac5ac219ad9dd7ff head=20ec92b7b190d03c46e40be89d236bc9a0702a59
+137 closed merged=true mc=3f3ea56ba61829718a6a288600ab4fdac73aa5ba head=4e558491c608dc88efc7963a77cb6b49bce2a46e
+138 closed merged=true mc=16ea10ace6c755c91bb9e864b2b855acb240b09b head=441d64630aa0143fa43f1049a6860cd9ed60e71e
+139 closed merged=true mc=2ebd4fe8d31e88c44559e934bd624e1c50515ad5 head=95a78c099ee5aa914521975355adc1dfef99d01c
+140 closed merged=true mc=03c842a780064048b0a1a3de29214174a1c13934 head=ee0e2b72ea10c83f983ec9e35878fb0193223ccb
+142 closed merged=true mc=631eeb342ca1e3fa80e734077a56a943aee76ff1 head=a90ca735844a3e7a5bdfd2d1baeba24c95608992
+PR 141: none (404); issue 141: closed is_pr=false
+processor main now: ahead_by=20 behind_by=0

@@ -1,0 +1,8 @@
+P1_button_unbound gate1 rc=1 : python3 scripts/lint_rtl.py --check
+P1_button_unbound gate2 rc=0 : python3 scripts/check_port_contracts.py
+P2_button_no_rationale gate1 rc=1 : python3 scripts/check_port_contracts.py
+P3_param_no_rationale gate1 rc=0 : python3 scripts/check_port_contracts.py
+restored clean
+P_acmp_disposition_removed test_evidence rc=1
+P_notify_disposition_removed test_evidence rc=1
+restored clean (dispositions)

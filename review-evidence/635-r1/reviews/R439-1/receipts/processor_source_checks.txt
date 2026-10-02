@@ -1,0 +1,54 @@
+gen_ucode.py at 631eeb34:
+1654:# THE RANGE CHECK (06 §6 "source ∈ CLOCK_DOMAIN list"; milan-fpga #389). The
+1663:# it to INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+1674:place(E_SCLKS, [
+1703:place(E_SCLKSRF, [
+1711: ])
+D3C mutants:
+465:    Mutant("clks_row_two_bits", PP_TOP, (
+469:    Mutant("clks_restore_count_narrowed", PP_TOP, (
+473:    Mutant("clks_restore_index_narrowed", PP_TOP, (
+477:    Mutant("clks_restore_bound_inclusive", PP_TOP, (
+122:    ("sclks-bound-three", "sclks-bound-three", "d3",
+124:    ("sclks-bound-inclusive", "sclks-bound-inclusive", "d3",
+DESC_LINE_BYTES_P legal range:
+
+  //! THE LEGAL LINE (issue #50): a multiple of 8 from LINE_MIN_BYTES_C (576)
+  //! to LINE_MAX_BYTES_C (1008), each refusal naming the top's
+  //! DESC_LINE_BYTES_P, the parameter an integrator sets. The floor: E_GAMAP
+  //! serves a page of up to GAMAP_PAGE_MAX_C records whole (its APPEND fills
+  //! this buffer, Milan §5.4.1) and answers NO_RESOURCES above it, so the
+  //! reservation must hold that page, or records a SUCCESS still counts would
+  //! be dropped. The ceiling: the reservation may not pass the cursor. The
+  //! step: the line and this buffer move 8-byte lanes.
+  localparam int unsigned LINE_MIN_BYTES_C = 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C - 16;
+  localparam int unsigned LINE_MAX_BYTES_C = RESP_CURSOR_BYTES_C - 16;
+  if ((LINE_BYTES_P % 8) != 0) begin : gen_g_line_step
+GAMAP_PAGE_MAX_C:
+130:  localparam int unsigned GAMAP_PAGE_MAX_C = 71;
+identify_button_i / EN_IDENTIFY_NOTIF_P uses:
+hdl/top/protocol_processor_top.sv:192:    parameter bit          EN_IDENTIFY_NOTIF_P = 1'b0,
+hdl/top/protocol_processor_top.sv:243:    input  wire         identify_button_i,
+hdl/top/protocol_processor_top.sv:3710:      .EN_IDENTIFY_NOTIF_P (EN_IDENTIFY_NOTIF_P)
+hdl/top/protocol_processor_top.sv:3928:      .EN_IDENTIFY_NOTIF_P (EN_IDENTIFY_NOTIF_P)
+hdl/top/protocol_processor_top.sv:3994:      .identify_button_i     (identify_button_i),
+hdl/top/protocol_processor_top.sv:4484:  if (EN_IDENTIFY_NOTIF_P) begin : gen_uns_departure
+hdl/aecp/KL_aecp_notify.sv:212:    parameter bit          EN_IDENTIFY_NOTIF_P = 1'b0,
+hdl/aecp/KL_aecp_notify.sv:709:  if (EN_IDENTIFY_NOTIF_P) begin : gen_ident
+hdl/aecp/KL_aecp_notify.sv:783:        btn_q1_r <= identify_button_i;
+ADP current_cfg fallback:
+  logic        aecp_cur_cfg_v_w;
+  logic [15:0] adp_cur_cfg_w;
+  assign adp_cur_cfg_w = aecp_cur_cfg_v_w ? aecp_cur_config_o : current_cfg_i;
+  always_ff @(posedge clk_i) begin : dyn_cfg_valid
+    if (!store_rst_n_w) begin
+      dyn_cfg_v_r <= 1'b0;
+    end else if (st_req_w && dyn_sel_w && st_we_w
+                 && (st_addr_w[19:16] == RGN_DYN_C)
+                 && (st_addr_w[15:3] == SEL_CFG_C)
+                 && (dyn_didx_w == 16'd0)) begin
+      dyn_cfg_v_r <= 1'b1;
+    end
+  end
+
+  assign dyn_cur_config_v_o = dyn_cfg_v_r;

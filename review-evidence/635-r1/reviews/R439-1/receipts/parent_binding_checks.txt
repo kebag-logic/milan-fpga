@@ -1,0 +1,13 @@
+parent bindings:
+330:  parameter int PP_DESC_LINE_BYTES_P     = 576,
+7611:      .current_cfg_i     (cfg_adp_current_config),
+7782:      .cfg_maap_internal_i     (1'b0),
+1764:          A_ADP_IDX0:   adp_idx0  <= s_axi_wdata;
+2831:  assign o_adp_current_config  = adp_idx0[15:0];
+firmware writes of ADP_IDX0: 0
+configurations_count emitted: 217:    b += be16(1)                        # configurations_count
+REGISTER_MAP ADP_IDX0 row:
+| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
+firmware sha256: a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3  sw/firmware/milan_baremetal/milan_baremetal.c
+receipt firmware: 19:  "product_firmware_sha256": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+processor packet_engine (NVM port/arb) diff between pins: 0 lines

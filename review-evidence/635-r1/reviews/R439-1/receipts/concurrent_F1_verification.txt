@@ -1,0 +1,25 @@
+processor docs/guides/operator.md at b2db3a97, line 54:
+| Anything, while the response memory is broken | a well-formed 60-byte `ENTITY_MISBEHAVING`. It is an honest failure, not a hang |
+
+at 631eeb34, lines 55 and 326:
+| Anything, while the response memory is broken | a well-formed 60-byte `ENTITY_MISBEHAVING`, or, for a command that is not an AEM command (a Milan Vendor Unique one), `NOT_IMPLEMENTED` with the command echoed. It is an honest failure, not a hang |
+| `NOT_IMPLEMENTED` with the command echoed | that opcode is genuinely not implemented yet. It is a correct answer, not a fault. For GET_MILAN_INFO, which is implemented, it is the fault answer instead: its response memory failed (snapshot words 35 and 36 moved) or it outlived its deadline, because Milan Table 5.19 gives a Vendor Unique answer no other failure code |
+
+parent CHANGELOG.md:43-45 at head:
+- An AECP command past its 100 ms deadline is answered.
+- Its answer is ENTITY_MISBEHAVING unless a refusal was chosen.
+- Non-AEM messages on that path answer NOT_IMPLEMENTED, echoed.
+
+parent SUBMODULES.md:114-115:
+| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor |
+| C5a serializes AECP and ACMP work by hazard class | No top port; three scoreboard kill tie-offs left the processor top |
+
+parent REGISTER_MAP.md:2357-2358:
+
+**Read this when the entity answers `ENTITY_MISBEHAVING` and `PP_STAT` says the
+
+processor PR 140 round-2 parent-visible list:
+- Behaviour on the AECP wire: a command of any AECP message type but
+  AEM_COMMAND, whose response memory fails or which is preempted past its
+  deadline, answers NOT_IMPLEMENTED with the command echoed.
+  - This covers MVU, ADDRESS_ACCESS, AV/C, HDCP APM, EXTENDED and the
