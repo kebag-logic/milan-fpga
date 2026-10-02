@@ -1,0 +1,30 @@
+# F1 evidence: response-memory failure answer for non-AEM commands
+## processor operator guide at b2db3a97
+54:| Anything, while the response memory is broken | a well-formed 60-byte `ENTITY_MISBEHAVING`. It is an honest failure, not a hang |
+## at 631eeb34
+55:| Anything, while the response memory is broken | a well-formed 60-byte `ENTITY_MISBEHAVING`, or, for a command that is not an AEM command (a Milan Vendor Unique one), `NOT_IMPLEMENTED` with the command echoed. It is an honest failure, not a hang |
+326:| `NOT_IMPLEMENTED` with the command echoed | that opcode is genuinely not implemented yet. It is a correct answer, not a fault. For GET_MILAN_INFO, which is implemented, it is the fault answer instead: its response memory failed (snapshot words 35 and 36 moved) or it outlived its deadline, because Milan Table 5.19 gives a Vendor Unique answer no other failure code |
+358:| Response memory | `resp_mem_*` | every built response becomes a well-formed 60-byte `ENTITY_MISBEHAVING`, and a Milan Vendor Unique one `NOT_IMPLEMENTED` with the command echoed. |
+## processor PR 140 round-2 parent-visible list
+### Round 2 parent-visible list
+
+- No top-level port, parameter or register-map change. No RTL port or
+  parameter line changed in round 2. No new or renamed RTL file.
+- Behaviour on the AECP wire: a command of any AECP message type but
+  AEM_COMMAND, whose response memory fails or which is preempted past its
+  deadline, answers NOT_IMPLEMENTED with the command echoed.
+  - This covers MVU, ADDRESS_ACCESS, AV/C, HDCP APM, EXTENDED and the
+    reserved types. Round 1 answered status 10, header only, except on
+    MVU's deadline path.
+  - For an over-long command (cdl past 524), that echo takes the oversize
+    TX slot.
+## parent records at head
+44:- Its answer is ENTITY_MISBEHAVING unless a refusal was chosen.
+45:- Non-AEM messages on that path answer NOT_IMPLEMENTED, echoed.
+101:| C5a, AECP deadlines and hazards | [140](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/140) | `03c842a7` |
+114:| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor |
+115:| C5a serializes AECP and ACMP work by hazard class | No top port; three scoreboard kill tie-offs left the processor top |
+2358:**Read this when the entity answers `ENTITY_MISBEHAVING` and `PP_STAT` says the
+2368:on an access the memory never acked, and every AECP command came back
+## any parent mention of the response-memory NOT_IMPLEMENTED arm (expect none)
+(end)

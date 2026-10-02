@@ -1,0 +1,5 @@
+# 2026-10-03T00:35:49+02:00 cwd=$REVIEWS/r438-1-635 cmd: bash $REVIEWS/635-r438-1-packet/probes.sh records
+PROBE rom_row_wrong rc=2 expect=fail verdict=DETECTED
+PROBE rom_rows_base rc=2 expect=fail verdict=DETECTED
+PROBE submodules_base_row rc=1 expect=fail verdict=DETECTED
+PROBE diagram_base_svg rc=1 expect=fail verdict=DETECTED

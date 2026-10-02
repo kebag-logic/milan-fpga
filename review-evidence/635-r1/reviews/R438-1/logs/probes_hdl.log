@@ -1,0 +1,4 @@
+# 2026-10-03T00:35:49+02:00 cwd=$REVIEWS/r438-1-635 cmd: bash $REVIEWS/635-r438-1-packet/probes.sh hdl
+PROBE drop_identify_tie rc=1 expect=fail verdict=DETECTED
+PROBE identify_tie_one rc=0 expect=pass verdict=PASSES
+PROBE en_identify_one rc=0 expect=pass verdict=PASSES

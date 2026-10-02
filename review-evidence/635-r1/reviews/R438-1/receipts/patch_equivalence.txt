@@ -1,0 +1,12 @@
+# patch equivalence receipt
+patch sha256 67bcd69852e5d090abc635e8dd66e5159667847ebf83d85aba9599d7cff7bd7c
+base cdf49d1a28527562888f0a903de51b6b15b1244f + patch -> tree 56272e9f0e342d728ff27f97fee4394b7d825013
+raw diff (base+patch) vs 927428d16 tree (expect only the gitlink):
+:160000 160000 b2db3a970 631eeb342 M	protocol-processor
+patch-id of 14f8c27f..927428d1: 791277578ee8659a7daaec098a841e6df070f31d 0000000000000000000000000000000000000000
+patch-id of patch file:        791277578ee8659a7daaec098a841e6df070f31d 0000000000000000000000000000000000000000
+c4bf64e2f touches: scripts/measure_test_evidence.py 
+15933a60c touches: hdl/milan/KL_pp_shadow.sv 
+927428d16 touches: scripts/measure_test_evidence.py 
+head blobs: measure_test_evidence.py b33d91c6f9bfc5dda8f8def0be5e269933ccc5a7 KL_pp_shadow.sv 46f3faf8ef66d34ab2f5a1cd60b4cfbc39bc02d0
+commits after 927428d16 touching either file: 0
