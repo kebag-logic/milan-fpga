@@ -1,0 +1,29 @@
+plan -10.6393 ppm; mode a
+
+[AAF0] INTERNAL -> AAF input 0 (talker -6.0 ppm)
+  at 3 s on AAF0: state 3, trim +0.000 ppm, AAFM_STAT 0x000b0005
+  AAF0: LOCKED at 6.708 s, trim +4.438 ppm
+  AAF0: media clock -6.0832 ppm over 2 s (talker -6.0, plan -10.6393), trim +4.438
+
+[CSR] AAFM_STAT 0x8E0 / AAFM_RATE 0x8E4 against the meter
+  AAFM_STAT 0x000b0007 (meter 0x000b0007)
+  largest deviation 11 ns (the offset over 15 spacings: 11.25 ns)
+  AAFM_RATE 3072 ns per 512 ms (the talker: 3072.0)
+
+[ECHO] the followed talker's mr toggle echoes; an unfollowed one's does not
+
+[LOSS] one AAF0 PDU lost in every 0.3 s for 3.0 s
+  9 PDUs lost; servo left LOCKED in 0 of the 1 ms samples
+
+[AAF-LOSS] the followed AAF0 falls silent for 150 ms, then returns
+  AAF return: LOCKED at 20.020 s, trim +4.500 ppm
+
+[TU] the followed AAF0 raises, then clears, its tu bit
+  [FAIL] tu: the followed talker's tu edge restarts the meter's history (AAFM_STAT[15:8]) got=0 exp=1
+  [FAIL] tu: ...so the meter's rate is not valid (AAFM_STAT[1]) got=1 exp=0
+  [FAIL] tu: the falling edge restarts it again   got=0 exp=2
+
+  C1 counters at the end: LOCKED 3, UNLOCKED 2; 0 bad samples
+simulated 20.030 s
+== milan_dp_mclk: checks: 55   failures: 3 ==
+RESULT: FAIL

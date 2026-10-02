@@ -1,0 +1,120 @@
+GNU Make 4.3
+Verilator 5.050 2026-07-01 rev v5.050
+make: Entering directory '$REVIEWS/629-m2-r433-2-packet/scratch/tB/tb/verilator/milan_dp_mclk'
+verilator +incdir+obj_mclk_aem/endstation_mclk --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 --Mdir obj_mclk -GMILAN_CLK_FREQ_HZ=4000000 -GN_STREAMS=2 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DMCLK_HZ_TB=4000000 -O3 -Wall -Wextra"    ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv clkv_double.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_mclk.cpp -o Vmilan_dp_mclk
+make[1]: Entering directory '$REVIEWS/629-m2-r433-2-packet/scratch/tB/tb/verilator/milan_dp_mclk/obj_mclk'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/629-m2-r433-2-packet/scratch/tB/tb/verilator/milan_dp_mclk/obj_mclk'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.002 s on 4 threads; allocated 16.633 MB
+python3 mclk_mutants.py
+======== the clean leg A ========
+plan -10.6393 ppm; mode a
+
+[AAF0] INTERNAL -> AAF input 0 (talker -6.0 ppm)
+  at 3 s on AAF0: state 3, trim +0.000 ppm, AAFM_STAT 0x000b0005
+  AAF0: LOCKED at 6.708 s, trim +4.438 ppm
+  AAF0: media clock -6.0832 ppm over 2 s (talker -6.0, plan -10.6393), trim +4.438
+
+[CSR] AAFM_STAT 0x8E0 / AAFM_RATE 0x8E4 against the meter
+  AAFM_STAT 0x000b0007 (meter 0x000b0007)
+  largest deviation 11 ns (the offset over 15 spacings: 11.25 ns)
+  AAFM_RATE 3072 ns per 512 ms (the talker: 3072.0)
+
+[ECHO] the followed talker's mr toggle echoes; an unfollowed one's does not
+
+[LOSS] one AAF0 PDU lost in every 0.3 s for 3.0 s
+  9 PDUs lost; servo left LOCKED in 0 of the 1 ms samples
+
+[AAF-LOSS] the followed AAF0 falls silent for 150 ms, then returns
+  AAF return: LOCKED at 20.020 s, trim +4.500 ppm
+
+[TU] the followed AAF0 raises, then clears, its tu bit
+
+  C1 counters at the end: LOCKED 3, UNLOCKED 2; 0 bad samples
+simulated 20.030 s
+== milan_dp_mclk: checks: 55   failures: 0 ==
+RESULT: PASS
+======== the clean leg C ========
+plan -10.6393 ppm; mode c
+
+[AAF0] INTERNAL -> AAF input 0 (talker -6.0 ppm)
+  AAF0: LOCKED at 6.708 s, trim +4.438 ppm
+
+[W2] the followed source moves from AAF input 0 to the locked CRF input
+  from state 4, trim +4.438: HOLDOVER seen, now state 3, trim +4.438
+  CRF: LOCKED at 10.804 s, trim -3.312 ppm
+  CRF: media clock -13.9974 ppm over 2 s (talker -14.0, plan -10.6393), trim -3.062
+
+  C1 counters at the end: LOCKED 3, UNLOCKED 2; 0 bad samples
+simulated 14.804 s
+== milan_dp_mclk: checks: 32   failures: 0 ==
+RESULT: PASS
+======== the clean leg B ========
+plan -10.6393 ppm; mode b
+
+[CRF] INTERNAL -> the CRF input (talker -14.0 ppm)
+  CRF: LOCKED at 3.123 s, trim -3.125 ppm
+
+[CRF-LOSS] the followed CRF falls silent for 150 ms, then returns
+  CRF return: LOCKED at 6.195 s, trim -3.188 ppm
+
+[SWITCH] AAF0 -> CRF -> AAF0 -> AAF1 -> AAF0 at 16 phases of the CRF output
+  64 switches: 0 with a request pulse, 0 without one toggle per output, 0 without one MEDIA_RESET per output, 0 with more than one recentre
+
+[SWITCH-RECENTRE] one #386 recentre per switch, over 0.8 s gaps
+  -> source 1: 1 recentre(s), 0 request(s), toggles 1/1
+  -> source 2: 1 recentre(s), 0 request(s), toggles 1/1
+  -> source 3: 1 recentre(s), 0 request(s), toggles 1/1
+  -> source 2: 1 recentre(s), 0 request(s), toggles 1/1
+
+[SWITCH-SILENT] AAF0 -> AAF1 with AAF1 silent at the switch, starting 5 ms on
+
+[SWITCH-TIMEOUT] onto AAF input 0 with its talker silent for 150 ms
+
+[DWELL] INTERNAL with AAF0 toggling its mr
+
+[INTERNAL] the aligner engaged at INTERNAL (#629 D4 = A2-a)
+  packet grid against the TDM frame over 0.5 s: +1.528 ppm (the plan alone: -10.6393)
+
+  C1 counters at the end: LOCKED 4, UNLOCKED 3; 0 bad samples
+simulated 14.175 s
+== milan_dp_mclk: checks: 50   failures: 0 ==
+RESULT: PASS
+[PASS] the schemata at id 0 pass the --loss leg
+[PASS] mutant 12 (the meter's held lock cleared on a sequence gap, --loss): caught; breaks "loss leg: the servo stays LOCKED through single lost PDUs"
+[PASS] the schemata at id 0 pass the --internal leg
+[PASS] mutant 3 (the aligner left disengaged at INTERNAL (no A2-a), --internal): caught; breaks "INTERNAL: the packet grid holds the physical grid's rate"
+[PASS] the schemata at id 0 pass the --refmux leg
+[PASS] mutant 2 (the reference mux stuck on KL_crf_rx, --refmux): caught; breaks "AAF0: the trim holds until the meter's rate validates"
+[PASS] the schemata at id 0 pass the --aafloss leg
+[PASS] the schemata at id 0 pass the --switch leg
+[PASS] mutant 5 (no re-seed on a change of the followed listener, --switch): caught; breaks "switch: no request pulse at any switch"
+[PASS] mutant 6 (the meter's raw lock-fall edge wired as the disruption, --switch): caught; breaks "switch: no request pulse at any switch"
+[PASS] mutant 8 (disrupt_p not ORed into the request, --aafloss): caught; breaks "AAF loss: one request at the meter's timeout"
+[PASS] mutant 14 (the decode table one source short (the previous shape's), --switch): caught; breaks "switch: AAF1 decodes as listener 1 and the meter follows it"
+[PASS] the schemata at id 0 pass the --silent leg
+[PASS] mutant 16 (a change of the followed listener keeping a held lock, --silent): caught; breaks "switch (iv): the meter's lock clears at the switch"
+[PASS] the schemata at id 0 pass the --dwell leg
+[PASS] the schemata at id 0 pass the --echo leg
+[PASS] mutant 7 (the meter's enable tied high, --dwell): caught; breaks "(iii) INTERNAL dwell: AAF0's mr toggle raises no request"
+[PASS] mutant 9 (the echo ungated (the meter's listener compare ignored), --echo): caught; breaks "echo: the unfollowed AAF1's toggle raises no request"
+[PASS] the schemata at id 0 pass the --csr leg
+[PASS] the schemata at id 0 pass the --select leg
+[PASS] the schemata at id 0 pass the --tu leg
+[PASS] the schemata at id 0 pass the --w2 leg
+[PASS] mutant 1 (the decode kept as the CRF-only compare, --select): caught; breaks "AAF0: the servo leaves IDLE once the meter locks"
+[PASS] mutant 4 (the one-cycle unlocked presentation removed (W2), --w2): caught; breaks "W2: the switch onto a locked CRF passes HOLDOVER"
+[PASS] mutant 10 (C0's level (~tu only), --select): caught; breaks "C1: UNLOCKED moves at the switch onto AAF0"
+[PASS] mutant 11 (C2's level (the reference lock), --select): caught; breaks "C1: LOCKED holds until the servo reads LOCKED"
+[PASS] mutant 13 (the read-window terms missing, --csr): caught; breaks "CSR: AAFM_STAT reads the meter's status word"
+[PASS] mutant 15 (tu taken from the tv net (the CRF wiring), --tu): caught; breaks "tu: the followed talker's tu edge restarts the meter's history"
+
+31 checks: 31 PASS, 0 FAIL
+make: Leaving directory '$REVIEWS/629-m2-r433-2-packet/scratch/tB/tb/verilator/milan_dp_mclk'
+
+real	7m10.363s
+user	27m56.342s
+sys	0m4.699s
+rc=0

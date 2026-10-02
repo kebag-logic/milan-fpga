@@ -1,0 +1,10 @@
+PASS(clean)  clean_control
+SURVIVED     max_dev_not_cleared_at_era_start
+CAUGHT       tu_edge_clears_held_lock
+      [FAIL] [M7 tu edge] the held lock is kept through the event got=1 exp=0
+    RESULT: FAIL
+CAUGHT       tu_edge_pulses_disrupt
+      [FAIL] [M7 tu edge] no disrupt_p pulse          got=1 exp=0
+    RESULT: FAIL
+SURVIVED     max_dev_no_saturation
+SURVIVED     max_dev_includes_gap_pdus

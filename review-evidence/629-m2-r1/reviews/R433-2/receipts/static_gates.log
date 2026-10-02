@@ -1,0 +1,36 @@
+== python3 scripts/check_port_contracts.py
+port contract gate: OK (3812 first-party port(s): hdl 1940, gptp-processor 125, protocol-processor 1747; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 51 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 175 test-only hierarchical observation(s)
+rc=0
+== python3 scripts/measure_naming.py --check
+
+95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3812 ports and 623 parameters scanned, 384 with no //! and so not judged here, 467 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+rc=0
+== python3 scripts/lint_rtl.py --check
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:257:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:452:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0
+== $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+docs_check: 0 finding(s) across 186 md files + 970 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+TOC gate: OK (128 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --verify-anchors
+anchor check: 299 existing cross-page fragment links reproduced
+rc=0
+== $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base cdf49d1a28527562888f0a903de51b6b15b1244f
+check_em_dash: 0 finding(s) over 531 added line(s) in 34 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [cdf49d1a..HEAD]
+rc=0
+== $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py
+doc path gate: OK (890 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+rc=0
+== git diff --check cdf49d1a28527562888f0a903de51b6b15b1244f HEAD
+rc=0

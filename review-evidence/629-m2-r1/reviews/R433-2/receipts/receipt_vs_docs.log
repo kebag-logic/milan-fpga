@@ -1,0 +1,45 @@
+OK   endstation_ax7101_1x1_tdm8 50000000 on: min/max recomputed from rows
+OK     16 rows, all ok, census 3290/54
+OK     traffic counters consistent with arm on
+OK     section 18 row present: | 1x1 | 50 / 100, contract | ON | 3.96022 to 3.96728 | 12.3510x |
+OK   endstation_ax7101_1x1_tdm8 50000000 off: min/max recomputed from rows
+OK     16 rows, all ok, census 3290/54
+OK     traffic counters consistent with arm off
+OK     section 18 row present: | 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91182 | 12.5261x |
+OK   endstation_ax7101_8x8 50000000 on: min/max recomputed from rows
+OK     16 rows, all ok, census 13210/164
+OK     traffic counters consistent with arm on
+OK     section 18 row present: | 8x8 | 50 / 100, contract | ON | 13.84836 to 13.86484 | 3.5341x |
+OK   endstation_ax7101_8x8 50000000 off: min/max recomputed from rows
+OK     16 rows, all ok, census 13210/164
+OK     traffic counters consistent with arm off
+OK     section 18 row present: | 8x8 | 50 / 100, contract | OFF | 13.67682 to 13.69390 | 3.5782x |
+OK   endstation_ax7101_8x8 100000000 on: min/max recomputed from rows
+OK     16 rows, all ok, census 13210/164
+OK     traffic counters consistent with arm on
+OK     section 18 row present: | 8x8 | 100 / 100, non-contract | ON | 10.41821 to 10.42973 | 4.6981x |
+OK   endstation_ax7101_8x8 100000000 off: min/max recomputed from rows
+OK     16 rows, all ok, census 13210/164
+OK     traffic counters consistent with arm off
+OK     section 18 row present: | 8x8 | 100 / 100, non-contract | OFF | 10.41356 to 10.41566 | 4.7045x |
+MAXIMUM endstation_ax7101_1x1_tdm8 50000000 3.96728 ms margin-ratio 12.3510
+MAXIMUM endstation_ax7101_8x8 50000000 13.86484 ms margin-ratio 3.5341
+MAXIMUM endstation_ax7101_8x8 100000000 10.42973 ms margin-ratio 4.6981
+OK   8x8 max <= 24.5 ms
+OK   doc has: **The worst 8x8 measurement is 13.86484 ms.**
+OK   doc has: Its floor ratio is 3.5341x.
+OK   doc has: The margin to 24.5 ms is 10.63516 ms.
+OK   doc has: The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
+OK   doc has: The worst 8x8 copy is 13.86484 ms across both arms.
+OK   doc has: The 24.5 ms margin is 10.63516 ms.
+OK   doc has: non-contract: 10.42973 ms maximum.
+OK   doc has: Measured commit: `a2f1734283f367d0d522c8c7cda09b79aff60d06`.
+OK   doc has: Measured tree: `c28595df81fb96ae7cb554216c76a23917105169`.
+OK   doc has: Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
+OK   doc has: Protocol-processor pin: `b2db3a970cedbbff2f8ba813acb96122c442bc58`.
+OK   README has: The full 8x8 copy covers 13,210 bytes and 164 records.
+OK   README has: The 1x1 copy covers 3,290 bytes and 54 records.
+OK   doc has: The full closed-record census is 3,290 bytes / 54 records at 1x1.
+OK   doc has: At 8x8 it is 13,210 bytes / 164 records.
+OK   doc has: It covers 13,210 bytes and 164 records, including output maps.
+RESULT PASS
