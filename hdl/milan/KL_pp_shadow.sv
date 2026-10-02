@@ -1096,7 +1096,7 @@ module KL_pp_shadow #(
       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
       .RESP_BASE_P         (RESP_BASE_P),
       //! P-EN-IDENTIFY-NOTIFICATION stays 0 until a debounced board button is
-      //! wired to identify_button_i (processor lane C6, manager ruling on #80)
+      //! wired to identify_button_i (processor lane C6, manager ruling on protocol-processor #80)
       .EN_IDENTIFY_NOTIF_P (1'b0)
       //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (each restore wait's
       //! deadline), NVM_RS_AGG_CYC_P (the whole restore's, from restore_go_i)
