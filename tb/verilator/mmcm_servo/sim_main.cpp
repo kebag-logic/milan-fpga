@@ -27,6 +27,10 @@
 //       step with no window open is not counted; the MCSRV_STAT[15:10]
 //       tally saturates at 63 and IDLE clears it
 //   U13 invalid CRF rate -> trim and lock held; valid rate resumes PI
+//   U16 a switch between two followed sources with sel_i held (#629 W2):
+//       the reference reads unlocked for ONE cycle, so the servo passes
+//       HOLDOVER with the trim and integrator kept into ACQUIRE with its
+//       lock count cleared, then LOCKED on the new reference
 //
 // Sim-compressed servo params (-G): 125 us tick, 4 ms window; the ns/512ms
 // CSR unit scale is preserved by NORM_SHIFT so ref_rate_ns_i uses REAL units.
@@ -58,6 +62,7 @@ class MmcmServoUnitHarness {
         prove_lock_from_plus_100ppm_with_bounded_step();
         prove_step_response_relocks();
         prove_holdover_freezes_trim();
+        prove_switch_with_the_select_held();
         prove_fresh_lock_from_minus_100ppm();
         prove_mismatch_is_informative_with_repair_off();
         prove_auto_repair_runs_the_safe_sequence();
@@ -273,6 +278,43 @@ class MmcmServoUnitHarness {
         long guard = 0;
         while (state() != 4 && guard < 100) { run_ms(1); guard++; }
         ck("[U5] relock after CRF returns", state(), 4);
+    }
+
+    //! one clk_i rising edge, however many other events precede it
+    void clk_edge() {
+        const long r0 = clk_rises;
+        while (clk_rises == r0) tick_one();
+    }
+
+    //! #629 decision D3 = W2: a switch between two followed sources keeps
+    //! sel_i high, and the datapath presents the reference unlocked for one
+    //! cycle on the change. A switch through IDLE (W1) would clear the trim
+    //! and the integrator, stepping the audio clock to the bare plan.
+    void prove_switch_with_the_select_held() {
+        printf("[U16] reference switch with the select held (W2)\n");
+        ck("[U16] LOCKED on the first reference", state(), 4);
+        const int16_t t0 = trim();
+        ck("[U16] the held trim is not the bare plan", t0 != 0 ? 1 : 0, 1);
+        dut->ref_locked_i = 0;                 // the one-cycle presentation
+        dut->ref_rate_ns_i = rate_for_ppm(+70.0);
+        clk_edge();
+        ck("[U16] the switch passes HOLDOVER", state(), 5);
+        dut->ref_locked_i = 1;                 // the new reference, locked
+        clk_edge();
+        ck("[U16] ...into ACQUIRE", state(), 3);
+        ck("[U16] the integrator is kept through the switch (trim unchanged)", trim(), t0);
+        long guard = 0;
+        while (state() != 4 && guard < 100) { run_ms(1); guard++; }
+        ck("[U16] LOCKED on the new reference", state(), 4);
+        ck("[U16] the lock count restarted: no LOCKED before four windows",
+           guard >= 4 * 4 ? 1 : 0, 1);
+        const double eff = eff_ppm_meas(20.0);
+        ckr("[U16] effective clock ppm ~ the new talker (+70)", eff, 67.0, 73.0);
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0);
+        guard = 0;
+        run_ms(8);
+        while (state() != 4 && guard < 100) { run_ms(1); guard++; }
+        ck("[U16] back on the +80 ppm talker for the cases after", state(), 4);
     }
 
     void prove_fresh_lock_from_minus_100ppm() {

@@ -31,11 +31,15 @@
 //
 // TWO PHASES since #74, one instrument:
 //
-//   [INTERNAL] clock_source INTERNAL free-runs by USER rule ("internal media
-//   clock = free-run, slips accepted"), so the -10.64 ppm drift is PRESENT,
-//   measured, and matches the divider plan - the accepted state, kept honest
-//   rather than hidden (the junction counters in KL_chan_map_capture count
-//   its slips).
+//   [INTERNAL] since #629's D4 = A2-a (owner decision, 2026-10-01) the align
+//   loop is engaged at INTERNAL too, whenever the TDM feed is live, so the
+//   packet grid is held on the physical one in EVERY mode: the same period
+//   instrument proves the grids ALIGNED at INTERNAL, with zero junction
+//   slips. Until then INTERNAL free-ran by USER rule ("internal media clock
+//   = free-run, slips accepted") and this phase measured the -10.64 ppm
+//   drift; the owner's decision reverses that rule. The drift itself stays
+//   measurable: aclk_a2a_mutants.py leaves the aligner disengaged at
+//   INTERNAL and requires this phase to fail.
 //
 //   [CRF] the STORED clock-source selection is poked to this shape's CRF
 //   index (a documented public_flat_rw tap on the processor's dyn-state row;
@@ -651,14 +655,18 @@ class MediaGridAlignmentHarness {
     }
 
     // =================================================================== //
-    //  PHASE 1 - INTERNAL: free-run by USER rule, the drift present,      //
-    //  measured, and equal to the divider plan.                           //
+    //  PHASE 1 - INTERNAL (#629 D4 = A2-a): the align loop engaged at     //
+    //  INTERNAL too, the grids ALIGNED and no junction slip.              //
     // =================================================================== //
     //! Returns false when neither grid ticked: the leg has already printed
-    //! its own tally and the caller must exit 1 without measuring.
-    bool measure_the_internal_free_run_drift(double& ppm_int) {
-        printf("\n[INTERNAL] clock_source INTERNAL: free-run, slips accepted\n");
+    //! its own tally and the caller must exit 1 without measuring. Run after
+    //! the ring phase, by when the loop engaged at boot has walked its
+    //! integral in (the unit suite measures ~0.35 s to settle).
+    bool measure_the_internal_alignment(double& ppm_int) {
+        printf("\n[INTERNAL] clock_source INTERNAL (A2-a): the packet grid held on the physical one\n");
         const long RUN = 10000000;          // ~0.1 s of board time, ~4800 ticks
+        const long dup0  = dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
+        const long skip0 = dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
         obs_reset();
         run_fed(RUN);                       //! the AAF feed, when live, keeps running
 
@@ -682,18 +690,30 @@ class MediaGridAlignmentHarness {
         printf("  one sample of slip every %.4f s\n",
                1.0 / (48000.0 * std::fabs(ppm_int) * 1e-6));
 
-        // Resolution: one axis cycle of quantisation on each period over ~4800
-        // ticks is about 0.10 ppm, so a 0.5 ppm gate is four sigma.
-        ck("INTERNAL: fsync SLOWER than the media grid (the known drift)",
-           ppm_int < 0.0, 1);
-        ck("INTERNAL: drift matches the divider plan within 0.5 ppm",
-           std::fabs(ppm_int - ppm_exp) < 0.5, 1);
-        ck("INTERNAL: the grids free-run apart (USER rule: slips accepted)",
-           std::fabs(ppm_int) > 1.0, 1);
-        ck("INTERNAL: align loop disengaged",
-           dut->rootp->milan_datapath__DOT__mga_engaged_w, 0);
-        ck("INTERNAL: NCO servo gate low",
-           dut->rootp->milan_datapath__DOT__mnco_servo_en_w, 0);
+        // The closed form is what the grids drift apart by without A2-a. With
+        // it the packet grid is held on the physical one: the plan's drift is
+        // gone and the phase error stays bounded inside a sample. The rate
+        // instrument is NOT graded against 0.5 ppm here as it is under CRF:
+        // the loop engaged at boot can still be walking its integral in
+        // (a pull to the 256-cycle keep-off settles over about a second, a
+        // phase walk of under 1 ppm), which is alignment, not drift. What
+        // A2-a owes at INTERNAL is the design's row: the loop engaged and
+        // SLIP_TDM static.
+        ck("INTERNAL: the plan's -10.64 ppm drift is gone (more than 5 ppm from it)",
+           std::fabs(ppm_int - ppm_exp) > 5.0, 1);
+        {
+            long e = static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
+            if (e < 0) e = -e;
+            ck("INTERNAL: phase error bounded well inside a sample (<300 cycles)", e < 300, 1);
+        }
+        ck("INTERNAL: zero junction dups over the window",
+           static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w) - dup0, 0);
+        ck("INTERNAL: zero junction skips over the window",
+           static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w) - skip0, 0);
+        ck("INTERNAL: align loop engaged (A2-a)",
+           dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
+        ck("INTERNAL: NCO servo gate live (A2-a)",
+           dut->rootp->milan_datapath__DOT__mnco_servo_en_w, 1);
         return true;
     }
 
@@ -986,10 +1006,12 @@ class MediaGridAlignmentHarness {
     long ring_window_cycles = 0;        //! the window BOTH ring phases grade
 
     // =================================================================== //
-    //  [RING-INT] the ring slips at INTERNAL, on the beat the plan predicts //
+    //  [RING-INT] the ring at INTERNAL: under #629's A2-a the pop grid is  //
+    //  held on the push grid there too, so the window that would expose   //
+    //  the -10.64 ppm plan (its first dup predicted below) shows none     //
     // =================================================================== //
-    void prove_the_loop_ring_slips_at_internal() {
-        printf("\n[RING-INT] the loopback ring at INTERNAL: pushed on the physical grid, popped on the packet grid\n");
+    void prove_the_loop_ring_rides_one_grid_at_internal() {
+        printf("\n[RING-INT] the loopback ring at INTERNAL (A2-a): pushed on the physical grid, popped on the packet grid held on it\n");
         bind_listener_zero_through_the_window();
         map_talker_zero_onto_the_loop_lane();
         //! the render-law phases leave a LIVE feed running into here, and
@@ -1038,28 +1060,26 @@ class MediaGridAlignmentHarness {
         const double pdus_to_dup = (kTickCycles - static_cast<double>(phase - span)) / walk_per_pdu;
         const long predicted = static_cast<long>(pdus_to_dup * kAafPduPeriodCycles);
         ring_window_cycles = predicted + predicted / 2;
-        printf("  predicted first dup: %.0f PDUs = %ld cycles (%.3f s); window %ld cycles\n",
+        printf("  the -10.64 ppm plan would dup first after %.0f PDUs = %ld cycles (%.3f s); window %ld cycles\n",
                pdus_to_dup, predicted, static_cast<double>(predicted) / 100e6, ring_window_cycles);
         run_fed(64);                          // the burst is queued
-        const uint16_t dup0  = dut->rootp->milan_datapath__DOT__lb_dup_cnt_w;
-        const uint16_t skip0 = dut->rootp->milan_datapath__DOT__lb_skip_cnt_w;
+        const uint16_t dup0   = dut->rootp->milan_datapath__DOT__lb_dup_cnt_w;
+        const uint16_t skip0  = dut->rootp->milan_datapath__DOT__lb_skip_cnt_w;
+        const uint16_t tdup0  = dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
+        const uint16_t tskip0 = dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
         const long t0 = axis_cycle;
         const long first = run_fed_watching_the_ring(ring_window_cycles, dup0);
-        const long dups  = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) - dup0;
-        const long skips = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w) - skip0;
-        const long at = first < 0 ? -1 : first - t0;
-        printf("  ring over the window: %ld dup, %ld skip; first dup at +%ld cycles (%+.1f%% of the prediction)\n",
-               dups, skips, at,
-               at < 0 ? 0.0 : 100.0 * static_cast<double>(at - predicted) / static_cast<double>(predicted));
-        //! one beat = one starved tick, and the ring counts it ONCE PER FED
-        //! PAIR (KL_chan_map_capture: "dups are one per starved fed pair per
-        //! tick"): four pairs of the eight-channel lane repeat one event each
-        ck("RING-INT: one beat period = one repeated event on each of the four fed pairs",
-           dups, kAafChans / 2);
-        ck("RING-INT: no skip - the push side is the slower grid", skips, 0);
-        const long err = at - predicted;
-        ck("RING-INT: the first dup landed within 25% of the -10.64 ppm prediction",
-           (at >= 0 && (err < 0 ? -err : err) * 4 <= predicted) ? 1 : 0, 1);
+        const long dups   = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) - dup0;
+        const long skips  = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w) - skip0;
+        const long tdups  = static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w) - tdup0;
+        const long tskips = static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w) - tskip0;
+        printf("  ring over the window: %ld dup, %ld skip (first dup at %ld); TDM junction %ld dup, %ld skip\n",
+               dups, skips, first < 0 ? -1L : first - t0, tdups, tskips);
+        ck("RING-INT: zero ring dups over the window that would expose -10.64 ppm (A2-a)", dups, 0);
+        ck("RING-INT: zero ring skips", skips, 0);
+        ck("RING-INT: zero TDM junction slips over the same window", tdups + tskips, 0);
+        ck("RING-INT: the align loop is engaged at INTERNAL (A2-a)",
+           dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
         ck("RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}",
            axi_read(0x8D4), slip_lb_tap());
     }
@@ -1073,8 +1093,10 @@ class MediaGridAlignmentHarness {
         constexpr uint16_t A_SLIP_TDM = 0x8D8;
         // the TDM junction: hold the audio clock for one frame (one marker
         // missing at one tick = one dup), then double it for two frames
-        // (markers over unread markers = skips). Harness clock stimuli, at
-        // INTERNAL, before any loop is engaged on this clock.
+        // (markers over unread markers = skips). Harness clock stimuli. The
+        // align loop is engaged at INTERNAL too since #629's A2-a, and these
+        // stimuli move the frame marker under it, so this phase runs LAST:
+        // the loop's re-acquisition after them disturbs no graded window.
         const uint16_t tdup0  = dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
         const uint16_t tskip0 = dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
         aud_hold_steps = kFrameHalfSteps;
@@ -1191,8 +1213,8 @@ class MediaGridAlignmentHarness {
         run_fed(1200000);
         ck("MR: the received toggle does NOT echo at INTERNAL (10.4.3)",
            cap_crf(2, cap, 3000000) == 2 ? lvl_of(cap.back()) : -1, lvl2);
-        ck("MR: align loop disengaged again at INTERNAL",
-           dut->rootp->milan_datapath__DOT__mga_engaged_w, 0);
+        ck("MR: align loop stays engaged back at INTERNAL (A2-a)",
+           dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
         if (!aaf_on) return;
         //! [RENDER-LIVE-INT] the deselect under the running stream: the
         //! source change arms the settled-grid recentre, which at INTERNAL
@@ -1384,11 +1406,14 @@ class MediaGridAlignmentHarness {
     //  [RENDER-INT] the law at INTERNAL: the cadence IS the packet grid    //
     // =================================================================== //
     void measure_the_render_law_at_internal() {
-        printf("\n[RENDER-INT] the render law at INTERNAL (cadence = the packet grid)\n");
+        printf("\n[RENDER-INT] the render law at INTERNAL (A2-a: cadence = the physical grid the packet grid is held on)\n");
         const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
         const uint32_t under0 = dut->rootp->milan_datapath__DOT__rsp_underruns_w;
         ck("RENDER-CSR: reset prefill", check_render_csr("prefill"), 0x100);
-        start_aaf_feed(0);
+        //! #629 A2-a: at INTERNAL too the packet grid is held on the physical
+        //! grid, so a talker on this device's media clock runs at the
+        //! physical cadence, as it does under CRF
+        start_aaf_feed(kAafPhysFracNum);
         //! ~0.12 s: 960 PDUs, and past the observer's 100-period dwell (100 ms
         //! of the 100 MHz axis clock) once the prefill's three PDUs are out
         const long RUN = 12000000;
@@ -1404,7 +1429,12 @@ class MediaGridAlignmentHarness {
         ck("RENDER-INT: every injected PDU was accepted",
            static_cast<unsigned long>(accepts_seen), static_cast<unsigned long>(n));
         const LawStats st = law_over(kLawSkipHead, static_cast<int>(n) - kLawSkipTail, kRenderSetpointEvt);
-        report_law("RENDER-INT", st, 850, kBandSlackCycles);
+        //! #629 A2-a: the align loop engaged at boot is still pulling the
+        //! packet grid onto the physical one in this window (up to the
+        //! keep-off, 256 cycles), so the sub-tick phase wanders as it does
+        //! under CRF: the integer fill and the band are the constant, and the
+        //! spread bound is the band width itself, RENDER-CRF's bound
+        report_law("RENDER-INT", st, 850, static_cast<long>(kTickCycles) + kBandSlackCycles);
         ck("RENDER-INT: no rail inside the window",
            dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
         ck("RENDER-INT: no underrun inside the window",
@@ -1614,7 +1644,7 @@ class MediaGridAlignmentHarness {
         bring_out_of_reset();
         bind_listener_zero_over_acmp();
         printf("\n[RENDER-INT] a short lock (the --live-only leg)\n");
-        start_aaf_feed(0);
+        start_aaf_feed(kAafPhysFracNum);
         run_fed(3000000);
         move_the_running_feed_past_a_tick("RENDER-LIVE", true);
         printf("\n[CRF] the stored selection goes to this shape's CRF index (%u),"
@@ -1710,10 +1740,9 @@ int MediaGridAlignmentHarness::run() {
     //! ring phases placed BEFORE the move, RENDER-LIVE's own "the stream sat
     //! at the setpoint before the move" fails.
     move_the_running_feed_past_a_tick("RENDER-LIVE", true);
+    prove_the_loop_ring_rides_one_grid_at_internal();
     double ppm_int = 0.0;
-    if (!measure_the_internal_free_run_drift(ppm_int)) return 1;
-    prove_the_loop_ring_slips_at_internal();
-    prove_the_slip_words_follow_their_taps();
+    if (!measure_the_internal_alignment(ppm_int)) return 1;
     select_crf_and_prove_the_grids_align(ppm_int);
     prove_the_live_selection_recentred_once(1100);
     measure_the_render_law_under_crf();
@@ -1725,6 +1754,9 @@ int MediaGridAlignmentHarness::run() {
     //! ...and the other way for the deselect inside the mr phase
     move_the_running_feed_past_a_tick("RENDER-LIVE", false);
     prove_the_mr_toggle_echoes_only_under_crf();
+    //! #629 A2-a: the induced junction slips move the frame marker under an
+    //! engaged loop, so they come last
+    prove_the_slip_words_follow_their_taps();
     prove_render_csr_rail();
     aaf_on = false;
 
