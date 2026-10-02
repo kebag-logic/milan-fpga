@@ -41,7 +41,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Issue #635 adopts processor `631eeb34`.
 - That pin carries processor PRs #135 to #140 and #142.
 - An AECP command past its 100 ms deadline is answered.
-- Its answer is ENTITY_MISBEHAVING unless a refusal was chosen.
+- Its answer is ENTITY_MISBEHAVING unless a refusal was already chosen.
+- A command that had already changed state answers for itself.
 - Non-AEM messages on that path answer NOT_IMPLEMENTED, echoed.
 - So does a non-AEM command whose response memory fails.
 - GET_MILAN_INFO is one; at `b2db3a97` it answered ENTITY_MISBEHAVING.
