@@ -21361,6 +21361,13 @@ def test_optional_block_gates_bite() -> None:
         # (label, feature(s) pruned, extra mutation, must-raise?)
         ("servo pruned but CRF clocking offered",
          dict(media_clock_servo=False), lambda c: None, True),
+        # #629: an AAF Stream Input's source is a recovered clock too; the
+        # servo is what follows it, so pruning the servo refuses it alone
+        ("servo pruned but only an AAF input_stream source offered",
+         dict(media_clock_servo=False),
+         lambda c: c["clocking"].update(
+             media_clock_sources=["internal", "input_stream"],
+             default_source="internal", crf_sink=False), True),
         ("servo pruned, internal-only clocking",
          dict(media_clock_servo=False),
          # crf_output STAYS on: emitting a CRF stream from the INTERNAL

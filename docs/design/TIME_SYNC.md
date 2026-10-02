@@ -156,6 +156,12 @@ The grid aligner follows the physical sample grid at every source.
 
 The [media-clock following design](MEDIA_CLOCK_FOLLOWING.md) records the rules.
 
+At INTERNAL the media clock is the audio MMCM plan plus the board oscillator's error.
+
+Plan A sits 10.64 ppm under nominal, so Milan v1.2 7.4's +/-50 ppm holds only for an oscillator of +/-39 ppm or better.
+
+KNOWN RISK: the grade is unmarked, assumed adequate by the owner's #629 decision, and unconfirmed.
+
 ```mermaid
 flowchart LR
     CRF[CRF sink] --> SERVO[MMCM-DRP servo]
