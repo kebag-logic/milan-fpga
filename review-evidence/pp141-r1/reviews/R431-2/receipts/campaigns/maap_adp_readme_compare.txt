@@ -1,0 +1,32 @@
+adp: 30 equal, 0 differ, 0 without row
+EQUAL maap fit-compare-forced-true maap 5 FAIL of 196
+EQUAL maap fit-compare-off-by-one maap 7 FAIL of 195
+EQUAL maap seed-clamp-removed maap 6 FAIL of 196
+EQUAL maap release-keeps-draw-mark maap 9 FAIL of 194
+EQUAL maap validator-maap-version-1-only rx_validator 47 FAIL of 555
+CHECK maap validator-maap-version-1-only pp_top 4 FAIL of 34
+EQUAL maap compare-mac-forward maap 9 FAIL of 194
+CHECK maap compare-mac-forward pp_top 5 FAIL of 34
+EQUAL maap probe-rprobe-never-yields maap 2 FAIL of 196
+EQUAL maap defend-rdefend-ignored maap 8 FAIL of 194
+EQUAL maap defend-rdefend-no-tiebreak maap 2 FAIL of 196
+EQUAL maap probe-rannounce-tiebreak maap 7 FAIL of 196
+EQUAL maap yield-reuses-range maap 8 FAIL of 196
+EQUAL maap ival-sends-after-release maap 8 FAIL of 196
+EQUAL maap post-publishes-after-release maap 4 FAIL of 194
+EQUAL maap tx-path-absorbs-release maap 10 FAIL of 190
+EQUAL maap off-waits-for-an-edge maap 9 FAIL of 189
+EQUAL maap rx-release-returns-to-idle maap 3 FAIL of 195
+EQUAL maap seed-rearmed-on-idle-release-only maap 2 FAIL of 196
+EQUAL maap seed-clamp-off-by-one maap 2 FAIL of 196
+EQUAL maap release-waits-for-draw maap 1 FAIL of 196
+EQUAL maap idle-serves-a-latched-expiry-first maap 3 FAIL of 196
+EQUAL maap teardown-keeps-announce-timer maap 1 FAIL of 196
+EQUAL maap drain-waits-for-the-link maap 5 FAIL of 196
+EQUAL maap tx-set-omits-alloc maap 3 FAIL of 196
+EQUAL maap tx-set-omits-gwait maap 3 FAIL of 196
+EQUAL maap tx-set-omits-write maap 7 FAIL of 192
+EQUAL maap tx-set-omits-commit maap 3 FAIL of 196
+EQUAL maap tx-set-omits-lane maap 6 FAIL of 194
+maap: 27 matched "F FAIL of T" in the row, 2 to check by eye, 0 without row
+by eye: compare-mac-forward [pp_top] 5 FAIL of 34 = tb/pp_top/README.md:1554 '(5 FAIL of 34)'; validator-maap-version-1-only [pp_top] 4 FAIL of 34 = tb/pp_top/README.md:1564 '(4 FAIL of 34)'. maap: 29 of 29 equal.

@@ -1,0 +1,56 @@
+### hdl/aecp/ucode/gen_ucode.py:1652-1665
+# structurally off: nothing could move the index off 0 = INTERNAL.
+#
+# THE RANGE CHECK (06 §6 "source ∈ CLOCK_DOMAIN list"; milan-fpga #389). The
+# index is accepted only when clock_source_index < the located domain's
+# clock_sources_count: the generators emit the list as the identity
+# permutation (avdecc/aem_descriptors.py d_clock_domain), so the bound IS
+# the membership test of IEEE 1722.1-2021 §7.2.32 (clock_sources, the
+# indices clock_source_index may be set to). Anything else is BAD_ARGUMENTS
+# (Table 7-141) carrying the CURRENT index - the one a GET would read - with
+# nothing stored, marked or notified. Before this an index no descriptor
+# backed was stored, read back and announced while the media plane resolved
+# it to INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+#
+# Every refusal shares one tail: r6 carries the current index, preloaded with
+### hdl/aecp/ucode/gen_ucode.py:1672-1676
+SCLKS_REFUSE = E_SCLKSRF                         # the miss arm: the lock first
+SCLKS_EMIT = E_SCLKSRF + 1                       # the tail every refusal shares
+place(E_SCLKS, [
+    u('MOVE', rd=2, ra=0, imm=0),                # reserved @30, and the refusals
+    u('MOVE', rd=6, ra=0, imm=0),                # the current index, 0 until read
+### hdl/aecp/ucode/gen_ucode.py:1686-1690
+    u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+    u('MOVE', rd=9, ra=7, fmt=FMT_W),            # r9 = clock_sources_count
+    u('CHECK_ARG', ra=12, rb=9, fmt=FMT_W,       # index < count, else BAD_ARGS
+      cnd=REL_LT, imm=SCLKS_EMIT),
+    u('WRITE_ST', ra=12, fmt=FMT_W, imm=RGN_DYN + SEL_CLKSRC),
+### hdl/aecp/ucode/gen_ucode.py:1701-1712
+    u('END'),                                    # E_SCLKS + 25
+])
+place(E_SCLKSRF, [
+    u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # SCLKS_REFUSE: a miss meets the lock
+    u('BUILD_HDR', ra=15, rb=13),                # SCLKS_EMIT: the refusals
+    u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+    u('BUILD_FLD', ra=6, fmt=FMT_W),             # the CURRENT index    @28
+    u('BUILD_FLD', ra=2, fmt=FMT_W),             # reserved             @30
+    u('SEND_RESP'),
+    u('END'),
+])
+
+### hdl/aecp/KL_aecp_engine.sv:1578-1580
+                : ssrate_r ? {32'd0, setval_r[63:32]}
+                : sclks_r  ? {48'd0, setval_r[63:48]}
+                : sctrl_r  ? {56'd0, setval_r[63:56]}
+### docs/00_MILAN_COMPLIANCE_REVIEW.md:406-406
+| REQ-AEM-013 | Milan §5.4.2.15/.16 | SET/GET_CLOCK_SOURCE per Clock Domain; persisted | shall | A | [GAP-09](#gap-09); persisted and restored by the D3 writer (#131, `tb
+### docs/00_MILAN_COMPLIANCE_REVIEW.md:449-449
+| REQ-MDL-005 | Milan v1.2 §5.3.3.6; IEEE 1722.1-2021 §7.2.32, Table 7-141 | CLOCK_SOURCE construction, §5.3.3.6's set as a minimum: one INPUT_STREAM per CRF-capable inpu
+### docs/architecture/06_aecp_engine.md:465-465
+| SET_CLOCK_SOURCE | lock (`ENTITY_LOCKED` carrying the current index, §6.8) → locate (no such CLOCK_DOMAIN ⇒ `NO_SUCH_DESCRIPTOR`) → source ∈ CLOCK_DOMAIN list, tested a
+### docs/architecture/07_memory_maps.md:135-135
+| L6 | CLOCK_SOURCE construction, with Milan v1.2 §5.3.3.6's set as a minimum: ≥1 CLOCK_SOURCE per CLOCK_DOMAIN; exactly one INPUT_STREAM per CRF-capable input (or on the
+### hdl/aecp/KL_aecp_dyn_state.sv:186-186
+  logic [15:0] clksrc_r [N_CLK_DOMAIN_P] /* verilator public_flat_rw */;
+### hdl/aecp/KL_aecp_nvm_writer.sv:502-502
+      lane_accept_w = rval_r[15:0] < sb_rdata_i[47:32];

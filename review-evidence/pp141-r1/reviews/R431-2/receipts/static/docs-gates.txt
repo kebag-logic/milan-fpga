@@ -1,0 +1,40 @@
+### make check
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 1035 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (94 rows, 0 untested)
+parameters: top 27, guide 27, diagram 27, OK
+rc=0
+### python3 scripts/check-links.py
+links: 1035 checked, OK
+rc=0
+### python3 scripts/check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+rc=0
+### python3 scripts/check-integrator-params.py
+parameters: top 27, guide 27, diagram 27, OK
+rc=0
+### python3 scripts/render-wavedrom.py --check
+wavedrom: 18 blocks checked, OK
+rc=0
+### make stale
+rc=0
+### python3 scripts/gen_matrix.py --check
+matrix: OK (94 rows, 0 untested)
+rc=0
+### python3 scripts/check_upc_map.py
+UPC MAP GATE: PASS (61 engine constants, 89 entry points, all agree)
+rc=0
+### python3 scripts/check_m9_opcodes.py --selftest
+M9 OPCODE GATE SELFTEST: 9 of 9 PASS
+rc=0
+### python3 scripts/check_m9_opcodes.py
+M9 OPCODE GATE: PASS (30 engine opcodes, all swept by M9)
+rc=0
+### git diff --check 2ebd4fe8 a90ca735
+rc=0
+### git diff --check 76b09ff0 a90ca735
+rc=0
+### git diff --check 03c842a7 a90ca735
+rc=0

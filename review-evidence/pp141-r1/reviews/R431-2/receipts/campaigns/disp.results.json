@@ -1,0 +1,355 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control aecp-line",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control d3",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control line-guards",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "m9-guard-set-stream-format",
+    "patch": "m9-guard-set-stream-format",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-stream-info",
+    "patch": "m9-guard-set-stream-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-name",
+    "patch": "m9-guard-set-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-get-name",
+    "patch": "m9-guard-get-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-add-mappings",
+    "patch": "m9-guard-add-mappings",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-remove-mappings",
+    "patch": "m9-guard-remove-mappings",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-dynamic-info",
+    "patch": "m9-guard-dynamic-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "a5b-reboot-success-arm",
+    "patch": "a5b-reboot-success-arm",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-ssrate-lock-nop",
+    "patch": "lk-ssrate-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-ssrate-miss-lock-nop",
+    "patch": "lk-ssrate-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sclks-lock-nop",
+    "patch": "lk-sclks-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sclks-miss-lock-nop",
+    "patch": "lk-sclks-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-lock-nop",
+    "patch": "lk-sctrl-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 12,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-miss-lock-nop",
+    "patch": "lk-sctrl-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-prefix-zero-body",
+    "patch": "lk-prefix-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sctrl-badarg-zero-body",
+    "patch": "sctrl-badarg-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-never",
+    "patch": "ov-oversize-never",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-at-576",
+    "patch": "ov-oversize-at-576",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-top-oversize-dropped",
+    "patch": "ov-top-oversize-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-append-524",
+    "patch": "pg-append-524",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 14,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-cap-dropped",
+    "patch": "pg-cap-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-cap-off-by-one",
+    "patch": "pg-cap-off-by-one",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-base-no-overlay",
+    "patch": "rd-base-no-overlay",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-au-image-only",
+    "patch": "rd-au-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-au-unset-overlays",
+    "patch": "rd-au-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cd-image-only",
+    "patch": "rd-cd-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-unset-overlays",
+    "patch": "rd-str-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-so-reads-input-row",
+    "patch": "rd-so-reads-input-row",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cfg-any",
+    "patch": "rd-cfg-any",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-tail-uncut",
+    "patch": "rd-tail-uncut",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-short-guard-nop",
+    "patch": "rd-str-short-guard-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-floor-rounded",
+    "patch": "line-floor-rounded",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-ceiling-dropped",
+    "patch": "line-ceiling-dropped",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-buffer-fixed-592",
+    "patch": "line-buffer-fixed-592",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rb-rounded-buffer-no-page-cap",
+    "patch": "rb-rounded-buffer-no-page-cap",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-bound-three",
+    "patch": "sclks-bound-three",
+    "target": "d3",
+    "rc": 2,
+    "failures": 11,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-bound-inclusive",
+    "patch": "sclks-bound-inclusive",
+    "target": "d3",
+    "rc": 2,
+    "failures": 6,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

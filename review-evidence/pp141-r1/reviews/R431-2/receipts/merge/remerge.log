@@ -1,0 +1,43 @@
+Auto-merging docs/00_MILAN_COMPLIANCE_REVIEW.md
+Auto-merging docs/architecture/06_aecp_engine.md
+Auto-merging docs/architecture/09_verification.md
+Auto-merging hdl/aecp/ucode/gen_ucode.py
+Auto-merging tb/pp_top/README.md
+Auto-merging tb/pp_top/pp_top_wrap.sv
+Auto-merging tb/pp_top/sim_main.cpp
+Merge made by the 'ort' strategy.
+ docs/00_MILAN_COMPLIANCE_REVIEW.md     |   38 +-
+ docs/architecture/01_overview.md       |    2 +-
+ docs/architecture/02_interfaces.md     |    8 +-
+ docs/architecture/03_packet_engine.md  |   71 +-
+ docs/architecture/06_aecp_engine.md    |   79 +-
+ docs/architecture/08_timing.md         |    8 +-
+ docs/architecture/09_verification.md   |   21 +-
+ docs/diagrams/21-integration-faces.png |  Bin 652402 -> 659823 bytes
+ docs/diagrams/21-integration-faces.svg |   24 +-
+ docs/guides/hdl-engineer.md            |    4 +-
+ docs/guides/integrator.md              |   25 +-
+ docs/guides/operator.md                |    1 +
+ hdl/README.md                          |    6 +-
+ hdl/aecp/KL_aecp_engine.sv             |   20 +-
+ hdl/aecp/KL_aecp_notify.sv             |  273 +++++-
+ hdl/aecp/ucode/gen_ucode.py            |   60 ++
+ hdl/common/pp_pkg.sv                   |   12 +
+ hdl/top/protocol_processor_top.sv      |   74 +-
+ tb/aecp_notify/Makefile                |   28 +-
+ tb/aecp_notify/README.md               |   46 +
+ tb/aecp_notify/sim_main.cpp            |  213 ++++-
+ tb/originator/README.md                |   28 +-
+ tb/originator/sim_main.cpp             |  283 ++++++
+ tb/pp_top/Makefile                     |   41 +-
+ tb/pp_top/README.md                    |  287 +++++-
+ tb/pp_top/aecp_mutants.py              |    2 +-
+ tb/pp_top/notify_mutants.py            |  367 ++++++++
+ tb/pp_top/notify_phases.hpp            | 1588 ++++++++++++++++++++++++++++++++
+ tb/pp_top/pp_top_wrap.sv               |   40 +-
+ tb/pp_top/sim_main.cpp                 |   37 +-
+ tb/ucpu/sim_main.cpp                   |   43 +
+ 31 files changed, 3595 insertions(+), 134 deletions(-)
+ create mode 100644 tb/pp_top/notify_mutants.py
+ create mode 100644 tb/pp_top/notify_phases.hpp
+rc=0

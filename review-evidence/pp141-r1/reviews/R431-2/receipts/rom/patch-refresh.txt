@@ -1,0 +1,47 @@
+diff --git a/tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch b/tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
+index dbb3fde..a3fc4ba 100644
+--- a/tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
++++ b/tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
+@@ -95,8 +95,8 @@
+      u('BUILD_FLD', ra=6, fmt=FMT_D),             # the CURRENT rate     @28
+      u('SEND_RESP'),
+ @@ -1427,31 +1417,25 @@
+- # stored, read back and announced while the media plane resolved it to
+- # INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
++ # backed was stored, read back and announced while the media plane resolved
++ # it to INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+  #
+ -# Every refusal shares one tail: r6 carries the current index, preloaded with
+ -# 0 so the NO_SUCH_DESCRIPTOR arm (no domain, no current value) answers zero
+diff --git a/tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch b/tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
+index 53e9d03..b8ab800 100644
+--- a/tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
++++ b/tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/aecp/ucode/gen_ucode.py
+ +++ b/hdl/aecp/ucode/gen_ucode.py
+-@@ -1659,8 +1659,8 @@
++@@ -1660,8 +1660,8 @@
+      u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),
+      u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+      u('MOVE', rd=9, ra=7, fmt=FMT_W),            # r9 = clock_sources_count
+diff --git a/tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch b/tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
+index 3c3a010..d87d9a0 100644
+--- a/tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
++++ b/tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/aecp/ucode/gen_ucode.py
+ +++ b/hdl/aecp/ucode/gen_ucode.py
+-@@ -1658,7 +1658,7 @@
++@@ -1659,7 +1659,7 @@
+      u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # E_SCLKS + 9: ENTITY_LOCKED
+      u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),
+      u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+== +/- body lines old(39fd019) vs new(head) per patch
+lk-prefix-zero-body: old 4788f1a92953a166 new 4788f1a92953a166 lines 151
+sclks-bound-three: old f1c9bf7abf8575db new f1c9bf7abf8575db lines 2
+sclks-bound-inclusive: old 72e9a92496e1f49b new 72e9a92496e1f49b lines 4
+== head apply -v for the three
+tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch 0 ['Hunk #1 succeeded at 153 (offset 9 lines).', 'Hunk #2 succeeded at 166 (offset 9 lines).', 'Hunk #3 succeeded at 1528 (offset 234 lines).', 'Hunk #4 succeeded at 1559 (offset 234 lines).', 'Hunk #5 succeeded at 1652 (offset 235 lines).', 'Hunk #6 succeeded at 1683 (offset 235 lines).', 'Hunk #7 succeeded at 1749 (offset 235 lines).', 'Hunk #8 succeeded at 1821 (offset 235 lines).', 'Hunk #9 succeeded at 1840 (offset 235 lines).']
+tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch 0 ['Hunk #1 succeeded at 1685 (offset 25 lines).']
+tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch 0 ['Hunk #1 succeeded at 1684 (offset 25 lines).']

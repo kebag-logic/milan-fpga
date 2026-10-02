@@ -1,0 +1,33 @@
+gen_ucode.py patches at head: 22
+  OK  aecp_dispatch_mutations/lk-prefix-zero-body.patch: 98 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/pg-append-524.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rd-au-image-only.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  aecp_dispatch_mutations/sclks-bound-inclusive.patch: 1 words; =76b09ff0 True; =main n/a; touches C6 words []
+  OK  aecp_dispatch_mutations/sclks-bound-three.patch: 1 words; =76b09ff0 True; =main n/a; touches C6 words []
+  OK  aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  mutations/dlkill-always-misbehaving.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+  OK  mutations/mvu-silent.patch: 1 words; =76b09ff0 True; =main True; touches C6 words []
+old (39fd019) lk-prefix-zero-body at 39fd019 vs refreshed at 76b09ff0: words equal True ; full ucode.hex equal True
+old lk at head refused: 1 ; old lk at 76b09ff0 refused: 1
+old sclks-bound-three (39fd019) at 39fd019 vs refreshed at 76b09ff0: full ucode equal True ; words {'1196': ['24b810000000', '248000000003']}
+old sclks-bound-inclusive (39fd019) at 39fd019 vs refreshed at 76b09ff0: full ucode equal True ; words {'1197': ['706492000479', '704e13000479']}
+4a40b17-form sclks-bound-three at head, words equal to committed: True
+head ucode.hex == main ucode.hex: True
+head program map == main program map: True
+76b09ff0 ucode == base ucode: True
+E_SCLKS/E_SCLKSRF vs C6 overlaps: []
+BAD count: 0

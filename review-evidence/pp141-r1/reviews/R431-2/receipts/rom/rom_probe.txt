@@ -1,0 +1,186 @@
+== base 03c842a780064048b0a1a3de29214174a1c13934
+  ucode.hex 26624 B 3559d0a64b51062a4dc47744ead112a0cc839f389bb2d16ba0133b03baf4b053 ($REVIEWS/pp141-r431-2-packet/scratch/rom/work/base.ucode.hex: 2048 words, 87 programs)
+  ltn_rom.hex 6138 B 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+  image.bin 1880 B 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c rc=0
+  map: 87 programs, 1080 words
+    E_SCLKSRF: 1144..1150 (7)
+    E_SCLKS: 1184..1209 (26)
+  apply --check: 205 patches, refused 0 []
+    plant tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: 98 words [1144, 1145, 1146, 1147, 1148, 1149, 1150, 1153, 1154, 1155, 1156, 1157] ucode c8c8edab989ecde7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words [1193] ucode 330379438e51c3e7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words [1144] ucode a6afb2eb1566965e
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words [1284] ucode 6890b00d190646a9
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words [1301] ucode 70ca0f21e6836a4a
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words [1161] ucode 7c66bffa3d6eb40d
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words [1167] ucode 54578e9028be6c59
+    plant tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: 1 words [823] ucode ba19cd3d4edcfa84
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words [805] ucode 03571cab5338f120
+    plant tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: 1 words [2007] ucode fc331c6d4d75cc11
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words [2007] ucode 8d1863a835ce2fb1
+    plant tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words [2031] ucode cb5b03369c4b07ab
+    plant tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words [1785, 1788] ucode ff6eef6671da9c8c
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words [1538] ucode 1859489b4cd4b854
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words [1775, 1787] ucode 3fb6d78d75b89b84
+    plant tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words [1290] ucode 3226bb6dc7e9e1a2
+    plant tb/pp_top/mutations/dlkill-always-misbehaving.patch: 1 words [6] ucode e4b3054c69f7dc67
+    plant tb/pp_top/mutations/mvu-silent.patch: 1 words [752] ucode f4ad2d0074b68c27
+== r1 39fd019153033b33ad2ce5fea72be05ddab526a8
+  ucode.hex 26624 B 3559d0a64b51062a4dc47744ead112a0cc839f389bb2d16ba0133b03baf4b053 ($REVIEWS/pp141-r431-2-packet/scratch/rom/work/r1.ucode.hex: 2048 words, 87 programs)
+  ltn_rom.hex 6138 B 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+  image.bin 1880 B 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c rc=0
+  map: 87 programs, 1080 words
+    E_SCLKSRF: 1144..1150 (7)
+    E_SCLKS: 1184..1209 (26)
+  apply --check: 207 patches, refused 0 []
+    plant old-incl: 1 words [1197] ucode 8342c85806534956
+    plant old-lk: 98 words [1144, 1145, 1146, 1147, 1148, 1149, 1150, 1153, 1154, 1155, 1156, 1157] ucode c8c8edab989ecde7
+    plant old-three: 1 words [1196] ucode cb507184e92d68ae
+    plant tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: 98 words [1144, 1145, 1146, 1147, 1148, 1149, 1150, 1153, 1154, 1155, 1156, 1157] ucode c8c8edab989ecde7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words [1193] ucode 330379438e51c3e7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words [1144] ucode a6afb2eb1566965e
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words [1284] ucode 6890b00d190646a9
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words [1301] ucode 70ca0f21e6836a4a
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words [1161] ucode 7c66bffa3d6eb40d
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words [1167] ucode 54578e9028be6c59
+    plant tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: 1 words [823] ucode ba19cd3d4edcfa84
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words [805] ucode 03571cab5338f120
+    plant tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: 1 words [2007] ucode fc331c6d4d75cc11
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words [2007] ucode 8d1863a835ce2fb1
+    plant tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words [2031] ucode cb5b03369c4b07ab
+    plant tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words [1785, 1788] ucode ff6eef6671da9c8c
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words [1538] ucode 1859489b4cd4b854
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words [1775, 1787] ucode 3fb6d78d75b89b84
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch: 1 words [1197] ucode 8342c85806534956
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch: 1 words [1196] ucode cb507184e92d68ae
+    plant tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words [1290] ucode 3226bb6dc7e9e1a2
+    plant tb/pp_top/mutations/dlkill-always-misbehaving.patch: 1 words [6] ucode e4b3054c69f7dc67
+    plant tb/pp_top/mutations/mvu-silent.patch: 1 words [752] ucode f4ad2d0074b68c27
+== r1b 4a40b1798e463d09aafd74632408003229bcc673
+  ucode.hex 26624 B 3559d0a64b51062a4dc47744ead112a0cc839f389bb2d16ba0133b03baf4b053 ($REVIEWS/pp141-r431-2-packet/scratch/rom/work/r1b.ucode.hex: 2048 words, 87 programs)
+  ltn_rom.hex 6138 B 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+  image.bin 1880 B 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c rc=0
+  map: 87 programs, 1080 words
+    E_SCLKSRF: 1144..1150 (7)
+    E_SCLKS: 1184..1209 (26)
+  apply --check: 207 patches, refused 1 ['tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch']
+    plant tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: APPLY FAILED
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words [1193] ucode 330379438e51c3e7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words [1144] ucode a6afb2eb1566965e
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words [1284] ucode 6890b00d190646a9
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words [1301] ucode 70ca0f21e6836a4a
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words [1161] ucode 7c66bffa3d6eb40d
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words [1167] ucode 54578e9028be6c59
+    plant tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: 1 words [823] ucode ba19cd3d4edcfa84
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words [805] ucode 03571cab5338f120
+    plant tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: 1 words [2007] ucode fc331c6d4d75cc11
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words [2007] ucode 8d1863a835ce2fb1
+    plant tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words [2031] ucode cb5b03369c4b07ab
+    plant tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words [1785, 1788] ucode ff6eef6671da9c8c
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words [1538] ucode 1859489b4cd4b854
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words [1775, 1787] ucode 3fb6d78d75b89b84
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch: 1 words [1197] ucode 8342c85806534956
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch: 1 words [1196] ucode cb507184e92d68ae
+    plant tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words [1290] ucode 3226bb6dc7e9e1a2
+    plant tb/pp_top/mutations/dlkill-always-misbehaving.patch: 1 words [6] ucode e4b3054c69f7dc67
+    plant tb/pp_top/mutations/mvu-silent.patch: 1 words [752] ucode f4ad2d0074b68c27
+== r2 76b09ff058c6b95750c5a36d8befe67b77e0e079
+  ucode.hex 26624 B 3559d0a64b51062a4dc47744ead112a0cc839f389bb2d16ba0133b03baf4b053 ($REVIEWS/pp141-r431-2-packet/scratch/rom/work/r2.ucode.hex: 2048 words, 87 programs)
+  ltn_rom.hex 6138 B 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+  image.bin 1880 B 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c rc=0
+  map: 87 programs, 1080 words
+    E_SCLKSRF: 1144..1150 (7)
+    E_SCLKS: 1184..1209 (26)
+  apply --check: 207 patches, refused 0 []
+    plant old-lk: APPLY FAILED
+    plant tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: 98 words [1144, 1145, 1146, 1147, 1148, 1149, 1150, 1153, 1154, 1155, 1156, 1157] ucode c8c8edab989ecde7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words [1193] ucode 330379438e51c3e7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words [1144] ucode a6afb2eb1566965e
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words [1284] ucode 6890b00d190646a9
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words [1301] ucode 70ca0f21e6836a4a
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words [1161] ucode 7c66bffa3d6eb40d
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words [1167] ucode 54578e9028be6c59
+    plant tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: 1 words [823] ucode ba19cd3d4edcfa84
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words [805] ucode 03571cab5338f120
+    plant tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words [808, 814] ucode 18b7a463c7ba9b25
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: 1 words [2007] ucode fc331c6d4d75cc11
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words [2007] ucode 8d1863a835ce2fb1
+    plant tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words [2031] ucode cb5b03369c4b07ab
+    plant tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words [1785, 1788] ucode ff6eef6671da9c8c
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words [1538] ucode 1859489b4cd4b854
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words [1775, 1787] ucode 3fb6d78d75b89b84
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch: 1 words [1197] ucode 8342c85806534956
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch: 1 words [1196] ucode cb507184e92d68ae
+    plant tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words [1290] ucode 3226bb6dc7e9e1a2
+    plant tb/pp_top/mutations/dlkill-always-misbehaving.patch: 1 words [6] ucode e4b3054c69f7dc67
+    plant tb/pp_top/mutations/mvu-silent.patch: 1 words [752] ucode f4ad2d0074b68c27
+== main 2ebd4fe8d31e88c44559e934bd624e1c50515ad5
+  ucode.hex 26624 B 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 ($REVIEWS/pp141-r431-2-packet/scratch/rom/work/main.ucode.hex: 2048 words, 89 programs)
+  ltn_rom.hex 6138 B 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+  image.bin 1880 B 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c rc=0
+  map: 89 programs, 1107 words
+    E_IDNOTIF: 464..469 (6)
+    E_SINFOUNS: 480..500 (21)
+    E_SCLKSRF: 1144..1150 (7)
+    E_SCLKS: 1184..1209 (26)
+  apply --check: 205 patches, refused 0 []
+    plant tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: 98 words [1144, 1145, 1146, 1147, 1148, 1149, 1150, 1153, 1154, 1155, 1156, 1157] ucode c26ca6220642ba00
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words [1193] ucode 4e987677d0aca811
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words [1144] ucode a9c464ec2c3c65e7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words [1284] ucode b79f8bdaf77bdfb1
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words [1301] ucode 4290251a368f6d61
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words [1161] ucode f085e0f747ce81a0
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words [1167] ucode 56da112d10f80c0c
+    plant tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: 1 words [823] ucode bf86fe8475e60b36
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words [808, 814] ucode e221c0b71f07b11d
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words [805] ucode 4a61e1cb449ccdc8
+    plant tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words [808, 814] ucode e221c0b71f07b11d
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: 1 words [2007] ucode aa7dac628c0a8dd4
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words [2007] ucode 36fdb46534de91a7
+    plant tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words [2031] ucode b41f81bd2dd4204b
+    plant tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words [1785, 1788] ucode 31149e81aeeb1cc4
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words [1538] ucode 5951448148b1beb9
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words [1775, 1787] ucode e42b2a9bd05ee7ca
+    plant tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words [1290] ucode e98d412a66721216
+    plant tb/pp_top/mutations/dlkill-always-misbehaving.patch: 1 words [6] ucode 3bb73dabbeb7d2b8
+    plant tb/pp_top/mutations/mvu-silent.patch: 1 words [752] ucode 7d335bc0fa457794
+== head a90ca735844a3e7a5bdfd2d1baeba24c95608992
+  ucode.hex 26624 B 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8 ($REVIEWS/pp141-r431-2-packet/scratch/rom/work/head.ucode.hex: 2048 words, 89 programs)
+  ltn_rom.hex 6138 B 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+  image.bin 1880 B 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c rc=0
+  map: 89 programs, 1107 words
+    E_IDNOTIF: 464..469 (6)
+    E_SINFOUNS: 480..500 (21)
+    E_SCLKSRF: 1144..1150 (7)
+    E_SCLKS: 1184..1209 (26)
+  apply --check: 207 patches, refused 0 []
+    plant old-lk: APPLY FAILED
+    plant r1b-three: 1 words [1196] ucode 9a93b9898a157d2f
+    plant tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch: 98 words [1144, 1145, 1146, 1147, 1148, 1149, 1150, 1153, 1154, 1155, 1156, 1157] ucode c26ca6220642ba00
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch: 1 words [1193] ucode 4e987677d0aca811
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch: 1 words [1144] ucode a9c464ec2c3c65e7
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch: 1 words [1284] ucode b79f8bdaf77bdfb1
+    plant tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch: 1 words [1301] ucode 4290251a368f6d61
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch: 1 words [1161] ucode f085e0f747ce81a0
+    plant tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch: 1 words [1167] ucode 56da112d10f80c0c
+    plant tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch: 1 words [823] ucode bf86fe8475e60b36
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch: 2 words [808, 814] ucode e221c0b71f07b11d
+    plant tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch: 1 words [805] ucode 4a61e1cb449ccdc8
+    plant tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch: 2 words [808, 814] ucode e221c0b71f07b11d
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch: 1 words [2007] ucode aa7dac628c0a8dd4
+    plant tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch: 1 words [2007] ucode 36fdb46534de91a7
+    plant tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch: 1 words [2031] ucode b41f81bd2dd4204b
+    plant tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch: 2 words [1785, 1788] ucode 31149e81aeeb1cc4
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch: 1 words [1538] ucode 5951448148b1beb9
+    plant tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch: 2 words [1775, 1787] ucode e42b2a9bd05ee7ca
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch: 1 words [1197] ucode b021f7f92661952b
+    plant tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch: 1 words [1196] ucode 9a93b9898a157d2f
+    plant tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch: 1 words [1290] ucode e98d412a66721216
+    plant tb/pp_top/mutations/dlkill-always-misbehaving.patch: 1 words [6] ucode 3bb73dabbeb7d2b8
+    plant tb/pp_top/mutations/mvu-silent.patch: 1 words [752] ucode 7d335bc0fa457794

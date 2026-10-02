@@ -1,0 +1,264 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -144,7 +144,6 @@
+ E_GSFMT   = 1056     # GET_STREAM_FORMAT (Milan 5.4.2.8, IEEE 7.4.10)
+ E_GSRATE  = 1088     # GET_SAMPLING_RATE (Milan 5.4.2.14, IEEE 7.4.22)
+ E_GCLKS   = 1120     # GET_CLOCK_SOURCE (Milan 5.4.2.16, IEEE 7.4.24)
+-E_SCLKSRF = 1144     # SET_CLOCK_SOURCE's shared refusal tail (out of line)
+ E_SSRATE = 1152     # SET_SAMPLING_RATE (Milan 5.4.2.13, IEEE 7.4.21)
+ E_SCLKS   = 1184     # SET_CLOCK_SOURCE (Milan 5.4.2.15, IEEE 7.4.23)
+ # ...and the two wrong-target refusals they share. Table 7-141's NOT_SUPPORTED
+@@ -158,11 +157,13 @@
+ E_SCTRL   = 1280     # SET_CONTROL (Milan 5.4.2.17, IEEE 7.4.25)
+ E_TIZ8NS  = 1216     # {type, index} + 8 zero bytes, NOT_SUPPORTED
+ E_TIZ4NS  = 1224     # {type, index} + 4 zero bytes, NOT_SUPPORTED
++E_LOCKED4 = 1232     # {type, index} + 4 zero bytes, ENTITY_LOCKED
+ E_BADARG4 = 1240     # {type, index} + 4 zero bytes, BAD_ARGUMENTS
+ # ...and the same two refusals in the CONTROL response FORM. A refusal has to
+ # be the size of the response it refuses (only NOT_IMPLEMENTED may answer at
+ # command length), and a Milan IDENTIFY control carries ONE value byte, so its
+ # body is 5 and its cdl 17 where the others are 8 and 20.
++E_LOCKED1 = 1312     # {type, index} + 1 zero byte, ENTITY_LOCKED
+ E_BADARG1 = 1320     # {type, index} + 1 zero byte, BAD_ARGUMENTS
+ E_NSUPP1  = 1328     # {type, index} + 1 zero byte, NOT_SUPPORTED
+ # A refusal has to be the size of the response it refuses: the stubs above are
+@@ -1293,19 +1294,11 @@
+ # figure, so the response is the same 8-byte body the getter emits and it
+ # carries the value now in force.
+ #
+-# THE LOCK OUTRANKS EVERY OTHER VERDICT, and nothing is written before it:
++# THE LOCK IS THE FIRST THING CHECKED, before the locate and before the write:
+ # Milan repeats in every SET clause that a locked PAAD "shall not accept a
+ # <CMD> command from a different controller". CHECK_LOCK branches when the
+ # entity is held by somebody other than r15's controller, and sets
+-# ENTITY_LOCKED on the way out. It runs AFTER the locate and the read of the
+-# current rate, because the refusal carries that rate: IEEE 1722.1-2021
+-# §7.4.21.1 "The response always contains the current value, that is it
+-# contains the new value if the command succeeds or the old value if it
+-# fails", and a locked refusal is a failure like any other (issue #53; the
+-# end-station test plan's es-4.18 grades the same rule on SET_NAME). The
+-# locate and the reads have no effect, so reading first moves nothing, and a
+-# locate MISS still meets the lock before it answers NO_SUCH_DESCRIPTOR, so
+-# the 06 §6.4 order (lock, then locate, then the list) is what the wire shows.
++# ENTITY_LOCKED on the way out.
+ #
+ # The rate/mapping-mismatch refusal of §5.4.2.13 is a MAY, not a SHALL, and is
+ # deliberately not implemented — grading a MAY as a SHALL would refuse rates
+@@ -1332,38 +1325,35 @@
+ # as the whole 32-bit word the list stores, pull field (bits 31:29) included:
+ # 48000 x 1/1.001 is a different rate from the 48000 a pull-0 list holds.
+ #
+-# Every refusal shares one tail: r6 carries the current rate, preloaded with 0
+-# so the NO_SUCH_DESCRIPTOR arm (no unit, no current value) answers zero, and
+-# the locked refusal carries it like the list refusal does.
++# Two refusal arms share one tail: r6 carries the current rate, preloaded with
++# 0 so the NO_SUCH_DESCRIPTOR arm (no unit, no current value) answers zero.
+ SSR_LIST_OFF = 144      # IEEE §7.2.3 sampling_rates_offset, this AEM version
+ SSR_WALK_MAX = 8        # entries the walk consults; 07 §3.1 L10's bound
+-_SSR_HEAD = 14          # E_SSRATE's words ahead of the tails
++_SSR_HEAD = 14          # E_SSRATE's words ahead of the two tails
+ SSR_NOTLISTED = E_SSRATE + _SSR_HEAD         # BAD_ARGUMENTS, then the tail
+-SSR_REFUSE = SSR_NOTLISTED + 1               # the miss arm: the lock first
+-SSR_EMIT = SSR_REFUSE + 1                    # the tail every refusal shares
+-SSR_ACCEPT = SSR_EMIT + 5                    # store, answer, maybe notify
++SSR_REFUSE = SSR_NOTLISTED + 1               # the tail every refusal shares
++SSR_ACCEPT = SSR_REFUSE + 5                  # store, answer, maybe notify
+ ssrate = [
+     u('MOVE', rd=6, ra=0, imm=0),                # the current rate, 0 until read
++    u('CHECK_LOCK', ra=15, imm=E_LOCKED4),       # held by another controller?
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the Audio Unit exist?
+-    u('BR_STATUS', cnd=0, imm=SSR_REFUSE),       # no -> the lock, then NSD
++    u('BR_STATUS', cnd=0, imm=SSR_REFUSE),       # no -> NO_SUCH_DESCRIPTOR
+     u('READ_ST', rd=7, imm=RGN_DATA + AU_RATE_OFF),  # {rate, offset, count}
+     u('READ_ST', rd=3, imm=RGN_DYNV + SEL_RATE), # overlay already written?
+     u('SHIFT_R', rd=6, ra=7, imm=32),            # the image's current rate
+     u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+-    u('BR_STATUS', cnd=2, imm=E_SSRATE + 9),     # unset -> the image's stands
++    u('BR_STATUS', cnd=2, imm=E_SSRATE + 10),    # unset -> the image's stands
+     u('READ_ST', rd=6, imm=RGN_DYN + SEL_RATE),  # set -> the controller's
+-    u('CHECK_LOCK', ra=15, imm=SSR_EMIT),        # E_SSRATE + 9: held by another
+-    u('MOVE', rd=9, ra=0, imm=SSR_LIST_OFF),     # controller -> ENTITY_LOCKED
++    u('MOVE', rd=9, ra=0, imm=SSR_LIST_OFF),     # E_SSRATE + 10
+     u('SHIFT_R', rd=8, ra=7, imm=16),            # sampling_rates_offset [15:0]
+     u('CHECK_ARG', ra=8, rb=9, fmt=FMT_W,        # the list where the walk
+-      cnd=REL_EQ, imm=SSR_EMIT),                 # reads it, else BAD_ARGUMENTS
++      cnd=REL_EQ, imm=SSR_REFUSE),               # reads it, else BAD_ARGUMENTS
+     u('BRANCH', imm=E_SSRWALK),                  # r7[15:0] = the count
+ ]
+ assert len(ssrate) == _SSR_HEAD
+ ssrate += [
+     u('SET_STATUS', imm=ST_BADARG),              # SSR_NOTLISTED
+-    u('CHECK_LOCK', ra=15, imm=SSR_EMIT),        # SSR_REFUSE: a miss meets the lock
+-    u('BUILD_HDR', ra=15, rb=13),                # SSR_EMIT: the refusals
++    u('BUILD_HDR', ra=15, rb=13),                # SSR_REFUSE: the refusals
+     u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+     u('BUILD_FLD', ra=6, fmt=FMT_D),             # the CURRENT rate     @28
+     u('SEND_RESP'),
+@@ -1427,31 +1417,25 @@
+ # stored, read back and announced while the media plane resolved it to
+ # INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+ #
+-# Every refusal shares one tail: r6 carries the current index, preloaded with
+-# 0 so the NO_SUCH_DESCRIPTOR arm (no domain, no current value) answers zero
+-# exactly as before. The lock is checked after the current index is read, for
+-# E_SSRATE's reason (IEEE 1722.1-2021 §7.4.23.1: "The response always contains
+-# the current value ... the old value if it fails"; issue #53), and a locate
+-# miss meets it before NO_SUCH_DESCRIPTOR. The slot ends at E_TIZ8NS, so the
+-# shared tail lives out of line at E_SCLKSRF.
+-SCLKS_REFUSE = E_SCLKSRF                         # the miss arm: the lock first
+-SCLKS_EMIT = E_SCLKSRF + 1                       # the tail every refusal shares
++# Two refusal arms share one tail: r6 carries the current index, preloaded
++# with 0 so the NO_SUCH_DESCRIPTOR arm (no domain, no current value) answers
++# zero exactly as before. 32 words: the slot ends at E_TIZ8NS.
+ place(E_SCLKS, [
+     u('MOVE', rd=2, ra=0, imm=0),                # reserved @30, and the refusals
+     u('MOVE', rd=6, ra=0, imm=0),                # the current index, 0 until read
++    u('CHECK_LOCK', ra=15, imm=E_LOCKED4),
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the Clock Domain exist?
+-    u('BR_STATUS', cnd=0, imm=SCLKS_REFUSE),     # miss -> the lock, then NSD
++    u('BR_STATUS', cnd=0, imm=E_SCLKS + 26),     # miss -> NO_SUCH_DESCRIPTOR
+     u('READ_ST', rd=3, imm=RGN_DYNV + SEL_CLKSRC),
+     u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+     u('READ_ST', rd=6, imm=RGN_DATA + CD_SRCIDX_LANE),   # the image's index
+-    u('BR_STATUS', cnd=2, imm=E_SCLKS + 9),      # unset -> the image's stands
++    u('BR_STATUS', cnd=2, imm=E_SCLKS + 10),     # unset -> the image's stands
+     u('READ_ST', rd=6, imm=RGN_DYN + SEL_CLKSRC),        # set -> the controller's
+-    u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # E_SCLKS + 9: ENTITY_LOCKED
+-    u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),
++    u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),   # E_SCLKS + 10
+     u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+     u('MOVE', rd=9, ra=7, fmt=FMT_W),            # r9 = clock_sources_count
+     u('CHECK_ARG', ra=12, rb=9, fmt=FMT_W,       # index < count, else BAD_ARGS
+-      cnd=REL_LT, imm=SCLKS_EMIT),
++      cnd=REL_LT, imm=E_SCLKS + 26),
+     u('WRITE_ST', ra=12, fmt=FMT_W, imm=RGN_DYN + SEL_CLKSRC),
+     u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+     u('SET_STATUS', imm=ST_OK),
+@@ -1464,15 +1448,12 @@
+     u('BR_STATUS', cnd=2, imm=E_SCLKS + 25),
+     u('NOTIFY_ENQ', imm=8),                      # SET_CLOCK_SOURCE
+     u('END'),                                    # E_SCLKS + 25
+-])
+-place(E_SCLKSRF, [
+-    u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # SCLKS_REFUSE: a miss meets the lock
+-    u('BUILD_HDR', ra=15, rb=13),                # SCLKS_EMIT: the refusals
++    u('BUILD_HDR', ra=15, rb=13),                # E_SCLKS + 26: the refusals
+     u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+     u('BUILD_FLD', ra=6, fmt=FMT_W),             # the CURRENT index    @28
+     u('BUILD_FLD', ra=2, fmt=FMT_W),             # reserved             @30
+     u('SEND_RESP'),
+-    u('END'),
++    u('END'),                                    # E_SCLKS + 31 = E_TIZ8NS - 1
+ ])
+ 
+ # --- GET_CLOCK_SOURCE (Milan §5.4.2.16, IEEE §7.4.24.2, Figure 7-47) ---------
+@@ -1533,17 +1514,22 @@
+     u('END'),
+ ])
+ 
+-# --- the SET family's short-command refusal, in the same full-body form -----
+-# The engine dispatches a SET_SAMPLING_RATE or SET_CLOCK_SOURCE too short to
+-# carry its value (cdl < 20) here: the command never reached a descriptor, so
+-# the body is zero. The locked refusal is NOT a stub any more (issue #53):
+-# E_SSRATE and E_SCLKS locate and read the current value before the lock
+-# check and answer ENTITY_LOCKED carrying it, as IEEE 1722.1-2021
+-# §7.4.21.1/§7.4.23.1 require of every failed response ("the old value if it
+-# fails") and as the end-station test plan's es-4.18 checks on SET_NAME. The
+-# zero-bodied E_LOCKED4/E_LOCKED1 stubs that argued a locked entity had
+-# nothing to report are gone: a read has no effect, so a locked entity can
+-# read what is in force.
++# --- the SET family's two refusals, in the same full-body form --------------
++# Milan makes the lock refusal a SHALL in every SET clause, and the end-station
++# test plan's es-4.18 checks that the ENTITY_LOCKED response still carries the
++# CURRENT value rather than the rejected one. Zero is what these stubs carry,
++# which is correct for the refusal arms that reach them: a locked entity has
++# not located anything, so it has no current value to report and inventing one
++# would be worse than reporting none.
++place(E_LOCKED4, [
++    u('MOVE', rd=2, ra=0, imm=0),
++    u('SET_STATUS', imm=ST_LOCKED),
++    u('BUILD_HDR', ra=15, rb=13),
++    u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
++    u('BUILD_FLD', ra=2, fmt=FMT_D),             # 4 zero bytes         @28
++    u('SEND_RESP'),
++    u('END'),
++])
+ place(E_BADARG4, [
+     u('MOVE', rd=2, ra=0, imm=0),
+     u('SET_STATUS', imm=ST_BADARG),
+@@ -1600,29 +1586,18 @@
+ # no NVM_MARK here is a separate fact about completion notifications, not the
+ # persistence exclusion; persisting it would violate the clause and burn
+ # erase cycles on a blinking front panel.
+-#
+-# EVERY REFUSAL CARRIES THE VALUE IN FORCE (issue #53): IEEE 1722.1-2021
+-# §7.4.25.1 "The response always contains the current value, that is it
+-# contains the new value if the command succeeds or the old value if it
+-# fails". So the current value is read before the lock check and every
+-# refusal - ENTITY_LOCKED, the out-of-range BAD_ARGUMENTS, and a locate miss
+-# (zero: no control, no value) - shares one tail that emits it. A locate miss
+-# meets the lock before NO_SUCH_DESCRIPTOR, as in E_SSRATE.
+-SCTRL_REFUSE = E_SCTRL + 21                      # the miss arm: the lock first
+-SCTRL_EMIT = E_SCTRL + 22                        # the tail every refusal shares
+ place(E_SCTRL, [
+-    u('MOVE', rd=6, ra=0, imm=0),                # the current value, 0 until read
++    u('MOVE', rd=2, ra=0, imm=0),                # the refusal arms' zero body
++    u('CHECK_LOCK', ra=15, imm=E_LOCKED1),       # held by another controller?
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the CONTROL exist?
+-    u('BR_STATUS', cnd=0, imm=SCTRL_REFUSE),     # no -> the lock, then NSD
+-    u('READ_ST', rd=6, imm=RGN_DYN + SEL_IDENT), # the value in force
+-    u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT),      # held by another controller?
++    u('BR_STATUS', cnd=0, imm=E_SCTRL + 20),     # no -> NO_SUCH_DESCRIPTOR
+     u('COMPARE', ra=12, fmt=FMT_B, imm=0),       # value == 0 ?
+-    u('BR_STATUS', cnd=2, imm=E_SCTRL + 11),
++    u('BR_STATUS', cnd=2, imm=E_SCTRL + 9),
+     u('COMPARE', ra=12, fmt=FMT_B, imm=255),     # value == 255 ?
+-    u('BR_STATUS', cnd=2, imm=E_SCTRL + 11),
+-    u('SET_STATUS', imm=ST_BADARG),              # neither: out of range,
+-    u('BRANCH', imm=SCTRL_EMIT),                 # carrying the value in force
+-    u('WRITE_ST', ra=12, fmt=FMT_B,              # E_SCTRL + 11
++    u('BR_STATUS', cnd=2, imm=E_SCTRL + 9),
++    u('BRANCH', imm=E_BADARG1),                  # neither: out of range
++    u('READ_ST', rd=6, imm=RGN_DYN + SEL_IDENT), # E_SCTRL + 9: old value
++    u('WRITE_ST', ra=12, fmt=FMT_B,
+       imm=RGN_DYN + SEL_IDENT),
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+@@ -1630,20 +1605,26 @@
+     u('BUILD_FLD', ra=12, fmt=FMT_B),            # the value now in force @28
+     u('SEND_RESP'),
+     u('COMPARE', ra=12, rb=6, fmt=FMT_B),
+-    u('BR_STATUS', cnd=2, imm=E_SCTRL + 20),
++    u('BR_STATUS', cnd=2, imm=E_SCTRL + 19),
+     u('NOTIFY_ENQ', imm=4),                      # SET_CONTROL
+-    u('END'),                                    # E_SCTRL + 20
+-    u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT),      # SCTRL_REFUSE: a miss meets the lock
+-    u('BUILD_HDR', ra=15, rb=13),                # SCTRL_EMIT: the refusals
+-    u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+-    u('BUILD_FLD', ra=6, fmt=FMT_B),             # the value in force  @28
+-    u('SEND_RESP'),
+-    u('END'),
+-])
+-assert rom[SCTRL_REFUSE] == u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT)
+-assert rom[SCTRL_EMIT] == u('BUILD_HDR', ra=15, rb=13)
++    u('END'),
++    u('BUILD_HDR', ra=15, rb=13),                # E_SCTRL + 20: the miss arm
++    u('BUILD_FLD', ra=13, fmt=FMT_D),
++    u('BUILD_FLD', ra=2, fmt=FMT_B),
++    u('SEND_RESP'),
++    u('END'),
++])
+ 
+ # --- the CONTROL-shaped refusals (cdl 17) -----------------------------------
++place(E_LOCKED1, [
++    u('MOVE', rd=2, ra=0, imm=0),
++    u('SET_STATUS', imm=ST_LOCKED),
++    u('BUILD_HDR', ra=15, rb=13),
++    u('BUILD_FLD', ra=13, fmt=FMT_D),
++    u('BUILD_FLD', ra=2, fmt=FMT_B),
++    u('SEND_RESP'),
++    u('END'),
++])
+ place(E_BADARG1, [
+     u('MOVE', rd=2, ra=0, imm=0),
+     u('SET_STATUS', imm=ST_BADARG),
