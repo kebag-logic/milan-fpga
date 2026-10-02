@@ -1,0 +1,38 @@
+l12-max-509 KILLED rc=1 Ran 50 tests in 2.286s  FAILED (failures=1) | 508 maximum one too loose
+l12-max-507 KILLED rc=1 Ran 50 tests in 2.202s  FAILED (failures=1) | 508 maximum one too strict
+l12-no-fixed KILLED rc=1 Ran 50 tests in 2.243s  FAILED (failures=7) | fixed extent: longer accepted
+l12-no-offset KILLED rc=1 Ran 50 tests in 2.207s  FAILED (failures=2) | variable offset arm dropped
+l12-cluster-91 KILLED rc=1 Ran 50 tests in 2.228s  FAILED (failures=13, errors=12) | AUDIO_CLUSTER extent wrong
+l12-entity-gone KILLED rc=1 Ran 50 tests in 2.248s  FAILED (failures=1) | ENTITY extent dropped
+l12-map-gone KILLED rc=1 Ran 50 tests in 2.242s  FAILED (failures=2) | AUDIO_MAP extent dropped
+id-no-length SURVIVED rc=0 Ran 50 tests in 2.255s  OK | IDENTIFY 113-octet length unchecked
+id-step-any SURVIVED rc=0 Ran 50 tests in 2.262s  OK | IDENTIFY step unchecked
+id-unit-any SURVIVED rc=0 Ran 50 tests in 2.222s  OK | IDENTIFY unit unchecked
+id-nvalues-any SURVIVED rc=0 Ran 50 tests in 2.261s  OK | IDENTIFY number_of_values unchecked
+id-type-any SURVIVED rc=0 Ran 50 tests in 2.253s  OK | IDENTIFY value type unchecked
+id-offset-any SURVIVED rc=0 Ran 50 tests in 2.202s  OK | IDENTIFY values_offset unchecked
+id-min-any SURVIVED rc=0 Ran 50 tests in 2.238s  OK | IDENTIFY minimum unchecked
+id-max-any KILLED rc=1 Ran 50 tests in 2.189s  FAILED (failures=1) | IDENTIFY maximum unchecked (the pinned arm)
+id-no-mask SURVIVED rc=0 Ran 50 tests in 2.157s  OK | IDENTIFY value_type flag bits not masked
+dig-selector-whole KILLED rc=1 Ran 50 tests in 2.164s  FAILED (failures=1) | selector: whole value_details excluded
+dig-array-off SURVIVED rc=0 Ran 50 tests in 2.237s  OK | array exclusion starts at unit
+dig-linear-step KILLED rc=1 Ran 50 tests in 2.206s  FAILED (failures=1) | linear entry stride wrong
+dig-int8 KILLED rc=1 Ran 50 tests in 2.223s  FAILED (failures=1) | INT8 types excluded (beyond the clause)
+dig-mixer-all SURVIVED rc=0 Ran 50 tests in 2.198s  OK | MIXER families widened
+dig-named-1e KILLED rc=1 Ran 50 tests in 2.225s  FAILED (failures=1) | MATRIX_SIGNAL bytes 4..67 zeroed again
+dig-avb-port KILLED rc=1 Ran 50 tests in 2.176s  FAILED (failures=2, errors=4) | AVB_INTERFACE port_number excluded
+dig-cs-loc KILLED rc=1 Ran 50 tests in 2.169s  FAILED (failures=2, errors=4) | CLOCK_SOURCE location excluded
+dig-entity-caps KILLED rc=1 Ran 50 tests in 2.222s  FAILED (failures=2, errors=4) | entity_capabilities excluded
+w-type-coerce KILLED rc=1 Ran 50 tests in 2.177s  FAILED (failures=1) | waiver type not type-checked
+w-int-coerce KILLED rc=1 Ran 50 tests in 2.182s  FAILED (failures=1, errors=1) | waiver integers not type-checked
+w-overlap-off KILLED rc=1 Ran 50 tests in 2.200s  FAILED (failures=2) | overlapping waivers accepted
+w-overlap-cfg KILLED rc=1 Ran 50 tests in 2.252s  FAILED (failures=1) | overlap ignores configuration
+l5-any-move KILLED rc=1 Ran 50 tests in 2.186s  FAILED (failures=1) | per-port move accepted
+l2-no-range KILLED rc=1 Ran 50 tests in 2.147s  FAILED (failures=1) | L2 range arm dropped
+l2-no-top KILLED rc=1 Ran 50 tests in 2.165s  FAILED (failures=1) | L2 configuration-first arm dropped
+crf-any-word KILLED rc=1 Ran 50 tests in 2.175s  FAILED (failures=1) | round-1 CRF check (Milan word present suffices)
+owners-no-jack KILLED rc=1 Ran 50 tests in 2.169s  FAILED (errors=1) | JACK CONTROLs counted top-level again
+unique-per-map KILLED rc=1 Ran 50 tests in 2.160s  FAILED (failures=1) | uniqueness reset per AUDIO_MAP
+layout-no-length KILLED rc=1 Ran 50 tests in 2.174s  FAILED (failures=1) | stream body-length arm dropped
+stale-cfg KILLED rc=1 Ran 50 tests in 2.177s  FAILED (failures=1) | waiver on a missing configuration not stale
+27 of 37 KILLED; 10 SURVIVED; 0 INVALID

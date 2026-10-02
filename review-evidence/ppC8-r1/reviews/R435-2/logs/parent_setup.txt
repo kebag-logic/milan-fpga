@@ -1,0 +1,27 @@
+author-r2 patches (public evidence archive 36f0c671):
+67bcd69852e5d090abc635e8dd66e5159667847ebf83d85aba9599d7cff7bd7c  evidence/author-r2/parent-adoption-c4c6-ea3fb388.patch
+aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209  evidence/author-r2/parent-adoption-c8-cdf49d1a.patch
+aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209  evidence/author/parent-adoption-c8-cdf49d1a.patch
+C8 patch byte-identical to round 1: yes
+
+== dev cdf49d1a: c4c6 then c8, git apply (both clean)
+ M avdecc/aem_assemble.py
+ M avdecc/aem_specs.py
+ M avdecc/gen_aemi_image.py
+ M configs/endstation_ax7101_8x8.yaml
+ M docs/ENDSTATION_BUILDER.md
+ M hdl/milan/KL_pp_shadow.sv
+ M scripts/measure_test_evidence.py
+ M sw/builder/endstation_builder.py
+ M sw/builder/test_builder.py
+== PR #634 head d81198c2: c4c6 clean; c8 clean except avdecc/aem_assemble.py hunk @600 (context moved): the one added line ported by hand, identical content
+ M avdecc/aem_assemble.py
+ M avdecc/aem_specs.py
+ M avdecc/gen_aemi_image.py
+ M configs/endstation_ax7101_8x8.yaml
+ M docs/ENDSTATION_BUILDER.md
+ M hdl/milan/KL_pp_shadow.sv
+ M scripts/measure_test_evidence.py
+ M sw/builder/endstation_builder.py
+ M sw/builder/test_builder.py
+gptp-processor at gitlink 5dce647a in both; protocol-processor = this head's tree

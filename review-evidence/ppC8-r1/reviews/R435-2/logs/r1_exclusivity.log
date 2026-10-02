@@ -1,0 +1,79 @@
+ONLY  | no ENTITY | L1 entity-count | L1 entity-count
+ONLY  | an ENTITY in configuration 1 | L1 entity-count | L1 entity-count
+ONLY  | configurations_count 2 | L1 configurations-count | L1 configurations-count
+ONLY  | current_configuration 1 | L1 current-configuration | L1 current-configuration
+ONLY  | no CONFIGURATION | L1 configuration-descriptors | L1 configuration-descriptors
+ONLY  | a CONFIGURATION in configuration 1 | L1 configuration-descriptors | L1 configuration-descriptors
+ONLY  | descriptor_counts says 3 STREAM_INPUTs | L1 descriptor-counts | L1 descriptor-counts
+ONLY  | descriptor_counts lists CONTROL twice | L1 descriptor-counts | L1 descriptor-counts
+ONLY  | descriptor_counts lists STREAM_PORT_INPUT | L1 descriptor-counts | L1 descriptor-counts
+EXTRA | descriptor_counts_count one past the list | L1 descriptor-counts | L1 descriptor-counts; L12 descriptor-extent
+EXTRA | no AVB_INTERFACE | L1 required-type | L1 descriptor-counts; L1 required-type
+EXTRA | no AUDIO_UNIT | L1 audio-unit-for-aaf | L1 audio-unit-for-aaf; L1 descriptor-counts; L1 has-parent; L1 stream-port-for-aaf
+EXTRA | AUDIO_UNIT owns no output port | L1 stream-port-for-aaf | L1 has-parent; L1 stream-port-for-aaf
+ONLY  | input port with no cluster | L1 port-cluster-minimum | L1 port-cluster-minimum
+ONLY  | output port names AUDIO_CLUSTER 4 | L1 child-exists | L1 child-exists
+ONLY  | two ports share AUDIO_CLUSTER 2 | L1 single-parent | L1 single-parent
+ONLY  | AUDIO_MAP 0 has no port | L1 has-parent | L1 has-parent
+ONLY  | the input port's CONTROL numbered before its unit's | L2 parent-order | L2 parent-order
+ONLY  | a configuration-level CONTROL after a unit-owned one | L2 parent-order | L2 parent-order
+EXTRA | no stream at all | L3 stream-presence | L1 descriptor-counts; L11 listener-sinks; L11 talker-sources; L3 stream-presence
+ONLY  | output format 24-bit | L3 talker-base-format | L3 talker-base-format
+ONLY  | input format 24-bit | L3 listener-base-format | L3 listener-base-format
+ONLY  | input Base format up to 6 channels | L3 base-channel-completeness | L3 base-channel-completeness
+ONLY  | second Base input at 96 kHz | L3 base-rate-uniformity | L3 base-rate-uniformity
+ONLY  | CRF input at 44.1 kHz only | L3 crf-format | L3 crf-format
+ONLY  | CRF input lists the Milan word and 44.1 kHz, runs at 44.1 kHz | L3 crf-format | L3 crf-format
+ONLY  | buffer_length 2125999 ns | L4 buffer-length | L4 buffer-length
+ONLY  | output without CLASS_A | L4 class-a | L4 class-a
+ONLY  | CRF input lists an AAF format | L4 format-family | L4 format-family
+ONLY  | output current_format 96 kHz | L4 current-format | L4 current-format
+ONLY  | input current_format carries ut, under a wider ut entry | L4 current-format | L4 current-format
+EXTRA | input with 47 formats | L4 format-count | L12 descriptor-maximum; L4 format-count
+ONLY  | output with a redundant stream | L4 stream-layout | L4 stream-layout
+ONLY  | output formats_offset 146, the list moved there | L4 stream-layout | L4 stream-layout
+ONLY  | output redundant_offset 0 | L4 stream-layout | L4 stream-layout
+ONLY  | output 8 bytes past its formats, offsets consistent | L4 stream-layout | L4 stream-layout
+EXTRA | output number_of_formats 2 with one format | L4 stream-layout | L3 talker-base-format; L4 stream-layout
+ONLY  | configuration 1 moves port 1 to AVB_INTERFACE 1 | L5 interface-index | L5 interface-index
+ONLY  | clock_sources_offset 78 | L6 domain-source-offset | L6 domain-source-offset
+ONLY  | no clock source in the domain | L6 domain-source-count | L6 domain-source-count
+ONLY  | domain one word too long | L6 domain-source-length | L6 domain-source-length
+ONLY  | clock_sources [1, 0] | L6 domain-source-identity | L6 domain-source-identity
+ONLY  | domain names CLOCK_SOURCE 2 | L6 domain-source-exists | L6 domain-source-exists
+ONLY  | CRF source at the AAF input | L6 crf-input-source | L6 crf-input-source
+ONLY  | two INPUT_STREAM sources at the CRF input | L6 crf-input-source | L6 crf-input-source
+ONLY  | no CRF input and no INPUT_STREAM source | L6 aaf-input-source | L6 aaf-input-source
+ONLY  | no CRF input, an INPUT_STREAM source at each AAF input | L6 aaf-input-source | L6 aaf-input-source
+ONLY  | no INTERNAL source | L6 internal-source | L6 internal-source
+ONLY  | gPTP media clock with two interfaces | L6 gptp-source-interfaces | L6 gptp-source-interfaces
+EXTRA | input port owns AUDIO_MAP 0 | L7 input-port-maps | L1 single-parent; L7 input-port-maps
+ONLY  | stream 0 channel 0 mapped twice | L7 unique-mapping | L7 unique-mapping
+ONLY  | AUDIO_MAP 1 repeats AUDIO_MAP 0 | L7 unique-mapping | L7 unique-mapping
+EXTRA | AUDIO_MAP 0 number_of_mappings 3 with two | L7 unique-mapping | L12 descriptor-extent; L7 unique-mapping
+ONLY  | stereo AUDIO_CLUSTER 3 | L7 cluster-channels | L7 cluster-channels
+ONLY  | no IDENTIFY CONTROL | L8 identify-index | L8 identify-index
+ONLY  | IDENTIFY at index 0, then 1 | L8 identify-index | L8 identify-index
+ONLY  | identify_index_i 1 | L8 identify-driven | L8 identify-driven
+ONLY  | IDENTIFY maximum 1 | L8 identify-format | L8 identify-format
+ONLY  | entity_model_id 0 | L9 model-id-valid | L9 model-id-valid
+ONLY  | entity_model_id all ones | L9 model-id-valid | L9 model-id-valid
+ONLY  | entity_model_id_i differs | L9 model-id-driven | L9 model-id-driven
+ONLY  | an unrecorded entity_model_id | L9 model-id-recorded | L9 model-id-recorded
+ONLY  | buffer_length edited under the recorded id | L9 model-digest | L9 model-digest
+ONLY  | IDENTIFY reset_time edited under the recorded id | L9 model-digest | L9 model-digest
+EXTRA | sampling_rates_offset 143 | L10 rate-offset | L10 current-rate; L10 rate-offset
+ONLY  | nine sampling rates | L10 rate-count | L10 rate-count
+ONLY  | no sampling rate | L10 rate-empty | L10 rate-empty
+ONLY  | one word past the rate list | L10 rate-length | L10 rate-length
+ONLY  | current_sampling_rate 96000 | L10 current-rate | L10 current-rate
+ONLY  | talker_stream_sources 2 | L11 talker-sources | L11 talker-sources
+ONLY  | configuration 1 has two talkers | L11 talker-sources | L11 talker-sources
+ONLY  | listener_stream_sinks 1 | L11 listener-sinks | L11 listener-sinks
+ONLY  | talker_sources_i 2 | L11 talker-sources-driven | L11 talker-sources-driven
+ONLY  | listener_sinks_i 3 | L11 listener-sinks-driven | L11 listener-sinks-driven
+ONLY  | AUDIO_CLUSTER 3 four octets long | L12 descriptor-extent | L12 descriptor-extent
+ONLY  | CONFIGURATION descriptor_counts at 78 | L12 descriptor-extent | L12 descriptor-extent
+ONLY  | AUDIO_MAP 0 eight octets past its mappings | L12 descriptor-extent | L12 descriptor-extent
+ONLY  | AUDIO_MAP 0 with 64 mappings, 520 octets | L12 descriptor-maximum | L12 descriptor-maximum
+mutations 78: only-named 68, with-extra 10; distinct checks 56 of 56

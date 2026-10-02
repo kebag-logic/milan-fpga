@@ -1,0 +1,15 @@
+cap45: KILLED | N cap one too strict (45)
+    test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+rates7: KILLED | rate cap one too strict (7)
+    test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+aaf-ge1: KILLED | several INPUT_STREAM sources at AAF inputs accepted
+    test_mutations (__main__.LintTest.test_mutations) (mutation='no CRF input, an INPUT_STREAM source at each AAF input')
+crf-ge1: KILLED | two INPUT_STREAM sources at one CRF input accepted
+    test_mutations (__main__.LintTest.test_mutations) (mutation='two INPUT_STREAM sources at the CRF input')
+waiver-anytype: KILLED | a waiver excuses its check on every descriptor type of the configuration
+    test_waiver_scope_is_its_type (__main__.WaiverTest.test_waiver_scope_is_its_type)
+waiver-anycfg: KILLED | a waiver excuses its check in every configuration
+    test_waiver_scope_is_its_configuration (__main__.WaiverTest.test_waiver_scope_is_its_configuration)
+entity-cfg: KILLED | an ENTITY outside configuration 0 accepted
+    test_mutations (__main__.LintTest.test_mutations) (mutation='an ENTITY in configuration 1')
+iface-subset: INVALID at this head (pattern occurs 0 times; the code it edited was rewritten) | L5 compares only the indices both configurations hold
