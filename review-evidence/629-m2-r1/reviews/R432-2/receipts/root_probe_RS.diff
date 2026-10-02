@@ -1,0 +1,11 @@
+--- $REVIEWS/r432-2-629-m2/hdl/milan/milan_datapath.sv	2026-10-02 13:43:46.507000000 +0200
++++ $REVIEWS/629-m2-r432-2-packet/scratch/rootprobe/RS_swapped_dp.sv	2026-10-02 13:58:13.060000000 +0200
+@@ -5702,7 +5702,7 @@
+       .status_o      (status_w)
+     );
+     //! AAFM_STAT (0x8E0): the largest deviation over the status levels
+-    assign aafm_stat_w = {max_dev_ns_w, status_w};
++    assign aafm_stat_w = {status_w, max_dev_ns_w};
+   end else begin : g_no_aaf_meter
+     assign aafm_locked_w      = 1'b0;
+     assign aafm_rate_w        = 32'sd0;

@@ -1,0 +1,91 @@
+python3 mutants.py
+[PASS] clean (cases:selection): rc=0
+[PASS] decimation_by_1 (cases:rates): rc=1
+  named rejection: [M1 +0.00 ppm] rate_valid rises within 4.2 s and holds
+[PASS] rate_over_512ms_E1 (cases:shapes): rc=1
+  named rejection: [M2 rsign] every rate within 360 ns of the planted rate
+[PASS] bound_2048_B1 (cases:shapes): rc=1
+  named rejection: [M2 indep] no history restart
+[PASS] first_pdu_pick_P1 (cases:shapes): rc=1
+  named rejection: [M2 indep] every rate within 256 ns of the planted rate
+[PASS] spacing_bound_16384_B3 (cases:beyond): rc=1
+  named rejection: [M3 rsign1800] the error restarts the history
+[PASS] within_group_void_removed (cases:beyond): rc=1
+  named rejection: [M3 indep2100] the error restarts the history
+[PASS] stream_data_length_unchecked (cases:format): rc=1
+  named rejection: [M4 12-sample] does not lock
+[PASS] continuity_without_wrap (cases:wrap): rc=1
+  named rejection: [M5] zero restarts across the sequence wraps
+[PASS] timeout_disabled (cases:lock): rc=1
+  named rejection: [M6] unlocks 100 ms after the last PDU
+[PASS] no_restart_on_tu_edge (cases:restarts): rc=1
+  named rejection: [M7 tu edge] rate_valid falls at the event
+[PASS] restart_on_any_loss (cases:loss_periodic): rc=1
+  named rejection: [M8 indep 1 s] rate_valid from 4.1 s on and never falls
+[PASS] snapshot_next_pick_less_2ms (cases:loss_snapshot): rc=1
+  named rejection: [M9] every rate equals the no-loss run within 1 LSB
+[PASS] voided_snapshot_restarts (cases:loss_snapshot): rc=1
+  named rejection: [M9] no history restart
+[PASS] multi_group_gap_accepted (cases:bound): rc=1
+  named rejection: [M10 two losses in adjacent groups] restarts once
+[PASS] gap_bound_4096 (cases:gap_value): rc=1
+  named rejection: [M11 a] +3,900 ns at +300 ppm, 5,100 ns from 4 ms: no restart
+[PASS] gap_bound_scaled_with_k (cases:gap_value): rc=1
+  named rejection: [M11 b] half sample at -300 ppm against +/-J, 6,365 ns off: one restart
+[PASS] no_check_across_a_gap (cases:step_in_gap): rc=1
+  named rejection: [M12 PDU 0 lost, step +20833 @1] restarts the history once
+[PASS] listener_compare_ignored (cases:selection): rc=1
+  named rejection: [M13 another listener] not measured
+[PASS] no_reseed_at_era_start (cases:pulses): rc=1
+  named rejection: [M14 listener change to the opposite mr level] mr_toggle_p pulses
+[PASS] era_lock_clear_on_disrupt (cases:pulses): rc=1
+  named rejection: [M14 listener change to the opposite mr level] disrupt_p pulses
+[PASS] disrupt_tied_low (cases:pulses): rc=1
+  named rejection: [M14 100 ms of silence] disrupt_p pulses
+[PASS] enable_tied_high (cases:pulses): rc=1
+  named rejection: [M14 enable low, talker 0 toggling its mr] mr_toggle_p pulses
+[PASS] servo_with_meter_E1 (servo): rc=1
+  named rejection: [S2 worst] every window's |e| under 1,024 ns after the first LOCKED
+[PASS] servo_with_meter_restart_on_any_loss (servo): rc=1
+  named rejection: [S2 loss] the trim followed the 4 ppm step within 0.5 ppm
+[PASS] held_lock_cleared_on_a_gap (servo): rc=1
+  named rejection: [S2] LOCKED never left after the first LOCKED
+[PASS] deviation_verdict_deferred_to_pdu15 (cases:step_in_gap): rc=1
+  named rejection: [M12 PDU 15 lost, step +20833 @1] the deviation check restarts it at the step's PDU, before the gap
+[PASS] listener_change_keeps_lock (cases:restarts): rc=1
+  named rejection: [M7 listener change] the held lock clears at the event
+[PASS] gap_does_not_break_settle (cases:lock): rc=1
+  named rejection: [M6 gap before lock] not locked at the gap PDU and 7 clean PDUs after it
+[PASS] bind_edge_clears_lock (cases:restarts): rc=1
+  named rejection: [M7 bind edge] the held lock is kept through the event
+[PASS] cpf_zero_accepted (cases:format): rc=1
+  named rejection: [M4 0 channels] does not lock
+[PASS] max_dev_not_tracked (cases:rates): rc=1
+  named rejection: [M1 +10.64 ppm] the largest deviation is the offset over 15 spacings
+[PASS] switch_through_idle_W1 (unit): rc=1
+  named rejection: [U16] the integrator is kept through the switch (trim unchanged)
+aaf_clock_meter mutants: 33/33 as required
+	Command being timed: "make mutants"
+	User time (seconds): 782.39
+	System time (seconds): 16.33
+	Percent of CPU this job got: 129%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 10:17.05
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 359700
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2130967
+	Voluntary context switches: 4950
+	Involuntary context switches: 3981
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 88
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+rc=0

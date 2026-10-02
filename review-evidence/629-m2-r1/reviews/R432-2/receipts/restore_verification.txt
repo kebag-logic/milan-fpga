@@ -1,0 +1,30 @@
+== restore verification 2026-10-02T12:07:58Z
+HEAD d81198c2001756fd84c353d93c312c133c5af66b tree 4f0217ae46ef99d71a63bba26cee3da8fe827ebd
+status (incl. ignored, untracked):
+[end status]
+diff-index vs HEAD (index):
+[end]
+worktree vs index:
+[end]
+ls-files -v flags other than H:
+[end]
+write-tree: 4f0217ae46ef99d71a63bba26cee3da8fe827ebd
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ b2db3a970cedbbff2f8ba813acb96122c442bc58 protocol-processor (v2.0-324-gb2db3a9)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gitlinks:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit b2db3a970cedbbff2f8ba813acb96122c442bc58	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+hash all tracked blobs vs index:
+blobs checked 994 mismatches 0
+modes:
+[end modes]
+submodule gptp-processor: HEAD 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d porcelain-ignored-lines 0
+submodule protocol-processor: HEAD b2db3a970cedbbff2f8ba813acb96122c442bc58 porcelain-ignored-lines 1
+!! hdl/aecp/desc/__pycache__/
+submodule third_party/verilog-axis: HEAD 48ff7a7e2ef782cf778d47910cf85835c64b1bce porcelain-ignored-lines 0
+after clean: protocol-processor porcelain-ignored-lines 0
