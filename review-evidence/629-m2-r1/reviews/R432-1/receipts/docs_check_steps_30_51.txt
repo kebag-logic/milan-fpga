@@ -1,0 +1,42 @@
+rc=0 | python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+rc=0 | python3 scripts/check_soc_sources.py
+rc=0 | python3 scripts/check_soc_sources.py --selftest
+rc=0 | python3 scripts/check_rtl_source_lists.py
+rc=0 | python3 scripts/check_rtl_source_lists.py --selftest
+rc=1 | python3 scripts/measure_naming.py --check
+    tree                 files  ports params documented undocumented unit-named matches excluded mismatched candidates
+    gptp-processor           6    125      6        107           24          7      26       25          0          1
+    protocol-processor      46   1747    295       1922          120        111     239      217          1         22
+    superproject            73   1939    322       2018          243        146     299      224          4         75
+    total                  125   3811    623       4047          387        264     564      466          5         98
+    
+    98 candidate(s): 93 boundary name(s) hide a documented unit and 5 are named for a different unit than documented (3811 ports and 623 parameters scanned, 387 with no //! and so not judged here, 466 match(es) excluded with a reason)
+    
+    NEW: hdl/ieee1722/crf/KL_aaf_clock_meter.sv:KL_aaf_clock_meter:CLK_FREQ_HZ_P - a new boundary must state its unit in its name
+    
+    NEW: hdl/ieee1722/crf/KL_aaf_clock_meter.sv:KL_aaf_clock_meter:fsh_i - a new boundary must state its unit in its name
+    
+    NEW: hdl/ieee1722/crf/KL_aaf_clock_meter.sv:KL_aaf_clock_meter:status_o - a new boundary must state its unit in its name
+    
+    NAMING RATCHET: FAIL (3 new, 0 stripped)
+rc=1 | python3 scripts/check_port_contracts.py
+    PORT-DOC RATCHET: FAIL (hdl: 220 undocumented > ratchet 217). A new port carries its `//!` contract.
+rc=0 | python3 scripts/measure_fail_fast.py --check
+rc=0 | python3 scripts/check_todo_ownership.py
+rc=0 | python3 scripts/measure_test_evidence.py --check
+rc=0 | python3 scripts/check_hygiene.py --check
+rc=0 | python3 scripts/check_sv_idiom.py
+rc=0 | python3 scripts/check_cpp_idiom.py
+rc=0 | python3 scripts/check_py_idiom.py
+rc=0 | python3 scripts/check_sh_idiom.py
+rc=0 | python3 scripts/ci_events.py --check
+rc=0 | python3 scripts/check_doc_paths.py
+rc=0 | python3 scripts/check_archive.py
+rc=2 | python3 scripts/gen_toc.py --verify-anchors
+    gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2 | python3 scripts/gen_toc.py --check
+    gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=0 | python3 avdecc/gen_aem_store.py --self-test
+rc=0 | python3 scripts/check_sweep_shape.py --self-test
+rc=0 | python3 scripts/check_deploy_shape.py --self-test
+rc=0 | python3 scripts/check_entity_shape.py --self-test

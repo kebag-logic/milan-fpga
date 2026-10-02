@@ -1,0 +1,29 @@
+2026-10-02T06:07:51.5985850Z shard: 2/5   selected suites: 12
+2026-10-02T06:08:17.4079786Z PASS     aaf
+2026-10-02T06:08:22.9712438Z PASS     aaf_audio_loop
+2026-10-02T06:22:48.3628426Z PASS     aaf_clock_meter
+2026-10-02T06:22:53.8720482Z PASS     aes3
+2026-10-02T06:22:59.1200469Z PASS     chmap_render
+2026-10-02T06:23:04.6932388Z PASS     crf_tx
+2026-10-02T06:23:47.9929006Z FAIL     milan_dp_mclk
+2026-10-02T06:40:53.0443130Z PASS     mmcm_servo
+2026-10-02T06:41:03.4191471Z PASS     ptp_sync
+2026-10-02T06:43:06.1697944Z PASS     ptp_ts
+2026-10-02T06:44:36.7591482Z PASS     render_setpoint
+2026-10-02T06:44:42.6120616Z PASS     shaper_core
+2026-10-02T06:44:42.6124198Z ----------------------------------------------------------------
+2026-10-02T06:44:42.6124826Z suites: 12   passed: 11   failed: 1   timed out: 0
+2026-10-02T06:44:42.6932692Z checks: 1523400   in-suite failures: 0
+2026-10-02T06:44:42.6933043Z 
+2026-10-02T06:44:42.6933313Z ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+2026-10-02T06:44:42.6933947Z   NOCOUNT  milan_dp_mclk: printed no tally line at all
+2026-10-02T06:44:42.6934509Z   A suite that measured nothing is an UNKNOWN, not agreement.
+2026-10-02T06:44:42.6935087Z   If it printed no tally: make it print one of the shapes in
+2026-10-02T06:44:42.6936166Z   scripts/suite_tally.py. If it tallied zero: make it assert
+2026-10-02T06:44:42.6936748Z   something, or say why it ran nothing with a SUITE-SKIP: line
+2026-10-02T06:44:42.6937276Z   AND still report the checks it did run.
+2026-10-02T06:44:42.6937554Z 
+2026-10-02T06:44:42.6937760Z The check total above is INCOMPLETE and must not be quoted.
+2026-10-02T06:44:42.6988287Z failing suites: milan_dp_mclk
+2026-10-02T06:44:42.6988755Z logs: <home-path>/work/_temp/suite-logs
+2026-10-02T06:44:42.7317314Z ##[error]Process completed with exit code 1.

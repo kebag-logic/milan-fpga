@@ -1,0 +1,71 @@
+===== deviation_verdict_deferred_to_pdu15: ESCAPED
+== aaf_clock_meter: checks: 308   failures: 0 ==
+===== gap_does_not_break_settle: ESCAPED
+== aaf_clock_meter: checks: 308   failures: 0 ==
+===== listener_change_keeps_lock: ESCAPED
+== aaf_clock_meter: checks: 308   failures: 0 ==
+===== bind_edge_clears_lock: ESCAPED
+== aaf_clock_meter: checks: 308   failures: 0 ==
+===== cpf_zero_accepted: ESCAPED
+== aaf_clock_meter: checks: 308   failures: 0 ==
+===== nsr_unchecked: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 1 ==
+  [FAIL] [M4 nsr 96 kHz] does not lock
+===== format_unchecked: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 1 ==
+  [FAIL] [M4 INT_24BIT] does not lock
+===== sp_unchecked: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 1 ==
+  [FAIL] [M4 sparse] does not lock
+===== tv_unchecked: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 1 ==
+  [FAIL] [M13 tv clear] not measured
+===== stopped_ignored: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 1 ==
+  [FAIL] [M13 STOPPED input] not measured
+===== mean_divides_by_8: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 12 ==
+  [FAIL] [M2 indep] no history restart
+  [FAIL] [M2 indep] rate_valid rises within 4.2 s and holds
+  [FAIL] [M2 indep] every rate within 360 ns of the planted rate
+  [FAIL] [M2 indep] every rate within 256 ns of the planted rate
+  [FAIL] [M2 p10ms] every rate within 360 ns of the planted rate
+  [FAIL] [M8 indep 1 s] no history restart
+  [FAIL] [M8 indep 1 s] rate_valid from 4.1 s on and never falls
+  [FAIL] [M8 indep 1 s] every rate within 360 ns of the planted rate
+  [FAIL] [M8 indep 0.3 s] no history restart
+  [FAIL] [M8 indep 0.3 s] rate_valid from 4.1 s on and never falls
+  [FAIL] [M8 indep 0.3 s] every rate within 360 ns of the planted rate
+  [FAIL] [M12 PDU 0 lost, step -10417 @10] restarts the history once got=2 exp=1
+===== k2_counts_one_interval: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 5 ==
+  [FAIL] [M8 indep 1 s] every rate within 360 ns of the planted rate
+  [FAIL] [M8 indep 0.3 s] every rate within 360 ns of the planted rate
+  [FAIL] [M8 rsign 1 s] every rate within 360 ns of the planted rate
+  [FAIL] [M8 rsign 0.3 s] every rate within 360 ns of the planted rate
+  [FAIL] [M9] every rate equals the no-loss run within 1 LSB
+===== max_dev_not_tracked: ESCAPED
+== aaf_clock_meter: checks: 308   failures: 0 ==
+===== spacing_restart_not_counted: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 74 ==
+  [FAIL] [M3 rsign1800] the error restarts the history
+  [FAIL] [M3 rsign1800] rate_valid returns 2048 picks after the last restart
+  [FAIL] [M3 step +20833 @0] restarts the history once got=0 exp=1
+  [FAIL] [M3 step -20833 @0] restarts the history once got=0 exp=1
+  [FAIL] [M3 step +10417 @0] restarts the history once got=0 exp=1
+  [FAIL] [M3 step -10417 @0] restarts the history once got=0 exp=1
+  [FAIL] [M10 two losses in adjacent groups] restarts once got=0 exp=1
+  [FAIL] [M10 a run of 17] restarts once          got=0 exp=1
+  [FAIL] [M10 a run of 2 across a group boundary] restarts once got=0 exp=1
+  [FAIL] [M11 b] half sample at -300 ppm against +/-J, 6,365 ns off: one restart got=0 exp=1
+  [FAIL] [M12 PDU 0 lost, step +20833 @1] restarts the history once got=0 exp=1
+  [FAIL] [M12 PDU 0 lost, step +20833 @2] restarts the history once got=0 exp=1
+===== settle_off_by_one: CAUGHT
+== aaf_clock_meter: checks: 308   failures: 1 ==
+  [FAIL] [M6] not locked after 7 PDUs
+SUMMARY: deviation_verdict_deferred_to_pdu15=ESCAPED, gap_does_not_break_settle=ESCAPED, listener_change_keeps_lock=ESCAPED, bind_edge_clears_lock=ESCAPED, cpf_zero_accepted=ESCAPED, nsr_unchecked=CAUGHT, format_unchecked=CAUGHT, sp_unchecked=CAUGHT, tv_unchecked=CAUGHT, stopped_ignored=CAUGHT, mean_divides_by_8=CAUGHT, k2_counts_one_interval=CAUGHT, max_dev_not_tracked=ESCAPED, spacing_restart_not_counted=CAUGHT, settle_off_by_one=CAUGHT
+
+real	1m16.484s
+user	0m0.079s
+sys	0m0.028s
+rc=0

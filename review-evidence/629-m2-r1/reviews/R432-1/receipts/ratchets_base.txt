@@ -1,0 +1,3 @@
+BASE rc=0 | python3 scripts/measure_naming.py --check | NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+BASE rc=0 | python3 scripts/check_port_contracts.py |   review inventory: 93 open and 51 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 175 test-only hierarchical
+BASE rc=0 | python3 scripts/check_nvm_capture.py | PASS: capture census, clocks, both timing arms and receipt agree

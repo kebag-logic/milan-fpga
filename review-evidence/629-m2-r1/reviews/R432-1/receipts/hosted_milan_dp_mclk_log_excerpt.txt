@@ -1,0 +1,28 @@
+TARGET_SHA 1a5e4b788a399e0c5a7a73128607d477f1fe31bf (tree 499d64f0750f3bc3caf699ee754428dbdeea6e07, parents cdf49d1a + 57f4b742)
+--- head of milan_dp_mclk.log
+make: Entering directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp_mclk'
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+python3 gen_mclk_shape.py
+media-clock root shape: 2 AAF listeners, 2 AAF talkers; config tb/verilator/milan_dp_mclk/gen_mclk/endstation_mclk.yaml
+python3 ../../../sw/builder/endstation_builder.py gen_mclk/endstation_mclk.yaml -o obj_mclk_aem
+[endstation_builder] endstation_mclk: 2x2 AAF + CRF, tdm8, 32 clusters (cluster-per-stream-channel), model_id 0x001BC5129FD9460B (hash); 4 planned element(s); resources OVER (worst LUT 80.5%)
+  wrote tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/soc_params.json
+  wrote tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/aem_overlay.json
+  wrote tb/verilator/milan_dp_mclk/obj_mclk_aem/endstation_mclk/build_plan.md
+--- tail
+             /tmp/mclk-mutants-w0n52m89/obj_mclk_mut/make[1]:.v
+             /tmp/mclk-mutants-w0n52m89/obj_mclk_mut/make[1]:.sv
+        ... With current working directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp_mclk'
+%Error: Cannot find file containing module: 'Entering'
+%Error: Cannot find file containing module: 'directory'
+%Error: Cannot find file containing module: '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp'
+%Error: Cannot find file containing module: 'Leaving'
+%Error: Exiting due to 5 error(s)
+make[1]: *** [Makefile:109: mclk-build] Error 1
+[FAIL] the schemata did not compile; no mutant proves anything
+make: *** [Makefile:118: run] Error 1
+make: Leaving directory '<home-path>/work/milan-fpga/milan-fpga/tb/verilator/milan_dp_mclk'
+--- sha256 of the downloaded log: 5795570bd2ab65940f1c0a1e2a591ad41cd5a7c7569dc9856062be8c38fda5d5

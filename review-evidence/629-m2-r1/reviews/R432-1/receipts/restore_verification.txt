@@ -1,0 +1,18 @@
+HEAD 57f4b742b504f5e69293aaa3e00d0470aa9b6071 tree 499d64f0750f3bc3caf699ee754428dbdeea6e07
+index-vs-HEAD diff: 0 paths
+worktree-vs-index diff: 0 paths
+untracked+ignored: 0
+non-H index flags (assume-unchanged/skip-worktree): 0
+gitlink external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 checkout 57f4b742b504f5e69293aaa3e00d0470aa9b6071 MISMATCH
+gitlink gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d checkout 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d OK
+gitlink protocol-processor b2db3a970cedbbff2f8ba813acb96122c442bc58 checkout b2db3a970cedbbff2f8ba813acb96122c442bc58 OK
+gitlink third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce checkout 48ff7a7e2ef782cf778d47910cf85835c64b1bce OK
+tracked entries 998, gitlinks 4, mismatches 1
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ b2db3a970cedbbff2f8ba813acb96122c442bc58 protocol-processor (v2.0-324-gb2db3a9)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+
+NOTE: 'external' is an uninitialised submodule (git submodule status prefix '-', identical to the session start); the checker's rev-parse inside the empty directory resolved the superproject HEAD. Direct check:
+external entries: 0; external/.git present: no
+Corrected tally: 997 non-gitlink entries byte- and mode-identical to HEAD blobs; 3 initialised gitlinks at their pinned commits; 1 uninitialised gitlink (external) unchanged.

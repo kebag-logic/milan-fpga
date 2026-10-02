@@ -1,0 +1,39 @@
+===== decimation_by_1: KILLED as named
+[PASS] decimation_by_1 (cases:rates): rc=1
+  named rejection: [M1 +0.00 ppm] rate_valid rises within 4.2 s and holds
+===== rate_over_512ms_E1: KILLED as named
+[PASS] rate_over_512ms_E1 (cases:shapes): rc=1
+  named rejection: [M2 rsign] every rate within 360 ns of the planted rate
+===== bound_2048_B1: KILLED as named
+[PASS] bound_2048_B1 (cases:shapes): rc=1
+  named rejection: [M2 indep] no history restart
+===== first_pdu_pick_P1: KILLED as named
+[PASS] first_pdu_pick_P1 (cases:shapes): rc=1
+  named rejection: [M2 indep] every rate within 256 ns of the planted rate
+===== spacing_bound_16384_B3: KILLED as named
+[PASS] spacing_bound_16384_B3 (cases:beyond): rc=1
+  named rejection: [M3 rsign1800] the error restarts the history
+===== within_group_void_removed: KILLED as named
+[PASS] within_group_void_removed (cases:beyond): rc=1
+  named rejection: [M3 indep2100] the error restarts the history
+===== stream_data_length_unchecked: KILLED as named
+[PASS] stream_data_length_unchecked (cases:format): rc=1
+  named rejection: [M4 12-sample] does not lock
+===== continuity_without_wrap: KILLED as named
+[PASS] continuity_without_wrap (cases:wrap): rc=1
+  named rejection: [M5] zero restarts across the sequence wraps
+===== timeout_disabled: KILLED as named
+[PASS] timeout_disabled (cases:lock): rc=1
+  named rejection: [M6] unlocks 100 ms after the last PDU
+===== no_restart_on_tu_edge: KILLED as named
+[PASS] no_restart_on_tu_edge (cases:restarts): rc=1
+  named rejection: [M7 tu edge] rate_valid falls at the event
+===== restart_on_any_loss: KILLED as named
+[PASS] restart_on_any_loss (cases:loss_periodic): rc=1
+  named rejection: [M8 indep 1 s] rate_valid from 4.1 s on and never falls
+SUMMARY: 11/11 killed by their named check; escaped: []
+
+real	0m33.615s
+user	0m0.070s
+sys	0m0.026s
+rc=0
