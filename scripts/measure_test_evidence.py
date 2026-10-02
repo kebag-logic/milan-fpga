@@ -594,6 +594,10 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "protocol-processor/tb/pp_top/acmp_mutants.py":
+        "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view or "
+        "SRP matcher defect from its own table into an isolated copy and requires every named check "
+        "to fail in a completed run; no expected value is read from the text",
     "protocol-processor/tb/pp_top/d3_mutants.py":
         "mutation campaign; it plants one D3 saved-state defect from its own table into an "
         "isolated copy and requires every named check to fail in a completed run; no expected "
