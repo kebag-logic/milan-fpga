@@ -1,0 +1,79 @@
+W15__coincident: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28a
+    first: FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+W15__pristine: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28a
+    first: FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+W15b__coincident: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28b
+    first: FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+W15b__pristine: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28b
+    first: FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+W16__coincident: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28d
+    first: FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1448 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+W16__pristine: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28d
+    first: FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1451 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+W6@r1src__coincident: rc=2 tallies=[('343', '338', '5')]
+    failing: 5 lines; check ids: RW4 T24
+    first: FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    first: FAIL: T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)
+    first: FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    first: FAIL: T24 ...and restores byte-exact over 950 cycles
+    first: FAIL: RW4 no DEADLINE where the device was not silent (1)
+W6@r1src__pristine: rc=0 tallies=[('343', '343', '0'), ('343', '343', '0'), ('686', '686', '0')]
+    failing: 0 lines; check ids: 
+W6__coincident: ANCHOR occurs 0 times
+    failing: 0 lines; check ids: 
+W6__pristine: ANCHOR occurs 0 times
+    failing: 0 lines; check ids: 
+X12__coincident: rc=2 tallies=[('343', '341', '2')]
+    failing: 2 lines; check ids: RW3 T28c
+    first: FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over it and ends DEADLINE (rc 1, cause 3, 101 request cycles)
+    first: FAIL: RW3 no device command was requested while the backend still owed one (101 cycles)
+X12__pristine: rc=2 tallies=[('343', '341', '2')]
+    failing: 2 lines; check ids: RW3 T28c
+    first: FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over it and ends DEADLINE (rc 1, cause 3, 101 request cycles)
+    first: FAIL: RW3 no device command was requested while the backend still owed one (101 cycles)
+X17__coincident: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28e
+    first: FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)
+X17__pristine: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28e
+    first: FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)
+X18__coincident: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28d
+    first: FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1448 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+X18__pristine: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28d
+    first: FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1451 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+X24__coincident: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28a
+    first: FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+X24__pristine: rc=2 tallies=[('343', '342', '1')]
+    failing: 1 lines; check ids: T28a
+    first: FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+X24b__coincident: rc=2 tallies=[('343', '341', '2')]
+    failing: 2 lines; check ids: T28a T28b
+    first: FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+    first: FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+X24b__pristine: rc=2 tallies=[('343', '341', '2')]
+    failing: 2 lines; check ids: T28a T28b
+    first: FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+    first: FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+head__coincident: rc=0 tallies=[('343', '343', '0'), ('343', '343', '0'), ('686', '686', '0')]
+    failing: 0 lines; check ids: 
+head__pristine: rc=0 tallies=[('343', '343', '0'), ('343', '343', '0'), ('686', '686', '0')]
+    failing: 0 lines; check ids: 
+round1-count@r1src__coincident: rc=2 tallies=[('343', '340', '3')]
+    failing: 3 lines; check ids: RW1 T29a T29b
+    first: FAIL: T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+    first: FAIL: T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+    first: FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)
+round1-count@r1src__pristine: rc=2 tallies=[('343', '340', '3')]
+    failing: 3 lines; check ids: RW1 T29a T29b
+    first: FAIL: T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+    first: FAIL: T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+    first: FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)

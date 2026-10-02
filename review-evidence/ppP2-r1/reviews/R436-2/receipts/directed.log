@@ -1,0 +1,34 @@
+D26__directed+coincident: rc=2 tallies=[('347', '339', '8')]
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 ...and restores byte-exact over 950 cycles
+    FAIL: R436d an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request: the latched terminal owes nothing and the commit is served (rc 1, cause 3, pairs 1)
+    FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 2, 0 bytes)
+    FAIL: R436f the same byte one owed cycle later: DEADLINE (rc 1, cause 2)
+    FAIL: RW4 no DEADLINE where the device was not silent (1)
+D26__directed: rc=2 tallies=[('347', '344', '3')]
+    FAIL: R436d an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request: the latched terminal owes nothing and the commit is served (rc 1, cause 3, pairs 1)
+    FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 2, 0 bytes)
+    FAIL: R436f the same byte one owed cycle later: DEADLINE (rc 1, cause 2)
+Q1__directed+coincident: rc=2 tallies=[('347', '344', '3')]
+    FAIL: R436d an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request: the latched terminal owes nothing and the commit is served (rc 1, cause 3, pairs 1)
+    FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 2, 0 bytes)
+    FAIL: R436f the same byte one owed cycle later: DEADLINE (rc 1, cause 2)
+Q1__directed: rc=2 tallies=[('347', '344', '3')]
+    FAIL: R436d an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request: the latched terminal owes nothing and the commit is served (rc 1, cause 3, pairs 1)
+    FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 2, 0 bytes)
+    FAIL: R436f the same byte one owed cycle later: DEADLINE (rc 1, cause 2)
+Q2__directed+coincident: rc=2 tallies=[('347', '342', '5')]
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 ...and restores byte-exact over 950 cycles
+    FAIL: RW4 no DEADLINE where the device was not silent (1)
+Q2__directed: rc=0 tallies=[('347', '347', '0'), ('347', '347', '0'), ('694', '694', '0')]
+Q9__directed+coincident: rc=2 tallies=[('347', '346', '1')]
+    FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 3, 18 bytes)
+Q9__directed: rc=2 tallies=[('347', '346', '1')]
+    FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 3, 18 bytes)
+head__directed+coincident: rc=0 tallies=[('347', '347', '0'), ('347', '347', '0'), ('694', '694', '0')]
+head__directed: rc=0 tallies=[('347', '347', '0'), ('347', '347', '0'), ('694', '694', '0')]

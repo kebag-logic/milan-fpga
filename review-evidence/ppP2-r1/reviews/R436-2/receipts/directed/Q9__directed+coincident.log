@@ -1,0 +1,11 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.092 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.827 s (elab=0.002, cvt=0.011, bld=5.805); cpu 0.022 s on 2 threads; allocated 215.445 MB
+FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 3, 18 bytes)
+347 checks: 346 PASS, 1 FAIL
+make: *** [Makefile:33: run] Error 1

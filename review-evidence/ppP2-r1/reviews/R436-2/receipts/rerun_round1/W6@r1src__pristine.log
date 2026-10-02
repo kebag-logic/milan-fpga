@@ -1,0 +1,14 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.095 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 13.189 s (elab=0.004, cvt=0.029, bld=13.140); cpu 0.023 s on 2 threads; allocated 215.441 MB
+343 checks: 343 PASS, 0 FAIL
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.095 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.090 s (elab=0.004, cvt=0.026, bld=8.045); cpu 0.022 s on 2 threads; allocated 215.453 MB
+343 checks: 343 PASS, 0 FAIL
+686 checks: 686 PASS, 0 FAIL

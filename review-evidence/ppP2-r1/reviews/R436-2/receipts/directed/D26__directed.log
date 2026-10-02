@@ -1,0 +1,13 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 6.668 s (elab=0.001, cvt=0.012, bld=6.647); cpu 0.021 s on 2 threads; allocated 215.441 MB
+FAIL: R436d an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request: the latched terminal owes nothing and the commit is served (rc 1, cause 3, pairs 1)
+FAIL: R436e a payload byte on the (TMO + 1)-th owed cycle, rready dropped on the cycle the count sat at its bound: a paused cycle never ends the operation and the restore is served (rc 1, cause 2, 0 bytes)
+FAIL: R436f the same byte one owed cycle later: DEADLINE (rc 1, cause 2)
+347 checks: 344 PASS, 3 FAIL
+make: *** [Makefile:33: run] Error 1
