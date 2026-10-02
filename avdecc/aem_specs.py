@@ -18,21 +18,18 @@ from aem_descriptors import (CLOCK_SOURCE, CRF_FORMATS, FORMATS, OBJECT_NAMES,
                              firmware_version_string)
 
 # 1722.1-2021 7.2.9.2 CLOCK_SOURCE types this consumer can render, keyed by
-# the overlay's own `type` name.
-CS_TYPE = {"internal": 0x0000, "crf": 0x0002}
+# the overlay's own `type` name. `input_stream` is one INPUT_STREAM source on
+# an AAF listener's STREAM_INPUT: #389 retired it while the fabric had no
+# stream-derived media-clock recovery, and #629 restored it with the AAF
+# clock meter that follows it (docs/design/MEDIA_CLOCK_FOLLOWING.md).
+CS_TYPE = {"internal": 0x0000, "crf": 0x0002, "input_stream": 0x0002}
 # Source types that are RETIRED, each with the issue that retired it. They
 # are refused by name rather than dropped, exactly as the builder's config
-# loader refuses the key that used to ask for one: a source a controller can
-# select and nothing follows is a false advertisement, and a row silently
-# dropped here would be the same lie one layer down.
-#
-# #389 retired `input_stream`: the fabric has no stream-derived media-clock
-# recovery, so an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
-# accepted and stored while nothing followed it. The overlay this consumer
-# reads is BUILDER-GENERATED and can no longer carry such a row - the builder
-# refuses the key and emits nothing - so this refusal is DEFENCE IN DEPTH for
-# a hand-made or future overlay, not a second rule.
-CS_RETIRED = {"input_stream": "#389"}
+# loader refuses a key that asks for one: a source a controller can select
+# and nothing follows is a false advertisement, and a row silently dropped
+# here would be the same lie one layer down. None is retired today; the
+# refusal arm stays for the next one.
+CS_RETIRED: dict[str, str] = {}
 
 # ----------------------------------------------------------------- specs ----
 def builtin_spec() -> dict[str, Any]:
@@ -54,15 +51,17 @@ def builtin_spec() -> dict[str, Any]:
             dict(name="CRF", kind="crf", formats=list(CRF_FORMATS),
                  buffer=2126000)],
         stream_outputs=[dict(name="Stream Output 0", formats=list(OUT_FORMATS))],
-        # #389: INTERNAL and the CRF sink's source only. The per-listener
-        # "Stream Clock" INPUT_STREAM source is gone from every emitter: the
-        # fabric has no stream-derived media-clock recovery, so the
-        # descriptor advertised a selection nothing followed.
+        # #629 class order (D1 = L1): INTERNAL, the CRF sink's source, then
+        # the one AAF listener's "Stream Clock" INPUT_STREAM source on
+        # STREAM_INPUT 0 - the set endstation_arty_current.yaml emits.
         clock_sources=[
             dict(name="Internal", cs_type=0x0000, raw_type="internal",
                  loc_type=CLOCK_SOURCE, loc_index=0),
             dict(name="CRF Clock", cs_type=0x0002, raw_type="crf",
-                 loc_type=STREAM_INPUT, loc_index=1)],
+                 loc_type=STREAM_INPUT, loc_index=1),
+            dict(name="Stream Clock", cs_type=0x0002,
+                 raw_type="input_stream",
+                 loc_type=STREAM_INPUT, loc_index=0)],
         # Milan v1.2 5.3.3.9: every Stream Port Input is dynamic and carries
         # no AUDIO_MAP descriptor. The output remains the compatibility
         # model's one static map, densely renumbered to descriptor index 0.
@@ -235,11 +234,13 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
         if c["type"] in CS_RETIRED:
             raise ValueError(
                 f"clock_sources: {c['type']!r} is not a source this fabric "
-                f"can follow ({CS_RETIRED[c['type']]}: no stream-derived "
-                "media-clock recovery exists; only INTERNAL and the CRF sink "
-                "drive the media clock, Milan v1.2 7.2.2) - the builder "
-                "refuses the config key that asked for one and emits no such "
-                "row, so no builder-generated overlay carries it")
+                f"can follow (retired by {CS_RETIRED[c['type']]}) - the "
+                "builder refuses the config key that asked for one and emits "
+                "no such row, so no builder-generated overlay carries it")
+        if c["type"] not in CS_TYPE:
+            raise ValueError(
+                f"clock_sources: {c['type']!r} is not a CLOCK_SOURCE type "
+                f"this consumer renders ({sorted(CS_TYPE)})")
     loc_type = {"CLOCK_SOURCE": CLOCK_SOURCE, "STREAM_INPUT": STREAM_INPUT}
     stream_flags_in = 0x0003
     return dict(

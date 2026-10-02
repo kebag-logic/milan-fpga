@@ -125,7 +125,7 @@ gptp:
 clocking:
   sampling_rate_hz: 48000
   audio_unit_rates_hz: [48000]
-  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+  media_clock_sources: [internal, crf, input_stream] # INTERNAL 0, CRF 1, AAF listener k at 2 + k (#629)
   default_source: internal
   crf_sink: true
   crf_output:                        # one AAF media input makes the Milan
