@@ -1,0 +1,32 @@
+cap45 SURVIVED rc=0 Ran 32 tests in 2.418s OK | N cap one too strict (45)
+cap47 KILLED rc=1 Ran 32 tests in 2.456s FAILED (failures=1) | N cap one too loose (47)
+buf-1 KILLED rc=1 Ran 32 tests in 2.399s FAILED (failures=1) | buffer floor 1 ns low
+buf-le KILLED rc=1 Ran 32 tests in 2.429s FAILED (failures=6, errors=6) | buffer floor 1 ns high
+rates7 SURVIVED rc=0 Ran 32 tests in 2.203s OK | rate cap one too strict (7)
+rates9 KILLED rc=1 Ran 32 tests in 2.181s FAILED (failures=1) | rate cap one too loose (9)
+ratelen-lt KILLED rc=1 Ran 32 tests in 2.139s FAILED (failures=1) | AUDIO_UNIT may be longer than its list
+ident-perm KILLED rc=1 Ran 32 tests in 2.259s FAILED (failures=1) | clock_sources permutation accepted
+aaf-ge1 SURVIVED rc=0 Ran 32 tests in 2.265s OK | several INPUT_STREAM sources at AAF inputs accepted
+crf-ge1 SURVIVED rc=0 Ran 32 tests in 2.263s OK | two INPUT_STREAM sources at one CRF input accepted
+l11-min KILLED rc=1 Ran 32 tests in 2.252s FAILED (failures=1) | talker maximum taken as minimum
+emid-ones KILLED rc=1 Ran 32 tests in 2.240s FAILED (failures=1) | all-ones entity_model_id accepted
+stale-off KILLED rc=1 Ran 32 tests in 2.282s FAILED (failures=1) | a waiver whose check passes is not stale
+waiver-anytype SURVIVED rc=0 Ran 32 tests in 2.324s OK | a waiver excuses its check on every descriptor type of the configuration
+waiver-anycfg SURVIVED rc=0 Ran 32 tests in 2.249s OK | a waiver excuses its check in every configuration
+reason-any KILLED rc=1 Ran 32 tests in 2.279s FAILED (failures=1) | any reason accepted
+class-b KILLED rc=1 Ran 32 tests in 2.402s FAILED (failures=6, errors=6) | CLASS_B bit tested for CLASS_A
+chan-no8 KILLED rc=1 Ran 32 tests in 2.458s FAILED (failures=1) | 8-channel Base format dropped from completeness
+covers-eq KILLED rc=1 Ran 32 tests in 2.353s FAILED (failures=6, errors=6) | the ut (up to) bit ignored for current_format
+gptp-gt2 KILLED rc=1 Ran 32 tests in 2.305s FAILED (failures=1) | gPTP media clock with two interfaces
+order-control-only KILLED rc=1 Ran 32 tests in 2.246s FAILED (failures=1) | L2 ordering applied to multi-level CONTROL only (IEEE 7.2 wording)
+map-key3 KILLED rc=1 Ran 32 tests in 2.397s FAILED (failures=1) | a duplicate mapping differing in cluster offset accepted
+entity-cfg SURVIVED rc=0 Ran 32 tests in 2.393s OK | an ENTITY outside configuration 0 accepted
+curcfg-gt KILLED rc=1 Ran 32 tests in 2.345s FAILED (failures=1) | current_configuration == count accepted
+tail-off KILLED rc=1 Ran 32 tests in 2.253s FAILED (failures=1) | redundant streams accepted
+iface-subset SURVIVED rc=0 Ran 32 tests in 2.359s OK | L5 compares only the indices both configurations hold
+lint-default-off KILLED rc=1 Ran 32 tests in 2.330s FAILED (failures=71, errors=4) | lint off by default
+cli-never-lints KILLED rc=1 Ran 32 tests in 2.321s FAILED (failures=3) | the CLI never lints
+digest-no-curfmt KILLED rc=1 Ran 32 tests in 2.319s FAILED (failures=2, errors=4) | current_format no longer excluded from the digest
+rate-empty-off KILLED rc=1 Ran 32 tests in 2.402s FAILED (failures=1) | an empty rate list accepted
+parent-single KILLED rc=1 Ran 32 tests in 2.247s FAILED (failures=1) | a descriptor with two parents accepted
+lint-before-layout KILLED rc=1 Ran 32 tests in 1.709s FAILED (failures=3, errors=87) | the lint result discarded (never called)

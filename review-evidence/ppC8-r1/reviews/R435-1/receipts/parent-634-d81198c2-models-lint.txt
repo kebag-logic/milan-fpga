@@ -1,0 +1,59 @@
+== arty_current: waivers declared 0
+   builder path: PACKED
+   | semantic lint: on (07 §3.1 rules L1 to L11)
+   | lint waivers applied: 0
+   | ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+   |   entity_model_id_i  0x001BC50AC1000006
+   |   talker_sources_i   1
+   |   listener_sinks_i   2
+   |   identify_index_i   0
+   | model digest sha256 6a6781da742f2d70f111560c37c415fe5fa200c8b0b93678ff65ebd751a70127 (IEEE 1722.1-2021 §6.2.2.8)
+   adp={'entity_model_id': 7816474349535238, 'talker_sources': 1, 'listener_sinks': 2}: PACKED, 3 driven values checked
+== arty_4x4: waivers declared 0
+   builder path: PACKED
+   | semantic lint: on (07 §3.1 rules L1 to L11)
+   | lint waivers applied: 0
+   | ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+   |   entity_model_id_i  0x001BC549808B210C
+   |   talker_sources_i   5
+   |   listener_sinks_i   5
+   |   identify_index_i   0
+   | model digest sha256 c851b62d7743836eee9b7fff05e13145ffd3c659e0251fbc3b8fd98b79b698b7 (IEEE 1722.1-2021 §6.2.2.8)
+   adp={'entity_model_id': 7816743851073804, 'talker_sources': 5, 'listener_sinks': 5}: PACKED, 3 driven values checked
+== arty_8ch: waivers declared 0
+   builder path: PACKED
+   | semantic lint: on (07 §3.1 rules L1 to L11)
+   | lint waivers applied: 0
+   | ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+   |   entity_model_id_i  0x001BC55491CCAA9B
+   |   talker_sources_i   5
+   |   listener_sinks_i   5
+   |   identify_index_i   0
+   | model digest sha256 b19c6eb8464e69f52a6e32d80cdb990d48a1f3ced5a956986206882884f5a8be (IEEE 1722.1-2021 §6.2.2.8)
+   adp={'entity_model_id': 7816791385221787, 'talker_sources': 5, 'listener_sinks': 5}: PACKED, 3 driven values checked
+== ax7101_1x1_tdm8: waivers declared 0
+   builder path: PACKED
+   | semantic lint: on (07 §3.1 rules L1 to L11)
+   | lint waivers applied: 0
+   | ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+   |   entity_model_id_i  0x001BC5C1935893E1
+   |   talker_sources_i   2
+   |   listener_sinks_i   2
+   |   identify_index_i   0
+   | model digest sha256 1ec821bbaef9c1911ba0c6af2b42cf64af860939332a6df3dd2049a64f46852e (IEEE 1722.1-2021 §6.2.2.8)
+   adp={'entity_model_id': 7817259562603489, 'talker_sources': 2, 'listener_sinks': 2}: PACKED, 3 driven values checked
+== ax7101_8x8: waivers declared 1
+   builder path: PACKED
+   | semantic lint: on (07 §3.1 rules L1 to L11)
+   | lint waivers applied: 1
+   |   waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0..7: 8 finding(s) waived; reason: kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER
+   | ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+   |   entity_model_id_i  0x001BC5572467AF35
+   |   talker_sources_i   9
+   |   listener_sinks_i   9
+   |   identify_index_i   0
+   | model digest sha256 6ab8be74f6f5825013792daebf56615ee0a6e5167a5ac844abd899c38ac059a5 (IEEE 1722.1-2021 §6.2.2.8)
+   adp={'entity_model_id': 7816802434789173, 'talker_sources': 9, 'listener_sinks': 9}: PACKED, 3 driven values checked
+   waiver removed: REFUSED 8 line(s), checks ['L1 port-cluster-minimum'], scopes ['cfg 0 STREAM_PORT_INPUT 0', 'cfg 0 STREAM_PORT_INPUT 1', 'cfg 0 STREAM_PORT_INPUT 2', 'cfg 0 STREAM_PORT_INPUT 3', 'cfg 0 STREAM_PORT_INPUT 4', 'cfg 0 STREAM_PORT_INPUT 5', 'cfg 0 STREAM_PORT_INPUT 6', 'cfg 0 STREAM_PORT_INPUT 7']
+   waiver widened by one port: REFUSED lint waiver 0 (L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0..8) is stale: STREAM_PORT_INPUT 8 does not exist; remove or narrow it
+status 0

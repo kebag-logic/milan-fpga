@@ -1,0 +1,23 @@
+SAME-TEXT | example_milan_8: wrong format | base REFUSE: input is not a kl-aem-image document | head lint-on REFUSE
+SAME-TEXT | example_milan_8: wrong version | base REFUSE: input version 99 != 1 | head lint-on REFUSE
+SAME-TEXT | example_milan_8: no descriptors | base REFUSE: the model declares no descriptors | head lint-on REFUSE
+SAME-TEXT | example_milan_8: duplicate of the last row | base REFUSE: duplicate descriptor cfg 0 type 0x0024 index 0 | head lint-on REFUSE
+SAME-TEXT | example_milan_8: last row's key index moved (body disagrees) | base REFUSE: cfg 0 directory key type 0x0024 index 5 disagrees with body type 0x0024 index 0 | head lint-on REFUSE
+SAME-TEXT | example_milan_8: row in configuration 3 | base REFUSE: configuration indices are not dense from 0 | head lint-on REFUSE
+SAME-TEXT | example_milan_8: invalid name_index | base REFUSE: cfg 0 type 0x0000 index 0 has invalid name_index 70000 | head lint-on REFUSE
+SAME-TEXT | example_milan_8: line_bytes 64 | base REFUSE: cfg 0 type 0x0000 index 0 is 312 bytes, over the 64-byte store line buffer — the store would answer NO_SUCH_DESCRIPTOR for it | head lint-on REFUSE
+SAME-TEXT | example_milan_8: line_bytes 128 | base REFUSE: cfg 0 type 0x0000 index 0 is 312 bytes, over the 128-byte store line buffer — the store would answer NO_SUCH_DESCRIPTOR for it | head lint-on REFUSE
+SAME-TEXT | example_milan_8: two faults (format and a duplicate): first one wins | base REFUSE: input is not a kl-aem-image document | head lint-on REFUSE
+SAME-TEXT | milan_min: wrong format | base REFUSE: input is not a kl-aem-image document | head lint-on REFUSE
+SAME-TEXT | milan_min: wrong version | base REFUSE: input version 99 != 1 | head lint-on REFUSE
+SAME-TEXT | milan_min: no descriptors | base REFUSE: the model declares no descriptors | head lint-on REFUSE
+SAME-TEXT | milan_min: duplicate of the last row | base REFUSE: duplicate descriptor cfg 0 type 0x0024 index 0 | head lint-on REFUSE
+SAME-TEXT | milan_min: last row's key index moved (body disagrees) | base REFUSE: cfg 0 directory key type 0x0024 index 5 disagrees with body type 0x0024 index 0 | head lint-on REFUSE
+SAME-TEXT | milan_min: row in configuration 3 | base REFUSE: configuration indices are not dense from 0 | head lint-on REFUSE
+SAME-TEXT | milan_min: invalid name_index | base REFUSE: cfg 0 type 0x0000 index 0 has invalid name_index 70000 | head lint-on REFUSE
+SAME-TEXT | milan_min: line_bytes 64 | base REFUSE: cfg 0 type 0x0000 index 0 is 312 bytes, over the 64-byte store line buffer — the store would answer NO_SUCH_DESCRIPTOR for it | head lint-on REFUSE
+SAME-TEXT | milan_min: line_bytes 128 | base REFUSE: cfg 0 type 0x0000 index 0 is 312 bytes, over the 128-byte store line buffer — the store would answer NO_SUCH_DESCRIPTOR for it | head lint-on REFUSE
+SAME-TEXT | milan_min: two faults (format and a duplicate): first one wins | base REFUSE: input is not a kl-aem-image document | head lint-on REFUSE
+SAME-BYTES(lint off) | example_milan_8: positive | base PACK: 1880 bytes | head lint-on REFUSE
+SAME-BYTES(lint off) | milan_min: positive | base PACK: 3224 bytes | head lint-on PACK
+cases 22, differing 0

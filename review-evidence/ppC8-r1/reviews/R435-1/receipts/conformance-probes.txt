@@ -1,0 +1,36 @@
+## A. Clock sources (Milan v1.2 5.3.3.6; PR #142's L6 reading)
+- CRF input + one INPUT_STREAM source at the AAF input (INTERNAL 0, CRF 1, AAF 2): PACKED lint waivers applied: 0
+- no CRF input, two AAF inputs, one INPUT_STREAM source on each: REFUSED L6 aaf-input-source: cfg 0 CLOCK_SOURCE: no CRF input, and 2 INPUT_STREAM sources at AAF inputs [0, 1] (Milan v1.2 §5.3.3.6)
+- two INPUT_STREAM sources at the one CRF input ('exactly one'): REFUSED L6 crf-input-source: cfg 0 STREAM_INPUT 1: a CRF input with 2 INPUT_STREAM sources (Milan v1.2 §5.3.3.6)
+## B. L2 parent-order beyond multi-level types (IEEE 1722.1-2021 7.2)
+- output port's clusters 0..1, input port's 2..3 (no CONTROL involved): REFUSED L2 parent-order: cfg 0 STREAM_PORT_OUTPUT 0: its AUDIO_CLUSTER range starts at 0, before the end 4 of the range of STREAM_PORT_INPUT 0 (IEEE 1722.1-2021 §7.2)
+## C. L5 interface index (Milan v1.2 5.3.3.5)
+- one configuration, two AVB_INTERFACEs (ports 1 and 2): PACKED lint waivers applied: 0
+- configuration 1 keeps only interface 0 (same port, same index 0): REFUSED L5 interface-index: cfg 1 AVB_INTERFACE: index-to-port_number {0: 1}; configuration 0 has {0: 1, 1: 2} (Milan v1.2 §5.3.3.5)
+## D. Descriptor extent per 'shall have the format of [ATDECC 7.2.x]'
+- ENTITY 312+8: PACKED lint waivers applied: 0
+- CLOCK_SOURCE 86+4: PACKED lint waivers applied: 0
+- AUDIO_CLUSTER 90+4: PACKED lint waivers applied: 0
+- AVB_INTERFACE 102+2: PACKED lint waivers applied: 0
+- STREAM_PORT_INPUT 20+2: PACKED lint waivers applied: 0
+- AUDIO_CLUSTER 90-4: PACKED lint waivers applied: 0
+## E. N cap and rate cap at the boundary (positive side)
+- STREAM_INPUT with 46 formats (506 octets): PACKED lint waivers applied: 0
+- AUDIO_UNIT with 8 rates: PACKED lint waivers applied: 0
+## F. Model digest against IEEE 1722.1-2021 6.2.2.8
+- selector option[2] 3 -> 7 (a structural field 6.2.2.8 does not exclude): digest UNCHANGED
+- selector current 0 -> 2 (excluded by 6.2.2.8): digest UNCHANGED
+- IDENTIFY (value type 0x0001) maximum[0] changed: digest changed
+## G. Waiver input edges
+- configuration true: REFUSED L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8) || lint waiver 0 (L1 port-cluster-minimum: cfg 1 STREAM_PORT_INPUT 0) is stale: configuration 1 does not exist; remove or narrow it
+- first/last 0.9 floats: PACKED lint waivers applied: 1 /   waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: 1 finding(s) waived; reason: kebag-logic/milan-fpga#584: an input pool with no cluster
+- reason a list: PACKED lint waivers applied: 1 /   waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: 1 finding(s) waived; reason: ['x/y#1']
+- first -1: REFUSED lint waiver 0 has the empty range -1..0 || L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+- type as code 14: PACKED lint waivers applied: 1 /   waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: 1 finding(s) waived; reason: kebag-logic/milan-fpga#584: an input pool with no cluster
+- the same waiver twice: PACKED lint waivers applied: 2 /   waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: 1 finding(s) waived; reason: kebag-logic/milan-fpga#584: an input pool with no cluster /   waiver L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: 1 finding(s) waived; reason: kebag-logic/milan-fpga#584: an input pool with no cluster
+- input port waived by type STREAM_PORT_OUTPUT only (output port also cluster-less): REFUSED L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8) || L1 has-parent: cfg 0 AUDIO_CLUSTER 0: no descriptor's range claims it (Milan v1.2 §5.3.2) || L1 has-parent: cfg 0 AUDIO_CLUSTER 1: no descriptor's range claims it (Milan v1.2 §5.3.2)
+## H. Refusal text: rule, check, descriptor, clause on every lint line
+- CLOCK_SOURCE 0 cut to 80 bytes: REFUSED L6 crf-input-source: cfg 0 CLOCK_SOURCE 0: is 80 bytes; the field at 82 needs 84 (Milan v1.2 §5.3.3.6) || L6 crf-input-source: cfg 0 CLOCK_SOURCE 0: is 80 bytes; the field at 84 needs 86 (Milan v1.2 §5.3.3.6)
+- lint_waivers not a list: REFUSED lint_waivers is not a list
+## I. IEEE 1722.1-2021 7.2: 'The maximum length of a descriptor shall be 508 octets'
+- AUDIO_MAP 0 with 64 distinct mappings (520 octets): PACKED lint waivers applied: 0
