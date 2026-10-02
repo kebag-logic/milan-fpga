@@ -553,10 +553,14 @@ class NxnDatapathHarness {
         return (it == desc_want.end()) ? nullptr : &it->second;
     }
 
+    //! [T67] holds the audio clock low (see its banner); every other step
+    //! toggles it 1:1 with axis_clk
+    bool audio_held = false;
     void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
                        rmem_drive(); dmem_drive(); dut->eval();
                        rmem_edge(); dmem_edge(); }
-    void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
+    void hi() { dut->axis_clk = 1; dut->gtx_clk = 1;
+                dut->clk_audio_i = audio_held ? 0 : 1; dut->eval(); }
     unsigned long tkd_dirty_seen = 0;
     //! the Table 5.22 descriptor arbiter's scalar face toward the processor
     //! (issue #69): which {type, index} tuples it delivered since the last
@@ -7703,8 +7707,24 @@ class NxnDatapathHarness {
         //  (At the true 391/1591 divider the static path is 47,999.489 Hz,
         //  -10.6 ppm from media_tick - inside this section's 50 ppm bound - and
         //  obj_aclk is where that offset is measured directly.)
+        //
+        //  THE NCO'S OWN RATE IS UNDER TEST, SO THE ALIGNER IS HELD OUT
+        //  (#629, D4 = A2-a). Since A2-a KL_media_grid_align steers the packet
+        //  grid at INTERNAL too, onto the front end's frame marker. On this leg
+        //  that marker is the 1:1 clk_audio artifact above (the I2S frame at
+        //  axis/512, about 195 kHz), so the engaged loop pegs the grid at its
+        //  +200 ppm authority, a harness clock rather than a defect. The audio
+        //  clock is therefore held for this section: the aligner's feed
+        //  watchdog (4 silent frame periods) disengages it, the NCO free-runs
+        //  at MILAN_CLK_FREQ_HZ / 48000 exactly as before A2-a, and every
+        //  assertion below stands unchanged. obj_aclk grades the engaged grid
+        //  at the true ratio.
         // ==================================================================
         printf("-- [T67] media-grid cadence + avtp_timestamp PHC tracking --\n");
+        audio_held = true;
+        for (int c = 0; c < 4 * EPOCH_CYC; c++) { lo(); hi(); }
+        ck("T67: the held audio clock disengaged the grid aligner (dead feed)",
+           static_cast<long>(dut->rootp->milan_datapath__DOT__mga_engaged_w), 0);
         // the LIVE PHC rate (Q8.24 integer-ns; the ptp leg set 20 ns/tick)
         uint32_t incr0 = axi_read(0x504);
         long ns_cyc0 = static_cast<long>(incr0 >> 24);
@@ -7712,6 +7732,7 @@ class NxnDatapathHarness {
            incr0 & 0xFFFFFF, 0);
         grade_the_pdu_cadence_and_ts_deltas(ns_cyc0);
         prove_the_phc_rewrite_moves_the_ts_deltas(incr0);
+        audio_held = false;
         clean_up_the_t66_t67_tone_and_crossbar();
         #endif
     }

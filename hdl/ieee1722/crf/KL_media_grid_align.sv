@@ -35,10 +35,12 @@
                 this loop's bounded phase under the true 391/1591 ratio;
                 the J11.8-vs-J11.9 bench probe for the silicon whole).
 
-                clock_source = INTERNAL never reaches this module: sel_i is
-                the live CRF selection, and 0 disengages everything, keeping
-                the NCO's bit-exact free-run (USER rule: internal media
-                clock = free-run, slips accepted - KL_media_nco.sv).
+                sel_i is "a clock source is decoded" (milan_datapath
+                mga_sel_w): INTERNAL and every followed CRF or AAF source
+                since #629's D4 = A2-a, which reversed the old rule
+                "internal media clock = free-run, slips accepted". 0 (an
+                index outside the shape's table) disengages everything and
+                leaves the NCO's bit-exact free-run.
 
                 DETECTOR. A free-running time-since-tick counter is captured
                 at each frame marker: at lock that capture is a constant.
@@ -245,7 +247,7 @@ module KL_media_grid_align #(
       u_o       <= '0;
     end
     else if (!sel_i) begin
-      //! INTERNAL selected: full disengage, free-run at nominal
+      //! no source decoded: full disengage, free-run at nominal
       tst_r     <= tst_next_w;
       slip_r    <= '0;
       quiet_r   <= '0;

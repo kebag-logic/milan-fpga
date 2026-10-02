@@ -37,9 +37,9 @@
 //   instrument proves the grids ALIGNED at INTERNAL, with zero junction
 //   slips. Until then INTERNAL free-ran by USER rule ("internal media clock
 //   = free-run, slips accepted") and this phase measured the -10.64 ppm
-//   drift; the owner's decision reverses that rule. The drift itself stays
-//   measurable: aclk_a2a_mutants.py leaves the aligner disengaged at
-//   INTERNAL and requires this phase to fail.
+//   drift; the owner's decision reverses that rule. The aligner left
+//   disengaged at INTERNAL is the named mutant of tb/verilator/milan_dp_mclk,
+//   the #629 root suite, whose INTERNAL phase it must fail.
 //
 //   [CRF] the STORED clock-source selection is poked to this shape's CRF
 //   index (a documented public_flat_rw tap on the processor's dyn-state row;
@@ -634,9 +634,9 @@ class MediaGridAlignmentHarness {
 
     //! the documented tap (see the pp-side banner on clksrc_r): the STORE is
     //! poked, one hop upstream of the command chain sim_nxn's AECP-FACE arms
-    //! prove end-to-end. AX 1x1 shape since #389: internal 0, CRF 1 (the
-    //! per-listener Stream Clock source is gone; sim_nxn's [AECP-MODEL] set
-    //! walk reads this index out of the generated descriptors).
+    //! prove end-to-end. AX 1x1 shape since #629's class order: internal 0,
+    //! CRF 1, the AAF listener's Stream Clock 2 (sim_nxn's [AECP-MODEL] set
+    //! walk reads these indexes out of the generated descriptors).
     static constexpr uint16_t kCrfClksrcIx = 1;
     void poke_clksrc(uint16_t v) {
         dut->rootp

@@ -58,8 +58,14 @@ from suite_tally import log_reports_failure  # noqa: E402
 #: the render stage's re-base trigger; its second line is also the anchor the
 #: #386 and #447 render runners plant their clock-source control on
 RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
-RESTART_TRIGGER = "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);"
-RESTART_DECL = "  wire mcr_restart_p_w = crf_clk_selected_r\n" + RESTART_TRIGGER
+#: the restart request's last line: a control that appends " | <cause>" to it
+#: ORs the cause into the whole request (#629 added the AAF meter's two terms
+#: after the CRF ones, so the request ends here)
+RESTART_TRIGGER = "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;"
+#: the selected CRF stream's two terms, the disruption and the received toggle
+CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))"
+RESTART_DECL = ("  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"
+                "       (crf_clk_selected_r\n" + CRF_RESTART_TERMS + "\n" + RESTART_TRIGGER)
 TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
 
 
@@ -136,8 +142,8 @@ CONTROLS = [
             "src_change_w = 1'b0;",
             "source control: a real source change toggles mr once", True),
     Control("selected CRF mr propagation is removed", "datapath",
-            RESTART_TRIGGER,
-            "                          & (tkd_crflk_q_r & ~crf_locked_w);",
+            CRF_RESTART_TERMS,
+            "        & (tkd_crflk_q_r & ~crf_locked_w))",
             "CRF control: selected CRF mr propagates exactly once", True),
     Control("the grandmaster identity re-bases the render stage as well as the step",
             "datapath", RENDER_TRIGGER,
