@@ -1,0 +1,23 @@
+$ python3 tb/pp_top/gsi_mutants.py --output PACKET/scratch/x1 --only no-such-arm
+gsi_mutants.py: error: unknown mutant(s): no-such-arm
+rc=2
+$ python3 tb/srp_admission/mutants.py --output PACKET/scratch/x2 --only no-such-arm
+mutants.py: error: unknown mutant(s): no-such-arm
+rc=2
+$ python3 tb/maap/mutants.py --output PACKET/scratch/x3 --only no-such-arm
+mutants.py: error: unknown mutation arms: ['no-such-arm']
+rc=2
+$ python3 tb/acmp_talker/retry_mutants.py --logs PACKET/scratch/x4 --only no-such-arm
+retry_mutants.py: error: argument --only: invalid choice: 'no-such-arm' (choose from 'no_round', 'early_round'
+rc=2
+$ python3 tb/pp_top/aecp_mutants.py --output PACKET/scratch/x5 --jobs x
+aecp_mutants.py: error: argument --jobs: invalid int value: 'x'
+rc=2
+tb/acmp_talker/retry_mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/adp_engine/mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/maap/mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/pp_top/aecp_dispatch_mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/pp_top/aecp_mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/pp_top/gsi_mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/srp_admission/mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)
+tb/srp_top/mutants.py: --jobs JOBS units built and run at once, each in its own copy (default 4)

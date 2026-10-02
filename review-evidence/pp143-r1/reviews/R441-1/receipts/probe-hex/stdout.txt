@@ -1,0 +1,28 @@
+direct make run in poisoned tb/ucpu: rc=2
+control ucpu run: rc=0 PASS
+dl-preempt-after-effect: rc=2 failures=4 named=1 KILLED
+    FAIL: P20c the program's own SUCCESS carrying the rate: status 10 len 12
+    FAIL: P20c every effect exactly once, no partial commit: 1 writes, 1 commits, 1 marks, 0 notifies
+    FAIL: P20c never redirected after an effect
+    FAIL: P20d ENTITY_LOCKED kept, header only: status 10 len 12
+ucpu-preempt-repeats: rc=2 failures=18 named=1 KILLED
+    FAIL: P20a completes: one redirect, no loop
+    FAIL: P20a one header-only ENTITY_MISBEHAVING answer: sends 0 status 7 len 96
+    FAIL: P20a the header record carries status 10, got 00000000
+    FAIL: P20b completes
+    FAIL: P20b one header-only ENTITY_MISBEHAVING: status 7 len 96
+    FAIL: P20c premise: the preempt was raised during the run
+    FAIL: P20c the program's own SUCCESS carrying the rate: status 10 len 12
+    FAIL: P20c every effect exactly once, no partial commit: 0 writes, 0 commits, 0 marks, 0 notifies
+    FAIL: P20c never redirected after an effect
+    FAIL: P20d completes
+    FAIL: P20d ENTITY_LOCKED kept, header only: status 10 len 12
+    FAIL: P20e the waiting locate was answered and no further read issued: 0 reads
+    FAIL: P20e the redirect came at or after the read's answer (0, -1)
+    FAIL: P20f completes
+    FAIL: P20f header only after 20+ body bytes were built: status 10 len 12
+    FAIL: P20g completes
+    FAIL: P20g the batch keeps its base: len 12 status 10
+    FAIL: P20h a dispatch after a preempted one answers normally: status 10 len 12
+3 checks: 3 PASS, 0 FAIL
+campaign rc=0

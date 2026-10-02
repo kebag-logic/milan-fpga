@@ -1,0 +1,15 @@
+processes traced: 1527
+unit copies written: 337 (16465 write events)
+     32 TMPDIR entries like GMfifo<pid> (make jobserver fifo, one per make)
+    272 TMPDIR entries like cc??????.* (compiler mkstemp temporaries)
+      1 TMPDIR entries like eyh9h1sp (UNCLASSIFIED)
+     32 TMPDIR entries like maap-mutants-<random> (unit copy)
+output-directory paths written: 33
+review-clone paths written: 0
+other paths written: 1
+     122 /dev/null
+## write-opens per output log (count of logs by number of opens)
+     32 1
+## the one unclassified TMPDIR entry: Python tempfile's writable-directory probe (O_EXCL, unlinked at once)
+openat(AT_FDCWD, "$REVIEWS/pp143-r441-1-packet/scratch/tmp-strace2-maap/eyh9h1sp", O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC, 0600) = 3
+unlink("$REVIEWS/pp143-r441-1-packet/scratch/tmp-strace2-maap/eyh9h1sp") = 0

@@ -1,0 +1,2 @@
+cpus=80-83
+strace -f -qq -e signal=none -e trace=openat,open,creat,mkdir,mkdirat,rename,renameat,renameat2,unlink,unlinkat,link,linkat,symlink,symlinkat -o $REVIEWS/pp143-r441-1-packet/scratch/strace-maap.txt python3 tb/maap/mutants.py --output $REVIEWS/pp143-r441-1-packet/scratch/out-strace-maap --jobs 8

@@ -1,0 +1,4 @@
+44c44
+<         yield (future.result() for future in futures)
+---
+>         yield (future.result() for future in concurrent.futures.as_completed(futures))
