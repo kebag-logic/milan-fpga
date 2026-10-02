@@ -1834,7 +1834,9 @@ The former `0x8C8`, `0x8CC`, and `0x8D0` telemetry words are retired. They
 read structural zero, ignore writes, and cannot be used as liveness evidence.
 `0x8D4` and `0x8D8` carry the media-boundary slip counters since `0x0058`
 (next section); `0x8DC` carries `RENDER_STAT` (#443).
-`0x8E0` to `0x8F4` remain unmapped and read zero.
+`0x8E0` and `0x8E4` carry `AAFM_STAT` and `AAFM_RATE` since #629
+([below](#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter)); `0x8E8` to `0x8F4` remain
+unmapped and read zero.
 Physical-render diagnostics use the retained channel-map readback,
 Listener/depacketizer counters, I2S status, and pin-level evidence instead.
 
