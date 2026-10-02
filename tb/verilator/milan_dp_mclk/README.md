@@ -83,7 +83,8 @@ pass every short leg.
 
 `make` builds the leg and runs `mclk_mutants.py`, which builds the schemata
 and runs the three legs, the controls and the mutants `SIM_JOBS` at a time
-(default 4). `make mclk` runs leg A alone; `./obj_mclk/Vmilan_dp_mclk --b`
+(default 4). The suite took 452 s inside a local sweep (27 of 27); leg A,
+about 20 simulated seconds, is its critical path. `make mclk` runs leg A alone; `./obj_mclk/Vmilan_dp_mclk --b`
 and `--c` run the others.
 
 ## Limits
