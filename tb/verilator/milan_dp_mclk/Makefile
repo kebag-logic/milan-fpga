@@ -41,6 +41,12 @@ MCLK_HZ = 4000000
 #     mutant schemata through this same recipe. A mutant that silently fell
 #     back to the tracked source would be a control that controls nothing,
 #     so the overrides are substituted, never appended.
+# --no-print-directory: both lists are the nested make's stdout, and a print-
+# directory flag it inherits would write "Entering directory" into them. GNU
+# make 4.3 hands a `make -C` recipe MAKEFLAGS=w, which reaches the nested
+# `make mclk-build` mclk_mutants.py runs: on the hosted runner the schemata
+# then failed to elaborate and the campaign never ran (#629 R432-1 F2, the
+# defect #617 R394-3 F1 fixed in tb/verilator/capture_coherence).
 DP_RTL   = $(RTL_DIR)/milan/milan_datapath.sv
 AAFM_RTL = $(RTL_DIR)/ieee1722/crf/KL_aaf_clock_meter.sv
 CSR_RTL  = $(RTL_DIR)/common/csr/milan_csr.sv
@@ -48,7 +54,7 @@ CLKV_RTL = $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv
 MUT_DP_SRC   ?= $(DP_RTL)
 MUT_AAFM_SRC ?= $(AAFM_RTL)
 MUT_CSR_SRC  ?= $(CSR_RTL)
-SRCS_DP := $(shell $(MAKE) -s -C $(DP) print-srcs)
+SRCS_DP := $(shell $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-srcs failed; the datapath source list could not be derived)
 endif
@@ -56,7 +62,7 @@ SRCS := $(patsubst $(CLKV_RTL),clkv_double.sv,\
         $(patsubst $(DP_RTL),$(MUT_DP_SRC),\
         $(patsubst $(AAFM_RTL),$(MUT_AAFM_SRC),\
         $(patsubst $(CSR_RTL),$(MUT_CSR_SRC),$(SRCS_DP)))))
-DP_VFLAGS := $(shell $(MAKE) -s -C $(DP) print-dp-vflags)
+DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
 endif
