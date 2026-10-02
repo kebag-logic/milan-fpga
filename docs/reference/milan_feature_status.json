@@ -95,6 +95,16 @@
       ]
     },
     {
+      "id": "aaf.media-clock-following",
+      "status": "implemented",
+      "summary": "Issue #629: one INPUT_STREAM CLOCK_SOURCE per AAF Stream Input, listed after INTERNAL and CRF; selecting one makes KL_aaf_clock_meter measure that input's 48 kHz Base-format presentation timestamps and steers the MMCM servo from its rate, with W2 switching, holdover on loss and one restart per switch. The bench probe stays open.",
+      "documents": [
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md"
+      ]
+    },
+    {
       "id": "gptp.fabric-product-owner",
       "status": "implemented",
       "summary": "The product uses one fabric owner for 802.1AS, PHC steering, atomic public state and AVTP time validity; option OFF is verification-only hardware with zero owners, zero publications, and inert legacy writes.",
@@ -240,7 +250,7 @@
     {
       "id": "crf.media-clock-consumption",
       "status": "implemented",
-      "summary": "The stored clock-source selection resolves against the shape-generated CRF index in milan_datapath; CRF selection steers the MMCM servo and KL_media_grid_align aligns the packet grid to the physical grid, while INTERNAL stays bit-exact free-run with counted junction slips. The bench probe on issue #74 stays open.",
+      "summary": "The stored clock-source selection resolves through the shape-generated clock-source tables in milan_datapath; CRF selection steers the MMCM servo from KL_crf_rx, and KL_media_grid_align aligns the packet grid to the physical grid at every source, INTERNAL included since #629 (A2-a). The bench probe on issue #74 stays open.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",

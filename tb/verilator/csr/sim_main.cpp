@@ -155,6 +155,8 @@ constexpr uint32_t A_SW_CNT0    = 0x830;
 constexpr uint32_t A_SW_PDUS    = 0x858;
 constexpr uint32_t A_SW_SRP     = 0x85C;
 constexpr uint32_t A_RENDER_STAT = 0x8DC;
+constexpr uint32_t A_AAFM_STAT = 0x8E0;
+constexpr uint32_t A_AAFM_RATE = 0x8E4;
 
 namespace {
 
@@ -208,6 +210,7 @@ class MilanCsrHarness {
   void reserved_inert_csr_gap();
   void junction_slip_counter_words();
   void render_status_word();
+  void aaf_clock_meter_words();
   void is_1g_follows_the_mac_reported_speed();
   void chmap_readback_negative_control();
   void retired_as_path_publication_abi_is_inert();
@@ -339,6 +342,8 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
   dut->i_stats_cap = 0;
   dut->i_render_status = 0;  // Explicit absent-source tie until driven below.
+  dut->i_aafm_stat = 0;      // A shape without an AAF clock source.
+  dut->i_aafm_rate = 0;
   for (int k = 0; k < 10; ++k) dut->i_avtprx_cnt10[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
@@ -347,7 +352,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
 void MilanCsrHarness::identification_and_capabilities() {
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00020061);
+  ck("VERSION",       axi_read(A_VERSION), 0x00020060);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain
@@ -1268,7 +1273,7 @@ void MilanCsrHarness::reserved_inert_csr_gap() {
   ck("reserved gap 0x8C8 reads 0", axi_read(0x8C8), 0);
   ck("reserved gap 0x8CC reads 0", axi_read(0x8CC), 0);
   ck("reserved gap 0x8D0 reads 0", axi_read(0x8D0), 0);
-  ck("0x8E0 above RENDER_STAT is unmapped, reads 0", axi_read(0x8E0), 0);
+  ck("0x8E8 above AAFM_RATE is unmapped, reads 0", axi_read(0x8E8), 0);
   ck("0x8F4 below the servo is unmapped, reads 0", axi_read(0x8F4), 0);
   axi_write(0x8C8, 0x5A5A0000u);
   axi_write(0x8CC, 0x5A5A0001u);
@@ -1495,6 +1500,30 @@ void MilanCsrHarness::render_status_word() {
   ck("RENDER_STAT restored absent-source tie reads zero", axi_read(A_RENDER_STAT), 0);
 }
 
+// The AAF clock meter's pair (#629): each word needs its own term in the
+// >= 0x800 read window, or it reads zero on every build (the 0x8F8 trap).
+// Distinct values on the two inputs catch a swapped or shared arm.
+void MilanCsrHarness::aaf_clock_meter_words() {
+  printf("-- AAFM_STAT / AAFM_RATE (0x8E0 / 0x8E4) --\n");
+  ck("AAFM_STAT absent-meter tie reads zero", axi_read(A_AAFM_STAT), 0);
+  ck("AAFM_RATE absent-meter tie reads zero", axi_read(A_AAFM_RATE), 0);
+  constexpr uint32_t stat = 0x0FA0'2317u;
+  constexpr uint32_t rate = 0xFFFF'EA00u;   // -5,632: -11 ppm
+  dut->i_aafm_stat = stat;
+  dut->i_aafm_rate = rate;
+  ck("AAFM_STAT reads every field of its input", axi_read(A_AAFM_STAT), stat);
+  ck("AAFM_RATE reads its signed input", axi_read(A_AAFM_RATE), rate);
+  axi_write(A_AAFM_STAT, 0xFFFFFFFFu);
+  axi_write(A_AAFM_RATE, 0x00000000u);
+  ck("AAFM_STAT ignores writes", axi_read(A_AAFM_STAT), stat);
+  ck("AAFM_RATE ignores writes", axi_read(A_AAFM_RATE), rate);
+  axi_write(0x8E8, 0x5A5A0003u);
+  ck("0x8E8 above the pair ignores writes", axi_read(0x8E8), 0);
+  dut->i_aafm_stat = 0;
+  dut->i_aafm_rate = 0;
+  ck("AAFM_STAT follows its input live", axi_read(A_AAFM_STAT), 0);
+}
+
 // =====================================================================
 // P11 indexed per-stream window, N=1 silicon shape (defaults):
 // SEL/SNAP decode, index-0 hard aliases onto the flat registers, and the
@@ -1545,6 +1574,7 @@ int MilanCsrHarness::run() {
   reserved_inert_csr_gap();
   junction_slip_counter_words();
   render_status_word();
+  aaf_clock_meter_words();
   is_1g_follows_the_mac_reported_speed();
   chmap_readback_negative_control();
   retired_as_path_publication_abi_is_inert();

@@ -197,18 +197,7 @@ module milan_csr #(
   //! No CSR address, width, access or OTHER field moves. PP_NVM_STAT
   //! 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged.
   //! The register occupies four bytes.
-  //!
-  //! 0x0061 ADDS TWO ADDRESSES (#629, media-clock following of one selected
-  //! AAF or CRF source): A_AAFM_STAT 0x8E0 and A_AAFM_RATE 0x8E4, RO live,
-  //! writes inert, the AAF clock meter's status {max |deviation| ns [31:16],
-  //! data-caused history restarts [15:8], followed listener [7:4], enabled
-  //! [2], rate valid [1], locked [0]} and its signed rate in CRF_RATE 0x748's
-  //! units. They read zero on a shape that offers no AAF source. The
-  //! CLOCK_DOMAIN LOCKED/UNLOCKED counters' level gains "the servo LOCKED"
-  //! while a stream source is followed (D5 = C1), and the grid aligner is
-  //! engaged at INTERNAL too (D4 = A2-a). No other CSR address, width or
-  //! access moves. The register occupies four bytes.
-  parameter logic [31:0] VERSION = 32'h0002_0061
+  parameter logic [31:0] VERSION = 32'h0002_0060
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -948,10 +937,11 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_SLIP_LB  = 'h8D4;   //! RO live: {lb_skip16, lb_dup16}
   localparam [ADDR_WIDTH-1:0] A_SLIP_TDM = 'h8D8;   //! RO live: {tdm_skip16, tdm_dup16}
   localparam logic [ADDR_WIDTH-1:0] A_RENDER_STAT = 'h8DC; //! RO live: #443 render state
-  //! the AAF clock meter's two words (#629, VERSION 0x0061), the first free
-  //! pair above the render word in the unmapped 0x8E0-0x8F4 window beside
-  //! MCSRV_STAT. Live RO, writes inert, the same >=0x800 carve-out (else the
-  //! 0x8F8 dead-read trap).
+  //! the AAF clock meter's two words (#629), the first free pair above the
+  //! render word in the unmapped 0x8E0-0x8F4 window beside MCSRV_STAT. Live
+  //! RO, writes inert, the same >=0x800 carve-out (else the 0x8F8 dead-read
+  //! trap). VERSION stays 0x0060 as for #443's word: the release step owns
+  //! the minor bump.
   localparam logic [ADDR_WIDTH-1:0] A_AAFM_STAT = 'h8E0; //! RO live: meter status
   localparam logic [ADDR_WIDTH-1:0] A_AAFM_RATE = 'h8E4; //! RO live: meter rate
   //! chmap map-RAM window (docs/CHANNEL_MAP_64.md §6). Same dedicated-arm

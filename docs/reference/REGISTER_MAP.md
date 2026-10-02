@@ -58,6 +58,7 @@ Machine-checked status rows are defined by the
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `implemented` | - |
+| `aaf.media-clock-following` | `implemented` | - |
 | `state.nonvolatile-persistence` | `partial` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
@@ -129,9 +130,10 @@ they are not discovered by surprise:
    It adds no Table 5.4 MEDIA_RESET ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
    Source changes and selected-CRF causes still request restarts.
    At the INTERNAL power-on state
-   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
-   by tie-off. Since `0x0058` the accepted slips are counted where software can
-   read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
+   `A_MCSRV_STAT` `0x8F8` still reads idle - nothing is followed, not a
+   tie-off - while the grid aligner runs at INTERNAL too since #629 (A2-a).
+   Since `0x0058` junction slips are counted where software can read them,
+   `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
 2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
    default** (`SET_MAX_TRANSIT_TIME` is gone). That is a **default, not a zero**:
    0 ns would be a presentation time in the past and every listener would drop
@@ -200,9 +202,10 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
-  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), stopping under a CRF selection; they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
+  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, static at every source since #629 aligns the grid at INTERNAL too, where before it counted one dup per fed pair per beat period (about 2 per second on the shipping four-pair lane); they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
   - [0x8DC  -  render setpoint state](#0x8dc-----render-setpoint-state) -- Selected listener fill, prefill and convergence with global saturating rails.
-  - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` measures, and a CRF selection steers from it; INTERNAL reads IDLE honestly.
+  - [0x8E0  -  AAF clock meter  (#629, KL_aaf_clock_meter)](#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter) -- The selected AAF input's media clock: lock, rate validity, the followed listener, data-caused restarts, the largest deviation, and the rate in `CRF_RATE`'s units. A structural zero without an AAF clock source.
+  - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` or the AAF clock meter at `0x8E0` measures, and the selected one steers it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
 - **[Notes](#notes)** -- Three bus-level rules that apply everywhere: self-clearing strobes read back 0, 64-bit reads are not atomic (use the snapshot latch for TOD), and how the map is versioned.
@@ -241,6 +244,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8C8` | Reserved target-media compatibility words (structural zero) |
 | `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
 | `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
+| `0x8E0` | AAF clock meter (`AAFM_STAT` / `AAFM_RATE`, RO live, #629); structural zero on a shape without an AAF clock source. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) — write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback** |
 | `0x920` | **Protocol-processor control plane** (`PP_CTRL`/`STAT`/`SPADDR`/`SPDATA`/`DIAG`) — always decoded at VERSION major 2 |
@@ -1845,15 +1849,15 @@ at each frame's close on the fsync grid, taken by the talker walk's snapshot in
 the media tick's cycle) - and until `0x0058` those counts reached only a
 simulation tap. Since #617 the TDM half keys on exactly those two events, so it
 counts the talker's own repeated and skipped TDM frames
-(`tb/verilator/capture_coherence` grades it walk by walk). At the INTERNAL
-clock source the free-running grids slip one sample every 1.958 s on the
-shipping divider plan (-10.64 ppm: the standing free-run rule, slips accepted,
-and now readable); under a CRF selection the align chain holds the packet grid
-on fsync and both pairs stop climbing (`tb/verilator/milan_dp` `obj_aclk`, the
-[RING-INT] / [RING-CRF] phases).
-Nothing clears them, so a pair that counted at INTERNAL before the selection
-reads a static NON-ZERO word under CRF, not a zero: the reading table below
-grades the pair static, never absolute.
+(`tb/verilator/capture_coherence` grades it walk by walk). Before #629 the
+INTERNAL grids free-ran and slipped one sample every 1.958 s on the shipping
+divider plan (-10.64 ppm, the free-run rule of that time, slips accepted). Since
+#629 (D4 = A2-a) the align chain holds the packet grid on fsync at INTERNAL as
+under a followed CRF or AAF source, and both pairs stop climbing
+(`tb/verilator/milan_dp` `obj_aclk`, the [RING-INT] / [RING-CRF] phases).
+Nothing clears them, so a pair that counted before the aligner engaged reads a
+static NON-ZERO word afterwards, not a zero: the reading table below grades the
+pair static, never absolute.
 These two words are that evidence on silicon.
 
 | Offset | Name | Acc | Reset | Description |
@@ -1880,7 +1884,7 @@ least 65535, spent", never a rate. Time to the ceiling:
 | upstream paused, four fed pairs (the shipping 1x1x8 lane) | 65535 / 192000 per second = 0.34 s | - |
 | upstream paused, 32 fed pairs (an 8x8 elaboration with the lane) | 65535 / 1536000 per second = 43 ms | - |
 | TDM front-end clock stopped | - | 65535 / 48000 per second = 1.4 s |
-| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
+| an unaligned packet grid against a disciplined peer (one slip per 1.958 s: INTERNAL before #629) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
 
 Live RO, no arm, no snapshot (the same `>= 0x800` carve-out as `0x8F8`);
 writes land nowhere. Read twice and difference for a rate while both halves are
@@ -1986,14 +1990,14 @@ an engagement dwelling on the crossing makes likely; `KL_media_nco`'s monotone
 terminal compare removed that.
 
 **Reading them** (the lane established, a loopback pair fed and mapped, the
-listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
-upstream talker runs at the physical grid's rate, the disciplined peer
-`obj_aclk` models):
+listener bound, both halves below `0xFFFF`; the rates assume the upstream
+talker runs at the physical grid's rate, the disciplined peer `obj_aclk`
+models):
 
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
 | static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock. Under CRF a static `SLIP_TDM` is a talker that repeats and skips no TDM frame: the aligner holds the frame close 256 cycles off the walk's crossing at every settled lock phase (the guarded crossing above); an engagement's acquisition may add one dup and one skip, once |
-| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
+| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | the packet grid is not aligned to the front end: the -10.64 ppm plan. At INTERNAL this was the rule before #629; since #629 (A2-a) the aligner runs at every source, so on a current image look for a dead TDM feed (the aligner's watchdog disengages it) |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
 
@@ -2049,14 +2053,62 @@ Underrun, overrun and recentre counters remain separate verification taps.
 Proof: `make -C tb/verilator/milan_dp aclk` reads the taps.
 `make -C tb/verilator/milan_dp render-csr-controls` checks absence and mutation.
 
+### 0x8E0  -  AAF clock meter  `(#629, KL_aaf_clock_meter)`
+
+Issue #629 claims the first free pair above `RENDER_STAT`.
+The meter measures the selected AAF Stream Input's media clock.
+It reads the presentation timestamps, as the
+[media-clock following design](../design/MEDIA_CLOCK_FOLLOWING.md) states.
+Its rate is the servo's reference while an AAF source is selected.
+
+VERSION remains `0x0002_0060`, as for `0x8DC`.
+The release step owns the minor bump.
+Before that bump, VERSION alone cannot identify this addition.
+Verify the build's source revision includes #629's register decode.
+
+| Offset | Name | Acc | Reset | Description |
+|---|---|---|---|---|
+| `0x8E0` | `AAFM_STAT` | RO live | `0` | Meter status and diagnostics |
+| `0x8E4` | `AAFM_RATE` | RO live | `0` | Signed rate in `CRF_RATE`'s units |
+
+| Bits | Width | Meaning | Reset |
+|---|---|---|---|
+| `[0]` | 1 | Locked: 8 clean consumed PDUs; 100 ms without one unlocks | 0 |
+| `[1]` | 1 | Rate valid: 2,048 group intervals (4.096 s) since the history last restarted | 0 |
+| `[2]` | 1 | Enabled: an AAF clock source is selected | 0 |
+| `[3]` | 1 | Reserved zero | 0 |
+| `[7:4]` | 4 | The followed AAF listener; zero while no AAF source is selected | 0 |
+| `[15:8]` | 8 | Data-caused history restarts: a `tu` edge, a deviation beyond 4,096 ns, a pick spacing outside its bound; wraps | 0 |
+| `[31:16]` | 16 | Largest timestamp deviation in a group, ns; saturates at `0xFFFF` | 0 |
+
+`[15:8]` is the bench's measure of a talker's regularity.
+Only reset clears it; a source change does not.
+`[31:16]` clears at every era start: a selection change, a bind edge or the 100 ms timeout.
+While no AAF source is selected, `[2:0]` and `[31:16]` read zero.
+
+`AAFM_RATE` is the talker's media clock against gPTP, as `CRF_RATE` (`0x748`).
+It is signed ns of error per 512 ms; 1 ppm is 512 units.
+It updates every 512 ms and holds its last value between updates.
+It is meaningful only while `AAFM_STAT[1]` reads 1.
+
+**STRUCTURAL ZERO** applies when the shape offers no AAF clock source.
+Then no meter is elaborated and both words read zero.
+Each word has its own term in the `>= 0x800` read window.
+Without it the word would read zero on every build, as `0x8F8` once did.
+
+Proof: `make -C tb/verilator/aaf_clock_meter` grades the meter and its fields.
+The root CSR read is graded in `tb/verilator/milan_dp_mclk`.
+
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 
 > 🟢 **THE SERVO ENGAGES ON THE LIVE SELECTION SINCE #74.** It engages when
-> the stored CLOCK_DOMAIN `clock_source_index` selects the CRF descriptor:
-> the processor stores AECP `SET_CLOCK_SOURCE`, `KL_pp_shadow.sv` exports
-> it, and `milan_datapath`'s `media_clk_resolve` feeds this servo the live
-> index against the shape's generated CRF index. With INTERNAL selected -
-> the power-on state - `0x8F8` reads IDLE with trim 0, honestly.
+> the stored CLOCK_DOMAIN `clock_source_index` selects the CRF descriptor or,
+> since #629, one AAF Stream Input's INPUT_STREAM descriptor: the processor
+> stores AECP `SET_CLOCK_SOURCE`, `KL_pp_shadow.sv` exports it, and
+> `milan_datapath`'s `media_clk_resolve` decodes the live index through the
+> shape's generated clock-source tables. Its reference is `KL_crf_rx` under
+> CRF and the AAF clock meter (`0x8E0`) under an AAF source. With INTERNAL
+> selected - the power-on state - `0x8F8` reads IDLE with trim 0, honestly.
 >
 > The servo's command slice `[31:16]` is the MMCM's ALONE: the packet-grid
 > NCO no longer mirrors it. The packet grid follows the PHYSICAL fsync grid
@@ -2079,7 +2131,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, one a PHC step landed in (#539), or one overlapping the policy-slew level (#545; cleared in IDLE). Slew overlap counts once at the boundary, including the partial tail; a coincident step counts that same window once, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, one a PHC step landed in (#539), or one overlapping the policy-slew level (#545; cleared in IDLE). Slew overlap counts once at the boundary, including the partial tail; a coincident step counts that same window once, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor or an AAF INPUT_STREAM descriptor (the generated `AEM_CLKSRC_KIND_C` table); a change between two followed sources passes HOLDOVER into ACQUIRE with the trim kept; at INTERNAL this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
 ### 0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`

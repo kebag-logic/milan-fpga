@@ -2325,8 +2325,8 @@ class NxnDatapathHarness {
 
     void prove_the_identity_and_provision_the_entity_id() {
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION 0x0061 adds the AAF clock meter words at 0x8E0/0x8E4 (#629), and carries 0x0060's widening of pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
-           axi_read(A_VERSION), 0x00020061);
+        ck("VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+           axi_read(A_VERSION), 0x00020060);
 
         //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
         //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -2619,12 +2619,16 @@ class NxnDatapathHarness {
 
     //! the AECP sequence_id cursor the whole model walk shares
     uint16_t model_sq = 0x4100;
-    //! #389: what the generated CLOCK_DOMAIN lists, read by the set walk
-    //! below and consumed by [CRF-SEL] and [CLKSRC-RANGE]: the count, and
-    //! the index of the one INPUT_STREAM source (the CRF sink's), -1 until
-    //! the walk has found it
+    //! what the generated CLOCK_DOMAIN lists, read by the set walk below
+    //! and consumed by [CRF-SEL], [CLKSRC-WALK] and [CLKSRC-RANGE]: the
+    //! count, the index of the CRF sink's INPUT_STREAM source (-1 until the
+    //! walk has found it), and per listed index the class the fabric
+    //! follows it as and, for an AAF source, its listener
     unsigned model_clksrc_count = 0;
     long model_crf_ix = -1;
+    enum class ClkSrcClass { Internal, Crf, Aaf, Other };
+    std::vector<ClkSrcClass> model_clksrc_class;
+    std::vector<unsigned> model_clksrc_li;
 
     //! Every row the generator emitted, served by READ_DESCRIPTOR.
     void read_every_descriptor_the_generator_emitted() {
@@ -2811,18 +2815,17 @@ class NxnDatapathHarness {
     }
 
     // ---- the CLOCK_SOURCE set, against what the fabric follows -
-    //! #389: every CLOCK_SOURCE the model advertises must be one a
-    //! controller can select AND the media plane follows. The fabric
-    //! follows exactly two - INTERNAL (the free-running grid) and the
-    //! CRF sink's INPUT_STREAM source (the #74 chain media_clk_resolve
-    //! arms) - so an INPUT_STREAM source located on an AAF listener,
-    //! which the builder used to emit one of per listener, was
-    //! advertised, accepted and stored while nothing followed it. The
-    //! builder no longer emits one, and this walk reads the GENERATED
-    //! descriptors rather than assuming a rule: 1722.1-2021 7.2.9.2
-    //! (clock_source_type @72, location_type @82, location_index @84)
-    //! and 7.2.32 (clock_sources_offset @72, clock_sources_count @74,
-    //! the list @76). The CRF index it derives is what [CRF-SEL] selects
+    //! #389, as amended by #629: every CLOCK_SOURCE the model advertises
+    //! must be one a controller can select AND the media plane follows.
+    //! The fabric follows INTERNAL (the aligned grid), the CRF sink's
+    //! INPUT_STREAM source, and since #629 one INPUT_STREAM source per
+    //! AAF listener, measured by the AAF clock meter. They are listed in
+    //! the class order of #629 D1: INTERNAL at 0, CRF at 1, AAF listener
+    //! k at 2 + k. The walk reads the GENERATED descriptors rather than
+    //! assuming a rule: 1722.1-2021 7.2.9.2 (clock_source_type @72,
+    //! location_type @82, location_index @84) and 7.2.32
+    //! (clock_sources_offset @72, clock_sources_count @74, the list @76).
+    //! The classes it derives are what [CRF-SEL] and [CLKSRC-WALK] select,
     //! and the count is the edge [CLKSRC-RANGE] grades from both sides.
     void grade_the_clock_source_set_against_the_fabric() {
         const std::vector<uint8_t>* cd = desc_of(0x0024, 0);
@@ -2842,37 +2845,71 @@ class NxnDatapathHarness {
             if (model_be16(*cd, 76 + 2 * k) != k) identity = 0;
         ck("[AECP-MODEL] CLOCK_DOMAIN 0 lists CLOCK_SOURCE 0..count-1 in "
            "order", identity, 1);
+        classify_the_listed_clock_sources(count);
         long internal = 0;
-        long on_aaf = 0;
         long on_crf = 0;
         long other = 0;
+        long in_order = 1;
+        std::vector<long> per_listener(kNstreamsTb, 0);
+        for (unsigned k = 0; k < count; k++) {
+            switch (model_clksrc_class[k]) {
+            case ClkSrcClass::Internal:
+                internal++;
+                if (k != 0) in_order = 0;
+                break;
+            case ClkSrcClass::Crf:
+                on_crf++;
+                if (k != 1) in_order = 0;
+                break;
+            case ClkSrcClass::Aaf:
+                per_listener[model_clksrc_li[k]]++;
+                if (k != 2 + model_clksrc_li[k]) in_order = 0;
+                break;
+            default:
+                other++;
+                break;
+            }
+        }
+        long on_aaf = 0;
+        long each_once = 1;
+        for (long n : per_listener) {
+            on_aaf += n;
+            if (n != 1) each_once = 0;
+        }
+        ck("[AECP-MODEL] one INTERNAL CLOCK_SOURCE (the aligned grid)",
+           internal, 1);
+        ck("[AECP-MODEL] exactly one INPUT_STREAM CLOCK_SOURCE, at the CRF "
+           "sink", on_crf, 1);
+        ck("[AECP-MODEL] one INPUT_STREAM CLOCK_SOURCE on every AAF listener, "
+           "and only one (#629)", each_once, 1);
+        ck("[AECP-MODEL] the class order of #629 D1: INTERNAL 0, CRF 1, AAF "
+           "listener k at 2 + k", in_order, 1);
+        ck("[AECP-MODEL] no CLOCK_SOURCE of a kind the fabric cannot follow",
+           other, 0);
+        ck("[AECP-MODEL] every listed CLOCK_SOURCE is one the fabric follows",
+           internal + on_crf + on_aaf, count);
+    }
+
+    //! one class per listed index, read off its CLOCK_SOURCE descriptor
+    void classify_the_listed_clock_sources(unsigned count) {
+        model_clksrc_class.assign(count, ClkSrcClass::Other);
+        model_clksrc_li.assign(count, 0);
         for (unsigned k = 0; k < count; k++) {
             const std::vector<uint8_t>* cs = desc_of(0x000A, k);
-            if (!cs) { other++; continue; }
+            if (!cs) continue;
             const unsigned ty = model_be16(*cs, 72);   // clock_source_type
             const unsigned lt = model_be16(*cs, 82);   // location_type
             const unsigned li = model_be16(*cs, 84);   // location_index
             if (ty == 0x0000) {
-                internal++;
+                model_clksrc_class[k] = ClkSrcClass::Internal;
             } else if (ty == 0x0002 && lt == 0x0005 && li == kNstreamsTb) {
-                on_crf++;                     // the CRF sink's own source
+                model_clksrc_class[k] = ClkSrcClass::Crf;   // the CRF sink's
                 model_crf_ix = static_cast<long>(k);
             } else if (ty == 0x0002 && lt == 0x0005 && li < kNstreamsTb) {
-                on_aaf++;                     // an AAF listener's: unfollowed
-            } else {
-                other++;                      // EXTERNAL, or a stray location
+                model_clksrc_class[k] = ClkSrcClass::Aaf;   // AAF listener li
+                model_clksrc_li[k] = li;
             }
         }
-        ck("[AECP-MODEL] one INTERNAL CLOCK_SOURCE (the free-running grid)",
-           internal, 1);
-        ck("[AECP-MODEL] no INPUT_STREAM CLOCK_SOURCE is located on an AAF "
-           "listener (#389)", on_aaf, 0);
-        ck("[AECP-MODEL] exactly one INPUT_STREAM CLOCK_SOURCE, at the CRF "
-           "sink", on_crf, 1);
-        ck("[AECP-MODEL] no CLOCK_SOURCE of a kind the fabric cannot follow",
-           other, 0);
-        ck("[AECP-MODEL] every listed CLOCK_SOURCE is one the fabric follows",
-           internal + on_crf, count);
     }
 
     // ---- the SETTINGS FACE reaches the datapath ---------------
@@ -2909,6 +2946,7 @@ class NxnDatapathHarness {
         prove_set_control_identify_reaches_the_datapath(id);
         restore_the_clock_source_and_identify_faces(cs, id);
         prove_the_crf_selection_reaches_the_one_resolve();
+        prove_every_listed_clock_source_is_followed();
         prove_a_removed_clock_source_index_is_refused();
         //! HONEST LIMIT, stated rather than papered over. The
         //! configuration face cannot be MOVED on this model:
@@ -3005,7 +3043,7 @@ class NxnDatapathHarness {
     }
 
     //! #74 [CRF-SEL]: the command chain, from SET_CLOCK_SOURCE to the media
-    //! plane's one registered resolve and the NCO gate it drives.
+    //! plane's one registered resolve and the follow select it drives.
     void prove_the_crf_selection_reaches_the_one_resolve() {
         #ifndef DIVERGENT_TB
         //! #74 [CRF-SEL]: the COMMAND CHAIN reaches the media
@@ -3016,7 +3054,9 @@ class NxnDatapathHarness {
         //! "2" was the 8-listener bug the generator banner records,
         //! and #389 moved the index again by dropping the per-
         //! listener sources. Selected: the registered verdict and
-        //! the NCO gate rise; restored: they fall. The selected-mode
+        //! the follow select rise; restored: they fall. The NCO
+        //! gate is engaged at both ends (#629 A2-a: the aligner runs
+        //! at INTERNAL too), so it is graded steady. The selected-mode
         //! PHYSICS (grid alignment, the live status slice, mr)
         //! runs where the clock ratio exists - obj_aclk's [CRF]
         //! phase; this arm owns only the chain.
@@ -3036,7 +3076,10 @@ class NxnDatapathHarness {
         ck("[CRF-SEL] the one registered resolve reads CRF",
            static_cast<long>(dut->rootp
                ->milan_datapath__DOT__crf_clk_selected_r), 1);
-        ck("[CRF-SEL] the NCO servo gate rose with it",
+        ck("[CRF-SEL] the follow select rose with it",
+           static_cast<long>(dut->rootp
+               ->milan_datapath__DOT__follow_sel_r), 1);
+        ck("[CRF-SEL] the NCO gate is engaged under CRF",
            static_cast<long>(dut->rootp
                ->milan_datapath__DOT__mnco_servo_en_w), 1);
         c5[4] = 0; c5[5] = 0;
@@ -3045,10 +3088,89 @@ class NxnDatapathHarness {
         ck("[CRF-SEL] restore: the verdict falls to INTERNAL",
            static_cast<long>(dut->rootp
                ->milan_datapath__DOT__crf_clk_selected_r), 0);
-        ck("[CRF-SEL] ...and the gate falls with it",
+        ck("[CRF-SEL] ...and the follow select falls with it",
            static_cast<long>(dut->rootp
-               ->milan_datapath__DOT__mnco_servo_en_w), 0);
+               ->milan_datapath__DOT__follow_sel_r), 0);
+        ck("[CRF-SEL] ...while the NCO gate stays engaged at INTERNAL "
+           "(#629 A2-a)",
+           static_cast<long>(dut->rootp
+               ->milan_datapath__DOT__mnco_servo_en_w), 1);
         #endif
+    }
+
+    //! #629 [CLKSRC-WALK]: every index the CLOCK_DOMAIN lists is accepted
+    //! by SET_CLOCK_SOURCE, reads back through GET_CLOCK_SOURCE, and the
+    //! one registered decode follows it as the class its descriptor names
+    //! (classify_the_listed_clock_sources). For an AAF source the AAF
+    //! clock meter's own status word must name the listener and read
+    //! enabled, so the generated per-index tables are graded through to
+    //! the meter. The servo leaves IDLE only on a locked reference
+    //! (KL_mmcm_drp_servo IDLE_S), and no talker streams here, so its
+    //! select, follow_sel_r, is the servo-side observation. The
+    //! selection is restored at the end.
+    void prove_every_listed_clock_source_is_followed() {
+        const unsigned count = model_clksrc_count;
+        const uint16_t cur = static_cast<uint16_t>(
+            dut->rootp->milan_datapath__DOT__pp_aecp_clk_src_index_w);
+        std::vector<uint8_t> c(8, 0);
+        c[0] = 0x00; c[1] = 0x24;             // CLOCK_DOMAIN 0 @24..@27
+        for (unsigned k = 0; k < count && k < model_clksrc_class.size(); k++) {
+            char t[96];
+            snprintf(t, sizeof t, "[CLKSRC-WALK] SET_CLOCK_SOURCE(%u)", k);
+            c[4] = static_cast<uint8_t>(k >> 8);
+            c[5] = static_cast<uint8_t>(k);
+            const std::vector<uint8_t> r = aecp_xact(0x0016, model_sq++, c);
+            char w[160];
+            snprintf(w, sizeof w, "%s answers SUCCESS", t);
+            ck(w, r.size() >= 42 ? aecp_status(r) : -1, 0);
+            for (int n = 0; n < 8; n++) step();
+            std::vector<uint8_t> g(4, 0);
+            g[0] = 0x00; g[1] = 0x24;
+            const std::vector<uint8_t> rg = aecp_xact(0x0017, model_sq++, g);
+            snprintf(w, sizeof w, "%s reads back", t);
+            ck(w, rg.size() >= 46
+                   ? ((static_cast<unsigned>(rg[42]) << 8) | rg[43]) : 0xFFFFFFFFul,
+               k);
+            grade_the_decode_of_one_index(t, k);
+        }
+        c[4] = static_cast<uint8_t>(cur >> 8);
+        c[5] = static_cast<uint8_t>(cur);
+        aecp_xact(0x0016, model_sq++, c);
+        for (int n = 0; n < 8; n++) step();
+        ck("[CLKSRC-WALK] restore: the face is back at the current index",
+           static_cast<long>(dut->rootp
+               ->milan_datapath__DOT__pp_aecp_clk_src_index_w), cur);
+    }
+
+    //! the registered decode against the class the model names for index k
+    void grade_the_decode_of_one_index(const char* t, unsigned k) {
+        const ClkSrcClass cls = model_clksrc_class[k];
+        const auto* rp = dut->rootp;
+        const long want_int = (cls == ClkSrcClass::Internal) ? 1 : 0;
+        const long want_crf = (cls == ClkSrcClass::Crf) ? 1 : 0;
+        const long want_aaf = (cls == ClkSrcClass::Aaf) ? 1 : 0;
+        char w[192];
+        snprintf(w, sizeof w, "%s decodes as INTERNAL: %ld", t, want_int);
+        ck(w, static_cast<long>(rp->milan_datapath__DOT__int_clk_selected_r),
+           want_int);
+        snprintf(w, sizeof w, "%s decodes as CRF: %ld", t, want_crf);
+        ck(w, static_cast<long>(rp->milan_datapath__DOT__crf_clk_selected_r),
+           want_crf);
+        snprintf(w, sizeof w, "%s decodes as AAF: %ld", t, want_aaf);
+        ck(w, static_cast<long>(rp->milan_datapath__DOT__aaf_clk_selected_r),
+           want_aaf);
+        snprintf(w, sizeof w, "%s: the servo select follows a stream source", t);
+        ck(w, static_cast<long>(rp->milan_datapath__DOT__follow_sel_r),
+           want_crf | want_aaf);
+        if (cls != ClkSrcClass::Aaf) return;
+        const unsigned li = model_clksrc_li[k];
+        constexpr uint16_t A_AAFM_STAT = 0x8E0;
+        const uint32_t st = axi_read(A_AAFM_STAT);
+        snprintf(w, sizeof w, "%s: the meter follows listener %u (AAFM_STAT[7:4])",
+                 t, li);
+        ck(w, static_cast<long>((st >> 4) & 0xF), static_cast<long>(li));
+        snprintf(w, sizeof w, "%s: the meter is enabled (AAFM_STAT[2])", t);
+        ck(w, static_cast<long>((st >> 2) & 1), 1);
     }
 
     //! #389 [CLKSRC-RANGE]: a SET_CLOCK_SOURCE naming an index the
@@ -3056,11 +3178,11 @@ class NxnDatapathHarness {
     //! 7.4.23.1, Milan v1.2 5.4.2.15) carrying the CURRENT index, and
     //! moves neither the stored selection nor the face the media plane
     //! resolves - the processor's E_SCLKS range check against
-    //! clock_sources_count. Three indexes are refused: the count itself
-    //! (one past the list), NSTREAMS + 1 (the index the pre-#389 model
-    //! gave the CRF source; the negative control against the old image
-    //! is that this exact command answered SUCCESS there), and 0xFFFF.
-    //! The edge is then graded from the inside: count - 1 (the CRF
+    //! clock_sources_count. Two indexes are refused: the count itself
+    //! (one past the list) and 0xFFFF. #389's third, NSTREAMS + 1, is
+    //! listed again since #629 (AAF listener NSTREAMS - 1's source), so
+    //! [CLKSRC-WALK] above accepts it, with every other listed index. The
+    //! edge is then graded from the inside: count - 1 (the last AAF
     //! source) is accepted, and the selection is restored.
     void prove_a_removed_clock_source_index_is_refused() {
         const unsigned count = model_clksrc_count;
@@ -3068,17 +3190,15 @@ class NxnDatapathHarness {
             dut->rootp->milan_datapath__DOT__pp_aecp_clk_src_index_w);
         ck("[CLKSRC-RANGE] the model lists at least the INTERNAL source",
            static_cast<long>(count >= 1), 1);
-        const uint16_t refused[3] = {
+        const uint16_t refused[2] = {
             static_cast<uint16_t>(count),
-            static_cast<uint16_t>(kNstreamsTb + 1),
             0xFFFF };
-        const char* why[3] = {
+        const char* why[2] = {
             "clock_sources_count, one past the list",
-            "NSTREAMS + 1, the pre-#389 CRF index",
             "0xFFFF" };
         std::vector<uint8_t> c(8, 0);
         c[0] = 0x00; c[1] = 0x24;             // CLOCK_DOMAIN 0 @24..@27
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             char t[128];
             snprintf(t, sizeof t, "[CLKSRC-RANGE] SET_CLOCK_SOURCE(%u: %s)",
                      refused[i], why[i]);
@@ -7944,7 +8064,8 @@ class NxnDatapathHarness {
 
     //! One GRID_CLK window walked cycle by cycle, counting the media ticks,
     //! the slot-indexed capture feed's pulses, and the cycles on which the
-    //! servo gate or the NCO's trim port disagreed with INTERNAL.
+    //! servo gate disagreed with the selection or a disengaged aligner left a
+    //! command on the NCO's trim port.
     void walk_the_media_grid_for_one_window(long& ticks, long& tdm_written,
                                             long& gate_bad, long& cmd_bad) {
         auto* rp = dut->rootp;
@@ -7972,16 +8093,18 @@ class NxnDatapathHarness {
 
             //  The gate must BE the clock-source selection, every cycle -
             //  and that selection is LIVE since #74 (media_clk_resolve).
-            //  This leg never selects CRF, so the registered verdict must
-            //  hold 0 on every cycle; the 0 == 0 trap the old constant
-            //  guarded against is now guarded by the 16'hFFFF no-descriptor
-            //  fold inside the one resolve block.
+            //  #629 A2-a: the gate is "a source is decoded", INTERNAL or a
+            //  followed one, so it is the OR of the two registered verdicts;
+            //  an index outside the table still holds it low.
             if (rp->milan_datapath__DOT__mnco_servo_en_w !=
-                rp->milan_datapath__DOT__crf_clk_selected_r) gate_bad++;
-            //  and INTERNAL must leave NO residual command on the NCO's trim
-            //  port: the align loop (#74 - the NCO's command source now; the
-            //  MMCM slice is the MMCM's alone) drives 0 while disengaged
-            if (servo16() != 0) cmd_bad++;
+                (rp->milan_datapath__DOT__int_clk_selected_r |
+                 rp->milan_datapath__DOT__follow_sel_r)) gate_bad++;
+            //  and a disengaged align loop must leave NO residual command on
+            //  the NCO's trim port: the loop (#74 - the NCO's command source
+            //  now; the MMCM slice is the MMCM's alone) drives 0 until a
+            //  frame engages it (no feed on most legs here)
+            if (!rp->milan_datapath__DOT__mga_engaged_w && servo16() != 0)
+                cmd_bad++;
         }
     }
 
@@ -8010,8 +8133,8 @@ class NxnDatapathHarness {
 
         ck("0x0041 grid: the NCO's servo gate IS the live selection verdict",
            gate_bad, 0);
-        ck("0x0041 grid: INTERNAL leaves the grid free-running",
-           rp->milan_datapath__DOT__mnco_servo_en_w, 0);
+        ck("0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a)",
+           rp->milan_datapath__DOT__mnco_servo_en_w, 1);
 
         //  the old "WHICH slice feeds the NCO" question is CLOSED BY
         //  REDESIGN (#74): the slice feeds nothing but the CSR - it is the
@@ -8019,8 +8142,8 @@ class NxnDatapathHarness {
         //  clock_source=CRF by obj_aclk's [CRF] phase - and the NCO follows
         //  the physical grid through KL_media_grid_align instead. What this
         //  leg still owns is the disengaged half:
-        ck("0x0041 grid: INTERNAL leaves no residual trim on the NCO port",
-           cmd_bad, 0);
+        ck("0x0041 grid: a disengaged aligner leaves no residual trim on the "
+           "NCO port", cmd_bad, 0);
     }
 
     int report() const {

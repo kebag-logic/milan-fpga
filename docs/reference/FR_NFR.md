@@ -134,6 +134,7 @@ These repeated claims are checked against the
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `implemented` | - |
+| `aaf.media-clock-following` | `implemented` | - |
 | `state.nonvolatile-persistence` | `partial` | - |
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
