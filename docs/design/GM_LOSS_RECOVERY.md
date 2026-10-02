@@ -123,17 +123,17 @@ Licensed streams continue during transitions.
 
 Every talker reports uncertainty through `tu`.
 
-INTERNAL keeps its free-running media clock.
+INTERNAL keeps the MMCM plan's media clock.
 
-CRF selection activates the MMCM servo.
+CRF or AAF selection activates the MMCM servo.
 
-CRF unlock moves that servo into HOLDOVER.
+Reference unlock moves that servo into HOLDOVER.
 
 The held trim keeps audio samples moving.
 
 Grid alignment continues while TDM markers continue.
 
-Deselecting CRF disengages both steering loops.
+Selecting INTERNAL disengages the servo; grid alignment stays engaged (#629, A2-a).
 
 Publication changes feed notification scheduling.
 

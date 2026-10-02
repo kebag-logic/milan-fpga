@@ -136,23 +136,30 @@ It requires better than +/-50 ppm.
 
 CRF transport measures remote media timing.
 
+An AAF stream carries its talker's media clock in its timestamps.
+
 The root consumes stored clock selection since issue #74.
 
-Only two sources are advertised since issue #389.
+Since issue #629 one source is selected out of three classes.
 
-They are INTERNAL and the CRF sink.
+They are INTERNAL, the CRF sink and one source per AAF Stream Input.
 
-An AAF listener carries no CLOCK_SOURCE, because nothing follows one.
+They are listed in that class order: INTERNAL 0, CRF 1, AAF input k at 2 + k.
 
 INTERNAL remains the power-on selection.
 
-CRF selection activates the MMCM servo.
+CRF or AAF selection activates the MMCM servo.
 
-The grid aligner follows the physical sample grid.
+`KL_crf_rx` measures a CRF talker; `KL_aaf_clock_meter` an AAF talker.
+
+The grid aligner follows the physical sample grid at every source.
+
+The [media-clock following design](MEDIA_CLOCK_FOLLOWING.md) records the rules.
 
 ```mermaid
 flowchart LR
     CRF[CRF sink] --> SERVO[MMCM-DRP servo]
+    AAFM[AAF clock meter] --> SERVO
     SERVO --> AUDIO[clk_audio and clk_tdm]
     AUDIO --> FSYNC[fsync frame marker]
     FSYNC --> ALIGN[Grid aligner]
@@ -164,14 +171,16 @@ Each link has exactly one master.
 | Loop fact | Value | RTL |
 |---|---|---|
 | Physical sample grid | `100 MHz * 391/1591 / 512` = 47,999.4893 Hz | `KL_tdm_capture_master` frame divider after the `milan_soc.py` PLAN A MMCM |
-| Packet grid | 48,000.0000 Hz free-running | `KL_media_nco` |
+| Packet grid | 48,000.0000 Hz nominal, aligned to the physical grid while the TDM feed is live | `KL_media_nco` |
 | Packet-grid trim update | any cycle: one tick per period, never lost or doubled, no counter wrap; an update landing past a lowered end is a one-cycle phase step (#617) | `KL_media_nco` monotone terminal compare |
-| Free-running offset | -10.64 ppm; one sample slips every 1.9582 s | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
+| Plan offset | -10.64 ppm; one sample would slip every 1.9582 s, and the aligner removes it at every source since #629 (A2-a) | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
 | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
 | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
 | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
-| CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
-| CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+| CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.ref_rate_valid_i` |
+| AAF lost PDU | Voids its own group of 16; the rate history and the servo lock stay | `KL_aaf_clock_meter` |
+| Reference unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+| Source switch | HOLDOVER for one cycle, then ACQUIRE with the trim kept (W2) | `milan_datapath` `ref_src_chg_w`, `KL_mmcm_drp_servo` |
 | MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A policy slew uses its separate overlap guard (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | MMCM servo on a policy slew | Every overlapping window discarded and counted; integrator, trim and LOCKED held. Clean windows resume directly (#545) | `KL_mmcm_drp_servo.phc_slew_active_i`, `MCSRV_STAT[15:10]` |
 | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
@@ -192,12 +201,12 @@ The #539 step discard also restarts this streak.
 | CRF transmit | Yes | Publishes internal media events |
 | CRF receive | Yes | Measures remote phase and rate |
 | Clock-source command | Yes | Stores a listed descriptor; refuses an unlisted index with `BAD_ARGUMENTS` |
-| Root clock selection | Yes | Compares against the generated CRF descriptor |
-| INTERNAL selection | Yes | Free-running media clock, the power-on state |
+| Root clock selection | Yes | Decodes the stored index through the generated clock-source tables |
+| INTERNAL selection | Yes | The MMCM plan's media clock, the power-on state; the packet grid aligned to it (A2-a) |
 | CRF selection | Yes | Drives the media clock through the servo and the aligner |
-| Stream-derived recovery | No | Not advertised: no INPUT_STREAM source on an AAF listener (#389) |
-| MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
-| Packet-grid alignment | Conditional | Follows the physical sample grid |
+| AAF selection | Yes | Drives the media clock from one AAF Stream Input's timestamps (#629) |
+| MMCM servo activation | Conditional | Steers audio clocks under CRF or AAF selection |
+| Packet-grid alignment | Conditional | Follows the physical sample grid while the TDM feed is live |
 
 The policy level follows the effective PHC rate.
 
@@ -353,20 +362,18 @@ The constant is independent of the audio interface.
 | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
 | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
 | Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) |
-| Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+| Clock-source settle | under CRF or AAF following: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
 | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
 | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
 | Wire channel count change | the stream is flushed and re-prefilled | its queued rows carry the old lane layout |
 
-Under INTERNAL the grids free-run.
+The grids align at every source since #629 (A2-a).
 
-The rail then re-centres every 11.75 s.
-That is six events at the -10.64 ppm offset.
+So the -10.64 ppm plan offset fires no rail.
 
-It assumes a talker on the board's physical grid.
-Another talker's rate error sets its own period.
+Before, INTERNAL free-ran and the rail re-centred every 11.75 s.
 
-Under CRF the grids align and no rail fires.
+A talker whose media clock is not this one sets its own rail period.
 
 | Interface after the grid | Fixed delay | Shipped |
 |---|---|---|
