@@ -56,10 +56,14 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
 
 
 def grade_rows(rows: list[dict], spec: dict) -> dict:
-    """Apply the same timing and byte oracle to both traffic arms."""
+    """Apply the same timing and byte oracle to both traffic arms.
+
+    The census each row must copy is the spec's, derived from the generated
+    shape by `nvm_shape.closed_record_census`, never restated here.
+    """
     if len(rows) != spec['captures'] or not rows:
         raise RuntimeError('not every requested capture completed')
-    expected = (12634, 156) if spec['shape'] == SHAPES[0] else (3218, 53)
+    expected = (spec['raw_bytes'], spec['records'])
     if spec['traffic'] not in ('on', 'off'):
         raise RuntimeError('unknown traffic arm')
     for index, row in enumerate(rows):

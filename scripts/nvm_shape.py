@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nvm_contract import (                                    # noqa: E402
     ALLOC, FIXED, FLASH_PAGE, LEDGER, MAP_ENTRY, NAME_BYTES, NAME_SLOTS, PAY,
-    ROOT, SPI_HZ, T_PP_MAX_MS, T_SE_MAX_MS, Donor, Record, Shape)
+    REC_HDR, ROOT, SPI_HZ, T_PP_MAX_MS, T_SE_MAX_MS, Donor, Record, Shape)
 
 
 SHADOW_STEM = "KL_acmp_nvm_shadow"
@@ -246,3 +246,16 @@ def inventory(shape: Shape, base: int) -> list[Record]:
     for n in range(names):
         add("NAME", n, NAME_BYTES)
     return recs
+
+
+def closed_record_census(shape: Shape, base: int) -> tuple[int, int]:
+    """Return (framed bytes, record count) of every closed record.
+
+    This is what one saved-state capture copies. The capture harness grades
+    its rows against it and the capture gate binds its receipt to it, so the
+    two read one derivation and neither restates a shape's census.
+    """
+    records = inventory(shape, base)
+    if any(record[2] is None for record in records):
+        raise RuntimeError(f"{shape.cfg.stem}: record allocation overflow")
+    return sum(REC_HDR + record[3] for record in records), len(records)
