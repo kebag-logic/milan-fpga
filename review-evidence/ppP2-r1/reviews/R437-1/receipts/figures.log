@@ -1,0 +1,95 @@
+make: Entering directory '$REVIEWS/r437-1-ppP2/tb/nvm_port'
+76 Verilator builds: 1 baseline + 12 arms + 49 mutations + 9 models + 5 matrix
+baseline: 326 checks, 326 PASS, 0 FAIL
+
+arm coverage (measured vs README):
+  [ok ]  355 S_WEREQ    measured=0    readme=0
+  [ok ]  364 S_WEWAIT   measured=51   readme=51
+  [ok ]  374 S_WWREQ    measured=0    readme=0
+  [ok ]  384 S_WHPUMP   measured=41   readme=41
+  [ok ]  401 S_WDPUMP   measured=28   readme=28
+  [ok ]  416 S_WWAIT    measured=16   readme=16
+  [ok ]  427 S_RHREQ    measured=3    readme=3
+  [ok ]  437 S_RHCOLL   measured=20   readme=20
+  [ok ]  456 S_RHWAIT   measured=15   readme=15
+  [ok ]  483 S_RPREQ    measured=0    readme=0
+  [ok ]  493 S_RPPUMP   measured=47   readme=47
+  [ok ]  508 S_RPWAIT   measured=4    readme=4
+
+mutations and probes (measured vs README):
+  [ok ] M1               measured=60   readme=60
+  [ok ] M1-sibling       measured=31   readme=31
+  [ok ] M2               measured=12   readme=12
+  [ok ] M3               measured=106  readme=106
+  [ok ] M4               measured=28   readme=28
+  [ok ] M5               measured=16   readme=16
+  [ok ] M6               measured=50   readme=50
+  [ok ] M6-sibling       measured=47   readme=47
+  [ok ] probe-armearly   measured=1    readme=1
+  [ok ] probe-nodevice   measured=4    readme=4
+  [ok ] probe-t18        measured=4    readme=4
+  [ok ] done_seen_r/coincident measured=200  readme=200
+  [ok ] done_seen_r/pristine measured=21   readme=21
+  [ok ] own-states-dropped measured=41   readme=41
+  [ok ] own-minus-rhcoll measured=23   readme=23
+  [ok ] own-minus-wwait  measured=1    readme=1
+  [ok ] own-plus-rhreq   measured=23   readme=23
+  [ok ] C1               measured=57   readme=57
+  [ok ] C2               measured=7    readme=7
+  [ok ] C3               measured=23   readme=23
+  [ok ] C4               measured=1    readme=1
+  [ok ] M2-lo            measured=5    readme=5
+  [ok ] M7               measured=4    readme=4
+  [ok ] M8               measured=22   readme=22
+  [ok ] M6/unsolicited   measured=222  readme=222
+  [ok ] M8/short         measured=146  readme=146
+  [ok ] D1/silent        measured=267  readme=267
+  [ok ] D1               measured=52   readme=52
+  [ok ] D2               measured=33   readme=33
+  [ok ] D3               measured=35   readme=35
+  [ok ] D4               measured=27   readme=27
+  [ok ] D5               measured=3    readme=3
+  [ok ] D6               measured=2    readme=2
+  [ok ] D7               measured=9    readme=9
+  [ok ] D8               measured=27   readme=27
+  [ok ] D9               measured=29   readme=29
+  [ok ] D10              measured=23   readme=23
+  [ok ] D11              measured=2    readme=2
+  [ok ] D12              measured=4    readme=4
+  [ok ] D13              measured=3    readme=3
+  [ok ] D14              measured=5    readme=5
+  [ok ] D15              measured=23   readme=23
+  [ok ] D16              measured=3    readme=3
+  [ok ] D17              measured=8    readme=8
+  [ok ] S1               measured=7    readme=7
+  [ok ] S2               measured=5    readme=5
+  [ok ] S3               measured=15   readme=15
+  [ok ] S4               measured=13   readme=13
+  [ok ] retraction       measured=2    readme=2
+
+device models (measured vs README):
+  [ok ] pristine                   measured=326 PASS, 0 FAIL  readme=(326, 0)
+  [ok ] half-page                  measured=326 PASS, 0 FAIL  readme=(326, 0)
+  [ok ] half-page                  measured=326 PASS, 0 FAIL  readme=(326, 0)
+  [ok ] page-buffered NOR          measured=326 PASS, 0 FAIL  readme=(326, 0)
+  [ok ] lazy erase                 measured=325 PASS, 1 FAIL  readme=(325, 1)
+  [ok ] lazy erase + page-buffered measured=325 PASS, 1 FAIL  readme=(325, 1)
+  [ok ] coincident completion      measured=326 PASS, 0 FAIL  readme=(326, 0)
+  [ok ] unsolicited completion     measured=326 PASS, 0 FAIL  readme=(326, 0)
+  [ok ] short read                 measured=251 PASS, 75 FAIL  readme=(251, 75)
+  [ok ] silent                     measured=110 PASS, 216 FAIL  readme=(110, 216)
+
+pre-fix matrix (measured vs README), 5 builds:
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+  [ok ] T15 cut was real                   measured=pass pass pass pass FAIL
+  [ok ] T15 #70 property, unconditioned    measured=pass pass pass pass FAIL
+
+all measured figures agree with the tree
+
+NOT measured (waived, with the reason, so the exclusion set is
+derived from the file rather than asserted in a comment):
+  - /`fails 22 of the 326 checks` and `fails\s+22 out of 326`/ absorbs 2 (cap 4): two illustrative phrasings quoted inside the paragraph explaining what the inverted default does not close; not claims about this suite
+make: Leaving directory '$REVIEWS/r437-1-ppP2/tb/nvm_port'

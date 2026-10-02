@@ -1,0 +1,7 @@
+LINT OK  KL_pp_nvm_port
+LINT OK  KL_pp_nvm_mgr_arb
+LINT OK  protocol_processor_top
+top NVM_MEM_TMO_CYC_P=1 rc=0 warnings=0
+top NVM_MEM_TMO_CYC_P=64 rc=0 warnings=0
+top NVM_MEM_TMO_CYC_P=2147483647 rc=0 warnings=0
+top NVM_MEM_TMO_CYC_P=0 rc=1 KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=0 is outside 1 to 2147483647

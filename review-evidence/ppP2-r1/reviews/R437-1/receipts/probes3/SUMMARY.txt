@@ -1,0 +1,81 @@
+ACMP-A1-deadline-as-blank: rc=2 tallies=[('372', '372', '0'), ('16', '13', '3')] fails=3
+    first: FAIL: N12a a record read the device never answers, the port's deadline before the walk's: the port answers DEADLINE with nothing forwarded and the WHOLE walk fails with cause 2, a device that failed, never an empty record (5 port deadlines, 0 aborts): done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+    FAIL: N12a a record read the device never answers, the port's deadline before the walk's: after the port's deadline and before the walk's (5111 cycles)
+    FAIL: N12d a device face that never grants, the port's deadline before the walk's: the port answers its one request DEADLINE and the walk fails whole with cause 2: done 1 fail 0 cause 0, want 1 1 2
+ACMP-A2-no-port-deadline: rc=2 tallies=[('372', '372', '0'), ('16', '11', '5')] fails=5
+    first: FAIL: N12a a record read the device never answers, the port's deadline before the walk's: the port answers DEADLINE with nothing forwarded and the WHOLE walk fails with cause 2, a device that failed, never an empty record (0 port deadlines, 1 aborts): done 1 fail 1 cause 3, want 1 1 2
+    FAIL: N12a a record read the device never answers, the port's deadline before the walk's: after the port's deadline and before the walk's (3079 cycles)
+    FAIL: N12b a later change while the read is still owed: three attempts, each ended by the port's DEADLINE with no device command, then alarm_o, and the pending bit dropped with it (0 deadlines, alarm 0)
+    FAIL: N12c the device ends the abandoned read: its bytes drained to no manager, and a later change persists byte-exact with the alarm still set
+ACMP-A3-deadline-owes-nothing: rc=2 tallies=[('372', '372', '0'), ('16', '15', '1')] fails=1
+    first: FAIL: N12c the device ends the abandoned read: its bytes drained to no manager, and a later change persists byte-exact with the alarm still set
+ACMP-A4-crc-forced-true: rc=2 tallies=[('365', '359', '6')] fails=6
+    first: FAIL: F5 exactly the three valid bindings preload (got 4)
+    FAIL: F10 listener wrote three PRB_W_AVAIL records
+    FAIL: F14 discovery armed per preload (A4), talker EID exact
+    FAIL: F15 valid bits mirror the restored image
+ACMP-A5-issue20-defect: rc=2 tallies=[('372', '360', '12')] fails=12
+    first: FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+    FAIL: N1a a device error at the first record's header read: the walk stops at the failing record
+    FAIL: N1b a device error inside a middle record's header: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+    FAIL: N1b a device error inside a middle record's header: the walk stops at the failing record
+ACMP-pristine: rc=0 tallies=[('372', '372', '0'), ('16', '16', '0'), ('388', '388', '0')] fails=0
+I19-1-magic-lo: rc=2 tallies=[('326', '321', '5')] fails=5
+    first: FAIL: T26a the LOW magic byte: a commit framed 0x17FF is refused with one err, cause UNFRAMED (rc 0, cause -1)
+    FAIL: T26a the LOW magic byte: refused before any device traffic
+    FAIL: T26b the LOW magic byte: a stored record whose byte 1 is wrong is refused, nothing forwarded (rc 0, cause -1)
+    FAIL: T26b the LOW magic byte: only the header probe was issued
+I19-2-bound-lt: rc=2 tallies=[('326', '322', '4')] fails=4
+    first: FAIL: T26c the payload bound's legal edge: the largest legal record (payload_length == MAX_PAYLOAD_P) commits, byte-exact on the bus (rc 1)
+    FAIL: T26c the payload bound's legal edge: one WRITE of 8 + MAX_PAYLOAD_P bytes
+    FAIL: T26d the payload bound's legal edge: the largest legal record restores byte-exact (rc 0, 8 bytes)
+    FAIL: T26d the payload bound's legal edge: the payload READ asks MAX_PAYLOAD_P
+I19-3-latch-deleted: rc=2 tallies=[('326', '305', '21')] fails=21
+    first: FAIL: T21 the sticky done_seen_r latch: the commit takes a completion that rode the grant, rc=1
+    FAIL: T21 ERASE then WRITE, both issued
+    FAIL: T22a the backend answered the WRITE on the edge that moved its last byte (0 such completions)
+    FAIL: T22a the sticky done_seen_r latch: the commit takes a completion that rode the last byte, rc=1
+I19-3b-latch-deleted-other-way: rc=2 tallies=[('326', '305', '21')] fails=21
+    first: FAIL: T21 the sticky done_seen_r latch: the commit takes a completion that rode the grant, rc=1
+    FAIL: T21 ERASE then WRITE, both issued
+    FAIL: T22a the backend answered the WRITE on the edge that moved its last byte (0 such completions)
+    FAIL: T22a the sticky done_seen_r latch: the commit takes a completion that rode the last byte, rc=1
+I19-4-shortread-defence-off: rc=2 tallies=[('326', '304', '22')] fails=22
+    first: FAIL: T23 c the short-read defence: the header read ended short at 5 bytes: one err, nothing forwarded, cause DEVICE (read 3)
+    FAIL: T23 d a device error after the header, before its done: one err, nothing forwarded, cause DEVICE (read 3)
+    FAIL: T23e a device error in the payload: cause DEVICE (read 3)
+    FAIL: T23f a failed erase on a commit: cause DEVICE (read 3)
+I21-1-M6-unsolicited: rc=2 tallies=[('326', '104', '222')] fails=222
+    first: FAIL: T1 commit completes with done, rc=1
+    FAIL: T1 exactly one done, no err (got 0/1)
+    FAIL: T1 device store byte-exact (header+crc+payload)
+    FAIL: T2 restore completes with done, rc=1
+I21-2-latch-coincident: rc=2 tallies=[('326', '126', '200')] fails=200
+    first: FAIL: T1 commit completes with done, rc=1
+    FAIL: T1 exactly one done, no err (got 0/1)
+    FAIL: T2 restore completes with done, rc=1
+    FAIL: T2 exactly one done
+I21-3-M8-short: rc=2 tallies=[('326', '180', '146')] fails=146
+    first: FAIL: T2 restore completes with done, rc=1
+    FAIL: T2 exactly one done
+    FAIL: T2 restored stream byte-exact (0 bytes)
+    FAIL: T2 device ops = READ hdr(8) then READ payload(40)
+I21-4-D1-silent: rc=2 tallies=[('326', '59', '267')] fails=267
+    first: FAIL: T1 commit completes with done, rc=-1
+    FAIL: T1 exactly one done, no err (got 0/0)
+    FAIL: T1 two device ops, got 1
+    FAIL: T1 op1 = WRITE region 3 off 0 len 32
+MOD-coincident: rc=0 tallies=[('326', '326', '0')] fails=0
+MOD-lazy: rc=2 tallies=[('326', '325', '1')] fails=1
+    first: FAIL: T1 erase visible past the record
+MOD-short: rc=2 tallies=[('326', '251', '75')] fails=75
+    first: FAIL: T2 restore completes with done, rc=1
+    FAIL: T2 exactly one done
+    FAIL: T2 restored stream byte-exact (0 bytes)
+    FAIL: T2 device ops = READ hdr(8) then READ payload(40)
+MOD-silent: rc=2 tallies=[('326', '110', '216')] fails=216
+    first: FAIL: T1 commit completes with done, rc=1
+    FAIL: T1 exactly one done, no err (got 0/1)
+    FAIL: T1 two device ops, got 1
+    FAIL: T1 op1 = WRITE region 3 off 0 len 32
+MOD-unsolicited: rc=0 tallies=[('326', '326', '0')] fails=0

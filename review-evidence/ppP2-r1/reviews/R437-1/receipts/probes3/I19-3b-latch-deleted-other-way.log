@@ -1,0 +1,31 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 6.287 s (elab=0.001, cvt=0.012, bld=6.264); cpu 0.024 s on 2 threads; allocated 215.438 MB
+FAIL: T21 the sticky done_seen_r latch: the commit takes a completion that rode the grant, rc=1
+FAIL: T21 ERASE then WRITE, both issued
+FAIL: T22a the backend answered the WRITE on the edge that moved its last byte (0 such completions)
+FAIL: T22a the sticky done_seen_r latch: the commit takes a completion that rode the last byte, rc=1
+FAIL: T22b the header-only WRITE was answered on its last byte (0, 0 ops)
+FAIL: T22b the sticky done_seen_r latch: the zero-payload commit completes on that completion, rc=1
+FAIL: T22c both reads were answered on their last byte (0)
+FAIL: T22c the sticky done_seen_r latch: the restore takes both completions, stream byte-exact, rc=1
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): one err, cause DEVICE, never done, 2 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): the next restore is served at once
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): one err, cause DEVICE, never done, 2 cycles after the completion (rc 1, cause 3, gap 102)
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): 0 bytes forwarded, nothing left owed
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): the next restore is served at once
+FAIL: T27 d the WRITE ended after 5 header bytes (S_WHPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 0)
+FAIL: T27 d ...and the next commit is served
+FAIL: T27 e the WRITE ended after 20 of 48 bytes (S_WDPUMP): one err, cause DEVICE, never done (rc 1, cause 3, sent 0)
+FAIL: T27 e ...and the next commit is served
+FAIL: T27 f the WRITE completed on its own grant (S_WHPUMP): one err, cause DEVICE, never done, no byte sent (rc 1, cause 3)
+FAIL: T27 f ...and the next commit and restore are served byte-exact
+FAIL: RW4 no DEADLINE where the device was not silent (15)
+FAIL: RW6 every READ the device ended short was answered with one err, cause DEVICE, never done (1 of 3 not)
+326 checks: 305 PASS, 21 FAIL
+make: *** [Makefile:19: run] Error 1

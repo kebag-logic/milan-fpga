@@ -1,0 +1,73 @@
+P0-pristine: rc=0 tallies=[('326', '326', '0')] fails=0
+P1-manager-toggle: rc=2 tallies=[('330', '328', '2')] fails=2
+    first: FAIL: PROBE-RR silent payload READ, manager rready low 1 cycle in 50: one err DEADLINE within a bound (rc -1, cause -1)
+    FAIL: PROBE-WV silent WRITE byte, manager wvalid low 1 cycle in 50: one err DEADLINE within a bound (rc -1, cause -1)
+P2-tmo64-pristine: rc=0 tallies=[('326', '326', '0')] fails=0
+P3-tmo37-pristine: rc=2 tallies=[('326', '322', '4')] fails=4
+    first: FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T25h the device's own WRITE completed after the port's reset and was discarded: no pulse, no request (0)
+    FAIL: T25h the port serves byte-exact once the device ended its command (rc 1 0)
+    FAIL: RW4 no DEADLINE where the device was not silent (1)
+X01-owe-no-rhcoll: rc=2 tallies=[('326', '323', '3')] fails=3
+    first: FAIL: T24 S_RHCOLL: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+    FAIL: T24 S_RHCOLL: busy low at the pulse, 1 cycles after the last event (want 102)
+    FAIL: T24 S_RHCOLL: the abandoned READ's late bytes were drained, none forwarded (48 forwarded)
+X02-owe-no-whpump: rc=2 tallies=[('326', '321', '5')] fails=5
+    first: FAIL: T24 S_WHPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+    FAIL: T24 S_WHPUMP: busy low at the pulse, 1 cycles after the last event (want 102)
+    FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+    FAIL: T24 contained: ...and the next request ends DEADLINE with no command
+X03-rbyte-not-progress: rc=2 tallies=[('326', '299', '27')] fails=27
+    first: FAIL: T26d the payload bound's legal edge: the largest legal record restores byte-exact (rc 1, 109 bytes)
+    FAIL: T15 seed record committed
+    FAIL: T15 the tear is named DEVICE (read 3)
+    FAIL: T15 the cut was real: ERASE then a WRITE stopped 12 bytes in
+X05-owed-not-ended-by-err: rc=2 tallies=[('326', '324', '2')] fails=2
+    first: FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 1 1)
+    FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+X10-rd-st-no-rppump: rc=2 tallies=[('326', '314', '12')] fails=12
+    first: FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+X11-rd-st-no-rhreq: rc=2 tallies=[('326', '309', '17')] fails=17
+    first: FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+X12-wwait-not-owed: rc=0 tallies=[('326', '326', '0')] fails=0
+X14-guard-off-by-one: rc=2 tallies=[] fails=0
+X15-width-at-100: rc=2 tallies=[] fails=0
+X15-width-at-64: rc=2 tallies=[] fails=0
+X16-blocked-req-owes-nothing: rc=2 tallies=[('326', '317', '9')] fails=9
+    first: FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 2)
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+    FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+X17-owed-done-not-progress: rc=0 tallies=[('326', '326', '0')] fails=0
+X18-drain-not-progress: rc=0 tallies=[('326', '326', '0')] fails=0
+X20-late-gnt-err-owed: rc=0 tallies=[('326', '326', '0')] fails=0
+X21-owed-survives-reset: rc=2 tallies=[('326', '226', '100')] fails=100
+    first: FAIL: T24 S_WWREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_WHPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_WHPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_WDPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+X22-tmo-survives-reset: rc=0 tallies=[('326', '326', '0')] fails=0
+X23-lg-survives-reset: rc=0 tallies=[('326', '326', '0')] fails=0
+X24-rhreq-unguarded: rc=0 tallies=[('326', '326', '0')] fails=0
+X24b-all-req-unguarded: rc=0 tallies=[('326', '326', '0')] fails=0
+X25-no-saturation: rc=0 tallies=[('326', '326', '0')] fails=0
+X26-drain-only-idle: rc=2 tallies=[('326', '323', '3')] fails=3
+    first: FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 0)
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+X27-verdict-needs-busy: rc=2 tallies=[('326', '320', '6')] fails=6
+    first: FAIL: T24 contained: a WRITE whose device stops taking bytes at 20 ends DEADLINE
+    FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+    FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+    FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+X28-cause-deadline-as-device-on-req: rc=2 tallies=[('326', '312', '14')] fails=14
+    first: FAIL: T24 S_WEREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+    FAIL: T24 S_WWREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+    FAIL: T24 S_RHREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+    FAIL: T24 S_RPREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)

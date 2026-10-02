@@ -1,0 +1,11 @@
+ELAB FAIL  MEM_TIMEOUT_CYC_P=1 (a legal value must elaborate clean)
+%Warning-ASCRANGE: ../../hdl/packet_engine/KL_pp_nvm_port.sv:223:9: Ascending bit range vector: left < right of bit range: [-1:0]
+%Error: ../../hdl/packet_engine/KL_pp_nvm_port.sv:272:39: Size-changing cast to zero or negative size: 0
+%Warning-WIDTHEXPAND: ../../hdl/packet_engine/KL_pp_nvm_port.sv:272:29: Operator EQ expects 2 bits on the RHS, but RHS's SEL generates 1 bits.
+%Error: ../../hdl/packet_engine/KL_pp_nvm_port.sv:281:56: Size-changing cast to zero or negative size: 0
+%Error: Exiting due to 2 error(s), 2 warning(s)
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+make: *** [Makefile:24: elab] Error 1

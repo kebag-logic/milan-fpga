@@ -1,0 +1,96 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.787 MB sources in 9 modules, into 0.478 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 18.627 s (elab=0.013, cvt=0.075, bld=18.508); cpu 0.123 s on 2 threads; allocated 221.273 MB
+372 checks: 372 PASS, 0 FAIL
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.787 MB sources in 9 modules, into 0.478 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 7.513 s (elab=0.013, cvt=0.058, bld=7.412); cpu 0.000 s on 2 threads; allocated 221.359 MB
+FAIL: N12a a record read the device never answers, the port's deadline before the walk's: the port answers DEADLINE with nothing forwarded and the WHOLE walk fails with cause 2, a device that failed, never an empty record (0 port deadlines, 1 aborts): done 1 fail 1 cause 3, want 1 1 2
+FAIL: N12a a record read the device never answers, the port's deadline before the walk's: after the port's deadline and before the walk's (3079 cycles)
+FAIL: N12b a later change while the read is still owed: three attempts, each ended by the port's DEADLINE with no device command, then alarm_o, and the pending bit dropped with it (0 deadlines, alarm 0)
+FAIL: N12c the device ends the abandoned read: its bytes drained to no manager, and a later change persists byte-exact with the alarm still set
+FAIL: N12d a device face that never grants, the port's deadline before the walk's: the port answers its one request DEADLINE and the walk fails whole with cause 2: done 1 fail 1 cause 3, want 1 1 2
+16 checks: 11 PASS, 5 FAIL
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:476:8: Instance pin connected by name with empty reference: 'tmr_arm_slot_o'
+  476 |       .tmr_arm_slot_o       (),
+      |        ^~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:478:8: Instance pin connected by name with empty reference: 'tmr_arm_deadline_ms_o'
+  478 |       .tmr_arm_deadline_ms_o(),
+      |        ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:483:8: Instance pin connected by name with empty reference: 'draw_kind_o'
+  483 |       .draw_kind_o          (),
+      |        ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:494:8: Instance pin connected by name with empty reference: 'txs_oversize_o'
+  494 |       .txs_oversize_o       (),
+      |        ^~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:508:8: Instance pin connected by name with empty reference: 'act_settle_sid_o'
+  508 |       .act_settle_sid_o     (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:509:8: Instance pin connected by name with empty reference: 'act_settle_da_o'
+  509 |       .act_settle_da_o      (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:510:8: Instance pin connected by name with empty reference: 'act_settle_vlan_o'
+  510 |       .act_settle_vlan_o    (),
+      |        ^~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:515:8: Instance pin connected by name with empty reference: 'act_nvm_o'
+  515 |       .act_nvm_o            (),
+      |        ^~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:516:8: Instance pin connected by name with empty reference: 'act_nvm_set_o'
+  516 |       .act_nvm_set_o        (),
+      |        ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:518:8: Instance pin connected by name with empty reference: 'act_sink_o'
+  518 |       .act_sink_o           (),
+      |        ^~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:520:8: Instance pin connected by name with empty reference: 'dbg_strq_drop_o'
+  520 |       .dbg_strq_drop_o      (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:521:8: Instance pin connected by name with empty reference: 'act_strt_chg_o'
+  521 |       .act_strt_chg_o       (),
+      |        ^~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:522:8: Instance pin connected by name with empty reference: 'act_strt_cmd_chg_o'
+  522 |       .act_strt_cmd_chg_o   (),
+      |        ^~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:476:8: Instance pin connected by name with empty reference: 'tmr_arm_slot_o'
+  476 |       .tmr_arm_slot_o       (),
+      |        ^~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:478:8: Instance pin connected by name with empty reference: 'tmr_arm_deadline_ms_o'
+  478 |       .tmr_arm_deadline_ms_o(),
+      |        ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:483:8: Instance pin connected by name with empty reference: 'draw_kind_o'
+  483 |       .draw_kind_o          (),
+      |        ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:494:8: Instance pin connected by name with empty reference: 'txs_oversize_o'
+  494 |       .txs_oversize_o       (),
+      |        ^~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:508:8: Instance pin connected by name with empty reference: 'act_settle_sid_o'
+  508 |       .act_settle_sid_o     (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:509:8: Instance pin connected by name with empty reference: 'act_settle_da_o'
+  509 |       .act_settle_da_o      (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:510:8: Instance pin connected by name with empty reference: 'act_settle_vlan_o'
+  510 |       .act_settle_vlan_o    (),
+      |        ^~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:515:8: Instance pin connected by name with empty reference: 'act_nvm_o'
+  515 |       .act_nvm_o            (),
+      |        ^~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:516:8: Instance pin connected by name with empty reference: 'act_nvm_set_o'
+  516 |       .act_nvm_set_o        (),
+      |        ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:518:8: Instance pin connected by name with empty reference: 'act_sink_o'
+  518 |       .act_sink_o           (),
+      |        ^~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:520:8: Instance pin connected by name with empty reference: 'dbg_strq_drop_o'
+  520 |       .dbg_strq_drop_o      (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:521:8: Instance pin connected by name with empty reference: 'act_strt_chg_o'
+  521 |       .act_strt_chg_o       (),
+      |        ^~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:522:8: Instance pin connected by name with empty reference: 'act_strt_cmd_chg_o'
+  522 |       .act_strt_cmd_chg_o   (),
+      |        ^~~~~~~~~~~~~~~~~~
+make: *** [Makefile:38: run] Error 1

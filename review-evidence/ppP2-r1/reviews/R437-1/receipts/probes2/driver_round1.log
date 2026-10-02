@@ -1,0 +1,15 @@
+Q12-mutant: rc=2 tallies=[('329', '327', '2')] fails=2
+    first: FAIL: PROBE-X12 a commit issued while the abandoned WRITE is still owed requests nothing over it (101 request cycles, rc 1)
+    FAIL: RW3 no device command was requested while the backend still owed one (101 cycles)
+Q17-mutant: rc=2 tallies=[('329', '328', '1')] fails=1
+    first: FAIL: PROBE-X17 a restore blocked on an owed ERASE whose done comes ~60 cycles into its wait, then granted 60 cycles later, is served (rc 1, cause 3)
+Q18-pristine: rc=0 tallies=[('329', '329', '0')] fails=0
+Q17-pristine: rc=2 tallies=[('329', '328', '1')] fails=1
+    first: FAIL: PROBE-X17 a restore blocked on an owed ERASE whose done comes ~60 cycles into its wait, then granted 60 cycles later, is served (rc 1, cause 2)
+Q12-pristine: rc=0 tallies=[('329', '329', '0')] fails=0
+Q24-mutant-rhreq: rc=2 tallies=[('329', '328', '1')] fails=1
+    first: FAIL: PROBE-X24 an owed ERASE ending in err while a restore waits: the err is credited to no operation and the restore is served (rc 1, cause 1)
+Q24-pristine: rc=2 tallies=[('329', '328', '1')] fails=1
+    first: FAIL: PROBE-X24 an owed ERASE ending in err while a restore waits: the err is credited to no operation and the restore is served (rc 1, cause 2)
+Q18-mutant: rc=2 tallies=[('329', '328', '1')] fails=1
+    first: FAIL: PROBE-X18 a restore blocked on an owed READ that drains one byte every 60 cycles is served, never DEADLINE (rc 1, cause 3)

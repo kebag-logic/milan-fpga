@@ -1,0 +1,14 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.061 MB sources in 2 modules, into 0.094 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 6.188 s (elab=0.001, cvt=0.011, bld=6.167); cpu 0.031 s on 2 threads; allocated 215.312 MB
+FAIL: T26c the payload bound's legal edge: the largest legal record (payload_length == MAX_PAYLOAD_P) commits, byte-exact on the bus (rc 1)
+FAIL: T26c the payload bound's legal edge: one WRITE of 8 + MAX_PAYLOAD_P bytes
+FAIL: T26d the payload bound's legal edge: the largest legal record restores byte-exact (rc 0, 8 bytes)
+FAIL: T26d the payload bound's legal edge: the payload READ asks MAX_PAYLOAD_P
+326 checks: 322 PASS, 4 FAIL
+make: *** [Makefile:19: run] Error 1

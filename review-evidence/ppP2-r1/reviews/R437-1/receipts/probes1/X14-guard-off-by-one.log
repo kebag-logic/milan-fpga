@@ -1,0 +1,8 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB FAIL  MEM_TIMEOUT_CYC_P=2147483647 (a legal value must elaborate clean)
+%Warning-USERERROR: ../../hdl/packet_engine/KL_pp_nvm_port.sv:188:5: KL_pp_nvm_port: MEM_TIMEOUT_CYC_P=2147483647 is outside 1 to 2147483647
+%Error: Exiting due to 1 warning(s)
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+make: *** [Makefile:24: elab] Error 1
