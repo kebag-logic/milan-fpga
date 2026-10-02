@@ -47,6 +47,11 @@ MCLK_HZ = 4000000
 # `make mclk-build` mclk_mutants.py runs: on the hosted runner the schemata
 # then failed to elaborate and the campaign never ran (#629 R432-1 F2, the
 # defect #617 R394-3 F1 fixed in tb/verilator/capture_coherence).
+# MAKEFLAGS= for the same reason, wider: GNU make 4.4 also exports its own
+# flags to $(shell), so `make -pqrR` (scripts/shape_consumer_inventory.py's
+# database read) ran the nested make in question mode, print-srcs failed
+# and the parse stopped at the $(error) below with no rule read (#629
+# R433-2 F1). The nested make takes no flag from this one.
 DP_RTL   = $(RTL_DIR)/milan/milan_datapath.sv
 AAFM_RTL = $(RTL_DIR)/ieee1722/crf/KL_aaf_clock_meter.sv
 CSR_RTL  = $(RTL_DIR)/common/csr/milan_csr.sv
@@ -54,7 +59,7 @@ CLKV_RTL = $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv
 MUT_DP_SRC   ?= $(DP_RTL)
 MUT_AAFM_SRC ?= $(AAFM_RTL)
 MUT_CSR_SRC  ?= $(CSR_RTL)
-SRCS_DP := $(shell $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
+SRCS_DP := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-srcs)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-srcs failed; the datapath source list could not be derived)
 endif
@@ -62,7 +67,7 @@ SRCS := $(patsubst $(CLKV_RTL),clkv_double.sv,\
         $(patsubst $(DP_RTL),$(MUT_DP_SRC),\
         $(patsubst $(AAFM_RTL),$(MUT_AAFM_SRC),\
         $(patsubst $(CSR_RTL),$(MUT_CSR_SRC),$(SRCS_DP)))))
-DP_VFLAGS := $(shell $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
+DP_VFLAGS := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C $(DP) print-dp-vflags)
 ifneq ($(.SHELLSTATUS),0)
 $(error $(DP) print-dp-vflags failed; the elaboration flag set could not be derived)
 endif

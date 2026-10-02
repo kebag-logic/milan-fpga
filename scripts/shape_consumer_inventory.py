@@ -65,6 +65,9 @@ def is_make_consumer(name: str) -> bool:
 #: classified with the reason it is not a tracked-header consumer. This set
 #: is the ONLY way past the inventory: an unresolvable reference that is not
 #: listed here is a finding, because "could not tell" must not read as "fine".
+#: A makefile entry is spelled as the file spells it; the frozen prerequisite
+#: make's database records for it is matched through make's own expansion
+#: (classified_frozen_targets), never through a second literal.
 CLASSIFIED_CONSUMERS = {
     ("sw/litex/sweep.sh", "$CFG_GEN/gen/adp_shape_defaults.svh"):
         "a per-config copy chosen at build time under configs/generated/",
@@ -268,6 +271,33 @@ def _judge_consumer(name, reference, target, tracked, seen_targets):
     return None
 
 
+def classified_frozen_targets(name: str) -> set[str]:
+    """The repo-relative path each classified reference of one makefile
+    names, expanded by make itself in that makefile's directory.
+
+    Make's database records a rule prerequisite EXPANDED, so a reference
+    classified as the file spells it (`$(MCLK_GEN)/gen/...`) never equals
+    its own frozen token. The hosted runner's GNU make 4.3 read that token
+    and refused it, while the host's 4.4.1 parse stopped before the rule
+    and read none (#629 R433-2 F1). A frozen prerequisite naming the same
+    path IS that classified consumer, with its reason; a second literal
+    would restate what make already derives. A reference make cannot
+    settle to one word classifies nothing, so its frozen token stays a
+    finding.
+    """
+    directory = ROOT / PurePosixPath(name).parent
+    makefile = PurePosixPath(name).name
+    targets = set()
+    for consumer, reference in CLASSIFIED_CONSUMERS:
+        if consumer != name or "$" not in reference:
+            continue              # a literal's frozen token is itself
+        out = probe_make(directory, makefile,
+                         "$(abspath %s)" % reference.lstrip("("))
+        if out is not None and not any(c.isspace() for c in out):
+            targets.add(_repo_relative(out))
+    return targets
+
+
 def _frozen_prereq_findings(name, tracked, seen_targets):
     """Findings from the prerequisites make FROZE at parse time.
 
@@ -283,6 +313,7 @@ def _frozen_prereq_findings(name, tracked, seen_targets):
         dangling.append(
             f"{name}: make database unreadable; frozen shape "
             f"prerequisites cannot be verified")
+    classified = None             # probed only when a token needs it
     for token in prereqs:
         if token.lstrip("(") == "gen/" + SHAPE_BASENAME:
             continue
@@ -292,6 +323,10 @@ def _frozen_prereq_findings(name, tracked, seen_targets):
             target = _repo_relative(token)
         else:
             target = _normalized(PurePosixPath(name).parent / token)
+        if classified is None:
+            classified = classified_frozen_targets(name)
+        if target in classified:
+            continue
         note = _judge_consumer(name, token, target, tracked, seen_targets)
         if note is not None:
             dangling.append(note)
