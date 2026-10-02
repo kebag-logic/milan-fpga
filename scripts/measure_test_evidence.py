@@ -617,6 +617,11 @@ DUT_READER_DISPOSITIONS = {
         "boundary step double counting, retained guard streak, streak increment "
         "on slew discard and slew discard counted as a guard trip; "
         "no expectations read from RTL",
+    "tb/verilator/aaf_clock_meter/mutants.py":
+        "mutation campaign; it plants one of the #629 design's named AAF clock meter "
+        "and meter-in-front-of-servo defects into a copy of the meter or the servo and "
+        "requires the named check of the meter, servo or unit leg to fail; no expected "
+        "value is read from RTL",
     "tb/verilator/capture_coherence/mutants.py":
         "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
         "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
@@ -664,6 +669,12 @@ DUT_READER_DISPOSITIONS = {
         "despite accepted ingress; no expected value is derived from source text",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py":
+        "mutation campaign; it plants the #629 design's fourteen named root defects as "
+        "mutant schemata in copies of the datapath, the AAF clock meter and the CSR "
+        "block, selected per run by a plusarg, and requires each short leg to fail its "
+        "named check while the schemata at id 0 and the clean legs pass; no expected "
+        "value is read from RTL",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
         "mutation campaign; it plants one render-lane defect from its own table into "
         "a copy or runs a leg-side defect arm, and requires the named check to fail. "

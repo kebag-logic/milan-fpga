@@ -3579,7 +3579,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
   logic [31:0] ctr_linkup_r, ctr_linkdn_r;
   logic [31:0] ctr_gmchg_r /* verilator public_flat_rd */;
-  logic [31:0] ctr_mlock_r, ctr_munlock_r;
+  //! public: the #629 root leg (tb/verilator/milan_dp_mclk) grades the C1
+  //! counters directly, as the GM-change count above
+  logic [31:0] ctr_mlock_r   /* verilator public_flat_rd */;
+  logic [31:0] ctr_munlock_r /* verilator public_flat_rd */;
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : itf_ctrs
     if (!axis_resetn) begin
       ctr_link_q_r <= 1'b0;
