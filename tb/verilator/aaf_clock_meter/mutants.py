@@ -67,7 +67,7 @@ MUTANTS = (
        "wire        s2_in_bound_w = 1'b1;"),),
      "cases:beyond", "[M3 indep2100] the error restarts the history"),
     ("stream_data_length_unchecked", "meter",
-     (("\n               && (f_sdl_w == 16'(32'(f_cpf_w) * PDU_OCTETS_PER_CH_C));", ";"),),
+     (("\n               && (f_sdl_w == sdl_for(f_cpf_w));", ";"),),
      "cases:format", "[M4 12-sample] does not lock"),
     ("continuity_without_wrap", "meter",
      (("g_k_r     <= g_id_r - last_id_r;",

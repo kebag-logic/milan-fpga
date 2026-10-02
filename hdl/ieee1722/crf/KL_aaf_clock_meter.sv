@@ -248,6 +248,17 @@ module KL_aaf_clock_meter
   // ---------------------------------------------------------------------- //
   //  Stage 0: qualify the parse pulse                                      //
   // ---------------------------------------------------------------------- //
+  //! the stream_data_length a 6-sample PDU of `cpf` channels carries,
+  //! PDU_OCTETS_PER_CH_C x cpf, summed over the constant's set bits: a
+  //! constant multiply written as shift-adds, so no tool spends a DSP48 on it
+  //! (Yosys does not honour the use_dsp attribute KL_media_nco uses)
+  function automatic logic [15:0] sdl_for(input logic [9:0] cpf);
+    logic [15:0] acc;
+    acc = '0;
+    for (int b = 0; b < 16; b++)
+      if (PDU_OCTETS_PER_CH_C[b]) acc = acc + (16'(cpf) << b);
+    return acc;
+  endfunction
   wire [7:0] f_format_w = fsh_i[63:56];
   wire [3:0] f_nsr_w    = fsh_i[55:52];
   wire [9:0] f_cpf_w    = fsh_i[49:40];
@@ -256,7 +267,7 @@ module KL_aaf_clock_meter
   wire fmt_ok_w = (subtype_i == 8'(AAF)) && tv_i
                && (f_format_w == AAF_FMT_INT32_C) && (f_nsr_w == AAF_NSR_48K_C)
                && !f_sp_w && (f_cpf_w != 10'd0)
-               && (f_sdl_w == 16'(32'(f_cpf_w) * PDU_OCTETS_PER_CH_C));
+               && (f_sdl_w == sdl_for(f_cpf_w));
   //! a consumed PDU: the followed, started listener's, in the supported
   //! format, outside an era-start cycle (the era start wins)
   wire acc_w = en_w && match_p_i && (match_idx_i == follow_idx_i) && !stopped_w
