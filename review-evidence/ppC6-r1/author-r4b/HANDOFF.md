@@ -222,8 +222,9 @@ Receipts for the other gates: `receipts/parent-gates/` (with `gates.status` and 
 `PR-BODY.md` in this directory keeps the `[A463]` first line and the four `Closes` lines, gains a
 one-line pointer to rounds 4 and 4b under the round summaries, and a "Round 4b" section (the merge
 with clause references, the parent-visible list, validation, what remains). To stay under GitHub's
-65,536-character body limit, the older rounds' validation tables became paragraphs carrying the
-same figures (round 1: processor and parent tables; round 2: processor, campaign and parent
+65,536-character body limit, the older rounds' validation tables became paragraphs that keep only some of their
+figures (manager correction, 2026-10-02, review R421-4 F1: the full tables, verbatim, are in
+`../author-r4/PR-BODY.md`, and the PR body now links them from each condensed round) (round 1: processor and parent tables; round 2: processor, campaign and parent
 tables; round 3: the same; round 4: processor, campaign, probe and parent tables); the rounds'
 design text, findings, cost tables and parent-visible lists are unchanged. The full tables for
 round 4b are in the Round 4b section. Length: see the last line of this file.
