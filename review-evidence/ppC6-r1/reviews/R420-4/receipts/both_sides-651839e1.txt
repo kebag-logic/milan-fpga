@@ -1,0 +1,61 @@
+merge 651839e1ce9d3a36adfbfae0297dd091a02a2def
+  ours   9624ef4c452d708de68a901d5e645bdfa1f5d6f5
+  theirs 16ea10ace6c755c91bb9e864b2b855acb240b09b
+  base   3f3ea56ba61829718a6a288600ab4fdac73aa5ba
+files changed by both sides: 14
+  LOST-ADD hdl/aecp/KL_aecp_engine.sv [ours] x1:   localparam logic [10:0] UPC_IDNOTIF_C  = 11'd2000; // E_IDNOTIF
+  LOST-ADD hdl/aecp/KL_aecp_engine.sv [ours] x1:   localparam logic [10:0] UPC_SINFOUNS_C = 11'd2016; // E_SINFOUNS
+  LOST-ADD hdl/aecp/ucode/gen_ucode.py [ours] x1: #! IDENTIFY_NOTIFICATION (IEEE 7.4.39) takes the front of the free tail after
+  LOST-ADD hdl/aecp/ucode/gen_ucode.py [ours] x1: #! the rate walk, on a 16-word boundary.
+  LOST-ADD hdl/aecp/ucode/gen_ucode.py [ours] x1: E_IDNOTIF = 2000    # unsolicited IDENTIFY_NOTIFICATION body (7.4.39.1)
+  LOST-ADD hdl/aecp/ucode/gen_ucode.py [ours] x1: E_SINFOUNS = 2016   # unsolicited SET_STREAM_INFO body (7.4.15.1, Figure 7-40)
+  LOST-ADD tb/pp_top/Makefile [ours] x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+  LOST-ADD tb/pp_top/Makefile [ours] x1: 	rm -rf obj_dir obj_vid obj_idn ltn_rom.hex ucode.hex
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # Three builds of one bench. The first overrides nothing and runs every
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # binary prints its own build's count; the last line is the one canonical
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # runs section ID alone; the first grades the default 0 (section ID0). Each
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # tally, summed over the three builds.
+  LOST-ADD tb/pp_top/Makefile [ours] x1: .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config identify-build identify fixture-guards fixture-guards-test clean
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: 	rm -rf obj_dir obj_vid obj_line ltn_rom.hex ucode.hex
+  LOST-ADD tb/pp_top/Makefile [theirs] x1:         line-build aecp-line aecp-dispatch-mutants fixture-guards fixture-guards-test line-guards clean
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # LINE_FIXTURE and runs section AX alone, so its response writes are bounded
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # Three builds of one bench. The first overrides nothing and runs every
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # build's count; the last line is the one canonical tally, summed over the
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # by a reservation that is not the default's. Each binary prints its own
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # three builds.
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # top-level connection. The third overrides DESC_LINE_BYTES_P with
+  LOST-ADD tb/pp_top/README.md [ours] x1: `make`: exit 0 = PASS. It builds the bench three times (sections DV and ID): each
+  LOST-ADD tb/pp_top/README.md [ours] x1: executable prints its own build's tally, and the last line sums the three into
+  LOST-ADD tb/pp_top/README.md [ours] x1: the one canonical tally.
+  LOST-ADD tb/pp_top/README.md [theirs] x1: The third build, `obj_line` (`make aecp-line` alone), runs section AX at
+  LOST-ADD tb/pp_top/README.md [theirs] x1: `make`: exit 0 = PASS. It builds the bench three times (sections DV and AX):
+  LOST-ADD tb/pp_top/README.md [theirs] x1: builds the bench a second time (the third build is section AX's line build):
+  LOST-ADD tb/pp_top/README.md [theirs] x1: each executable prints its own build's tally, and the last line sums them into
+  LOST-ADD tb/pp_top/README.md [theirs] x1: the one canonical tally.
+  LOST-ADD tb/pp_top/README.md [theirs] x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV and AX last | 2 (Milan §4.2.7.2.1) |
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1:       //! the first two grade the top's own default, 0
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1:     output logic        dbg_ident_gap_end_o
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1: //                PP_TOP_EN_IDENT, so the first build grades the top's own
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1: //                PP_TOP_SRP_DOM_DEF_VID (Makefile), and EN_IDENTIFY_NOTIF_P
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1: //                The two parameters the suite builds again: SRP_DOM_DEF_VID_P
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1: //                defaults and never a copy of them.
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [ours] x1: //                is set to 1 ONLY when the third build defines
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1:       //! the third build's verification-only fixture (see the banner)
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1: //                PP_TOP_SRP_DOM_DEF_VID, and DESC_LINE_BYTES_P ONLY when the
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1: //                The two parameters the suite builds again: SRP_DOM_DEF_VID_P
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1: //                build grades the top's own defaults and never a copy of them.
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1: //                third defines PP_TOP_DESC_LINE_BYTES (Makefile), so the first
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:                            || ident_only || notify_only;
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:   //! The Makefile sums all three builds and prints the one canonical line.
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:   const bool one_section = gsi_only || name_only || d3_only || acmp_only || adp_only || maap_only
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1: // ID alone (notify_phases.hpp).
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1: // The suite builds three times (Makefile): the second build overrides the
+  KEPT-DEL tb/pp_top/sim_main.cpp [ours] x1: // alone.
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:                            || maap_only || aecp_only;
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's three
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:   //! The Makefile sums the builds and prints the one canonical line.
+  LOST-ADD tb/ucpu/sim_main.cpp [ours] x1: constexpr uint16_t E_IDNOTIF = 2000;   // gen_ucode.py: the IDENTIFY_NOTIFICATION body
+  LOST-ADD tb/ucpu/sim_main.cpp [ours] x1: constexpr uint16_t E_SINFOUNS = 2016;  // gen_ucode.py: the unsolicited SET_STREAM_INFO body
+discrepancies: 55

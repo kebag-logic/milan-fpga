@@ -1,0 +1,152 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "unchanged_compare_ignores_validity",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S8 validity"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S8 validity: clock source 0 on the unset row is written (0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "identify_is_a_change",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S7: IDENTIFY set, 49787 pending cycles, 2 NVM operations"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 cfg"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: COMPLETE 1866 cycles after the release, applied 8 refused 1 blank 18 of 27",
+   "D3R1 cfg: configuration 1 restored with its valid flag, GET reads it",
+   "D3R3: configuration 0, rate 96000 and clock source 0 restored with their valid flags (applied 2)",
+   "D3R4: the record whole in pass 0 and unframed in pass 1 aborts, cause 5, rolled back 1: every row at its default after the applied configuration",
+   "D3R4b: a record blank in pass 0 and whole in pass 1 aborts, cause 5, rolled back 1, the offset not applied (valid 0x00)",
+   "D3R16 COMPLETE: two per-wait deadlines past the bound the verdicts hold (done 1 fail 0 rolled back 0 closed 0 cause 0), 0 roll-back strobe cycles after the terminal, the rows lost"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_rate",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 rate"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: COMPLETE 1866 cycles after the release, applied 8 refused 1 blank 18 of 27",
+   "D3R1 rate: 48000 restored with its valid flag, GET reads it",
+   "D3R3: configuration 0, rate 96000 and clock source 0 restored with their valid flags (applied 2)",
+   "D3R3b entry 7 of 10 (24000 Hz): applied 0 refused 1, rate 0 valid 0",
+   "D3R10 4000: done 5483 closed -1 cause 0 rolled back 0; the stores in reset from -1 to -1, the debt owed 0 cycles of it, fell at -1",
+   "D3R16 COMPLETE: two per-wait deadlines past the bound the verdicts hold (done 1 fail 0 rolled back 0 closed 0 cause 0), 0 roll-back strobe cycles after the terminal, the rows lost"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_clks",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 clks"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: COMPLETE 1866 cycles after the release, applied 8 refused 1 blank 18 of 27",
+   "D3R1 clks: clock source 2 restored with its valid flag, GET reads it",
+   "D3R3: configuration 0, rate 96000 and clock source 0 restored with their valid flags (applied 2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_fmti",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 fmti"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: COMPLETE 1865 cycles after the release, applied 7 refused 2 blank 18 of 27",
+   "D3R1 fmti: both input formats restored with their valid flags, GET reads them (valid 0x00)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_fmto",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 fmto"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: COMPLETE 1865 cycles after the release, applied 7 refused 2 blank 18 of 27",
+   "D3R1 fmto: both output formats restored with their valid flags, GET reads them (valid 0x00)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_ptof",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 ptof"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: COMPLETE 1865 cycles after the release, applied 7 refused 2 blank 18 of 27",
+   "D3R1 ptof: both presentation offsets restored with their valid flags, GET_STREAM_INFO reads them (valid 0x00)",
+   "D3R2: COMPLETE, applied 0 refused 11 blank 16 of 27",
+   "D3R2: only the neighbour's offset restored (valid 0x00)",
+   "D3R8: a READ granted 19801 cycles late: fail 0, cause 0",
+   "D3R9: the held SET answered after the restore applied A, and its B is in force (row 7654321)"
+  ],
+  "verdict": "KILLED"
+ }
+]

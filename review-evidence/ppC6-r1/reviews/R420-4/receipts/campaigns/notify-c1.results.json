@@ -1,0 +1,43 @@
+[
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "set_control_ignores_lock",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (395 of 2251 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "stream_info_get_body",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)"
+  ],
+  "verdict": "KILLED"
+ }
+]

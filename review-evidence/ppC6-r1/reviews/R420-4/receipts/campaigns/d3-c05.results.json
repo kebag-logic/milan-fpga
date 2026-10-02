@@ -1,0 +1,151 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "closed_releases_the_entity",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R12"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R12: the re-walk cannot prove the image: CLOSED -1, cause 2, the entity held",
+   "D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 0 closed 0 cause 2), 0 roll-back strobe cycles after the terminal, the rows kept"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rollback_ignores_debt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R10 16000"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R10 5000: done 6537 closed -1 cause 6 rolled back 1; the stores in reset from 5077 to 5079, the debt owed 2 cycles of it, fell at 5998",
+   "D3R10 16000: done -1 closed 13277 cause 6 rolled back 0; the stores in reset from 5077 to 5079, the debt owed 2 cycles of it, fell at -1",
+   "D3R15 debt wait: the pass-1 fault's READ (region 0x02 offset 8) granted on its steered cycle 1; at the bound the roll-back was under way (strobe 0, debt 1, image valid 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_backoff_d3",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 timing: each retry granted after the derived 500001-cycle backoff and one relatch (15, 15)",
+   "D3S10 backoff: 6 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 0 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fourth_attempt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 count: 4 failed attempts of 0x50 (4 grants), alarm 1, unflushed 0",
+   "D3S10 count: no fourth attempt (4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "no_backoff_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E9 DR2c timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (43, 43)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "fourth_attempt_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E8 DR2c count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E8 DR2c count: three attempts in all (4 started, 4 failed)",
+   "E9 DR2c timing: each retry starts RETRY_BACKOFF_CYC_P cycles or more after the failed attempt's error (642, 642)",
+   "E10 DR2c count: no fourth attempt (4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "alarm_forgiven_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E11 DR2c revocation"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E11 DR2c revocation: a later successful commit and time leave the alarm set"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "alarm_forgiven_by_success",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 revocation"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 revocation: a later successful write leaves the alarm set"
+  ],
+  "verdict": "KILLED"
+ }
+]

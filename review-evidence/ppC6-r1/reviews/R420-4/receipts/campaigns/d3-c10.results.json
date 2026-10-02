@@ -1,0 +1,100 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "held_drop_uncounted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O5: one AECP command held",
+   "D3O6: at the terminal"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O5: one AECP command held, 0 dropped at the slot gate and counted, 0 answered",
+   "D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles",
+   "D3O6: at the terminal the held command is answered byte-exact, 0 dropped and counted, 0 of them answered",
+   "D3O6: after the terminal an AECP command is served, no drop counted",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "aecp_hold_unbounded",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O5: in CLOSED each GET_RX_STATE",
+   "D3O6: during the slowed walk"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O5: in CLOSED each GET_RX_STATE after each of 6 AECP commands is answered in 168 cycles, the idle latency (worst 168)",
+   "D3O5: one AECP command held, 0 dropped at the slot gate and counted, 0 answered",
+   "D3O5: after 2,000 ms in CLOSED the listener answers in -1 cycles",
+   "D3O6: during the slowed walk a GET_RX_STATE behind six AECP commands is answered in -1 cycles, the idle latency 168",
+   "D3O6: at the terminal the held command is answered byte-exact, 0 dropped and counted, 3 of them answered",
+   "D3O6: after the terminal an AECP command is served, no drop counted",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "validator_admits_held_aecp",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F28 held AECP",
+   "F28 rx_aecp_held counts both"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 held AECP: slot taken and returned, no commit, no header beat, no other counter (allocs 1 aborts 0 commits 1)",
+   "F28 rx_aecp_held counts both got 0",
+   "F28 nothing counted without the hold"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "resident_never_returned",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O7: the returned slot frees the share"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (2 counted), none answered"
+  ],
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,26 @@
+== idnotif: check_upc_map.py
+A wrong µPC does not fail to elaborate and does not warn; it
+executes the ROM fill and answers with a well-formed response
+carrying garbage. Fix the constant, do not widen this gate.
+== idnotif: graded run
+FAIL: ID1b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0
+FAIL: ID1b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0
+FAIL: ID1b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 0
+FAIL: ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1
+FAIL: ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1
+FAIL: ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1
+FAIL: ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2
+FAIL: ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2
+== sinfouns: check_upc_map.py
+A wrong µPC does not fail to elaborate and does not warn; it
+executes the ROM fill and answers with a well-formed response
+carrying garbage. Fix the constant, do not widen this gate.
+== sinfouns: graded run
+FAIL: NP3 SET_STREAM_INFO: exactly one unsolicited response of this command at the other registered controller, got 0
+FAIL: NP4 SET_CONTROL(IDENTIFY 255): the solicited response is SUCCESS, byte-exact (premise)
+FAIL: NP4 SET_CONTROL(IDENTIFY 255): exactly one unsolicited response of this command at the other registered controller, got 0
+FAIL: NP4b SET_CONTROL(IDENTIFY 0): the solicited response is SUCCESS, byte-exact (premise)
+FAIL: NP4b SET_CONTROL(IDENTIFY 0): exactly one unsolicited response of this command at the other registered controller, got 0
+NP: 44 checks, 5 failures
+ST: 18 checks, 0 failures
+RN: 4 checks, 0 failures

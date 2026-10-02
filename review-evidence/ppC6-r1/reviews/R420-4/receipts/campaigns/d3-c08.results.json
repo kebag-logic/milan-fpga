@@ -1,0 +1,158 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "agg_fires_with_event_in_hand",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R17: the writer's grant",
+   "D3R17: once the device ends"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R17: the writer's grant lands on the bound's own clock (1, 0x56's READ steered 1, latency 9); DEFAULTS 1 clocks later, cause 3, the READ in hand drained 0",
+   "D3R17: once the device ends the READ granted on the bound's clock a later SET persists (0 WRITEs, unflushed 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "agg_not_stopped_at_terminal",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R16 COMPLETE",
+   "D3R16 DEFAULTS",
+   "D3R16 CLOSED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R16 COMPLETE: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 0 closed 1 cause 3), 2 roll-back strobe cycles after the terminal, the rows lost",
+   "D3R16 DEFAULTS: two per-wait deadlines past the bound the verdicts hold (done 1 fail 1 rolled back 1 closed 1 cause 6), 2 roll-back strobe cycles after the terminal, the rows lost",
+   "D3R16 CLOSED: two per-wait deadlines past the bound the verdicts hold (done 0 fail 1 rolled back 0 closed 1 cause 2), 20002 roll-back strobe cycles after the terminal, the rows kept"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "drain_misses_issue_cycle_m1",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle: the drain armed in the issue cycle (issued at 422951, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N10 a manager-1 READ abandoned in its issue cycle: the port is free again: the walk completes as saved and manager 1's next READ completes: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 430847, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs: 1 of the walk's 1 READs issued with it, none drained (from 423622), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_ignores_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "issue_arm_stale_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423535), every byte taken (0 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the WRITE done first (1), then the drain armed in the READ's issue cycle (issued at 428091, draining from -1), moved 0 bytes and ended with the read; 4008 cycles reached manager 1",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE: the port is free again: manager 1's next READ completes"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "drain_misses_issue_cycle",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R18: the READ abandoned in its issue cycle",
+   "D3R18: once the device ends"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 1), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)",
+   "D3R18: once the device ends the drained READ the port is idle (0), and a later SET persists (0 WRITEs, the port busy 100000 of 100000 clocks, unflushed 1)"
+  ],
+  "verdict": "KILLED"
+ }
+]

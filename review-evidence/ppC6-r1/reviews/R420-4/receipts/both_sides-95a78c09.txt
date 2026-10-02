@@ -1,0 +1,52 @@
+merge 95a78c099ee5aa914521975355adc1dfef99d01c
+  ours   651839e1ce9d3a36adfbfae0297dd091a02a2def
+  theirs 03c842a780064048b0a1a3de29214174a1c13934
+  base   16ea10ace6c755c91bb9e864b2b855acb240b09b
+files changed by both sides: 15
+  LOST-ADD docs/architecture/08_timing.md [theirs] x1: to MAC response byte 0, in the suite's fourth build, whose timebase is the nominal
+  LOST-ADD docs/architecture/09_verification.md [ours] x1: ### 8.3 Notifications and identify: the RND and STORM evidence (issues #54, #58, #80, #86)
+  LOST-ADD docs/architecture/09_verification.md [theirs] x1: Section TB runs in the suite's fourth build (`make budget`), whose timebase is the
+  LOST-ADD tb/pp_top/Makefile [ours] x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 4) {print "FAIL: " NR " build tallies, expected 4"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+  LOST-ADD tb/pp_top/Makefile [ours] x1: 	rm -rf obj_dir obj_vid obj_idn obj_line ltn_rom.hex ucode.hex
+  LOST-ADD tb/pp_top/Makefile [ours] x1:         fixture-guards fixture-guards-test line-guards clean
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # Four builds of one bench. The first overrides nothing and runs every
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # default's. Each binary prints its own build's count; the last line is the
+  LOST-ADD tb/pp_top/Makefile [ours] x1: # one canonical tally, summed over the four builds.
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: 	@awk '{c += $$1; f += $$2} END {if (NR != 4) {print "FAIL: " NR " build tallies, expected 4"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: 	rm -rf obj_dir obj_vid obj_line obj_tim ltn_rom.hex ucode.hex
+  LOST-ADD tb/pp_top/Makefile [theirs] x1:         line-build aecp-line aecp-dispatch-mutants deadline d3 hazards budget budget-build \
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # Four builds of one bench. The first overrides nothing and runs every
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # The fourth build (section TB): the wrap's timebase at the nominal clock's
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # by a reservation that is not the default's. The fourth runs the timebase at
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # compressed AECP deadline. Its tally lands beside the other three.
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # four builds.
+  LOST-ADD tb/pp_top/Makefile [theirs] x1: # the nominal clock's rate and section TB alone. Each binary prints its own
+  LOST-ADD tb/pp_top/README.md [ours] x1: `make`: exit 0 = PASS. It builds the bench four times (sections DV, ID and AX):
+  LOST-ADD tb/pp_top/README.md [ours] x1: builds the bench a second time (the third build is section ID's identify build,
+  LOST-ADD tb/pp_top/README.md [ours] x1: each executable prints its own build's tally, and the last line sums the four
+  LOST-ADD tb/pp_top/README.md [ours] x1: into the one canonical tally.
+  LOST-ADD tb/pp_top/README.md [ours] x1: the fourth section AX's line build):
+  LOST-ADD tb/pp_top/README.md [ours] x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV, AX and lane C6's ID0, NP, ST and RN last | 2 (Milan §4.2.7.2.1) |
+  LOST-ADD tb/pp_top/README.md [theirs] x1:   `make budget` runs this build alone; `make` runs all three.
+  LOST-ADD tb/pp_top/README.md [theirs] x1:   processor of its own in the fourth build, whose timebase is the nominal clock's
+  LOST-ADD tb/pp_top/README.md [theirs] x1: `make`: exit 0 = PASS. It builds the bench four times (sections DV, AX and
+  LOST-ADD tb/pp_top/README.md [theirs] x1: and the fourth section TB's timebase:
+  LOST-ADD tb/pp_top/README.md [theirs] x1: builds the bench a second time; the third build is section AX's line build,
+  LOST-ADD tb/pp_top/README.md [theirs] x1: four into the one canonical tally.
+  LOST-ADD tb/pp_top/README.md [theirs] x1: | `obj_dir/Vpp_top_sim` | none: the top's own default | every section, DV, AX and DL among them | 2 (Milan §4.2.7.2.1) |
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1:   // section TB's build (the Makefile's fourth): 1 ms = 1 x 1000 = 1,000 clk,
+  LOST-ADD tb/pp_top/pp_top_wrap.sv [theirs] x1: //                The fourth build defines PP_TOP_TIM_REAL and runs the
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:                            || maap_only || aecp_only || ident_only || notify_only;
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's four
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1:   //! The Makefile sums all four builds and prints the one canonical line.
+  LOST-ADD tb/pp_top/sim_main.cpp [ours] x1: // The suite builds four times (Makefile): the second build overrides the
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:                            || maap_only || aecp_only || dl_only || hz_only;
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:   //! NOT the canonical tally shape: this binary is ONE of the suite's four
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:   //! The Makefile sums the four builds and prints the one canonical line.
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1:   //! the fourth build runs section TB alone, at the nominal timebase
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1: // DV alone; the third overrides DESC_LINE_BYTES_P and runs section AX alone;
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1: // TB alone.
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1: // The suite builds four times (Makefile): the second build overrides the
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1: // fan-out). It runs in the suite's fourth build, whose timebase is the nominal
+  LOST-ADD tb/pp_top/sim_main.cpp [theirs] x1: // the fourth runs the timebase at the nominal clock's rate and runs section
+discrepancies: 46

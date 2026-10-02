@@ -1,0 +1,197 @@
+[
+ {
+  "mutant": "golden-aecp_notify-identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-identify-only",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_release_ignored",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three",
+   "ID2e:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1: one press sends three IDENTIFY_NOTIFICATION frames (IEEE 7.5.1.2.1), got 11",
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 19",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 1",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 2",
+   "ID2c: frame 1 to 2 spaced 69701 clocks, want T-IDENT-BURST 15000 to 15400 (150 ms at 100 clocks/ms)",
+   "ID2b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 3",
+   "ID2c: frame 1 to 2 spaced 69701 clocks, want T-IDENT-BURST 15000 to 15400 (150 ms at 100 clocks/ms)",
+   "ID2d: burst 2 starts 45900 clocks after burst 1, want T-IDENT-REARM 100000 to 100400 (no faster than 1 s, from the first frame)",
+   "ID2e: the release stopped the bursts: no fourth burst, nothing else on the wire (19 frames)",
+   "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 14 frames",
+   "ID3b: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3b: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 4",
+   "ID3d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 5",
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 69701 clocks, want 15000 to 15400",
+   "ID4c: neither the command form nor the IDENTIFY control (the controller-to-entity direction, Milan 5.4.5.4) sends an identification notification, got 5",
+   "ID5b: the press during the fan-out sends one burst, got 11",
+   "ID5d: frame 1 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 2 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5d: frame 3 byte-exact: DA 91-E0-F0-01-00-01, controller 90-E0-F0-FF-FE-01-00-01, u = 1, IDENTIFY_NOTIFICATION, CONTROL 5, sequence_id 6",
+   "ID5i: three presses, each a burst of three, with a fan-out fed at frame 1 + 14450, 14700 and 14950 clocks (0)",
+   "ID5l: a fan-out delayed frame 2 (largest gap 1->2 0 clocks, more than 15400)",
+   "ID8: a 30 ms press made 2 ms after a burst's third frame left (inside the T-IDENT-BURST gap) still sends one burst: 9 frames in all, want 3 + 3",
+   "ID8f: a 200 ms press made 2 ms after a burst's third frame left sends one burst: 10 frames in all, want 3 + 3",
+   "ID8k: k = -1: a press at the gap's end sends one burst, never none and never two: 10 frames in all, want 3 + 3",
+   "ID8k: k = 0: a press at the gap's end sends one burst, never none and never two: 10 frames in all, want 3 + 3",
+   "ID8k: k = 1: a press at the gap's end sends one burst, never none and never two: 10 frames in all, want 3 + 3",
+   "ID8k: k = 2: a press at the gap's end sends one burst, never none and never two: 10 frames in all, want 3 + 3",
+   "ID8o: a release and a new press inside a burst, let go 30 ms after its third frame left (inside the gap): one more burst: 9 frames in all, want 3 + 3",
+   "ID8s: a release and a new 30 ms press between frames 1 and 2, let go before the burst ended: one more burst: 9 frames in all, want 3 + 3",
+   "ID9: frame 1's last byte held 400 ms by the MAC (premise: the stall began, 1) still sends a burst of three, got 10",
+   "ID9e: frame 2's last byte held 400 ms by the MAC (premise: the stall began, 1) still sends a burst of three, got 11",
+   "ID6b: the held press still sends its burst at the release, got 10 frames",
+   "ID7: a 400 ms MAC stall inside frame 1 still sends a burst of three, got 10",
+   "ID7f: a 400 ms MAC stall after frame 1 still sends a burst of three, got 11",
+   "ID7j: a 250 ms MAC stall after frame 2 still sends a burst of three, got 12",
+   "ID7n: held through a 900 ms MAC stall after frame 1: the stretched burst and one more, got 15"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_unicast_da",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID1: one press sends three IDENTIFY_NOTIFICATION frames (IEEE 7.5.1.2.1), got 0",
+   "ID1d: nothing else on the AECP wire (3 other frames); no controller is registered, so the burst needs no registration",
+   "ID2: held 2.5 s: three bursts of three (Figure 7-142 re-enters IDENTIFY at timeout), got 0",
+   "ID2d: at least two bursts to time the re-arm, got 0",
+   "ID3: a burst the release did not cut, then one more for the new press, and none at the timeout after the second release, got 0 frames",
+   "ID5b: the press during the fan-out sends one burst, got 0",
+   "ID8: a 30 ms press made 2 ms after a burst's third frame left (inside the T-IDENT-BURST gap) still sends one burst: 0 frames in all, want 3 + 3",
+   "ID8f: a 200 ms press made 2 ms after a burst's third frame left sends one burst: 0 frames in all, want 3 + 3",
+   "ID8j: k = -1: the gap ended on the clock predicted from its arm and ID8's sweep (63), so the press is placed against it",
+   "ID8k: k = -1: a press at the gap's end sends one burst, never none and never two: 0 frames in all, want 3 + 3",
+   "ID8j: k = 0: the gap ended on the clock predicted from its arm and ID8's sweep (63), so the press is placed against it",
+   "ID8k: k = 0: a press at the gap's end sends one burst, never none and never two: 0 frames in all, want 3 + 3",
+   "ID8j: k = 1: the gap ended on the clock predicted from its arm and ID8's sweep (63), so the press is placed against it",
+   "ID8k: k = 1: a press at the gap's end sends one burst, never none and never two: 0 frames in all, want 3 + 3",
+   "ID8j: k = 2: the gap ended on the clock predicted from its arm and ID8's sweep (63), so the press is placed against it",
+   "ID8k: k = 2: a press at the gap's end sends one burst, never none and never two: 0 frames in all, want 3 + 3",
+   "ID8o: a release and a new press inside a burst, let go 30 ms after its third frame left (inside the gap): one more burst: 0 frames in all, want 3 + 3",
+   "ID8s: a release and a new 30 ms press between frames 1 and 2, let go before the burst ended: one more burst: 0 frames in all, want 3 + 3",
+   "ID9: frame 1's last byte held 400 ms by the MAC (premise: the stall began, 0) still sends a burst of three, got 0",
+   "ID9e: frame 2's last byte held 400 ms by the MAC (premise: the stall began, 0) still sends a burst of three, got 0",
+   "ID6b: the held press still sends its burst at the release, got 0 frames",
+   "ID7: a 400 ms MAC stall inside frame 1 still sends a burst of three, got 0",
+   "ID7f: a 400 ms MAC stall after frame 1 still sends a burst of three, got 0",
+   "ID7j: a 250 ms MAC stall after frame 2 still sends a burst of three, got 0",
+   "ID7n: held through a 900 ms MAC stall after frame 1: the stretched burst and one more, got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_face_taken_mid_job",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID5f:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID5b: the press during the fan-out sends one burst, got 2",
+   "ID5c: 15 fan-out frames went between the press and the first identify frame, want at most two (the job in flight and the one the engine took)",
+   "ID5f: all fifteen rows received their SET_NAME notification byte-exact at their own sequence_id 0 (14 of 15)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_built_at_default",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID0: with the parameter at 0"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID0: with the parameter at 0 the button puts no AECP frame on the wire (12)",
+   "ID0b: nothing is ever addressed to 91-E0-F0-01-00-01"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_burst_deadline_one_tick_short",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT2: frame 1 left two clocks before a ms boundary, and frame 2 is presented T-IDENT-BURST after that boundary, never one tick sooner: 14900004 clocks, want 15000000 to 15000008"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_t0_same_ms",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT4: held, the next burst starts at Figure 7-142's timeout, T-IDENT-REARM after the boundary two clocks after the first frame left, never one tick sooner: 99900004 clocks, want 100000000 to 100000008"
+  ],
+  "verdict": "KILLED"
+ }
+]

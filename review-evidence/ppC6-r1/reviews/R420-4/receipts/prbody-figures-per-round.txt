@@ -1,0 +1,102 @@
+== section r1
+distinct figures: old 160, new 152; in old but absent from new: 19
+   0<=0
+   104
+   107
+   10<=10,
+   20of20
+   315of315
+   36
+   36/42
+   386
+   396
+   3<=3
+   41
+   4of4
+   52
+   65+152
+   78of78
+   8
+   83of83
+   90<=90
+== section r2
+distinct figures: old 158, new 135; in old but absent from new: 24
+   0<=0
+   0<=0,
+   10
+   107
+   10<=10,
+   18
+   27
+   27=27
+   311
+   315of315
+   36
+   36/42
+   3<=3
+   41
+   4of4
+   52
+   65+152
+   65/65
+   73<=77,
+   9
+   90<=90
+   94
+   96
+   999
+== section r3
+distinct figures: old 109, new 81; in old but absent from new: 35
+   0<=0
+   0<=0,
+   10
+   107
+   10<=10,
+   11
+   12
+   13
+   15
+   18
+   19of19
+   20of20
+   27
+   27=27
+   29of29
+   30of30
+   311
+   315of315
+   36
+   36/42
+   3<=3
+   41
+   4of4
+   5
+   65+152
+   65/65
+   73<=77,
+   78of78
+   8
+   83of83
+   9
+   90<=90
+   94
+   96
+   999
+52 literal-bound           r1:1 r2:1 r3:0 | new r1:0 r2:0 r3:0 r4b:0
+62 without local rationale r1:1 r2:1 r3:0 | new r1:0 r2:0 r3:0 r4b:0
+315 of 315                 r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+65 \+ 152                  r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+41 mermaid                 r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:0
+94 rows                    r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+\(999\)                    r1:0 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:0
+90 <= 90                   r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+36/42                      r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+4 of 4                     r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+65/65                      r1:1 r2:1 r3:1 | new r1:1 r2:0 r3:0 r4b:1
+295 checks                 r1:1 r2:0 r3:0 | new r1:1 r2:0 r3:0 r4b:0
+311 checks                 r1:0 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+multi-declarator           r1:0 r2:2 r3:1 | new r1:0 r2:1 r3:0 r4b:0
+over-long line             r1:0 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:0
+5 leg-defect               r1:1 r2:1 r3:1 | new r1:0 r2:0 r3:0 r4b:1
+1,017,162                  r1:1 r2:0 r3:0 | new r1:1 r2:0 r3:0 r4b:0
+9 benches                  r1:0 r2:0 r3:1 | new r1:0 r2:0 r3:0 r4b:1

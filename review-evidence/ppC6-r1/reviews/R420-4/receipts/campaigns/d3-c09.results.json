@@ -1,0 +1,155 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "owned_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11a a manager-1 WRITE presented with its abort: issued as a commit (1), never drained (from 423536), every byte taken (1 of 28) and done (granted at 423534, ended at -1, err 0), the record in the device byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owned_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cross_own_m1_drains_m0",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs: present in 45 of the 45 cycles manager 0 owned its 1 READs (at least 44 before each one's end) and in none of their 1 issue cycles, none drained (from 424272), and the walk completes as saved: the walk is not done, or failed; 0 preloads taken, 2 saved; 0 preload records written; the release precedes a preload's record write or discovery arm "
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "agg_closes_during_proof",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R19 inside the LOCATE: DEFAULTS"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R19 inside the LOCATE: the binding walk completes (0x27 done on its placed clock 1, longest wait 11328 of 20001), the LOCATE starts 271 clocks before the bound and proves the image -1 clocks after it (want 271 of 542; -1: never)",
+   "D3R19 inside the LOCATE: DEFAULTS with no record READ; the restore ends CLOSED 1 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 1, 0 D3 record READs"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "proof_past_needs_fire",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R20 W_IMG: DEFAULTS",
+   "D3R20 W_IMGLOC: DEFAULTS"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R20 W_IMG: DEFAULTS with no record READ; the restore ends COMPLETE 2168 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 3 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 2 D3 record READs"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "proof_default_only_from_img",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R19 past the bound: DEFAULTS",
+   "D3R19 inside the LOCATE: DEFAULTS",
+   "D3R20 W_IMGLOC: DEFAULTS"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R19 past the bound: DEFAULTS with no record READ; the restore ends DEFAULTS 2713 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R19 inside the LOCATE: DEFAULTS with no record READ; the restore ends COMPLETE 2439 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 3 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 2 D3 record READs"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "proof_past_bound_needs_fired",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R20 W_IMG: DEFAULTS",
+   "D3R20 W_IMGLOC: DEFAULTS"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R20 W_IMG: DEFAULTS with no record READ; the restore ends COMPLETE 2168 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 108 D3 record READs",
+   "D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 3 clocks after the bound, cause 3, rolled back 0, image valid 1, AECP owned 0, 2 D3 record READs"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "agg_o_pulse",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R21: the binding walk fails whole"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R18: binding READ strobe 4 on agg_o's first clock 12398091 (strobe 0, abort 0, arbiter owner 0), the done before it held to 12398088 (lag 4, payload bytes 12350 apart, longest wait 12351 of 20001)",
+   "D3R18: the READ abandoned in its issue cycle is drained from the next clock (0, owner 0), the binding walk fails whole (cause 3) and the restore ends DEFAULTS (cause 3, closed 0)",
+   "D3R21: the binding walk fails whole at its next waiting clock, the one after the bound (cause 3 registered 1 clocks after the bound, want 2), and the restore ends DEFAULTS 4 clocks after the bound (cause 3)"
+  ],
+  "verdict": "KILLED"
+ }
+]

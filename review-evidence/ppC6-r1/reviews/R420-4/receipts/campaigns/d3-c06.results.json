@@ -1,0 +1,134 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "backoff_derivation",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 timing: each retry granted after the derived 500001-cycle backoff and one relatch (5014, 5014)",
+   "D3S10 backoff: 6 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 2364 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "backoff_holds_dispatch",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 backoff"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S10 backoff: 999936 owned cycles inside the backoffs; a READ_DESCRIPTOR sent into the first is answered 499170 cycles later, before the retry"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "disagree_one_direction",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4b"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R4b: a record blank in pass 0 and whole in pass 1 aborts, cause 0, rolled back 0, the offset not applied (valid 0x01)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rollback_one_cycle",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4 strobe"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R4 strobe: with no debt owed the roll-back holds both stores in reset 1 cycles, at least two"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "pass1_read_not_drained",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R5b: once the device ends the drained pass-1 READ"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R5b: once the device ends the drained pass-1 READ a later SET persists (0 WRITEs, unflushed 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "judge_wait_unwatched",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R8b"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R8b: a silent judge ends DEFAULTS at -1, the release at 122, cause 0, rolled back 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rate_walk_stuck_on_first_lane",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R3b entry 7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R3b entry 7 of 10 (24000 Hz): applied 0 refused 1, rate 0 valid 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rate_walk_unbounded",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R3b entry 8"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R3b entry 8 of 10 (16000 Hz): applied 1 refused 0, rate 16000 valid 1"
+  ],
+  "verdict": "KILLED"
+ }
+]
