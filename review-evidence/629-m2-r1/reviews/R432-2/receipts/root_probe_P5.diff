@@ -1,0 +1,11 @@
+--- $REVIEWS/r432-2-629-m2/hdl/ieee1722/crf/KL_aaf_clock_meter.sv	2026-10-02 13:43:46.501088487 +0200
++++ $REVIEWS/629-m2-r432-2-packet/scratch/rootprobe/P5_meter.sv	2026-10-02 13:58:13.035464951 +0200
+@@ -328,7 +328,7 @@
+                            && (s2_dev_r >= -$signed(32'(JUMP_NS_C)));
+   wire [3:0]  s2_pos_w = s2_seq_r[3:0];
+   wire [3:0]  s2_gid_w = s2_seq_r[7:4];
+-  wire        s2_tu_edge_w = tu_seeded_r && (s2_tu_r != prev_tu_r);
++  wire        s2_tu_edge_w = tu_seeded_r && s2_tu_r && !prev_tu_r;
+ 
+   // ---------------------------------------------------------------------- //
+   //  History sequence (group end): G1 pick, G2 difference, G3 spacing and   //

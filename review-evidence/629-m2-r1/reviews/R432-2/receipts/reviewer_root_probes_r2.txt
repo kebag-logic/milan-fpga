@@ -1,0 +1,25 @@
+Root probes at d81198c2 (pinned Verilator 5.050, GNU make 4.3, suite recipe mclk-build with MUT_*_SRC substitution; sources verified in Vmilan_datapath__verFiles.dat)
+RS: milan_datapath.sv AAFM_STAT halves swapped: assign aafm_stat_w = {status_w, max_dev_ns_w};
+P5: KL_aaf_clock_meter.sv tu edge rising only: s2_tu_edge_w = tu_seeded_r && s2_tu_r && !prev_tu_r;
+== run_rs_tu (exe rs, mode --tu)
+  [FAIL] AAF0: the meter locked on listener 0 (AAFM_STAT {idx, en, locked}) got=1 exp=5
+  [FAIL] tu: the followed talker's tu edge restarts the meter's history (AAFM_STAT[15:8]) got=0 exp=1
+  [FAIL] tu: the falling edge restarts it again   got=0 exp=2
+== milan_dp_mclk: checks: 16   failures: 3 ==
+RESULT: FAIL
+== run_rs_csr (exe rs, mode --csr)
+  [FAIL] AAF0: the meter locked on listener 0 (AAFM_STAT {idx, en, locked}) got=1 exp=5
+== milan_dp_mclk: checks: 14   failures: 1 ==
+RESULT: FAIL
+== run_rs_select (exe rs, mode --select)
+  [FAIL] AAF0: the meter locked on listener 0 (AAFM_STAT {idx, en, locked}) got=1 exp=5
+== milan_dp_mclk: checks: 13   failures: 1 ==
+RESULT: FAIL
+== run_p5_tu (exe p5, mode --tu)
+  [FAIL] tu: the falling edge restarts it again   got=1 exp=2
+== milan_dp_mclk: checks: 16   failures: 1 ==
+RESULT: FAIL
+== run_p5_a (exe p5, mode --a)
+  [FAIL] tu: the falling edge restarts it again   got=1 exp=2
+== milan_dp_mclk: checks: 55   failures: 1 ==
+RESULT: FAIL
