@@ -1,0 +1,6 @@
+make check rc=0
+gen_matrix --check rc=0
+diff --check 631eeb34..head rc=0
+diff --check 97f6eac..head rc=0
+campaign patches apply --check: ok=207 bad=0
+lint_hdl rc=0

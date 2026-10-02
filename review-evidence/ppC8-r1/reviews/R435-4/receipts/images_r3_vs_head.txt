@@ -1,0 +1,14 @@
+example rc=0
+milan_min rc=0
+example rc=0
+milan_min rc=0
+example_milan_8 image identical r3 vs head
+milan_min image identical r3 vs head
+1c1
+< $PACKET/scratch/img/mm-r3.bin: 3224 bytes
+---
+> $PACKET/scratch/img/mm-head.bin: 3224 bytes
+20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c  img/ex-head.bin
+20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c  img/ex-r3.bin
+11d6491b7f16642392961a0c2c9c04a91dfeab9b626169cac3a32b6c0843a8fb  img/mm-head.bin
+11d6491b7f16642392961a0c2c9c04a91dfeab9b626169cac3a32b6c0843a8fb  img/mm-r3.bin

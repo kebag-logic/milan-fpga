@@ -1,0 +1,62 @@
+control (nothing dropped): passes: 0 failing:
+aaf-input-source: killed: 2 failing: LintTest.test_mutations (mutation='no CRF input and no INPUT_STREAM source'), LintTest.test_mutations (mutation='no CRF input, an INPUT_STREAM source at each AAF input')
+audio-unit-for-aaf: killed: 1 failing: LintTest.test_mutations (mutation='no AUDIO_UNIT')
+base-channel-completeness: killed: 1 failing: LintTest.test_mutations (mutation='input Base format up to 6 channels')
+base-rate-uniformity: killed: 1 failing: LintTest.test_mutations (mutation='second Base input at 96 kHz')
+buffer-length: killed: 1 failing: LintTest.test_mutations (mutation='buffer_length 2125999 ns')
+child-exists: killed: 1 failing: LintTest.test_mutations (mutation='output port names AUDIO_CLUSTER 4')
+class-a: killed: 1 failing: LintTest.test_mutations (mutation='output without CLASS_A')
+cluster-channels: killed: 3 failing: LintTest.test_mutations (mutation='stereo AUDIO_CLUSTER 3'), WaiverTest.test_partly_overlapping_waivers_are_refused, WaiverTest.test_waiver_excuses_only_its_scope
+configuration-descriptors: killed: 2 failing: LintTest.test_mutations (mutation='a CONFIGURATION in configuration 1'), LintTest.test_mutations (mutation='no CONFIGURATION')
+configurations-count: killed: 1 failing: LintTest.test_mutations (mutation='configurations_count 2')
+crf-format: killed: 2 failing: LintTest.test_mutations (mutation='CRF input at 44.1 kHz only'), LintTest.test_mutations (mutation='CRF input lists the Milan word and 44.1 kHz, runs at 44.1 kHz')
+crf-input-source: killed: 3 failing: LintTest.test_mutations (mutation='CRF source at the AAF input'), LintTest.test_mutations (mutation='two INPUT_STREAM sources at the CRF input'), LintTest.test_short_descriptor
+current-configuration: killed: 1 failing: LintTest.test_mutations (mutation='current_configuration 1')
+current-format: killed: 2 failing: LintTest.test_mutations (mutation='input current_format carries ut, under a wider ut entry'), LintTest.test_mutations (mutation='output current_format 96 kHz')
+current-rate: killed: 1 failing: LintTest.test_mutations (mutation='current_sampling_rate 96000')
+descriptor-counts: killed: 4 failing: LintTest.test_mutations (mutation='descriptor_counts lists CONTROL twice'), LintTest.test_mutations (mutation='descriptor_counts lists STREAM_PORT_INPUT'), LintTest.test_mutations (mutation='descriptor_counts says 3 STREAM_INPUTs'), LintTest.test_mutations (mutation='descriptor_counts_count one past the list')
+descriptor-extent: killed: 10 failing: LintTest.test_fixed_extents, LintTest.test_fixed_extents (type='AUDIO_CLUSTER'), LintTest.test_fixed_extents (type='AVB_INTERFACE'), LintTest.test_fixed_extents (type='CLOCK_SOURCE'), LintTest.test_fixed_extents (type='ENTITY'), LintTest.test_fixed_extents (type='STREAM_PORT_INPUT'), LintTest.test_fixed_extents (type='STREAM_PORT_OUTPUT'), LintTest.test_mutations (mutation='AUDIO_CLUSTER 3 four octets long'), LintTest.test_mutations (mutation='AUDIO_MAP 0 eight octets past its mappings'), LintTest.test_mutations (mutation='CONFIGURATION descriptor_counts at 78')
+descriptor-maximum: killed: 1 failing: LintTest.test_mutations (mutation='AUDIO_MAP 0 with 64 mappings, 520 octets')
+domain-source-count: killed: 1 failing: LintTest.test_mutations (mutation='no clock source in the domain')
+domain-source-exists: killed: 1 failing: LintTest.test_mutations (mutation='domain names CLOCK_SOURCE 2')
+domain-source-identity: killed: 1 failing: LintTest.test_mutations (mutation='clock_sources [1, 0]')
+domain-source-length: killed: 1 failing: LintTest.test_mutations (mutation='domain one word too long')
+domain-source-offset: killed: 1 failing: LintTest.test_mutations (mutation='clock_sources_offset 78')
+entity-count: killed: 2 failing: LintTest.test_mutations (mutation='an ENTITY in configuration 1'), LintTest.test_mutations (mutation='no ENTITY')
+format-count: killed: 1 failing: LintTest.test_mutations (mutation='input with 47 formats')
+format-family: killed: 1 failing: LintTest.test_mutations (mutation='CRF input lists an AAF format')
+gptp-source-interfaces: killed: 1 failing: LintTest.test_mutations (mutation='gPTP media clock with two interfaces')
+has-parent: killed: 2 failing: LintTest.test_mutations (mutation='AUDIO_MAP 0 has no port'), WaiverTest.test_waiver_excuses_only_its_check
+identify-driven: killed: 1 failing: LintTest.test_mutations (mutation='identify_index_i 1')
+identify-format: killed: 8 failing: LintTest.test_mutations (mutation='IDENTIFY maximum 1'), LintTest.test_mutations (mutation='IDENTIFY minimum 1'), LintTest.test_mutations (mutation='IDENTIFY number_of_values 2'), LintTest.test_mutations (mutation='IDENTIFY one octet past its value'), LintTest.test_mutations (mutation='IDENTIFY step 1'), LintTest.test_mutations (mutation='IDENTIFY unit code COUNT'), LintTest.test_mutations (mutation='IDENTIFY value type CONTROL_LINEAR_UINT16'), LintTest.test_mutations (mutation='IDENTIFY values_offset 105')
+identify-index: killed: 2 failing: LintTest.test_mutations (mutation='IDENTIFY at index 0, then 1'), LintTest.test_mutations (mutation='no IDENTIFY CONTROL')
+input-port-maps: killed: 1 failing: LintTest.test_mutations (mutation='input port owns AUDIO_MAP 0')
+interface-index: killed: 1 failing: LintTest.test_mutations (mutation='configuration 1 moves port 1 to AVB_INTERFACE 1')
+internal-source: killed: 1 failing: LintTest.test_mutations (mutation='no INTERNAL source')
+listener-base-format: killed: 1 failing: LintTest.test_mutations (mutation='input format 24-bit')
+listener-sinks: killed: 1 failing: LintTest.test_mutations (mutation='listener_stream_sinks 1')
+listener-sinks-driven: killed: 1 failing: LintTest.test_mutations (mutation='listener_sinks_i 3')
+model-digest: killed: 3 failing: IdentityTest.test_selector_structure_moves_the_digest, LintTest.test_mutations (mutation='IDENTIFY reset_time edited under the recorded id'), LintTest.test_mutations (mutation='buffer_length edited under the recorded id')
+model-id-driven: killed: 1 failing: LintTest.test_mutations (mutation='entity_model_id_i differs')
+model-id-recorded: killed: 1 failing: LintTest.test_mutations (mutation='an unrecorded entity_model_id')
+model-id-valid: killed: 2 failing: LintTest.test_mutations (mutation='entity_model_id 0'), LintTest.test_mutations (mutation='entity_model_id all ones')
+parent-order: killed: 2 failing: LintTest.test_mutations (mutation="the input port's CONTROL numbered before its unit's"), LintTest.test_mutations (mutation='a configuration-level CONTROL after a unit-owned one')
+port-cluster-minimum: killed: 10 failing: LintTest.test_mutations (mutation='input port with no cluster'), WaiverTest.test_overlapping_waivers_are_refused (second='kebag-logic/milan-fpga#584: an input pool with no cluster'), WaiverTest.test_overlapping_waivers_are_refused (second='owner/repo#2: the same port again'), WaiverTest.test_waiver_applies_and_is_reported, WaiverTest.test_waiver_excuses_only_its_check, WaiverTest.test_waiver_naming_a_missing_configuration_is_stale, WaiverTest.test_waiver_past_the_descriptors_is_stale, WaiverTest.test_waiver_scope_is_its_configuration, WaiverTest.test_waiver_scope_is_its_type, WaiverTest.test_without_the_waiver_the_rule_refuses
+rate-count: killed: 1 failing: LintTest.test_mutations (mutation='nine sampling rates')
+rate-empty: killed: 1 failing: LintTest.test_mutations (mutation='no sampling rate')
+rate-length: killed: 1 failing: LintTest.test_mutations (mutation='one word past the rate list')
+rate-offset: killed: 1 failing: LintTest.test_mutations (mutation='sampling_rates_offset 143')
+required-type: killed: 1 failing: LintTest.test_mutations (mutation='no AVB_INTERFACE')
+single-parent: killed: 1 failing: LintTest.test_mutations (mutation='two ports share AUDIO_CLUSTER 2')
+stream-layout: killed: 9 failing: LintTest.test_mutations (mutation="Annex C output with Table 7-8's redundant_offset"), LintTest.test_mutations (mutation='Annex C output counting one redundant stream it lacks'), LintTest.test_mutations (mutation='Annex C output naming nine redundant streams'), LintTest.test_mutations (mutation='Table 7-8 output naming one redundant stream, its tail present'), LintTest.test_mutations (mutation='output 8 bytes past its formats, offsets consistent'), LintTest.test_mutations (mutation='output formats_offset 146, the list moved there'), LintTest.test_mutations (mutation='output number_of_formats 2 with one format'), LintTest.test_mutations (mutation='output redundant_offset 0'), LintTest.test_mutations (mutation='output with a redundant stream')
+stream-port-for-aaf: killed: 1 failing: LintTest.test_mutations (mutation='AUDIO_UNIT owns no output port')
+stream-presence: killed: 1 failing: LintTest.test_mutations (mutation='no stream at all')
+talker-base-format: killed: 2 failing: LintTest.test_mutations (mutation='output format 24-bit'), WaiverTest.test_configuration_scope
+talker-sources: killed: 2 failing: LintTest.test_mutations (mutation='configuration 1 has two talkers'), LintTest.test_mutations (mutation='talker_stream_sources 2')
+talker-sources-driven: killed: 1 failing: LintTest.test_mutations (mutation='talker_sources_i 2')
+unique-mapping: killed: 3 failing: LintTest.test_mutations (mutation='AUDIO_MAP 0 number_of_mappings 3 with two'), LintTest.test_mutations (mutation='AUDIO_MAP 1 repeats AUDIO_MAP 0'), LintTest.test_mutations (mutation='stream 0 channel 0 mapped twice')
+56 of 56 checks killed
+
+real	0m9.689s
+user	1m44.305s
+sys	0m28.474s

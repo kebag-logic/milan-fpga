@@ -1,0 +1,12 @@
+milan_min CLOCK_SOURCE 0/1 type@72: [0, 2] location@84: [0, 1]
+P1 test model: domain count 10 list [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; sources 0:INTERNAL, 1:INPUT_STREAM@SI1(CRF), 2:INPUT_STREAM@SI0(AAF), 3:INPUT_STREAM@SI2(AAF), 4:INPUT_STREAM@SI3(AAF), 5:INPUT_STREAM@SI4(AAF), 6:INPUT_STREAM@SI5(AAF), 7:INPUT_STREAM@SI6(AAF), 8:INPUT_STREAM@SI7(AAF), 9:INPUT_STREAM@SI8(AAF)
+P1 verdict, lint on: PACKS (lint waivers applied: 0)
+P1b same through ten_sources(): PACKS (lint waivers applied: 0) domain count 10 list [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; sources 0:INTERNAL, 1:INPUT_STREAM@SI1(CRF), 2:INPUT_STREAM@SI0(AAF), 3:INPUT_STREAM@SI2(AAF), 4:INPUT_STREAM@SI3(AAF), 5:INPUT_STREAM@SI4(AAF), 6:INPUT_STREAM@SI5(AAF), 7:INPUT_STREAM@SI6(AAF), 8:INPUT_STREAM@SI7(AAF), 9:INPUT_STREAM@SI8(AAF)
+P2 permuted order: domain count 10 list [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; sources 0:INPUT_STREAM@SI8(AAF), 1:INPUT_STREAM@SI7(AAF), 2:INPUT_STREAM@SI6(AAF), 3:INTERNAL, 4:INPUT_STREAM@SI5(AAF), 5:INPUT_STREAM@SI4(AAF), 6:INPUT_STREAM@SI3(AAF), 7:INPUT_STREAM@SI2(AAF), 8:INPUT_STREAM@SI0(AAF), 9:INPUT_STREAM@SI1(CRF)
+P2 verdict: PACKS (lint waivers applied: 0)
+P3 216 sources, CLOCK_DOMAIN 508 octets: PACKS (lint waivers applied: 0)
+P3 217 sources, CLOCK_DOMAIN 510 octets: REFUSED 1 line(s): L12 descriptor-maximum: cfg 0 CLOCK_DOMAIN 0: is 510 bytes, above 508 (IEEE 1722.1-2021 §7.2)
+P4 STREAM_INPUT 1 was CRF: True now: domain count 10 list [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; sources 0:INTERNAL, 1:INPUT_STREAM@SI1(AAF), 2:INPUT_STREAM@SI0(AAF), 3:INPUT_STREAM@SI2(AAF), 4:INPUT_STREAM@SI3(AAF), 5:INPUT_STREAM@SI4(AAF), 6:INPUT_STREAM@SI5(AAF), 7:INPUT_STREAM@SI6(AAF), 8:INPUT_STREAM@SI7(AAF), 9:INPUT_STREAM@SI8(AAF)
+P4 verdict: REFUSED 1 line(s): L6 aaf-input-source: cfg 0 CLOCK_SOURCE: no CRF input, and 9 INPUT_STREAM sources at AAF inputs [0, 1, 2, 3, 4, 5, 6, 7, 8] (Milan v1.2 §5.3.3.6)
+P5 domain count 4 list [0, 1, 2, 3]; sources 0:INTERNAL, 1:INPUT_STREAM@SI1(CRF), 2:INPUT_STREAM@SI0(AAF), 3:INPUT_STREAM@SI0(AAF) -> PACKS (lint waivers applied: 0)
+P6 REFUSED 1 line(s): L6 domain-source-identity: cfg 0 CLOCK_DOMAIN 0: clock_sources [1, 0], not 0..1; the SET_CLOCK_SOURCE range check is the membership test only for the identity list (IEEE 1722.1-2021 §7.2.32; 06 §6.4)

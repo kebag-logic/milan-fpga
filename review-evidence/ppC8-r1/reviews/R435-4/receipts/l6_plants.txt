@@ -1,0 +1,34 @@
+c0-control [whole]: SURVIVED rc=0 failing=0
+c0-control [without-new-test]: SURVIVED rc=0 failing=0
+x1-sources-at-most-9 [whole]: KILLED rc=1 failing=1
+    test_a_source_per_aaf_input_beside_crf (__main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf)
+x1-sources-at-most-9 [without-new-test]: SURVIVED rc=0 failing=0
+x2-sources-at-most-stream-inputs [whole]: KILLED rc=1 failing=2
+    test_a_source_per_aaf_input_beside_crf (__main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf)
+    test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+x2-sources-at-most-stream-inputs [without-new-test]: KILLED rc=1 failing=1
+    test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+x3-beside-crf-at-most-one-aaf [whole]: KILLED rc=1 failing=1
+    test_a_source_per_aaf_input_beside_crf (__main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf)
+x3-beside-crf-at-most-one-aaf [without-new-test]: SURVIVED rc=0 failing=0
+x4-beside-crf-no-aaf [whole]: KILLED rc=1 failing=2
+    test_a_source_per_aaf_input_beside_crf (__main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf)
+    test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+x4-beside-crf-no-aaf [without-new-test]: KILLED rc=1 failing=1
+    test_boundaries_pack (__main__.LintTest.test_boundaries_pack)
+x5-input-stream-at-most-crf-plus-one [whole]: KILLED rc=1 failing=1
+    test_a_source_per_aaf_input_beside_crf (__main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf)
+x5-input-stream-at-most-crf-plus-one [without-new-test]: SURVIVED rc=0 failing=0
+x6-aaf-sources-at-most-half [whole]: KILLED rc=1 failing=1
+    test_a_source_per_aaf_input_beside_crf (__main__.ConformingModelTest.test_a_source_per_aaf_input_beside_crf)
+x6-aaf-sources-at-most-half [without-new-test]: SURVIVED rc=0 failing=0
+o1-internal-first [whole]: SURVIVED rc=0 failing=0
+o1-internal-first [without-new-test]: SURVIVED rc=0 failing=0
+o2-crf-source-at-1 [whole]: SURVIVED rc=0 failing=0
+o2-crf-source-at-1 [without-new-test]: SURVIVED rc=0 failing=0
+o3-aaf-in-stream-order [whole]: SURVIVED rc=0 failing=0
+o3-aaf-in-stream-order [without-new-test]: SURVIVED rc=0 failing=0
+
+real	0m6.244s
+user	0m45.273s
+sys	0m13.466s

@@ -1,0 +1,17 @@
+c-offset-138-only KILLED rc=1 Ran 59 tests in 3.115s  FAILED (failures=3, errors=2) | Annex C never recognised (round-2 behaviour)
+c-offset-any KILLED rc=1 Ran 59 tests in 3.116s  FAILED (failures=1) | moved list accepted
+c-annex-end-138 KILLED rc=1 Ran 59 tests in 2.897s  FAILED (failures=3, errors=2) | Annex C redundant_offset/length taken from Table 7-8
+c-redoff-any KILLED rc=1 Ran 59 tests in 3.075s  FAILED (failures=2) | redundant_offset unchecked
+c-tail-in-78 KILLED rc=1 Ran 59 tests in 2.992s  FAILED (failures=2) | Table 7-8 tail accepted
+c-tail-in-c-refused KILLED rc=1 Ran 59 tests in 2.939s  FAILED (errors=2) | every tail refused (Annex C pair refused)
+c-rmax-any KILLED rc=1 Ran 59 tests in 3.007s  FAILED (failures=1) | R above 8 accepted
+c-rmax-9 KILLED rc=1 Ran 59 tests in 2.991s  FAILED (failures=1) | R cap one too loose
+c-rmax-7 KILLED rc=1 Ran 59 tests in 2.988s  FAILED (failures=1, errors=1) | R cap one too strict
+c-rmax-ge KILLED rc=1 Ran 59 tests in 2.991s  FAILED (errors=1) | R = 8 refused
+c-tail-8r KILLED rc=1 Ran 59 tests in 3.033s  FAILED (failures=1, errors=2) | tail length 8R (the assignment's reading)
+c-tail-0 KILLED rc=1 Ran 59 tests in 2.949s  FAILED (failures=1, errors=2) | tail length ignored
+c-length-any KILLED rc=1 Ran 59 tests in 3.025s  FAILED (failures=1) | a longer stream accepted
+c-annex-136-is-137 KILLED rc=1 Ran 59 tests in 3.071s  FAILED (failures=3, errors=2) | Annex C offset wrong
+g-no-guard KILLED rc=1 Ran 59 tests in 3.020s  FAILED (errors=1) | loader None-spec guard dropped
+g-own-loader SURVIVED rc=0 Ran 59 tests in 3.090s  OK | model_lint loads model_rules with its own unguarded loader again
+15 of 16 KILLED; 1 SURVIVED; 0 INVALID

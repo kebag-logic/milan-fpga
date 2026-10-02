@@ -1,0 +1,17 @@
+Reviewer verdict and ledger written before reading any prior review report or finding of PR #144.
+
+Verdict at exact head bd86f6466baa77113eea2266c00044c3a29678f2: POSITIVE.
+Open MINOR/MAJOR/BLOCKER: none. RESIDUE: none.
+SUGGESTION S1 (Tests, Docs): three order-reading L6 plants (CLOCK_SOURCE 0 must be
+INTERNAL; CLOCK_SOURCE 1 must be the CRF input's; AAF sources in STREAM_INPUT
+order) survive the gate with and without the new test, so the merged statement
+"neither the processor nor the lint reads an order" (07 §3.1 L6) and REQ-MDL-005's
+"reads no order" are true by code but pinned by no test. A positive case with a
+different class order (receipts/l6_probes.txt P2 packs) would pin it.
+
+Ledger:
+Conformance | CLEAN | 07 L6 row, REQ-MDL-005, model_rules.py:174, _rule_sources/_rule_domains, l6_probes | R435-4 | bd86f646
+RTL         | CLEAN | lane RTL delta vs main = desc_store comment only; P141 RTL/ucode/harness equal main; lint_hdl; pp_top 9168 | R435-4 | bd86f646
+Robustness  | CLEAN | 216/217 bound, permuted order, no-CRF AAF set, parent models byte-identical r3 vs head at dev and #634 | R435-4 | bd86f646
+Tests       | CLEAN | gate 59 OK, 584 RTL, suppression 56/56 identical to r3, 9 reviewer L6 plants, 207 patches | R435-4 | bd86f646
+Docs        | CLEAN | re-done merge, keep_both, 09 §8.5 row, desc_store README, pp_top README note, make check, gen_matrix | R435-4 | bd86f646

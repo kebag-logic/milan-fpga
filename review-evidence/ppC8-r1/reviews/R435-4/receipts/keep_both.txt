@@ -1,0 +1,22 @@
+== docs/architecture/07_memory_maps.md | L6 |
+  main: 13 pieces, 2 not verbatim in the merged row
+    - INTERNAL 0, CRF 1, AAF input k at 2 + k, the AAF inputs in STREAM_INPUT order; the processor reads no order.
+    - Each CLOCK_DOMAIN's `clock_sources` list is the identity permutation 0..count-1 (dense, zero-based, in order), of any length up to Table 7-61's 216: the processor's SET_CLOCK_SOURCE range check tests `clock_source_index` < `clock_sources_count` and relies on this list shape to be the membership test of IEEE 1722.1-2021 §7.2.32 (`clock_sources`, the indices `clock_source_index` may be set to).
+  lane: 8 pieces, 5 not verbatim in the merged row
+    - CLOCK_SOURCE construction: one INPUT_STREAM per CRF-capable input (or the single AAF input when no CRF input exists);
+    - ≥1 INTERNAL if any output;
+    - each CLOCK_DOMAIN's `clock_sources` list sits at 76, is `76 + 2 × count` long and is the identity permutation 0..count-1 (dense, zero-based, in order): the processor's SET_CLOCK_SOURCE range check tests `clock_source_index` < `clock_sources_count` and relies on this list shape to be the IEEE §7.4.23.1 membership test ([06 §6.4](06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds)); gPTP-as-media-clock chain only in non-redundant single-interface models
+    - Milan §5.3.3.6, §7.5;
+    - IEEE §7.2.32, §7.4.23.1
+  merged row: 2 pieces in neither side verbatim
+    + INTERNAL 0, CRF 1, AAF input k at 2 + k, the AAF inputs in STREAM_INPUT order; neither the processor nor the lint reads an order.
+    + Each CLOCK_DOMAIN's `clock_sources` list sits at 76, is `76 + 2 × count` long and is the identity permutation 0..count-1 (dense, zero-based, in order), of any length up to Table 7-61's 216 (76 + 2 × 216 is §7.2's 508 octets, L12's `descriptor-maximum`): the processor's SET_CLOCK_SOURCE range check tests `clock_source_index` < `clock_sources_count` and relies on this list shape to be the membership test of IEEE 1722.1-2021 §7.2.32 (`clock_sources`, the indices `clock_source_index` may be set to).
+== docs/00_MILAN_COMPLIANCE_REVIEW.md | REQ-MDL-005 |
+  main: 14 pieces, 1 not verbatim in the merged row
+    - —
+  lane: 10 pieces, 3 not verbatim in the merged row
+    - Milan §5.3.3.6
+    - CLOCK_SOURCE construction: one INPUT_STREAM per CRF-capable input (or the single AAF input);
+    - consumer's model (07 §3.1 ownership); packer model lint L6 (defence in depth)
+  merged row: 1 pieces in neither side verbatim
+    + consumer's model (07 §3.1 ownership); the processor's range check over L6's identity list; packer model lint L6, which accepts that set and reads no order (defence in depth)
