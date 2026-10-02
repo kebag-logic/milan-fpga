@@ -1904,10 +1904,11 @@ uint8_t  crf_seq = 0;
             ck("...and no source is followed at INTERNAL (follow_sel = 0)",
                dut->rootp->milan_datapath__DOT__follow_sel_r, 0);
             //! ...and the MMCM phase-shift loop stays in IDLE. This is the check
-            //! that would have caught the 0 == 0 trap: KL_mmcm_drp_servo selects
-            //! on (clk_src_i == crf_src_idx_i), fed the LIVE index against the
-            //! shape's generated AEM_CRF_CLKSRC_C - INTERNAL(0) against 1 here,
-            //! so the select is honestly false until a controller selects CRF.
+            //! that would have caught the 0 == 0 trap. Since #629 the servo's
+            //! one-bit sel_i is follow_sel_r, the registered decode of the LIVE
+            //! index through the shape's generated clock-source tables, so the
+            //! select is honestly false until a controller selects a stream
+            //! source.
             //! Measured on the broken build: MCSRV_STAT = 0x21, servo out of IDLE
             //! at clock_source = INTERNAL.
             {

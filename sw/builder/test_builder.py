@@ -11356,11 +11356,14 @@ def test_baremetal_profile_contract() -> None:
             datapath, r"wire[ \t]+media_rebase_p_w",
             "media_rebase_p_w", "eff_ptp_adjust_w | cfg_ptp_cmd_load",
             "media re-base pulse must read only adjtime and settime")
+        #: #629: a followed AAF stream adds the AAF clock meter's two pulses,
+        #: its own timeout and the followed stream's received toggle; the
+        #: meter's enable is their selection gate
         direct_initializer(
             datapath, r"wire[ \t]+mcr_restart_p_w",
             "mcr_restart_p_w",
-            "crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
-            "| crf_mr_toggle_p_w)",
+            "(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
+            "| crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w",
             "media restart pulse must read only selected CRF disruption "
             "and received mr propagation")
         restart_reason = (
@@ -13058,8 +13061,8 @@ def test_baremetal_profile_contract() -> None:
         "ADP-controlled media re-base term")
     mcr_restart_adp_term = replace_once(
         datapath_source,
-        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);",
-        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | cfg_adp_enable;",
+        "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;",
+        "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w | cfg_adp_enable;",
         "ADP-controlled media restart term")
     mcr_restart_port_gated = gate_instance_port(
         datapath_source, "KL_media_clock_restart", "media_clock_restart",
@@ -13080,8 +13083,8 @@ def test_baremetal_profile_contract() -> None:
         "additional media re-base reader")
     mcr_restart_extra_reader = replace_once(
         datapath_source,
-        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);",
-        "                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);\n"
+        "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;",
+        "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;\n"
         "  wire extra_restart_reader_w = mcr_restart_p_w;",
         "additional media restart reader")
     phc_effective_adjust_gated_by_adp = replace_once(
