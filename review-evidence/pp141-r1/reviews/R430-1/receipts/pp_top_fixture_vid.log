@@ -1,0 +1,162 @@
+test_compiler_environment_and_arguments (test_fixture_guards.CompilerLocaleTest.test_compiler_environment_and_arguments)
+main() passes every argument through and sets LC_ALL=C for the compiler only. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+OK
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:581:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  581 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:591:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  591 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:592:42: ... Location of port declaration
+  592 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:593:42: ... Location of port declaration
+  593 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_active_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:598:42: ... Location of port declaration
+  598 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_sr_admitted_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:604:42: ... Location of port declaration
+  604 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:605:42: ... Location of port declaration
+  605 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_src_fail_code_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:606:42: ... Location of port declaration
+  606 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:607:42: ... Location of port declaration
+  607 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:608:42: ... Location of port declaration
+  608 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_over_limit_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:609:42: ... Location of port declaration
+  609 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:610:42: ... Location of port declaration
+  610 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:611:42: ... Location of port declaration
+  611 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:613:42: ... Location of port declaration
+  613 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:535:5: Instance has missing pin: 'adp_next_avail_index_o'
+  535 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:642:42: ... Location of port declaration
+  642 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 16.738 MB sources in 49 modules, into 6.447 MB in 14 C++ files needing 0.002 MB
+- Verilator: Walltime 1.662 s (elab=0.176, cvt=1.242, bld=0.000); cpu 1.737 s on 8 threads; allocated 683.887 MB
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guards: 4 cases PASS
+fixture-guards rc=0
+%Error: Cannot find file containing module: '(HDL)/common/pp_pkg.sv'
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+        ... This may be because there's no search path specified with -I<dir>.
+        ... Looked in:
+             (HDL)/common/pp_pkg.sv
+             (HDL)/common/pp_pkg.sv.v
+             (HDL)/common/pp_pkg.sv.sv
+             obj_vid/(HDL)/common/pp_pkg.sv
+             obj_vid/(HDL)/common/pp_pkg.sv.v
+             obj_vid/(HDL)/common/pp_pkg.sv.sv
+        ... With current working directory '<clone>/tb/pp_top'
+%Error: Cannot find file containing module: '(HDL)/srp/srp_pkg.sv'
+%Error: Cannot find file containing module: '(HDL)/acmp/pp_acmp_pkg.sv'
+%Error: Cannot find file containing module: '(HDL)/adp/pp_adp_pkg.sv'
+%Error: Cannot find file containing module: '(HDL)/common/KL_pp_prng.sv'
+%Error: Cannot find file containing module: '(HDL)/common/KL_pp_timer_service.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_rx_validator.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_rx_slots.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_normalizer.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_dispatch.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_tx_slots.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_release_merge.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_tx_arbiter.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_scoreboard.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_event_router.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_originator.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_trace_ring.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_side_port.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_nvm_port.sv'
+%Error: Cannot find file containing module: '(HDL)/packet_engine/KL_pp_nvm_mgr_arb.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/ucpu_pkg.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_ucpu.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_desc_mem_guard.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_desc_store.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_dyn_state.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_engine.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_resp_buf.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_nvm_writer.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_notify.sv'
+%Error: Cannot find file containing module: '(HDL)/aecp/KL_aecp_ca_originator.sv'
+%Error: Cannot find file containing module: '(HDL)/adp/KL_adp_engine.sv'
+%Error: Cannot find file containing module: '(HDL)/acmp/KL_pp_acmp_listener.sv'
+%Error: Cannot find file containing module: '(HDL)/acmp/KL_acmp_talker.sv'
+%Error: Cannot find file containing module: '(HDL)/acmp/KL_pp_acmp_lsn_admit.sv'
+%Error: Cannot find file containing module: '(HDL)/acmp/KL_acmp_nvm_shadow.sv'
+%Error: Cannot find file containing module: '(HDL)/maap/KL_pp_maap.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_decoder.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_domain.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_vlan.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_admission.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_talker_fsm.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_listener_fsm.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_encoder.sv'
+%Error: Cannot find file containing module: '(HDL)/srp/KL_srp_top.sv'
+%Error: Cannot find file containing module: '(HDL)/top/KL_mrp_strip.sv'
+%Error: Cannot find file containing module: '(HDL)/top/protocol_processor_top.sv'
+%Error: Exiting due to 46 error(s)
+vid rc=1

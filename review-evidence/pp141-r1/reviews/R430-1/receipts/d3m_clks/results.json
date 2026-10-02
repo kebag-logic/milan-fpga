@@ -1,0 +1,91 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "clks_restore_count_narrowed",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C3 restore"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C3 restore: COMPLETE from cleared rows with the saved record applied (applied 0 refused 1 blank 26 of 27)",
+   "D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the top exports it (row 0 valid 0, export 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "clks_row_two_bits",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C1 readback",
+   "D3C3 save"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C1 notify: exactly one unsolicited SET_CLOCK_SOURCE carrying 9 reaches the second controller, sequence 0 (1 frames)",
+   "D3C1 readback: GET_CLOCK_SOURCE reads 9 byte-exact, the row holds 9 with its valid flag and the top exports 9 (row 1 valid 1, export 1)",
+   "D3C3 save: record 0x0A carrying 9 erased and written once, byte-exact, nothing unflushed, no other record (1 erases, 1 writes, 0 other operations)",
+   "D3C2: SET_CLOCK_SOURCE(10), the count, answers BAD_ARGUMENTS byte-exact carrying the 9 in force (1 responses)",
+   "D3C2 readback: GET_CLOCK_SOURCE still reads 9, the row and the export hold 9 (row 1, export 1)",
+   "D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the top exports it (row 1 valid 1, export 1)",
+   "D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 1 refused 0 blank 26 of 27)",
+   "D3C4 at the count: the row stays unset and GET reads the image's 0 (row 1 valid 1, export 1)",
+   "D3C4 above the count: the saved 9 over 3 sources is refused, COMPLETE (applied 1 refused 0 blank 26 of 27)",
+   "D3C4 above the count: the row stays unset and GET reads the image's 0 (row 1 valid 1, export 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "clks_restore_index_narrowed",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C4 at the count",
+   "D3C4 above the count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 1 refused 0 blank 26 of 27)",
+   "D3C4 at the count: the row stays unset and GET reads the image's 0 (row 9 valid 1, export 9)",
+   "D3C4 above the count: the saved 9 over 3 sources is refused, COMPLETE (applied 1 refused 0 blank 26 of 27)",
+   "D3C4 above the count: the row stays unset and GET reads the image's 0 (row 9 valid 1, export 9)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "clks_restore_bound_inclusive",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C4 at the count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R2: COMPLETE, applied 2 refused 9 blank 16 of 27",
+   "D3R2: only the neighbour's offset restored (valid 0x02)",
+   "D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 1 refused 0 blank 26 of 27)",
+   "D3C4 at the count: the row stays unset and GET reads the image's 0 (row 9 valid 1, export 9)"
+  ],
+  "verdict": "KILLED"
+ }
+]
