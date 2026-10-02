@@ -620,6 +620,9 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
     "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv",
+    # #629: the AAF clock meter beside KL_crf_rx (elaborated when the shape
+    # offers an AAF CLOCK_SOURCE)
+    "hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
     "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/crf/KL_media_nco.sv",
     "hdl/ieee1722/crf/KL_media_grid_align.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",

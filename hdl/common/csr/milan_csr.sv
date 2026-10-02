@@ -197,7 +197,18 @@ module milan_csr #(
   //! No CSR address, width, access or OTHER field moves. PP_NVM_STAT
   //! 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged.
   //! The register occupies four bytes.
-  parameter logic [31:0] VERSION = 32'h0002_0060
+  //!
+  //! 0x0061 ADDS TWO ADDRESSES (#629, media-clock following of one selected
+  //! AAF or CRF source): A_AAFM_STAT 0x8E0 and A_AAFM_RATE 0x8E4, RO live,
+  //! writes inert, the AAF clock meter's status {max |deviation| ns [31:16],
+  //! data-caused history restarts [15:8], followed listener [7:4], enabled
+  //! [2], rate valid [1], locked [0]} and its signed rate in CRF_RATE 0x748's
+  //! units. They read zero on a shape that offers no AAF source. The
+  //! CLOCK_DOMAIN LOCKED/UNLOCKED counters' level gains "the servo LOCKED"
+  //! while a stream source is followed (D5 = C1), and the grid aligner is
+  //! engaged at INTERNAL too (D4 = A2-a). No other CSR address, width or
+  //! access moves. The register occupies four bytes.
+  parameter logic [31:0] VERSION = 32'h0002_0061
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -421,6 +432,10 @@ module milan_csr #(
   input  wire [31:0]             i_crf_status,        //! RO 0x74C {pdu16,fmt8,seq8}
   input  wire                    i_crf_locked,        //! RO in 0x738 bit 31,        //! LPF_CTRL[0]: playback biquad
   input  wire [31:0]             i_mcsrv_stat,        //! RO 0x8F8: MMCM-DRP media-clock servo status
+  //! the AAF clock meter (#629, KL_aaf_clock_meter): zero on a shape that
+  //! offers no AAF CLOCK_SOURCE
+  input  wire [31:0]             i_aafm_stat,         //! RO 0x8E0: {max_dev16, restarts8, idx4, 0, en, rate_valid, locked}
+  input  wire [31:0]             i_aafm_rate,         //! RO 0x8E4: signed rate, KL_crf_rx rate_o units (CRF_RATE 0x748)
   output wire                    o_mcsrv_ps_invert,   //! MCSRV_CTRL 0x8FC[0]: PS direction flip
   output wire                    o_mcsrv_auto_repair, //! MCSRV_CTRL 0x8FC[1]: 1 = allow DRP divider repair (bench-gated, default 0)
   //! item-11 AAF per-stage latency taps (LTAP group, base 0x870)
@@ -933,6 +948,12 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_SLIP_LB  = 'h8D4;   //! RO live: {lb_skip16, lb_dup16}
   localparam [ADDR_WIDTH-1:0] A_SLIP_TDM = 'h8D8;   //! RO live: {tdm_skip16, tdm_dup16}
   localparam logic [ADDR_WIDTH-1:0] A_RENDER_STAT = 'h8DC; //! RO live: #443 render state
+  //! the AAF clock meter's two words (#629, VERSION 0x0061), the first free
+  //! pair above the render word in the unmapped 0x8E0-0x8F4 window beside
+  //! MCSRV_STAT. Live RO, writes inert, the same >=0x800 carve-out (else the
+  //! 0x8F8 dead-read trap).
+  localparam logic [ADDR_WIDTH-1:0] A_AAFM_STAT = 'h8E0; //! RO live: meter status
+  localparam logic [ADDR_WIDTH-1:0] A_AAFM_RATE = 'h8E4; //! RO live: meter rate
   //! chmap map-RAM window (docs/CHANNEL_MAP_64.md §6). Same dedicated-arm
   //! carve-out as MCSRV (0x8F8/0x8FC): NOT in is_plain_rw (a 0x900 shadow
   //! write would alias word 0x100), a live read arm per word, and its own
@@ -2405,6 +2426,8 @@ module milan_csr #(
       //! junction slip counters: live, free-running from reset
       A_SLIP_LB:    live_mux = i_slip_lb;
       A_SLIP_TDM:   live_mux = i_slip_tdm;
+      A_AAFM_STAT:  live_mux = i_aafm_stat;
+      A_AAFM_RATE:  live_mux = i_aafm_rate;
       A_RENDER_STAT: begin
         live_mux = 32'd0;
         for (int unsigned s = 0; s < N_LISTENERS_P; s++) begin
@@ -2578,6 +2601,9 @@ module milan_csr #(
                       (rd_addr_q == A_SLIP_LB) ||
                       (rd_addr_q == A_SLIP_TDM) ||
                       (rd_addr_q == A_RENDER_STAT) ||
+                      //! AAF clock meter pair 0x8E0/0x8E4, same carve-out
+                      (rd_addr_q == A_AAFM_STAT) ||
+                      (rd_addr_q == A_AAFM_RATE) ||
                       //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
                       (rd_addr_q >= A_CHMAP_CTRL &&
                        rd_addr_q <  A_CHMAP_CTRL + 16'h40);

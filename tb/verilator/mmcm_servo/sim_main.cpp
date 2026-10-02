@@ -6,7 +6,7 @@
 // 1/(56*F_VCO) at the silicon VCO 1056.7568 MHz).
 //
 // Cases:
-//   U0  clock_source != 2  -> ZERO DRP and ZERO PS activity
+//   U0  deselected (sel_i 0) -> ZERO DRP and ZERO PS activity
 //   U1  activation         -> DRP read-VERIFY only (2 reads, 0 writes)
 //   U2  lock from +100 ppm -> LOCKED, effective clock within 3 ppm of talker
 //   U3  bounded step       -> per-window trim delta <= SLEW_MAX, PS protocol clean
@@ -29,7 +29,7 @@
 //   U13 invalid CRF rate -> trim and lock held; valid rate resumes PI
 //
 // Sim-compressed servo params (-G): 125 us tick, 4 ms window; the ns/512ms
-// CSR unit scale is preserved by NORM_SHIFT so crf_rate_i uses REAL units.
+// CSR unit scale is preserved by NORM_SHIFT so ref_rate_ns_i uses REAL units.
 
 #include "VKL_mmcm_drp_servo.h"
 #include "verilated.h"
@@ -190,23 +190,20 @@ class MmcmServoUnitHarness {
         mm.regs[0x08] = 0x0595;
         mm.regs[0x09] = 0x0080;
 
-        dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
-        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+        dut->rst_n = 0; dut->sel_i = 0; dut->ref_locked_i = 0;
+        dut->ref_rate_valid_i = 1; // synthetic rate input is valid
         dut->phc_slew_active_i = 0;
-        //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
-        //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
-        //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
-        //! follows crf_src_idx_i and assumes nothing about it; an index no
-        //! shipping shape uses is what proves that.
-        dut->crf_src_idx_i = 2;
-        dut->crf_rate_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
+        //! the select is one bit since #629 (sel_i): the index-to-source
+        //! decode moved to milan_datapath's media_clk_resolve, which reads
+        //! the generated per-index table and is graded at the root
+        dut->ref_rate_ns_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
         dut->mmcm_locked_i = 1;
         run_ms(0.01);
         dut->rst_n = 1;
     }
 
     void prove_inert_while_deselected() {
-        printf("[U0] clock_source != 2: fully inert\n");
+        printf("[U0] deselected (sel_i = 0): fully inert\n");
         run_ms(10);
         ck("[U0] state IDLE", state(), 0);
         ck("[U0] zero DRP accesses", mm.drp_reads + mm.drp_writes, 0);
@@ -216,8 +213,8 @@ class MmcmServoUnitHarness {
 
     void prove_activation_read_verifies_only() {
         printf("[U1] activation: DRP read-verify only\n");
-        dut->clk_src_i = 2; dut->crf_locked_i = 1;
-        dut->crf_rate_i = rate_for_ppm(+100.0);      // talker +100 ppm
+        dut->sel_i = 1; dut->ref_locked_i = 1;
+        dut->ref_rate_ns_i = rate_for_ppm(+100.0);      // talker +100 ppm
         run_ms(1);
         ck("[U1] verify reads = 2", mm.drp_reads, 2);
         ck("[U1] verify writes = 0", mm.drp_writes, 0);
@@ -253,7 +250,7 @@ class MmcmServoUnitHarness {
 
     void prove_step_response_relocks() {
         printf("[U4] step response: talker +100 -> +80 ppm\n");
-        dut->crf_rate_i = rate_for_ppm(+80.0);
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0);
         long guard = 0;
         run_ms(8);                               // leave the settled point
         while (state() != 4 && guard < 100) { run_ms(1); guard++; }
@@ -265,14 +262,14 @@ class MmcmServoUnitHarness {
 
     void prove_holdover_freezes_trim() {
         printf("[U5] holdover on CRF unlock\n");
-        dut->crf_locked_i = 0;
+        dut->ref_locked_i = 0;
         run_ms(6);
         ck("[U5] state HOLDOVER", state(), 5);
         int16_t t0 = trim();
         double eff = eff_ppm_meas(20.0);
         ck("[U5] trim frozen across holdover", trim(), t0);
         ckr("[U5] held rate ~ last talker (+80)", eff, 76.0, 84.0);
-        dut->crf_locked_i = 1;
+        dut->ref_locked_i = 1;
         long guard = 0;
         while (state() != 4 && guard < 100) { run_ms(1); guard++; }
         ck("[U5] relock after CRF returns", state(), 4);
@@ -280,15 +277,15 @@ class MmcmServoUnitHarness {
 
     void prove_fresh_lock_from_minus_100ppm() {
         printf("[U6] deselect + fresh lock from -100 ppm\n");
-        dut->clk_src_i = 0;
+        dut->sel_i = 0;
         run_ms(3);
         ck("[U6] back to IDLE", state(), 0);
         ck("[U6] trim 0 in IDLE", trim(), 0);
         long ops0 = mm.ps_ops;
         run_ms(5);
         ck("[U6] PS silent in IDLE", mm.ps_ops - ops0, 0);
-        dut->crf_rate_i = rate_for_ppm(-100.0);
-        dut->clk_src_i = 2;
+        dut->ref_rate_ns_i = rate_for_ppm(-100.0);
+        dut->sel_i = 1;
         long guard = 0;
         while (state() != 4 && guard < 200) { run_ms(1); guard++; }
         ck("[U6] locked from -100 ppm", state(), 4);
@@ -299,10 +296,10 @@ class MmcmServoUnitHarness {
 
     void prove_mismatch_is_informative_with_repair_off() {
         printf("[U7] config mismatch, auto_repair OFF: informative only\n");
-        dut->clk_src_i = 0; run_ms(3);
+        dut->sel_i = 0; run_ms(3);
         mm.regs[0x08] = 0x1234;                  // corrupt HIGH/LOW cone
         long w0 = mm.drp_writes;
-        dut->clk_src_i = 2;
+        dut->sel_i = 1;
         run_ms(2);
         ck("[U7] mismatch flagged", (dut->status_o >> 4) & 1, 1);
         ck("[U7] verified NOT set", (dut->status_o >> 3) & 1, 0);
@@ -314,7 +311,7 @@ class MmcmServoUnitHarness {
 
     void prove_auto_repair_runs_the_safe_sequence() {
         printf("[U8] auto_repair ON: full XAPP888 safe sequence\n");
-        dut->clk_src_i = 0; run_ms(3);
+        dut->sel_i = 0; run_ms(3);
         // corrupt the fields AND plant junk in the RESERVED bits that the
         // RMW must preserve (ClkReg1 [12], ClkReg2 [15] - XAPP888 Tables 1/2)
         mm.regs[0x08] = 0x1234 | 0x1000;
@@ -323,7 +320,7 @@ class MmcmServoUnitHarness {
         long w0 = mm.drp_writes;
         long ops0 = mm.ps_ops;
         dut->auto_repair_i = 1;
-        dut->clk_src_i = 2;
+        dut->sel_i = 1;
         long guard = 0;
         while (state() != 3 && state() != 4 && guard < 400) { run_ms(1); guard++; }
         ck("[U8] repair completed (ACQUIRE/LOCKED)", state() == 3 || state() == 4, 1);
@@ -347,18 +344,18 @@ class MmcmServoUnitHarness {
     // ---------------------------------------------------------------- //
     void prove_ps_invert_knob_matches_an_inverted_mmcm() {
         printf("[U9] ps_invert knob vs an inverted-polarity MMCM\n");
-        dut->clk_src_i = 0; run_ms(3);
+        dut->sel_i = 0; run_ms(3);
         ck("[U9] back to IDLE", state(), 0);
         mm.invert = true;
         dut->ps_invert_i = 1;
-        dut->clk_src_i = 2;
+        dut->sel_i = 1;
         int guard = 0;
         while (state() != 4 && guard < 900) { run_ms(1); guard++; }
         ck("[U9] locks with knob vs inverted MMCM", state(), 4);
         // control: knob off against the inverted model must NOT relock
-        dut->clk_src_i = 0; run_ms(3);
+        dut->sel_i = 0; run_ms(3);
         dut->ps_invert_i = 0;
-        dut->clk_src_i = 2;
+        dut->sel_i = 1;
         guard = 0;
         while (state() != 4 && guard < 300) { run_ms(1); guard++; }
         ck("[U9] control: wrong polarity never locks", state() == 4 ? 1 : 0, 0);
@@ -371,8 +368,8 @@ class MmcmServoUnitHarness {
     //      window measured against the stepped span wound the PI integ
     //      straight to the -200 ppm output clamp (trim 0xF380 = -3200)
     //      and it STAYED railed (state ACQUIRE) until an IDLE bounce +
-    //      owner restart. crf_rate_i stayed healthy (+6.7 ppm) the whole
-    //      time - so step ONLY the TB ptp timeline, leave crf_rate_i on
+    //      owner restart. ref_rate_ns_i stayed healthy (+6.7 ppm) the whole
+    //      time - so step ONLY the TB ptp timeline, leave ref_rate_ns_i on
     //      the old (still-true) talker rate.
     //      Guard = discard any window with |ew| > 1<<19 (1024 ppm) like
     //      a win_skip window; 4 consecutive discards resync win_start.
@@ -416,10 +413,10 @@ class MmcmServoUnitHarness {
 
     void prove_local_ptp_step_windows_are_discarded() {
         printf("[U10] local ptp step: bad window discarded, no rail-out\n");
-        dut->clk_src_i = 0; run_ms(3);
+        dut->sel_i = 0; run_ms(3);
         ck("[U10] back to IDLE", state(), 0);
-        dut->crf_rate_i = rate_for_ppm(+80.0);
-        dut->clk_src_i = 2;
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0);
+        dut->sel_i = 1;
         long guard = 0;
         while (state() != 4 && guard < 300) { run_ms(1); guard++; }
         ck("[U10] locked before the step", state(), 4);
@@ -476,7 +473,7 @@ class MmcmServoUnitHarness {
     // ---------------------------------------------------------------- //
     // U11: the 1024 ppm guard's own arm (#539 moved every ptp_now JUMP to
     //      the step guard, so U10 no longer reaches it). A broken rate
-    //      measurement - crf_rate_i 2 ms off for seven windows - makes every
+    //      measurement - ref_rate_ns_i 2 ms off for seven windows - makes every
     //      window's |ew| implausible with no jump anywhere; it is
     //      snapshotted whole at each boundary, so no window sees part of it.
     //      Every window is discarded, trim and LOCKED hold, and the loop
@@ -494,11 +491,11 @@ class MmcmServoUnitHarness {
         int env_hi = 0;
         trim_range(16.0, env_lo, env_hi);
         std::vector<double> at;
-        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0) + 2'000'000;
         int lo = 0;
         int hi = 0;
         trim_range(28.0, lo, hi, &at);
-        dut->crf_rate_i = rate_for_ppm(+80.0);
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0);
         printf("  info: locked trim envelope [%d, %d], through it [%d, %d] state=%d\n",
                env_lo, env_hi, lo, hi, state());
         print_gaps(at);
@@ -530,7 +527,7 @@ class MmcmServoUnitHarness {
         printf("[U12] a PHC step restarts the 1024 ppm guard's streak\n");
         ck("[U12] LOCKED before", state(), 4);
         std::vector<double> before;
-        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0) + 2'000'000;
         run_noting_discards(12.0, 2, before);
         ck("[U12] arm: two guard discards open a streak", static_cast<long>(before.size()), 2);
         run_ms(2);                               // half a window on: mid-window
@@ -540,7 +537,7 @@ class MmcmServoUnitHarness {
              edges_until_counted(d0, 64), 1, 3);
         std::vector<double> after;
         run_noting_discards(40.0, 5, after);
-        dut->crf_rate_i = rate_for_ppm(+80.0);
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0);
         print_gaps(after);
         ck("[U12] guard discards 1 to 4 after the step 32 ticks apart",
            ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
@@ -555,7 +552,7 @@ class MmcmServoUnitHarness {
     void prove_slew_restarts_the_guard_streak() {
         ck("[U15] LOCKED before", state(), 4);
         std::vector<double> before;
-        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0) + 2'000'000;
         // One guard trip plus two tainted windows cannot wrap a four-trip
         // streak to zero and hide a regression that counts slew discards.
         run_noting_discards(12.0, 1, before);
@@ -571,7 +568,7 @@ class MmcmServoUnitHarness {
         ck("[U15] arm: partial tail discarded", tail.size(), 1);
         std::vector<double> after;
         run_noting_discards(40.0, 5, after);
-        dut->crf_rate_i = rate_for_ppm(+80.0);
+        dut->ref_rate_ns_i = rate_for_ppm(+80.0);
         print_gaps(after);
         ck("[U15] four fresh guard trips precede re-base",
            ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
@@ -607,7 +604,7 @@ class MmcmServoUnitHarness {
         printf("  info: tally %d before 64 steps, %d after\n", d0, disc_cnt());
         ck("[U12] tally after 64 steps (saturated)", disc_cnt(), 63);
         ck("[U12] still LOCKED after the burst", state(), 4);
-        dut->clk_src_i = 0;
+        dut->sel_i = 0;
         run_ms(3);
         ck("[U12] back to IDLE", state(), 0);
         ck("[U12] IDLE clears the tally", disc_cnt(), 0);
@@ -618,25 +615,25 @@ class MmcmServoUnitHarness {
     void prove_invalid_remote_sample_holds_the_loop() {
         ck("[U13] LOCKED before invalid remote sample", state(), 4);
         const int16_t before = trim();
-        const auto clean = dut->crf_rate_i;
-        dut->crf_rate_valid_i = 0;
-        dut->crf_rate_i = clean + 150000;
+        const auto clean = dut->ref_rate_ns_i;
+        dut->ref_rate_valid_i = 0;
+        dut->ref_rate_ns_i = clean + 150000;
         run_ms(24);
         ck("[U13] invalid remote sample holds trim", trim(), before);
         ck("[U13] invalid remote sample holds LOCKED", state(), 4);
-        dut->crf_rate_i = clean;
-        dut->crf_rate_valid_i = 1;
+        dut->ref_rate_ns_i = clean;
+        dut->ref_rate_valid_i = 1;
         run_ms(24);
         ck("[U13] clean remote sample resumes locked", state(), 4);
         // A +10 ppm talker offset stays within the 16 ppm unit lock band.
         // Demand >5 ppm trim movement, beyond the unit's sampling ripple;
         // a PI loop latched off during invalidity must fail this check.
         const int16_t resumed = trim();
-        dut->crf_rate_i = rate_for_ppm(+90.0);
+        dut->ref_rate_ns_i = rate_for_ppm(+90.0);
         run_ms(24);
         ck("[U13] valid offset resumes PI trim", trim() > resumed + 5 * 16, 1);
         ck("[U13] valid offset stays LOCKED", state(), 4);
-        dut->crf_rate_i = clean;
+        dut->ref_rate_ns_i = clean;
         run_ms(24);
         ck("[U13] original rate recovers LOCKED", state(), 4);
     }
@@ -644,7 +641,7 @@ class MmcmServoUnitHarness {
     //! Short windows exercise tally saturation, reset during a correction,
     //! and a step replacing that correction without waiting minutes.
     void prove_slew_reset_and_saturation() {
-        dut->clk_src_i = 2;
+        dut->sel_i = 1;
         run_ms(60);
         ck("[U14] slew starts LOCKED", state(), 4);
         dut->phc_slew_active_i = 1;

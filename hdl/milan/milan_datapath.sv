@@ -603,8 +603,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //      the SoC layer; UG472 PS + XAPP888 DRP interfaces). i_ps_clk is
   //      the MMCM PSCLK domain (SoC: 200 MHz idelay; DS181 MMCM_FMAX_PSCLK
   //      450 MHz at -1); the DRP DCLK is axis_clk. Tops without the MMCM
-  //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0
-  //      The current root cannot select CRF, so the servo stays idle. ----
+  //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0.
+  //      The servo engages while a CRF or AAF CLOCK_SOURCE is followed
+  //      (media_clk_resolve below, #74 and #629). ----
   input  wire        i_ps_clk,
   output wire [6:0]  o_mmcm_drp_addr,
   output wire        o_mmcm_drp_en,
@@ -681,16 +682,26 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! wherever a declaration exists - this is the pre-adoption fallback only.
   localparam logic [2:0] SR_CLASS_A_PRIO_C = 3'd3;
   //! ------------------------------------------------------------------------
-  //! THE MEDIA CLOCK SOURCE - LIVE, AND RESOLVED EXACTLY ONCE (#74).
+  //! THE MEDIA CLOCK SOURCE - LIVE, AND RESOLVED EXACTLY ONCE (#74, #629).
   //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE
   //! and KL_pp_shadow exports the stored selection into this root as
-  //! pp_aecp_clk_src_index_w. The compare against THIS SHAPE'S CRF index -
-  //! AEM_CRF_CLKSRC_C, generated into gen/adp_shape_defaults.svh by the same
-  //! pass that builds the AEM model, 16'hFFFF on a shape with no CRF source -
-  //! happens in ONE registered block (media_clk_resolve, after the shape
-  //! include below), and every consumer reads the resolved nets:
+  //! pp_aecp_clk_src_index_w. The decode against THIS SHAPE'S CLOCK_SOURCE
+  //! table - AEM_CRF_CLKSRC_C (16'hFFFF on a shape with no CRF source) and
+  //! the per-index kind and STREAM_INPUT tables AEM_CLKSRC_KIND_C /
+  //! AEM_CLKSRC_SI_C, generated into gen/adp_shape_defaults.svh by the same
+  //! pass that builds the AEM model in the class order INTERNAL, CRF, one
+  //! source per AAF listener (#629 D1) - happens in ONE registered block
+  //! (media_clk_resolve, after the shape include below), and every consumer
+  //! reads the resolved nets:
   //!   media_clk_src_r     the selected CLOCK_SOURCE index, registered
   //!   crf_clk_selected_r  the one-bit verdict "the CRF source is in use"
+  //!   aaf_clk_selected_r  "an AAF listener's source is in use"
+  //!   aaf_follow_idx_r    which AAF listener (valid with aaf_clk_selected_r)
+  //!   follow_sel_r        either: a stream source is followed
+  //!   int_clk_selected_r  "INTERNAL is in use"
+  //! An index without a table entry decodes as none of them, as the
+  //! 16'hFFFF fold does; the processor cannot store one (its range check is
+  //! the CLOCK_DOMAIN's count, identity list).
   //!
   //! THE TRAP THE OLD CONSTANTS EXISTED TO AVOID stays honoured in the new
   //! form. The first cut of the plane deletion kept two 16-bit nets with the
@@ -704,6 +715,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [15:0] pp_aecp_clk_src_index_w /* verilator public_flat_rd */;
   logic        crf_clk_selected_r /* verilator public_flat_rd */;
   logic [15:0] media_clk_src_r    /* verilator public_flat_rd */;
+  logic        aaf_clk_selected_r /* verilator public_flat_rd */;
+  logic        follow_sel_r       /* verilator public_flat_rd */;
+  logic        int_clk_selected_r /* verilator public_flat_rd */;
   //! the station MAC as a NUMERIC EUI-48 ([47:40] = first wire byte).
   //! cfg_mac_addr is the platform LSB-first CSR convention (firmware writes
   //! MAC_ADDR_LO/HI that way and the RX filter consumes it that way), and
@@ -1557,15 +1571,47 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! include). Registered: a SET_CLOCK_SOURCE lands as a clean gate
   //! transition at every consumer, and KL_media_clock_restart's own
   //! clk_src_q_r edge detector sees exactly one change per command.
+  //! #629: the AAF half of the decode reads the per-index table - the
+  //! stored index names an AAF source when its kind is AEM_CLKSRC_AAF_C, and
+  //! that source's STREAM_INPUT is the followed listener. A loop over the
+  //! table's own length, never an index into it: an index past the table
+  //! (which the processor never stores) matches no entry.
+  localparam int unsigned NSIDX_W_FOLLOW_C = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
+  logic [NSIDX_W_FOLLOW_C-1:0] aaf_follow_idx_r /* verilator public_flat_rd */;
+  logic                        aaf_sel_w;
+  logic                        int_sel_w;
+  logic [NSIDX_W_FOLLOW_C-1:0] aaf_idx_w;
+  always_comb begin : media_clk_table
+    aaf_sel_w = 1'b0;
+    int_sel_w = 1'b0;
+    aaf_idx_w = '0;
+    for (int unsigned k = 0; k < AEM_N_CLKSRC_C; k++) begin
+      if (pp_aecp_clk_src_index_w == 16'(k)) begin
+        aaf_sel_w = (AEM_CLKSRC_KIND_C[k] == AEM_CLKSRC_AAF_C);
+        int_sel_w = (AEM_CLKSRC_KIND_C[k] == AEM_CLKSRC_INTERNAL_C);
+        aaf_idx_w = NSIDX_W_FOLLOW_C'(AEM_CLKSRC_SI_C[k]);
+      end
+    end
+  end : media_clk_table
   always_ff @(posedge axis_clk) begin : media_clk_resolve
     if (!axis_resetn) begin
       media_clk_src_r    <= 16'd0;
       crf_clk_selected_r <= 1'b0;
+      aaf_clk_selected_r <= 1'b0;
+      aaf_follow_idx_r   <= '0;
+      follow_sel_r       <= 1'b0;
+      int_clk_selected_r <= 1'b0;
     end
     else begin
       media_clk_src_r    <= pp_aecp_clk_src_index_w;
       crf_clk_selected_r <= (pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
                             && (AEM_CRF_CLKSRC_C != 16'hFFFF);
+      aaf_clk_selected_r <= aaf_sel_w;
+      aaf_follow_idx_r   <= aaf_sel_w ? aaf_idx_w : '0;
+      follow_sel_r       <= aaf_sel_w ||
+                            ((pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
+                             && (AEM_CRF_CLKSRC_C != 16'hFFFF));
+      int_clk_selected_r <= int_sel_w;
     end
   end : media_clk_resolve
   //! ACMP talker source contexts: the AAF talkers, then the CRF Media Clock
@@ -1752,6 +1798,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! tautology (tb/verilator/milan_dp reports that vacuity rather than
   //! passing through it).
   wire [31:0] mcsrv_stat_w /* verilator public_flat_rd */;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
+  //! the servo is in LOCKED: the following half of the CLOCK_DOMAIN
+  //! LOCKED/UNLOCKED level (#629 D5 = C1); 0 when the servo is pruned
+  wire        mcsrv_locked_w;
   wire        mcsrv_ps_invert_w;  //! MCSRV_CTRL 0x8FC[0] bench sign knob
   wire        mcsrv_auto_repair_w;//! MCSRV_CTRL 0x8FC[1] bench-gated DRP repair enable (default 0)
   //! chmap 0x900 fabric (docs/CHANNEL_MAP_64.md §6): CSR map-RAM write port +
@@ -1821,6 +1870,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! IEEE 1722-2016 10.4.3 restart echo: the received mr bit TOGGLED on an
   //! accepted PDU of the followed CRF stream (gh #62 H2a)
   wire        crf_mr_toggle_p_w;
+  //! #629, the AAF clock meter (KL_aaf_clock_meter): the followed AAF
+  //! stream's lock, its rate in KL_crf_rx's units, the two 4.4.4.3 pulses
+  //! and its status word. All zero on a shape that offers no AAF source.
+  wire        aafm_locked_w;
+  wire signed [31:0] aafm_rate_w;
+  wire        aafm_rate_valid_w;
+  wire        aafm_disrupt_p_w;
+  wire        aafm_mr_toggle_p_w;
+  wire [31:0] aafm_stat_w /* verilator public_flat_rd */;
   //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
   wire        cfg_crft_en;
   wire [63:0] cfg_crft_sid;
@@ -2602,6 +2660,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                           crf_seqerr_w[7:0]}),
     .i_crf_locked       (crf_locked_w),
     .i_mcsrv_stat       (mcsrv_stat_w),
+    .i_aafm_stat        (aafm_stat_w),
+    .i_aafm_rate        (aafm_rate_w),
     .o_mcsrv_ps_invert  (mcsrv_ps_invert_w),
     .o_mcsrv_auto_repair (mcsrv_auto_repair_w),
     // item-11 AAF per-stage latency taps (LTAP group 0x870)
@@ -3109,7 +3169,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  is a shall for a talker whose timestamps come from a received CRF
   //  stream - "any streams deriving timestamps from the CRF stream shall
   //  toggle the mr bit if a disruption of the CRF stream occurs" - and that
-  //  is exactly this fabric when clk_src selects the CRF media clock (2).
+  //  is exactly this fabric when clk_src selects the CRF media clock
+  //  (AEM_CRF_CLKSRC_C, index 1 on every shipping shape under #629's D1).
   //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
   //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
   //  is the debounced verdict, not a per-PDU twitch.
@@ -3152,8 +3213,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! restart (4.4.4.3/10.4.3), even alongside a PHC step. The restart
   //! engine retains its per-stream eight-PDU hold and pending merge.
   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
-  wire mcr_restart_p_w = crf_clk_selected_r
-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+  //! #629: a followed AAF stream gains the same two triggers, from the AAF
+  //! clock meter: aafm_disrupt_p_w when the meter's OWN 100 ms timeout drops
+  //! its lock (never the raw lock-fall edge: a change of the followed
+  //! listener, entry and exit clear the meter's lock silently, so a switch
+  //! is declared by the source-change edge alone), and aafm_mr_toggle_p_w,
+  //! the followed stream's received toggle. The meter's enable,
+  //! aaf_clk_selected_r, is their ONE gate: it measures only the selected
+  //! input and holds its era reset otherwise (4.4.4.3 and 10.4.3, last
+  //! paragraphs: only the followed stream's mr counts). The 4.4.4.3 shall
+  //! names CRF; for a followed AAF stream this is the design's reading
+  //! (docs/design/MEDIA_CLOCK_FOLLOWING.md, (c) and `mr`).
+  //! public: the switch test's tap on the request (a harness probe on a
+  //! net, no port or register)
+  wire mcr_restart_p_w /* verilator public_flat_rd */ =
+       (crf_clk_selected_r
+        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
@@ -3466,13 +3542,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!     and counting it here would report grandmaster changes that never
   //!     happened. Two duties, two strobes, ONE shared identity compare
   //!     (pp_gm_id_edge_w) so they can never disagree about the identity.
-  //!   * media clock: ~clkv_tu_w. Milan leaves "locked" explicitly open
-  //!     ("the definition of locked is left open to each manufacturer",
-  //!     5.3.11.2); this build's definition is the active-owner CLKV verdict -
-  //!     the SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0056).
-  //!     One clock-validity authority, two views; a LOCKED count that
-  //!     disagreed with the tu bit on the wire would be two answers to one
-  //!     question. tu resets 1 (unknown is NOT valid), so locked resets LOW.
+  //!   * media clock: ~clkv_tu_w AND (not following, or the servo LOCKED)
+  //!     (#629 decision D5 = C1). Milan leaves "locked" explicitly open ("the
+  //!     definition of locked is left open to each manufacturer", 5.3.11.2).
+  //!     At INTERNAL the level is the active-owner CLKV verdict - the SAME
+  //!     truth the tu bit stamps into every AVTPDU (VERSION 0x0056). While a
+  //!     CRF or AAF source is followed it also requires KL_mmcm_drp_servo in
+  //!     LOCKED: frequency lock to the source is what Table 5.7 calls "the
+  //!     media clock used in the Clock Domain", and gPTP validity (tu, IEEE
+  //!     1722-2016 4.4.4.7) is a second question. This REVERSES the
+  //!     2026-08-14 "one clock-validity authority" rule while following: in
+  //!     holdover the wire's tu reads 0 while the domain counts UNLOCKED. The
+  //!     rule was written before live source selection existed, when the media
+  //!     clock was always INTERNAL and the two questions were one. tu resets 1
+  //!     (unknown is NOT valid), so locked still resets LOW, and the counters
+  //!     are still edges of ONE registered level.
   localparam logic [15:0] DESC_AVB_INTERFACE_C = 16'h0009;  //! Table 7-4
   localparam logic [15:0] DESC_CLOCK_DOMAIN_C  = 16'h0024;  //! Table 7-4
   //! Table 7-158 numbers LINK_UP bit #31 (quadlet 0), LINK_DOWN #30 (1),
@@ -3489,7 +3573,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! LINK_DOWN, a lock edge moves LOCKED or UNLOCKED, and the GM strobe
   //! moves GPTP_GM_CHANGED in the same always_ff.
   wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
-  wire ctr_ckd_lock_edge_w = (~clkv_tu_w) != ctr_mclk_q_r;
+  wire ctr_mclk_lock_w = ~clkv_tu_w & (~follow_sel_r | mcsrv_locked_w);
+  wire ctr_ckd_lock_edge_w = ctr_mclk_lock_w != ctr_mclk_q_r;
   wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_id_change_p_w;
   wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
   logic [31:0] ctr_linkup_r, ctr_linkdn_r;
@@ -3506,14 +3591,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       ctr_munlock_r<= 32'd0;
     end else begin
       ctr_link_q_r <= eff_link_w;
-      ctr_mclk_q_r <= ~clkv_tu_w;
+      ctr_mclk_q_r <= ctr_mclk_lock_w;
       //! 32-bit and wrapping, exactly as both clauses specify ("wraps over
       //! to zero when it reaches the maximum value")
       if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
       if (ctr_avb_link_edge_w && !eff_link_w) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
       if (pp_gm_id_change_p_w)          ctr_gmchg_r  <= ctr_gmchg_r  + 32'd1;
-      if (ctr_ckd_lock_edge_w && ~clkv_tu_w) ctr_mlock_r  <= ctr_mlock_r  + 32'd1;
-      if (ctr_ckd_lock_edge_w &&  clkv_tu_w) ctr_munlock_r<= ctr_munlock_r+ 32'd1;
+      if (ctr_ckd_lock_edge_w &&  ctr_mclk_lock_w) ctr_mlock_r  <= ctr_mlock_r  + 32'd1;
+      if (ctr_ckd_lock_edge_w && !ctr_mclk_lock_w) ctr_munlock_r<= ctr_munlock_r+ 32'd1;
     end
   end
 
@@ -5572,11 +5657,94 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   );
 
   // ==========================================================================
-  //  CRF media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo.
-  //  The actuator can consume the KL_crf_rx rate measurement, but the current
-  //  root hardwires INTERNAL against NONE and cannot select it. If selected by
-  //  a future dynamic root connection, it steers the SoC audio MMCM through
-  //  the UG472 fine-phase-shift port
+  //  The AAF clock meter (#629, docs/design/MEDIA_CLOCK_FOLLOWING.md): the
+  //  selected AAF Stream Input's media clock, measured from its presentation
+  //  timestamps in KL_crf_rx's rate units, so the servo below follows an AAF
+  //  talker through the same path it follows a CRF talker (D2 = M1: ONE
+  //  meter, on the selected input). It reads the parser bundle KL_crf_rx
+  //  reads, but takes tu from the COMMON-header bit (avtprx_tu_bit), not the
+  //  tv net the CRF header needs. Its enable is aaf_clk_selected_r, the one
+  //  selection gate on everything it outputs. A shape that offers no AAF
+  //  source (AEM_N_AAF_CLKSRC_C == 0) elaborates none, and its outputs read
+  //  zero.
+  // ==========================================================================
+  generate if (AEM_N_AAF_CLKSRC_C != 0) begin : g_aaf_meter
+    KL_aaf_clock_meter #(
+      .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+      .N_LISTENERS_P (N_STREAMS)
+    ) aaf_clock_meter (
+      .clk_i         (axis_clk),
+      .rst_n         (axis_resetn),
+      .en_i          (aaf_clk_selected_r),
+      .follow_idx_i  (aaf_follow_idx_r),
+      .bind_rise_i   (strtbl_bind_rise_w),
+      .stopped_i     (acmpl_stopped_v_w[N_STREAMS-1:0]),
+      .match_p_i     (avtprx_match),
+      .match_idx_i   (avtprx_idx),
+      .subtype_i     (avtprx_subtype),
+      .tv_i          (avtprx_tv_bit),
+      .tu_i          (avtprx_tu_bit),
+      .mr_i          (avtprx_mr_bit),
+      .seq_i         (avtprx_seq),
+      .ts_ns_i       (avtprx_ts),
+      .fsh_i         (avtprx_fsh),
+      .locked_o      (aafm_locked_w),
+      .rate_ns_o     (aafm_rate_w),
+      .rate_valid_o  (aafm_rate_valid_w),
+      .disrupt_p_o   (aafm_disrupt_p_w),
+      .mr_toggle_p_o (aafm_mr_toggle_p_w),
+      .status_o      (aafm_stat_w)
+    );
+  end else begin : g_no_aaf_meter
+    assign aafm_locked_w      = 1'b0;
+    assign aafm_rate_w        = 32'sd0;
+    assign aafm_rate_valid_w  = 1'b0;
+    assign aafm_disrupt_p_w   = 1'b0;
+    assign aafm_mr_toggle_p_w = 1'b0;
+    assign aafm_stat_w        = 32'd0;
+  end endgenerate
+
+  // --------------------------------------------------------------------------
+  //  The servo's reference: the followed measurement (#629 decision D3 = W2).
+  //  KL_crf_rx under the CRF source, the AAF clock meter under an AAF source,
+  //  through a mux whose select is the REGISTERED decode. The rate and its
+  //  validity stay combinational behind it, so KL_crf_rx's accept-edge
+  //  invalidation still reaches a coincident servo boundary (#546).
+  //  On EVERY change of the followed source the reference reads unlocked for
+  //  one cycle (ref_src_chg_w: the registered decode moved), so a switch
+  //  between two followed sources always passes HOLDOVER - trim frozen,
+  //  integrator kept - into ACQUIRE with its two-window skip and its lock
+  //  count cleared, even onto a CRF input that is already locked. A switch
+  //  through servo IDLE (W1) would reset the trim to the bare MMCM plan.
+  // --------------------------------------------------------------------------
+  logic                        ref_crf_q_r, ref_aaf_q_r;
+  logic [NSIDX_W_FOLLOW_C-1:0] ref_idx_q_r;
+  always_ff @(posedge axis_clk) begin : ref_src_track
+    if (!axis_resetn) begin
+      ref_crf_q_r <= 1'b0;
+      ref_aaf_q_r <= 1'b0;
+      ref_idx_q_r <= '0;
+    end else begin
+      ref_crf_q_r <= crf_clk_selected_r;
+      ref_aaf_q_r <= aaf_clk_selected_r;
+      ref_idx_q_r <= aaf_follow_idx_r;
+    end
+  end : ref_src_track
+  wire ref_src_chg_w = (crf_clk_selected_r != ref_crf_q_r)
+                    || (aaf_clk_selected_r != ref_aaf_q_r)
+                    || (aaf_follow_idx_r   != ref_idx_q_r);
+  //! public: the root W2 test reads the presentation it grades
+  wire ref_locked_w /* verilator public_flat_rd */ =
+       (aaf_clk_selected_r ? aafm_locked_w : crf_locked_w) && !ref_src_chg_w;
+  wire signed [31:0] ref_rate_w   = aaf_clk_selected_r ? aafm_rate_w : crf_rate_w;
+  wire               ref_rate_valid_w = aaf_clk_selected_r ? aafm_rate_valid_w
+                                                           : crf_rate_valid_w;
+
+  // ==========================================================================
+  //  Media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo. It
+  //  follows the reference above while a CRF or AAF source is selected
+  //  (follow_sel_r, #74 and #629) and idles at INTERNAL. It steers the SoC
+  //  audio MMCM through the UG472 fine-phase-shift port
   //  (ppm-fine, glitch-free) + the XAPP888 DRP engine (verified divider
   //  reprogramming, reset-sequenced). auto_repair defaults OFF for silicon
   //  bring-up (MCSRV_CTRL 0x8FC[1] resets 0): the DRP limb read-verifies but
@@ -5599,17 +5767,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .ps_clk_i      (i_ps_clk),
     .ptp_now_i     (ptp_now_w),
     .phc_slew_active_i (gptp_slew_eff_w),
-    //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo, and
-    //! both sides are LIVE now (#74): the stored selection against this
-    //! shape's generated CRF index. On a shape with no CRF source the
-    //! generated index is 16'hFFFF - the AEM no-descriptor value the live
-    //! index can never store - so the select stays structurally false there,
-    //! which is the same trap-proofing the old constant pair encoded.
-    .clk_src_i     (media_clk_src_r),
-    .crf_src_idx_i (AEM_CRF_CLKSRC_C),
-    .crf_locked_i  (crf_locked_w),
-    .crf_rate_i    (crf_rate_w),
-    .crf_rate_valid_i (crf_rate_valid_w),
+    //! one bit since #629: the registered decode above says a stream source
+    //! is followed; the index compare left the servo for media_clk_resolve
+    .sel_i         (follow_sel_r),
+    .ref_locked_i  (ref_locked_w),
+    .ref_rate_ns_i    (ref_rate_w),
+    .ref_rate_valid_i (ref_rate_valid_w),
     .auto_repair_i (mcsrv_auto_repair_w),
     .ps_invert_i   (mcsrv_ps_invert_w),
     .drp_addr_o    (o_mmcm_drp_addr),
@@ -5623,7 +5786,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .ps_en_o       (o_mmcm_ps_en),
     .ps_incdec_o   (o_mmcm_ps_incdec),
     .ps_done_i     (i_mmcm_ps_done),
-    .status_o      (mcsrv_stat_w)
+    .status_o      (mcsrv_stat_w),
+    .locked_o      (mcsrv_locked_w)
   );
   end else begin : g_no_mmcm_servo
     assign o_mmcm_drp_addr  = 7'd0;
@@ -5634,6 +5798,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign o_mmcm_ps_en     = 1'b0;
     assign o_mmcm_ps_incdec = 1'b0;
     assign mcsrv_stat_w     = 32'd0;
+    assign mcsrv_locked_w   = 1'b0;
   end endgenerate
 
   // --------------------------------------------------------------------------
@@ -5710,15 +5875,26 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  #386 settled-grid trigger below waits for that pull as it waits for
   //  any aligner movement. The lock itself is unchanged: bounded, slip-free.
   //
-  //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media
-  //  clock = free-run, slips accepted"): crf_clk_selected_r low disengages
-  //  the align loop entirely and the grid is bit-for-bit the divider that
-  //  shipped at 0x0040, so every bench measurement on record stands. The
-  //  junction slip counters keep counting there - the INTERNAL slip is
-  //  accepted, not hidden.
+  //  INTERNAL (#629 D4 = A2-a, owner decision 2026-10-01). The align loop is
+  //  engaged at INTERNAL too, whenever the TDM feed is live, so the CRF
+  //  output (KL_crf_tx, which divides the physical audio clock), the AAF
+  //  streams (the packet grid) and the TDM I/O are one clock in every mode.
+  //  This REVERSES the recorded "internal media clock = free-run, slips
+  //  accepted" rule and #74's "preserve clean INTERNAL free-running" item:
+  //  at INTERNAL the media clock is now the MMCM plan (10.64 ppm under
+  //  nominal on plan A) plus the board oscillator's own error, inside Milan
+  //  v1.2 7.4's +/-50 ppm only for an oscillator grade of +/-39 ppm or
+  //  better - assumed, unconfirmed (the owner's known risk; the design's
+  //  Limits). On a dead feed the aligner's watchdog disengages it and the
+  //  packet grid free-runs at nominal, as before. A switch between INTERNAL
+  //  and a followed source keeps it engaged. The gate is "a source is
+  //  decoded": an index outside the table, which the processor cannot store,
+  //  still disengages it.
   // --------------------------------------------------------------------------
   wire        mga_engaged_w /* verilator public_flat_rd */;
   wire signed [15:0] mga_err_w /* verilator public_flat_rd */;
+  //! A2-a: engaged at INTERNAL and under every followed source
+  wire        mga_sel_w = int_clk_selected_r | follow_sel_r;
   //! 256 cycles, capped at a quarter sample: a compressed-clock test
   //! elaboration (2 MHz, 41 cycles a sample) has no room for 256, and there
   //! no keep-off could clear a 149-cycle transient anyway
@@ -5737,7 +5913,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   ) media_grid_align (
     .clk_i      (axis_clk),
     .rst_n      (axis_resetn),
-    .sel_i      (crf_clk_selected_r),
+    .sel_i      (mga_sel_w),
     .frame_ev_i (aafcap_pv_w &&
                  (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1)),
     .tick_i     (media_tick_q_r),
@@ -5745,7 +5921,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .engaged_o  (mga_engaged_w),
     .err_cyc_o      (mga_err_w)
   );
-  assign mnco_servo_en_w = crf_clk_selected_r;
+  assign mnco_servo_en_w = mga_sel_w;
 
   // ==========================================================================
   //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the
@@ -6066,7 +6242,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! moves the packet grid by a fraction of a sample and a displacement
   //! the fill carried into the lock (the INTERNAL walk, a talker phase
   //! step) is kept once the grids align; back at INTERNAL the grid
-  //! free-runs from the change. SETTLED means, under CRF, the aligner
+  //! settles from the change. SETTLED means, under a followed CRF or AAF
+  //! source (#629), the aligner
   //! engaged with |err| inside SRC_SETTLE_ERR_C cycles (1/64 sample) for
   //! SRC_SETTLE_TICKS_C media ticks running - the loop is overdamped, so
   //! what is left of the error is what is left of the movement - or
@@ -6088,7 +6265,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! selection
   logic        src_recentre_p_r /* verilator public_flat_rd */;
   wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
-  wire src_grid_ok_w = !crf_clk_selected_r ||
+  wire src_grid_ok_w = !follow_sel_r ||
                        (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
   wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
                        (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
@@ -6112,7 +6289,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end else if (src_pend_r) begin
         if (media_tick_p) begin
           src_band_ticks_r <= src_grid_ok_w ? src_band_ticks_r + 16'd1 : 16'd0;
-          src_eng_ticks_r  <= (crf_clk_selected_r && mga_engaged_w)
+          src_eng_ticks_r  <= (follow_sel_r && mga_engaged_w)
                               ? src_eng_ticks_r + 16'd1 : 16'd0;
         end
         if (src_settled_w) begin
@@ -6150,7 +6327,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                     .SETPOINT_P((6 * 2) + 4)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
-    .servo_en_i   (crf_clk_selected_r),
+    .servo_en_i   (follow_sel_r),
     .recenter_p_i (gm_recentre_p_r),
     .pcm_tdata_i  (i2s_feed_tdata_w),
     .lpf_tdata_i  (pcm_lpf_tdata),

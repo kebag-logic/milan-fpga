@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 69 modules · 68 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 70 modules · 69 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,16 +31,16 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "milan", "ieee8021q", "ieee8021as", "common"]
-    y-axis "modules" 0 --> 38
+    y-axis "modules" 0 --> 39
+    bar [38, 1, 4, 8, 9, 10]
     bar [37, 1, 4, 8, 9, 10]
-    bar [36, 1, 4, 8, 9, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
-| IEEE 1722 (AVTP) | 37 | 36 | 0 | 31 | 0 | 0 |
+| IEEE 1722 (AVTP) | 38 | 37 | 0 | 31 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | Milan integration | 4 | 4 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
@@ -93,7 +93,8 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `milan_dp` · `tkdiag` · ➰capture_coherence,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_render · 🔬`make aaf` | -- |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | -- |
-| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `milan_dp` · ➰capture_coherence,milan_dp_render | -- |
+| ✅ `KL_aaf_clock_meter` | `ieee1722/crf/KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `milan_dp` · ➰capture_coherence,milan_dp_render | -- |
+| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `milan_dp` · ➰capture_coherence,milan_dp_render | -- |
 | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `milan_dp` · ➰capture_coherence,milan_dp_render | -- |
 | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `capture_coherence` · `media_grid_align` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `capture_coherence` · `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_render | -- |

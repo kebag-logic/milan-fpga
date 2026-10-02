@@ -18,14 +18,8 @@ module crf_talker_wrap (
   input  wire         ps_clk_i,       //! MMCM PSCLK domain (SoC: 200 MHz idelay)
 
   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
-  input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
-  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
-  //! set is internal then CRF (1 on every shipping shape since #389 dropped
-  //! the per-listener sources; it was 2 on a 1-listener shape and 9 on an
-  //! 8-listener one before). The datapath feeds this from the generated
-  //! AEM (AEM_CRF_CLKSRC_C); a wrong value here engages the servo on the
-  //! wrong source, silently.
-  input  wire [15:0]  crf_src_idx_i,
+  //! a stream source is followed: the datapath's one-bit decode (#629)
+  input  wire         sel_i,
 
   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
   input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
@@ -51,7 +45,8 @@ module crf_talker_wrap (
   output logic        ps_incdec_o,    //! 1 = increment (delay = slow down)
   input  wire         ps_done_i,      //! PSDONE (12 PSCLK cycles after PSEN)
 
-  output logic [31:0] status_o        //! A_MCSRV_STAT (0x8F8) readback
+  output logic [31:0] status_o,       //! A_MCSRV_STAT (0x8F8) readback
+  output wire         locked_o        //! the servo is in LOCKED
 );
   KL_crf_rx rx (
     .clk_i(clk_i), .rst_n(rst_n), .frame_p_i(frame_p_i),
@@ -69,8 +64,8 @@ module crf_talker_wrap (
   );
   KL_mmcm_drp_servo servo (
     .phc_slew_active_i(1'b0), // This fixture changes remote timestamps only.
-    .crf_locked_i(rx_locked_o), .crf_rate_i(rate_o),
-    .crf_rate_valid_i(rate_valid_o), .*
+    .ref_locked_i(rx_locked_o), .ref_rate_ns_i(rate_o),
+    .ref_rate_valid_i(rate_valid_o), .*
   );
 endmodule
 `default_nettype wire

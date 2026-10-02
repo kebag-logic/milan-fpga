@@ -187,6 +187,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(MCR_SRC) \
        $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv \
+	$(RTL_DIR)/ieee1722/crf/KL_aaf_clock_meter.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_media_nco.sv \
