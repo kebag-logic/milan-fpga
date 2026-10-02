@@ -1,0 +1,17 @@
+== cdf49d1a28527562888f0a903de51b6b15b1244f: 4 entries
+   ('sw/litex/build.sh', '$GEN_DIR/gen/adp_shape_defaults.svh') => the same per-config copy, named by the launcher so that a MISSING one is refused rather than silently regenerated (#402)
+   ('sw/litex/sweep.sh', '$CFG_GEN/gen/adp_shape_defaults.svh') => a per-config copy chosen at build time under configs/generated/
+   ('tb/verilator/milan_dp/Makefile', 'gen_divergent/gen/adp_shape_defaults.svh') => written by gen_divergent_shape.py during the suite, never tracked
+   ('tb/verilator/milan_dp/gen_divergent_shape.py', 'gen_divergent/gen/adp_shape_defaults.svh') => the same generated file, named by the script that writes it
+== d81198c2001756fd84c353d93c312c133c5af66b: 5 entries
+   ('sw/litex/build.sh', '$GEN_DIR/gen/adp_shape_defaults.svh') => the same per-config copy, named by the launcher so that a MISSING one is refused rather than silently regenerated (#402)
+   ('sw/litex/sweep.sh', '$CFG_GEN/gen/adp_shape_defaults.svh') => a per-config copy chosen at build time under configs/generated/
+   ('tb/verilator/milan_dp/Makefile', 'gen_divergent/gen/adp_shape_defaults.svh') => written by gen_divergent_shape.py during the suite, never tracked
+   ('tb/verilator/milan_dp/gen_divergent_shape.py', 'gen_divergent/gen/adp_shape_defaults.svh') => the same generated file, named by the script that writes it
+   ('tb/verilator/milan_dp_mclk/Makefile', '$(MCLK_GEN)/gen/adp_shape_defaults.svh') => written by the builder from the #629 root suite's generated two-stream config (gen_mclk_shape.py) during the suite, never tracked
+== HEAD: 5 entries
+   ('sw/litex/build.sh', '$GEN_DIR/gen/adp_shape_defaults.svh') => the same per-config copy, named by the launcher so that a MISSING one is refused rather than silently regenerated (#402)
+   ('sw/litex/sweep.sh', '$CFG_GEN/gen/adp_shape_defaults.svh') => a per-config copy chosen at build time under configs/generated/
+   ('tb/verilator/milan_dp/Makefile', 'gen_divergent/gen/adp_shape_defaults.svh') => written by gen_divergent_shape.py during the suite, never tracked
+   ('tb/verilator/milan_dp/gen_divergent_shape.py', 'gen_divergent/gen/adp_shape_defaults.svh') => the same generated file, named by the script that writes it
+   ('tb/verilator/milan_dp_mclk/Makefile', '$(MCLK_GEN)/gen/adp_shape_defaults.svh') => written by the builder from the #629 root suite's generated two-stream config (gen_mclk_shape.py) during the suite, never tracked

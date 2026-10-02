@@ -1,0 +1,41 @@
+P1_max_dev_not_cleared_at_era:
+  case rates: CAUGHT
+    [FAIL] [M1 max_dev, listener change] the new era's largest deviation reads 0 got=187 exp=0
+    [FAIL] [M1 max_dev, exit] reads 0 while not following got=187 exp=0
+    [FAIL] [M1 max_dev, entry] the new era's largest deviation reads 0 got=187 exp=0
+    [FAIL] [M1 max_dev, bind edge] the new era's largest deviation reads 0 got=187 exp=0
+    [FAIL] [M1 max_dev, timeout] reads 0 once the timeout starts an era got=187 exp=0
+    [FAIL] [M1 max_dev, timeout] the new era's largest deviation reads 0 got=187 exp=0
+  case restarts: ESCAPED
+  case beyond: ESCAPED
+  case step_in_gap: ESCAPED
+P2_max_dev_wraps:
+  case rates: CAUGHT
+    [FAIL] [M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+    [FAIL] [M1 max_dev, step +100000 @5] reads min(|step|, 65,535) after it got=34464 exp=65535
+    [FAIL] [M1 max_dev, step -100000 @5] reads min(|step|, 65,535) after it got=34464 exp=65535
+  case beyond: ESCAPED
+  case step_in_gap: ESCAPED
+P3_deviation_verdict_one_pdu_late:
+  case beyond: CAUGHT
+    [FAIL] [M3 step +20833 @1] the restart lands at the step's PDU
+    [FAIL] [M3 step +20833 @2] the restart lands at the step's PDU
+    [FAIL] [M3 step +20833 @3] the restart lands at the step's PDU
+    [FAIL] [M3 step +20833 @4] the restart lands at the step's PDU
+    [FAIL] [M3 step +20833 @5] the restart lands at the step's PDU
+    [FAIL] [M3 step +20833 @6] the restart lands at the step's PDU
+  case step_in_gap: CAUGHT
+    [FAIL] [M12 PDU 15 lost, step +20833 @1] the deviation check restarts it at the step's PDU, before the gap
+    [FAIL] [M12 PDU 15 lost, step +20833 @2] the deviation check restarts it at the step's PDU, before the gap
+    [FAIL] [M12 PDU 15 lost, step +20833 @3] the deviation check restarts it at the step's PDU, before the gap
+    [FAIL] [M12 PDU 15 lost, step +20833 @4] the deviation check restarts it at the step's PDU, before the gap
+    [FAIL] [M12 PDU 15 lost, step +20833 @5] the deviation check restarts it at the step's PDU, before the gap
+    [FAIL] [M12 PDU 15 lost, step +20833 @6] the deviation check restarts it at the step's PDU, before the gap
+P4_listener_change_pulses_disrupt:
+  case restarts: CAUGHT
+    [FAIL] [M7 listener change] no disrupt_p pulse  got=1 exp=0
+P5_tu_rising_edge_only:
+  case restarts: ESCAPED
+P6_bind_edge_not_an_era_start:
+  case restarts: CAUGHT
+    [FAIL] [M7 bind edge] rate_valid falls at the event

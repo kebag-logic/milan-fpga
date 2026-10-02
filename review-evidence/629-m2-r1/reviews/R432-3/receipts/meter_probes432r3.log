@@ -1,0 +1,24 @@
+PASS(clean)      Q0_clean_control
+CAUGHT           Q1_data_restart_clears
+    [FAIL] [M1 max_dev, step +65535 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+    [FAIL] [M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+    [FAIL] [M1 max_dev, step +100000 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+    [FAIL] [M1 max_dev, step -100000 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+CAUGHT           Q2_saturation_off_by_one
+    [FAIL] [M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it got=0 exp=65535
+CAUGHT           Q3_clear_only_on_selection
+    [FAIL] [M1 max_dev, bind edge] the new era's largest deviation reads 0 got=187 exp=0
+    [FAIL] [M1 max_dev, timeout] reads 0 once the timeout starts an era got=187 exp=0
+    [FAIL] [M1 max_dev, timeout] the new era's largest deviation reads 0 got=187 exp=0
+CAUGHT           Q4_timeout_keeps
+    [FAIL] [M1 max_dev, timeout] reads 0 once the timeout starts an era got=187 exp=0
+    [FAIL] [M1 max_dev, timeout] the new era's largest deviation reads 0 got=187 exp=0
+CAUGHT           Q5_bind_edge_keeps
+    [FAIL] [M1 max_dev, bind edge] the new era's largest deviation reads 0 got=187 exp=0
+CAUGHT           Q6_not_zero_while_not_following
+    [FAIL] [M1 max_dev, exit] reads 0 while not following got=187 exp=0
+CAUGHT           Q7_signed_not_abs
+    [FAIL] [M1 -10.64 ppm] the largest deviation is the offset over 15 spacings
+    [FAIL] [M1 -50.00 ppm] the largest deviation is the offset over 15 spacings
+    [FAIL] [M1 -100.00 ppm] the largest deviation is the offset over 15 spacings
+    [FAIL] [M1 max_dev, step -100000 @5] reads min(|step|, 65,535) after it got=31072 exp=65535

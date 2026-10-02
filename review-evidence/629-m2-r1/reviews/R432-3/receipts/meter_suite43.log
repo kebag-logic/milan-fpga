@@ -1,0 +1,146 @@
+make: Entering directory '$SCRATCH/t_meter/tb/verilator/aaf_clock_meter'
+verilator --cc --exe --build -j 4 --top-module meter_wrap -GCLK_HZ_P=200000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000" -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv meter_wrap.sv sim_main.cpp -o Vmeter_sim
+make[1]: Entering directory '$SCRATCH/t_meter/tb/verilator/aaf_clock_meter/obj_dir'
+g++  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000   -c -o verilated.o $VERILATOR_ROOT/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000   -c -o verilated_dpi.o $VERILATOR_ROOT/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000   -c -o verilated_threads.o $VERILATOR_ROOT/include/verilated_threads.cpp
+python3 $VERILATOR_ROOT/bin/verilator_includer -DVL_INCLUDE_OPT=include Vmeter_wrap.cpp Vmeter_wrap___024root__0.cpp Vmeter_wrap__Dpi.cpp Vmeter_wrap__ConstPool__0__Slow.cpp Vmeter_wrap___024root__Slow.cpp Vmeter_wrap___024root__0__Slow.cpp Vmeter_wrap__Syms__Slow.cpp > Vmeter_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000   -c -o Vmeter_wrap__ALL.o Vmeter_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmeter_wrap__ALL.a    -pthread -lpthread -latomic   -o Vmeter_sim
+rm Vmeter_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$SCRATCH/t_meter/tb/verilator/aaf_clock_meter/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.220 MB sources in 5 modules, into 0.141 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 12.071 s (elab=0.007, cvt=0.020, bld=12.024); cpu 0.048 s on 4 threads; allocated 220.340 MB
+======================================================================
+./obj_dir/Vmeter_sim
+---- rates ----
+  info: M1 +0.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 +10.64 ppm: 5 updates, worst |rate - planted| 1, |rate - crf| 1
+  info: M1 -10.64 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 1
+  info: M1 +50.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 -50.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 +100.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+  info: M1 -100.00 ppm: 5 updates, worst |rate - planted| 0, |rate - crf| 0
+---- shapes ----
+  info: M2 indep: 0 restarts, 227 rates, worst 100 ns
+  info: M2 rsign: 0 restarts, 227 rates, worst 357 ns
+  info: M2 p10ms: 0 restarts, 227 rates, worst 317 ns
+  info: M2 worst: 0 restarts, 227 rates, worst 357 ns
+---- beyond ----
+  info: M3 rsign1800: 1468 restarts; valid 819202 cycles after the last
+  info: M3 indep2100: 48 restarts; valid 819605 cycles after the last
+---- format ----
+---- wrap ----
+  info: M5: 312 sequence wraps
+---- lock ----
+---- restarts ----
+---- loss_periodic ----
+  info: M8 indep 1 s: worst 101 ns
+  info: M8 indep 0.3 s: worst 152 ns
+  info: M8 rsign 1 s: worst 357 ns
+  info: M8 rsign 0.3 s: worst 357 ns
+---- loss_snapshot ----
+---- bound ----
+---- gap_value ----
+---- step_in_gap ----
+---- selection ----
+---- pulses ----
+== aaf_clock_meter: checks: 465   failures: 0 ==
+RESULT: PASS
+verilator --cc --exe --build -j 4 --top-module meter_servo_wrap --public-flat-rw -GTICK_CYC_P=768 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768" -Mdir obj_servo ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv meter_servo_wrap.sv sim_servo.cpp -o Vservo_sim
+make[1]: Entering directory '$SCRATCH/t_meter/tb/verilator/aaf_clock_meter/obj_servo'
+g++  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768   -Os  -c -o sim_servo.o ../sim_servo.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768   -c -o verilated.o $VERILATOR_ROOT/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768   -c -o verilated_dpi.o $VERILATOR_ROOT/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768   -c -o verilated_threads.o $VERILATOR_ROOT/include/verilated_threads.cpp
+python3 $VERILATOR_ROOT/bin/verilator_includer -DVL_INCLUDE_OPT=include Vmeter_servo_wrap.cpp Vmeter_servo_wrap___024root__0.cpp Vmeter_servo_wrap__Dpi.cpp Vmeter_servo_wrap___024root__Slow.cpp Vmeter_servo_wrap___024root__0__Slow.cpp Vmeter_servo_wrap__Syms__Slow.cpp > Vmeter_servo_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768   -c -o Vmeter_servo_wrap__ALL.o Vmeter_servo_wrap__ALL.cpp
+g++    sim_servo.o verilated.o verilated_dpi.o verilated_threads.o Vmeter_servo_wrap__ALL.a    -pthread -lpthread -latomic   -o Vservo_sim
+rm Vmeter_servo_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$SCRATCH/t_meter/tb/verilator/aaf_clock_meter/obj_servo'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.354 MB sources in 7 modules, into 0.325 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 7.325 s (elab=0.020, cvt=0.026, bld=7.262); cpu 0.063 s on 4 threads; allocated 349.484 MB
+======================================================================
+./obj_servo/Vservo_sim
+  info: S2 worst: first LOCKED 8.70 s, worst |e| 717 ns over 100 windows
+  info: S2 rsign: worst |e| 717 ns
+  info: S2 loss: worst |e| 724 ns; mean trim +30.619 -> +34.631 ppm (moved +4.013)
+== aaf_clock_meter servo: checks: 6   failures: 0 ==
+RESULT: PASS
+python3 mutants.py
+[PASS] clean (cases:selection): rc=0
+[PASS] decimation_by_1 (cases:rates): rc=1
+  named rejection: [M1 +0.00 ppm] rate_valid rises within 4.2 s and holds
+[PASS] rate_over_512ms_E1 (cases:shapes): rc=1
+  named rejection: [M2 rsign] every rate within 360 ns of the planted rate
+[PASS] bound_2048_B1 (cases:shapes): rc=1
+  named rejection: [M2 indep] no history restart
+[PASS] first_pdu_pick_P1 (cases:shapes): rc=1
+  named rejection: [M2 indep] every rate within 256 ns of the planted rate
+[PASS] spacing_bound_16384_B3 (cases:beyond): rc=1
+  named rejection: [M3 rsign1800] the error restarts the history
+[PASS] within_group_void_removed (cases:beyond): rc=1
+  named rejection: [M3 indep2100] the error restarts the history
+[PASS] stream_data_length_unchecked (cases:format): rc=1
+  named rejection: [M4 12-sample] does not lock
+[PASS] continuity_without_wrap (cases:wrap): rc=1
+  named rejection: [M5] zero restarts across the sequence wraps
+[PASS] timeout_disabled (cases:lock): rc=1
+  named rejection: [M6] unlocks 100 ms after the last PDU
+[PASS] no_restart_on_tu_edge (cases:restarts): rc=1
+  named rejection: [M7 tu edge] rate_valid falls at the event
+[PASS] restart_on_any_loss (cases:loss_periodic): rc=1
+  named rejection: [M8 indep 1 s] rate_valid from 4.1 s on and never falls
+[PASS] snapshot_next_pick_less_2ms (cases:loss_snapshot): rc=1
+  named rejection: [M9] every rate equals the no-loss run within 1 LSB
+[PASS] voided_snapshot_restarts (cases:loss_snapshot): rc=1
+  named rejection: [M9] no history restart
+[PASS] multi_group_gap_accepted (cases:bound): rc=1
+  named rejection: [M10 two losses in adjacent groups] restarts once
+[PASS] gap_bound_4096 (cases:gap_value): rc=1
+  named rejection: [M11 a] +3,900 ns at +300 ppm, 5,100 ns from 4 ms: no restart
+[PASS] gap_bound_scaled_with_k (cases:gap_value): rc=1
+  named rejection: [M11 b] half sample at -300 ppm against +/-J, 6,365 ns off: one restart
+[PASS] no_check_across_a_gap (cases:step_in_gap): rc=1
+  named rejection: [M12 PDU 0 lost, step +20833 @1] restarts the history once
+[PASS] listener_compare_ignored (cases:selection): rc=1
+  named rejection: [M13 another listener] not measured
+[PASS] no_reseed_at_era_start (cases:pulses): rc=1
+  named rejection: [M14 listener change to the opposite mr level] mr_toggle_p pulses
+[PASS] era_lock_clear_on_disrupt (cases:pulses): rc=1
+  named rejection: [M14 listener change to the opposite mr level] disrupt_p pulses
+[PASS] disrupt_tied_low (cases:pulses): rc=1
+  named rejection: [M14 100 ms of silence] disrupt_p pulses
+[PASS] enable_tied_high (cases:pulses): rc=1
+  named rejection: [M14 enable low, talker 0 toggling its mr] mr_toggle_p pulses
+[PASS] servo_with_meter_E1 (servo): rc=1
+  named rejection: [S2 worst] every window's |e| under 1,024 ns after the first LOCKED
+[PASS] servo_with_meter_restart_on_any_loss (servo): rc=1
+  named rejection: [S2 loss] the trim followed the 4 ppm step within 0.5 ppm
+[PASS] held_lock_cleared_on_a_gap (servo): rc=1
+  named rejection: [S2] LOCKED never left after the first LOCKED
+[PASS] deviation_verdict_deferred_to_pdu15 (cases:step_in_gap): rc=1
+  named rejection: [M12 PDU 15 lost, step +20833 @1] the deviation check restarts it at the step's PDU, before the gap
+[PASS] listener_change_keeps_lock (cases:restarts): rc=1
+  named rejection: [M7 listener change] the held lock clears at the event
+[PASS] gap_does_not_break_settle (cases:lock): rc=1
+  named rejection: [M6 gap before lock] not locked at the gap PDU and 7 clean PDUs after it
+[PASS] bind_edge_clears_lock (cases:restarts): rc=1
+  named rejection: [M7 bind edge] the held lock is kept through the event
+[PASS] cpf_zero_accepted (cases:format): rc=1
+  named rejection: [M4 0 channels] does not lock
+[PASS] max_dev_not_tracked (cases:rates): rc=1
+  named rejection: [M1 +10.64 ppm] the largest deviation is the offset over 15 spacings
+[PASS] max_dev_not_cleared_at_era_start (cases:rates): rc=1
+  named rejection: [M1 max_dev, listener change] the new era's largest deviation reads 0
+[PASS] max_dev_no_saturation (cases:rates): rc=1
+  named rejection: [M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it
+[PASS] max_dev_includes_gap_pdus (cases:rates): rc=1
+  named rejection: [M1 max_dev, a lost PDU] the PDU after the gap is no deviation
+[PASS] switch_through_idle_W1 (unit): rc=1
+  named rejection: [U16] the integrator is kept through the switch (trim unchanged)
+aaf_clock_meter mutants: 36/36 as required
+make: Leaving directory '$SCRATCH/t_meter/tb/verilator/aaf_clock_meter'
