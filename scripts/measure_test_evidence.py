@@ -598,6 +598,10 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view or "
         "SRP matcher defect from its own table into an isolated copy and requires every named check "
         "to fail in a completed run; no expected value is read from the text",
+    "protocol-processor/tb/pp_top/notify_mutants.py":
+        "mutation campaign; it plants one notification, identify or inflight defect from its own table "
+        "into an isolated copy and requires every named check to fail in a completed run; no expected "
+        "value is read from the text",
     "protocol-processor/tb/pp_top/d3_mutants.py":
         "mutation campaign; it plants one D3 saved-state defect from its own table into an "
         "isolated copy and requires every named check to fail in a completed run; no expected "
