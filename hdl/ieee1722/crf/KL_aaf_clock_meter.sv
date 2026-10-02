@@ -104,13 +104,17 @@
 module KL_aaf_clock_meter
   import avtp_subtype_pkg::*;
 #(
-  //! clk_i frequency: the 100 ms lock timeout is derived from it
+  //! clk_i frequency in Hz: the 100 ms lock timeout is derived from it
   parameter int unsigned CLK_FREQ_HZ_P = 50_000_000,
   //! AAF listeners the parser's match index can name
   parameter int unsigned N_LISTENERS_P = 1,
   localparam int unsigned IDXW_P = (N_LISTENERS_P <= 1) ? 1 : $clog2(N_LISTENERS_P)
 )(
+  //! the meter's one clock (milan_datapath axis_clk); every port below is
+  //! synchronous to it, and no input crosses a clock domain
   input  wire                     clk_i,
+  //! synchronous active-low reset: every register clears (unlocked, no rate,
+  //! no history, no pulse, the status counters at zero)
   input  wire                     rst_n,
 
   //! the ONE selection gate: AAF following is selected (milan_datapath
@@ -127,13 +131,15 @@ module KL_aaf_clock_meter
   //! parser bundle (avtp_stream_parser, the tap KL_crf_rx uses)
   input  wire                     match_p_i,    //! matched stream frame
   input  wire [IDXW_P-1:0]        match_idx_i,  //! matched listener
+  //! AVTP subtype (o+0); only AAF is consumed
   input  wire [7:0]               subtype_i,
   input  wire                     tv_i,         //! timestamp valid (o+1 bit 0)
   input  wire                     tu_i,         //! common-header tu (o+3 bit 0)
   input  wire                     mr_i,         //! media clock restart (o+1 bit 3)
   input  wire [7:0]               seq_i,        //! sequence_num
   input  wire [31:0]              ts_ns_i,      //! avtp_timestamp (gPTP ns)
-  //! AAF format-specific header, bytes o+16..o+23 (IEEE 1722-2016 Figure 26)
+  //! AAF format-specific header as received, octet o+16 in [63:56] down to
+  //! octet o+23 in [7:0] (IEEE 1722-2016 Figure 26)
   input  wire [63:0]              fsh_i,
 
   //! 8 consumed PDUs in, 100 ms without one out
@@ -146,10 +152,14 @@ module KL_aaf_clock_meter
   output logic                    disrupt_p_o,
   //! one-cycle pulse: the followed stream's received mr level toggled
   output logic                    mr_toggle_p_o,
-  //! {max |deviation| ns [31:16] (saturating, this era), data-caused history
-  //!  restarts [15:8] (wrapping), followed listener [7:4], 1'b0, en [2],
-  //!  rate valid [1], locked [0]}
-  output wire  [31:0]             status_o
+  //! the largest |deviation| of a consumed PDU from its group's PDU 0 in
+  //! this era, in ns, saturating at 65535; a level, cleared by an era start
+  //! (AAFM_STAT[31:16])
+  output wire  [15:0]             max_dev_ns_o,
+  //! {data-caused history restarts [15:8] (wrapping), followed listener
+  //!  [7:4], 1'b0, en [2], rate valid [1], locked [0]}: levels
+  //!  (AAFM_STAT[15:0])
+  output wire  [15:0]             status_o
 );
 
   // ---------------------------------------------------------------------- //
@@ -366,8 +376,9 @@ module KL_aaf_clock_meter
                                                : (g3_c1_w[SNAP_LOG2_C-1:0] == '0);
 
   assign rate_valid_o = rate_valid_r && en_w;
-  assign status_o = {max_dev_r, restart_cnt_r, 4'(follow_idx_i), 1'b0, en_w,
-                     rate_valid_o, locked_o};
+  assign max_dev_ns_o = max_dev_r;
+  assign status_o     = {restart_cnt_r, 4'(follow_idx_i), 1'b0, en_w,
+                         rate_valid_o, locked_o};
 
   //! snapshot ring port: one write per snapshot, the old entry read in the
   //! same access (G4 below captures it combinationally before the write)

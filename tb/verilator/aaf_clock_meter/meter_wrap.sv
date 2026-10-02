@@ -61,7 +61,8 @@ module meter_wrap #(
     .clk_i, .rst_n, .en_i, .follow_idx_i, .bind_rise_i, .stopped_i,
     .match_p_i, .match_idx_i, .subtype_i, .tv_i, .tu_i, .mr_i, .seq_i,
     .ts_ns_i (ts_i), .fsh_i, .locked_o, .rate_ns_o (rate_o), .rate_valid_o,
-    .disrupt_p_o, .mr_toggle_p_o, .status_o
+    .disrupt_p_o, .mr_toggle_p_o, .max_dev_ns_o (status_o[31:16]),
+    .status_o (status_o[15:0])
   );
 
   KL_crf_rx #(.CLK_FREQ_HZ_P(CLK_HZ_P)) crf (

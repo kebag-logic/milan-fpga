@@ -74,7 +74,7 @@ module meter_servo_wrap #(
     .fsh_i (FSH_C),
     .locked_o (meter_locked_o), .rate_ns_o (meter_rate_o),
     .rate_valid_o (meter_rate_valid_o), .disrupt_p_o (), .mr_toggle_p_o (),
-    .status_o (meter_status_o)
+    .max_dev_ns_o (meter_status_o[31:16]), .status_o (meter_status_o[15:0])
   );
 
   KL_mmcm_drp_servo #(

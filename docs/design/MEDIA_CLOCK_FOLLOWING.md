@@ -1462,4 +1462,3 @@ written, the implementation and the place it is recorded are:
 | Switch row: "one #386 recentre" per switch | Graded over 0.8 s gaps: at the suite's 4 MHz fabric clock the settle band is one cycle, so a settle can take its 683 ms ceiling; the 16-phase sweep grades that no recentre is queued | `tb/verilator/milan_dp_mclk` |
 | Area: the meter at 270 to 420 FF | 636 FF out of context: the per-PDU and group-end pipelines register their 32-bit operands. LUT, 574, is inside the estimate | HANDOFF area table |
 | AECP walk mutant: "the decode table generated from the previous shape" | Planted as the decode table one source short in the root suite's schemata, where the last AAF index then decodes as no source | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 14 |
-

@@ -5672,6 +5672,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  zero.
   // ==========================================================================
   generate if (AEM_N_AAF_CLKSRC_C != 0) begin : g_aaf_meter
+    wire [15:0] max_dev_ns_w;
+    wire [15:0] status_w;
     KL_aaf_clock_meter #(
       .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
       .N_LISTENERS_P (N_STREAMS)
@@ -5696,8 +5698,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .rate_valid_o  (aafm_rate_valid_w),
       .disrupt_p_o   (aafm_disrupt_p_w),
       .mr_toggle_p_o (aafm_mr_toggle_p_w),
-      .status_o      (aafm_stat_w)
+      .max_dev_ns_o  (max_dev_ns_w),
+      .status_o      (status_w)
     );
+    //! AAFM_STAT (0x8E0): the largest deviation over the status levels
+    assign aafm_stat_w = {max_dev_ns_w, status_w};
   end else begin : g_no_aaf_meter
     assign aafm_locked_w      = 1'b0;
     assign aafm_rate_w        = 32'sd0;
