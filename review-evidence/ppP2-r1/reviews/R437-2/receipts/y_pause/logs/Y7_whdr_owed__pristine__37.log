@@ -1,0 +1,10 @@
+FAIL: T24 S_WEREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_WEREQ: busy low at the pulse, 31 cycles after the last event (want 39)
+FAIL: T24 S_WEREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 a device answering every event 37 cycles late commits, done and byte-exact, over 51 cycles
+FAIL: T24 ...and restores byte-exact over 1921 cycles
+FAIL: T24 a manager stalling 111 cycles on every commit byte is never charged to the device: done, byte-exact (rc 1)
+FAIL: T24 ...nor on every restore byte: done, byte-exact (rc 0)
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+343 checks: 334 PASS, 9 FAIL

@@ -1,0 +1,2 @@
+FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1451 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+343 checks: 342 PASS, 1 FAIL

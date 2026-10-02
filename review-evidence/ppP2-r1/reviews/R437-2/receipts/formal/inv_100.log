@@ -1,0 +1,916 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Executing script file `inv_100.ys' --
+
+1. Executing Verilog-2005 frontend: inv_100.v
+Parsing SystemVerilog input from `inv_100.v' to AST representation.
+Generating RTLIL representation for module `\KL_pp_nvm_port'.
+Successfully finished Verilog frontend.
+Parameter \MEM_TIMEOUT_CYC_P = 100
+
+2. Executing AST frontend in derive mode using pre-parsed AST for module `\KL_pp_nvm_port'.
+Parameter \MEM_TIMEOUT_CYC_P = 100
+Generating RTLIL representation for module `$paramod\KL_pp_nvm_port\MEM_TIMEOUT_CYC_P=32'00000000000000000000000001100100'.
+
+3. Executing PREP pass.
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Analyzing design hierarchy..
+Top module:  \KL_pp_nvm_port
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \KL_pp_nvm_port
+Removed 0 unused modules.
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+Cleaned up 1 empty switch.
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$inv_100.v:128$372 in module KL_pp_nvm_port.
+Marked 3 switch rules as full_case in process $proc$inv_100.v:136$379 in module KL_pp_nvm_port.
+Removed 1 dead cases from process $proc$inv_100.v:156$391 in module KL_pp_nvm_port.
+Marked 21 switch rules as full_case in process $proc$inv_100.v:156$391 in module KL_pp_nvm_port.
+Marked 3 switch rules as full_case in process $proc$inv_100.v:372$506 in module KL_pp_nvm_port.
+Marked 1 switch rules as full_case in process $proc$inv_100.v:394$546 in module KL_pp_nvm_port.
+Removed a total of 1 dead cases.
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 19 assignments to connections.
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~61 debug messages>
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_pp_nvm_port.$proc$inv_100.v:128$372'.
+     1/1: $0\tmo_r[6:0]
+Creating decoders for process `\KL_pp_nvm_port.$proc$inv_100.v:136$379'.
+     1/3: $0\lg_r[0:0]
+     2/3: $0\owed_rd_r[0:0]
+     3/3: $0\owed_r[0:0]
+Creating decoders for process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+     1/37: $4$memwr$\hdr_r$inv_100.v:285$294_EN[7:0]$466
+     2/37: $4$memwr$\hdr_r$inv_100.v:285$294_DATA[7:0]$465
+     3/37: $4$memwr$\hdr_r$inv_100.v:285$294_ADDR[2:0]$464
+     4/37: $3$memwr$\hdr_r$inv_100.v:285$294_EN[7:0]$463
+     5/37: $3$memwr$\hdr_r$inv_100.v:285$294_DATA[7:0]$462
+     6/37: $3$memwr$\hdr_r$inv_100.v:285$294_ADDR[2:0]$461
+     7/37: $3$memwr$\hdr_r$inv_100.v:187$293_EN[7:0]$431
+     8/37: $3$memwr$\hdr_r$inv_100.v:187$293_DATA[7:0]$430
+     9/37: $3$memwr$\hdr_r$inv_100.v:187$293_ADDR[2:0]$429
+    10/37: $2$memwr$\hdr_r$inv_100.v:285$294_EN[7:0]$427
+    11/37: $2$memwr$\hdr_r$inv_100.v:285$294_DATA[7:0]$426
+    12/37: $2$memwr$\hdr_r$inv_100.v:285$294_ADDR[2:0]$425
+    13/37: $2$memwr$\hdr_r$inv_100.v:187$293_EN[7:0]$424
+    14/37: $2$memwr$\hdr_r$inv_100.v:187$293_DATA[7:0]$423
+    15/37: $2$memwr$\hdr_r$inv_100.v:187$293_ADDR[2:0]$422
+    16/37: $1\nvm_port_fsm.sv2v_autoblock_1.i[31:0]
+    17/37: $1$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$414
+    18/37: $1$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$413
+    19/37: $1$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$412
+    20/37: $1$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$411
+    21/37: $1$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$410
+    22/37: $1$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$409
+    23/37: $1$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$408
+    24/37: $1$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$407
+    25/37: $1$memwr$\hdr_r$inv_100.v:285$294_EN[7:0]$420
+    26/37: $1$memwr$\hdr_r$inv_100.v:285$294_DATA[7:0]$419
+    27/37: $1$memwr$\hdr_r$inv_100.v:285$294_ADDR[2:0]$418
+    28/37: $1$memwr$\hdr_r$inv_100.v:187$293_EN[7:0]$417
+    29/37: $1$memwr$\hdr_r$inv_100.v:187$293_DATA[7:0]$416
+    30/37: $1$memwr$\hdr_r$inv_100.v:187$293_ADDR[2:0]$415
+    31/37: $0\done_seen_r[0:0]
+    32/37: $0\rec_r[7:0]
+    33/37: $0\plen_r[15:0]
+    34/37: $0\bcnt_r[15:0]
+    35/37: $0\hidx_r[2:0]
+    36/37: $0\err_r[0:0]
+    37/37: $0\state_r[3:0]
+Creating decoders for process `\KL_pp_nvm_port.$proc$inv_100.v:372$506'.
+     1/1: $0\cause_r[1:0]
+Creating decoders for process `\KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+     1/3: $1\dev_op_o[1:0]
+     2/3: $1\dev_len_o[15:0]
+     3/3: $1\dev_offset_o[15:0]
+Creating decoders for process `\KL_pp_nvm_port.$proc$inv_100.v:416$559'.
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_pp_nvm_port.\dev_op_o' from process `\KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+No latch inferred for signal `\KL_pp_nvm_port.\dev_offset_o' from process `\KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+No latch inferred for signal `\KL_pp_nvm_port.\dev_len_o' from process `\KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+No latch inferred for signal `\KL_pp_nvm_port.\_sv2v_0' from process `\KL_pp_nvm_port.$proc$inv_100.v:416$559'.
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_pp_nvm_port.\tmo_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:128$372'.
+  created $dff cell `$procdff$1321' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\owed_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:136$379'.
+  created $dff cell `$procdff$1322' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\owed_rd_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:136$379'.
+  created $dff cell `$procdff$1323' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\lg_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:136$379'.
+  created $dff cell `$procdff$1324' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\state_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1325' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\err_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1326' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\hidx_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1327' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\bcnt_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1328' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\plen_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1329' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\rec_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1330' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\done_seen_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1331' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\nvm_port_fsm.sv2v_autoblock_1.i' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1332' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$285_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1333' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$286_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1334' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$287_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1335' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$288_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1336' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$289_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1337' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$290_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1338' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$291_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1339' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:168$292_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1340' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:187$293_ADDR' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1341' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:187$293_DATA' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1342' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:187$293_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1343' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:285$294_ADDR' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1344' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:285$294_DATA' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1345' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.$memwr$\hdr_r$inv_100.v:285$294_EN' using process `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+  created $dff cell `$procdff$1346' with positive edge clock.
+Creating register for signal `\KL_pp_nvm_port.\cause_r' using process `\KL_pp_nvm_port.$proc$inv_100.v:372$506'.
+  created $dff cell `$procdff$1347' with positive edge clock.
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 3 empty switches in `\KL_pp_nvm_port.$proc$inv_100.v:128$372'.
+Removing empty process `KL_pp_nvm_port.$proc$inv_100.v:128$372'.
+Found and cleaned up 6 empty switches in `\KL_pp_nvm_port.$proc$inv_100.v:136$379'.
+Removing empty process `KL_pp_nvm_port.$proc$inv_100.v:136$379'.
+Found and cleaned up 47 empty switches in `\KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+Removing empty process `KL_pp_nvm_port.$proc$inv_100.v:156$391'.
+Found and cleaned up 4 empty switches in `\KL_pp_nvm_port.$proc$inv_100.v:372$506'.
+Removing empty process `KL_pp_nvm_port.$proc$inv_100.v:372$506'.
+Found and cleaned up 1 empty switch in `\KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+Removing empty process `KL_pp_nvm_port.$proc$inv_100.v:394$546'.
+Removing empty process `KL_pp_nvm_port.$proc$inv_100.v:416$559'.
+Cleaned up 61 empty switches.
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+<suppressed ~68 debug messages>
+
+3.3. Executing FUTURE pass.
+
+3.4. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+3.5. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+Removed 24 unused cells and 296 unused wires.
+<suppressed ~26 debug messages>
+
+3.6. Executing CHECK pass (checking for obvious problems).
+Checking module KL_pp_nvm_port...
+Found and reported 0 problems.
+
+3.7. Executing OPT pass (performing simple optimizations).
+
+3.7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+3.7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 540 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 378 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 372 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+<suppressed ~504 debug messages>
+Removed a total of 168 cells.
+
+3.7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_nvm_port..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $procmux$582: \owed_r -> 1'1
+      Replacing known input bits on port A of cell $procmux$576: \owed_r -> 1'0
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$846.
+    dead port 2/2 on $mux $procmux$827.
+    dead port 2/2 on $mux $procmux$808.
+    dead port 2/2 on $mux $procmux$788.
+    dead port 2/2 on $mux $procmux$777.
+    dead port 2/2 on $mux $procmux$766.
+    dead port 2/2 on $mux $procmux$746.
+    dead port 2/2 on $mux $procmux$743.
+    dead port 2/2 on $mux $procmux$724.
+    dead port 2/2 on $mux $procmux$721.
+    dead port 2/2 on $mux $procmux$702.
+    dead port 2/2 on $mux $procmux$699.
+    dead port 2/2 on $mux $procmux$680.
+    dead port 2/2 on $mux $procmux$677.
+    dead port 2/2 on $mux $procmux$666.
+    dead port 2/2 on $mux $procmux$663.
+    dead port 2/2 on $mux $procmux$652.
+    dead port 2/2 on $mux $procmux$649.
+    dead port 2/2 on $mux $procmux$638.
+    dead port 2/2 on $mux $procmux$635.
+    dead port 1/2 on $mux $procmux$633.
+    dead port 2/2 on $mux $procmux$621.
+    dead port 2/2 on $mux $procmux$618.
+    dead port 1/2 on $mux $procmux$616.
+    dead port 2/2 on $mux $procmux$604.
+    dead port 2/2 on $mux $procmux$601.
+    dead port 1/2 on $mux $procmux$599.
+Removed 27 multiplexer ports.
+<suppressed ~255 debug messages>
+
+3.7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_nvm_port.
+    Consolidated identical input bits for $mux cell $procmux$873:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] $0$memwr$\hdr_r$inv_100.v:168$285_EN[7:0]$392 [0] }
+    Consolidated identical input bits for $mux cell $procmux$870:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] $0$memwr$\hdr_r$inv_100.v:168$286_EN[7:0]$393 [0] }
+    Consolidated identical input bits for $mux cell $procmux$867:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] $0$memwr$\hdr_r$inv_100.v:168$287_EN[7:0]$394 [0] }
+    Consolidated identical input bits for $mux cell $procmux$864:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] $0$memwr$\hdr_r$inv_100.v:168$288_EN[7:0]$395 [0] }
+    Consolidated identical input bits for $mux cell $procmux$861:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] $0$memwr$\hdr_r$inv_100.v:168$289_EN[7:0]$396 [0] }
+    Consolidated identical input bits for $mux cell $procmux$858:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] $0$memwr$\hdr_r$inv_100.v:168$290_EN[7:0]$397 [0] }
+    Consolidated identical input bits for $mux cell $procmux$855:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] $0$memwr$\hdr_r$inv_100.v:168$291_EN[7:0]$398 [0] }
+    Consolidated identical input bits for $mux cell $procmux$852:
+      Old ports: A=8'11111111, B=8'00000000, Y=$0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0]
+      New connections: $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [7:1] = { $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] $0$memwr$\hdr_r$inv_100.v:168$292_EN[7:0]$399 [0] }
+    New ctrl vector for $pmux cell $procmux$790: { $auto$opt_reduce.cc:135:opt_pmux$1359 $procmux$1287_CMP }
+    New ctrl vector for $pmux cell $procmux$748: { $auto$opt_reduce.cc:135:opt_pmux$1361 $procmux$1220_CMP }
+  Optimizing cells in module \KL_pp_nvm_port.
+Performed a total of 10 changes.
+
+3.7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 347 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 327 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 319 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 318 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+<suppressed ~87 debug messages>
+Removed a total of 29 cells.
+
+3.7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+Removed 0 unused cells and 224 unused wires.
+<suppressed ~1 debug messages>
+
+3.7.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+3.7.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.7.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_nvm_port..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~220 debug messages>
+
+3.7.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_nvm_port.
+    New ctrl vector for $pmux cell $procmux$1169: { $eq$inv_100.v:384$515_Y $auto$opt_reduce.cc:135:opt_pmux$1363 $eq$inv_100.v:107$317_Y $eq$inv_100.v:114$326_Y $eq$inv_100.v:387$524_Y $eq$inv_100.v:107$315_Y $eq$inv_100.v:107$313_Y $eq$inv_100.v:114$324_Y $eq$inv_100.v:107$309_Y $eq$inv_100.v:107$307_Y $eq$inv_100.v:114$322_Y $eq$inv_100.v:107$305_Y $eq$inv_100.v:114$321_Y $eq$inv_100.v:371$499_Y $eq$inv_100.v:131$374_Y }
+    New ctrl vector for $pmux cell $procmux$895: { $eq$inv_100.v:384$515_Y $auto$opt_reduce.cc:135:opt_pmux$1365 $eq$inv_100.v:131$374_Y }
+    New ctrl vector for $pmux cell $procmux$1084: { $auto$opt_reduce.cc:135:opt_pmux$1369 $eq$inv_100.v:107$317_Y $auto$opt_reduce.cc:135:opt_pmux$1367 $eq$inv_100.v:107$315_Y $eq$inv_100.v:107$313_Y $eq$inv_100.v:107$309_Y $eq$inv_100.v:107$307_Y $eq$inv_100.v:371$499_Y $eq$inv_100.v:131$374_Y }
+    New ctrl vector for $pmux cell $procmux$1027: { $eq$inv_100.v:387$524_Y $eq$inv_100.v:107$315_Y $eq$inv_100.v:107$313_Y $auto$opt_reduce.cc:135:opt_pmux$1371 $eq$inv_100.v:107$307_Y $eq$inv_100.v:371$499_Y $eq$inv_100.v:131$374_Y }
+  Optimizing cells in module \KL_pp_nvm_port.
+Performed a total of 4 changes.
+
+3.7.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 323 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Removed a total of 0 cells.
+
+3.7.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+
+3.7.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+3.7.14. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.7.15. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_nvm_port..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~195 debug messages>
+
+3.7.16. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_nvm_port.
+Performed a total of 0 changes.
+
+3.7.17. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 323 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Removed a total of 0 cells.
+
+3.7.18. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+
+3.7.19. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+3.7.20. Finished fast OPT passes. (There is nothing left to do.)
+
+3.8. Executing WREDUCE pass (reducing word size of cells).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1349 (hdr_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_nvm_port.$memrd$\hdr_r$inv_100.v:104$295 (hdr_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_nvm_port.$memrd$\hdr_r$inv_100.v:104$296 (hdr_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_nvm_port.$memrd$\hdr_r$inv_100.v:105$297 (hdr_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_nvm_port.$memrd$\hdr_r$inv_100.v:105$299 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1355 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1354 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1353 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1352 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1351 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1348 (hdr_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_nvm_port.$auto$proc_memwr.cc:45:proc_memwr$1350 (hdr_r).
+Removed top 3 bits (of 8) from port B of cell KL_pp_nvm_port.$eq$inv_100.v:105$298 ($eq).
+Removed top 2 bits (of 8) from port B of cell KL_pp_nvm_port.$eq$inv_100.v:105$300 ($eq).
+Removed top 5 bits (of 16) from port B of cell KL_pp_nvm_port.$le$inv_100.v:105$302 ($le).
+Removed top 6 bits (of 7) from port B of cell KL_pp_nvm_port.$add$inv_100.v:134$378 ($add).
+Removed top 2 bits (of 3) from port B of cell KL_pp_nvm_port.$add$inv_100.v:188$432 ($add).
+Removed top 3 bits (of 4) from mux cell KL_pp_nvm_port.$ternary$inv_100.v:241$447 ($mux).
+Removed top 15 bits (of 16) from port B of cell KL_pp_nvm_port.$sub$inv_100.v:249$449 ($sub).
+Removed top 15 bits (of 16) from port B of cell KL_pp_nvm_port.$add$inv_100.v:254$456 ($add).
+Removed top 2 bits (of 4) from mux cell KL_pp_nvm_port.$ternary$inv_100.v:317$478 ($mux).
+Removed top 12 bits (of 16) from port A of cell KL_pp_nvm_port.$add$inv_100.v:404$547 ($add).
+Removed top 1 bits (of 4) from mux cell KL_pp_nvm_port.$procmux$1202 ($mux).
+Removed top 1 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1234_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1245_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1256_CMP0 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1270_CMP0 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1287_CMP0 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1312_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_pp_nvm_port.$procmux$1317_CMP0 ($eq).
+Removed top 12 bits (of 16) from mux cell KL_pp_nvm_port.$procmux$1319 ($mux).
+Removed top 1 bits (of 4) from wire KL_pp_nvm_port.$procmux$1202_Y.
+Removed top 3 bits (of 4) from wire KL_pp_nvm_port.$ternary$inv_100.v:241$447_Y.
+Removed top 2 bits (of 4) from wire KL_pp_nvm_port.$ternary$inv_100.v:317$478_Y.
+
+3.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+3.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.11. Executing OPT pass (performing simple optimizations).
+
+3.11.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+3.11.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 309 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Removed a total of 0 cells.
+
+3.11.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+
+3.11.4. Finished fast OPT passes.
+
+3.12. Executing SORT pass.
+
+3.13. Printing statistics.
+
+=== KL_pp_nvm_port ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      329 wires
+     1221 wire bits
+       54 public wires
+      192 public wire bits
+       31 ports
+      105 port bits
+      309 cells
+        4   $add
+       12   $dff
+       20   $eq
+        1   $le
+       44   $logic_and
+       15   $logic_not
+       46   $logic_or
+        1   $mem_v2
+      146   $mux
+        1   $ne
+       10   $pmux
+        1   $reduce_bool
+        7   $reduce_or
+        1   $sub
+
+3.14. Executing CHECK pass (checking for obvious problems).
+Checking module KL_pp_nvm_port...
+Found and reported 0 problems.
+
+4. Executing FLATTEN pass (flatten design).
+
+5. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+Mapping memory \hdr_r in module \KL_pp_nvm_port:
+  created 8 $dff cells and 0 static cells of width 8.
+  read interface: 0 $dff and 35 $mux cells.
+  write interface: 192 write mux blocks.
+
+6. Executing OPT pass (performing simple optimizations).
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+<suppressed ~252 debug messages>
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 617 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Removed a total of 0 cells.
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$1347 ($dff) from module KL_pp_nvm_port (D = $procmux$1302_Y [1], Q = \cause_r [1], rval = 1'0).
+Adding SRST signal on $procdff$1347 ($dff) from module KL_pp_nvm_port (D = $procmux$1299_Y [0], Q = \cause_r [0], rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$2505 ($sdff) from module KL_pp_nvm_port (D = $procmux$1299_Y [0], Q = \cause_r [0]).
+Adding EN signal on $auto$ff.cc:337:slice$2504 ($sdff) from module KL_pp_nvm_port (D = $procmux$1302_Y [1], Q = \cause_r [1]).
+Adding SRST signal on $procdff$1331 ($dff) from module KL_pp_nvm_port (D = $procmux$895_Y, Q = \done_seen_r, rval = 1'0).
+Adding SRST signal on $procdff$1330 ($dff) from module KL_pp_nvm_port (D = $procmux$944_Y, Q = \rec_r, rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:337:slice$2517 ($sdff) from module KL_pp_nvm_port (D = \nvm_record_id_i, Q = \rec_r).
+Adding SRST signal on $procdff$1329 ($dff) from module KL_pp_nvm_port (D = $procmux$959_Y, Q = \plen_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$2521 ($sdff) from module KL_pp_nvm_port (D = $procmux$959_Y, Q = \plen_r).
+Adding SRST signal on $procdff$1328 ($dff) from module KL_pp_nvm_port (D = $procmux$980_Y, Q = \bcnt_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$2535 ($sdff) from module KL_pp_nvm_port (D = $procmux$980_Y, Q = \bcnt_r).
+Adding SRST signal on $procdff$1327 ($dff) from module KL_pp_nvm_port (D = $procmux$1027_Y, Q = \hidx_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$2569 ($sdff) from module KL_pp_nvm_port (D = $procmux$1027_Y, Q = \hidx_r).
+Adding SRST signal on $procdff$1326 ($dff) from module KL_pp_nvm_port (D = $procmux$1164_Y, Q = \err_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$2603 ($sdff) from module KL_pp_nvm_port (D = $procmux$1164_Y, Q = \err_r).
+Adding SRST signal on $procdff$1325 ($dff) from module KL_pp_nvm_port (D = $procmux$1291_Y, Q = \state_r, rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2625 ($sdff) from module KL_pp_nvm_port (D = $procmux$1291_Y, Q = \state_r).
+Adding SRST signal on $procdff$1324 ($dff) from module KL_pp_nvm_port (D = $logic_and$inv_100.v:143$381_Y, Q = \lg_r, rval = 1'0).
+Adding SRST signal on $procdff$1323 ($dff) from module KL_pp_nvm_port (D = $procmux$571_Y, Q = \owed_rd_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$2680 ($sdff) from module KL_pp_nvm_port (D = \rd_st_w, Q = \owed_rd_r).
+Adding SRST signal on $procdff$1322 ($dff) from module KL_pp_nvm_port (D = $procmux$584_Y, Q = \owed_r, rval = 1'0).
+Adding SRST signal on $procdff$1321 ($dff) from module KL_pp_nvm_port (D = $procmux$560_Y, Q = \tmo_r, rval = 7'0000000).
+Adding EN signal on $auto$ff.cc:337:slice$2683 ($sdff) from module KL_pp_nvm_port (D = $add$inv_100.v:134$378_Y, Q = \tmo_r).
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+Removed 18 unused cells and 302 unused wires.
+<suppressed ~19 debug messages>
+
+6.5. Rerunning OPT passes. (Removed registers in this run.)
+
+6.6. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+<suppressed ~7 debug messages>
+
+6.7. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 681 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 669 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+<suppressed ~36 debug messages>
+Removed a total of 12 cells.
+
+6.8. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][7]$y$1639, Q = \hdr_r[0] [7]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][6]$y$1635, Q = \hdr_r[0] [6]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][5]$y$1631, Q = \hdr_r[0] [5]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][4]$y$1627, Q = \hdr_r[0] [4]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][3]$y$1623, Q = \hdr_r[0] [3]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][2]$y$1619, Q = \hdr_r[0] [2]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][1]$y$1615, Q = \hdr_r[0] [1]).
+Adding EN signal on $memory\hdr_r[0]$1375 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[0][9][0]$y$1611, Q = \hdr_r[0] [0]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][7]$y$1763, Q = \hdr_r[1] [7]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][6]$y$1759, Q = \hdr_r[1] [6]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][5]$y$1755, Q = \hdr_r[1] [5]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][4]$y$1751, Q = \hdr_r[1] [4]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][3]$y$1747, Q = \hdr_r[1] [3]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][2]$y$1743, Q = \hdr_r[1] [2]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][1]$y$1739, Q = \hdr_r[1] [1]).
+Adding EN signal on $memory\hdr_r[1]$1377 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[1][9][0]$y$1735, Q = \hdr_r[1] [0]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][7]$y$1895, Q = \hdr_r[2] [7]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][6]$y$1891, Q = \hdr_r[2] [6]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][5]$y$1887, Q = \hdr_r[2] [5]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][4]$y$1883, Q = \hdr_r[2] [4]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][3]$y$1879, Q = \hdr_r[2] [3]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][2]$y$1875, Q = \hdr_r[2] [2]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][1]$y$1871, Q = \hdr_r[2] [1]).
+Adding EN signal on $memory\hdr_r[2]$1379 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[2][9][0]$y$1867, Q = \hdr_r[2] [0]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][1]$y$1987, Q = \hdr_r[3] [1]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][0]$y$1983, Q = \hdr_r[3] [0]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][7]$y$2011, Q = \hdr_r[3] [7]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][6]$y$2007, Q = \hdr_r[3] [6]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][5]$y$2003, Q = \hdr_r[3] [5]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][4]$y$1999, Q = \hdr_r[3] [4]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][3]$y$1995, Q = \hdr_r[3] [3]).
+Adding EN signal on $memory\hdr_r[3]$1381 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[3][9][2]$y$1991, Q = \hdr_r[3] [2]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][7]$y$2143, Q = \hdr_r[4] [7]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][6]$y$2139, Q = \hdr_r[4] [6]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][5]$y$2135, Q = \hdr_r[4] [5]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][4]$y$2131, Q = \hdr_r[4] [4]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][3]$y$2127, Q = \hdr_r[4] [3]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][2]$y$2123, Q = \hdr_r[4] [2]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][1]$y$2119, Q = \hdr_r[4] [1]).
+Adding EN signal on $memory\hdr_r[4]$1383 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[4][9][0]$y$2115, Q = \hdr_r[4] [0]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][7]$y$2259, Q = \hdr_r[5] [7]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][6]$y$2255, Q = \hdr_r[5] [6]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][5]$y$2251, Q = \hdr_r[5] [5]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][4]$y$2247, Q = \hdr_r[5] [4]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][3]$y$2243, Q = \hdr_r[5] [3]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][2]$y$2239, Q = \hdr_r[5] [2]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][1]$y$2235, Q = \hdr_r[5] [1]).
+Adding EN signal on $memory\hdr_r[5]$1385 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[5][9][0]$y$2231, Q = \hdr_r[5] [0]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][7]$y$2387, Q = \hdr_r[6] [7]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][6]$y$2383, Q = \hdr_r[6] [6]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][5]$y$2379, Q = \hdr_r[6] [5]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][4]$y$2375, Q = \hdr_r[6] [4]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][3]$y$2371, Q = \hdr_r[6] [3]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][2]$y$2367, Q = \hdr_r[6] [2]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][1]$y$2363, Q = \hdr_r[6] [1]).
+Adding EN signal on $memory\hdr_r[6]$1387 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[6][9][0]$y$2359, Q = \hdr_r[6] [0]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][7]$y$2503, Q = \hdr_r[7] [7]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][6]$y$2499, Q = \hdr_r[7] [6]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][5]$y$2495, Q = \hdr_r[7] [5]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][4]$y$2491, Q = \hdr_r[7] [4]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][3]$y$2487, Q = \hdr_r[7] [3]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][2]$y$2483, Q = \hdr_r[7] [2]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][1]$y$2479, Q = \hdr_r[7] [1]).
+Adding EN signal on $memory\hdr_r[7]$1389 ($dff) from module KL_pp_nvm_port (D = $memory\hdr_r$wrmux[7][9][0]$y$2475, Q = \hdr_r[7] [0]).
+
+6.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+Removed 0 unused cells and 12 unused wires.
+<suppressed ~1 debug messages>
+
+6.10. Rerunning OPT passes. (Removed registers in this run.)
+
+6.11. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_nvm_port.
+
+6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_nvm_port'.
+Computing hashes of 789 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+Computing hashes of 782 cells of `\KL_pp_nvm_port'.
+Finding duplicate cells in `\KL_pp_nvm_port'.
+<suppressed ~21 debug messages>
+Removed a total of 7 cells.
+
+6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_nvm_port..
+Removed 0 unused cells and 7 unused wires.
+<suppressed ~1 debug messages>
+
+6.15. Finished fast OPT passes.
+
+7. Executing SAT pass (solving SAT problems in the circuit).
+Using SAT solver `minisat`.
+
+Setting up time step 1:
+Final constraint equation: { } = { }
+Imported 782 cells to SAT database.
+Import proof-constraint: \inv_o = 1'0
+Final proof equation: \inv_o = 1'0
+
+** Trying induction with length 1 **
+
+Setting up time step 1:
+Final constraint equation: { } = { }
+Imported 782 cells to SAT database.
+Final init constraint equation: { \cause_r [0] \done_seen_r \rec_r \plen_r \bcnt_r \hidx_r \err_r \state_r \lg_r \owed_rd_r \owed_r \tmo_r \hdr_r[0] [0] \hdr_r[1] [0] \hdr_r[2] [0] \hdr_r[3] [2] \hdr_r[4] [0] \hdr_r[5] [0] \hdr_r[6] [0] \hdr_r[7] [0] \hdr_r[7] [3:1] \cause_r [1] \hdr_r[0] [7:1] \hdr_r[1] [7:1] \hdr_r[2] [7:1] \hdr_r[3] [1:0] \hdr_r[3] [7:3] \hdr_r[4] [7:1] \hdr_r[5] [7:1] \hdr_r[6] [7:1] \hdr_r[7] [7:4] } = 125'00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+Import proof-constraint: \inv_o = 1'0
+Final proof equation: \inv_o = 1'0
+Import show expression: \clk_i
+Import show expression: \dev_busy_i
+Import show expression: \dev_done_i
+Import show expression: \dev_err_i
+Import show expression: \dev_gnt_i
+Import show expression: \dev_rdata_i
+Import show expression: \dev_rvalid_i
+Import show expression: \dev_wready_i
+Import show expression: \nvm_record_id_i
+Import show expression: \nvm_req_i
+Import show expression: \nvm_rready_i
+Import show expression: \nvm_wdata_i
+Import show expression: \nvm_we_i
+Import show expression: \nvm_wvalid_i
+Import show expression: \rst_n
+Import show expression: \dev_len_o
+Import show expression: \dev_offset_o
+Import show expression: \dev_op_o
+Import show expression: \dev_region_o
+Import show expression: \dev_req_o
+Import show expression: \dev_rready_o
+Import show expression: \dev_wdata_o
+Import show expression: \dev_wvalid_o
+Import show expression: \inv_o
+Import show expression: \nvm_busy_o
+Import show expression: \nvm_done_o
+Import show expression: \nvm_err_cause_o
+Import show expression: \nvm_err_o
+Import show expression: \nvm_rdata_o
+Import show expression: \nvm_rvalid_o
+Import show expression: \nvm_wready_o
+
+[base case 1] Solving problem with 9895 variables and 26764 clauses..
+Base case for induction length 1 proven.
+
+Setting up time step 2:
+Final constraint equation: { } = { }
+Imported 782 cells to SAT database.
+Import proof-constraint: \inv_o = 1'0
+Final proof equation: \inv_o = 1'0
+Import show expression: \clk_i
+Import show expression: \dev_busy_i
+Import show expression: \dev_done_i
+Import show expression: \dev_err_i
+Import show expression: \dev_gnt_i
+Import show expression: \dev_rdata_i
+Import show expression: \dev_rvalid_i
+Import show expression: \dev_wready_i
+Import show expression: \nvm_record_id_i
+Import show expression: \nvm_req_i
+Import show expression: \nvm_rready_i
+Import show expression: \nvm_wdata_i
+Import show expression: \nvm_we_i
+Import show expression: \nvm_wvalid_i
+Import show expression: \rst_n
+Import show expression: \dev_len_o
+Import show expression: \dev_offset_o
+Import show expression: \dev_op_o
+Import show expression: \dev_region_o
+Import show expression: \dev_req_o
+Import show expression: \dev_rready_o
+Import show expression: \dev_wdata_o
+Import show expression: \dev_wvalid_o
+Import show expression: \inv_o
+Import show expression: \nvm_busy_o
+Import show expression: \nvm_done_o
+Import show expression: \nvm_err_cause_o
+Import show expression: \nvm_err_o
+Import show expression: \nvm_rdata_o
+Import show expression: \nvm_rvalid_o
+Import show expression: \nvm_wready_o
+
+[induction step 1] Solving problem with 20293 variables and 54917 clauses..
+Induction step failed. Incrementing induction length.
+
+  Time Signal Name                   Dec       Hex                 Bin
+  ---- --------------------- ----------- --------- -------------------
+  init \bcnt_r                     16383      3fff    0011111111111111
+  init \cause_r [0]                    0         0                   0
+  init \cause_r [1]                    0         0                   0
+  init \done_seen_r                    0         0                   0
+  init \err_r                          0         0                   0
+  init \hdr_r[0] [0]                   1         1                   1
+  init \hdr_r[0] [7:1]                11         b             0001011
+  init \hdr_r[1] [0]                   0         0                   0
+  init \hdr_r[1] [7:1]                17        11             0010001
+  init \hdr_r[2] [0]                   0         0                   0
+  init \hdr_r[2] [7:1]                 0         0             0000000
+  init \hdr_r[3] [1:0]                 0         0                  00
+  init \hdr_r[3] [2]                   0         0                   0
+  init \hdr_r[3] [7:3]                 0         0               00000
+  init \hdr_r[4] [0]                   0         0                   0
+  init \hdr_r[4] [7:1]                 0         0             0000000
+  init \hdr_r[5] [0]                   0         0                   0
+  init \hdr_r[5] [7:1]                 0         0             0000000
+  init \hdr_r[6] [0]                   0         0                   0
+  init \hdr_r[6] [7:1]                 0         0             0000000
+  init \hdr_r[7] [0]                   0         0                   0
+  init \hdr_r[7] [3:1]                 0         0                 000
+  init \hdr_r[7] [7:4]                 0         0                0000
+  init \hidx_r                         4         4                 100
+  init \lg_r                           1         1                   1
+  init \owed_r                         0         0                   0
+  init \owed_rd_r                      0         0                   0
+  init \plen_r                     16384      4000    0100000000000000
+  init \rec_r                          0         0            00000000
+  init \state_r                       11         b                1011
+  init \tmo_r                          0         0             0000000
+  ---- --------------------- ----------- --------- -------------------
+     1 \clk_i                          0         0                   0
+     1 \dev_busy_i                     0         0                   0
+     1 \dev_done_i                     0         0                   0
+     1 \dev_err_i                      0         0                   0
+     1 \dev_gnt_i                      1         1                   1
+     1 \dev_len_o                      0         0    0000000000000000
+     1 \dev_offset_o                   0         0    0000000000000000
+     1 \dev_op_o                       0         0                  00
+     1 \dev_rdata_i                    0         0            00000000
+     1 \dev_region_o                   0         0            00000000
+     1 \dev_req_o                      0         0                   0
+     1 \dev_rready_o                   0         0                   0
+     1 \dev_rvalid_i                   0         0                   0
+     1 \dev_wdata_o                    0         0            00000000
+     1 \dev_wready_i                   0         0                   0
+     1 \dev_wvalid_o                   0         0                   0
+     1 \inv_o                          0         0                   0
+     1 \nvm_busy_o                     1         1                   1
+     1 \nvm_done_o                     0         0                   0
+     1 \nvm_err_cause_o                0         0                  00
+     1 \nvm_err_o                      0         0                   0
+     1 \nvm_rdata_o                    0         0            00000000
+     1 \nvm_record_id_i                0         0            00000000
+     1 \nvm_req_i                      0         0                   0
+     1 \nvm_rready_i                   1         1                   1
+     1 \nvm_rvalid_o                   1         1                   1
+     1 \nvm_wdata_i                    0         0            00000000
+     1 \nvm_we_i                       0         0                   0
+     1 \nvm_wready_o                   0         0                   0
+     1 \nvm_wvalid_i                   1         1                   1
+     1 \rst_n                          1         1                   1
+  ---- --------------------- ----------- --------- -------------------
+     2 \clk_i                          0         0                   0
+     2 \dev_busy_i                     0         0                   0
+     2 \dev_done_i                     1         1                   1
+     2 \dev_err_i                      0         0                   0
+     2 \dev_gnt_i                      0         0                   0
+     2 \dev_len_o                      0         0    0000000000000000
+     2 \dev_offset_o                   0         0    0000000000000000
+     2 \dev_op_o                       0         0                  00
+     2 \dev_rdata_i                    0         0            00000000
+     2 \dev_region_o                   0         0            00000000
+     2 \dev_req_o                      0         0                   0
+     2 \dev_rready_o                   0         0                   0
+     2 \dev_rvalid_i                   0         0                   0
+     2 \dev_wdata_o                    0         0            00000000
+     2 \dev_wready_i                   0         0                   0
+     2 \dev_wvalid_o                   0         0                   0
+     2 \inv_o                          1         1                   1
+     2 \nvm_busy_o                     1         1                   1
+     2 \nvm_done_o                     0         0                   0
+     2 \nvm_err_cause_o                0         0                  00
+     2 \nvm_err_o                      0         0                   0
+     2 \nvm_rdata_o                    0         0            00000000
+     2 \nvm_record_id_i                0         0            00000000
+     2 \nvm_req_i                      0         0                   0
+     2 \nvm_rready_i                   0         0                   0
+     2 \nvm_rvalid_o                   1         1                   1
+     2 \nvm_wdata_i                    0         0            00000000
+     2 \nvm_we_i                       0         0                   0
+     2 \nvm_wready_o                   0         0                   0
+     2 \nvm_wvalid_i                   0         0                   0
+     2 \rst_n                          1         1                   1
+
+** Trying induction with length 2 **
+
+Setting up time step 2:
+Final constraint equation: { } = { }
+Imported 782 cells to SAT database.
+Import proof-constraint: \inv_o = 1'0
+Final proof equation: \inv_o = 1'0
+Import show expression: \clk_i
+Import show expression: \dev_busy_i
+Import show expression: \dev_done_i
+Import show expression: \dev_err_i
+Import show expression: \dev_gnt_i
+Import show expression: \dev_rdata_i
+Import show expression: \dev_rvalid_i
+Import show expression: \dev_wready_i
+Import show expression: \nvm_record_id_i
+Import show expression: \nvm_req_i
+Import show expression: \nvm_rready_i
+Import show expression: \nvm_wdata_i
+Import show expression: \nvm_we_i
+Import show expression: \nvm_wvalid_i
+Import show expression: \rst_n
+Import show expression: \dev_len_o
+Import show expression: \dev_offset_o
+Import show expression: \dev_op_o
+Import show expression: \dev_region_o
+Import show expression: \dev_req_o
+Import show expression: \dev_rready_o
+Import show expression: \dev_wdata_o
+Import show expression: \dev_wvalid_o
+Import show expression: \inv_o
+Import show expression: \nvm_busy_o
+Import show expression: \nvm_done_o
+Import show expression: \nvm_err_cause_o
+Import show expression: \nvm_err_o
+Import show expression: \nvm_rdata_o
+Import show expression: \nvm_rvalid_o
+Import show expression: \nvm_wready_o
+
+[base case 2] Solving problem with 20850 variables and 56837 clauses..
+Base case for induction length 2 proven.
+
+Setting up time step 3:
+Final constraint equation: { } = { }
+Imported 782 cells to SAT database.
+Import proof-constraint: \inv_o = 1'0
+Final proof equation: \inv_o = 1'0
+Import show expression: \clk_i
+Import show expression: \dev_busy_i
+Import show expression: \dev_done_i
+Import show expression: \dev_err_i
+Import show expression: \dev_gnt_i
+Import show expression: \dev_rdata_i
+Import show expression: \dev_rvalid_i
+Import show expression: \dev_wready_i
+Import show expression: \nvm_record_id_i
+Import show expression: \nvm_req_i
+Import show expression: \nvm_rready_i
+Import show expression: \nvm_wdata_i
+Import show expression: \nvm_we_i
+Import show expression: \nvm_wvalid_i
+Import show expression: \rst_n
+Import show expression: \dev_len_o
+Import show expression: \dev_offset_o
+Import show expression: \dev_op_o
+Import show expression: \dev_region_o
+Import show expression: \dev_req_o
+Import show expression: \dev_rready_o
+Import show expression: \dev_wdata_o
+Import show expression: \dev_wvalid_o
+Import show expression: \inv_o
+Import show expression: \nvm_busy_o
+Import show expression: \nvm_done_o
+Import show expression: \nvm_err_cause_o
+Import show expression: \nvm_err_o
+Import show expression: \nvm_rdata_o
+Import show expression: \nvm_rvalid_o
+Import show expression: \nvm_wready_o
+
+[induction step 2] Solving problem with 31624 variables and 86242 clauses..
+Induction step proven: SUCCESS!
+
+                  /$$$$$$      /$$$$$$$$     /$$$$$$$    
+                 /$$__  $$    | $$_____/    | $$__  $$   
+                | $$  \ $$    | $$          | $$  \ $$   
+                | $$  | $$    | $$$$$       | $$  | $$   
+                | $$  | $$    | $$__/       | $$  | $$   
+                | $$/$$ $$    | $$          | $$  | $$   
+                |  $$$$$$/ /$$| $$$$$$$$ /$$| $$$$$$$//$$
+                 \____ $$$|__/|________/|__/|_______/|__/
+                       \__/                              
+
+End of script. Logfile hash: 5852d7fbc9, time: 0.29s, user: 0.26s, system: 0.03s, MEM: 63.04 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 66% 1x sat (0 sec), 8% 9x opt_clean (0 sec), ...

@@ -1,0 +1,11 @@
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 1, cause 2)
+FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+FAIL: T24 contained: restore 1 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 0 0)
+FAIL: T24 contained: ...and the next request ends DEADLINE with no command
+FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over it and ends DEADLINE (rc 0, cause -1, 0 request cycles)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (5 wedged)
+343 checks: 333 PASS, 10 FAIL

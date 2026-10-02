@@ -1,0 +1,5 @@
+FAIL: T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 18: one err DEADLINE, 41 cycles after the last byte, 3 of them held by the manager (rc 1, cause 3)
+FAIL: Z1a payload byte 10 presented after TMO silent owed cycles, rready dropped on that cycle: tolerated, done, byte-exact (rc 1, cause 3, drops 1)
+FAIL: Z1b WRITE byte 20 taken after TMO silent owed cycles, wvalid dropped on that cycle: tolerated, done, byte-exact (rc 1, cause 3, drops 1)
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+349 checks: 345 PASS, 4 FAIL

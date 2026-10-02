@@ -1,0 +1,17 @@
+parent dev cdf49d1a28527562888f0a903de51b6b15b1244f, files the two patches touch, fetched read-only:
+  docs/design/SAVED_STATE_MATERIALIZATION.md base blob 21dc7723928f45c2f4e85d512c26e87efde647dd
+  hdl/milan/KL_pp_shadow.sv base blob fc0fad609f690d1528b968aff713e7dbfe22789e
+  scripts/measure_test_evidence.py base blob b9bcd3f005f2e3ea3facd5c36aee00665e8a86ec
+packet hashes (evidence branch c86a5ff9, review-evidence/ppP2-r1/author-r2b; equal to author-r2 and round 1):
+  67bcd69852e5d090abc635e8dd66e5159667847ebf83d85aba9599d7cff7bd7c  author-r2b/parent-adoption-c4c6-ea3fb388.patch
+  3dda850924ffe4150aa33703ac82c0784035e3387070b7c9b5fc537a7467d08b  author-r2b/parent-adoption-p2-cdf49d1a.patch
+  67bcd69852e5d090abc635e8dd66e5159667847ebf83d85aba9599d7cff7bd7c  author-r2/parent-adoption-c4c6-ea3fb388.patch
+  3dda850924ffe4150aa33703ac82c0784035e3387070b7c9b5fc537a7467d08b  author-r2/parent-adoption-p2-cdf49d1a.patch
+git apply --check c4c6: OK; applied; git apply --check p2: OK; applied
+   docs/design/SAVED_STATE_MATERIALIZATION.md | 63 +++++++++++++++++++++---------
+   hdl/milan/KL_pp_shadow.sv                  |  8 +++-
+   scripts/measure_test_evidence.py           |  8 ++++
+   3 files changed, 59 insertions(+), 20 deletions(-)
+  SAVED_STATE_MATERIALIZATION.md after both: blob 602194484fe4acb01664593884f9b0ac3300037e
+manifest check of author-r2/author-r2b against MANIFEST.json published_sha256: all 8 OK
+live PR #145 body == author-r2b/PR-BODY.md (modulo the final newline)

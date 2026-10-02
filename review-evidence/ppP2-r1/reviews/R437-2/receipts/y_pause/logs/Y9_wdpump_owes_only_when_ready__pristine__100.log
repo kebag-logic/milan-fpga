@@ -1,0 +1,10 @@
+FAIL: T24 S_WDPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WDPUMP: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 contained: a WRITE whose device stops taking bytes at 20 ends DEADLINE
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+FAIL: T24 contained: restore 1 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+FAIL: T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (6 wedged)
+343 checks: 334 PASS, 9 FAIL

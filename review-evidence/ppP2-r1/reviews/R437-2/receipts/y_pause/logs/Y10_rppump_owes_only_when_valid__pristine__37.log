@@ -1,0 +1,14 @@
+FAIL: T24 S_RPPUMP: an event 38 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RPPUMP: busy low at the pulse, 1 cycles after the last event (want 39)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (48 forwarded)
+FAIL: T24 served branch: the restore ended DEADLINE with the READ still owed
+FAIL: T24 a READ abandoned for three deadlines
+FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 0)
+FAIL: T28a setup: a payload READ abandoned at its 10th byte, still owed
+FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+FAIL: T28d setup: a slow payload READ abandoned at its 10th byte, still owed
+FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count, so the restore, held 0 cycles behind 0 drained bytes, is served byte-exact, never DEADLINE (rc 0, cause -1)
+FAIL: T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 18: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)
+343 checks: 330 PASS, 13 FAIL

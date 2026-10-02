@@ -1,0 +1,7 @@
+read_verilog -sv inv_100.v
+chparam -set MEM_TIMEOUT_CYC_P 100 KL_pp_nvm_port
+prep -top KL_pp_nvm_port
+flatten
+memory_map
+opt -fast
+sat -tempinduct -prove inv_o 0 -set-init-zero -maxsteps 40 -show-inputs -show-outputs

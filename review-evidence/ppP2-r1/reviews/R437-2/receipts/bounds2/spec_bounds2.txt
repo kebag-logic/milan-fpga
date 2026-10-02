@@ -1,0 +1,105 @@
+base__coincident_completion__100000: rc=1 343 checks, 16 FAIL
+    FAIL: T6 op still in flight at the poke
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 the spurious restore never reached the device
+    FAIL: T7 commit fails, rc=-1
+    FAIL: T7 err exactly once, done never (got 0/0)
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read -1)
+    FAIL: T7b port recovered: retry commits
+    FAIL: T7b retry byte-exact
+    FAIL: T8 write-phase error surfaces exactly once
+    FAIL: T8 no device op after the failed WRITE
+    FAIL: T8 the write error is named DEVICE (read -1)
+    FAIL: T9 read-phase error surfaces exactly once
+    FAIL: T9 stream cut short (48 of 48)
+    FAIL: T9 the read error is named DEVICE (read -1)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (3 wedged)
+base__coincident_completion__200: rc=0 343 checks, 0 FAIL
+base__coincident_completion__300: rc=0 343 checks, 0 FAIL
+base__coincident_completion__400: rc=0 343 checks, 0 FAIL
+base__coincident_completion__4096: rc=1 343 checks, 16 FAIL
+    FAIL: T6 op still in flight at the poke
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 the spurious restore never reached the device
+    FAIL: T7 commit fails, rc=-1
+    FAIL: T7 err exactly once, done never (got 0/0)
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read -1)
+    FAIL: T7b port recovered: retry commits
+    FAIL: T7b retry byte-exact
+    FAIL: T8 write-phase error surfaces exactly once
+    FAIL: T8 no device op after the failed WRITE
+    FAIL: T8 the write error is named DEVICE (read -1)
+    FAIL: T9 read-phase error surfaces exactly once
+    FAIL: T9 stream cut short (48 of 48)
+    FAIL: T9 the read error is named DEVICE (read -1)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (3 wedged)
+base__coincident_completion__450: rc=0 343 checks, 0 FAIL
+base__coincident_completion__500: rc=1 343 checks, 15 FAIL
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 the spurious restore never reached the device
+    FAIL: T7 commit fails, rc=-1
+    FAIL: T7 err exactly once, done never (got 0/0)
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read -1)
+    FAIL: T7b port recovered: retry commits
+    FAIL: T7b retry byte-exact
+    FAIL: T8 write-phase error surfaces exactly once
+    FAIL: T8 no device op after the failed WRITE
+    FAIL: T8 the write error is named DEVICE (read -1)
+    FAIL: T9 read-phase error surfaces exactly once
+    FAIL: T9 stream cut short (48 of 48)
+    FAIL: T9 the read error is named DEVICE (read -1)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (3 wedged)
+base__coincident_completion__550: rc=1 343 checks, 16 FAIL
+    FAIL: T6 op still in flight at the poke
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 the spurious restore never reached the device
+    FAIL: T7 commit fails, rc=-1
+    FAIL: T7 err exactly once, done never (got 0/0)
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read -1)
+    FAIL: T7b port recovered: retry commits
+    FAIL: T7b retry byte-exact
+    FAIL: T8 write-phase error surfaces exactly once
+    FAIL: T8 no device op after the failed WRITE
+    FAIL: T8 the write error is named DEVICE (read -1)
+    FAIL: T9 read-phase error surfaces exactly once
+    FAIL: T9 stream cut short (48 of 48)
+    FAIL: T9 the read error is named DEVICE (read -1)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (3 wedged)
+base__coincident_completion__600: rc=1 343 checks, 16 FAIL
+    FAIL: T6 op still in flight at the poke
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 the spurious restore never reached the device
+    FAIL: T7 commit fails, rc=-1
+    FAIL: T7 err exactly once, done never (got 0/0)
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read -1)
+    FAIL: T7b port recovered: retry commits
+    FAIL: T7b retry byte-exact
+    FAIL: T8 write-phase error surfaces exactly once
+    FAIL: T8 no device op after the failed WRITE
+    FAIL: T8 the write error is named DEVICE (read -1)
+    FAIL: T9 read-phase error surfaces exactly once
+    FAIL: T9 stream cut short (48 of 48)
+    FAIL: T9 the read error is named DEVICE (read -1)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (3 wedged)
+base__coincident_completion__800: rc=1 343 checks, 16 FAIL
+    FAIL: T6 op still in flight at the poke
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 the spurious restore never reached the device
+    FAIL: T7 commit fails, rc=-1
+    FAIL: T7 err exactly once, done never (got 0/0)
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read -1)
+    FAIL: T7b port recovered: retry commits
+    FAIL: T7b retry byte-exact
+    FAIL: T8 write-phase error surfaces exactly once
+    FAIL: T8 no device op after the failed WRITE
+    FAIL: T8 the write error is named DEVICE (read -1)
+    FAIL: T9 read-phase error surfaces exactly once
+    FAIL: T9 stream cut short (48 of 48)
+    FAIL: T9 the read error is named DEVICE (read -1)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (3 wedged)
