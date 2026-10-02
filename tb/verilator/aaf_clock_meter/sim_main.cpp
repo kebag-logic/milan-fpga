@@ -29,6 +29,7 @@
 #include "Vmeter_wrap___024root.h"
 #include "verilated.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -339,10 +340,93 @@ std::string fmt(const char* pattern, double v) {
 }
 
 // ------------------------------------------------------------------------
+//  M1, the largest deviation's level (max_dev_ns_o, AAFM_STAT[31:16]): every
+//  era start clears it and it reads zero while not following, a data
+//  restart keeps it, a PDU after a sequence gap is no deviation, and it
+//  saturates at 65,535 ns. follow() resets before each M1 rate, so only a
+//  run across an era start can see a stale maximum. Run by case_rates.
+//  Mutants (the PR #634 round-2 reviews' probes): the era-start clear
+//  removed; the saturation removed; the PDU after a gap measured.
+// ------------------------------------------------------------------------
+uint64_t max_dev(const MeterBench& b) { return b.dut->status_o >> 16; }
+
+//! The era `event` ends follows a +100 ppm talker on listener 0, whose
+//! largest deviation is the offset over 15 spacings, 187.5 ns; the era it
+//! starts follows a 0 ppm talker (on listener 1 when `two`), whose ideal
+//! timestamps deviate by nothing.
+void max_dev_era(MeterBench& b, Checker& ck, const char* name, bool two,
+                 const std::function<void()>& event) {
+    follow(b, 100.0);
+    Talker old_era;
+    old_era.ppm = 100.0;
+    Talker new_era;
+    new_era.t0 = 7'000'000'000;
+    for (int k = 0; k < 800; ++k) {
+        if (two) b.slot2(old_era, new_era); else b.slot(old_era, 0);
+    }
+    const std::string tag = std::string("[M1 max_dev, ") + name + "] ";
+    const uint64_t before = max_dev(b);
+    named(ck, tag + "the old era's largest deviation is the offset over 15 spacings",
+          before >= 187 && before <= 189);
+    event();
+    for (int k = 0; k < 800; ++k) {
+        if (two) b.slot2(old_era, new_era); else b.slot(new_era, 0);
+    }
+    ck.dec((tag + "the new era's largest deviation reads 0").c_str(), max_dev(b), 0);
+}
+
+void max_dev_levels(MeterBench& b, Checker& ck) {
+    max_dev_era(b, ck, "listener change", true, [&b] { b.dut->follow_idx_i = 1; });
+    max_dev_era(b, ck, "entry", false, [&b, &ck] {
+        b.dut->en_i = 0;
+        b.idle(kSlotCyc);
+        ck.dec("[M1 max_dev, exit] reads 0 while not following", max_dev(b), 0);
+        b.dut->en_i = 1;
+    });
+    max_dev_era(b, ck, "bind edge", false, [&b] {
+        b.dut->bind_rise_i = 1;
+        b.tick();
+        b.dut->bind_rise_i = 0;
+    });
+    max_dev_era(b, ck, "timeout", false, [&b, &ck] {
+        b.idle(static_cast<int64_t>(0.15 * 8000) * kSlotCyc);
+        ck.dec("[M1 max_dev, timeout] reads 0 once the timeout starts an era", max_dev(b), 0);
+    });
+    // one lost PDU inside a group: the PDU after the gap is not compared
+    // with the group's PDU 0, so it is no deviation
+    follow(b, 0.0);
+    Talker lossy;
+    lossy.lost = [](uint64_t i) { return i == 30 * kGroupPdus + 5; };
+    b.run_seconds(lossy, 0.12);
+    ck.dec("[M1 max_dev, a lost PDU] the PDU after the gap is no deviation", max_dev(b), 0);
+    // a step at PDU 5 is that PDU's deviation, the history restarts at it,
+    // and the restart keeps the reading
+    for (const int64_t step : {int64_t{65'535}, int64_t{65'536}, int64_t{100'000},
+                               int64_t{-100'000}}) {
+        follow(b, 0.0);
+        Talker t;
+        t.step_at = 30 * kGroupPdus + 5;
+        t.step_ns = step;
+        b.run_seconds(t, 0.12);
+        std::array<char, 112> label{};
+        std::snprintf(label.data(), label.size(),
+                      "[M1 max_dev, step %+lld @5] restarts the history once",
+                      static_cast<long long>(step));
+        ck.dec(label.data(), b.seen.restarts, 1);
+        std::snprintf(label.data(), label.size(),
+                      "[M1 max_dev, step %+lld @5] reads min(|step|, 65,535) after it",
+                      static_cast<long long>(step));
+        ck.dec(label.data(), max_dev(b),
+               static_cast<uint64_t>(std::min<int64_t>(std::llabs(step), 65'535)));
+    }
+}
+
+// ------------------------------------------------------------------------
 //  M1: synthetic streams at seven rates, ideal timestamps, against
 //  KL_crf_rx on the equivalent CRF stimulus, and the largest deviation the
-//  meter reports (max_dev_ns_o, the wrapper's status_o[31:16]). Mutants:
-//  decimation by 1; the largest deviation not tracked.
+//  meter reports (max_dev_ns_o, the wrapper's status_o[31:16]), then that
+//  value's level (max_dev_levels). Mutants: decimation by 1; the largest
+//  deviation not tracked; and max_dev_levels' three.
 // ------------------------------------------------------------------------
 void case_rates(MeterBench& b, Checker& ck) {
     for (const double ppm : {0.0, 10.64, -10.64, 50.0, -50.0, 100.0, -100.0}) {
@@ -372,6 +456,7 @@ void case_rates(MeterBench& b, Checker& ck) {
                     static_cast<long long>(b.seen.worst_rate_err),
                     static_cast<long long>(b.seen.worst_crf_diff));
     }
+    max_dev_levels(b, ck);
 }
 
 // ------------------------------------------------------------------------

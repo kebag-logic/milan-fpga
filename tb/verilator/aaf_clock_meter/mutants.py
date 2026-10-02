@@ -5,8 +5,9 @@
 
 The mutants are the ones docs/design/MEDIA_CLOCK_FOLLOWING.md's test plan
 names for the meter rows, the servo row with the meter in front of it, and
-the servo's W2 switch (#629), and the meter rules the PR #634 round-1 review
-(R432-1 F5) showed no check could fail, planted with that review's own edits.
+the servo's W2 switch (#629), the meter rules the PR #634 round-1 review
+(R432-1 F5) showed no check could fail, planted with that review's own edits,
+and the largest deviation's level the round-2 reviews probed, with theirs.
 Each is a set of exact source replacements to KL_aaf_clock_meter or
 KL_mmcm_drp_servo, every anchor required to occur exactly once, applied to a
 scratch copy: no checkout file is edited. A mutant
@@ -195,6 +196,27 @@ MUTANTS = (
     ("max_dev_not_tracked", "meter",
      (("          else if (16'(s2_abs_w) > max_dev_r)  max_dev_r <= 16'(s2_abs_w);\n", "\n"),),
      "cases:rates", "[M1 +10.64 ppm] the largest deviation is the offset over 15 spacings"),
+    # the largest deviation's level (PR #634 round 2, R432-2 S1 = R433-2 S1),
+    # planted with R433-2's meter_probes.py edits: the era-start clear
+    # removed; the 65,535 ns saturation removed; and that run's third
+    # survivor, the PDU after a sequence gap measured against PDU 0
+    ("max_dev_not_cleared_at_era_start", "meter",
+     (("        mr_toggle_p_o <= 1'b0;\n        max_dev_r     <= '0;\n",
+       "        mr_toggle_p_o <= 1'b0;\n"),),
+     "cases:rates", "[M1 max_dev, listener change] the new era's largest deviation reads 0"),
+    ("max_dev_no_saturation", "meter",
+     (("          if (s2_abs_w > 32'd65535)            max_dev_r <= 16'hFFFF;\n"
+       "          else if",
+       "          if"),),
+     "cases:rates", "[M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it"),
+    ("max_dev_includes_gap_pdus", "meter",
+     (("        end else if (s2_gap_r || !grp_act_r || s2_tu_edge_w) begin\n"
+       "          grp_act_r <= 1'b0;\n        end else begin\n",
+       "        end else if (s2_gap_r || !grp_act_r || s2_tu_edge_w) begin\n"
+       "          grp_act_r <= 1'b0;\n"
+       "          if (16'(s2_abs_w) > max_dev_r) max_dev_r <= 16'(s2_abs_w);\n"
+       "        end else begin\n"),),
+     "cases:rates", "[M1 max_dev, a lost PDU] the PDU after the gap is no deviation"),
     ("switch_through_idle_W1", "servo",
      (("          else if (!ref_locked_i)    state_r <= HOLDOVER_S;",
        "          else if (!ref_locked_i)    state_r <= IDLE_S;"),),
