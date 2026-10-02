@@ -1453,7 +1453,7 @@ written, the implementation and the place it is recorded are:
 
 | Statement | What M2 did | Where |
 |---|---|---|
-| Registers: "VERSION moves" | VERSION stays `0x0002_0060`, as for #443's `RENDER_STAT`: the release step owns the minor bump. Open for a decision on #629 | `CHANGELOG.md`, [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter) |
+| Registers: "VERSION moves" | VERSION stays `0x0002_0060`, as for #443's `RENDER_STAT`: the release step owns the minor bump. Open for a decision on #629 | [`CHANGELOG.md`](../../CHANGELOG.md), [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter) |
 | Builder row: "a listener-only shape without INTERNAL (CRF at 0)" | The loader refuses a configuration with no talker, so no such shape builds; the rule is graded at `_overlay_clock_sources` directly | `sw/builder/test_builder.py` gate 33 |
 | AECP model walk: "the servo leaves IDLE for every stream source" | The servo leaves IDLE only on a locked reference (`KL_mmcm_drp_servo` IDLE), and the walk streams nothing; the walk grades the decode, the servo's select and the meter's status word instead | `tb/verilator/milan_dp/sim_nxn.cpp` `[CLKSRC-WALK]` |
 | Counter row: "60 s with one PDU lost in every 0.3 s" | 3 s at the root: 60 s costs about 20 minutes there, past the suite guard, and the leg's mutant fails at the first lost PDU. The 60 s loss leg with the meter in front of the servo runs in the meter suite | `tb/verilator/milan_dp_mclk`, `tb/verilator/aaf_clock_meter/sim_servo.cpp` |

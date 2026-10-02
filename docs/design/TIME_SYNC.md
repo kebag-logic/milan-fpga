@@ -136,31 +136,45 @@ It requires better than +/-50 ppm.
 
 CRF transport measures remote media timing.
 
-An AAF stream carries its talker's media clock in its timestamps.
+AAF timestamps also carry their talker's media clock.
 
 The root consumes stored clock selection since issue #74.
 
-Since issue #629 one source is selected out of three classes.
+Since issue #629 one source is selected.
 
-They are INTERNAL, the CRF sink and one source per AAF Stream Input.
+Its classes are INTERNAL, CRF and AAF Stream Inputs.
 
-They are listed in that class order: INTERNAL 0, CRF 1, AAF input k at 2 + k.
+Each AAF Stream Input has its own source.
+
+INTERNAL is 0 and CRF is 1.
+
+AAF input k is source 2 + k.
 
 INTERNAL remains the power-on selection.
 
 CRF or AAF selection activates the MMCM servo.
 
-`KL_crf_rx` measures a CRF talker; `KL_aaf_clock_meter` an AAF talker.
+`KL_crf_rx` measures a CRF talker.
 
-The grid aligner follows the physical sample grid at every source.
+`KL_aaf_clock_meter` measures an AAF talker.
+
+The grid aligner follows the physical grid at every source.
 
 The [media-clock following design](MEDIA_CLOCK_FOLLOWING.md) records the rules.
 
-At INTERNAL the media clock is the audio MMCM plan plus the board oscillator's error.
+At INTERNAL the media clock is the audio MMCM plan.
 
-Plan A sits 10.64 ppm under nominal, so Milan v1.2 7.4's +/-50 ppm holds only for an oscillator of +/-39 ppm or better.
+The board oscillator's error adds to it.
 
-KNOWN RISK: the grade is unmarked, assumed adequate by the owner's #629 decision, and unconfirmed.
+Plan A sits 10.64 ppm under nominal.
+
+The limit is Milan v1.2 section 7.4.
+
+It then needs an oscillator within 39 ppm.
+
+KNOWN RISK: the oscillator grade is unmarked.
+
+The owner's #629 decision assumes it adequate, unconfirmed.
 
 ```mermaid
 flowchart LR
@@ -377,9 +391,11 @@ The grids align at every source since #629 (A2-a).
 
 So the -10.64 ppm plan offset fires no rail.
 
-Before, INTERNAL free-ran and the rail re-centred every 11.75 s.
+Before #629, INTERNAL free-ran.
 
-A talker whose media clock is not this one sets its own rail period.
+Its rail then re-centred every 11.75 s.
+
+Another talker's clock sets its own rail period.
 
 | Interface after the grid | Fixed delay | Shipped |
 |---|---|---|

@@ -295,7 +295,7 @@ this table whenever `hdl/` changes shape.
 | `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) -- parses, counts and reports; since #74 its measurements steer the servo chain whenever the CRF source is selected (Section 1.2) |
 | `KL_crf_tx` | Milan CRF Media Clock Output engine (talker half), on the data lane |
 | `KL_media_grid_align` | the #74 packet-grid alignment loop: a cycle-resolution phase detector on the front-end frame marker plus an overdamped PI that holds `KL_media_nco`'s tick to the physical fsync grid under a CRF selection; `milan_datapath` keys it on the TDM frame close with the tick one cycle late and a 256-cycle keep-off (#617), guarding the capture walk's crossing |
-| `KL_media_nco` | the steerable media-clock sample grid — it follows the physical fsync grid through `KL_media_grid_align` at every source (#74; INTERNAL too since #629, A2-a), and free-runs bit-exact only while the aligner is disengaged |
+| `KL_media_nco` | the steerable media-clock sample grid -- it follows the physical fsync grid through `KL_media_grid_align` at every source (#74; INTERNAL too since #629, A2-a), and free-runs bit-exact only while the aligner is disengaged |
 | `KL_mmcm_drp_servo` | the audio-MMCM recovery ACTUATOR — engaged by the live clock-source resolve since #74; at the INTERNAL power-on state `A_MCSRV_STAT` (`0x8F8`) reads its idle honestly |
 
 ### `hdl/ieee1722/maap/`

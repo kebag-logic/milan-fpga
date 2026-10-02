@@ -133,7 +133,9 @@ The held trim keeps audio samples moving.
 
 Grid alignment continues while TDM markers continue.
 
-Selecting INTERNAL disengages the servo; grid alignment stays engaged (#629, A2-a).
+Selecting INTERNAL disengages the servo.
+
+Grid alignment stays engaged (#629, A2-a).
 
 Publication changes feed notification scheduling.
 
