@@ -1,0 +1,24 @@
+76b09ff cli=3559d0a64b51062a ltn=23cc67eeadc7ecad
+  CLI hex == rommap hex
+2ebd4fe8 cli=518b900c4a565090 ltn=23cc67eeadc7ecad
+  CLI hex == rommap hex
+a90ca735 cli=518b900c4a565090 ltn=23cc67eeadc7ecad
+  CLI hex == rommap hex
+# map main vs merge
+maps identical
+# lane-head program extents vs merge (by name)
+76b09ff.map: 1144  1150    7 E_SCLKSRF
+76b09ff.map: 1184  1209   26 E_SCLKS
+a90ca735.map:  464   469    6 E_IDNOTIF
+a90ca735.map:  480   500   21 E_SINFOUNS
+a90ca735.map: 1144  1150    7 E_SCLKSRF
+a90ca735.map: 1184  1209   26 E_SCLKS
+# programs overlapping 456..511 at merge
+  464   469    6 E_IDNOTIF
+  480   500   21 E_SINFOUNS
+# SCLKS overlap with C6 ranges
+(none above = no overlap)
+76b09ff image.bin 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c 1880
+2ebd4fe8 image.bin 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c 1880
+a90ca735 image.bin 20356f5967e45a9eafcf8a63c5c933dca75fccb5d6bbc16941dc91dc2483b62c 1880
+27 words differ; owners: {'E_IDNOTIF': 6, 'E_SINFOUNS': 21}

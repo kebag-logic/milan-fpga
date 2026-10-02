@@ -1,0 +1,53 @@
+# patch files: head vs 76b09ff vs 39fd019
+lk-prefix-zero-body.patch head=0d84515e3aa6 lane=0d84515e3aa6 r1=970de5ce5bbc
+lk-sclks-lock-nop.patch head=ead6e0e10409 lane=ead6e0e10409 r1=ead6e0e10409
+lk-sclks-miss-lock-nop.patch head=a3a8ac241600 lane=a3a8ac241600 r1=a3a8ac241600
+lk-sctrl-lock-nop.patch head=1f1df6f043d5 lane=1f1df6f043d5 r1=1f1df6f043d5
+lk-sctrl-miss-lock-nop.patch head=fba2916026d6 lane=fba2916026d6 r1=fba2916026d6
+lk-ssrate-lock-nop.patch head=8b5292160301 lane=8b5292160301 r1=8b5292160301
+lk-ssrate-miss-lock-nop.patch head=fdf9dcc2d97c lane=fdf9dcc2d97c r1=fdf9dcc2d97c
+pg-append-524.patch head=893e920f6887 lane=893e920f6887 r1=893e920f6887
+pg-cap-dropped.patch head=bb2959494408 lane=bb2959494408 r1=bb2959494408
+pg-cap-off-by-one.patch head=3ca75ae045be lane=3ca75ae045be r1=3ca75ae045be
+rb-rounded-buffer-no-page-cap.patch head=e7d5d7b90441 lane=e7d5d7b90441 r1=e7d5d7b90441
+rd-au-image-only.patch head=6fb1c62042ce lane=6fb1c62042ce r1=6fb1c62042ce
+rd-au-unset-overlays.patch head=d05a1267f8b3 lane=d05a1267f8b3 r1=d05a1267f8b3
+rd-cd-image-only.patch head=3ede6a4d67b4 lane=3ede6a4d67b4 r1=3ede6a4d67b4
+rd-so-reads-input-row.patch head=0847e7025a47 lane=0847e7025a47 r1=0847e7025a47
+rd-str-short-guard-nop.patch head=36bc09af26b8 lane=36bc09af26b8 r1=36bc09af26b8
+rd-str-unset-overlays.patch head=31337a653312 lane=31337a653312 r1=31337a653312
+sclks-bound-inclusive.patch head=a3884f8482cd lane=a3884f8482cd r1=de4dbd8f3909
+sclks-bound-three.patch head=1673b44fbaf7 lane=1673b44fbaf7 r1=da991320534a
+sctrl-badarg-zero-body.patch head=7887f7886686 lane=7887f7886686 r1=7887f7886686
+dlkill-always-misbehaving.patch head=4349d7e0791a lane=4349d7e0791a r1=4349d7e0791a
+mvu-silent.patch head=c61ee5c0f608 lane=c61ee5c0f608 r1=c61ee5c0f608
+# per patch: words changed at merge == at lane head (same index, same base, same mutated value)
+dlkill-always-misbehaving          words=  1 equal=True c6_words=0 owners=E_DLKILL
+lk-prefix-zero-body                words= 98 equal=True c6_words=0 owners=E_SCLKS,E_SCLKSRF,E_SCTRL,E_SSRATE,E_SSRWALK,fill
+lk-sclks-lock-nop                  words=  1 equal=True c6_words=0 owners=E_SCLKS
+lk-sclks-miss-lock-nop             words=  1 equal=True c6_words=0 owners=E_SCLKSRF
+lk-sctrl-lock-nop                  words=  1 equal=True c6_words=0 owners=E_SCTRL
+lk-sctrl-miss-lock-nop             words=  1 equal=True c6_words=0 owners=E_SCTRL
+lk-ssrate-lock-nop                 words=  1 equal=True c6_words=0 owners=E_SSRATE
+lk-ssrate-miss-lock-nop            words=  1 equal=True c6_words=0 owners=E_SSRATE
+mvu-silent                         words=  1 equal=True c6_words=0 owners=E_MVUINFO
+pg-append-524                      words=  1 equal=True c6_words=0 owners=E_GAMAP
+pg-cap-dropped                     words=  2 equal=True c6_words=0 owners=E_GAMAP
+pg-cap-off-by-one                  words=  1 equal=True c6_words=0 owners=E_GAMAP
+rb-rounded-buffer-no-page-cap      words=  2 equal=True c6_words=0 owners=E_GAMAP
+rd-au-image-only                   words=  1 equal=True c6_words=0 owners=E_RDESCAU
+rd-au-unset-overlays               words=  1 equal=True c6_words=0 owners=E_RDESCAU
+rd-cd-image-only                   words=  1 equal=True c6_words=0 owners=E_RDESCCD
+rd-so-reads-input-row              words=  2 equal=True c6_words=0 owners=E_RDESCSO
+rd-str-short-guard-nop             words=  1 equal=True c6_words=0 owners=E_RDESCSF
+rd-str-unset-overlays              words=  2 equal=True c6_words=0 owners=E_RDESCSI,E_RDESCSO
+sclks-bound-inclusive              words=  1 equal=True c6_words=0 owners=E_SCLKS
+sclks-bound-three                  words=  1 equal=True c6_words=0 owners=E_SCLKS
+sctrl-badarg-zero-body             words=  1 equal=True c6_words=0 owners=E_SCTRL
+equal 22 of 22
+# old (39fd019) patch planted at 39fd019 vs refreshed (76b09ff) patch planted at 76b09ff: mutated ucode.hex sha256
+lk-prefix-zero-body c8c8edab989ecde7061b7083bfad0d73d19c3a5017f049fe8e60ac0f762eae5f c8c8edab989ecde7061b7083bfad0d73d19c3a5017f049fe8e60ac0f762eae5f IDENTICAL words 98
+sclks-bound-three cb507184e92d68aec1f8b9ef2e3c5b9b620f8eaba303df0f6ed19835fa3932a9 cb507184e92d68aec1f8b9ef2e3c5b9b620f8eaba303df0f6ed19835fa3932a9 IDENTICAL words [1196]
+sclks-bound-inclusive 8342c858065349560c7823690d0455cf648acb7096abc677d1bf1b46fa64c380 8342c858065349560c7823690d0455cf648acb7096abc677d1bf1b46fa64c380 IDENTICAL words [1197]
+all 22 old-at-39fd019 == lane-at-76b09ff: True
+unmutated differs from each mutated (every arm changes >=1 word): True

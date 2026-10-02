@@ -1,0 +1,14 @@
+#!/bin/sh
+# Pinned Verilator 5.050 with "-j 0" (all host cores) capped to the number in
+# $VJOBS_FILE (default: ../vjobs beside the installed wrapper, else 2), so several
+# reviewer builds stay within the job and memory caps. Semantics unchanged.
+f=${VJOBS_FILE:-$(dirname "$0")/../vjobs}
+cap=$(cat "$f" 2>/dev/null || echo 2)
+n=$#; capnext=0
+for a in "$@"; do
+  if [ "$capnext" = 1 ] && [ "$a" = 0 ]; then a=$cap; fi
+  if [ "$a" = "-j" ]; then capnext=1; else capnext=0; fi
+  set -- "$@" "$a"
+done
+shift "$n"
+exec "${PINNED_VERILATOR:?set PINNED_VERILATOR to the pinned 5.050 verilator}" "$@"

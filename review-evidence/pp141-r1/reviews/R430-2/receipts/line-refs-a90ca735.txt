@@ -1,0 +1,24 @@
+## hdl/aecp/ucode/gen_ucode.py:1654 / 1663
+# THE RANGE CHECK (06 §6 "source ∈ CLOCK_DOMAIN list"; milan-fpga #389). The
+# it to INTERNAL. The count sits mid-lane, hence SHIFT_R + a FMT_W MOVE.
+## 1674 / 1711 / 1703
+place(E_SCLKS, [
+place(E_SCLKSRF, [
+])
+
+## 1688-1689
+    u('CHECK_ARG', ra=12, rb=9, fmt=FMT_W,       # index < count, else BAD_ARGS
+      cnd=REL_LT, imm=SCLKS_EMIT),
+## engine:1579
+                : sclks_r  ? {48'd0, setval_r[63:48]}
+## 00:406 / 449
+| REQ-AEM-013 | Milan §5.4.2.15/.16 | SE
+| REQ-MDL-005 | Milan v1.2 §5.3.3.6; IEE
+## 06:465
+| SET_CLOCK_SOURCE | lock (`ENTITY_LOCKE
+## 07:135
+| L6 | CLOCK_SOURCE construction, with M
+## dyn_state:186
+  logic [15:0] clksrc_r [N_CLK_DOMAIN_P] /* verilator public_flat_rw */;
+## nvm_writer:502
+      lane_accept_w = rval_r[15:0] < sb_rdata_i[47:32];
