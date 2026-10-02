@@ -1,0 +1,71 @@
+receipts/evidence/author_PR-BODY_ca502628.md [Validation] vs receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation]
+  chars 4213 vs 4213; table rows 38 vs 38; identical: True
+receipts/evidence/author-r2_PR-BODY_ca502628.md [Validation] vs receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation]
+  chars 4213 vs 4213; table rows 38 vs 38; identical: True
+receipts/evidence/author-r2_PR-BODY_ca502628.md [Validation, round 2] vs receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation, round 2]
+  chars 5671 vs 5671; table rows 43 vs 43; identical: True
+receipts/evidence/author-r3_PR-BODY_ca502628.md [Validation] vs receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation]
+  chars 4213 vs 4213; table rows 38 vs 38; identical: True
+receipts/evidence/author-r3_PR-BODY_ca502628.md [Validation, round 2] vs receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation, round 2]
+  chars 5671 vs 5671; table rows 43 vs 43; identical: True
+receipts/evidence/author-r3_PR-BODY_ca502628.md [Validation, round 3] vs receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation, round 3]
+  chars 5499 vs 5499; table rows 37 vs 37; identical: True
+receipts/evidence/author-r4_PR-BODY_ca502628.md [Validation, round 4] vs receipts/evidence/author-r4b_PR-BODY_2a98e7d4.md [Validation, round 4]
+  chars 6276 vs 2411; table rows 40 vs 0; identical: False
+   --- 
+   +++ 
+   @@ -4,8 +4 @@
+   -| Command | rc | Result |
+   -|---|---:|---|
+   -| `./scripts/run_suites.sh` | 0 | UPC map gate PASS (60 constants, 88 entry points); M9 opcode gate selftest 9/9 and PASS (30 opcodes); 33 suites, 1,018,785 checks, 0 failing. `pp_top` 8,855 (default 8,439, fixture 20, 
+   -| `./scripts/lint_hdl.sh` | 0 | 41 modules; `KL_aecp_notify`, `KL_aecp_engine` and `protocol_processor_top` also lint clean at `EN_IDENTIFY_NOTIF_P` = 1 |
+   -| `make check` | 0 | lint (41 mermaid + 18 wavedrom), WaveDrom, links (1,012), both matrices, parameters (27 = 27 = 27), stale |
+   -| `python3 scripts/gen_matrix.py --check` | 0 | 94 rows, 0 untested |
+   -| `./syn/yosys/run.sh` | 0 | 36 tops and the Xilinx memory-map check |
+   -| `git diff --check` `9624ef4..`, `16ea10ac..`, `3f3ea56b..651839e` | 0 | |
+   +All rc 0: `run_suites.sh` (UPC map gate 60 constants, 88 entry points; M9 opcode gate 30 opcodes; 33 suites, 1,018,785 checks; `pp_top` 8,855: default 8,439, fixture 20, identify 178, line 218; `ucpu` 408), `lint_hdl.sh
+   @@ -15 +8 @@
+   -Mutation campaigns at `651839e` (each plants its defects in private copies):
+   +Mutation campaigns at `651839e`, all rc 0, each in private copies: notify **40 of 40 KILLED** and aecp-dispatch **35 of 35**, every failing-check count equal to its README record; acmp 19/19; d3 83/83 (the 59 recorded p
+   @@ -17,14 +10 @@
+   -| Command | rc | Result |
+   -|---|---:|---|
+   -| `python3 tb/pp_top/notify_mutants.py --jobs 1` (four `--only` chunks) | 0 | five goldens pass; **40 of 40 KILLED**; every failing-check count equals the README record |
+   -| `python3 tb/pp_top/aecp_dispatch_mutants.py` (three `--only` chunks) | 0 | the three positive controls pass; **35 of 35 KILLED**; every count equals main's record |
+   -| `python3 tb/pp_top/acmp_mutants.py --jobs 1` | 0 | goldens pass; 19 of 19 KILLED; the pp_top counts equal the record |
+   -| `python3 tb/pp_top/d3_mutants.py --jobs 1` (six `--only` chunks) | 0 | 83 of 83 KILLED; goldens pass in every chunk; the 59 recorded pp_top counts are unchanged |
+   -| `make -C tb/adp_engine mutants` | 0 | 2 controls pass; 30 of 30 killed |
+   -| `make -C tb/maap mutants` | 0 | 3 controls pass; 29 of 29 killed |
+   -| `make -C tb/srp_top mutants` | 0 | 11 controls pass; 78 of 78 killed; assertion coverage 65/65 |
+   -| `python3 tb/pp_top/gsi_mutants.py` | 0 | 20 of 20 detected; golden and restored pass |
+   -| `python3 tb/acmp_talker/retry_mutants.py` | 0 | 62 killed; 7 equivalence and 1 performance controls retained |
+   -| `python3 tb/srp_admission/mutants.py` | 0 | 3 controls pass; 3 defects each fail all three suites |
+   -| `python3 tb/pp_top/name_wr_mutant.py` | 0 | the decode defect killed; golden and restored pass |
+   -| `make -C tb/nvm_port figures` (in the clone) | 0 | every measured figure agrees with the tree |
+   +Both reviewers' round-3 probes were re-run, unchanged, at `651839e`: R420-3's RP3a-RP3j (600 checks, 0 failures), its S1 boundary control and round-2 driver, and R421-3's round-2 arms (188 checks), 16 random-press campa
+   @@ -32,24 +12 @@
+   -Both reviewers' round-3 probes were re-run, unchanged, at `651839e`. Every result is identical to the reviewer's own receipt at `9624ef4`; the only difference is the build line, which now names main's `DESC_LINE_BYTES_P
+   -- R420-3. RP3a-RP3j: 600 checks, 0 failures. The S1 boundary control passes section ID (178/0), and RP3j k = -2 kills it. The round-2 driver: RP1 15,301 clocks, RP2 3 frames, RS1/RS2 smallest gap 15,232. `hold_ignores_g
+   -- R421-3. The round-2 arms: 188 checks, 0 failures. The seeded random-press probe: all 16 campaigns pass, with logs identical to the reviewer's and the smallest gap 15,230 clocks. The latch mutants: the same verdicts an
+   -
+   -Parent consumer set (the 16 commands) at milan-fpga dev `7f0927bb`, in a scratch copy. The copy is a `git archive` of the trusted checkout, with its submodules at their recorded pins and the processor at `651839e`. Its 
+   -
+   -| # | Command | rc | Result |
+   -|---:|---|---:|---|
+   -| 1 | `python3 scripts/check_cpp_idiom.py` | 0 | every ratchet within budget (multi-declarator 0 <= 0, long function 0 <= 0, build without warnings 0 <= 0) |
+   -| 2 | `python3 scripts/check_py_idiom.py` | 0 | every ratchet within budget (too many parameters 7 <= 7, over-long line 0 <= 0) |
+   -| 3 | `python3 scripts/check_rtl_source_lists.py` | 0 | 107 files, 4 of 4 consumer lists; processor 36/42 tops, 6 recorded |
+   -| 4 | `python3 scripts/pp_srcs.py --check --selftest` | 0 | OK |
+   -| 5 | `python3 scripts/check_port_contracts.py` | 0 | 3,793 first-party ports, processor 1,752 (as at round 3); undocumented 111 <= 111 |
+   -| 6 | `python3 scripts/measure_naming.py --check` | 0 | 96 candidates, all recorded |
+   -| 7 | `python3 scripts/measure_test_evidence.py --check` | 0 | 72 <= 77 suites without a mutation arm (73 at round 3), 10 <= 10, 0 <= 0 unexplained DUT readers, 3 <= 3 |
+   -| 8 | `python3 scripts/docs_check.py` | 0 | 0 findings across 184 md + 955 scrubbed files |
+   -| 9 | `python3 scripts/xvlog_gate.py --check` | 0 | 4 findings == ratchet (0 in `hdl/`, 4 in the pinned processors) |
+   -| 10 | `python3 sw/builder/test_builder.py` | 0 | ALL GATES PASS EXCEPT 1 NOT RUN (gate 11 needs a local mf48 build tree, as in rounds 1 to 3) |
+   -| 11 | `python3 scripts/lint_rtl.py --check` | 0 | 90 <= 90 |
+   -| 12 | `make -C tb/verilator/pp_shadow -j8` | 0 | 311 checks, 0 failures |
+   -| 13 | `make -C tb/verilator/nvm_cosim lint` | 0 | pass |
+   -| 14 | `make -C tb/verilator/nvm_cosim quick` | 0 | 315 of 315 |
+   -| 15 | `make -C tb/verilator/milan_dp -j8 VERILATOR_JOBS=3` | 0 | 9 benches RESULT: PASS, 0 FAIL; the 6 + 6 mutant arms pass (compile jobs bounded for memory) |
+   -| 16 | `make -C tb/verilator/milan_dp_render -j8` | 0 | 65 + 152 checks, 0 failures; 5 of 5 leg-defect arms caught |
+   +Parent consumer set (the 16 commands) at milan-fpga dev `7f0927bb`, in a scratch copy (its 983-entry index equal to the trusted tree's except the processor gitlink, `651839e`) with `parent-adoption-c4c6-ea3fb388.patch` 
