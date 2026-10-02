@@ -118,9 +118,9 @@ Flash prefill and destination poisoning happen before timing.
 Accepted RELOAD closes every allocated record before measurement.
 Every destination byte is poisoned using its live value XOR 255.
 The byte oracle therefore detects copying omitted from unchanged images.
-The full 8x8 copy covers 12,634 bytes and 156 records.
+The full 8x8 copy covers 13,210 bytes and 164 records.
 That includes 4,672 output-map bytes.
-The 1x1 copy covers 3,218 bytes and 53 records.
+The 1x1 copy covers 3,290 bytes and 54 records.
 Materialization does not reduce either copy.
 Each iteration releases the capture without committing to flash.
 
@@ -132,6 +132,7 @@ Dropped requests never count as successful responses.
 Counters span the record walk and copy, ending before ATTEST.
 They count accepted frames, successful responses and descriptor-memory read ACKs.
 The first five TX frames support response-header inspection.
+Each trace waits for a console line start, so none splits a CAPTURE row.
 The offered load is not an established worst-case stressor.
 [Section 18](../../../docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md#18-cost) quantifies both arms.
 

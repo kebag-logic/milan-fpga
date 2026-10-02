@@ -189,9 +189,9 @@ Three things make that the answer rather than a fabric-side flash master:
 
 1. **The whole set fits in one erase block, measured at both shapes.** With the
    allocation of section 4, the donor's own F07.8 rule unchanged,
-   `scripts/check_nvm_record_space.py` measures **3,264 bytes** at the shipping
-   `endstation_ax7101_1x1_tdm8` shape and **12,680 bytes** at
-   `endstation_ax7101_8x8`, which is 19 percent of one 64 KiB slot. Both fit
+   `scripts/check_nvm_record_space.py` measures **3,336 bytes** at the shipping
+   `endstation_ax7101_1x1_tdm8` shape and **13,256 bytes** at
+   `endstation_ax7101_8x8`, which is 20 percent of one 64 KiB slot. Both fit
    one block with margin, so whole-image promotion is not
    a compromise forced by geometry; it is comfortably affordable, and it
    upgrades the durability guarantee from the port's per-record one to "at every
@@ -333,21 +333,21 @@ Derived by `scripts/check_nvm_record_space.py` from the generated shapes:
 | Output group bytes | `1 * 144 = 144` | `8 * 584 = 4672` |
 | Input group bytes | `1 * (8 + 8 * 8) = 72` | `8 * (8 + 0 * 8) = 64` |
 | Other fixed groups | `10 + 16 + 12 + 10 + 74 + 2 * (28 + 16 + 16 + 12) = 266` | `10 + 16 + 12 + 10 + 74 + 9 * (28 + 16 + 16 + 12) = 770` |
-| Names, from AEMI | `38 * (8 + 64) = 2736` | `99 * (8 + 64) = 7128` |
-| Raw record area | `266 + 72 + 144 + 2736 = 3218` | `770 + 64 + 4672 + 7128 = 12634` |
-| KLJ2 image | `40 + align4(3218) + 4 = 3264` | `40 + align4(12634) + 4 = 12680` |
-| Record IDs used | `5 + 2 * 4 + 2 + 38 = 53` | `5 + 9 * 4 + 16 + 99 = 156` |
-| Highest ID | `0x80 + 38 - 1 = 0xA5` | `0x80 + 99 - 1 = 0xE2` |
+| Names, from AEMI | `39 * (8 + 64) = 2808` | `107 * (8 + 64) = 7704` |
+| Raw record area | `266 + 72 + 144 + 2808 = 3290` | `770 + 64 + 4672 + 7704 = 13210` |
+| KLJ2 image | `40 + align4(3290) + 4 = 3336` | `40 + align4(13210) + 4 = 13256` |
+| Record IDs used | `5 + 2 * 4 + 2 + 39 = 54` | `5 + 9 * 4 + 16 + 107 = 164` |
+| Highest ID | `0x80 + 39 - 1 = 0xA6` | `0x80 + 107 - 1 = 0xEA` |
 | Image growth | `0` | `8 * (72 - 9) * 8 = 4032` |
 
 The deadline is re-derived from the larger image:
 
 ```text
-pages_8x8 = ceil(12680 / 256) = 50
-worst_ms  = 3000 + 50 * 5 + 12680 * 8 * 1000 / 12500000
-          = 3258.1152
-2 * worst_ms = 6516.2304 < 8000
-slot_free = 65536 - 12680 = 52856 bytes
+pages_8x8 = ceil(13256 / 256) = 52
+worst_ms  = 3000 + 52 * 5 + 13256 * 8 * 1000 / 12500000
+          = 3268.48384
+2 * worst_ms = 6536.96768 < 8000
+slot_free = 65536 - 13256 = 52280 bytes
 ```
 
 The stream-descriptor allocation includes reserved CRF-row key slots.
@@ -789,13 +789,13 @@ reserved main-memory window, not in block RAM.
   (the AX7101 shapes place it at `0x7F700000`);
   `sw/litex/milan_soc.py` reads it and only checks it. It holds the descriptor
   image, measured at 40,000 bytes at 8x8, plus the 4,096-byte response buffer.
-  Adding section 4.2's 12,680-byte image gives 56,776 bytes total.
-  That is `40,000 + 4,096 + 12,680` of
+  Adding section 4.2's 13,256-byte image gives 57,352 bytes total.
+  That is `40,000 + 4,096 + 13,256` of
   1,048,576 bytes, about 5 percent. **No new reservation and no change to the
   published memory map.**
 - The BRAM alternative is what is being declined, and its cost is the number
-  that decides it: section 4.2 derives 12,680 bytes at 8x8.
-  Byte-wide storage needs `ceil(12,680 / 4,096) = 4` BRAM36.
+  that decides it: section 4.2 derives 13,256 bytes at 8x8.
+  Byte-wide storage needs `ceil(13,256 / 4,096) = 4` BRAM36.
   The chosen DRAM placement adds no BRAM.
 
 ### 8.2 The transfer: ordinary loads and stores, no CSR data window
@@ -1259,11 +1259,11 @@ T_commit_worst = tSE(max) + ceil(IMG_LEN/256) x tPP(max) + IMG_LEN x 8 / 12.5e6
 
 | shape | image | pages | erase | program | read-back | **worst case** |
 |---|---|---|---|---|---|---|
-| `endstation_ax7101_1x1_tdm8` | 3,264 B | 13 | 3,000 ms | 65 ms | 2.1 ms | **3.07 s** |
-| `endstation_ax7101_8x8` | 12,680 B | 50 | 3,000 ms | 250 ms | 8.1 ms | **3.26 s** |
+| `endstation_ax7101_1x1_tdm8` | 3,336 B | 14 | 3,000 ms | 70 ms | 2.1 ms | **3.07 s** |
+| `endstation_ax7101_8x8` | 13,256 B | 52 | 3,000 ms | 260 ms | 8.5 ms | **3.27 s** |
 
 Section 4.2 derives both image lengths from the gate.
-Its commit calculation gives 3,067.08896 ms and 3,258.1152 ms respectively.
+Its commit calculation gives 3,072.13504 ms and 3,268.48384 ms respectively.
 One erase contributes about 92 percent at 8x8.
 
 **`T-NVM-COMMIT-TIMEOUT` = 8,000 ms**, required to be at least **2x** the
