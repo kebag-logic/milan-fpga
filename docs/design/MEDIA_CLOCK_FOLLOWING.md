@@ -992,9 +992,10 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
   they pulse nothing. The bind edge clears no lock, as in `KL_crf_rx`
   (`:619-624`): an unbind is declared by the timeout that follows it.
 - **Outputs:** `locked`; the rate in ns per 512 ms; `rate_valid`; the one-cycle
-  pulses `disrupt_p` and `mr_toggle_p`; and a status word with the lock, the
-  rate validity, the followed listener, a history-restart count and the
-  largest `|ts_i - ts_0 - i * 125,000|` seen this era. The last two are the
+  pulses `disrupt_p` and `mr_toggle_p`; a status word with the lock, the rate
+  validity, the followed listener and a history-restart count; and the
+  largest `|ts_i - ts_0 - i * 125,000|` seen this era (`max_dev_ns_o`). The
+  root composes the two into `AAFM_STAT`. The last two are the
   bench's measurement of a talker's timestamp regularity. The largest
   deviation also holds the talker's rate offset across a group: about 190 ns
   at 100 ppm.
