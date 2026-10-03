@@ -1,0 +1,11 @@
+R447-9 R3: what B's pass against C's record does and does not depend on (route-1x1, LUT / FF)
+Sources: receipts/r7-evidence/final-real/gate-check-B-route.log (B vs C: -14 / -620),
+receipts/r1-evidence/gate-check-B-route.log (B vs A: +625 / +8),
+receipts/r7-evidence/real/pre-check-C-route-1x1.log (C vs A: +639 / +628),
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:70 (the meter, g_aaf_meter.aaf_clock_meter: +483 / +630),
+docs/design/AREA_BUDGET.md:123 ("PR #634's AAF clock meter alone places 483 LUTs and 630 FFs of the growth").
+Tolerances: route +500 LUT, +600 FF.
+If B carried the meter but no other PR #634 change: -14 + 483 = +469 LUT (< 500), -620 + 630 = +10 FF (< 600): still exit 0.
+If C's record lacked the meter: B vs that record = 625 - (639 - 483) = +469 LUT: still exit 0.
+So the meter alone is not what B's pass turns on; B passes because C's record carries all of PR #634's +639 LUT
+(the meter 483 of it, 76 percent), which B's 1269cdaf tree lacks. Additive arithmetic on published figures, not a measurement.

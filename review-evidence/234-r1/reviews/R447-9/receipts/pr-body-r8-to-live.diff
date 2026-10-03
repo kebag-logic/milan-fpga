@@ -1,0 +1,12 @@
+22c22
+< REVIEW READY, round 7 (re-baseline on the composed tree): dev `54643724` merged with `--no-ff`; the three endpoints measured again in Vivado at the merge commit and recorded, every tolerance, floor and ceiling unchanged; `check` exits 0 on all three new runs and `check-baseline` passes; 43/43 touched local gates rc 0 under GNU Make 4.3 at the head and at the merge commit; gate self-test 260 arms and 500 generated cases, 174/174 shipped mutants killed -- `234-area-baseline` -> `dev`. Head `aabdc2839a272631222c30a62e83218d893b40d2` (the merge and three commits on round 6's `d5f56313`). No RTL, processor, interface or gate-code change.
+---
+> REVIEW READY, round 7 (re-baseline on the composed tree): dev `54643724` merged with `--no-ff`; the three endpoints measured again in Vivado at the merge commit and recorded, every tolerance, floor and ceiling unchanged; `check` exits 0 on all three new runs and `check-baseline` passes; 43/43 touched local gates rc 0 under GNU Make 4.3 at the head and at the merge commit; gate self-test 260 arms and 500 generated cases, 174/174 shipped mutants killed -- `234-area-baseline` -> `dev`. Head `68d26ea034789ce2519db22d0df4e4328bc1b0de` (the merge and three commits on round 6's `d5f56313`). No RTL, processor, interface or gate-code change.
+60c60
+< Gate on real data at this head: A's three endpoints exit 0, and A's route status reads complete (105,566 of 105,566 routable nets fully routed, 0 nets with routing errors). B exits 1 on the route (+625 LUT over the 500-LUT tolerance; 366 of them outside the wrapper, where no RTL changed; its route status is complete too) and 0 on both standalone endpoints (+162 / -172 LUT). A's 1x1 control at 10 ns exits 2 (standalone clock identity).
+---
+> Gate on real data at this head, against the committed record (C, dev `54643724`): C's three endpoints exit 0 at 0 deltas. A (dev `1269cdaf`) exits 0 on all three, with "re-baseline recommended" on the route (-639 LUT). B (the next adoption on `1269cdaf`) exits 0 on the route at -14 LUT, only because B lacks PR #634's meter, and 0 on both standalone endpoints (+173 / -166 LUT). Against the first record (A), B's route exited 1 (+625 LUT over the 500-LUT tolerance) and C's route exits 1 (+639 LUT / +628 FF), which is why round 7 re-recorded. A's 1x1 control at 10 ns exits 2 (standalone clock identity). Receipts: the round-7 packet's `final-real/gate-check-{A,B,C}-*`.
+429c429
+< git switch --detach aabdc2839a272631222c30a62e83218d893b40d2
+---
+> git switch --detach 68d26ea034789ce2519db22d0df4e4328bc1b0de

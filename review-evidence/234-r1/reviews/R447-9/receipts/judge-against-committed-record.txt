@@ -1,0 +1,32 @@
+== A-record-route-1x1.json against committed route-1x1: rc 0
+   figure        baseline   candidate     delta  verdict
+   LUT              50767       50128      -639  ok, below the baseline
+   FF               59634       59006      -628  ok, below the baseline
+   SLICE            15832       15815       -17  ok, below the baseline
+== A-record-ooc-1x1.json against committed ooc-1x1: rc 0
+   figure        baseline   candidate     delta  verdict
+   LUT              24332       24343        11  ok
+   FF               25345       25344        -1  ok, below the baseline
+   RAMB36              21          21         0  ok
+== A-record-ooc-8x8.json against committed ooc-8x8: rc 0
+   figure        baseline   candidate     delta  verdict
+   LUT              31556       31562         6  ok
+   FF               33937       33929        -8  ok, below the baseline
+   RAMB36              26          26         0  ok
+== B-record-route-1x1.json against committed route-1x1: rc 0
+   figure        baseline   candidate     delta  verdict
+   LUT              50767       50753       -14  ok, below the baseline
+   FF               59634       59014      -620  ok, below the baseline
+   SLICE            15832       15827        -5  ok, below the baseline
+== B-record-ooc-1x1.json against committed ooc-1x1: rc 0
+   figure        baseline   candidate     delta  verdict
+   LUT              24332       24505       173  ok
+   FF               25345       25470       125  ok
+   RAMB36              21          21         0  ok
+== B-record-ooc-8x8.json against committed ooc-8x8: rc 0
+   figure        baseline   candidate     delta  verdict
+   LUT              31556       31390      -166  ok, below the baseline
+   FF               33937       33844       -93  ok, below the baseline
+   RAMB36              26          26         0  ok
+== A-record-ooc-1x1-10ns.json against committed ooc-1x1: rc 2
+   NOT COMPARABLE: tool or recipe change in standalone_clock_ns; measure the baseline again under the new identity instead of comparing across it

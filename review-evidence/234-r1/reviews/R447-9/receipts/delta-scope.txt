@@ -1,0 +1,22 @@
+# files changed by the PR against live dev 5fabb46e (merge-base diff)
+.github/workflows/rtl-fast.yml               |    3 +
+ docs/design/AREA_BUDGET.md                   |  167 +++++++++++++++++-
+ docs/findings/234_PP_SHADOW_AREA_BASELINE.md |  505 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ docs/findings/README.md                      |    2 +
+ docs/testing/CI_WORKFLOWS.md                 |    5 +-
+ docs/testing/PP_SHADOW_BASELINE_RECIPE.md    |   72 ++++++++
+ scripts/ci_events.py                         |    3 +
+ scripts/ci_scope.py                          |    7 +-
+ syn/ooc/pp_baseline.py                       |   50 +++++-
+ syn/ooc/pp_baseline_mutants.py               |    9 +
+ syn/ooc/pp_baseline_rank.py                  |   29 +++-
+ syn/ooc/pp_resource_baseline.json            | 1384 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ syn/ooc/pp_resource_gate.py                  |  740 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ syn/ooc/pp_resource_gate_mutants.py          |  317 ++++++++++++++++++++++++++++++++++
+ syn/ooc/pp_resource_gate_selftest.py         | 1000 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 15 files changed, 4280 insertions(+), 13 deletions(-)
+
+Changes:
+
+# RTL/config/gitlink paths touched:
+none
