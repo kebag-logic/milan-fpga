@@ -1,0 +1,36 @@
+## merge-tree reproduction
+04a0c948d8fabb836c64ac4c50271c3a8bc16c89
+candidate tree 04a0c948d8fabb836c64ac4c50271c3a8bc16c89
+## parents
+9b28c04bf7f23824b25f479b6584c4e5c8c4f334 546437243e87eb5a78783a9e3cd5d1badcc3423e d5f56313dc5a5c2716211356f99796664dc843dd
+## dev first-parent since 1269cdaf
+546437243e87eb5a78783a9e3cd5d1badcc3423e Merge PR #644: Record #629's bench acceptance on dev bbf704ec: AAF and CRF media-clock following, b
+bbf704ecc3ef2e9cdd4cfdb72ec085e7428d1352 Merge PR #634: Follow one selected AAF or CRF media clock, and align the grid at INTERNAL (#629, la
+## files both sides change
+docs/findings/README.md
+## PR files differing between PR head and candidate
+ docs/findings/README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+## #634 build-input drift c1288648..2bc5adc0 (hdl sw/litex configs avdecc syn)
+(none above = no drift)
+## #644 files
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+docs/findings/README.md
+## shipping shape header 1269cdaf -> candidate
+-  localparam int AEM_NAME_ENTRIES_C = 38;
++  localparam int AEM_NAME_ENTRIES_C = 39;
+-  localparam int unsigned AEM_N_CLKSRC_C = 2;
++  localparam int unsigned AEM_N_CLKSRC_C = 3;
++  localparam logic [1:0] AEM_CLKSRC_INTERNAL_C = 2'd0;
++  localparam logic [1:0] AEM_CLKSRC_CRF_C = 2'd1;
++  localparam logic [1:0] AEM_CLKSRC_AAF_C = 2'd2;
++  localparam logic [1:0] AEM_CLKSRC_KIND_C [0:2] = '{2'd0, 2'd1, 2'd2};
++  localparam logic [15:0] AEM_CLKSRC_SI_C [0:2] = '{16'hFFFF, 16'd1, 16'd0};
++  localparam int unsigned AEM_N_AAF_CLKSRC_C = 1;
+## processor generic
+      .DESC_NAME_ENTRIES_P (AEM_NAME_ENTRIES_C),
+## gitlinks
+1269cdafb: external=efeb541ae5fe gptp-processor=5dce647ab5a0 protocol-processor=631eeb342ca1 
+546437243: external=efeb541ae5fe gptp-processor=5dce647ab5a0 protocol-processor=631eeb342ca1 
+d5f56313d: external=efeb541ae5fe gptp-processor=5dce647ab5a0 protocol-processor=631eeb342ca1 
+9b28c04bf: external=efeb541ae5fe gptp-processor=5dce647ab5a0 protocol-processor=631eeb342ca1 

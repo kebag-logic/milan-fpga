@@ -1,0 +1,24 @@
+docs_check|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/docs_check.py
+docs_check_nogit|$REVIEWS/234-r446-7-packet/scratch/nogit|python3 scripts/docs_check.py
+feature_status_nogit|$REVIEWS/234-r446-7-packet/scratch/nogit|python3 scripts/check_feature_status.py
+gen_toc_check|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/gen_toc.py --check
+gen_toc_anchors|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/gen_toc.py --verify-anchors
+gen_toc_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/gen_toc.py --selftest
+check_doc_paths|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/check_doc_paths.py
+check_em_dash_dev|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/check_em_dash.py --base 546437243e87eb5a78783a9e3cd5d1badcc3423e
+doc_map_check|$REVIEWS/234-r446-7-packet/scratch/clone|python3 docs/DOC_MAP.gen.py --check
+doc_style|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/check_doc_style.py
+check_archive|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/check_archive.py
+ci_events_check|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/ci_events.py --check
+ci_events_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/ci_events.py --selftest
+ci_scope_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 scripts/ci_scope.py --selftest
+gate_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/pp_resource_gate.py --selftest
+gate_mutants|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/pp_resource_gate_mutants.py
+gate_check_baseline|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/pp_resource_gate.py check-baseline
+dp_srcs_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/dp_srcs.py --selftest
+ooc_tcl_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/ooc_tcl_selftest.py
+pp_baseline_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/pp_baseline.py --selftest
+pp_baseline_mutants|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/pp_baseline_mutants.py
+pp_baseline_reports_selftest|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/pp_baseline_reports_selftest.py
+dp_srcs_milan_datapath|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/dp_srcs.py --top milan_datapath
+dp_srcs_pp_shadow|$REVIEWS/234-r446-7-packet/scratch/clone|python3 syn/ooc/dp_srcs.py --top KL_pp_shadow

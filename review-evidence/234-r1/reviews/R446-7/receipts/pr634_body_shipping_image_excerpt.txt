@@ -1,0 +1,8 @@
+head=2bc5adc0bfd981e63e82ada5e673ce69cab4f4ee merge=bbf704ecc3ef2e9cdd4cfdb72ec085e7428d1352
+| 2 | The shipping image at the merge | Rebuilt at `c1288648` through `sw/litex/build.sh ax7101`, Vivado 2026.1, round 2's recipe, alone. **WNS +0.193 ns, WHS +0.024 ns**, 0 failing endpoints, all four sign-off corners clean, every net routed. Slice LUTs **80.07 %** (round 2: 80.52 %), slices **99.89 %** (round 2: 99.90 %). 0 CRITICAL WARNING; the #607 check reports no 12-4739, 20-1307 or 12-5201 diagnostic and the bitstream is published. No STOP condition (table below) |
+| WNS / TNS | +0.193 ns / 0 (0 of 181,419 endpoints failing) | +0.065 ns / 0 |
+| Slice LUTs | 50,767 (80.07 %) | 51,051 (80.52 %) |
+| Slice Registers | 59,634 (47.03 %) | 59,519 (46.94 %) |
+| Slices | 15,832 of 15,850 (99.89 %) | 15,834 (99.90 %) |
+| Placed processor top / meter / servo (LUT, FF) | 23,335, 23,435 / 483, 630 / 899, 814 | 23,552, 23,310 / 483, 630 / 897, 814 |
+area is unchanged at the merge: 574 LUT (16 LUTRAM), 636 FF; the servo 865 LUT, 792 FF.

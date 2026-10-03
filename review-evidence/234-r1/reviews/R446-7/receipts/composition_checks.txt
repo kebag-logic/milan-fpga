@@ -1,0 +1,16 @@
+1. findings index
+   rows: candidate 19, dev 17, pr 19, base 17
+   duplicates: []
+   dev order kept: True
+   pr order kept: True
+   candidate rows == dev rows | pr rows: True
+   added by pr: ['PP_SHADOW_BASELINE.md', '234_PP_SHADOW_AREA_BASELINE.md']
+   row text changed by dev: ['629_MEDIA_CLOCK_FOLLOWING_BENCH.md']
+   link targets missing in candidate tree: []
+2. route-1x1 baseline against the candidate's shipping image (PR #634 body)
+   recorded policy fields: {"ceiling": {"BRAM_TILE": 121.5}, "floor": {"WHS_ns": 0.0, "WNS_ns": 0.03}, "measured": "dev 1269cdaf, processor 631eeb34, issue #234", "tolerance": {"DSP": 0, "FF": 600, "LUT": 500, "RAMB18": 0, "RAMB36": 0, "SLICE": 80, "WHS_ns": 0.25, "WNS_ns": 0.25}}
+   LUT: recorded 50128, #634 image 50767, growth +639, tolerance +500: EXCEEDS
+   FF: recorded 59006, #634 image 59634, growth +628, tolerance +600: EXCEEDS
+   SLICE: recorded 15815, #634 image 15832, growth +17, tolerance +80: within
+   WNS_ns: recorded 0.063, #634 image 0.193, change +0.130
+   WHS_ns: recorded 0.036, #634 image 0.024, change -0.012

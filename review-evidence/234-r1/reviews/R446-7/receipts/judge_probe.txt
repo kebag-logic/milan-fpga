@@ -1,0 +1,12 @@
+figure        baseline   candidate     delta  verdict
+LUT              50128       50767       639  REGRESSION: grew by more than 500
+FF               59006       59634       628  REGRESSION: grew by more than 600
+SLICE            15815       15832        17  ok
+RAMB36              79          79         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.063       0.193      0.13  ok
+WHS_ns           0.036       0.024    -0.012  ok
+route status: complete, no unrouted net and no routing error
+RESULT: MATERIAL REGRESSION
+judge() exit status: 1
