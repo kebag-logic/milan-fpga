@@ -1,0 +1,60 @@
+<scratch>/bin/verilator --cc --exe --build -j 0 --top-module KL_aecp_dyn_state -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra" -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 \
+    --Mdir obj_dir ../../hdl/aecp/KL_aecp_dyn_state.sv sim_main.cpp -o Vdyn_state_sim
+make[1]: Entering directory '<scratch>/trees/run/tb/dyn_state/obj_dir'
+g++  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra   -c -o verilated.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra   -c -o verilated_dpi.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra   -c -o verilated_threads.o <home path>
+python3 <home path> -DVL_INCLUDE_OPT=include VKL_aecp_dyn_state.cpp VKL_aecp_dyn_state___024root__0.cpp VKL_aecp_dyn_state__Dpi.cpp VKL_aecp_dyn_state__ConstPool__0__Slow.cpp VKL_aecp_dyn_state___024root__Slow.cpp VKL_aecp_dyn_state___024root__0__Slow.cpp VKL_aecp_dyn_state__Syms__Slow.cpp > VKL_aecp_dyn_state__ALL.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra   -c -o VKL_aecp_dyn_state__ALL.o VKL_aecp_dyn_state__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o VKL_aecp_dyn_state__ALL.a    -pthread -lpthread -latomic   -o Vdyn_state_sim
+rm VKL_aecp_dyn_state__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/trees/run/tb/dyn_state/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.085 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 10.296 s (elab=0.001, cvt=0.012, bld=10.272); cpu 0.025 s on 16 threads; allocated 243.191 MB
+./obj_dir/Vdyn_state_sim
+== KL_aecp_dyn_state, shape 2x2 ==
+[shape 2x2] 62 checks, 0 failures
+<scratch>/bin/verilator --cc --exe --build -j 0 --top-module KL_aecp_dyn_state -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra" -GN_STREAM_IN_P=1 -GN_STREAM_OUT_P=1 \
+    -CFLAGS "-DSHAPE_1x1=1 -Wall -Wextra" --Mdir obj_1x1 ../../hdl/aecp/KL_aecp_dyn_state.sv sim_main.cpp -o Vdyn_state_1x1
+make[1]: Entering directory '<scratch>/trees/run/tb/dyn_state/obj_1x1'
+g++  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra -DSHAPE_1x1=1 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra -DSHAPE_1x1=1 -Wall -Wextra   -c -o verilated.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra -DSHAPE_1x1=1 -Wall -Wextra   -c -o verilated_dpi.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra -DSHAPE_1x1=1 -Wall -Wextra   -c -o verilated_threads.o <home path>
+python3 <home path> -DVL_INCLUDE_OPT=include VKL_aecp_dyn_state.cpp VKL_aecp_dyn_state___024root__0.cpp VKL_aecp_dyn_state__Dpi.cpp VKL_aecp_dyn_state__ConstPool__0__Slow.cpp VKL_aecp_dyn_state___024root__Slow.cpp VKL_aecp_dyn_state___024root__0__Slow.cpp VKL_aecp_dyn_state__Syms__Slow.cpp > VKL_aecp_dyn_state__ALL.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/dyn_state -Wall -Wextra -DSHAPE_1x1=1 -Wall -Wextra   -c -o VKL_aecp_dyn_state__ALL.o VKL_aecp_dyn_state__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o VKL_aecp_dyn_state__ALL.a    -pthread -lpthread -latomic   -o Vdyn_state_1x1
+rm VKL_aecp_dyn_state__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/trees/run/tb/dyn_state/obj_1x1'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.086 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 9.392 s (elab=0.001, cvt=0.012, bld=9.369); cpu 0.024 s on 16 threads; allocated 947.199 MB
+./obj_1x1/Vdyn_state_1x1
+== KL_aecp_dyn_state, shape 1x1 ==
+[shape 1x1] 56 checks, 0 failures
+118 checks: 118 PASS, 0 FAIL
+	Command being timed: "bash -c make VERILATOR=<scratch>/bin/verilator"
+	User time (seconds): 23.92
+	System time (seconds): 1.99
+	Percent of CPU this job got: 130%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:19.88
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 351160
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 365495
+	Voluntary context switches: 335
+	Involuntary context switches: 6430
+	Swaps: 0
+	File system inputs: 48
+	File system outputs: 11456
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

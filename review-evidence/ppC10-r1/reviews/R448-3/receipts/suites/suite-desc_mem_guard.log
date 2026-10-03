@@ -1,0 +1,48 @@
+<scratch>/bin/verilator --cc --exe --build -j 2 --top-module desc_mem_guard_wrap \
+  --Mdir obj_dir  -Wall -Wno-DECLFILENAME \
+  -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv wrap.sv sim_main.cpp -o Vguard_sim
+make[1]: Entering directory '<scratch>/trees/run/tb/desc_mem_guard/obj_dir'
+g++  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o <home path>
+python3 <home path> -DVL_INCLUDE_OPT=include Vdesc_mem_guard_wrap.cpp Vdesc_mem_guard_wrap___024root__0.cpp Vdesc_mem_guard_wrap___024root__Slow.cpp Vdesc_mem_guard_wrap___024root__0__Slow.cpp Vdesc_mem_guard_wrap__Syms__Slow.cpp > Vdesc_mem_guard_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vdesc_mem_guard_wrap__ALL.o Vdesc_mem_guard_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vdesc_mem_guard_wrap__ALL.a    -pthread -lpthread -latomic   -o Vguard_sim
+rm Vdesc_mem_guard_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/trees/run/tb/desc_mem_guard/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.186 MB sources in 4 modules, into 0.171 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 8.279 s (elab=0.003, cvt=0.033, bld=8.230); cpu 0.038 s on 2 threads; allocated 216.672 MB
+./obj_dir/Vguard_sim 
+third locate bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+after drain bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+late case completed: accept=80 first=6080 end=6083 third-presented=4185 held=1895 overlap-accepts=0 timeout-answer=4103 third-answer=1928
+stuck case completed: 5 later locates answered errors; max=4102 bound=4160 held=16388 accepted=3 terminal=2 debt=1
+after store reset bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+after hard reset bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+after terminal error bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+78 checks: 78 PASS, 0 FAIL
+	Command being timed: "bash -c make VERILATOR=<scratch>/bin/verilator"
+	User time (seconds): 10.25
+	System time (seconds): 0.73
+	Percent of CPU this job got: 131%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.36
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 352576
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 139090
+	Voluntary context switches: 136
+	Involuntary context switches: 1519
+	Swaps: 0
+	File system inputs: 48
+	File system outputs: 5680
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

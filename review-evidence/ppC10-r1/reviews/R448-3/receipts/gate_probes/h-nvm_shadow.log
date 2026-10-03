@@ -1,0 +1,45 @@
+planted in hdl/acmp/KL_acmp_nvm_shadow.sv before offset 45079
+yosys allocator: /usr/lib/libjemalloc.so.2
+YOSYS OK  KL_aecp_desc_mem_guard
+YOSYS OK  KL_aecp_ucpu
+YOSYS OK  KL_aecp_desc_store
+YOSYS OK  KL_aecp_dyn_state
+YOSYS OK  KL_aecp_resp_buf
+YOSYS OK  KL_aecp_nvm_writer
+YOSYS OK  KL_aecp_engine
+YOSYS OK  KL_aecp_notify
+YOSYS OK  KL_aecp_ca_originator
+YOSYS OK  KL_pp_timer_service
+YOSYS OK  KL_pp_prng
+YOSYS OK  KL_pp_rx_slots
+YOSYS OK  KL_pp_tx_slots
+YOSYS OK  KL_pp_release_merge
+YOSYS OK  KL_pp_rx_validator
+YOSYS OK  KL_pp_normalizer
+YOSYS OK  KL_pp_dispatch
+YOSYS OK  KL_pp_scoreboard
+YOSYS OK  KL_pp_event_router
+YOSYS OK  KL_pp_originator
+YOSYS OK  KL_pp_tx_arbiter
+YOSYS OK  KL_pp_trace_ring
+YOSYS OK  KL_pp_side_port
+YOSYS OK  KL_pp_nvm_port
+YOSYS OK  KL_pp_nvm_mgr_arb
+YOSYS OK  KL_adp_engine
+YOSYS OK  KL_pp_acmp_listener
+YOSYS OK  KL_pp_acmp_lsn_admit
+YOSYS OK  KL_acmp_talker
+YOSYS OK  KL_pp_maap
+YOSYS OK  KL_srp_decoder
+YOSYS OK  KL_srp_encoder
+YOSYS OK  KL_srp_domain
+YOSYS OK  KL_srp_vlan
+YOSYS OK  KL_srp_talker_fsm
+YOSYS OK  KL_srp_listener_fsm
+YOSYS FAIL KL_acmp_nvm_shadow: ERROR: Module `\r448_absent_module' referenced in module `\KL_acmp_nvm_shadow' in cell `\u_r448_planted' is not part of the design.
+YOSYS OK  KL_mrp_strip
+YOSYS OK  KL_pp_dispatch_fifo
+YOSYS OK  KL_srp_admission
+YOSYS OK  KL_srp_top
+YOSYS FAIL protocol_processor_top: ERROR: Module `\r448_absent_module' referenced in module `$paramod$5ffdb080d4fc623648fb5aff54b9301799afdd67\KL_acmp_nvm_shadow' in cell `\u_r448_planted' is not part of the design.
+YOSYS 42 tops, all.v parsed 2 time(s)

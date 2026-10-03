@@ -1,0 +1,34 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "sclks-miss-target-next-word",
+    "patch": "sclks-miss-target-next-word",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-miss-preload-dropped",
+    "patch": "sclks-miss-preload-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-miss-branch-dropped",
+    "patch": "sclks-miss-branch-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

@@ -1,0 +1,21 @@
+h-srp_top - <head-tree> inst KL_srp_top
+h-ppt - <head-tree> inst protocol_processor_top
+h-nvm_shadow - <head-tree> inst KL_acmp_nvm_shadow
+h-mrp_strip - <head-tree> inst KL_mrp_strip
+h-srp_admission - <head-tree> inst KL_srp_admission
+h-dispatch_fifo - <head-tree> inst KL_pp_dispatch_fifo
+h-two - <head-tree> inst KL_mrp_strip KL_srp_admission
+h-drop - <head-tree> drop KL_srp_top
+h-bogus - <head-tree> bogus KL_r449_gone
+h-allv - <head-tree> allv KL_srp_top
+own-mgr_arb - <head-tree> inst KL_pp_nvm_mgr_arb
+own-mgr_arb-sysalloc none <head-tree> inst KL_pp_nvm_mgr_arb
+own-port-desc_mem_guard - <head-tree> port KL_aecp_desc_mem_guard KL_pp_prng
+own-param-lsn_admit - <head-tree> param KL_pp_acmp_lsn_admit KL_pp_prng
+own-newmod - <head-tree> newmod KL_r449_newmod
+own-killonce - <head-tree> killonce KL_pp_maap
+own-rcone - <head-tree> rcone
+b-srp_top - <base-tree> inst KL_srp_top
+b-ppt - <base-tree> inst protocol_processor_top
+b-mgr_arb - <base-tree> inst KL_pp_nvm_mgr_arb
+own-fatal-lsn_admit - <head-tree> fatal KL_pp_acmp_lsn_admit
