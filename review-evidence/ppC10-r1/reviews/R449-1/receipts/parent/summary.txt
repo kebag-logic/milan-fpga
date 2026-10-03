@@ -1,0 +1,18 @@
+c8p2-gate3-check_rtl_source_lists rc=1
+c8p2-gate4-pp_srcs rc=0
+c8p2-gate5-port_contracts rc=2
+c8p2-gate9-xvlog_gate rc=2
+# rc 2 rows above: the gates refused an unregistered submodule checkout (environment); re-run after `git submodule init`:
+c8p2-gate5-port_contracts rc=0
+c8p2-gate9-xvlog_gate rc=1
+# after c10 patch
+c10-gate3-check_rtl_source_lists rc=0
+c10-gate3b-check_rtl_source_lists-selftest rc=1
+c10-gate4-pp_srcs rc=0
+c10-gate5-port_contracts rc=0
+c10-gate9-xvlog_gate rc=0
+c8p2-gate3b-check_rtl_source_lists-selftest rc=1
+dev1269cdaf(pp 631eeb34)-gate3b-check_rtl_source_lists-selftest rc=0
+dev1269cdaf(pp 631eeb34)-gate3 rc=0
+c10-gate5b-check_port_contracts-selftest rc=0
+c10-gate9b-xvlog_gate-selftest rc=0
