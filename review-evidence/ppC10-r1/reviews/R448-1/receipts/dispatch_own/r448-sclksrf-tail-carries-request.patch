@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1704,7 +1704,7 @@
+     u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # SCLKS_REFUSE: a miss meets the lock
+     u('BUILD_HDR', ra=15, rb=13),                # SCLKS_EMIT: the refusals
+     u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+-    u('BUILD_FLD', ra=6, fmt=FMT_W),             # the CURRENT index    @28
++    u('BUILD_FLD', ra=12, fmt=FMT_W),            # the CURRENT index    @28
+     u('BUILD_FLD', ra=2, fmt=FMT_W),             # reserved             @30
+     u('SEND_RESP'),
+     u('END'),

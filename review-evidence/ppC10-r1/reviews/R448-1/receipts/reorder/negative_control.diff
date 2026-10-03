@@ -1,0 +1,4 @@
+21904c21904
+< 	assign hz_aem_cmd_w = ((hz_protocol_w == 3'd2) && (hdr_msg_type_r == 4'd0)) && (hdr_target_eid_r == entity_id_i);
+---
+> 	assign hz_aem_cmd_w = ((hz_protocol_w == 3'd2) && (hdr_msg_type_r == 4'd1)) && (hdr_target_eid_r == entity_id_i);

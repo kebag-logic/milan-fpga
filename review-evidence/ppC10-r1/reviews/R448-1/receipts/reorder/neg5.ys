@@ -1,0 +1,62 @@
+read_verilog -defer base.v
+hierarchy -check -top protocol_processor_top
+proc
+opt_clean
+memory -nomap
+cd protocol_processor_top
+rename $logic_and$base.v:21545$362_Y r448_bbi_0
+rename $logic_and$base.v:22330$645_Y r448_bbi_1
+rename $logic_and$base.v:22496$648_Y r448_bbi_2
+rename $logic_and$base.v:23835$1299_Y r448_bbi_3
+rename $logic_and$base.v:24041$1305_Y r448_bbi_4
+rename $logic_and$base.v:24059$1323_Y r448_bbi_5
+rename $logic_or$base.v:24039$1303_Y r448_bbi_6
+cd ..
+select -set bbc protocol_processor_top/c:* protocol_processor_top/t:$* protocol_processor_top/t:$paramod* %d %d protocol_processor_top/t:$mem* %u
+select -set bbo @bbc %co protocol_processor_top/w:* %i
+select -set bbi @bbc %ci protocol_processor_top/w:* %i
+tee -q -o gold_neg_cells.txt select -count @bbc
+tee -q -o gold_neg_exposed_in.txt select -list @bbo
+tee -q -o gold_neg_exposed_out.txt select -list @bbi
+expose -input @bbo
+expose @bbi
+delete @bbc
+opt_clean
+blackbox protocol_processor_top %n
+rename protocol_processor_top gold_neg
+design -stash G
+read_verilog -defer head_neg.v
+hierarchy -check -top protocol_processor_top
+proc
+opt_clean
+memory -nomap
+cd protocol_processor_top
+rename $logic_and$head_neg.v:21552$144741_Y r448_bbi_0
+rename $logic_and$head_neg.v:22337$145024_Y r448_bbi_1
+rename $logic_and$head_neg.v:22502$145027_Y r448_bbi_2
+rename $logic_and$head_neg.v:23841$145678_Y r448_bbi_3
+rename $logic_and$head_neg.v:24047$145684_Y r448_bbi_4
+rename $logic_and$head_neg.v:24065$145702_Y r448_bbi_5
+rename $logic_or$head_neg.v:24045$145682_Y r448_bbi_6
+cd ..
+select -set bbc protocol_processor_top/c:* protocol_processor_top/t:$* protocol_processor_top/t:$paramod* %d %d protocol_processor_top/t:$mem* %u
+select -set bbo @bbc %co protocol_processor_top/w:* %i
+select -set bbi @bbc %ci protocol_processor_top/w:* %i
+tee -q -o gate_neg_cells.txt select -count @bbc
+tee -q -o gate_neg_exposed_in.txt select -list @bbo
+tee -q -o gate_neg_exposed_out.txt select -list @bbi
+expose -input @bbo
+expose @bbi
+delete @bbc
+opt_clean
+blackbox protocol_processor_top %n
+rename protocol_processor_top gate_neg
+design -stash N
+design -copy-from G gold_neg
+design -copy-from N gate_neg
+equiv_make gold_neg gate_neg eq
+hierarchy -top eq
+equiv_simple
+equiv_induct
+tee -o neg5.status equiv_status
+equiv_status -assert

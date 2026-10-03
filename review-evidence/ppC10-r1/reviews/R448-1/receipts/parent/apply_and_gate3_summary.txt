@@ -1,0 +1,12 @@
+milan-fpga 1269cdafb4bb964c757baae0f0c5a932d43f540b (fresh public clone, scratch only)
+parent-adoption-c8-cdf49d1a.patch sha256 aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209: git apply --check then git apply, in this order: OK
+parent-adoption-p2-cdf49d1a.patch sha256 590f791de7fc5d00986a8d76c43e4488d522305b19876b8b4f30bc0a76f539fa: git apply --check then git apply, in this order: OK
+parent-adoption-c10-1269cdaf.patch sha256 6870d2eddc66110b2e25ab2fc683b69108db98404b37a0a6aa91c89b064e304b: git apply --check then git apply, in this order: OK
+c10 touches only: scripts/processor_yosys_tops.budget, scripts/xvlog.budget
+consumers at 1269cdaf: check_rtl_source_lists.py (+ --selftest, both run by .github/workflows/docs.yml:263-264) reads the tops budget; xvlog_gate.py reads xvlog.budget
+submodules: protocol-processor 54f9411 (gitlink recorded in the scratch index), gptp-processor 5dce647a, verilog-axis 48ff7a7e
+c8+p2+c10 rc=0
+selftest rc=1
+c8+p2 (no c10) rc=1
+baseline gate3 rc=0
+baseline selftest rc=0

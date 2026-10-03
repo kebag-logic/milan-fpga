@@ -1,0 +1,4 @@
+21552c21552
+< 		.rsp_valid_i((((v_hdr_valid_w && (v_hdr_protocol_w == 3'd2)) && (v_hdr_msg_type_w == 4'd1)) && (v_hdr_opcode_w == 16'h0003)) && (v_hdr_ctlr_eid_w == entity_id_i)),
+---
+> 		.rsp_valid_i((((v_hdr_valid_w && (v_hdr_protocol_w == 3'd2)) && (v_hdr_msg_type_w == 4'd1)) && (v_hdr_opcode_w == 16'h0004)) && (v_hdr_ctlr_eid_w == entity_id_i)),

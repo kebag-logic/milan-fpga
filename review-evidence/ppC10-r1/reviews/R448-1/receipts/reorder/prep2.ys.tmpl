@@ -1,0 +1,17 @@
+read_verilog -defer SRC
+hierarchy -check -top TOP
+proc
+opt_clean
+memory -nomap
+@@REN@@select -set bbc TOP/c:* TOP/t:$* TOP/t:$paramod* %d %d TOP/t:$mem* %u
+select -set bbo @bbc %co TOP/w:* %i
+select -set bbi @bbc %ci TOP/w:* %i
+tee -q -o NAME_cells.txt select -count @bbc
+tee -q -o NAME_exposed_in.txt select -list @bbo
+tee -q -o NAME_exposed_out.txt select -list @bbi
+expose -input @bbo
+expose @bbi
+delete @bbc
+opt_clean
+blackbox TOP %n
+rename TOP NAME
