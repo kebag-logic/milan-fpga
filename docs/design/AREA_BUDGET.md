@@ -187,13 +187,25 @@ Identical inputs with different figures are refused the same way.
 So a tool's mapping change is never reported as an architectural regression.
 Such a change needs a new baseline, recorded with `record --write` and reviewed as a diff.
 `check` exits 0 within tolerance, 1 for a material regression only, and 2 for every input it cannot judge.
-Exit 2 always prints its reason, and no input reaches a traceback.
+That contract holds by construction rather than input by input.
+Exit 1 comes from one place, the comparison with the baseline.
+Everything after the arguments are read runs inside one barrier.
+Any exception there, expected or not, prints `NOT COMPARABLE:` with its reason and exits 2, so no input reaches a traceback or exit 1.
+Every printed line is printable ASCII: any other character of a name or value is written escaped, as `\ud800`.
+Every number the gate reads goes through one of two converters.
+A whole number must be 1 to 15 ASCII digits, so its float is exact and finite; a decimal's float must be finite.
+That covers every report count, the slack, the half BRAM tile, the budget cells and every number in the baseline file.
 An unreadable measurement exits 2.
-That covers a count that is not ASCII digits, a slack that is not a finite decimal and a timing summary with no timed endpoint or without its endpoint columns.
+That covers a count or slack in any other form, and a timing summary with no timed endpoint or without its endpoint columns.
 It also covers a route status report that is missing or lacks exactly one routable-nets, fully-routed-nets and routing-errors row.
 `check` and `check-baseline` read the baseline file through one validator before using any field.
-A baseline file that is missing or not strict JSON exits 2, and NaN, Infinity or a number too large to be finite is not strict JSON here.
-A field not of the recorded shape exits 2 too: the kind, the identity's fields and types, the input digest, the figures, the sub-block scopes, or a policy value that is not a number.
+A baseline file that is missing or not strict JSON exits 2.
+Strict JSON here has no NaN, no Infinity and no repeated key, and every key is 1 to 128 of `A-Z a-z 0-9 _ . : / -`.
+A sub-block scope name may also hold a generate index's brackets, as Vivado names `u_pp/g_rx_pool[5].u_rx_slots`.
+A field not of the recorded shape exits 2 too: the kind, the record's and identity's fields and types, the input digest, the figures, the sub-block scopes, or a policy value that is not a number.
+`record --write` never writes a baseline that this validator would refuse.
+A seeded generative test changes baselines and reports at random and holds every case to this contract.
+The self-test runs 500 cases on its fixtures; `--fuzz` runs any number on a real measurement directory.
 
 ### Where the gate runs
 

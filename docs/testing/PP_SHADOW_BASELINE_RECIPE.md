@@ -239,7 +239,7 @@ The threshold is zero: every reported direct child appears.
 The wrapper and processor each include their own logic.
 Reconciliation rows retain the report's cross-child LUT-sharing adjustment.
 Storage and DSP counts must sum exactly, without adjustments.
-Apart from its column heads, every table row of the report must hold ASCII-digit counts; the parser refuses any other row rather than skip it.
+Apart from its column heads, every table row of the report must hold counts of 1 to 15 ASCII digits; the parser refuses any other row rather than skip it.
 
 ## Standalone measurements
 
@@ -459,14 +459,20 @@ The route endpoint reads the run's one `*_route_status.rpt` beside its other rep
 That report carries no header, so the gate cannot tell it from a stale one an earlier build left in the same directory.
 Run each measurement in a fresh directory: the bank deletes nothing, and a stale report would be read as this run's.
 Exit 2 means the measurement is not comparable or the baseline is unusable.
-The output names the reason, and no input reaches a traceback.
+The output names the reason after `NOT COMPARABLE:`, in printable ASCII with any other character escaped.
+Exit 2 holds by construction: one barrier turns every exception after the arguments are read into exit 2.
+So no input reaches a traceback, and exit 1 comes only from the comparison.
 A different tool build, device, design, design state, flow command or standalone clock gives 2.
-So do unreadable reports: a count that is not ASCII digits, a slack that is not a finite decimal, and a timing summary with no timed endpoint or no endpoint columns.
+So do unreadable reports: a count that is not 1 to 15 ASCII digits, a slack that is not a decimal with a finite float, and a timing summary with no timed endpoint or no endpoint columns.
 A route status report that is missing, or lacks exactly one routable-nets, fully-routed-nets and routing-errors row, gives 2.
 Identical inputs with different figures give 2 as well.
 `check` and `check-baseline` validate the whole baseline file before using any field.
-A missing file, one that is not strict JSON, NaN, Infinity or a number too large to be finite gives 2.
+A missing file or one that is not strict JSON gives 2: NaN, Infinity, a repeated key, or a key outside the name class.
+So does a whole number of more than 15 digits, or a decimal too large to be finite.
 Any field not of the recorded shape gives 2 too, and so does a policy value that is not a number.
+`record --write` refuses, with 2, to write a baseline that this validation would refuse.
+`pp_resource_gate.py --fuzz N check <directory> --endpoint <endpoint>` runs N seeded generated cases on a measurement.
+Each case changes the baseline or one report at random, and must keep this contract.
 The output lists the largest sub-block movements without gating them.
 A gated figure that improved by more than its tolerance passes and prints "re-baseline recommended".
 
