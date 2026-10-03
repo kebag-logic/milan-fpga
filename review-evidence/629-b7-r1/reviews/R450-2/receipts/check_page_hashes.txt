@@ -1,0 +1,54 @@
+tone row ('1,536,000', '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in baaf events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in a2 events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in bcrf events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in smoke-baaf events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in a1 events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in b0 events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+  tone in a0 events.jsonl OK (1536000, '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588')
+RAW  a0/cap-lr.raw                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a0/cap-ts.bin                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a0/samples.txt                     events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a1/cap-lr.raw                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a1/cap-ts.bin                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a1/samples.txt                     events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a2/cap-lr.raw                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a2/cap-ts.bin                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a2/samples.txt                     events.jsonl OK  RAW-ARTIFACTS OK
+RAW  b0/cap-lr.raw                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  b0/cap-ts.bin                      events.jsonl OK  RAW-ARTIFACTS OK
+RAW  b0/samples.txt                     events.jsonl OK  RAW-ARTIFACTS OK
+RAW  bcrf/cap-lr.raw                    events.jsonl OK  RAW-ARTIFACTS OK
+RAW  bcrf/cap-ts.bin                    events.jsonl OK  RAW-ARTIFACTS OK
+RAW  bcrf/samples.txt                   events.jsonl OK  RAW-ARTIFACTS OK
+RAW  baaf/cap-lr.raw                    events.jsonl OK  RAW-ARTIFACTS OK
+RAW  baaf/cap-ts.bin                    events.jsonl OK  RAW-ARTIFACTS OK
+RAW  baaf/samples.txt                   events.jsonl OK  RAW-ARTIFACTS OK
+RAW  a0/grade-full.json                 events.jsonl ABSENT  RAW-ARTIFACTS OK
+RAW  a1/grade-full.json                 events.jsonl ABSENT  RAW-ARTIFACTS OK
+RAW  a2/grade-full.json                 events.jsonl ABSENT  RAW-ARTIFACTS OK
+RAW  b0/grade-full.json                 events.jsonl ABSENT  RAW-ARTIFACTS OK
+RAW  bcrf/grade-full.json               events.jsonl ABSENT  RAW-ARTIFACTS OK
+RAW  baaf/grade-full.json               events.jsonl ABSENT  RAW-ARTIFACTS OK
+RAW  baaf/grade-lockloss-full.json      events.jsonl ABSENT  RAW-ARTIFACTS OK
+EVID controls/controls.json             OK via MANIFEST published_sha256; bytes page 17070 file 17070
+EVID summary/tables.md                  OK via MANIFEST published_sha256; bytes page 4283 file 4283
+EVID summary/verdicts.json              OK via MANIFEST published_sha256; bytes page 3890 file 3890
+EVID summary/checks/absorb.jsonl        OK via MANIFEST published_sha256; bytes page 7446 file 7446
+EVID identity/identity-verdict.txt      OK via MANIFEST published_sha256; bytes page 3037 file 3037
+EVID identity/expected.json             OK via MANIFEST published_sha256; bytes page 1068 file 1068
+EVID restore/census-compare.txt         OK via MANIFEST published_sha256; bytes page 387 file 387 [masked: retained 88467f63, published 88467f63, manifest original 88467f63]
+EVID runs/probe/soc-record.log          OK via MANIFEST published_sha256; bytes page 1729 file 1729 [masked: retained f1233659, published f1233659, manifest original f1233659]
+EVID tools/run_b7.py                    OK via redaction.json original_sha256 (as run); bytes page 32321 file 32416 [masked: retained 39a627e2, published 3788fc8f, manifest original 39a627e2]
+EVID tools/grade_b7.py                  OK via redaction.json original_sha256 (as run); bytes page 27057 file 27111 [masked: retained 956c0e3f, published 348c7700, manifest original 956c0e3f]
+EVID tools/b7_decode.py                 OK via MANIFEST published_sha256; bytes page 10093 file 10093
+EVID tools/b7_tables.py                 OK via MANIFEST published_sha256; bytes page 9936 file 9936
+EVID tools/b7_absorb.py                 OK via MANIFEST published_sha256; bytes page 3610 file 3610
+EVID tools/console_poll.py              OK via MANIFEST published_sha256; bytes page 3746 file 3746
+EVID tools/b7_ctl.py                    OK via MANIFEST published_sha256; bytes page 12532 file 12532
+EVID tools/identity_cmp.py              OK via MANIFEST published_sha256; bytes page 6748 file 6748
+EVID tools/probe_b7.py                  OK via MANIFEST published_sha256; bytes page 9375 file 9375
+EVID tools/b6_thdn.py                   OK via MANIFEST published_sha256; bytes page 12423 file 12423
+EVID tools/b6_tone.py                   OK via MANIFEST published_sha256; bytes page 2965 file 2965
+raw rows sourced from events.jsonl: 18 (+ tone loop row)
+RESULT PASS

@@ -1,0 +1,10 @@
+docs_check.py rc=0
+check_doc_style.py rc=0
+gen_toc.py --check rc=2
+gen_toc.py --verify-anchors rc=2
+check_em_dash.py --base bbf704ecc3ef2e9cdd4cfdb72ec085e7428d1352 rc=2
+check_doc_paths.py rc=0
+git diff --check base..head rc=0
+gen_toc.py --check rc=0 (scratch venv from tools/markdown/requirements.txt)
+gen_toc.py --verify-anchors rc=0 (scratch venv from tools/markdown/requirements.txt)
+check_em_dash.py --base bbf704ecc3ef2e9cdd4cfdb72ec085e7428d1352 rc=0 (scratch venv from tools/markdown/requirements.txt)

@@ -1,0 +1,199 @@
+diff --git a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+index 73bfea68d..2842291da 100644
+--- a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
++++ b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+@@ -48,7 +48,7 @@ These are operator observations, not review verdicts.
+- **[Bench as left](#bench-as-left)** -- The state at the end against the start, and the residuals.
+- **[Limits](#limits)** -- What the measurements do not show.
+- **[Artifact hashes](#artifact-hashes)** -- Raw files, the lane packet's evidence files, and where the packets are published.
+- **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, [-limits-]{+limits, hashes+} and [-hashes.-]{+where the packet is published.+}
+
+## Identity and setup
+
+@@ -711,14 +711,16 @@ in [B7: method changes](#b7-method-changes).
+| A2, the peer following the DUT's CRF stream | PASS | 0 listener discontinuities in 628.0 s, where lane B6 found 494 drops and 180 inserts. Two capture-path clusters are disclosed in [B7: the capture path and what it can absorb](#b7-the-capture-path-and-what-it-can-absorb) |
+| B0, the DUT on INTERNAL with both of the peer's talkers bound (control) | PASS as a control | The DUT's TDM clock runs +5.92 ppm off the peer's output, counted; +5.62 +-0.44 ppm timed |
+| B-CRF, the DUT following the peer's CRF stream | PASS | Servo LOCKED 3.1 to 3.6 s after the set and at every read; 0 net steps in 30,169,440 frames |
+| B-AAF, the DUT following the peer's AAF stream | PASS | Servo LOCKED 6.6 to 7.1 s after the set and at every read; 0 net steps in 30,131,520 frames; the meter's history never restarted. Three capture-path clusters are [-disclosed-]{+disclosed. Outside the criteria, the INTERNAL-to-AAF switch run here is not shown free of undeclared discontinuity: the DUT's listener ring slipped one frame after lock (`SLIP_LB` 386 to 388) and counted 6 dups between the set and the window ([#645](https://github.com/kebag-logic/milan-fpga/issues/645)). See [B7: Direction B](#b7-direction-b)+} |
+| B, THD+N of a known signal from the peer's talker | NOT RUN | The known-signal probe was repeated: the peer's talker channels carry -2 to 0 LSB. See [B7: Direction B](#b7-direction-b) |
+| (a) Lock loss of the followed AAF stream | Observed as declared | HOLDOVER within 0.56 s, the index kept, one `mr` toggle at the loss and none at the return, LOCKED {+5.6 to+} 6.1 s after the return. See [B7: lock loss of the followed AAF stream](#b7-lock-loss-of-the-followed-aaf-stream) |
+| (b) The DUT's INTERNAL media clock | Observed | +5.92 ppm from the reference peer; about -5.1 ppm against gPTP time. See [B7: the DUT's INTERNAL media clock](#b7-the-duts-internal-media-clock) |
+| Restore | Done | Every clock source, format, binding and map read back as found. See [B7: bench as left](#b7-bench-as-left) |
+
+These are operator observations, not review verdicts. The judgement of each
+#629 acceptance item is in [B7: #629 acceptance](#b7-629-acceptance). {+Paths+}
+{+such as `runs/a0/events.jsonl` are in the lane packet;+}
+{+[B7: artifact hashes](#b7-artifact-hashes) says where it is published.+}
+
+### B7: identity and setup
+
+@@ -753,19 +755,49 @@ As found:
+
+### B7: method changes
+
+[-Each change was-]{+The grading criteria were not+} fixed {+before every graded case. The operator's+}
+{+record (the packet's `HANDOFF.md`, "Grading criteria") wrote them down at 14:50+}
+{+CEST. A0 started+} at {+14:41:42 and its window ran from 14:42:08 to 14:52:39+}
+{+(`runs/a0/events.jsonl`), so they were fixed while A0 was recording. A1, the+}
+{+next case, started at 14:52:53 (`runs/a1/events.jsonl`). The "Fixed" column+}
+{+places each change. Apart from the+} 14:50 [-CEST,-]{+record and the run logs, the times in+}
+{+this section are file times on the bench host, which the packet does not+}
+{+carry: the run tool as run, `run_b7.py`, was last written at 14:37,+} before [-any graded-]{+the+}
+{+shakedown, and ran every+} case [-ran.-]{+unchanged.+}
+
+| Change | Reason | [-|---|---|-]{+Fixed |+}
+{+|---|---|---|+}
+| B0 binds both of the peer's talkers: its CRF to the DUT's STREAM_INPUT 1 and its AAF to STREAM_INPUT 0, with the DUT on INTERNAL | One control for both following cases (lane B6's B INTERNAL bound the CRF only) | {+14:37, in the run tool, before A0 |+}
+| B-AAF binds the peer's AAF talker to the DUT's STREAM_INPUT 0 and sets the DUT's CLOCK_DOMAIN to CLOCK_SOURCE 2 (D1 = L1) | The case #634 adds | {+14:37, in the run tool, before A0 |+}
+| A0 passes as a control when the listener's net rate is beyond 2 ppm | Lane B6 asked for about 16 ppm. Under A2-a the DUT's stream runs on its physical clock, about 6 ppm from the peer | {+14:50, during A0's window |+}
+| A one-frame repeat counts as the DUT's beat only while the DUT's `SLIP_TDM` moves in the window | Lane B6 used `SLIP_TDM` as a cross-check only. With it static every repeat is the listener's, so the change can only make a verdict stricter | {+14:50, during A0's window |+}
+| B-AAF adds the design's [bench row](../design/MEDIA_CLOCK_FOLLOWING.md#bench): LOCKED within 15 s of the set and at every read, the CLOCK_DOMAIN counters unchanged in the window, `SLIP_TDM` static, and the meter's history-restart count unchanged | The design's pass criteria for the case | {+14:50, during A0's window |+}
+| The DUT's words (servo, AAF meter, CRF sink, slip counters) are read every 30 s through each window, and both entities' GET_COUNTERS at three [-marks-]{+marks. One DUT read at B0's second mark timed out; see [B7: Direction B](#b7-direction-b)+} | The servo state through the window | {+14:37, in the run tool, before A0 |+}
+| A console poll of two words every 0.5 s times the set to LOCKED | The time from the set to LOCKED | {+14:37, in the run tool, before A0 |+}
+| The B-AAF lock-loss observation runs after the window, with the capture still running | Assignment item (a) | {+14:37, in the run tool, before A0 |+}
+| The grade's `tone.repeats` and `tone.repeated_frames` no longer subtract the silent inserts twice | A lane B6 summary slip: its A2 `grade.json` reads 139 repeats for 319 less 180. No attribution or verdict used the two fields | {+14:55, after A0's window and its first grade; A0 was graded again |+}
+
+{+The rest of the 14:50 record repeats lane B6's rules or states thresholds that+}
+{+lane B6 left implicit, and was fixed at the same time, during A0's window:+}
+{+A1 and A2 pass with 0 listener discontinuities, the clean blocks at the floor+}
+{+within 0.01 dB and a fitted offset under 0.001 ppm; B0 passes as a control+}
+{+beyond 2 ppm counted; B-CRF passes when the servo reads LOCKED, the counted+}
+{+ratio is within 0.5 ppm of zero, the timed ratio's interval holds zero and the+}
+{+tone path has 0 listener discontinuities. `b7_tables.py` applies these+}
+{+thresholds, unchanged from the record. It was last written at 15:40 and+}
+{+computed every verdict after the last case. One reported field came later+}
+{+still: the `SLIP_LB` decode, added at 14:58 while A1 ran, which no criterion+}
+{+uses.+}
+
+{+**A0's threshold.** Its basis does not rest on A0's data. Lane B6 counted+}
+{+McASP0 +6.52 ppm off the peer's output at INTERNAL, and the DUT's beat added+}
+{+10.6 ppm on top of it at the peer's listener ([Direction A](#direction-a)).+}
+{+A2-a removes the beat, so A0 was expected near 6.5 ppm, not the about 16 ppm+}
+{+lane B6 asked for; 2 ppm is B0's bound too. Under lane B6's rule A0 would not+}
+{+pass. #629's own words for this control are that the metric must show the+}
+{+mismatch, and A0 meets them whatever the rate threshold: 186 of its 630 blocks+}
+{+leave the floor, with 470 drops and 291 inserts by the listener, where A1 and+}
+{+A2 hold none.+}
+
+Unchanged: the tone, the decode, the block metrics, the attribution rules with
+lane B6's refinements, the frame-rate ratio and the restore. Each window is
+@@ -810,7 +842,8 @@ STREAM_INPUT 0 to `0205022001006000` and the DUT's to `0205022002006000`.
+
+### B7: Direction A
+
+[-`b7_tables.py` renders the-]{+The+} tables below {+are arranged from `summary/tables.md`, which `b7_tables.py`+}
+{+renders+} from the [-grades.-]{+grades; every value is unchanged.+}
+
+<!-- b7-thdn-a -->
+| Case | Tone | Blocks | Blocks at the floor | THD+N there, dB (median / worst) | SNR there, dB (median / worst) | Worst THD+N, a block with a listener discontinuity, dB | Worst THD+N, all blocks, dB |
+@@ -902,6 +935,15 @@ listener shows the same mismatch. Its loopback ring, fed by the peer's 4-channel
+AAF stream, counted 342 dups (`SLIP_LB`) in 600 s. At one dup per channel pair
+per slipped frame that is 171 frames, +5.94 ppm.
+
+{+**One unanswered command, in B0.** At B0's second counter mark, 15:20:58 CEST+}
+{+inside the window, the DUT's GET_COUNTERS on CLOCK_DOMAIN 0 had no response+}
+{+within the controller's 1 s timeout (`runs/b0/ctl.jsonl`, `window-mark-1`). It+}
+{+was not retried: the controller moved on, and the DUT answered the mark's next+}
+{+command, GET_COUNTERS on STREAM_INPUT 0, at once. The next mark, at 15:25:57,+}
+{+answered, with CLOCK_DOMAIN 0 at 3/2 as at the window's start. It is the only+}
+{+one of the DUT's 336 AECP commands in the eight runs that did not answer+}
+{+SUCCESS. Its cause is not analysed.+}
+
+**B-CRF.** SET_CLOCK_SOURCE 1 answered SUCCESS and read back 1. The servo read
+ACQUIRE within 0.6 s and LOCKED 3.1 to 3.6 s after the set, and LOCKED at all
+21 reads in the window, with trim -6.0 ppm. McASP0 and the peer's output
+@@ -934,8 +976,14 @@ depend on read times.
+window, 14 to 45 s after the servo first read LOCKED. It then held for 570 s.
+It also counted 6 between the set and the window and 2 across the lock-loss
+observation. The servo locks frequency only, and nothing aligns the phase
+([#632](https://github.com/kebag-logic/milan-fpga/issues/632)). [-This-]{+The design+}
+{+declares+} one [-slip-]{+#386 recentre+} after [-lock-]{+a settled source change, within 32,768 ticks+}
+{+of the aligner engaging+}
+{+([Switching sources](../design/MEDIA_CLOCK_FOLLOWING.md#switching-sources));+}
+{+it does not declare this slip. So the INTERNAL-to-AAF+}
+{+switch run here is not shown free of undeclared discontinuity on the DUT's+}
+{+followed receive path. The slip+} is[-recorded here,-] not [-analysed.-]{+analysed here;+}
+{+[#645](https://github.com/kebag-logic/milan-fpga/issues/645) takes it.+}
+
+### B7: lock loss of the followed AAF stream
+
+@@ -1014,14 +1062,15 @@ path.
+1. **A one- or two-frame listener event merged with a capture loss.** A1, B0
+   and B-CRF have none. A2 has two clusters and B-AAF three whose net loss is
+   one or two frames short of the 48 n + 12 signature; each could hold a merged
+   listener repeat. The conservative reading counts [-them-]{+each missing frame+} as {+a+}
+{+   one-frame+} listener [-events:-]{+event:+} A2 would then hold {+3 in its+} 2 {+clusters+} and B-AAF
+   3 in [-their windows,-]{+its 3 clusters,+} and both would fail. Two observations argue against
+   it. First, a capture stall on the bench host cannot make the peer repeat a
+   frame, and the visible audio, about 627 s in each case, holds no listener
+   event at all. Second, every off-signature cluster is short, the direction of
+   the capture's own drift: {+over the six windows+} it delivers 0.54 to [-0.84-]{+0.93+}
+   frames per second fewer than 48 kHz on the bench host's clock, so its
+   packets are shortened by a frame about once a second.
+2. **A repeat within 50 frames of a beat tooth.** No case attributes any event
+   to the DUT's beat.
+3. **The read gap and size branch.** No cluster passed on it.
+@@ -1068,17 +1117,18 @@ rest on this lane's measurements.
+|---|---|---|
+| Requirements: FR-CLK-03, FR-CLK-04 and the #389 record amended | Met | [`FR_NFR.md:156`](../reference/FR_NFR.md) records #389 as reversed by #629; `:238` and `:239` state the selectable set, AAF recovery and the holdover without fallback |
+| Model and builder: one INPUT_STREAM source per AAF Stream Input beside INTERNAL and CRF, all listed, exactly one selected | Met on this image | The identity gate: three sources in D1 order, the domain lists 0 to 2, GET_CLOCK_SOURCE answers one index. The builder's gate 33 (`sw/builder/test_builder.py`) grades every shipping configuration; only the AX7101 1x1 TDM8 shape ran on the bench |
+| Fabric: recover the media clock from the selected AAF stream through the CRF servo path; gated on the live selection; a switch re-locks with no undeclared discontinuity | Met for recovery and [-gating;-]{+gating. The INTERNAL-to-AAF switch run here is not shown free of undeclared discontinuity ([#645](https://github.com/kebag-logic/milan-fpga/issues/645));+} the stream-to-stream switch not run at the bench | B-AAF: the servo LOCKED with trim -6.0 ppm and 0 net steps. The meter reads enabled only while CLOCK_SOURCE 2 is selected: 0 at every read of the other five cases. Each set from INTERNAL to the CRF or the AAF source toggled the DUT's AAF output's `mr` once: its MEDIA_RESET read 1 at every mark of B-CRF and B-AAF, and 0 in the cases without a DUT set. {+After the INTERNAL-to-AAF switch the DUT's listener ring slipped one frame 14 to 45 s after lock, inside the window (`SLIP_LB` 386 to 388, `runs/baaf/dut-window-0.txt` and `dut-window-1.txt`), and counted 6 dups between the set and the window; no declaration covers the slip ([B7: Direction B](#b7-direction-b)).+} A switch between the AAF and CRF streams, the design's "Switch" bench row, was not in this assignment; it is graded in simulation only (`tb/verilator/milan_dp_mclk`) |
+| Lock loss: declared holdover and restart, and `mr` per IEEE 1722-2016 4.4.4.3 | Met for the AAF source | [B7: lock loss of the followed AAF stream](#b7-lock-loss-of-the-followed-aaf-stream). A followed CRF stream's loss was not run at the bench |
+| Protocol processor: SET/GET_CLOCK_SOURCE over the longer list, the selection kept as saved state | Met in part at the bench | SET_CLOCK_SOURCE 1 and 2 answered SUCCESS and read back; CLOCK_SOURCE 3 does not exist. The NVM committed 17 times over the method's changes. Restoring the saved index across a power cycle needs a power cycle, which this lane may not do; processor PR 142 grades it as D3C3 (pin `631eeb34`) |
+| Simulation: each source in turn; the clock follows within tolerance; switching and lock loss graded by failing mutants | Met by the merged PR's evidence, not re-run here | `tb/verilator/aaf_clock_meter` and `tb/verilator/milan_dp_mclk` with their mutant lists; PR #634's hosted [-checks,-]{+checks at its head `2bc5adc0`: every executed context SUCCESS, 21 of them,+} `verilator-suites`, `rtl-fast` and `yosys-portability` among [-them, all SUCCESS at its head `2bc5adc0`-]{+them. One context, "Physical gPTP (nightly and manual)", was skipped and not executed+} |
+| Bench, both directions, each followed source: the listener's CLOCK_DOMAIN set and read back, its format adapted, the as-found source restored | Met | A1, A2, B-CRF and B-AAF; [B7: binding rule and clock-source record](#b7-binding-rule-and-clock-source-record) |
+| Bench quality metric: THD+N and SNR of a known tone on the selected path, against the INTERNAL control and synthetic slips and drift | Met for Direction A; NOT met for Direction B | Direction A: A0 shows the mismatch, A1 and A2 sit at the floor, and the controls are byte-equal to lane B6's. Direction B: no known signal reaches the peer's talker without a wiring change, so the DUT's selected path carries no known tone; the frame-rate ratio and the tone path stand in for it |
+| Owner's A2-a addition: A2 passes at INTERNAL; the INTERNAL clock within +-50 ppm, as an observation | Met; observed | A2 PASS; [B7: the DUT's INTERNAL media clock](#b7-the-duts-internal-media-clock) |
+
+So not every #629 item is met: Direction B's THD+N stays open, {+the one+}
+{+switch run here leaves an undeclared slip on the DUT's listener ring (#645),+}
+and the stream-to-stream switch, a followed CRF stream's lock loss and the
+saved selection across a power cycle have no bench evidence here.
+
+### B7: limits
+
+@@ -1093,14 +1143,19 @@ selection across a power cycle have no bench evidence here.
+  neither of them calibrated.
+- In B-CRF and B-AAF the servo's status carried bit 4, DRP config mismatch,
+  from ACQUIRE on, as in lane B6. It is recorded, not analysed.
+{+- B-AAF's slip on the DUT's listener ring after lock and B0's one unanswered+}
+{+  GET_COUNTERS are recorded, not analysed; #645 takes the slip.+}
+- The design's switch row, a followed CRF stream's lock loss and the saved
+  selection across a power cycle were not run.
+- Printed precision is not calibrated accuracy.
+
+### B7: artifact hashes
+
+The raw files stay outside the lane packet, on the bench [-host; each-]{+host. Each+} run's
+`events.jsonl` records the size and SHA-256 of its {+three+} raw [-files.-]{+files and of the+}
+{+tone loop: the first 19 rows below. The packet's `RAW-ARTIFACTS.json` records+}
+{+every raw file, those 19 among them, and is the only record of the last seven+}
+{+rows, the full grades.+}
+
+| Raw file | Bytes | SHA-256 |
+|---|---|---|
+@@ -1136,8 +1191,24 @@ covers every retained file except itself. One redaction pass masked private
+identifiers in 227 packet files, the tools among them, because two tools name
+the external capture's channel layout. `redaction.json` records each masked
+file's original and retained SHA-256. A masked tool is a record of the tool as
+run, not a runnable copy.
+
+[-For-]{+**Where+} the [-two-]{+packet is.** It is published on branch `629-b7-review-evidence`,+}
+{+pinned at commit `d36de704456713fb89b39a59151b72015fa00c6d`. The packet label+}
+{+`629-b7-a519` maps to `review-evidence/629-b7-r1/author/` there:+}
+{+`summary/a1/grade.json` is+}
+{+`review-evidence/629-b7-r1/author/summary/a1/grade.json`.+}
+{+`review-evidence/629-b7-r1/MANIFEST.json` gives each file's `original_sha256`,+}
+{+the lane packet's file, beside the published file's `published_sha256`. The+}
+{+packet was first published at `95448218`. After that, `d36de704`+} masked [-tools-]{+the+}
+{+external capture's channel count and format in the docstrings of four tools,+}
+{+`run_b7.py`, `grade_b7.py` and lane B6's `run_b6.py` and `grade_b6.py`: the+}
+{+redaction pass had masked that value in their code but not there.+}
+
+{+Every row+} below {+equals its file's `published_sha256` at `d36de704`, except the+}
+{+two masked tools. For those+} the hash is the [-original's,-]{+tool+} as [-run; every other hash is-]{+run, recorded as+}
+{+`original_sha256` in+} the [-retained file's.-]{+packet's `redaction.json`; the lane packet held them+}
+{+masked, and `d36de704` masked them further.+}
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
