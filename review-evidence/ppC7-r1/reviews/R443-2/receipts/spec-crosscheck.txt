@@ -1,0 +1,21 @@
+R443-2 clause cross-check (values read from the printed standards; no standard text reproduced)
+
+IEEE 1722.1-2021 §7.4.42.2.2
+  Table 7-152 (counters_valid, AVB_INTERFACE): GPTP_GM_CHANGED is bit #26 -> mask value 0x00000020 (bit #31 = 0x01 LINK_UP, #30 = 0x02 LINK_DOWN)
+  Table 7-153 (counters_block offsets, AVB_INTERFACE): GPTP_GM_CHANGED at offset 20 (quadlet 5), meaning "grandmaster change count"
+IEEE 1722.1-2021 Table 7-112: the IEEE 802.3 EPON media-subtype options table (§7.3.5.74, INTERFACE_MEDIA_OPTIONS control), NOT a counters table
+  -> the guide's and the PR body's citation of Tables 7-152/7-153 is correct; the assignment's and ruling's "7-112" is a wrong table number
+IEEE 1722.1-2021 §7.4.42.2.4
+  Table 7-156 (counters_valid, STREAM_INPUT): TIMESTAMP_VALID bit #25 -> 0x40, TIMESTAMP_NOT_VALID bit #24 -> 0x80
+  Table 7-157 (offsets): TIMESTAMP_VALID offset 24 (quadlet 6), TIMESTAMP_NOT_VALID offset 28 (quadlet 7); each increments on receipt of a stream data AVTPDU with tv set / cleared
+  -> 0x00000FFF includes 0xC0, 0x00000F3F excludes it; the guide's quadlets 6/7 row and "per frame" reading match
+Milan v1.2
+  §5.3.6.3 Table 5.1: GPTP_GM_CHANGED = number of gPTP GM changes since boot; LINK_UP/LINK_DOWN invariant
+  §5.4.2.25 Table 5.13: GPTP_GM_CHANGED bit #26 value 0x00000020; Table 5.16 omits bits #25/#24 (0xF3F)
+  Table 5.4 = Stream Output diagnostics, 5.6 = Stream Input, 5.7 = Clock Source (LOCKED/UNLOCKED)
+
+Parent reference (public, kebag-logic/milan-fpga dev 1269cdafb4bb964c757baae0f0c5a932d43f540b, hdl/milan/milan_datapath.sv)
+  :7267 pp_gm_id_edge_w = (|pp_gm_id_q_r) & (pp_gm_id_q_r != cfg_adp_gptp_gm)   -- the GM count needs a NONZERO prior identity
+  :3514 ctr_gmchg_r increments on pp_gm_id_change_p_w only (a domain-only write moves nothing)
+  :1487 cfg_adp_gptp_gm is zero with the gPTP plane absent
+Harness store (processor tb/pp_top/sim_main.cpp:933-937 at 81edaaa): on gm_change_i, count when gm_id_i != gm_q; gm_q = GM0 at reset (:1920)

@@ -1,0 +1,88 @@
+## head
+81edaaa74f688081ad34c1e2f392612f46eb558c
+39b33c89e8305384affb5d49ca73ff1ab6d92670
+## 1. R443-1-F1 verification grep (expect no output)
+rc=1  (1 = no match)
+## 2. removed adapter ops / stream-datapath requests / counter node (docs, hdl, tb sources; expect only the 06 ctr read-face node)
+docs/architecture/06_aecp_engine.md:151:  ctrs["ctr read face: the integrator's counters"] <--> ucpu
+tb/pp_top/sim_main.cpp:5774:                         ctr_body(overflow_ctrs[n].first,
+tb/pp_top/sim_main.cpp:5775:                                  overflow_ctrs[n].second),
+## 3. 'adapter' in 01/03/05/06, docs/README, guides (srp class-B face only expected)
+docs/architecture/05_acmp_engine.md:293:| A15 | latch {stream_id, dest MAC, VLAN} from response; publish the bound view (`acmp_bound_*`, from which the integrator arms its RX filter, [02 §4.4](02_interfaces.md)); start SRP listen (adapter declares Listener READY when a matching talker attribute registers — Milan §5.3.8.5); arm `T-ACMP-NOTK`; pbsta←COMPLETED, acmpsta←0 |
+docs/architecture/05_acmp_engine.md:303:`EVT_TK_REGISTERED` — the `srp` adapter matches exactly {stream_id, DA, VLAN}
+docs/architecture/05_acmp_engine.md:449:plus a source sweep. For the parent one-cycle block adapter, conservatively
+docs/README.md:140:| `SRP` | SRP/MSRP + MAAP adapter (and, transitively, the SRP network) |
+## 4. in-processor counter block wording in 01/03/05/06, docs/README, guides/README
+docs/architecture/01_overview.md:36:| Controller registry, notifications, lock, GET_COUNTERS reporting, identify | gPTP time sync datapath (802.1AS-2011 profile); the counter banks GET_COUNTERS reports ([integrator guide §7.1](../guides/integrator.md#counters-face)) |
+docs/architecture/06_aecp_engine.md:600:<a id="fig-06-counters"></a>**F06.15 — The counter banks the integrator keeps** (Milan
+## 5. mask ROM anywhere
+docs/architecture/07_memory_maps.md:532:([02 §4.6](02_interfaces.md#sec-02-ctr)). The processor stores no bank, no mask ROM and
+docs/architecture/09_verification.md:11:  spec --> gen1["dispatch / response-size / transition / mask ROMs"]
+## 6. GPTP_GM_CHANGED statements
+docs/00_MILAN_COMPLIANCE_REVIEW.md:483:| REQ-NET-004 | Milan Tables 5.1/5.13 | LINK_UP/LINK_DOWN counter invariant; GPTP_GM_CHANGED counter | shall | A | [GAP-05](#gap-05) | the integrator's AVB_INTERFACE bank behind the `ctr_*` face (owner decision 2026-09-19): `link_up_i` edges and grandmaster identity changes, per the [integrator guide §7.1](guides/integrator.md#counters-face) | integrator guide §7.1, 02 §4.6 | DIR |
+docs/guides/integrator.md:454:| AVB_INTERFACE (Table 5.13) | `0x00000023`; add `0x04`, `0x08`, `0x10` for the optional FRAMES_TX, FRAMES_RX, RX_CRC_ERROR (Table 5.14) | 0 LINK_UP, 1 LINK_DOWN, 5 GPTP_GM_CHANGED (IEEE Table 7-153 offsets 0, 4, 20) |
+docs/guides/integrator.md:466:| GPTP_GM_CHANGED (Table 5.1) | each grandmaster identity you publish on `gm_id_i` that differs from the one in force | never |
+docs/guides/integrator.md:486:- GPTP_GM_CHANGED counts grandmaster changes and nothing else (Table 5.1: "Number of
+docs/guides/integrator.md:497:  GPTP_GM_CHANGED tick. It reached no port, counted domain-only changes, and is
+docs/architecture/02_interfaces.md:360:| the AVB_INTERFACE LINK_UP, LINK_DOWN and GPTP_GM_CHANGED counters | the integrator's, on the `ctr_*` face (§4.6) | — |
+docs/architecture/04_adp_engine.md:24:AVB_INTERFACE LINK_UP, LINK_DOWN and GPTP_GM_CHANGED counters are the integrator's,
+docs/architecture/04_adp_engine.md:161:| GM change ⇒ re-advertise (through DELAY) | Milan §5.6.3.5.7 (GPTP_GM_CHANGED is the integrator's counter, [02 §4.6](02_interfaces.md#sec-02-ctr)) |
+docs/architecture/06_aecp_engine.md:612:| | GPTP_GM_CHANGED | 0x00000020 | grandmaster identity changes since boot; a domain-only `gm_change_i` does not count |
+## 7. RTL lines changed this round that are not comments (expect none)
+## 8. anchors/headings changed this round
+== tb/pp_top/README.md
+6c6
+< ### K9 to K16 — the AVB_INTERFACE and CLOCK_DOMAIN counters on the wire (issues #44, #79)
+---
+> ### K9 to K17 — the AVB_INTERFACE and CLOCK_DOMAIN counters on the wire (issues #44, #79)
+## 9. E_GCTRS / E_GCTRSNS listing
+place(E_GCTRS, [
+    u('DESC_ADDR', ra=14, imm=RGN_LOCATE),               # miss -> NSD
+    u('BR_STATUS', cnd=0, imm=E_GCTRS + 17),             # miss: the zero body
+    u('SET_STATUS', imm=ST_OK),
+    u('GATHER_EXT', rd=1, cnd=GX_CTR_MASK_CND, imm=0),   # counters_valid
+    u('BUILD_HDR', ra=15, rb=13),
+    u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+    u('BUILD_FLD', ra=1,  fmt=FMT_D),            # counters_valid    @28
+] + [u('READ_CTRS', cnd=c) for c in GX_CTR_BLOCK_CND] + [   # 32 quadlets @32
+    u('SEND_RESP'),
+    u('END'),
+    # miss arm (E_GCTRS + 17): the same fixed body, all zero, no gathers
+    u('MOVE', rd=2, ra=0, imm=0),
+    u('MOVE', rd=6, ra=0, imm=33),               # mask dword + 32 quadlets
+    u('BUILD_HDR', ra=15, rb=13),
+    u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+    u('ITER_OPEN', ra=6),
+    u('BR_STATUS', cnd=1, imm=E_GCTRS + 26),     # loop: test FIRST
+    u('APPEND', ra=2, fmt=FMT_D),
+    u('ITER_NEXT'),
+    u('BRANCH', imm=E_GCTRS + 22),
+    u('SEND_RESP'),                              # out:
+    u('END'),
+])
+place(E_GCTRSNS, [
+    u('SET_STATUS', imm=ST_NSUPP),
+    u('BRANCH', imm=E_GCTRS + 17),
+])
+## 10. notify slot decode
+  always_comb begin : counter_event_map
+    ctr_ev_ok_w = 1'b0;
+    ctr_ev_ix_w = '0;
+    if ((ev_ctr_type_i == DT_STREAM_INPUT_C)
+        && (32'(ev_ctr_index_i) < N_STREAM_IN_P)) begin
+      ctr_ev_ok_w = 1'b1;
+      ctr_ev_ix_w = CTX_W_C'(ev_ctr_index_i);
+    end else if ((ev_ctr_type_i == DT_STREAM_OUTPUT_C)
+                 && (32'(ev_ctr_index_i) < N_STREAM_OUT_P)) begin
+      ctr_ev_ok_w = 1'b1;
+      ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + 32'(ev_ctr_index_i));
+    end else if ((ev_ctr_type_i == DT_AVB_INTERFACE_C)
+                 && (ev_ctr_index_i == 16'd0)) begin
+      ctr_ev_ok_w = 1'b1;
+      ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + N_STREAM_OUT_P);
+    end else if ((ev_ctr_type_i == DT_CLOCK_DOMAIN_C)
+                 && (ev_ctr_index_i == 16'd0)) begin
+      ctr_ev_ok_w = 1'b1;
+      ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + N_STREAM_OUT_P + 1);
+    end
+  end
