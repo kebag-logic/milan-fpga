@@ -1,0 +1,59 @@
+Sat Oct  3 04:53:42 PM UTC 2026
+run 37137368226 push head=6ca4ade8c296540b78ca5bec0d13a342fd567d12 status=in_progress conclusion=null
+  job docs-gates completed success 2026-10-03T16:34:49Z 2026-10-03T16:35:00Z
+    step 1 Set up job: completed success
+    step 2 Run actions/checkout@v4: completed success
+    step 3 Link, matrix, parameter, wavedrom and staleness gates: completed success
+    step 6 Post Run actions/checkout@v4: completed success
+    step 7 Complete job: completed success
+  job suites in_progress null 2026-10-03T16:34:49Z null
+    step 1 Set up job: completed success
+    step 2 Run actions/checkout@v4: completed success
+    step 3 Cache the pinned Verilator build: completed success
+    step 4 Build Verilator v5.050: completed skipped
+    step 5 Lint (zero tolerance) + every suite: in_progress null
+    step 6 SRP LeaveAll mutation campaign: pending null
+    step 7 MAAP mutation campaign: pending null
+    step 8 ADP mutation campaign: pending null
+    step 9 AECP deadline and hazard-class mutation campaign: pending null
+    step 10 AECP dispatch mutation campaign: pending null
+    step 11 Traceability matrix no-drift + untested budget 0: pending null
+    step 12 nvm_port README figures agree with the tree: pending null
+    step 23 Post Cache the pinned Verilator build: pending null
+    step 24 Post Run actions/checkout@v4: pending null
+  job portability completed success 2026-10-03T16:34:49Z 2026-10-03T16:37:23Z
+    step 1 Set up job: completed success
+    step 2 Run actions/checkout@v4: completed success
+    step 3 Install yosys + sv2v: completed success
+    step 4 Elaborate every top off-vendor: completed success
+    step 8 Post Run actions/checkout@v4: completed success
+    step 9 Complete job: completed success
+run 37137370108 pull_request head=6ca4ade8c296540b78ca5bec0d13a342fd567d12 status=in_progress conclusion=null
+  job suites in_progress null 2026-10-03T16:34:51Z null
+    step 1 Set up job: completed success
+    step 2 Run actions/checkout@v4: completed success
+    step 3 Cache the pinned Verilator build: completed success
+    step 4 Build Verilator v5.050: completed skipped
+    step 5 Lint (zero tolerance) + every suite: in_progress null
+    step 6 SRP LeaveAll mutation campaign: pending null
+    step 7 MAAP mutation campaign: pending null
+    step 8 ADP mutation campaign: pending null
+    step 9 AECP deadline and hazard-class mutation campaign: pending null
+    step 10 AECP dispatch mutation campaign: pending null
+    step 11 Traceability matrix no-drift + untested budget 0: pending null
+    step 12 nvm_port README figures agree with the tree: pending null
+    step 23 Post Cache the pinned Verilator build: pending null
+    step 24 Post Run actions/checkout@v4: pending null
+  job docs-gates completed success 2026-10-03T16:34:51Z 2026-10-03T16:35:02Z
+    step 1 Set up job: completed success
+    step 2 Run actions/checkout@v4: completed success
+    step 3 Link, matrix, parameter, wavedrom and staleness gates: completed success
+    step 6 Post Run actions/checkout@v4: completed success
+    step 7 Complete job: completed success
+  job portability completed success 2026-10-03T16:34:51Z 2026-10-03T16:37:48Z
+    step 1 Set up job: completed success
+    step 2 Run actions/checkout@v4: completed success
+    step 3 Install yosys + sv2v: completed success
+    step 4 Elaborate every top off-vendor: completed success
+    step 8 Post Run actions/checkout@v4: completed success
+    step 9 Complete job: completed success

@@ -1,0 +1,63 @@
+ddb3119d frame_ok_w_decl=482 (assign ends 485) shadow_instance=2727
+53e1474b frame_ok_w_decl=546 (assign ends 549) shadow_instance=2731
+f4167536 frame_ok_w_decl=482 (assign ends 485) shadow_instance=2725
+c066dd83 frame_ok_w_decl=546 (assign ends 549) shadow_instance=2729
+5960d8fc frame_ok_w_decl=549 (assign ends 552) shadow_instance=2730
+6ca4ade8 frame_ok_w_decl=549 (assign ends 552) shadow_instance=2730
+--- head: writer 549-552
+  logic frame_ok_w;
+  assign frame_ok_w = (rmagic_r == {MAGIC_HI_C, MAGIC_LO_C})
+                      && (rver_r == LAYOUT_VER_P) && (rrid_hdr_r == rrid_w)
+                      && (rplen_hdr_r == 16'(rplen_w)) && (rcrc_acc_r == rcrc_rx_r);
+--- head: top 2730
+  KL_acmp_nvm_shadow #(
+--- head: nvm_port README 97-101
+serialises it (`:482-483`), accumulates it (`:775`) and gates the record on it
+(`rrec_ok_w`, `:391-395`), with the per-record vendor-default policy at
+`:90-92`; the D3 writer gates its records the same way (`frame_ok_w`,
+`hdl/aecp/KL_aecp_nvm_writer.sv:549-552`). The shadow is
+instantiated at `hdl/top/protocol_processor_top.sv:2730` and pinned by
+--- head: nvm_port README 'not cut by' / 'still owed'
+273:while the backend still owed a completion, cycles where it answered the manager
+540:  the 30 it still owed, and the restore waiting on it ends DEADLINE `TMO` + 2
+561:  device having delivered what the READ still owed and then the whole
+601:  the wedge that returns and RW3 a request over a command still owed.
+937:still owed one; **RW4** no DEADLINE where the device was not silent; **RW5**
+1064:uses fixed cut points on both sides, so the randomized half is not cut by this
+1347:- **The RANDOMIZED cut points `09_verification.md:56` asks for are not cut by
+--- head: R21 banner 4247-4256
+  // R21: THE EXPORT (issue #90). aecp_nvm_stb_o / aecp_nvm_mark_o carry the
+  // uCPU's OP_NVM_MARK effect out of the top, and the mark is the micro-op
+  // immediate that names the record group: 6 for the channel maps this phase
+  // edits, 7 for a user name. The mark is a completion notification, not a
+  // persistence trigger: the D3 writer's name stage selects its records from
+  // the accepted live name write (`aecp_name_wr_o`, section D3N), the channel
+  // maps are the integrator's to persist (07 §5.1, the ruling on #83), and
+  // section D3 grades the scalar records. Graded here because
+  // a mark has no wire shape:
+  // the response of a marked command is identical to the response of one
+--- head: aecp_name_wr_o port / D3N phase / writer nchg_i
+769:    output logic                         aecp_name_wr_o,
+10805:  D3NamePhase{h, image, setup.image_ents}.run();
+//                7 (IDENTIFY) and an index past the shape set nothing. A
+//                name's trigger is the store's accepted live name-lane write
+//                (`nchg_i`, the engine's name_wr_o), tapped the same way, its
+//                ordinal the lane address's entry; SET_NAME writes only the
+--- head: 07 5.1 who persists what
+
+**Who persists what.** The processor's two record producers (§5.3) persist every group
+of the persisted column except the output and input mappings: the binding manager the
+bound state, binding parameters and started/stopped; the D3 writer the configuration
+index, sampling rates, stream formats, presentation offsets, clock sources and user
+names. The **channel maps are the integrator's** (the manager's ruling on processor
+issue #83, 2026-10-03, which amends the parent D3 contract's map stage; the parent's
+restore is its issue #637). The map plane is the integrator's: the
+--- assignment grep: git grep -nE -i 'not implemented yet|map stage|later stage' -- hdl tb
+rc=1
+--- same grep at 5960d8fc
+5960d8fc:tb/pp_top/sim_main.cpp:4252:  // (not implemented yet) select their records from the accepted live
+rc=0
+--- line-number citations into tb/pp_top/sim_main.cpp anywhere in the head tree
+rc=1
+--- __LINE__ in tb/pp_top
+rc=1
