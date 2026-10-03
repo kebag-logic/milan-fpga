@@ -1,0 +1,38 @@
+ok  rc=0 want=0 traceback=False | control: committed shape, digest zeroed (check) | RESULT: PASS
+ok  rc=0 want=0 traceback=False | control: committed shape, digest zeroed (check-baseline) | baseline PASS: 3 endpoints
+ok  rc=0 want=0 traceback=False | scope name holding brackets only '[]' (check) | RESULT: PASS
+ok  rc=0 want=0 traceback=False | scope name holding brackets only '[]' (check-baseline) | baseline PASS: 3 endpoints
+ok  rc=2 want=2 traceback=False | scope name with a space (check) | NOT COMPARABLE: baseline <scratch>/s2.json is unreadable: the key 'u_pp/g x' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - 
+ok  rc=2 want=2 traceback=False | scope name with a space (check-baseline) | NOT COMPARABLE: baseline <scratch>/s2.json is unreadable: the key 'u_pp/g x' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - 
+ok  rc=2 want=2 traceback=False | empty scope name (check) | NOT COMPARABLE: baseline <scratch>/s3.json is unreadable: the key '' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in 
+ok  rc=2 want=2 traceback=False | empty scope name (check-baseline) | NOT COMPARABLE: baseline <scratch>/s3.json is unreadable: the key '' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in 
+ok  rc=2 want=2 traceback=False | scope name of 129 characters with brackets (check) | NOT COMPARABLE: baseline <scratch>/s4.json is unreadable: the key 'g[1]xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'... (129 characters)
+ok  rc=2 want=2 traceback=False | scope name of 129 characters with brackets (check-baseline) | NOT COMPARABLE: baseline <scratch>/s4.json is unreadable: the key 'g[1]xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'... (129 characters)
+ok  rc=2 want=2 traceback=False | scope name with a brace (check) | NOT COMPARABLE: baseline <scratch>/s5.json is unreadable: the key 'u_pp/{g}' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - 
+ok  rc=2 want=2 traceback=False | scope name with a brace (check-baseline) | NOT COMPARABLE: baseline <scratch>/s5.json is unreadable: the key 'u_pp/{g}' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - 
+ok  rc=2 want=2 traceback=False | bracketed key at description/x/record/scopes (a note shaped like a record) (check) | NOT COMPARABLE: baseline <scratch>/n1.json is unreadable: the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key at description/x/record/scopes (a note shaped like a record) (check-baseline) | NOT COMPARABLE: baseline <scratch>/n1.json is unreadable: the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in a note list of objects (measured) (check) | NOT COMPARABLE: baseline <scratch>/n2.json is unreadable: the key 'b[2]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in a note list of objects (measured) (check-baseline) | NOT COMPARABLE: baseline <scratch>/n2.json is unreadable: the key 'b[2]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in schema replaced by an object (check) | NOT COMPARABLE: baseline <scratch>/n3.json is unreadable: the key 'y[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in schema replaced by an object (check-baseline) | NOT COMPARABLE: baseline <scratch>/n3.json is unreadable: the key 'y[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in a ceiling (check) | NOT COMPARABLE: baseline <scratch>/p1.json is unreadable: the key 'BRAM_TILE[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : 
+ok  rc=2 want=2 traceback=False | bracketed key in a ceiling (check-baseline) | NOT COMPARABLE: baseline <scratch>/p1.json is unreadable: the key 'BRAM_TILE[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : 
+ok  rc=2 want=2 traceback=False | bracketed key in identity (check) | NOT COMPARABLE: baseline <scratch>/p2.json is unreadable: the key 't[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in identity (check-baseline) | NOT COMPARABLE: baseline <scratch>/p2.json is unreadable: the key 't[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+ok  rc=2 want=2 traceback=False | bracketed key in record figures (check) | NOT COMPARABLE: baseline <scratch>/p3.json is unreadable: the key 'LUT[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, i
+ok  rc=2 want=2 traceback=False | bracketed key in record figures (check-baseline) | NOT COMPARABLE: baseline <scratch>/p3.json is unreadable: the key 'LUT[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, i
+ok  rc=2 want=2 traceback=False | bracketed key in a scope's counts (check) | NOT COMPARABLE: baseline <scratch>/p4.json is unreadable: the key 'FF[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in
+ok  rc=2 want=2 traceback=False | bracketed key in a scope's counts (check-baseline) | NOT COMPARABLE: baseline <scratch>/p4.json is unreadable: the key 'FF[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in
+ok  rc=0 want=0 traceback=False | manifest unchanged | RESULT: PASS
+ok  rc=0 want=0 traceback=False | manifest entry with a named extra key | RESULT: PASS
+ok  rc=2 want=2 traceback=False | manifest entry with a bracketed key | NOT COMPARABLE: unreadable measurement <scratch>/manifest_entry_with_a_bracketed_key: ValueError: the key 'x[1]' is not a name o
+ok  rc=2 want=2 traceback=False | manifest entry with a nested object holding a bracketed key | NOT COMPARABLE: unreadable measurement <scratch>/manifest_entry_with_a_nested_object_hold: ValueError: the key 'g[1]' is not a n
+ok  rc=2 want=2 traceback=False | manifest entry with a nested list of objects holding a space key | NOT COMPARABLE: unreadable measurement <scratch>/manifest_entry_with_a_nested_list_of_obj: ValueError: the key 'a b' is not a na
+ok  rc=2 want=2 traceback=False | manifest entry key shaped like a scope path (endpoints/x/record/scopes is no path here) | NOT COMPARABLE: unreadable measurement <scratch>/manifest_entry_key_shaped_like_a_scope_p: ValueError: the key 'g[1]' is not a n
+ok  rc=0 want=0 traceback=False | record --write of the real route into a copy (bracketed scope names written) | }
+ok  record --write kept 5 bracketed scope names
+ok  rc=0 want=0 traceback=False | check-baseline of the written copy | baseline PASS: 3 endpoints
+ok  rc=2 want=2 traceback=False | record --write under an endpoint name with brackets | NOT COMPARABLE: baseline <scratch>/write.json is unreadable: the key 'copy[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / 
+ok  the refused record --write left the file unchanged: True
+probe_r5_cases: 0 not as expected

@@ -1,0 +1,6 @@
+head                               case b rc=2 | line <scratch>/b.json is unreadable: the key 'FF[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route-1x1/record/scopes/wrapper
+head                               case c rc=2 | OMPARABLE: baseline <scratch>/c.json is unreadable: the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/x/record/scopes
+mutant every-level                 case b rc=2 | COMPARABLE: baseline <scratch>/b.json is malformed: route-1x1: the record scopes are not a table of LUT, FF, RAMB36, RAMB18, DSP, CARRY4 per sub-block
+mutant every-level                 case c rc=2 | OMPARABLE: baseline <scratch>/c.json is unreadable: the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/x/record/scopes
+mutant SCOPES top-level wildcard   case b rc=2 | line <scratch>/b.json is unreadable: the key 'FF[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route-1x1/record/scopes/wrapper
+mutant SCOPES top-level wildcard   case c rc=0 | baseline PASS: 3 endpoints

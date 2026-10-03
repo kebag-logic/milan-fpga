@@ -1,0 +1,23 @@
+ok  control: expected hold; fuzz500 rc=0 [self-test fixtures: 0 failures; case digest bec87b3c7cbe1125]; selftest rc=0 (passes)
+BAD barrier narrowed to Refusal: expected detect; fuzz500 rc=0 [self-test fixtures: 0 failures; case digest bec87b3c7cbe1125]; fuzz5000 rc=0 [self-test fixtures: 0 failures; case digest e00872ec50fe7d9c]; selftest rc=1 (DETECTED)
+BAD barrier narrowed to Refusal and OSError: expected detect; fuzz500 rc=0 [self-test fixtures: 0 failures; case digest bec87b3c7cbe1125]; fuzz5000 rc=0 [self-test fixtures: 0 failures; case digest e00872ec50fe7d9c]; selftest rc=1 (DETECTED)
+ok  emit prints raw text: expected detect; fuzz500 rc=1 [self-test fixtures: 1 failures; case digest 8812ddff6d9493d8]; selftest rc=1 (DETECTED)
+ok  whole(): no grammar: expected detect; fuzz500 rc=1 [self-test fixtures: 9 failures; case digest f003f944b6ce89dc]; selftest rc=1 (DETECTED)
+ok  whole(): no digit bound: expected detect; fuzz500 rc=1 [self-test fixtures: 7 failures; case digest 1495ce87d4be0886]; selftest rc=1 (DETECTED)
+ok  whole(): any Unicode digit: expected detect; fuzz500 rc=1 [self-test fixtures: 2 failures; case digest fc348ca12ca63d79]; selftest rc=1 (DETECTED)
+ok  real(): no finiteness: expected detect; fuzz500 rc=1 [self-test fixtures: 5 failures; case digest 175b04629d726ba6]; selftest rc=1 (DETECTED)
+NOT-APPLIED strict(): plain json.loads: span found 0 times
+ok  strict(): parse_int=int: expected detect; fuzz500 rc=1 [self-test fixtures: 4 failures; case digest 36fd2f88e1e96bb9]; selftest rc=1 (DETECTED)
+ok  strict(): parse_float=float: expected detect; fuzz500 rc=1 [self-test fixtures: 3 failures; case digest f0aab3f35584f882]; selftest rc=1 (DETECTED)
+ok  named(): no repeated-key refusal: expected detect; fuzz500 rc=1 [elf-test fixtures: 11 failures; case digest ebd95fa086f02f8c]; selftest rc=1 (DETECTED)
+NOT-APPLIED named(): no name class: span found 0 times
+NOT-APPLIED named(): NAME class for every key (no bracket exception): span found 0 times
+NOT-APPLIED load(): endpoint names not held to NAME: span found 0 times
+ok  routing(): int() not whole(): expected detect; fuzz500 rc=1 [self-test fixtures: 1 failures; case digest ab38ddf3719c4509]; selftest rc=1 (DETECTED)
+ok  utilization(): float/int not real/whole: expected detect; fuzz500 rc=1 [self-test fixtures: 1 failures; case digest e4d12e2a63e40a6e]; selftest rc=1 (DETECTED)
+ok  timing(): float() slack: expected detect; fuzz500 rc=1 [self-test fixtures: 2 failures; case digest 284811819cb3326f]; selftest rc=1 (DETECTED)
+ok  timing(): int() endpoint counts: expected detect; fuzz500 rc=1 [self-test fixtures: 1 failures; case digest 0d7c28563d25c257]; selftest rc=1 (DETECTED)
+ok  hierarchy(): int() counts: expected detect; fuzz500 rc=1 [self-test fixtures: 2 failures; case digest 20b5e7cd066852da]; selftest rc=1 (DETECTED)
+ok  barrier holds: record() handler removed: expected hold; fuzz500 rc=0 [self-test fixtures: 0 failures; case digest bec87b3c7cbe1125]; selftest rc=1 (DETECTED)
+ok  barrier holds: load() handler removed: expected hold; fuzz500 rc=0 [self-test fixtures: 0 failures; case digest bec87b3c7cbe1125]; selftest rc=1 (DETECTED)
+probe_r4_generative: 22 runs, 2 BAD, 4 not applied
