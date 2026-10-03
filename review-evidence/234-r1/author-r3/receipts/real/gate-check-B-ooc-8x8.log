@@ -1,0 +1,23 @@
+$ python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/234-a516/B/work/ax8x8-ooc --endpoint ooc-8x8
+# head b5894838d6c47180ac4169e7d52dd746f461af21
+endpoint ooc-8x8: $VALIDATION_STORAGE/234-a516/B/work/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              31562       31390      -172  ok, below the baseline
+FF               33929       33844       -85  ok, below the baseline
+RAMB36              26          26         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp: LUT -175, FF -85
+  wrapper: LUT -172, FF -85
+  u_pp/u_tx_slots: LUT -143, FF +0
+  u_pp/u_aecp/u_d3: LUT +115, FF +0
+  u_pp/u_nvm_port: LUT +66, FF +33
+  u_pp/u_listener: LUT -82, FF +8
+  u_pp/u_talker: LUT -52, FF +0
+  u_pp/u_srp: LUT -50, FF +0
+  u_pp/u_dispatch: LUT -41, FF +0
+  u_pp/u_adp: LUT -40, FF +0
+  u_pp/u_notify: LUT -35, FF +0
+  u_pp/u_originator: LUT +29, FF +0
+RESULT: PASS

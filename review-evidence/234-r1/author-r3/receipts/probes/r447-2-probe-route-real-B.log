@@ -1,0 +1,18 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r3/review-evidence/234-r1/reviews/R447-2/probe_route_real.py $LANES/234-area $VALIDATION_STORAGE/234-a516/B/work/ax7101/gateware $VALIDATION_STORAGE/234-a516/r3/probe-scratch/route447B
+# head b5894838d6c47180ac4169e7d52dd746f461af21
+BAD real status, unchanged: wanted 0, got 1: route status: complete, no unrouted net and no routing error | RESULT: MATERIAL REGRESSION
+OK unrouted nets: wanted 1, got 1: ROUTE INCOMPLETE: 37 nets with routing errors, 37 unrouted nets; the image does not fit | RESULT: MATERIAL REGRESSION
+OK nets with some unrouted pins: wanted 1, got 1: ROUTE INCOMPLETE: 2 nets with routing errors, 2 nets with some unrouted pins; the image does not fit | RESULT: MATERIAL REGRESSION
+OK routing errors only: wanted 1, got 1: ROUTE INCOMPLETE: 3 nets with routing errors; the image does not fit | RESULT: MATERIAL REGRESSION
+OK partly routed: wanted 1, got 1: ROUTE INCOMPLETE: 105553 of 105559 routable nets fully routed; the image does not fit | RESULT: MATERIAL REGRESSION
+OK missing report: wanted 2, got 2: NOT COMPARABLE: expected one *_route_status.rpt route status report, found 0
+OK duplicated report: wanted 2, got 2: NOT COMPARABLE: expected one *_route_status.rpt route status report, found 2
+OK empty report: wanted 2, got 2: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+OK routable row missing: wanted 2, got 2: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+OK routed row missing: wanted 2, got 2: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'fully routed nets' rows, not one
+OK both routable rows missing: wanted 2, got 2: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+OK error count unreadable: wanted 2, got 2: NOT COMPARABLE: route status row 'nets with routing errors' is not a count: 'x'
+OK error count a superscript digit: wanted 2, got 2: NOT COMPARABLE: route status row 'nets with routing errors' is not a count: '²'
+OK report not UTF-8: wanted 2, got 2: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+OK report is a directory: wanted 2, got 2: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: [Errno 21] Is a directory: '$VALIDATION_STORAGE/234-a516/r3/probe-scratch/route447B/mirror/alinx_ax7101_route_status.rpt'
+14/15 as wanted
