@@ -1,0 +1,22 @@
+MOVED tb/nvm_port/README.md:106 -> hdl/top/protocol_processor_top.sv:2726-2726
+      head: ['KL_acmp_nvm_shadow #(']
+      base: ['.N_SINKS_P           (N_STREAM_IN_P),']
+MOVED tb/nvm_port/README.md:226 -> hdl/packet_engine/KL_pp_nvm_port.sv:244-255
+      head: ['// device-command ownership (banner refusal (c)): the window in which a', '// dev_done_i is a completion of OURS — from the grant handshake (dev_req_o', '// is the four *REQ states, so a grant that carries its own done is owned)']
+      base: ['|| (state_r == S_RHCOLL) || (state_r == S_RHWAIT)', '|| (state_r == S_RPPUMP) || (state_r == S_RPWAIT);', '']
+SAME  tb/nvm_port/README.md:1067 -> docs/architecture/09_verification.md:56-56
+MOVED tb/nvm_port/README.md:1135 -> hdl/packet_engine/KL_pp_nvm_port.sv:350-354
+      head: ['// device done may land on the same cycle a pump moves its last byte —', '// remember it; the WAIT states consume it (assignment below overrides).', '// Only while we own the command it completes: a done seen outside that']
+      base: ['rec_r       <= nvm_record_id_i;', "hidx_r      <= '0;", "bcnt_r      <= '0;"]
+SAME  tb/nvm_port/README.md:1349 -> docs/architecture/09_verification.md:56-56
+MOVED tb/nvm_port/measure_figures.py:117 -> hdl/packet_engine/KL_pp_nvm_port.sv:350-354
+      head: ['// device done may land on the same cycle a pump moves its last byte —', '// remember it; the WAIT states consume it (assignment below overrides).', '// Only while we own the command it completes: a done seen outside that']
+      base: ['rec_r       <= nvm_record_id_i;', "hidx_r      <= '0;", "bcnt_r      <= '0;"]
+MOVED tb/nvm_port/sim_main.cpp:1328 -> hdl/packet_engine/KL_pp_nvm_port.sv:446-449
+      head: ['S_WWAIT: begin', 'if (dev_err_i) begin', "err_r   <= 1'b1;"]
+      base: ['// --------------------------------------------------------- restore', 'S_RHREQ: if (!owed_r) begin   // an owed command blocks the request', 'if (dev_err_i) begin']
+MOVED tb/nvm_port/sim_main.cpp:1441 -> hdl/packet_engine/KL_pp_nvm_port.sv:350-354
+      head: ['// device done may land on the same cycle a pump moves its last byte —', '// remember it; the WAIT states consume it (assignment below overrides).', '// Only while we own the command it completes: a done seen outside that']
+      base: ['rec_r       <= nvm_record_id_i;', "hidx_r      <= '0;", "bcnt_r      <= '0;"]
+SAME  tb/nvm_port/sim_main.cpp:1591 -> hdl/packet_engine/KL_pp_nvm_port.sv:33-34
+# 6 citation(s) whose cited lines differ between base and head

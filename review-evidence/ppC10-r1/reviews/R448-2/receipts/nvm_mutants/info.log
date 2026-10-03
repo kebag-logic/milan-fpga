@@ -1,0 +1,13 @@
+mutant info: 1 replacement(s)
+sv2v on PATH: ~/.local/bin/sv2v; yosys on PATH: /usr/bin/yosys
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name as %Warning-USERERROR, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name as %Warning-USERERROR, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name as %Warning-USERERROR, as it must be)
+ELAB OK    MAX_PAYLOAD_P=1024
+ELAB OK    MAX_PAYLOAD_P=65527
+GUARD FAIL MAX_PAYLOAD_P=65528 elaborated; the guard did not fire
+GUARD FAIL MAX_PAYLOAD_P=65535 refused as -Info, not as %(Warning-USERFATAL|Error)
+GUARD FAIL MAX_PAYLOAD_P=4294967295 refused as -Info, not as %(Warning-USERFATAL|Error)
+YOSYS FAIL MAX_PAYLOAD_P=65528 elaborated; the guard is not a $fatal

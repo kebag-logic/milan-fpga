@@ -1,0 +1,24 @@
+head	h-srp_top	--	absent	KL_srp_top
+base	b-srp_top	--	absent	KL_srp_top
+head	h-pp_top	--	absent	protocol_processor_top
+base	b-pp_top	--	absent	protocol_processor_top
+head	h-nvm_shadow	--	absent	KL_acmp_nvm_shadow
+base	b-nvm_shadow	--	absent	KL_acmp_nvm_shadow
+head	h-mrp_strip	--	absent	KL_mrp_strip
+base	b-mrp_strip	--	absent	KL_mrp_strip
+head	h-srp_admission	--	absent	KL_srp_admission
+base	b-srp_admission	--	absent	KL_srp_admission
+head	h-dispatch_fifo	--	absent	KL_pp_dispatch_fifo
+base	b-dispatch_fifo	--	absent	KL_pp_dispatch_fifo
+head	h-two	--	absent	KL_mrp_strip	absent	KL_srp_admission
+head	h-drop-srp_top	--	drop-top	KL_srp_top
+head	h-add-bogus	--	add-top	KL_r448_no_such_module
+head	h-allv-syntax	--	allv-syntax	KL_srp_top
+head	h-own-prng	--	absent	KL_pp_prng
+head	h-own-prng-none	YOSYS_MALLOC=none	--	absent	KL_pp_prng
+head	h-own-prng-jemalloc	YOSYS_MALLOC=/usr/lib/libjemalloc.so.2	--	absent	KL_pp_prng
+head	h-own-badport-timer	--	badport	KL_pp_timer_service
+head	h-own-badport-timer-none	YOSYS_MALLOC=none	--	badport	KL_pp_timer_service
+head	h-inherited-preload-none	YOSYS_MALLOC=none	LD_PRELOAD=/r448/not/a/lib.so	--	absent	KL_pp_prng
+head	h-malloc-missing	YOSYS_MALLOC=/r448/absent.so	--
+head	h-malloc-emptyfile	YOSYS_MALLOC=$REVIEWS/ppC10-r448-1-packet/scripts/gate_cases.txt	--
