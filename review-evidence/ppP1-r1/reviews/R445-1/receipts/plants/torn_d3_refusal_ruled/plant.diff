@@ -1,0 +1,11 @@
+--- /dev/fd/63	2026-10-03 15:09:13.792000000 +0200
++++ <PACKET>/scratch/plants/torn_d3_refusal_ruled/tree/hdl/aecp/KL_aecp_nvm_writer.sv	2026-10-03 15:09:13.790840658 +0200
+@@ -789,7 +789,7 @@
+               ws_r      <= W_NEXT;
+             end else if (!frame_ok_w) begin
+               n_ref_r <= n_ref_r + 8'd1;      // the frame refuses it
+-              ws_r    <= W_NEXT;
++              ws_r    <= W_RULE;              // PLANT: refused yet ruled
+             end else begin
+               framed_any_r <= 1'b1;
+               ws_r         <= W_RULE;

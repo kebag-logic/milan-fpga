@@ -1,0 +1,11 @@
+--- /dev/fd/63	2026-10-03 15:11:00.363000000 +0200
++++ <PACKET>/scratch/plants/stale_d3_name_blank_applied/tree/hdl/aecp/KL_aecp_nvm_writer.sv	2026-10-03 15:11:00.361423845 +0200
+@@ -786,7 +786,7 @@
+               ws_r            <= W_NEXT;
+             end else if (rd_blank_w) begin
+               n_blank_r <= n_blank_r + 8'd1;  // erased or unframed: the default
+-              ws_r      <= W_NEXT;
++              ws_r      <= (rsel_w == GRP_NAME_C) ? W_NAPPLY : W_NEXT;  // PLANT
+             end else if (!frame_ok_w) begin
+               n_ref_r <= n_ref_r + 8'd1;      // the frame refuses it
+               ws_r    <= W_NEXT;

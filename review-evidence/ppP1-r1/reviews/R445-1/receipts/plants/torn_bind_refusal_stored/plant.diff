@@ -1,0 +1,22 @@
+--- /dev/fd/63	2026-10-03 15:09:13.803000000 +0200
++++ <PACKET>/scratch/plants/torn_bind_refusal_stored/tree/hdl/acmp/KL_acmp_nvm_shadow.sv	2026-10-03 15:09:13.798529096 +0200
+@@ -653,9 +653,7 @@
+       if ((hs_r == H_RS_STORE) && fsm_wr_gnt_w) begin
+         valid_r[rs_k_r] <= rvld_q_r;
+       end
+-      if (rs_complete_w && !rrec_ok_w && !touched_r[rs_k_r]) begin
+-        valid_r[rs_k_r] <= 1'b0;                   // F07.9 per-record default
+-      end
++      // PLANT: no per-record default for a refused record
+       if (rs_empty_w && !touched_r[rs_k_r]) begin
+         valid_r[rs_k_r] <= 1'b0;                   // no saved binding
+       end
+@@ -801,7 +799,7 @@
+             done_r    <= 1'b1;
+             any_rec_r <= 1'b0;                 // nothing taken survives it
+             hs_r      <= H_RUN;
+-          end else if (rs_empty_w || (rs_complete_w && !rrec_ok_w)) begin
++          end else if (rs_empty_w) begin  // PLANT: a refused record is stored
+             // per-record vendor default (valid cleared in flags_ff)
+             if (rs_k_r == SINK_W_C'(N_SINKS_P - 1)) begin
+               rp_k_r <= '0;

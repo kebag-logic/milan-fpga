@@ -1,0 +1,48 @@
+[
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_burst_from_t0",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7i:",
+   "ID5k:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID3f: the new press's burst starts T-IDENT-BURST after the running one's third frame left (WAITING, then IDENTIFY; never two frames closer), 201 clocks, want 15000 to 15400",
+   "ID5k: no gap shorter than T-IDENT-BURST: the smallest of the six is 14109 clocks, want at least 15000",
+   "ID8c: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 367 clocks, want 15000 to 15400",
+   "ID8h: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 367 clocks, want 15000 to 15400",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 201 clocks, want 15000 to 15400",
+   "ID8n: k = -1: the burst starts 166 clocks after the expiry, want 332 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 201 clocks, want 15000 to 15400",
+   "ID8n: k = 0: the burst starts 166 clocks after the expiry, want 332 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 201 clocks, want 15000 to 15400",
+   "ID8n: k = 1: the burst starts 166 clocks after the expiry, want 332 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8m: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 202 clocks, want 15000 to 15400",
+   "ID8n: k = 2: the burst starts 167 clocks after the expiry, want 333 (ID8's start, plus the edges the press came after the gap's first free one)",
+   "ID8q: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 201 clocks, want 15000 to 15400",
+   "ID8r: it starts at the gap's end as ID8's latched press did: 166 clocks after the expiry, ID8 332",
+   "ID8u: the press's burst starts T-IDENT-BURST after the third frame left, never sooner: 201 clocks, want 15000 to 15400",
+   "ID8v: it starts at the gap's end as ID8's latched press did: 166 clocks after the expiry, ID8 332",
+   "ID9h: frame 3 leaves T-IDENT-BURST after frame 2's last byte was taken, not after it was first presented: 199 clocks, want 15000 to 15400",
+   "ID7i: frame 3 leaves T-IDENT-BURST after frame 2 left, not at a deadline from frame 1: 264 clocks, want 15000 to 15400",
+   "ID7q: frame 3 leaves T-IDENT-BURST after frame 2 left, 173 clocks",
+   "ID7r: the timeout passed during the stall, and the next burst starts T-IDENT-BURST after the third frame left, never at once: 10001 clocks, want 15000 to 15400"
+  ],
+  "verdict": "KILLED"
+ }
+]

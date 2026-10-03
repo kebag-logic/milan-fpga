@@ -1,0 +1,22 @@
+--- /dev/fd/63	2026-10-03 15:10:58.763000000 +0200
++++ <PACKET>/scratch/plants/stale_bind_blank_kept/tree/hdl/acmp/KL_acmp_nvm_shadow.sv	2026-10-03 15:10:58.749129223 +0200
+@@ -638,7 +638,7 @@
+   // stores, flush clears — and a same-cycle capture wins them all.
+   always_ff @(posedge clk_i) begin : flags_ff
+     if (!rst_n) begin
+-      valid_r   <= '0;
++      // PLANT: valid_r not reset
+       dirty_r   <= '0;
+       touched_r <= '0;
+     end else begin
+@@ -656,9 +656,7 @@
+       if (rs_complete_w && !rrec_ok_w && !touched_r[rs_k_r]) begin
+         valid_r[rs_k_r] <= 1'b0;                   // F07.9 per-record default
+       end
+-      if (rs_empty_w && !touched_r[rs_k_r]) begin
+-        valid_r[rs_k_r] <= 1'b0;                   // no saved binding
+-      end
++      // PLANT: a blank record keeps the stale valid bit
+       if ((fl_done_w && !fl_taint_r) || fl_giveup_w) begin
+         dirty_r[fl_sink_r] <= 1'b0;   // a tainted commit keeps dirty: the
+       end                             // burst loop re-serializes fresh data

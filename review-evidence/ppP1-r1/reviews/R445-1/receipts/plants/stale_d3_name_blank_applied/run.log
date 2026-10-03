@@ -1,0 +1,14 @@
+FAIL: D3KR name seed 0x102FF360, cut 3 of 77 clocks after the ERASE's grant (erased at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 32 refused 0)
+FAIL: D3KR name seed 0x102FF360, cut 3: a later change to B persists over what the cut left
+FAIL: D3KR name seed 0x91DF08A9, cut 3 of 77 clocks after the ERASE's grant (erased at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 32 refused 0)
+FAIL: D3KR name seed 0x91DF08A9, cut 3: a later change to B persists over what the cut left
+  [i] D3KR cfg: 32 seeds over 15 clocks; at the cut A whole 3, erased 7, torn header 13, torn payload 1, B whole 8
+  [i] D3KR rate: 32 seeds over 17 clocks; at the cut A whole 5, erased 3, torn header 8, torn payload 8, B whole 8
+  [i] D3KR clks: 32 seeds over 15 clocks; at the cut A whole 5, erased 5, torn header 9, torn payload 5, B whole 8
+  [i] D3KR fmti: 32 seeds over 21 clocks; at the cut A whole 5, erased 2, torn header 11, torn payload 8, B whole 6
+  [i] D3KR fmto: 32 seeds over 21 clocks; at the cut A whole 4, erased 3, torn header 9, torn payload 9, B whole 7
+  [i] D3KR ptof: 32 seeds over 17 clocks; at the cut A whole 3, erased 4, torn header 12, torn payload 4, B whole 9
+  [i] D3KR name: 32 seeds over 77 clocks; at the cut A whole 0, erased 2, torn header 2, torn payload 27, B whole 1
+  [i] D3KR bind: 32 seeds over 33 clocks; at the cut A whole 3, erased 2, torn header 7, torn payload 18, B whole 2
+D3KR: 1000 checks, 4 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1000 checks, 4 failures
