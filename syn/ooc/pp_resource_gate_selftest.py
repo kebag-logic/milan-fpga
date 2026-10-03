@@ -7,11 +7,13 @@ input text a real regression would change, reads it back through the gate's
 own parser and judges it against a baseline recorded from the pristine copy.
 No arm hands the comparator a hand-built record, so a parser that stops seeing
 a row fails here exactly as it would on a real report. The command-line arms
-drive the exit-code contract through main(): every unreadable measurement and
-unusable baseline exits 2 with its reason, and only a regression exits 1. Each
-malformed baseline goes through both check and check-baseline.
+drive the exit-code contract through main() into a stream that takes ASCII
+only: every unreadable measurement and unusable baseline exits 2 with its
+reason, only a regression exits 1, and an exception planted inside the gate
+exits 2. Each malformed baseline goes through both check and check-baseline.
 """
 
+from collections.abc import Callable
 import contextlib
 import copy
 import io
@@ -52,6 +54,16 @@ COMPLETE = ("Design Route Status\n"
             "           # of fully routed nets............. :         100 :\n"
             "       # of nets with routing errors.......... :           0 :\n"
             "   ------------------------------------------- : ----------- :\n")
+#: The Design Timing Summary as Vivado lays it out, with the TNS, THS and TPWS endpoint columns.
+TIMING_HEAD = ("    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  "
+               "THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  "
+               "TPWS Total Endpoints  \n"
+               "    -------      -------  ---------------------  -------------------      -------      -------  "
+               "---------------------  -------------------     --------     --------  ----------------------  "
+               "--------------------  \n")
+VALUES = ("      0.500        0.000                      0                   10        0.100        0.000  "
+          "                    0                   12        0.264        0.000                       0  "
+          "                 7  \n")
 
 
 def report_header(design: str, state: str) -> str:
@@ -69,10 +81,7 @@ def write_reports(folder: Path, kind: str) -> None:
     (folder / "baseline_utilization.rpt").write_text(
         report_header(design, "Physopt postRoute" if kind == "route" else "Synthesized") + rows + REPEATED)
     (folder / "baseline_timing.rpt").write_text(
-        report_header(design, "Synthesized") + "| Design Timing Summary\n| ---\n\n"
-        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)\n"
-        "    -------      -------  ---------------------  -------------------      -------      -------\n"
-        "      0.500        0.000                      0                   10        0.100        0.000\n")
+        report_header(design, "Synthesized") + "| Design Timing Summary\n| ---\n\n" + TIMING_HEAD + VALUES)
     prefix = ["alinx_ax7101", "milan_datapath", "pp_shadow"] if kind == "route" else ["KL_pp_shadow"]
     lines = [f"| {'  ' * depth}{name} | m{depth} | {900 - depth} | {900 - depth} | 0 | 0 | 50 | 1 | 0 | 0 |"
              for depth, name in enumerate(prefix + ["u_pp", "u_srp"])]
@@ -125,14 +134,41 @@ def row(name: str, before: object, after: object) -> tuple[str, str, str]:
     return ("baseline_utilization.rpt", f"| {LABELS[name]:<20} | {before} |", f"| {LABELS[name]:<20} | {after} |")
 
 
+def at(tree: object, path: tuple) -> object:
+    """The value at a path of a JSON tree."""
+    for key in path:
+        tree = tree[key]
+    return tree
+
+
+#: The value edit() is given to remove a key rather than put one.
+REMOVE = object()
+
+
+def edit(*keys: str, value: object = REMOVE) -> Callable[[dict], None]:
+    """An edit of the recorded endpoints: put the value at the keys, or remove the last key when none is given."""
+    def apply(ends: dict) -> None:
+        """Make the edit."""
+        held = at(ends, keys[:-1])
+        if value is REMOVE:
+            del held[keys[-1]]
+        else:
+            held[keys[-1]] = value
+    return apply
+
+
 SOURCE = ("{repo}/hdl/milan/KL_pp_shadow.sv", "endmodule", "wire w; endmodule")
 TIMING = "baseline_timing.rpt"
-VALUES = "      0.500        0.000                      0                   10        0.100        0.000\n"
 FLOW = "baseline_integrated.tcl"
 ERRORS = (STATUS, "errors.......... :           0", "errors.......... :           3")
+ERROR_ROW = "       # of nets with routing errors.......... :           0 :\n"
 ROUTABLE = "       # of routable nets..................... :         100 :\n"
 ROUTED = "           # of fully routed nets............. :         100 :\n"
 MANIFEST = ("baseline_images.json", None, '["a"]')
+HIERARCHY = "baseline_hierarchy.rpt"
+TOP_ROW = "| m0 | 900 | 900 | 0 | 0 | 50 | 1 | 0 | 0 |"
+#: A number too long to be finite as a float, and one past the integer bound.
+LONG, BOUND = "1" + "0" * 400, "1" * 16
 #: (label, plants, exit status, text the report must hold or (must hold, must not hold), policy edits)
 ROUTE_ARMS = (
     ("unchanged control", (), 0, "RESULT: PASS"),
@@ -163,9 +199,16 @@ ROUTE_ARMS = (
     ("WNS and WHS infinite", (SOURCE, (TIMING, "  0.500  ", "  inf  "), (TIMING, "0.100", "inf")),
      2, "not a finite decimal"),
     ("WNS in other digits", ((TIMING, "  0.500  ", "  \uff10.\uff15\uff10\uff10  "),), 2, "not a finite decimal"),
+    ("WNS too long to be finite", (SOURCE, (TIMING, "  0.500  ", f"  {LONG}.063  ")), 2, "WNS is not finite"),
+    ("WHS too long to be finite", (SOURCE, (TIMING, "0.100", f"{LONG}.036")), 2, "WHS is not finite"),
     ("no timed endpoint", (SOURCE, (TIMING, " 10 ", "  0 ")), 2, "times no endpoint"),
-    ("timed endpoints in other digits", ((TIMING, " 10 ", " \uff11\uff10 "),), 2, "times no endpoint"),
-    ("timing summary without its endpoint columns", (SOURCE, (TIMING, "TNS Total Endpoints", "TNS Other Endpoints")),
+    ("no hold-timed endpoint", (SOURCE, (TIMING, " 12 ", "  0 ")), 2, "times no endpoint"),
+    ("timed endpoints in other digits", ((TIMING, " 10 ", " \uff11\uff10 "),), 2,
+     "TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits: '\\uff11\\uff10'"),
+    ("timed endpoints past the bound", (SOURCE, (TIMING, " 10 ", f" {BOUND} ")), 2,
+     "TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits"),
+    ("timing summary without its endpoint columns", (SOURCE, (TIMING, "TNS Total Endpoints", "TNS Other Endpoints"),
+                                                     (TIMING, "THS Total Endpoints", "THS Other Endpoints")),
      2, "total endpoints []"),
     ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0,
      ("below the baseline", "re-baseline")),
@@ -182,13 +225,21 @@ ROUTE_ARMS = (
      1, "99 of 100 routable nets fully routed"),
     ("route status report missing", (SOURCE, (STATUS, None, None)), 2, "route status report, found 0"),
     ("second route status report", (SOURCE, ("other_route_status.rpt", None, COMPLETE)), 2, "found 2"),
-    ("route status without its error row", (SOURCE, (STATUS, "       # of nets with routing errors.......... :"
-                                                     "           0 :\n", "")), 2, "'nets with routing errors' row"),
-    ("route status count unreadable", (SOURCE, (STATUS, ":         120 :", ":        lots :")), 2, "not a count"),
+    ("route status without its error row", (SOURCE, (STATUS, ERROR_ROW, "")), 2, "'nets with routing errors' row"),
+    ("route status with a second error row", (SOURCE, (STATUS, ERROR_ROW, ERROR_ROW * 2)), 2,
+     "no single 'nets with routing errors' row"),
+    ("route status count unreadable", (SOURCE, (STATUS, ":         120 :", ":        lots :")), 2,
+     "'logical nets' is not a whole number of 1 to 15 ASCII digits: 'lots'"),
     ("route status count a superscript", (SOURCE, ERRORS[:2] + ("errors.......... :           \u00b2",)),
-     2, "not a count: '\u00b2'"),
+     2, "is not a whole number of 1 to 15 ASCII digits: '\\xb2'"),
     ("route status count in other digits", (SOURCE, ERRORS[:2] + ("errors.......... :           \uff10",)),
-     2, "not a count: '\uff10'"),
+     2, "is not a whole number of 1 to 15 ASCII digits: '\\uff10'"),
+    ("route status count negative", (SOURCE, ERRORS[:2] + ("errors.......... :          -1",)),
+     2, "is not a whole number of 1 to 15 ASCII digits: '-1'"),
+    ("route status count past the bound", (SOURCE, ERRORS[:2] + (f"errors.......... :           {BOUND}",)),
+     2, "is not a whole number of 1 to 15 ASCII digits"),
+    ("route status not UTF-8", (SOURCE, (STATUS, None, COMPLETE.encode() + b"\xff\n")), 2,
+     "unreadable route status alinx_ax7101_route_status.rpt: 'utf-8' codec can't decode"),
     ("route status without its routable row", (SOURCE, (STATUS, ROUTABLE, "")), 2, "0 'routable nets' rows"),
     ("route status without its fully routed row", (SOURCE, (STATUS, ROUTED, "")), 2, "0 'fully routed nets' rows"),
     ("route status without both net rows", (SOURCE, (STATUS, ROUTABLE + ROUTED, "")), 2, "0 'routable nets' rows"),
@@ -221,6 +272,8 @@ ROUTE_ARMS = (
     ("memory image changed", (row("LUT", 1000, 1011), ("baseline_images.json", '"ab"', '"cd"')), 1, "LUT"),
     ("image manifest of the wrong shape", (MANIFEST,), 2, "not a list of path and sha256"),
     ("image manifest nested too deep", ((MANIFEST[0], None, "[" * 100000 + "]" * 100000),), 2, "RecursionError"),
+    ("image manifest with a repeated key", ((MANIFEST[0], '"ab"', '"ab", "sha256": "cd"'),), 2,
+     "the key 'sha256' appears twice in one object"),
     ("duplicate conflicting row", (("baseline_utilization.rpt", "| DSPs", "| DSPs | 9 |\n| DSPs"),), 2, "DSPs"),
     ("duplicate conflicting header", (("baseline_utilization.rpt", "| Device       : xc7a100tfgg484-2\n",
                                        "| Device       : xc7a100tfgg484-2\n| Device       : xc7a200tfbg484-2\n"),),
@@ -228,6 +281,10 @@ ROUTE_ARMS = (
     ("malformed count", (row("SLICE", 400, "x"),), 2, "not a count"),
     ("count in other digits", (row("LUT", 1000, "\uff11\uff10\uff10\uff10"),), 2, "not a count"),
     ("fractional count", (row("SLICE", 400, "400.25"),), 2, "not a count"),
+    ("count past the bound", (SOURCE, row("LUT", 1000, BOUND)), 2,
+     "'Slice LUTs' is not a whole number of 1 to 15 ASCII digits"),
+    ("BRAM tiles too long to be finite", (SOURCE, row("BRAM_TILE", 4.5, f"{LONG}.5")), 2,
+     "'Block RAM Tile' is not finite"),
     ("missing Slice row", (("baseline_utilization.rpt", f"| {'Slice':<20} | 400 | 0 | 0 | 9 | 1.0 |\n", ""),),
      2, "'Slice' has values []"),
     ("timing columns changed", ((TIMING, "WHS(ns)", "WXS(ns)"),), 2, "columns"),
@@ -240,9 +297,15 @@ ROUTE_ARMS = (
     ("read source missing", (("{repo}/sw/constraints.tcl", None, None),), 2, "read source is missing"),
     ("include directory missing", ((FLOW, "/hdl/common}", "/hdl/absent}"),), 2, "include directory is missing"),
     ("cell census header changed", (("baseline_cells.tsv", "cell\tprimitive", "cell\tref"),), 2, "header changed"),
-    ("hierarchy count in other digits", (("baseline_hierarchy.rpt", "| m0 | 900 |", "| m0 | \uff19\uff10\uff10 |"),),
+    ("hierarchy count in other digits", ((HIERARCHY, "| m0 | 900 |", "| m0 | \uff19\uff10\uff10 |"),),
      2, "not a row of counts"),
-    ("hierarchy row without counts", (("baseline_hierarchy.rpt", "| m4 | 896 |", "| m4 | n/a |"),),
+    ("hierarchy count in other digits in a middle cell",
+     ((HIERARCHY, TOP_ROW, TOP_ROW.replace("| 50 |", "| \uff15\uff10 |")),), 2, "not a row of counts"),
+    ("hierarchy count in other digits in the last cell",
+     ((HIERARCHY, TOP_ROW, TOP_ROW[:-3] + "\uff10 |"),), 2, "not a row of counts"),
+    ("hierarchy count past the bound", ((HIERARCHY, "| m0 | 900 |", f"| m0 | {BOUND} |"),), 2,
+     "hierarchy count of 'alinx_ax7101' is not a whole number of 1 to 15 ASCII digits"),
+    ("hierarchy row without counts", ((HIERARCHY, "| m4 | 896 |", "| m4 | n/a |"),),
      2, "not a row of counts"),
     ("wrapper source read from too near the root",
      ((FLOW, "/hdl/milan/KL_pp_shadow.sv}\n", "/hdl/milan/KL_pp_shadow.sv}\nread_verilog {/milan/KL_pp_shadow.sv}\n"),),
@@ -279,38 +342,40 @@ CHECK_ARMS = (
      2, "NOT COMPARABLE: unreadable measurement"),
     ("check of a route without its status", "route", ((STATUS, None, None),), None,
      2, "NOT COMPARABLE: expected one"),
+    ("check of a route status count past the integer text limit", "route",
+     (SOURCE, ERRORS[:2] + ("errors.......... :  " + "9" * 4401,)), None, 2, "(4401 characters)"),
+    ("check of a WNS too long to be finite", "route", (SOURCE, (TIMING, "  0.500  ", f"  {LONG}.063  ")), None,
+     2, "NOT COMPARABLE: unreadable measurement"),
     ("check of a wrong-shape image manifest", "route", (MANIFEST,), None, 2, "not a list of path and sha256"),
     ("check against a baseline that is not JSON", "route", (SOURCE,), "{not json", 2, "is unreadable"),
     ("check against a missing baseline", "route", (SOURCE,), Path("absent.json"), 2, "is unreadable"),
     ("check against a baseline without endpoints", "route", (SOURCE,), "[]", 2, "holds no endpoints table"),
-    ("check of an endpoint without a record", "route", (SOURCE,), lambda ends: ends["route"].pop("record"),
-     2, "route: has no record"),
+    ("check of an endpoint without a record", "route", (SOURCE,), edit("route", "record"), 2, "route: has no record"),
     ("check of a gated figure without a tolerance", "route", (SOURCE,),
-     lambda ends: ends["route"]["tolerance"].pop("LUT"), 2, "LUT has no non-negative tolerance"),
+     edit("route", "tolerance", "LUT"), 2, "LUT has no non-negative tolerance"),
     ("check of a ceiling naming no figure", "route", (SOURCE,),
-     lambda ends: ends["route"]["ceiling"].update({"BRAM_TILES": 5.0}), 2, "not a recorded figure"),
+     edit("route", "ceiling", "BRAM_TILES", value=5.0), 2, "not a recorded figure"),
 )
 #: check-baseline through main(): (label, edit of the recorded endpoints or None, budget page: BUDGET (None),
 #: a rewrite of it, or an absent path, exit status, text the output holds).
 AUDIT_ARMS = (
     ("a consistent baseline", None, None, 0, "baseline PASS: 2 endpoints"),
-    ("a missing record", lambda ends: ends["route"].pop("record"), None, 2, "route: has no record"),
-    ("an incomplete record", lambda ends: ends["route"]["record"].pop("scopes"), None, 2, "the record lacks scopes"),
-    ("a missing tolerance", lambda ends: ends["route"]["tolerance"].pop("LUT"), None,
-     2, "LUT has no non-negative tolerance"),
-    ("a negative tolerance", lambda ends: ends["route"]["tolerance"].update({"DSP": -1}), None,
-     2, "DSP has no non-negative tolerance"),
-    ("a missing floor", lambda ends: ends["route"]["floor"].pop("WNS_ns"), None, 2, "WNS_ns has no floor"),
-    ("a record below its floor", lambda ends: ends["route"]["floor"].update({"WHS_ns": 1.0}), None,
-     2, "WHS_ns is below its floor"),
-    ("a record over its ceiling", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILE": 1.0}), None,
+    ("a scope name with a generate index",
+     lambda ends: ends["route"]["record"]["scopes"].update({"u_pp/g_rx[5].u_x": {name: 1 for name in gate.SCOPE}}),
+     None, 0, "baseline PASS: 2 endpoints"),
+    ("a missing record", edit("route", "record"), None, 2, "route: has no record"),
+    ("an incomplete record", edit("route", "record", "scopes"), None, 2, "the record lacks scopes"),
+    ("a missing tolerance", edit("route", "tolerance", "LUT"), None, 2, "LUT has no non-negative tolerance"),
+    ("a negative tolerance", edit("route", "tolerance", "DSP", value=-1), None, 2, "DSP has no non-negative tolerance"),
+    ("a missing floor", edit("route", "floor", "WNS_ns"), None, 2, "WNS_ns has no floor"),
+    ("a record below its floor", edit("route", "floor", "WHS_ns", value=1.0), None, 2, "WHS_ns is below its floor"),
+    ("a record over its ceiling", edit("route", "ceiling", "BRAM_TILE", value=1.0), None,
      2, "BRAM_TILE exceeds its ceiling"),
-    ("a missing route ceiling", lambda ends: ends["route"].pop("ceiling"), None, 2, "BRAM_TILE has no ceiling"),
-    ("a ceiling naming no figure", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILES": 5.0}), None,
-     2, "not a recorded figure"),
-    ("a malformed policy", lambda ends: ends["route"].update({"tolerance": [10]}), None,
+    ("a missing route ceiling", edit("route", "ceiling"), None, 2, "BRAM_TILE has no ceiling"),
+    ("a ceiling naming no figure", edit("route", "ceiling", "BRAM_TILES", value=5.0), None, 2, "not a recorded figure"),
+    ("a malformed policy", edit("route", "tolerance", value=[10]), None,
      2, "route: tolerance is not a table of figures"),
-    ("a tolerance the budget does not hold", lambda ends: ends["route"]["tolerance"].update({"LUT": 10 ** 9}), None,
+    ("a tolerance the budget does not hold", edit("route", "tolerance", "LUT", value=10 ** 9), None,
      2, "tolerance LUT is 1000000000 in the baseline and 10.0 in the budget table"),
     ("a budget value the baseline does not hold", None, lambda page: page.replace("+5 |", "+6 |"),
      2, "tolerance SLICE is 5 in the baseline and 6.0 in the budget table"),
@@ -318,9 +383,11 @@ AUDIT_ARMS = (
      2, "floor WNS_ns is 0.03 in the baseline and 0.04 in the budget table"),
     ("a budget ceiling the baseline does not hold", None, lambda page: page.replace("| 5.0 |", "| 6.0 |"),
      2, "ceiling BRAM_TILE is 5.0 in the baseline and 6.0 in the budget table"),
-    ("a baseline policy figure the budget table lacks", lambda ends: ends["route"]["ceiling"].update({"LUT": 2000}),
+    ("a baseline policy figure the budget table lacks", edit("route", "ceiling", "LUT", value=2000),
      None, 2, "ceiling LUT is 2000 in the baseline and None in the budget table"),
     ("a budget cell in other digits", None, lambda page: page.replace("| +5 |", "| +\uff15 |"), 2, "neither a value"),
+    ("a budget cell too long to be finite", None, lambda page: page.replace("| +5 |", f"| +{LONG} |"), 2,
+     "budget budget.md: budget policy cell '+100"),
     ("an endpoint the budget lacks", None, lambda page: page.replace("| `ooc` |", "Not a row: `ooc` |"),
      2, "ooc: only the baseline names it"),
     ("a budget row the baseline lacks", lambda ends: ends.pop("ooc"), None, 2, "ooc: only the budget table names it"),
@@ -329,57 +396,92 @@ AUDIT_ARMS = (
     ("a repeated budget row", None, lambda page: page.replace("| `ooc` |", TABLE[2] + "\n| `ooc` |"),
      2, "malformed or repeated"),
     ("a budget cell that is no value", None, lambda page: page.replace("| +5 |", "| five |"), 2, "neither a value"),
+    ("a budget page that is not UTF-8", None, lambda page: page.encode() + b"\xff\n", 2,
+     "budget budget.md: 'utf-8' codec can't decode"),
     ("no budget page", None, Path("absent.md"), 2, "budget absent.md"),
 )
+#: A scope's counts, for arms that add a sub-block.
+COUNTS = {name: 1 for name in gate.SCOPE}
 #: Baselines not of the recorded shape: (label, baseline file as in CHECK_ARMS, text the refusal holds). check and
 #: check-baseline both refuse each one with exit 2 before reading any field of it.
 MALFORMED = (
-    ("a NaN floor", lambda ends: ends["route"]["floor"].update({"WNS_ns": float("nan")}),
-     "the number NaN is not finite"),
-    ("an infinite tolerance", lambda ends: ends["route"]["tolerance"].update({"LUT": float("inf")}),
+    ("a NaN floor", edit("route", "floor", "WNS_ns", value=float("nan")), "the number NaN is not finite"),
+    ("an infinite tolerance", edit("route", "tolerance", "LUT", value=float("inf")),
      "the number Infinity is not finite"),
     ("a ceiling too large to be finite", ('"BRAM_TILE": 5.0}', '"BRAM_TILE": 5e999}'),
-     "the number 5e999 is not finite"),
+     "the JSON number is not finite: '5e999'"),
+    ("a timing figure recorded as a long whole number",
+     edit("route", "record", "figures", "WNS_ns", value=10 ** 400),
+     "the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000"),
+    ("a scope count past the bound",
+     edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=10 ** 15),
+     "the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000000000'"),
+    ("a whole number past the integer text limit", ('"BRAM_TILE": 5.0}', '"BRAM_TILE": 5.0, "X": ' + "9" * 4401 + "}"),
+     "(4401 characters)"),
     ("a file nested too deep to read", "[" * 100000 + "]" * 100000, "is unreadable"),
+    ("a repeated key", ('"BRAM_TILE": 5.0}', '"BRAM_TILE": 9.0, "BRAM_TILE": 5.0}'),
+     "the key 'BRAM_TILE' appears twice in one object"),
+    ("an endpoint field named by a lone surrogate", lambda ends: ends["route"].update({"\ud800": {}}),
+     "the key '\\ud800' is not a name"),
+    ("a scope named by a lone surrogate", edit("route", "record", "scopes", "\ud800", value=COUNTS),
+     "the key '\\ud800' is not a name"),
+    ("a key of 129 characters", lambda ends: ends["route"]["record"]["scopes"].update({"x" * 129: COUNTS}),
+     "(129 characters) is not a name"),
+    ("an endpoint name with a generate index", lambda ends: ends.update({"route[1]": ends["ooc"]}),
+     "the endpoint name route[1] is not 1 to 128"),
+    ("a policy figure with a generate index", edit("route", "tolerance", "LUT[0]", value=1),
+     "route: a tolerance figure is not named by"),
     ("an unknown field in the file", ('{"endpoints": ', '{"note": "x", "endpoints": '), "unknown fields note"),
     ("an unknown field in an endpoint", lambda ends: ends["route"].update({"ceilings": {}}), "unknown fields ceilings"),
-    ("a record kind that is a list", lambda ends: ends["route"]["record"].update({"kind": ["route"]}),
-     "kind ['route'] is not one of"),
-    ("an unknown record kind", lambda ends: ends["route"]["record"].update({"kind": "tile"}),
-     "kind 'tile' is not one of"),
-    ("an identity that is text", lambda ends: ends["route"]["record"].update({"identity": "Vivado"}),
+    ("an unknown field in a record", edit("route", "record", "note", value="x"),
+     "route: the record holds unknown fields note"),
+    ("a record kind that is a list", edit("route", "record", "kind", value=["route"]), "kind ['route'] is not one of"),
+    ("an unknown record kind", edit("route", "record", "kind", value="tile"), "kind 'tile' is not one of"),
+    ("an identity that is text", edit("route", "record", "identity", value="Vivado"), "identity does not hold exactly"),
+    ("an identity without its device", edit("route", "record", "identity", "device"), "identity does not hold exactly"),
+    ("an identity with an extra key", edit("route", "record", "identity", "host", value="x"),
      "identity does not hold exactly"),
-    ("an identity without its device", lambda ends: ends["route"]["record"]["identity"].pop("device"),
-     "identity does not hold exactly"),
-    ("an identity field of another type", lambda ends: ends["route"]["record"]["identity"].update({"tool": 7}),
+    ("an identity field of another type", edit("route", "record", "identity", "tool", value=7),
      "not of its recorded type"),
-    ("a flow that is not text", lambda ends: ends["route"]["record"]["identity"].update({"flow": [1]}),
-     "not a list of text"),
-    ("an input digest that is no digest", lambda ends: ends["route"]["record"].update({"inputs_sha256": "ab"}),
+    ("a flow that is not text", edit("route", "record", "identity", "flow", value=[1]), "not a list of text"),
+    ("a standalone clock that is not text",
+     edit("ooc", "record", "identity", "standalone_clock_ns", value=[5]),
+     "ooc: the record identity's flow or standalone clock is not a list of text"),
+    ("an input digest that is no digest", edit("route", "record", "inputs_sha256", value="ab"),
      "not a sha256 hex digest"),
-    ("figures that are a list", lambda ends: ends["route"]["record"].update({"figures": []}),
-     "figures are not exactly"),
-    ("figures without LUT", lambda ends: ends["route"]["record"]["figures"].pop("LUT"), "figures are not exactly"),
-    ("a gated figure that is text", lambda ends: ends["route"]["record"]["figures"].update({"LUT": "1000"}),
+    ("an input digest that is a number", edit("route", "record", "inputs_sha256", value=5), "not a sha256 hex digest"),
+    ("figures that are a list", edit("route", "record", "figures", value=[]), "figures are not exactly"),
+    ("figures without LUT", edit("route", "record", "figures", "LUT"), "figures are not exactly"),
+    ("figures with an extra figure", edit("route", "record", "figures", "URAM", value=0), "figures are not exactly"),
+    ("a gated figure that is text", edit("route", "record", "figures", "LUT", value="1000"),
      "recorded figure is not a finite number"),
-    ("a gated figure that is null", lambda ends: ends["route"]["record"]["figures"].update({"WNS_ns": None}),
+    ("a gated figure that is null", edit("route", "record", "figures", "WNS_ns", value=None),
      "recorded figure is not a finite number"),
-    ("a gated figure that is a bool", lambda ends: ends["route"]["record"]["figures"].update({"DSP": True}),
+    ("a gated figure that is a bool", edit("route", "record", "figures", "DSP", value=True),
      "recorded figure is not a finite number"),
-    ("scopes that are a list", lambda ends: ends["route"]["record"].update({"scopes": []}),
+    ("a malformed endpoint after the first", edit("ooc", "record", "figures", "LUT", value="1000"),
+     "ooc: a recorded figure is not a finite number"),
+    ("scopes that are a list", edit("route", "record", "scopes", value=[]), "scopes are not a table"),
+    ("a scope without its CARRY4 count", edit("route", "record", "scopes", "wrapper", "CARRY4"),
      "scopes are not a table"),
-    ("a scope without its CARRY4 count", lambda ends: ends["route"]["record"]["scopes"]["wrapper"].pop("CARRY4"),
+    ("a scope with an extra count", edit("route", "record", "scopes", "wrapper", "URAM", value=0),
      "scopes are not a table"),
-    ("a fractional scope count", lambda ends: ends["route"]["record"]["scopes"]["u_pp/u_srp"].update({"LUT": 1.5}),
+    ("a fractional scope count", edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=1.5),
      "sub-block count is not a non-negative whole number"),
-    ("a negative scope count", lambda ends: ends["route"]["record"]["scopes"]["u_pp/u_srp"].update({"FF": -1}),
+    ("a negative scope count", edit("route", "record", "scopes", "u_pp/u_srp", "FF", value=-1),
      "sub-block count is not a non-negative whole number"),
-    ("a tolerance that is text", lambda ends: ends["route"]["tolerance"].update({"LUT": "10"}),
+    ("a scope count that is a bool",
+     edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=True),
+     "sub-block count is not a non-negative whole number"),
+    ("a tolerance that is text", edit("route", "tolerance", "LUT", value="10"),
      "a tolerance value is not a finite number"),
-    ("a ceiling that is a bool", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILE": True}),
+    ("a ceiling that is a bool", edit("route", "ceiling", "BRAM_TILE", value=True),
      "a ceiling value is not a finite number"),
-    ("a floor table that is a list", lambda ends: ends["route"].update({"floor": [0]}), "floor is not a table"),
+    ("a floor table that is a list", edit("route", "floor", value=[0]), "floor is not a table"),
 )
+#: Gate functions an exception is planted in, each reached by the command that follows it.
+PLANTED = (("load", "check"), ("census", "check"), ("routing", "check"), ("judge", "check"),
+           ("entry_problems", "check"), ("load", "check-baseline"), ("check_baseline", "check-baseline"))
 
 
 def fresh(root: Path, kind: str) -> Path:
@@ -389,12 +491,14 @@ def fresh(root: Path, kind: str) -> Path:
     return root / "arm" / ("gateware" if kind == "route" else "ooc")
 
 
-def plant(folder: Path, name: str, old: str | None, new: str | None) -> None:
-    """Edit exactly one occurrence, delete a file (both None) or create one (old None)."""
+def plant(folder: Path, name: str, old: str | None, new: str | bytes | None) -> None:
+    """Edit exactly one occurrence, delete a file (both None) or create one (old None) of text or bytes."""
     path = Path(name) if name.startswith("/") else folder / name
     if old is None:
         if new is None:
             path.unlink()
+        elif isinstance(new, bytes):
+            path.write_bytes(new)
         else:
             path.write_text(new)
         return
@@ -410,7 +514,7 @@ def expect(where: str, status: int, lines: list[str], wanted: int, needle: str |
     report = "\n".join(lines)
     if status != wanted or held not in report or (absent is not None and absent in report):
         raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
-                             + (f" and not {absent!r}" if absent else "") + "\n" + report)
+                             + (f" and not {absent!r}" if absent else "") + "\n" + ascii(report))
 
 
 def run_arm(root: Path, kind: str, arm: tuple, entry: dict) -> None:
@@ -457,14 +561,20 @@ def relocated_arm(root: Path, entry: dict) -> None:
 
 
 def cli(*argv: object) -> tuple[int, list[str]]:
-    """Run the gate's command line in process; an escaped exception is a traceback, never an exit status."""
-    out = io.StringIO()
+    """Run the gate's command line in process into a stream that takes ASCII only.
+
+    An escaped exception, a character printing cannot encode included, is a traceback, never an exit status.
+    """
+    raw = io.BytesIO()
+    out = io.TextIOWrapper(raw, encoding="ascii", errors="strict", newline="\n")
     try:
         with contextlib.redirect_stdout(out):
             status = gate.main([str(arg) for arg in argv])
+        out.flush()
     except Exception as error:  # the contract is an exit status with a reason, so this fails the arm
-        return -1, [*out.getvalue().splitlines(), f"escaped {type(error).__name__}: {error}"]
-    return status, out.getvalue().splitlines()
+        return -1, [*raw.getvalue().decode("ascii", "replace").splitlines(),
+                    f"escaped {type(error).__name__}: {ascii(str(error))}"]
+    return status, raw.getvalue().decode("ascii").splitlines()
 
 
 def baseline_file(tmp: Path, entries: dict, data: object) -> Path:
@@ -488,11 +598,15 @@ def baseline_file(tmp: Path, entries: dict, data: object) -> Path:
 
 
 def budget_file(tmp: Path, page: object) -> Path:
-    """Write the budget page an arm's check-baseline reads, or name an absent one."""
+    """Write the budget page an arm's check-baseline reads, as text or bytes, or name an absent one."""
     if isinstance(page, Path):
         return tmp / page
     path = tmp / "budget.md"
-    path.write_text(BUDGET if page is None else page(BUDGET))
+    data = BUDGET if page is None else page(BUDGET)
+    if isinstance(data, bytes):
+        path.write_bytes(data)
+    else:
+        path.write_text(data)
     return path
 
 
@@ -501,6 +615,46 @@ def plant_source(tmp: Path) -> Path:
     folder = fresh(tmp / "route", "route")
     plant(folder, SOURCE[0].replace("{repo}", str(tmp / "route/arm/repo")), *SOURCE[1:])
     return folder
+
+
+def planted(name: str) -> Callable[..., None]:
+    """A stand-in for one gate function that raises an exception none of the gate's handlers names."""
+    def boom(*_args: object, **_kwargs: object) -> None:
+        """Raise the planted exception."""
+        raise ZeroDivisionError(f"planted \ud800\x1b[31m in {name}")
+    return boom
+
+
+def barrier_arms(tmp: Path, entries: dict) -> int:
+    """Exceptions planted inside the gate, a non-ASCII path and a refused write, through main(); return the count."""
+    for name, command in PLANTED:
+        original = getattr(gate, name)
+        setattr(gate, name, planted(name))
+        try:
+            path = baseline_file(tmp, entries, None)
+            if command == "check":
+                status, lines = cli("check", plant_source(tmp), "--endpoint", "route", "--baseline", path)
+            else:
+                status, lines = cli("check-baseline", "--baseline", path, "--budget", budget_file(tmp, None))
+        finally:
+            setattr(gate, name, original)
+        expect(f"planted-exception arm {name} through {command}", status, lines, 2,
+               f"NOT COMPARABLE: ZeroDivisionError: planted \\ud800\\x1b[31m in {name}")
+        print(f"resource gate planted-exception arm: {name} through {command}: exit 2 PASS")
+    link = tmp / "mesur\u00e9"
+    link.symlink_to(plant_source(tmp))
+    status, lines = cli("check", link, "--endpoint", "route", "--baseline", baseline_file(tmp, entries, None))
+    expect("command-line arm 'a directory named in another script'", status, lines, 0, "/mesur\\xe9\n")
+    print("resource gate command-line arm: a directory named in another script: exit 0 PASS")
+    path = baseline_file(tmp, entries, None)
+    before = path.read_bytes()
+    status, lines = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy[1]", "--baseline", path, "--write")
+    expect("command-line arm 'record --write of an endpoint name the baseline refuses'", status, lines, 2,
+           "the endpoint name copy[1] is not 1 to 128")
+    if path.read_bytes() != before:
+        raise AssertionError("record --write wrote a baseline the gate refuses")
+    print("resource gate command-line arm: record --write of an endpoint name the baseline refuses: exit 2 PASS")
+    return len(PLANTED) + 2
 
 
 def command_line_arms(tmp: Path, entries: dict) -> int:
@@ -532,7 +686,7 @@ def command_line_arms(tmp: Path, entries: dict) -> int:
     if status != 0 or json.loads(path.read_text())["endpoints"]["copy"]["record"] != entries["route"]["record"]:
         raise AssertionError(f"record --write exited {status} or wrote a different record")
     print("resource gate CARRY4 attribution and record --write PASS")
-    return len(CHECK_ARMS) + len(AUDIT_ARMS) + 2 * len(MALFORMED) + 2
+    return len(CHECK_ARMS) + len(AUDIT_ARMS) + 2 * len(MALFORMED) + 2 + barrier_arms(tmp, entries)
 
 
 def selftest() -> int:

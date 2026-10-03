@@ -17,6 +17,23 @@ import sys
 FIELDS = ("LUT", "logic_LUT", "LUTRAM", "SRL", "FF", "RAMB36", "RAMB18", "DSP")
 #: A count as the report prints it: ASCII digits only, never another script's digit that int() would take.
 COUNT = re.compile(r"[0-9]+")
+#: The most digits a whole number may have. Every such number is below 2**53, so its float is exact and finite.
+DIGITS = 15
+
+
+def shown(text: str) -> str:
+    """Quote text for a message ASCII-safe, as ascii() escapes it, cut to its first 40 characters."""
+    return ascii(text) if len(text) <= 40 else f"{ascii(text[:40])}... ({len(text)} characters)"
+
+
+def whole(text: str, what: str, signed: bool = False) -> int:
+    """Convert one whole number of 1 to DIGITS ASCII digits, refusing any other text by name.
+
+    This is the only integer conversion the hierarchy parser and the resource gate make.
+    """
+    if not re.fullmatch(("-?" if signed else "") + f"[0-9]{{1,{DIGITS}}}", text):
+        raise ValueError(f"{what} is not a whole number of 1 to {DIGITS} ASCII digits: {shown(text)}")
+    return int(text)
 
 
 def hierarchy(path: Path) -> dict[str, dict[str, int]]:
@@ -28,7 +45,7 @@ def hierarchy(path: Path) -> dict[str, dict[str, int]]:
         if len(fields) != 10 or fields[2].strip() == "Total LUTs":
             continue
         if not all(COUNT.fullmatch(value.strip()) for value in fields[2:]):
-            raise ValueError(f"hierarchy row is not a row of counts: {line.strip()}")
+            raise ValueError(f"hierarchy row is not a row of counts: {line.strip()!a}")
         indent = len(fields[0]) - len(fields[0].lstrip())
         depth = (indent - 1) // 2
         name = fields[0].strip()
@@ -38,8 +55,9 @@ def hierarchy(path: Path) -> dict[str, dict[str, int]]:
             ancestors = ancestors[:depth] + [name]
         key = "/".join(ancestors[:depth] + [name])
         if key in rows:
-            raise ValueError(f"duplicate hierarchy row: {key}")
-        rows[key] = dict(zip(FIELDS, (int(value.strip()) for value in fields[2:]), strict=True))
+            raise ValueError(f"duplicate hierarchy row: {key!a}")
+        rows[key] = dict(zip(FIELDS, (whole(value.strip(), f"hierarchy count of {key!a}") for value in fields[2:]),
+                             strict=True))
     if not rows:
         raise ValueError("no hierarchical utilization rows")
     return rows

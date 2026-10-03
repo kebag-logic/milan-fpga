@@ -7,6 +7,8 @@ in a copy and requires the self-test to fail there.
 """
 
 import ast
+import concurrent.futures
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -44,18 +46,25 @@ MUTANTS = {
     "count format": ('        if not re.fullmatch(r"[0-9]+(\\.5)?", value):\n', "        if False:\n"),
     "count format decimals": ('r"[0-9]+(\\.5)?"', 'r"[0-9]+(\\.[0-9]+)?"'),
     "count format ASCII": ('r"[0-9]+(\\.5)?"', 'r"\\d+(\\.5)?"'),
-    "ASCII counts": ('COUNT = re.compile(r"[0-9]+")', 'COUNT = re.compile(r"\\d+")'),
     "header uniqueness": ("    if len(hits) != 1:\n", "    if not hits:\n"),
     "one timing summary": ("    if len(blocks) != 2:\n", "    if len(blocks) < 2:\n"),
     "timing value row": ("    if heads is None or heads + 2 >= len(lines):\n", "    if heads is None:\n"),
     "timing columns": (
         '    if len(names) != len(values) or len(names) < 5 or names[0] != "WNS(ns)" or names[4] != "WHS(ns)":\n',
         "    if False:\n"),
-    "timed endpoints": ("    if not paths or not all(COUNT.fullmatch(value) and int(value) > 0 for value in paths):\n",
-                        "    if False:\n"),
+    "timed endpoints": ("    if not paths or not all(path > 0 for path in paths):\n", "    if False:\n"),
     "timed endpoint columns": ("    if not paths or not all(", "    if not all("),
-    "timed endpoint count format": ("COUNT.fullmatch(value) and int(value) > 0", "value.isdigit() and int(value) > 0"),
-    "timed endpoint boundary": ("int(value) > 0 for value in paths", "int(value) >= 0 for value in paths"),
+    "timed endpoint converter": ("    paths = [whole(value, name) for name", "    paths = [int(value) for name"),
+    "timed endpoint boundary": ("path > 0 for path in paths", "path >= 0 for path in paths"),
+    "hold-timed endpoints counted": ('if name in ("TNS Total Endpoints", "THS Total Endpoints")]',
+                                     'if name in ("TNS Total Endpoints",)]'),
+    "slack converter": ('    return {"WNS_ns": real(values[0], "WNS"), "WHS_ns": real(values[4], "WHS")}\n',
+                        '    return {"WNS_ns": float(values[0]), "WHS_ns": real(values[4], "WHS")}\n'),
+    "hold slack converter": ('"WHS_ns": real(values[4], "WHS")}', '"WHS_ns": float(values[4])}'),
+    "utilization converter": ('        figures[figure] = real(value, what) if "." in value else whole(value, what)\n',
+                              '        figures[figure] = real(value, what) if "." in value else int(value)\n'),
+    "half-count converter": ('        figures[figure] = real(value, what) if "." in value else whole(value, what)\n',
+                             '        figures[figure] = float(value) if "." in value else whole(value, what)\n'),
     "finite slack": ("    if not SLACK.fullmatch(values[0]) or not SLACK.fullmatch(values[4]):\n", "    if False:\n"),
     "finite WHS": (" or not SLACK.fullmatch(values[4]):\n", ":\n"),
     "ASCII slack": ('SLACK = re.compile(r"-?[0-9]+\\.[0-9]+")', 'SLACK = re.compile(r"-?\\d+\\.\\d+")'),
@@ -94,9 +103,13 @@ MUTANTS = {
     "census header": ('    if not lines or lines[0] != "cell\\tprimitive":\n', "    if False:\n"),
     "route status of a route": ('    if kind != "route":\n', "    if True:\n"),
     "one route status report": ("    if len(reports) != 1:\n", "    if not reports:\n"),
-    "route status counts": ("        if not COUNT.fullmatch(value):\n", "        if False:\n"),
-    "route status count format": ("        if not COUNT.fullmatch(value):\n", "        if not value.isdigit():\n"),
+    "route status converter": ('.append(whole(value, f"route status row {label!a}"))', ".append(int(value))"),
+    "undecodable route status": (
+        "    except (OSError, ValueError) as error:\n        raise Refusal(f\"unreadable route",
+        "    except OSError as error:\n        raise Refusal(f\"unreadable route"),
     "routing-error row": ('    if len(counts.get("nets with routing errors", [])) != 1:\n', "    if False:\n"),
+    "routing-error row single": ('    if len(counts.get("nets with routing errors", [])) != 1:\n',
+                                 '    if len(counts.get("nets with routing errors", [])) < 1:\n'),
     "routable and routed rows present": ("        if len(counts.get(label, [])) != 1:\n",
                                          "        if len(counts.get(label, [])) > 1:\n"),
     "routable and routed rows single": ("        if len(counts.get(label, [])) != 1:\n",
@@ -112,14 +125,33 @@ MUTANTS = {
     "check reads the route status": (
         '        unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []\n',
         "        unrouted = []\n"),
-    "refusal exit status": ('        print(f"NOT COMPARABLE: {error}")\n        return 2\n',
-                            '        print(f"NOT COMPARABLE: {error}")\n        return 0\n'),
+    "refusal exit status": ("{type(error).__name__}: {error}'}\"])\n        return 2\n",
+                            "{type(error).__name__}: {error}'}\"])\n        return 0\n"),
+    "barrier": ("    except Exception as error:  # the barrier", "    except Refusal as error:  # the barrier"),
+    "printable ASCII output": ('char if char == "\\n" or " " <= char <= "~" else ascii(char)[1:-1]',
+                               'char if char == "\\n" or char.isascii() else ascii(char)[1:-1]'),
+    "ASCII output": ('    print("".join(char if char == "\\n"',
+                     '    print(text if True else "".join(char if char == "\\n"'),
+    "record --write validated": ("                load(args.baseline, text)  # never write",
+                                 "                pass  # never write"),
     "kind from the directory": ("        candidate = record(directory, kind_of(directory))\n",
                                 '        candidate = record(directory, "route")\n'),
     "unreadable baseline": ('raise Refusal(f"baseline {path} is unreadable: {error}") from error', "raise"),
     "baseline NaN and Infinity": ("parse_constant=constant, ", ""),
-    "baseline overflowing numbers": (", parse_float=finite)", ")"),
-    "finite baseline numbers": ("    if not math.isfinite(value):\n", "    if False:\n"),
+    "baseline decimals converted": ("parse_float=decimal,", ""),
+    "baseline integers converted": ("\n                      parse_int=integer)", ")"),
+    "finite decimals": ("    if not math.isfinite(value):\n", "    if False:\n"),
+    "baseline key names": ("        if not SCOPE_NAME.fullmatch(key):\n", "        if False:\n"),
+    "baseline repeated keys": ("        if key in table:\n", "        if False:\n"),
+    "baseline keys checked": ("object_pairs_hook=named, ", ""),
+    "scope names hold a generate index": ('SCOPE_NAME = re.compile(r"[A-Za-z0-9_.:/\\[\\]-]{1,128}")',
+                                          'SCOPE_NAME = re.compile(r"[A-Za-z0-9_.:/-]{1,128}")'),
+    "endpoint names": ("for name in baseline[\"endpoints\"] if not NAME.fullmatch(name)]",
+                       "for name in baseline[\"endpoints\"] if False]"),
+    "policy figure names": ("        elif not all(NAME.fullmatch(figure) for figure in entry.get(field, {})):\n",
+                            "        elif False:\n"),
+    "image manifest strict": ('    images = strict((directory / "baseline_images.json").read_text())\n',
+                              '    images = json.loads((directory / "baseline_images.json").read_text())\n'),
     "baseline nested too deep": ("    except (OSError, ValueError, RecursionError) as error:\n",
                                  "    except (OSError, ValueError) as error:\n"),
     "baseline endpoints table": (
@@ -137,7 +169,12 @@ MUTANTS = {
     "baseline record completeness": ("    if lacking:\n", "    if False:\n"),
     "baseline record kind": ("    if not isinstance(kind, str) or kind not in GATED:\n",
                              "    if not isinstance(kind, str):\n"),
-    "baseline endpoint fields": ("    if unknown:\n        problems.append", "    if False:\n        problems.append"),
+    "baseline record fields": ("    unknown = sorted(set(base) - set(RECORD))\n", "    unknown = []\n"),
+    "baseline every endpoint validated": (
+        "for name, entry in baseline[\"endpoints\"].items() for problem in shape_problems(name, entry)]",
+        "for name, entry in list(baseline[\"endpoints\"].items())[:1] for problem in shape_problems(name, entry)]"),
+    "baseline endpoint fields": ('    if unknown:\n        problems.append(f"{name}: the endpoint holds',
+                                 '    if False:\n        problems.append(f"{name}: the endpoint holds'),
     "baseline identity keys": ("    if not isinstance(identity, dict) or sorted(identity) != sorted(IDENTITY):\n",
                                "    if not isinstance(identity, dict):\n"),
     "baseline identity types": (
@@ -145,9 +182,14 @@ MUTANTS = {
         "    elif False:\n"),
     "baseline identity text": ("    elif not all(isinstance(item, str) for key in",
                                "    elif False and all(True for key in"),
+    "baseline identity exact keys": ("sorted(identity) != sorted(IDENTITY)", "not set(IDENTITY) <= set(identity)"),
+    "baseline standalone clock text": ('for key in ("flow", "standalone_clock_ns") for item',
+                                       'for key in ("flow",) for item'),
     "baseline input digest": ('not re.fullmatch(r"[0-9a-f]{64}", base["inputs_sha256"])', "False"),
+    "baseline input digest type": ('not isinstance(base["inputs_sha256"], str) or ', ""),
     "baseline figure names": ("    if not isinstance(figures, dict) or sorted(figures) != held:\n",
                               "    if not isinstance(figures, dict):\n"),
+    "baseline figures exact": ("sorted(figures) != held", "not set(held) <= set(figures)"),
     "baseline figure numbers": ("    elif not all(number(value) for value in figures.values()):\n",
                                 "    elif False:\n"),
     "numbers are not bools": ("    return isinstance(value, (int, float)) and not isinstance(value, bool)\n",
@@ -155,6 +197,8 @@ MUTANTS = {
     "baseline scope shape": ("isinstance(counts, dict) and sorted(counts) == sorted(SCOPE)",
                              "isinstance(counts, dict)"),
     "baseline scope whole numbers": ("type(count) is int and count >= 0", "count >= 0"),
+    "baseline scope counts not bools": ("type(count) is int and count >= 0", "isinstance(count, int) and count >= 0"),
+    "baseline scope counts exact": ("sorted(counts) == sorted(SCOPE)", "set(SCOPE) <= set(counts)"),
     "baseline scope non-negative": ("type(count) is int and count >= 0", "type(count) is int"),
     "baseline policy tables": ("        if not isinstance(entry.get(field, {}), dict):\n", "        if False:\n"),
     "baseline policy numbers": ("        elif not all(number(value) for value in entry.get(field, {}).values()):\n",
@@ -173,7 +217,9 @@ MUTANTS = {
                                                  '        for field in ("tolerance",):\n            held ='),
     "budget comparison of baseline-only figures": ("sorted(set(held) | set(table[name][field]))",
                                                    "sorted(set(table[name][field]))"),
-    "budget floors read": ("= float(value[1])\n", '= 0.0 if field == "floor" else float(value[1])\n'),
+    "budget floors read": ('= real(value[1], f"budget policy cell {cell!r}")\n',
+                           '= 0.0 if field == "floor" else real(value[1], f"budget policy cell {cell!r}")\n'),
+    "budget cell converter": ('= real(value[1], f"budget policy cell {cell!r}")\n', "= float(value[1])\n"),
     "budget cells ASCII": ('r"([+-]?[0-9]+(?:\\.[0-9]+)?)(?: ns)?"', 'r"([+-]?\\d+(?:\\.\\d+)?)(?: ns)?"'),
     "budget endpoints compared": ("        if name not in table or name not in endpoints:\n", "        if False:\n"),
     "one budget table": ("    if len(starts) != 1:\n", "    if not starts:\n"),
@@ -182,6 +228,8 @@ MUTANTS = {
     "budget cell values": ('            if value is None and cell != "-":\n', "            if False:\n"),
     "unreadable budget page": ("    except (OSError, ValueError, Refusal) as error:\n",
                                "    except (ValueError, Refusal) as error:\n"),
+    "undecodable budget page": ("    except (OSError, ValueError, Refusal) as error:\n",
+                                "    except (OSError, Refusal) as error:\n"),
     "image manifest nested too deep": ("IndexError, TypeError, RecursionError) as error:\n",
                                        "IndexError, TypeError) as error:\n"),
 }
@@ -189,37 +237,50 @@ MUTANTS = {
 RANK_MUTANTS = {
     "hierarchy counts": ("        if not all(COUNT.fullmatch(value.strip()) for value in fields[2:]):\n",
                          "        if False:\n"),
+    "hierarchy counts from the fourth cell": ("for value in fields[2:]):\n", "for value in fields[3:]):\n"),
+    "hierarchy counts end early": ("for value in fields[2:]):\n", "for value in fields[2:-1]):\n"),
+    "hierarchy count converter": ('(whole(value.strip(), f"hierarchy count of {key!a}") for value in fields[2:])',
+                                  "(int(value.strip()) for value in fields[2:])"),
+    "whole numbers ASCII": ('f"[0-9]{{1,{DIGITS}}}"', 'rf"\\d{{1,{DIGITS}}}"'),
+    "whole number bound": ("DIGITS = 15\n", "DIGITS = 4400\n"),
+    "whole numbers unsigned": ('("-?" if signed else "")', '"-?"'),
     "hierarchy ASCII counts": ('COUNT = re.compile(r"[0-9]+")', 'COUNT = re.compile(r"\\d+")'),
     "hierarchy header only": ('fields[2].strip() == "Total LUTs"', 'not COUNT.fullmatch(fields[2].strip())'),
 }
 
 
+def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] | None) -> str:
+    """Apply one mutant to a copy of the three modules and require its self-test verdict; return the result."""
+    source = (here / target).read_text()
+    changed = source
+    if change is not None:
+        old, new = change
+        if source.count(old) != 1:
+            raise AssertionError(f"mutation is not unique: {name}")
+        changed = source.replace(old, new)
+    ast.parse(changed)
+    folder = tmp / name.replace(" ", "_")
+    folder.mkdir()
+    for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py"):
+        shutil.copy2(here / sibling, folder / sibling)
+    (folder / target).write_text(changed)
+    result = subprocess.run([sys.executable, "-B", str(folder / "pp_resource_gate.py"), "--selftest"],
+                            capture_output=True, text=True, timeout=600)
+    if (result.returncode == 0) != (change is None):
+        raise AssertionError(f"{name}: rc={result.returncode}\n{result.stdout}\n{result.stderr}")
+    return f"{name}: rc={result.returncode} PASS"
+
+
 def main() -> None:
-    """Run a positive control and require every single mutant to fail the self-test."""
+    """Run a positive control and require every single mutant to fail the self-test, one per processor."""
     here = Path(__file__).resolve().parent
     jobs = [("control", "pp_resource_gate.py", None),
             *((name, "pp_resource_gate.py", change) for name, change in MUTANTS.items()),
             *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items())]
-    with tempfile.TemporaryDirectory(prefix="pp-resource-gate-mutants-") as tmp:
-        for name, target, change in jobs:
-            source = (here / target).read_text()
-            changed = source
-            if change is not None:
-                old, new = change
-                if source.count(old) != 1:
-                    raise AssertionError(f"mutation is not unique: {name}")
-                changed = source.replace(old, new)
-            ast.parse(changed)
-            folder = Path(tmp) / name.replace(" ", "_")
-            folder.mkdir()
-            for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py"):
-                shutil.copy2(here / sibling, folder / sibling)
-            (folder / target).write_text(changed)
-            result = subprocess.run([sys.executable, "-B", str(folder / "pp_resource_gate.py"), "--selftest"],
-                                    capture_output=True, text=True, timeout=120)
-            if (result.returncode == 0) != (change is None):
-                raise AssertionError(f"{name}: rc={result.returncode}\n{result.stdout}\n{result.stderr}")
-            print(f"{name}: rc={result.returncode} PASS")
+    with tempfile.TemporaryDirectory(prefix="pp-resource-gate-mutants-") as tmp, \
+            concurrent.futures.ThreadPoolExecutor(os.cpu_count() or 1) as pool:
+        for line in pool.map(lambda job: run(Path(tmp), here, *job), jobs):
+            print(line)
     print(f"resource gate mutants: control passes, all {len(MUTANTS) + len(RANK_MUTANTS)} mutants fail")
 
 

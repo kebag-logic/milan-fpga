@@ -20,14 +20,21 @@ judged against the tolerances. A route is also judged on its route status
 report: an unrouted net or a routing error means the image does not fit.
 
 Exit status: 0 within tolerance; 1 a material regression, an incomplete route
-included; 2 not comparable, an unreadable measurement or an unusable baseline,
-each with its reason and never through a traceback. A gated figure that
-improved by more than its tolerance still exits 0 and prints "re-baseline
-recommended". check and check-baseline both read the baseline through one
-validator first: strict JSON, then every field of the recorded shape and every
-number finite. check-baseline then exits 2 when an endpoint's policy is
+included, and nothing else; 2 not comparable, an unreadable measurement or an
+unusable baseline. main() holds one barrier around everything after argument
+parsing: any exception, expected or not, prints "NOT COMPARABLE: <reason>" and
+exits 2. So exit 1 comes only from judge(), no input reaches a traceback, and
+every line is printed as printable ASCII, other characters escaped as ascii()
+writes them. A gated figure that improved by more than its tolerance still
+exits 0 and prints "re-baseline recommended". check and check-baseline both
+read the baseline through one validator first: strict JSON, then every field
+of the recorded shape. check-baseline then exits 2 when an endpoint's policy is
 incomplete, its own record breaks it, or it differs from the policy table of
-the budget page. Every count read from a report is ASCII digits.
+the budget page. Strict JSON here holds no repeated key, every key a name of
+NAME (a scope name may also hold a generate index's brackets), and no NaN or
+Infinity. Every number the gate reads, from JSON or a report, goes through one
+of two converters: whole() takes 1 to 15 ASCII digits, so every whole number is
+exact as a float, and real() refuses a decimal whose float is not finite.
 
     pp_resource_gate.py check <directory> --endpoint route-1x1
     pp_resource_gate.py record <directory> --endpoint route-1x1 [--write]
@@ -43,7 +50,7 @@ from pathlib import Path
 import re
 import sys
 
-from pp_baseline_rank import hierarchy
+from pp_baseline_rank import hierarchy, shown, whole
 
 
 BASELINE = Path(__file__).with_name("pp_resource_baseline.json")
@@ -75,10 +82,12 @@ IDENTITY = {"tool": str, "device": str, "design": str, "state": str, "flow": lis
 SCOPE = ("LUT", "FF", "RAMB36", "RAMB18", "DSP", "CARRY4")
 #: Notes a baseline file and each endpoint may carry beside the fields the gate reads.
 NOTES = {"file": ("schema", "description"), "endpoint": ("measured",)}
-#: A count as a report prints it: ASCII digits only, never another script's digit that int() would take.
-COUNT = re.compile(r"[0-9]+")
-#: A slack as the timing summary prints it: a finite decimal in ASCII digits.
+#: A slack as the timing summary prints it: a decimal in ASCII digits, which real() then requires to be finite.
 SLACK = re.compile(r"-?[0-9]+\.[0-9]+")
+#: An endpoint, field or figure name the baseline may hold.
+NAME = re.compile(r"[A-Za-z0-9_.:/-]{1,128}")
+#: A sub-block scope name may also hold the brackets of a generate index, as Vivado names g_rx_pool[5].
+SCOPE_NAME = re.compile(r"[A-Za-z0-9_.:/\[\]-]{1,128}")
 SCRIPTS = {"route": "baseline_integrated.tcl", "ooc": "baseline_ooc.tcl"}
 ROOTS = {"route": "alinx_ax7101/milan_datapath/pp_shadow", "ooc": "KL_pp_shadow"}
 FLOW = re.compile(r"^(create_project|set_param|synth_design|opt_design|place_design"
@@ -116,8 +125,9 @@ def utilization(text: str, kind: str) -> dict[str, float]:
             raise Refusal(f"utilization row {label!r} has values {sorted(values)}")
         value = values.pop()
         if not re.fullmatch(r"[0-9]+(\.5)?", value):
-            raise Refusal(f"utilization row {label!r} is not a count: {value!r}")
-        figures[figure] = float(value) if "." in value else int(value)
+            raise Refusal(f"utilization row {label!r} is not a count: {shown(value)}")
+        what = f"utilization row {label!r}"
+        figures[figure] = real(value, what) if "." in value else whole(value, what)
     return figures
 
 
@@ -135,11 +145,12 @@ def timing(text: str) -> dict[str, float]:
     if len(names) != len(values) or len(names) < 5 or names[0] != "WNS(ns)" or names[4] != "WHS(ns)":
         raise Refusal("Design Timing Summary columns changed")
     if not SLACK.fullmatch(values[0]) or not SLACK.fullmatch(values[4]):
-        raise Refusal(f"slack is not a finite decimal: WNS {values[0]!r}, WHS {values[4]!r}")
-    paths = [value for name, value in zip(names, values) if name in ("TNS Total Endpoints", "THS Total Endpoints")]
-    if not paths or not all(COUNT.fullmatch(value) and int(value) > 0 for value in paths):
+        raise Refusal(f"slack is not a finite decimal: WNS {shown(values[0])}, WHS {shown(values[4])}")
+    paths = [whole(value, name) for name, value in zip(names, values)
+             if name in ("TNS Total Endpoints", "THS Total Endpoints")]
+    if not paths or not all(path > 0 for path in paths):
         raise Refusal(f"Design Timing Summary times no endpoint: total endpoints {paths}")
-    return {"WNS_ns": float(values[0]), "WHS_ns": float(values[4])}
+    return {"WNS_ns": real(values[0], "WNS"), "WHS_ns": real(values[4], "WHS")}
 
 
 def located(directory: Path, script: str) -> tuple[list[Path], tuple[str, ...]]:
@@ -177,7 +188,7 @@ def inputs(directory: Path, script: str) -> str:
         digest.update(path.name.encode() + b"\0" + hashlib.sha256(data).digest())
     for generic in GENERICS.findall(script):
         digest.update(re.sub(r'"[^"]*/([^/"]+)"', r'"\1"', generic).encode() + b"\0")
-    images = json.loads((directory / "baseline_images.json").read_text())
+    images = strict((directory / "baseline_images.json").read_text())
     if not isinstance(images, list) or not all(isinstance(image, dict) and isinstance(image.get("path"), str)
                                                and isinstance(image.get("sha256"), str) for image in images):
         raise Refusal("baseline_images.json is not a list of path and sha256 entries")
@@ -265,15 +276,12 @@ def routing(directory: Path, kind: str) -> list[str]:
     reports = sorted(directory.glob("*_route_status.rpt"))
     if len(reports) != 1:
         raise Refusal(f"expected one *_route_status.rpt route status report, found {len(reports)}")
+    counts: dict[str, list[int]] = {}
     try:
-        rows = STATUS_ROW.findall(reports[0].read_text())
+        for label, value in STATUS_ROW.findall(reports[0].read_text()):
+            counts.setdefault(label, []).append(whole(value, f"route status row {label!a}"))
     except (OSError, ValueError) as error:
         raise Refusal(f"unreadable route status {reports[0].name}: {error}") from error
-    counts: dict[str, list[int]] = {}
-    for label, value in rows:
-        if not COUNT.fullmatch(value):
-            raise Refusal(f"route status row {label!r} is not a count: {value!r}")
-        counts.setdefault(label, []).append(int(value))
     for label in ("routable nets", "fully routed nets"):
         if len(counts.get(label, [])) != 1:
             raise Refusal(f"{reports[0].name} has {len(counts.get(label, []))} {label!r} rows, not one")
@@ -359,17 +367,48 @@ def scope_deltas(before: dict, after: dict) -> list[str]:
     return ["sub-block movements, not gated:", *(line for _, line in moves[:12])] if moves else []
 
 
-def finite(text: str) -> float:
-    """Read one JSON decimal, refusing one so large that it reads as infinity."""
+def real(text: str, what: str) -> float:
+    """Convert one decimal its caller's ASCII grammar accepted, refusing by name one too large to be finite.
+
+    This is the gate's only float conversion; whole() is its only integer conversion.
+    """
     value = float(text)
     if not math.isfinite(value):
-        raise ValueError(f"the number {text} is not finite")
+        raise ValueError(f"{what} is not finite: {shown(text)}")
     return value
+
+
+def decimal(text: str) -> float:
+    """Read one JSON decimal through the float converter."""
+    return real(text, "the JSON number")
+
+
+def integer(text: str) -> int:
+    """Read one JSON whole number through the integer converter."""
+    return whole(text, "the JSON integer", signed=True)
 
 
 def constant(name: str) -> float:
     """Refuse NaN and Infinity: JSON does not define them, and no figure or policy can be one."""
     raise ValueError(f"the number {name} is not finite")
+
+
+def named(pairs: list[tuple[str, object]]) -> dict:
+    """Build one JSON object, refusing a key that is no name or that the object already holds."""
+    table: dict = {}
+    for key, value in pairs:
+        if not SCOPE_NAME.fullmatch(key):
+            raise ValueError(f"the key {shown(key)} is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ]")
+        if key in table:
+            raise ValueError(f"the key {shown(key)} appears twice in one object")
+        table[key] = value
+    return table
+
+
+def strict(text: str) -> object:
+    """Read strict JSON: named keys, none repeated, no NaN or Infinity, and every number through a converter."""
+    return json.loads(text, object_pairs_hook=named, parse_constant=constant, parse_float=decimal,
+                      parse_int=integer)
 
 
 def number(value: object) -> bool:
@@ -387,11 +426,14 @@ def shape_problems(name: str, entry: object) -> list[str]:
         return [f"{name}: the record lacks {', '.join(lacking)}"]
     kind, identity, figures, scopes = base["kind"], base["identity"], base["figures"], base["scopes"]
     if not isinstance(kind, str) or kind not in GATED:
-        return [f"{name}: the record kind {kind!r} is not one of {', '.join(GATED)}"]
+        return [f"{name}: the record kind {kind!a} is not one of {', '.join(GATED)}"]
     problems = []
     unknown = sorted(set(entry) - {"record", *POLICY, *NOTES["endpoint"]})
     if unknown:
         problems.append(f"{name}: the endpoint holds unknown fields {', '.join(unknown)}")
+    unknown = sorted(set(base) - set(RECORD))
+    if unknown:
+        problems.append(f"{name}: the record holds unknown fields {', '.join(unknown)}")
     if not isinstance(identity, dict) or sorted(identity) != sorted(IDENTITY):
         problems.append(f"{name}: the record identity does not hold exactly {', '.join(IDENTITY)}")
     elif not all(isinstance(identity[key], recorded) for key, recorded in IDENTITY.items()):
@@ -415,19 +457,24 @@ def shape_problems(name: str, entry: object) -> list[str]:
             problems.append(f"{name}: {field} is not a table of figures")
         elif not all(number(value) for value in entry.get(field, {}).values()):
             problems.append(f"{name}: a {field} value is not a finite number")
+        elif not all(NAME.fullmatch(figure) for figure in entry.get(field, {})):
+            problems.append(f"{name}: a {field} figure is not named by 1 to 128 of A-Z a-z 0-9 _ . : / -")
     return problems
 
 
-def load(path: Path) -> dict:
-    """Read a baseline file whole: strict JSON, an endpoints table and every endpoint of the recorded shape."""
+def load(path: Path, text: str | None = None) -> dict:
+    """Read a baseline file whole, or the text record --write would write to it: strict JSON, an endpoints table
+    and every endpoint of the recorded shape."""
     try:
-        baseline = json.loads(path.read_text(), parse_constant=constant, parse_float=finite)
+        baseline = strict(path.read_text() if text is None else text)
     except (OSError, ValueError, RecursionError) as error:
         raise Refusal(f"baseline {path} is unreadable: {error}") from error
     if not isinstance(baseline, dict) or not isinstance(baseline.get("endpoints"), dict):
         raise Refusal(f"baseline {path} holds no endpoints table")
     unknown = sorted(set(baseline) - {"endpoints", *NOTES["file"]})
     problems = [f"the file holds unknown fields {', '.join(unknown)}"] if unknown else []
+    problems += [f"the endpoint name {name} is not 1 to 128 of A-Z a-z 0-9 _ . : / -"
+                 for name in baseline["endpoints"] if not NAME.fullmatch(name)]
     problems += [problem for name, entry in baseline["endpoints"].items() for problem in shape_problems(name, entry)]
     if problems:
         raise Refusal(f"baseline {path} is malformed: {'; '.join(problems)}")
@@ -477,7 +524,7 @@ def policy_table(text: str) -> dict[str, dict[str, dict[str, float]]]:
             if value is None and cell != "-":
                 raise Refusal(f"budget policy cell {cell!r} is neither a value nor '-'")
             for figure in figures if value else ():
-                table[name[1]][field][figure] = float(value[1])
+                table[name[1]][field][figure] = real(value[1], f"budget policy cell {cell!r}")
     return table
 
 
@@ -503,8 +550,17 @@ def check_baseline(baseline: dict, budget: Path) -> list[str]:
     return problems
 
 
+def emit(lines: list[str]) -> None:
+    """Print lines as printable ASCII, every other character but the line break escaped as ascii() writes it.
+
+    So no name or value read from a file or the command line can make printing raise or reach the terminal raw.
+    """
+    text = "\n".join(lines)
+    print("".join(char if char == "\n" or " " <= char <= "~" else ascii(char)[1:-1] for char in text))
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Run one command and return its exit status."""
+    """Run one command and return its exit status: 1 only from judge(), 2 for anything that escapes."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", nargs="?", choices=("check", "record", "check-baseline"))
     parser.add_argument("directory", type=Path, nargs="?")
@@ -522,7 +578,7 @@ def main(argv: list[str] | None = None) -> int:
         baseline = {"endpoints": {}} if printing else load(args.baseline)
         if args.command == "check-baseline":
             problems = check_baseline(baseline, args.budget)
-            print("\n".join(problems) or f"baseline PASS: {len(baseline['endpoints'])} endpoints")
+            emit(problems or [f"baseline PASS: {len(baseline['endpoints'])} endpoints"])
             return 2 if problems else 0
         known = args.endpoint in baseline["endpoints"] or (args.command == "record" and args.endpoint)
         if args.command is None or args.directory is None or not known:
@@ -534,18 +590,20 @@ def main(argv: list[str] | None = None) -> int:
         directory = args.directory.resolve()
         candidate = record(directory, kind_of(directory))
         unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []
-    except Refusal as error:
-        print(f"NOT COMPARABLE: {error}")
+        if args.command == "record":
+            emit([json.dumps(candidate, indent=1)])
+            if args.write:
+                baseline["endpoints"].setdefault(args.endpoint, {})["record"] = candidate
+                text = json.dumps(baseline, indent=1) + "\n"
+                load(args.baseline, text)  # never write a baseline the next read would refuse
+                args.baseline.write_text(text)
+            return 0
+        status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted)
+        emit([f"endpoint {args.endpoint}: {args.directory}", *lines])
+        return status
+    except Exception as error:  # the barrier: whatever escapes, expected or not, is a reason and exit 2
+        emit([f"NOT COMPARABLE: {error if isinstance(error, Refusal) else f'{type(error).__name__}: {error}'}"])
         return 2
-    if args.command == "record":
-        print(json.dumps(candidate, indent=1))
-        if args.write:
-            baseline["endpoints"].setdefault(args.endpoint, {})["record"] = candidate
-            args.baseline.write_text(json.dumps(baseline, indent=1) + "\n")
-        return 0
-    status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted)
-    print("\n".join([f"endpoint {args.endpoint}: {args.directory}", *lines]))
-    return status
 
 
 if __name__ == "__main__":
