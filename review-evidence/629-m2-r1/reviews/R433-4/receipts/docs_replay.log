@@ -1,0 +1,25 @@
+make: GNU Make 4.3; python: <tools>/md-venv-40cdefe08ebd/bin/python3
+step 7 [Link health, wording, dead-reference and local-info gate] rc=0 :: docs_check: 0 finding(s) across 186 md files + 970 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+step 9 [Concise audience documentation gate] rc=0 :: gPTP documentation selftest: OK (30 controls)
+step 12 [Verified submodule documentation gate] rc=0 :: submodule documentation selftest: OK (table and diagram controls)
+step 14 [Published diagram PNG gate] rc=0 :: diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+step 15 [Milan feature-status consistency gate] rc=0 :: feature_status: 0 finding(s)
+step 19 [Code-quality measurement self-tests] rc=0 :: 18 checks: 18 PASS, 0 FAIL
+step 30 [RTL source-list drift gate] rc=0 :: 49 checks: 49 PASS, 0 FAIL
+step 31 [Boundary-unit naming ratchet] rc=0 :: 66 checks: 66 PASS, 0 FAIL
+step 32 [Port contract gate] rc=0 :: 82 checks: 82 PASS, 0 FAIL
+step 35 [Test-evidence ratchet] rc=0 :: 101 checks: 101 PASS, 0 FAIL
+step 36 [Mechanical hygiene ratchet] rc=0 :: 35 checks: 35 PASS, 0 FAIL
+step 37 [SystemVerilog idiom gate] rc=0 :: 55 checks: 55 PASS, 0 FAIL
+step 39 [Python idiom gate] rc=0 :: 54 checks: 54 PASS, 0 FAIL
+step 43 [Doc cited-path gate] rc=0 :: doc path gate: OK (891 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+step 45 [Per-page contents gate] rc=0 :: TOC gate: OK (128 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+step 47 [Sweep/build shape gate] rc=0 ::   [self-test] OK: 1 drift(s) reported
+step 49 [Entity shape gate] rc=0 :: RESULT: PASS
+step 8 [em-dash, base 1269cdafb4bb964c757baae0f0c5a932d43f540b] rc=0 :: check_em_dash: 0 finding(s) over 541 added line(s) in 34 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1269cdaf..HEAD]
+== generators re-recording the merge's ratchets
+measure_naming --write-budget rc=0
+check_port_contracts --write-budget rc=0
+submodule_boundaries.gen.py (write) rc=0
+tracked files changed by the generators (empty = byte-identical):
+failing steps: 0
