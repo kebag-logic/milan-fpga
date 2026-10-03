@@ -7,6 +7,9 @@ Refs #629. Operator [A477], 2026-10-01, under the
 [bench lane B6 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5929778646).
 Lane B7 repeated the bench on dev `bbf704ec`, after PR #634, on 2026-10-03; its
 results are in [Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7).
+Lane B8 stopped the same day before its first case, because the known tone did
+not reach the peer's talker; see
+[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -49,6 +52,7 @@ These are operator observations, not review verdicts.
 - **[Limits](#limits)** -- What the measurements do not show.
 - **[Artifact hashes](#artifact-hashes)** -- Raw files, the lane packet's evidence files, and where the packets are published.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
+- **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items, stopped at the tone proof: the identity gate, the known tone absent at the peer's talker, the bench as left, the #629 acceptance re-judged, limits and hashes.
 
 ## Identity and setup
 
@@ -1256,5 +1260,198 @@ raw rows above are recorded there unchanged.
 | `tools/b7_ctl.py` | 12,532 | `5232777314b5898778f6bae17f0b5497a8b8c2aa5c4b192e6dfca7d0a75f7fb6` |
 | `tools/identity_cmp.py` | 6,748 | `fb14729d9304dd33e6b3559d0987048b478260f04e0206cef0a85b647de62904` |
 | `tools/probe_b7.py` | 9,375 | `917e7280e494aafdbc7d40f3188a8c9f27b14647126589c18c1f8cf6f90a0db2` |
+| `tools/b6_thdn.py` (unchanged from lane B6) | 12,423 | `d4673f55642b850f57601b27d8fc930cc5382c2138f54edb1a7296bb4653a95f` |
+| `tools/b6_tone.py` (unchanged from lane B6) | 2,965 | `d188a1a9ac0c3d94a2dab7d7b44ff7487490c87b969ea8c7d1b69382743179ac` |
+
+## Dev bbf704ec, 2026-10-03: lane B8
+
+Refs #629. Operator [A521], 2026-10-03, under the
+[bench lane B8 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5970760794).
+The image is lane B7's: the manager's build of dev
+`bbf704ecc3ef2e9cdd4cfdb72ec085e7428d1352`, as flashed for lane B7. The lane
+was to run #629's remaining bench items:
+
+1. Direction B graded by the THD+N and SNR of a known tone fed into the
+   reference peer's talker inputs;
+2. a source switch between the peer's AAF and CRF streams, the DUT as listener;
+3. the lock loss of a followed CRF stream;
+4. the saved clock-source selection across one cold power cycle of the DUT.
+
+**The lane stopped at item 1's precondition.** The known tone did not reach the
+peer's talker, which is one of the assignment's STOP conditions, and the lane
+posted STOP on [#629](https://github.com/kebag-logic/milan-fpga/issues/629).
+None of the four items ran, and the one power cycle the lane was authorised for
+was not used. Every change was restored and read back.
+
+| #629 bench item | Verdict | Evidence |
+|---|---|---|
+| Identity gate, dev `bbf704ec` | PASS | Every check of lane B7's gate, equal to the build's. See [B8: identity and setup](#b8-identity-and-setup) |
+| The known tone at the peer's talker | Absent: STOP | The DUT's TDM output on the peer talker's channels carried -2 to +1 LSB and no tone, while the DUT received the peer's stream without a break. See [B8: the tone proof](#b8-the-tone-proof) |
+| 1. Direction B: B0, B-CRF and B-AAF graded by THD+N and SNR | NOT RUN | STOP |
+| 2. A source switch under following, AAF to CRF and CRF to AAF | NOT RUN | STOP |
+| 3. Lock loss of a followed CRF stream | NOT RUN | STOP |
+| 4. The saved selection across a power cycle | NOT RUN | STOP; the power cycle was not used |
+| Restore | Done | See [B8: bench as left](#b8-bench-as-left) |
+
+These are operator observations, not review verdicts. Paths such as
+`runs/proof/events.jsonl` are in the lane packet;
+[B8: artifact hashes](#b8-artifact-hashes) names it.
+
+### B8: identity and setup
+
+The gate is lane B7's ([B7: identity and setup](#b7-identity-and-setup)),
+against the same build values, and every check passed. Its verdict file is
+byte-equal to lane B7's.
+
+| Identity check | Result |
+|---|---|
+| VERSION | `0x00020060` |
+| AEM image CRC32, 7,512 bytes | `5ba355eb`, the build's `aem_desc.bin` |
+| BIOS ROM CRC32, 53,588 bytes | `2144df1c`, the build's BIOS |
+| QSPI bitstream payload CRC32, 3,825,788 bytes | `e6b8febc`, the build's payload |
+| Live descriptors over AECP | Lane B7's 11, each byte-equal to the build's AEM image; CLOCK_SOURCE 3 answers NO_SUCH_DESCRIPTOR |
+| Clock sources of #629 | CLOCK_SOURCE 0 INTERNAL; 1 INPUT_STREAM on STREAM_INPUT 1, the CRF input; 2 INPUT_STREAM on STREAM_INPUT 0, the AAF input. CLOCK_DOMAIN 0 lists 0, 1 and 2 and reads 0 |
+| UART grader | 10 of 10 |
+| Identity gate | PASS |
+
+As found, the bench was as lane B7 left it:
+
+- **DUT.** Every stream unbound, both audio maps empty, CLOCK_DOMAIN 0 on
+  INTERNAL, STREAM_INPUT 0 at `0205022002006000`. NVM slots seq 17 and 16,
+  `VD_OK`, 17 commits since boot.
+- **Reference peer.** Every stream unbound, its CLOCK_DOMAIN on INTERNAL, its
+  STREAM_INPUT 0 at `0205022001006000`.
+- **SoC board.** The boot lane B7 used, both bridge legs running with the
+  bridge script's command lines. Its console stood at a root prompt, and `id`
+  over the board link confirmed it. No credential was typed or stored. The two
+  bridge legs were stopped by process ID before the tone proof and restarted
+  with the recorded command lines after it, as in lanes B6 and B7.
+- **Controller host.** No gPTP daemon, no staging.
+
+### B8: the tone proof
+
+The assignment asks for proof that the tone reaches the peer's talker before
+any grading.
+
+**The tone.** Lane B6's two tones, 997 Hz and 9,973 Hz with its start phases,
+at -20 dBFS (`b8_tone.py`), were played into the reference peer's talker
+inputs by the owner's method. No setting of any instrument was read or
+changed. The playback ran from 18:04:59 to 18:06:51
+CEST, and through the proof it was running, consuming 48,000 frames a second.
+
+**The probe.** It is lane B7's known-signal probe with one change: McASP0's
+recording of the DUT's TDM output is sent over the board link to the bench
+host and graded there (`probe_b8.py`, `b8_proof.py`), instead of being reduced
+on the board. Under the binding rule the DUT's STREAM_INPUT 0 took the peer
+talker's `0205022001006000`, set and read back. Four identity mappings went
+on STREAM_PORT_INPUT 0, and the peer's AAF talker was bound to that input:
+SUCCESS, connection count 1. McASP0 then recorded 10 s, 480,000 frames, from
+18:05:13 CEST. Everything was restored and read back afterwards.
+
+| TDM output channel | Level, dBFS RMS | Range, 24-bit LSB | Power within 5 Hz of 997 Hz | Power within 5 Hz of 9,973 Hz |
+|---|---|---|---|---|
+| 0 | -141.1 | -2 to 0 | 0.04 % | 0.04 % |
+| 1 | -141.1 | -2 to +1 | 0.04 % | 0.04 % |
+| 2 | -141.5 | -1 to 0 | 0.03 % | 0.04 % |
+| 3 | -141.5 | -1 to 0 | 0.04 % | 0.04 % |
+| 4 to 7, unmapped | No signal: every word zero | 0 | - | - |
+
+`b8_proof.py` finds a tone on a channel when over 90 % of the channel's power
+lies within 5 Hz of it, at -40 dBFS or more. No channel carries either tone.
+The 0.03 to 0.04 % is the share of a flat noise floor in a 10 Hz band, and the
+range is lane B6's and lane B7's idle floor.
+
+The stream itself arrived. The DUT's STREAM_INPUT 0 read MEDIA_LOCKED 1 and
+MEDIA_UNLOCKED 0 at both of its counter reads, 12.6 s apart around the
+recording. Between them FRAMES_RX rose by 103,998, with no interruption, no
+sequence mismatch and no late or early timestamp. So the DUT received the peer's
+talker stream throughout, and that stream carried no tone.
+
+**STOP.** The tone did not reach the peer's talker, so the lane stopped. Where
+along the tone's path into the peer it was lost was not examined: that path is
+the owner's bench, and no setting of it may be read or changed. The tone was
+stopped at 18:06:51 CEST.
+
+**One incident, the bench lock.** The playback's first start, at 18:03:16
+CEST, left the bench lock held: the detached playback had inherited the lock's
+descriptor. Only this lane's own first probe attempt waited on it, and it gave
+up after 60 s with nothing done. The playback was stopped by its process ID
+shortly before 18:04:59 and started again with the descriptor closed
+(`tone_play_b8.sh`, `flock -o`). The lock was free after every later step.
+
+### B8: bench as left
+
+| State | As left |
+|---|---|
+| DUT stream state | All unbound; both audio maps empty, read back |
+| DUT clock domain | CLOCK_SOURCE 0, read back |
+| DUT STREAM_INPUT 0 format | `0205022002006000`, as found, read back |
+| Reference peer | Every stream unbound; its CLOCK_DOMAIN on INTERNAL and its STREAM_INPUT 0 format as found |
+| Census, start against end | 46 of 46 entries equal |
+| DUT saved state | NVM slots seq 19 and 18, `VD_OK`, 19 commits since boot: the probe's format and map edits and their restores |
+| The tone | Stopped; no playback left |
+| SoC board | Same boot; both bridge legs running with the script's command lines under new process IDs; PCM states, USB function and fault scan as at the start |
+| Controller host | No task process; staging removed |
+| Bench host | Both USB audio devices present; the board link's address present; the bench lock free |
+
+Residuals that no permitted command restores:
+
+- **DUT NVM persistence** advanced by two commits through the probe's format
+  and map edits.
+- **DUT counters** that clear only on reset moved: `SLIP_LB` by 12 dups while
+  the peer's stream was bound with the DUT on INTERNAL, and the talker frame
+  counters.
+
+### B8: #629 acceptance
+
+Lane B8 changes no judgement in [B7: #629 acceptance](#b7-629-acceptance),
+because it ran no case. The items it was to close stay open:
+
+| #629 item | Judgement after lane B8 | Why |
+|---|---|---|
+| Fabric: a source switch re-locks without an undeclared discontinuity | Not met at the bench, as after lane B7 | Item 2 was not run; the INTERNAL-to-AAF slip lane B7 recorded stays with [#645](https://github.com/kebag-logic/milan-fpga/issues/645) |
+| Lock loss: the declared holdover and restart, and `mr` | Met for the AAF source, by lane B7; the CRF source has no bench evidence | Item 3 was not run |
+| Protocol processor: the selection kept as saved state | Met in part, as after lane B7 | Item 4 was not run; no power cycle took place |
+| Bench quality metric: THD+N and SNR of a known tone on the selected path | Met for Direction A, by lane B7; NOT met for Direction B | The known tone does not reach the peer's talker ([B8: the tone proof](#b8-the-tone-proof)) |
+| Every other item | As judged in [B7: #629 acceptance](#b7-629-acceptance) | - |
+
+So not every #629 item is met, and #629 stays open.
+
+### B8: limits
+
+- The proof shows the tone absent from the peer's talker channels as the DUT
+  receives them. It does not locate the loss.
+- Items 1 to 4 have no bench evidence from this lane.
+- Printed precision is not calibrated accuracy.
+
+### B8: artifact hashes
+
+The raw file stays outside the lane packet, on the bench host. The packet's
+`RAW-ARTIFACTS.json` records it.
+
+| Raw file | Bytes | SHA-256 |
+|---|---|---|
+| `proof/mcasp-all.raw` (McASP0's 10 s recording, 8 channels) | 15,360,000 | `b1dc772d8fcbce5e417d6777eff9cbe4df2053b9f82b8eda5a8251e3da93ecdd` |
+
+The lane packet, `629-b8-a521`, holds the evidence and the tools. Its manifest
+covers every retained file except itself. One redaction pass masked private
+identifiers in 23 packet files, and `redaction.json` records each masked
+file's original and retained SHA-256. Every row below is the retained file.
+Two tools, `b8_tone.py` and `tone_play_b8.sh`, are masked where they describe
+the tone source, so each is a record of the tool as run, not a runnable copy;
+`redaction.json` holds the as-run SHA-256 of each.
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `summary/proof/proof.json` (`b8_proof.py`'s grade of the recording) | 1,104 | `6b68262b0b546d2d6f706d86bb422c8622a930d12e3bab0feeca9dd9f3757281` |
+| `runs/proof/events.jsonl` (the probe's steps) | 1,851 | `8245bc33f848e7cc4120b2c432d5c949e5307e41d08da65f00749f954630e086` |
+| `runs/proof/ctl.jsonl` (the probe's controller transactions) | 15,059 | `e2ce6e8c1724e39f10d7f126909ed09af8bd62e9825704a91c0ffb87404b8ecd` |
+| `runs/proof/soc-record.log` (the recording's board transcript) | 624 | `bb554bd49a0e73f6e763662652622f13500fc15f2af5b979f0dc98fd3664637f` |
+| `identity/identity-verdict.txt` (`identity_cmp.py`) | 3,037 | `ff817aca4909f1030c9296cfac3bc6af41994323e7b0a41610a505359d1422d4` |
+| `restore/census-compare.txt` | 64 | `1bfd339c3dd7dbdaad13ed256feaef4ae27b3bf4d9731d53440ea0868a0889d0` |
+| `tools/probe_b8.py` | 10,722 | `10bcffd340c3a8653622c0ba1acc005d54b35ccd88297ed1d080a31c01f74749` |
+| `tools/b8_proof.py` | 2,809 | `953ee95d064c7d65be980ee7d7c7d53c417e1996830f879ec92a6a557add3f3c` |
+| `tools/b8_tone.py` (masked) | 2,262 | `fc7a84c60b1f6a6f01a202b790aa4e22eb06a356c2b509bbbeeb0afcefb6efaa` |
+| `tools/tone_play_b8.sh` (masked) | 2,256 | `9574c5912b0900cfcfc986f973723b9161d650ab86c2cce76e39f885ff5cc237` |
 | `tools/b6_thdn.py` (unchanged from lane B6) | 12,423 | `d4673f55642b850f57601b27d8fc930cc5382c2138f54edb1a7296bb4653a95f` |
 | `tools/b6_tone.py` (unchanged from lane B6) | 2,965 | `d188a1a9ac0c3d94a2dab7d7b44ff7487490c87b969ea8c7d1b69382743179ac` |
