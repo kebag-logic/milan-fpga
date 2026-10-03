@@ -1,0 +1,20 @@
+control: PASS rc=0 resource gate selftest: 181 arms PASS
+KILLED     ooc RAMB36 not gated: rc=1 RESULT: PASS
+KILLED     ooc DSP not gated: rc=1 RESULT: PASS
+KILLED     route DSP not gated: rc=1 RESULT: PASS
+KILLED     route RAMB36 not gated: rc=1 RESULT: PASS
+KILLED     CLI refusal exits 0: rc=1 NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-6rms2qvb/route/arm/gateware: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resou
+KILLED     CLI check-baseline exits 0: rc=1 route: tolerance LUT is None in the baseline and 10.0 in the budget table
+KILLED     design state not bound: rc=1 RESULT: PASS
+KILLED     design name not bound: rc=1 RESULT: PASS
+KILLED     header uniqueness: rc=1 RESULT: PASS
+KILLED     ceiling boundary: rc=1 RESULT: MATERIAL REGRESSION
+KILLED     floor boundary: rc=1 RESULT: MATERIAL REGRESSION
+KILLED     timing fall boundary: rc=1 RESULT: MATERIAL REGRESSION
+KILLED     one timing summary: rc=1 Design Timing Summary has no WNS row
+KILLED     timing header present: rc=1 unreadable measurement /tmp/pp-resource-gate-dbm0qp4a/route/arm/gateware: IndexError: list index out of range
+KILLED     one generated top: rc=1 RESULT: PASS
+KILLED     include dir present: rc=1 unreadable measurement /tmp/pp-resource-gate-v4quv2vn/route/arm/gateware: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-gate-v4quv2v
+NOT-UNIQUE baseline floor value: 
+KILLED     candidate kind from directory: rc=1 NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-21uh4de2/ooc/arm/ooc: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-gat
+extra mutants: 17 killed, 0 survived, 1 not unique, of 18

@@ -1,0 +1,29 @@
+job 111203168912 yosys-elaboration head_sha b5894838d6c47180ac4169e7d52dd746f461af21 conclusion success
+resource gate malformed-baseline arm: a NaN floor: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an infinite tolerance: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a ceiling too large to be finite: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a file nested too deep to read: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in the file: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in an endpoint: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a record kind that is a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown record kind: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity without its device: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity field of another type: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a flow that is not text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest that is no digest: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures that are a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures without LUT: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is null: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: scopes that are a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope without its CARRY4 count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a fractional scope count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a negative scope count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a tolerance that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a ceiling that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a floor table that is a list: exit 2 through check and check-baseline PASS
+resource gate selftest: 181 arms PASS
+resource gate mutants: control passes, all 122 mutants fail
+baseline PASS: 3 endpoints

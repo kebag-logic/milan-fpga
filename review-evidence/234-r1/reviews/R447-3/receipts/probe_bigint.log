@@ -1,0 +1,15 @@
+control: the recorded baseline
+    check rc 0: RESULT: PASS
+    check-baseline rc 0: baseline PASS: 3 endpoints
+decimal 1e400 as the recorded WNS_ns (refused as designed)
+    check rc 2: NOT COMPARABLE: baseline $SCRATCH/probe_bigint/baseline.json is unreadable: the number 1e400 is not finite
+    check-baseline rc 2: NOT COMPARABLE: baseline $SCRATCH/probe_bigint/baseline.json is unreadable: the number 1e400 is not finite
+integer literal 10**400 as the recorded WNS_ns
+    check rc 2: NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which is not an architectural change
+    check-baseline rc 0: baseline PASS: 3 endpoints
+integer literal 10**400 as the recorded WHS_ns
+    check rc 2: NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which is not an architectural change
+    check-baseline rc 0: baseline PASS: 3 endpoints
+integer literal 10**400 as the recorded LUT (control: integer arithmetic)
+    check rc 2: NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which is not an architectural change
+    check-baseline rc 0: baseline PASS: 3 endpoints

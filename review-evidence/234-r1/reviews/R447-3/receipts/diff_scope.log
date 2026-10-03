@@ -1,0 +1,29 @@
+== 0feff20f..b5894838 name-status
+M	docs/design/AREA_BUDGET.md
+M	docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+M	syn/ooc/pp_baseline_rank.py
+M	syn/ooc/pp_resource_gate.py
+M	syn/ooc/pp_resource_gate_mutants.py
+M	syn/ooc/pp_resource_gate_selftest.py
+== 1269cdaf..b5894838 name-status
+M	.github/workflows/rtl-fast.yml
+M	docs/design/AREA_BUDGET.md
+A	docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+M	docs/findings/README.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+M	scripts/ci_events.py
+M	scripts/ci_scope.py
+M	syn/ooc/pp_baseline.py
+M	syn/ooc/pp_baseline_mutants.py
+M	syn/ooc/pp_baseline_rank.py
+A	syn/ooc/pp_resource_baseline.json
+A	syn/ooc/pp_resource_gate.py
+A	syn/ooc/pp_resource_gate_mutants.py
+A	syn/ooc/pp_resource_gate_selftest.py
+== files under hdl/ or gitlink changes in whole PR: 0
+== round-3 commits
+b5894838d Add a shipped mutant for the timed-endpoint count boundary, whose reviewer mutant no longer applies after the ASCII count change
+2b98e4859 Scope the budget page's exit-code sentence to check, which exits 2 for every input it cannot judge
+b38bb06d3 State the resource gate's total exit-code contract and the stale route status report risk, and say the processor top's 107 FFs are its timer-arm queues
+d54f61802 Validate the whole resource baseline before check or check-baseline reads it, read every report count as ASCII digits and require one row of each route status count, with arms and killed mutants

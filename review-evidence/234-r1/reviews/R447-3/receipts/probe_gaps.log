@@ -1,0 +1,6 @@
+1 route status with two 'nets with routing errors' rows (both 0); check: rc 2: NOT COMPARABLE: alinx_ax7101_route_status.rpt has no single 'nets with routing errors' row
+2 route status report that is not UTF-8; check: rc 2: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: 'utf-8' codec can't decode byte 0xff in position 651: invalid start byte
+3 budget page that is not UTF-8; check-baseline: rc 2: budget budget-not-utf8.md: 'utf-8' codec can't decode byte 0xff in position 13431: invalid start byte
+4 timing summary with TNS endpoints 179432 and THS endpoints 0; check: rc 2: NOT COMPARABLE: Design Timing Summary times no endpoint: total endpoints ['179432', '0']
+5 standalone clock list holding a number; check: rc 2: NOT COMPARABLE: baseline $SCRATCH/gaps/baseline.json is malformed: route-1x1: the record identity's flow or standalone clock is not a | check-baseline: rc 2: NOT COMPARABLE: baseline $SCRATCH/gaps/baseline.json is malformed: route-1x1: the record identity's flow or standalone clock is not a
+6 identity with an extra key; check: rc 2: NOT COMPARABLE: baseline $SCRATCH/gaps/baseline.json is malformed: route-1x1: the record identity does not hold exactly tool, device, | check-baseline: rc 2: NOT COMPARABLE: baseline $SCRATCH/gaps/baseline.json is malformed: route-1x1: the record identity does not hold exactly tool, device,

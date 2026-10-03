@@ -1,0 +1,15 @@
+control: PASS rc=0 resource gate selftest: 181 arms PASS
+SURVIVED   routing-error row may repeat: rc=0 resource gate selftest: 181 arms PASS
+SURVIVED   undecodable budget page escapes: rc=0 resource gate selftest: 181 arms PASS
+SURVIVED   undecodable route status escapes: rc=0 resource gate selftest: 181 arms PASS
+SURVIVED   bool scope counts accepted: rc=0 resource gate selftest: 181 arms PASS
+SURVIVED   standalone clock items unchecked: rc=0 resource gate selftest: 181 arms PASS
+KILLED     flow items unchecked: rc=1 AssertionError: malformed-baseline arm 'a flow that is not text' through check: exit 2, wanted 2 naming 'not a list of text'
+KILLED     digest of any length: rc=1 AssertionError: malformed-baseline arm 'an input digest that is no digest' through check: exit 0, wanted 2 naming 'not a sha256 hex digest'
+SURVIVED   identity may hold extra keys: rc=0 resource gate selftest: 181 arms PASS
+SURVIVED   only TNS endpoints counted: rc=0 resource gate selftest: 181 arms PASS
+KILLED     only THS endpoints counted: rc=1 pp_resource_gate.Refusal: Design Timing Summary times no endpoint: total endpoints []
+KILLED     load refusal reaches judge: rc=1 escaped KeyError: 'record'
+KILLED     hierarchy counts from the fourth cell: rc=1 AssertionError: route arm 'hierarchy count in other digits': exit 0, wanted 2 naming 'not a row of counts'
+SURVIVED   hierarchy counts end early: rc=0 resource gate selftest: 181 arms PASS
+round-3 extra mutants: 5 killed, 8 survived, 0 not unique, of 13

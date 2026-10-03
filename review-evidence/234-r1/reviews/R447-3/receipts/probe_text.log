@@ -1,0 +1,21 @@
+control: the recorded baseline
+    check rc 0: RESULT: PASS
+    check-baseline rc 0: baseline PASS: 3 endpoints
+A: an extra endpoint named with a lone surrogate (a copy of route-1x1)
+    check rc 0: RESULT: PASS
+    check-baseline rc 1 TRACEBACK: UnicodeEncodeError: 'utf-8' codec can't encode character '\ud800' in position 0: surrogates not allowed
+B: an unknown endpoint field named with a lone surrogate
+    check rc 1 TRACEBACK: UnicodeEncodeError: 'utf-8' codec can't encode character '\ud800' in position 155: surrogates not allowed
+    check-baseline rc 1 TRACEBACK: UnicodeEncodeError: 'utf-8' codec can't encode character '\ud800' in position 155: surrogates not allowed
+C: an unknown file field named with a lone surrogate
+    check rc 1 TRACEBACK: UnicodeEncodeError: 'utf-8' codec can't encode character '\ud800' in position 140: surrogates not allowed
+    check-baseline rc 1 TRACEBACK: UnicodeEncodeError: 'utf-8' codec can't encode character '\ud800' in position 140: surrogates not allowed
+D: a route-1x1 sub-block scope named with a lone surrogate (valid counts)
+    check rc 1 TRACEBACK: UnicodeEncodeError: 'utf-8' codec can't encode character '\ud800' in position 609: surrogates not allowed
+    check-baseline rc 0: baseline PASS: 3 endpoints
+E: an extra endpoint named with an ordinary non-ASCII name (control for the surrogate)
+    check rc 0: RESULT: PASS
+    check-baseline rc 2: réroute: only the baseline names it
+F: a duplicate tolerance key (first LUT 99999, last as recorded)
+    check rc 0: RESULT: PASS
+    check-baseline rc 0: baseline PASS: 3 endpoints
