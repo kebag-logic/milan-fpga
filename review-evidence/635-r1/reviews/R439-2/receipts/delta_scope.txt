@@ -1,0 +1,79 @@
+# git log --format='%H %s' 3370c6cbd..HEAD
+420b778a52e4f4bcc8040c13bbc4bef9bc94ada0 Give ADP_IDX0's current_configuration_index its processor pin 631eeb34 meaning: the fallback while the configuration row is unset
+b8ab4f817941295be0801d611dbe6ee61a1b265c Pair the three scoreboard kill tie-offs with C5a's deadline row in the submodule ledger, not the hazard row
+987720eb8352fb5092088a56948f8ad27ec091e7 Qualify KL_pp_shadow's EN_IDENTIFY_NOTIF_P rationale as the ruling on protocol-processor #80, not milan-fpga #80
+e19f14849f1a80c83380af7a0141670bc71cf781 Narrow the changelog's C5a deadline answer: a refusal already chosen stands, and a command that had changed state answers for itself
+ce9488612f251876cce2ea8369dab6239ee5484d Record C5a's NOT_IMPLEMENTED echo for a non-AEM command whose response memory fails, GET_MILAN_INFO among them
+# commit message line counts (subject+body lines, trailers)
+420b778a52e4f4bcc8040c13bbc4bef9bc94ada0 lines=1
+b8ab4f817941295be0801d611dbe6ee61a1b265c lines=1
+987720eb8352fb5092088a56948f8ad27ec091e7 lines=1
+e19f14849f1a80c83380af7a0141670bc71cf781 lines=1
+ce9488612f251876cce2ea8369dab6239ee5484d lines=1
+# git diff --name-status 3370c6cbd HEAD
+M	CHANGELOG.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/reference/SUBMODULES.md
+M	hdl/milan/KL_pp_shadow.sv
+# gitlink diff 3370c6cbd HEAD (empty = unchanged)
+# full delta
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index e2b2e62b2..f5e062ebf 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -41,8 +41,12 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - Issue #635 adopts processor `631eeb34`.
+ - That pin carries processor PRs #135 to #140 and #142.
+ - An AECP command past its 100 ms deadline is answered.
+-- Its answer is ENTITY_MISBEHAVING unless a refusal was chosen.
++- Its answer is ENTITY_MISBEHAVING unless a refusal was already chosen.
++- A command that had already changed state answers for itself.
+ - Non-AEM messages on that path answer NOT_IMPLEMENTED, echoed.
++- So does a non-AEM command whose response memory fails.
++- GET_MILAN_INFO is one; at `b2db3a97` it answered ENTITY_MISBEHAVING.
++- Processor PR #140 cites Milan Table 5.19 for this.
+ - AECP and ACMP work now serialize by hazard class.
+ - Locked `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE` and `SET_CONTROL` refusals carry the value in force.
+ - `SET_CONTROL`'s out-of-range refusal carries it too.
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 16901a248..8fd64c7d5 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1013,7 +1013,7 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
+ | `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. Option OFF reads zero; writes are inert. |
+ | `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot. Option OFF reads zero; writes are inert. |
+ | `0x62C` | `ADP_GPTP_DOMAIN` | RO live | `0` | `[7:0]` gptp_domain_number - ADPDU byte 48. At `VERSION=0x0002_0060` this is a structural domain `0` in both fabric mode and the ownerless verification-only option-OFF build. All writes are inert; no startup publication step owns this word. |
+-| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
++| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`), `[31:16]` identify_control_index |
+ | `0x634` | `ADP_IDX1` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` interface_index. Stored and read back; never reaches the wire |
+ | `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[31:0]`. Stored and read back; never reaches the wire |
+ | `0x63C` | `ADP_ASSOC_ID_HI` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[63:32]`. Stored and read back; never reaches the wire |
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index 336773d7e..d1ddb7627 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -111,8 +111,9 @@ The parent can observe these processor changes.
+ |---|---|
+ | C6 adds input `identify_button_i` and parameter `EN_IDENTIFY_NOTIF_P`, default 0 | `KL_pp_shadow` ties both to 0 until a board button exists |
+ | C6 draws that input in processor diagram 21 | The parent keeps no copy of that diagram |
+-| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor |
+-| C5a serializes AECP and ACMP work by hazard class | No top port; three scoreboard kill tie-offs left the processor top |
++| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor, and the three scoreboard kill tie-offs left the processor top |
++| C5a answers a non-AEM command whose response memory fails NOT_IMPLEMENTED, with the command echoed ([processor PR 140](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/140); Milan v1.2 Section 5.4.3.3, Table 5.19) | No top port or parameter; GET_MILAN_INFO is such a command, and at `b2db3a97` the same fault answered ENTITY_MISBEHAVING |
++| C5a serializes AECP and ACMP work by hazard class | No top port or parameter |
+ | C5b accepts `DESC_LINE_BYTES_P` from 576 to 1008, in steps of 8 | The parent binds 576, the floor |
+ | C3 carries a SET_CONFIGURATION index in the ADPDU | The parent image declares one configuration; the wire is unchanged while `ADP_IDX0` is 0 |
+ | C2 fixes the internal MAAP engine | The parent ties `cfg_maap_internal_i` to 0, so it stays inactive |
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 46f3faf8e..3ac2db1e8 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -1096,7 +1096,7 @@ module KL_pp_shadow #(
+       .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
+       .RESP_BASE_P         (RESP_BASE_P),
+       //! P-EN-IDENTIFY-NOTIFICATION stays 0 until a debounced board button is
+-      //! wired to identify_button_i (processor lane C6, manager ruling on #80)
++      //! wired to identify_button_i (processor lane C6, manager ruling on protocol-processor #80)
+       .EN_IDENTIFY_NOTIF_P (1'b0)
+       //! NOT bound here, on purpose: NVM_RS_TMO_CYC_P (each restore wait's
+       //! deadline), NVM_RS_AGG_CYC_P (the whole restore's, from restore_go_i)
