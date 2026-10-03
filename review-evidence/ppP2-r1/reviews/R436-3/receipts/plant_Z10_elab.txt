@@ -1,0 +1,17 @@
+ELAB FAIL  MEM_TIMEOUT_CYC_P=1 (a legal value must elaborate clean)
+%Warning-WIDTHEXPAND: ../../hdl/packet_engine/KL_pp_nvm_port.sv:296:56: Operator NEQ expects 16 bits on the LHS, but LHS's VARREF 'owed_left_r' generates 8 bits.
+%Warning-WIDTHTRUNC: ../../hdl/packet_engine/KL_pp_nvm_port.sv:325:51: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's VARREF 'left_w' generates 16 bits.
+%Warning-WIDTHEXPAND: ../../hdl/packet_engine/KL_pp_nvm_port.sv:326:66: Operator SUB expects 16 bits on the LHS, but LHS's VARREF 'owed_left_r' generates 8 bits.
+%Warning-WIDTHTRUNC: ../../hdl/packet_engine/KL_pp_nvm_port.sv:326:51: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SUB generates 16 bits.
+%Error: Exiting due to 4 warning(s)
+ELAB FAIL  MEM_TIMEOUT_CYC_P=2147483647 (a legal value must elaborate clean)
+%Warning-WIDTHEXPAND: ../../hdl/packet_engine/KL_pp_nvm_port.sv:296:56: Operator NEQ expects 16 bits on the LHS, but LHS's VARREF 'owed_left_r' generates 8 bits.
+%Warning-WIDTHTRUNC: ../../hdl/packet_engine/KL_pp_nvm_port.sv:325:51: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's VARREF 'left_w' generates 16 bits.
+%Warning-WIDTHEXPAND: ../../hdl/packet_engine/KL_pp_nvm_port.sv:326:66: Operator SUB expects 16 bits on the LHS, but LHS's VARREF 'owed_left_r' generates 8 bits.
+%Warning-WIDTHTRUNC: ../../hdl/packet_engine/KL_pp_nvm_port.sv:326:51: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SUB generates 16 bits.
+%Error: Exiting due to 4 warning(s)
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name, as it must be)
+make: *** [Makefile:64: elab] Error 1
+make: Target 'run' not remade because of errors.

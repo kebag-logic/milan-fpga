@@ -1,0 +1,87 @@
+merge 46796bf  parent1 f4519fea192fd53979bcfcbd23d9ceb554b77aed  parent2 88969246cbb82bf9d4975496f93a5420bbe3aa21  base 631eeb342ca1e3fa80e734077a56a943aee76ff1
+  docs/00_MILAN_COMPLIANCE_REVIEW.md: = parent2
+  docs/architecture/01_overview.md: both sides changed
+  docs/architecture/02_interfaces.md: = parent1
+  docs/architecture/04_adp_engine.md: = parent2
+  docs/architecture/07_memory_maps.md: both sides changed
+  docs/architecture/08_timing.md: = parent1
+  docs/architecture/09_verification.md: both sides changed
+  docs/diagrams/21-integration-faces.png: = parent1
+  docs/diagrams/21-integration-faces.svg: = parent1
+  docs/guides/integrator.md: both sides changed
+  hdl/aecp/KL_aecp_desc_store.sv: = parent2
+  hdl/aecp/desc/example_milan_8.json: = parent2
+  hdl/aecp/desc/gen_desc_image.py: = parent2
+  hdl/aecp/desc/milan_min.json: = parent2
+  hdl/aecp/desc/model_ids.json: = parent2
+  hdl/aecp/desc/model_lint.py: = parent2
+  hdl/aecp/desc/model_rules.py: = parent2
+  hdl/packet_engine/KL_pp_nvm_mgr_arb.sv: = parent1
+  hdl/packet_engine/KL_pp_nvm_port.sv: = parent1
+  hdl/top/protocol_processor_top.sv: = parent1
+  tb/acmp_nvm/Makefile: = parent1
+  tb/acmp_nvm/README.md: = parent1
+  tb/acmp_nvm/acmp_nvm_wrap.sv: = parent1
+  tb/acmp_nvm/sim_main.cpp: = parent1
+  tb/desc_store/Makefile: = parent2
+  tb/desc_store/README.md: = parent2
+  tb/desc_store/lint_mutations.py: = parent2
+  tb/desc_store/lint_suppression.py: = parent2
+  tb/desc_store/test_gen_desc_image.py: = parent2
+  tb/nvm_port/Makefile: = parent1
+  tb/nvm_port/README.md: = parent1
+  tb/nvm_port/deadline_rows.py: = parent1
+  tb/nvm_port/elab_bounds.sh: = parent1
+  tb/nvm_port/fuzz_main.cpp: = parent1
+  tb/nvm_port/measure_figures.py: = parent1
+  tb/nvm_port/sim_main.cpp: = parent1
+  tb/pp_top/README.md: = parent2
+merge-tree:
+  rc=1 tree=969c1a5e0b864f0373a9623b2124dd7a3ab2dd8c (merge's tree 3b258729627df75b0bdbe3e2f535af9a68419c13)
+  docs/architecture/09_verification.md
+  
+  Auto-merging docs/architecture/01_overview.md
+  Auto-merging docs/architecture/07_memory_maps.md
+  Auto-merging docs/architecture/09_verification.md
+  CONFLICT (content): Merge conflict in docs/architecture/09_verification.md
+  Auto-merging docs/guides/integrator.md
+merge 527662d  parent1 46796bfbbf218093890f7ab5ce5ab3664105d99d  parent2 c74711d45a8bbc0d6b38cb49211b26a4a6413e88  base 88969246cbb82bf9d4975496f93a5420bbe3aa21
+  docs/architecture/01_overview.md: = parent1
+  docs/architecture/02_interfaces.md: = parent1
+  docs/architecture/07_memory_maps.md: = parent1
+  docs/architecture/08_timing.md: = parent1
+  docs/architecture/09_verification.md: = parent1
+  docs/diagrams/21-integration-faces.png: = parent1
+  docs/diagrams/21-integration-faces.svg: = parent1
+  docs/guides/integrator.md: = parent1
+  hdl/packet_engine/KL_pp_nvm_mgr_arb.sv: = parent1
+  hdl/packet_engine/KL_pp_nvm_port.sv: = parent1
+  hdl/top/protocol_processor_top.sv: = parent1
+  tb/acmp_nvm/Makefile: = parent1
+  tb/acmp_nvm/README.md: = parent1
+  tb/acmp_nvm/acmp_nvm_wrap.sv: = parent1
+  tb/acmp_nvm/sim_main.cpp: = parent1
+  tb/acmp_talker/README.md: = parent2
+  tb/acmp_talker/retry_mutants.py: = parent2
+  tb/adp_engine/README.md: = parent2
+  tb/adp_engine/mutants.py: = parent2
+  tb/common/mutant_pool.py: = parent2
+  tb/maap/README.md: = parent2
+  tb/maap/mutants.py: = parent2
+  tb/nvm_port/Makefile: = parent1
+  tb/nvm_port/README.md: = parent1
+  tb/nvm_port/deadline_rows.py: = parent1
+  tb/nvm_port/elab_bounds.sh: = parent1
+  tb/nvm_port/fuzz_main.cpp: = parent1
+  tb/nvm_port/measure_figures.py: = parent1
+  tb/nvm_port/sim_main.cpp: = parent1
+  tb/pp_top/README.md: = parent2
+  tb/pp_top/aecp_dispatch_mutants.py: = parent2
+  tb/pp_top/aecp_mutants.py: = parent2
+  tb/pp_top/gsi_mutants.py: = parent2
+  tb/srp_admission/README.md: = parent2
+  tb/srp_admission/mutants.py: = parent2
+  tb/srp_top/README.md: = parent2
+  tb/srp_top/mutants.py: = parent2
+merge-tree:
+  rc=0 tree=c283d84beb26019fa3a1e3ffc520c9ab32610a42 (merge's tree c283d84beb26019fa3a1e3ffc520c9ab32610a42)

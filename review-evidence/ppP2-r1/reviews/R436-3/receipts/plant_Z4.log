@@ -1,0 +1,22 @@
+Z4: applied 1 edit(s)
+== Z4 rc=2
+FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+356 checks: 337 PASS, 19 FAIL

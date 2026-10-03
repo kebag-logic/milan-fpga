@@ -1,0 +1,6377 @@
+[
+ {
+  "plant": "Q1-wewait-latched-owes",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q1-wewait-latched-owes",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q1-wewait-latched-owes",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q1-wewait-latched-owes",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q1-wewait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3435",
+      "165"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=335673 deadlines=55 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 60 refused DEADLINE (commit, 30 bytes, pattern 0)",
+     "FAIL: legal op 60 err cause 3, want DEVICE",
+     "FAIL: legal op 60 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3483",
+      "117"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=360612 deadlines=39 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 11 refused DEADLINE (commit, 23 bytes, pattern 2)",
+     "FAIL: legal op 11 err cause 3, want DEVICE",
+     "FAIL: legal op 11 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3426",
+      "174"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=335963 deadlines=58 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 4 refused DEADLINE (commit, 10 bytes, pattern 0)",
+     "FAIL: legal op 4 err cause 3, want DEVICE",
+     "FAIL: legal op 4 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2258",
+      "142"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=474876 deadlines=694 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 0 not served",
+     "FAIL: silent op 1: 37 owed cycles between the device's last event and the pulse, want 38 (obl 9 of 19, commit, pattern 1, held 118)",
+     "FAIL: silent refill 2 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2261",
+      "139"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=485172 deadlines=685 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 9 not served",
+     "FAIL: silent op 11: 37 owed cycles between the device's last event and the pulse, want 38 (obl 26 of 34, commit, pattern 1, held 29)",
+     "FAIL: silent refill 13 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2261",
+      "139"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=489177 deadlines=692 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 2 not served",
+     "FAIL: silent op 3: 37 owed cycles between the device's last event and the pulse, want 38 (obl 11 of 30, commit, pattern 0, held 0)",
+     "FAIL: silent refill 8 not served"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1172",
+      "1139",
+      "33"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=313580 deadlines=654 served=130 dl_branch=222 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 4: no DEADLINE",
+     "FAIL: resume op 33: the device ended the abandoned command 19 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 66: the device ended the abandoned command 25 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1241",
+      "1209",
+      "32"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=330331 deadlines=646 served=152 dl_branch=219 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 28: no DEADLINE",
+     "FAIL: resume op 68: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 84: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1187",
+      "1147",
+      "40"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=322844 deadlines=638 served=130 dl_branch=223 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 19: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 61: no DEADLINE",
+     "FAIL: resume op 111: the device ended the abandoned command 6 cycles into the wait (bound 37), yet the op was not served (1 err, cause 2)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q1-wewait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3450",
+      "150"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=63184 deadlines=50 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 2 refused DEADLINE (commit, 29 bytes, pattern 0)",
+     "FAIL: legal op 2 err cause 3, want DEVICE",
+     "FAIL: legal op 2 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3384",
+      "216"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=64853 deadlines=72 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 1 refused DEADLINE (commit, 28 bytes, pattern 0)",
+     "FAIL: legal op 1 err cause 3, want DEVICE",
+     "FAIL: legal op 1 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3399",
+      "201"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=60728 deadlines=67 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 8 refused DEADLINE (commit, 9 bytes, pattern 2)",
+     "FAIL: legal op 8 err cause 3, want DEVICE",
+     "FAIL: legal op 8 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2222",
+      "178"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=77875 deadlines=707 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 3 not served",
+     "FAIL: silent refill 7 not served",
+     "FAIL: silent op 8: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 20, commit, pattern 2, held 8)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2217",
+      "183"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=79876 deadlines=721 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1: 3 owed cycles between the device's last event and the pulse, want 4 (obl 7 of 30, commit, pattern 1, held 71)",
+     "FAIL: silent refill 5 not served",
+     "FAIL: silent refill 6 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2204",
+      "196"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=78063 deadlines=721 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 21: 3 owed cycles between the device's last event and the pulse, want 4 (obl 6 of 15, commit, pattern 0, held 0)",
+     "FAIL: silent refill 26 not served",
+     "FAIL: silent op 31: 3 owed cycles between the device's last event and the pulse, want 4 (obl 7 of 15, commit, pattern 2, held 8)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1171",
+      "1126",
+      "45"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=49816 deadlines=654 served=124 dl_branch=219 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 6: no DEADLINE",
+     "FAIL: resume setup 22: no DEADLINE",
+     "FAIL: resume op 46: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1121",
+      "1074",
+      "47"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=50061 deadlines=642 served=106 dl_branch=219 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 21: no DEADLINE",
+     "FAIL: resume op 44: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 65: no DEADLINE"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1136",
+      "1092",
+      "44"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=49754 deadlines=660 served=93 dl_branch=240 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 41: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 47: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 58: no DEADLINE"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q2-rhwait-latched-owes",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q2-rhwait-latched-owes",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "350",
+   "6"
+  ],
+  "fails": [
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 ...and restores byte-exact over 950 cycles",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "Q2-rhwait-latched-owes",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q2-rhwait-latched-owes",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "plant": "Q2-rhwait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3441",
+      "159"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=344381 deadlines=53 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 15 refused DEADLINE (restore, 18 bytes, pattern 1)",
+     "FAIL: legal op 15 err cause 3, want DEVICE",
+     "FAIL: legal op 15 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3468",
+      "132"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=342194 deadlines=44 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 52 refused DEADLINE (restore, 11 bytes, pattern 3)",
+     "FAIL: legal op 52 err cause 3, want DEVICE",
+     "FAIL: legal op 52 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3456",
+      "144"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=349689 deadlines=48 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 25 refused DEADLINE (restore, 10 bytes, pattern 2)",
+     "FAIL: legal op 25 err cause 3, want DEVICE",
+     "FAIL: legal op 25 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2367",
+      "33"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=521717 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 7: 37 owed cycles between the device's last event and the pulse, want 38 (obl 22 of 33, restore, pattern 1, held 292)",
+     "FAIL: silent op 12: 37 owed cycles between the device's last event and the pulse, want 38 (obl 18 of 21, restore, pattern 0, held 0)",
+     "FAIL: silent op 22: 37 owed cycles between the device's last event and the pulse, want 38 (obl 13 of 14, restore, pattern 0, held 0)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2365",
+      "35"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=522241 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 13: 37 owed cycles between the device's last event and the pulse, want 38 (obl 18 of 20, restore, pattern 2, held 11)",
+     "FAIL: silent op 18: 37 owed cycles between the device's last event and the pulse, want 38 (obl 25 of 33, restore, pattern 2, held 7)",
+     "FAIL: silent op 37: 37 owed cycles between the device's last event and the pulse, want 38 (obl 18 of 29, restore, pattern 1, held 23)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2363",
+      "37"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=533679 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 5: 37 owed cycles between the device's last event and the pulse, want 38 (obl 21 of 24, restore, pattern 2, held 8)",
+     "FAIL: silent op 9: 37 owed cycles between the device's last event and the pulse, want 38 (obl 20 of 25, restore, pattern 0, held 0)",
+     "FAIL: silent op 33: 37 owed cycles between the device's last event and the pulse, want 38 (obl 14 of 19, restore, pattern 0, held 0)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1273",
+      "1262",
+      "11"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=345861 deadlines=666 served=155 dl_branch=231 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 81: the device ended the abandoned command 2 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 88: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 234: the device ended the abandoned command 28 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1151",
+      "1145",
+      "6"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=331625 deadlines=615 served=134 dl_branch=223 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 63: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 125: the device ended the abandoned command 13 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 183: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1198",
+      "1189",
+      "9"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=341217 deadlines=645 served=138 dl_branch=228 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 65: the device ended the abandoned command 27 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 340: the device ended the abandoned command 30 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 366: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q2-rhwait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3426",
+      "174"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=61727 deadlines=58 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 11 refused DEADLINE (restore, 15 bytes, pattern 2)",
+     "FAIL: legal op 11 err cause 3, want DEVICE",
+     "FAIL: legal op 11 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3432",
+      "168"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=66246 deadlines=56 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 6 refused DEADLINE (restore, 14 bytes, pattern 0)",
+     "FAIL: legal op 6 err cause 3, want DEVICE",
+     "FAIL: legal op 6 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3378",
+      "222"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=60078 deadlines=74 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 3 refused DEADLINE (restore, 21 bytes, pattern 0)",
+     "FAIL: legal op 3 err cause 3, want DEVICE",
+     "FAIL: legal op 3 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2360",
+      "40"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84509 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 24: 3 owed cycles between the device's last event and the pulse, want 4 (obl 23 of 26, restore, pattern 1, held 25)",
+     "FAIL: silent op 42: 3 owed cycles between the device's last event and the pulse, want 4 (obl 30 of 36, restore, pattern 2, held 8)",
+     "FAIL: silent op 47: 3 owed cycles between the device's last event and the pulse, want 4 (obl 10 of 23, restore, pattern 0, held 0)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2374",
+      "26"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=84425 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 11: 3 owed cycles between the device's last event and the pulse, want 4 (obl 32 of 36, restore, pattern 2, held 8)",
+     "FAIL: silent op 191: 3 owed cycles between the device's last event and the pulse, want 4 (obl 17 of 18, restore, pattern 1, held 4)",
+     "FAIL: silent op 197: 3 owed cycles between the device's last event and the pulse, want 4 (obl 10 of 31, restore, pattern 0, held 0)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2355",
+      "45"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=85443 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 23: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 24, restore, pattern 0, held 0)",
+     "FAIL: silent op 48: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 22, restore, pattern 2, held 13)",
+     "FAIL: silent op 54: 3 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 17, restore, pattern 2, held 11)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1216",
+      "1201",
+      "15"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=57697 deadlines=644 served=141 dl_branch=225 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 24: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 44: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 77: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1151",
+      "1145",
+      "6"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=56725 deadlines=617 served=129 dl_branch=224 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 221: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 223: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 235: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1112",
+      "1105",
+      "7"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=53506 deadlines=626 served=109 dl_branch=234 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 97: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 111: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 335: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q3-wwait-latched-owes",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q3-wwait-latched-owes",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q3-wwait-latched-owes",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q3-wwait-latched-owes",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q3-wwait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q3-wwait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q4-rpwait-latched-owes",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q4-rpwait-latched-owes",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q4-rpwait-latched-owes",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q4-rpwait-latched-owes",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q4-rpwait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q4-rpwait-latched-owes",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q5-count-runs-unowed",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "339",
+   "17"
+  ],
+  "fails": [
+   "T24 S_WEREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_WEREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_WEREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 a device answering every event 100 cycles late commits, done and byte-exact, over 133 cycles",
+   "T24 ...and restores byte-exact over 1042 cycles",
+   "T24 a manager stalling 300 cycles on every commit byte is never charged to the device: done, byte-exact (rc 1)",
+   "T24 ...nor on every restore byte: done, byte-exact (rc 1)",
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (5)"
+  ]
+ },
+ {
+  "plant": "Q5-count-runs-unowed",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "339",
+   "17"
+  ],
+  "fails": [
+   "T24 S_WEREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_WEREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_WEREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: busy low at the pulse, 93 cycles after the last event (want 102)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 a device answering every event 100 cycles late commits, done and byte-exact, over 133 cycles",
+   "T24 ...and restores byte-exact over 942 cycles",
+   "T24 a manager stalling 300 cycles on every commit byte is never charged to the device: done, byte-exact (rc 1)",
+   "T24 ...nor on every restore byte: done, byte-exact (rc 1)",
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (5)"
+  ]
+ },
+ {
+  "plant": "Q5-count-runs-unowed",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "339",
+   "17"
+  ],
+  "fails": [
+   "T24 S_WEREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_WEREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_WEREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 a device answering every event 100 cycles late commits, done and byte-exact, over 133 cycles",
+   "T24 ...and restores byte-exact over 1042 cycles",
+   "T24 a manager stalling 300 cycles on every commit byte is never charged to the device: done, byte-exact (rc 1)",
+   "T24 ...nor on every restore byte: done, byte-exact (rc 1)",
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (5)"
+  ]
+ },
+ {
+  "plant": "Q5-count-runs-unowed",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "339",
+   "17"
+  ],
+  "fails": [
+   "T24 S_WEREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_WEREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_WEREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: busy low at the pulse, 94 cycles after the last event (want 102)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 a device answering every event 100 cycles late commits, done and byte-exact, over 133 cycles",
+   "T24 ...and restores byte-exact over 1042 cycles",
+   "T24 a manager stalling 300 cycles on every commit byte is never charged to the device: done, byte-exact (rc 1)",
+   "T24 ...nor on every restore byte: done, byte-exact (rc 1)",
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, 102 cycles after the last byte, 2 of them held by the manager (rc 1, cause 3)",
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (6)"
+  ]
+ },
+ {
+  "plant": "Q5-count-runs-unowed",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "2593",
+      "1007"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=178519 deadlines=338 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 5 refused DEADLINE (commit, 26 bytes, pattern 0)",
+     "FAIL: legal op 5 err cause 3, want DEVICE",
+     "FAIL: legal op 5 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "2493",
+      "1107"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=161407 deadlines=372 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 0 refused DEADLINE (commit, 23 bytes, pattern 3)",
+     "FAIL: legal op 0 err cause 3, want DEVICE",
+     "FAIL: legal op 0 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "2542",
+      "1058"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=173142 deadlines=356 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 0 refused DEADLINE (commit, 21 bytes, pattern 1)",
+     "FAIL: legal op 0 err cause 3, want DEVICE",
+     "FAIL: legal op 1 refused DEADLINE (commit, 32 bytes, pattern 3)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1695",
+      "705"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=286888 deadlines=918 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 0 not served",
+     "FAIL: silent op 1: 30 owed cycles between the device's last event and the pulse, want 38 (obl 3 of 12, commit, pattern 2, held 0)",
+     "FAIL: silent refill 1 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1724",
+      "676"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=281016 deadlines=912 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 0 not served",
+     "FAIL: silent op 1: 30 owed cycles between the device's last event and the pulse, want 38 (obl 9 of 18, commit, pattern 0, held 0)",
+     "FAIL: silent refill 1 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1696",
+      "704"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=275680 deadlines=927 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 0: 1 owed cycles between the device's last event and the pulse, want 38 (obl 0 of 25, commit, pattern 1, held 37)",
+     "FAIL: silent refill 0 not served",
+     "FAIL: silent op 1: 34 owed cycles between the device's last event and the pulse, want 38 (obl 14 of 34, commit, pattern 1, held 42)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1044",
+      "951",
+      "93"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=204653 deadlines=719 served=58 dl_branch=173 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 27 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 19: no DEADLINE",
+     "FAIL: resume op 35: the device ended the abandoned command 23 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "993",
+      "924",
+      "69"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=195460 deadlines=688 served=67 dl_branch=171 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 5: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 8: no DEADLINE",
+     "FAIL: resume setup 12: no DEADLINE"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "995",
+      "905",
+      "90"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=201846 deadlines=680 served=62 dl_branch=150 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 6: the device ended the abandoned command 3 cycles into the wait (bound 37), yet the op was not served (1 err, cause 2)",
+     "FAIL: resume setup 9: no DEADLINE",
+     "FAIL: resume op 25: the device ended the abandoned command 27 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q5-count-runs-unowed",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "2274",
+      "1326"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=29989 deadlines=450 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 1 refused DEADLINE (commit, 24 bytes, pattern 0)",
+     "FAIL: legal op 1 err cause 3, want DEVICE",
+     "FAIL: legal op 1 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "2258",
+      "1342"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=30119 deadlines=453 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 0 refused DEADLINE (commit, 23 bytes, pattern 3)",
+     "FAIL: legal op 0 err cause 3, want DEVICE",
+     "FAIL: legal op 0 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "2225",
+      "1375"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=28289 deadlines=464 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 1 refused DEADLINE (commit, 26 bytes, pattern 0)",
+     "FAIL: legal op 1 err cause 3, want DEVICE",
+     "FAIL: legal op 1 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1458",
+      "942"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=37489 deadlines=1071 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1: 1 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 25, commit, pattern 0, held 0)",
+     "FAIL: silent refill 1 not served",
+     "FAIL: silent op 2: 1 owed cycles between the device's last event and the pulse, want 4 (obl 13 of 26, commit, pattern 0, held 0)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1439",
+      "961"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=41182 deadlines=1082 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1: 3 owed cycles between the device's last event and the pulse, want 4 (obl 7 of 30, commit, pattern 1, held 71)",
+     "FAIL: silent op 2: 1 owed cycles between the device's last event and the pulse, want 4 (obl 28 of 31, commit, pattern 1, held 313)",
+     "FAIL: silent refill 2 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1442",
+      "958"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=39858 deadlines=1069 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 0: 1 owed cycles between the device's last event and the pulse, want 4 (obl 0 of 25, commit, pattern 1, held 37)",
+     "FAIL: silent refill 0 not served",
+     "FAIL: silent op 1: 1 owed cycles between the device's last event and the pulse, want 4 (obl 27 of 35, commit, pattern 0, held 0)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "898",
+      "777",
+      "121"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=26208 deadlines=679 served=23 dl_branch=123 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 5: no DEADLINE",
+     "FAIL: resume op 23: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 29: no DEADLINE"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "938",
+      "822",
+      "116"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=27702 deadlines=713 served=22 dl_branch=144 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 11: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 13: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 16: no DEADLINE"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "899",
+      "776",
+      "123"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=27449 deadlines=663 served=32 dl_branch=121 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 5: no DEADLINE",
+     "FAIL: resume setup 11: no DEADLINE",
+     "FAIL: resume setup 12: no DEADLINE"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q6-rready-drop-clears",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q6-rready-drop-clears",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 2 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q6-rready-drop-clears",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q6-rready-drop-clears",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q6-rready-drop-clears",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2214",
+      "186"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=39620578 deadlines=548 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 7 (restore, silent at obligation 22 of 33, pattern 1) never answered",
+     "FAIL: silent op 7: 0 done 0 err cause -1, want one err DEADLINE (obl 22 of 33)",
+     "FAIL: silent op 7: -1 owed cycles between the device's last event and the pulse, want 38 (obl 22 of 33, restore, pattern 1, held 676921)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2219",
+      "181"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=38108707 deadlines=550 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 13 (restore, silent at obligation 18 of 20, pattern 2) never answered",
+     "FAIL: silent op 13: 0 done 0 err cause -1, want one err DEADLINE (obl 18 of 20)",
+     "FAIL: silent op 13: -1 owed cycles between the device's last event and the pulse, want 38 (obl 18 of 20, restore, pattern 2, held 35810)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2236",
+      "164"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=34350955 deadlines=555 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 5 (restore, silent at obligation 21 of 24, pattern 2) never answered",
+     "FAIL: silent op 5: 0 done 0 err cause -1, want one err DEADLINE (obl 21 of 24)",
+     "FAIL: silent op 5: -1 owed cycles between the device's last event and the pulse, want 38 (obl 21 of 24, restore, pattern 2, held 28923)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q6-rready-drop-clears",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2320",
+      "80"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=3000873 deadlines=587 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 3: 5 owed cycles between the device's last event and the pulse, want 4 (obl 28 of 34, restore, pattern 1, held 8)",
+     "FAIL: silent op 22 (restore, silent at obligation 14 of 25, pattern 2) never answered",
+     "FAIL: silent op 22: 0 done 0 err cause -1, want one err DEADLINE (obl 14 of 25)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2309",
+      "91"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=2958396 deadlines=587 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 13: 6 owed cycles between the device's last event and the pulse, want 4 (obl 22 of 32, restore, pattern 1, held 52)",
+     "FAIL: silent op 51: 5 owed cycles between the device's last event and the pulse, want 4 (obl 26 of 30, restore, pattern 2, held 13)",
+     "FAIL: silent op 53: 7 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 25, restore, pattern 2, held 8)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2293",
+      "107"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=4945677 deadlines=577 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 6: 7 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 20, restore, pattern 2, held 15)",
+     "FAIL: silent op 31 (restore, silent at obligation 13 of 15, pattern 2) never answered",
+     "FAIL: silent op 31: 0 done 0 err cause -1, want one err DEADLINE (obl 13 of 15)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q7-wvalid-drop-clears",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q7-wvalid-drop-clears",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q7-wvalid-drop-clears",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q7-wvalid-drop-clears",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)"
+  ]
+ },
+ {
+  "plant": "Q7-wvalid-drop-clears",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2173",
+      "227"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=49390335 deadlines=535 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 4 (commit, silent at obligation 19 of 28, pattern 2) never answered",
+     "FAIL: silent op 4: 0 done 0 err cause -1, want one err DEADLINE (obl 19 of 28)",
+     "FAIL: silent op 4: -1 owed cycles between the device's last event and the pulse, want 38 (obl 19 of 28, commit, pattern 2, held 20889)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2205",
+      "195"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=41112521 deadlines=546 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 3: 242 owed cycles between the device's last event and the pulse, want 38 (obl 19 of 21, commit, pattern 1, held 79)",
+     "FAIL: silent op 4 (commit, silent at obligation 12 of 31, pattern 2) never answered",
+     "FAIL: silent op 4: 0 done 0 err cause -1, want one err DEADLINE (obl 12 of 31)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2236",
+      "164"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=35854941 deadlines=553 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1 (commit, silent at obligation 16 of 20, pattern 1) never answered",
+     "FAIL: silent op 1: 0 done 0 err cause -1, want one err DEADLINE (obl 16 of 20)",
+     "FAIL: silent op 1: -1 owed cycles between the device's last event and the pulse, want 38 (obl 16 of 20, commit, pattern 1, held 376243)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q7-wvalid-drop-clears",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2294",
+      "106"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=4607611 deadlines=579 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 11 (commit, silent at obligation 15 of 27, pattern 2) never answered",
+     "FAIL: silent op 11: 0 done 0 err cause -1, want one err DEADLINE (obl 15 of 27)",
+     "FAIL: silent op 11: -1 owed cycles between the device's last event and the pulse, want 4 (obl 15 of 27, commit, pattern 2, held 52000)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2311",
+      "89"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=3414701 deadlines=585 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 2: 7 owed cycles between the device's last event and the pulse, want 4 (obl 21 of 31, commit, pattern 1, held 4)",
+     "FAIL: silent op 6 (commit, silent at obligation 21 of 23, pattern 2) never answered",
+     "FAIL: silent op 6: 0 done 0 err cause -1, want one err DEADLINE (obl 21 of 23)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2292",
+      "108"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=4362371 deadlines=580 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 2: 13 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 20, commit, pattern 1, held 57)",
+     "FAIL: silent op 3: 108 owed cycles between the device's last event and the pulse, want 4 (obl 19 of 27, commit, pattern 1, held 1025)",
+     "FAIL: silent op 4: 1307 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 24, commit, pattern 1, held 11716)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q8-holding-states-clear",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q8-holding-states-clear",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q8-holding-states-clear",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q8-holding-states-clear",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q8-holding-states-clear",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q8-holding-states-clear",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q9-verdict-on-paused-cycle",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the manager drops wvalid, the count at its bound, is taken next and the commit served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after the last byte, the one held included (rc 1, cause 3, held 1)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "Q9-verdict-on-paused-cycle",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the manager drops wvalid, the count at its bound, is taken next and the commit served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after the last byte, the one held included (rc 1, cause 3, held 1)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "Q9-verdict-on-paused-cycle",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the manager drops wvalid, the count at its bound, is taken next and the commit served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after the last byte, the one held included (rc 1, cause 3, held 1)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "Q9-verdict-on-paused-cycle",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the manager drops wvalid, the count at its bound, is taken next and the commit served byte-exact (rc 1, cause 3, 1 drops)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after the last byte, the one held included (rc 1, cause 3, held 1)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "Q9-verdict-on-paused-cycle",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3576",
+      "24"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=386585 deadlines=8 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 46 refused DEADLINE (restore, 24 bytes, pattern 1)",
+     "FAIL: legal op 46 err cause 3, want DEVICE",
+     "FAIL: legal op 46 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3573",
+      "27"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=375721 deadlines=9 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 12 refused DEADLINE (commit, 11 bytes, pattern 2)",
+     "FAIL: legal op 12 err cause 3, want DEVICE",
+     "FAIL: legal op 12 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3588",
+      "12"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=363368 deadlines=4 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 199 refused DEADLINE (restore, 13 bytes, pattern 2)",
+     "FAIL: legal op 199 err cause 3, want DEVICE",
+     "FAIL: legal op 199 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2353",
+      "47"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=527654 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 7: 37 owed cycles between the device's last event and the pulse, want 38 (obl 22 of 33, restore, pattern 1, held 871)",
+     "FAIL: silent op 10: 37 owed cycles between the device's last event and the pulse, want 38 (obl 14 of 21, restore, pattern 1, held 183)",
+     "FAIL: silent op 13: 37 owed cycles between the device's last event and the pulse, want 38 (obl 18 of 21, restore, pattern 1, held 758)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2346",
+      "54"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=517876 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 30: 37 owed cycles between the device's last event and the pulse, want 38 (obl 12 of 21, restore, pattern 1, held 632)",
+     "FAIL: silent op 70: 37 owed cycles between the device's last event and the pulse, want 38 (obl 12 of 19, restore, pattern 1, held 113)",
+     "FAIL: silent op 80: 37 owed cycles between the device's last event and the pulse, want 38 (obl 21 of 32, commit, pattern 1, held 866)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2340",
+      "60"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=568024 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1: 37 owed cycles between the device's last event and the pulse, want 38 (obl 16 of 20, commit, pattern 1, held 241)",
+     "FAIL: silent op 19: 37 owed cycles between the device's last event and the pulse, want 38 (obl 26 of 35, restore, pattern 1, held 998)",
+     "FAIL: silent op 38: 37 owed cycles between the device's last event and the pulse, want 38 (obl 23 of 34, restore, pattern 1, held 1149)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1264",
+      "1258",
+      "6"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=368184 deadlines=648 served=160 dl_branch=238 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 8 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 10: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 139: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1305",
+      "1301",
+      "4"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=361957 deadlines=668 served=160 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 83: the device ended the abandoned command 22 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 128: the device ended the abandoned command 34 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 521: the device ended the abandoned command 20 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1231",
+      "1229",
+      "2"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=358626 deadlines=630 served=154 dl_branch=236 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 274: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 396: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q9-verdict-on-paused-cycle",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3303",
+      "297"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=64526 deadlines=99 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 0 refused DEADLINE (commit, 15 bytes, pattern 1)",
+     "FAIL: legal op 0 err cause 3, want DEVICE",
+     "FAIL: legal op 0 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3216",
+      "384"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67383 deadlines=128 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 12 refused DEADLINE (commit, 32 bytes, pattern 2)",
+     "FAIL: legal op 12 err cause 3, want DEVICE",
+     "FAIL: legal op 12 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3279",
+      "321"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=63834 deadlines=107 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 2 refused DEADLINE (commit, 21 bytes, pattern 2)",
+     "FAIL: legal op 2 err cause 3, want DEVICE",
+     "FAIL: legal op 2 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2300",
+      "100"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=87455 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 15: 3 owed cycles between the device's last event and the pulse, want 4 (obl 24 of 30, commit, pattern 1, held 204)",
+     "FAIL: silent op 17: 3 owed cycles between the device's last event and the pulse, want 4 (obl 25 of 29, commit, pattern 2, held 10)",
+     "FAIL: silent op 23: 3 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 19, restore, pattern 2, held 38)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2316",
+      "84"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=84157 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 2: 3 owed cycles between the device's last event and the pulse, want 4 (obl 21 of 31, commit, pattern 1, held 2)",
+     "FAIL: silent op 7: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 35, commit, pattern 2, held 39)",
+     "FAIL: silent op 15: 3 owed cycles between the device's last event and the pulse, want 4 (obl 31 of 32, restore, pattern 2, held 11)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2314",
+      "86"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=83654 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 2: 3 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 20, commit, pattern 1, held 47)",
+     "FAIL: silent op 3: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 25, restore, pattern 2, held 11)",
+     "FAIL: silent op 14: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 24, commit, pattern 1, held 185)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1240",
+      "1204",
+      "36"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58561 deadlines=686 served=116 dl_branch=249 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 1: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 38: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 67: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1212",
+      "1187",
+      "25"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=55302 deadlines=659 served=123 dl_branch=243 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 29: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 56: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 64: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1229",
+      "1207",
+      "22"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=60808 deadlines=664 served=128 dl_branch=246 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 4: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 6: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 32: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "Q10-zero-at-fin-not-idle",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q10-zero-at-fin-not-idle",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q10-zero-at-fin-not-idle",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q10-zero-at-fin-not-idle",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "Q10-zero-at-fin-not-idle",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "Q10-zero-at-fin-not-idle",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "D24",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)"
+  ]
+ },
+ {
+  "plant": "D24",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 2 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)"
+  ]
+ },
+ {
+  "plant": "D24",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)"
+  ]
+ },
+ {
+  "plant": "D24",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "352",
+   "4"
+  ],
+  "fails": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (2 wedged)"
+  ]
+ },
+ {
+  "plant": "D24",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2054",
+      "346"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=73439123 deadlines=503 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 4 (commit, silent at obligation 19 of 28, pattern 2) never answered",
+     "FAIL: silent op 4: 0 done 0 err cause -1, want one err DEADLINE (obl 19 of 28)",
+     "FAIL: silent op 4: -1 owed cycles between the device's last event and the pulse, want 38 (obl 19 of 28, commit, pattern 2, held 20889)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2003",
+      "397"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=86956780 deadlines=485 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 3: 242 owed cycles between the device's last event and the pulse, want 38 (obl 19 of 21, commit, pattern 1, held 79)",
+     "FAIL: silent op 4 (commit, silent at obligation 12 of 31, pattern 2) never answered",
+     "FAIL: silent op 4: 0 done 0 err cause -1, want one err DEADLINE (obl 12 of 31)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "1985",
+      "415"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=89960943 deadlines=481 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1 (commit, silent at obligation 16 of 20, pattern 1) never answered",
+     "FAIL: silent op 1: 0 done 0 err cause -1, want one err DEADLINE (obl 16 of 20)",
+     "FAIL: silent op 1: -1 owed cycles between the device's last event and the pulse, want 38 (obl 16 of 20, commit, pattern 1, held 376243)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "D24",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2209",
+      "191"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=7811788 deadlines=565 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 3: 5 owed cycles between the device's last event and the pulse, want 4 (obl 28 of 34, restore, pattern 1, held 8)",
+     "FAIL: silent op 17: 1963 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 23, commit, pattern 1, held 17774)",
+     "FAIL: silent op 26: 12 owed cycles between the device's last event and the pulse, want 4 (obl 22 of 25, restore, pattern 1, held 76)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2244",
+      "156"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=5342933 deadlines=576 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 2: 7 owed cycles between the device's last event and the pulse, want 4 (obl 21 of 31, commit, pattern 1, held 4)",
+     "FAIL: silent op 5 (restore, silent at obligation 19 of 31, pattern 2) never answered",
+     "FAIL: silent op 5: 0 done 0 err cause -1, want one err DEADLINE (obl 19 of 31)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2184",
+      "216"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=8585473 deadlines=561 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 2: 13 owed cycles between the device's last event and the pulse, want 4 (obl 16 of 20, commit, pattern 1, held 57)",
+     "FAIL: silent op 3: 108 owed cycles between the device's last event and the pulse, want 4 (obl 19 of 27, commit, pattern 1, held 1025)",
+     "FAIL: silent op 4: 1307 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 24, commit, pattern 1, held 11716)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "D25",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "349",
+   "7"
+  ],
+  "fails": [
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)",
+   "T24 served branch: it issued its own two READs after the owed one (0 commands)",
+   "T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D25",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "349",
+   "7"
+  ],
+  "fails": [
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)",
+   "T24 served branch: it issued its own two READs after the owed one (0 commands)",
+   "T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D25",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "349",
+   "7"
+  ],
+  "fails": [
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)",
+   "T24 served branch: it issued its own two READs after the owed one (0 commands)",
+   "T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D25",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "349",
+   "7"
+  ],
+  "fails": [
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)",
+   "T24 served branch: it issued its own two READs after the owed one (0 commands)",
+   "T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 0, rc 1, cause 3, 0 commands)",
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D25",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1129",
+      "1036",
+      "93"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=302302 deadlines=680 served=60 dl_branch=217 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 8 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 36: the device ended the abandoned command 36 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 37: the device ended the abandoned command 32 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1110",
+      "1033",
+      "77"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=293971 deadlines=669 served=55 dl_branch=230 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 5: the device ended the abandoned command 7 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 13: the device ended the abandoned command 16 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 17: the device ended the abandoned command 36 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1127",
+      "1041",
+      "86"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=280130 deadlines=702 served=42 dl_branch=244 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 13: the device ended the abandoned command 17 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 21: the device ended the abandoned command 23 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 27: the device ended the abandoned command 15 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D25",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1183",
+      "1116",
+      "67"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=52163 deadlines=686 served=86 dl_branch=233 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 1: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 3: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 10: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1108",
+      "1049",
+      "59"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=49442 deadlines=668 served=62 dl_branch=244 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 5: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 55: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 64: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1158",
+      "1096",
+      "62"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=53378 deadlines=663 served=89 dl_branch=225 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 14: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 17: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D26",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "D26",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "349",
+   "7"
+  ],
+  "fails": [
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 ...and restores byte-exact over 950 cycles",
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (3)"
+  ]
+ },
+ {
+  "plant": "D26",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "D26",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "353",
+   "3"
+  ],
+  "fails": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)",
+   "T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "plant": "D26",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3351",
+      "249"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=321958 deadlines=83 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 15 refused DEADLINE (restore, 18 bytes, pattern 1)",
+     "FAIL: legal op 15 err cause 3, want DEVICE",
+     "FAIL: legal op 15 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3354",
+      "246"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=347664 deadlines=82 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 11 refused DEADLINE (commit, 23 bytes, pattern 2)",
+     "FAIL: legal op 11 err cause 3, want DEVICE",
+     "FAIL: legal op 11 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3342",
+      "258"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=329755 deadlines=86 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 4 refused DEADLINE (commit, 10 bytes, pattern 0)",
+     "FAIL: legal op 4 err cause 3, want DEVICE",
+     "FAIL: legal op 4 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2243",
+      "157"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=488467 deadlines=672 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 0 not served",
+     "FAIL: silent op 1: 37 owed cycles between the device's last event and the pulse, want 38 (obl 9 of 19, commit, pattern 1, held 118)",
+     "FAIL: silent refill 2 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2239",
+      "161"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=481146 deadlines=681 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 9 not served",
+     "FAIL: silent op 11: 37 owed cycles between the device's last event and the pulse, want 38 (obl 26 of 34, commit, pattern 1, held 29)",
+     "FAIL: silent refill 13 not served"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2249",
+      "151"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=476728 deadlines=686 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 2 not served",
+     "FAIL: silent op 3: 37 owed cycles between the device's last event and the pulse, want 38 (obl 11 of 30, commit, pattern 0, held 0)",
+     "FAIL: silent refill 8 not served"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1130",
+      "1089",
+      "41"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=299751 deadlines=631 served=124 dl_branch=200 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 4: no DEADLINE",
+     "FAIL: resume op 12: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 39: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1143",
+      "1091",
+      "52"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=289347 deadlines=631 served=123 dl_branch=195 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 28: no DEADLINE",
+     "FAIL: resume op 68: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 91: the device ended the abandoned command 29 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1151",
+      "1094",
+      "57"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=302016 deadlines=644 served=112 dl_branch=205 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 33 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 51: the device ended the abandoned command 15 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 55: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 2)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D26",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3255",
+      "345"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=60001 deadlines=115 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 2 refused DEADLINE (commit, 29 bytes, pattern 0)",
+     "FAIL: legal op 2 err cause 3, want DEVICE",
+     "FAIL: legal op 2 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3228",
+      "372"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=58786 deadlines=124 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 1 refused DEADLINE (commit, 28 bytes, pattern 0)",
+     "FAIL: legal op 1 err cause 3, want DEVICE",
+     "FAIL: legal op 1 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "3600",
+      "3270",
+      "330"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=63770 deadlines=110 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: legal op 3 refused DEADLINE (restore, 21 bytes, pattern 0)",
+     "FAIL: legal op 3 err cause 3, want DEVICE",
+     "FAIL: legal op 3 err with no device err armed"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2182",
+      "218"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=75631 deadlines=729 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent refill 3 not served",
+     "FAIL: silent refill 7 not served",
+     "FAIL: silent op 8: 3 owed cycles between the device's last event and the pulse, want 4 (obl 18 of 20, commit, pattern 2, held 8)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2185",
+      "215"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=75212 deadlines=720 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 1: 3 owed cycles between the device's last event and the pulse, want 4 (obl 7 of 30, commit, pattern 1, held 71)",
+     "FAIL: silent refill 5 not served",
+     "FAIL: silent op 6: 3 owed cycles between the device's last event and the pulse, want 4 (obl 26 of 27, restore, pattern 1, held 20)"
+    ]
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "2400",
+      "2178",
+      "222"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=75240 deadlines=722 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: silent op 21: 3 owed cycles between the device's last event and the pulse, want 4 (obl 6 of 15, commit, pattern 0, held 0)",
+     "FAIL: silent op 24: 3 owed cycles between the device's last event and the pulse, want 4 (obl 23 of 24, restore, pattern 0, held 0)",
+     "FAIL: silent op 28: 3 owed cycles between the device's last event and the pulse, want 4 (obl 12 of 32, commit, pattern 1, held 2)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1105",
+      "1036",
+      "69"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=48412 deadlines=645 served=96 dl_branch=200 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume setup 6: no DEADLINE",
+     "FAIL: resume op 21: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 22: no DEADLINE"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1116",
+      "1064",
+      "52"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=46891 deadlines=686 served=73 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 9: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 10: no DEADLINE",
+     "FAIL: resume op 46: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1098",
+      "1035",
+      "63"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=47356 deadlines=651 served=92 dl_branch=205 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 17: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume setup 56: no DEADLINE",
+     "FAIL: resume setup 63: no DEADLINE"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D20",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1451 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)",
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 51 cycles after the last of them, no command taken (rc 1, cause 3, 3 drained)"
+  ]
+ },
+ {
+  "plant": "D20",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1448 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)",
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 51 cycles after the last of them, no command taken (rc 1, cause 3, 3 drained)"
+  ]
+ },
+ {
+  "plant": "D20",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1451 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)",
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 51 cycles after the last of them, no command taken (rc 1, cause 3, 3 drained)"
+  ]
+ },
+ {
+  "plant": "D20",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "354",
+   "2"
+  ],
+  "fails": [
+   "T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 1451 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)",
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 51 cycles after the last of them, no command taken (rc 1, cause 3, 3 drained)"
+  ]
+ },
+ {
+  "plant": "D20",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1170",
+      "1090",
+      "80"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=310310 deadlines=691 served=75 dl_branch=228 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 18: the device ended the abandoned command 36 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 21: the device ended the abandoned command 10 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 33: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1204",
+      "1141",
+      "63"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=296990 deadlines=709 served=75 dl_branch=254 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 5: the device ended the abandoned command 7 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 26: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 48: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1127",
+      "1050",
+      "77"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=313777 deadlines=664 served=70 dl_branch=220 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 12: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 20: the device ended the abandoned command 6 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 31: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D20",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1153",
+      "1096",
+      "57"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=49869 deadlines=670 served=84 dl_branch=236 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 4: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 11: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 33: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1116",
+      "1059",
+      "57"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=52030 deadlines=663 served=67 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 25: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 33: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 35: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1169",
+      "1097",
+      "72"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=51328 deadlines=689 served=75 dl_branch=235 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 13: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 18: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D21",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 2,
+  "tally": [
+   "356",
+   "355",
+   "1"
+  ],
+  "fails": [
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D21",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 2,
+  "tally": [
+   "356",
+   "355",
+   "1"
+  ],
+  "fails": [
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D21",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 2,
+  "tally": [
+   "356",
+   "355",
+   "1"
+  ],
+  "fails": [
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D21",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 2,
+  "tally": [
+   "356",
+   "355",
+   "1"
+  ],
+  "fails": [
+   "T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)"
+  ]
+ },
+ {
+  "plant": "D21",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1191",
+      "1132",
+      "59"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=315055 deadlines=674 served=98 dl_branch=229 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 8 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 11: the device ended the abandoned command 30 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 12: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1191",
+      "1126",
+      "65"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=304498 deadlines=690 served=86 dl_branch=237 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 9: the device ended the abandoned command 21 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 17: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 22: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1152",
+      "1088",
+      "64"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=325674 deadlines=663 served=89 dl_branch=223 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 12: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 24: the device ended the abandoned command 0 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 27: the device ended the abandoned command 27 cycles into the wait (bound 37), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "D21",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 1,
+    "tally": [
+     [
+      "1173",
+      "1107",
+      "66"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=54977 deadlines=675 served=87 dl_branch=228 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 1: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 4: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 13: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 1,
+    "tally": [
+     [
+      "1166",
+      "1100",
+      "66"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=53049 deadlines=679 served=79 dl_branch=234 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 5: the device ended the abandoned command 3 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 11: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 25: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 1,
+    "tally": [
+     [
+      "1111",
+      "1053",
+      "58"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=53729 deadlines=661 served=63 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": [
+     "FAIL: resume op 8: the device ended the abandoned command 2 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 10: the device ended the abandoned command 1 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)",
+     "FAIL: resume op 12: the device ended the abandoned command 0 cycles into the wait (bound 3), yet the op was not served (1 err, cause 3)"
+    ]
+   }
+  ]
+ },
+ {
+  "plant": "pristine",
+  "kind": "suite",
+  "model": "pristine",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "pristine",
+  "kind": "suite",
+  "model": "coincident",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "pristine",
+  "kind": "suite",
+  "model": "unsolicited",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "pristine",
+  "kind": "suite",
+  "model": "lazy",
+  "rc": 0,
+  "tally": [
+   "356",
+   "356",
+   "0"
+  ],
+  "fails": []
+ },
+ {
+  "plant": "pristine",
+  "kind": "fuzz",
+  "tmo": 37,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=11 ops=600 cycles=400739 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=12 ops=600 cycles=370587 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=legal seed=13 ops=600 cycles=374162 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=11 ops=600 cycles=530896 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=12 ops=600 cycles=539842 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=silent seed=13 ops=600 cycles=543549 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1247",
+      "1247",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=11 ops=600 cycles=349499 deadlines=653 served=141 dl_branch=256 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=12 ops=600 cycles=357382 deadlines=640 served=158 dl_branch=241 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1259",
+      "1259",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=37 mode=resume seed=13 ops=600 cycles=357540 deadlines=639 served=161 dl_branch=239 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ },
+ {
+  "plant": "pristine",
+  "kind": "fuzz",
+  "tmo": 3,
+  "build_rc": 0,
+  "runs": [
+   {
+    "mode": "legal",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=11 ops=600 cycles=71612 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=12 ops=600 cycles=67895 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "legal",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "3600",
+      "3600",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=legal seed=13 ops=600 cycles=68536 deadlines=0 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=11 ops=600 cycles=84209 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=12 ops=600 cycles=85362 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "silent",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "2400",
+      "2400",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=silent seed=13 ops=600 cycles=84920 deadlines=600 served=0 dl_branch=0 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 11,
+    "rc": 0,
+    "tally": [
+     [
+      "1258",
+      "1258",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=11 ops=600 cycles=58686 deadlines=658 served=152 dl_branch=253 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 12,
+    "rc": 0,
+    "tally": [
+     [
+      "1149",
+      "1149",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=12 ops=600 cycles=54280 deadlines=634 served=112 dl_branch=261 babble_answered=0"
+    ],
+    "first_fails": []
+   },
+   {
+    "mode": "resume",
+    "seed": 13,
+    "rc": 0,
+    "tally": [
+     [
+      "1246",
+      "1246",
+      "0"
+     ]
+    ],
+    "summary": [
+     "pause_fuzz TMO=3 mode=resume seed=13 ops=600 cycles=59685 deadlines=649 served=149 dl_branch=250 babble_answered=0"
+    ],
+    "first_fails": []
+   }
+  ]
+ }
+]
