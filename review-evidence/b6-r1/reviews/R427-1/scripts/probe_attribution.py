@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Disposable probe of the published grade_b6.py attribution on a synthetic run.
 
-Builds a 60 s two-channel S24_3LE capture of the published tone loop with a read-time
+Builds a 60 s two-channel <capture-format> capture of the published tone loop with a read-time
 record (480 frames per 10 ms read), plants events, runs grade_b6.py and prints each
 planted event's cause. Planted:
   P1 listener skip of 12 frames, no read stall, no deficit rise      (expected: listener)
