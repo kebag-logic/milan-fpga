@@ -1,0 +1,12 @@
+inst-srp_top jemalloc <packet>/scratch/r449pk/scratch/head-tree inst KL_srp_top
+inst-pptop jemalloc <packet>/scratch/r449pk/scratch/head-tree inst protocol_processor_top
+inst-dfifo jemalloc <packet>/scratch/r449pk/scratch/head-tree inst KL_pp_dispatch_fifo
+inst-two jemalloc <packet>/scratch/r449pk/scratch/head-tree inst KL_mrp_strip KL_srp_admission
+drop-srp_top jemalloc <packet>/scratch/r449pk/scratch/head-tree drop KL_srp_top
+bogus jemalloc <packet>/scratch/r449pk/scratch/head-tree bogus KL_r449_bogus
+allv-srp_top jemalloc <packet>/scratch/r449pk/scratch/head-tree allv KL_srp_top
+newmod jemalloc <packet>/scratch/r449pk/scratch/head-tree newmod KL_r449_newmod
+fatal-srp_top jemalloc <packet>/scratch/r449pk/scratch/head-tree fatal KL_srp_top
+port-shadow jemalloc <packet>/scratch/r449pk/scratch/head-tree port KL_acmp_nvm_shadow KL_pp_prng
+killonce-maap jemalloc <packet>/scratch/r449pk/scratch/head-tree killonce KL_pp_maap
+rcone none <packet>/scratch/r449pk/scratch/head-tree rcone

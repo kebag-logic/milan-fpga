@@ -1,0 +1,14 @@
+| case | rc | YOSYS OK | parses | FAIL lines (first 4) |
+|---|---:|---:|---|---|
+| inst-srp_top | 1 | 40 | parsed 2 | YOSYS FAIL KL_srp_top: ERROR: Module `\r449_absent_module' referenced in module `\KL_srp_top' in cell `\u_r449_absent' is not part of the de;YOSYS FAIL protocol_processor_top: ERROR: Module `\r449_absent_module' referenced in module `$paramod$8293ec7ca532a5bedae68d1926f8e7d7b3f099; |
+| inst-pptop | 1 | 41 | parsed 1 | YOSYS FAIL protocol_processor_top: ERROR: Module `\r449_absent_module' referenced in module `\protocol_processor_top' in cell `\u_r449_absen; |
+| inst-dfifo | 1 | 39 | parsed 3 | YOSYS FAIL KL_pp_dispatch: ERROR: Module `\r449_absent_module' referenced in module `$paramod\KL_pp_dispatch_fifo\DEPTH_P=32'000000000000000;YOSYS FAIL KL_pp_dispatch_fifo: ERROR: Module `\r449_absent_module' referenced in module `\KL_pp_dispatch_fifo' in cell `\u_r449_absent' is ;YOSYS FAIL protocol_processor_top: ERROR: Module `\r449_absent_module' referenced in module `$paramod\KL_pp_dispatch_fifo\DEPTH_P=32'0000000; |
+| inst-two | 1 | 38 | parsed 4 | YOSYS FAIL KL_mrp_strip: ERROR: Module `\r449_absent_module' referenced in module `\KL_mrp_strip' in cell `\u_r449_absent' is not part of th;YOSYS FAIL KL_srp_admission: ERROR: Module `\r449_absent_module' referenced in module `\KL_srp_admission' in cell `\u_r449_absent' is not pa;YOSYS FAIL KL_srp_top: ERROR: Module `\r449_absent_module' referenced in module `$paramod\KL_srp_admission\N_SOURCES_P=32'000000000000000000;YOSYS FAIL protocol_processor_top: ERROR: Module `\r449_absent_module' referenced in module `\KL_mrp_strip' in cell `\u_r449_absent' is not ; |
+| drop-srp_top | 1 | 0 |  | modules declared under hdl/ with no entry in the tops array:;  KL_srp_top; |
+| bogus | 1 | 0 |  | tops array names modules that no longer exist under hdl/:;  KL_r449_bogus; |
+| allv-srp_top | 1 | 0 | parsed 1 | YOSYS FAIL all.v in module KL_srp_top: all.v:19358: ERROR: syntax error, unexpected '@';YOSYS FAIL KL_aecp_desc_mem_guard: not elaborated, the parse failed;YOSYS FAIL KL_aecp_ucpu: not elaborated, the parse failed;YOSYS FAIL KL_aecp_desc_store: not elaborated, the parse failed; |
+| newmod | 1 | 0 |  | modules declared under hdl/ with no entry in the tops array:;  KL_r449_newmod; |
+| fatal-srp_top | 1 | 40 | parsed 2 | YOSYS FAIL KL_srp_top: all.v:20444: ERROR: System task `$finish' executed.;YOSYS FAIL protocol_processor_top: all.v:20444: ERROR: System task `$finish' executed.; |
+| port-shadow | 1 | 0 |  | sv2v: unknown binding "r449_no_such_port" specified for port connections in instance "u_r449_port" of module "KL_pp_prng", 11 available ("cl;  error, called at src/Convert/ResolveBindings.hs:131:9 in main:Convert.ResolveBindings; |
+| killonce-maap | 1 | 41 | parsed 2 | YOSYS FAIL KL_pp_maap: yosys exited 137 with no ERROR line; |
+| rcone | 1 | 42 | parsed 1 | YOSYS FAIL every top passed, but yosys exited 1: yosys exited 1 with no ERROR line; |

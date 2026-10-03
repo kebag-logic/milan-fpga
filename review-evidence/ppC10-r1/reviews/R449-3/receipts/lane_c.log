@@ -1,0 +1,100 @@
+{"mutant": "golden-aecp_notify-identify", "verdict": "PASS"}
+{"mutant": "golden-originator-run", "verdict": "PASS"}
+{"mutant": "golden-pp_top-identify-only", "verdict": "PASS"}
+{"mutant": "golden-pp_top-notify-only", "verdict": "PASS"}
+{"mutant": "golden-pp_top-obj_idn_Vpp_top_idn", "verdict": "PASS"}
+{"mutant": "ident_no_rearm", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_two_frames", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_seq_per_frame", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_rearm_from_third_frame", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_100ms", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_t0_at_request", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_from_t0", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_departure_is_retirement", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_departure_unwired", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_wait_ignores_gap", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_press_not_latched", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_next_burst_at_once", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_deadline_one_tick_short", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_burst_press_not_latched", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_departure_ignores_ready", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_t0_same_ms", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_release_ignored", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_cut_on_release", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_built_at_default", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_face_taken_mid_job", "verdict": "KILLED", "missing": []}
+{"mutant": "ident_unicast_da", "verdict": "KILLED", "missing": []}
+{"mutant": "enq_dropped_configuration", "verdict": "KILLED", "missing": []}
+{"mutant": "class_4_mapped_to_rate", "verdict": "KILLED", "missing": []}
+{"mutant": "enq_dropped_stream_info", "verdict": "KILLED", "missing": []}
+{"mutant": "class_9_mapped_to_control", "verdict": "KILLED", "missing": []}
+{"mutant": "requester_not_excluded", "verdict": "KILLED", "missing": []}
+{"mutant": "entry_seq_not_advanced", "verdict": "KILLED", "missing": []}
+{"mutant": "stream_info_get_body", "verdict": "KILLED", "missing": []}
+{"mutant": "counter_limit_500ms", "verdict": "KILLED", "missing": []}
+{"mutant": "fan_out_skips_row_0", "verdict": "KILLED", "missing": []}
+{"mutant": "refresh_resets_seq", "verdict": "KILLED", "missing": []}
+{"mutant": "foreign_unlock_allowed", "verdict": "KILLED", "missing": []}
+{"mutant": "lock_taker_notified", "verdict": "KILLED", "missing": []}
+{"mutant": "deregister_keeps_row", "verdict": "KILLED", "missing": []}
+{"mutant": "registry_holds_15", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_highest_free_id", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_match_ignores_seq", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_cancel_keeps_timer", "verdict": "KILLED", "missing": []}
+{"mutant": "set_control_ignores_lock", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_shared_seq", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 40 of 40 KILLED by their named checks; goldens PASS
+notify rc=0
+{"mutant": "golden-acmp_listener", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-rx_validator", "verdict": "PASS"}
+{"mutant": "guard_ctlr_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "msg_ok_forced@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_uid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_eid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@rx_validator", "verdict": "KILLED", "missing": []}
+{"mutant": "msg_ok_forced@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_settle_as_withdraw@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_as_declare@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_sid_da_swapped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_state_none@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_vid_dropped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_index_zero@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_latched@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_dmac_from_sid@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_cleared@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_da_ignored@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_vid_ignored@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 19 of 19 KILLED by their named checks; goldens PASS
+acmp rc=0
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "latency-trigger-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 0", "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0", "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 0", "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0"], "passed": true}
+{"variant": "latency-cmp-low8", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 8 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "latency-cmp-low16", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 16 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "latency-cmp-high16", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "latency-cmp-low31", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "latency-cmp-high2", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "latency-cmp-bit31-dropped", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "failure-code-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0"], "passed": true}
+{"variant": "failure-bridge-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-0 solicited: full failure bridge sink 0"], "passed": true}
+{"variant": "pbsta-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 0", "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0", "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0"], "passed": true}
+{"variant": "acmpsta-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0"], "passed": true}
+{"variant": "wrong-sink", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0"], "passed": true}
+{"variant": "integrator-path", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI internal seam: selectors 5/7 never requested from integrator"], "passed": true}
+{"variant": "missing-descriptor-leak", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI MISSING solicited: pbsta sink 2 = 0, got 2"], "passed": true}
+{"variant": "status-notification-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI PASSIVE unsolicited: complete Milan response", "FAIL: GI PASSIVE unsolicited: complete Milan response", "FAIL: GI PASSIVE unsolicited: complete Milan response"], "passed": true}
+{"variant": "rebind-started-trigger-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "failure-change-strobe-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH unsolicited: complete Milan response"], "passed": true}
+{"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH wire: a changed FailureInformation sends no Listener New"], "passed": true}
+{"variant": "index-guard-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1"], "passed": true}
+{"variant": "bridge-gate-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0"], "passed": true}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+GSI mutations: 20 detected by named checks; golden and restored PASS
+gsi rc=0
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "passed": true, "failures": []}
+{"variant": "decode", "build_rc": 0, "run_rc": 1, "passed": true, "failures": ["FAIL: NW ONE: output must coincide with actual live RAM write enable", "FAIL: NW READBACK: output must coincide with actual live RAM write enable", "FAIL: NW EIGHT: accepted lane pulse count 1, want 8", "FAIL: NW EIGHT: output must coincide with actual live RAM write enable", "FAIL: NW READBACK: accepted lane pulse count 1, want 8", "FAIL: NW READBACK: output must coincide with actual live RAM write enable", "FAIL: NW UNCHANGED: accepted lane pulse count 1, want 0", "FAIL: NW UNCHANGED: output must coincide with actual live RAM write enable", "FAIL: NW READBACK: accepted lane pulse count 1, want 0", "FAIL: NW READBACK: output must coincide with actual live RAM write enable", "FAIL: NW LOCKED: accepted lane pulse count 1, want 0", "FAIL: NW LOCKED: output must coincide with actual live RAM write enable", "FAIL: NW RANGE: accepted lane pulse count 1, want 0", "FAIL: NW RANGE: output must coincide with actual live RAM write enable", "FAIL: NW RANGE: accepted lane pulse count 1, want 0", "FAIL: NW RANGE: output must coincide with actual live RAM write enable", "FAIL: NW RANGE: accepted lane pulse count 1, want 0", "FAIL: NW RANGE: output must coincide with actual live RAM write enable", "FAIL: NW RANGE: accepted lane pulse count 1, want 0", "FAIL: NW RANGE: output must coincide with actual live RAM write enable", "FAIL: NW RANGE: accepted lane pulse count 1, want 0", "FAIL: NW RANGE: output must coincide with actual live RAM write enable", "FAIL: NW SHORT: accepted lane pulse count 1, want 0", "FAIL: NW SHORT: output must coincide with actual live RAM write enable", "FAIL: NW STALL: accepted lane pulse count 1, want 0", "FAIL: NW STALL: output must coincide with actual live RAM write enable", "FAIL: NW RELEASE: accepted lane pulse count 1, want 8", "FAIL: NW RELEASE: output must coincide with actual live RAM write enable", "FAIL: NW ABORT: accepted lane pulse count 1, want 0", "FAIL: NW ABORT: output must coincide with actual live RAM write enable", "FAIL: NW RECOVERY: accepted lane pulse count 1, want 0", "FAIL: NW RECOVERY: output must coincide with actual live RAM write enable", "FAIL: NW IDLE: accepted lane pulse count 1, want 0", "FAIL: NW IDLE: output must coincide with actual live RAM write enable"]}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "passed": true, "failures": []}
+Name-write mutation: decode killed; golden and restored PASS
+name_wr rc=0
