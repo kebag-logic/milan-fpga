@@ -36,7 +36,7 @@ Lane B6's grade_b6.py, unchanged in method. Lane B7 changes, each fixed before a
     (`lock_loss`): the polls through the holdover and the return, the counters, the clock
     source and every tone-path discontinuity from the window's end to the observation's end.
 
-1. Channel identification: which of the 20 capture channels carry the tone (ten seconds of
+1. Channel identification: which of the <capture-channels> capture channels carry the tone (ten seconds of
    all channels kept once the tone was valid).
 2. Tone grade over the window (b6_thdn.grade): per one-second block THD+N, SNR and fitted
    frequency per channel; every discontinuity; invalid and torn frames.
