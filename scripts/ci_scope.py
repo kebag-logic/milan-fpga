@@ -50,9 +50,12 @@ TOP_LEVEL_SUFFIXES = [".md"]
 #: selftest derives the same set from the tree and refuses any difference.
 #: The behave suite (rtl-fast's `bdd-conformance`, which docs.yml never runs)
 #: asserts on the register map and audit; the trace catalogue compares its
-#: event page, and the clock-contract test checks the latency-tap table.
+#: event page, and the clock-contract test checks the latency-tap table. The
+#: resource gate's check-baseline (yosys-elaboration) holds its baseline's
+#: policy to the area budget's table.
 GATE_READ_DOCS = [
     "docs/AAF_LATENCY_TAPS.md",
+    "docs/design/AREA_BUDGET.md",
     "docs/reference/REGISTER_MAP.md",
     "docs/reference/TRACE_EVENTS.md",
     "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
@@ -266,6 +269,8 @@ def _cases() -> list[Case]:
         (["docs/reference/REGISTER_MAP.md"], True),
         (["docs/testing/MILAN_V12_AUDIT_2026-08-16.md"], True),
         (["docs/reference/TRACE_EVENTS.md"], True),
+        # The area budget whose policy table check-baseline reads (#234).
+        (["docs/design/AREA_BUDGET.md"], True),
         # Under docs/, a generator, a manifest, a budget or other non-prose.
         (["docs/traceability/gen_module_matrix.py"], True),
         (["docs/diagrams/PNG_MANIFEST.json"], True),

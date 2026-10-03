@@ -183,8 +183,19 @@ def inventory(gateware: Path, source: str) -> list[dict]:
     return inputs
 
 
+def standalone_clock(values: dict[str, int | str], integrated: bool) -> str:
+    """Constrain clk_i at 10 ns, or at the wrapper's bound CLK_HZ_P (issue #234)."""
+    if not integrated:
+        return "create_clock -period 10.000 -name clk [get_ports clk_i]\n"
+    hertz = values.get("CLK_HZ_P")
+    if not isinstance(hertz, int) or hertz <= 0:
+        raise ValueError("integrated clock requires a positive bound CLK_HZ_P")
+    return f"create_clock -period {1e9 / hertz:.3f} -name clk [get_ports clk_i]\n"
+
+
 def prepare(gateware: Path, output: Path, log: Path | None,
-            synthesis_only: bool, attribution_only: bool = False) -> None:
+            synthesis_only: bool, attribution_only: bool = False,
+            integrated_clock: bool = False) -> None:
     """Retain the exported build's sources, includes and synthesis directive."""
     source = (gateware / "alinx_ax7101.tcl").read_text()
     prefix, rest = split_once(source, "# Add constraints")
@@ -227,8 +238,7 @@ def prepare(gateware: Path, output: Path, log: Path | None,
         command = commands[0].replace("-top alinx_ax7101", "-top KL_pp_shadow")
         if command == commands[0]:
             raise ValueError("unexpected integrated synthesis top")
-        clock = "create_clock -period 10.000 -name clk [get_ports clk_i]\n"
-        (output / "clock.xdc").write_text(clock)
+        (output / "clock.xdc").write_text(standalone_clock(values, integrated_clock))
         script = (prefix + "\nread_xdc clock.xdc\n" + command
                   + " -mode out_of_context " + " ".join(generics) + "\n"
                   + REPORTS + "\nwrite_checkpoint -force baseline_synth.dcp\n")
@@ -418,6 +428,33 @@ def export_endpoint_selftest(gateware: Path, standalone: Path, log: Path, source
     print("baseline endpoint selftest: valid pathname and 9 refusals PASS")
 
 
+def clock_selftest(gateware: Path, standalone: Path, log: Path) -> None:
+    """Bind the standalone clock to 10 ns, or to the wrapper's own CLK_HZ_P."""
+    wrapper = gateware / "KL_pp_shadow.sv"
+    original_wrapper, original_log = wrapper.read_text(), log.read_text()
+    try:
+        prepare(gateware, standalone, log, False)
+        if "-period 10.000 " not in (standalone / "clock.xdc").read_text():
+            raise AssertionError("default standalone clock is not 10 ns")
+        with expect_refusal("integrated clock requires a positive bound CLK_HZ_P"):
+            prepare(gateware, standalone, log, False, integrated_clock=True)
+        wrapper.write_text(original_wrapper + "parameter int unsigned CLK_HZ_P = 100_000_000,\n")
+        log.write_text(original_log.replace("INFO: end", "Parameter CLK_HZ_P bound to: 32'b10111110101111000010000000\n"
+                                            "INFO: end"))
+        prepare(gateware, standalone, log, False, integrated_clock=True)
+        if "-period 20.000 " not in (standalone / "clock.xdc").read_text():
+            raise AssertionError("integrated clock is not the bound 50 MHz")
+    finally:
+        wrapper.write_text(original_wrapper)
+        log.write_text(original_log)
+    stderr = io.StringIO()
+    with contextlib.redirect_stderr(stderr), expect_refusal("2", SystemExit):
+        main([str(gateware), "--output", str(standalone), "--integrated-clock"])
+    if "--integrated-clock requires the standalone endpoint" not in stderr.getvalue():
+        raise AssertionError("wrong CLI clock refusal")
+    print("baseline clock selftest: 10 ns default, bound 50 MHz, 2 refusals PASS")
+
+
 def export_selftest() -> None:
     """Exercise inventory, emitted enforcement, and the real CLI refusal."""
     with tempfile.TemporaryDirectory(prefix="pp-baseline-export-") as tmp:
@@ -480,6 +517,7 @@ def export_selftest() -> None:
             raise AssertionError("attribution boundary constraint follows synthesis")
         export_inventory_selftest(gateware, source, verilog)
         export_endpoint_selftest(gateware, standalone, log, source)
+        clock_selftest(gateware, standalone, log)
         # Use an existing directory: no test output can be left in the tree.
         # With the guard removed, prepare() reaches its directory mismatch;
         # that ValueError must not count as the expected argparse refusal.
@@ -507,6 +545,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--synthesis-only", action="store_true")
     parser.add_argument("--attribution-only", action="store_true",
                         help="preserve the integrated protocol-wrapper boundary")
+    parser.add_argument("--integrated-clock", action="store_true",
+                        help="standalone: constrain clk_i at the bound CLK_HZ_P, not 10 ns")
     args = parser.parse_args(argv)
     if args.selftest:
         selftest()
@@ -520,8 +560,10 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("measurement output must be outside the repository")
     if args.integrated_log and (args.synthesis_only or args.attribution_only):
         parser.error("--synthesis-only and --attribution-only require the integrated endpoint")
+    if args.integrated_clock and not args.integrated_log:
+        parser.error("--integrated-clock requires the standalone endpoint")
     prepare(gateware, output, args.integrated_log, args.synthesis_only,
-            args.attribution_only)
+            args.attribution_only, args.integrated_clock)
 
 
 if __name__ == "__main__":
