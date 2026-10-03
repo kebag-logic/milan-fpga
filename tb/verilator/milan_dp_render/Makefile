@@ -30,6 +30,12 @@
 # them out is the milan_dp_gptp move of #367: every check stays, nothing is
 # shortened, and the sweep discovers and shards this directory on its own with
 # the default 1800 s budget.
+#
+# THE [LAW] PHASE (#643) grades T30's INTERNAL law once the aligner reports
+# settled, on fresh streams at eighteen feed phases. Measured side by side on
+# one host, it took the shipping leg from 113.0 s to 215.4 s, and the default
+# target measured 663.8 s cold under GNU make 4.3, against 560.0 s before it:
+# about 1049 s at the 1.58x hosted slowdown, inside the 1800 s budget.
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0

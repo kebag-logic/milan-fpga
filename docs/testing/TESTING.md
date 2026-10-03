@@ -282,6 +282,9 @@ The reason is wall clock and the numbers are in its Makefile header.
 `milan_dp` measured 1037.7 s and the two render legs added about 109 s.
 That took its 1800 s headroom to 1.57x, under the 1.58x hosted slowdown above.
 The split suite takes the default 1800 s budget and needs a small part of it.
+Since #643 its `[LAW]` phase adds about 100 s to the shipping leg.
+The default target measured 663.8 s cold, against 560.0 s before it.
+At the 1.58x hosted slowdown that is about 1049 s, inside the 1800 s budget.
 
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact
