@@ -1,0 +1,59 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R447-1/probe_cli.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+route policy under test: {"tolerance": {"LUT": 500, "FF": 600, "SLICE": 80, "RAMB36": 0, "RAMB18": 0, "DSP": 0, "WNS_ns": 0.25, "WHS_ns": 0.25}, "floor": {"WNS_ns": 0.03, "WHS_ns": 0.0}, "ceiling": {"BRAM_TILE": 121.5}}
+OK   route control, changed source only: exit 0, documented 0 | RESULT: PASS
+OK   route LUT +500 (at tolerance): exit 0, documented 0 | RESULT: PASS
+OK   route LUT +501: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route FF +600 (at tolerance): exit 0, documented 0 | RESULT: PASS
+OK   route FF +601: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route SLICE +80 (at tolerance): exit 0, documented 0 | RESULT: PASS
+OK   route SLICE +81: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route RAMB36 +1: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route RAMB18 +1: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route DSP +1: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route BRAM tiles 121.5 (at ceiling): exit 0, documented 0 | RESULT: PASS
+OK   route BRAM tiles 122 (over ceiling): exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route WNS +0.300 (fall 0.200, above floor): exit 0, documented 0 | RESULT: PASS
+OK   route WNS +0.250 (fall exactly 0.25): exit 0, documented 0 | RESULT: PASS
+OK   route WNS +0.249 (fall 0.251): exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route WHS 0.000 (at floor): exit 0, documented 0 | RESULT: PASS
+OK   route WHS -0.001 (below floor): exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   route tool build changed: exit 2, documented 2 | NOT COMPARABLE: tool or recipe change in tool; measure the baseline again under the new identity instead of comparing across it
+OK   route device changed: exit 2, documented 2 | NOT COMPARABLE: tool or recipe change in device; measure the baseline again under the new identity instead of comparing across it
+OK   route route directive changed: exit 2, documented 2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of comparing across it
+OK   route thread count changed: exit 2, documented 2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of comparing across it
+OK   route design state changed: exit 2, documented 2 | NOT COMPARABLE: tool or recipe change in state; measure the baseline again under the new identity instead of comparing across it
+OK   route identical inputs, LUT differs: exit 2, documented 2 | NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which is not an architectural change
+OK   route utilization report missing: exit 2, documented 2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/arm/gateware: FileNotFoundError: [Errno 2] No such fi
+OK   route hierarchy report missing: exit 2, documented 2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/arm/gateware: FileNotFoundError: [Errno 2] No such fi
+OK   route cell census missing: exit 2, documented 2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/arm/gateware: FileNotFoundError: [Errno 2] No such fi
+OK   route images manifest missing: exit 2, documented 2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/arm/gateware: FileNotFoundError: [Errno 2] No such fi
+OK   route images manifest malformed JSON: exit 2, documented 2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/arm/gateware: JSONDecodeError: Expecting property nam
+OK   route images manifest wrong shape: exit 2, documented 2 | NOT COMPARABLE: baseline_images.json is not a list of path and sha256 entries
+OK   route utilization row malformed: exit 2, documented 2 | NOT COMPARABLE: utilization row 'DSPs' is not a count: 'two'
+OK   route timing summary missing: exit 2, documented 2 | NOT COMPARABLE: expected one Design Timing Summary, found 0
+OK   route timing value row truncated: exit 2, documented 2 | NOT COMPARABLE: Design Timing Summary has no WNS row
+OK   route duplicate Tool Version header: exit 2, documented 2 | NOT COMPARABLE: report header 'Tool Version' appears 2 times
+OK   route unknown endpoint: exit 2, documented 2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/baseline.json holds no endpoint nope, only ep
+OK   route baseline endpoint without record: exit 2, documented 2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/override.json is malformed: ep: has no record
+OK   route baseline file malformed JSON: exit 2, documented 2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/route/override.json is unreadable: Expecting property name enclosed in do
+OK   route baseline tolerance missing (check): exit 2, documented 2 | NOT COMPARABLE: baseline endpoint ep is unusable: ep: LUT has no non-negative tolerance
+OK   route baseline ceiling names no figure (check): exit 2, documented 2 | NOT COMPARABLE: baseline endpoint ep is unusable: ep: BRAM_TILE has no ceiling; ep: the ceiling names BRAM_TILES, which is not a recorded figure
+ooc policy under test: {"tolerance": {"LUT": 250, "FF": 250, "RAMB36": 0, "RAMB18": 0, "DSP": 0}}
+OK   ooc   control, changed source only: exit 0, documented 0 | RESULT: PASS
+OK   ooc   LUT +250 (at tolerance): exit 0, documented 0 | RESULT: PASS
+OK   ooc   LUT +251: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   ooc   FF +251: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   ooc   RAMB36 +1: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   ooc   RAMB18 +1: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   ooc   DSP +1: exit 1, documented 1 | RESULT: MATERIAL REGRESSION
+OK   ooc   standalone clock 20 -> 10 ns: exit 2, documented 2 | NOT COMPARABLE: tool or recipe change in standalone_clock_ns; measure the baseline again under the new identity instead of comparing across it
+OK   ooc   standalone clock file missing: exit 2, documented 2 | NOT COMPARABLE: read source is missing: $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/ooc/arm/ooc/clock.xdc
+OK   ooc   route script beside ooc script: exit 2, documented 2 | NOT COMPARABLE: $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/ooc/arm/ooc holds 2 recipe scripts, not one
+OK   base  real baseline: check-baseline exit 0, expected 0 | baseline PASS: 3 endpoints
+OK   base  route WNS floor removed: check-baseline exit 2, expected 2 | route-1x1: floor WNS_ns is None in the baseline and 0.03 in the budget table
+OK   base  route LUT tolerance negative: check-baseline exit 2, expected 2 | route-1x1: tolerance LUT is -1 in the baseline and 500.0 in the budget table
+OK   base  route ceiling removed (policy weakened): check-baseline exit 2, expected observe | route-1x1: ceiling BRAM_TILE is None in the baseline and 121.5 in the budget table
+OK   base  route LUT tolerance 10**9 (policy weakened): check-baseline exit 2, expected observe | route-1x1: tolerance LUT is 1000000000 in the baseline and 500.0 in the budget table
+OK   base  ooc-1x1 record removed: check-baseline exit 2, expected 2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_cli/edited_baseline.json is malformed: ooc-1x1: has no record
+probes: 54 as documented, 0 not, of 54

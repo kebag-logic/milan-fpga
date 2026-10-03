@@ -1,0 +1,52 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R446-2/partition_rederive.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/author/evidence
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+u_nvm_port scope: u_pp/u_nvm_port, 1 listed scope(s) inside it, move {'LUT': 83, 'FF': 33}
+terms: 51; net {'LUT': 79, 'FF': 93}; absolute {'LUT': 391, 'FF': 121}; processor top own {'LUT': -23, 'FF': 107}
+identity: wrapper move {'LUT': 162, 'FF': 126} = u_nvm_port {'LUT': 83, 'FF': 33} + partition net {'LUT': 79, 'FF': 93}: True
+  u_pp: LUT -23, FF +107
+  u_pp/u_listener: LUT +74, FF -11
+  u_pp/u_rx_validator: LUT +48, FF +0
+  u_pp/u_maap: LUT +37, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +23, FF +0
+  u_pp/u_originator: LUT -20, FF +0
+  u_pp/u_ca_builder: LUT -19, FF +0
+  u_pp/u_notify: LUT +18, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -15, FF +0
+  u_pp/u_srp/u_encoder: LUT -14, FF +0
+  u_pp/u_timer: LUT -14, FF +0
+  u_pp/u_talker: LUT -13, FF +0
+  u_pp/u_scoreboard: LUT -9, FF +0
+  u_nvm: LUT +7, FF +0
+  u_pp/u_srp/u_listener: LUT -7, FF +0
+  u_pp/g_rx_pool[5].u_rx_slots: LUT +6, FF +0
+  u_pp/u_nvm_arb: LUT -6, FF +0
+  u_pp/u_normalizer: LUT -4, FF +0
+  u_pp/g_rx_pool[2].u_rx_slots: LUT -3, FF +0
+  u_pp/u_aecp/u_d3: LUT +3, FF +0
+  u_pp/u_nvm_shadow: LUT -3, FF +0
+  u_pp/u_srp/u_decoder: LUT +3, FF +0
+  u_pp/u_srp/u_talker: LUT +3, FF +0
+  u_pp/u_trace: LUT +3, FF +0
+  u_pp/u_aecp: LUT +2, FF +0
+  u_pp/u_dispatch/u_maap_q: LUT -2, FF +0
+  u_pp/u_srp: LUT -1, FF -1
+  u_pp/u_srp/u_admission: LUT -2, FF +0
+  u_pp/u_tx_arbiter: LUT +2, FF +0
+  u_pp/u_tx_slots: LUT +2, FF +0
+  wrapper: LUT +0, FF -2
+  u_pp/g_rx_pool[1].u_rx_slots: LUT +1, FF +0
+  u_pp/u_adp: LUT +1, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +1, FF +0
+  u_pp/u_lsn_admit: LUT +1, FF +0
+  u_pp/u_side_port: LUT -1, FF +0
+OK  AREA_BUDGET.md holds 'grows by 83 LUTs and 33 FFs'
+OK  234_PP_SHADOW_AREA_BASELINE.md holds 'grows `u_nvm_port` by 83 LUTs and 33 FFs'
+OK  AREA_BUDGET.md holds 'net +79 LUTs and +93 FFs'
+OK  234_PP_SHADOW_AREA_BASELINE.md holds 'net +79 LUTs and +93 FFs'
+OK  AREA_BUDGET.md holds 'outside `u_nvm_port`, 51 terms'
+OK  234_PP_SHADOW_AREA_BASELINE.md holds 'outside `u_nvm_port`, 51 terms'
+OK  AREA_BUDGET.md holds 'sum to 391 LUTs and 121 FFs'
+OK  234_PP_SHADOW_AREA_BASELINE.md holds 'sum to 391 LUTs and 121 FFs'
+OK  AREA_BUDGET.md holds '-23 LUTs and +107 FFs'
+OK  234_PP_SHADOW_AREA_BASELINE.md holds '-23 LUTs and +107 FFs'
+partition re-derivation: 0 mismatch(es)

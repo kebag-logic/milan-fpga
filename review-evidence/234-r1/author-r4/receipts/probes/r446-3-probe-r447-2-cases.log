@@ -1,0 +1,22 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R446-3/probe_r447_2_cases.py $LANES/234-area $VALIDATION_STORAGE/234-a516/A/work/ax7101/gateware $VALIDATION_STORAGE/234-a516/r4/probe-scratch/r447cases
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+OK  check          kind []                          rc=2 | 4-a516/r4/probe-scratch/r447cases/c0.json is malformed: route-1x1: the record kind [] is not one of route, ooc
+OK  check-baseline kind []                          rc=2 | 4-a516/r4/probe-scratch/r447cases/c0.json is malformed: route-1x1: the record kind [] is not one of route, ooc
+OK  check          kind {}                          rc=2 | 4-a516/r4/probe-scratch/r447cases/c1.json is malformed: route-1x1: the record kind {} is not one of route, ooc
+OK  check-baseline kind {}                          rc=2 | 4-a516/r4/probe-scratch/r447cases/c1.json is malformed: route-1x1: the record kind {} is not one of route, ooc
+OK  check          figures.LUT text                 rc=2 | /234-a516/r4/probe-scratch/r447cases/c2.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check-baseline figures.LUT text                 rc=2 | /234-a516/r4/probe-scratch/r447cases/c2.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check          figures.LUT null                 rc=2 | /234-a516/r4/probe-scratch/r447cases/c3.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check-baseline figures.LUT null                 rc=2 | /234-a516/r4/probe-scratch/r447cases/c3.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check          figures.LUT NaN                  rc=2 | seline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/r447cases/c4.json is unreadable: the number NaN is not finite
+OK  check-baseline figures.LUT NaN                  rc=2 | seline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/r447cases/c4.json is unreadable: the number NaN is not finite
+OK  check          identity text                    rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check-baseline identity text                    rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check          identity []                      rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check-baseline identity []                      rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check          scopes []                        rc=2 | lds unused; route-1x1: the record scopes are not a table of LUT, FF, RAMB36, RAMB18, DSP, CARRY4 per sub-block
+OK  check-baseline scopes []                        rc=2 | lds unused; route-1x1: the record scopes are not a table of LUT, FF, RAMB36, RAMB18, DSP, CARRY4 per sub-block
+OK  check          figures.WNS_ns NaN               rc=2 | seline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/r447cases/c8.json is unreadable: the number NaN is not finite
+OK  check-baseline figures.WNS_ns NaN               rc=2 | seline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/r447cases/c8.json is unreadable: the number NaN is not finite
+OK  check          route errors count superscript   rc=2 | _status.rpt: route status row 'nets with routing errors' is not a whole number of 1 to 15 ASCII digits: '\xb2'
+R447-2 F1 cases: 0 not exit 2

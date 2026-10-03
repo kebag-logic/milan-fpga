@@ -1,0 +1,17 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R447-3/probe_bigint.py $LANES/234-area $VALIDATION_STORAGE/234-a516/B/work/ax7101/gateware $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+control: the recorded baseline
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 0: baseline PASS: 3 endpoints
+decimal 1e400 as the recorded WNS_ns (refused as designed)
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON number is not finite: '1e400'
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON number is not finite: '1e400'
+integer literal 10**400 as the recorded WNS_ns
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII 
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII 
+integer literal 10**400 as the recorded WHS_ns
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII 
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII 
+integer literal 10**400 as the recorded LUT (control: integer arithmetic)
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII 
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r4/probe-scratch/bigintB/baseline.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII 

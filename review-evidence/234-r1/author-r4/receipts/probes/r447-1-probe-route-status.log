@@ -1,0 +1,5 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R447-1/probe_route_status.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r4/probe-scratch/probe_route_status
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+clean route status: exit 2 | NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+route status with 37 unrouted nets: exit 2 | NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+references to route status in pp_resource_gate.py: 3

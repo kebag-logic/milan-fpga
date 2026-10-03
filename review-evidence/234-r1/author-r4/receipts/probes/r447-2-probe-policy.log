@@ -1,0 +1,111 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R447-2/probe_policy.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r4/probe-scratch/policy447
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+parsed table: {"ooc-1x1": {"ceiling": {}, "floor": {}, "tolerance": {"DSP": 0.0, "FF": 250.0, "LUT": 250.0, "RAMB18": 0.0, "RAMB36": 0.0}}, "ooc-8x8": {"ceiling": {}, "floor": {}, "tolerance": {"DSP": 0.0, "FF": 339.0, "LUT": 316.0, "RAMB18": 0.0, "RAMB36": 0.0}}, "route-1x1": {"ceiling": {"BRAM_TILE": 121.5}, "floor": {"WHS_ns": 0.0, "WNS_ns": 0.03}, "tolerance": {"DSP": 0.0, "FF": 600.0, "LUT": 500.0, "RAMB18": 0.0, "RAMB36": 0.0, "SLICE": 80.0, "WHS_ns": 0.25, "WNS_ns": 0.25}}}
+OK control: wanted 0, got 0: baseline PASS: 3 endpoints
+OK JSON route-1x1 tolerance LUT 500 -> 501: wanted 2, got 2: route-1x1: tolerance LUT is 501 in the baseline and 500.0 in the budget table
+OK JSON route-1x1 tolerance LUT 500 -> 500.5: wanted 2, got 2: route-1x1: tolerance LUT is 500.5 in the baseline and 500.0 in the budget table
+OK JSON route-1x1 tolerance LUT removed: wanted 2, got 2: route-1x1: LUT has no non-negative tolerance | route-1x1: tolerance LUT is None in the baseline and 500.0 in the budget table
+OK JSON route-1x1 tolerance FF 600 -> 601: wanted 2, got 2: route-1x1: tolerance FF is 601 in the baseline and 600.0 in the budget table
+OK JSON route-1x1 tolerance FF 600 -> 600.5: wanted 2, got 2: route-1x1: tolerance FF is 600.5 in the baseline and 600.0 in the budget table
+OK JSON route-1x1 tolerance FF removed: wanted 2, got 2: route-1x1: FF has no non-negative tolerance | route-1x1: tolerance FF is None in the baseline and 600.0 in the budget table
+OK JSON route-1x1 tolerance SLICE 80 -> 81: wanted 2, got 2: route-1x1: tolerance SLICE is 81 in the baseline and 80.0 in the budget table
+OK JSON route-1x1 tolerance SLICE 80 -> 80.5: wanted 2, got 2: route-1x1: tolerance SLICE is 80.5 in the baseline and 80.0 in the budget table
+OK JSON route-1x1 tolerance SLICE removed: wanted 2, got 2: route-1x1: SLICE has no non-negative tolerance | route-1x1: tolerance SLICE is None in the baseline and 80.0 in the budget table
+OK JSON route-1x1 tolerance RAMB36 0 -> 1: wanted 2, got 2: route-1x1: tolerance RAMB36 is 1 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance RAMB36 0 -> 0.5: wanted 2, got 2: route-1x1: tolerance RAMB36 is 0.5 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance RAMB36 removed: wanted 2, got 2: route-1x1: RAMB36 has no non-negative tolerance | route-1x1: tolerance RAMB36 is None in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance RAMB18 0 -> 1: wanted 2, got 2: route-1x1: tolerance RAMB18 is 1 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance RAMB18 0 -> 0.5: wanted 2, got 2: route-1x1: tolerance RAMB18 is 0.5 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance RAMB18 removed: wanted 2, got 2: route-1x1: RAMB18 has no non-negative tolerance | route-1x1: tolerance RAMB18 is None in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance DSP 0 -> 1: wanted 2, got 2: route-1x1: tolerance DSP is 1 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance DSP 0 -> 0.5: wanted 2, got 2: route-1x1: tolerance DSP is 0.5 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance DSP removed: wanted 2, got 2: route-1x1: DSP has no non-negative tolerance | route-1x1: tolerance DSP is None in the baseline and 0.0 in the budget table
+OK JSON route-1x1 tolerance WNS_ns 0.25 -> 1.25: wanted 2, got 2: route-1x1: tolerance WNS_ns is 1.25 in the baseline and 0.25 in the budget table
+OK JSON route-1x1 tolerance WNS_ns 0.25 -> 0.249: wanted 2, got 2: route-1x1: tolerance WNS_ns is 0.249 in the baseline and 0.25 in the budget table
+OK JSON route-1x1 tolerance WNS_ns removed: wanted 2, got 2: route-1x1: WNS_ns has no non-negative tolerance | route-1x1: tolerance WNS_ns is None in the baseline and 0.25 in the budget table
+OK JSON route-1x1 tolerance WHS_ns 0.25 -> 1.25: wanted 2, got 2: route-1x1: tolerance WHS_ns is 1.25 in the baseline and 0.25 in the budget table
+OK JSON route-1x1 tolerance WHS_ns 0.25 -> 0.249: wanted 2, got 2: route-1x1: tolerance WHS_ns is 0.249 in the baseline and 0.25 in the budget table
+OK JSON route-1x1 tolerance WHS_ns removed: wanted 2, got 2: route-1x1: WHS_ns has no non-negative tolerance | route-1x1: tolerance WHS_ns is None in the baseline and 0.25 in the budget table
+OK JSON route-1x1 floor WNS_ns 0.03 -> 1.03: wanted 2, got 2: route-1x1: the recorded WNS_ns is below its floor | route-1x1: floor WNS_ns is 1.03 in the baseline and 0.03 in the budget table
+OK JSON route-1x1 floor WNS_ns 0.03 -> 0.028999999999999998: wanted 2, got 2: route-1x1: floor WNS_ns is 0.028999999999999998 in the baseline and 0.03 in the budget table
+OK JSON route-1x1 floor WNS_ns removed: wanted 2, got 2: route-1x1: WNS_ns has no floor | route-1x1: floor WNS_ns is None in the baseline and 0.03 in the budget table
+OK JSON route-1x1 floor WHS_ns 0.0 -> 1.0: wanted 2, got 2: route-1x1: the recorded WHS_ns is below its floor | route-1x1: floor WHS_ns is 1.0 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 floor WHS_ns 0.0 -> -0.001: wanted 2, got 2: route-1x1: floor WHS_ns is -0.001 in the baseline and 0.0 in the budget table
+OK JSON route-1x1 floor WHS_ns removed: wanted 2, got 2: route-1x1: WHS_ns has no floor | route-1x1: floor WHS_ns is None in the baseline and 0.0 in the budget table
+OK JSON route-1x1 ceiling BRAM_TILE 121.5 -> 122.5: wanted 2, got 2: route-1x1: ceiling BRAM_TILE is 122.5 in the baseline and 121.5 in the budget table
+OK JSON route-1x1 ceiling BRAM_TILE 121.5 -> 121.499: wanted 2, got 2: route-1x1: ceiling BRAM_TILE is 121.499 in the baseline and 121.5 in the budget table
+OK JSON route-1x1 ceiling BRAM_TILE removed: wanted 2, got 2: route-1x1: BRAM_TILE has no ceiling | route-1x1: ceiling BRAM_TILE is None in the baseline and 121.5 in the budget table
+OK JSON route-1x1 floor LUT added: wanted 2, got 2: route-1x1: floor LUT is 1 in the baseline and None in the budget table
+OK JSON ooc-1x1 tolerance LUT 250 -> 251: wanted 2, got 2: ooc-1x1: tolerance LUT is 251 in the baseline and 250.0 in the budget table
+OK JSON ooc-1x1 tolerance LUT 250 -> 250.5: wanted 2, got 2: ooc-1x1: tolerance LUT is 250.5 in the baseline and 250.0 in the budget table
+OK JSON ooc-1x1 tolerance LUT removed: wanted 2, got 2: ooc-1x1: LUT has no non-negative tolerance | ooc-1x1: tolerance LUT is None in the baseline and 250.0 in the budget table
+OK JSON ooc-1x1 tolerance FF 250 -> 251: wanted 2, got 2: ooc-1x1: tolerance FF is 251 in the baseline and 250.0 in the budget table
+OK JSON ooc-1x1 tolerance FF 250 -> 250.5: wanted 2, got 2: ooc-1x1: tolerance FF is 250.5 in the baseline and 250.0 in the budget table
+OK JSON ooc-1x1 tolerance FF removed: wanted 2, got 2: ooc-1x1: FF has no non-negative tolerance | ooc-1x1: tolerance FF is None in the baseline and 250.0 in the budget table
+OK JSON ooc-1x1 tolerance RAMB36 0 -> 1: wanted 2, got 2: ooc-1x1: tolerance RAMB36 is 1 in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance RAMB36 0 -> 0.5: wanted 2, got 2: ooc-1x1: tolerance RAMB36 is 0.5 in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance RAMB36 removed: wanted 2, got 2: ooc-1x1: RAMB36 has no non-negative tolerance | ooc-1x1: tolerance RAMB36 is None in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance RAMB18 0 -> 1: wanted 2, got 2: ooc-1x1: tolerance RAMB18 is 1 in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance RAMB18 0 -> 0.5: wanted 2, got 2: ooc-1x1: tolerance RAMB18 is 0.5 in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance RAMB18 removed: wanted 2, got 2: ooc-1x1: RAMB18 has no non-negative tolerance | ooc-1x1: tolerance RAMB18 is None in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance DSP 0 -> 1: wanted 2, got 2: ooc-1x1: tolerance DSP is 1 in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance DSP 0 -> 0.5: wanted 2, got 2: ooc-1x1: tolerance DSP is 0.5 in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 tolerance DSP removed: wanted 2, got 2: ooc-1x1: DSP has no non-negative tolerance | ooc-1x1: tolerance DSP is None in the baseline and 0.0 in the budget table
+OK JSON ooc-1x1 floor LUT added: wanted 2, got 2: ooc-1x1: floor LUT is 1 in the baseline and None in the budget table
+OK JSON ooc-8x8 tolerance LUT 316 -> 317: wanted 2, got 2: ooc-8x8: tolerance LUT is 317 in the baseline and 316.0 in the budget table
+OK JSON ooc-8x8 tolerance LUT 316 -> 316.5: wanted 2, got 2: ooc-8x8: tolerance LUT is 316.5 in the baseline and 316.0 in the budget table
+OK JSON ooc-8x8 tolerance LUT removed: wanted 2, got 2: ooc-8x8: LUT has no non-negative tolerance | ooc-8x8: tolerance LUT is None in the baseline and 316.0 in the budget table
+OK JSON ooc-8x8 tolerance FF 339 -> 340: wanted 2, got 2: ooc-8x8: tolerance FF is 340 in the baseline and 339.0 in the budget table
+OK JSON ooc-8x8 tolerance FF 339 -> 339.5: wanted 2, got 2: ooc-8x8: tolerance FF is 339.5 in the baseline and 339.0 in the budget table
+OK JSON ooc-8x8 tolerance FF removed: wanted 2, got 2: ooc-8x8: FF has no non-negative tolerance | ooc-8x8: tolerance FF is None in the baseline and 339.0 in the budget table
+OK JSON ooc-8x8 tolerance RAMB36 0 -> 1: wanted 2, got 2: ooc-8x8: tolerance RAMB36 is 1 in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance RAMB36 0 -> 0.5: wanted 2, got 2: ooc-8x8: tolerance RAMB36 is 0.5 in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance RAMB36 removed: wanted 2, got 2: ooc-8x8: RAMB36 has no non-negative tolerance | ooc-8x8: tolerance RAMB36 is None in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance RAMB18 0 -> 1: wanted 2, got 2: ooc-8x8: tolerance RAMB18 is 1 in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance RAMB18 0 -> 0.5: wanted 2, got 2: ooc-8x8: tolerance RAMB18 is 0.5 in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance RAMB18 removed: wanted 2, got 2: ooc-8x8: RAMB18 has no non-negative tolerance | ooc-8x8: tolerance RAMB18 is None in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance DSP 0 -> 1: wanted 2, got 2: ooc-8x8: tolerance DSP is 1 in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance DSP 0 -> 0.5: wanted 2, got 2: ooc-8x8: tolerance DSP is 0.5 in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 tolerance DSP removed: wanted 2, got 2: ooc-8x8: DSP has no non-negative tolerance | ooc-8x8: tolerance DSP is None in the baseline and 0.0 in the budget table
+OK JSON ooc-8x8 floor LUT added: wanted 2, got 2: ooc-8x8: floor LUT is 1 in the baseline and None in the budget table
+OK table `route-1x1` column 1 '+500' -> '+501': wanted 2, got 2: route-1x1: tolerance LUT is 500 in the baseline and 501.0 in the budget table
+OK table `route-1x1` column 2 '+600' -> '+601': wanted 2, got 2: route-1x1: tolerance FF is 600 in the baseline and 601.0 in the budget table
+OK table `route-1x1` column 3 '+80' -> '+81': wanted 2, got 2: route-1x1: tolerance SLICE is 80 in the baseline and 81.0 in the budget table
+OK table `route-1x1` column 4 '+0' -> '+1': wanted 2, got 2: route-1x1: tolerance RAMB36 is 0 in the baseline and 1.0 in the budget table
+OK table `route-1x1` column 5 '+0' -> '+1': wanted 2, got 2: route-1x1: tolerance RAMB18 is 0 in the baseline and 1.0 in the budget table
+OK table `route-1x1` column 6 '+0' -> '+1': wanted 2, got 2: route-1x1: tolerance DSP is 0 in the baseline and 1.0 in the budget table
+OK table `route-1x1` column 7 '+0.030 ns' -> '+1.03 ns': wanted 2, got 2: route-1x1: floor WNS_ns is 0.03 in the baseline and 1.03 in the budget table
+OK table `route-1x1` column 8 '0 ns' -> '1 ns': wanted 2, got 2: route-1x1: floor WHS_ns is 0.0 in the baseline and 1.0 in the budget table
+OK table `route-1x1` column 9 '0.25 ns' -> '1.25 ns': wanted 2, got 2: route-1x1: tolerance WHS_ns is 0.25 in the baseline and 1.25 in the budget table | route-1x1: tolerance WNS_ns is 0.25 in the baseline and 1.25 in the budget table
+OK table `route-1x1` column 10 '121.5' -> '122.5': wanted 2, got 2: route-1x1: ceiling BRAM_TILE is 121.5 in the baseline and 122.5 in the budget table
+OK table `ooc-1x1` column 1 '+250' -> '+251': wanted 2, got 2: ooc-1x1: tolerance LUT is 250 in the baseline and 251.0 in the budget table
+OK table `ooc-1x1` column 2 '+250' -> '+251': wanted 2, got 2: ooc-1x1: tolerance FF is 250 in the baseline and 251.0 in the budget table
+OK table `ooc-1x1` column 3 '-' -> '+0': wanted 2, got 2: ooc-1x1: tolerance SLICE is None in the baseline and 0.0 in the budget table
+OK table `ooc-1x1` column 3 '-' -> '5': wanted 2, got 2: ooc-1x1: tolerance SLICE is None in the baseline and 5.0 in the budget table
+OK table `ooc-1x1` column 4 '+0' -> '+1': wanted 2, got 2: ooc-1x1: tolerance RAMB36 is 0 in the baseline and 1.0 in the budget table
+OK table `ooc-1x1` column 5 '+0' -> '+1': wanted 2, got 2: ooc-1x1: tolerance RAMB18 is 0 in the baseline and 1.0 in the budget table
+OK table `ooc-1x1` column 6 '+0' -> '+1': wanted 2, got 2: ooc-1x1: tolerance DSP is 0 in the baseline and 1.0 in the budget table
+OK table `ooc-1x1` column 7 '-' -> '+0': wanted 2, got 2: ooc-1x1: floor WNS_ns is None in the baseline and 0.0 in the budget table
+OK table `ooc-1x1` column 7 '-' -> '5': wanted 2, got 2: ooc-1x1: floor WNS_ns is None in the baseline and 5.0 in the budget table
+OK table `ooc-1x1` column 8 '-' -> '+0': wanted 2, got 2: ooc-1x1: floor WHS_ns is None in the baseline and 0.0 in the budget table
+OK table `ooc-1x1` column 8 '-' -> '5': wanted 2, got 2: ooc-1x1: floor WHS_ns is None in the baseline and 5.0 in the budget table
+OK table `ooc-1x1` column 9 '-' -> '+0': wanted 2, got 2: ooc-1x1: tolerance WHS_ns is None in the baseline and 0.0 in the budget table | ooc-1x1: tolerance WNS_ns is None in the baseline and 0.0 in the budget table
+OK table `ooc-1x1` column 9 '-' -> '5': wanted 2, got 2: ooc-1x1: tolerance WHS_ns is None in the baseline and 5.0 in the budget table | ooc-1x1: tolerance WNS_ns is None in the baseline and 5.0 in the budget table
+OK table `ooc-1x1` column 10 '-' -> '+0': wanted 2, got 2: ooc-1x1: ceiling BRAM_TILE is None in the baseline and 0.0 in the budget table
+OK table `ooc-1x1` column 10 '-' -> '5': wanted 2, got 2: ooc-1x1: ceiling BRAM_TILE is None in the baseline and 5.0 in the budget table
+OK table `ooc-8x8` column 1 '+316' -> '+317': wanted 2, got 2: ooc-8x8: tolerance LUT is 316 in the baseline and 317.0 in the budget table
+OK table `ooc-8x8` column 2 '+339' -> '+340': wanted 2, got 2: ooc-8x8: tolerance FF is 339 in the baseline and 340.0 in the budget table
+OK table `ooc-8x8` column 3 '-' -> '+0': wanted 2, got 2: ooc-8x8: tolerance SLICE is None in the baseline and 0.0 in the budget table
+OK table `ooc-8x8` column 3 '-' -> '5': wanted 2, got 2: ooc-8x8: tolerance SLICE is None in the baseline and 5.0 in the budget table
+OK table `ooc-8x8` column 4 '+0' -> '+1': wanted 2, got 2: ooc-8x8: tolerance RAMB36 is 0 in the baseline and 1.0 in the budget table
+OK table `ooc-8x8` column 5 '+0' -> '+1': wanted 2, got 2: ooc-8x8: tolerance RAMB18 is 0 in the baseline and 1.0 in the budget table
+OK table `ooc-8x8` column 6 '+0' -> '+1': wanted 2, got 2: ooc-8x8: tolerance DSP is 0 in the baseline and 1.0 in the budget table
+OK table `ooc-8x8` column 7 '-' -> '+0': wanted 2, got 2: ooc-8x8: floor WNS_ns is None in the baseline and 0.0 in the budget table
+OK table `ooc-8x8` column 7 '-' -> '5': wanted 2, got 2: ooc-8x8: floor WNS_ns is None in the baseline and 5.0 in the budget table
+OK table `ooc-8x8` column 8 '-' -> '+0': wanted 2, got 2: ooc-8x8: floor WHS_ns is None in the baseline and 0.0 in the budget table
+OK table `ooc-8x8` column 8 '-' -> '5': wanted 2, got 2: ooc-8x8: floor WHS_ns is None in the baseline and 5.0 in the budget table
+OK table `ooc-8x8` column 9 '-' -> '+0': wanted 2, got 2: ooc-8x8: tolerance WHS_ns is None in the baseline and 0.0 in the budget table | ooc-8x8: tolerance WNS_ns is None in the baseline and 0.0 in the budget table
+OK table `ooc-8x8` column 9 '-' -> '5': wanted 2, got 2: ooc-8x8: tolerance WHS_ns is None in the baseline and 5.0 in the budget table | ooc-8x8: tolerance WNS_ns is None in the baseline and 5.0 in the budget table
+OK table `ooc-8x8` column 10 '-' -> '+0': wanted 2, got 2: ooc-8x8: ceiling BRAM_TILE is None in the baseline and 0.0 in the budget table
+OK table `ooc-8x8` column 10 '-' -> '5': wanted 2, got 2: ooc-8x8: ceiling BRAM_TILE is None in the baseline and 5.0 in the budget table
+107/107 as wanted

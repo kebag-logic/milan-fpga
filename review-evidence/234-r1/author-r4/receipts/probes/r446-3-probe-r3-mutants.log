@@ -1,0 +1,24 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R446-3/probe_r3_mutants.py $LANES/234-area --jobs 12
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+CONTROL   control                                        | resource gate selftest: 247 arms and 500 generated cases PASS
+KILLED    identity: extra key accepted                   | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    identity: missing key accepted                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    figures: extra figure accepted                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    figures: missing figure accepted               | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    scopes: extra count accepted                   | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    scopes: missing count accepted                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    digest: any hex length                         | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    digest: upper-case hex                         | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    digest: type test dropped                      | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    kind: type test dropped                        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    number(): text accepted                        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    load(): only the first endpoint validated      | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    check-baseline bypasses load()                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    check bypasses load()                          | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    routing-errors row: duplicates accepted        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    routing-errors row: may be absent              | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    slack: integer accepted without fraction       | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    utilization: any fraction accepted             | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    hierarchy: first count cell unchecked          | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    hierarchy: last count cell unchecked           | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+round-3 mutant probe: 20 mutants, 0 not killed or not applied (control included)

@@ -1,0 +1,44 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R446-1/reconcile.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/author/evidence
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+OK  baseline route-1x1 record == published A-record-route-1x1.json
+OK  baseline route-1x1 record != B record
+OK  baseline ooc-1x1 record == published A-record-ooc-1x1.json
+OK  baseline ooc-1x1 record != B record
+OK  baseline ooc-8x8 record == published A-record-ooc-8x8.json
+OK  baseline ooc-8x8 record != B record
+OK  10 ns control differs from 20 ns record only in clock identity and figures/scopes
+INFO 10 ns control inputs digest differs from the 20 ns run, as expected (clock.xdc is a read input): b6a0c8b73149 vs 171587e66e23
+OK  findings shipping-route row A == record -- {}
+OK  findings shipping-route row B == record -- {}
+OK  findings standalone row 1x1,A == record -- {}
+OK  findings standalone row 1x1,B == record -- {}
+OK  findings standalone row 8x8,A == record -- {}
+OK  findings standalone row 8x8,B == record -- {}
+OK  10 ns control sentence figures == record
+OK  sub-block table 1x1: every cell re-derived from record scopes (mismatches listed above)
+OK  sub-block table 8x8: every cell re-derived from record scopes (mismatches listed above)
+INFO 1x1 B-A over depth-1 u_pp children except u_nvm_port, plus u_nvm and ctl_fifo: net LUT +102, net FF -12, abs LUT 322
+INFO wrapper B-A +162 LUT, u_pp B-A +155 LUT, u_pp own (u_pp minus children) B-A -23
+INFO partition u_pp direct children minus u_nvm_port and u_nvm_arb: net LUT +101, net FF -12, abs LUT 309
+INFO whole wrapper minus u_nvm_port: LUT +79, FF +93
+BAD findings :135-136 'net 101 LUTs', 'sum to 309' reproduce on that partition -- recomputed +101 / 309
+BAD AREA_BUDGET 'net 101 LUTs and 95 FFs': FF on the same partition -- same partition gives FF -12; +95 is only reached by adding the processor top's own +107 FF
+OK  route wrapper +259 LUT (B-A pp_shadow scope)
+OK  route pp_shadow A LUT 23,937 / FF 24,263
+OK  route pp_shadow B LUT 24,196 / FF 24,274
+OK  625 - 259 = 366 outside the wrapper
+OK  percent LUT 79.07
+OK  percent FF 46.53
+OK  percent SLICE 99.78
+OK  percent RAMB36 58.52
+OK  percent RAMB18 10.00
+OK  percent BRAM_TILE 68.52
+OK  percent DSP 5.83
+OK  NFR-RES-01 gap 12,088
+OK  wrapper target 11,849 = routed pp_shadow 23,937 - 12,088
+OK  ceiling 121.5 = 135 - 13.5 reserve
+INFO ooc-1x1 LUT tolerance 250 = 1.03 % of the record
+INFO ooc-1x1 FF tolerance 250 = 0.99 % of the record
+INFO ooc-8x8 LUT tolerance 316 = 1.00 % of the record
+INFO ooc-8x8 FF tolerance 339 = 1.00 % of the record
+reconcile: 2 mismatches

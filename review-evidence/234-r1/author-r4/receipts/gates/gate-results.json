@@ -1,0 +1,474 @@
+{
+ "head": "79e53831a4f623a594f22765be1d05dffeb696a7",
+ "worktree_clean": true,
+ "make": "GNU Make 4.3",
+ "gates": [
+  {
+   "name": "dp-srcs-selftest",
+   "command": [
+    "python3",
+    "syn/ooc/dp_srcs.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 16.1,
+   "log": "dp-srcs-selftest.log"
+  },
+  {
+   "name": "ooc-tcl-selftest",
+   "command": [
+    "python3",
+    "syn/ooc/ooc_tcl_selftest.py"
+   ],
+   "rc": 0,
+   "seconds": 466.6,
+   "log": "ooc-tcl-selftest.log"
+  },
+  {
+   "name": "pp-baseline-selftest",
+   "command": [
+    "python3",
+    "syn/ooc/pp_baseline.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "pp-baseline-selftest.log"
+  },
+  {
+   "name": "pp-baseline-mutants",
+   "command": [
+    "python3",
+    "syn/ooc/pp_baseline_mutants.py"
+   ],
+   "rc": 0,
+   "seconds": 2.7,
+   "log": "pp-baseline-mutants.log"
+  },
+  {
+   "name": "pp-baseline-reports-selftest",
+   "command": [
+    "python3",
+    "syn/ooc/pp_baseline_reports_selftest.py"
+   ],
+   "rc": 0,
+   "seconds": 0.0,
+   "log": "pp-baseline-reports-selftest.log"
+  },
+  {
+   "name": "resource-gate-selftest",
+   "command": [
+    "python3",
+    "syn/ooc/pp_resource_gate.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 1.7,
+   "log": "resource-gate-selftest.log"
+  },
+  {
+   "name": "resource-gate-mutants",
+   "command": [
+    "python3",
+    "syn/ooc/pp_resource_gate_mutants.py"
+   ],
+   "rc": 0,
+   "seconds": 3.5,
+   "log": "resource-gate-mutants.log"
+  },
+  {
+   "name": "resource-gate-check-baseline",
+   "command": [
+    "python3",
+    "syn/ooc/pp_resource_gate.py",
+    "check-baseline"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "resource-gate-check-baseline.log"
+  },
+  {
+   "name": "dp-srcs-milan-datapath",
+   "command": [
+    "python3",
+    "syn/ooc/dp_srcs.py",
+    "--top",
+    "milan_datapath"
+   ],
+   "rc": 0,
+   "seconds": 8.6,
+   "log": "dp-srcs-milan-datapath.log"
+  },
+  {
+   "name": "dp-srcs-kl-pp-shadow",
+   "command": [
+    "python3",
+    "syn/ooc/dp_srcs.py",
+    "--top",
+    "KL_pp_shadow"
+   ],
+   "rc": 0,
+   "seconds": 5.2,
+   "log": "dp-srcs-kl-pp-shadow.log"
+  },
+  {
+   "name": "pp-srcs-check-selftest",
+   "command": [
+    "python3",
+    "scripts/pp_srcs.py",
+    "--check",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.3,
+   "log": "pp-srcs-check-selftest.log"
+  },
+  {
+   "name": "docs-check",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/docs_check.py"
+   ],
+   "rc": 0,
+   "seconds": 5.0,
+   "log": "docs-check.log"
+  },
+  {
+   "name": "docs-check-no-git",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/docs_check.py"
+   ],
+   "rc": 0,
+   "seconds": 5.0,
+   "log": "docs-check-no-git.log"
+  },
+  {
+   "name": "feature-status-no-git",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_feature_status.py"
+   ],
+   "rc": 0,
+   "seconds": 0.9,
+   "log": "feature-status-no-git.log"
+  },
+  {
+   "name": "feature-status-selftest",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_feature_status.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 0.9,
+   "log": "feature-status-selftest.log"
+  },
+  {
+   "name": "em-dash",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_em_dash.py",
+    "--base",
+    "1269cdafb4bb964c757baae0f0c5a932d43f540b"
+   ],
+   "rc": 0,
+   "seconds": 3.4,
+   "log": "em-dash.log"
+  },
+  {
+   "name": "em-dash-selftest",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_em_dash.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 3.2,
+   "log": "em-dash-selftest.log"
+  },
+  {
+   "name": "doc-style",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_doc_style.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "doc-style.log"
+  },
+  {
+   "name": "doc-style-selftest",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_doc_style.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.0,
+   "log": "doc-style-selftest.log"
+  },
+  {
+   "name": "doc-paths",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_doc_paths.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "doc-paths.log"
+  },
+  {
+   "name": "toc-selftest",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/gen_toc.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.9,
+   "log": "toc-selftest.log"
+  },
+  {
+   "name": "toc-verify-anchors",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/gen_toc.py",
+    "--verify-anchors"
+   ],
+   "rc": 0,
+   "seconds": 2.5,
+   "log": "toc-verify-anchors.log"
+  },
+  {
+   "name": "toc-check",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/gen_toc.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 3.8,
+   "log": "toc-check.log"
+  },
+  {
+   "name": "archive",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_archive.py"
+   ],
+   "rc": 0,
+   "seconds": 0.3,
+   "log": "archive.log"
+  },
+  {
+   "name": "archive-selftest",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_archive.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "archive-selftest.log"
+  },
+  {
+   "name": "doc-map-check",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "docs/DOC_MAP.gen.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.4,
+   "log": "doc-map-check.log"
+  },
+  {
+   "name": "module-matrix-check",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "docs/traceability/gen_module_matrix.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 1.0,
+   "log": "module-matrix-check.log"
+  },
+  {
+   "name": "solution-docs",
+   "command": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+    "scripts/check_solution_docs.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "solution-docs.log"
+  },
+  {
+   "name": "baremetal-only",
+   "command": [
+    "python3",
+    "scripts/check_baremetal_only.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 17.1,
+   "log": "baremetal-only.log"
+  },
+  {
+   "name": "gptp-docs-make",
+   "command": [
+    "make",
+    "-C",
+    "gptp-processor",
+    "docs"
+   ],
+   "rc": 0,
+   "seconds": 0.7,
+   "log": "gptp-docs-make.log"
+  },
+  {
+   "name": "ci-scope-selftest",
+   "command": [
+    "python3",
+    "scripts/ci_scope.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 3.8,
+   "log": "ci-scope-selftest.log"
+  },
+  {
+   "name": "ci-events-check",
+   "command": [
+    "python3",
+    "scripts/ci_events.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.2,
+   "log": "ci-events-check.log"
+  },
+  {
+   "name": "ci-events-selftest",
+   "command": [
+    "python3",
+    "scripts/ci_events.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 16.3,
+   "log": "ci-events-selftest.log"
+  },
+  {
+   "name": "py-idiom",
+   "command": [
+    "python3",
+    "scripts/check_py_idiom.py"
+   ],
+   "rc": 0,
+   "seconds": 3.9,
+   "log": "py-idiom.log"
+  },
+  {
+   "name": "py-idiom-selftest",
+   "command": [
+    "python3",
+    "scripts/check_py_idiom.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 3.9,
+   "log": "py-idiom-selftest.log"
+  },
+  {
+   "name": "fail-fast",
+   "command": [
+    "python3",
+    "scripts/measure_fail_fast.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 1.5,
+   "log": "fail-fast.log"
+  },
+  {
+   "name": "hygiene",
+   "command": [
+    "python3",
+    "scripts/check_hygiene.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.4,
+   "log": "hygiene.log"
+  },
+  {
+   "name": "todo-ownership",
+   "command": [
+    "python3",
+    "scripts/check_todo_ownership.py"
+   ],
+   "rc": 0,
+   "seconds": 1.6,
+   "log": "todo-ownership.log"
+  },
+  {
+   "name": "test-evidence",
+   "command": [
+    "python3",
+    "scripts/measure_test_evidence.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 6.3,
+   "log": "test-evidence.log"
+  },
+  {
+   "name": "control-flow-selftest",
+   "command": [
+    "python3",
+    "scripts/measure_control_flow.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "control-flow-selftest.log"
+  },
+  {
+   "name": "cohesion-selftest",
+   "command": [
+    "python3",
+    "scripts/measure_cohesion.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1,
+   "log": "cohesion-selftest.log"
+  },
+  {
+   "name": "diff-check-base",
+   "command": [
+    "git",
+    "diff",
+    "--check",
+    "1269cdafb4bb964c757baae0f0c5a932d43f540b",
+    "HEAD"
+   ],
+   "rc": 0,
+   "seconds": 0.0,
+   "log": "diff-check-base.log"
+  },
+  {
+   "name": "diff-check-worktree",
+   "command": [
+    "git",
+    "diff",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.0,
+   "log": "diff-check-worktree.log"
+  }
+ ]
+}

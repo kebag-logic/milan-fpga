@@ -1,0 +1,27 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R446-1/probe_gate_mutants.py $LANES/234-area --jobs 8
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+CONTROL-PASS control                                          | resource gate selftest: 247 arms and 500 generated cases PASS
+KILLED       identity: design header dropped                  | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: design state dropped                   | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: FLOW drops synth_design                | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: FLOW drops opt_design                  | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: FLOW drops route_design                | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: FLOW drops phys_opt_design             | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: FLOW drops create_project              | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       identity: FLOW drops kl_timing_grade_configure   | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       header uniqueness                                | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       located(): one top and one wrapper               | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       read source presence check                       | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       include directory presence check                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       timing floor boundary (< to <=)                  | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       timing fall boundary (> to >=)                   | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       GATED ooc drops RAMB36                           | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       GATED ooc drops DSP                              | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       GATED route drops WHS_ns                         | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+NOT-APPLIED  count format accepts any decimal                 | pattern occurs 0 times
+NOT-APPLIED  check_baseline: recorded figure below floor      | pattern occurs 0 times
+KILLED       identical-input refusal compares LUT only        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       generated-file root normalization dropped        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       generic path normalization dropped               | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED       CARRY4 census attribution                        | raise AssertionError(f"CARRY4 attribution wrong: {entries['route']['record']}")
+probe_gate_mutants: 23 mutants, 0 survived, 21 killed, control CONTROL-PASS, not applied 2

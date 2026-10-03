@@ -1,0 +1,19 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r4/review-evidence/234-r1/reviews/R446-2/probe_malformed_record.py $LANES/234-area
+# head 79e53831a4f623a594f22765be1d05dffeb696a7
+OK  check          record identity is a list                      rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record identity does not hold exactly tool, device, desig
+OK  check-baseline record identity is a list                      rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record identity does not hold exactly tool, device, desig
+OK  check          record identity is a string                    rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record identity does not hold exactly tool, device, desig
+OK  check-baseline record identity is a string                    rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record identity does not hold exactly tool, device, desig
+OK  check          record scopes is a list                        rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record scopes are not a table of LUT, FF, RAMB36, RAMB18,
+OK  check-baseline record scopes is a list                        rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record scopes are not a table of LUT, FF, RAMB36, RAMB18,
+OK  check          record gated figure LUT is a string            rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: a recorded figure is not a finite number
+OK  check-baseline record gated figure LUT is a string            rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: a recorded figure is not a finite number
+OK  check          record gated figure WNS_ns is null             rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: a recorded figure is not a finite number
+OK  check-baseline record gated figure WNS_ns is null             rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: a recorded figure is not a finite number
+OK  check          record kind is a list                          rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record kind ['route'] is not one of route, ooc
+OK  check-baseline record kind is a list                          rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: the record kind ['route'] is not one of route, ooc
+OK  check          tolerance LUT is a string                      rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: a tolerance value is not a finite number
+OK  check-baseline tolerance LUT is a string                      rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is malformed: route: a tolerance value is not a finite number
+OK  check          floor WNS_ns is NaN (written by json as NaN)   rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is unreadable: the number NaN is not finite
+OK  check-baseline floor WNS_ns is NaN (written by json as NaN)   rc=2 | NOT COMPARABLE: baseline /tmp/r446-malformed-45byq0l6/baseline.json is unreadable: the number NaN is not finite
+malformed record probe: 0 case(s) not exit 2 with a named reason
