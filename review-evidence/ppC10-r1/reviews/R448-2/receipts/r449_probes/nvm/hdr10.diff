@@ -1,0 +1,11 @@
+--- <scratch>/trees/head/hdl/packet_engine/KL_pp_nvm_port.sv	2026-10-03 15:31:13.000000000 +0200
++++ <scratch>/r449w/nvm/hdr10/hdl/packet_engine/KL_pp_nvm_port.sv	2026-10-03 17:52:28.485504101 +0200
+@@ -179,7 +179,7 @@
+   // ---- record framing constants (07 §5.2, F07.8) -------------------------
+   localparam logic [7:0]  MAGIC_HI_C = 8'h17;  // magic 0x1722, byte 0
+   localparam logic [7:0]  MAGIC_LO_C = 8'h22;  // magic 0x1722, byte 1
+-  localparam logic [15:0] HDR_LEN_C  = 16'd8;  // magic+version+id+plen+crc16
++  localparam logic [15:0] HDR_LEN_C  = 16'd10;  // magic+version+id+plen+crc16
+   localparam logic [15:0] MAXP_C     = 16'(MAX_PAYLOAD_P);
+ 
+   // ---- elaboration guard ----------------------------------------------------

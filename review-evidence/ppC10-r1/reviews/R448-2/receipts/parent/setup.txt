@@ -1,0 +1,16 @@
+scratch parent: milan-fpga 1269cdafb4bb964c757baae0f0c5a932d43f540b (worktree of a fresh public clone; scratch only)
+  submodule status: -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  submodule status:  5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+  submodule status:  cd08ca7b3d962ab040d8aaa023c57e7b0e010a6d protocol-processor (v2.0-511-gcd08ca7)
+  submodule status:  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+  index gitlinks:
+    160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+    160000 cd08ca7b3d962ab040d8aaa023c57e7b0e010a6d 0	protocol-processor
+    160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+  protocol-processor tree: e0b4807f1a6e2254a495f147f28e55e86d08f0bf, status lines: 0
+patches, each git apply --check then git apply, in order:
+  aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209  author/parent-adoption-c8-cdf49d1a.patch
+  590f791de7fc5d00986a8d76c43e4488d522305b19876b8b4f30bc0a76f539fa  author/parent-adoption-p2-cdf49d1a.patch
+  55e62329f52e352bdd56b6d37bf2877aa952063f43221bb3f1d8583274ea34b9  author-r2/parent-adoption-c10-1269cdaf.patch
+amended c10 touches: docs/development/CODE_QUALITY.md scripts/check_rtl_source_lists_selftest.py scripts/processor_yosys_tops.budget scripts/xvlog.budget 
+files changed vs 1269cdaf: 12 (+ the protocol-processor gitlink)

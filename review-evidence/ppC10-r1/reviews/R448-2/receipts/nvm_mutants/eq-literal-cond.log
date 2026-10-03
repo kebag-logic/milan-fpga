@@ -1,0 +1,13 @@
+mutant eq-literal-cond: 1 replacement(s)
+sv2v on PATH: ~/.local/bin/sv2v; yosys on PATH: /usr/bin/yosys
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name as %Warning-USERERROR, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name as %Warning-USERERROR, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name as %Warning-USERERROR, as it must be)
+ELAB OK    MAX_PAYLOAD_P=1024
+ELAB OK    MAX_PAYLOAD_P=65527
+GUARD OK   MAX_PAYLOAD_P=65528 (refused by name as %Warning-USERFATAL, as it must be)
+GUARD OK   MAX_PAYLOAD_P=65535 (refused by name as %Warning-USERFATAL, as it must be)
+GUARD OK   MAX_PAYLOAD_P=4294967295 (refused by name as %Warning-USERFATAL, as it must be)
+YOSYS OK   MAX_PAYLOAD_P=65527 elaborates, MAX_PAYLOAD_P=65528 stops at the guard's $finish
