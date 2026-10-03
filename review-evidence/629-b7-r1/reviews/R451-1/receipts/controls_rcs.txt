@@ -1,0 +1,4 @@
+repro rc=0
+mutant repeats-invisible rc=1
+mutant skip1-invisible rc=1
+cmp controls.json == published B7 == B6 (sha 7bbefc71...): byte-equal
