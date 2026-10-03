@@ -1,0 +1,71 @@
+$ python3 scratch-scripts/name_kill_r5.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r5/name-kill
+# head ec7eb2d8ff81700842f4e3a35b79879c8c3838e5
+control: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest e737d367d2dc893d
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+shipped baseline key names: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 22 failures; case digest 6c00b13140d71fb8
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 206 failures; case digest 85b6a882aa42c2ea
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+shipped baseline repeated keys: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 11 failures; case digest ebd95fa086f02f8c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 149 failures; case digest 9d8e574753f47ae6
+    selftest: AssertionError: route arm 'image manifest with a repeated key': exit 0, wanted 2 naming "the key 'sha256' appears twice in one object"
+shipped baseline keys checked: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 11 failures; case digest ebd95fa086f02f8c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 149 failures; case digest 9d8e574753f47ae6
+    selftest: AssertionError: route arm 'image manifest with a repeated key': exit 0, wanted 2 naming "the key 'sha256' appears twice in one object"
+shipped scope names hold a generate index: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 448b989be3a0026b
+    selftest: AssertionError: command-line arm 'check against a scope name with a generate index': exit 2, wanted 0 naming 'RESULT: PASS'
+shipped every key named: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 22 failures; case digest 6c00b13140d71fb8
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 206 failures; case digest 85b6a882aa42c2ea
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+shipped baseline scope names: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 448b989be3a0026b
+    selftest: AssertionError: command-line arm 'check against a scope name with a generate index': exit 2, wanted 0 naming 'RESULT: PASS'
+shipped scope names at their path only: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 10 failures; case digest 6ded54cc8fc41815
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 54 failures; case digest 464e14ffce658679
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+shipped scope path matched in full: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest 9f90497385b41fef
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 2 failures; case digest 7ca287d437d7388d
+    selftest: AssertionError: malformed-baseline arm 'a note holding a bracketed key under scopes' through check: exit 0, wanted 2 naming "the key 'g_rx[5]' is not a name of 1 to 128 o
+shipped names inside lists: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 12 failures; case digest 5ba7551fec6eacae
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 95 failures; case digest 032461e9af3a7119
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+shipped names below the top level: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 15 failures; case digest 9a4b544751d9af13
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 148 failures; case digest 9b72ea1886661f2d
+    selftest: AssertionError: malformed-baseline arm 'an endpoint field named by a lone surrogate' through check: exit 2, wanted 2 naming "the key '\\ud800' is not a name"
+shipped image manifest strict: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 7 failures; case digest 65669916ad9fb577
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 58 failures; case digest bc63d97ae7069037
+    selftest: AssertionError: route arm 'image manifest with a repeated key': exit 0, wanted 2 naming "the key 'sha256' appears twice in one object"
+adapted R446-4 strict(): plain json.loads: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 41 failures; case digest 6ae54a27d54a5025
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 415 failures; case digest da3073c73bef41c6
+    selftest: AssertionError: route arm 'image manifest with a repeated key': exit 0, wanted 2 naming "the key 'sha256' appears twice in one object"
+adapted R446-4 named(): no name class; R447-4 key name class removed: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 22 failures; case digest 6c00b13140d71fb8
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 206 failures; case digest 85b6a882aa42c2ea
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+adapted R446-4 named(): NAME class for every key (no bracket exception): fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 448b989be3a0026b
+    selftest: AssertionError: command-line arm 'check against a scope name with a generate index': exit 2, wanted 0 naming 'RESULT: PASS'
+adapted R446-4 load(): endpoint names not held to NAME; R447-4 brackets allowed in endpoint names: fuzz500 passed rc=0; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 1 failures; case digest c6822fe8c49f6436
+    selftest: AssertionError: malformed-baseline arm 'an endpoint name with a generate index' through check: exit 0, wanted 2 naming "the key 'route[1]' is not a name of 1 to 128 of A-
+adapted R447-4 policy figure names unchecked: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 3 failures; case digest 3d672284f5515425
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 21 failures; case digest fefd71d912e574c4
+    selftest: AssertionError: malformed-baseline arm 'a policy figure with a generate index' through check: exit 0, wanted 2 naming "the key 'LUT[0]' is not a name of 1 to 128 of A-Z a
+name mutants: 16; self-test killed 16; generated cases alone (500 or 5000) detected 13

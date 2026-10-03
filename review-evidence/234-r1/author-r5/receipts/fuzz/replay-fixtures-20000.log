@@ -1,0 +1,106 @@
+replay labels 104, log labels 104, per-label totals equal: True
+cases 20002 (controls included), breaking a documented shape 12861
+  alinx_ax7101_route_status.rpt: bytes: 82 cases, 82 breaking
+  alinx_ax7101_route_status.rpt: delete line: 21 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: digit: 60 cases, 60 breaking
+  alinx_ax7101_route_status.rpt: duplicate line: 18 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: empty: 105 cases, 105 breaking
+  alinx_ax7101_route_status.rpt: garble: 58 cases, 58 breaking
+  alinx_ax7101_route_status.rpt: huge: 60 cases, 60 breaking
+  alinx_ax7101_route_status.rpt: junk lines: 20 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: missing: 76 cases, 76 breaking
+  alinx_ax7101_route_status.rpt: number: 69 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: row removed: 84 cases, 84 breaking
+  alinx_ax7101_route_status.rpt: row twice: 87 cases, 87 breaking
+  alinx_ax7101_route_status.rpt: second report: 71 cases, 71 breaking
+  alinx_ax7101_route_status.rpt: swap lines: 22 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: truncate: 82 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: unicode: 68 cases, 0 breaking
+  baseline: add: 585 cases, 333 breaking
+  baseline: bad name: 553 cases, 553 breaking
+  baseline: bracket name: 548 cases, 520 breaking
+  baseline: bytes: 566 cases, 566 breaking
+  baseline: digit: 609 cases, 609 breaking
+  baseline: duplicate: 570 cases, 570 breaking
+  baseline: note: 547 cases, 470 breaking
+  baseline: overflow: 557 cases, 557 breaking
+  baseline: remove: 572 cases, 376 breaking
+  baseline: size: deep nesting: 168 cases, 168 breaking
+  baseline: size: long text: 193 cases, 0 breaking
+  baseline: size: many scopes: 210 cases, 0 breaking
+  baseline: truncate: 560 cases, 560 breaking
+  baseline: type: 593 cases, 593 breaking
+  baseline: unicode: 593 cases, 93 breaking
+  baseline: value: 604 cases, 0 breaking
+  baseline_cells.tsv: bytes: 310 cases, 310 breaking
+  baseline_cells.tsv: census header: 308 cases, 308 breaking
+  baseline_cells.tsv: delete line: 87 cases, 0 breaking
+  baseline_cells.tsv: duplicate line: 85 cases, 0 breaking
+  baseline_cells.tsv: empty: 267 cases, 267 breaking
+  baseline_cells.tsv: junk lines: 82 cases, 0 breaking
+  baseline_cells.tsv: missing: 271 cases, 271 breaking
+  baseline_cells.tsv: swap lines: 68 cases, 0 breaking
+  baseline_cells.tsv: truncate: 266 cases, 0 breaking
+  baseline_cells.tsv: unicode: 273 cases, 0 breaking
+  baseline_hierarchy.rpt: bytes: 230 cases, 230 breaking
+  baseline_hierarchy.rpt: delete line: 59 cases, 0 breaking
+  baseline_hierarchy.rpt: digit: 169 cases, 169 breaking
+  baseline_hierarchy.rpt: duplicate line: 44 cases, 0 breaking
+  baseline_hierarchy.rpt: empty: 238 cases, 238 breaking
+  baseline_hierarchy.rpt: garble: 174 cases, 174 breaking
+  baseline_hierarchy.rpt: huge: 170 cases, 170 breaking
+  baseline_hierarchy.rpt: junk lines: 54 cases, 0 breaking
+  baseline_hierarchy.rpt: missing: 244 cases, 244 breaking
+  baseline_hierarchy.rpt: number: 155 cases, 0 breaking
+  baseline_hierarchy.rpt: swap lines: 50 cases, 0 breaking
+  baseline_hierarchy.rpt: truncate: 209 cases, 0 breaking
+  baseline_hierarchy.rpt: unicode: 214 cases, 0 breaking
+  baseline_images.json: bytes: 294 cases, 294 breaking
+  baseline_images.json: delete line: 75 cases, 0 breaking
+  baseline_images.json: duplicate line: 73 cases, 0 breaking
+  baseline_images.json: empty: 308 cases, 308 breaking
+  baseline_images.json: entry key: 275 cases, 239 breaking
+  baseline_images.json: junk lines: 79 cases, 0 breaking
+  baseline_images.json: missing: 268 cases, 268 breaking
+  baseline_images.json: swap lines: 67 cases, 0 breaking
+  baseline_images.json: truncate: 278 cases, 0 breaking
+  baseline_images.json: unicode: 299 cases, 0 breaking
+  baseline_timing.rpt: bytes: 178 cases, 178 breaking
+  baseline_timing.rpt: delete line: 44 cases, 0 breaking
+  baseline_timing.rpt: digit: 162 cases, 162 breaking
+  baseline_timing.rpt: duplicate line: 50 cases, 0 breaking
+  baseline_timing.rpt: empty: 188 cases, 188 breaking
+  baseline_timing.rpt: garble: 163 cases, 163 breaking
+  baseline_timing.rpt: huge: 146 cases, 146 breaking
+  baseline_timing.rpt: junk lines: 49 cases, 0 breaking
+  baseline_timing.rpt: missing: 187 cases, 187 breaking
+  baseline_timing.rpt: number: 152 cases, 0 breaking
+  baseline_timing.rpt: summary twice: 190 cases, 190 breaking
+  baseline_timing.rpt: swap lines: 45 cases, 0 breaking
+  baseline_timing.rpt: truncate: 194 cases, 0 breaking
+  baseline_timing.rpt: unicode: 190 cases, 0 breaking
+  baseline_utilization.rpt: bytes: 189 cases, 189 breaking
+  baseline_utilization.rpt: delete line: 39 cases, 0 breaking
+  baseline_utilization.rpt: digit: 136 cases, 136 breaking
+  baseline_utilization.rpt: duplicate line: 41 cases, 0 breaking
+  baseline_utilization.rpt: empty: 180 cases, 180 breaking
+  baseline_utilization.rpt: garble: 151 cases, 151 breaking
+  baseline_utilization.rpt: header removed: 182 cases, 182 breaking
+  baseline_utilization.rpt: header twice: 177 cases, 177 breaking
+  baseline_utilization.rpt: huge: 146 cases, 146 breaking
+  baseline_utilization.rpt: junk lines: 41 cases, 0 breaking
+  baseline_utilization.rpt: missing: 174 cases, 174 breaking
+  baseline_utilization.rpt: number: 146 cases, 0 breaking
+  baseline_utilization.rpt: swap lines: 49 cases, 0 breaking
+  baseline_utilization.rpt: truncate: 176 cases, 0 breaking
+  baseline_utilization.rpt: unicode: 170 cases, 0 breaking
+  clock.xdc: bytes: 171 cases, 171 breaking
+  clock.xdc: delete line: 45 cases, 0 breaking
+  clock.xdc: duplicate line: 33 cases, 0 breaking
+  clock.xdc: empty: 165 cases, 0 breaking
+  clock.xdc: junk lines: 41 cases, 0 breaking
+  clock.xdc: missing: 195 cases, 0 breaking
+  clock.xdc: swap lines: 42 cases, 0 breaking
+  clock.xdc: truncate: 145 cases, 0 breaking
+  clock.xdc: unicode: 174 cases, 0 breaking
+  control: 2 cases, 0 breaking

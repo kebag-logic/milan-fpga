@@ -1,0 +1,16 @@
+$ bash $VALIDATION_STORAGE/234-a516/r5/review-evidence/234-r1/reviews/R447-4/verify_tree.sh $LANES/234-area ec7eb2d8ff81700842f4e3a35b79879c8c3838e5 f541830baddcc43387291b42719e7344045ca3f0
+# head ec7eb2d8ff81700842f4e3a35b79879c8c3838e5
+HEAD ec7eb2d8ff81700842f4e3a35b79879c8c3838e5 OK
+tree f541830baddcc43387291b42719e7344045ca3f0 OK
+index tree OK
+worktree and index equal HEAD (bytes and modes)
+ls-files -s equals ls-tree -r HEAD (mode, blob, path)
+no untracked or ignored file
+gitlink external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+gitlink gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+gitlink protocol-processor 631eeb342ca1e3fa80e734077a56a943aee76ff1
+submodule: -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule:  5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+submodule:  631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor (v2.0-429-g631eeb3)
+submodule:  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+verify_tree: PASS

@@ -1,0 +1,118 @@
+OK  route-1x1 control: inputs changed, figures equal               rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 control: inputs unchanged, figures equal             rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 LUT +500 (at tolerance)                              rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 LUT +501 (over tolerance)                            rc=1 want=1 | LUT              50128       50629       501  REGRESSION: grew by more than 500
+OK  route-1x1 LUT -5000 (improvement)                              rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 FF +600 (at tolerance)                               rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 FF +601 (over tolerance)                             rc=1 want=1 | FF               59006       59607       601  REGRESSION: grew by more than 600
+OK  route-1x1 FF -5000 (improvement)                               rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 RAMB36 +1                                            rc=1 want=1 | RAMB36              79          80         1  REGRESSION: grew by more than 0
+OK  route-1x1 RAMB18 +1                                            rc=1 want=1 | RAMB18              27          28         1  REGRESSION: grew by more than 0
+OK  route-1x1 DSP +1                                               rc=1 want=1 | DSP                 14          15         1  REGRESSION: grew by more than 0
+OK  route-1x1 same figures, identical inputs, LUT +1               rc=2 want=2 | NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which i
+OK  route-1x1 tool build changed                                   rc=2 want=2 | NOT COMPARABLE: tool or recipe change in tool; measure the baseline again under the new identity instead of co
+OK  route-1x1 device changed                                       rc=2 want=2 | NOT COMPARABLE: tool or recipe change in device; measure the baseline again under the new identity instead of 
+OK  route-1x1 Design header changed                                rc=2 want=2 | NOT COMPARABLE: tool or recipe change in design; measure the baseline again under the new identity instead of 
+OK  route-1x1 Design State header changed                          rc=2 want=2 | NOT COMPARABLE: tool or recipe change in state; measure the baseline again under the new identity instead of c
+OK  route-1x1 thread count 32 -> 8                                 rc=2 want=2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of co
+OK  route-1x1 synthesis directive changed                          rc=2 want=2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of co
+OK  route-1x1 missing utilization report                           rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/gateware: FileNotFoundError: [Errno 2
+OK  route-1x1 missing timing report                                rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/gateware: FileNotFoundError: [Errno 2
+OK  route-1x1 missing hierarchy report                             rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/gateware: FileNotFoundError: [Errno 2
+OK  route-1x1 missing cell census                                  rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/gateware: FileNotFoundError: [Errno 2
+OK  route-1x1 missing image inventory                              rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/gateware: FileNotFoundError: [Errno 2
+OK  route-1x1 missing recipe script                                rc=2 want=2 | NOT COMPARABLE: /tmp/r446-gate-probe-c2b0zm7b/arm/gateware holds 0 recipe scripts, not one
+OK  route-1x1 missing DSPs row                                     rc=2 want=2 | NOT COMPARABLE: utilization row 'DSPs' has values []
+OK  route-1x1 conflicting duplicate LUT row                        rc=2 want=2 | NOT COMPARABLE: utilization row 'Slice LUTs' has values ['1', '50128']
+OK  route-1x1 non-count used value 12.3                            rc=2 want=2 | NOT COMPARABLE: utilization row 'DSPs' is not a count: '12.3'
+OK  route-1x1 no Design Timing Summary                             rc=2 want=2 | NOT COMPARABLE: expected one Design Timing Summary, found 0
+OK  route-1x1 slack 'NA'                                           rc=2 want=2 | NOT COMPARABLE: slack is not a finite decimal: WNS 'NA', WHS 'NA'
+OK  route-1x1 SLICE +80                                            rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 SLICE +81                                            rc=1 want=1 | SLICE            15815       15896        81  REGRESSION: grew by more than 80
+OK  route-1x1 BRAM tiles 121.5 (at ceiling)                        rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 BRAM tiles 122 (over ceiling)                        rc=1 want=1 | BRAM_TILE  REGRESSION: 122 exceeds the ceiling 121.5
+OK  route-1x1 WNS +0.030 (at floor)                                rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 WNS +0.029 (below floor)                             rc=1 want=1 | WNS_ns           0.063       0.029    -0.034  REGRESSION: below the floor 0.03
+OK  route-1x1 WHS 0.000 (at floor)                                 rc=0 want=0 | route status: complete, no unrouted net and no routing error
+OK  route-1x1 WHS -0.001 (below floor)                             rc=1 want=1 | WHS_ns           0.036      -0.001    -0.037  REGRESSION: below the floor 0.0
+OK  route-1x1 WNS -2.000 (failing route)                           rc=1 want=1 | WNS_ns           0.063        -2.0    -2.063  REGRESSION: below the floor 0.03
+BAD route-1x1 GAP? unconstrained: WNS/WHS 'inf', 0 endpoints       rc=2 want=1 (Vivado prints inf when no path is constrained)| NOT COMPARABLE: slack is not a finite decimal: WNS 'inf', WHS 'inf'
+OK  route-1x1 GAP? WNS 'nan'                                       rc=2 want=2 | NOT COMPARABLE: slack is not a finite decimal: WNS 'nan', WHS '0.036'
+OK  ooc-1x1   control: inputs changed, figures equal               rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   control: inputs unchanged, figures equal             rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   LUT +250 (at tolerance)                              rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   LUT +251 (over tolerance)                            rc=1 want=1 | LUT              24343       24594       251  REGRESSION: grew by more than 250
+OK  ooc-1x1   LUT -5000 (improvement)                              rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   FF +250 (at tolerance)                               rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   FF +251 (over tolerance)                             rc=1 want=1 | FF               25344       25595       251  REGRESSION: grew by more than 250
+OK  ooc-1x1   FF -5000 (improvement)                               rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   RAMB36 +1                                            rc=1 want=1 | RAMB36              21          22         1  REGRESSION: grew by more than 0
+OK  ooc-1x1   RAMB18 +1                                            rc=1 want=1 | RAMB18               3           4         1  REGRESSION: grew by more than 0
+OK  ooc-1x1   DSP +1                                               rc=1 want=1 | DSP                  8           9         1  REGRESSION: grew by more than 0
+OK  ooc-1x1   same figures, identical inputs, LUT +1               rc=2 want=2 | NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which i
+OK  ooc-1x1   tool build changed                                   rc=2 want=2 | NOT COMPARABLE: tool or recipe change in tool; measure the baseline again under the new identity instead of co
+OK  ooc-1x1   device changed                                       rc=2 want=2 | NOT COMPARABLE: tool or recipe change in device; measure the baseline again under the new identity instead of 
+OK  ooc-1x1   Design header changed                                rc=2 want=2 | NOT COMPARABLE: tool or recipe change in design; measure the baseline again under the new identity instead of 
+OK  ooc-1x1   Design State header changed                          rc=2 want=2 | NOT COMPARABLE: tool or recipe change in state; measure the baseline again under the new identity instead of c
+OK  ooc-1x1   thread count 32 -> 8                                 rc=2 want=2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of co
+OK  ooc-1x1   synthesis directive changed                          rc=2 want=2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of co
+OK  ooc-1x1   missing utilization report                           rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-1x1   missing timing report                                rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-1x1   missing hierarchy report                             rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-1x1   missing cell census                                  rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-1x1   missing image inventory                              rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-1x1   missing recipe script                                rc=2 want=2 | NOT COMPARABLE: /tmp/r446-gate-probe-c2b0zm7b/arm/ooc holds 0 recipe scripts, not one
+OK  ooc-1x1   missing DSPs row                                     rc=2 want=2 | NOT COMPARABLE: utilization row 'DSPs' has values []
+OK  ooc-1x1   conflicting duplicate LUT row                        rc=2 want=2 | NOT COMPARABLE: utilization row 'Slice LUTs' has values ['1', '24343']
+OK  ooc-1x1   non-count used value 12.3                            rc=2 want=2 | NOT COMPARABLE: utilization row 'DSPs' is not a count: '12.3'
+OK  ooc-1x1   no Design Timing Summary                             rc=2 want=2 | NOT COMPARABLE: expected one Design Timing Summary, found 0
+OK  ooc-1x1   slack 'NA'                                           rc=2 want=2 | NOT COMPARABLE: slack is not a finite decimal: WNS 'NA', WHS 'NA'
+OK  ooc-1x1   standalone clock 10 ns                               rc=2 want=2 | NOT COMPARABLE: tool or recipe change in standalone_clock_ns; measure the baseline again under the new identit
+OK  ooc-1x1   standalone clock file missing                        rc=2 want=2 | NOT COMPARABLE: read source is missing: /tmp/r446-gate-probe-c2b0zm7b/arm/ooc/clock.xdc
+OK  ooc-1x1   standalone WNS -9.000 (not gated, documented)        rc=0 want=0 | RESULT: PASS
+OK  ooc-1x1   Slice row present in OOC report (ignored)            rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   control: inputs changed, figures equal               rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   control: inputs unchanged, figures equal             rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   LUT +316 (at tolerance)                              rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   LUT +317 (over tolerance)                            rc=1 want=1 | LUT              31562       31879       317  REGRESSION: grew by more than 316
+OK  ooc-8x8   LUT -5000 (improvement)                              rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   FF +339 (at tolerance)                               rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   FF +340 (over tolerance)                             rc=1 want=1 | FF               33929       34269       340  REGRESSION: grew by more than 339
+OK  ooc-8x8   FF -5000 (improvement)                               rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   RAMB36 +1                                            rc=1 want=1 | RAMB36              26          27         1  REGRESSION: grew by more than 0
+OK  ooc-8x8   RAMB18 +1                                            rc=1 want=1 | RAMB18               5           6         1  REGRESSION: grew by more than 0
+OK  ooc-8x8   DSP +1                                               rc=1 want=1 | DSP                  8           9         1  REGRESSION: grew by more than 0
+OK  ooc-8x8   same figures, identical inputs, LUT +1               rc=2 want=2 | NOT COMPARABLE: identical inputs measured differently (non-determinism or an unrecorded tool setting), which i
+OK  ooc-8x8   tool build changed                                   rc=2 want=2 | NOT COMPARABLE: tool or recipe change in tool; measure the baseline again under the new identity instead of co
+OK  ooc-8x8   device changed                                       rc=2 want=2 | NOT COMPARABLE: tool or recipe change in device; measure the baseline again under the new identity instead of 
+OK  ooc-8x8   Design header changed                                rc=2 want=2 | NOT COMPARABLE: tool or recipe change in design; measure the baseline again under the new identity instead of 
+OK  ooc-8x8   Design State header changed                          rc=2 want=2 | NOT COMPARABLE: tool or recipe change in state; measure the baseline again under the new identity instead of c
+OK  ooc-8x8   thread count 32 -> 8                                 rc=2 want=2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of co
+OK  ooc-8x8   synthesis directive changed                          rc=2 want=2 | NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of co
+OK  ooc-8x8   missing utilization report                           rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-8x8   missing timing report                                rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-8x8   missing hierarchy report                             rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-8x8   missing cell census                                  rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-8x8   missing image inventory                              rc=2 want=2 | NOT COMPARABLE: unreadable measurement /tmp/r446-gate-probe-c2b0zm7b/arm/ooc: FileNotFoundError: [Errno 2] No 
+OK  ooc-8x8   missing recipe script                                rc=2 want=2 | NOT COMPARABLE: /tmp/r446-gate-probe-c2b0zm7b/arm/ooc holds 0 recipe scripts, not one
+OK  ooc-8x8   missing DSPs row                                     rc=2 want=2 | NOT COMPARABLE: utilization row 'DSPs' has values []
+OK  ooc-8x8   conflicting duplicate LUT row                        rc=2 want=2 | NOT COMPARABLE: utilization row 'Slice LUTs' has values ['1', '31562']
+OK  ooc-8x8   non-count used value 12.3                            rc=2 want=2 | NOT COMPARABLE: utilization row 'DSPs' is not a count: '12.3'
+OK  ooc-8x8   no Design Timing Summary                             rc=2 want=2 | NOT COMPARABLE: expected one Design Timing Summary, found 0
+OK  ooc-8x8   slack 'NA'                                           rc=2 want=2 | NOT COMPARABLE: slack is not a finite decimal: WNS 'NA', WHS 'NA'
+OK  ooc-8x8   standalone clock 10 ns                               rc=2 want=2 | NOT COMPARABLE: tool or recipe change in standalone_clock_ns; measure the baseline again under the new identit
+OK  ooc-8x8   standalone clock file missing                        rc=2 want=2 | NOT COMPARABLE: read source is missing: /tmp/r446-gate-probe-c2b0zm7b/arm/ooc/clock.xdc
+OK  ooc-8x8   standalone WNS -9.000 (not gated, documented)        rc=0 want=0 | RESULT: PASS
+OK  ooc-8x8   Slice row present in OOC report (ignored)            rc=0 want=0 | RESULT: PASS
+OK  cli       unknown endpoint                                     rc=2 want=2 | NOT COMPARABLE: baseline /tmp/r446-gate-probe-c2b0zm7b/route-1x1.json holds no endpoint route-9x9, only route-
+OK  cli       no command                                           rc=2 want=2 | pp_resource_gate.py: error: name a command, and for check or record a directory and an --endpoint
+OK  cli       measurement directory absent                         rc=2 want=2 | NOT COMPARABLE: /tmp/r446-gate-probe-c2b0zm7b/absent holds 0 recipe scripts, not one
+OK  cli       GAP? baseline file absent (doc: 1 = material regression) rc=2 want=2 | NOT COMPARABLE: baseline /tmp/r446-gate-probe-c2b0zm7b/absent.json is unreadable: [Errno 2] No such file or di
+OK  cli       GAP? baseline JSON malformed                         rc=2 want=2 | NOT COMPARABLE: baseline /tmp/r446-gate-probe-c2b0zm7b/malformed.json is unreadable: Expecting property name e
+OK  cli       GAP? baseline lacks DSP tolerance: check             rc=2 want=2 | NOT COMPARABLE: baseline endpoint route-1x1 is unusable: route-1x1: DSP has no non-negative tolerance
+OK  cli       baseline lacks DSP tolerance: check-baseline         rc=2 want=2 | route-1x1: tolerance DSP is None in the baseline and 0.0 in the budget table
+OK  cli       GAP? route ceiling deleted: check-baseline           rc=2 want=2 (policy says 121.5-tile ceiling)| route-1x1: ceiling BRAM_TILE is None in the baseline and 121.5 in the budget table
+OK  cli       GAP? LUT tolerance 1e9: check-baseline               rc=2 want=2 (diff review is the documented control)| route-1x1: tolerance LUT is 1000000000 in the baseline and 500.0 in the budget table
+OK  cli       GAP? ceiling names unknown figure: check-baseline    rc=2 want=2 | route-1x1: ceiling BRAM_TILES is 121.5 in the baseline and None in the budget table
+OK  cli       real baseline: check-baseline                        rc=0 want=0 | baseline PASS: 3 endpoints
+probe_gate_cli: 117 cases, 1 not as expected (GAP? lines are reviewer expectations)

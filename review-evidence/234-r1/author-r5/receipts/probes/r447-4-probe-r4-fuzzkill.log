@@ -1,0 +1,87 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r5/review-evidence/234-r1/reviews/R447-4/probe_r4_fuzzkill.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-fuzzkill 12
+# head ec7eb2d8ff81700842f4e3a35b79879c8c3838e5
+control: fuzz500 rc=0, fuzz5k rc=0, selftest rc=0
+barrier catches Refusal only: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest e737d367d2dc893d
+    selftest: "escaped ZeroDivisionError: 'planted \\ud800\\x1b[31m in load'"
+barrier returns 1: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 324 failures; case digest 5ed21c03522ed83a
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 3187 failures; case digest 8ee8b351187c3e5e
+    selftest: "NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-scb_vlbj/route/arm/gateware: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-gate-scb_vlbj/route/arm/gateware/ba
+check-baseline problems exit 1: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest f44f49d696e1e533
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 9547e7dfb78708f5
+    selftest: AssertionError: check-baseline arm 'a missing tolerance': exit 1, wanted 2 naming 'LUT has no non-negative tolerance'
+whole() unbounded: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 7 failures; case digest 1495ce87d4be0886
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 77 failures; case digest d5635ade36824b13
+    selftest: AssertionError: route arm 'timed endpoints past the bound': exit 0, wanted 2 naming 'TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits'
+whole() takes any int() text: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 9 failures; case digest f003f944b6ce89dc
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 97 failures; case digest 7b90f58e6a23f50d
+    selftest: AssertionError: route arm 'timed endpoints in other digits': exit 0, wanted 2 naming "TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits: '\\uff11\\uff10'"
+real() keeps non-finite: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 5 failures; case digest 175b04629d726ba6
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 55 failures; case digest 555952a532bcd458
+    selftest: AssertionError: route arm 'WNS too long to be finite': exit 0, wanted 2 naming 'WNS is not finite'
+JSON ints bypass whole(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 4 failures; case digest 36fd2f88e1e96bb9
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 27 failures; case digest 87e9477216b2f1ef
+    selftest: 'NOT COMPARABLE: OverflowError: int too large to convert to float'
+JSON floats bypass real(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 3 failures; case digest f0aab3f35584f882
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 19 failures; case digest a1b51bb90048c371
+    selftest: AssertionError: malformed-baseline arm 'a ceiling too large to be finite' through check: exit 0, wanted 2 naming "the JSON number is not finite: '5e999'"
+duplicate keys kept: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 11 failures; case digest ebd95fa086f02f8c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 149 failures; case digest 9d8e574753f47ae6
+    selftest: AssertionError: route arm 'image manifest with a repeated key': exit 0, wanted 2 naming "the key 'sha256' appears twice in one object"
+key name class removed: NOT-UNIQUE (0)
+brackets allowed in endpoint names: NOT-UNIQUE (0)
+policy figure names unchecked: NOT-UNIQUE (0)
+emit prints raw: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest 8812ddff6d9493d8
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 9 failures; case digest f366122cd52812e9
+    selftest: "NOT COMPARABLE: UnicodeEncodeError: 'ascii' codec can't encode character '\\uff15' in position 39: ordinal not in range(128)"
+route status via int(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest ab38ddf3719c4509
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 22 failures; case digest 42fd575d41e3c976
+    selftest: AssertionError: route arm 'route status count unreadable': exit 2, wanted 2 naming "'logical nets' is not a whole number of 1 to 15 ASCII digits: 'lots'"
+timed endpoints via int(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest 0d7c28563d25c257
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 16 failures; case digest 7a94455eb3961b90
+    selftest: AssertionError: route arm 'timed endpoints in other digits': exit 0, wanted 2 naming "TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits: '\\uff11\\uff10'"
+utilization count via int(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest e4d12e2a63e40a6e
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 15 failures; case digest 4f853cae55caed6b
+    selftest: AssertionError: route arm 'count past the bound': exit 1, wanted 2 naming "'Slice LUTs' is not a whole number of 1 to 15 ASCII digits"
+half tile via float(): fuzz500 passed rc=0; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 10 failures; case digest 753b87009cb0bc30
+    selftest: AssertionError: route arm 'BRAM tiles too long to be finite': exit 1, wanted 2 naming "'Block RAM Tile' is not finite"
+hierarchy count via int(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 2 failures; case digest 20b5e7cd066852da
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 17 failures; case digest 14219246bfb77cb6
+    selftest: AssertionError: route arm 'hierarchy count past the bound': exit 0, wanted 2 naming "hierarchy count of 'alinx_ax7101' is not a whole number of 1 to 15 ASCII digits"
+slack via float(): fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 2 failures; case digest 284811819cb3326f
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 26 failures; case digest 29c6d356d8819432
+    selftest: AssertionError: route arm 'WNS too long to be finite': exit 0, wanted 2 naming 'WNS is not finite'
+budget cell via float(): fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest e737d367d2dc893d
+    selftest: AssertionError: check-baseline arm 'a budget cell too long to be finite': exit 2, wanted 2 naming "budget budget.md: budget policy cell '+100"
+manifest via json.loads: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 7 failures; case digest 65669916ad9fb577
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 58 failures; case digest bc63d97ae7069037
+    selftest: AssertionError: route arm 'image manifest with a repeated key': exit 0, wanted 2 naming "the key 'sha256' appears twice in one object"
+unknown endpoint refusal removed: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest e737d367d2dc893d
+    selftest: "NOT COMPARABLE: TypeError: 'NoneType' object is not subscriptable"
+record catch narrowed to OSError: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest e737d367d2dc893d
+    selftest: "escaped ValueError: WNS is not finite: '1000000000000000000000000000000000000000'... (405 characters)"
+round-4 structural mutants: 23; self-test killed 20; generative block alone detected 15

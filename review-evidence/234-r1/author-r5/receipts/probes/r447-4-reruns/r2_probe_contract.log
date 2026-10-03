@@ -1,0 +1,42 @@
+control: the recorded baseline
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record kind is a list
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record kind [] is not one of route, ooc
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record kind [] is not one of route, ooc
+record kind is an object
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record kind {} is not one of route, ooc
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record kind {} is not one of route, ooc
+record LUT is a string
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: a recorded figure is not a finite number
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: a recorded figure is not a finite number
+record LUT is null
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: a recorded figure is not a finite number
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: a recorded figure is not a finite number
+record LUT is NaN
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+record WNS is NaN
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+record identity is a string
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+record identity is a list
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+record scopes is a list
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record scopes are not a table of LUT, FF, RAMB36, RAMB18, DSP, CARRY4 per sub-block
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record scopes are not a table of LUT, FF, RAMB36, RAMB18, DSP, CARRY4 per sub-block
+LUT tolerance is Infinity
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number Infinity is not finite
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number Infinity is not finite
+WNS floor is NaN
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+BRAM ceiling is NaN
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is unreadable: the number NaN is not finite
+record figures is a list
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record figures are not exactly BRAM_TILE, CARRY4, DSP, FF, LUT, RAMB18, RAMB36, SLICE, WHS_ns, WNS_ns
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r5/probe-scratch/r447-reruns/r2_contract/baseline.json is malformed: route-1x1: the record figures are not exactly BRAM_TILE, CARRY4, DSP, FF, LUT, RAMB18, RAMB36, SLICE, WHS_ns, WNS_ns

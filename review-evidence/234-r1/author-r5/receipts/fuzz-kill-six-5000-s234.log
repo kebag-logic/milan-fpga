@@ -1,0 +1,8 @@
+$ python3 scratch-scripts/fuzz_kill_some_r5.py $LANES/234-area 5000 234 <six mutants>
+# head ec7eb2d8ff81700842f4e3a35b79879c8c3838e5
+DETECTED  rc=1 baseline record fields | resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 14 failures; case digest 9564381671392bf1
+DETECTED  rc=1 baseline identity keys | resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 11 failures; case digest 3129bc196cba3452
+missed    rc=0 count format ASCII | resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 0 failures; case digest e00872ec50fe7d9c
+DETECTED  rc=1 baseline file fields | resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 1 failures; case digest 85a23053b694b05c
+DETECTED  rc=1 baseline identity exact keys | resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 11 failures; case digest 3129bc196cba3452
+DETECTED  rc=1 count format decimals | resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 5 failures; case digest f8d9425b869e6733
