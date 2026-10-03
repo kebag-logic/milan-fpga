@@ -1,0 +1,71 @@
+== build $REVIEWS/643-r456-1-packet/scratch/hp clean
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_clean/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp a2a --dp-edit   wire        mga_sel_w = int_clk_selected_r | follow_sel_r;   wire        mga_sel_w = follow_sel_r;
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_a2a/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp spp1 --dp-edit   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C;   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C + 1;
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_spp1/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp spm1 --dp-edit   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C;   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C - 1;
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_spm1/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp tieon --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035};
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_tieon/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp tieoff --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035}; --tb-edit         if (f == kPrefillTargetEvt || tie_ok) ++fill_ok;         if (f == kPrefillTargetEvt || (tie_ok \&\& false)) ++fill_ok;
+$REVIEWS/643-r456-1-packet/scripts/run_probe.py:35: DeprecationWarning: "\&" is an invalid escape sequence. Such sequences will not work in the future. 
+  to = to.encode().decode("unicode_escape")
+build failed rc=2; see obj_probe_tieoff.buildlog
+BUILD FAILED $REVIEWS/643-r456-1-packet/scratch/hp tieoff --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035}; --tb-edit         if (f == kPrefillTargetEvt || tie_ok) ++fill_ok;         if (f == kPrefillTargetEvt || (tie_ok \&\& false)) ++fill_ok;
+== build $REVIEWS/643-r456-1-packet/scratch/hp tiespp1 --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035}; --dp-edit   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C;   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C + 1;
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_tiespp1/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp tiespm1 --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035}; --dp-edit   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C;   localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C - 1;
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_tiespm1/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp boottrace --tb-edit             settle_run = 0;\n            ++unsettled_ticks;\n        }\n    }             if (settle_run >= kSettleTicks) std::printf("  [probe] report LAPSED at tick %ld after a run of %ld (err %d)\\n", media_ticks, settle_run, err);\n            settle_run = 0;\n            ++unsettled_ticks;\n        }\n        if (settle_run == kSettleTicks) std::printf("  [probe] report MET at tick %ld (err %d)\\n", media_ticks, err);\n        if (media_ticks <= 24000 \&\& media_ticks % 100 == 0) std::printf("  [probe] tick %ld engaged %d err %d run %ld\\n", media_ticks, static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err, settle_run);\n    }
+$REVIEWS/643-r456-1-packet/scripts/run_probe.py:35: DeprecationWarning: "\&" is an invalid escape sequence. Such sequences will not work in the future. 
+  to = to.encode().decode("unicode_escape")
+build failed rc=2; see obj_probe_boottrace.buildlog
+BUILD FAILED $REVIEWS/643-r456-1-packet/scratch/hp boottrace --tb-edit             settle_run = 0;\n            ++unsettled_ticks;\n        }\n    }             if (settle_run >= kSettleTicks) std::printf("  [probe] report LAPSED at tick %ld after a run of %ld (err %d)\\n", media_ticks, settle_run, err);\n            settle_run = 0;\n            ++unsettled_ticks;\n        }\n        if (settle_run == kSettleTicks) std::printf("  [probe] report MET at tick %ld (err %d)\\n", media_ticks, err);\n        if (media_ticks <= 24000 \&\& media_ticks % 100 == 0) std::printf("  [probe] tick %ld engaged %d err %d run %ld\\n", media_ticks, static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err, settle_run);\n    }
+== build $REVIEWS/643-r456-1-packet/scratch/hp bootnodwell --tb-edit             settle_run = 0;\n            ++unsettled_ticks;\n        }\n    }             if (settle_run >= kSettleTicks) std::printf("  [probe] report LAPSED at tick %ld after a run of %ld (err %d)\\n", media_ticks, settle_run, err);\n            settle_run = 0;\n            ++unsettled_ticks;\n        }\n        if (settle_run == kSettleTicks) std::printf("  [probe] report MET at tick %ld (err %d)\\n", media_ticks, err);\n        if (media_ticks <= 24000 \&\& media_ticks % 100 == 0) std::printf("  [probe] tick %ld engaged %d err %d run %ld\\n", media_ticks, static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err, settle_run);\n    } --tb-edit         run_fed(kBootPullInCycles);\n        phase_internal_law();         run_fed(0);\n        phase_internal_law();
+$REVIEWS/643-r456-1-packet/scripts/run_probe.py:35: DeprecationWarning: "\&" is an invalid escape sequence. Such sequences will not work in the future. 
+  to = to.encode().decode("unicode_escape")
+build failed rc=2; see obj_probe_bootnodwell.buildlog
+BUILD FAILED $REVIEWS/643-r456-1-packet/scratch/hp bootnodwell --tb-edit             settle_run = 0;\n            ++unsettled_ticks;\n        }\n    }             if (settle_run >= kSettleTicks) std::printf("  [probe] report LAPSED at tick %ld after a run of %ld (err %d)\\n", media_ticks, settle_run, err);\n            settle_run = 0;\n            ++unsettled_ticks;\n        }\n        if (settle_run == kSettleTicks) std::printf("  [probe] report MET at tick %ld (err %d)\\n", media_ticks, err);\n        if (media_ticks <= 24000 \&\& media_ticks % 100 == 0) std::printf("  [probe] tick %ld engaged %d err %d run %ld\\n", media_ticks, static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err, settle_run);\n    } --tb-edit         run_fed(kBootPullInCycles);\n        phase_internal_law();         run_fed(0);\n        phase_internal_law();
+== build $REVIEWS/643-r456-1-packet/scratch/pc4c clean
+built $REVIEWS/643-r456-1-packet/scratch/pc4c/tb/verilator/milan_dp_render/obj_probe_clean/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/pc4c a2a --dp-edit   wire        mga_sel_w = int_clk_selected_r | follow_sel_r;   wire        mga_sel_w = follow_sel_r;
+built $REVIEWS/643-r456-1-packet/scratch/pc4c/tb/verilator/milan_dp_render/obj_probe_a2a/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/pc4c basec4c --tb-file $REVIEWS/643-r456-1-packet/scratch/base_sim_tdm8_render.cpp
+built $REVIEWS/643-r456-1-packet/scratch/pc4c/tb/verilator/milan_dp_render/obj_probe_basec4c/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/pc4c tieon --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035};
+built $REVIEWS/643-r456-1-packet/scratch/pc4c/tb/verilator/milan_dp_render/obj_probe_tieon/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/p631 basep631 --tb-file $REVIEWS/643-r456-1-packet/scratch/base_sim_tdm8_render.cpp
+built $REVIEWS/643-r456-1-packet/scratch/p631/tb/verilator/milan_dp_render/obj_probe_basep631/Vmilan_dp_tdm8r
+== builds done 01:19:45
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+== runs done 01:21:50
+$REVIEWS/643-r456-1-packet/scripts/probes.sh: line 56: syntax error near unexpected token `)'
+$REVIEWS/643-r456-1-packet/scripts/probes.sh: line 56: ` +%T)"'

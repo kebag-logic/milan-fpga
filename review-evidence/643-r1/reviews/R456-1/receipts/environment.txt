@@ -1,0 +1,15 @@
+# R456-1 environment and tree identities
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+verilator_bin sha256: 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+make: GNU Make 4.4.1 (GNU make 4.3 not available on this host)
+build parallelism: verilator -j 8 per elaboration (scripts/vl_jobs.sh), two elaborations at most concurrently; host shared and loaded (load average about 40)
+
+review clone: HEAD 98729742b71d5088f250440eb46085daf1c0cbdb tree 174b326e6fcf29ff695a9376ab84ef3c045e4440
+scratch/p631: HEAD 98729742b71d5088f250440eb46085daf1c0cbdb; protocol-processor checkout 631eeb342ca1e3fa80e734077a56a943aee76ff1; index gitlink 631eeb342ca1e3fa80e734077a56a943aee76ff1; tracked changes: 
+scratch/hp: HEAD 98729742b71d5088f250440eb46085daf1c0cbdb; protocol-processor checkout 631eeb342ca1e3fa80e734077a56a943aee76ff1; index gitlink 631eeb342ca1e3fa80e734077a56a943aee76ff1; tracked changes: 
+scratch/pc4c: HEAD 98729742b71d5088f250440eb46085daf1c0cbdb; protocol-processor checkout c4cb84ff8cecad19bedaa85dde594a8ed68012f6; index gitlink c4cb84ff8cecad19bedaa85dde594a8ed68012f6; tracked changes:  M avdecc/aem_assemble.py  M avdecc/aem_specs.py  M avdecc/gen_aemi_image.py  M configs/endstation_ax7101_8x8.yaml  M docs/ENDSTATION_BUILDER.md  M docs/design/SAVED_STATE_MATERIALIZATION.md M  protocol-processor  M sw/builder/endstation_builder.py  M sw/builder/test_builder.py 
+
+adoption patches (from review-evidence/643-r1/author at 531abe2b):
+3340d2e8e389a52c49c32611c6eb36f55bef4534d30ecafbecad25b9a1b38a4c  inputs/parent-adoption-c8-bbf704ec.patch
+d3034e89dba34862a0c8534472043212fd1f56412a90397997dcce3441613d84  inputs/parent-adoption-p2-p1-1269cdaf.patch
+base harness for the base-harness probes: git show 5fabb46e:tb/verilator/milan_dp_render/sim_tdm8_render.cpp sha256 8bf6be7a3b5e6c39d53e4de7861a454a2019ead11ef5d05dcae1e094eb23364d

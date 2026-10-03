@@ -1,0 +1,14 @@
+== build $REVIEWS/643-r456-1-packet/scratch/hp tieoff --tb-edit     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,\n    1562, 1693, 1823, 1953};     2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,\n    2030, 2031, 2032, 2033, 2034, 2035}; --tb-edit         if (f == kPrefillTargetEvt || tie_ok) ++fill_ok;         if (f == kPrefillTargetEvt || (tie_ok && false)) ++fill_ok;
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_tieoff/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp boottrace --tb-edit             settle_run = 0;\n            ++unsettled_ticks;\n        }\n    }             if (settle_run >= kSettleTicks) std::printf("  [probe] report LAPSED at tick %ld after a run of %ld (err %d)\\n", media_ticks, settle_run, err);\n            settle_run = 0;\n            ++unsettled_ticks;\n        }\n        if (settle_run == kSettleTicks) std::printf("  [probe] report MET at tick %ld (err %d)\\n", media_ticks, err);\n        if (media_ticks <= 24000 && media_ticks % 100 == 0) std::printf("  [probe] tick %ld engaged %d err %d run %ld\\n", media_ticks, static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err, settle_run);\n    }
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_boottrace/Vmilan_dp_tdm8r
+== build $REVIEWS/643-r456-1-packet/scratch/hp bootnodwell --tb-edit             settle_run = 0;\n            ++unsettled_ticks;\n        }\n    }             if (settle_run >= kSettleTicks) std::printf("  [probe] report LAPSED at tick %ld after a run of %ld (err %d)\\n", media_ticks, settle_run, err);\n            settle_run = 0;\n            ++unsettled_ticks;\n        }\n        if (settle_run == kSettleTicks) std::printf("  [probe] report MET at tick %ld (err %d)\\n", media_ticks, err);\n        if (media_ticks <= 24000 && media_ticks % 100 == 0) std::printf("  [probe] tick %ld engaged %d err %d run %ld\\n", media_ticks, static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err, settle_run);\n    } --tb-edit         run_fed(kBootPullInCycles);\n        phase_internal_law();         run_fed(0);\n        phase_internal_law();
+built $REVIEWS/643-r456-1-packet/scratch/hp/tb/verilator/milan_dp_render/obj_probe_bootnodwell/Vmilan_dp_tdm8r
+== builds done 01:20:28
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+usage: run_probe.py run [-h] --log LOG tree name mode
+run_probe.py run: error: the following arguments are required: mode
+== runs done 01:20:28

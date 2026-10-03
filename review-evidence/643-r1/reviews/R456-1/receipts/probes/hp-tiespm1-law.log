@@ -1,0 +1,77 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[LAW] T30's INTERNAL law once the aligner reports settled, on fresh streams at 18 feed phases against the grid
+  [i]    LAW: waited 4014 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T30 INTERNAL LAW +2018: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 14592..14594 cycles = 7.004..7.005 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2018: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2018: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2018: 888 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2019: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 14592..14594 cycles = 7.004..7.005 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2019: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2019: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2019: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2020: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 14590..14592 cycles = 7.003..7.004 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2020: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2020: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2020: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2021: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 14589..14591 cycles = 7.003..7.004 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2021: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2021: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2021: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2022: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 14588..14590 cycles = 7.002..7.003 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2022: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2022: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2022: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2023: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 14587..14589 cycles = 7.002..7.003 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2023: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2023: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2023: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2024: 124 PDUs, fill at the PDU end 13..13 (12 under the tie rule), first-event delay from it 14586..14587 cycles = 7.001..7.002 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2024: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2024: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2024: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2025: 124 PDUs, fill at the PDU end 13..14 (94 under the tie rule), first-event delay from it 16668..16670 cycles = 8.001..8.002 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [i]    T30 INTERNAL LAW +2025: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2026: 124 PDUs, fill at the PDU end 13..14 (122 under the tie rule), first-event delay from it 16667..16669 cycles = 8.000..8.001 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2026: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=122 exp=124
+  [i]    T30 INTERNAL LAW +2026: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2027: 124 PDUs, fill at the PDU end 13..13 (42 under the tie rule), first-event delay from it 16666..16668 cycles = 8.000..8.001 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2027: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=42 exp=124
+  [FAIL] T30 INTERNAL LAW +2027: every PDU's first event is inside the law band from its PDU end got=121 exp=124
+  [i]    T30 INTERNAL LAW +2027: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2028: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16665..16667 cycles = 7.999..8.000 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2028: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2028: every PDU's first event is inside the law band from its PDU end got=23 exp=124
+  [i]    T30 INTERNAL LAW +2028: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2029: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16664..16666 cycles = 7.999..8.000 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2029: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2029: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2029: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2030: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16663..16665 cycles = 7.998..7.999 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2030: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2030: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2030: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2031: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16662..16663 cycles = 7.998..7.998 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2031: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2031: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2031: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2032: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16662..16663 cycles = 7.998..7.998 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2032: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2032: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2032: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2033: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16661..16662 cycles = 7.997..7.998 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2033: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2033: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2033: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2034: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16659..16661 cycles = 7.996..7.997 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2034: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2034: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2034: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +2035: 124 PDUs, fill at the PDU end 13..13 (0 under the tie rule), first-event delay from it 16658..16659 cycles = 7.996..7.996 media ticks; the law is fill 14 and 8 < d/T <= 9 (+64 cycles of registration slack)
+  [FAIL] T30 INTERNAL LAW +2035: the fill at every PDU end is the setpoint plus that PDU, 14 events (tie rule) got=0 exp=124
+  [FAIL] T30 INTERNAL LAW +2035: every PDU's first event is inside the law band from its PDU end got=0 exp=124
+  [i]    T30 INTERNAL LAW +2035: 889 media ticks in the phase, 0 of them outside the settle band
+== tdm8_render: checks: 88   failures: 33 ==
+RESULT: FAIL
