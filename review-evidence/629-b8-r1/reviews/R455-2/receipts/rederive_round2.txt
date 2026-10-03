@@ -1,0 +1,37 @@
+CRF window: polls in segment 798; table polls 797; missing-word polls [618]
+CRF window: host span 420.03 s; captured 19261920 frames = 401.29 s; capture_lost 899009 = 18.73 s; sum 420.02 s
+clusters 9, lost total 899009
+  cluster 0: start 241.2 s captured, 241.2 s counting lost before; lost 0.001 s; read gap 0.01 s; signature True; steps [60]
+  cluster 1: start 270.9 s captured, 270.9 s counting lost before; lost 4.576 s; read gap 4.12 s; signature False; steps 27 steps
+  cluster 2: start 284.1 s captured, 288.7 s counting lost before; lost 4.550 s; read gap 4.37 s; signature True; steps [2172, -23776]
+  cluster 3: start 285.5 s captured, 294.7 s counting lost before; lost 9.568 s; read gap 9.77 s; signature False; steps 10 steps
+  cluster 4: start 286.2 s captured, 304.9 s counting lost before; lost 0.007 s; read gap 9.77 s; signature True; steps [348]
+  cluster 5: start 349.5 s captured, 368.2 s counting lost before; lost 0.008 s; read gap 0.08 s; signature True; steps [396]
+  cluster 6: start 353.5 s captured, 372.2 s counting lost before; lost 0.004 s; read gap 0.11 s; signature True; steps [204]
+  cluster 7: start 394.0 s captured, 412.7 s counting lost before; lost 0.008 s; read gap 0.02 s; signature True; steps [396]
+  cluster 8: start 397.8 s captured, 416.5 s counting lost before; lost 0.006 s; read gap 0.02 s; signature True; steps [300]
+stall clusters [1, 2, 3] lost 18.69 s
+#645: binds end 2.006 s before the set
+  poll 0: None to -2.913 s after binds' end = None to -4.92 s after set; slip_lb [414, 0]; prefill 1
+  poll 7: 0.106 to 0.607 s after binds' end = -1.9 to -1.4 s after set; slip_lb None; prefill 0
+  poll 8: 0.607 to 1.107 s after binds' end = -1.4 to -0.9 s after set; slip_lb [416, 0]; prefill None
+  poll 9: 1.107 to 1.939 s after binds' end = -0.9 to -0.07 s after set; slip_lb [418, 0]; prefill None
+  drift period at 5.92 ppm: 3.52 s
+NVM pre/as-found: pend 1 dirty 0 commit_busy 0 commits 30 image_seq 30
+NVM pre/pre-saved-0: pend 1 dirty 0 commit_busy 0 commits 31 image_seq 31
+NVM post/post-boot: pend 0 dirty 0 commit_busy 0 commits 0 image_seq 31
+NVM post/post-restore-0: pend 1 dirty 0 commit_busy 0 commits 1 image_seq 32
+NVM identity-postboot/console-identity.txt: pend 0
+NVM restore/dut-end2.txt: pend 0
+post-boot poll SLIP_LB 0x00000006
+post-boot poll SLIP_LB 0x00000006
+post-boot poll SLIP_LB 0x00000006
+end SLIP_LB dups 6; RENDER_STAT rails 0
+proof ch0 nonzero 260318 range -2..0
+proof ch1 nonzero 260360 range -2..1
+proof ch2 nonzero 239797 range -1..0
+proof ch3 nonzero 239680 range -1..0
+proof ch4 nonzero 0 range 0..0
+proof ch5 nonzero 0 range 0..0
+proof ch6 nonzero 0 range 0..0
+proof ch7 nonzero 0 range 0..0
