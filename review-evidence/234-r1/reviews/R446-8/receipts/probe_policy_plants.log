@@ -1,0 +1,14 @@
+control                      rc=0 want=zero    AS-EXPECTED | baseline PASS: 3 endpoints
+route-lut-tol-501            rc=2 want=nonzero AS-EXPECTED | route-1x1: tolerance LUT is 501 in the baseline and 500.0 in the budget table
+route-ff-tol-599             rc=2 want=nonzero AS-EXPECTED | route-1x1: tolerance FF is 599 in the baseline and 600.0 in the budget table
+route-slice-tol-81           rc=2 want=nonzero AS-EXPECTED | route-1x1: tolerance SLICE is 81 in the baseline and 80.0 in the budget table
+route-wns-floor-0.029        rc=2 want=nonzero AS-EXPECTED | route-1x1: floor WNS_ns is 0.029 in the baseline and 0.03 in the budget table
+route-whs-floor-neg          rc=2 want=nonzero AS-EXPECTED | route-1x1: floor WHS_ns is -0.001 in the baseline and 0.0 in the budget table
+route-ceiling-122            rc=2 want=nonzero AS-EXPECTED | route-1x1: ceiling BRAM_TILE is 122 in the baseline and 121.5 in the budget table
+route-ceiling-drop           rc=2 want=nonzero AS-EXPECTED | route-1x1: ceiling BRAM_TILE is None in the baseline and 121.5 in the budget table
+ooc1-lut-tol-251             rc=2 want=nonzero AS-EXPECTED | ooc-1x1: tolerance LUT is 251 in the baseline and 250.0 in the budget table
+ooc8-ff-tol-340              rc=2 want=nonzero AS-EXPECTED | ooc-8x8: tolerance FF is 340 in the baseline and 339.0 in the budget table
+ooc8-dsp-tol-1               rc=2 want=nonzero AS-EXPECTED | ooc-8x8: tolerance DSP is 1 in the baseline and 0.0 in the budget table
+route-timing-fall-0.3        rc=2 want=nonzero AS-EXPECTED | route-1x1: tolerance WNS_ns is 0.3 in the baseline and 0.25 in the budget table
+measured-note-edit           rc=0 want=zero    AS-EXPECTED | baseline PASS: 3 endpoints
+record-lut-minus-1           rc=0 want=zero    AS-EXPECTED | baseline PASS: 3 endpoints

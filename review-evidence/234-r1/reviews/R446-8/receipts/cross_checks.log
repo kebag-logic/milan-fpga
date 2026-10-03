@@ -1,0 +1,105 @@
+## 1. merges: parents and recomputed trees
+4d81e10d3a710cef3c8abc286fd68aeba4513f7c parents d5f56313dc5a5c2716211356f99796664dc843dd 546437243e87eb5a78783a9e3cd5d1badcc3423e recorded-tree 04a0c948d8fabb836c64ac4c50271c3a8bc16c89 merge-tree 04a0c948d8fabb836c64ac4c50271c3a8bc16c89 EQUAL
+68d26ea034789ce2519db22d0df4e4328bc1b0de parents aabdc2839a272631222c30a62e83218d893b40d2 5fabb46e767c9308ab2580916237f43577698c6e recorded-tree 4bc95158cc7e2b5f64051a100b770298ef194a70 merge-tree 4bc95158cc7e2b5f64051a100b770298ef194a70 EQUAL
+dev delta 546437243e87eb5a78783a9e3cd5d1badcc3423e..5fabb46e767c9308ab2580916237f43577698c6e:
+ docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md | 608 +++++++++++++++++++++++
+ docs/findings/README.md                          |   2 +-
+ 2 files changed, 609 insertions(+), 1 deletion(-)
+PR vs live dev, build inputs (expect empty):
+gitlinks at 1269cdafb4bb964c757baae0f0c5a932d43f540b / 546437243e87eb5a78783a9e3cd5d1badcc3423e / 5fabb46e767c9308ab2580916237f43577698c6e / 68d26ea034789ce2519db22d0df4e4328bc1b0de:
+external=efeb541a gptp-processor=5dce647a protocol-processor=631eeb34 third_party/verilog-axis=48ff7a7e 
+external=efeb541a gptp-processor=5dce647a protocol-processor=631eeb34 third_party/verilog-axis=48ff7a7e 
+external=efeb541a gptp-processor=5dce647a protocol-processor=631eeb34 third_party/verilog-axis=48ff7a7e 
+external=efeb541a gptp-processor=5dce647a protocol-processor=631eeb34 third_party/verilog-axis=48ff7a7e 
+## 2. shape headers regenerated at 1269cdafb4bb964c757baae0f0c5a932d43f540b (A) and 68d26ea034789ce2519db22d0df4e4328bc1b0de (C)
+A endstation_ax7101_1x1_tdm8 builder rc=0
+  AEM_NAME_ENTRIES_C 38;
+  ADP_TALKER_SRC_C 2;
+  ADP_LISTENER_SINK_C 2;
+  ADP_SRP_DOM_DEF_VID_C 16'd2;
+  ADP_DMAP_IN_NPORTS_C 1;
+  ADP_DMAP_OUT_NPORTS_C 1;
+  AEM_N_AUDIO_UNIT_C 1;
+  AEM_N_CLKDOM_C 1;
+  AEM_N_CONTROL_C 1;
+  AEM_N_CLKSRC_C 2;
+A endstation_ax7101_8x8 builder rc=0
+  AEM_NAME_ENTRIES_C 99;
+  ADP_TALKER_SRC_C 9;
+  ADP_LISTENER_SINK_C 9;
+  ADP_SRP_DOM_DEF_VID_C 16'd2;
+  ADP_DMAP_IN_NPORTS_C 8;
+  ADP_DMAP_OUT_NPORTS_C 8;
+  AEM_N_AUDIO_UNIT_C 1;
+  AEM_N_CLKDOM_C 1;
+  AEM_N_CONTROL_C 1;
+  AEM_N_CLKSRC_C 2;
+C endstation_ax7101_1x1_tdm8 builder rc=0
+  AEM_NAME_ENTRIES_C 39;
+  ADP_TALKER_SRC_C 2;
+  ADP_LISTENER_SINK_C 2;
+  ADP_SRP_DOM_DEF_VID_C 16'd2;
+  ADP_DMAP_IN_NPORTS_C 1;
+  ADP_DMAP_OUT_NPORTS_C 1;
+  AEM_N_AUDIO_UNIT_C 1;
+  AEM_N_CLKDOM_C 1;
+  AEM_N_CONTROL_C 1;
+  AEM_N_CLKSRC_C 3;
+C endstation_ax7101_8x8 builder rc=0
+  AEM_NAME_ENTRIES_C 107;
+  ADP_TALKER_SRC_C 9;
+  ADP_LISTENER_SINK_C 9;
+  ADP_SRP_DOM_DEF_VID_C 16'd2;
+  ADP_DMAP_IN_NPORTS_C 8;
+  ADP_DMAP_OUT_NPORTS_C 8;
+  AEM_N_AUDIO_UNIT_C 1;
+  AEM_N_CLKDOM_C 1;
+  AEM_N_CONTROL_C 1;
+  AEM_N_CLKSRC_C 10;
+wrapper parameter bindings (milan_datapath.sv, KL_pp_shadow instance):
+.TDATA_WIDTH_P  (TDATA_WIDTH)
+.CLK_HZ_P       (MILAN_CLK_FREQ_HZ)
+.N_STREAM_IN_P  (ACMP_SINKS_C)
+.N_STREAM_OUT_P (ACMP_SRC_C)
+.SRP_DOM_DEF_VID_P (ADP_SRP_DOM_DEF_VID_C)
+.TIM_DIV_US_P   (PP_TIM_DIV_US_P)
+.TIM_DIV_MS_P   (PP_TIM_DIV_MS_P)
+.TROM_HEX_P     (PP_TROM_HEX_P)
+.UCODE_HEX_P         (PP_UCODE_HEX_P)
+.DESC_BASE_P         (PP_DESC_BASE_P)
+.DESC_LINE_BYTES_P   (PP_DESC_LINE_BYTES_P)
+.DESC_IDX_ENTRIES_P  (PP_DESC_IDX_ENTRIES_P)
+.DESC_NAME_ENTRIES_P (AEM_NAME_ENTRIES_C)
+.DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P)
+.RESP_BASE_P         (PP_RESP_BASE_P)
+.N_SPORT_IN_P        (ADP_DMAP_IN_NPORTS_C)
+.N_SPORT_OUT_P       (ADP_DMAP_OUT_NPORTS_C)
+.N_AUDIO_UNIT_P      (AEM_N_AUDIO_UNIT_C)
+.N_CLK_DOM_P         (AEM_N_CLKDOM_C)
+.N_CONTROL_P         (AEM_N_CONTROL_C)
+KL_pp_shadow `include lines naming the shape header: 0
+KL_pp_shadow mentions of the header (comments): 241:    //! (hdl/common/gen/adp_shape_defaults.svh); these defaults are the 8x8
+## 3. AEM descriptor image, 1x1
+A gen rc=0 bytes=7352 sha256=9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404
+C gen rc=0 bytes=7512 sha256=4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d
+## 4. PR #634's published hierarchical placed report of the same image
+source: origin/629-m2-review-evidence ef8d033ca7f76bf68e427844a72ebe314ccd54af:review-evidence/629-m2-r1/author-r4/receipts/alinx_ax7101_utilization_hierarchical_place.rpt sha256 63c55d15f9a81ab3db03542cfad32993b85da3e0ddcf2c19a6029a26980d6e29
+| Design State : Physopt postPlace
+  alinx_ax7101 LUT=50767 LUTRAM=2228 FF=59634
+  (alinx_ax7101) LUT=4847 LUTRAM=294 FF=6072
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159 LUT=3524 LUTRAM=122 FF=4734
+  milan_datapath LUT=42200 LUTRAM=1812 FF=48433
+  aaf_latency_tap_bank LUT=674 LUTRAM=0 FF=621
+  chan_map_capture LUT=1079 LUTRAM=0 FF=1321
+  csr LUT=3073 LUTRAM=0 FF=2141
+  ctl_tx_mux LUT=85 LUTRAM=0 FF=22
+  g_aaf_meter.aaf_clock_meter LUT=483 LUTRAM=32 FF=630
+  g_mmcm_servo.mmcm_servo LUT=899 LUTRAM=0 FF=814
+  media_grid_align LUT=373 LUTRAM=0 FF=107
+  media_nco LUT=130 LUTRAM=0 FF=46
+  pp_shadow LUT=23904 LUTRAM=1108 FF=24265
+  talker_diag LUT=225 LUTRAM=0 FF=359
+       # of routable nets..................... :      106622 :
+           # of fully routed nets............. :      106622 :
+       # of nets with routing errors.......... :           0 :
+      0.193        0.000                      0               181419        0.024        0.000                      0               181338        0.264        0.000                       0                 64207  

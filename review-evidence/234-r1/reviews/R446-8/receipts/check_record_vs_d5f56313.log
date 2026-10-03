@@ -1,0 +1,64 @@
+OK   top-level keys equal: ['description', 'endpoints', 'schema']
+OK   top-level 'schema' unchanged
+OK   top-level 'description' unchanged
+OK   endpoint list unchanged: ['route-1x1', 'ooc-1x1', 'ooc-8x8']
+OK   route-1x1: keys ['ceiling', 'floor', 'measured', 'record', 'tolerance']
+OK   route-1x1: policy ceiling unchanged {"BRAM_TILE": 121.5}
+OK   route-1x1: ceiling.BRAM_TILE 121.5 -> 121.5
+OK   route-1x1: policy floor unchanged {"WHS_ns": 0.0, "WNS_ns": 0.03}
+OK   route-1x1: floor.WHS_ns 0.0 -> 0.0
+OK   route-1x1: floor.WNS_ns 0.03 -> 0.03
+OK   route-1x1: policy tolerance unchanged {"DSP": 0, "FF": 600, "LUT": 500, "RAMB18": 0, "RAMB36": 0, "SLICE": 80, "WHS_ns": 0.25, "WNS_ns": 0.25}
+OK   route-1x1: tolerance.DSP 0 -> 0
+OK   route-1x1: tolerance.FF 600 -> 600
+OK   route-1x1: tolerance.LUT 500 -> 500
+OK   route-1x1: tolerance.RAMB18 0 -> 0
+OK   route-1x1: tolerance.RAMB36 0 -> 0
+OK   route-1x1: tolerance.SLICE 80 -> 80
+OK   route-1x1: tolerance.WHS_ns 0.25 -> 0.25
+OK   route-1x1: tolerance.WNS_ns 0.25 -> 0.25
+OK   route-1x1: committed record equals the published record-write output
+OK   route-1x1: record.kind equals receipt
+OK   route-1x1: record.identity equals receipt
+OK   route-1x1: record.inputs_sha256 equals receipt
+OK   route-1x1: record.figures equals receipt
+OK   route-1x1: record.scopes equals receipt
+OK   route-1x1: identity (tool, device, design, state, flow, clock) unchanged from d5f56313
+     route-1x1: measured = 'dev 54643724, after PR #634, processor 631eeb34, issue #234 re-baseline of 2026-10-03; first recorded at dev 1269cdaf'
+     route-1x1: figures = {"BRAM_TILE": 92.5, "CARRY4": 3506, "DSP": 14, "FF": 59634, "LUT": 50767, "RAMB18": 27, "RAMB36": 79, "SLICE": 15832, "WHS_ns": 0.024, "WNS_ns": 0.193}
+     route-1x1: figures d5f56313 = {"BRAM_TILE": 92.5, "CARRY4": 3405, "DSP": 14, "FF": 59006, "LUT": 50128, "RAMB18": 27, "RAMB36": 79, "SLICE": 15815, "WHS_ns": 0.036, "WNS_ns": 0.063}
+OK   ooc-1x1: keys ['measured', 'record', 'tolerance']
+OK   ooc-1x1: policy tolerance unchanged {"DSP": 0, "FF": 250, "LUT": 250, "RAMB18": 0, "RAMB36": 0}
+OK   ooc-1x1: tolerance.DSP 0 -> 0
+OK   ooc-1x1: tolerance.FF 250 -> 250
+OK   ooc-1x1: tolerance.LUT 250 -> 250
+OK   ooc-1x1: tolerance.RAMB18 0 -> 0
+OK   ooc-1x1: tolerance.RAMB36 0 -> 0
+OK   ooc-1x1: committed record equals the published record-write output
+OK   ooc-1x1: record.kind equals receipt
+OK   ooc-1x1: record.identity equals receipt
+OK   ooc-1x1: record.inputs_sha256 equals receipt
+OK   ooc-1x1: record.figures equals receipt
+OK   ooc-1x1: record.scopes equals receipt
+OK   ooc-1x1: identity (tool, device, design, state, flow, clock) unchanged from d5f56313
+     ooc-1x1: measured = 'dev 54643724, after PR #634, processor 631eeb34, issue #234 re-baseline of 2026-10-03; first recorded at dev 1269cdaf'
+     ooc-1x1: figures = {"BRAM_TILE": 22.5, "CARRY4": 1623, "DSP": 8, "FF": 25345, "LUT": 24332, "RAMB18": 3, "RAMB36": 21, "WHS_ns": 0.159, "WNS_ns": -1.616}
+     ooc-1x1: figures d5f56313 = {"BRAM_TILE": 22.5, "CARRY4": 1623, "DSP": 8, "FF": 25344, "LUT": 24343, "RAMB18": 3, "RAMB36": 21, "WHS_ns": 0.159, "WNS_ns": -1.616}
+OK   ooc-8x8: keys ['measured', 'record', 'tolerance']
+OK   ooc-8x8: policy tolerance unchanged {"DSP": 0, "FF": 339, "LUT": 316, "RAMB18": 0, "RAMB36": 0}
+OK   ooc-8x8: tolerance.DSP 0 -> 0
+OK   ooc-8x8: tolerance.FF 339 -> 339
+OK   ooc-8x8: tolerance.LUT 316 -> 316
+OK   ooc-8x8: tolerance.RAMB18 0 -> 0
+OK   ooc-8x8: tolerance.RAMB36 0 -> 0
+OK   ooc-8x8: committed record equals the published record-write output
+OK   ooc-8x8: record.kind equals receipt
+OK   ooc-8x8: record.identity equals receipt
+OK   ooc-8x8: record.inputs_sha256 equals receipt
+OK   ooc-8x8: record.figures equals receipt
+OK   ooc-8x8: record.scopes equals receipt
+OK   ooc-8x8: identity (tool, device, design, state, flow, clock) unchanged from d5f56313
+     ooc-8x8: measured = 'dev 54643724, after PR #634, processor 631eeb34, issue #234 re-baseline of 2026-10-03; first recorded at dev 1269cdaf'
+     ooc-8x8: figures = {"BRAM_TILE": 28.5, "CARRY4": 2001, "DSP": 8, "FF": 33937, "LUT": 31556, "RAMB18": 5, "RAMB36": 26, "WHS_ns": 0.159, "WNS_ns": -1.947}
+     ooc-8x8: figures d5f56313 = {"BRAM_TILE": 28.5, "CARRY4": 2001, "DSP": 8, "FF": 33929, "LUT": 31562, "RAMB18": 5, "RAMB36": 26, "WHS_ns": 0.159, "WNS_ns": -1.947}
+mismatches: 0

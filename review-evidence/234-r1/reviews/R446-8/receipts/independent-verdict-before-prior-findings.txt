@@ -1,0 +1,10 @@
+R446-8 independent pass, written before reading any prior review report or finding on PR #638 (2026-10-03T23:02:19+02:00).
+Exact head 68d26ea034789ce2519db22d0df4e4328bc1b0de, tree 4bc95158cc7e2b5f64051a100b770298ef194a70.
+Provisional verdict: POSITIVE (no open BLOCKER/MAJOR/MINOR found in the independent pass).
+Provisional findings: RESIDUE R1 (PR body Status line and checkout command name aabdc283 as head; fix: 68d26ea034789ce2519db22d0df4e4328bc1b0de).
+Provisional ledger:
+Conformance CLEAN  - merges 4d81e10d/68d26ea0 reproduce by git merge-tree; record == published record-write output; policy 21 fields unchanged; head contains live dev 5fabb46e
+RTL         CLEAN  - no RTL in PR vs dev; shape regenerated: only DESC_NAME_ENTRIES_P moves (38->39, 99->107); meter/milan_datapath/SoC/CPU figures equal PR #634's independent hierarchical report
+Robustness  CLEAN  - 11 policy plants refused rc 2; predecessor-catch rule in AREA_BUDGET "Where the gate runs"
+Tests       CLEAN  - selftest 260 arms digest 151eb3fc6a0d989c; mutants 174/174; fuzz 20000 0 failures; check-baseline PASS
+Docs        CLEAN  - arithmetic of AREA_BUDGET table/allocation and findings page verified; old figures only in dated history; docs gates rc 0
