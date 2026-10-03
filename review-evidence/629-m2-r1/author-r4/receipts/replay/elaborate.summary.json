@@ -1,0 +1,147 @@
+{
+ "head": "c12886486c1e4acf2003bfaba25db2a307446428",
+ "workflow": ".github/workflows/elaborate.yml",
+ "job": "elaborate",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Decide whether this head needs an elaboration",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 3.5
+  },
+  {
+   "step": "03",
+   "name": "Fetch the source dependencies the elaboration reads",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "04",
+   "name": "Install the pinned sv2v release",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.6
+  },
+  {
+   "step": "05",
+   "name": "actions/setup-python@v5",
+   "result": "ACTION: the replay venv's CPython 3.12.13 (uv) is first on PATH",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "06",
+   "name": "Cache the pinned pip downloads",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "07",
+   "name": "Install LiteX at the pinned revisions",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 34.9
+  },
+  {
+   "step": "08",
+   "name": "Cache the Scala toolchain",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "09",
+   "name": "Cache the generated CPU metadata",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "10",
+   "name": "Install sbt",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.4
+  },
+  {
+   "step": "11",
+   "name": "Place the VexiiRiscv source at the revision LiteX pins",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 12.0
+  },
+  {
+   "step": "12",
+   "name": "Apply the toolchain patch series",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.3
+  },
+  {
+   "step": "13",
+   "name": "Cache the pinned RV32 SDK",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "14",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 19.7
+  },
+  {
+   "step": "15",
+   "name": "Elaboration gates",
+   "result": "PASS rc=0 [verbatim] make: 1538 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make",
+   "rc": 0,
+   "seconds": 1019.6
+  },
+  {
+   "step": "16",
+   "name": "Cache the pinned Verilator build",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "17",
+   "name": "Build Verilator from source on cache miss",
+   "result": "SKIPPED (if: false)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "18",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "PASS rc=0 [verbatim, mapped /opt/verilator -> $VALIDATION_TOOLS/verilator-v5.050] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "step": "19",
+   "name": "Standalone LiteX simulation aggregate",
+   "result": "PASS rc=0 [verbatim] make: 2 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make",
+   "rc": 0,
+   "seconds": 100.8
+  },
+  {
+   "step": "20",
+   "name": "Keep the generated CPU netlist arguments for the next run",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/elaborate/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  }
+ ]
+}

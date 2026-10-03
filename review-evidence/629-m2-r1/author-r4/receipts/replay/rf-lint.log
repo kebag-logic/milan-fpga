@@ -1,0 +1,11 @@
+replay .github/workflows/rtl-fast.yml :: verilator-lint at c12886486c1e4acf2003bfaba25db2a307446428
+HOME: $VALIDATION_STORAGE/629-a512/home-light; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a512/replay/rf-lint/bin/make -> $VALIDATION_STORAGE/629-a512/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] PASS  rc=0      0.0s  Fetch RTL dependencies  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/rf-lint/bin/make, GNU Make 4.3)
+[03] USES  Cache the pinned Verilator build: treated as a cache hit: the pinned tool or cache exists on this host
+[04] SKIP  Build Verilator from source on cache miss  (if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }})
+[05] PASS  rc=0     12.5s  Run the ratcheted whole-tree lint gate  [verbatim, mapped /opt/verilator -> $VALIDATION_TOOLS/verilator-v5.050]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/rf-lint/bin/make, GNU Make 4.3)
+[06] PASS  rc=0      0.2s  Prove protocol-processor source lists are derived  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/rf-lint/bin/make, GNU Make 4.3)
+steps: 6  failed: 0
+rc=0

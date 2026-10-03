@@ -1,0 +1,164 @@
+### step: Build the pinned tsn-gen field oracle on its suite owner
+### cwd: $LANES/629-m2-impl
+Cloning into '$VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen'...
+Note: switching to 'deca300c9eb4863fa13383b45ba6cb6fd0828671'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at deca300 Merge pull request #13 from kebag-logic/12-strict-media-ptp-tx-flags
+Submodule 'external/rapidyaml' (https://github.com/biojppm/rapidyaml.git) registered for path 'external/rapidyaml'
+Cloning into '$VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/external/rapidyaml'...
+From https://github.com/biojppm/rapidyaml
+ * branch            e65999dc4d65368e1b3eb770e28d775885b0f525 -> FETCH_HEAD
+Submodule path 'external/rapidyaml': checked out 'e65999dc4d65368e1b3eb770e28d775885b0f525'
+Submodule 'extern/c4core' (https://github.com/biojppm/c4core) registered for path 'external/rapidyaml/ext/c4core'
+Cloning into '$VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/external/rapidyaml/ext/c4core'...
+From https://github.com/biojppm/c4core
+ * branch            6c876ec05a4387c25068cdbd58724828dad1d217 -> FETCH_HEAD
+Submodule path 'external/rapidyaml/ext/c4core': checked out '6c876ec05a4387c25068cdbd58724828dad1d217'
+Submodule 'cmake' (https://github.com/biojppm/cmake) registered for path 'external/rapidyaml/ext/c4core/cmake'
+Submodule 'extern/debugbreak' (https://github.com/biojppm/debugbreak) registered for path 'external/rapidyaml/ext/c4core/src/c4/ext/debugbreak'
+Submodule 'src/c4/ext/fast_float' (https://github.com/fastfloat/fast_float) registered for path 'external/rapidyaml/ext/c4core/src/c4/ext/fast_float'
+Cloning into '$VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/external/rapidyaml/ext/c4core/cmake'...
+Cloning into '$VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/debugbreak'...
+Cloning into '$VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/fast_float'...
+From https://github.com/biojppm/cmake
+ * branch            b8e95acb1bdd564e47ac57d903a483604d90cbfa -> FETCH_HEAD
+Submodule path 'external/rapidyaml/ext/c4core/cmake': checked out 'b8e95acb1bdd564e47ac57d903a483604d90cbfa'
+Submodule path 'external/rapidyaml/ext/c4core/src/c4/ext/debugbreak': checked out '328e4abca3384cbd0a69e70f263cc7b2794bff09'
+From https://github.com/fastfloat/fast_float
+ * branch            d28a3320c2de0963b6e469b8ca3bbc36496de684 -> FETCH_HEAD
+Submodule path 'external/rapidyaml/ext/c4core/src/c4/ext/fast_float': checked out 'd28a3320c2de0963b6e469b8ca3bbc36496de684'
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- ryml: using C++ standard: C++17
+-- ryml: importing subproject c4core (SUBDIRECTORY)... $VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/external/rapidyaml/ext/c4core
+-- c4core: using C++ standard: C++17
+CMake Warning (author) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2056 (elseif):
+  ELSEIF called with no arguments, it will be skipped.
+Call Stack (most recent call first):
+  external/rapidyaml/ext/c4core/cmake/c4Project.cmake:1889 (c4_add_target)
+  external/rapidyaml/ext/c4core/CMakeLists.txt:94 (c4_add_library)
+This warning is for project developers.  Use -Wno-author to suppress it.
+
+CMake Warning (policy) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2694 (install):
+  Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+  "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+Call Stack (most recent call first):
+  external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+  external/rapidyaml/ext/c4core/CMakeLists.txt:112 (c4_install_exports)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+CMake Warning (policy) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2746 (install):
+  Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+  "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+Call Stack (most recent call first):
+  external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+  external/rapidyaml/ext/c4core/CMakeLists.txt:112 (c4_install_exports)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+CMake Warning (author) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2056 (elseif):
+  ELSEIF called with no arguments, it will be skipped.
+Call Stack (most recent call first):
+  external/rapidyaml/ext/c4core/cmake/c4Project.cmake:1889 (c4_add_target)
+  external/rapidyaml/CMakeLists.txt:35 (c4_add_library)
+This warning is for project developers.  Use -Wno-author to suppress it.
+
+-- ryml: -----> target ryml PUBLIC incorporating lib c4core
+CMake Warning (policy) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2694 (install):
+  Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+  "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+Call Stack (most recent call first):
+  external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+  external/rapidyaml/CMakeLists.txt:118 (c4_install_exports)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+CMake Warning (policy) at external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2746 (install):
+  Policy CMP0177 is not set: install() DESTINATION paths are normalized.  Run
+  "cmake --help-policy CMP0177" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+Call Stack (most recent call first):
+  external/rapidyaml/ext/c4core/cmake/c4Project.cmake:2777 (__c4_install_exports)
+  external/rapidyaml/CMakeLists.txt:118 (c4_install_exports)
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: $VALIDATION_STORAGE/629-a512/replay/vshard1/runner_temp/tsn-gen/build
+[  4%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/common.cpp.o
+[  4%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/reference_resolver.cpp.o
+[ 10%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/parse.cpp.o
+[ 10%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/node_type.cpp.o
+[ 10%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/tag.cpp.o
+[ 12%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/node.cpp.o
+[ 14%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/preprocess.cpp.o
+[ 16%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/char_traits.cpp.o
+[ 18%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/error.cpp.o
+[ 20%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/tree.cpp.o
+[ 22%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/format.cpp.o
+[ 25%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/src/c4/yml/version.cpp.o
+[ 27%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/base64.cpp.o
+[ 29%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/language.cpp.o
+[ 33%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/utf.cpp.o
+[ 33%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/memory_util.cpp.o
+[ 35%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/version.cpp.o
+[ 37%] Building CXX object external/rapidyaml/CMakeFiles/ryml.dir/ext/c4core/src/c4/memory_resource.cpp.o
+[ 39%] Linking CXX static library libryml.a
+[ 39%] Built target ryml
+[ 41%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/validator.cpp.o
+[ 43%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/log.cpp.o
+[ 47%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/protocol.cpp.o
+[ 47%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_impl.cpp.o
+[ 50%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/protocol_parser.cpp.o
+[ 54%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/stack_builder.cpp.o
+[ 54%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_if_impl.cpp.o
+[ 58%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/stack.cpp.o
+[ 58%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/logic_registry.cpp.o
+[ 62%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_proto_service_impl.cpp.o
+[ 62%] Building CXX object parser/CMakeFiles/protocol_parser.dir/src/db_var_impl.cpp.o
+[ 64%] Linking CXX shared library libprotocol_parser.so
+[ 64%] Built target protocol_parser
+[ 66%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/ethernet_frame_logic.cpp.o
+[ 68%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/packet_builder.cpp.o
+[ 70%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/aecp_aem_logic.cpp.o
+[ 72%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/pcap_sender.cpp.o
+[ 77%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/traffic_generator.cpp.o
+[ 77%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/verilator_sender.cpp.o
+[ 81%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/raw_socket_receiver.cpp.o
+[ 81%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/session.cpp.o
+[ 83%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/packet_decoder.cpp.o
+[ 87%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/pcap_receiver.cpp.o
+[ 87%] Building CXX object logic/CMakeFiles/protocol_logic.dir/src/avtp_control_logic.cpp.o
+[ 89%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/raw_socket_sender.cpp.o
+[ 91%] Building CXX object traffic-gen/CMakeFiles/traffic_gen.dir/src/verilator_receiver.cpp.o
+[ 93%] Linking CXX shared library libprotocol_logic.so
+[ 93%] Built target protocol_logic
+[ 95%] Linking CXX shared library libtraffic_gen.so
+[ 95%] Built target traffic_gen
+[ 97%] Building CXX object traffic-gen/CMakeFiles/packet_gen.dir/tools/packet_gen_main.cpp.o
+[100%] Linking CXX executable packet_gen
+[100%] Built target packet_gen

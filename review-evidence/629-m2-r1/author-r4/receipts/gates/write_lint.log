@@ -1,0 +1,17 @@
+== lint pragma gate (well-formed · balanced · justified) ==
+PRAGMA GATE: PASS (0 justified lint_off, 0 excluded file(s))
+== hdl/ Verilator lint census (71 module elaborations) ==
+  hdl/common                      1  <= ratchet 1
+  hdl/ieee1722/aaf               17  <= ratchet 17
+  hdl/ieee1722/avtp              49  <= ratchet 49
+  hdl/ieee1722/crf                4  <= ratchet 4
+  hdl/ieee1722/maap               1  <= ratchet 1
+  hdl/ieee8021as/ptp_timestamp    8  <= ratchet 8
+  hdl/ieee8021q/ts                8  <= ratchet 8
+  hdl/milan                       2  <= ratchet 2
+  hdl/ieee17221/adp               0  (was 0)
+  TOTAL                          90
+  by rule: WIDTHEXPAND 61, WIDTHTRUNC 20, SYNCASYNCNET 6, ALWCOMBORDER 1, CASEINCOMPLETE 1, DECLFILENAME 1
+  waived (RULE_WAIVERS, reasons in scripts/lint_rtl.py): PINMISSING 15, TIMESCALEMOD 2
+  third_party (upstream verilog-axis - resolved, never linted, not ours to fix): WIDTHTRUNC 10, WIDTHEXPAND 4, SELRANGE 3
+lint ratchet unchanged (90 violation(s) <= 90)

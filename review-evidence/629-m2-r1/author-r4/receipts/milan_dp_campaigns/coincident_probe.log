@@ -1,0 +1,9 @@
+published anchor : '       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;'
+published replace: '       | aafm_disrupt_p_w | aafm_mr_toggle_p_w & ~media_rebase_p_w;'
+fixed anchor     : '        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))'
+fixed replace    : '        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) & ~media_rebase_p_w)'
+[FAIL] control SURVIVED: a PHC step suppresses a coincident CRF restart. The leg does not prove "coincident: a PHC step does not suppress the CRF restart".
+[PASS] control caught: the same defect planted inside the selected-CRF term group - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+SURVIVED: a PHC step suppresses a coincident CRF restart
+CAUGHT: the same defect planted inside the selected-CRF term group
