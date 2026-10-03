@@ -139,13 +139,21 @@ Until then the gate holds every resource at its recorded value: no material grow
 Each endpoint holds its measured record and its policy.
 The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate) gives the commands.
 
-| Endpoint | LUT | FF | Slice | RAMB36, RAMB18, DSP | Timing | Ceiling |
-|---|---:|---:|---:|---:|---|---|
-| `route-1x1` | +500 | +600 | +80 | +0 each | WNS at least +0.030 ns and WHS at least 0 ns; neither falls by more than 0.25 ns | 121.5 BRAM tiles |
-| `ooc-1x1` | +250 | +250 | - | +0 each | not gated: no I/O constraints | - |
-| `ooc-8x8` | +316 | +339 | - | +0 each | not gated | - |
+| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | DSP | WNS floor | WHS floor | Timing fall | BRAM tile ceiling |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | +500 | +600 | +80 | +0 | +0 | +0 | +0.030 ns | 0 ns | 0.25 ns | 121.5 |
+| `ooc-1x1` | +250 | +250 | - | +0 | +0 | +0 | - | - | - | - |
+| `ooc-8x8` | +316 | +339 | - | +0 | +0 | +0 | - | - | - | - |
+
+A resource column is the growth a figure may take; a dash is not gated.
+WNS and WHS must stay at or above their floors and may each fall by at most the timing fall.
+Standalone timing is not gated: those syntheses have no I/O constraints.
+The tolerances, floors and ceiling are accepted as working policy (manager ruling).
+`check-baseline` reads this table and refuses a baseline whose policy differs from it in any cell.
+It also requires the route's BRAM tile ceiling.
 
 Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
+A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
 The 0.25 ns fall limit matters only once the route has margin; at +0.063 ns the floor binds first.
 One more RAMB36, RAMB18 or DSP is always material.
 A primitive count moves only when storage or arithmetic changes its mapping.
@@ -164,19 +172,24 @@ That exceeds the route's 500-LUT tolerance, so the gate rejects B with exit 1.
 Optimization moving in response to a change is still that change's cost to the image.
 Accepting B means recording its route as the new baseline, a reviewed decision.
 A change under the tolerance passes, and the gate still prints the sub-block movements.
+A figure that improves by more than its tolerance passes and prints "re-baseline recommended".
+The policy stays growth-only: recording the improved measurement is what lowers the bar.
 
 The gate refuses, with exit 2, to compare across a tool or recipe change.
-That covers the Vivado build, the device, a flow command, the thread count and the standalone clock.
+That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.
 Identical inputs with different figures are refused the same way.
 So a tool's mapping change is never reported as an architectural regression.
 Such a change needs a new baseline, recorded with `record --write` and reviewed as a diff.
+An unreadable measurement, a slack that is not finite, a timing summary with no timed endpoint and a missing route status report also exit 2.
+So does a baseline file that is missing, not JSON or incomplete; exit 1 means a material regression only.
 
 ### Where the gate runs
 
 Hosted CI has no Vivado.
-The fast workflow runs the gate's self-test, its mutant campaign and `check-baseline`.
+The fast workflow runs the gate's self-test, its mutant campaign and `check-baseline` (manager ruling).
 Those need only Python, so no runner or tool is added.
-`check-baseline` refuses a baseline edit that breaks its own policy.
+`check-baseline` refuses a baseline edit that breaks its own policy or departs from the policy table above.
+The classifier files this page as read by a gate, so a change to it alone still runs that step.
 
 The measurement and `check` need Vivado, so they run in the manager's local bank.
 The proposal is one run per merge candidate that moves the processor pin, `KL_pp_shadow`, the shipping configuration or the build flow.

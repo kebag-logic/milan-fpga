@@ -453,10 +453,15 @@ python3 syn/ooc/pp_resource_gate.py check "$WORK/ax8x8-ooc" --endpoint ooc-8x8
 ```
 
 Exit 0 is within tolerance and 1 is a material regression.
-Exit 2 means the measurement is not comparable.
-A different tool build, device, flow command or standalone clock gives 2.
-So do unreadable reports and identical inputs with different figures.
+A route whose status report names an unrouted net or a routing error is a material regression too.
+The route endpoint reads the run's one `*_route_status.rpt` beside its other reports.
+Exit 2 means the measurement is not comparable or the baseline is unusable, and the output names the reason.
+A different tool build, device, design, design state, flow command or standalone clock gives 2.
+So do unreadable reports, a slack that is not finite and a timing summary with no timed endpoint.
+A missing route status report and identical inputs with different figures give 2 as well.
+A missing, non-JSON or incomplete baseline gives 2, never 1.
 The output lists the largest sub-block movements without gating them.
+A gated figure that improved by more than its tolerance passes and prints "re-baseline recommended".
 
 An accepted change records its measurement as the new baseline:
 
@@ -467,6 +472,8 @@ python3 syn/ooc/pp_resource_gate.py check-baseline
 
 `--write` replaces only the record; tolerances, floors and ceilings stay.
 Review the diff of the JSON file like any other budget change.
+`check-baseline` holds every endpoint's policy to the area budget's policy table, cell by cell.
+So a policy change edits the table and the JSON file together, in one review.
 The self-test and its mutant campaign need no Vivado:
 
 ```sh

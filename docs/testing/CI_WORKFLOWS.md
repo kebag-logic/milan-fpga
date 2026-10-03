@@ -55,7 +55,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
 [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
 the campaign it runs, so those two records are relevant by directory.
 
-Four pages under `docs/` are relevant because Python in a classifier-gated
+Five pages under `docs/` are relevant because Python in a classifier-gated
 job names them. The behave suite of `bdd-conformance`, which no docs job runs,
 asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
 [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
@@ -66,6 +66,9 @@ Its tap table follows the configured clocks and features.
 The tap page remains relevant under the #582 decision.
 Its reader is absent from `DOCS_JOB_PY`.
 `docs-check` also runs it through the builder bank.
+`yosys-elaboration` runs the resource gate's `check-baseline`, which holds
+`syn/ooc/pp_resource_baseline.json` to the policy table in
+[AREA_BUDGET.md](../design/AREA_BUDGET.md#the-resource-gate) (#234).
 The classifier's
 self-test, `scripts/ci_scope.py --selftest`, derives that list from the
 Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,

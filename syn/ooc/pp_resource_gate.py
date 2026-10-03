@@ -16,10 +16,15 @@ regression. The input digest covers every source, include header, constraint,
 sourced Tcl file, generic and memory image the script reads: equal digests
 with different figures are refused too, because nothing in the design moved.
 Only a measurement with the baseline's identity and different inputs is
-judged against the tolerances.
+judged against the tolerances. A route is also judged on its route status
+report: an unrouted net or a routing error means the image does not fit.
 
-Exit status: 0 within tolerance; 1 a material regression; 2 not comparable
-or an unreadable measurement.
+Exit status: 0 within tolerance; 1 a material regression, an incomplete route
+included; 2 not comparable, an unreadable measurement or an unusable baseline,
+each with its reason. A gated figure that improved by more than its tolerance
+still exits 0 and prints "re-baseline recommended". check-baseline exits 2
+when an endpoint's policy is incomplete, its own record breaks it, or it
+differs from the policy table of the budget page.
 
     pp_resource_gate.py check <directory> --endpoint route-1x1
     pp_resource_gate.py record <directory> --endpoint route-1x1 [--write]
@@ -30,6 +35,7 @@ or an unreadable measurement.
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import sys
@@ -38,6 +44,8 @@ from pp_baseline_rank import hierarchy
 
 
 BASELINE = Path(__file__).with_name("pp_resource_baseline.json")
+#: The page whose policy table every baseline endpoint must equal.
+BUDGET = Path(__file__).resolve().parents[2] / "docs/design/AREA_BUDGET.md"
 #: Utilization row label -> record figure; every label must appear, with one value.
 ROWS = {"route": {"Slice LUTs": "LUT", "Slice Registers": "FF", "Slice": "SLICE",
                   "Block RAM Tile": "BRAM_TILE", "RAMB36/FIFO": "RAMB36",
@@ -48,6 +56,16 @@ ROWS = {"route": {"Slice LUTs": "LUT", "Slice Registers": "FF", "Slice": "SLICE"
 GATED = {"route": ("LUT", "FF", "SLICE", "RAMB36", "RAMB18", "DSP", "WNS_ns", "WHS_ns"),
          "ooc": ("LUT", "FF", "RAMB36", "RAMB18", "DSP")}
 TIMING = ("WNS_ns", "WHS_ns")
+#: Ceilings an endpoint of each kind must carry.
+CEILINGS = {"route": ("BRAM_TILE",), "ooc": ()}
+#: The budget's policy table: column -> the policy field and the figures it sets.
+COLUMNS = {"LUT": ("tolerance", ("LUT",)), "FF": ("tolerance", ("FF",)), "Slice": ("tolerance", ("SLICE",)),
+           "RAMB36": ("tolerance", ("RAMB36",)), "RAMB18": ("tolerance", ("RAMB18",)),
+           "DSP": ("tolerance", ("DSP",)), "WNS floor": ("floor", ("WNS_ns",)),
+           "WHS floor": ("floor", ("WHS_ns",)), "Timing fall": ("tolerance", TIMING),
+           "BRAM tile ceiling": ("ceiling", ("BRAM_TILE",))}
+POLICY = ("tolerance", "floor", "ceiling")
+RECORD = ("kind", "identity", "inputs_sha256", "figures", "scopes")
 SCRIPTS = {"route": "baseline_integrated.tcl", "ooc": "baseline_ooc.tcl"}
 ROOTS = {"route": "alinx_ax7101/milan_datapath/pp_shadow", "ooc": "KL_pp_shadow"}
 FLOW = re.compile(r"^(create_project|set_param|synth_design|opt_design|place_design"
@@ -55,6 +73,8 @@ FLOW = re.compile(r"^(create_project|set_param|synth_design|opt_design|place_des
 READS = re.compile(r"^(?:read_verilog(?: -v)?|read_xdc|source) \{?([^{}\s]+)\}?[ \t]*$", re.M)
 INCLUDES = re.compile(r" -include_dirs \{([^}]*)\}")
 GENERICS = re.compile(r" -generic \{([^}]*)\}")
+#: One route status row, `# of <label>....... :  <count> :`.
+STATUS_ROW = re.compile(r"^[ \t]*#[ \t]*(?:of[ \t]+)?(\S.*?)\.*[ \t]*:[ \t]*(\S+)[ \t]*:[ \t]*$", re.M)
 
 
 class Refusal(Exception):
@@ -102,9 +122,15 @@ def timing(text: str) -> dict[str, float]:
     if len(names) != len(values) or len(names) < 5 or names[0] != "WNS(ns)" or names[4] != "WHS(ns)":
         raise Refusal("Design Timing Summary columns changed")
     try:
-        return {"WNS_ns": float(values[0]), "WHS_ns": float(values[4])}
+        slack = {"WNS_ns": float(values[0]), "WHS_ns": float(values[4])}
     except ValueError as error:
         raise Refusal(f"unreadable slack: {error}") from error
+    paths = [value for name, value in zip(names, values) if name in ("TNS Total Endpoints", "THS Total Endpoints")]
+    if not paths or not all(value.isdigit() and int(value) > 0 for value in paths):
+        raise Refusal(f"Design Timing Summary times no endpoint: total endpoints {paths}")
+    if not all(math.isfinite(value) for value in slack.values()):
+        raise Refusal(f"non-finite slack {slack}: no constrained path was timed")
+    return slack
 
 
 def located(directory: Path, script: str) -> tuple[list[Path], tuple[str, ...]]:
@@ -143,6 +169,9 @@ def inputs(directory: Path, script: str) -> str:
     for generic in GENERICS.findall(script):
         digest.update(re.sub(r'"[^"]*/([^/"]+)"', r'"\1"', generic).encode() + b"\0")
     images = json.loads((directory / "baseline_images.json").read_text())
+    if not isinstance(images, list) or not all(isinstance(image, dict) and isinstance(image.get("path"), str)
+                                               and isinstance(image.get("sha256"), str) for image in images):
+        raise Refusal("baseline_images.json is not a list of path and sha256 entries")
     for image in sorted(images, key=lambda row: Path(row["path"]).name):
         digest.update(f"{Path(image['path']).name}\0{image['sha256']}\0".encode())
     return digest.hexdigest()
@@ -216,12 +245,44 @@ def record(directory: Path, kind: str) -> dict:
         return {"kind": kind, "identity": identity(directory, script, report),
                 "inputs_sha256": inputs(directory, script), "figures": figures,
                 "scopes": scopes(directory, kind, carry)}
-    except (OSError, ValueError, KeyError) as error:
-        raise Refusal(f"unreadable measurement {directory}: {error}") from error
+    except (OSError, ValueError, KeyError, IndexError, TypeError) as error:
+        raise Refusal(f"unreadable measurement {directory}: {type(error).__name__}: {error}") from error
 
 
-def judge(entry: dict, candidate: dict) -> tuple[int, list[str]]:
-    """Compare one record with its baseline entry; return the exit status and report."""
+def routing(directory: Path, kind: str) -> list[str]:
+    """Name what keeps a route from completing, read from the run's one route status report."""
+    if kind != "route":
+        return []
+    reports = sorted(directory.glob("*_route_status.rpt"))
+    if len(reports) != 1:
+        raise Refusal(f"expected one *_route_status.rpt route status report, found {len(reports)}")
+    try:
+        rows = STATUS_ROW.findall(reports[0].read_text())
+    except (OSError, ValueError) as error:
+        raise Refusal(f"unreadable route status {reports[0].name}: {error}") from error
+    counts: dict[str, list[int]] = {}
+    for label, value in rows:
+        if not value.isdigit():
+            raise Refusal(f"route status row {label!r} is not a count: {value!r}")
+        counts.setdefault(label, []).append(int(value))
+    if len(counts.get("nets with routing errors", [])) != 1:
+        raise Refusal(f"{reports[0].name} has no single 'nets with routing errors' row")
+    routable, routed = counts.get("routable nets", []), counts.get("fully routed nets", [])
+    if len(routable) != len(routed):
+        raise Refusal(f"{reports[0].name} counts routable nets and fully routed nets unequally often")
+    problems = [f"{sum(values)} {label}" for label, values in counts.items()
+                if sum(values) and ("routing errors" in label or "unrouted" in label)]
+    if sum(routed) != sum(routable):
+        problems.append(f"{sum(routed)} of {sum(routable)} routable nets fully routed")
+    return problems
+
+
+def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None) -> tuple[int, list[str]]:
+    """Compare one record with its baseline entry; return the exit status and report.
+
+    ``unrouted`` is what routing() found incomplete in the candidate's route,
+    or None for a bare record whose route status was never read.
+    """
     base = entry["record"]
     if candidate["kind"] != base["kind"]:
         return 2, [f"NOT COMPARABLE: endpoint kind {candidate['kind']} against {base['kind']}"]
@@ -234,15 +295,27 @@ def judge(entry: dict, candidate: dict) -> tuple[int, list[str]]:
         return 2, ["NOT COMPARABLE: identical inputs measured differently (non-determinism or "
                    "an unrecorded tool setting), which is not an architectural change"]
     status, lines = 0, [f"{'figure':<10}{'baseline':>12}{'candidate':>12}{'delta':>10}  verdict"]
+    improved = []
     for figure in GATED[base["kind"]]:
         before, after = base["figures"][figure], candidate["figures"][figure]
         verdict, ok = verdict_for(entry, figure, before, after)
         status = status if ok else 1
         lines.append(f"{figure:<10}{before:>12}{after:>12}{round(after - before, 3):>10}  {verdict}")
+        gain = after - before if figure in TIMING else before - after
+        if gain > entry["tolerance"][figure]:
+            improved.append(figure)
     for figure, ceiling in entry.get("ceiling", {}).items():
         if candidate["figures"][figure] > ceiling:
             status = 1
             lines.append(f"{figure:<10} REGRESSION: {candidate['figures'][figure]} exceeds the ceiling {ceiling}")
+    if unrouted:
+        status = 1
+        lines.append(f"ROUTE INCOMPLETE: {', '.join(unrouted)}; the image does not fit")
+    elif unrouted is not None and candidate["kind"] == "route":
+        lines.append("route status: complete, no unrouted net and no routing error")
+    if improved:
+        lines.append(f"re-baseline recommended: {', '.join(improved)} improved by more than the tolerance; "
+                     "record the accepted measurement so later growth is judged from it")
     lines += scope_deltas(base["scopes"], candidate["scopes"])
     lines.append("RESULT: " + ("PASS" if status == 0 else "MATERIAL REGRESSION"))
     return status, lines
@@ -276,11 +349,28 @@ def scope_deltas(before: dict, after: dict) -> list[str]:
     return ["sub-block movements, not gated:", *(line for _, line in moves[:12])] if moves else []
 
 
-def check_baseline(baseline: dict) -> list[str]:
-    """Refuse a baseline whose policy is incomplete or whose record fails its own limits."""
-    problems = []
-    for name, entry in baseline["endpoints"].items():
+def load(path: Path) -> dict:
+    """Read a baseline file, refusing one that is missing, not JSON or without an endpoint table."""
+    try:
+        baseline = json.loads(path.read_text())
+    except (OSError, ValueError) as error:
+        raise Refusal(f"baseline {path} is unreadable: {error}") from error
+    if not isinstance(baseline, dict) or not isinstance(baseline.get("endpoints"), dict):
+        raise Refusal(f"baseline {path} holds no endpoints table")
+    return baseline
+
+
+def entry_problems(name: str, entry: object) -> list[str]:
+    """List what keeps one baseline endpoint from being a complete policy its own record meets."""
+    base = entry.get("record") if isinstance(entry, dict) else None
+    if not isinstance(base, dict):
+        return [f"{name}: has no record"]
+    if (base.get("kind") not in GATED or any(key not in base for key in RECORD)
+            or not isinstance(base["figures"], dict) or any(key not in base["figures"] for key in GATED[base["kind"]])):
+        return [f"{name}: the record lacks a kind, identity, input digest, gated figure or scope table"]
+    try:
         kind, figures = entry["record"]["kind"], entry["record"]["figures"]
+        problems = []
         for figure in GATED[kind]:
             if not entry.get("tolerance", {}).get(figure, -1) >= 0:
                 problems.append(f"{name}: {figure} has no non-negative tolerance")
@@ -288,9 +378,63 @@ def check_baseline(baseline: dict) -> list[str]:
                 problems.append(f"{name}: {figure} has no floor")
             elif figure in TIMING and figures[figure] < entry["floor"][figure]:
                 problems.append(f"{name}: the recorded {figure} is below its floor")
+        for figure in CEILINGS[kind]:
+            if figure not in entry.get("ceiling", {}):
+                problems.append(f"{name}: {figure} has no ceiling")
         for figure, ceiling in entry.get("ceiling", {}).items():
-            if figures[figure] > ceiling:
+            if figure not in figures:
+                problems.append(f"{name}: the ceiling names {figure}, which is not a recorded figure")
+            elif figures[figure] > ceiling:
                 problems.append(f"{name}: the recorded {figure} exceeds its ceiling")
+    except (KeyError, TypeError, AttributeError) as error:
+        return [f"{name}: malformed policy ({type(error).__name__}: {error})"]
+    return problems
+
+
+def policy_table(text: str) -> dict[str, dict[str, dict[str, float]]]:
+    """Read the policy each endpoint row of the budget's one resource-gate table sets."""
+    head = "| Endpoint | " + " | ".join(COLUMNS) + " |"
+    lines = text.splitlines()
+    starts = [index for index, line in enumerate(lines) if line.strip() == head]
+    if len(starts) != 1:
+        raise Refusal(f"the budget holds {len(starts)} resource-gate policy tables, not one")
+    table: dict[str, dict[str, dict[str, float]]] = {}
+    for line in lines[starts[0] + 2:]:
+        if not line.startswith("|"):
+            break
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        name = re.fullmatch(r"`([\w-]+)`", cells[0])
+        if len(cells) != len(COLUMNS) + 1 or name is None or name[1] in table:
+            raise Refusal(f"budget policy row is malformed or repeated: {line.strip()}")
+        table[name[1]] = {field: {} for field in POLICY}
+        for cell, (field, figures) in zip(cells[1:], COLUMNS.values()):
+            value = re.fullmatch(r"([+-]?\d+(?:\.\d+)?)(?: ns)?", cell)
+            if value is None and cell != "-":
+                raise Refusal(f"budget policy cell {cell!r} is neither a value nor '-'")
+            for figure in figures if value else ():
+                table[name[1]][field][figure] = float(value[1])
+    return table
+
+
+def check_baseline(baseline: dict, budget: Path) -> list[str]:
+    """Refuse a baseline whose policy is incomplete, fails its own record or departs from the budget table."""
+    endpoints = baseline["endpoints"]
+    problems = [problem for name, entry in endpoints.items() for problem in entry_problems(name, entry)]
+    try:
+        table = policy_table(budget.read_text())
+    except (OSError, ValueError, Refusal) as error:
+        return problems + [f"budget {budget.name}: {error}"]
+    for name in sorted(set(endpoints) | set(table)):
+        if name not in table or name not in endpoints:
+            problems.append(f"{name}: only the {'baseline' if name in endpoints else 'budget table'} names it")
+            continue
+        entry = endpoints[name] if isinstance(endpoints[name], dict) else {}
+        for field in POLICY:
+            held = entry.get(field, {}) if isinstance(entry.get(field, {}), dict) else {}
+            for figure in sorted(set(held) | set(table[name][field])):
+                if held.get(figure) != table[name][field].get(figure):
+                    problems.append(f"{name}: {field} {figure} is {held.get(figure)} in the baseline and "
+                                    f"{table[name][field].get(figure)} in the budget table")
     return problems
 
 
@@ -301,6 +445,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("directory", type=Path, nargs="?")
     parser.add_argument("--endpoint")
     parser.add_argument("--baseline", type=Path, default=BASELINE)
+    parser.add_argument("--budget", type=Path, default=BUDGET, help="check-baseline: the page with the policy table")
     parser.add_argument("--write", action="store_true", help="record: replace the endpoint's recorded figures")
     parser.add_argument("--selftest", action="store_true")
     args = parser.parse_args(argv)
@@ -308,17 +453,22 @@ def main(argv: list[str] | None = None) -> int:
         from pp_resource_gate_selftest import selftest
         return selftest()
     printing = args.command == "record" and not args.write
-    baseline = {"endpoints": {}} if printing else json.loads(args.baseline.read_text())
-    if args.command == "check-baseline":
-        problems = check_baseline(baseline)
-        print("\n".join(problems) or f"baseline PASS: {len(baseline['endpoints'])} endpoints")
-        return 2 if problems else 0
-    known = args.endpoint in baseline["endpoints"] or (args.command == "record" and args.endpoint)
-    if args.command is None or args.directory is None or not known:
-        parser.error(f"name a command, a directory and one of {sorted(baseline['endpoints'])}")
     try:
+        baseline = {"endpoints": {}} if printing else load(args.baseline)
+        if args.command == "check-baseline":
+            problems = check_baseline(baseline, args.budget)
+            print("\n".join(problems) or f"baseline PASS: {len(baseline['endpoints'])} endpoints")
+            return 2 if problems else 0
+        known = args.endpoint in baseline["endpoints"] or (args.command == "record" and args.endpoint)
+        if args.command is None or args.directory is None or not known:
+            parser.error(f"name a command, a directory and one of {sorted(baseline['endpoints'])}")
+        entry = baseline["endpoints"].get(args.endpoint, {})
+        problems = entry_problems(args.endpoint, entry) if args.command == "check" else []
+        if problems or not isinstance(entry, dict):
+            raise Refusal(f"baseline endpoint {args.endpoint} is unusable: {'; '.join(problems) or 'not an object'}")
         directory = args.directory.resolve()
         candidate = record(directory, kind_of(directory))
+        unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []
     except Refusal as error:
         print(f"NOT COMPARABLE: {error}")
         return 2
@@ -328,7 +478,7 @@ def main(argv: list[str] | None = None) -> int:
             baseline["endpoints"].setdefault(args.endpoint, {})["record"] = candidate
             args.baseline.write_text(json.dumps(baseline, indent=1) + "\n")
         return 0
-    status, lines = judge(baseline["endpoints"][args.endpoint], candidate)
+    status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted)
     print("\n".join([f"endpoint {args.endpoint}: {args.directory}", *lines]))
     return status
 

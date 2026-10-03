@@ -6,7 +6,9 @@ Each arm copies a synthetic recipe measurement directory, edits the report or
 input text a real regression would change, reads it back through the gate's
 own parser and judges it against a baseline recorded from the pristine copy.
 No arm hands the comparator a hand-built record, so a parser that stops seeing
-a row fails here exactly as it would on a real report.
+a row fails here exactly as it would on a real report. The command-line arms
+drive the exit-code contract through main(): every unreadable measurement and
+unusable baseline exits 2 with its reason, and only a regression exits 1.
 """
 
 import contextlib
@@ -24,10 +26,30 @@ FIGURES = {"LUT": 1000, "FF": 2000, "SLICE": 400, "BRAM_TILE": 4.5, "RAMB36": 4,
 POLICY = {"tolerance": {"LUT": 10, "FF": 10, "SLICE": 5, "RAMB36": 0, "RAMB18": 0, "DSP": 0,
                         "WNS_ns": 0.25, "WHS_ns": 0.25},
           "floor": {"WNS_ns": 0.0, "WHS_ns": 0.0}, "ceiling": {"BRAM_TILE": 5.0}}
+OOC_POLICY = {"tolerance": {"LUT": 10, "FF": 10, "RAMB36": 0, "RAMB18": 0, "DSP": 0}}
+#: The budget page's policy table for the two fixture endpoints, written by hand as the budget writes it.
+BUDGET = ("# Area budget\n\nThe gate holds each endpoint to this table.\n\n"
+          "| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | DSP | WNS floor | WHS floor | Timing fall"
+          " | BRAM tile ceiling |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n"
+          "| `route` | +10 | +10 | +5 | +0 | +0 | +0 | +0.000 ns | 0 ns | 0.25 ns | 5.0 |\n"
+          "| `ooc` | +10 | +10 | - | +0 | +0 | +0 | - | - | - | - |\n\nProse after the table.\n")
 LABELS = {"LUT": "Slice LUTs", "FF": "Slice Registers", "SLICE": "Slice", "BRAM_TILE": "Block RAM Tile",
           "RAMB36": "RAMB36/FIFO*", "RAMB18": "RAMB18", "DSP": "DSPs"}
 #: The distribution table repeats the register row, as the vendor report does.
 REPEATED = "| Slice Registers                            | 2000 |     0 |\n"
+STATUS = "alinx_ax7101_route_status.rpt"
+#: A complete route, laid out as report_route_status writes it.
+COMPLETE = ("Design Route Status\n"
+            "                                               :      # nets :\n"
+            "   ------------------------------------------- : ----------- :\n"
+            "   # of logical nets.......................... :         120 :\n"
+            "       # of nets not needing routing.......... :          20 :\n"
+            "           # of internally routed nets........ :          18 :\n"
+            "           # of nets with no loads............ :           2 :\n"
+            "       # of routable nets..................... :         100 :\n"
+            "           # of fully routed nets............. :         100 :\n"
+            "       # of nets with routing errors.......... :           0 :\n"
+            "   ------------------------------------------- : ----------- :\n")
 
 
 def report_header(design: str, state: str) -> str:
@@ -38,7 +60,7 @@ def report_header(design: str, state: str) -> str:
 
 
 def write_reports(folder: Path, kind: str) -> None:
-    """Write utilization, timing, hierarchy and cell census as Vivado lays them out."""
+    """Write utilization, timing, hierarchy, cell census and route status as Vivado lays them out."""
     design = "alinx_ax7101" if kind == "route" else "KL_pp_shadow"
     rows = "".join(f"| {LABELS[name]:<20} | {value} | 0 | 0 | 9 | 1.0 |\n" for name, value in FIGURES.items()
                    if kind == "route" or name != "SLICE")
@@ -57,6 +79,8 @@ def write_reports(folder: Path, kind: str) -> None:
     (folder / "baseline_cells.tsv").write_text(
         "cell\tprimitive\n" + "".join(f"{cells}/c{index}\tCARRY4\n" for index in range(3))
         + "top_carry\tCARRY4\ntop_lut\tLUT6\n")
+    if kind == "route":
+        (folder / STATUS).write_text(COMPLETE)
 
 
 def fixture(root: Path, kind: str) -> Path:
@@ -80,7 +104,9 @@ def fixture(root: Path, kind: str) -> Path:
         script += ("read_xdc alinx_ax7101.xdc\nsynth_design -directive AreaOptimized_high -top alinx_ax7101 "
                    f"-part xc7a100t-fgg484-2 -include_dirs {{{repo}/hdl/common}}\n"
                    f"source {{{repo}/sw/constraints.tcl}}\nopt_design -directive ExploreArea\n"
-                   "place_design -directive ExtraPostPlacementOpt\nroute_design -directive AggressiveExplore\n")
+                   "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}\n"
+                   "place_design -directive ExtraPostPlacementOpt\nphys_opt_design -directive Explore\n"
+                   "route_design -directive AggressiveExplore\n")
     else:
         (folder / "clock.xdc").write_text("create_clock -period 20.000 -name clk [get_ports clk_i]\n")
         script += ("read_xdc clock.xdc\nsynth_design -directive AreaOptimized_high -top KL_pp_shadow "
@@ -99,6 +125,11 @@ def row(name: str, before: object, after: object) -> tuple[str, str, str]:
 
 SOURCE = ("{repo}/hdl/milan/KL_pp_shadow.sv", "endmodule", "wire w; endmodule")
 TIMING = "baseline_timing.rpt"
+VALUES = "      0.500        0.000                      0                   10        0.100        0.000\n"
+FLOW = "baseline_integrated.tcl"
+ERRORS = (STATUS, "errors.......... :           0", "errors.......... :           3")
+MANIFEST = ("baseline_images.json", None, '["a"]')
+#: (label, plants, exit status, text the report must hold or (must hold, must not hold), policy edits)
 ROUTE_ARMS = (
     ("unchanged control", (), 0, "RESULT: PASS"),
     ("changed source, unchanged figures", (SOURCE,), 0, "RESULT: PASS"),
@@ -113,17 +144,58 @@ ROUTE_ARMS = (
     ("one more RAMB18", (SOURCE, row("RAMB18", 1, 2)), 1, "RAMB18"),
     ("one more DSP", (SOURCE, row("DSP", 2, 3)), 1, "DSP"),
     ("BRAM tiles over the ceiling", (SOURCE, row("BRAM_TILE", 4.5, 5.5)), 1, "ceiling"),
+    ("BRAM tiles at the ceiling", (SOURCE, row("BRAM_TILE", 4.5, 5)), 0, "RESULT: PASS"),
     ("WNS below the floor", (SOURCE, (TIMING, "  0.500  ", " -0.010  ")), 1, "below the floor"),
+    ("WNS at the floor", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, "RESULT: PASS",
+     {"floor": {"WNS_ns": 0.3}}),
     ("WNS fell more than the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.200  ")), 1, "fell by"),
-    ("WNS fell within the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, "RESULT: PASS"),
+    ("WNS fell by exactly the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.250  ")), 0, "RESULT: PASS"),
+    ("WNS fell within the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0,
+     ("RESULT: PASS", "re-baseline")),
     ("WHS below the floor", (SOURCE, (TIMING, "0.100", "-0.001")), 1, "WHS_ns"),
-    ("LUT improvement", (SOURCE, row("LUT", 1000, 950)), 0, "below the baseline"),
+    ("WHS at the floor", (SOURCE, (TIMING, "0.100", "0.000")), 0, "RESULT: PASS"),
+    ("WNS not a number", (SOURCE, (TIMING, "  0.500  ", "  nan  ")), 2, "non-finite slack"),
+    ("WNS and WHS infinite", (SOURCE, (TIMING, "  0.500  ", "  inf  "), (TIMING, "0.100", "inf")),
+     2, "non-finite slack"),
+    ("no timed endpoint", (SOURCE, (TIMING, " 10 ", "  0 ")), 2, "times no endpoint"),
+    ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0,
+     ("below the baseline", "re-baseline")),
+    ("LUT improvement beyond the tolerance", (SOURCE, row("LUT", 1000, 950)), 0, "re-baseline recommended: LUT"),
+    ("WNS rise beyond the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.800  ")), 0,
+     "re-baseline recommended: WNS_ns"),
+    ("route status complete", (SOURCE,), 0, "route status: complete"),
+    ("nets with routing errors", (SOURCE, ERRORS), 1, "ROUTE INCOMPLETE: 3 nets with routing errors"),
+    ("unrouted nets", (SOURCE, (STATUS, "       # of nets with routing errors",
+                                "           # of unrouted nets.............. :          37 :\n"
+                                "       # of nets with routing errors")), 1, "37 unrouted nets"),
+    ("routable nets not fully routed", (SOURCE, (STATUS, "routed nets............. :         100",
+                                                 "routed nets............. :          99")),
+     1, "99 of 100 routable nets fully routed"),
+    ("route status report missing", (SOURCE, (STATUS, None, None)), 2, "route status report, found 0"),
+    ("second route status report", (SOURCE, ("other_route_status.rpt", None, COMPLETE)), 2, "found 2"),
+    ("route status without its error row", (SOURCE, (STATUS, "       # of nets with routing errors.......... :"
+                                                     "           0 :\n", "")), 2, "'nets with routing errors' row"),
+    ("route status count unreadable", (SOURCE, (STATUS, ":         120 :", ":        lots :")), 2, "not a count"),
+    ("route status without its routable row", (SOURCE, (STATUS, "       # of routable nets..................... :"
+                                                        "         100 :\n", "")), 2, "unequally often"),
     ("tool build changed", (("baseline_utilization.rpt", "Build 6511674", "Build 6511675"),), 2, "tool"),
     ("device changed", (("baseline_utilization.rpt", "xc7a100tfgg484-2", "xc7a200tfbg484-2"),), 2, "device"),
-    ("placement directive changed", (("baseline_integrated.tcl", "ExtraPostPlacementOpt", "ExtraTimingOpt"),),
-     2, "flow"),
-    ("thread count changed", (("baseline_integrated.tcl", "maxThreads 32", "maxThreads 16"),), 2, "flow"),
+    ("design changed", (("baseline_utilization.rpt", "| Design       : alinx_ax7101", "| Design       : other"),),
+     2, "change in design"),
+    ("design state changed", (("baseline_utilization.rpt", "Physopt postRoute", "Routed"),), 2, "change in state"),
+    ("project creation changed", ((FLOW, "-name alinx_ax7101", "-name other"),), 2, "change in flow"),
+    ("thread count changed", ((FLOW, "maxThreads 32", "maxThreads 16"),), 2, "change in flow"),
+    ("synthesis directive changed", ((FLOW, "AreaOptimized_high", "Default"),), 2, "change in flow"),
+    ("optimization directive changed", ((FLOW, "opt_design -directive ExploreArea", "opt_design -directive Default"),),
+     2, "change in flow"),
+    ("timing grade changed", ((FLOW, "{85}", "{100}"),), 2, "change in flow"),
+    ("placement directive changed", ((FLOW, "ExtraPostPlacementOpt", "ExtraTimingOpt"),), 2, "change in flow"),
+    ("physical optimization directive changed",
+     ((FLOW, "phys_opt_design -directive Explore\n", "phys_opt_design -directive AggressiveFanoutOpt\n"),),
+     2, "change in flow"),
+    ("routing directive changed", ((FLOW, "AggressiveExplore", "NoTimingRelaxation"),), 2, "change in flow"),
     ("identical inputs, different figures", (row("LUT", 1000, 1001),), 2, "identical inputs"),
+    ("identical inputs, different WNS", ((TIMING, "  0.500  ", "  0.400  "),), 2, "identical inputs"),
     ("export date only", (row("LUT", 1000, 1001), ("alinx_ax7101.v", "morning", "evening")), 2, "identical inputs"),
     ("generated logic changed", (row("LUT", 1000, 1011), ("alinx_ax7101.v", "endmodule", "wire g; endmodule")),
      1, "LUT"),
@@ -131,25 +203,100 @@ ROUTE_ARMS = (
     ("sourced constraint changed",
      (row("LUT", 1000, 1011), ("{repo}/sw/constraints.tcl", "proc kl", "proc kx")), 1, "LUT"),
     ("memory image changed", (row("LUT", 1000, 1011), ("baseline_images.json", '"ab"', '"cd"')), 1, "LUT"),
+    ("image manifest of the wrong shape", (MANIFEST,), 2, "not a list of path and sha256"),
     ("duplicate conflicting row", (("baseline_utilization.rpt", "| DSPs", "| DSPs | 9 |\n| DSPs"),), 2, "DSPs"),
+    ("duplicate conflicting header", (("baseline_utilization.rpt", "| Device       : xc7a100tfgg484-2\n",
+                                       "| Device       : xc7a100tfgg484-2\n| Device       : xc7a200tfbg484-2\n"),),
+     2, "'Device' appears 2 times"),
     ("malformed count", (row("SLICE", 400, "x"),), 2, "not a count"),
+    ("fractional count", (row("SLICE", 400, "400.25"),), 2, "not a count"),
     ("missing Slice row", (("baseline_utilization.rpt", f"| {'Slice':<20} | 400 | 0 | 0 | 9 | 1.0 |\n", ""),),
      2, "'Slice' has values []"),
     ("timing columns changed", ((TIMING, "WHS(ns)", "WXS(ns)"),), 2, "columns"),
+    ("second timing summary", ((TIMING, "| Design Timing Summary\n", "| Design Timing Summary\n" * 2),), 2,
+     "found 2"),
+    ("timing value row missing", ((TIMING, VALUES, ""),), 2, "has no WNS row"),
     ("missing timing report", ((TIMING, None, None),), 2, "baseline_timing.rpt"),
+    ("second generated top", ((FLOW, "read_xdc alinx_ax7101.xdc\n", "read_xdc alinx_ax7101.xdc\n"
+                               "read_verilog alinx_ax7101.v\n"),), 2, "exactly one generated top"),
+    ("read source missing", (("{repo}/sw/constraints.tcl", None, None),), 2, "read source is missing"),
+    ("include directory missing", ((FLOW, "/hdl/common}", "/hdl/absent}"),), 2, "include directory is missing"),
     ("cell census header changed", (("baseline_cells.tsv", "cell\tprimitive", "cell\tref"),), 2, "header changed"),
     ("second recipe script", (("baseline_ooc.tcl", None, "quit\n"),), 2, "recipe scripts"),
 )
 OOC_ARMS = (
-    ("standalone control", (), 0, "RESULT: PASS"),
+    ("standalone control", (), 0, ("RESULT: PASS", "route status")),
     ("standalone clock changed", (("clock.xdc", "20.000", "10.000"),), 2, "standalone_clock_ns"),
     ("generic changed", (row("LUT", 1000, 1011), ("baseline_ooc.tcl", "N_STREAM_IN_P=2", "N_STREAM_IN_P=9")),
      1, "LUT"),
     ("image path moved, same image", (row("LUT", 1000, 1001), ("baseline_ooc.tcl", "/ucode.hex", "/x/ucode.hex")),
      2, "identical inputs"),
+    ("standalone RAMB36", (SOURCE, row("RAMB36", 4, 5)), 1, "RAMB36"),
     ("standalone RAMB18", (SOURCE, row("RAMB18", 1, 2)), 1, "RAMB18"),
+    ("standalone DSP", (SOURCE, row("DSP", 2, 3)), 1, "DSP"),
     ("standalone FF", (SOURCE, row("FF", 2000, 2011),
                        ("baseline_utilization.rpt", REPEATED, REPEATED.replace("2000", "2011"))), 1, "FF"),
+)
+
+
+#: The policy table rows of BUDGET: its head, separator, route row and standalone row.
+TABLE = BUDGET.split("\n")[4:8]
+#: Commands through main(): (label, measurement kind, plants, baseline file, exit status, text the output holds).
+#: The baseline file is the recorded one (None), raw text, an edit of its endpoints, or an absent path.
+CHECK_ARMS = (
+    ("check within tolerance", "route", (SOURCE,), None, 0, "RESULT: PASS"),
+    ("check reads the kind from a standalone directory", "ooc", (), None, 0, "RESULT: PASS"),
+    ("check of a regression", "route", (row("LUT", 1000, 1011), ("baseline_images.json", '"ab"', '"cd"')), None,
+     1, "MATERIAL REGRESSION"),
+    ("check of an unrouted route", "route", (SOURCE, ERRORS), None, 1, "ROUTE INCOMPLETE"),
+    ("check of an unreadable measurement", "route", ((TIMING, None, None),), None,
+     2, "NOT COMPARABLE: unreadable measurement"),
+    ("check of a route without its status", "route", ((STATUS, None, None),), None,
+     2, "NOT COMPARABLE: expected one"),
+    ("check of a wrong-shape image manifest", "route", (MANIFEST,), None, 2, "not a list of path and sha256"),
+    ("check against a baseline that is not JSON", "route", (SOURCE,), "{not json", 2, "is unreadable"),
+    ("check against a missing baseline", "route", (SOURCE,), Path("absent.json"), 2, "is unreadable"),
+    ("check against a baseline without endpoints", "route", (SOURCE,), "[]", 2, "holds no endpoints table"),
+    ("check of an endpoint without a record", "route", (SOURCE,), lambda ends: ends["route"].pop("record"),
+     2, "route: has no record"),
+    ("check of a gated figure without a tolerance", "route", (SOURCE,),
+     lambda ends: ends["route"]["tolerance"].pop("LUT"), 2, "LUT has no non-negative tolerance"),
+    ("check of a ceiling naming no figure", "route", (SOURCE,),
+     lambda ends: ends["route"]["ceiling"].update({"BRAM_TILES": 5.0}), 2, "not a recorded figure"),
+)
+#: check-baseline through main(): (label, edit of the recorded endpoints or None, budget page: BUDGET (None),
+#: a rewrite of it, or an absent path, exit status, text the output holds).
+AUDIT_ARMS = (
+    ("a consistent baseline", None, None, 0, "baseline PASS: 2 endpoints"),
+    ("a missing record", lambda ends: ends["route"].pop("record"), None, 2, "route: has no record"),
+    ("an incomplete record", lambda ends: ends["route"]["record"].pop("scopes"), None, 2, "record lacks"),
+    ("a missing tolerance", lambda ends: ends["route"]["tolerance"].pop("LUT"), None,
+     2, "LUT has no non-negative tolerance"),
+    ("a negative tolerance", lambda ends: ends["route"]["tolerance"].update({"DSP": -1}), None,
+     2, "DSP has no non-negative tolerance"),
+    ("a missing floor", lambda ends: ends["route"]["floor"].pop("WNS_ns"), None, 2, "WNS_ns has no floor"),
+    ("a record below its floor", lambda ends: ends["route"]["floor"].update({"WHS_ns": 1.0}), None,
+     2, "WHS_ns is below its floor"),
+    ("a record over its ceiling", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILE": 1.0}), None,
+     2, "BRAM_TILE exceeds its ceiling"),
+    ("a missing route ceiling", lambda ends: ends["route"].pop("ceiling"), None, 2, "BRAM_TILE has no ceiling"),
+    ("a ceiling naming no figure", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILES": 5.0}), None,
+     2, "not a recorded figure"),
+    ("a malformed policy", lambda ends: ends["route"].update({"tolerance": [10]}), None,
+     2, "route: malformed policy"),
+    ("a tolerance the budget does not hold", lambda ends: ends["route"]["tolerance"].update({"LUT": 10 ** 9}), None,
+     2, "tolerance LUT is 1000000000 in the baseline and 10.0 in the budget table"),
+    ("a budget value the baseline does not hold", None, lambda page: page.replace("+5 |", "+6 |"),
+     2, "tolerance SLICE is 5 in the baseline and 6.0 in the budget table"),
+    ("an endpoint the budget lacks", None, lambda page: page.replace("| `ooc` |", "Not a row: `ooc` |"),
+     2, "ooc: only the baseline names it"),
+    ("a budget row the baseline lacks", lambda ends: ends.pop("ooc"), None, 2, "ooc: only the budget table names it"),
+    ("no budget table", None, lambda page: page.replace(TABLE[0], "Prose."), 2, "holds 0 resource-gate policy tables"),
+    ("two budget tables", None, lambda page: page + "\n" + "\n".join(TABLE), 2, "holds 2 resource-gate policy tables"),
+    ("a repeated budget row", None, lambda page: page.replace("| `ooc` |", TABLE[2] + "\n| `ooc` |"),
+     2, "malformed or repeated"),
+    ("a budget cell that is no value", None, lambda page: page.replace("| +5 |", "| five |"), 2, "neither a value"),
+    ("no budget page", None, Path("absent.md"), 2, "budget absent.md"),
 )
 
 
@@ -175,67 +322,116 @@ def plant(folder: Path, name: str, old: str | None, new: str | None) -> None:
     path.write_text(text.replace(old, new))
 
 
+def expect(where: str, status: int, lines: list[str], wanted: int, needle: str | tuple[str, str]) -> None:
+    """Require an exit status and a report holding one text and, when given, lacking another."""
+    held, absent = (needle, None) if isinstance(needle, str) else needle
+    report = "\n".join(lines)
+    if status != wanted or held not in report or (absent is not None and absent in report):
+        raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+                             + (f" and not {absent!r}" if absent else "") + "\n" + report)
+
+
 def run_arm(root: Path, kind: str, arm: tuple, entry: dict) -> None:
     """Plant one arm on a fresh copy and require its exact verdict and reason."""
-    label, plants, expected, needle = arm
+    label, plants, wanted, needle, *edits = arm
+    entry = copy.deepcopy(entry)
+    for field, values in (edits[0] if edits else {}).items():
+        entry[field].update(values)
     folder = fresh(root, kind)
     for name, old, new in plants:
         plant(folder, name.replace("{repo}", str(root / "arm/repo")), old, new)
     try:
-        status, lines = gate.judge(entry, gate.record(folder, gate.kind_of(folder)))
+        candidate = gate.record(folder, gate.kind_of(folder))
+        status, lines = gate.judge(entry, candidate, gate.routing(folder, candidate["kind"]))
     except gate.Refusal as error:
         status, lines = 2, [str(error)]
-    if status != expected or needle not in "\n".join(lines):
-        raise AssertionError(f"{kind} arm {label!r}: exit {status}, wanted {expected} naming {needle!r}\n"
-                             + "\n".join(lines))
+    except Exception as error:  # an exception the gate lets escape fails the arm by name
+        status, lines = -1, [f"escaped {type(error).__name__}: {error}"]
+    expect(f"{kind} arm {label!r}", status, lines, wanted, needle)
     print(f"resource gate {kind} arm: {label}: exit {status} PASS")
 
 
 def recorded(root: Path, kind: str) -> dict:
     """Build the fixture where arms are planted, record it, then keep it pristine."""
     folder = fixture(root / "arm", kind)
-    entry = copy.deepcopy(POLICY)
+    entry = copy.deepcopy(POLICY if kind == "route" else OOC_POLICY)
     entry["record"] = gate.record(folder, kind)
     (root / "arm").rename(root / "pristine")
     return entry
 
 
-def scope_and_baseline_arms(root: Path, entry: dict) -> int:
-    """Check sub-block CARRY4 attribution, baseline self-consistency and the command line."""
-    if entry["record"]["scopes"]["u_pp/u_srp"]["CARRY4"] != 3 or entry["record"]["figures"]["CARRY4"] != 4:
-        raise AssertionError(f"CARRY4 attribution wrong: {entry['record']}")
-    baseline = {"endpoints": {"route": entry}}
-    if gate.check_baseline(baseline):
-        raise AssertionError("a consistent baseline was refused")
-    broken = (("tolerance", "LUT", None, "LUT has no non-negative tolerance"),
-              ("tolerance", "DSP", -1, "DSP has no non-negative tolerance"),
-              ("floor", "WNS_ns", None, "WNS_ns has no floor"),
-              ("floor", "WHS_ns", 1.0, "WHS_ns is below its floor"),
-              ("ceiling", "BRAM_TILE", 1.0, "BRAM_TILE exceeds its ceiling"))
-    for field, figure, value, message in broken:
-        changed = copy.deepcopy(baseline)
-        if value is None:
-            del changed["endpoints"]["route"][field][figure]
-        else:
-            changed["endpoints"]["route"][field][figure] = value
-        if not any(message in problem for problem in gate.check_baseline(changed)):
-            raise AssertionError(f"baseline defect accepted: {message}")
-    path = root / "baseline.json"
+def relocated_arm(root: Path, entry: dict) -> None:
+    """The same export measured at another build root has the same inputs, so a moved figure is refused."""
+    moved = root / "moved"
+    shutil.copytree(root / "pristine", moved, symlinks=True)
+    for path in moved.rglob("*"):
+        if path.is_file():
+            path.write_text(path.read_text().replace(str(root / "arm"), str(moved)))
+    folder = moved / "gateware"
+    plant(folder, *row("LUT", 1000, 1001))
+    status, lines = gate.judge(entry, gate.record(folder, "route"), gate.routing(folder, "route"))
+    expect("route arm 'export built at another root'", status, lines, 2, "identical inputs")
+    print(f"resource gate route arm: export built at another root: exit {status} PASS")
+
+
+def cli(*argv: object) -> tuple[int, list[str]]:
+    """Run the gate's command line in process; an escaped exception is a traceback, never an exit status."""
+    out = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(out):
+            status = gate.main([str(arg) for arg in argv])
+    except Exception as error:  # the contract is an exit status with a reason, so this fails the arm
+        return -1, [*out.getvalue().splitlines(), f"escaped {type(error).__name__}: {error}"]
+    return status, out.getvalue().splitlines()
+
+
+def baseline_file(tmp: Path, entries: dict, data: object) -> Path:
+    """Write the baseline an arm's command reads: as recorded, edited or raw text; or name an absent file."""
+    if isinstance(data, Path):
+        return tmp / data
+    path = tmp / "baseline.json"
+    if isinstance(data, str):
+        path.write_text(data)
+        return path
+    baseline = copy.deepcopy({"endpoints": entries})
+    if data is not None:
+        data(baseline["endpoints"])
     path.write_text(json.dumps(baseline))
-    folder = str(fresh(root, "route"))
-    with contextlib.redirect_stdout(io.StringIO()):
-        statuses = [gate.main(["check", folder, "--endpoint", "route", "--baseline", str(path)]),
-                    gate.main(["check-baseline", "--baseline", str(path)]),
-                    gate.main(["record", folder, "--endpoint", "copy", "--baseline", str(path), "--write"])]
-        written = json.loads(path.read_text())["endpoints"]["copy"]["record"]
-        plant(Path(folder), *row("LUT", 1000, 1011))
-        plant(Path(folder), "baseline_images.json", '"ab"', '"cd"')
-        statuses.append(gate.main(["check", folder, "--endpoint", "route", "--baseline", str(path)]))
-        statuses.append(gate.main(["check-baseline", "--baseline", str(path)]))
-    if statuses != [0, 0, 0, 1, 2] or written != entry["record"]:
-        raise AssertionError(f"command line verdicts or recording wrong: {statuses}")
-    print(f"resource gate CARRY4, {len(broken)} baseline refusals and 5 command-line verdicts PASS")
-    return len(broken) + 6
+    return path
+
+
+def budget_file(tmp: Path, page: object) -> Path:
+    """Write the budget page an arm's check-baseline reads, or name an absent one."""
+    if isinstance(page, Path):
+        return tmp / page
+    path = tmp / "budget.md"
+    path.write_text(BUDGET if page is None else page(BUDGET))
+    return path
+
+
+def command_line_arms(tmp: Path, entries: dict) -> int:
+    """Drive the exit-code contract and check-baseline through main(); return the arm count."""
+    if entries["route"]["record"]["scopes"]["u_pp/u_srp"]["CARRY4"] != 3 \
+            or entries["route"]["record"]["figures"]["CARRY4"] != 4:
+        raise AssertionError(f"CARRY4 attribution wrong: {entries['route']['record']}")
+    for label, kind, plants, data, wanted, needle in CHECK_ARMS:
+        folder = fresh(tmp / kind, kind)
+        for name, old, new in plants:
+            plant(folder, name.replace("{repo}", str(tmp / kind / "arm/repo")), old, new)
+        status, lines = cli("check", folder, "--endpoint", kind, "--baseline", baseline_file(tmp, entries, data))
+        expect(f"command-line arm {label!r}", status, lines, wanted, needle)
+        print(f"resource gate command-line arm: {label}: exit {status} PASS")
+    for label, data, page, wanted, needle in AUDIT_ARMS:
+        status, lines = cli("check-baseline", "--baseline", baseline_file(tmp, entries, data),
+                            "--budget", budget_file(tmp, page))
+        expect(f"check-baseline arm {label!r}", status, lines, wanted, needle)
+        print(f"resource gate check-baseline arm: {label}: exit {status} PASS")
+    path = baseline_file(tmp, entries, None)
+    status, _ = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy", "--baseline", path, "--write")
+    if status != 0 or json.loads(path.read_text())["endpoints"]["copy"]["record"] != entries["route"]["record"]:
+        raise AssertionError(f"record --write exited {status} or wrote a different record")
+    print("resource gate CARRY4 attribution and record --write PASS")
+    return len(CHECK_ARMS) + len(AUDIT_ARMS) + 2
 
 
 def selftest() -> int:
@@ -249,8 +445,9 @@ def selftest() -> int:
             for arm in arms:
                 run_arm(root, kind, arm, entries[kind])
             count += len(arms)
-        count += scope_and_baseline_arms(Path(tmp) / "route", entries["route"])
-        status, lines = gate.judge(entries["route"], entries["ooc"]["record"])
+        relocated_arm(Path(tmp) / "route", entries["route"])
+        count += 1 + command_line_arms(Path(tmp), entries)
+        status, lines = gate.judge(entries["route"], entries["ooc"]["record"], [])
         if status != 2 or "endpoint kind" not in lines[0]:
             raise AssertionError("a standalone record was compared with an integrated baseline")
         count += 1
