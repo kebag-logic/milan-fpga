@@ -19,22 +19,28 @@ Only a measurement with the baseline's identity and different inputs is
 judged against the tolerances. A route is also judged on its route status
 report: an unrouted net or a routing error means the image does not fit.
 
-Exit status: 0 within tolerance; 1 a material regression, an incomplete route
-included, and nothing else; 2 not comparable, an unreadable measurement or an
-unusable baseline. main() holds one barrier around everything after argument
-parsing: any exception, expected or not, prints "NOT COMPARABLE: <reason>" and
-exits 2. So exit 1 comes only from judge(), no input reaches a traceback, and
-every line is printed as printable ASCII, other characters escaped as ascii()
-writes them. A gated figure that improved by more than its tolerance still
+Exit status of check, record and check-baseline: 0 within tolerance; 1 a
+material regression, an incomplete route included, and nothing else; 2 not
+comparable, an unreadable measurement or an unusable baseline. For check,
+record and check-baseline, main() holds one barrier around everything after
+argument parsing: any exception, expected or not, prints "NOT COMPARABLE:
+<reason>" and exits 2. So exit 1 comes only from judge(), no input reaches a
+traceback, and every line those commands print is printable ASCII, other
+characters escaped as ascii() writes them. --selftest and --fuzz are test
+drivers outside the barrier: a non-zero exit there means the test failed or
+could not start. A gated figure that improved by more than its tolerance still
 exits 0 and prints "re-baseline recommended". check and check-baseline both
 read the baseline through one validator first: strict JSON, then every field
 of the recorded shape. check-baseline then exits 2 when an endpoint's policy is
 incomplete, its own record breaks it, or it differs from the policy table of
-the budget page. Strict JSON here holds no repeated key, every key a name of
-NAME (a scope name may also hold a generate index's brackets), and no NaN or
-Infinity. Every number the gate reads, from JSON or a report, goes through one
-of two converters: whole() takes 1 to 15 ASCII digits, so every whole number is
-exact as a float, and real() refuses a decimal whose float is not finite.
+the budget page. Strict JSON here, in the baseline and the image manifest
+alike, holds no repeated key and no NaN or Infinity, and every key is a name of
+NAME, the keys of open objects such as notes and manifest entries included.
+The one exception is a sub-block scope name (SCOPES), which may also hold a
+generate index's brackets. Every number the gate reads, from JSON or a report,
+goes through one of two converters: whole() takes 1 to 15 ASCII digits, so
+every whole number is exact as a float, and real() refuses a decimal whose
+float is not finite.
 
     pp_resource_gate.py check <directory> --endpoint route-1x1
     pp_resource_gate.py record <directory> --endpoint route-1x1 [--write]
@@ -88,10 +94,12 @@ SCOPE = ("LUT", "FF", "RAMB36", "RAMB18", "DSP", "CARRY4")
 NOTES = {"file": ("schema", "description"), "endpoint": ("measured",)}
 #: A slack as the timing summary prints it: a decimal in ASCII digits, which real() then requires to be finite.
 SLACK = re.compile(r"-?[0-9]+\.[0-9]+")
-#: An endpoint, field or figure name the baseline may hold.
+#: Every key of the baseline and the image manifest: endpoint, field, figure and note names alike.
 NAME = re.compile(r"[A-Za-z0-9_.:/-]{1,128}")
 #: A sub-block scope name may also hold the brackets of a generate index, as Vivado names g_rx_pool[5].
 SCOPE_NAME = re.compile(r"[A-Za-z0-9_.:/\[\]-]{1,128}")
+#: The one object whose keys are scope names: a baseline record's scopes, None standing for any endpoint.
+SCOPES = ("endpoints", None, "record", "scopes")
 SCRIPTS = {"route": "baseline_integrated.tcl", "ooc": "baseline_ooc.tcl"}
 ROOTS = {"route": "alinx_ax7101/milan_datapath/pp_shadow", "ooc": "KL_pp_shadow"}
 FLOW = re.compile(r"^(create_project|set_param|synth_design|opt_design|place_design"
@@ -398,21 +406,45 @@ def constant(name: str) -> float:
 
 
 def named(pairs: list[tuple[str, object]]) -> dict:
-    """Build one JSON object, refusing a key that is no name or that the object already holds."""
+    """Build one JSON object, refusing a key that the object already holds; names() then holds every key's class."""
     table: dict = {}
     for key, value in pairs:
-        if not SCOPE_NAME.fullmatch(key):
-            raise ValueError(f"the key {shown(key)} is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ]")
         if key in table:
             raise ValueError(f"the key {shown(key)} appears twice in one object")
         table[key] = value
     return table
 
 
-def strict(text: str) -> object:
-    """Read strict JSON: named keys, none repeated, no NaN or Infinity, and every number through a converter."""
-    return json.loads(text, object_pairs_hook=named, parse_constant=constant, parse_float=decimal,
+def names(tree: object, scopes: tuple[str | None, ...]) -> None:
+    """Refuse by name the first key of a JSON tree outside its class, open objects included.
+
+    The keys of the object at the path scopes (None matches any key) are scope names, of SCOPE_NAME; every other
+    key is of NAME. An object's keys are checked before anything below it, so the path a refusal names holds only
+    names. The walk keeps its own stack, so a tree as deep as JSON reads cannot exhaust Python's.
+    """
+    stack: list[tuple[tuple, object]] = [((), tree)]
+    while stack:
+        path, value = stack.pop()
+        if isinstance(value, dict):
+            scope = len(path) == len(scopes) > 0 and all(want in (None, key) for want, key in zip(scopes, path))
+            for key in value:
+                if not (SCOPE_NAME if scope else NAME).fullmatch(key):
+                    raise ValueError(f"the key {shown(key)} is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -"
+                                     f"{' [ ]' if scope else ''}, in /{'/'.join(map(str, path))}")
+            stack += [((*path, key), item) for key, item in reversed(value.items())]
+        elif isinstance(value, list):
+            stack += [((*path, index), item) for index, item in reversed(list(enumerate(value)))]
+
+
+def strict(text: str, scopes: tuple[str | None, ...] = ()) -> object:
+    """Read strict JSON: no repeated key, no NaN or Infinity, every number through a converter and every key a name.
+
+    Only the keys of the object at the path scopes may be scope names; the image manifest names none.
+    """
+    tree = json.loads(text, object_pairs_hook=named, parse_constant=constant, parse_float=decimal,
                       parse_int=integer)
+    names(tree, scopes)
+    return tree
 
 
 def number(value: object) -> bool:
@@ -461,24 +493,20 @@ def shape_problems(name: str, entry: object) -> list[str]:
             problems.append(f"{name}: {field} is not a table of figures")
         elif not all(number(value) for value in entry.get(field, {}).values()):
             problems.append(f"{name}: a {field} value is not a finite number")
-        elif not all(NAME.fullmatch(figure) for figure in entry.get(field, {})):
-            problems.append(f"{name}: a {field} figure is not named by 1 to 128 of A-Z a-z 0-9 _ . : / -")
     return problems
 
 
 def load(path: Path, text: str | None = None) -> dict:
-    """Read a baseline file whole, or the text record --write would write to it: strict JSON, an endpoints table
-    and every endpoint of the recorded shape."""
+    """Read a baseline file whole, or the text record --write would write to it: strict JSON whose scope names are
+    a record's, an endpoints table and every endpoint of the recorded shape."""
     try:
-        baseline = strict(path.read_text() if text is None else text)
+        baseline = strict(path.read_text() if text is None else text, SCOPES)
     except (OSError, ValueError, RecursionError) as error:
         raise Refusal(f"baseline {path} is unreadable: {error}") from error
     if not isinstance(baseline, dict) or not isinstance(baseline.get("endpoints"), dict):
         raise Refusal(f"baseline {path} holds no endpoints table")
     unknown = sorted(set(baseline) - {"endpoints", *NOTES["file"]})
     problems = [f"the file holds unknown fields {', '.join(unknown)}"] if unknown else []
-    problems += [f"the endpoint name {name} is not 1 to 128 of A-Z a-z 0-9 _ . : / -"
-                 for name in baseline["endpoints"] if not NAME.fullmatch(name)]
     problems += [problem for name, entry in baseline["endpoints"].items() for problem in shape_problems(name, entry)]
     if problems:
         raise Refusal(f"baseline {path} is malformed: {'; '.join(problems)}")

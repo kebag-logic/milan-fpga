@@ -186,12 +186,10 @@ ROUTE_ARMS = (
     ("BRAM tiles over the ceiling", (SOURCE, row("BRAM_TILE", 4.5, 5.5)), 1, "ceiling"),
     ("BRAM tiles at the ceiling", (SOURCE, row("BRAM_TILE", 4.5, 5)), 0, "RESULT: PASS"),
     ("WNS below the floor", (SOURCE, (TIMING, "  0.500  ", " -0.010  ")), 1, "below the floor"),
-    ("WNS at the floor", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, "RESULT: PASS",
-     {"floor": {"WNS_ns": 0.3}}),
+    ("WNS at the floor", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, "RESULT: PASS", {"floor": {"WNS_ns": 0.3}}),
     ("WNS fell more than the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.200  ")), 1, "fell by"),
     ("WNS fell by exactly the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.250  ")), 0, "RESULT: PASS"),
-    ("WNS fell within the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0,
-     ("RESULT: PASS", "re-baseline")),
+    ("WNS fell within the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, ("RESULT: PASS", "re-baseline")),
     ("WHS below the floor", (SOURCE, (TIMING, "0.100", "-0.001")), 1, "WHS_ns"),
     ("WHS at the floor", (SOURCE, (TIMING, "0.100", "0.000")), 0, "RESULT: PASS"),
     ("WNS not a number", (SOURCE, (TIMING, "  0.500  ", "  nan  ")), 2, "not a finite decimal"),
@@ -212,8 +210,7 @@ ROUTE_ARMS = (
     ("timing summary without its endpoint columns", (SOURCE, (TIMING, "TNS Total Endpoints", "TNS Other Endpoints")),
      2, "total endpoints []"),
     ("WNS without a fraction", (SOURCE, (TIMING, "  0.500  ", "  1  ")), 2, "not a finite decimal"),
-    ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0,
-     ("below the baseline", "re-baseline")),
+    ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0, ("below the baseline", "re-baseline")),
     ("LUT improvement beyond the tolerance", (SOURCE, row("LUT", 1000, 950)), 0, "re-baseline recommended: LUT"),
     ("WNS rise beyond the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.800  ")), 0,
      "re-baseline recommended: WNS_ns"),
@@ -276,6 +273,9 @@ ROUTE_ARMS = (
     ("image manifest nested too deep", ((MANIFEST[0], None, "[" * 100000 + "]" * 100000),), 2, "RecursionError"),
     ("image manifest with a repeated key", ((MANIFEST[0], '"ab"', '"ab", "sha256": "cd"'),), 2,
      "the key 'sha256' appears twice in one object"),
+    ("image manifest with a bracketed key", ((MANIFEST[0], '"ab"', '"ab", "x[1]": 1'),), 2,
+     "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"),
+    ("image manifest with another named key", ((MANIFEST[0], '"ab"', '"ab", "bytes": 1'),), 0, "RESULT: PASS"),
     ("duplicate conflicting row", (("baseline_utilization.rpt", "| DSPs", "| DSPs | 9 |\n| DSPs"),), 2, "DSPs"),
     ("duplicate conflicting header", (("baseline_utilization.rpt", "| Device       : xc7a100tfgg484-2\n",
                                        "| Device       : xc7a100tfgg484-2\n| Device       : xc7a200tfbg484-2\n"),),
@@ -290,8 +290,7 @@ ROUTE_ARMS = (
     ("missing Slice row", (("baseline_utilization.rpt", f"| {'Slice':<20} | 400 | 0 | 0 | 9 | 1.0 |\n", ""),),
      2, "'Slice' has values []"),
     ("timing columns changed", ((TIMING, "WHS(ns)", "WXS(ns)"),), 2, "columns"),
-    ("second timing summary", ((TIMING, "| Design Timing Summary\n", "| Design Timing Summary\n" * 2),), 2,
-     "found 2"),
+    ("second timing summary", ((TIMING, "| Design Timing Summary\n", "| Design Timing Summary\n" * 2),), 2, "found 2"),
     ("timing value row missing", ((TIMING, VALUES, ""),), 2, "has no WNS row"),
     ("missing timing report", ((TIMING, None, None),), 2, "baseline_timing.rpt"),
     ("second generated top", ((FLOW, "read_xdc alinx_ax7101.xdc\n", "read_xdc alinx_ax7101.xdc\n"
@@ -331,6 +330,10 @@ OOC_ARMS = (
 
 #: The policy table rows of BUDGET: its head, separator, route row and standalone row.
 TABLE = BUDGET.split("\n")[4:8]
+#: A scope's counts, for arms that add a sub-block.
+COUNTS = {name: 1 for name in gate.SCOPE}
+#: An edit adding a sub-block named with a generate index, as Vivado names one: the one key that may hold brackets.
+INDEXED = edit("route", "record", "scopes", "u_pp/g_rx[5].u_x", value=COUNTS)
 #: Commands through main(): (label, measurement kind, plants, baseline file, exit status, text the output holds).
 #: The baseline file is the recorded one (None), raw text, an edit of its endpoints, an (old, new) edit of the
 #: recorded file's text, or an absent path.
@@ -342,8 +345,7 @@ CHECK_ARMS = (
     ("check of an unrouted route", "route", (SOURCE, ERRORS), None, 1, "ROUTE INCOMPLETE"),
     ("check of an unreadable measurement", "route", ((TIMING, None, None),), None,
      2, "NOT COMPARABLE: unreadable measurement"),
-    ("check of a route without its status", "route", ((STATUS, None, None),), None,
-     2, "NOT COMPARABLE: expected one"),
+    ("check of a route without its status", "route", ((STATUS, None, None),), None, 2, "NOT COMPARABLE: expected one"),
     ("check of a route status count past the integer text limit", "route",
      (SOURCE, ERRORS[:2] + ("errors.......... :  " + "9" * 4401,)), None, 2, "(4401 characters)"),
     ("check of a WNS too long to be finite", "route", (SOURCE, (TIMING, "  0.500  ", f"  {LONG}.063  ")), None,
@@ -352,6 +354,7 @@ CHECK_ARMS = (
     ("check against a baseline that is not JSON", "route", (SOURCE,), "{not json", 2, "is unreadable"),
     ("check against a missing baseline", "route", (SOURCE,), Path("absent.json"), 2, "is unreadable"),
     ("check against a baseline without endpoints", "route", (SOURCE,), "[]", 2, "holds no endpoints table"),
+    ("check against a scope name with a generate index", "route", (SOURCE,), INDEXED, 0, "RESULT: PASS"),
     ("check of an endpoint the baseline does not hold", "route", (SOURCE,), edit("route"), 2,
      "holds no endpoint route, only ooc"),
     ("check of an endpoint without a record", "route", (SOURCE,), edit("route", "record"), 2, "route: has no record"),
@@ -364,9 +367,7 @@ CHECK_ARMS = (
 #: a rewrite of it, or an absent path, exit status, text the output holds).
 AUDIT_ARMS = (
     ("a consistent baseline", None, None, 0, "baseline PASS: 2 endpoints"),
-    ("a scope name with a generate index",
-     lambda ends: ends["route"]["record"]["scopes"].update({"u_pp/g_rx[5].u_x": {name: 1 for name in gate.SCOPE}}),
-     None, 0, "baseline PASS: 2 endpoints"),
+    ("a scope name with a generate index", INDEXED, None, 0, "baseline PASS: 2 endpoints"),
     ("a missing record", edit("route", "record"), None, 2, "route: has no record"),
     ("an incomplete record", edit("route", "record", "scopes"), None, 2, "the record lacks scopes"),
     ("a missing tolerance", edit("route", "tolerance", "LUT"), None, 2, "LUT has no non-negative tolerance"),
@@ -404,8 +405,6 @@ AUDIT_ARMS = (
      "budget budget.md: 'utf-8' codec can't decode"),
     ("no budget page", None, Path("absent.md"), 2, "budget absent.md"),
 )
-#: A scope's counts, for arms that add a sub-block.
-COUNTS = {name: 1 for name in gate.SCOPE}
 #: Baselines not of the recorded shape: (label, baseline file as in CHECK_ARMS, text the refusal holds). check and
 #: check-baseline both refuse each one with exit 2 before reading any field of it.
 MALFORMED = (
@@ -414,11 +413,9 @@ MALFORMED = (
      "the number Infinity is not finite"),
     ("a ceiling too large to be finite", ('"BRAM_TILE": 5.0}', '"BRAM_TILE": 5e999}'),
      "the JSON number is not finite: '5e999'"),
-    ("a timing figure recorded as a long whole number",
-     edit("route", "record", "figures", "WNS_ns", value=10 ** 400),
+    ("a timing figure recorded as a long whole number", edit("route", "record", "figures", "WNS_ns", value=10 ** 400),
      "the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000"),
-    ("a scope count past the bound",
-     edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=10 ** 15),
+    ("a scope count past the bound", edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=10 ** 15),
      "the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000000000'"),
     ("a whole number past the integer text limit", ('"BRAM_TILE": 5.0}', '"BRAM_TILE": 5.0, "X": ' + "9" * 4401 + "}"),
      "(4401 characters)"),
@@ -432,9 +429,13 @@ MALFORMED = (
     ("a key of 129 characters", lambda ends: ends["route"]["record"]["scopes"].update({"x" * 129: COUNTS}),
      "(129 characters) is not a name"),
     ("an endpoint name with a generate index", lambda ends: ends.update({"route[1]": ends["ooc"]}),
-     "the endpoint name route[1] is not 1 to 128"),
+     "the key 'route[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints"),
     ("a policy figure with a generate index", edit("route", "tolerance", "LUT[0]", value=1),
-     "route: a tolerance figure is not named by"),
+     "the key 'LUT[0]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/tolerance"),
+    ("a note of the file holding a bracketed key", ('{"endpoints": ', '{"description": [{"x[1]": 1}], "endpoints": '),
+     "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/0"),
+    ("a note holding a bracketed key under scopes", edit("route", "measured", value={"scopes": {"g_rx[5]": 1}}),
+     "the key 'g_rx[5]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measured/scopes"),
     ("an unknown field in the file", ('{"endpoints": ', '{"note": "x", "endpoints": '), "unknown fields note"),
     ("an unknown field in an endpoint", lambda ends: ends["route"].update({"ceilings": {}}), "unknown fields ceilings"),
     ("an unknown field in a record", edit("route", "record", "note", value="x"),
@@ -448,8 +449,7 @@ MALFORMED = (
     ("an identity field of another type", edit("route", "record", "identity", "tool", value=7),
      "not of its recorded type"),
     ("a flow that is not text", edit("route", "record", "identity", "flow", value=[1]), "not a list of text"),
-    ("a standalone clock that is not text",
-     edit("ooc", "record", "identity", "standalone_clock_ns", value=[5]),
+    ("a standalone clock that is not text", edit("ooc", "record", "identity", "standalone_clock_ns", value=[5]),
      "ooc: the record identity's flow or standalone clock is not a list of text"),
     ("an input digest that is no digest", edit("route", "record", "inputs_sha256", value="ab"),
      "not a sha256 hex digest"),
@@ -476,8 +476,7 @@ MALFORMED = (
      "sub-block count is not a non-negative whole number"),
     ("a negative scope count", edit("route", "record", "scopes", "u_pp/u_srp", "FF", value=-1),
      "sub-block count is not a non-negative whole number"),
-    ("a scope count that is a bool",
-     edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=True),
+    ("a scope count that is a bool", edit("route", "record", "scopes", "u_pp/u_srp", "LUT", value=True),
      "sub-block count is not a non-negative whole number"),
     ("a tolerance that is text", edit("route", "tolerance", "LUT", value="10"),
      "a tolerance value is not a finite number"),
@@ -658,7 +657,7 @@ def barrier_arms(tmp: Path, entries: dict) -> int:
     before = path.read_bytes()
     status, lines = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy[1]", "--baseline", path, "--write")
     expect("command-line arm 'record --write of an endpoint name the baseline refuses'", status, lines, 2,
-           "the endpoint name copy[1] is not 1 to 128")
+           "the key 'copy[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints")
     if path.read_bytes() != before:
         raise AssertionError("record --write wrote a baseline the gate refuses")
     print("resource gate command-line arm: record --write of an endpoint name the baseline refuses: exit 2 PASS")
@@ -704,6 +703,9 @@ ODD = ("\uff10", "\u0661", "\u00b2", "\U0001d7ce", "\ud800", "\udfff", "\x00", "
 OTHER_DIGITS = ("\uff10", "\uff15", "\u0661", "\u0966", "\u00b2", "\U0001d7ce")
 #: Keys outside every name class the baseline documents.
 BAD_NAMES = ("", "a b", "x" * 129, "\u00e9", "\ud800", "LUT\n", 'a"b', "\uff2c\uff35\uff34", "a|b", "{x}")
+#: Keys a case writes into an open object, a note or an image manifest entry. Only the first two are names there:
+#: brackets belong to a sub-block scope name alone.
+OPEN_KEYS = ("text", "run.2:a/b-c_d", "x[1]", "g_rx[5].u", "]", *BAD_NAMES)
 #: JSON number texts the converters refuse: past 15 digits, too large to be finite, or not JSON numbers at all.
 OVERFLOWS = (LONG, "-" + "9" * 16, "9" * 16, "1e400", "-1e400", LONG + ".5", "NaN", "Infinity", "9" * 4401)
 #: Values of every JSON type, for a case that puts one where its path does not take it.
@@ -714,7 +716,8 @@ GARBLES = {"count": ("n/a", "-", "1,000", "1e3", "0x10", "+5", "1.25", "1.5", "-
            "slack": ("n/a", "-", "1,000", "1e3", "0x10", "+5", "-1", "\uff11", "1.", ".5", "inf", "nan", "1")}
 #: The changes to each report's own layout that break it.
 STRUCTURAL = {"baseline_utilization.rpt": ("header twice", "header removed"), "baseline_timing.rpt": ("summary twice",),
-              "baseline_cells.tsv": ("census header",), "route status": ("row twice", "row removed", "second report")}
+              "baseline_cells.tsv": ("census header",), "route status": ("row twice", "row removed", "second report"),
+              "baseline_images.json": ("entry key",)}
 #: Byte sequences no UTF-8 text holds.
 UNDECODABLE = (b"\xff", b"\xc3(", b"\xed\xa0\x80", b"\x80", b"\xf8\x88\x80\x80\x80")
 #: The files of every measurement directory the gate reads and a generated case changes.
@@ -806,7 +809,7 @@ def mutate_json(rng: random.Random, base: dict) -> tuple[str, bytes, bool]:
     numbers = [path for path, value in every if path and type(value) in (int, float)]
     texts = [path for path, value in every if path and isinstance(value, str)]
     operator = rng.choice(("type", "value", "remove", "add", "bad name", "bracket name", "duplicate", "overflow",
-                           "digit", "truncate", "unicode", "size", "bytes"))
+                           "digit", "truncate", "unicode", "size", "bytes", "note"))
     raw, twice, broken = {}, None, True
     if operator in ("type", "value", "unicode"):
         path = rng.choice([path for path, _ in every if path and rule(path)] if operator == "type" else
@@ -859,6 +862,11 @@ def mutate_json(rng: random.Random, base: dict) -> tuple[str, bytes, bool]:
             record["scopes"].update({f"fuzz/s{index}": dict(COUNTS) for index in range(2000)})
     elif operator == "bytes":
         return (operator, *spliced(rng, dump(tree, {}).encode()))
+    elif operator == "note":
+        key, notes = rng.choice(OPEN_KEYS), [(name,) for name in gate.NOTES["file"]] + [
+            ("endpoints", end, name) for end in tree["endpoints"] for name in gate.NOTES["endpoint"]]
+        value, note, broken = {key: rng.choice(SAMPLES)}, rng.choice(notes), key not in OPEN_KEYS[:2]
+        at(tree, note[:-1])[note[-1]] = rng.choice((value, [value], {"scopes": value}))
     return operator, dump(tree, raw, twice).encode(), broken
 
 
@@ -948,15 +956,19 @@ def mutate_report(rng: random.Random, name: str, text: str, kind: str) -> tuple[
         text = "cell\tref\n" + "".join(lines[1:])
     elif operator == "second report":
         extra = {"fuzz_route_status.rpt": text.encode()}
+    elif operator == "entry key":
+        entries, key = json.loads(text), rng.choice(OPEN_KEYS)
+        rng.choice(entries)[key] = rng.choice(SAMPLES)
+        text, broken = json.dumps(entries), key not in OPEN_KEYS[:2]
     return operator, {name: text.encode("utf-8", "surrogatepass"), **extra}, broken
 
 
 def fixtures(work: Path) -> tuple[list[tuple[Path, str]], dict, str]:
     """The self-test's fuzz targets: the route and standalone fixtures, a baseline of both, and its budget page."""
-    base = {"schema": 1, "description": "fixture baseline", "endpoints": {}}
+    base = {"schema": 1, "description": {"text": "fixture baseline", "runs": [{"seconds": 12}]}, "endpoints": {}}
     for kind in ("route", "ooc"):
         (work / kind).mkdir()
-        base["endpoints"][kind] = dict(recorded(work / kind, kind), measured="fixture")
+        base["endpoints"][kind] = dict(recorded(work / kind, kind), measured={"run": "fixture"})
     return [(fresh(work / kind, kind), kind) for kind in ("route", "ooc")], base, BUDGET
 
 
