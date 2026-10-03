@@ -1,0 +1,13 @@
+--- <scratch>/head-tree/hdl/packet_engine/KL_pp_nvm_port.sv	2026-10-03 15:31:13.000000000 +0200
++++ <scratch>/elab/nobound/tree/hdl/packet_engine/KL_pp_nvm_port.sv	2026-10-03 17:38:58.511250659 +0200
+@@ -195,8 +195,8 @@
+   //! guard above: in an `initial` block Verilator builds and stops at time 0
+   localparam int unsigned MAXP_BOUND_C = (1 << $bits(dev_len_o)) - 1 - int'(HDR_LEN_C);
+   if (MAX_PAYLOAD_P > MAXP_BOUND_C) begin : g_maxp_check
+-    $fatal(1, "KL_pp_nvm_port: MAX_PAYLOAD_P=%0d is above %0d: %0d + it overflows dev_len_o",
+-           MAX_PAYLOAD_P, MAXP_BOUND_C, HDR_LEN_C);
++    $fatal(1, "KL_pp_nvm_port: MAX_PAYLOAD_P=%0d is above the bound: %0d + it overflows dev_len_o",
++           MAX_PAYLOAD_P, HDR_LEN_C);
+   end
+ 
+   // ---- state machine ------------------------------------------------------

@@ -1,0 +1,11 @@
+--- <scratch>/head-tree/hdl/packet_engine/KL_pp_nvm_port.sv	2026-10-03 15:31:13.000000000 +0200
++++ <scratch>/elab/gt-plus8/tree/hdl/packet_engine/KL_pp_nvm_port.sv	2026-10-03 17:38:58.486364353 +0200
+@@ -194,7 +194,7 @@
+   //! KL_pp_acmp_listener's `$fatal(1, ...)` precedent at module scope, like the
+   //! guard above: in an `initial` block Verilator builds and stops at time 0
+   localparam int unsigned MAXP_BOUND_C = (1 << $bits(dev_len_o)) - 1 - int'(HDR_LEN_C);
+-  if (MAX_PAYLOAD_P > MAXP_BOUND_C) begin : g_maxp_check
++  if (MAX_PAYLOAD_P > MAXP_BOUND_C + 8) begin : g_maxp_check
+     $fatal(1, "KL_pp_nvm_port: MAX_PAYLOAD_P=%0d is above %0d: %0d + it overflows dev_len_o",
+            MAX_PAYLOAD_P, MAXP_BOUND_C, HDR_LEN_C);
+   end
