@@ -135,10 +135,20 @@ from aem_descriptors import MAX_STREAM_FORMATS, OBJECT_NAMES, UINT32_MAX  # noqa
 #: CLOCK_SOURCE object_name by source type, and the `names.clock_sources`
 #: keys a config may declare (schema 1.2). This builder owns these literals:
 #: _overlay_clock_sources writes them into the overlay the image is built
-#: from. There is no `stream` entry: #389 retired the per-listener
-#: INPUT_STREAM source that carried "Stream Clock", so nothing is left to
-#: name (_load_names refuses the key by name).
-CLOCK_SOURCE_NAMES = {"internal": "Internal", "crf": "CRF Clock"}
+#: from. `stream` names the per-AAF-listener INPUT_STREAM source #629
+#: restored (#389 had retired it): one name for every listener, numbered
+#: " <k>" after it when the shape has more than one listener.
+CLOCK_SOURCE_NAMES = {"internal": "Internal", "crf": "CRF Clock",
+                      "stream": "Stream Clock"}
+#: The `clocking.media_clock_sources` word each `names.clock_sources` key
+#: names. Only `stream` differs: the config asks for `input_stream` sources.
+CLOCK_SOURCE_NAME_KEY_SOURCE = {"internal": "internal", "crf": "crf",
+                                "stream": "input_stream"}
+#: The CLOCK_SOURCE index order, by class (#629 decision D1 = L1): INTERNAL,
+#: then the CRF sink's source, then one source per AAF listener in
+#: STREAM_INPUT order. An absent class takes no index, so where INTERNAL and
+#: CRF are both declared CRF is index 1 and AAF listener k is index 2 + k.
+CLOCK_SOURCE_CLASS_ORDER = ("internal", "crf", "input_stream")
 
 #: An AEM string field (1722.1-2021 7.2): 64 octets of UTF-8, with no NUL
 #: when the text fills it. cstr() truncates on the encoded bytes, so a longer
@@ -2844,13 +2854,34 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
     a("  //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so")
     a("  //! the compare is structurally false rather than accidentally true")
     a("  //! (the 0 == 0 trap the milan_datapath banner records). Derived")
-    a("  //! from the config's media_clock_sources - internal first, then the")
-    a("  //! CRF sink's source; no per-listener source since #389 - never a")
-    a("  //! hand literal.")
+    a("  //! from the config's media_clock_sources in #629's class order -")
+    a("  //! INTERNAL, the CRF sink's source, then one source per AAF")
+    a("  //! listener - never a hand literal.")
     a(f"  localparam int unsigned AEM_N_CLKSRC_C = {n_cs};")
     a(f"  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd{crf_ix};"
       if crf_ix is not None else
       "  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
+    # #629: the per-index table the selection decode reads, from the same
+    # overlay rows and the same rule module (aem_descriptors) as the count
+    table = aem_store.clock_source_table(overlay["clock_sources"])
+    kind = aem_store.CLKSRC_KIND
+    a("  //! CLOCK_SOURCE kind codes, one per class (#629): what the decode")
+    a("  //! below compares AEM_CLKSRC_KIND_C against")
+    for nm, key in (("INTERNAL", "internal"), ("CRF", "crf"),
+                    ("AAF", "input_stream")):
+        a(f"  localparam logic [1:0] AEM_CLKSRC_{nm}_C = 2'd{kind[key]};")
+    a("  //! per CLOCK_SOURCE index: its kind, and the STREAM_INPUT it is")
+    a("  //! located on (16'hFFFF for INTERNAL). For an AAF source that")
+    a("  //! STREAM_INPUT is the followed listener's index; milan_datapath's")
+    a("  //! media_clk_resolve decodes the live selection through both.")
+    _sv_array(ln, "AEM_CLKSRC_KIND_C", "[1:0]", [k for k, _ in table],
+              render=lambda v: f"2'd{v}")
+    _sv_array(ln, "AEM_CLKSRC_SI_C", "[15:0]", [s for _, s in table],
+              render=lambda v: "16'hFFFF" if v is None else f"16'd{v}")
+    n_aaf = sum(1 for k, _ in table if k == kind["input_stream"])
+    a("  //! AAF Stream Inputs that carry a CLOCK_SOURCE: 0 elaborates no AAF")
+    a("  //! clock meter (the shape offers no AAF source to follow)")
+    a(f"  localparam int unsigned AEM_N_AAF_CLKSRC_C = {n_aaf};")
     return ln
 
 
@@ -3781,13 +3812,6 @@ def _load_names(cfg, clocking):
     cs = raw.get("clock_sources")
     if cs is None:
         return {"objects": objects, "clock_sources": {}}
-    if isinstance(cs, dict) and "stream" in cs:
-        raise ConfigError(
-            "names.clock_sources.stream: there is no stream-derived "
-            "CLOCK_SOURCE to name. #389 retired the per-listener INPUT_STREAM "
-            "source ('Stream Clock') because the fabric follows no "
-            "stream-derived media clock; the CRF sink's source is "
-            "names.clock_sources.crf")
     if not isinstance(cs, dict) or set(cs) - set(CLOCK_SOURCE_NAMES):
         raise ConfigError(
             f"names.clock_sources: must be a mapping with keys among "
@@ -3796,13 +3820,27 @@ def _load_names(cfg, clocking):
     for k in CLOCK_SOURCE_NAMES:
         if k not in cs:
             continue
-        if k not in clocking["media_clock_sources"]:
+        src = CLOCK_SOURCE_NAME_KEY_SOURCE[k]
+        if src not in clocking["media_clock_sources"]:
             raise ConfigError(
-                f"names.clock_sources.{k}: this config emits no {k} "
+                f"names.clock_sources.{k}: this config emits no {src} "
                 f"CLOCK_SOURCE (clocking.media_clock_sources "
                 f"{clocking['media_clock_sources']}), so the name would land "
                 f"nowhere")
         sources[k] = _aem_string(cs[k], f"names.clock_sources.{k}")
+    # A shape with several AAF listeners numbers each stream source's name
+    # (" <k>"), and the numbered name must still fit the 64-octet field: a
+    # name the overlay would have to cut is refused here, by its key.
+    if "stream" in sources:
+        n_l = len(_req(cfg, "streams", "config").get("listeners") or [])
+        if n_l > 1:
+            longest = f"{sources['stream']} {n_l - 1}"
+            if len(longest.encode("utf-8")) > AEM_STRING_BYTES:
+                raise ConfigError(
+                    f"names.clock_sources.stream: '{longest}' is the name "
+                    f"of AAF listener {n_l - 1}'s source and exceeds the "
+                    f"{AEM_STRING_BYTES}-octet object_name field (IEEE "
+                    "1722.1-2021 7.2.9)")
     return {"objects": objects, "clock_sources": sources}
 
 
@@ -3884,22 +3922,17 @@ def _load_clocking(cfg, path):
         raise ConfigError(
             "clocking.media_clock_sources: L6 requires at least one source "
             "(Milan v1.2 5.3.3.6)")
-    # #389: an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
-    # accepted and stored while nothing in the fabric followed it (the media
-    # plane resolves the stored index against the CRF source alone, and
-    # INTERNAL free-runs). A config may not claim a source the fabric cannot
-    # follow, so the key is REFUSED rather than accepted and dropped: a
-    # silently ignored key is the same shape of lie one layer up.
-    if "input_stream" in srcs:
-        raise ConfigError(
-            "media_clock_sources: 'input_stream' is not a source this "
-            "fabric can follow (#389: no stream-derived media-clock "
-            "recovery exists; only INTERNAL and the CRF sink drive the "
-            "media clock, Milan v1.2 7.2.2) - declare [internal, crf] or "
-            "[internal]")
-    bad = set(srcs) - {"internal", "crf"}
+    # #629 (owner decision 2026-10-01, reversing #389 option (a) for AAF
+    # Stream Inputs): `input_stream` asks for one INPUT_STREAM CLOCK_SOURCE
+    # per AAF listener, located on that listener's STREAM_INPUT, and the
+    # fabric follows it through the AAF clock meter
+    # (docs/design/MEDIA_CLOCK_FOLLOWING.md). Each source class takes its
+    # index by the builder's class order (D1), never by its position here.
+    bad = set(srcs) - set(CLOCK_SOURCE_CLASS_ORDER)
     if bad:
         raise ConfigError(f"media_clock_sources: unknown {sorted(bad)}")
+    if len(set(srcs)) != len(srcs):
+        raise ConfigError(f"media_clock_sources: {srcs} repeats a source")
     dflt = clk.get("default_source", srcs[0])
     if dflt not in srcs:
         raise ConfigError(f"default_source '{dflt}' not in media_clock_sources")
@@ -3955,14 +3988,14 @@ def _load_clocking(cfg, path):
             f"be divided out of a reference that does not exist")
     if clocking["crf_sink"] and "crf" not in srcs:
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
-    # #389, the converse, and the same rule as the retired key above: the CRF
-    # CLOCK_SOURCE's location IS the CRF sink's STREAM_INPUT, so without that
-    # sink there is no stream for it to name and _overlay_clock_sources emits
-    # no descriptor for it. Accepted-and-dropped is the shape of lie this
-    # issue exists to remove: the key still entered model_shape, so two
-    # configs whose descriptors are byte-identical carried different
-    # entity_model_ids, and 6.2.2.8 asks a CHANGED model for a new id, not an
-    # unchanged one for a second.
+    # #389, the converse: the CRF CLOCK_SOURCE's location IS the CRF sink's
+    # STREAM_INPUT, so without that sink there is no stream for it to name
+    # and _overlay_clock_sources emits no descriptor for it.
+    # Accepted-and-dropped is a lie one layer up: the key still entered
+    # model_shape, so two configs whose descriptors are byte-identical
+    # carried different entity_model_ids, and 6.2.2.8 asks a CHANGED model
+    # for a new id, not an unchanged one for a second. `input_stream` cannot
+    # meet the same case: _streams requires an AAF listener to locate it on.
     if "crf" in srcs and not clocking["crf_sink"]:
         raise ConfigError(
             "media_clock_sources offers 'crf' but clocking.crf_sink is "
@@ -5016,32 +5049,42 @@ def _overlay_streams(cfg):
 
 
 def _overlay_clock_sources(cfg):
-    """The CLOCK_SOURCE set, mirroring media_clock_sources (internal first,
-    then the CRF sink's INPUT_STREAM source - gen_aem_store order). No
-    source is emitted for an AAF listener: the fabric has no stream-derived
-    media-clock recovery, and a CLOCK_SOURCE a controller can select but
-    nothing follows is a false advertisement (#389; 1722.1-2021 7.2.9.2,
-    Milan v1.2 7.2.2). _load_clocking refuses the key that used to ask for
-    one, so this function cannot be reached with it, and it refuses 'crf'
-    without the sink too, so `n_crf` and `'crf' in media_clock_sources` are
-    the same question here and neither can drop an advertised source. Each
-    name is CLOCK_SOURCE_NAMES' unless `names.clock_sources` declares one."""
+    """The CLOCK_SOURCE set in the class order of #629 decision D1 = L1
+    (CLOCK_SOURCE_CLASS_ORDER): INTERNAL, then the CRF sink's INPUT_STREAM
+    source, then one INPUT_STREAM source per AAF listener located on that
+    listener's STREAM_INPUT (IEEE 1722.1-2021 7.2.9.2), in STREAM_INPUT
+    order. Milan v1.2 5.3.3.6 sets the CRF input's source as a minimum and
+    sets no count for an AAF input beside it; the fabric follows each AAF
+    source through the AAF clock meter (docs/design/MEDIA_CLOCK_FOLLOWING.md).
+    An absent class takes no index. _load_clocking refuses 'crf' without
+    the sink, and _streams requires at least one AAF listener, so no
+    declared source is dropped here. Each name is CLOCK_SOURCE_NAMES'
+    unless `names.clock_sources` declares one; a stream source's name is
+    numbered " <k>" when the shape has more than one listener, the pre-#389
+    naming."""
     L, clk = cfg["listeners"], cfg["clocking"]
-    n_crf = 1 if clk["crf_sink"] else 0
+    srcs = clk["media_clock_sources"]
     name = {**CLOCK_SOURCE_NAMES,
             **(cfg.get("names") or {}).get("clock_sources", {})}
     clock_sources = []
-    if "internal" in clk["media_clock_sources"]:
+    if "internal" in srcs:
         clock_sources.append(dict(index=len(clock_sources),
                                   name=name["internal"],
                                   type="internal",
                                   location_type="CLOCK_SOURCE",
                                   location_index=len(clock_sources)))
-    if n_crf:
+    if "crf" in srcs:
         clock_sources.append(dict(index=len(clock_sources), name=name["crf"],
                                   type="crf",
                                   location_type="STREAM_INPUT",
                                   location_index=len(L)))
+    if "input_stream" in srcs:
+        for k in range(len(L)):
+            nm = name["stream"] if len(L) == 1 else f"{name['stream']} {k}"
+            clock_sources.append(dict(index=len(clock_sources), name=nm,
+                                      type="input_stream",
+                                      location_type="STREAM_INPUT",
+                                      location_index=k))
     return clock_sources
 
 

@@ -120,6 +120,9 @@ Milan v1.2 5.3.3.6 requires its availability, not its selection.
 `default_source: crf` remains valid with both sources available.
 Input-only clock loading retains CRF-only support.
 Empty source lists raise a named L6 refusal.
+`input_stream` adds one INPUT_STREAM source per AAF listener (#629).
+The builder emits the classes in one order: INTERNAL, CRF, then listener k.
+So CRF is index 1 and listener k is index 2 + k where both lead.
 `[internal]` remains valid.
 Complete product configurations still require AAF listeners and talkers.
 
@@ -205,8 +208,8 @@ another OUI refuses the key, as does an OUI outside 24 bits or with the I/G
 bit of its first octet set. `entity.entity_capabilities` never chooses a
 value: a declaration that differs from
 `protocol-processor/hdl/adp/pp_adp_pkg.sv` is refused with that file and
-line. There is no `names.clock_sources.stream`: the per-listener Stream Clock
-source it would name was retired by #389, and the key is refused.
+line. `names.clock_sources.stream` names every per-listener Stream Clock
+source; with several listeners each name gains ` <k>`, and must still fit.
 
 Three descriptor fields are generator-owned and have no key: AVB_INTERFACE
 `interface_flags` (`0x0007`) and `port_number` (the gPTP engine's

@@ -3,9 +3,13 @@
 
 # Media-clock following: one selected AAF or CRF source
 
-Relates to #629. **A design proposal, not implemented.** It was written against
-dev `d4dd7426`. Every code citation is `path:line` at that commit, and every
-`protocol-processor/` path is at the then-pinned submodule commit `b2db3a97`.
+Relates to #629. **Implemented by lane M2** on branch `629-media-clock-impl`;
+[Implementation notes](#implementation-notes) lists where the implementation
+departs from a statement below. Its processor part **landed at `631eeb34`**
+([Protocol-processor changes](#protocol-processor-changes)). The design was
+written against dev `d4dd7426`. Every code citation is `path:line` at that
+commit, and every `protocol-processor/` path is at the then-pinned submodule
+commit `b2db3a97`.
 
 The end station is to follow either an AAF talker's media clock or a CRF
 talker's media clock, with exactly one source selected at a time through its
@@ -14,8 +18,8 @@ CLOCK_DOMAIN. The decision is recorded in #629's body (2026-10-01). It reverses
 
 This page records the clause reading behind the change, the current state, the
 design with its options, the change lists for this repository and for the
-protocol processor, and the test plan. No RTL, builder, model, configuration
-or processor change comes with it.
+protocol processor, and the test plan. The page itself carried no RTL,
+builder, model, configuration or processor change; lane M2 made them.
 
 **Where the decisions stand: every one is ruled.**
 
@@ -55,6 +59,7 @@ or processor change comes with it.
 - **[Test plan](#test-plan)** -- Simulation cases each with a failing mutant, and the bench cases by the B6 method.
 - **[Decisions](#decisions)** -- Each of the eight choices with its options and its ruling, each linked to the comment that made it.
 - **[Limits](#limits)** -- What this design does not establish.
+- **[Implementation notes](#implementation-notes)** -- Where lane M2 departed from a statement on this page, what it did instead, and where that is recorded.
 
 ## Baseline
 
@@ -989,12 +994,13 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
   they pulse nothing. The bind edge clears no lock, as in `KL_crf_rx`
   (`:619-624`): an unbind is declared by the timeout that follows it.
 - **Outputs:** `locked`; the rate in ns per 512 ms; `rate_valid`; the one-cycle
-  pulses `disrupt_p` and `mr_toggle_p`; and a status word with the lock, the
-  rate validity, the followed listener, a history-restart count and the
-  largest `|ts_i - ts_0 - i * 125,000|` seen this era. The last two are the
-  bench's measurement of a talker's timestamp regularity. The largest
-  deviation also holds the talker's rate offset across a group: about 190 ns
-  at 100 ppm.
+  pulses `disrupt_p` and `mr_toggle_p`; a status word with the lock, the rate
+  validity, the followed listener and a history-restart count; and the
+  largest `|ts_i - ts_0 - i * 125,000|` seen this era (`max_dev_ns_o`). The
+  root composes the two into `AAFM_STAT`. The history-restart count and the
+  largest deviation are the bench's measurement of a talker's timestamp
+  regularity. The largest deviation also holds the talker's rate offset
+  across a group: about 190 ns at 100 ppm.
 
 ### Selection decode and gating
 
@@ -1385,7 +1391,8 @@ ruling can change either.
 
 ## Limits
 
-- **Desk work only.** No RTL of this design exists, so none was simulated.
+- **Desk work only, when written.** No RTL of this design existed then; lane
+  M2's suites now grade it ([Implementation notes](#implementation-notes)).
   Round 3 ran the unmodified `KL_media_clock_restart.sv` in the pinned HDL
   simulator to grade the switch test. The area estimate rests on one
   out-of-context measurement of `KL_crf_rx`. The meter's numbers come from a
@@ -1450,3 +1457,21 @@ ruling can change either.
   regenerated image first boots.
 - **Rx media lock is unchanged.** The RX monitor's unused external-clock
   media-lock rule stays #74's ledger item 3.
+
+## Implementation notes
+
+Lane M2 implemented this page. Where a statement above did not hold as
+written, the implementation and the place it is recorded are:
+
+| Statement | What M2 did | Where |
+|---|---|---|
+| Registers: "VERSION moves" | VERSION stays `0x0002_0060`, as for #443's `RENDER_STAT`: the release step owns the minor bump. Kept by the [ruling on #629 (comment 5946491571)](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946491571) | [`CHANGELOG.md`](../../CHANGELOG.md), [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter) |
+| Builder row: "a listener-only shape without INTERNAL (CRF at 0)" | The loader refuses a configuration with no talker, so no such shape builds; the rule is graded at `_overlay_clock_sources` directly | `sw/builder/test_builder.py` gate 33 |
+| AECP model walk: "the servo leaves IDLE for every stream source" | The servo leaves IDLE only on a locked reference (`KL_mmcm_drp_servo` IDLE), and the walk streams nothing; the walk grades the decode, the servo's select and the meter's status word instead | `tb/verilator/milan_dp/sim_nxn.cpp` `[CLKSRC-WALK]` |
+| Servo row with the meter in front: suite `tb/verilator/mmcm_servo` | In `tb/verilator/aaf_clock_meter` (`sim_servo.cpp`, 180 s): that suite builds the meter, and `mmcm_servo`'s default target already runs its clean checks close to the 1800 s guard (#545) | the `aaf_clock_meter` row of [`TESTING.md`](../testing/TESTING.md) |
+| Counter row: "60 s with one PDU lost in every 0.3 s" | 3 s at the root: 60 s costs about 20 minutes there, past the suite guard, and the leg's mutant fails at the first lost PDU. The 60 s loss leg with the meter in front of the servo runs in the meter suite | `tb/verilator/milan_dp_mclk`, `tb/verilator/aaf_clock_meter/sim_servo.cpp` |
+| Counter row at the root | The ownerless elaboration holds `tu` at 1, so a test double of `KL_ptp_clock_validity` supplies a valid `tu` in that suite only | `tb/verilator/milan_dp_mclk/clkv_double.sv` |
+| Switch row: "one #386 recentre" per switch | Graded over 0.8 s gaps: at the suite's 4 MHz fabric clock the settle band is one cycle, so a settle can take its 683 ms ceiling; the 16-phase sweep grades that no recentre is queued | `tb/verilator/milan_dp_mclk` |
+| Area: the meter at 270 to 420 FF | 636 FF out of context: the per-PDU and group-end pipelines register their 32-bit operands. LUT, 574, is inside the estimate | `syn/yosys/ooc.sh KL_aaf_clock_meter` (Yosys out of context: 574 LUT including 16 LUTRAM, 636 FF, 0 RAMB18, 0 DSP); [#629 STOP, item 8](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946475441) |
+| AECP walk mutant: "the decode table generated from the previous shape" | Planted as the decode table one source short in the root suite's schemata, where the last AAF index then decodes as no source | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 14 |
+| History restarts row: "`tu` taken from the `tv` net (the CRF wiring): the `tu` case fails" | The meter takes `tu` as a port, so this wiring mutant is planted where the wire is: the root suite binds the meter's `tu_i` to `avtprx_tv_bit`, and its leg A row, the followed talker's `tu` set and then cleared, must fail | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 15 |

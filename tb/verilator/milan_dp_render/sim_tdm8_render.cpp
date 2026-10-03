@@ -71,19 +71,21 @@
 // measurements are therefore printed as cycles first and converted at BOTH
 // rates, and docs/design/TIME_SYNC.md publishes the shipping conversion.
 //
-// THE CLOCK SOURCE. The serial window above runs at INTERNAL, where the
-// packet grid and the physical frame grid free-run apart by the divider
-// plan's -10.64 ppm. The [CRF] phase selects this shape's CRF CLOCK_SOURCE
+// THE CLOCK SOURCE. The serial window above runs at INTERNAL. Until #629's
+// D4 = A2-a the packet grid and the physical frame grid free-ran apart there
+// by the divider plan's -10.64 ppm; since A2-a the aligner holds them
+// together at INTERNAL too. The [CRF] phase selects this shape's CRF CLOCK_SOURCE
 // through the REAL command path - a SET_CLOCK_SOURCE on CLOCK_DOMAIN 0 over
 // the same AECP face the map commands use - with the AAF stream STILL
 // RUNNING, feeds a real CRF stream into the provisioned sink, and grades the
 // same pins again once KL_media_grid_align holds the packet grid on the
-// physical one. Two claims separate the aligned state from the free-running
+// physical one. Two claims separate the aligned state from a free-running
 // one, and both are the construction contract's own: the lane's skip and
-// underrun counters stay at ZERO across the aligned window (at INTERNAL the
-// surplus is one counted skip per beat period), and the commit-to-pin
+// underrun counters stay at ZERO across the aligned window (free-running,
+// the surplus is one counted skip per beat period), and the commit-to-pin
 // interval stops sweeping a whole frame. The transition is then made the
-// other way, back to INTERNAL, under the same running stream.
+// other way, back to INTERNAL, under the same running stream, where the
+// walk stays stopped (A2-a).
 //
 // WHAT THE MULTI-STREAM BUILD ADDS (-DTDM8R_MULTI_TB). The shipping shape
 // carries one listener, so two properties are unobservable on it: the render
@@ -870,11 +872,14 @@ class TdmRenderHarness {
     }
     long corrupt_at = 1 << 30;
 
-    //! the AAF cadence: an integer period plus a fraction. 0 is the PACKET
-    //! grid (the INTERNAL case, where the two grids free-run apart); 52/391 is
-    //! the PHYSICAL one, the cadence a talker disciplined to the same CRF
-    //! produces and the one the aligned packet grid follows.
+    //! the AAF cadence: an integer period plus a fraction. 0 is the nominal
+    //! 48 kHz grid; 52/391 is the PHYSICAL one, the cadence a talker
+    //! disciplined to the same clock produces and the one the aligned packet
+    //! grid follows (under CRF, and at INTERNAL since #629's A2-a).
     long pdu_frac_num = 0;
+    //! the INTERNAL dwell --crf-only takes before its CRF phase: 0.3 s of the
+    //! 100 MHz model clock, past the aligner's boot pull-in
+    static constexpr long kBootPullInCycles = 30'000'000;
     long pdu_frac_acc = 0;
     void advance_pdu_slot() {
         next_pdu_at += kPduPeriodCycles;
@@ -2015,7 +2020,8 @@ void TdmRenderHarness::prove_each_slot_sits_at_its_own_position(
 void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
     // T14 SKIP LAW: hold the serial clock for several frame intervals while
     // the producer keeps committing, so the surplus is forced in bounded time
-    // instead of waiting out the 1.96 s free-run beat. Drop-OLDEST keeps
+    // rather than waited for (a free-running grid's beat is 1.96 s, and since
+    // #629's A2-a the aligned grids have none). Drop-OLDEST keeps
     // prefetching the freshest committed frame, counts each overwritten one
     // and leaves the CDC near empty; drop-NEWEST would fill it, drop commits
     // as overruns and let the commit-to-pin delay ratchet upward.
@@ -2047,9 +2053,15 @@ void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
                     static_cast<unsigned long long>(over0),
                     static_cast<unsigned long long>(lane_over()));
         // ...and the delay is back inside the band it held before the hold,
-        // which is what "does not ratchet" means at the pins
-        decoder_reset();
+        // which is what "does not ratchet" means at the pins. The commit
+        // record opens one PDU before the decoder re-arms: since #629's A2-a
+        // the aligner is engaged at INTERNAL and re-acquires after the hold,
+        // so the first decoded frame's commit can precede a record opened in
+        // the same cycle, and a cursor with no commit to seat on grades
+        // nothing.
         taps_reset();
+        run_fed(kPduPeriodCycles);
+        decoder_reset();
         collect = true;
         run_fed(30 * kPduPeriodCycles);
         collect = false;
@@ -2883,12 +2895,14 @@ void TdmRenderHarness::select_crf_under_the_running_stream() {
     pdu_frac_acc = 0;
 }
 
-//! THE CONTRAST THAT MAKES THE CRF WINDOW EVIDENCE. The construction contract
-//! states the aligned state exactly: at INTERNAL the producer leads the frame
-//! grid by the divider plan and each beat costs one counted skip, and under
-//! CRF the grids are held together so both counters stay at ZERO. The
-//! commit-to-pin interval says the same thing the other way: free-running it
-//! sweeps a whole frame, aligned it stops sweeping.
+//! THE ALIGNED STATE AT EVERY SOURCE (#629, D4 = A2-a). Until A2-a the
+//! INTERNAL window was the free-running contrast: the producer led the frame
+//! grid by the divider plan and each beat cost one counted skip. Since A2-a
+//! the aligner holds the packet grid on the frame grid at INTERNAL too, so the
+//! INTERNAL window must NOT walk at the plan's rate and costs no counted skip;
+//! the walk it still shows here is the aligner's pull-in after T14's hold, and
+//! T31 grades the settled INTERNAL walk at zero. Under CRF the grids are held
+//! together the same way.
 void TdmRenderHarness::prove_the_aligned_window_is_the_acceptance_state(
         const Window& intr, const Window& crf) {
     check.dec("T30 CRF: every decoded frame under CRF is a complete 24-bit "
@@ -2932,16 +2946,16 @@ void TdmRenderHarness::prove_the_aligned_window_is_the_acceptance_state(
     //! longer than the one before it - the divider plan's 10.6393 ppm, with
     //! the sign phi walks in.
     const double plan_ppm = 1e6 * (kFrameAxis - kTickCycles) / kTickCycles;
-    check.that("T30 INTERNAL: the free-running commit-to-pin interval walks, "
-               "and at the divider plan's own rate",
+    check.that("T30 INTERNAL (A2-a): the commit-to-pin interval does NOT walk "
+               "at the free-running divider plan's rate",
                intr.phi_n > 200 &&
-               std::fabs(intr.walk_ppm - plan_ppm) < 2.0);
+               std::fabs(intr.walk_ppm - plan_ppm) > 4.0);
+    check.dec("T30 INTERNAL (A2-a): the INTERNAL window costs the lane NO "
+              "counted skip", intr.skips, 0);
+    check.dec("T30 INTERNAL (A2-a): ...and NO underrun", intr.unders, 0);
     check.that("T30 CRF ALIGNED: the walk STOPPED once the grids were held "
                "together, which is what the aligner buys the lane",
                crf.phi_n > 200 && std::fabs(crf.walk_ppm) < 2.0);
-    check.that("T30 CRF ALIGNED: ...and the two rates are a real separation, "
-               "not two numbers inside one band",
-               std::fabs(intr.walk_ppm - crf.walk_ppm) > 4.0);
     std::printf("  [i]    T30: the divider plan's closed form is %+.4f ppm; "
                 "measured %+.4f ppm at INTERNAL and %+.4f ppm under CRF\n",
                 plan_ppm, intr.walk_ppm, crf.walk_ppm);
@@ -3016,6 +3030,18 @@ void TdmRenderHarness::deselect_back_to_internal(uint64_t epochs_before) {
     const Window back = decode_and_grade_a_window(40 * kPduPeriodCycles,
                                                   "T31");
     report_a_window(back, "T31 back at INTERNAL");
+    //! #629 A2-a: the aligner stays engaged across the deselect, so back at
+    //! INTERNAL the grids stay held together and the walk stays stopped; a
+    //! free-running INTERNAL would walk at the divider plan's 10.64 ppm. The
+    //! window is 40 PDUs, about 0.5 M axis cycles, so one cycle of phi is
+    //! 2 ppm of walk there: the bound is two and a half cycles, half the
+    //! plan's rate
+    check.that("T31 back at INTERNAL (A2-a): the walk stays stopped (under "
+               "5 ppm), the grids held together at INTERNAL too",
+               back.phi_n > 50 && std::fabs(back.walk_ppm) < 5.0);
+    check.dec("T31 back at INTERNAL (A2-a): the align loop stays engaged",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__mga_engaged_w), 1);
     check.that("T31 DESELECT: the lane is still serializing the record after "
                "the deselect", back.start >= 0 && back.g.frames > 100);
     check.dec("T31 DESELECT: identity holds across the second live transition",
@@ -3035,7 +3061,8 @@ void TdmRenderHarness::phase_crf() {
     run_fed(40 * kPduPeriodCycles);         // prefill, lock, epoch admission
     const uint64_t epochs_before = lane_epochs();
 
-    // the FREE-RUNNING reference, on the same pins and the same oracle
+    // the INTERNAL window, on the same pins and the same oracle (aligned
+    // since #629's A2-a; see prove_the_aligned_window_is_the_acceptance_state)
     const long int_first = injected_events / kEvents;
     const Window intr = decode_and_grade_a_window(300 * kPduPeriodCycles,
                                                   "T30 INTERNAL");
@@ -3549,6 +3576,15 @@ int TdmRenderHarness::run(int argc, char** argv) {
     }
     phase_map();
     if (crf_only) {
+        //! #629 A2-a: the aligner engages at INTERNAL from boot, and a CRF
+        //! selection keeps it engaged rather than re-seating its target, so
+        //! the #386 settle after the selection needs the boot pull-in done.
+        //! The full leg's serial phase gives it that time; this short leg
+        //! dwells the same way before its CRF phase.
+        run_fed(kBootPullInCycles);
+        std::printf("  [i]    --crf-only: %ld axis cycles at INTERNAL before the "
+                    "CRF phase (the aligner's boot pull-in, A2-a)\n",
+                    kBootPullInCycles);
         phase_crf();
         return check.report();
     }

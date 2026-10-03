@@ -102,20 +102,17 @@ class MmcmServoRailsHarness {
     }
 
     void reset_dut(int clk_src) {
-        dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
-        //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
-        //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
-        //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
-        //! follows crf_src_idx_i and assumes nothing about it; an index no
-        //! shipping shape uses is what proves that.
-        dut->crf_src_idx_i = 2;
+        dut->rst_n = 0; dut->sel_i = 0; dut->ref_locked_i = 0;
+        //! the select is one bit since #629 (sel_i): the index-to-source
+        //! decode moved to milan_datapath's media_clk_resolve, which reads
+        //! the generated per-index table and is graded at the root
         dut->pcm_tvalid_i = 0; dut->pcm_tlast_i = 0;
-        dut->wire_chans_i = 2; dut->crf_rate_i = rate;
+        dut->wire_chans_i = 2; dut->ref_rate_ns_i = rate;
         dut->mmcm_locked_i = 1;
         run_ms(0.05);
         dut->rst_n = 1;
-        dut->clk_src_i = static_cast<uint16_t>(clk_src);
-        dut->crf_locked_i = 1;
+        dut->sel_i = (clk_src != 0);
+        dut->ref_locked_i = 1;
         burst_left = 0; next_pdu_fs = t_fs + 3e9;
     }
 

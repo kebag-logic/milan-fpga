@@ -51,6 +51,10 @@ struct MmcmModel {
     int      relock_lat = 500;
 
     // PS
+    //! PSCLK cycles from PSEN to PSDONE: the UG472 figure unless a harness
+    //! that shares its PSCLK with a slow fabric clock shortens it (the servo
+    //! waits for PSDONE and does not count the cycles)
+    int      ps_lat = kPsdonePsclkCycles;
     int      ps_busy = 0;
     bool     ps_dir = false;
     bool     psdone = false;   // output this cycle
@@ -106,7 +110,7 @@ struct MmcmModel {
             }
         } else if (psen) {
             ps_dir = psincdec;
-            ps_busy = kPsdonePsclkCycles;
+            ps_busy = ps_lat;
             if (mmcm_rst) ps_during_drp_rst++;
         }
     }

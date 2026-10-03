@@ -8,19 +8,24 @@
 /*
 ------------------------------------------------------------------------------
   File        : KL_mmcm_drp_servo.sv
-  Description : CRF media-clock recovery ACTUATOR - the audio-MMCM servo
+  Description : Media-clock recovery ACTUATOR - the audio-MMCM servo
                 (Milan v1.2 7.3.4 media clock recovery; the clean-clock
                 rework retired the playback NCO with trim_o = 0 awaiting
                 exactly this block).
 
                 Closes the loop  talker media clock -> our audio MMCM
-                when clock_source selects the CRF CLOCK_SOURCE descriptor
-                (clk_src_i == crf_src_idx_i):
+                while a stream CLOCK_SOURCE is followed (sel_i: the
+                datapath's decode of the live clock_source_index, #629).
+                The reference is the followed measurement, muxed in the
+                datapath: KL_crf_rx under a CRF source, KL_aaf_clock_meter
+                under an AAF source. Both publish the same units.
 
-                  error   e = local_rate - crf_rate  (both are "gPTP-ns
-                          per 512 ms of media events": KL_crf_rx rate_o
+                  error   e = local_rate - ref_rate  (both are "gPTP-ns
+                          per 512 ms of media events": the reference
                           measures the TALKER media clock against gPTP
-                          over its 256-PDU field-timestamp ring; this
+                          (KL_crf_rx over its 256-PDU field-timestamp
+                          ring, KL_aaf_clock_meter over its 4.096 s
+                          snapshot ring); this
                           block measures OUR audio clock against the
                           same gPTP time over a 2^WIN_LOG2_P-tick local
                           window, so e > 0  <=>  we run slow).
@@ -37,7 +42,7 @@
                   step guard (2026-07-23 silicon): a local ptp_now
                           step/slew (GM reboot -> the active gPTP plane adjusting the
                           PHC) makes ONE window's local span enormous
-                          while crf_rate_i stays healthy; that single
+                          while ref_rate_ns_i stays healthy; that single
                           window used to wind the integrator straight
                           to the +-200 ppm clamp (trim 0xF380 seen),
                           where it STAYED until an IDLE bounce. Any
@@ -90,7 +95,7 @@
                           fresh guard trips after the slew. A slew window
                           is not a valid offset sample.
 
-                  remote history (#546): crf_rate_valid_i qualifies each
+                  remote history (#546): ref_rate_valid_i qualifies each
                           window's PI run. Invalid receiver history skips
                           PI, trim and lock-count updates without changing
                           lock state; sampling resumes with clean history.
@@ -163,11 +168,14 @@
                 for what DRP is actually for (divider reprogramming,
                 verified/sequenced), fully implemented and TB-proven.
 
-                States (status_o[2:0]): IDLE (CRF not selected: no DRP
-                access, no PS steps, u = 0), VERIFY, REPAIR, ACQUIRE,
-                LOCKED (|e| < LOCK_THR_P for LOCK_WIN_P windows),
-                HOLDOVER (CRF unlock: u frozen, stepping continues at
-                the held rate), FAULT (repair relock timeout).
+                States (status_o[2:0]): IDLE (no stream source followed:
+                no DRP access, no PS steps, u = 0), VERIFY, REPAIR,
+                ACQUIRE, LOCKED (|e| < LOCK_THR_P for LOCK_WIN_P windows),
+                HOLDOVER (reference unlocked: u frozen, stepping continues
+                at the held rate), FAULT (repair relock timeout). A switch
+                between two followed sources keeps sel_i high and presents
+                the reference unlocked for one cycle (the datapath's W2),
+                so it passes HOLDOVER into ACQUIRE with the trim kept.
 
                 PI micro-sequence (mf51 timing fix): the window update is
                 a once-per-512-ms event, so the PI arithmetic runs as a
@@ -260,17 +268,16 @@ module KL_mmcm_drp_servo #(
   //! The caller includes all rate-application latency through ptp_now_i.
   //! Reset clears it; it may remain high indefinitely without losing lock.
   input  wire         phc_slew_active_i,
-  input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
-  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
-  //! set is internal then CRF (1 on every shipping shape since #389 dropped
-  //! the per-listener sources; it was 2 on a 1-listener shape and 9 on an
-  //! 8-listener one before). The datapath feeds this from the generated
-  //! AEM (AEM_CRF_CLKSRC_C); a wrong value here engages the servo on the
-  //! wrong source, silently.
-  input  wire [15:0]  crf_src_idx_i,
-  input  wire         crf_locked_i,   //! KL_crf_rx locked_o
-  input  wire         crf_rate_valid_i, //! RX ring spans one timestamp era
-  input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)
+  //! 1 = a stream CLOCK_SOURCE (CRF or AAF) is followed. The datapath's
+  //! registered decode of the live clock_source_index through the generated
+  //! per-index table (#629); the index compare left this module with it.
+  input  wire         sel_i,
+  //! the followed reference's lock (KL_crf_rx or KL_aaf_clock_meter
+  //! locked_o), presented low for one cycle on a change of the followed
+  //! source so a switch always passes HOLDOVER
+  input  wire         ref_locked_i,
+  input  wire         ref_rate_valid_i, //! reference history spans one era
+  input  wire signed [31:0] ref_rate_ns_i, //! reference rate (ns / 512 ms)
 
   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
   input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
@@ -296,7 +303,10 @@ module KL_mmcm_drp_servo #(
   output logic        ps_incdec_o,    //! 1 = increment (delay = slow down)
   input  wire         ps_done_i,      //! PSDONE (12 PSCLK cycles after PSEN)
 
-  output logic [31:0] status_o        //! A_MCSRV_STAT (0x8F8) readback
+  output logic [31:0] status_o,       //! A_MCSRV_STAT (0x8F8) readback
+  //! the servo is in LOCKED (the CLOCK_DOMAIN LOCKED/UNLOCKED level's
+  //! following half, #629 decision D5 = C1)
+  output wire         locked_o
 );
 
   // ------------------------------------------------------------------ //
@@ -408,7 +418,7 @@ module KL_mmcm_drp_servo #(
   servo_state_t state_r;
   drp_state_t   dstate_r;
 
-  wire servo_sel_w = (clk_src_i == crf_src_idx_i);
+  wire servo_sel_w = sel_i;
 
   //! local window measurement
   logic [WIN_LOG2_P:0]      tick_cnt_r;
@@ -430,7 +440,7 @@ module KL_mmcm_drp_servo #(
   logic signed [63:0]       pp_d_r;       //! T0: raw window span
   logic signed [63:0]       pp_spann_r;   //! S1: span - nominal, normalized
   logic signed [31:0]       pp_locerr_r;  //! S2: ECLAMP-bounded local error
-  logic signed [31:0]       pp_rate_r;    //! T0: crf_rate_i boundary snapshot
+  logic signed [31:0]       pp_rate_r;    //! T0: ref_rate_ns_i boundary snapshot
   logic signed [31:0]       pp_isum_r;    //! S4: integ + e>>KI (pre-clamp)
   logic                     pp_thr_r;     //! S4: |e| < LOCK_THR_P
   logic signed [23:0]       pp_ig_r;      //! S5: clamped next integrator
@@ -541,7 +551,7 @@ module KL_mmcm_drp_servo #(
           disc_run_r <= '0; disc_cnt_r <= '0;
           verified_r <= 1'b0; mismatch_r <= 1'b0; drp_fault_r <= 1'b0;
           mmcm_rst_o <= 1'b0; ps_hold_r <= 1'b0;
-          if (servo_sel_w && crf_locked_i) begin
+          if (servo_sel_w && ref_locked_i) begin
             state_r     <= VERIFY_S;
             dstate_r    <= D_RD_EN_S;
             rd_second_r <= 1'b0;
@@ -561,7 +571,7 @@ module KL_mmcm_drp_servo #(
 
         ACQUIRE_S, LOCKED_S: begin
           if (!servo_sel_w)          state_r <= IDLE_S;
-          else if (!crf_locked_i)    state_r <= HOLDOVER_S;
+          else if (!ref_locked_i)    state_r <= HOLDOVER_S;
           else if (state_r == ACQUIRE_S && lock_cnt_r >=
                    ($bits(lock_cnt_r))'(LOCK_WIN_P)) state_r <= LOCKED_S;
           else if (state_r == LOCKED_S && lock_cnt_r == '0)
@@ -569,11 +579,11 @@ module KL_mmcm_drp_servo #(
         end
 
         HOLDOVER_S: begin
-          //! u frozen (stepping continues below) until CRF returns
+          //! u frozen (stepping continues below) until the reference returns
           if (!servo_sel_w)          state_r <= IDLE_S;
-          else if (crf_locked_i) begin
+          else if (ref_locked_i) begin
             state_r    <= ACQUIRE_S;
-            win_skip_r <= 2'd2;      //! crf_rate ring refills for 512 ms
+            win_skip_r <= 2'd2;      //! the reference history refills
             lock_cnt_r <= '0;
           end
         end
@@ -606,13 +616,13 @@ module KL_mmcm_drp_servo #(
             tick_cnt_r  <= '0;
             win_start_r <= ptp_q_r;
             pp_d_r      <= $signed(ptp_q_r - win_start_r);
-            pp_rate_r   <= crf_rate_i;
+            pp_rate_r   <= ref_rate_ns_i;
             win_slew_r  <= phc_slew_q_r;
             //! Invalid remote history holds PI and lock; local step/slew
             //! guards retain their own independent window policy.
             pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
                            && !slew_window_w
-                           && crf_rate_valid_i;
+                           && ref_rate_valid_i;
             pp_seq_r    <= 3'd1;
             if (win_skip_r != '0)
               win_skip_r <= win_skip_r - 2'd1;
@@ -956,6 +966,7 @@ module KL_mmcm_drp_servo #(
   //  Status readback (A_MCSRV_STAT 0x8F8)                               //
   // ------------------------------------------------------------------ //
   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
+  assign locked_o = (state_r == LOCKED_S);
   assign status_o = {trim_w,                       //! [31:16] signed trim
                      disc_cnt_r,                   //! [15:10] guard + step + slew discards
                      1'b0,                         //! [9]     reserved

@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - AAF or CRF media-clock following](#unreleased---aaf-or-crf-media-clock-following)** -- Follows one selected source.
 - **[Unreleased - processor pin 631eeb34](#unreleased---processor-pin-631eeb34)** -- AECP answers by its deadline.
 - **[Unreleased - processor pin b2db3a97](#unreleased---processor-pin-b2db3a97)** -- Scalar settings persist.
 - **[Unreleased - frame-atomic TDM capture](#unreleased---frame-atomic-tdm-capture)** -- One TDM frame per AAF column.
@@ -35,6 +36,54 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - AAF or CRF media-clock following
+
+- Issue #629 implements the [media-clock following design](docs/design/MEDIA_CLOCK_FOLLOWING.md).
+- The media clock follows one selected source.
+- The choices are INTERNAL, CRF and each AAF Stream Input.
+- FR-CLK-03 and FR-CLK-04 follow the owner decision.
+- That reverses #389 option (a) for AAF Stream Inputs.
+- The builder admits `input_stream` again.
+- It emits one source per AAF listener.
+- Sources are listed by class: INTERNAL, CRF, then AAF.
+- INTERNAL is 0 and CRF is 1.
+- AAF input k is source 2 + k.
+- All five shipping configurations declare them.
+- Every regenerated image moves its `entity_model_id` once.
+- RELEASE NOTE: every unit refuses its saved state once.
+- That happens on the first boot after the update.
+- No saved record is restored, the clock source included.
+- The domain comes up on INTERNAL, its initial index.
+- `KL_aaf_clock_meter` measures the selected AAF input's media clock.
+- It takes the 48 kHz Base format only.
+- That format carries 6 samples per PDU.
+- It keeps the mean of each group of 16 PDUs.
+- A deviation beyond 4,096 ns restarts its history.
+- Its rate is a two-point difference over 4.096 s.
+- A lost PDU voids only its own group.
+- `KL_mmcm_drp_servo` takes a one-bit select and one reference.
+- Its state machine and arithmetic are unchanged.
+- A source switch holds the trim and re-acquires.
+- Each switch requests one media-clock restart.
+- The meter's timeout also requests one.
+- So does a toggle of the followed stream's `mr`.
+- CLOCK_DOMAIN LOCKED and UNLOCKED now include servo lock.
+- That term applies only while a stream is followed.
+- The grid aligner and NCO run at INTERNAL too.
+- So at INTERNAL the plan drift is aligned away.
+- KNOWN RISK: INTERNAL accuracy rests on the oscillator grade.
+- Plan A sits 10.64 ppm under nominal.
+- The limit is Milan v1.2 section 7.4.
+- It then needs an oscillator within 39 ppm.
+- The owner assumes the grade adequate.
+- The grade is unconfirmed.
+- `AAFM_STAT` (`0x8E0`) and `AAFM_RATE` (`0x8E4`) are new.
+- Both are read-only live words.
+- They read zero without an AAF clock source.
+- No other CSR address, width or access moves.
+- VERSION remains `0x0002_0060`; the release step owns the minor bump.
+- Issue #629 carries the design, the rulings and the evidence.
 
 ## Unreleased - processor pin 631eeb34
 

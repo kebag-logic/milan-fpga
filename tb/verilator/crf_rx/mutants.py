@@ -93,7 +93,7 @@ def main() -> int:
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
         servo_source = SERVO.read_text()
-        anchor = "\n                           && crf_rate_valid_i;"
+        anchor = "\n                           && ref_rate_valid_i;"
         if servo_source.count(anchor) != 1:
             print("FAIL servo_ignores_valid: expected exactly one mutation anchor")
             return 1
@@ -109,7 +109,7 @@ def main() -> int:
         resume_latch = """  logic invalid_seen_r;
   always_ff @(posedge clk_i) begin : latch_invalid_sample
     if (!rst_n) invalid_seen_r <= 1'b0;
-    else if (!crf_rate_valid_i) invalid_seen_r <= 1'b1;
+    else if (!ref_rate_valid_i) invalid_seen_r <= 1'b1;
   end
 """
         never_resumes = servo_source.replace(resume_anchor, resume_latch + resume_anchor)
