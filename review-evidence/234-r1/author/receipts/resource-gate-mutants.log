@@ -1,0 +1,31 @@
+$ python3 syn/ooc/pp_resource_gate_mutants.py
+# cwd $LANES/234-area; head 2a765a6c3868400c20ede2e357876f28a811c811
+control: rc=0 PASS
+identity comparison: rc=1 PASS
+endpoint kind comparison: rc=1 PASS
+identical-input refusal: rc=1 PASS
+resource tolerance: rc=1 PASS
+resource tolerance boundary: rc=1 PASS
+timing floor: rc=1 PASS
+timing fall: rc=1 PASS
+ceiling: rc=1 PASS
+verdict status: rc=1 PASS
+Slice row: rc=1 PASS
+row agreement: rc=1 PASS
+count format: rc=1 PASS
+timing columns: rc=1 PASS
+tool build: rc=1 PASS
+flow commands: rc=1 PASS
+standalone clock: rc=1 PASS
+generated-file normalization: rc=1 PASS
+include headers: rc=1 PASS
+generic inputs: rc=1 PASS
+image inputs: rc=1 PASS
+recipe script uniqueness: rc=1 PASS
+census header: rc=1 PASS
+baseline tolerance: rc=1 PASS
+baseline floor presence: rc=1 PASS
+baseline ceiling: rc=1 PASS
+resource gate mutants: control passes, all 25 mutants fail
+
+# rc=0

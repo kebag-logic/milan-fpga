@@ -1,0 +1,45 @@
+$ python3 syn/ooc/pp_resource_gate.py --selftest
+# cwd $LANES/234-area; head 2a765a6c3868400c20ede2e357876f28a811c811
+resource gate route arm: unchanged control: exit 0 PASS
+resource gate route arm: changed source, unchanged figures: exit 0 PASS
+resource gate route arm: LUT growth at the tolerance: exit 0 PASS
+resource gate route arm: LUT growth over the tolerance: exit 1 PASS
+resource gate route arm: FF growth over the tolerance: exit 1 PASS
+resource gate route arm: register rows disagree: exit 2 PASS
+resource gate route arm: Slice growth over the tolerance: exit 1 PASS
+resource gate route arm: one more RAMB36: exit 1 PASS
+resource gate route arm: one more RAMB18: exit 1 PASS
+resource gate route arm: one more DSP: exit 1 PASS
+resource gate route arm: BRAM tiles over the ceiling: exit 1 PASS
+resource gate route arm: WNS below the floor: exit 1 PASS
+resource gate route arm: WNS fell more than the tolerance: exit 1 PASS
+resource gate route arm: WNS fell within the tolerance: exit 0 PASS
+resource gate route arm: WHS below the floor: exit 1 PASS
+resource gate route arm: LUT improvement: exit 0 PASS
+resource gate route arm: tool build changed: exit 2 PASS
+resource gate route arm: device changed: exit 2 PASS
+resource gate route arm: placement directive changed: exit 2 PASS
+resource gate route arm: thread count changed: exit 2 PASS
+resource gate route arm: identical inputs, different figures: exit 2 PASS
+resource gate route arm: export date only: exit 2 PASS
+resource gate route arm: generated logic changed: exit 1 PASS
+resource gate route arm: include header changed: exit 1 PASS
+resource gate route arm: sourced constraint changed: exit 1 PASS
+resource gate route arm: memory image changed: exit 1 PASS
+resource gate route arm: duplicate conflicting row: exit 2 PASS
+resource gate route arm: malformed count: exit 2 PASS
+resource gate route arm: missing Slice row: exit 2 PASS
+resource gate route arm: timing columns changed: exit 2 PASS
+resource gate route arm: missing timing report: exit 2 PASS
+resource gate route arm: cell census header changed: exit 2 PASS
+resource gate route arm: second recipe script: exit 2 PASS
+resource gate ooc arm: standalone control: exit 0 PASS
+resource gate ooc arm: standalone clock changed: exit 2 PASS
+resource gate ooc arm: generic changed: exit 1 PASS
+resource gate ooc arm: image path moved, same image: exit 2 PASS
+resource gate ooc arm: standalone RAMB18: exit 1 PASS
+resource gate ooc arm: standalone FF: exit 1 PASS
+resource gate CARRY4, 5 baseline refusals and 5 command-line verdicts PASS
+resource gate selftest: 51 arms PASS
+
+# rc=0
