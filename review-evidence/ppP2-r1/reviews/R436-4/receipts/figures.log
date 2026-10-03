@@ -1,0 +1,194 @@
+160 Verilator builds: 1 baseline + 7 for make run + 12 arms + 126 mutations + 9 models + 5 matrix
+baseline: 393 checks, 393 PASS, 0 FAIL
+make run, every build: [(393, 393, 0), (393, 393, 0), (393, 393, 0), (10, 10, 0), (10, 10, 0), (10, 10, 0), (10, 10, 0), (1219, 1219, 0)], rc 0
+
+arm coverage (measured vs README):
+  [ok ]  376 S_WEREQ    measured=0    readme=0
+  [ok ]  385 S_WEWAIT   measured=51   readme=51
+  [ok ]  395 S_WWREQ    measured=0    readme=0
+  [ok ]  405 S_WHPUMP   measured=41   readme=41
+  [ok ]  422 S_WDPUMP   measured=28   readme=28
+  [ok ]  437 S_WWAIT    measured=16   readme=16
+  [ok ]  448 S_RHREQ    measured=3    readme=3
+  [ok ]  458 S_RHCOLL   measured=20   readme=20
+  [ok ]  477 S_RHWAIT   measured=15   readme=15
+  [ok ]  504 S_RPREQ    measured=0    readme=0
+  [ok ]  514 S_RPPUMP   measured=47   readme=47
+  [ok ]  529 S_RPWAIT   measured=4    readme=4
+
+mutations and probes (measured vs README):
+  [ok ] M1               measured=71   readme=71
+  [ok ] M1-sibling       measured=36   readme=36
+  [ok ] M2               measured=12   readme=12
+  [ok ] M3               measured=146  readme=146
+  [ok ] M4               measured=28   readme=28
+  [ok ] M5               measured=16   readme=16
+  [ok ] M6               measured=58   readme=58
+  [ok ] M6-sibling       measured=55   readme=55
+  [ok ] probe-armearly   measured=1    readme=1
+  [ok ] probe-nodevice   measured=4    readme=4
+  [ok ] probe-t18        measured=4    readme=4
+  [ok ] done_seen_r/coincident measured=267  readme=267
+  [ok ] done_seen_r/pristine measured=23   readme=23
+  [ok ] own-states-dropped measured=61   readme=61
+  [ok ] own-minus-rhcoll measured=28   readme=28
+  [ok ] own-minus-wwait  measured=3    readme=3
+  [ok ] own-plus-rhreq   measured=29   readme=29
+  [ok ] C1               measured=86   readme=86
+  [ok ] C2               measured=7    readme=7
+  [ok ] C3               measured=23   readme=23
+  [ok ] C4               measured=1    readme=1
+  [ok ] M2-lo            measured=5    readme=5
+  [ok ] M7               measured=8    readme=8
+  [ok ] M8               measured=22   readme=22
+  [ok ] M6/unsolicited   measured=277  readme=277
+  [ok ] M8/short         measured=170  readme=170
+  [ok ] D1/silent        measured=335  readme=335
+  [ok ] D1               measured=91   readme=91
+  [ok ] D2               measured=54   readme=54
+  [ok ] D3               measured=54   readme=54
+  [ok ] D4               measured=57   readme=57
+  [ok ] D5               measured=5    readme=5
+  [ok ] D6               measured=5    readme=5
+  [ok ] D7               measured=9    readme=9
+  [ok ] D8               measured=56   readme=56
+  [ok ] D9               measured=42   readme=42
+  [ok ] D10              measured=28   readme=28
+  [ok ] D11              measured=4    readme=4
+  [ok ] D12              measured=4    readme=4
+  [ok ] D13              measured=3    readme=3
+  [ok ] D14              measured=8    readme=8
+  [ok ] D15              measured=36   readme=36
+  [ok ] D16              measured=4    readme=4
+  [ok ] D17              measured=14   readme=14
+  [ok ] D18              measured=1    readme=1
+  [ok ] D19              measured=1    readme=1
+  [ok ] D20              measured=8    readme=8
+  [ok ] D21              measured=1    readme=1
+  [ok ] D22              measured=2    readme=2
+  [ok ] D23              measured=0    readme=0
+  [ok ] D24              measured=4    readme=4
+  [ok ] D25              measured=10   readme=10
+  [ok ] D26              measured=3    readme=3
+  [ok ] D26/coincident   measured=11   readme=11
+  [ok ] Q1               measured=2    readme=2
+  [ok ] Q2               measured=2    readme=2
+  [ok ] Q3               measured=0    readme=0
+  [ok ] Q4               measured=0    readme=0
+  [ok ] Q5               measured=21   readme=21
+  [ok ] Q6               measured=3    readme=3
+  [ok ] Q7               measured=2    readme=2
+  [ok ] Q8               measured=0    readme=0
+  [ok ] Q9               measured=4    readme=4
+  [ok ] Q10              measured=0    readme=0
+  [ok ] Y1               measured=2    readme=2
+  [ok ] Y2               measured=2    readme=2
+  [ok ] Y3               measured=0    readme=0
+  [ok ] Y4               measured=0    readme=0
+  [ok ] Y5               measured=21   readme=21
+  [ok ] Y6               measured=11   readme=11
+  [ok ] Y7               measured=10   readme=10
+  [ok ] Y8               measured=26   readme=26
+  [ok ] Y9               measured=9    readme=9
+  [ok ] Y10              measured=19   readme=19
+  [ok ] Y11              measured=4    readme=4
+  [ok ] Y12              measured=0    readme=0
+  [ok ] Y13              measured=3    readme=3
+  [ok ] Y14              measured=2    readme=2
+  [ok ] Y15              measured=91   readme=91
+  [ok ] Y16              measured=4    readme=4
+  [ok ] Q1/fuzz          measured=4    readme=4
+  [ok ] Q9/fuzz          measured=5    readme=5
+  [ok ] coincident/4096  measured=0    readme=0
+  [ok ] T6-timed/coincident/4096 measured=16   readme=16
+  [ok ] D27              measured=15   readme=15
+  [ok ] D28a             measured=2    readme=2
+  [ok ] D28b             measured=1    readme=1
+  [ok ] D29              measured=11   readme=11
+  [ok ] D30              measured=9    readme=9
+  [ok ] D27/fuzz         measured=1    readme=1
+  [ok ] D31              measured=2    readme=2
+  [ok ] Z1               measured=2    readme=2
+  [ok ] Z2               measured=1    readme=1
+  [ok ] Z3               measured=2    readme=2
+  [ok ] Z4               measured=22   readme=22
+  [ok ] Z5               measured=1    readme=1
+  [ok ] Z6               measured=20   readme=20
+  [ok ] Z7               measured=19   readme=19
+  [ok ] Z8               measured=2    readme=2
+  [ok ] Z9               measured=15   readme=15
+  [ok ] Z10              measured=3    readme=3
+  [ok ] Z11              measured=15   readme=15
+  [ok ] Z10b             measured=3    readme=3
+  [ok ] Z12              measured=27   readme=27
+  [ok ] B1               measured=20   readme=20
+  [ok ] B2               measured=19   readme=19
+  [ok ] B3               measured=22   readme=22
+  [ok ] B4               measured=22   readme=22
+  [ok ] B5               measured=1    readme=1
+  [ok ] B6               measured=2    readme=2
+  [ok ] B6b              measured=2    readme=2
+  [ok ] B7               measured=2    readme=2
+  [ok ] B8               measured=2    readme=2
+  [ok ] B9               measured=15   readme=15
+  [ok ] B10              measured=3    readme=3
+  [ok ] B12              measured=1    readme=1
+  [ok ] B13              measured=22   readme=22
+  [ok ] Z1/fuzz          measured=1    readme=1
+  [ok ] Z3/fuzz          measured=1    readme=1
+  [ok ] Z8/fuzz          measured=1    readme=1
+  [ok ] Z10b/fuzz        measured=3    readme=3
+  [ok ] S1               measured=7    readme=7
+  [ok ] S2               measured=5    readme=5
+  [ok ] S3               measured=15   readme=15
+  [ok ] S4               measured=13   readme=13
+  [ok ] retraction       measured=2    readme=2
+
+device models (measured vs README):
+  [ok ] pristine                   measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] half-page                  measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] half-page                  measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] page-buffered NOR          measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] lazy erase                 measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] lazy erase + page-buffered measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] coincident completion      measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] unsolicited completion     measured=393 PASS, 0 FAIL  readme=(393, 0)
+  [ok ] short read                 measured=297 PASS, 96 FAIL  readme=(297, 96)
+  [ok ] silent                     measured=122 PASS, 271 FAIL  readme=(122, 271)
+
+pre-fix matrix (measured vs README), 5 builds:
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+  [ok ] T15 cut was real                   measured=pass pass pass pass FAIL
+  [ok ] T15 #70 property, unconditioned    measured=pass pass pass pass FAIL
+
+figures disagree with the tree:
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read 62d96d6~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read 62d96d6~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read 62d96d6~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - git-form pin: cannot read dc354be~1 -- the revision the matrix injection was reconstructed from is gone
+  - line multiplicity [T16 byte comparison]: '&& h.store[1][5] == 0xFF,' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T16 byte comparison]: 'CHECK(std::equal(torn.begin(), torn.begin() + 5, h.sto appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T17 restore vs the record]: 'CHECK(rc == 0 && h.rbytes == late,' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T17 restore vs the record]: 'rc = h.restore(3);' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T17 restore vs the record]: 'std::vector<uint8_t> in_array(h.store[3], h.store[3] + appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T17 restore vs the record]: 'CHECK(h.rbytes == in_array,' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T17 restore vs the record]: 'CHECK(rc == 0 && h.rbytes.size() == late.size(),' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T17 restore vs the record]: 'h.ops.clear();' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T15 branch pin]: 'CHECK(!h.store_match(7, whole) && !h.store_match(7, re appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T15 branch pin]: 'CHECK(refused || crc_rejects,' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+  - line multiplicity [T15 branch pin]: 'CHECK(crc_rejects && h.rbytes.size() == whole.size(),' appears 1x in the injection but at most 0x in any source revision -- the injected form has extra structure the removed form did not have
+
+Re-measure and update README.md. Do NOT edit only the rows you
+changed: four review rounds found staleness in the rows nobody
+thought to check.
+Command exited with non-zero status 1
+wall 940.54 s, maxrss 359848 KB

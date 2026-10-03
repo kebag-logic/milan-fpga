@@ -1,0 +1,10 @@
+W12: applied 4 edit(s)
+== W12 rc=2
+393 checks: 393 PASS, 0 FAIL
+393 checks: 393 PASS, 0 FAIL
+393 checks: 393 PASS, 0 FAIL
+fuzz: MEM_TIMEOUT_CYC_P = 1, seeds 11 to 13, 600 operations per mode and seed
+fuzz: the largest payload the port accepts, asked of it: 65527 bytes
+FAIL: FZ7 a request behind an abandoned command is served if the devic ... (3 of 1220 operations broke it; first: cycle 620363: a restore behind a READ owing 65527 bytes, ended 0 cycles into its wait: 0 done, 1 err, cause 3)
+FAIL: FZ10 the abandonments reached every branch of what a READ owes: b ... (282, 396 and 61; 81, and 0 of 3)
+10 checks: 8 PASS, 2 FAIL

@@ -1,0 +1,6 @@
+Z10b: applied 4 edit(s)
+== Z10b rc=2
+FAIL: T28j a 600-byte payload READ abandoned before its 11th byte: the 590 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 3, 78 moved)
+FAIL: T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 3, 0 moved)
+FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 3, 0 moved)
+393 checks: 390 PASS, 3 FAIL

@@ -1,0 +1,101 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.062 MB sources in 2 modules, into 0.096 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.980 s (elab=0.002, cvt=0.011, bld=5.959); cpu 0.022 s on 2 threads; allocated 215.453 MB
+FAIL: T2 restore completes with done, rc=1
+FAIL: T2 exactly one done
+FAIL: T2 restored stream byte-exact (0 bytes)
+FAIL: T2 device ops = READ hdr(8) then READ payload(40)
+FAIL: T4 restore done under stalls
+FAIL: T4 restored stream byte-exact under stalls
+FAIL: T5 back-to-back ops all done
+FAIL: T5 immediate re-read byte-exact
+FAIL: T14 clean restore after refusals
+FAIL: T26d the payload bound's legal edge: the largest legal record restores byte-exact (rc 1, 0 bytes)
+FAIL: T26d the payload bound's legal edge: the payload READ asks MAX_PAYLOAD_P
+FAIL: T16 the neighbour still restores byte-exactly after the cut
+FAIL: T17 the read side works after the error exit: restore byte-exact
+FAIL: T18 serviceable after the three read cuts: restore is byte-exact
+FAIL: T20a the restore still completes with done, stream byte-exact
+FAIL: T20b the restore still completes with done, stream byte-exact
+FAIL: T20c the restore still completes with done, stream byte-exact
+FAIL: T22c both reads were answered on their last byte (1)
+FAIL: T22c the sticky done_seen_r latch: the restore takes both completions, stream byte-exact, rc=1
+FAIL: T23 h a corrupted magic: one err, nothing forwarded, cause UNFRAMED (read 1)
+FAIL: T23k done reads cause 0, and no cycle of the run read a cause without err (0)
+FAIL: T24 S_WEREQ: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_WEWAIT: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_WWREQ: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_WHPUMP: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_WDPUMP: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_WWAIT: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_RHREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 1, cause 1)
+FAIL: T24 S_RPWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 ...and restores byte-exact over 2565 cycles
+FAIL: T24 ...nor on every restore byte: done, byte-exact (rc 1)
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 0 1)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 0)
+FAIL: T24 ...then the next restore is served
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc 0 1)
+FAIL: T24 contained: a reset of port and device ends it, and the port serves byte-exact (rc 0 1)
+FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 2 commands)
+FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 176 cycles behind 4 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 1)
+FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 1)
+FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 1 cycles after the last of them, no command taken (rc 1, cause 1, 28 drained)
+FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 1)
+FAIL: T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28h setup: a READ abandoned in S_RPWAIT, every byte moved and its done withheld
+FAIL: T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends DEADLINE 1 cycles after its accept (cause 1, 23 drained)
+FAIL: T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28i header: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on it ends DEADLINE 1 cycles after the last byte (cause 1, 38 drained)
+FAIL: T28i payload: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28k ...the device's own err ends the WRITE, and the next commit and restore are served byte-exact (rc 0 1)
+FAIL: T28j a 600-byte payload READ abandoned before its 11th byte: the 590 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 1, 448 moved)
+FAIL: T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 1, 776 moved)
+FAIL: T28j a payload READ of the largest legal length granted late: the 1023 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 1, 775 moved)
+FAIL: T25a the header still streaming in, nothing issued: the neighbour restores byte-exact after the cut
+FAIL: T25a the header still streaming in, nothing issued: unless the old or the new record survived whole, the torn image is refused at its header (cause UNFRAMED) or forwarded whole and refused by the manager's crc16
+FAIL: T25a the header still streaming in, nothing issued: no command reached the device, so the old record restores byte-exact
+FAIL: T25a the header still streaming in, nothing issued: the next commit of the record is byte-exact (rc 0 1)
+FAIL: T25b the ERASE requested and not granted: the neighbour restores byte-exact after the cut
+FAIL: T25b the ERASE requested and not granted: unless the old or the new record survived whole, the torn image is refused at its header (cause UNFRAMED) or forwarded whole and refused by the manager's crc16
+FAIL: T25b the ERASE requested and not granted: no command reached the device, so the old record restores byte-exact
+FAIL: T25b the ERASE requested and not granted: the next commit of the record is byte-exact (rc 0 1)
+FAIL: T25c the ERASE granted and not done: the neighbour restores byte-exact after the cut
+FAIL: T25c the ERASE granted and not done: the next commit of the record is byte-exact (rc 0 1)
+FAIL: T25d the WRITE's header pump, 5 bytes sent: the neighbour restores byte-exact after the cut
+FAIL: T25d the WRITE's header pump, 5 bytes sent: unless the old or the new record survived whole, the torn image is refused at its header (cause UNFRAMED) or forwarded whole and refused by the manager's crc16
+FAIL: T25d the WRITE's header pump, 5 bytes sent: the next commit of the record is byte-exact (rc 0 1)
+FAIL: T25e the WRITE's payload pump, 9 bytes of 32 sent: the neighbour restores byte-exact after the cut
+FAIL: T25e the WRITE's payload pump, 9 bytes of 32 sent: unless the old or the new record survived whole, the torn image is refused at its header (cause UNFRAMED) or forwarded whole and refused by the manager's crc16
+FAIL: T25e the WRITE's payload pump, 9 bytes of 32 sent: the next commit of the record is byte-exact (rc 0 1)
+FAIL: T25f the WRITE's completion window, every byte sent: the neighbour restores byte-exact after the cut
+FAIL: T25f the WRITE's completion window, every byte sent: unless the old or the new record survived whole, the torn image is refused at its header (cause UNFRAMED) or forwarded whole and refused by the manager's crc16
+FAIL: T25f the WRITE's completion window, every byte sent: the next commit of the record is byte-exact (rc 0 1)
+FAIL: T25g the port serves byte-exact once the device ended its command (rc 0 1)
+FAIL: T25h the port serves byte-exact once the device ended its command (rc 0 1)
+FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 1, 1 answered on a last byte)
+FAIL: T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 1, 1 drops)
+FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+FAIL: T27 a the payload READ ended after 10 of 40 bytes (S_RPPUMP): the next restore is served at once
+FAIL: T27 b the header READ completed on its own grant (S_RHCOLL): the next restore is served at once
+FAIL: T27 c the payload READ completed on its own grant (S_RPPUMP): the next restore is served at once
+FAIL: T27 f ...and the next commit and restore are served byte-exact
+393 checks: 297 PASS, 96 FAIL
+make: *** [Makefile:57: primary] Error 1

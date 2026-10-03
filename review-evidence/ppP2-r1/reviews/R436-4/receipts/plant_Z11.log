@@ -1,0 +1,18 @@
+Z11: applied 1 edit(s)
+== Z11 rc=2
+FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last of them, no command taken (rc -1, cause -1, 1961 drained)
+FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+FAIL: T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last of them (cause -1, 1961 drained)
+FAIL: T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last of them (cause -1, 1961 drained)
+FAIL: T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends DEADLINE -1 cycles after its accept (cause -1, 1961 drained)
+FAIL: T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends DEADLINE -1 cycles after its accept (cause -1, 1961 drained)
+FAIL: T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last byte (cause -1, 1962 drained)
+FAIL: T28i header: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last byte (cause -1, 1962 drained)
+FAIL: T28i payload: the device's own done ends the READ, and the next restore is served byte-exact
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)
+393 checks: 378 PASS, 15 FAIL
