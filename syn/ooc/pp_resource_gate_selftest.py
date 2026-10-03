@@ -117,7 +117,7 @@ ROUTE_ARMS = (
     ("WNS fell more than the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.200  ")), 1, "fell by"),
     ("WNS fell within the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, "RESULT: PASS"),
     ("WHS below the floor", (SOURCE, (TIMING, "0.100", "-0.001")), 1, "WHS_ns"),
-    ("LUT improvement", (SOURCE, row("LUT", 1000, 950)), 0, "ratchet down"),
+    ("LUT improvement", (SOURCE, row("LUT", 1000, 950)), 0, "below the baseline"),
     ("tool build changed", (("baseline_utilization.rpt", "Build 6511674", "Build 6511675"),), 2, "tool"),
     ("device changed", (("baseline_utilization.rpt", "xc7a100tfgg484-2", "xc7a200tfbg484-2"),), 2, "device"),
     ("placement directive changed", (("baseline_integrated.tcl", "ExtraPostPlacementOpt", "ExtraTimingOpt"),),

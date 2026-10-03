@@ -260,7 +260,7 @@ def verdict_for(entry: dict, figure: str, before: float, after: float) -> tuple[
         return "ok", True
     if after - before > tolerance:
         return f"REGRESSION: grew by more than {tolerance}", False
-    return ("ok, below the baseline: record it to ratchet down" if after < before else "ok"), True
+    return ("ok, below the baseline" if after < before else "ok"), True
 
 
 def scope_deltas(before: dict, after: dict) -> list[str]:
