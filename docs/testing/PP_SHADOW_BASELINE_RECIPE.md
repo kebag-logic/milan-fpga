@@ -15,6 +15,7 @@ The [baseline](../findings/PP_SHADOW_BASELINE.md) records the measured revisions
 - **[Yosys comparison](#yosys-comparison)** -- Map the same numeric geometry.
 - **[Hierarchical mapping comparison](#hierarchical-mapping-comparison)** -- Locate the raw logic-count gap.
 - **[Evidence checks](#evidence-checks)** -- Verify images and retain reports.
+- **[Resource gate](#resource-gate)** -- Judge a measurement against the recorded baseline, record an accepted one, and run the Vivado-free self-test.
 
 ## Prerequisites
 
@@ -265,6 +266,19 @@ Only the top and out-of-context mode change.
 Standalone ports remain unconstrained except for their clock.
 These timing estimates cannot establish placed timing closure.
 
+Add `--integrated-clock` to constrain `clk_i` at the build's own clock instead.
+The period is derived from the wrapper's bound `CLK_HZ_P`, never typed.
+Both product shapes bind 50 MHz, so the period is 20 ns.
+Issue #234 measures this way; the 10 ns default keeps #231 reproducible.
+The flag requires `--integrated-log`; a missing `CLK_HZ_P` is refused.
+
+An RTL elaboration supplies the same parameter block as a full synthesis.
+Issue #234 used it for the 8x8 shape, where no integrated synthesis is needed.
+Cut the integrated script after its `synth_design` line and add `-rtl -rtl_skip_mlo` to it.
+Run it in a separate directory holding copies of the export's `.xdc` and `.init` files.
+Its log is then a valid `--integrated-log`.
+At 1x1 its 21 wrapper parameters equal the full synthesis log's.
+
 Product 1x1 includes two processor sinks and sources.
 Product 8x8 includes nine processor sinks and sources.
 CRF accounts for each additional sink and source.
@@ -422,4 +436,40 @@ unlink sw/builder/out
 unlink configs/generated/ltn_rom.hex
 unlink configs/generated/ucode.hex
 git diff --check
+```
+
+## Resource gate
+
+[`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory.
+It compares the directory with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
+The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the policy.
+Run the shipping route and the 1x1 standalone synthesis as above.
+Use `--integrated-clock` for every standalone endpoint the gate judges.
+
+```sh
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101/gateware" --endpoint route-1x1
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101-ooc" --endpoint ooc-1x1
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax8x8-ooc" --endpoint ooc-8x8
+```
+
+Exit 0 is within tolerance and 1 is a material regression.
+Exit 2 means the measurement is not comparable.
+A different tool build, device, flow command or standalone clock gives 2.
+So do unreadable reports and identical inputs with different figures.
+The output lists the largest sub-block movements without gating them.
+
+An accepted change records its measurement as the new baseline:
+
+```sh
+python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 --write
+python3 syn/ooc/pp_resource_gate.py check-baseline
+```
+
+`--write` replaces only the record; tolerances, floors and ceilings stay.
+Review the diff of the JSON file like any other budget change.
+The self-test and its mutant campaign need no Vivado:
+
+```sh
+python3 syn/ooc/pp_resource_gate.py --selftest
+python3 syn/ooc/pp_resource_gate_mutants.py
 ```
