@@ -1,0 +1,39 @@
+milan-fpga dev 1269cdafb4bb964c757baae0f0c5a932d43f540b
+67bcd69852e5d090abc635e8dd66e5159667847ebf83d85aba9599d7cff7bd7c  parent-adoption-c4c6-ea3fb388.patch
+aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209  parent-adoption-c8-cdf49d1a.patch
+590f791de7fc5d00986a8d76c43e4488d522305b19876b8b4f30bc0a76f539fa  parent-adoption-p2-cdf49d1a.patch
+--- c4c6 on dev 1269cdaf (expected: already carried, so --check fails and -R --check succeeds)
+error: patch failed: hdl/milan/KL_pp_shadow.sv:1094
+error: hdl/milan/KL_pp_shadow.sv: patch does not apply
+error: patch failed: scripts/measure_test_evidence.py:594
+error: scripts/measure_test_evidence.py: patch does not apply
+rc=1
+error: patch failed: hdl/milan/KL_pp_shadow.sv:1094
+error: hdl/milan/KL_pp_shadow.sv: patch does not apply
+reverse rc=1
+--- c8 then p2
+c8 check rc=0
+c8 apply rc=0
+Checking patch docs/design/SAVED_STATE_MATERIALIZATION.md...
+p2 apply rc=0
+ M avdecc/aem_assemble.py
+ M avdecc/aem_specs.py
+ M avdecc/gen_aemi_image.py
+ M configs/endstation_ax7101_8x8.yaml
+ M docs/ENDSTATION_BUILDER.md
+ M docs/design/SAVED_STATE_MATERIALIZATION.md
+ M sw/builder/endstation_builder.py
+ M sw/builder/test_builder.py
+ avdecc/aem_assemble.py                     |  3 +-
+ avdecc/aem_specs.py                        |  1 +
+ avdecc/gen_aemi_image.py                   |  2 +
+ configs/endstation_ax7101_8x8.yaml         | 14 +++++++
+ docs/ENDSTATION_BUILDER.md                 |  3 +-
+ docs/design/SAVED_STATE_MATERIALIZATION.md | 65 +++++++++++++++++++++---------
+ sw/builder/endstation_builder.py           |  7 ++++
+ sw/builder/test_builder.py                 | 13 ++++--
+ 8 files changed, 82 insertions(+), 26 deletions(-)
+--- p2 alone on dev
+p2 alone check rc=0
+--- R5 text after both
+1930:| Releasing the port after a deadline, or calling it reusable, while its device may still answer | the port answers untagged; only the device ending the operation, or a real cancellation acknowledgement, makes reuse safe | section 8.8; section 15 item 4 (amended) |

@@ -1,0 +1,4 @@
+FAIL: ZD3 late grant: drained exactly the 8 header bytes owed, then DEADLINE (rc 1, cause 3, 9 drained)
+FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ends DEADLINE 22 cycles after the last byte (cause 3, 9 drained)
+FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on it ends DEADLINE 22 cycles after the last byte (cause 3, 41 drained)
+409 checks: 406 PASS, 3 FAIL

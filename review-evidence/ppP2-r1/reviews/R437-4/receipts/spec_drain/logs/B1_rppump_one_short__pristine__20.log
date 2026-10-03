@@ -1,0 +1,21 @@
+FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+FAIL: T24 ...and the next restore is served at once
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 1)
+FAIL: T24 ...then the next restore is served
+FAIL: T28d an owed READ drained one byte every 10 cycles while a restore waits: each drained byte restarts the count, so the restore, held 2000 cycles behind 28 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+FAIL: T28e the owed ERASE's done, 12 cycles into a restore's wait, restarts the count: the restore, granted 12 cycles after it, is served byte-exact, never DEADLINE (rc 1, cause 3)
+FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 22 cycles after the last of them, no command taken (rc 1, cause 3, 29 drained)
+FAIL: T28j a 600-byte payload READ abandoned before its 11th byte: the 590 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 3, 589 moved)
+FAIL: T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed are drained, the device's done ends it, and the restore waiting on it is served byte-exact (rc 1, cause 3, 1023 moved)
+FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+393 checks: 373 PASS, 20 FAIL

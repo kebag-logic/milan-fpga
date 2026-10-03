@@ -1,0 +1,229 @@
+B14_late_grant_not_a_read__pristine__100: rc=1 393 checks, 22 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it 
+    FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i
+    FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de
+B14_late_grant_not_a_read__pristine__20: rc=1 393 checks, 22 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it 
+    FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i
+    FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de
+B14_late_grant_not_a_read__pristine__37: rc=1 393 checks, 22 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it 
+    FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i
+    FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de
+B15_drain_unbounded__pristine__100: rc=1 393 checks, 15 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the re
+    FAIL: T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the re
+    FAIL: T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends
+    FAIL: T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends
+    FAIL: T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it 
+    FAIL: T28i header: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i
+    FAIL: T28i payload: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)
+B15_drain_unbounded__pristine__20: rc=1 393 checks, 15 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the re
+    FAIL: T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the re
+    FAIL: T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends
+    FAIL: T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends
+    FAIL: T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it 
+    FAIL: T28i header: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i
+    FAIL: T28i payload: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)
+B15_drain_unbounded__pristine__37: rc=1 393 checks, 15 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the re
+    FAIL: T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the re
+    FAIL: T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends
+    FAIL: T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends
+    FAIL: T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it 
+    FAIL: T28i header: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i
+    FAIL: T28i payload: the device's own done ends the READ, and the next restore is served byte-exact
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)
+FZ_B14_late_grant_not_a_read__pristine__1: rc=0 10 checks, 0 FAIL
+FZ_B14_late_grant_not_a_read__pristine__3: rc=0 10 checks, 0 FAIL
+FZ_B14_late_grant_not_a_read__pristine__37: rc=0 10 checks, 0 FAIL
+FZ_B15_drain_unbounded__pristine__1: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B15_drain_unbounded__pristine__3: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B15_drain_unbounded__pristine__37: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_W10_count_ten_bits__pristine__1: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W10_count_ten_bits__pristine__3: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W10_count_ten_bits__pristine__37: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W11_count_eleven_bits__pristine__1: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W11_count_eleven_bits__pristine__3: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W11_count_eleven_bits__pristine__37: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W12_count_twelve_bits__pristine__1: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W12_count_twelve_bits__pristine__3: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W12_count_twelve_bits__pristine__37: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W15_count_fifteen_bits__pristine__1: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W15_count_fifteen_bits__pristine__3: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_W15_count_fifteen_bits__pristine__37: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_base__pristine__1: rc=0 10 checks, 0 FAIL
+FZ_base__pristine__100: rc=0 10 checks, 0 FAIL
+FZ_base__pristine__19: rc=0 10 checks, 0 FAIL
+FZ_base__pristine__2: rc=0 10 checks, 0 FAIL
+FZ_base__pristine__3: rc=0 10 checks, 0 FAIL
+FZ_base__pristine__37: rc=0 10 checks, 0 FAIL
+FZ_base__pristine__5: rc=0 10 checks, 0 FAIL
+W10_count_ten_bits__pristine__100: rc=1 393 checks, 2 FAIL
+    FAIL: T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed 
+    FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de
+W10_count_ten_bits__pristine__20: rc=1 393 checks, 2 FAIL
+    FAIL: T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed 
+    FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de
+W10_count_ten_bits__pristine__37: rc=1 393 checks, 2 FAIL
+    FAIL: T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed 
+    FAIL: T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de
+W11_count_eleven_bits__pristine__100: rc=0 393 checks, 0 FAIL
+W11_count_eleven_bits__pristine__20: rc=0 393 checks, 0 FAIL
+W11_count_eleven_bits__pristine__37: rc=0 393 checks, 0 FAIL
+W12_count_twelve_bits__pristine__100: rc=0 393 checks, 0 FAIL
+W12_count_twelve_bits__pristine__20: rc=0 393 checks, 0 FAIL
+W12_count_twelve_bits__pristine__37: rc=0 393 checks, 0 FAIL
+W15_count_fifteen_bits__pristine__100: rc=0 393 checks, 0 FAIL
+W15_count_fifteen_bits__pristine__20: rc=0 393 checks, 0 FAIL
+W15_count_fifteen_bits__pristine__37: rc=0 393 checks, 0 FAIL
+base__coincident_completion__100: rc=0 393 checks, 0 FAIL
+base__coincident_completion__1000: rc=0 393 checks, 0 FAIL
+base__coincident_completion__20: rc=0 393 checks, 0 FAIL
+base__coincident_completion__21: rc=0 393 checks, 0 FAIL
+base__coincident_completion__37: rc=0 393 checks, 0 FAIL
+base__coincident_completion__4096: rc=0 393 checks, 0 FAIL
+base__half-page__100: rc=0 393 checks, 0 FAIL
+base__half-page__1000: rc=0 393 checks, 0 FAIL
+base__half-page__20: rc=0 393 checks, 0 FAIL
+base__half-page__21: rc=0 393 checks, 0 FAIL
+base__half-page__37: rc=0 393 checks, 0 FAIL
+base__half-page__4096: rc=0 393 checks, 0 FAIL
+base__lazy_erase__100: rc=0 393 checks, 0 FAIL
+base__lazy_erase__1000: rc=0 393 checks, 0 FAIL
+base__lazy_erase__20: rc=0 393 checks, 0 FAIL
+base__lazy_erase__21: rc=0 393 checks, 0 FAIL
+base__lazy_erase__37: rc=0 393 checks, 0 FAIL
+base__lazy_erase__4096: rc=0 393 checks, 0 FAIL
+base__lazy_erase_p_page-buffered__100: rc=0 393 checks, 0 FAIL
+base__lazy_erase_p_page-buffered__1000: rc=0 393 checks, 0 FAIL
+base__lazy_erase_p_page-buffered__20: rc=0 393 checks, 0 FAIL
+base__lazy_erase_p_page-buffered__21: rc=0 393 checks, 0 FAIL
+base__lazy_erase_p_page-buffered__37: rc=0 393 checks, 0 FAIL
+base__lazy_erase_p_page-buffered__4096: rc=0 393 checks, 0 FAIL
+base__page-buffered_NOR__100: rc=0 393 checks, 0 FAIL
+base__page-buffered_NOR__1000: rc=0 393 checks, 0 FAIL
+base__page-buffered_NOR__20: rc=0 393 checks, 0 FAIL
+base__page-buffered_NOR__21: rc=0 393 checks, 0 FAIL
+base__page-buffered_NOR__37: rc=0 393 checks, 0 FAIL
+base__page-buffered_NOR__4096: rc=0 393 checks, 0 FAIL
+base__pristine__100: rc=0 393 checks, 0 FAIL
+base__pristine__1000: rc=0 393 checks, 0 FAIL
+base__pristine__20: rc=0 393 checks, 0 FAIL
+base__pristine__21: rc=0 393 checks, 0 FAIL
+base__pristine__37: rc=0 393 checks, 0 FAIL
+base__pristine__4096: rc=0 393 checks, 0 FAIL
+base__unsolicited_completion__100: rc=0 393 checks, 0 FAIL
+base__unsolicited_completion__1000: rc=0 393 checks, 0 FAIL
+base__unsolicited_completion__20: rc=0 393 checks, 0 FAIL
+base__unsolicited_completion__21: rc=0 393 checks, 0 FAIL
+base__unsolicited_completion__37: rc=0 393 checks, 0 FAIL
+base__unsolicited_completion__4096: rc=0 393 checks, 0 FAIL

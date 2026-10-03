@@ -1,0 +1,27 @@
+FZ_B10_count_eight_bits__pristine__2: rc=1 10 checks, 3 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (7
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_B12_drain_any_owed__pristine__2: rc=0 10 checks, 0 FAIL
+FZ_B13_load_only_owned__pristine__2: rc=0 10 checks, 0 FAIL
+FZ_B1_rppump_one_short__pristine__2: rc=1 10 checks, 3 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+    FAIL: FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te
+FZ_B2_rhcoll_one_short__pristine__2: rc=1 10 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (4
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B3_request_one_short__pristine__2: rc=0 10 checks, 0 FAIL
+FZ_B4_request_none__pristine__2: rc=0 10 checks, 0 FAIL
+FZ_B5_rppump_one_over__pristine__2: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B6_rhcoll_one_over__pristine__2: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B6b_rhcoll_whole__pristine__2: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B7_request_one_over__pristine__2: rc=0 10 checks, 0 FAIL
+FZ_B8_wait_states_owe_eight__pristine__2: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B9_decrement_unguarded__pristine__2: rc=1 10 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_base__pristine__2: rc=0 10 checks, 0 FAIL

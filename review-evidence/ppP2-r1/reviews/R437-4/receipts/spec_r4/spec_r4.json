@@ -1,0 +1,1020 @@
+[
+ {
+  "job": "B14_late_grant_not_a_read__pristine__100",
+  "probe": "B14_late_grant_not_a_read",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 1,
+  "total": 393,
+  "fail": 22,
+  "fail_names": [
+   "T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)",
+   "T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)",
+   "T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs ",
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ",
+   "T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i",
+   "T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de"
+  ]
+ },
+ {
+  "job": "B14_late_grant_not_a_read__pristine__20",
+  "probe": "B14_late_grant_not_a_read",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 1,
+  "total": 393,
+  "fail": 22,
+  "fail_names": [
+   "T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)",
+   "T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)",
+   "T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs ",
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ",
+   "T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i",
+   "T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de"
+  ]
+ },
+ {
+  "job": "B14_late_grant_not_a_read__pristine__37",
+  "probe": "B14_late_grant_not_a_read",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 393,
+  "fail": 22,
+  "fail_names": [
+   "T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)",
+   "T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)",
+   "T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)",
+   "T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)",
+   "T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)",
+   "T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs ",
+   "T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)",
+   "T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)",
+   "T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)",
+   "T24 ...and the next restore is served at once",
+   "T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ",
+   "T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i",
+   "T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de"
+  ]
+ },
+ {
+  "job": "B15_drain_unbounded__pristine__100",
+  "probe": "B15_drain_unbounded",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 1,
+  "total": 393,
+  "fail": 15,
+  "fail_names": [
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor",
+   "T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)",
+   "T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the re",
+   "T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the re",
+   "T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends",
+   "T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends",
+   "T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ",
+   "T28i header: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i",
+   "T28i payload: the device's own done ends the READ, and the next restore is served byte-exact",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)"
+  ]
+ },
+ {
+  "job": "B15_drain_unbounded__pristine__20",
+  "probe": "B15_drain_unbounded",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 1,
+  "total": 393,
+  "fail": 15,
+  "fail_names": [
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor",
+   "T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)",
+   "T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the re",
+   "T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the re",
+   "T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends",
+   "T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends",
+   "T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ",
+   "T28i header: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i",
+   "T28i payload: the device's own done ends the READ, and the next restore is served byte-exact",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)"
+  ]
+ },
+ {
+  "job": "B15_drain_unbounded__pristine__37",
+  "probe": "B15_drain_unbounded",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 393,
+  "fail": 15,
+  "fail_names": [
+   "T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor",
+   "T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)",
+   "T28g S_RHCOLL: a header READ abandoned after 3 bytes is drained of the 5 it still owes and no more, and the re",
+   "T28g ...after 3 bytes: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28g S_RHCOLL: a header READ abandoned after 7 bytes is drained of the 1 it still owes and no more, and the re",
+   "T28g ...after 7 bytes: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28h S_RHWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends",
+   "T28h S_RHWAIT: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28h S_RPWAIT: a READ whose every byte moved owes none, nothing is drained, and the restore waiting on it ends",
+   "T28h S_RPWAIT: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28i a header READ granted late is drained of its whole length, 8, and no more, and the restore waiting on it ",
+   "T28i header: the device's own done ends the READ, and the next restore is served byte-exact",
+   "T28i a payload READ granted late is drained of its whole length, 40, and no more, and the restore waiting on i",
+   "T28i payload: the device's own done ends the READ, and the next restore is served byte-exact",
+   "RW1 every operation the port accepted was answered; none ran past run_op's guard (7 wedged)"
+  ]
+ },
+ {
+  "job": "FZ_B14_late_grant_not_a_read__pristine__1",
+  "probe": "FZ:B14_late_grant_not_a_read",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B14_late_grant_not_a_read__pristine__3",
+  "probe": "FZ:B14_late_grant_not_a_read",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B14_late_grant_not_a_read__pristine__37",
+  "probe": "FZ:B14_late_grant_not_a_read",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B15_drain_unbounded__pristine__1",
+  "probe": "FZ:B15_drain_unbounded",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B15_drain_unbounded__pristine__3",
+  "probe": "FZ:B15_drain_unbounded",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B15_drain_unbounded__pristine__37",
+  "probe": "FZ:B15_drain_unbounded",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_W10_count_ten_bits__pristine__1",
+  "probe": "FZ:W10_count_ten_bits",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W10_count_ten_bits__pristine__3",
+  "probe": "FZ:W10_count_ten_bits",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W10_count_ten_bits__pristine__37",
+  "probe": "FZ:W10_count_ten_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W11_count_eleven_bits__pristine__1",
+  "probe": "FZ:W11_count_eleven_bits",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W11_count_eleven_bits__pristine__3",
+  "probe": "FZ:W11_count_eleven_bits",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W11_count_eleven_bits__pristine__37",
+  "probe": "FZ:W11_count_eleven_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W12_count_twelve_bits__pristine__1",
+  "probe": "FZ:W12_count_twelve_bits",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W12_count_twelve_bits__pristine__3",
+  "probe": "FZ:W12_count_twelve_bits",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W12_count_twelve_bits__pristine__37",
+  "probe": "FZ:W12_count_twelve_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W15_count_fifteen_bits__pristine__1",
+  "probe": "FZ:W15_count_fifteen_bits",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W15_count_fifteen_bits__pristine__3",
+  "probe": "FZ:W15_count_fifteen_bits",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_W15_count_fifteen_bits__pristine__37",
+  "probe": "FZ:W15_count_fifteen_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_base__pristine__1",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 1,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_base__pristine__100",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_base__pristine__19",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 19,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_base__pristine__2",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_base__pristine__3",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 3,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_base__pristine__37",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_base__pristine__5",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 5,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W10_count_ten_bits__pristine__100",
+  "probe": "W10_count_ten_bits",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 1,
+  "total": 393,
+  "fail": 2,
+  "fail_names": [
+   "T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed ",
+   "T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de"
+  ]
+ },
+ {
+  "job": "W10_count_ten_bits__pristine__20",
+  "probe": "W10_count_ten_bits",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 1,
+  "total": 393,
+  "fail": 2,
+  "fail_names": [
+   "T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed ",
+   "T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de"
+  ]
+ },
+ {
+  "job": "W10_count_ten_bits__pristine__37",
+  "probe": "W10_count_ten_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 1,
+  "total": 393,
+  "fail": 2,
+  "fail_names": [
+   "T28j a payload READ of the largest legal length abandoned before its first byte: the 1024 bytes it still owed ",
+   "T28j a payload READ of the largest legal length granted late: the 1024 bytes it still owed are drained, the de"
+  ]
+ },
+ {
+  "job": "W11_count_eleven_bits__pristine__100",
+  "probe": "W11_count_eleven_bits",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W11_count_eleven_bits__pristine__20",
+  "probe": "W11_count_eleven_bits",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W11_count_eleven_bits__pristine__37",
+  "probe": "W11_count_eleven_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W12_count_twelve_bits__pristine__100",
+  "probe": "W12_count_twelve_bits",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W12_count_twelve_bits__pristine__20",
+  "probe": "W12_count_twelve_bits",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W12_count_twelve_bits__pristine__37",
+  "probe": "W12_count_twelve_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W15_count_fifteen_bits__pristine__100",
+  "probe": "W15_count_fifteen_bits",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W15_count_fifteen_bits__pristine__20",
+  "probe": "W15_count_fifteen_bits",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "W15_count_fifteen_bits__pristine__37",
+  "probe": "W15_count_fifteen_bits",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__coincident_completion__100",
+  "probe": "base",
+  "model": "coincident completion",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__coincident_completion__1000",
+  "probe": "base",
+  "model": "coincident completion",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__coincident_completion__20",
+  "probe": "base",
+  "model": "coincident completion",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__coincident_completion__21",
+  "probe": "base",
+  "model": "coincident completion",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__coincident_completion__37",
+  "probe": "base",
+  "model": "coincident completion",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__coincident_completion__4096",
+  "probe": "base",
+  "model": "coincident completion",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__half-page__100",
+  "probe": "base",
+  "model": "half-page",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__half-page__1000",
+  "probe": "base",
+  "model": "half-page",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__half-page__20",
+  "probe": "base",
+  "model": "half-page",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__half-page__21",
+  "probe": "base",
+  "model": "half-page",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__half-page__37",
+  "probe": "base",
+  "model": "half-page",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__half-page__4096",
+  "probe": "base",
+  "model": "half-page",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase__100",
+  "probe": "base",
+  "model": "lazy erase",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase__1000",
+  "probe": "base",
+  "model": "lazy erase",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase__20",
+  "probe": "base",
+  "model": "lazy erase",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase__21",
+  "probe": "base",
+  "model": "lazy erase",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase__37",
+  "probe": "base",
+  "model": "lazy erase",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase__4096",
+  "probe": "base",
+  "model": "lazy erase",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase_p_page-buffered__100",
+  "probe": "base",
+  "model": "lazy erase + page-buffered",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase_p_page-buffered__1000",
+  "probe": "base",
+  "model": "lazy erase + page-buffered",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase_p_page-buffered__20",
+  "probe": "base",
+  "model": "lazy erase + page-buffered",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase_p_page-buffered__21",
+  "probe": "base",
+  "model": "lazy erase + page-buffered",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase_p_page-buffered__37",
+  "probe": "base",
+  "model": "lazy erase + page-buffered",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__lazy_erase_p_page-buffered__4096",
+  "probe": "base",
+  "model": "lazy erase + page-buffered",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__page-buffered_NOR__100",
+  "probe": "base",
+  "model": "page-buffered NOR",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__page-buffered_NOR__1000",
+  "probe": "base",
+  "model": "page-buffered NOR",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__page-buffered_NOR__20",
+  "probe": "base",
+  "model": "page-buffered NOR",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__page-buffered_NOR__21",
+  "probe": "base",
+  "model": "page-buffered NOR",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__page-buffered_NOR__37",
+  "probe": "base",
+  "model": "page-buffered NOR",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__page-buffered_NOR__4096",
+  "probe": "base",
+  "model": "page-buffered NOR",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__pristine__100",
+  "probe": "base",
+  "model": "pristine",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__pristine__1000",
+  "probe": "base",
+  "model": "pristine",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__pristine__20",
+  "probe": "base",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__pristine__21",
+  "probe": "base",
+  "model": "pristine",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__pristine__37",
+  "probe": "base",
+  "model": "pristine",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__pristine__4096",
+  "probe": "base",
+  "model": "pristine",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__unsolicited_completion__100",
+  "probe": "base",
+  "model": "unsolicited completion",
+  "tmo": 100,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__unsolicited_completion__1000",
+  "probe": "base",
+  "model": "unsolicited completion",
+  "tmo": 1000,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__unsolicited_completion__20",
+  "probe": "base",
+  "model": "unsolicited completion",
+  "tmo": 20,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__unsolicited_completion__21",
+  "probe": "base",
+  "model": "unsolicited completion",
+  "tmo": 21,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__unsolicited_completion__37",
+  "probe": "base",
+  "model": "unsolicited completion",
+  "tmo": 37,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "base__unsolicited_completion__4096",
+  "probe": "base",
+  "model": "unsolicited completion",
+  "tmo": 4096,
+  "rc": 0,
+  "total": 393,
+  "fail": 0,
+  "fail_names": []
+ }
+]

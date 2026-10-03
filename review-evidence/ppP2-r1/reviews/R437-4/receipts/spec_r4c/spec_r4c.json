@@ -1,0 +1,163 @@
+[
+ {
+  "job": "FZ_B10_count_eight_bits__pristine__2",
+  "probe": "FZ:B10_count_eight_bits",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 3,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (7",
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_B12_drain_any_owed__pristine__2",
+  "probe": "FZ:B12_drain_any_owed",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B13_load_only_owned__pristine__2",
+  "probe": "FZ:B13_load_only_owned",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B1_rppump_one_short__pristine__2",
+  "probe": "FZ:B1_rppump_one_short",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 3,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1",
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th",
+   "FZ10 the abandonments reached every branch of what a READ owes: babble's at header bytes, payload bytes and te"
+  ]
+ },
+ {
+  "job": "FZ_B2_rhcoll_one_short__pristine__2",
+  "probe": "FZ:B2_rhcoll_one_short",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 2,
+  "fail_names": [
+   "FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (4",
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B3_request_one_short__pristine__2",
+  "probe": "FZ:B3_request_one_short",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B4_request_none__pristine__2",
+  "probe": "FZ:B4_request_none",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B5_rppump_one_over__pristine__2",
+  "probe": "FZ:B5_rppump_one_over",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B6_rhcoll_one_over__pristine__2",
+  "probe": "FZ:B6_rhcoll_one_over",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B6b_rhcoll_whole__pristine__2",
+  "probe": "FZ:B6b_rhcoll_whole",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B7_request_one_over__pristine__2",
+  "probe": "FZ:B7_request_one_over",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "FZ_B8_wait_states_owe_eight__pristine__2",
+  "probe": "FZ:B8_wait_states_owe_eight",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_B9_decrement_unguarded__pristine__2",
+  "probe": "FZ:B9_decrement_unguarded",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 1,
+  "total": 10,
+  "fail": 1,
+  "fail_names": [
+   "FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th"
+  ]
+ },
+ {
+  "job": "FZ_base__pristine__2",
+  "probe": "FZ:base",
+  "model": "pristine",
+  "tmo": 2,
+  "rc": 0,
+  "total": 10,
+  "fail": 0,
+  "fail_names": []
+ }
+]
