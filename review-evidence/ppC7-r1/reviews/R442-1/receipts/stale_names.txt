@@ -1,0 +1,11 @@
+docs/architecture/01_overview.md:96:| Event router | fan-out of adapter/SM events to counters, SMs, notifications | [03 §5](03_packet_engine.md) |
+docs/architecture/01_overview.md:222:    ctrs["counters"]
+docs/architecture/01_overview.md:238:    adapters["srp/maap · gptp · avtp · mclk adapters · side-port · nvm port"]
+docs/architecture/01_overview.md:251:  adapters --> ctrs
+docs/architecture/05_acmp_engine.md:106:  exec -- "declare/withdraw, configure/enable" --> srpav["srp + avtp adapters"]
+docs/architecture/05_acmp_engine.md:286:| A8 | teardown SRP: `WITHDRAW_LISTENER`; `avtp.INPUT_DISABLE`; clear settled {stream_id, DA, VLAN}; talker_registered←0 |
+docs/architecture/06_aecp_engine.md:469:| SET_CLOCK_SOURCE | lock (`ENTITY_LOCKED` carrying the current index, §6.8) → locate (no such CLOCK_DOMAIN ⇒ `NO_SUCH_DESCRIPTOR`) → source ∈ CLOCK_DOMAIN list, tested as `clock_source_index` < the l
+hdl/acmp/KL_pp_acmp_listener.sv:25://                A15/A8 settle/teardown faces toward the srp+avtp adapters,
+hdl/acmp/KL_pp_acmp_listener.sv:184:    output logic                         act_settle_o,    //! A15: INPUT_CONFIGURE+ENABLE + SRP listen
+hdl/acmp/KL_pp_acmp_listener.sv:188:    output logic                         act_teardown_o,  //! A8: WITHDRAW_LISTENER + INPUT_DISABLE
+rc=0

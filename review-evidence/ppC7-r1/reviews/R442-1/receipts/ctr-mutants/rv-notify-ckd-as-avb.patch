@@ -1,0 +1,7 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -505,3 +505,3 @@
+       ctr_ev_ok_w = 1'b1;
+-      ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + N_STREAM_OUT_P + 1);
++      ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + N_STREAM_OUT_P);
+     end
