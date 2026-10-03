@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `b2db3a970cedbbff2f8ba813acb96122c442bc58` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `631eeb342ca1e3fa80e734077a56a943aee76ff1` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -80,7 +80,7 @@ Issues #606 and #608 adopted processor pin `c951a9ff`.
 - Parent regressions exercise MAAP acquisition and CRF STREAM_STOP.
 - Bench re-measurement follows on the next image.
 
-Issue #70 lane 2 adopts processor pin `b2db3a97`.
+Issue #70 lane 2 adopted processor pin `b2db3a97`.
 
 - [Processor PR 132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132) adds the scalar-record D3 writer (`d352bbaa`).
 - It holds AECP until the D3 restore's terminal.
@@ -89,6 +89,35 @@ Issue #70 lane 2 adopts processor pin `b2db3a97`.
 - Its talker licence waits for the stream VID's MVRP join.
 - It changes no port or parameter of the processor top.
 - The ROM generators' outputs match the `c951a9ff` rows.
+
+Issue #635 adopts processor pin `631eeb34`.
+
+| Processor lane | Merged PR | `main` after merge |
+|---|---|---|
+| C3, ADP | [136](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/136) | `0451d83d` |
+| C2, MAAP | [135](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/135) | `d5f73bac` |
+| C4, ACMP | [137](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/137) | `3f3ea56b` |
+| C5b, AECP dispatch and responses | [138](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/138) | `16ea10ac` |
+| C5a, AECP deadlines and hazards | [140](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/140) | `03c842a7` |
+| C6, notifications and Identify | [139](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/139) | `2ebd4fe8` |
+| P141, clock sources for #629 | [142](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/142) | `631eeb34` |
+
+- `ltn_rom.hex` matches the `b2db3a97` row.
+- The `ucode.hex` digest changes.
+
+The parent can observe these processor changes.
+
+| Processor change | Parent position |
+|---|---|
+| C6 adds input `identify_button_i` and parameter `EN_IDENTIFY_NOTIF_P`, default 0 | `KL_pp_shadow` ties both to 0 until a board button exists |
+| C6 draws that input in processor diagram 21 | The parent keeps no copy of that diagram |
+| C5a answers an AECP command still running 100 ms after reception | No top port or parameter; its kill ports stay inside the processor, and the three scoreboard kill tie-offs left the processor top |
+| C5a answers a non-AEM command whose response memory fails NOT_IMPLEMENTED, with the command echoed ([processor PR 140](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/140); Milan v1.2 Section 5.4.3.3, Table 5.19) | No top port or parameter; GET_MILAN_INFO is such a command, and at `b2db3a97` the same fault answered ENTITY_MISBEHAVING |
+| C5a serializes AECP and ACMP work by hazard class | No top port or parameter |
+| C5b accepts `DESC_LINE_BYTES_P` from 576 to 1008, in steps of 8 | The parent binds 576, the floor |
+| C3 carries a SET_CONFIGURATION index in the ADPDU | The parent image declares one configuration; the wire is unchanged while `ADP_IDX0` is 0 |
+| C2 fixes the internal MAAP engine | The parent ties `cfg_maap_internal_i` to 0, so it stays inactive |
+| P141 grades SET/GET_CLOCK_SOURCE over ten sources | [Media-clock following](../design/MEDIA_CLOCK_FOLLOWING.md#protocol-processor-changes) records it as landed |
 
 The ROM ledger records current and earlier pins.
 

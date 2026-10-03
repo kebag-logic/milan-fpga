@@ -1017,7 +1017,7 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 | `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. Option OFF reads zero; writes are inert. |
 | `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot. Option OFF reads zero; writes are inert. |
 | `0x62C` | `ADP_GPTP_DOMAIN` | RO live | `0` | `[7:0]` gptp_domain_number - ADPDU byte 48. At `VERSION=0x0002_0060` this is a structural domain `0` in both fabric mode and the ownerless verification-only option-OFF build. All writes are inert; no startup publication step owns this word. |
-| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
+| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`), `[31:16]` identify_control_index |
 | `0x634` | `ADP_IDX1` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` interface_index. Stored and read back; never reaches the wire |
 | `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[31:0]`. Stored and read back; never reaches the wire |
 | `0x63C` | `ADP_ASSOC_ID_HI` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — association_id `[63:32]`. Stored and read back; never reaches the wire |
