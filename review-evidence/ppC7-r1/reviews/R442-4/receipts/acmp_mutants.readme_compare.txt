@@ -1,0 +1,23 @@
+OK golden-acmp_listener PASS
+OK golden-pp_top PASS
+OK golden-rx_validator PASS
+OK msg_ok_forced@acmp_listener verdict=KILLED failures=93 readme=not in this table
+OK guard_ctlr_dropped@acmp_listener verdict=KILLED failures=50 readme=not in this table
+OK guard_talker_eid_dropped@acmp_listener verdict=KILLED failures=40 readme=not in this table
+OK msg_ok_forced@pp_top verdict=KILLED failures=1 readme=1
+OK guard_talker_uid_dropped@acmp_listener verdict=KILLED failures=30 readme=not in this table
+OK cdl_not_44_rejected@rx_validator verdict=KILLED failures=27 readme=not in this table
+OK cdl_not_44_rejected@pp_top verdict=KILLED failures=19 readme=19
+OK st_ls_settle_as_withdraw@pp_top verdict=KILLED failures=7 readme=7
+OK st_ls_teardown_as_declare@pp_top verdict=KILLED failures=1 readme=1
+OK st_ls_sid_da_swapped@pp_top verdict=KILLED failures=7 readme=7
+OK st_ls_state_none@pp_top verdict=KILLED failures=7 readme=7
+OK st_ls_vid_dropped@pp_top verdict=KILLED failures=7 readme=7
+OK st_ls_index_zero@pp_top verdict=KILLED failures=6 readme=6
+OK st_ls_teardown_lost@pp_top verdict=KILLED failures=2 readme=2
+OK bound_dmac_from_sid@pp_top verdict=KILLED failures=2 readme=2
+OK bound_view_not_latched@pp_top verdict=KILLED failures=2 readme=2
+OK bound_view_not_cleared@pp_top verdict=KILLED failures=1 readme=1
+OK matcher_da_ignored@pp_top verdict=KILLED failures=5 readme=5
+OK matcher_vid_ignored@pp_top verdict=KILLED failures=5 readme=5
+goldens 3, arms 19, KILLED 19, README rows 14, README rows without a run [], problems 0

@@ -1,0 +1,147 @@
+## draw.io labels (id | label | edge source -> target)
+== docs/diagrams/src/01-system-context.drawio
+  device | Non-redundant Milan v1.2 PAAD (device boundary) |  -> 
+  ctrls | ATDECC controllers ×N |  -> 
+  cloud | AVB network / (802.1BA, SR class A) |  -> 
+  peers | Remote talkers / listeners / (other PAADs) |  -> 
+  mac | Ethernet / MAC / PHY |  -> 
+  proc | <b>IEEE 1722.1 PROTOCOL PROCESSOR</b> / (this architecture) /  / ADP · ACMP · AECP/AEM · Milan MVU / registry · notifications · lock / GET_COUNTERS reporting · timers / persistence manager |  -> 
+  gptp | gPTP engine / (802.1AS-2011) |  -> 
+  srp | MAAP allocator / (+ SRP stack only if external) |  -> 
+  avtp | AVTP streaming engine / (1722-2016, CBS) |  -> 
+  mclk | Media-clock engine / (CRF, domains) |  -> 
+  nvm | NVM device / (flash / EEPROM / host FS) |  -> 
+  mgmt | Optional management host / soft CPU / MCU / test bench |  -> 
+  led | Identify indicator / (LED / beep) |  -> 
+  legend | Interface classes (see 02_interfaces.md): / A packet streaming · B request/response · C events · D level status · E side-port · F NVM / gsi · ctr: the read faces of 02 §4.3 and §4.6; gPTP, AVTP and media clocking have no class-B face |  -> 
+  e1 |  | ctrls -> cloud
+  e2 |  | peers -> cloud
+  e3 | 100M / 1G link | cloud -> mac
+  e4 | A | mac -> proc
+  e5 | D · gsi · ctr | proc -> gptp
+  e6 | B/C/D | proc -> srp
+  e7 | D · gsi · ctr | proc -> avtp
+  e8 | D · ctr | proc -> mclk
+  e9 | F | proc -> nvm
+  e10 | E | proc -> mgmt
+  e11 | D | proc -> led
+== docs/diagrams/src/01-top-level.drawio
+  dom-rx | MAC RX clock domain |  -> 
+  dom-core | core clock domain |  -> 
+  dom-tx | MAC TX clock domain |  -> 
+  rxfifo | MAC RX / async FIFO |  -> 
+  txfifo | MAC TX / async FIFO |  -> 
+  parser | RX filter + parser + validator / DA · 0x22F0 · FA/FB/FC · cdl+12 |  -> 
+  slots | RX slots |  -> 
+  norm | Normalizer / (DECODE) |  -> 
+  score | Scoreboard / (hazard classes) |  -> 
+  resp | Response builders / TX slots (std + oversize) |  -> 
+  txarb | TX arbiter |  -> 
+  adp | <b>ADP engine</b> / advertise SM ×IF / talker-discovery SM ×sink / available_index |  -> 
+  acmp | <b>ACMP engine</b> / stateless talker responder / listener-SM executor ×sink / probe inflight |  -> 
+  aecp | <b>AECP engine (µCPU)</b> / AEM + MVU decode / dispatch / µcode · validation · gather |  -> 
+  model | Entity-model store / static image + overlay + names |  -> 
+  lock | Lock / manager |  -> 
+  registry | Controller registry / + monitor + notification fan-out |  -> 
+  ident | Identify / handler |  -> 
+  timer | Timer service / + PRNG |  -> 
+  evr | Event router |  -> 
+  boot | Boot / init sequencer / config + ID regs + profile ROMs |  -> 
+  orig | Originator / + inflight table |  -> 
+  faces | External-engine faces (02 §4) |  -> 
+  f-srp | srp · maap faces (class B) / in core: SRP engine (10, default), / MAAP engine (11, opt-in) |  -> 
+  f-lvl | gPTP · AVTP · media clock / class-D levels + change strobes |  -> 
+  f-rd | gsi · ctr read faces / GET_* words + change strobes |  -> 
+  nvm | NVM manager / (journal + restore) |  -> 
+  side | Management side-port / (bus-agnostic) |  -> 
+  legend | Solid = transaction / data path · dashed = events, configuration and persistence / Interface classes A-F and every external signal: see 02_interfaces.md |  -> 
+  e1 |  | rxfifo -> parser
+  e2 |  | parser -> slots
+  e3 |  | slots -> norm
+  e4 |  | norm -> score
+  e5 |  | score -> adp
+  e6 |  | score -> acmp
+  e7 |  | score -> aecp
+  e8 | tk events | adp -> acmp
+  e9 |  | adp -> model
+  e10 |  | acmp -> lock
+  e11 |  | acmp -> orig
+  e12 |  | registry -> orig
+  e13 |  | aecp -> registry
+  e14 | words | f-rd -> aecp
+  e15 |  | aecp -> model
+  e16 |  | aecp -> ident
+  e17 | responses | aecp -> resp
+  e18 |  | orig -> txarb
+  e19 |  | resp -> txarb
+  e20 |  | txarb -> txfifo
+  e21 |  | timer -> evr
+  e22 | events | faces -> evr
+  e23 |  | evr -> acmp
+  e24 | persist | model -> nvm
+  e25 |  | side -> nvm
+  e26 | image load | side -> model
+  e27 | init | boot -> model
+== docs/diagrams/src/03-shared-datapath.drawio
+  rxfifo | mac_rx / async FIFO |  -> 
+  prs | filter + parser / + validator |  -> 
+  slots | RX slot RAM / P-RX-SLOTS |  -> 
+  nrm | normalizer |  -> 
+  qadp | ADP q |  -> 
+  qacmp | ACMP q |  -> 
+  qaecp | AECP q |  -> 
+  inj | injection ports / TIMER · SELF · MGMT |  -> 
+  sb | scoreboard / class / key admission |  -> 
+  eng | ADP · ACMP · AECP / engines (04 / 05 / 06) |  -> 
+  orig | originator / + inflight table |  -> 
+  resp | response builders / TX slots (std + oversize) |  -> 
+  txa | TX arbiter / frame-atomic, prio + aging |  -> 
+  txfifo | mac_tx / async FIFO |  -> 
+  ramgrp | state-RAM complex (single-ported RAMs behind priority muxes) |  -> 
+  ram1 | descriptor image / + overlay |  -> 
+  ram2 | dynamic state / sink / source records |  -> 
+  ram3 | controller / registry |  -> 
+  tmr | timer service + PRNG |  -> 
+  evr | event router |  -> 
+  evsrc | integrator strobes + level edges / SRP · MAAP · ADP engine events |  -> 
+  legend | Solid = frame / transaction path · dashed = events, injections and response matching |  -> 
+  d1 |  | rxfifo -> prs
+  d2 | payload | prs -> slots
+  d3 | handle | slots -> nrm
+  d4 |  | nrm -> qadp
+  d5 |  | nrm -> qacmp
+  d6 |  | nrm -> qaecp
+  d7 |  | inj -> qaecp
+  d8 |  | qadp -> sb
+  d9 |  | qacmp -> sb
+  d10 |  | qaecp -> sb
+  d11 | admit | sb -> eng
+  d12 | originate | eng -> orig
+  d13 | serialize | orig -> resp
+  d14 |  | resp -> txa
+  d15 |  | txa -> txfifo
+  d16 | RAM ports | eng -> ramgrp
+  d17 | response match | prs -> orig
+  d18 | expiry | tmr -> evr
+  d19 | events | evsrc -> evr
+  d20 | to SMs / notifications | evr -> eng
+## hits of the removed-name pattern
+drawio docs/diagrams/src/01-system-context.drawio: <b>IEEE 1722.1 PROTOCOL PROCESSOR</b> / (this architecture) /  / ADP · ACMP · AECP/AEM · Milan MVU / registry · notifications · lock / GET_COUNTERS reporting · timers / persistence manager
+drawio docs/diagrams/src/01-system-context.drawio: B/C/D
+svg docs/diagrams/01-system-context.svg: GET_COUNTERS reporting · timers
+svg docs/diagrams/01-system-context.svg: B/C/D
+svg docs/diagrams/20-rtl-dataflow.svg: KL_pp_event_router (sticky events) · KL_pp_originator (self-issued commands + inflight) · KL_pp_trace_ring (256 × 128 b) · KL_pp_side_port · KL_acmp_nvm_shadow (manager 0) + KL_aecp_nvm_writer (manager 1) → KL_pp_nvm_mgr
+svg docs/diagrams/23-bringup-decision.svg: 7 · Does BIND_RX stick?
+svg docs/diagrams/23-bringup-decision.svg: Every drop in this processor is counted; none is silent. Counters saturate rather than wrap, so 0xFFFF means "at least that many", not "none".
+svg docs/diagrams/wavedrom/fig-02-nvmwave.svg: err instead of done: backoff, relatch and retry (3 attempts), then the reset-sticky alarm
+mermaid docs/architecture/02_interfaces.md:46: eng <--> ctr["ctr read face + change strobe: the integrator's counters"]
+mermaid docs/architecture/02_interfaces.md:83: tick["prescaler: 1 µs / 1 ms ticks"]
+mermaid docs/architecture/02_interfaces.md:95: tick --> corelogic
+wavedrom docs/architecture/02_interfaces.md:649: "head": {"text": "err instead of done: backoff, relatch and retry (3 attempts), then the reset-sticky alarm"}}
+mermaid docs/architecture/06_aecp_engine.md:144: ucpu <--> gather["snapshot gather bus: ACMP records · F02.10 dictionary · counters · lock"]
+mermaid docs/architecture/06_aecp_engine.md:151: ctrs["ctr read face: the integrator's counters"] <--> ucpu
+mermaid docs/architecture/06_aecp_engine.md:960: Note over NOTIF: counters-class triggers additionally gated by T-CTR-NOTIF
+mermaid docs/architecture/07_memory_maps.md:626: dirty --> deb["first-dirty window of 500 ticks (T-NVM-DEBOUNCE) arms one burst"]
+mermaid docs/architecture/08_timing.md:108: clk["core clock P-CLK-HZ"] --> ps["prescaler -> 1 µs tick -> 1 ms tick"]
+mermaid docs/architecture/08_timing.md:112: seed["seed = entity_id XOR free-running counter latched at first link-up"] --> prng
+mermaid docs/architecture/09_verification.md:11: spec --> gen1["dispatch / response-size / transition / mask ROMs"]

@@ -1,0 +1,34 @@
+Auto-merging docs/architecture/01_overview.md
+Auto-merging docs/architecture/02_interfaces.md
+Auto-merging docs/architecture/07_memory_maps.md
+Auto-merging docs/architecture/08_timing.md
+Auto-merging docs/architecture/09_verification.md
+CONFLICT (content): Merge conflict in docs/architecture/09_verification.md
+Auto-merging docs/guides/integrator.md
+Auto-merging hdl/top/protocol_processor_top.sv
+conflicted: docs/architecture/09_verification.md 
+== mechanical merge vs published af751a5 (expected: only 00's GAP-05 citation)
+ docs/00_MILAN_COMPLIANCE_REVIEW.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+09 §8.7](architecture/09_verification.md#87-the-counters-face-issues-44-79)
+09 §8.6](architecture/09_verification.md#86-the-counters-face-issues-44-79)
+== main's side (c74711d..ddb3119) vs (9758a98..af751a5), changed lines per file
+-- docs/architecture/09_verification.md
+10a11
+> -### 8.6 The counters face (issues #44, #79)
+39a41
+> +### 8.7 The counters face (issues #44, #79)
+== the lane's side (c74711d..9758a98) vs (ddb3119..af751a5), changed lines per file
+-- docs/00_MILAN_COMPLIANCE_REVIEW.md
+36c36
+< +| [GAP-05](#gap-05) | Major | **Decision (owner, 2026-09-19): the counters live in the integrator**, behind the documented `ctr_*` face with the Milan-preced
+---
+> +| [GAP-05](#gap-05) | Major | **Decision (owner, 2026-09-19): the counters live in the integrator**, behind the documented `ctr_*` face with the Milan-preced
+-- docs/architecture/09_verification.md
+1c1
+< +### 8.6 The counters face (issues #44, #79)
+---
+> +### 8.7 The counters face (issues #44, #79)
+== shortstats
+ 51 files changed, 1452 insertions(+), 287 deletions(-)
+ 51 files changed, 1452 insertions(+), 287 deletions(-)

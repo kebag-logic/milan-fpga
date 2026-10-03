@@ -1,0 +1,46 @@
+OK golden-aecp_notify-identify PASS
+OK golden-originator-run PASS
+OK golden-pp_top-identify-only PASS
+OK golden-pp_top-notify-only PASS
+OK golden-pp_top-obj_idn_Vpp_top_idn PASS
+OK ident_seq_per_frame verdict=KILLED failures=82 readme=82
+OK ident_two_frames verdict=KILLED failures=35 readme=35
+OK ident_no_rearm verdict=KILLED failures=58 readme=58
+OK ident_rearm_from_third_frame verdict=KILLED failures=58 readme=58
+OK ident_burst_100ms verdict=KILLED failures=39 readme=39
+OK ident_t0_at_request verdict=KILLED failures=58 readme=58
+OK ident_burst_from_t0 verdict=KILLED failures=20 readme=20
+OK ident_departure_is_retirement verdict=KILLED failures=9 readme=9
+OK ident_departure_unwired verdict=KILLED failures=9 readme=9
+OK ident_next_burst_at_once verdict=KILLED failures=20 readme=20
+OK ident_wait_ignores_gap verdict=KILLED failures=18 readme=18
+OK ident_press_not_latched verdict=KILLED failures=41 readme=41
+OK ident_burst_press_not_latched verdict=KILLED failures=8 readme=8
+OK ident_departure_ignores_ready verdict=KILLED failures=2 readme=2
+OK ident_burst_deadline_one_tick_short verdict=KILLED failures=1 readme=1
+OK ident_t0_same_ms verdict=KILLED failures=1 readme=1
+OK ident_release_ignored verdict=KILLED failures=45 readme=45
+OK ident_cut_on_release verdict=KILLED failures=39 readme=39
+OK ident_face_taken_mid_job verdict=KILLED failures=3 readme=3
+OK ident_unicast_da verdict=KILLED failures=25 readme=25
+OK ident_built_at_default verdict=KILLED failures=2 readme=2
+OK enq_dropped_configuration verdict=KILLED failures=2 readme=2
+OK enq_dropped_stream_info verdict=KILLED failures=1 readme=1
+OK class_4_mapped_to_rate verdict=KILLED failures=4 readme=4
+OK class_9_mapped_to_control verdict=KILLED failures=2 readme=2
+OK requester_not_excluded verdict=KILLED failures=12 readme=12
+OK entry_seq_not_advanced verdict=KILLED failures=13 readme=13
+OK stream_info_get_body verdict=KILLED failures=1 readme=1
+OK counter_limit_500ms verdict=KILLED failures=12 readme=12
+OK fan_out_skips_row_0 verdict=KILLED failures=9 readme=9
+OK refresh_resets_seq verdict=KILLED failures=1 readme=1
+OK foreign_unlock_allowed verdict=KILLED failures=1 readme=1
+OK lock_taker_notified verdict=KILLED failures=1 readme=1
+OK deregister_keeps_row verdict=KILLED failures=1 readme=1
+OK registry_holds_15 verdict=KILLED failures=2 readme=2
+OK inflight_highest_free_id verdict=KILLED failures=15 readme=15
+OK inflight_match_ignores_seq verdict=KILLED failures=7 readme=7
+OK inflight_cancel_keeps_timer verdict=KILLED failures=5 readme=5
+OK set_control_ignores_lock verdict=KILLED failures=1 readme=1
+OK inflight_shared_seq verdict=KILLED failures=10 readme=10
+goldens 5, arms 40, KILLED 40, README rows 40, README rows without a run [], problems 0

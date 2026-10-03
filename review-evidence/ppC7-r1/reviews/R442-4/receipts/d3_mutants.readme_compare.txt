@@ -1,0 +1,91 @@
+OK golden-acmp_nvm PASS
+OK golden-pp_top PASS
+OK golden-rx_validator PASS
+OK dispatch_not_held verdict=KILLED failures=6 readme=6
+OK image_unproven_continues verdict=KILLED failures=9 readme=9
+OK own_taken_at_the_walk verdict=KILLED failures=10 readme=10
+OK hold_released_at_go verdict=KILLED failures=17 readme=17
+OK TRG_cfg verdict=KILLED failures=3 readme=3
+OK TRG_rate verdict=KILLED failures=3 readme=3
+OK latch_ignores_program verdict=KILLED failures=3 readme=3
+OK TRG_clks verdict=KILLED failures=10 readme=10
+OK TRG_fmto verdict=KILLED failures=4 readme=4
+OK TRG_fmti verdict=KILLED failures=4 readme=4
+OK taint_ignored verdict=KILLED failures=1 readme=1
+OK TRG_ptof verdict=KILLED failures=24 readme=24
+OK clear_by_group verdict=KILLED failures=8 readme=8
+OK identify_is_a_change verdict=KILLED failures=1 readme=1
+OK clear_wins_same_edge verdict=KILLED failures=1 readme=1
+OK clear_by_index verdict=KILLED failures=14 readme=14
+OK unchanged_compare_ignores_validity verdict=KILLED failures=1 readme=1
+OK RPL_rate verdict=KILLED failures=6 readme=6
+OK RPL_cfg verdict=KILLED failures=6 readme=6
+OK RPL_clks verdict=KILLED failures=5 readme=5
+OK RPL_fmto verdict=KILLED failures=2 readme=2
+OK RPL_fmti verdict=KILLED failures=2 readme=2
+OK RPL_ptof verdict=KILLED failures=6 readme=6
+OK rule_ignored verdict=KILLED failures=7 readme=7
+OK passes_may_disagree verdict=KILLED failures=3 readme=3
+OK unframed_reads_as_device_error verdict=KILLED failures=42 readme=42
+OK device_error_reads_as_blank verdict=KILLED failures=5 readme=5
+OK desc_error_is_a_refusal verdict=KILLED failures=6 readme=6
+OK done_without_d3 verdict=KILLED failures=45 readme=45
+OK restore_writes_are_changes verdict=KILLED failures=1 readme=1
+OK no_restore_watchdog verdict=KILLED failures=7 readme=7
+OK enable_not_released_by_restore verdict=KILLED failures=4 readme=4
+OK blank_ignores_d3 verdict=KILLED failures=1 readme=1
+OK store_not_cleared verdict=KILLED failures=17 readme=17
+OK valid_not_cleared verdict=KILLED failures=17 readme=17
+OK quarantine_released_by_time verdict=KILLED failures=10 readme=10
+OK no_rollback verdict=KILLED failures=17 readme=17
+OK dyn_not_rolled_back verdict=KILLED failures=4 readme=4
+OK store_not_rolled_back verdict=KILLED failures=3 readme=3
+OK rollback_ignores_debt verdict=KILLED failures=3 readme=3
+OK no_backoff_d3 verdict=KILLED failures=2 readme=2
+OK closed_releases_the_entity verdict=KILLED failures=2 readme=2
+OK no_backoff_binding verdict=KILLED failures=1 readme=not in this table
+OK fourth_attempt_binding verdict=KILLED failures=3 readme=not in this table
+OK fourth_attempt verdict=KILLED failures=2 readme=2
+OK alarm_forgiven_by_success verdict=KILLED failures=1 readme=1
+OK alarm_forgiven_binding verdict=KILLED failures=1 readme=not in this table
+OK backoff_derivation verdict=KILLED failures=2 readme=2
+OK backoff_holds_dispatch verdict=KILLED failures=1 readme=1
+OK disagree_one_direction verdict=KILLED failures=1 readme=1
+OK rollback_one_cycle verdict=KILLED failures=1 readme=1
+OK pass1_read_not_drained verdict=KILLED failures=1 readme=1
+OK judge_wait_unwatched verdict=KILLED failures=1 readme=1
+OK rate_walk_stuck_on_first_lane verdict=KILLED failures=1 readme=1
+OK rate_walk_unbounded verdict=KILLED failures=1 readme=1
+OK aggregate_mirrored verdict=KILLED failures=19 readme=19
+OK no_aggregate_deadline verdict=KILLED failures=16 readme=16
+OK aggregate_from_the_walk verdict=KILLED failures=21 readme=21
+OK per_wait_floor verdict=KILLED failures=1 readme=1
+OK agg_closes_before_proof verdict=KILLED failures=11 readme=11
+OK binding_walk_ignores_aggregate verdict=KILLED failures=10 readme=10
+OK proof_reads_records_past_bound verdict=KILLED failures=6 readme=6
+OK agg_not_in_rollback verdict=KILLED failures=4 readme=4
+OK drain_misses_issue_cycle_m1 verdict=KILLED failures=4 readme=not in this table
+OK issue_arm_cross_intent verdict=KILLED failures=1 readme=not in this table
+OK issue_arm_ignores_we verdict=KILLED failures=1 readme=not in this table
+OK issue_arm_write_too verdict=KILLED failures=1 readme=not in this table
+OK issue_arm_stale_we verdict=KILLED failures=3 readme=not in this table
+OK owned_arm_write_too verdict=KILLED failures=1 readme=not in this table
+OK owned_arm_cross_intent verdict=KILLED failures=1 readme=not in this table
+OK cross_own_m1_drains_m0 verdict=KILLED failures=1 readme=not in this table
+OK agg_fires_with_event_in_hand verdict=KILLED failures=2 readme=2
+OK agg_not_stopped_at_terminal verdict=KILLED failures=3 readme=3
+OK drain_misses_issue_cycle verdict=KILLED failures=2 readme=2
+OK agg_closes_during_proof verdict=KILLED failures=2 readme=2
+OK proof_past_needs_fire verdict=KILLED failures=2 readme=2
+OK proof_default_only_from_img verdict=KILLED failures=3 readme=3
+OK proof_past_bound_needs_fired verdict=KILLED failures=2 readme=2
+OK agg_o_pulse verdict=KILLED failures=3 readme=3
+OK validator_admits_held_aecp verdict=KILLED failures=4 readme=not in this table
+OK held_drop_uncounted verdict=KILLED failures=5 readme=5
+OK aecp_hold_unbounded verdict=KILLED failures=7 readme=7
+OK resident_never_returned verdict=KILLED failures=1 readme=1
+OK clks_row_two_bits verdict=KILLED failures=10 readme=10
+OK clks_restore_count_narrowed verdict=KILLED failures=2 readme=2
+OK clks_restore_index_narrowed verdict=KILLED failures=4 readme=4
+OK clks_restore_bound_inclusive verdict=KILLED failures=4 readme=4
+goldens 3, arms 87, KILLED 87, README rows 75, README rows without a run [], problems 0
