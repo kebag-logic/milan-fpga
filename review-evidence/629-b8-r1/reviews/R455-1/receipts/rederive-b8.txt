@@ -1,0 +1,59 @@
+== SW switches
+aaf1: 0->2 SUCCESS rb=2 LOCKED [6.636, 7.136] s; clock_reads=[0, 2, 2, 2]; hold polls=238 states=['LOCKED'] trim=[-6.0625, -5.8125] slip_lb=[[420, 0], [422, 0]] slip_tdm=[[0, 0], [0, 0]] rails=[31, 31]
+   change {'s_lo': -1.9, 's_hi': -1.399, 'poll': 7, 'crf_locked': True, 'render_prefill': 0, 'render_converged': 1, 'trim_ppm': 0.0}
+   change {'s_lo': -1.399, 's_hi': -0.899, 'poll': 8, 'slip_lb': [416, 0], 'trim_ppm': 0.0}
+   change {'s_lo': -0.899, 's_hi': -0.068, 'poll': 9, 'slip_lb': [418, 0], 'trim_ppm': 0.0}
+   change {'s_lo': -0.068, 's_hi': 0.105, 'poll': 10, 'servo': 'ACQUIRE', 'meter_locked': True, 'meter_enabled': True, 'render_converged': 0, 'trim_ppm': 0.0}
+   change {'s_lo': 0.105, 's_hi': 0.61, 'poll': 11, 'render_converged': 1, 'trim_ppm': 0.0}
+   change {'s_lo': 2.134, 's_hi': 2.634, 'poll': 15, 'slip_lb': [420, 0], 'trim_ppm': 0.0}
+   change {'s_lo': 4.135, 's_hi': 4.635, 'poll': 19, 'meter_rate_valid': True, 'trim_ppm': 0.0}
+   change {'s_lo': 6.636, 's_hi': 7.136, 'poll': 24, 'servo': 'LOCKED', 'trim_ppm': -5.625}
+   change {'s_lo': 9.151, 's_hi': 9.652, 'poll': 29, 'slip_lb': [422, 0], 'trim_ppm': -6.0}
+crf: 2->1 SUCCESS rb=1 LOCKED [2.616, 3.116] s; clock_reads=[2, 1, 1, 1]; hold polls=298 states=['LOCKED'] trim=[-6.0625, -5.9375] slip_lb=[[422, 0], [422, 0]] slip_tdm=[[0, 0], [0, 0]] rails=[31, 31]
+   change {'s_lo': -0.406, 's_hi': 0.094, 'poll': 263, 'servo': 'ACQUIRE', 'meter_locked': False, 'meter_rate_valid': False, 'meter_enabled': False, 'render_converged': 0, 'trim_ppm': -6.0625}
+   change {'s_lo': 0.094, 's_hi': 0.597, 'poll': 264, 'render_converged': 1, 'trim_ppm': -6.0625}
+   change {'s_lo': 2.616, 's_hi': 3.116, 'poll': 269, 'servo': 'LOCKED', 'trim_ppm': -6.0}
+aaf2: 1->2 SUCCESS rb=2 LOCKED [5.959, 6.476] s; clock_reads=[1, 2, 2, 2]; hold polls=298 states=['LOCKED'] trim=[-6.0625, -5.9375] slip_lb=[[422, 0], [422, 0]] slip_tdm=[[0, 0], [0, 0]] rails=[31, 31]
+   change {'s_lo': -0.095, 's_hi': 0.402, 'poll': 568, 'servo': 'ACQUIRE', 'meter_locked': True, 'meter_enabled': True, 'trim_ppm': -6.0}
+   change {'s_lo': 3.932, 's_hi': 4.439, 'poll': 576, 'meter_rate_valid': True, 'trim_ppm': -6.0}
+   change {'s_lo': 5.959, 's_hi': 6.476, 'poll': 580, 'servo': 'LOCKED', 'trim_ppm': -6.0}
+counter marks (CLOCK_DOMAIN L/U | DUT out0 MR | peer in0 MR | DUT in0/in1 disruptions):
+  after-binds: 6/5 | 0 | 0 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  aaf1-locked: 7/6 | 1 | 1 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  aaf1-end: 7/6 | 1 | 1 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  crf-locked: 8/7 | 2 | 2 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  crf-end: 8/7 | 2 | 2 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  aaf2-locked: 9/8 | 3 | 3 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  aaf2-end: 9/8 | 3 | 3 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 0, 'dut-0x0005-1': 0}
+  final: 9/8 | 4 | 4 | other-disruption-sums={'dut-0x0005-0': 0, 'dut-0x0005-1': 0} MEDIA_UNLOCKED={'dut-0x0005-0': 1, 'dut-0x0005-1': 1}
+MEDIA_RESET per change: [1, 1, 1] (declared 1 each)
+CLOCK_DOMAIN pairs per change: [(1, 1), (1, 1), (1, 1)] (declared (1,1) each); invariant LOCKED-UNLOCKED in {0,1}: True
+locked/mid/end marks identical per phase: True
+from binds (s after binds end; binds end 2.006 s before set): [{'s_lo': None, 's_hi': -2.913, 'poll': 0, 'servo': 'IDLE', 'meter_locked': False, 'meter_rate_valid': False, 'meter_enabled': False, 'meter_restarts': 0, 'crf_locked': False, 'slip_lb': [414, 0], 'slip_tdm': [0, 0], 'render_prefill': 1, 'render_converged': 0, 'render_rails': 31, 'trim_ppm': 0.0}, {'s_lo': 0.106, 's_hi': 0.607, 'poll': 7, 'crf_locked': True, 'render_prefill': 0, 'render_converged': 1, 'trim_ppm': 0.0}, {'s_lo': 0.607, 's_hi': 1.107, 'poll': 8, 'slip_lb': [416, 0], 'trim_ppm': 0.0}, {'s_lo': 1.107, 's_hi': 1.939, 'poll': 9, 'slip_lb': [418, 0], 'trim_ppm': 0.0}]
+SW tone: {'frames': 20030400, 'seconds': 417.3, 'start_frame': 1481760, 'end_frame': 21512160} blocks=417 clean=416 events=1 attrib={'capture path': 108} counted={'steps_non_capture': 0, 'observed_frames': 20030400, 'capture_lost_frames': 108, 'ppm': 0.0, 'resolution_ppm': 0.04992411534467609} timed=-0.018+-0.569 read_gap_max=31.39
+SW window wall 417.31 s; switches at +[-20.0, 107.3, 260.6] s from window start (inside if 0<x<417.3)
+== #645: SLIP_LB changes around INTERNAL->AAF: [(-1.399, -0.899, [416, 0]), (-0.899, -0.068, [418, 0]), (2.134, 2.634, [420, 0]), (9.151, 9.652, [422, 0])]
+post-LOCKED slip interval after first LOCKED read: 2.015 to 3.016 s
+== CRF window
+wall 420.026 s; captured 401.29 s; wall-captured 18.736 s
+capture-lost frames all clusters 899009 = 18.729 s
+three stall clusters lost 18.694 s; read-time rise 18.693 s; stall gaps >1 s: [4116.669, 4371.821, 9769.117] sum 18.258 s
+stall clusters at captured-time [270.9, 284.1, 285.5] s into the window; size_signature=[False, True, False]
+clusters=9 all capture_path=True; rise-vs-loss within 1 ms+2%: True
+PAGE CLAIM: 'three read stalls ... lost 19.0 s' and 401.3 captured of 420 -> evidence gives 18.73 s (all clusters) / 18.69 s (the three stall clusters)
+window: polls=797 states=['LOCKED'] trim=[-6.0625, -5.9375] set->LOCKED=[2.663, 3.169] crf_rate=[10.978515625, 11.0390625] counted={'steps_non_capture': 0, 'observed_frames': 19261920, 'capture_lost_frames': 899009, 'ppm': 0.0, 'resolution_ppm': 0.051915904541188} timed=-4.67+-24.96
+unbind held 11.041 s; after_unbind=[{'s_lo': 0.054, 's_hi': 0.555, 'poll': 852, 'servo': 'HOLDOVER', 'crf_locked': False, 'trim_ppm': -6.0}]; holdover={'polls': 19, 'servo_states': ['HOLDOVER'], 'trim_ppm': [-6.0, -6.0]}
+after_rebind=[{'s_lo': -0.358, 's_hi': 0.143, 'poll': 873, 'crf_locked': True, 'trim_ppm': -6.0}, {'s_lo': 0.143, 's_hi': 0.643, 'poll': 874, 'servo': 'ACQUIRE', 'trim_ppm': -6.0}, {'s_lo': 2.66, 's_hi': 3.162, 'poll': 879, 'servo': 'LOCKED', 'trim_ppm': -6.0}]; clock_reads=[1, 1, 1, 1, 1, 1]
+  ll-before: CD 10/9 DUT out0 MR 1 DUT out1 MR 1 peer in0 MR 1 DUT in1 MEDIA_UNLOCKED 0
+  ll-holdover: CD 10/10 DUT out0 MR 2 DUT out1 MR 1 peer in0 MR 2 DUT in1 MEDIA_UNLOCKED 1
+  ll-after: CD 11/10 DUT out0 MR 2 DUT out1 MR 1 peer in0 MR 2 DUT in1 MEDIA_UNLOCKED 0
+  final: CD 11/10 DUT out0 MR 3 DUT out1 MR 1 peer in0 MR 3 DUT in1 MEDIA_UNLOCKED 1
+lock-loss segment: {'frames': 1236960, 'seconds': 25.77, 'start_frame': 20744640, 'end_frame': 21981600} tone={'blocks': 25, 'clean_blocks': 25, 'events': 0} counted={'steps_non_capture': 0, 'observed_frames': 1236960, 'capture_lost_frames': 0, 'ppm': 0.0, 'resolution_ppm': 0.8084335790971413} read_gap_max=16.913
+== PC
+clock=[('as-found', 0), ('pre-locked', 2), ('post-boot', 2), ('post-locked', 2), ('final', 0)]
+nvm=[('as-found', 30, 30, 0, 0, 1), ('pre-saved-0', 31, 31, 0, 0, 1), ('post-boot', 31, 0, 0, 0, 0), ('post-restore-0', 32, 1, 0, 0, 1)] (tag, image_seq, commits, dirty, busy, pend)
+boot={'first_byte_to_prompt_s': 8.401} milestones=['Milan NVM: slot A VD_OK seq 31, slot B VD_OK seq 30; offered A seq 31 (VD_OK), 3336 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0.']
+polls=[('lock', 17, [6.673643749, 7.172382028]), ('relock-noaction', 3, [0.0, 0.092784637])]; relock=[{'locked_s': [0.0, 0.092784637], 'rebind_needed': False}]
+post-boot CD {'LOCKED': 1, 'UNLOCKED': 0}; DUT in0 1/0; peer out0 START/STOP 11/10 vs pre {'STREAM_START': 10, 'STREAM_STOP': 9, 'MEDIA_RESET': 0}
+first command after strip return ~ 88.7 s
+== proof: [(0, -141.1, -2, 0, 0.000383, 0.000403), (1, -141.1, -2, 1, 0.000412, 0.000433), (2, -141.49, -1, 0, 0.000346, 0.000422), (3, -141.49, -1, 0, 0.000421, 0.000396), (4, -400.0, 0, 0, None, None), (5, -400.0, 0, 0, None, None), (6, -400.0, 0, 0, None, None), (7, -400.0, 0, 0, None, None)] TONE ABSENT
