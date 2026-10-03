@@ -1,0 +1,188 @@
+tree $LANES/629-m2-impl HEAD 2bc5adc0bfd981e63e82ada5e673ce69cab4f4ee; lane delta against 1269cdafb4bb964c757baae0f0c5a932d43f540b
+request mcr_restart_p_w: milan_datapath.sv:3229-3232: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w
+
+[gmstep] the policy level is tied low at the servo
+    anchor x1 at milan_datapath.sv:5777-5777; inside the request: no; on a line this lane changed: no; breaks 'slew path: the actual servo receives the level'
+
+[gmstep] the policy level omits the applied-rate tail
+    anchor x1 at milan_datapath.sv:2853-2853; inside the request: no; on a line this lane changed: no; breaks 'slew path: every staged sample covers the PHC tail'
+
+[gmstep] the policy level misses an extra addend stage
+    anchor x1 at milan_datapath.sv:2922-2933; inside the request: no; on a line this lane changed: no; breaks 'slew path: every staged sample covers the PHC tail'
+
+[gmstep] the PHC re-base restart term is restored
+    anchor x1 at milan_datapath.sv:3232-3232; inside the request: YES; on a line this lane changed: YES; breaks 'restart: a PHC-only step leaves outgoing mr unchanged'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | media_rebase_p_w
+    selected-CRF-only requests with media_rebase_p_w=1: 0 of 5 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 0 of 5 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 0 of 33 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 33 suppressed by the planted form
+    differs from the clean request on 11 of 128 input rows
+
+[gmstep] the source-change term is removed
+    anchor x1 at KL_media_clock_restart.sv:213-213; inside the request: no; on a line this lane changed: no; breaks 'source control: a real source change toggles mr once'
+
+[gmstep] selected CRF mr propagation is removed
+    anchor x1 at milan_datapath.sv:3231-3231; inside the request: YES; on a line this lane changed: YES; breaks 'CRF control: selected CRF mr propagates exactly once'
+    planted request: (crf_clk_selected_r & (tkd_crflk_q_r & ~crf_locked_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w
+    selected-CRF-only requests with media_rebase_p_w=1: 3 of 5 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 3 of 5 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 0 of 33 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 33 suppressed by the planted form
+    differs from the clean request on 6 of 128 input rows
+
+[gmstep] the grandmaster identity re-bases the render stage as well as the step
+    anchor x1 at milan_datapath.sv:6322-6323; inside the request: no; on a line this lane changed: no; breaks 'render: the GM change is one counted re-base event'
+
+[gmstep] the step does not re-centre the render stage
+    anchor x1 at milan_datapath.sv:6322-6323; inside the request: no; on a line this lane changed: no; breaks 'render: the GM change is one counted re-base event'
+
+[gmstep] the render re-base is keyed to the identity, not the step
+    anchor x1 at milan_datapath.sv:6322-6323; inside the request: no; on a line this lane changed: no; breaks 'render: every counted re-base lands at a PDU end right after the step'
+
+[gmstep] tu reaches the talkers four cycles late
+    anchor x1 at KL_ptp_clock_validity.sv:211-211; inside the request: no; on a line this lane changed: no; breaks 'tu: set in the first cycle the bank names GM B'
+
+[gmstep] the plane's step does not re-arm the holdover
+    anchor x1 at milan_datapath.sv:2024-2024; inside the request: no; on a line this lane changed: no; breaks 'tu: held at least the 0.25 s holdover after the step'
+
+[gmstep] tu stops the talker
+    anchor x1 at milan_datapath.sv:2100-2100; inside the request: no; on a line this lane changed: no; breaks 'licence: the talker never pauses beyond four of its intervals'
+
+[gmstep] the grandmaster change stops the talker for good
+    anchor x1 at milan_datapath.sv:2100-2100; inside the request: no; on a line this lane changed: no; breaks 'licence: the talker never pauses beyond four of its intervals'
+
+[gmstep] the step's re-centre snaps one event off the setpoint
+    anchor x1 at KL_render_setpoint.sv:588-589; inside the request: no; on a line this lane changed: no; breaks 'render: every PDU push leaves the target fill across the event'
+
+[gmstep] software settime is restored as an mr cause
+    anchor x1 at milan_datapath.sv:3232-3232; inside the request: YES; on a line this lane changed: YES; breaks 'CLKV: the settime leaves mr unchanged (#602)'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | cfg_ptp_cmd_load
+    selected-CRF-only requests with media_rebase_p_w=1: 0 of 10 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 0 of 10 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 0 of 66 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 66 suppressed by the planted form
+    differs from the clean request on 22 of 256 input rows
+
+[gmstep] PHC adjtime is restored as an mr cause
+    anchor x1 at milan_datapath.sv:3232-3232; inside the request: YES; on a line this lane changed: YES; breaks 'CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | eff_ptp_adjust_w
+    selected-CRF-only requests with media_rebase_p_w=1: 0 of 10 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 0 of 10 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 0 of 66 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 66 suppressed by the planted form
+    differs from the clean request on 22 of 256 input rows
+
+[gmstep] both PHC restart causes are restored
+    anchor x1 at milan_datapath.sv:3232-3232; inside the request: YES; on a line this lane changed: YES; breaks 'CLKV: the settime leaves mr unchanged (#602)'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | media_rebase_p_w
+    selected-CRF-only requests with media_rebase_p_w=1: 0 of 5 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 0 of 5 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 0 of 33 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 33 suppressed by the planted form
+    differs from the clean request on 11 of 128 input rows
+
+[gmstep] PHC adjtime becomes an mr cause 16 cycles later
+    anchor x1 at milan_datapath.sv:3229-3232; inside the request: YES; on a line this lane changed: YES; breaks 'CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | probe_adj_sr_r[15]
+    truth table: not evaluated (the planted term is a delayed register, not a one-bit net of the request)
+
+[gmstep] PHC adjtime becomes an mr cause 256 cycles later
+    anchor x1 at milan_datapath.sv:3229-3232; inside the request: YES; on a line this lane changed: YES; breaks 'CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | (probe_adj_cnt_r == 9'd1)
+    truth table: not evaluated (the planted term is a delayed register, not a one-bit net of the request)
+
+[gmstep] a PHC step suppresses a coincident CRF restart
+    anchor x1 at milan_datapath.sv:3231-3231; inside the request: YES; on a line this lane changed: YES; breaks 'coincident: a PHC step does not suppress the CRF restart'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) & ~media_rebase_p_w) | aafm_disrupt_p_w | aafm_mr_toggle_p_w
+    selected-CRF-only requests with media_rebase_p_w=1: 5 of 5 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 0 of 5 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 0 of 33 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 33 suppressed by the planted form
+    differs from the clean request on 5 of 128 input rows
+
+[gmstep, as published at c1288648] a PHC step suppresses a coincident CRF restart
+    anchor x1 at milan_datapath.sv:3232-3232; inside the request: YES; on a line this lane changed: YES; breaks 'coincident: a PHC step does not suppress the CRF restart'
+    planted request: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w & ~media_rebase_p_w
+    selected-CRF-only requests with media_rebase_p_w=1: 0 of 5 suppressed by the planted form
+    selected-CRF-only requests with media_rebase_p_w=0: 0 of 5 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=1: 11 of 33 suppressed by the planted form
+    AAF-only requests with media_rebase_p_w=0: 0 of 33 suppressed by the planted form
+    differs from the clean request on 11 of 128 input rows
+
+[render] prefill target three events high
+    anchor x1 at KL_render_setpoint.sv:224-224; inside the request: no; on a line this lane changed: no; breaks "RENDER-INT: every PDU's first event inside the law band"
+
+[render] recentre pulse ignored
+    anchor x1 at KL_render_setpoint.sv:617-617; inside the request: no; on a line this lane changed: no; breaks 'RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)'
+
+[render] recentre counted and cleared but not snapped
+    anchor x1 at KL_render_setpoint.sv:587-590; inside the request: no; on a line this lane changed: no; breaks 'RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)'
+
+[render] clock-source trigger dropped from the recentre set
+    anchor x1 at milan_datapath.sv:6323-6323; inside the request: no; on a line this lane changed: no; breaks 'RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU'
+
+[crflic] every gate reads the raw verdict
+    anchor x1 at milan_datapath.sv:6920-6921; inside the request: no; on a line this lane changed: no; breaks 'the CRF licence never opened (every cycle sampled)'
+
+[crflic] the CRF licence alone reads the raw verdict
+    anchor x1 at milan_datapath.sv:5434-5434; inside the request: no; on a line this lane changed: no; breaks 'the CRF licence equals ACTIVE[CRF] AND real grant'
+
+[crflic] the AAF source 0 gate alone reads the raw verdict
+    anchor x1 at milan_datapath.sv:1997-1997; inside the request: no; on a line this lane changed: no; breaks 'the AAF gate never opened'
+
+[crflic] every gate drops the real grant
+    anchor x1 at milan_datapath.sv:6920-6921; inside the request: no; on a line this lane changed: no; breaks 'refused CRF licence never opened'
+
+[crflic] the CRF licence alone drops the real grant
+    anchor x1 at milan_datapath.sv:5434-5434; inside the request: no; on a line this lane changed: no; breaks 'refused CRF licence never opened'
+
+[crflic] the AAF source 0 gate alone drops the real grant
+    anchor x1 at milan_datapath.sv:1997-1997; inside the request: no; on a line this lane changed: no; breaks 'refused AAF gate never opened'
+
+[gsi] the processor ties a sink's failure bridge id to zero
+    anchor x1 at protocol_processor_top.sv:3430-3430; inside the request: no; on a line this lane changed: no; breaks '[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id'
+
+[gsi] selector 5 goes back to the parent, whose input answer is zero
+    anchor x1 at protocol_processor_top.sv:3407-3407; inside the request: no; on a line this lane changed: no; breaks '[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id'
+
+[gsi] selector 5 goes back to the parent, whose input answer is zero
+    anchor x1 at protocol_processor_top.sv:3430-3430; inside the request: no; on a line this lane changed: no; breaks '[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id'
+
+[gsi] the processor ties a sink's failure code to zero
+    anchor x1 at protocol_processor_top.sv:3429-3429; inside the request: no; on a line this lane changed: no; breaks '[GSI] G5 sink 0 Talker Failed: msrp_failure_code'
+
+[gsi] the failure-code byte is left to the parent, which no longer supplies it
+    anchor x1 at protocol_processor_top.sv:3429-3429; inside the request: no; on a line this lane changed: no; breaks '[GSI] G5 sink 1 Talker Failed: msrp_failure_code'
+
+[gsi] the processor ties probing/ACMP status to zero
+    anchor x1 at protocol_processor_top.sv:3431-3431; inside the request: no; on a line this lane changed: no; breaks '[GSI] G2 sink 0 two probes unanswered: acmp_status'
+
+[gsi] the processor reads the other sink's owners
+    anchor x1 at protocol_processor_top.sv:3410-3410; inside the request: no; on a line this lane changed: no; breaks "[GSI] G5 sink 0 beside the other sink's failure: msrp_failure_bridge_id"
+
+[gsi] the parent's bound/settled approximation answers selector 7 again
+    anchor x1 at protocol_processor_top.sv:3407-3407; inside the request: no; on a line this lane changed: no; breaks '[GSI] G1 sink 0 bound: probing_status'
+
+[gsi] the parent's bound/settled approximation answers selector 7 again
+    anchor x1 at protocol_processor_top.sv:3431-3431; inside the request: no; on a line this lane changed: no; breaks '[GSI] G1 sink 0 bound: probing_status'
+
+[gsi] the parent's bound/settled approximation answers selector 7 again
+    anchor x1 at milan_datapath.sv:4936-4937; inside the request: no; on a line this lane changed: no; breaks '[GSI] G1 sink 0 bound: probing_status'
+
+[gsi] the processor duplicates the withdrawal push after 4096 cycles
+    anchor x1 at protocol_processor_top.sv:3450-3450; inside the request: no; on a line this lane changed: no; breaks '[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A'
+
+[gsi] the processor duplicates the withdrawal push after 4096 cycles
+    anchor x1 at protocol_processor_top.sv:3458-3458; inside the request: no; on a line this lane changed: no; breaks '[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A'
+
+[render-csr] wrong_fill
+    anchor x1 at milan_datapath.sv:6455-6455; inside the request: no; on a line this lane changed: no; breaks 'RENDER-CSR: filling mirrors taps'
+
+[render-csr] bit9_window_selection
+    anchor x1 at milan_csr.sv:2424-2424; inside the request: no; on a line this lane changed: no; breaks 'RENDER-CSR: bit 9 preserves talker rejection'
+
+[render-csr] absent_stage (the KL_render_setpoint instance, cut whole)
+    anchor x1 at milan_datapath.sv:6458-6495; inside the request: no; on a line this lane changed: no; breaks '(a pass with the CSR structurally zero)'
+
+46 anchors, 0 not found exactly once
