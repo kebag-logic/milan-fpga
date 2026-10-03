@@ -1,0 +1,26 @@
+
+### 2026-10-03T15:49:31+0200 timeout=90.0 typed='wget -qO- http://<link-host-addr>:46121/A519_819220.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/34439 2>&1
+printf '%s_B\n' A519_819220
+cat /proc/uptime; arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 2 /tmp/a519-probe.raw; echo arecord_rc=$?; ls -l /tmp/a519-probe.raw; od -An -v -t d4 -w32 /tmp/a519-probe.raw | awk '{for(c=1;c<=8;c++){v=$c/256; if(v!=0)nz[c]++; if(NR==1||v<mn[c])mn[c]=v; if(NR==1||v>mx[c])mx[c]=v; ss[c]+=v*v; k=c SUBSEP v; if(NR<=4096&&!(k in seen)){seen[k]=1; nd[c]++}}} END{for(c=1;c<=8;c++) printf "CH %d frames %d nonzero %d min %d max %d meansquare %.3f distinct4096 %d\n", c-1, NR, nz[c], mn[c], mx[c], ss[c]/NR, nd[c]}'; rm -f /tmp/a519-probe.raw; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A519_819220 $?
+### reply:
+A519_819220_B
+275189.07 758725.34
+Recording raw data '/tmp/a519-probe.raw' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+arecord_rc=0
+-rw-r--r--    1 root     root       3072000 Jan  4 04:26 /tmp/a519-probe.raw
+CH 0 frames 96000 nonzero 50909 min -2 max 0 meansquare 0.534 distinct4096 3
+CH 1 frames 96000 nonzero 50952 min -2 max 0 meansquare 0.535 distinct4096 3
+CH 2 frames 96000 nonzero 46815 min -1 max 0 meansquare 0.488 distinct4096 2
+CH 3 frames 96000 nonzero 46909 min -1 max 0 meansquare 0.489 distinct4096 2
+CH 4 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+CH 5 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+CH 6 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+CH 7 frames 96000 nonzero 0 min 0 max 0 meansquare 0.000 distinct4096 1
+275205.34 758775.49
+
+A519_819220_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

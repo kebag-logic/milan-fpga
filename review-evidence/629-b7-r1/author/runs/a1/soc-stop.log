@@ -1,0 +1,60 @@
+
+### 2026-10-03T15:03:49+0200 timeout=60.0 typed='wget -qO- http://<link-host-addr>:39229/A519_123991.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/35885 2>&1
+printf '%s_B\n' A519_123991
+cat /proc/uptime; for pat in '[b]ash /tmp/a519-sampler.sh' '[a]record -D hw:0,0' '[a]play -v -D hw:0,0'; do for p in $(ps -o pid,args | grep "$pat" | awk '{print $1}'); do A=$(tr '\0' ' ' < /proc/$p/cmdline); echo "$p: $A"; if [ "$A" = 'bash /tmp/a519-sampler.sh ' ] || [ "$A" = 'arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 ' ] || [ "$A" = 'aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 ' ]; then kill $p; echo KILLED $p; else echo MISMATCH $p; fi; done; done; sleep 2; ps -o pid,args | grep -E '[a]play|[a]record|[c]at /tmp/a519-tone.raw|[a]519-sampler'; echo PS_RC=$?; cat /tmp/a519-play.log /tmp/a519-cap.log; for s in /proc/asound/card0/pcm0*/sub0/status; do head -2 $s; done
+printf '\n%s_E rc=%s\n' A519_123991 $?
+### reply:
+A519_123991_B
+272447.65 748106.57
+28488: bash /tmp/a519-sampler.sh 
+KILLED 28488
+28476: sh -c arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 > /dev/null; echo arecord_rc=$? 
+MISMATCH 28476
+28479: arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 
+KILLED 28479
+28475: sh -c while cat /tmp/a519-tone.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930; echo aplay_rc=$? 
+MISMATCH 28475
+28478: sh -c while cat /tmp/a519-tone.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930; echo aplay_rc=$? 
+MISMATCH 28478
+28480: aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 930 
+KILLED 28480
+PS_RC=1
+Playing raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : PLAYBACK
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 16384
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+Aborted by signal Terminated...
+aplay_rc=0
+Recording raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+Aborted by signal Terminated...
+arecord_rc=1
+closed
+closed
+
+A519_123991_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

@@ -1,0 +1,14 @@
+
+### 2026-10-03T14:52:57+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:34817/A519_783936.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/46569 2>&1
+printf '%s_B\n' A519_783936
+nohup bash /tmp/a519-sampler.sh > /dev/null 2>&1 < /dev/null & sleep 1; ps -o pid,args | grep '[b]ash /tmp/a519-sampler.sh'
+printf '\n%s_E rc=%s\n' A519_783936 $?
+### reply:
+A519_783936_B
+28488 bash /tmp/a519-sampler.sh
+
+A519_783936_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

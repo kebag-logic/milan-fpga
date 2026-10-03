@@ -1,0 +1,24 @@
+
+### 2026-10-03T14:32:37+0200 timeout=20.0 typed='wget -qO- http://<link-host-addr>:45525/A519_750990.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/35855 2>&1
+printf '%s_B\n' A519_750990
+id; tty; ps -o pid,args -p $$ -p $PPID; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A519_750990 $?
+### reply:
+A519_750990_B
+uid=0(root) gid=0(root) groups=0(root),10(wheel)
+not a tty
+ps: invalid option -- 'p'
+BusyBox v1.38.0 (2026-09-16 14:56:54 CEST) multi-call binary.
+
+Usage: ps [-o COL1,COL2=HEADER]
+
+Show list of processes
+
+	-o COL1,COL2=HEADER	Select columns for display
+270575.77 741317.66
+
+A519_750990_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

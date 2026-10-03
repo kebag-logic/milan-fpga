@@ -1,0 +1,20 @@
+
+### 2026-10-03T14:39:27+0200 timeout=120.0 typed='wget -qO- http://<link-host-addr>:43715/A519_550613.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/42595 2>&1
+printf '%s_B\n' A519_550613
+cat /proc/uptime; wget -q -O /tmp/a519-tone.raw http://<link-host-addr>:44753/tone.raw; echo wget_rc=$?; wget -q -O /tmp/a519-sampler.sh http://<link-host-addr>:44753/sampler.sh; echo wget2_rc=$?; wc -c < /tmp/a519-tone.raw; df -k /tmp | tail -1; echo '566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588  /tmp/a519-tone.raw' | sha256sum -c && echo '74597ae812148e114e96e7eff06e220cca3c4a370548933498cf282c7b644756  /tmp/a519-sampler.sh' | sha256sum -c
+printf '\n%s_E rc=%s\n' A519_550613 $?
+### reply:
+A519_550613_B
+270985.84 742445.11
+wget_rc=0
+wget2_rc=0
+1536000
+tmpfs                   209564      1868    207696   1% /tmp
+/tmp/a519-tone.raw: OK
+/tmp/a519-sampler.sh: OK
+
+A519_550613_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

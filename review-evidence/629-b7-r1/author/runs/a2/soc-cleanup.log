@@ -1,0 +1,16 @@
+
+### 2026-10-03T15:15:06+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:39659/A519_633396.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/40047 2>&1
+printf '%s_B\n' A519_633396
+rm -f /tmp/a519-tone.raw /tmp/a519-sampler.sh /tmp/a519-play.log /tmp/a519-cap.log; ls /tmp
+printf '\n%s_E rc=%s\n' A519_633396 $?
+### reply:
+A519_633396_B
+dbus
+messages
+messages.0
+
+A519_633396_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1
