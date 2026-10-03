@@ -1,0 +1,32 @@
+merge-base c74711d45a8bbc0d6b38cb49211b26a4a6413e88
+docs/architecture/01_overview.md lane-side:SAME main-side:SAME
+docs/architecture/02_interfaces.md lane-side:SAME main-side:SAME
+docs/architecture/07_memory_maps.md lane-side:SAME main-side:SAME
+docs/architecture/08_timing.md lane-side:SAME main-side:SAME
+docs/architecture/09_verification.md lane-side:DIFF main-side:DIFF
+docs/guides/integrator.md lane-side:DIFF main-side:DIFF
+hdl/top/protocol_processor_top.sv lane-side:SAME main-side:SAME
+whole PR diff patch-id: base->lane-tip vs main->merge
+  54dda26dc8447adf94469735f99d66c486aab717 / 2689c527d75095f91a29f266d8886357ecd9145b
+ 51 files changed, 1452 insertions(+), 287 deletions(-)
+ 51 files changed, 1452 insertions(+), 287 deletions(-)
+Changed-line-set comparison (sorted +/- lines, context ignored) for files whose patch-id differed
+=== docs/guides/integrator.md
+lane side (c74711d->9758a98 vs ddb3119->af751a5):
+  identical
+main side (c74711d->ddb3119 vs 9758a98->af751a5):
+  identical
+=== docs/architecture/09_verification.md
+lane side (c74711d->9758a98 vs ddb3119->af751a5):
+3c3
+< +### 8.6 The counters face (issues #44, #79)
+---
+> +### 8.7 The counters face (issues #44, #79)
+main side (c74711d->ddb3119 vs 9758a98->af751a5):
+2a3
+> -### 8.6 The counters face (issues #44, #79)
+3a5
+> +### 8.7 The counters face (issues #44, #79)
+
+Independent re-merge (9758a98 + ddb3119 --no-ff, 09 resolved P2 8.6 then counters 8.7, 00 GAP-05 citation moved):
+re-merge tree 71cd581ed0e0590cdeb7e3c1c5ed9629af3bed84 == head tree 71cd581ed0e0590cdeb7e3c1c5ed9629af3bed84

@@ -1,0 +1,41 @@
+## R443-1-F1 grep (expect none)
+rc=1
+## R442-1-F1 GM rule (integrator.md)
+## R443-1-F5 exact text
+1
+## R443-1-F6 exact text
+1
+## R443-1-F4 STREAM_INPUT quadlets 6/7
+457:| STREAM_INPUT (Table 5.16), every input of the current configuration, a CRF media-clock input included | `0x00000F3F`, or `0x00000FFF` with the IEEE-only T
+471:| TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (IEEE 1722.1-2021 Tables 7-156 and 7-157; not Milan's, kept only under `0x00000FFF`) | as IEEE Table 7-157 defines t
+## K17 present
+5
+## F03.1 note
+<a id="fig-03-datapath"></a>**F03.1 — Shared datapath & memory interconnect** (source:
+[`diagrams/src/03-shared-datapath.drawio`](../diagrams/src/03-shared-datapath.drawio))
+
+![F03.1 Shared datapath](../diagrams/03-shared-datapath.svg)
+
+> This export **predates** the move of the descriptor image and the AECP response buffer
+> into the integrator's main memory, so its "state-RAM complex" still shows the image on
+> chip. The current shape is [`20-rtl-dataflow.svg`](../diagrams/20-rtl-dataflow.svg) and
+> [`22-aecp-descriptor-fetch.svg`](../diagrams/22-aecp-descriptor-fetch.svg); the
+> component table below is correct.
+
+| Component | Notes |
+  advertise machine, the SRP Domain and the GET_AVB_INFO notification see, so the
+  counters and the entity's behaviour never disagree.
+- GPTP_GM_CHANGED counts grandmaster changes and nothing else (Table 5.1: "Number of
+  gPTP GM changes, since boot"; IEEE 1722.1-2021 Table 7-153, offset 20: "gPTP
+  grandmaster change count"). The rule is one identity comparison: at each update you
+  publish, count one when the grandmaster identity on `gm_id_i` differs from the
+  identity in force before that update. The identity in force out of reset is the first
+  one you publish, and it counts nothing. **Neither strobe identifies a grandmaster
+  change, and neither does their coincidence**: `gm_change_i` also marks a domain-only
+  update (section 6), and `gsi_asp_chg_i` marks any changed PathTrace, a tail-only one
+  included, and never rises if you publish no path. So a domain-only update counts
+  nothing, and a grandmaster change counts one whichever strobes you raise for it.
+  (The ADP engine used to carry a one-clock-late copy of `gm_change_i` as a
+  GPTP_GM_CHANGED tick. It reached no port, counted domain-only changes, and is
+  removed.)
+- One bank per AVB_INTERFACE descriptor, answered at its own `ctr_desc_index_o`. This

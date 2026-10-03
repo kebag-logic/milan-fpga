@@ -1,0 +1,24 @@
+=== hdl/adp/KL_adp_engine.sv
+28c28
+<     input  wire  [N_IF_P-1:0]          gm_change_i,         
+---
+>     input  wire  [N_IF_P-1:0]          gm_change_i,
+81d80
+<     output logic [N_IF_P-1:0]          gm_changed_tick_o,   
+121d119
+<   logic [N_IF_P-1:0]   gm_tick_r;
+137d134
+<       gm_tick_r  <= '0;
+142d138
+<       gm_tick_r  <= gm_change_i;    
+145d140
+<   assign gm_changed_tick_o = gm_tick_r;
+=== hdl/top/protocol_processor_top.sv
+1101d1100
+<   logic [0:0]  adp_gm_tick_nc_w;
+1180d1178
+<       .gm_changed_tick_o     (adp_gm_tick_nc_w),
+RTL (hdl/) patch-id, lane at old base c74711d->9758a98 vs new base ddb3119->af751a5:
+e368d1222582516a2544a8e36379b530bb0a4858 0000000000000000000000000000000000000000
+e368d1222582516a2544a8e36379b530bb0a4858 0000000000000000000000000000000000000000
+files: hdl/acmp/KL_pp_acmp_listener.sv hdl/adp/KL_adp_engine.sv hdl/top/protocol_processor_top.sv 

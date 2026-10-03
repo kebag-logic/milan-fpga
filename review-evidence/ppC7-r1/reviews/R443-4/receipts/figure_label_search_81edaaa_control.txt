@@ -1,0 +1,28 @@
+## draw.io sources: every value= label
+docs/diagrams/src/01-system-context.drawio:25: IEEE 1722.1 PROTOCOL PROCESSOR (this architecture) ADP · ACMP · AECP/AEM · Milan MVU registry · notifications · counters lock · timers · persistence manager
+docs/diagrams/src/01-top-level.drawio:63: Counters subsystem
+docs/diagrams/src/01-top-level.drawio:83: External-engine adapters
+docs/diagrams/src/01-top-level.drawio:86: gPTP adapter
+docs/diagrams/src/01-top-level.drawio:89: SRP/MAAP adapter
+docs/diagrams/src/01-top-level.drawio:92: AVTP adapter
+docs/diagrams/src/01-top-level.drawio:95: Media-clock adapter
+docs/diagrams/src/03-shared-datapath.drawio:65: counter banks
+docs/diagrams/src/03-shared-datapath.drawio:75: adapter events srp · maap · gptp · avtp · mclk
+docs/diagrams/src/03-shared-datapath.drawio:121: to SMs / counters
+## every committed SVG/PNG-adjacent SVG (draw.io exports, hand-authored, wavedrom): text content
+docs/diagrams/01-system-context.svg: registry · notifications · counters
+docs/diagrams/01-top-level.svg: Counters
+docs/diagrams/01-top-level.svg: subsystem
+docs/diagrams/01-top-level.svg: External-engine adapters
+docs/diagrams/01-top-level.svg: adapter
+docs/diagrams/01-top-level.svg: adapter
+docs/diagrams/01-top-level.svg: adapter
+docs/diagrams/01-top-level.svg: adapter
+docs/diagrams/03-shared-datapath.svg: counter
+docs/diagrams/03-shared-datapath.svg: banks
+docs/diagrams/03-shared-datapath.svg: adapter events
+docs/diagrams/03-shared-datapath.svg: to SMs / counters
+docs/diagrams/23-bringup-decision.svg: Every drop in this processor is counted; none is silent. Counters saturate rather than wrap, so 0xFFFF means "at least that many", not "none".
+## mermaid fences in docs
+docs/architecture/09_verification.md:11: spec --> gen1["dispatch / response-size / transition / mask ROMs"]
+## end

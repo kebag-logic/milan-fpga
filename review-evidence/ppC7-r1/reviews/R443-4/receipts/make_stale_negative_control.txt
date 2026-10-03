@@ -1,0 +1,11 @@
+## make stale at head
+
+rc=0
+## uncommitted edit to 01-top-level.drawio
+make: *** [Makefile:50: stale] Error 1
+STALE: docs/diagrams/01-top-level.svg (uncommitted source edit newer than the export)
+rc=2
+## reverted
+
+rc=0
+0
