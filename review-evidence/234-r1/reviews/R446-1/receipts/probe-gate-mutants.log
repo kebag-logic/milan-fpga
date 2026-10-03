@@ -1,0 +1,25 @@
+CONTROL-PASS control                                          | resource gate selftest: 51 arms PASS
+SURVIVED     identity: design header dropped                  | resource gate selftest: 51 arms PASS
+SURVIVED     identity: design state dropped                   | resource gate selftest: 51 arms PASS
+SURVIVED     identity: FLOW drops synth_design                | resource gate selftest: 51 arms PASS
+SURVIVED     identity: FLOW drops opt_design                  | resource gate selftest: 51 arms PASS
+SURVIVED     identity: FLOW drops route_design                | resource gate selftest: 51 arms PASS
+SURVIVED     identity: FLOW drops phys_opt_design             | resource gate selftest: 51 arms PASS
+SURVIVED     identity: FLOW drops create_project              | resource gate selftest: 51 arms PASS
+SURVIVED     identity: FLOW drops kl_timing_grade_configure   | resource gate selftest: 51 arms PASS
+SURVIVED     header uniqueness                                | resource gate selftest: 51 arms PASS
+SURVIVED     located(): one top and one wrapper               | resource gate selftest: 51 arms PASS
+SURVIVED     read source presence check                       | resource gate selftest: 51 arms PASS
+SURVIVED     include directory presence check                 | resource gate selftest: 51 arms PASS
+SURVIVED     timing floor boundary (< to <=)                  | resource gate selftest: 51 arms PASS
+SURVIVED     timing fall boundary (> to >=)                   | resource gate selftest: 51 arms PASS
+SURVIVED     GATED ooc drops RAMB36                           | resource gate selftest: 51 arms PASS
+SURVIVED     GATED ooc drops DSP                              | resource gate selftest: 51 arms PASS
+KILLED       GATED route drops WHS_ns                         | raise AssertionError(f"{kind} arm {label!r}: exit {status}, wanted {expected} naming {needle!r}\n"
+SURVIVED     count format accepts any decimal                 | resource gate selftest: 51 arms PASS
+KILLED       check_baseline: recorded figure below floor      | raise AssertionError(f"baseline defect accepted: {message}")
+SURVIVED     identical-input refusal compares LUT only        | resource gate selftest: 51 arms PASS
+SURVIVED     generated-file root normalization dropped        | resource gate selftest: 51 arms PASS
+KILLED       generic path normalization dropped               | raise AssertionError(f"{kind} arm {label!r}: exit {status}, wanted {expected} naming {needle!r}\n"
+KILLED       CARRY4 census attribution                        | raise AssertionError(f"CARRY4 attribution wrong: {entry['record']}")
+probe_gate_mutants: 23 mutants, 19 survived, 4 killed, control CONTROL-PASS, not applied 0

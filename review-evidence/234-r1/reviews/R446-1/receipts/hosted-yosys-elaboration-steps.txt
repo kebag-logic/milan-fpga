@@ -1,0 +1,15 @@
+2a765a6c3868400c20ede2e357876f28a811c811
+1 Set up job | success
+2 Run actions/checkout@v4 | success
+3 Fetch RTL dependencies | success
+4 Cache the pinned Yosys build | success
+5 Build Yosys from source on cache miss | skipped
+6 Install the pinned Yosys and prove the version | success
+7 Install the pinned sv2v release | success
+8 Elaborate the integration-heavy tops | success
+9 Prove the OOC read sets come from run.sh and refuse a bad one | success
+10 Prove ooc.sh generates the ROMs and fails on a failed top | success
+11 Prove the result cache refuses a planted entry | success
+21 Post Cache the pinned Yosys build | success
+22 Post Run actions/checkout@v4 | success
+23 Complete job | success
