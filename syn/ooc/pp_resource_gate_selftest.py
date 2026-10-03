@@ -2,18 +2,14 @@
 # SPDX-License-Identifier: MIT
 """Plant every regression and refusal the resource gate claims, end to end.
 
-Each arm copies a synthetic recipe measurement directory, edits the report or
-input text a real regression would change, reads it back through the gate's
-own parser and judges it against a baseline recorded from the pristine copy.
-No arm hands the comparator a hand-built record, so a parser that stops seeing
-a row fails here exactly as it would on a real report. The command-line arms
-drive the exit-code contract through main() into a stream that takes ASCII
-only: every unreadable measurement and unusable baseline exits 2 with its
-reason, only a regression exits 1, and an exception planted inside the gate
-exits 2. Each malformed baseline goes through both check and check-baseline.
-mutate_json() and mutate_report() generate the cases the gate's fuzz() runs:
-random changes to a baseline and to a measurement's reports, each knowing
-whether it breaks a shape the gate documents.
+Each arm copies a synthetic recipe measurement directory, edits the report or input text a real regression would change,
+reads it back through the gate's own parser and judges it against a baseline recorded from the pristine copy. No arm
+hands the comparator a hand-built record, so a parser that stops seeing a row fails here exactly as it would on a real
+report. The command-line arms drive the exit-code contract through main() into a stream that takes ASCII only: every
+unreadable measurement and unusable baseline exits 2 with its reason, only a regression exits 1, and an exception
+planted inside the gate exits 2. Each malformed baseline goes through both check and check-baseline. mutate_json() and
+mutate_report() generate the cases the gate's fuzz() runs: random changes to a baseline and to a measurement's reports,
+each knowing whether it breaks a shape the gate documents.
 """
 
 from collections.abc import Callable
@@ -65,8 +61,7 @@ COMPLETE = ("Design Route Status\n"
 def report_header(design: str, state: str) -> str:
     """The vendor header block every report starts with."""
     return ("| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026\n"
-            f"| Design       : {design}\n| Device       : xc7a100tfgg484-2\n"
-            f"| Design State : {state}\n")
+            f"| Design       : {design}\n| Device       : xc7a100tfgg484-2\n| Design State : {state}\n")
 
 
 def write_reports(folder: Path, kind: str) -> None:
@@ -106,10 +101,8 @@ def fixture(root: Path, kind: str) -> Path:
     (gateware / "alinx_ax7101.xdc").write_text("create_clock -period 20.000 [get_ports clk]\n")
     folder = gateware if kind == "route" else root / "ooc"
     folder.mkdir(exist_ok=True)
-    script = ("create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2\n"
-              "set_param general.maxThreads 32\n"
-              f"read_verilog -v {{{repo}/hdl/milan/KL_pp_shadow.sv}}\n"
-              f"read_verilog {{{gateware}/alinx_ax7101.v}}\n")
+    script = ("create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2\nset_param general.maxThreads 32\n"
+              f"read_verilog -v {{{repo}/hdl/milan/KL_pp_shadow.sv}}\nread_verilog {{{gateware}/alinx_ax7101.v}}\n")
     if kind == "route":
         script += ("read_xdc alinx_ax7101.xdc\nsynth_design -directive AreaOptimized_high -top alinx_ax7101 "
                    f"-part xc7a100t-fgg484-2 -include_dirs {{{repo}/hdl/common}}\n"
@@ -164,6 +157,7 @@ ERRORS = (STATUS, "errors.......... :           0", "errors.......... :         
 ERROR_ROW = "       # of nets with routing errors.......... :           0 :\n"
 ROUTABLE = "       # of routable nets..................... :         100 :\n"
 ROUTED = "           # of fully routed nets............. :         100 :\n"
+GROWN_FF = (row("FF", 2000, 2011), ("baseline_utilization.rpt", REPEATED, REPEATED.replace("2000", "2011")))
 MANIFEST = ("baseline_images.json", None, '["a"]')
 HIERARCHY = "baseline_hierarchy.rpt"
 TOP_ROW = "| m0 | 900 | 900 | 0 | 0 | 50 | 1 | 0 | 0 |"
@@ -175,9 +169,7 @@ ROUTE_ARMS = (
     ("changed source, unchanged figures", (SOURCE,), 0, "RESULT: PASS"),
     ("LUT growth at the tolerance", (SOURCE, row("LUT", 1000, 1010)), 0, "RESULT: PASS"),
     ("LUT growth over the tolerance", (SOURCE, row("LUT", 1000, 1011)), 1, "LUT"),
-    ("FF growth over the tolerance", (SOURCE, row("FF", 2000, 2011),
-                                      ("baseline_utilization.rpt", REPEATED, REPEATED.replace("2000", "2011"))),
-     1, "FF"),
+    ("FF growth over the tolerance", (SOURCE, *GROWN_FF), 1, "FF"),
     ("register rows disagree", (SOURCE, row("FF", 2000, 2011)), 2, "Slice Registers"),
     ("Slice growth over the tolerance", (SOURCE, row("SLICE", 400, 406)), 1, "SLICE"),
     ("one more RAMB36", (SOURCE, row("RAMB36", 4, 5)), 1, "RAMB36"),
@@ -306,8 +298,7 @@ ROUTE_ARMS = (
      ((HIERARCHY, TOP_ROW, TOP_ROW[:-3] + "\uff10 |"),), 2, "not a row of counts"),
     ("hierarchy count past the bound", ((HIERARCHY, "| m0 | 900 |", f"| m0 | {BOUND} |"),), 2,
      "hierarchy count of 'alinx_ax7101' is not a whole number of 1 to 15 ASCII digits"),
-    ("hierarchy row without counts", ((HIERARCHY, "| m4 | 896 |", "| m4 | n/a |"),),
-     2, "not a row of counts"),
+    ("hierarchy row without counts", ((HIERARCHY, "| m4 | 896 |", "| m4 | n/a |"),), 2, "not a row of counts"),
     ("wrapper source read from too near the root",
      ((FLOW, "/hdl/milan/KL_pp_shadow.sv}\n", "/hdl/milan/KL_pp_shadow.sv}\nread_verilog {/milan/KL_pp_shadow.sv}\n"),),
      2, "read source is missing: /milan/KL_pp_shadow.sv"),
@@ -316,15 +307,13 @@ ROUTE_ARMS = (
 OOC_ARMS = (
     ("standalone control", (), 0, ("RESULT: PASS", "route status")),
     ("standalone clock changed", (("clock.xdc", "20.000", "10.000"),), 2, "standalone_clock_ns"),
-    ("generic changed", (row("LUT", 1000, 1011), ("baseline_ooc.tcl", "N_STREAM_IN_P=2", "N_STREAM_IN_P=9")),
-     1, "LUT"),
+    ("generic changed", (row("LUT", 1000, 1011), ("baseline_ooc.tcl", "N_STREAM_IN_P=2", "N_STREAM_IN_P=9")), 1, "LUT"),
     ("image path moved, same image", (row("LUT", 1000, 1001), ("baseline_ooc.tcl", "/ucode.hex", "/x/ucode.hex")),
      2, "identical inputs"),
     ("standalone RAMB36", (SOURCE, row("RAMB36", 4, 5)), 1, "RAMB36"),
     ("standalone RAMB18", (SOURCE, row("RAMB18", 1, 2)), 1, "RAMB18"),
     ("standalone DSP", (SOURCE, row("DSP", 2, 3)), 1, "DSP"),
-    ("standalone FF", (SOURCE, row("FF", 2000, 2011),
-                       ("baseline_utilization.rpt", REPEATED, REPEATED.replace("2000", "2011"))), 1, "FF"),
+    ("standalone FF", (SOURCE, *GROWN_FF), 1, "FF"),
 )
 
 
@@ -502,10 +491,8 @@ def plant(folder: Path, name: str, old: str | None, new: str | bytes | None) -> 
     if old is None:
         if new is None:
             path.unlink()
-        elif isinstance(new, bytes):
-            path.write_bytes(new)
         else:
-            path.write_text(new)
+            (path.write_bytes if isinstance(new, bytes) else path.write_text)(new)
         return
     text = path.read_text()
     if text.count(old) != 1:
@@ -610,10 +597,7 @@ def budget_file(tmp: Path, page: object) -> Path:
         return tmp / page
     path = tmp / "budget.md"
     data = BUDGET if page is None else page(BUDGET)
-    if isinstance(data, bytes):
-        path.write_bytes(data)
-    else:
-        path.write_text(data)
+    (path.write_bytes if isinstance(data, bytes) else path.write_text)(data)
     return path
 
 
