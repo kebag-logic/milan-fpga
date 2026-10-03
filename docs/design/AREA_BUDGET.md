@@ -29,7 +29,7 @@ The current command and media-clock claims are checked against the
 - **[Tier 1 - implemented optional fabric blocks](#tier-1---implemented-optional-fabric-blocks)** -- The RTL parameter, SoC flag, configuration key, and permitted absence condition for each implemented prune.
 - **[Isolated synthesis estimates](#isolated-synthesis-estimates)** -- Comparable Yosys resource estimates for the optional fabric blocks at the measured shape.
 - **[Release accounting](#release-accounting)** -- The placed utilization, timing, identity, and repeated evidence required for a release candidate.
-- **[Protocol processor budget and resource gate](#protocol-processor-budget-and-resource-gate)** -- NFR-RES-01's 60 % LUT target against the measured shipping route, the open allocation decision, and the resource gate's tolerances, refusals and where it runs.
+- **[Protocol processor budget and resource gate](#protocol-processor-budget-and-resource-gate)** -- NFR-RES-01's 60 % LUT target against the measured shipping route, the owner's decision on meeting it, and the resource gate's policy table, refusals and where it runs.
 
 ## Rules for optional blocks
 
@@ -111,7 +111,7 @@ The routed shipping image does not meet it today:
 | Slice LUT | 63,400 | 50,128 | 79.07 % | NFR-RES-01: at most 38,040 (60 %) | not met, 12,088 over |
 | Slice register | 126,800 | 59,006 | 46.53 % | none stated | - |
 | Slice | 15,850 | 15,815 | 99.78 % | must stay below the device to place | 35 free |
-| Block RAM tile | 135 | 92.5 | 68.52 % | proposed reserve: 13.5 tiles (10 %) | 42.5 free |
+| Block RAM tile | 135 | 92.5 | 68.52 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 42.5 free |
 | DSP | 240 | 14 | 5.83 % | none stated | - |
 | WNS / WHS | - | +0.063 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
@@ -129,8 +129,11 @@ On any reading, the wrapper alone exceeds the milestone.
 Meeting NFR-RES-01 with the rest of the image unchanged needs the wrapper below 11,849 LUTs.
 That is a 12,088-LUT cut, half of the wrapper.
 The ranked levers in the baseline estimate about 3,600 LUTs.
-The allocation that meets both targets therefore needs an owner decision.
+The allocation that meets both targets therefore needed an owner decision.
+The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that NFR-RES-01 stays at 60 %.
+It is met by a redesign in milestone "Optimisations Mark II" (#640), after Instrument verification.
 Until then the gate holds every resource at its recorded value: no material growth.
+The ranked levers keep their order: #232, #230, then #639.
 
 ### The resource gate
 
@@ -160,8 +163,11 @@ A primitive count moves only when storage or arithmetic changes its mapping.
 
 The LUT and FF tolerances are about 1 % of each record.
 The next adoption, measured as combination B, shows why that size.
-It changes one processor block's logic, which grows by 83 LUTs.
-In the 1x1 standalone synthesis, blocks it did not touch moved by a net 101 LUTs and 95 FFs.
+It changes one processor block's logic, `u_nvm_port`, which grows by 83 LUTs and 33 FFs.
+In the 1x1 standalone synthesis, the rest of the wrapper moved by a net +79 LUTs and +93 FFs.
+That partition is the own logic of every instance the record lists outside `u_nvm_port`, 51 terms.
+Its absolute movements sum to 391 LUTs and 121 FFs.
+The processor top's own logic is one of those terms: -23 LUTs and +107 FFs, its timer-arm queues.
 At 8x8 the whole wrapper came out 172 LUTs smaller.
 A standalone tolerance below that movement would judge noise, not the change.
 Both standalone endpoints pass B.
@@ -192,10 +198,10 @@ Those need only Python, so no runner or tool is added.
 The classifier files this page as read by a gate, so a change to it alone still runs that step.
 
 The measurement and `check` need Vivado, so they run in the manager's local bank.
-The proposal is one run per merge candidate that moves the processor pin, `KL_pp_shadow`, the shipping configuration or the build flow.
+The manager's merge bank runs it for every PR that changes RTL, the processor pin or the build recipe (manager ruling).
 That is the route and the 1x1 standalone synthesis.
 Here a route took 50 to 56 minutes and a 1x1 standalone synthesis 15 to 24, sharing the host.
-Making it part of the merge bar is an owner decision; CONTRIBUTING is unchanged here.
+That bank run is the local half of #234's fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
 
 A Yosys-based hosted ratchet is not proposed.
 [The Yosys gate's documentation](../../syn/yosys/README.md#the-cells-record) records a deliberate decision against a checked-in cell baseline.

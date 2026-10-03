@@ -13,7 +13,7 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Processor sub-blocks](#processor-sub-blocks)** -- LUT, FF, RAMB, DSP and CARRY4 per SRP, ADP, ACMP, AECP, notification, NVM and packet-storage block, and the cost of each stream context.
 - **[Storage mapping](#storage-mapping)** -- Which arrays became flip-flops, distributed RAM or block RAM, with source lines, flop counts and read-side logic.
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
-- **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232 and #233 placed among them.
+- **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
 
 ## Combinations
@@ -80,6 +80,8 @@ The routed `endstation_ax7101_1x1_tdm8` image, whole design, default flow:
 | A, percent of `xc7a100t` | 79.07 | 46.53 | 99.78 | 58.52 | 10.00 | 68.52 | 5.83 | - | - | - |
 
 Both routes finish with zero routing errors and no failing endpoint.
+The resource gate reads each run's `alinx_ax7101_route_status.rpt` and records A's route status as clean.
+A routes all 105,566 routable nets fully, with 0 nets with routing errors; B routes all 105,559.
 All four signoff corners agree with the summary.
 Setup is worst at the slow corners and hold at the fast corners.
 Both meet the [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): WNS at least +0.03 ns, WHS at least 0.
@@ -131,9 +133,12 @@ The three DSPs are in the parent's NVM backend, `u_nvm`.
 
 In the 1x1 standalone synthesis, B grows `u_nvm_port` by 83 LUTs and 33 FFs.
 That block's deadline is the only functional processor change.
-Blocks B did not change moved by a net 101 LUTs.
-Their absolute movements sum to 309 LUTs.
-The processor top's timer-arm queues kept 107 more FFs.
+The rest of the wrapper moved by a net +79 LUTs and +93 FFs.
+That partition is the own logic of every instance the gate record lists outside `u_nvm_port`, 51 terms.
+Each term is one instance without its listed children: the wrapper and three levels below it.
+Its absolute movements sum to 391 LUTs and 121 FFs.
+The processor top's own logic, `u_pp` outside its sub-blocks, is one term: -23 LUTs and +107 FFs.
+Those 107 FFs are its timer-arm queues `armq_r`, 1,260 flops in B against A's 1,153.
 At 8x8 the same change measures 172 LUTs and 85 FFs smaller than A.
 The adopted block still grows there, by 66 LUTs and 33 FFs.
 These figures set the gate's tolerances in the budget.
@@ -328,11 +333,11 @@ Every lever changes processor RTL, so each belongs to its own processor lane.
 | Rank | Lever | Issue | Where | Measured cost, 1x1 | Estimated saving, 1x1 | Estimate basis |
 |---:|---|---|---|---|---|---|
 | 1 | Hold the controller registry in distributed RAM and walk it for the command-hit check | #232 | `KL_aecp_notify.sv:329`, `:541-544`, `:551-552` | 2,048 FF; 2,292 LUTs in the read cone | about 2,000 FF and 1,500 LUT | one 16-deep RAM of 22 RAM32M and one 112-bit comparator replace 16 parallel comparators and two 16-way read multiplexers |
-| 2 | Infer the two SRP timer-arm FIFOs as distributed RAM | #232 class, in the SRP of #230 | `KL_srp_top.sv:947`, `:959-973` | 2,304 FF; 648 LUT and 288 MUXF7 read multiplexer | about 2,300 FF, 580 LUT and 288 MUXF7 | two 32-deep distributed RAMs of 8 RAM32M each, 64 LUTs, behind the existing 72-flop read registers |
-| 3 | Replace the eight processor timer-arm shift queues with RAM-backed FIFOs | #232 class, processor top | `protocol_processor_top.sv:2921` | 1,153 FF; 1,178 LUT on the write side | about 1,100 FF and 1,000 LUT | eight 4-deep distributed RAM FIFOs, about 260 LUTs, keep the depth and the drain order |
+| 2 | Infer the two SRP timer-arm FIFOs as distributed RAM | #230 (joins its scope) | `KL_srp_top.sv:947`, `:959-973` | 2,304 FF; 648 LUT and 288 MUXF7 read multiplexer | about 2,300 FF, 580 LUT and 288 MUXF7 | two 32-deep distributed RAMs of 8 RAM32M each, 64 LUTs, behind the existing 72-flop read registers |
+| 3 | Replace the eight processor timer-arm shift queues with RAM-backed FIFOs | #639 | `protocol_processor_top.sv:2921` | 1,153 FF; 1,178 LUT on the write side | about 1,100 FF and 1,000 LUT | eight 4-deep distributed RAM FIFOs, about 260 LUTs, keep the depth and the drain order |
 | 4 | Share the SRP per-stream FSM evaluation across stream contexts | #230 | `KL_srp_talker_fsm.sv:351-392`, loops `:401-816`; `KL_srp_listener_fsm.sv:348-388`, loops `:403-850` | talker FSM 662 LUT, 714 FF; listener FSM 420 LUT, 667 FF | about 440 LUT | one evaluator per FSM instead of two saves one context's marginal cost, 212 and 227 LUTs; the per-stream context flops stay, since a 2-deep RAM would cost about as many LUTs; at 8x8 about 3,100 LUTs, and context RAM pays |
 | 5 | Serialize the counter throttle check and store its timestamps in RAM | #232 | `KL_aecp_notify.sv:392`, `:934`, `:1034-1037` | 192 FF, 48 CARRY4 | about 190 FF, 50 LUT and 48 CARRY4 | 6 stamps at 1x1; 640 FFs at 8x8 |
-| 6 | Hold the two listener records in distributed RAM or flops | #232 class, ACMP listener | `KL_pp_acmp_listener.sv:385` | 5 RAMB36 for 752 bits | 5 block RAM tiles, for about 250 more LUTs | 63 RAM32M for the 376-bit record |
+| 6 | Hold the two listener records in distributed RAM or flops | #639 | `KL_pp_acmp_listener.sv:385` | 5 RAMB36 for 752 bits | 5 block RAM tiles, for about 250 more LUTs | 63 RAM32M for the 376-bit record |
 
 Levers 1 to 5 together remove an estimated 5,600 FFs and 3,600 LUTs from the 1x1 wrapper.
 Lever 6 trades LUTs for block RAM and only matters if block RAM becomes short.
@@ -344,6 +349,7 @@ Only a route of the changed image can measure it, so no slice saving is claimed.
 
 Even levers 1 to 5 leave the image near 46,500 LUTs, about 73 percent of the device.
 That is still about 8,500 LUTs above NFR-RES-01's 60 percent.
+The owner's decision on that gap is in the [budget](../design/AREA_BUDGET.md#allocation-to-the-protocol-processor): a redesign, #640.
 
 #233 is the 1x1 specialization.
 Its phase-1 audit found every stream-shaped wrapper and processor parameter already derived for 1x1.
