@@ -1,0 +1,462 @@
+﻿2026-10-03T15:12:24.5711532Z Current runner version: '2.337.0'
+2026-10-03T15:12:24.5746896Z ##[group]Runner Image Provisioner
+2026-10-03T15:12:24.5748388Z Hosted Compute Agent
+2026-10-03T15:12:24.5749528Z Version: 20260901.588
+2026-10-03T15:12:24.5750788Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-03T15:12:24.5752827Z Build Date: 2026-09-01T19:56:44Z
+2026-10-03T15:12:24.5754240Z Worker ID: {1fb46cbe-2dd9-4380-8ca7-722762a419cc}
+2026-10-03T15:12:24.5755667Z Azure Region: centralus
+2026-10-03T15:12:24.5756768Z ##[endgroup]
+2026-10-03T15:12:24.5759251Z ##[group]Operating System
+2026-10-03T15:12:24.5760548Z Ubuntu
+2026-10-03T15:12:24.5761671Z 24.04.5
+2026-10-03T15:12:24.5763264Z LTS
+2026-10-03T15:12:24.5764353Z ##[endgroup]
+2026-10-03T15:12:24.5765453Z ##[group]Runner Image
+2026-10-03T15:12:24.5766790Z Image: ubuntu-24.04
+2026-10-03T15:12:24.5767985Z Version: 20260927.320.1
+2026-10-03T15:12:24.5770314Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-03T15:12:24.5773697Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+2026-10-03T15:12:24.5775685Z ##[endgroup]
+2026-10-03T15:12:24.5778023Z ##[group]GITHUB_TOKEN Permissions
+2026-10-03T15:12:24.5781200Z Contents: read
+2026-10-03T15:12:24.5782562Z Metadata: read
+2026-10-03T15:12:24.5783823Z Packages: read
+2026-10-03T15:12:24.5784864Z ##[endgroup]
+2026-10-03T15:12:24.5788226Z Secret source: Actions
+2026-10-03T15:12:24.5790042Z Cache mode: write
+2026-10-03T15:12:24.5791560Z Prepare workflow directory
+2026-10-03T15:12:24.6257110Z Prepare all required actions
+2026-10-03T15:12:24.6328590Z Getting action download info
+2026-10-03T15:12:24.8949119Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-03T15:12:25.0929033Z Complete job name: portability
+2026-10-03T15:12:25.1691065Z ##[group]Run actions/checkout@v4
+2026-10-03T15:12:25.1692009Z with:
+2026-10-03T15:12:25.1692896Z   repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-03T15:12:25.1697053Z   token: ***
+2026-10-03T15:12:25.1697491Z   ssh-strict: true
+2026-10-03T15:12:25.1697937Z   ssh-user: git
+2026-10-03T15:12:25.1698400Z   persist-credentials: true
+2026-10-03T15:12:25.1698899Z   clean: true
+2026-10-03T15:12:25.1699357Z   sparse-checkout-cone-mode: true
+2026-10-03T15:12:25.1699888Z   fetch-depth: 1
+2026-10-03T15:12:25.1700334Z   fetch-tags: false
+2026-10-03T15:12:25.1700785Z   show-progress: true
+2026-10-03T15:12:25.1701236Z   lfs: false
+2026-10-03T15:12:25.1701655Z   submodules: false
+2026-10-03T15:12:25.1702112Z   set-safe-directory: true
+2026-10-03T15:12:25.1702837Z   allow-unsafe-pr-checkout: false
+2026-10-03T15:12:25.1703706Z env:
+2026-10-03T15:12:25.1704158Z   VERILATOR_VERSION: v5.050
+2026-10-03T15:12:25.1704658Z ##[endgroup]
+2026-10-03T15:12:25.2738983Z Syncing repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-03T15:12:25.2742756Z ##[group]Getting Git version info
+2026-10-03T15:12:25.2744739Z Working directory is '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-10-03T15:12:25.2747377Z [command]/usr/bin/git version
+2026-10-03T15:12:25.2812880Z git version 2.55.0
+2026-10-03T15:12:25.2836425Z ##[endgroup]
+2026-10-03T15:12:25.2864130Z Temporarily overriding HOME='<home-path>/work/_temp/9afa526e-cc0a-4f33-86b9-8c4c7acbed7b' before making global git config changes
+2026-10-03T15:12:25.2866865Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-03T15:12:25.2869685Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-03T15:12:25.3006418Z Deleting the contents of '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-10-03T15:12:25.3010242Z ##[group]Initializing the repository
+2026-10-03T15:12:25.3015832Z [command]/usr/bin/git init <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-03T15:12:25.3109592Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-03T15:12:25.3111598Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-03T15:12:25.3113030Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-03T15:12:25.3113860Z hint: call:
+2026-10-03T15:12:25.3114311Z hint:
+2026-10-03T15:12:25.3114882Z hint: 	git config --global init.defaultBranch <name>
+2026-10-03T15:12:25.3115563Z hint:
+2026-10-03T15:12:25.3116202Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-03T15:12:25.3117229Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-03T15:12:25.3118029Z hint:
+2026-10-03T15:12:25.3118526Z hint: 	git branch -m <name>
+2026-10-03T15:12:25.3119055Z hint:
+2026-10-03T15:12:25.3119739Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-03T15:12:25.3126672Z Initialized empty Git repository in <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/.git/
+2026-10-03T15:12:25.3142584Z [command]/usr/bin/git remote add origin https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-03T15:12:25.3196084Z ##[endgroup]
+2026-10-03T15:12:25.3197174Z ##[group]Disabling automatic garbage collection
+2026-10-03T15:12:25.3209971Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-03T15:12:25.3237938Z ##[endgroup]
+2026-10-03T15:12:25.3238956Z ##[group]Setting up auth
+2026-10-03T15:12:25.3247165Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-03T15:12:25.3285673Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-03T15:12:25.3644529Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-03T15:12:25.3683529Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-03T15:12:25.3906475Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-03T15:12:25.3942677Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-03T15:12:25.4169262Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-03T15:12:25.4210898Z ##[endgroup]
+2026-10-03T15:12:25.4212562Z ##[group]Fetching the repository
+2026-10-03T15:12:25.4222598Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +84f29ea7a08d3c914954960b232a2e914039e685:refs/remotes/pull/149/merge
+2026-10-03T15:12:26.4507551Z From https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-03T15:12:26.4511312Z  * [new ref]         84f29ea7a08d3c914954960b232a2e914039e685 -> pull/149/merge
+2026-10-03T15:12:26.4518634Z ##[endgroup]
+2026-10-03T15:12:26.4521276Z ##[group]Determining the checkout info
+2026-10-03T15:12:26.4524294Z ##[endgroup]
+2026-10-03T15:12:26.4558028Z [command]/usr/bin/git sparse-checkout disable
+2026-10-03T15:12:26.4609217Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-03T15:12:26.4641499Z ##[group]Checking out the ref
+2026-10-03T15:12:26.4644829Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/149/merge
+2026-10-03T15:12:26.5328358Z Note: switching to 'refs/remotes/pull/149/merge'.
+2026-10-03T15:12:26.5329946Z 
+2026-10-03T15:12:26.5331191Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-03T15:12:26.5334335Z changes and commit them, and you can discard any commits you make in this
+2026-10-03T15:12:26.5337361Z state without impacting any branches by switching back to a branch.
+2026-10-03T15:12:26.5338606Z 
+2026-10-03T15:12:26.5339327Z If you want to create a new branch to retain commits you create, you may
+2026-10-03T15:12:26.5341161Z do so (now or later) by using -c with the switch command. Example:
+2026-10-03T15:12:26.5342762Z 
+2026-10-03T15:12:26.5343191Z   git switch -c <new-branch-name>
+2026-10-03T15:12:26.5343893Z 
+2026-10-03T15:12:26.5344360Z Or undo this operation with:
+2026-10-03T15:12:26.5345219Z 
+2026-10-03T15:12:26.5345719Z   git switch -
+2026-10-03T15:12:26.5346511Z 
+2026-10-03T15:12:26.5347677Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-03T15:12:26.5349131Z 
+2026-10-03T15:12:26.5350723Z HEAD is now at 84f29ea Merge cd08ca7b3d962ab040d8aaa023c57e7b0e010a6d into f4167536d358c996f4e1b70b875879c1651f85d3
+2026-10-03T15:12:26.5356695Z ##[endgroup]
+2026-10-03T15:12:26.5392377Z [command]/usr/bin/git log -1 --format=%H
+2026-10-03T15:12:26.5420426Z 84f29ea7a08d3c914954960b232a2e914039e685
+2026-10-03T15:12:26.5748967Z ##[group]Run sudo apt-get update && sudo apt-get install -y yosys
+2026-10-03T15:12:26.5751145Z sudo apt-get update && sudo apt-get install -y yosys
+2026-10-03T15:12:26.5753901Z curl -sL https://github.com/zachjs/sv2v/releases/latest/download/sv2v-Linux.zip \
+2026-10-03T15:12:26.5756234Z   -o /tmp/sv2v.zip && sudo apt-get install -y unzip
+2026-10-03T15:12:26.5757883Z unzip -o /tmp/sv2v.zip -d /tmp/sv2v
+2026-10-03T15:12:26.5759465Z sudo install /tmp/sv2v/*/sv2v /usr/local/bin/
+2026-10-03T15:12:26.6014532Z shell: /usr/bin/bash -e {0}
+2026-10-03T15:12:26.6015775Z env:
+2026-10-03T15:12:26.6016726Z   VERILATOR_VERSION: v5.050
+2026-10-03T15:12:26.6017896Z ##[endgroup]
+2026-10-03T15:12:26.6884818Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-03T15:12:26.7215485Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-03T15:12:26.7220344Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-03T15:12:26.7244032Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-03T15:12:26.7281767Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-03T15:12:26.7306881Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-03T15:12:26.8631494Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.6 kB]
+2026-10-03T15:12:26.8719698Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [511 kB]
+2026-10-03T15:12:26.8801958Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [458 kB]
+2026-10-03T15:12:26.9103972Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1364 kB]
+2026-10-03T15:12:26.9162090Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [304 kB]
+2026-10-03T15:12:26.9183817Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+2026-10-03T15:12:26.9214692Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1699 kB]
+2026-10-03T15:12:26.9293440Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [341 kB]
+2026-10-03T15:12:26.9308130Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+2026-10-03T15:12:26.9332703Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1720 kB]
+2026-10-03T15:12:26.9416876Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [394 kB]
+2026-10-03T15:12:26.9440788Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2026-10-03T15:12:26.9721006Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5736 B]
+2026-10-03T15:12:27.0197229Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+2026-10-03T15:12:27.0328229Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1069 kB]
+2026-10-03T15:12:27.0382760Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [221 kB]
+2026-10-03T15:12:27.0397849Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.5 kB]
+2026-10-03T15:12:27.0409271Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1216 kB]
+2026-10-03T15:12:27.0465140Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [244 kB]
+2026-10-03T15:12:27.0479842Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+2026-10-03T15:12:27.0490233Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1566 kB]
+2026-10-03T15:12:27.0558342Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [361 kB]
+2026-10-03T15:12:31.3393643Z Fetched 12.6 MB in 1s (9107 kB/s)
+2026-10-03T15:12:32.1892563Z Reading package lists...
+2026-10-03T15:12:32.2199837Z Reading package lists...
+2026-10-03T15:12:32.4130596Z Building dependency tree...
+2026-10-03T15:12:32.4139482Z Reading state information...
+2026-10-03T15:12:32.5630724Z The following additional packages will be installed:
+2026-10-03T15:12:32.5631758Z   fonts-liberation2 gir1.2-atk-1.0 gir1.2-freedesktop gir1.2-gdkpixbuf-2.0
+2026-10-03T15:12:32.5633070Z   gir1.2-gtk-3.0 gir1.2-harfbuzz-0.0 gir1.2-pango-1.0 graphviz libann0
+2026-10-03T15:12:32.5634172Z   libblas3 libcdt5 libcgraph6 libgts-0.7-5t64 libgts-bin libgvc6 libgvpr2
+2026-10-03T15:12:32.5636037Z   libharfbuzz-gobject0 liblab-gamut1 liblapack3 libpangoxft-1.0-0 libpathplan4
+2026-10-03T15:12:32.5637175Z   python3-cairo python3-gi-cairo python3-numpy xdot yosys-abc
+2026-10-03T15:12:32.5644966Z Suggested packages:
+2026-10-03T15:12:32.5645588Z   gsfonts graphviz-doc python3-pytest
+2026-10-03T15:12:32.5912107Z The following NEW packages will be installed:
+2026-10-03T15:12:32.5913343Z   fonts-liberation2 gir1.2-atk-1.0 gir1.2-freedesktop gir1.2-gdkpixbuf-2.0
+2026-10-03T15:12:32.5914339Z   gir1.2-gtk-3.0 gir1.2-harfbuzz-0.0 gir1.2-pango-1.0 graphviz libann0
+2026-10-03T15:12:32.5915358Z   libblas3 libcdt5 libcgraph6 libgts-0.7-5t64 libgts-bin libgvc6 libgvpr2
+2026-10-03T15:12:32.5923302Z   libharfbuzz-gobject0 liblab-gamut1 liblapack3 libpangoxft-1.0-0 libpathplan4
+2026-10-03T15:12:32.5924310Z   python3-cairo python3-gi-cairo python3-numpy xdot yosys yosys-abc
+2026-10-03T15:12:32.6121693Z 0 upgraded, 27 newly installed, 0 to remove and 25 not upgraded.
+2026-10-03T15:12:32.6123258Z Need to get 20.7 MB of archives.
+2026-10-03T15:12:32.6124275Z After this operation, 70.6 MB of additional disk space will be used.
+2026-10-03T15:12:32.6125402Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-03T15:12:32.6928345Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-liberation2 all 1:2.1.5-3 [3418 B]
+2026-10-03T15:12:32.7250483Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-atk-1.0 amd64 2.52.0-1build1 [23.1 kB]
+2026-10-03T15:12:32.7884930Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-freedesktop amd64 1.80.1-1 [49.7 kB]
+2026-10-03T15:12:32.8535445Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 gir1.2-gdkpixbuf-2.0 amd64 2.42.10+dfsg-3ubuntu3.3 [9482 B]
+2026-10-03T15:12:32.8891241Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libharfbuzz-gobject0 amd64 8.3.0-2build2 [34.3 kB]
+2026-10-03T15:12:32.9287963Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-harfbuzz-0.0 amd64 8.3.0-2build2 [44.5 kB]
+2026-10-03T15:12:32.9708674Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libpangoxft-1.0-0 amd64 1.52.1+ds-1build1 [20.3 kB]
+2026-10-03T15:12:33.0037468Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-pango-1.0 amd64 1.52.1+ds-1build1 [34.8 kB]
+2026-10-03T15:12:33.0316006Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 gir1.2-gtk-3.0 amd64 3.24.41-4ubuntu1.3 [245 kB]
+2026-10-03T15:12:33.0655312Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libann0 amd64 1.1.2+doc-9build1 [25.5 kB]
+2026-10-03T15:12:33.0972874Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libcdt5 amd64 2.42.2-9ubuntu0.1 [21.6 kB]
+2026-10-03T15:12:33.1290130Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libcgraph6 amd64 2.42.2-9ubuntu0.1 [44.6 kB]
+2026-10-03T15:12:33.1614739Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgts-0.7-5t64 amd64 0.7.6+darcs121130-5.2build1 [161 kB]
+2026-10-03T15:12:33.1941971Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libpathplan4 amd64 2.42.2-9ubuntu0.1 [24.0 kB]
+2026-10-03T15:12:33.2262027Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libgvc6 amd64 2.42.2-9ubuntu0.1 [716 kB]
+2026-10-03T15:12:33.2646148Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 libgvpr2 amd64 2.42.2-9ubuntu0.1 [187 kB]
+2026-10-03T15:12:33.2976629Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 liblab-gamut1 amd64 2.42.2-9ubuntu0.1 [1886 kB]
+2026-10-03T15:12:33.3451578Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 graphviz amd64 2.42.2-9ubuntu0.1 [642 kB]
+2026-10-03T15:12:33.4228233Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libblas3 amd64 3.12.0-3build1.1 [238 kB]
+2026-10-03T15:12:33.4565143Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgts-bin amd64 0.7.6+darcs121130-5.2build1 [44.0 kB]
+2026-10-03T15:12:33.4893027Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 liblapack3 amd64 3.12.0-3build1.1 [2646 kB]
+2026-10-03T15:12:33.5388571Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 python3-cairo amd64 1.25.1-2build2 [119 kB]
+2026-10-03T15:12:33.5714490Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 python3-gi-cairo amd64 3.48.2-1 [8132 B]
+2026-10-03T15:12:33.6034764Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 python3-numpy amd64 1:1.26.4+ds-6ubuntu1 [4437 kB]
+2026-10-03T15:12:33.6864313Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xdot all 1.3-1 [30.3 kB]
+2026-10-03T15:12:33.7146256Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 yosys-abc amd64 0.33-5build2 [5829 kB]
+2026-10-03T15:12:33.7934261Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 yosys amd64 0.33-5build2 [3222 kB]
+2026-10-03T15:12:34.0766523Z Fetched 20.7 MB in 1s (17.0 MB/s)
+2026-10-03T15:12:34.0984848Z Selecting previously unselected package fonts-liberation2.
+2026-10-03T15:12:34.1280178Z (Reading database ... 
+2026-10-03T15:12:34.1280891Z (Reading database ... 5%
+2026-10-03T15:12:34.1283980Z (Reading database ... 10%
+2026-10-03T15:12:34.1284932Z (Reading database ... 15%
+2026-10-03T15:12:34.1285615Z (Reading database ... 20%
+2026-10-03T15:12:34.1286208Z (Reading database ... 25%
+2026-10-03T15:12:34.1286760Z (Reading database ... 30%
+2026-10-03T15:12:34.1287322Z (Reading database ... 35%
+2026-10-03T15:12:34.1287818Z (Reading database ... 40%
+2026-10-03T15:12:34.1373087Z (Reading database ... 45%
+2026-10-03T15:12:34.1373574Z (Reading database ... 50%
+2026-10-03T15:12:34.1374539Z (Reading database ... 55%
+2026-10-03T15:12:34.4400453Z (Reading database ... 60%
+2026-10-03T15:12:34.6451581Z (Reading database ... 65%
+2026-10-03T15:12:34.8378352Z (Reading database ... 70%
+2026-10-03T15:12:35.0392758Z (Reading database ... 75%
+2026-10-03T15:12:35.2006067Z (Reading database ... 80%
+2026-10-03T15:12:35.3851919Z (Reading database ... 85%
+2026-10-03T15:12:35.5490173Z (Reading database ... 90%
+2026-10-03T15:12:35.6375025Z (Reading database ... 95%
+2026-10-03T15:12:35.6375712Z (Reading database ... 100%
+2026-10-03T15:12:35.6376418Z (Reading database ... 202296 files and directories currently installed.)
+2026-10-03T15:12:35.6419054Z Preparing to unpack .../00-fonts-liberation2_1%3a2.1.5-3_all.deb ...
+2026-10-03T15:12:35.6457777Z Unpacking fonts-liberation2 (1:2.1.5-3) ...
+2026-10-03T15:12:35.6650911Z Selecting previously unselected package gir1.2-atk-1.0:amd64.
+2026-10-03T15:12:35.6775421Z Preparing to unpack .../01-gir1.2-atk-1.0_2.52.0-1build1_amd64.deb ...
+2026-10-03T15:12:35.6784068Z Unpacking gir1.2-atk-1.0:amd64 (2.52.0-1build1) ...
+2026-10-03T15:12:35.6977693Z Selecting previously unselected package gir1.2-freedesktop:amd64.
+2026-10-03T15:12:35.7102107Z Preparing to unpack .../02-gir1.2-freedesktop_1.80.1-1_amd64.deb ...
+2026-10-03T15:12:35.7110169Z Unpacking gir1.2-freedesktop:amd64 (1.80.1-1) ...
+2026-10-03T15:12:35.7329033Z Selecting previously unselected package gir1.2-gdkpixbuf-2.0:amd64.
+2026-10-03T15:12:35.7454496Z Preparing to unpack .../03-gir1.2-gdkpixbuf-2.0_2.42.10+dfsg-3ubuntu3.3_amd64.deb ...
+2026-10-03T15:12:35.7464252Z Unpacking gir1.2-gdkpixbuf-2.0:amd64 (2.42.10+dfsg-3ubuntu3.3) ...
+2026-10-03T15:12:35.7666482Z Selecting previously unselected package libharfbuzz-gobject0:amd64.
+2026-10-03T15:12:35.7790438Z Preparing to unpack .../04-libharfbuzz-gobject0_8.3.0-2build2_amd64.deb ...
+2026-10-03T15:12:35.7808409Z Unpacking libharfbuzz-gobject0:amd64 (8.3.0-2build2) ...
+2026-10-03T15:12:35.7999790Z Selecting previously unselected package gir1.2-harfbuzz-0.0:amd64.
+2026-10-03T15:12:35.8123630Z Preparing to unpack .../05-gir1.2-harfbuzz-0.0_8.3.0-2build2_amd64.deb ...
+2026-10-03T15:12:35.8132655Z Unpacking gir1.2-harfbuzz-0.0:amd64 (8.3.0-2build2) ...
+2026-10-03T15:12:35.8341052Z Selecting previously unselected package libpangoxft-1.0-0:amd64.
+2026-10-03T15:12:35.8468423Z Preparing to unpack .../06-libpangoxft-1.0-0_1.52.1+ds-1build1_amd64.deb ...
+2026-10-03T15:12:35.8477369Z Unpacking libpangoxft-1.0-0:amd64 (1.52.1+ds-1build1) ...
+2026-10-03T15:12:35.8670633Z Selecting previously unselected package gir1.2-pango-1.0:amd64.
+2026-10-03T15:12:35.8795009Z Preparing to unpack .../07-gir1.2-pango-1.0_1.52.1+ds-1build1_amd64.deb ...
+2026-10-03T15:12:35.8803739Z Unpacking gir1.2-pango-1.0:amd64 (1.52.1+ds-1build1) ...
+2026-10-03T15:12:35.8995660Z Selecting previously unselected package gir1.2-gtk-3.0:amd64.
+2026-10-03T15:12:35.9119223Z Preparing to unpack .../08-gir1.2-gtk-3.0_3.24.41-4ubuntu1.3_amd64.deb ...
+2026-10-03T15:12:35.9126501Z Unpacking gir1.2-gtk-3.0:amd64 (3.24.41-4ubuntu1.3) ...
+2026-10-03T15:12:35.9357707Z Selecting previously unselected package libann0.
+2026-10-03T15:12:35.9482570Z Preparing to unpack .../09-libann0_1.1.2+doc-9build1_amd64.deb ...
+2026-10-03T15:12:35.9490715Z Unpacking libann0 (1.1.2+doc-9build1) ...
+2026-10-03T15:12:35.9686689Z Selecting previously unselected package libcdt5:amd64.
+2026-10-03T15:12:35.9812654Z Preparing to unpack .../10-libcdt5_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:35.9823047Z Unpacking libcdt5:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.0017362Z Selecting previously unselected package libcgraph6:amd64.
+2026-10-03T15:12:36.0142518Z Preparing to unpack .../11-libcgraph6_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:36.0149269Z Unpacking libcgraph6:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.0349804Z Selecting previously unselected package libgts-0.7-5t64:amd64.
+2026-10-03T15:12:36.0476181Z Preparing to unpack .../12-libgts-0.7-5t64_0.7.6+darcs121130-5.2build1_amd64.deb ...
+2026-10-03T15:12:36.0485062Z Unpacking libgts-0.7-5t64:amd64 (0.7.6+darcs121130-5.2build1) ...
+2026-10-03T15:12:36.0747965Z Selecting previously unselected package libpathplan4:amd64.
+2026-10-03T15:12:36.0873295Z Preparing to unpack .../13-libpathplan4_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:36.0884395Z Unpacking libpathplan4:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.1098441Z Selecting previously unselected package libgvc6.
+2026-10-03T15:12:36.1225118Z Preparing to unpack .../14-libgvc6_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:36.1234557Z Unpacking libgvc6 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.1517057Z Selecting previously unselected package libgvpr2:amd64.
+2026-10-03T15:12:36.1642556Z Preparing to unpack .../15-libgvpr2_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:36.1652030Z Unpacking libgvpr2:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.2870822Z Selecting previously unselected package liblab-gamut1:amd64.
+2026-10-03T15:12:36.3000464Z Preparing to unpack .../16-liblab-gamut1_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:36.3009768Z Unpacking liblab-gamut1:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.3292692Z Selecting previously unselected package graphviz.
+2026-10-03T15:12:36.3441855Z Preparing to unpack .../17-graphviz_2.42.2-9ubuntu0.1_amd64.deb ...
+2026-10-03T15:12:36.3450680Z Unpacking graphviz (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:36.3966271Z Selecting previously unselected package libblas3:amd64.
+2026-10-03T15:12:36.4093523Z Preparing to unpack .../18-libblas3_3.12.0-3build1.1_amd64.deb ...
+2026-10-03T15:12:36.4126877Z Unpacking libblas3:amd64 (3.12.0-3build1.1) ...
+2026-10-03T15:12:36.4354945Z Selecting previously unselected package libgts-bin.
+2026-10-03T15:12:36.4480659Z Preparing to unpack .../19-libgts-bin_0.7.6+darcs121130-5.2build1_amd64.deb ...
+2026-10-03T15:12:36.4488740Z Unpacking libgts-bin (0.7.6+darcs121130-5.2build1) ...
+2026-10-03T15:12:36.4882765Z Selecting previously unselected package liblapack3:amd64.
+2026-10-03T15:12:36.5008592Z Preparing to unpack .../20-liblapack3_3.12.0-3build1.1_amd64.deb ...
+2026-10-03T15:12:36.5066000Z Unpacking liblapack3:amd64 (3.12.0-3build1.1) ...
+2026-10-03T15:12:36.5564786Z Selecting previously unselected package python3-cairo.
+2026-10-03T15:12:36.5691215Z Preparing to unpack .../21-python3-cairo_1.25.1-2build2_amd64.deb ...
+2026-10-03T15:12:36.5699637Z Unpacking python3-cairo (1.25.1-2build2) ...
+2026-10-03T15:12:36.5927121Z Selecting previously unselected package python3-gi-cairo.
+2026-10-03T15:12:36.6054116Z Preparing to unpack .../22-python3-gi-cairo_3.48.2-1_amd64.deb ...
+2026-10-03T15:12:36.6061990Z Unpacking python3-gi-cairo (3.48.2-1) ...
+2026-10-03T15:12:36.6258902Z Selecting previously unselected package python3-numpy.
+2026-10-03T15:12:36.6385568Z Preparing to unpack .../23-python3-numpy_1%3a1.26.4+ds-6ubuntu1_amd64.deb ...
+2026-10-03T15:12:36.6394092Z Unpacking python3-numpy (1:1.26.4+ds-6ubuntu1) ...
+2026-10-03T15:12:36.8330943Z Selecting previously unselected package xdot.
+2026-10-03T15:12:36.8460689Z Preparing to unpack .../24-xdot_1.3-1_all.deb ...
+2026-10-03T15:12:36.8470506Z Unpacking xdot (1.3-1) ...
+2026-10-03T15:12:36.8697478Z Selecting previously unselected package yosys-abc.
+2026-10-03T15:12:36.8823340Z Preparing to unpack .../25-yosys-abc_0.33-5build2_amd64.deb ...
+2026-10-03T15:12:36.8830578Z Unpacking yosys-abc (0.33-5build2) ...
+2026-10-03T15:12:36.9633577Z Selecting previously unselected package yosys.
+2026-10-03T15:12:36.9769030Z Preparing to unpack .../26-yosys_0.33-5build2_amd64.deb ...
+2026-10-03T15:12:36.9780722Z Unpacking yosys (0.33-5build2) ...
+2026-10-03T15:12:37.1065199Z Setting up gir1.2-freedesktop:amd64 (1.80.1-1) ...
+2026-10-03T15:12:37.1088506Z Setting up python3-cairo (1.25.1-2build2) ...
+2026-10-03T15:12:37.2358911Z Setting up libpangoxft-1.0-0:amd64 (1.52.1+ds-1build1) ...
+2026-10-03T15:12:37.2382874Z Setting up gir1.2-gdkpixbuf-2.0:amd64 (2.42.10+dfsg-3ubuntu3.3) ...
+2026-10-03T15:12:37.2403924Z Setting up gir1.2-atk-1.0:amd64 (2.52.0-1build1) ...
+2026-10-03T15:12:37.2426301Z Setting up liblab-gamut1:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:37.2448423Z Setting up yosys-abc (0.33-5build2) ...
+2026-10-03T15:12:37.2474045Z Setting up libharfbuzz-gobject0:amd64 (8.3.0-2build2) ...
+2026-10-03T15:12:37.2495815Z Setting up gir1.2-harfbuzz-0.0:amd64 (8.3.0-2build2) ...
+2026-10-03T15:12:37.2515214Z Setting up gir1.2-pango-1.0:amd64 (1.52.1+ds-1build1) ...
+2026-10-03T15:12:37.2536460Z Setting up libblas3:amd64 (3.12.0-3build1.1) ...
+2026-10-03T15:12:37.3547315Z update-alternatives: using /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 to provide /usr/lib/x86_64-linux-gnu/libblas.so.3 (libblas.so.3-x86_64-linux-gnu) in auto mode
+2026-10-03T15:12:37.3562817Z Setting up fonts-liberation2 (1:2.1.5-3) ...
+2026-10-03T15:12:37.3579239Z Setting up libpathplan4:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:37.3597929Z Setting up libann0 (1.1.2+doc-9build1) ...
+2026-10-03T15:12:37.3616514Z Setting up libgts-0.7-5t64:amd64 (0.7.6+darcs121130-5.2build1) ...
+2026-10-03T15:12:37.3634408Z Setting up libcdt5:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:37.3651545Z Setting up libcgraph6:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:37.3670963Z Setting up python3-gi-cairo (3.48.2-1) ...
+2026-10-03T15:12:37.3691376Z Setting up libgts-bin (0.7.6+darcs121130-5.2build1) ...
+2026-10-03T15:12:37.3709843Z Setting up liblapack3:amd64 (3.12.0-3build1.1) ...
+2026-10-03T15:12:37.3768037Z update-alternatives: using /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 to provide /usr/lib/x86_64-linux-gnu/liblapack.so.3 (liblapack.so.3-x86_64-linux-gnu) in auto mode
+2026-10-03T15:12:37.3782529Z Setting up yosys (0.33-5build2) ...
+2026-10-03T15:12:37.4914858Z Setting up gir1.2-gtk-3.0:amd64 (3.24.41-4ubuntu1.3) ...
+2026-10-03T15:12:37.4932569Z Setting up libgvc6 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:37.5425217Z Setting up python3-numpy (1:1.26.4+ds-6ubuntu1) ...
+2026-10-03T15:12:38.9610793Z Setting up libgvpr2:amd64 (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:38.9627892Z Setting up graphviz (2.42.2-9ubuntu0.1) ...
+2026-10-03T15:12:38.9663775Z Setting up xdot (1.3-1) ...
+2026-10-03T15:12:39.0973098Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-03T15:12:39.0993539Z Not building database; man-db/auto-update is not 'true'.
+2026-10-03T15:12:39.1004818Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-10-03T15:12:40.8210104Z 
+2026-10-03T15:12:40.8212284Z Running kernel seems to be up-to-date.
+2026-10-03T15:12:40.8213004Z 
+2026-10-03T15:12:40.8213221Z No services need to be restarted.
+2026-10-03T15:12:40.8213605Z 
+2026-10-03T15:12:40.8213806Z No containers need to be restarted.
+2026-10-03T15:12:40.8214189Z 
+2026-10-03T15:12:40.8214463Z No user sessions are running outdated binaries.
+2026-10-03T15:12:40.8214965Z 
+2026-10-03T15:12:40.8215391Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-03T15:12:42.1290858Z Reading package lists...
+2026-10-03T15:12:42.3161187Z Building dependency tree...
+2026-10-03T15:12:42.3169563Z Reading state information...
+2026-10-03T15:12:42.4737704Z unzip is already the newest version (6.0-28ubuntu4.1).
+2026-10-03T15:12:42.4738308Z 0 upgraded, 0 newly installed, 0 to remove and 25 not upgraded.
+2026-10-03T15:12:42.4776405Z Archive:  /tmp/sv2v.zip
+2026-10-03T15:12:42.4777433Z    creating: /tmp/sv2v/sv2v-Linux/
+2026-10-03T15:12:42.4779672Z   inflating: /tmp/sv2v/sv2v-Linux/CHANGELOG.md  
+2026-10-03T15:12:42.4780312Z   inflating: /tmp/sv2v/sv2v-Linux/LICENSE  
+2026-10-03T15:12:42.5377636Z   inflating: /tmp/sv2v/sv2v-Linux/sv2v  
+2026-10-03T15:12:42.5380820Z   inflating: /tmp/sv2v/sv2v-Linux/NOTICE  
+2026-10-03T15:12:42.5382078Z   inflating: /tmp/sv2v/sv2v-Linux/README.md  
+2026-10-03T15:12:42.5551278Z ##[group]Run ./syn/yosys/run.sh
+2026-10-03T15:12:42.5551609Z ./syn/yosys/run.sh
+2026-10-03T15:12:42.5618431Z shell: /usr/bin/bash -e {0}
+2026-10-03T15:12:42.5618681Z env:
+2026-10-03T15:12:42.5618889Z   VERILATOR_VERSION: v5.050
+2026-10-03T15:12:42.5619133Z ##[endgroup]
+2026-10-03T15:12:47.0729681Z yosys allocator: system
+2026-10-03T15:13:21.0179698Z YOSYS OK  KL_aecp_desc_mem_guard
+2026-10-03T15:13:21.0193222Z YOSYS OK  KL_aecp_ucpu
+2026-10-03T15:13:21.0205518Z YOSYS OK  KL_aecp_desc_store
+2026-10-03T15:13:21.0217974Z YOSYS OK  KL_aecp_dyn_state
+2026-10-03T15:13:21.0231643Z YOSYS OK  KL_aecp_resp_buf
+2026-10-03T15:13:21.0244709Z YOSYS OK  KL_aecp_nvm_writer
+2026-10-03T15:13:21.0257201Z YOSYS OK  KL_aecp_engine
+2026-10-03T15:13:21.0270539Z YOSYS OK  KL_aecp_notify
+2026-10-03T15:13:21.0290420Z YOSYS OK  KL_aecp_ca_originator
+2026-10-03T15:13:21.0296744Z YOSYS OK  KL_pp_timer_service
+2026-10-03T15:13:21.0309271Z YOSYS OK  KL_pp_prng
+2026-10-03T15:13:21.0321658Z YOSYS OK  KL_pp_rx_slots
+2026-10-03T15:13:21.0334350Z YOSYS OK  KL_pp_tx_slots
+2026-10-03T15:13:21.0346575Z YOSYS OK  KL_pp_release_merge
+2026-10-03T15:13:21.0359072Z YOSYS OK  KL_pp_rx_validator
+2026-10-03T15:13:21.0371311Z YOSYS OK  KL_pp_normalizer
+2026-10-03T15:13:21.0384218Z YOSYS OK  KL_pp_dispatch
+2026-10-03T15:13:21.0396913Z YOSYS OK  KL_pp_scoreboard
+2026-10-03T15:13:21.0409198Z YOSYS OK  KL_pp_event_router
+2026-10-03T15:13:21.0421992Z YOSYS OK  KL_pp_originator
+2026-10-03T15:13:21.0435130Z YOSYS OK  KL_pp_tx_arbiter
+2026-10-03T15:13:21.0447468Z YOSYS OK  KL_pp_trace_ring
+2026-10-03T15:13:21.0459959Z YOSYS OK  KL_pp_side_port
+2026-10-03T15:13:21.0472081Z YOSYS OK  KL_pp_nvm_port
+2026-10-03T15:13:21.0484624Z YOSYS OK  KL_pp_nvm_mgr_arb
+2026-10-03T15:13:21.0497034Z YOSYS OK  KL_adp_engine
+2026-10-03T15:13:21.0509344Z YOSYS OK  KL_pp_acmp_listener
+2026-10-03T15:13:21.0521639Z YOSYS OK  KL_pp_acmp_lsn_admit
+2026-10-03T15:13:21.0534669Z YOSYS OK  KL_acmp_talker
+2026-10-03T15:13:21.0547035Z YOSYS OK  KL_pp_maap
+2026-10-03T15:13:21.0559256Z YOSYS OK  KL_srp_decoder
+2026-10-03T15:13:21.0571492Z YOSYS OK  KL_srp_encoder
+2026-10-03T15:13:21.0584466Z YOSYS OK  KL_srp_domain
+2026-10-03T15:13:21.0596784Z YOSYS OK  KL_srp_vlan
+2026-10-03T15:13:21.0609024Z YOSYS OK  KL_srp_talker_fsm
+2026-10-03T15:13:21.0622303Z YOSYS OK  KL_srp_listener_fsm
+2026-10-03T15:13:21.0634554Z YOSYS OK  KL_acmp_nvm_shadow
+2026-10-03T15:13:21.0646733Z YOSYS OK  KL_mrp_strip
+2026-10-03T15:13:21.0659549Z YOSYS OK  KL_pp_dispatch_fifo
+2026-10-03T15:13:21.0671675Z YOSYS OK  KL_srp_admission
+2026-10-03T15:13:21.0684020Z YOSYS OK  KL_srp_top
+2026-10-03T15:13:21.0696986Z YOSYS OK  protocol_processor_top
+2026-10-03T15:13:21.0697456Z YOSYS 42 tops, all.v parsed 1 time(s)
+2026-10-03T15:13:21.5122080Z Warning: Replacing memory \tpend_deadline_r with list of registers. See all.v:3655
+2026-10-03T15:13:21.5123591Z Warning: Replacing memory \adv_st_r with list of registers. See all.v:3653
+2026-10-03T15:13:22.1384236Z Warning: Replacing memory \lost_cnt_r with list of registers. See all.v:12974
+2026-10-03T15:13:22.1385283Z Warning: Replacing memory \payload_r with list of registers. See all.v:12973
+2026-10-03T15:13:22.3888417Z Warning: Replacing memory \age_r with list of registers. See all.v:15810
+2026-10-03T15:13:22.8904553Z Warning: Replacing memory \tf_cnt_r with list of registers. See all.v:20146
+2026-10-03T15:13:22.8905688Z Warning: Replacing memory \tf_q_r with list of registers. See all.v:20075
+2026-10-03T15:13:22.8906827Z Warning: Replacing memory \tf_wptr_r with list of registers. See all.v:20142, all.v:20070
+2026-10-03T15:14:20.2214357Z Warning: Resizing cell port KL_aecp_engine.amap_stage_r.0.0.ADDRARDADDR from 17 bits to 16 bits.
+2026-10-03T15:14:20.2215803Z Warning: Resizing cell port KL_aecp_engine.amap_stage_r.0.0.ADDRBWRADDR from 17 bits to 16 bits.
+2026-10-03T15:14:20.2217287Z Warning: Resizing cell port KL_aecp_engine.u_store.line_r.0.0.ADDRARDADDR from 17 bits to 16 bits.
+2026-10-03T15:14:20.2218799Z Warning: Resizing cell port KL_aecp_engine.u_store.line_r.0.0.ADDRBWRADDR from 17 bits to 16 bits.
+2026-10-03T15:14:20.2219827Z Warning: Resizing cell port KL_aecp_engine.u_store.name_r.0.0.ADDRARDADDR from 17 bits to 16 bits.
+2026-10-03T15:14:20.2220797Z Warning: Resizing cell port KL_aecp_engine.u_store.name_r.0.0.ADDRBWRADDR from 17 bits to 16 bits.
+2026-10-03T15:14:20.2221720Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.0.DOADO from 64 bits to 32 bits.
+2026-10-03T15:14:20.2222935Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.0.DOBDO from 64 bits to 32 bits.
+2026-10-03T15:14:20.2223646Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.0.DOPADOP from 8 bits to 4 bits.
+2026-10-03T15:14:20.2224371Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.0.DOPBDOP from 8 bits to 4 bits.
+2026-10-03T15:14:20.2225074Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.1.DOADO from 64 bits to 32 bits.
+2026-10-03T15:14:20.2225767Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.1.DOBDO from 64 bits to 32 bits.
+2026-10-03T15:14:20.2226699Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.1.DOPADOP from 8 bits to 4 bits.
+2026-10-03T15:14:20.2227406Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.1.DOPBDOP from 8 bits to 4 bits.
+2026-10-03T15:14:20.2228099Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.2.DOADO from 64 bits to 32 bits.
+2026-10-03T15:14:20.2228794Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.2.DOBDO from 64 bits to 32 bits.
+2026-10-03T15:14:20.2229499Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.2.DOPADOP from 8 bits to 4 bits.
+2026-10-03T15:14:20.2230203Z Warning: Resizing cell port KL_aecp_engine.u_ucpu.rom_r.0.2.DOPBDOP from 8 bits to 4 bits.
+2026-10-03T15:14:20.6678048Z YOSYS XILINX OK  KL_aecp_engine
+2026-10-03T15:14:20.6827305Z Post job cleanup.
+2026-10-03T15:14:20.7682876Z [command]/usr/bin/git version
+2026-10-03T15:14:20.7726720Z git version 2.55.0
+2026-10-03T15:14:20.7769701Z Temporarily overriding HOME='<home-path>/work/_temp/126fc142-3baf-45b8-8519-e54bd44acff2' before making global git config changes
+2026-10-03T15:14:20.7771116Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-03T15:14:20.7776220Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-03T15:14:20.7817335Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-03T15:14:20.7851888Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-03T15:14:20.8101797Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-03T15:14:20.8133071Z http.https://github.com/.extraheader
+2026-10-03T15:14:20.8155338Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-03T15:14:20.8184986Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-03T15:14:20.8443202Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-03T15:14:20.8469836Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-03T15:14:20.8912604Z Cleaning up orphan processes
+2026-10-03T15:14:20.9326037Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

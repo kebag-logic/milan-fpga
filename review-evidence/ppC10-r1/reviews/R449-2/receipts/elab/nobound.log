@@ -1,0 +1,19 @@
+ELAB OK    MEM_TIMEOUT_CYC_P=1
+ELAB OK    MEM_TIMEOUT_CYC_P=2147483647
+GUARD OK   MEM_TIMEOUT_CYC_P=0 (refused by name as %Warning-USERERROR, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=2147483648 (refused by name as %Warning-USERERROR, as it must be)
+GUARD OK   MEM_TIMEOUT_CYC_P=4294967295 (refused by name as %Warning-USERERROR, as it must be)
+ELAB OK    MAX_PAYLOAD_P=1024
+ELAB OK    MAX_PAYLOAD_P=65527
+GUARD FAIL MAX_PAYLOAD_P=65528 failed without naming the parameter and its bound
+%Warning-USERFATAL: ../../hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD_P=65528 is above the bound: 8 + it overflows dev_len_o
+%Error: Exiting due to 1 warning(s)
+GUARD FAIL MAX_PAYLOAD_P=65535 failed without naming the parameter and its bound
+%Warning-USERFATAL: ../../hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD_P=65535 is above the bound: 8 + it overflows dev_len_o
+%Warning-CMPCONST: ../../hdl/packet_engine/KL_pp_nvm_port.sv:242:38: Comparison is constant due to limited range
+%Error: Exiting due to 2 warning(s)
+GUARD FAIL MAX_PAYLOAD_P=4294967295 failed without naming the parameter and its bound
+%Warning-USERFATAL: ../../hdl/packet_engine/KL_pp_nvm_port.sv:198:5: KL_pp_nvm_port: MAX_PAYLOAD_P=4294967295 is above the bound: 8 + it overflows dev_len_o
+%Warning-CMPCONST: ../../hdl/packet_engine/KL_pp_nvm_port.sv:242:38: Comparison is constant due to limited range
+%Error: Exiting due to 2 warning(s)
+YOSYS OK   MAX_PAYLOAD_P=65527 elaborates, MAX_PAYLOAD_P=65528 stops at the guard's $finish
