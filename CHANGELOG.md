@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 631eeb34](#unreleased---processor-pin-631eeb34)** -- AECP answers by its deadline.
 - **[Unreleased - processor pin b2db3a97](#unreleased---processor-pin-b2db3a97)** -- Scalar settings persist.
 - **[Unreleased - frame-atomic TDM capture](#unreleased---frame-atomic-tdm-capture)** -- One TDM frame per AAF column.
 - **[Unreleased - processor pin 16be6768](#unreleased---processor-pin-16be6768)** -- Rejects descriptor body/key mismatches.
@@ -34,6 +35,32 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 631eeb34
+
+- Issue #635 adopts processor `631eeb34`.
+- That pin carries processor PRs #135 to #140 and #142.
+- An AECP command past its 100 ms deadline is answered.
+- Its answer is ENTITY_MISBEHAVING unless a refusal was already chosen.
+- A command that had already changed state answers for itself.
+- Non-AEM messages on that path answer NOT_IMPLEMENTED, echoed.
+- So does a non-AEM command whose response memory fails.
+- GET_MILAN_INFO is one; at `b2db3a97` it answered ENTITY_MISBEHAVING.
+- Processor PR #140 cites Milan Table 5.19 for this.
+- AECP and ACMP work now serialize by hazard class.
+- Locked `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE` and `SET_CONTROL` refusals carry the value in force.
+- `SET_CONTROL`'s out-of-range refusal carries it too.
+- GET_AUDIO_MAP serves pages of 63 to 71 records whole.
+- READ_DESCRIPTOR carries the current values a SET stored.
+- A restored value reads back the same way.
+- The ADPDU configuration index follows SET_CONFIGURATION.
+- Unsolicited SET_STREAM_INFO carries the 84-byte SET body.
+- `KL_pp_shadow` ties the new identify button input to 0.
+- `EN_IDENTIFY_NOTIF_P` stays 0, so IDENTIFY_NOTIFICATION stays off.
+- SET/GET_CLOCK_SOURCE are graded over ten sources for #629.
+- The ROM ledger adds `631eeb34` rows; `ucode.hex` changes.
+- The capture census and product firmware are unchanged.
+- VERSION remains `0x0002_0060`; the release step owns the minor bump.
 
 ## Unreleased - processor pin b2db3a97
 
