@@ -389,10 +389,11 @@ LEG_DEFECTS = [
     ("a single changed sample", "ship", "--defect-one-sample",
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),
+    #: since #629's A2-a the walk stops at INTERNAL too, so the arm is graded
+    #: where the selection itself shows: the one registered resolve
     ("the clock-source selection names INTERNAL", "ship",
      "--defect-internal-select",
-     "T30 CRF ALIGNED: the walk STOPPED once the grids were held together, "
-     "which is what the aligner buys the lane"),
+     "T30 CRF: the media plane's one registered resolve reads CRF"),
 ]
 
 #: the CLEAN modes the leg-defect arms above are the negative of, so a

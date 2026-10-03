@@ -23,7 +23,13 @@ from nvm_klj2 import (erased_record, frame_record, klj2_assemble, klj2_decode,
 # Captured from the complete deterministic --emit-record-table image at
 # 573f0052a0e4412e81f0845438fcec2086ce5d55, before any layout edit. Includes
 # header, every record, padding and trailer, with the emit identity below.
-BASE_1X1_SHA256 = "103ce107b1402884914036a363055800ad2cd97b8067df41f5cc54be9d3a3aea"
+# Re-captured once for #629, which is a model change and not a layout edit:
+# the 1x1 shape gains the INPUT_STREAM CLOCK_SOURCE of its AAF listener, so
+# its image gains that descriptor's NAME record (0xA6, NAME 38) and nothing
+# else moves (tb/verilator/nvm_backend/records_endstation_ax7101_1x1_tdm8.txt,
+# one record more). The digest at 573f0052 was
+# 103ce107b1402884914036a363055800ad2cd97b8067df41f5cc54be9d3a3aea.
+BASE_1X1_SHA256 = "0a403a153023f112f2a0e25bcb3c6a2d98a1056d4296a99f9a4fc9c30f9301db"
 EMIT_IDENT = Ident(7, 0x0011223344556677, 0x8899AABBCCDDEEFF)
 UNUSED = b"\xff" * MAP_ENTRY
 

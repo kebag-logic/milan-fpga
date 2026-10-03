@@ -28,7 +28,7 @@
   //! Writable SET_NAME/GET_NAME entries in this exact AEM model.
   //! This sizes the processor overlay from the generated descriptor
   //! shape, so a larger model cannot compile with a smaller cache.
-  localparam int AEM_NAME_ENTRIES_C = 99;
+  localparam int AEM_NAME_ENTRIES_C = 107;
   //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:
   //! the saved-state record allocation (KL_nvm_backend) is sized by
   //! them, one sampling-rate record per unit and one clock-source and
@@ -48,11 +48,25 @@
   //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so
   //! the compare is structurally false rather than accidentally true
   //! (the 0 == 0 trap the milan_datapath banner records). Derived
-  //! from the config's media_clock_sources - internal first, then the
-  //! CRF sink's source; no per-listener source since #389 - never a
-  //! hand literal.
-  localparam int unsigned AEM_N_CLKSRC_C = 2;
+  //! from the config's media_clock_sources in #629's class order -
+  //! INTERNAL, the CRF sink's source, then one source per AAF
+  //! listener - never a hand literal.
+  localparam int unsigned AEM_N_CLKSRC_C = 10;
   localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd1;
+  //! CLOCK_SOURCE kind codes, one per class (#629): what the decode
+  //! below compares AEM_CLKSRC_KIND_C against
+  localparam logic [1:0] AEM_CLKSRC_INTERNAL_C = 2'd0;
+  localparam logic [1:0] AEM_CLKSRC_CRF_C = 2'd1;
+  localparam logic [1:0] AEM_CLKSRC_AAF_C = 2'd2;
+  //! per CLOCK_SOURCE index: its kind, and the STREAM_INPUT it is
+  //! located on (16'hFFFF for INTERNAL). For an AAF source that
+  //! STREAM_INPUT is the followed listener's index; milan_datapath's
+  //! media_clk_resolve decodes the live selection through both.
+  localparam logic [1:0] AEM_CLKSRC_KIND_C [0:9] = '{2'd0, 2'd1, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2, 2'd2};
+  localparam logic [15:0] AEM_CLKSRC_SI_C [0:9] = '{16'hFFFF, 16'd8, 16'd0, 16'd1, 16'd2, 16'd3, 16'd4, 16'd5, 16'd6, 16'd7};
+  //! AAF Stream Inputs that carry a CLOCK_SOURCE: 0 elaborates no AAF
+  //! clock meter (the shape offers no AAF source to follow)
+  localparam int unsigned AEM_N_AAF_CLKSRC_C = 8;
   //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set
   //! bit means the descriptor carries no static AUDIO_MAP and the
   //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.

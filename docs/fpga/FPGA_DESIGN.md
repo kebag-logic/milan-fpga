@@ -169,14 +169,16 @@ starves every downstream mux on the same cycle, so equal windows would each
 inject their own close beat and put a runt on the wire per level.
 
 Two losses remain functional; #74 closed CRF media-clock selection.
-`media_clk_resolve` compares `SET_CLOCK_SOURCE` against the shape's `AEM_CRF_CLKSRC_C`.
-Its registered verdict gates these CRF consumers:
+`media_clk_resolve` decodes `SET_CLOCK_SOURCE` through the shape's clock-source tables.
+Since #629 it selects INTERNAL, the CRF input or one AAF input.
+Its registered verdicts gate these consumers:
 
 - `KL_mmcm_drp_servo`;
 - the `KL_media_grid_align` packet-grid chain;
-- the CRF triggers of IEEE 1722-2016 4.4.4.3 `mr`.
+- the followed source's triggers of IEEE 1722-2016 4.4.4.3 `mr`.
 
-At INTERNAL, those CRF consumers stay idle under free-run policy.
+At INTERNAL the servo and the `mr` triggers stay idle.
+The grid aligner runs at INTERNAL too since #629 (A2-a).
 A PHC-only re-base preserves `mr` ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
 It adds no MEDIA_RESET under INTERNAL or CRF selection.
 Source changes and selected-CRF causes still request restarts.
@@ -293,7 +295,7 @@ this table whenever `hdl/` changes shape.
 | `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) -- parses, counts and reports; since #74 its measurements steer the servo chain whenever the CRF source is selected (Section 1.2) |
 | `KL_crf_tx` | Milan CRF Media Clock Output engine (talker half), on the data lane |
 | `KL_media_grid_align` | the #74 packet-grid alignment loop: a cycle-resolution phase detector on the front-end frame marker plus an overdamped PI that holds `KL_media_nco`'s tick to the physical fsync grid under a CRF selection; `milan_datapath` keys it on the TDM frame close with the tick one cycle late and a 256-cycle keep-off (#617), guarding the capture walk's crossing |
-| `KL_media_nco` | the steerable media-clock sample grid — free-running bit-exact at INTERNAL; under a selected CRF clock it follows the physical fsync grid through `KL_media_grid_align` (#74) |
+| `KL_media_nco` | the steerable media-clock sample grid -- it follows the physical fsync grid through `KL_media_grid_align` at every source (#74; INTERNAL too since #629, A2-a), and free-runs bit-exact only while the aligner is disengaged |
 | `KL_mmcm_drp_servo` | the audio-MMCM recovery ACTUATOR — engaged by the live clock-source resolve since #74; at the INTERNAL power-on state `A_MCSRV_STAT` (`0x8F8`) reads its idle honestly |
 
 ### `hdl/ieee1722/maap/`

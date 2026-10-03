@@ -19,7 +19,7 @@ class TalkerStepHarness {
     int run() {
         check.echo_passes();
         mm.regs[0x08] = 0x0595; mm.regs[0x09] = 0x0080;
-        dut->rst_n = 0; dut->clk_src_i = 1; dut->crf_src_idx_i = 1;
+        dut->rst_n = 0; dut->sel_i = 1;
         dut->auto_repair_i = 0; dut->ps_invert_i = 0;
         dut->mmcm_locked_i = 1; run_ms(0.01); dut->rst_n = 1;
         run_ms(8500);

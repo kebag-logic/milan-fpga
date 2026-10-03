@@ -226,7 +226,9 @@ of slot 0's MSB:
 | INTERNAL | `+10.68` ppm measured, against the divider plan's `+10.6394` ppm closed form | one whole frame of `phi` every ~1.95 s |
 | CRF, aligner engaged | `-0.80` ppm measured | nothing: the skip and underrun counters do not move across the window |
 
-The INTERNAL row is the accepted free-run, not a defect: the same `10.64` ppm
+The INTERNAL row was measured before #629, when INTERNAL free-ran by rule;
+since #629 (A2-a) the aligner runs at INTERNAL too, as in the CRF row. It was
+not a defect then: the same `10.64` ppm
 the capture junction already publishes. What the pins show at each beat is not
 one isolated skip but a CLUSTER of repeat/skip pairs as the commit instant
 dithers across the frame boundary - measured on this head as 10 repeats against

@@ -1,0 +1,311 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Build each named mutant of the #629 meter and servo rows; require its named check to fail.
+
+The mutants are the ones docs/design/MEDIA_CLOCK_FOLLOWING.md's test plan
+names for the meter rows, the servo row with the meter in front of it, and
+the servo's W2 switch (#629), the meter rules the PR #634 round-1 review
+(R432-1 F5) showed no check could fail, planted with that review's own edits,
+and the largest deviation's level the round-2 reviews probed, with theirs.
+Each is a set of exact source replacements to KL_aaf_clock_meter or
+KL_mmcm_drp_servo, every anchor required to occur exactly once, applied to a
+scratch copy: no checkout file is edited. A mutant
+counts as killed only when its build succeeds, the harness exits 1, and the
+named check is among its failures; a compiler error or abnormal exit never
+counts. A clean build of the meter harness runs first, as the positive
+control; the suite's own run is the clean control of the other two harnesses.
+"""
+
+import os
+import signal
+import subprocess
+import tempfile
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+RTL = {
+    "meter": HERE / "../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
+    "servo": HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+}
+SERVO_UNIT = HERE / "../mmcm_servo"
+
+#: E1: the rate over one 512 ms snapshot instead of eight (D8's rejected E1)
+E1_EDITS = (
+    ("g_snap_old_r <= ring_r[ring_idx_r];", "g_snap_old_r <= ring_r[ring_idx_r - 1'b1];"),
+    ("g_snap_old_r - NOM_SPAN_NS_C);", "g_snap_old_r - NOM_SNAP_NS_C);"),
+    ("rate_ns_o    <= g_rdiff_r >>> RING_LOG2_C;", "rate_ns_o    <= g_rdiff_r;"),
+)
+#: restart on any loss: round 3's rule, before the lost-PDU rule (b)
+ANY_LOSS_EDITS = (
+    ("if (s2_tu_edge_w) pdu_restart_r <= 1'b1;",
+     "if (s2_tu_edge_w || s2_gap_r) pdu_restart_r <= 1'b1;"),
+)
+
+#: (name, the RTL it mutates, ((anchor, replacement), ...), the target that
+#: runs it - "cases:<case>" (Vmeter_sim), "servo" (Vservo_sim, the meter
+#: driving the servo) or "unit" (tb/verilator/mmcm_servo's unit harness) -
+#: and the check it must fail)
+MUTANTS = (
+    ("decimation_by_1", "meter",
+     (("        if (s2_tu_edge_w) pdu_restart_r <= 1'b1;\n      end",
+       "        if (s2_tu_edge_w) pdu_restart_r <= 1'b1;\n"
+       "        pc_v_r <= 1'b1; pc_ts0_r <= s2_ts_r; pc_sum_r <= '0;"
+       " pc_id_r <= s2_gid_w;\n      end"),),
+     "cases:rates", "[M1 +0.00 ppm] rate_valid rises within 4.2 s and holds"),
+    ("rate_over_512ms_E1", "meter", E1_EDITS,
+     "cases:shapes", "[M2 rsign] every rate within 360 ns of the planted rate"),
+    ("bound_2048_B1", "meter",
+     (("1 << $clog2(2 * TS_ERR_NS_C + DRIFT_NS_C);", "2048;"),),
+     "cases:shapes", "[M2 indep] no history restart"),
+    ("first_pdu_pick_P1", "meter",
+     (("g_pick_r <= pc_ts0_r + 32'(pc_sum_r >>> GRP_LOG2_C);", "g_pick_r <= pc_ts0_r;"),),
+     "cases:shapes", "[M2 indep] every rate within 256 ns of the planted rate"),
+    ("spacing_bound_16384_B3", "meter",
+     (("? 32'(GAP_NS_C) : 32'(JUMP_NS_C);", "? 32'(GAP_NS_C) : 32'd16384;"),),
+     "cases:beyond", "[M3 rsign1800] the error restarts the history"),
+    ("within_group_void_removed", "meter",
+     (("wire        s2_in_bound_w = (s2_dev_r <= $signed(32'(JUMP_NS_C)))\n"
+       "                           && (s2_dev_r >= -$signed(32'(JUMP_NS_C)));",
+       "wire        s2_in_bound_w = 1'b1;"),),
+     "cases:beyond", "[M3 indep2100] the error restarts the history"),
+    ("stream_data_length_unchecked", "meter",
+     (("\n               && (f_sdl_w == sdl_for(f_cpf_w));", ";"),),
+     "cases:format", "[M4 12-sample] does not lock"),
+    ("continuity_without_wrap", "meter",
+     (("g_k_r     <= g_id_r - last_id_r;",
+       "g_k_r     <= (g_id_r < last_id_r) ? 4'd0 : g_id_r - last_id_r;"),),
+     "cases:wrap", "[M5] zero restarts across the sequence wraps"),
+    ("timeout_disabled", "meter",
+     (("wire tout_fire_w = en_w && (tout_r == TOUTW_C'(TOUT_CYC_C));",
+       "wire tout_fire_w = 1'b0;"),),
+     "cases:lock", "[M6] unlocks 100 ms after the last PDU"),
+    ("no_restart_on_tu_edge", "meter",
+     (("wire        s2_tu_edge_w = tu_seeded_r && (s2_tu_r != prev_tu_r);",
+       "wire        s2_tu_edge_w = 1'b0;"),),
+     "cases:restarts", "[M7 tu edge] rate_valid falls at the event"),
+    ("restart_on_any_loss", "meter", ANY_LOSS_EDITS,
+     "cases:loss_periodic", "[M8 indep 1 s] rate_valid from 4.1 s on and never falls"),
+    ("snapshot_next_pick_less_2ms", "meter",
+     (("g_mid_r <= last_pick_r + {g_diff_r[31], g_diff_r[31:1]};",
+       "g_mid_r <= last_pick_r + g_diff_r - 32'(GRP_NS_C);"),),
+     "cases:loss_snapshot", "[M9] every rate equals the no-loss run within 1 LSB"),
+    ("voided_snapshot_restarts", "meter",
+     (("      if (g_first_r || !g3_sp_ok_w) begin\n        ring_we_w = 1'b1;",
+       "      if (g_first_r || !g3_sp_ok_w || g3_snap_mid_w) begin\n        ring_we_w = 1'b1;"),
+      ("        if (g_first_r || !g3_sp_ok_w) begin\n          //! a new history",
+       "        if (g_first_r || !g3_sp_ok_w || g3_snap_mid_w) begin\n"
+       "          //! a new history")),
+     "cases:loss_snapshot", "[M9] no history restart"),
+    ("multi_group_gap_accepted", "meter",
+     (("wire        g3_k_ok_w    = (g_k_r == 4'd1) || (g_k_r == 4'd2);",
+       "wire        g3_k_ok_w    = (g_k_r != 4'd0);"),
+      ("- ((g_k_r == 4'd2) ? 32'(2 * GRP_NS_C) : 32'(GRP_NS_C)));",
+       "- 32'(32'(g_k_r) * GRP_NS_C));"),
+      ("wire [31:0] g3_bound_w   = (g_k_r == 4'd2) ?",
+       "wire [31:0] g3_bound_w   = (g_k_r >= 4'd2) ?")),
+     "cases:bound", "[M10 two losses in adjacent groups] restarts once"),
+    ("gap_bound_4096", "meter",
+     (("localparam int unsigned GAP_NS_C    = 5120;",
+       "localparam int unsigned GAP_NS_C    = 4096;"),),
+     "cases:gap_value", "[M11 a] +3,900 ns at +300 ppm, 5,100 ns from 4 ms: no restart"),
+    ("gap_bound_scaled_with_k", "meter",
+     (("? 32'(GAP_NS_C) : 32'(JUMP_NS_C);", "? 32'(2 * JUMP_NS_C) : 32'(JUMP_NS_C);"),),
+     "cases:gap_value",
+     "[M11 b] half sample at -300 ppm against +/-J, 6,365 ns off: one restart"),
+    ("no_check_across_a_gap", "meter",
+     (("wire        g3_sp_ok_w   = g3_k_ok_w && ($signed(g_sp_r) <= $signed(g3_bound_w))\n"
+       "                                       && ($signed(g_sp_r) >= -$signed(g3_bound_w));",
+       "wire        g3_sp_ok_w   = g3_k_ok_w && ((g_k_r == 4'd2) ||\n"
+       "    (($signed(g_sp_r) <= $signed(g3_bound_w)) &&"
+       " ($signed(g_sp_r) >= -$signed(g3_bound_w))));"),),
+     "cases:step_in_gap", "[M12 PDU 0 lost, step +20833 @1] restarts the history once"),
+    ("listener_compare_ignored", "meter",
+     (("(match_idx_i == follow_idx_i) && !stopped_w", "1'b1 && !stopped_w"),),
+     "cases:selection", "[M13 another listener] not measured"),
+    ("no_reseed_at_era_start", "meter",
+     (("        mr_seeded_r  <= 1'b0;\n        tu_seeded_r  <= 1'b0;\n",
+       "        tu_seeded_r  <= 1'b0;\n"),),
+     "cases:pulses", "[M14 listener change to the opposite mr level] mr_toggle_p pulses"),
+    ("era_lock_clear_on_disrupt", "meter",
+     (("      if (tout_fire_w && locked_o) begin",
+       "      if ((tout_fire_w || lock_clr_w) && locked_o) begin"),),
+     "cases:pulses", "[M14 listener change to the opposite mr level] disrupt_p pulses"),
+    ("disrupt_tied_low", "meter",
+     (("disrupt_p_o <= 1'b1;               //! the ONE disruption pulse",
+       "disrupt_p_o <= 1'b0;"),),
+     "cases:pulses", "[M14 100 ms of silence] disrupt_p pulses"),
+    ("enable_tied_high", "meter",
+     (("  wire               en_w = en_i;", "  wire               en_w = 1'b1;"),),
+     "cases:pulses", "[M14 enable low, talker 0 toggling its mr] mr_toggle_p pulses"),
+    ("servo_with_meter_E1", "meter", E1_EDITS,
+     "servo", "[S2 worst] every window's |e| under 1,024 ns after the first LOCKED"),
+    ("servo_with_meter_restart_on_any_loss", "meter", ANY_LOSS_EDITS,
+     "servo", "[S2 loss] the trim followed the 4 ppm step within 0.5 ppm"),
+    ("held_lock_cleared_on_a_gap", "meter",
+     (("        if (s2_gap_r)                              settle_r <= '0;",
+       "        if (s2_gap_r) begin settle_r <= '0; locked_o <= 1'b0; end"),),
+     "servo", "[S2] LOCKED never left after the first LOCKED"),
+    # R432-1 F5 (a): round 4's rule, the deviation verdict taken only at a
+    # group's PDU 15, so a group that loses its PDU 15 restarts later, by the
+    # check across the gap, instead of at the step's PDU (rule 1)
+    ("deviation_verdict_deferred_to_pdu15", "meter",
+     (("  logic        pdu_restart_r;\n",
+       "  logic        pdu_restart_r;\n  logic        dev_bad_r;\n"),
+      ("      pdu_restart_r <= 1'b0;\n      max_dev_r <= '0;",
+       "      pdu_restart_r <= 1'b0; dev_bad_r <= 1'b0;\n      max_dev_r <= '0;"),
+      ("          grp_id_r  <= s2_gid_w;\n        end else",
+       "          grp_id_r  <= s2_gid_w; dev_bad_r <= 1'b0;\n        end else"),
+      ("          if (!s2_in_bound_w) begin\n"
+       "            grp_act_r     <= 1'b0;\n"
+       "            pdu_restart_r <= 1'b1;\n"
+       "          end else if (s2_pos_w == 4'd15) begin",
+       "          if (s2_pos_w == 4'd15 && (dev_bad_r || !s2_in_bound_w)) begin\n"
+       "            grp_act_r     <= 1'b0;\n"
+       "            pdu_restart_r <= 1'b1;\n"
+       "          end else if (s2_pos_w == 4'd15) begin"),
+      ("          end else begin\n            grp_sum_r <= grp_sum_r + 20'(s2_dev_r);",
+       "          end else begin\n            if (!s2_in_bound_w) dev_bad_r <= 1'b1;\n"
+       "            grp_sum_r <= grp_sum_r + 20'(s2_dev_r);")),
+     "cases:step_in_gap",
+     "[M12 PDU 15 lost, step +20833 @1] the deviation check restarts it at the step's PDU, "
+     "before the gap"),
+    # R432-1 F5 (b): a change of the followed listener keeps a held lock
+    ("listener_change_keeps_lock", "meter",
+     (("wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w;",
+       "wire lock_clr_w  = en_rise_w || en_fall_w || !en_w;"),),
+     "cases:restarts", "[M7 listener change] the held lock clears at the event"),
+    # R432-1 F5 (c): a sequence gap no longer breaks the settle run
+    ("gap_does_not_break_settle", "meter",
+     (("        if (s2_gap_r)                              settle_r <= '0;\n"
+       "        else if (settle_r",
+       "        if (settle_r"),),
+     "cases:lock", "[M6 gap before lock] not locked at the gap PDU and 7 clean PDUs after it"),
+    # R432-1 F5 (d): the bind edge clears a held lock
+    ("bind_edge_clears_lock", "meter",
+     (("wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w;",
+       "wire lock_clr_w  = en_rise_w || en_fall_w || idx_chg_w || !en_w || bind_rise_w;"),),
+     "cases:restarts", "[M7 bind edge] the held lock is kept through the event"),
+    # R432-1 F5 (e): channels_per_frame 0 accepted
+    ("cpf_zero_accepted", "meter",
+     (("               && !f_sp_w && (f_cpf_w != 10'd0)",
+       "               && !f_sp_w"),),
+     "cases:format", "[M4 0 channels] does not lock"),
+    # the largest deviation not tracked (R432-1's probe, graded at the root
+    # too): max_dev_ns_o is the meter's own boundary since round 2
+    ("max_dev_not_tracked", "meter",
+     (("          else if (16'(s2_abs_w) > max_dev_r)  max_dev_r <= 16'(s2_abs_w);\n", "\n"),),
+     "cases:rates", "[M1 +10.64 ppm] the largest deviation is the offset over 15 spacings"),
+    # the largest deviation's level (PR #634 round 2, R432-2 S1 = R433-2 S1),
+    # planted with R433-2's meter_probes.py edits: the era-start clear
+    # removed; the 65,535 ns saturation removed; and that run's third
+    # survivor, the PDU after a sequence gap measured against PDU 0
+    ("max_dev_not_cleared_at_era_start", "meter",
+     (("        mr_toggle_p_o <= 1'b0;\n        max_dev_r     <= '0;\n",
+       "        mr_toggle_p_o <= 1'b0;\n"),),
+     "cases:rates", "[M1 max_dev, listener change] the new era's largest deviation reads 0"),
+    ("max_dev_no_saturation", "meter",
+     (("          if (s2_abs_w > 32'd65535)            max_dev_r <= 16'hFFFF;\n"
+       "          else if",
+       "          if"),),
+     "cases:rates", "[M1 max_dev, step +65536 @5] reads min(|step|, 65,535) after it"),
+    ("max_dev_includes_gap_pdus", "meter",
+     (("        end else if (s2_gap_r || !grp_act_r || s2_tu_edge_w) begin\n"
+       "          grp_act_r <= 1'b0;\n        end else begin\n",
+       "        end else if (s2_gap_r || !grp_act_r || s2_tu_edge_w) begin\n"
+       "          grp_act_r <= 1'b0;\n"
+       "          if (16'(s2_abs_w) > max_dev_r) max_dev_r <= 16'(s2_abs_w);\n"
+       "        end else begin\n"),),
+     "cases:rates", "[M1 max_dev, a lost PDU] the PDU after the gap is no deviation"),
+    ("switch_through_idle_W1", "servo",
+     (("          else if (!ref_locked_i)    state_r <= HOLDOVER_S;",
+       "          else if (!ref_locked_i)    state_r <= IDLE_S;"),),
+     "unit", "[U16] the integrator is kept through the switch (trim unchanged)"),
+)
+
+
+def build(work: Path, name: str, rtl: str, source: str, target: str) -> Path | None:
+    """Build `target`'s harness against the mutated `rtl` source; None on a failed build."""
+    path = work / f"{name}.sv"
+    path.write_text(source)
+    mdir = work / f"obj_{name}"
+    tool = [f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}",
+            f"VERILATOR_JOBS={os.environ.get('VERILATOR_JOBS', '0')}"]
+    if target == "unit":
+        cmd = ["make", "-s", "-C", str(SERVO_UNIT), "unit-build", f"SERVO_RTL={path}",
+               f"UNIT_MDIR={mdir}", *tool]
+        exe = mdir / "Vservo_sim"
+    elif target == "servo":
+        var = "METER_RTL" if rtl == "meter" else "SERVO_RTL"
+        cmd = ["make", "-s", "-C", str(HERE), "servo-build", f"{var}={path}",
+               f"SERVO_MDIR={mdir}", *tool]
+        exe = mdir / "Vservo_sim"
+    else:
+        cmd = ["make", "-s", "-C", str(HERE), "build", f"METER_RTL={path}", f"MDIR={mdir}",
+               *tool]
+        exe = mdir / "Vmeter_sim"
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if result.returncode:
+        print(result.stdout[-2000:] + result.stderr[-2000:])
+        print(f"FAIL {name}: compilation failed")
+        return None
+    return exe
+
+
+def run_case(exe: Path, name: str, target: str, failure: str | None) -> bool:
+    """A clean control passes; a mutant must fail by its named check."""
+    args = [target.split(":", 1)[1]] if target.startswith("cases:") else []
+    result = subprocess.run([str(exe), *args], capture_output=True, text=True, check=False)
+    output = result.stdout + result.stderr
+    if failure is None:
+        passed = result.returncode == 0 and "RESULT: PASS" in output
+    else:
+        # the servo unit harness prints its own tally and no RESULT line
+        failed = target == "unit" or "RESULT: FAIL" in output
+        passed = result.returncode == 1 and failed and f"[FAIL] {failure}" in output
+    print(f"[{'PASS' if passed else 'FAIL'}] {name} ({target}): rc={result.returncode}")
+    if passed and failure is not None:
+        # The sweep judges this campaign's verdict, not the expected DUT failure.
+        print(f"  named rejection: {failure}")
+    elif not passed:
+        print(output[-4000:])
+    return passed
+
+
+def mutate(source: str, edits: tuple[tuple[str, str], ...]) -> str | None:
+    """Apply every edit, each anchor exactly once; None when one is not."""
+    for anchor, replacement in edits:
+        if source.count(anchor) != 1:
+            return None
+        source = source.replace(anchor, replacement)
+    return source
+
+
+def main() -> int:
+    """Run the clean control and every mutant; fail if any defect escapes."""
+    def interrupted(_signum: int, _frame: object) -> None:
+        """Unwind temporary storage when the caller stops the campaign."""
+        raise SystemExit(143)
+
+    signal.signal(signal.SIGTERM, interrupted)
+    sources = {key: path.read_text() for key, path in RTL.items()}
+    results = []
+    with tempfile.TemporaryDirectory(prefix="aaf-meter-mutants-") as directory:
+        work = Path(directory)
+        clean = build(work, "clean", "meter", sources["meter"], "cases:selection")
+        results.append(clean is not None and run_case(clean, "clean", "cases:selection", None))
+        for name, rtl, edits, target, failure in MUTANTS:
+            mutated = mutate(sources[rtl], edits)
+            if mutated is None:
+                print(f"FAIL {name}: expected exactly one occurrence of every mutation anchor")
+                results.append(False)
+                continue
+            exe = build(work, name, rtl, mutated, target)
+            results.append(exe is not None and run_case(exe, name, target, failure))
+    failures = sum(not passed for passed in results)
+    print(f"aaf_clock_meter mutants: {len(results) - failures}/{len(results)} as required")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

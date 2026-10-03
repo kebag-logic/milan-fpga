@@ -137,7 +137,7 @@ class PhcStepHarness {
         if (kind == Disturbance::phc_step) ptp_step_ns += static_cast<double>(amount_ns);
         if (kind == Disturbance::phc_slew) slew_left_ns_ = static_cast<double>(amount_ns);
         if (kind == Disturbance::talker_step) {
-            dut->crf_rate_i = talker_rate_ + static_cast<int32_t>(amount_ns);
+            dut->ref_rate_ns_i = talker_rate_ + static_cast<int32_t>(amount_ns);
             talker_bias_until_fs_ = t_fs + 512e12;
         }
         std::printf("  applied at t=%.3f ms (tick %d of the window)\n",
@@ -259,7 +259,7 @@ class PhcStepHarness {
         if (closing) last_ = WindowClose{ew(), integ(), ucmd(), run};
         if (state() != kStateLocked) left_locked_ = true;
         if (talker_bias_until_fs_ > 0.0 && t_fs >= talker_bias_until_fs_) {
-            dut->crf_rate_i = talker_rate_;
+            dut->ref_rate_ns_i = talker_rate_;
             talker_bias_until_fs_ = 0.0;
         }
         return closing;
@@ -290,12 +290,11 @@ class PhcStepHarness {
         mm.regs[0x08] = 0x0595;
         mm.regs[0x09] = 0x0080;
         dut->rst_n = 0;
-        dut->clk_src_i = 0;
-        dut->crf_src_idx_i = 1;
-        dut->crf_locked_i = 0;
-        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+        dut->sel_i = 0;
+        dut->ref_locked_i = 0;
+        dut->ref_rate_valid_i = 1; // synthetic rate input is valid
         dut->phc_slew_active_i = 0;
-        dut->crf_rate_i = 0;
+        dut->ref_rate_ns_i = 0;
         dut->auto_repair_i = 0;
         dut->ps_invert_i = 0;
         dut->mmcm_locked_i = 1;
@@ -303,9 +302,9 @@ class PhcStepHarness {
         dut->rst_n = 1;
         run_ms(0.1);
         talker_rate_ = rate_for_ppm(kTalkerPpm);
-        dut->crf_rate_i = talker_rate_;
-        dut->crf_locked_i = 1;
-        dut->clk_src_i = 1;
+        dut->ref_rate_ns_i = talker_rate_;
+        dut->ref_locked_i = 1;
+        dut->sel_i = 1;
         int windows = 0;
         while (state() != kStateLocked && windows < 40) {
             run_to_window_close();
@@ -428,12 +427,12 @@ class PhcStepHarness {
     void prove_coincident_discards_both_count() {
         std::printf("[P3] guard discard and PHC step on one cycle\n");
         run_to_tick(kWinTicks / 2);
-        dut->crf_rate_i = talker_rate_ + 2'000'000;
+        dut->ref_rate_ns_i = talker_rate_ + 2'000'000;
         run_to_edges_before_t0(1);
         const Snapshot s0 = snapshot();
         left_locked_ = false;
         clk_edge();
-        dut->crf_rate_i = talker_rate_;
+        dut->ref_rate_ns_i = talker_rate_;
         while (pp_seq() != 3) clk_edge();
         ptp_step_ns += 150'000.0;
         clk_edge();
@@ -539,7 +538,7 @@ class PhcStepHarness {
         std::printf("[P4] rate path: talker %+.0f -> -20 ppm, no step\n", kTalkerPpm);
         const int disc0 = disc_cnt();
         talker_rate_ = rate_for_ppm(-20.0);
-        dut->crf_rate_i = talker_rate_;
+        dut->ref_rate_ns_i = talker_rate_;
         const WindowClose first = run_to_window_close();
         check_.that("[P4] the first window after the change commits", first.committed);
         within("[P4] its error carries the rate change (x512 ppm)", first.ew,

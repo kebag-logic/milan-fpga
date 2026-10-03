@@ -20,9 +20,10 @@ from litedram.phy.model import SDRAMPHYModel
 from litespi.phy.model import LiteSPIPHYModel
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / 'sw/litex'), str(ROOT / 'sw/builder')]
+sys.path[:0] = [str(ROOT / 'sw/litex'), str(ROOT / 'sw/builder'), str(ROOT / 'scripts')]
 import milan_soc
 import endstation_builder as eb
+import nvm_shape
 from platforms.alinx_ax7101 import _io
 from probe import CaptureProbe, add_pads, packet_ports
 
@@ -70,7 +71,10 @@ class ProductSimulation(milan_soc.MilanSoC):
 
 
 def _firmware_constants(soc, args, generated, blob, overlay_path):
-    """Publish the same product constants as the board entry, plus probe count."""
+    """Publish the same product constants as the board entry, plus probe count.
+
+    Returns the shape's closed-record census, the copy every capture must make.
+    """
     soc.add_config('BIOS_NO_CRC')
     soc.add_config('BIOS_NO_DELAYS')
     soc.add_constant('SDRAM_TEST_DISABLE')
@@ -96,6 +100,7 @@ def _firmware_constants(soc, args, generated, blob, overlay_path):
     donor = milan_soc.NvmDonor(base=milan_soc.binding_base(), layout=milan_soc.layout_version())
     for name, value in milan_soc.firmware_constants(shape, donor).items():
         soc.add_constant(name, value)
+    return nvm_shape.closed_record_census(shape, donor.base)
 
 
 def build(args: argparse.Namespace) -> Path:
@@ -153,7 +158,7 @@ def build(args: argparse.Namespace) -> Path:
             render_lpf=eb.block_present(config, 'render_lpf'),
             uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
         )
-        _firmware_constants(soc, args, generated, blob, overlay_path)
+        raw_bytes, records = _firmware_constants(soc, args, generated, blob, overlay_path)
         builder = Builder(soc, output_dir=str(args.build_dir),
                           compile_software=True, compile_gateware=False)
         from firmware import prepare
@@ -176,5 +181,6 @@ def build(args: argparse.Namespace) -> Path:
             'configured_cpu_hz': configured_cpu_hz, 'phase': 'aligned rising edges',
             'tdm_hz': tdm_hz or 24576000, 'shape': args.shape, 'captures': args.captures,
             'mutation': args.mutation, 'traffic': args.traffic,
+            'raw_bytes': raw_bytes, 'records': records,
         }, indent=2))
     return args.build_dir

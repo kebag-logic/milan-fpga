@@ -71,9 +71,10 @@ option-OFF elaboration is deliberately ownerless and inert.
 
 AAF capture and render share a configured media grid. CRF receive/transmit
 engines are present, and since #74 the stored clock-source selection is
-consumed: selecting the CRF source steers the audio clock and aligns the
-packet grid to it, while the power-on INTERNAL state free-runs with counted
-slips. The silicon bench probe of the aligned grids stays open on #74.
+consumed: selecting the CRF source, or since #629 one AAF Stream Input,
+steers the audio clock. The packet grid is aligned to the audio clock at
+every source, the power-on INTERNAL state included (#629, A2-a). The silicon
+bench probe of the aligned grids stays open on #74.
 
 ## 5. Clock domains & CDC
 

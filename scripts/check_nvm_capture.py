@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 import yaml
 
-from nvm_contract import REC_HDR, Shape
+from nvm_contract import Shape
 import nvm_shape
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,12 +37,9 @@ def current_inputs() -> dict:
             cfg = ROOT / 'configs' / (name + '.yaml')
             names, dc, spi, spo = nvm_shape.build(cfg, Path(tmp))
             shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
-            records = nvm_shape.inventory(shape, nvm_shape.binding_base())
-            if any(record[2] is None for record in records):
-                raise RuntimeError(f'{name}: record allocation overflow')
+            raw_bytes, records = nvm_shape.closed_record_census(shape, nvm_shape.binding_base())
             clocks = yaml.safe_load(cfg.read_text())['board']['constraints']
-            result[name] = dict(raw_bytes=sum(REC_HDR + row[3] for row in records),
-                                records=len(records), cpu_hz=recipe.CPU_HZ,
+            result[name] = dict(raw_bytes=raw_bytes, records=records, cpu_hz=recipe.CPU_HZ,
                                 configured_cpu_hz=clocks['milan_clk_hz'],
                                 sys_hz=clocks['sys_clk_hz'])
     return result
@@ -77,13 +74,14 @@ def check_receipt(receipt: dict, actual: dict) -> None:
                 or arm['configured_cpu_hz'] != source['configured_cpu_hz']
                 or arm['phase'] != 'aligned rising edges'):
             raise RuntimeError('receipt has an unmeasured clock, phase or capture count')
-        summary = capture.grade_rows(arm['rows'], arm)
-        for key, value in summary.items():
-            if arm[key] != value:
-                raise RuntimeError(f'receipt summary differs from rows: {key}')
         if any((row['raw'], row['records']) != (source['raw_bytes'], source['records'])
                for row in arm['rows']):
             raise RuntimeError('receipt rows differ from the generated census')
+        census = dict(raw_bytes=source['raw_bytes'], records=source['records'])
+        summary = capture.grade_rows(arm['rows'], dict(arm, **census))
+        for key, value in summary.items():
+            if arm[key] != value:
+                raise RuntimeError(f'receipt summary differs from rows: {key}')
     maxima = []
     for shape, clock in sorted({key[:2] for key in keys}):
         group = [arm for arm in arms if (arm['shape'], arm['cpu_hz']) == (shape, clock)]
@@ -94,13 +92,15 @@ def check_receipt(receipt: dict, actual: dict) -> None:
         raise RuntimeError('published maximum must include every traffic arm')
 
 
-def timing_controls() -> None:
+def timing_controls(census: dict) -> None:
     """A slower OFF arm must set the maximum and must obey the time limit."""
-    row = dict(index=0, ok=1, sys_cycles=2_400_000, raw=12634, records=156,
-               mismatches=0, open=0, requests=1, responses=1, reads=1)
+    row = dict(index=0, ok=1, sys_cycles=2_400_000, raw=census['raw_bytes'],
+               records=census['records'], mismatches=0, open=0, requests=1,
+               responses=1, reads=1)
     spec = dict(shape=recipe.SHAPES[0], captures=1, sys_hz=100_000_000,
                 cpu_hz=recipe.CPU_HZ, configured_cpu_hz=100_000_000,
-                phase='aligned rising edges', traffic='on')
+                phase='aligned rising edges', traffic='on',
+                raw_bytes=census['raw_bytes'], records=census['records'])
     on = capture.grade_rows([row], spec)
     off_row = dict(row, sys_cycles=2_440_000, requests=0, responses=0, reads=0)
     off_spec = dict(spec, traffic='off')
@@ -131,10 +131,10 @@ def selftest(actual: dict) -> None:
             print(f'CONTROL {name}: detected')
         else:
             raise RuntimeError(f'input control escaped: {name}')
-    timing_controls()
+    timing_controls(actual[recipe.SHAPES[0]])
     with patch.object(capture, 'maximum_ms', side_effect=ignore_off_timing):
         try:
-            timing_controls()
+            timing_controls(actual[recipe.SHAPES[0]])
         except RuntimeError as exc:
             if str(exc) != 'OFF timing omitted from maximum':
                 raise
@@ -160,7 +160,7 @@ def main() -> int:
         selftest(actual)
         if args.mutation == 'ignore-off-timing':
             with patch.object(capture, 'maximum_ms', side_effect=ignore_off_timing):
-                timing_controls()
+                timing_controls(actual[recipe.SHAPES[0]])
         elif args.mutation:
             field = {'bytes': 'raw_bytes', 'records': 'records', 'clock': 'cpu_hz'}[args.mutation]
             actual[recipe.SHAPES[0]][field] += 1

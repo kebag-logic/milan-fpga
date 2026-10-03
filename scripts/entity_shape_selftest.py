@@ -24,6 +24,7 @@ The proofs are grouped by WHAT EACH GROUP PLANTS:
   _prove_dead_prerequisite     a consumer pointing at a path that is not there
   _prove_unresolvable_make     make expressions no static reader can settle
   _prove_frozen_expansion      immediate `:=` and rule-line expansion evasions
+  _prove_classified_frozen_form  a classified reference in its frozen form
   _prove_builder_shape_lies    a builder computing a shape it does not emit
   _prove_tracked_shape_drift   the tracked header against the config built
   _prove_rtl_regressions       the RTL taking the shape back into its own hands
@@ -332,6 +333,67 @@ def _prove_frozen_expansion(original: str, stale: Path) -> None:
                     gate.check_shape_consumers,
                     ("tb/verilator/csr/Makefile", "outside the tracked tree"))
     finally:
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(original)
+
+
+def _prove_classified_frozen_form(original: str, stale: Path) -> None:
+    """A classified makefile reference, met again in its FROZEN form.
+
+    #629 R433-2 F1 (arm I): make's database records a rule prerequisite
+    expanded, so a reference classified as the file spells it never equals
+    its own frozen token, and the hosted runner's make refused the root
+    suite's builder-written header on exactly that. The frozen token is
+    now matched through make's own expansion of the classified reference;
+    these worlds hold both halves: that form IS classified, and only a
+    form naming the same path is.
+    """
+    import shape_consumer_inventory as inventory
+
+    name = _repo_spelling(stale)
+    reference = "$(FIXTURE_GEN)/gen/adp_shape_defaults.svh"
+    defined = "FIXTURE_GEN = obj_fixture/endstation_fixture\n"
+    tracked = set(gate.tracked_files())
+    entry = (name, reference)
+    inventory.CLASSIFIED_CONSUMERS[entry] = "a builder-written fixture header"
+
+    def plant(text: str) -> Callable[[], None]:
+        """Write one world and return the fixture consumer's own verdict."""
+        with open(stale, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        return lambda: gate.ck(
+            "I the classified fixture consumer resolves",
+            inventory.dangling_consumers(name, text, tracked), [])
+
+    try:
+        # 0m. The root suite's shape: the classified reference reaches a
+        #     rule line through a variable, so the database freezes its
+        #     expansion. That expansion is the classified consumer.
+        clean = plant(original + "\n" + defined
+                      + f"FIXTURE_HDR = {reference}\n"
+                      + "fixture-build: $(FIXTURE_HDR)\n")
+        clean()
+
+        # 0n. The same world with the derivation taken away: the frozen
+        #     token is matched only against the unexpanded text, which is
+        #     the hosted refusal itself.
+        derive = inventory.classified_frozen_targets
+        inventory.classified_frozen_targets = lambda _name: set()
+        try:
+            expect_fail("a classified reference matched by its text alone",
+                        clean, (name, "outside the tracked tree"))
+        finally:
+            inventory.classified_frozen_targets = derive
+
+        # 0o. The rule line runs before the variable exists, so make froze
+        #     an empty prefix: a frozen form naming another path is not the
+        #     classified consumer, whatever the text spells.
+        expect_fail("a classified reference frozen before its definition",
+                    plant(original + f"\nfixture-build: {reference}\n"
+                          + defined),
+                    (name, "outside the tracked tree"))
+    finally:
+        del inventory.CLASSIFIED_CONSUMERS[entry]
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
 
@@ -659,6 +721,7 @@ def self_test() -> None:
     _prove_dead_prerequisite(original, stale)
     _prove_unresolvable_make(original, stale)
     _prove_frozen_expansion(original, stale)
+    _prove_classified_frozen_form(original, stale)
     _prove_make_filenames(original, stale)
     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
     _prove_unit_counts(builder, src_cfg)

@@ -47,10 +47,11 @@
                 BIT-EXACT AT trim = 0. With trim tied off, sum_w can never go
                 negative, un_w is dead, and the arithmetic reduces term for
                 term to the divider this module replaced. That is deliberate:
-                clock_source = INTERNAL must keep the free-running grid every
-                existing bench number and every existing testbench was
-                measured against (USER rule: internal media clock = free-run,
-                slips accepted).
+                with servo_en_i low the grid is the free-running one every
+                existing bench number and testbench was measured against.
+                Since #629's D4 = A2-a the datapath raises servo_en_i at
+                INTERNAL too (the grid aligner engaged), so that free run is
+                reached only with no source decoded.
 
                 SINGLE-STEP CORRECTION. The elaboration guards below bound
                 the accumulator so one +/-DEN_C correction always re-normalises
@@ -100,10 +101,9 @@ module KL_media_nco #(
   //! two conventions is a runaway servo, not a wrong number, and four naked
   //! lines in a 5000-line wrapper had no way to be exercised.
   input  wire signed [15:0]        servo_trim_i,
-  //! 1 = follow servo_trim_i (a clock source is selected), 0 = free-run on
-  //! trim_i. clock_source = INTERNAL must land here as 0: the USER rule is
-  //! "internal media clock = free-run, slips accepted", and it is what keeps
-  //! the shipping default bit-for-bit identical to the pre-NCO divider.
+  //! 1 = follow servo_trim_i (a clock source is decoded: INTERNAL and every
+  //! followed source since #629's A2-a), 0 = free-run on trim_i, bit-for-bit
+  //! the pre-NCO divider.
   input  wire                      servo_en_i,
   output logic                    tick_o,  //! one-cycle sample strobe
   //! fractional accumulator, for the media-clock testbench and CSR taps: it
@@ -162,9 +162,8 @@ module KL_media_nco #(
   wire signed [31:0] servo_lsb_w =
       -(($signed(32'(servo_trim_i)) * $signed(32'(PPM_LSB_P))) >>> 4);
 
-  //! one trim, selected. INTERNAL (servo_en_i = 0) free-runs on trim_i, which
-  //! the datapath ties to zero, which is what makes the shipping default
-  //! bit-for-bit the divider this module replaced.
+  //! one trim, selected. servo_en_i = 0 free-runs on trim_i, which the
+  //! datapath ties to zero: bit-for-bit the divider this module replaced.
   wire signed [31:0] trim_sel_w = servo_en_i ? servo_lsb_w : 32'(trim_i);
 
   //! clamp AFTER the select, so a wild servo command degrades to the clamp on
@@ -229,7 +228,7 @@ module KL_media_nco #(
   //!     change;
   //!   * at a steady trim the count meets the end exactly, so the grid is
   //!     bit-for-bit what the == compare made (the rate, phase and legacy
-  //!     checks of tb/verilator/media_nco), and INTERNAL's free-run with it.
+  //!     checks of tb/verilator/media_nco), and the disengaged free-run with it.
   //! tb/verilator/media_nco check 10 moves the trim on every cycle around
   //! the terminal count, both shapes, every end move.
   always_ff @(posedge clk_i) begin : media_grid

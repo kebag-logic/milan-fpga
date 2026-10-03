@@ -1866,9 +1866,10 @@ uint8_t  crf_seq = 0;
     // The protocol processor stores SET_CLOCK_SOURCE, KL_pp_shadow      //
     // exports it, and milan_datapath's media_clk_resolve turns it into  //
     // the one registered verdict that gates the MMCM servo, the         //
-    // grid-align loop and the mr machinery. This leg never selects CRF, //
-    // so what it owns is the INTERNAL half: the gates stay down and     //
-    // the servo stays IDLE - the checks that would have caught the      //
+    // grid-align loop and the mr machinery. This leg never selects a    //
+    // followed source, so it owns the INTERNAL half: the aligner and    //
+    // the NCO gate are engaged (#629 A2-a), the follow select is down   //
+    // and the servo stays IDLE - the checks that would have caught the  //
     // old 0 == 0 trap, now guarding the live resolve's default. The     //
     // selected half runs where its physics exists: obj_aclk's [CRF]     //
     // phase at the true 391/1591 ratio, and sim_nxn's AECP-FACE arms    //
@@ -1893,15 +1894,21 @@ uint8_t  crf_seq = 0;
             //! "CRF selected").
             //!
             //! The assertions stay on the CONSEQUENCES, which is the stronger
-            //! place either way: this leg never selects CRF, so the gates must
-            //! hold their INTERNAL default on the live resolve.
-            ck("the NCO grid is structurally free-running (servo_en = 0)",
-               dut->rootp->milan_datapath__DOT__mnco_servo_en_w, 0);
+            //! place either way: this leg never selects a followed source, so
+            //! the gates must hold their INTERNAL default on the live resolve.
+            //! #629 D4 = A2-a: INTERNAL engages the grid aligner and the NCO
+            //! gate (the -10.64 ppm plan drift is aligned away); the servo
+            //! select stays low, which the MCSRV_STAT check below grades.
+            ck("the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a)",
+               dut->rootp->milan_datapath__DOT__mnco_servo_en_w, 1);
+            ck("...and no source is followed at INTERNAL (follow_sel = 0)",
+               dut->rootp->milan_datapath__DOT__follow_sel_r, 0);
             //! ...and the MMCM phase-shift loop stays in IDLE. This is the check
-            //! that would have caught the 0 == 0 trap: KL_mmcm_drp_servo selects
-            //! on (clk_src_i == crf_src_idx_i), fed the LIVE index against the
-            //! shape's generated AEM_CRF_CLKSRC_C - INTERNAL(0) against 1 here,
-            //! so the select is honestly false until a controller selects CRF.
+            //! that would have caught the 0 == 0 trap. Since #629 the servo's
+            //! one-bit sel_i is follow_sel_r, the registered decode of the LIVE
+            //! index through the shape's generated clock-source tables, so the
+            //! select is honestly false until a controller selects a stream
+            //! source.
             //! Measured on the broken build: MCSRV_STAT = 0x21, servo out of IDLE
             //! at clock_source = INTERNAL.
             {

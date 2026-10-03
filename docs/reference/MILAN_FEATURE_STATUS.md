@@ -66,6 +66,7 @@ version in prose, so dropping the claim is a finding rather than a silence.
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `implemented` | - |
+| `aaf.media-clock-following` | `implemented` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 | `state.nonvolatile-persistence` | `partial` | - |
 | `notifications.change-events` | `implemented` | - |

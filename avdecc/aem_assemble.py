@@ -25,6 +25,7 @@ from aem_descriptors import (AUDIO_CLUSTER, AUDIO_MAP, AUDIO_UNIT,
                              STREAM_INPUT, STREAM_OUTPUT,
                              STREAM_PORT_INPUT, STREAM_PORT_OUTPUT, STRINGS,
                              PortMapBounds, clock_source_shape,
+                             clock_source_table,
                              d_audio_cluster, d_audio_map, d_audio_unit,
                              d_avb_interface, d_clock_domain, d_clock_source,
                              d_configuration, d_control_identify, d_entity,
@@ -591,13 +592,15 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
     name_mask, name_exc = named_structure(l1, directory, named)
 
     #  the CLOCK_SOURCE shape travels with the model, because the RTL needs
-    #  two facts about it that no other field carries: how many sources the
-    #  configuration declares, and which one is the CRF
+    #  facts about it that no other field carries: how many sources the
+    #  configuration declares, which one is the CRF, and (#629) each index's
+    #  kind and STREAM_INPUT, which the selection decode reads
     _n_cs, _crf_ix = clock_source_shape(spec["clock_sources"])
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
                 N_CLKSRC=_n_cs,
                 CRF_CLKSRC=_crf_ix,
+                CLKSRC_TABLE=clock_source_table(spec["clock_sources"]),
                 L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
                 PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)

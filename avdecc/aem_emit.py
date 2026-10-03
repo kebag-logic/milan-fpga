@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from aem_assemble import SRC_IDS
+from aem_descriptors import CLKSRC_KIND
 
 # ------------------------------------------------------------- emitters ----
 def emit_svh(M: dict[str, Any], path: str | Path) -> None:
@@ -214,7 +215,10 @@ def _svh_validation_tables(M):
     # select the CRF clock there, and the servo would have engaged on "Stream
     # Clock 1" instead). Since #389 the set is INTERNAL and the CRF sink's
     # INPUT_STREAM source, so every shipping shape reads 2 and 1 here - still
-    # off the model, never restated. Derive, never mirror.
+    # off the model, never restated. Derive, never mirror. #629 restored one
+    # source per AAF listener after them (class order D1 = L1), and adds the
+    # per-index kind/STREAM_INPUT table the selection decode reads - the same
+    # rows the shape header carries (aem_descriptors.clock_source_table).
     _n_cs, _crf_ix = M["N_CLKSRC"], M["CRF_CLKSRC"]
     a("// CLOCK_SOURCE set: count, and the index of the CRF source")
     a("// (AEM_CRF_CLKSRC_C = 16'hFFFF when this shape declares no CRF source)")
@@ -222,6 +226,16 @@ def _svh_validation_tables(M):
     a(f"localparam [15:0] AEM_CRF_CLKSRC_C = 16'd{_crf_ix};"
       if _crf_ix is not None else
       "localparam [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
+    _tab = M["CLKSRC_TABLE"]
+    a("// per CLOCK_SOURCE index: kind (" + ", ".join(
+        f"{k} {v}" for k, v in sorted(CLKSRC_KIND.items(),
+                                      key=lambda kv: kv[1]))
+      + ") and STREAM_INPUT (16'hFFFF for none)")
+    a(f"localparam [1:0] AEM_CLKSRC_KIND_C [0:{len(_tab)-1}] = '{{"
+      + ", ".join(f"2'd{k}" for k, _ in _tab) + "};")
+    a(f"localparam [15:0] AEM_CLKSRC_SI_C [0:{len(_tab)-1}] = '{{"
+      + ", ".join("16'hFFFF" if si is None else f"16'd{si}" for _, si in _tab)
+      + "};")
     a("")
     a(f"localparam int AEM_RATES_N_C = {len(M['RATES'])};")
     a(f"localparam [31:0] AEM_RATES_C [0:{len(M['RATES'])-1}] = "

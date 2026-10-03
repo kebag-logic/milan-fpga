@@ -435,11 +435,37 @@ def clock_source_shape(
     overlay rows carry it under 'type'. Both name the CRF row "crf". The
     generator banner above AEM_N_CLKSRC_C records why this is derived and
     never mirrored: the literals "3"/"2" were only right for a 1-listener
-    shape of the pre-#389 set, and since #389 every shipping shape has two
-    sources with the CRF at index 1 (AEM_CRF_CLKSRC_C)."""
+    shape of the pre-#389 set. Under #629's class order (D1 = L1) the CRF
+    source is index 1 wherever INTERNAL and CRF are both declared."""
     crf_ix = next((i for i, c in enumerate(clock_sources)
                    if c.get("raw_type", c.get("type")) == "crf"), None)
     return len(clock_sources), crf_ix
+
+
+#: The media plane's code for each CLOCK_SOURCE class, by the config's own
+#: type word. milan_datapath's selection decode (media_clk_resolve) reads
+#: the codes from the shape header, which states them beside the table.
+CLKSRC_KIND = {"internal": 0, "crf": 1, "input_stream": 2}
+
+
+def clock_source_table(
+        clock_sources: Sequence[dict[str, Any]]) -> list[tuple[int, int | None]]:
+    """Per CLOCK_SOURCE index: (kind code, STREAM_INPUT index or None).
+
+    The table #629's selection decode needs (docs/design/
+    MEDIA_CLOCK_FOLLOWING.md, Selection decode and gating): the stored
+    index names a source, and the fabric must know whether that source is
+    INTERNAL, the CRF sink or an AAF listener, and which listener. The same
+    two row shapes as clock_source_shape() are read: the spec's raw_type /
+    loc_type (a descriptor-type number) / loc_index, and the overlay's
+    type / location_type (a name) / location_index."""
+    rows = []
+    for c in clock_sources:
+        loc_t = c.get("loc_type", c.get("location_type"))
+        loc_i = c.get("loc_index", c.get("location_index"))
+        si = int(loc_i) if loc_t in (STREAM_INPUT, "STREAM_INPUT") else None
+        rows.append((CLKSRC_KIND[c.get("raw_type", c.get("type"))], si))
+    return rows
 
 
 def d_clock_source(index: int, name: str, cs_type: int, loc_type: int,
@@ -453,7 +479,14 @@ def d_clock_source(index: int, name: str, cs_type: int, loc_type: int,
     b = be16(CLOCK_SOURCE) + be16(index)
     b += cstr(name)                     # object_name
     b += be16(NO_STRING)
-    b += be16(0x0002)                   # clock_source_flags (STREAM_ID)
+    #! clock_source_flags 0x0002 = LOCAL_ID: IEEE 1722.1-2021 Table 7-16
+    #! numbers bit 0 as the most significant, so its bit 14 is the value
+    #! 0x0002 (and STREAM_ID, bit 15, is 0x0001). "Identified by its local
+    #! ID" is what every INPUT_STREAM source here is: the location fields
+    #! name its STREAM_INPUT. The value is unchanged; only the label, which
+    #! read STREAM_ID until #629's model lane, was wrong (the design's
+    #! clause finding (d) item 8; Milan v1.2 5.3.3.6 imposes no value).
+    b += be16(0x0002)
     b += be16(cs_type)                  # INTERNAL=0 / INPUT_STREAM=2
     b += be64(0)                        # clock_source_identifier
     b += be16(loc_type)                 # location: descriptor holding the source

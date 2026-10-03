@@ -12,11 +12,10 @@
                 drift-lottery rails) + KL_mmcm_drp_servo sharing one modeled
                 audio clock. The C++ harness (sim_rails.cpp) is the MMCM
                 behavioral model: the audio clock period follows the PS
-                steps, so with the suite's CRF index selected (clk_src_i at
-                crf_src_idx_i, 2 here) the servo pulls the render clock onto
-                the talker's rate and the FIFO rail events cease; with
-                INTERNAL (clk_src_i 0) the identical stimulus shows the
-                historical drift-lottery rails.
+                steps, so with a followed source selected (sel_i 1) the
+                servo pulls the render clock onto the talker's rate and the
+                FIFO rail events cease; with INTERNAL (sel_i 0) the
+                identical stimulus shows the historical drift-lottery rails.
 
                 Sim-compressed servo parameters (silicon values in the
                 servo defaults): 125 us tick (TICK_CYC 3072), 4 ms window
@@ -43,10 +42,9 @@ module rails_wrap (
   input  wire         ps_clk_i,
 
   input  wire [63:0]  ptp_now_i,
-  input  wire [15:0]  clk_src_i,
-  input  wire [15:0]  crf_src_idx_i,
-  input  wire         crf_locked_i,
-  input  wire signed [31:0] crf_rate_i,
+  input  wire         sel_i,          //! a stream source is followed
+  input  wire         ref_locked_i,
+  input  wire signed [31:0] ref_rate_ns_i,
 
   //! talker PCM feed (depacketizer tap shape)
   input  wire [63:0]  pcm_tdata_i,
@@ -69,6 +67,7 @@ module rails_wrap (
 
   //! observability
   output wire [31:0]  status_o,
+  output wire         servo_locked_o, //! the servo is in LOCKED
   output wire [15:0]  underruns_o,
   output wire [15:0]  overruns_o,
   output wire [15:0]  fill_o,
@@ -132,11 +131,10 @@ module rails_wrap (
     .ps_clk_i      (ps_clk_i),
     .ptp_now_i     (ptp_now_i),
     .phc_slew_active_i (1'b0), //! This fixture has no policy slew.
-    .clk_src_i     (clk_src_i),
-    .crf_src_idx_i (crf_src_idx_i),
-    .crf_locked_i  (crf_locked_i),
-    .crf_rate_i    (crf_rate_i),
-    .crf_rate_valid_i (1'b1), //! this harness supplies clean rate samples
+    .sel_i         (sel_i),
+    .ref_locked_i  (ref_locked_i),
+    .ref_rate_ns_i    (ref_rate_ns_i),
+    .ref_rate_valid_i (1'b1), //! this harness supplies clean rate samples
     .auto_repair_i (1'b0),
     .ps_invert_i   (1'b0),
     .drp_addr_o    (drp_addr_o),
@@ -150,7 +148,8 @@ module rails_wrap (
     .ps_en_o       (ps_en_o),
     .ps_incdec_o   (ps_incdec_o),
     .ps_done_i     (ps_done_i),
-    .status_o      (status_o)
+    .status_o      (status_o),
+    .locked_o      (servo_locked_o)
   );
 
 endmodule
