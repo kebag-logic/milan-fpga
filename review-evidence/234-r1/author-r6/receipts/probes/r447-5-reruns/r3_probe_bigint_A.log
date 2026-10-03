@@ -1,0 +1,15 @@
+control: the recorded baseline
+    check rc 0: RESULT: PASS
+    check-baseline rc 0: baseline PASS: 3 endpoints
+decimal 1e400 as the recorded WNS_ns (refused as designed)
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON number is not finite: '1e400'
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON number is not finite: '1e400'
+integer literal 10**400 as the recorded WNS_ns
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON integer is not a whole number o
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON integer is not a whole number o
+integer literal 10**400 as the recorded WHS_ns
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON integer is not a whole number o
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON integer is not a whole number o
+integer literal 10**400 as the recorded LUT (control: integer arithmetic)
+    check rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON integer is not a whole number o
+    check-baseline rc 2: NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-reruns/r3_bigint_A/baseline.json is unreadable: the JSON integer is not a whole number o

@@ -1,0 +1,21 @@
+OK  check          control: real A route, digest differs                          want=0 rc=0 | RESULT: PASS
+OK  check-baseline control: real A route, digest differs                          want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          WNS slack of 401 digits (float() reads inf)                    want=2 rc=2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case1: ValueError: WNS is not finite: '10000000000
+OK  check-baseline WNS slack of 401 digits (float() reads inf)                    want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          WHS slack of 401 digits (float() reads inf)                    want=2 rc=2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case2: ValueError: WHS is not finite: '10000000000
+OK  check-baseline WHS slack of 401 digits (float() reads inf)                    want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          WNS slack of -401 digits (float() reads -inf)                  want=2 rc=2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case3: ValueError: WNS is not finite: '-1000000000
+OK  check-baseline WNS slack of -401 digits (float() reads -inf)                  want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          control: WNS slack 0.500 (finite, judged)                      want=0 rc=0 | RESULT: PASS
+OK  check-baseline control: WNS slack 0.500 (finite, judged)                      want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          Block RAM Tile used of 401 digits + .5 (float() reads inf)     want=2 rc=2 | NOT COMPARABLE: unreadable measurement $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case5: ValueError: utilization row 'Block RAM Tile
+OK  check-baseline Block RAM Tile used of 401 digits + .5 (float() reads inf)     want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          route status count of 4401 digits                              want=2 rc=2 | NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: route status row 'routable nets' is not a whole number of 1 to 15 ASCII digits:
+OK  check-baseline route status count of 4401 digits                              want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          baseline route WNS_ns recorded as a 401-digit JSON integer     want=2 rc=2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case7.json is unreadable: the JSON integer is not a whole number
+OK  check-baseline baseline route WNS_ns recorded as a 401-digit JSON integer     want=2 rc=2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case7.json is unreadable: the JSON integer is not a whole number
+OK  check          baseline route WHS_ns recorded as a 401-digit JSON integer     want=2 rc=2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case8.json is unreadable: the JSON integer is not a whole number
+OK  check-baseline baseline route WHS_ns recorded as a 401-digit JSON integer     want=2 rc=2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case8.json is unreadable: the JSON integer is not a whole number
+OK  check          control: baseline route WNS_ns recorded as 1e400 (decimal)     want=2 rc=2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case9.json is unreadable: the JSON number is not finite: '1e400'
+OK  check-baseline control: baseline route WNS_ns recorded as 1e400 (decimal)     want=2 rc=2 | NOT COMPARABLE: baseline $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/numbers/case9.json is unreadable: the JSON number is not finite: '1e400'
+0 case(s) not as the contract states

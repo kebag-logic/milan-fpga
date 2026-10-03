@@ -1,0 +1,17 @@
+$ bash $VALIDATION_STORAGE/234-a516/r6/review-evidence/234-r1/reviews/R447-5/verify_tree.sh $LANES/234-area d5f56313dc5a5c2716211356f99796664dc843dd c6dcc1b61f274a3acf0479bfe47f72c25f86708d
+# head d5f56313dc5a5c2716211356f99796664dc843dd
+HEAD d5f56313dc5a5c2716211356f99796664dc843dd OK
+tree c6dcc1b61f274a3acf0479bfe47f72c25f86708d OK
+index tree OK
+worktree and index equal HEAD (bytes and modes)
+ls-files -s equals ls-tree -r HEAD (mode, blob, path)
+untracked/ignored: 1
+!! syn/ooc/.ooc-mut-g86wp4nm.tcl
+gitlink external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+gitlink gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+gitlink protocol-processor 631eeb342ca1e3fa80e734077a56a943aee76ff1
+submodule: -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule:  5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+submodule:  631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor (v2.0-429-g631eeb3)
+submodule:  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+verify_tree: FAIL

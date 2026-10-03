@@ -1,0 +1,10 @@
+$ python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/234-a516/A/work/ax8x8-ooc --endpoint ooc-8x8
+# head d5f56313dc5a5c2716211356f99796664dc843dd
+endpoint ooc-8x8: $VALIDATION_STORAGE/234-a516/A/work/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              31562       31562         0  ok
+FF               33929       33929         0  ok
+RAMB36              26          26         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS

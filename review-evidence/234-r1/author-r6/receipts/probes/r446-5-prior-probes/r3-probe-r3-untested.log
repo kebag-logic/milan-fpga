@@ -1,0 +1,11 @@
+OK  check control                                      want=0 rc=0 | RESULT: PASS
+OK  check identity holds an extra key                  want=2 rc=2 | r/untested/u1.json is malformed: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check figures hold an extra figure                 want=2 rc=2 | d/u2.json is malformed: route-1x1: the record figures are not exactly BRAM_TILE, CARRY4, DSP, FF, LUT, RAMB18, RAMB36, SLICE, WHS_ns, WNS_ns
+OK  check a scope holds an extra count                 want=2 rc=2 | r446-prior/untested/u3.json is malformed: route-1x1: the record scopes are not a table of LUT, FF, RAMB36, RAMB18, DSP, CARRY4 per sub-block
+OK  check input digest is a number                     want=2 rc=2 | /milan/tmp/234-a516/r6/probe-scratch/r446-prior/untested/u4.json is malformed: route-1x1: the record input digest is not a sha256 hex digest
+OK  check input digest is null                         want=2 rc=2 | /milan/tmp/234-a516/r6/probe-scratch/r446-prior/untested/u5.json is malformed: route-1x1: the record input digest is not a sha256 hex digest
+OK  check the last endpoint (ooc-8x8) has kind 'x'     want=2 rc=2 | ne $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/untested/u6.json is malformed: ooc-8x8: the record kind 'x' is not one of route, ooc
+OK  check routing-errors row twice                     want=2 rc=2 | NOT COMPARABLE: alinx_ax7101_route_status.rpt has no single 'nets with routing errors' row
+OK  check hierarchy FF cell in Arabic-Indic digit      want=2 rc=2 | |                                            (top) |      50128 |      47928 |    2196 |    4 |     \u0663 |     79 |     27 |         14 |'
+OK  check hierarchy DSP cell in Arabic-Indic digit     want=2 rc=2 | |                                            (top) |      50128 |      47928 |    2196 |    4 | 59006 |     79 |     27 |          \u0663 |'
+untested-refusal probe: 0 case(s) where the head does not refuse

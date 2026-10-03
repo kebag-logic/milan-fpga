@@ -1,0 +1,9 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r6/review-evidence/234-r1/reviews/R447-5/prior/r4/probe_r4_oracle.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-oracle
+# head d5f56313dc5a5c2716211356f99796664dc843dd
+1a head, strict oracle, 5000 @ 234: rc 0 :: resource gate fuzz: 5000 cases at seed 234 on the self-test fixtures: 0 failures; case digest d7a4b0af5605fb8e
+1b head, strict oracle, 5000 @ 4474: rc 0 :: resource gate fuzz: 5000 cases at seed 4474 on the self-test fixtures: 0 failures; case digest e91af193710f3b63
+2a check-baseline exit 1 mutant, shipped oracle, 2000 @ 234: rc 0 :: resource gate fuzz: 2000 cases at seed 234 on the self-test fixtures: 0 failures; case digest 58d37470302612e9
+2b check-baseline exit 1 mutant, strict oracle, 2000 @ 234: rc 1 :: resource gate fuzz: 2000 cases at seed 234 on the self-test fixtures: 31 failures; case digest 58d37470302612e9
+    first failure: resource gate fuzz FAILURE: case 67 (route, baseline: value, broken False): check-baseline exit 1
+3 barrier and record handler both narrowed, shipped oracle, 500 @ 234: rc 1 :: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 115 failures; case digest 7e534635439e32f0
+    first failure: resource gate fuzz FAILURE: case 2 (ooc, baseline_cells.tsv: bytes, broken True): check exit -1 ['escaped UnicodeDecodeError: "\'utf-8\' codec can\'t decode byte 0x80 in position 54: invalid start byte"']

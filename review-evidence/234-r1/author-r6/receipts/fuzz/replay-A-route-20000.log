@@ -1,0 +1,111 @@
+replay labels 95, log labels 95, per-label totals equal: True
+cases 20001 (controls included), breaking a documented shape 13609
+  alinx_ax7101_route_status.rpt: bytes: 174 cases, 174 breaking
+  alinx_ax7101_route_status.rpt: delete line: 46 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: digit: 120 cases, 120 breaking
+  alinx_ax7101_route_status.rpt: duplicate line: 50 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: empty: 169 cases, 169 breaking
+  alinx_ax7101_route_status.rpt: garble: 110 cases, 110 breaking
+  alinx_ax7101_route_status.rpt: huge: 136 cases, 136 breaking
+  alinx_ax7101_route_status.rpt: junk lines: 43 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: missing: 185 cases, 185 breaking
+  alinx_ax7101_route_status.rpt: number: 132 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: row removed: 155 cases, 155 breaking
+  alinx_ax7101_route_status.rpt: row twice: 168 cases, 168 breaking
+  alinx_ax7101_route_status.rpt: second report: 181 cases, 181 breaking
+  alinx_ax7101_route_status.rpt: swap lines: 60 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: truncate: 161 cases, 0 breaking
+  alinx_ax7101_route_status.rpt: unicode: 158 cases, 0 breaking
+  baseline: add: 576 cases, 551 breaking
+  baseline: bad name: 538 cases, 538 breaking
+  baseline: bracket name: 560 cases, 465 breaking
+  baseline: bytes: 546 cases, 546 breaking
+  baseline: digit: 586 cases, 586 breaking
+  baseline: duplicate: 573 cases, 573 breaking
+  baseline: note: 569 cases, 492 breaking
+  baseline: overflow: 579 cases, 579 breaking
+  baseline: remove: 604 cases, 498 breaking
+  baseline: size: deep nesting: 188 cases, 188 breaking
+  baseline: size: long text: 211 cases, 0 breaking
+  baseline: size: many scopes: 206 cases, 0 breaking
+  baseline: truncate: 531 cases, 531 breaking
+  baseline: type: 596 cases, 596 breaking
+  baseline: unicode: 593 cases, 79 breaking
+  baseline: value: 599 cases, 0 breaking
+  baseline_cells.tsv: bytes: 278 cases, 278 breaking
+  baseline_cells.tsv: census header: 312 cases, 312 breaking
+  baseline_cells.tsv: delete line: 66 cases, 0 breaking
+  baseline_cells.tsv: duplicate line: 74 cases, 0 breaking
+  baseline_cells.tsv: empty: 272 cases, 272 breaking
+  baseline_cells.tsv: junk lines: 65 cases, 0 breaking
+  baseline_cells.tsv: missing: 296 cases, 296 breaking
+  baseline_cells.tsv: swap lines: 68 cases, 0 breaking
+  baseline_cells.tsv: truncate: 272 cases, 0 breaking
+  baseline_cells.tsv: unicode: 299 cases, 0 breaking
+  baseline_hierarchy.rpt: bytes: 229 cases, 229 breaking
+  baseline_hierarchy.rpt: delete line: 59 cases, 0 breaking
+  baseline_hierarchy.rpt: digit: 180 cases, 180 breaking
+  baseline_hierarchy.rpt: duplicate line: 47 cases, 0 breaking
+  baseline_hierarchy.rpt: empty: 201 cases, 201 breaking
+  baseline_hierarchy.rpt: garble: 147 cases, 147 breaking
+  baseline_hierarchy.rpt: huge: 182 cases, 182 breaking
+  baseline_hierarchy.rpt: junk lines: 52 cases, 0 breaking
+  baseline_hierarchy.rpt: missing: 253 cases, 253 breaking
+  baseline_hierarchy.rpt: number: 166 cases, 0 breaking
+  baseline_hierarchy.rpt: swap lines: 49 cases, 0 breaking
+  baseline_hierarchy.rpt: truncate: 234 cases, 0 breaking
+  baseline_hierarchy.rpt: unicode: 200 cases, 0 breaking
+  baseline_images.json: bytes: 283 cases, 283 breaking
+  baseline_images.json: delete line: 58 cases, 0 breaking
+  baseline_images.json: duplicate line: 64 cases, 0 breaking
+  baseline_images.json: empty: 253 cases, 253 breaking
+  baseline_images.json: entry key: 283 cases, 241 breaking
+  baseline_images.json: junk lines: 76 cases, 0 breaking
+  baseline_images.json: missing: 281 cases, 281 breaking
+  baseline_images.json: swap lines: 76 cases, 0 breaking
+  baseline_images.json: truncate: 257 cases, 0 breaking
+  baseline_images.json: unicode: 276 cases, 0 breaking
+  baseline_timing.rpt: bytes: 198 cases, 198 breaking
+  baseline_timing.rpt: delete line: 56 cases, 0 breaking
+  baseline_timing.rpt: digit: 169 cases, 169 breaking
+  baseline_timing.rpt: duplicate line: 63 cases, 0 breaking
+  baseline_timing.rpt: empty: 196 cases, 196 breaking
+  baseline_timing.rpt: garble: 156 cases, 156 breaking
+  baseline_timing.rpt: huge: 146 cases, 146 breaking
+  baseline_timing.rpt: junk lines: 56 cases, 0 breaking
+  baseline_timing.rpt: missing: 216 cases, 216 breaking
+  baseline_timing.rpt: number: 136 cases, 0 breaking
+  baseline_timing.rpt: summary twice: 184 cases, 184 breaking
+  baseline_timing.rpt: swap lines: 56 cases, 0 breaking
+  baseline_timing.rpt: truncate: 181 cases, 0 breaking
+  baseline_timing.rpt: unicode: 187 cases, 0 breaking
+  baseline_utilization.rpt: bytes: 172 cases, 172 breaking
+  baseline_utilization.rpt: delete line: 32 cases, 0 breaking
+  baseline_utilization.rpt: digit: 134 cases, 134 breaking
+  baseline_utilization.rpt: duplicate line: 35 cases, 0 breaking
+  baseline_utilization.rpt: empty: 172 cases, 172 breaking
+  baseline_utilization.rpt: garble: 146 cases, 146 breaking
+  baseline_utilization.rpt: header removed: 193 cases, 193 breaking
+  baseline_utilization.rpt: header twice: 188 cases, 188 breaking
+  baseline_utilization.rpt: huge: 149 cases, 149 breaking
+  baseline_utilization.rpt: junk lines: 50 cases, 0 breaking
+  baseline_utilization.rpt: missing: 162 cases, 162 breaking
+  baseline_utilization.rpt: number: 130 cases, 0 breaking
+  baseline_utilization.rpt: swap lines: 43 cases, 0 breaking
+  baseline_utilization.rpt: truncate: 199 cases, 0 breaking
+  baseline_utilization.rpt: unicode: 184 cases, 0 breaking
+  control: 1 cases, 0 breaking
+where note and entry key cases put their key (cases keeping / breaking a shape):
+  baseline: note at list item 0: 1 / 45
+  baseline: note at list item 1: 9 / 35
+  baseline: note at list item 2: 9 / 45
+  baseline: note at list item 3: 7 / 45
+  baseline: note at object: 27 / 145
+  baseline: note at scopes: 24 / 177
+  baseline_images.json: entry key at entry 0 of 6: 10 / 40
+  baseline_images.json: entry key at entry 1 of 6: 5 / 57
+  baseline_images.json: entry key at entry 2 of 6: 4 / 40
+  baseline_images.json: entry key at entry 3 of 6: 5 / 27
+  baseline_images.json: entry key at entry 4 of 6: 11 / 41
+  baseline_images.json: entry key at entry 5 of 6: 7 / 36
+shape-breaking note and entry key cases past a list's first item: 326

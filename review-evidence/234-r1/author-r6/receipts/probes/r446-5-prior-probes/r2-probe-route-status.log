@@ -1,0 +1,17 @@
+OK want 0 got 0: real report, clean: route status: complete, no unrouted net and no routing error
+OK want 1 got 1: routing errors with unrouted pins: ROUTE INCOMPLETE: 37 nets with routing errors, 37 nets with some unrouted pins, 105529 of 105566 routable nets fully routed; the image does not fit
+OK want 1 got 1: routing errors only (overlaps): ROUTE INCOMPLETE: 3 nets with routing errors; the image does not fit
+OK want 1 got 1: unrouted nets row, partly routed: ROUTE INCOMPLETE: 37 unrouted nets, 105529 of 105566 routable nets fully routed; the image does not fit
+OK want 1 got 1: partly routed, no error row moved: ROUTE INCOMPLETE: 105565 of 105566 routable nets fully routed; the image does not fit
+OK want 2 got 2: report missing: NOT COMPARABLE: expected one *_route_status.rpt route status report, found 0
+OK want 2 got 2: report duplicated: NOT COMPARABLE: expected one *_route_status.rpt route status report, found 2
+OK want 2 got 2: report empty: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+OK want 2 got 2: report is a directory: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: [Errno 21] Is a directory: '$VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/route/route-status-probe/alinx_ax7101_route_status.rpt'
+OK want 2 got 2: report not UTF-8: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+OK want 2 got 2: error row repeated: NOT COMPARABLE: alinx_ax7101_route_status.rpt has no single 'nets with routing errors' row
+OK want 2 got 2: error count negative: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: route status row 'nets with routing errors' is not a whole number of 1 to 15 ASCII digits: '-1'
+OK want 2 got 2: routable row only removed: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+OK want 2 got 2: CONTRACT both routable and fully routed rows removed: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+OK want 2 got 2: CONTRACT both rows relabelled: NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'routable nets' rows, not one
+BAD want 1 got 2: CONTRACT wholly unrouted layout (no fully routed row): NOT COMPARABLE: alinx_ax7101_route_status.rpt has 0 'fully routed nets' rows, not one
+route status probe: 15/16 as expected

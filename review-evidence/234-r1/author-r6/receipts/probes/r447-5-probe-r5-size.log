@@ -1,0 +1,19 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r6/review-evidence/234-r1/reviews/R447-5/probe_r5_size.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r447-size
+# head d5f56313dc5a5c2716211356f99796664dc843dd
+address-space cap per run: 6 GiB; peak RSS is the gate process's own (ru_maxrss)
+depth     1 width  1000 file    0.02 MB  head ec7eb2d8     rc   0 wall    0.12 s  peak RSS       23 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth     1 width  1000 file    0.02 MB  round-4 79e53831  rc   0 wall    0.11 s  peak RSS       23 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   100 width  1000 file    0.32 MB  head ec7eb2d8     rc   0 wall    0.30 s  peak RSS       78 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   100 width  1000 file    0.32 MB  round-4 79e53831  rc   0 wall    0.19 s  peak RSS       24 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   300 width  1000 file    0.92 MB  head ec7eb2d8     rc   0 wall    1.02 s  peak RSS      420 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   300 width  1000 file    0.92 MB  round-4 79e53831  rc   0 wall    0.37 s  peak RSS       26 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   500 width  1000 file    1.52 MB  head ec7eb2d8     rc   0 wall    2.21 s  peak RSS     1066 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   500 width  1000 file    1.52 MB  round-4 79e53831  rc   0 wall    0.54 s  peak RSS       29 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   700 width  1000 file    2.12 MB  head ec7eb2d8     rc   0 wall    3.69 s  peak RSS     2017 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   700 width  1000 file    2.12 MB  round-4 79e53831  rc   0 wall    0.71 s  peak RSS       30 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   900 width  1000 file    2.72 MB  head ec7eb2d8     rc   0 wall    6.15 s  peak RSS     3272 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   900 width  1000 file    2.72 MB  round-4 79e53831  rc   0 wall    0.86 s  peak RSS       33 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth   900 width  2000 file    5.42 MB  head ec7eb2d8     rc   2 wall   11.13 s  peak RSS     6130 MiB  traceback False  :: NOT COMPARABLE: MemoryError:
+depth   900 width  2000 file    5.42 MB  round-4 79e53831  rc   0 wall    1.64 s  peak RSS       42 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth  2000 width    10 file    0.08 MB  head ec7eb2d8     rc   0 wall    0.34 s  peak RSS      172 MiB  traceback False  :: baseline PASS: 3 endpoints
+depth  2000 width    10 file    0.08 MB  round-4 79e53831  rc   0 wall    0.12 s  peak RSS       24 MiB  traceback False  :: baseline PASS: 3 endpoints

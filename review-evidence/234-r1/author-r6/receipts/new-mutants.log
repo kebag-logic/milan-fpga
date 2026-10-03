@@ -1,0 +1,28 @@
+$ python3 -B scratch-scripts/new_mutants_r6.py <lane> ec7eb2d8ff81700842f4e3a35b79879c8c3838e5 <scratch> 8
+# head d5f56313dc5a5c2716211356f99796664dc843dd
+campaign: 153 at ec7eb2d8ff81700842f4e3a35b79879c8c3838e5, 165 now; added 12, removed 0 []
+scope path matched from its first key: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: malformed-baseline arm "a note shaped as a record's scopes holding a bracketed key" through check: exit 0, wanted 2 naming "the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/x/recor
+scope path rooted at the endpoints table: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: malformed-baseline arm "a note shaped as a record's scopes holding a bracketed key" through check: exit 0, wanted 2 naming "the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/x/recor
+names past a list's first item: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 DETECTED, fuzz5k@447 DETECTED
+    first round-6 failure: AssertionError: command-line arm 'check of a bracketed key in the last image manifest entry': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"
+names hold upper case: round-5 self-test killed (rc 1); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 DETECTED, fuzz5k@447 DETECTED
+    first round-6 failure: AssertionError: command-line arm 'check within tolerance': exit 2, wanted 0 naming 'RESULT: PASS'
+names hold lower case: round-5 self-test killed (rc 1); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 DETECTED, fuzz5k@447 DETECTED
+    first round-6 failure: pp_resource_gate.Refusal: unreadable measurement /tmp/pp-resource-gate-svpdedat/route/arm/gateware: ValueError: the key 'path' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0
+names hold digits: round-5 self-test killed (rc 1); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 DETECTED, fuzz5k@447 DETECTED
+    first round-6 failure: pp_resource_gate.Refusal: unreadable measurement /tmp/pp-resource-gate-mncl28io/route/arm/gateware: ValueError: the key 'sha256' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0
+names hold an underscore: round-5 self-test killed (rc 1); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 DETECTED, fuzz5k@447 DETECTED
+    first round-6 failure: AssertionError: command-line arm 'check within tolerance': exit 2, wanted 0 naming 'RESULT: PASS'
+names hold a dot: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: command-line arm 'check of a 128-character key of every name character in a note and an image manifest entry': exit 2, wanted 0 naming 'RESULT: PASS'
+names hold a colon: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: command-line arm 'check of a 128-character key of every name character in a note and an image manifest entry': exit 2, wanted 0 naming 'RESULT: PASS'
+names hold a slash: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: command-line arm 'check of a 128-character key of every name character in a note and an image manifest entry': exit 2, wanted 0 naming 'RESULT: PASS'
+names hold a hyphen: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: command-line arm 'check of a 128-character key of every name character in a note and an image manifest entry': exit 2, wanted 0 naming 'RESULT: PASS'
+names hold 128 characters: round-5 self-test SURVIVES (rc 0); round-6 self-test killed (rc 1); round-6 generated cases alone fuzz500 passed, fuzz5k@447 passed
+    first round-6 failure: AssertionError: command-line arm 'check of a 128-character key of every name character in a note and an image manifest entry': exit 2, wanted 0 naming 'RESULT: PASS'
+new mutants: 12; the round-5 self-test misses 8; the round-6 self-test kills 12

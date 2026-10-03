@@ -1,0 +1,20 @@
+OK  check          kind []                          rc=2 | /r6/probe-scratch/r446-prior/r447/c0.json is malformed: route-1x1: the record kind [] is not one of route, ooc
+OK  check-baseline kind []                          rc=2 | /r6/probe-scratch/r446-prior/r447/c0.json is malformed: route-1x1: the record kind [] is not one of route, ooc
+OK  check          kind {}                          rc=2 | /r6/probe-scratch/r446-prior/r447/c1.json is malformed: route-1x1: the record kind {} is not one of route, ooc
+OK  check-baseline kind {}                          rc=2 | /r6/probe-scratch/r446-prior/r447/c1.json is malformed: route-1x1: the record kind {} is not one of route, ooc
+OK  check          figures.LUT text                 rc=2 | 516/r6/probe-scratch/r446-prior/r447/c2.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check-baseline figures.LUT text                 rc=2 | 516/r6/probe-scratch/r446-prior/r447/c2.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check          figures.LUT null                 rc=2 | 516/r6/probe-scratch/r446-prior/r447/c3.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check-baseline figures.LUT null                 rc=2 | 516/r6/probe-scratch/r446-prior/r447/c3.json is malformed: route-1x1: a recorded figure is not a finite number
+OK  check          figures.LUT NaN                  rc=2 |  $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/r447/c4.json is unreadable: the number NaN is not finite
+OK  check-baseline figures.LUT NaN                  rc=2 |  $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/r447/c4.json is unreadable: the number NaN is not finite
+OK  check          identity text                    rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check-baseline identity text                    rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check          identity []                      rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check-baseline identity []                      rc=2 | d: route-1x1: the record identity does not hold exactly tool, device, design, state, flow, standalone_clock_ns
+OK  check          scopes []                        rc=2 | _pool[0].u_rx_slots' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route-1x1/record/unused
+OK  check-baseline scopes []                        rc=2 | _pool[0].u_rx_slots' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route-1x1/record/unused
+OK  check          figures.WNS_ns NaN               rc=2 |  $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/r447/c8.json is unreadable: the number NaN is not finite
+OK  check-baseline figures.WNS_ns NaN               rc=2 |  $VALIDATION_STORAGE/234-a516/r6/probe-scratch/r446-prior/r447/c8.json is unreadable: the number NaN is not finite
+OK  check          route errors count superscript   rc=2 | _status.rpt: route status row 'nets with routing errors' is not a whole number of 1 to 15 ASCII digits: '\xb2'
+R447-2 F1 cases: 0 not exit 2

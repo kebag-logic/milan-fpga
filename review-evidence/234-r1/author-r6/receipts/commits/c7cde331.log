@@ -1,0 +1,8 @@
+# commit c7cde33137093e4192654ee44af57b2bad4044e1 (git show copies of syn/ooc/pp_resource_gate*.py and pp_baseline_rank.py)
+$ python3 -B pp_resource_gate.py --selftest
+resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+resource gate selftest: 254 arms and 500 generated cases PASS
+rc=0
+$ python3 -B pp_resource_gate_mutants.py
+resource gate mutants: control passes, all 162 mutants fail
+lines: 983 self-test, 300 mutants
