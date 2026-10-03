@@ -1,0 +1,357 @@
+{
+ "head": "c12886486c1e4acf2003bfaba25db2a307446428",
+ "workflow": ".github/workflows/docs.yml",
+ "job": "docs-check",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Build the validated HDL reference",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 2.8
+  },
+  {
+   "step": "03",
+   "name": "Upload the HDL reference HTML",
+   "result": "ACTION: not uploaded (local replay)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "04",
+   "name": "Install the python gate dependencies",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.3
+  },
+  {
+   "step": "05",
+   "name": "Cache the pinned Markdown renderer downloads",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "06",
+   "name": "Install the pinned Markdown renderer",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 1.4
+  },
+  {
+   "step": "07",
+   "name": "Install diagram gate dependencies",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 3.4
+  },
+  {
+   "step": "08",
+   "name": "Link health, wording, dead-reference and local-info gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 3.4
+  },
+  {
+   "step": "09",
+   "name": "Added-line em-dash gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 3.9
+  },
+  {
+   "step": "10",
+   "name": "Concise audience documentation gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.5
+  },
+  {
+   "step": "11",
+   "name": "Audience diagram no-drift gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 1.6
+  },
+  {
+   "step": "12",
+   "name": "Product solution source-fact gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 2.6
+  },
+  {
+   "step": "13",
+   "name": "Verified submodule documentation gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 1.2
+  },
+  {
+   "step": "14",
+   "name": "HDL timing diagram no-drift gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 1.0
+  },
+  {
+   "step": "15",
+   "name": "Published diagram PNG gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 7.3
+  },
+  {
+   "step": "16",
+   "name": "Milan feature-status consistency gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.7
+  },
+  {
+   "step": "17",
+   "name": "Traceability matrix no-drift gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.6
+  },
+  {
+   "step": "18",
+   "name": "Fetch the builder source dependencies",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "19",
+   "name": "Imported gPTP documentation gate",
+   "result": "PASS rc=0 [verbatim] make: 1 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make",
+   "rc": 0,
+   "seconds": 0.8
+  },
+  {
+   "step": "20",
+   "name": "Code-quality measurement self-tests",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "step": "21",
+   "name": "Install the pinned sv2v release",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.7
+  },
+  {
+   "step": "22",
+   "name": "Bare-metal scope gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 18.8
+  },
+  {
+   "step": "23",
+   "name": "Cache the pinned RV32 SDK",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "24",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 18.3
+  },
+  {
+   "step": "25",
+   "name": "Compiler-absent firmware controls",
+   "result": "PASS rc=0 [verbatim] make: 1031 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make",
+   "rc": 0,
+   "seconds": 399.6
+  },
+  {
+   "step": "26",
+   "name": "End-station builder gates",
+   "result": "PASS rc=0 [verbatim] make: 1538 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make",
+   "rc": 0,
+   "seconds": 901.0
+  },
+  {
+   "step": "27",
+   "name": "NVM record-space gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 33.2
+  },
+  {
+   "step": "28",
+   "name": "Capture measurement census and clock gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.7
+  },
+  {
+   "step": "29",
+   "name": "Saved-state writer gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 72.6
+  },
+  {
+   "step": "30",
+   "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 2.7
+  },
+  {
+   "step": "31",
+   "name": "RTL source-list drift gate",
+   "result": "PASS rc=0 [verbatim] make: 14 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make",
+   "rc": 0,
+   "seconds": 4.2
+  },
+  {
+   "step": "32",
+   "name": "Boundary-unit naming ratchet",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.9
+  },
+  {
+   "step": "33",
+   "name": "Port contract gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 5.2
+  },
+  {
+   "step": "34",
+   "name": "Fail-fast ratchet",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 2.5
+  },
+  {
+   "step": "35",
+   "name": "TODO ownership gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 2.8
+  },
+  {
+   "step": "36",
+   "name": "Test-evidence ratchet",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 13.6
+  },
+  {
+   "step": "37",
+   "name": "Mechanical hygiene ratchet",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.7
+  },
+  {
+   "step": "38",
+   "name": "SystemVerilog idiom gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.7
+  },
+  {
+   "step": "39",
+   "name": "C and C++ idiom gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 2.3
+  },
+  {
+   "step": "40",
+   "name": "Python idiom gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 7.6
+  },
+  {
+   "step": "41",
+   "name": "Shell idiom gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.4
+  },
+  {
+   "step": "42",
+   "name": "CI event and SHA contract gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 13.4
+  },
+  {
+   "step": "43",
+   "name": "Local act runner contract gate",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.5
+  },
+  {
+   "step": "44",
+   "name": "Doc cited-path gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "step": "45",
+   "name": "Archive integrity gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.4
+  },
+  {
+   "step": "46",
+   "name": "Per-page contents gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 7.0
+  },
+  {
+   "step": "47",
+   "name": "AEM store generator self-test",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "step": "48",
+   "name": "Sweep/build shape gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 14.0
+  },
+  {
+   "step": "49",
+   "name": "Deploy shape gate",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.5
+  },
+  {
+   "step": "50",
+   "name": "Entity shape gate",
+   "result": "PASS rc=0 [verbatim] make: 363 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/docs-check/bin/make",
+   "rc": 0,
+   "seconds": 46.3
+  }
+ ]
+}

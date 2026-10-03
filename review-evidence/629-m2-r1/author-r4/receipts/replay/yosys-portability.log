@@ -1,0 +1,10 @@
+replay .github/workflows/rtl.yml :: yosys-portability at c12886486c1e4acf2003bfaba25db2a307446428
+HOME: $VALIDATION_STORAGE/629-a512/home-yosys; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a512/replay/yosys-portability/bin/make -> $VALIDATION_STORAGE/629-a512/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] USES  Download every shard's evidence: not downloaded: the aggregate reads this replay's own shard outputs
+[03] PASS  rc=0      0.1s  Require every shard to have validated this run's SHA  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/yosys-portability/bin/make, GNU Make 4.3)
+[04] PASS  rc=0      0.1s  Reconcile the live inventory and structural gates  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/yosys-portability/bin/make, GNU Make 4.3)
+[05] PASS  rc=0      0.0s  Require every Yosys worker to pass  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/yosys-portability/bin/make, GNU Make 4.3)
+steps: 5  failed: 0
+rc=0

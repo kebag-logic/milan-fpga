@@ -1,0 +1,8 @@
+replay .github/workflows/docs.yml :: wire-accountability at c12886486c1e4acf2003bfaba25db2a307446428
+HOME: $VALIDATION_STORAGE/629-a512/home-light; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a512/replay/wire-accountability/bin/make -> $VALIDATION_STORAGE/629-a512/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] PASS  rc=0      0.1s  Fetch the engine authority the builder derives from  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/wire-accountability/bin/make, GNU Make 4.3)
+[03] PASS  rc=0      0.8s  Advertised-vs-emitted gate (green since 2026-07-28, item 00)  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/wire-accountability/bin/make, GNU Make 4.3)
+steps: 3  failed: 0
+rc=0

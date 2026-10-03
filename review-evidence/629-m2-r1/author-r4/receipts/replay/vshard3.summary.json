@@ -1,0 +1,105 @@
+{
+ "head": "c12886486c1e4acf2003bfaba25db2a307446428",
+ "workflow": ".github/workflows/rtl.yml",
+ "job": "verilator-shards",
+ "steps": [
+  {
+   "step": "01",
+   "name": "actions/checkout@v4",
+   "result": "ACTION: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "02",
+   "name": "Fetch RTL dependencies",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "03",
+   "name": "Record the tree this worker validates",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "04",
+   "name": "Cache the pinned Verilator build",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "05",
+   "name": "Build Verilator from source on cache miss",
+   "result": "SKIPPED (if: false)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "06",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "PASS rc=0 [verbatim, mapped /opt/verilator -> $VALIDATION_TOOLS/verilator-v5.050] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "step": "07",
+   "name": "Prove specialized suite ownership",
+   "result": "PASS rc=0 [verbatim] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.2
+  },
+  {
+   "step": "08",
+   "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+   "result": "ACTION: treated as a cache hit: the pinned tool or cache exists on this host",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "09",
+   "name": "Build Yosys from source on cache miss",
+   "result": "SKIPPED (if: false)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "10",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "11",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "PASS rc=0 [SUBSTITUTED (runner provisioning)] make: not invoked (PATH make = $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make, GNU Make 4.3)",
+   "rc": 0,
+   "seconds": 0.8
+  },
+  {
+   "step": "12",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "SKIPPED (if: false)",
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "step": "13",
+   "name": "Run this exhaustive suite shard",
+   "result": "PASS rc=0 [verbatim] make: 55 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a512/replay/vshard3/bin/make",
+   "rc": 0,
+   "seconds": 499.8
+  },
+  {
+   "step": "14",
+   "name": "Upload this shard's suite logs",
+   "result": "ACTION: not uploaded (local replay)",
+   "rc": 0,
+   "seconds": 0.0
+  }
+ ]
+}

@@ -1,0 +1,205 @@
+### step: Classify the change conservatively
+### cwd: $LANES/629-m2-impl
+  ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+  ok   ['README.md', 'AGENTS.md']: rtl=False
+  ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+  ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+  ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['docs/AAF_LATENCY_TAPS.md']: rtl=True
+  ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+  ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+  ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+  ok   ['docs/traceability/untested.budget']: rtl=True
+  ok   ['docs/notes.txt']: rtl=True
+  ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+  ok   ['hdl/ieee1722/aaf/doc/x.svg']: rtl=True
+  ok   ['cdc_census.drawio']: rtl=True
+  ok   ['cdc_census.svg']: rtl=True
+  ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=True
+  ok   ['hdl/milan/KL_pp_shadow.sv']: rtl=True
+  ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+  ok   ['LICENSE']: rtl=True
+  ok   ['notes.rst']: rtl=True
+  ok   ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=True
+  ok   ['requirements.txt']: rtl=True
+  ok   ['hdl/milan/milan_datapath.sv']: rtl=True
+  ok   ['scripts/lint_rtl.py']: rtl=True
+  ok   ['.github/workflows/rtl.yml']: rtl=True
+  ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+  ok   []: rtl=True
+  ok   ['gptp-processor']: rtl=True
+  ok   ['protocol-processor']: rtl=True
+  ok   ['external']: rtl=True
+  ok   ['third_party/verilog-axis']: rtl=True
+  ok   ['.gitmodules']: rtl=True
+  ok   ['docs/x.md', 'gptp-processor']: rtl=True
+  ok   submodule rule names protocol-processor
+  ok   submodule rule names gptp-processor
+  ok   submodule rule names external
+  ok   submodule rule names third_party/verilog-axis
+  ok   submodule rule names .gitmodules
+  ok   gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:321) is relevant
+  ok   gate-read page docs/reference/REGISTER_MAP.md (named at tb/tools/torture_campaign.py:3431) is relevant
+  ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+  ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+  ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+  ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a comment naming it names nothing
+  ok   a new reader spelt as a message naming it names nothing
+  ok   a new reader spelt as a reader docs-check runs too names nothing
+  ok   mutation: gptp-processor filed as docs-only is rejected
+  ok   mutation: protocol-processor filed as docs-only is rejected
+  ok   mutation: external filed as docs-only is rejected
+  ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+  ok   mutation: .gitmodules filed as docs-only is rejected
+  ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+  ok   mutation: LICENSE filed as docs-only is rejected
+  ok   mutation: .rst filed as docs-only is rejected
+  ok   mutation: docs/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+  ok   mutation: tb/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/AAF_LATENCY_TAPS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/AAF_LATENCY_TAPS.md once the table drops it
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+Changed files:
+  CHANGELOG.md
+  avdecc/aem_assemble.py
+  avdecc/aem_descriptors.py
+  avdecc/aem_emit.py
+  avdecc/aem_rom.json
+  avdecc/aem_specs.py
+  avdecc/gen_aem_store.py
+  configs/endstation_arty_4x4.yaml
+  configs/endstation_arty_8ch.yaml
+  configs/endstation_arty_current.yaml
+  configs/endstation_ax7101_1x1_tdm8.yaml
+  configs/endstation_ax7101_8x8.yaml
+  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  docs/CHANNEL_MAP_64.md
+  docs/ENDSTATION_BUILDER.md
+  docs/design/GM_LOSS_RECOVERY.md
+  docs/design/MEDIA_CLOCK_FOLLOWING.md
+  docs/design/SAVED_STATE_FASTCONNECT.md
+  docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+  docs/design/TIME_SYNC.md
+  docs/diagrams/PNG_MANIFEST.json
+  docs/diagrams/submodule_boundaries.drawio
+  docs/diagrams/submodule_boundaries.png
+  docs/diagrams/submodule_boundaries.svg
+  docs/fpga/FPGA_DESIGN.md
+  docs/overview/ARCHITECTURE.md
+  docs/reference/FR_NFR.md
+  docs/reference/MILAN_COMPLIANCE_MATRIX.md
+  docs/reference/MILAN_FEATURE_STATUS.md
+  docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+  docs/reference/REGISTER_MAP.md
+  docs/reference/REGISTER_MAP_CLASSES.md
+  docs/reference/SUBMODULES.md
+  docs/reference/milan_feature_status.json
+  docs/testing/TESTING.md
+  docs/traceability/MODULE_MATRIX.md
+  hdl/common/README-tests.md
+  hdl/common/csr/README-tests.md
+  hdl/common/csr/milan_csr.sv
+  hdl/common/eth_event_counter/README-tests.md
+  hdl/common/gen/adp_shape_defaults.svh
+  hdl/ieee1722/aaf/README-tests.md
+  hdl/ieee1722/avtp/README-tests.md
+  hdl/ieee1722/crf/KL_aaf_clock_meter.sv
+  hdl/ieee1722/crf/KL_media_grid_align.sv
+  hdl/ieee1722/crf/KL_media_nco.sv
+  hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+  hdl/ieee1722/crf/README-tests.md
+  hdl/ieee1722/maap/README-tests.md
+  hdl/ieee17221/adp/README-tests.md
+  hdl/ieee8021as/gptp_plane/README-tests.md
+  hdl/ieee8021as/ptp_timestamp/README-tests.md
+  hdl/ieee8021q/filtering/README-tests.md
+  hdl/milan/KL_pp_shadow.sv
+  hdl/milan/README-tests.md
+  hdl/milan/milan_datapath.sv
+  protocol-processor
+  scripts/check_nvm_capture.py
+  scripts/entity_shape_selftest.py
+  scripts/measure_test_evidence.py
+  scripts/naming.budget
+  scripts/nvm_map_checks.py
+  scripts/nvm_shape.py
+  scripts/port_docs.budget
+  scripts/shape_consumer_inventory.py
+  sw/builder/README-parameters.md
+  sw/builder/endstation_builder.py
+  sw/builder/test_builder.py
+  sw/litex/milan_soc.py
+  syn/yosys/ooc.sh
+  syn/yosys/rom_digests.tsv
+  syn/yosys/run.sh
+  tb/verilator/aaf_clock_meter/Makefile
+  tb/verilator/aaf_clock_meter/meter_servo_wrap.sv
+  tb/verilator/aaf_clock_meter/meter_wrap.sv
+  tb/verilator/aaf_clock_meter/mutants.py
+  tb/verilator/aaf_clock_meter/sim_main.cpp
+  tb/verilator/aaf_clock_meter/sim_servo.cpp
+  tb/verilator/crf_rx/crf_talker_wrap.sv
+  tb/verilator/crf_rx/mutants.py
+  tb/verilator/crf_rx/sim_talker_step.cpp
+  tb/verilator/csr/sim_main.cpp
+  tb/verilator/milan_dp/Makefile
+  tb/verilator/milan_dp/README.md
+  tb/verilator/milan_dp/gmstep_mutants.py
+  tb/verilator/milan_dp/sim_aclk.cpp
+  tb/verilator/milan_dp/sim_main.cpp
+  tb/verilator/milan_dp/sim_nxn.cpp
+  tb/verilator/milan_dp_mclk/.gitignore
+  tb/verilator/milan_dp_mclk/Makefile
+  tb/verilator/milan_dp_mclk/README.md
+  tb/verilator/milan_dp_mclk/clkv_double.sv
+  tb/verilator/milan_dp_mclk/gen_mclk_shape.py
+  tb/verilator/milan_dp_mclk/mclk_mutants.py
+  tb/verilator/milan_dp_mclk/sim_mclk.cpp
+  tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+  tb/verilator/milan_dp_render/tdm8_render_mutants.py
+  tb/verilator/mmcm_servo/mmcm_model.h
+  tb/verilator/mmcm_servo/rails_wrap.sv
+  tb/verilator/mmcm_servo/sim_main.cpp
+  tb/verilator/mmcm_servo/sim_phc_step.cpp
+  tb/verilator/mmcm_servo/sim_rails.cpp
+  tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+  tb/verilator/nvm_backend/records_endstation_ax7101_1x1_tdm8.txt
+  tb/verilator/nvm_backend/records_endstation_ax7101_8x8.txt
+  tb/verilator/nvm_capture_cpu/README.md
+  tb/verilator/nvm_capture_cpu/measurements.json
+  tb/verilator/nvm_capture_cpu/run.py
+  tb/verilator/nvm_capture_cpu/sim_main.cpp
+  tb/verilator/nvm_capture_cpu/soc.py
+RTL/tooling relevant: true
