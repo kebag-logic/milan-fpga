@@ -55,6 +55,7 @@ MUTANTS = {
                         "    if False:\n"),
     "timed endpoint columns": ("    if not paths or not all(", "    if not all("),
     "timed endpoint count format": ("COUNT.fullmatch(value) and int(value) > 0", "value.isdigit() and int(value) > 0"),
+    "timed endpoint boundary": ("int(value) > 0 for value in paths", "int(value) >= 0 for value in paths"),
     "finite slack": ("    if not SLACK.fullmatch(values[0]) or not SLACK.fullmatch(values[4]):\n", "    if False:\n"),
     "finite WHS": (" or not SLACK.fullmatch(values[4]):\n", ":\n"),
     "ASCII slack": ('SLACK = re.compile(r"-?[0-9]+\\.[0-9]+")', 'SLACK = re.compile(r"-?\\d+\\.\\d+")'),
