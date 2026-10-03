@@ -1,0 +1,6 @@
+python3 syn/ooc/pp_resource_gate.py --selftest
+python3 syn/ooc/pp_resource_gate_mutants.py
+python3 syn/ooc/pp_resource_gate.py check-baseline
+resource gate selftest: 51 arms PASS
+resource gate mutants: control passes, all 25 mutants fail
+baseline PASS: 3 endpoints

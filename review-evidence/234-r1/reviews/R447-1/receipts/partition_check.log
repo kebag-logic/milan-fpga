@@ -1,0 +1,7 @@
+leaf scopes (incl. u_nvm, ctl_fifo): net LUT +101, abs LUT 365, net FF -11
+u_pp direct children, RX pools grouped (excl. u_nvm): net LUT +95, abs LUT 309, net FF -12
+every scope's own logic (complete partition of the wrapper): net LUT +79, abs LUT 391, net FF +93
+u_pp own logic: LUT -23, FF +107
+wrapper total: LUT +162, FF +126; u_pp/u_nvm_port: LUT +83, FF +33
+documented: findings :134-135 net +101 LUT, abs 309 LUT; AREA_BUDGET :156 net 101 LUT and 95 FF
+rc=0

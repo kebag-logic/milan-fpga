@@ -1,0 +1,20 @@
+control: PASS rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   ooc RAMB36 not gated: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   ooc DSP not gated: rc=0 resource gate selftest: 51 arms PASS
+KILLED     route DSP not gated: rc=1 RESULT: PASS
+KILLED     route RAMB36 not gated: rc=1 RESULT: PASS
+SURVIVED   CLI refusal exits 0: rc=0 resource gate selftest: 51 arms PASS
+KILLED     CLI check-baseline exits 0: rc=1 AssertionError: command line verdicts or recording wrong: [0, 0, 0, 1, 0]
+SURVIVED   design state not bound: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   design name not bound: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   header uniqueness: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   ceiling boundary: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   floor boundary: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   timing fall boundary: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   one timing summary: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   timing header present: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   one generated top: rc=0 resource gate selftest: 51 arms PASS
+SURVIVED   include dir present: rc=0 resource gate selftest: 51 arms PASS
+KILLED     baseline floor value: rc=1 AssertionError: baseline defect accepted: WHS_ns is below its floor
+SURVIVED   candidate kind from directory: rc=0 resource gate selftest: 51 arms PASS
+extra mutants: 4 killed, 14 survived, 0 not unique, of 18

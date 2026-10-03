@@ -1,0 +1,95 @@
+=== A-record-route-1x1 against route-1x1: exit 0
+figure        baseline   candidate     delta  verdict
+LUT              50128       50128         0  ok
+FF               59006       59006         0  ok
+SLICE            15815       15815         0  ok
+RAMB36              79          79         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.063       0.063       0.0  ok
+WHS_ns           0.036       0.036       0.0  ok
+RESULT: PASS
+=== A-record-ooc-1x1 against ooc-1x1: exit 0
+figure        baseline   candidate     delta  verdict
+LUT              24343       24343         0  ok
+FF               25344       25344         0  ok
+RAMB36              21          21         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS
+=== A-record-ooc-8x8 against ooc-8x8: exit 0
+figure        baseline   candidate     delta  verdict
+LUT              31562       31562         0  ok
+FF               33929       33929         0  ok
+RAMB36              26          26         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS
+=== B-record-route-1x1 against route-1x1: exit 1
+figure        baseline   candidate     delta  verdict
+LUT              50128       50753       625  REGRESSION: grew by more than 500
+FF               59006       59014         8  ok
+SLICE            15815       15827        12  ok
+RAMB36              79          79         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.063       0.101     0.038  ok
+WHS_ns           0.036       0.036       0.0  ok
+sub-block movements, not gated:
+  u_pp: LUT +257, FF +13
+  wrapper: LUT +259, FF +11
+  u_pp/u_nvm_port: LUT +80, FF +33
+  u_pp/u_aecp/u_d3: LUT +73, FF +0
+  u_pp/u_aecp/u_dyn: LUT -73, FF +0
+  u_pp/u_aecp: LUT +58, FF +0
+  u_pp/u_rx_validator: LUT +41, FF +0
+  u_pp/u_srp: LUT +35, FF -2
+  u_pp/u_notify: LUT +36, FF +0
+  u_pp/u_listener: LUT +23, FF -11
+  u_pp/u_dispatch/u_acmp_q: LUT +24, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -20, FF +0
+RESULT: MATERIAL REGRESSION
+=== B-record-ooc-1x1 against ooc-1x1: exit 0
+figure        baseline   candidate     delta  verdict
+LUT              24343       24505       162  ok
+FF               25344       25470       126  ok
+RAMB36              21          21         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  wrapper: LUT +162, FF +126
+  u_pp: LUT +155, FF +128
+  u_pp/u_nvm_port: LUT +83, FF +33
+  u_pp/u_listener: LUT +74, FF -11
+  u_pp/u_rx_validator: LUT +48, FF +0
+  u_pp/u_maap: LUT +37, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +23, FF +0
+  u_pp/u_originator: LUT -20, FF +0
+  u_pp/u_ca_builder: LUT -19, FF +0
+  u_pp/u_srp: LUT -18, FF -1
+  u_pp/u_notify: LUT +18, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -15, FF +0
+RESULT: PASS
+=== B-record-ooc-8x8 against ooc-8x8: exit 0
+figure        baseline   candidate     delta  verdict
+LUT              31562       31390      -172  ok, below the baseline
+FF               33929       33844       -85  ok, below the baseline
+RAMB36              26          26         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp: LUT -175, FF -85
+  wrapper: LUT -172, FF -85
+  u_pp/u_tx_slots: LUT -143, FF +0
+  u_pp/u_aecp/u_d3: LUT +115, FF +0
+  u_pp/u_nvm_port: LUT +66, FF +33
+  u_pp/u_listener: LUT -82, FF +8
+  u_pp/u_talker: LUT -52, FF +0
+  u_pp/u_srp: LUT -50, FF +0
+  u_pp/u_dispatch: LUT -41, FF +0
+  u_pp/u_adp: LUT -40, FF +0
+  u_pp/u_notify: LUT -35, FF +0
+  u_pp/u_originator: LUT +29, FF +0
+RESULT: PASS
+=== A-record-ooc-1x1-10ns against ooc-1x1: exit 2
+NOT COMPARABLE: tool or recipe change in standalone_clock_ns; measure the baseline again under the new identity instead of comparing across it
