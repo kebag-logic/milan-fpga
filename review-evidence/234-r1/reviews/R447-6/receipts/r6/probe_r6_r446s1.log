@@ -1,0 +1,3 @@
+scope_name_admits_an_empty_key: selftest rc=0 (resource gate selftest: 260 arms and 500 generated cases PASS); fuzz5k rc=1 (3 failures); check-baseline rc=0
+scope_name_admits_a_space: selftest rc=0 (resource gate selftest: 260 arms and 500 generated cases PASS); fuzz5k rc=0 (0 failures); check-baseline rc=0
+SCOPES_first_element_wildcarded: selftest rc=1 (AssertionError: malformed-baseline arm "a note shaped as a record's scopes holding a bracketed key" through check: exit 0, wanted 2 naming "the key 'a); fuzz5k rc=0 (0 failures); check-baseline rc=0

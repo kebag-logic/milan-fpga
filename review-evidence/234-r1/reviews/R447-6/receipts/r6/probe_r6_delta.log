@@ -1,0 +1,166 @@
+control: fuzz500 rc=0, fuzz5k rc=0, selftest rc=0, selftest_r5 rc=0, realaudit rc=0
+list: walk skips the middle items of a list: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 4 failures; case digest d02dae254cf8384c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 33 failures; case digest 4beb79c24e597c39
+    selftest: AssertionError: a generated case broke the exit-code contract
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+list: walk visits only a list's first two items: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 4 failures; case digest a70e9c94814976e6
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 49 failures; case digest be3cbd7964c49a2c
+    selftest: AssertionError: command-line arm 'check of a bracketed key in the last image manifest entry': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+list: walk skips a list's first item: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 3 failures; case digest 408edc3a210e7a92
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 26 failures; case digest e99d638e508e955e
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+    selftest_r5: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+    realaudit: baseline PASS: 3 endpoints
+list: walk skips a list's last item: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest 694d5aae92123913
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 37 failures; case digest b63146683cfd76f0
+    selftest: AssertionError: command-line arm 'check of a bracketed key in the last image manifest entry': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"
+    selftest_r5: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+    realaudit: baseline PASS: 3 endpoints
+list: walk visits only a list's last item: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 10 failures; case digest 81b8acc18f9a86c8
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 65 failures; case digest b509ca4729740e79
+    selftest: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+image: manifest walked over its first entry only: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 4 failures; case digest 0d5c8ff077069acc
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 47 failures; case digest 8c82dc670fbe7334
+    selftest: AssertionError: command-line arm 'check of a bracketed key in the last image manifest entry': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+image: manifest walked over all but its last entry: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest 694d5aae92123913
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 28 failures; case digest 2abb5a6e17d8c769
+    selftest: AssertionError: command-line arm 'check of a bracketed key in the last image manifest entry': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"
+    selftest_r5: AssertionError: route arm 'image manifest with a bracketed key': exit 0, wanted 2 naming "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /0"
+    realaudit: baseline PASS: 3 endpoints
+image: manifest walked over its first and last entries only: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 3 failures; case digest c410b6e460a87a8e
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 19 failures; case digest 6d666aeaec2a865d
+    selftest: "NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-2gygdvns/route/arm/gateware: ValueError: the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /1"
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+dict: walk descends below an object's first key only: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 8 failures; case digest b33f2b0f589e0b79
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 121 failures; case digest 1925ae828ee3dfb3
+    selftest: AssertionError: malformed-baseline arm 'a scope named by a lone surrogate' through check: exit 0, wanted 2 naming "the key '\\ud800' is not a name"
+    selftest_r5: AssertionError: malformed-baseline arm 'a scope named by a lone surrogate' through check: exit 0, wanted 2 naming "the key '\\ud800' is not a name"
+    realaudit: baseline PASS: 3 endpoints
+dict: walk descends below every key but an object's last: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 7 failures; case digest 9034c917b6c7384b
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 109 failures; case digest 5dc7f44b0e5db4c3
+    selftest: 'NOT COMPARABLE: baseline /tmp/pp-resource-gate-c70njnbw/baseline.json is malformed: route: the endpoint holds unknown fields \\ud800'
+    selftest_r5: 'NOT COMPARABLE: baseline /tmp/pp-resource-gate-61o8rmdw/baseline.json is malformed: route: the endpoint holds unknown fields \\ud800'
+    realaudit: baseline PASS: 3 endpoints
+scope: SCOPES any third key: fuzz500 passed rc=0; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 3 failures; case digest d94954e6e01e0159
+    selftest: AssertionError: malformed-baseline arm 'a note holding a bracketed key under scopes' through check: exit 0, wanted 2 naming "the key 'g_rx[5]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measu
+    selftest_r5: AssertionError: malformed-baseline arm 'a note holding a bracketed key under scopes' through check: exit 0, wanted 2 naming "the key 'g_rx[5]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measu
+    realaudit: baseline PASS: 3 endpoints
+scope: SCOPES any last key: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+name: NAME needs two characters: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest f4fc0c8f8f3a79d5
+    selftest: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-bdz6hvm1/baseline.json is unreadable: the key 'a' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measured/0"
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+name: NAME refuses a leading digit: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+name: NAME refuses a leading hyphen: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+scope-name: drops upper case: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+scope-name: drops lower case: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit DETECTED rc=2
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 2 failures; case digest a6d6d3d92e27871e
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 2 failures; case digest 4ccdd7fd1fb5cf7b
+    selftest: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-kbb3ccli/baseline.json is unreadable: the key 'wrapper' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    selftest_r5: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-udgl6b83/baseline.json is unreadable: the key 'wrapper' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    realaudit: NOT COMPARABLE: baseline pp_resource_baseline.json is unreadable: the key 'wrapper' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+scope-name: drops digits: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit DETECTED rc=2
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest abb9a87847b61457
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest cdb2d46fe566f5c4
+    selftest: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-_ehp_205/baseline.json is unreadable: the key 'u_pp/g_rx[5].u_x' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    selftest_r5: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-xrp263e_/baseline.json is unreadable: the key 'u_pp/g_rx[5].u_x' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    realaudit: NOT COMPARABLE: baseline pp_resource_baseline.json is unreadable: the key 'u_pp/g_rx_pool[0].u_rx_slots' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+scope-name: drops the underscore: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit DETECTED rc=2
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 2 failures; case digest a6d6d3d92e27871e
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 2 failures; case digest 4ccdd7fd1fb5cf7b
+    selftest: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-68bv0qjn/baseline.json is unreadable: the key 'u_pp' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    selftest_r5: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-eavjxjfr/baseline.json is unreadable: the key 'u_pp' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    realaudit: NOT COMPARABLE: baseline pp_resource_baseline.json is unreadable: the key 'ctl_fifo' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+scope-name: drops the dot: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit DETECTED rc=2
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-idf8l42x/baseline.json is unreadable: the key 'u_pp/g_rx[5].u_x' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    selftest_r5: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-tw86ixqy/baseline.json is unreadable: the key 'u_pp/g_rx[5].u_x' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    realaudit: NOT COMPARABLE: baseline pp_resource_baseline.json is unreadable: the key 'u_pp/g_rx_pool[0].u_rx_slots' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+scope-name: drops the colon: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+scope-name: drops the slash: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit DETECTED rc=2
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 2 failures; case digest a6d6d3d92e27871e
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 2 failures; case digest 4ccdd7fd1fb5cf7b
+    selftest: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-nbri73jv/baseline.json is unreadable: the key 'u_pp/u_srp' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    selftest_r5: "NOT COMPARABLE: baseline /tmp/pp-resource-gate-b3kwtgkb/baseline.json is unreadable: the key 'u_pp/u_srp' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route/record/scopes"
+    realaudit: NOT COMPARABLE: baseline pp_resource_baseline.json is unreadable: the key 'u_pp/g_rx_pool[0].u_rx_slots' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+scope-name: drops the hyphen: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+scope-name: capped at 127: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+scope-name: needs two characters: fuzz500 passed rc=0; fuzz5k passed rc=0; selftest passed rc=0; selftest_r5 passed rc=0; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 0 failures; case digest 380434c2e6da7ea8
+    selftest: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    selftest_r5: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest bec87b3c7cbe1125
+    realaudit: baseline PASS: 3 endpoints
+bound: NAME takes 129: fuzz500 DETECTED rc=1; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 1 failures; case digest 694d5aae92123913
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 10 failures; case digest 4f4af2667a320096
+    selftest: AssertionError: a generated case broke the exit-code contract
+    selftest_r5: AssertionError: a generated case broke the exit-code contract
+    realaudit: baseline PASS: 3 endpoints
+bound: SCOPE_NAME takes 129: fuzz500 passed rc=0; fuzz5k DETECTED rc=1; selftest DETECTED rc=1; selftest_r5 DETECTED rc=1; realaudit passed rc=0
+    fuzz500: resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+    fuzz5k: resource gate fuzz: 5000 cases at seed 447 on the self-test fixtures: 1 failures; case digest 7e407c71461aa4e4
+    selftest: AssertionError: malformed-baseline arm 'a key of 129 characters' through check: exit 0, wanted 2 naming '(129 characters) is not a name'
+    selftest_r5: AssertionError: malformed-baseline arm 'a key of 129 characters' through check: exit 0, wanted 2 naming '(129 characters) is not a name'
+    realaudit: baseline PASS: 3 endpoints
+round-6 delta mutants: 27; head self-test killed 19; round-5 self-test killed 13; head generative block alone detected 16
+missed by the head self-test: 8 ['scope: SCOPES any last key', 'name: NAME refuses a leading digit', 'name: NAME refuses a leading hyphen', 'scope-name: drops upper case', 'scope-name: drops the colon', 'scope-name: drops the hyphen', 'scope-name: capped at 127', 'scope-name: needs two characters']
+undetected by every run: 8 ['scope: SCOPES any last key', 'name: NAME refuses a leading digit', 'name: NAME refuses a leading hyphen', 'scope-name: drops upper case', 'scope-name: drops the colon', 'scope-name: drops the hyphen', 'scope-name: capped at 127', 'scope-name: needs two characters']

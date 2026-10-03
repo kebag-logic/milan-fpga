@@ -1,0 +1,62 @@
+OK  control: A route, committed baseline: rc 0 want 0 traceback False ascii-stdout True :: RESULT: PASS
+OK  control: A standalone 1x1: rc 0 want 0 traceback False ascii-stdout True :: RESULT: PASS
+OK  control: check-baseline: rc 0 want 0 traceback False ascii-stdout True :: baseline PASS: 3 endpoints
+OK  unknown endpoint (the 39e9329b path): rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/committed.json holds no endpoint route-9x9, only ooc-1x1, ooc-8x8, route-1x1
+OK  endpoint name with an undecodable byte: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/committed.json holds no endpoint route-\udcff, only ooc-1x1, ooc-8x8, route-1x1
+OK  directory named with undecodable bytes (printed in the result): rc 0 want 0 traceback False ascii-stdout True :: RESULT: PASS
+OK  directory that is a file: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: $PACKET/scratch/r4s/committed.json holds 0 recipe scripts, not one
+OK  directory name past NAME_MAX: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: $PACKET/scratch/r4s/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+OK  baseline that is a directory: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s is unreadable: [Errno 21] Is a directory: '$PACKET/scratch/r4s'
+OK  budget that is a directory: rc 2 want 2 traceback False ascii-stdout True :: budget r4s: [Errno 21] Is a directory: '$PACKET/scratch/r4s'
+OK  standalone endpoint against the route directory: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: endpoint kind route against ooc
+OK  record without --write prints ASCII JSON: rc 0 want 0 traceback False ascii-stdout True :: }
+OK  candidate scope name with non-ASCII and a bidi mark (printed, never validated): rc 0 want (0, 2) traceback False ascii-stdout True :: RESULT: PASS
+OK  record --write of that candidate: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/write-target.json is unreadable: the key 'u_nvm\xe9\u202e' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+    write target unchanged: True
+OK  bracketed endpoint name: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/brk-ep.json is unreadable: the key 'route[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints
+OK  bracketed policy figure name: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/brk-fig.json is unreadable: the key 'LUT[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route-1x1/tolerance
+OK  bracketed identity key: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/brk-id.json is unreadable: the key 'tool[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route-1x1/record/identity
+OK  bracketed scope name (manager-accepted class): rc 0 want 0 traceback False ascii-stdout True :: baseline PASS: 3 endpoints
+OK  scope name with a space: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/sp-scope.json is unreadable: the key 'u_pp/a b' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / - [ ], in /endpoints/route-1x1/record/scopes
+OK  repeated key in the file: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/dup.json is unreadable: the key 'schema' appears twice in one object
+OK  key of 129 characters: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/long-key.json is unreadable: the key 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'... (129 characters) is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in 
+OK  JSON figure LUT = 9999999999999999 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-figure LUT.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON figure LUT = 9999999999999999 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-figure LUT.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON figure WNS = 1e400 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-figure WNS.json is unreadable: the JSON number is not finite: '1e400'
+OK  JSON figure WNS = 1e400 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-figure WNS.json is unreadable: the JSON number is not finite: '1e400'
+OK  JSON scope count = 9999999999999999 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-scope count.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON scope count = 9999999999999999 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-scope count.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON tolerance = 9999999999999999 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-tolerance.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON tolerance = 9999999999999999 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-tolerance.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON tolerance decimal = 10000000000000000000... via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-tolerance decimal.json is unreadable: the JSON number is not finite: '1000000000000000000000000000000000000000'... (403 characters)
+OK  JSON tolerance decimal = 10000000000000000000... via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-tolerance decimal.json is unreadable: the JSON number is not finite: '1000000000000000000000000000000000000000'... (403 characters)
+OK  JSON floor = -1e400 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-floor.json is unreadable: the JSON number is not finite: '-1e400'
+OK  JSON floor = -1e400 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-floor.json is unreadable: the JSON number is not finite: '-1e400'
+OK  JSON ceiling = 9999999999999999 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-ceiling.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON ceiling = 9999999999999999 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-ceiling.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON schema note = 9999999999999999 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-schema note.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON schema note = 9999999999999999 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-schema note.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+OK  JSON measured note = 1E999 via check: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-measured note.json is unreadable: the JSON number is not finite: '1E999'
+OK  JSON measured note = 1E999 via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: baseline $PACKET/scratch/r4s/site-measured note.json is unreadable: the JSON number is not finite: '1E999'
+OK  report utilization LUT 16 digits: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4s/r-utilization_LUT_16_digits: ValueError: utilization row 'Slice LUTs' is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+    reason names the converter ('whole') - checked below by grep of the case log
+OK  report utilization LUT 15 digits (reaches judge): rc 1 want 1 traceback False ascii-stdout True :: RESULT: MATERIAL REGRESSION
+OK  report half BRAM tile 400 digits: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4s/r-half_BRAM_tile_400_digits: ValueError: utilization row 'Block RAM Tile' is not finite: '1000000000000000000000000000000000000000'... (403 c
+    reason names the converter ('finite') - checked below by grep of the case log
+OK  report half BRAM tile 17 digits (finite, judged: ceiling): rc 1 want 1 traceback False ascii-stdout True :: RESULT: MATERIAL REGRESSION
+OK  report WNS 400 digits: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4s/r-WNS_400_digits: ValueError: WNS is not finite: '1000000000000000000000000000000000000000'... (403 characters)
+    reason names the converter ('finite') - checked below by grep of the case log
+OK  report THS endpoints 16 digits: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4s/r-THS_endpoints_16_digits: ValueError: THS Total Endpoints is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+    reason names the converter ('whole') - checked below by grep of the case log
+OK  report route status routable 16 digits: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: route status row 'routable nets' is not a whole number of 1 to 15 ASCII digits: '9999999999999999'
+    reason names the converter ('whole') - checked below by grep of the case log
+OK  report hierarchy count 16 digits: rc 2 want 2 traceback False ascii-stdout True :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4s/r-hierarchy_count_16_digits: ValueError: hierarchy count of 'alinx_ax7101/KL_gptp_gmii_launch/u_rec_cdc' is not a whole number of 1 to 15 ASC
+    reason names the converter ('whole') - checked below by grep of the case log
+OK  budget cell 400 digits via check-baseline: rc 2 want 2 traceback False ascii-stdout True :: budget budget-huge.md: budget policy cell '+100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+OK  --fuzz on a missing --baseline (test mode): rc 1 want (1, 2) traceback True ascii-stdout True :: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/r4s/absent.json'
+    stderr tail:            ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/r4s/absent.json'
+OK  --fuzz on a missing directory (test mode): rc 1 want (1, 2) traceback True ascii-stdout True :: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/r4s/absent-dir'
+    stderr tail:          ~~~~~~~~~~^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/r4s/absent-dir'
+OK  --fuzz on an endpoint the baseline lacks (test mode): rc 1 want (1, 2) traceback True ascii-stdout True :: KeyError: 'nope'
+    stderr tail:     ~~~~~~~~~~~~~~~~~^^^^^^ | KeyError: 'nope'
+structure probe: 51 cases, 0 off expectation, 3 with a traceback (--fuzz on a missing --baseline (test mode), --fuzz on a missing directory (test mode), --fuzz on an endpoint the baseline lacks (test mode))

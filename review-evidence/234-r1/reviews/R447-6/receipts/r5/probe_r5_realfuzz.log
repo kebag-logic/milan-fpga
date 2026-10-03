@@ -1,0 +1,12 @@
+control
+reject__walk_visits_only_the_first_item_of_a_list
+reject__scope_class_matched_on_the_last_two_keys
+accept__NAME_drops_the_colon
+accept__NAME_capped_at_64
+accept__NAME_capped_at_64 rc=0 :: resource gate fuzz: 3000 cases at seed 234 on $VALIDATION_STORAGE/A/work/ax7101/gateware as route-1x1: 0 failures; case digest 889b399a228087be
+accept__NAME_drops_the_colon rc=0 :: resource gate fuzz: 3000 cases at seed 234 on $VALIDATION_STORAGE/A/work/ax7101/gateware as route-1x1: 0 failures; case digest 82eb38d4fb1ac80d
+control rc=0 :: resource gate fuzz: 3000 cases at seed 234 on $VALIDATION_STORAGE/A/work/ax7101/gateware as route-1x1: 0 failures; case digest 889b399a228087be
+reject__scope_class_matched_on_the_last_two_keys rc=0 :: resource gate fuzz: 3000 cases at seed 234 on $VALIDATION_STORAGE/A/work/ax7101/gateware as route-1x1: 0 failures; case digest 889b399a228087be
+reject__walk_visits_only_the_first_item_of_a_list rc=1 :: resource gate fuzz: 3000 cases at seed 234 on $VALIDATION_STORAGE/A/work/ax7101/gateware as route-1x1: 44 failures; case digest 313290c8b66a5049
+    resource gate fuzz FAILURE: case 49 (route-1x1, baseline_images.json: entry key, broken True): check exit 0 ['WHS_ns           0.036       0.036       0.0  ok', 'route status: complete, no unrouted net and no routing error', 'RESULT: PASS']
+    resource gate fuzz FAILURE: case 64 (route-1x1, baseline_images.json: entry key, broken True): check exit 0 ['WHS_ns           0.036       0.036       0.0  ok', 'route status: complete, no unrouted net and no routing error', 'RESULT: PASS']
