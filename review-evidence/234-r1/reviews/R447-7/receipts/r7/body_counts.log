@@ -1,0 +1,18 @@
+21:REVIEW READY, round 6 (tests only): 43/43 touched local gates rc 0 under GNU Make 4.3; gate self-test 260 arms and 500 generated cases, 174/174 shipped mutants killed; the generative test run 20,000 times on A's real route, 20,000 on the
+40:| `syn/ooc/pp_resource_gate.py`, `_selftest.py`, `_mutants.py` | New gate. Reads one recipe measurement directory into a record (identity, input digest, figures, sub-blocks) and judges it against the recorded baseline. `check` exits 0 wi
+59:Gate on real data at this head: A's three endpoints exit 0, and A's route status reads complete (105,566 of 105,566 routable nets fully routed, 0 nets with routing errors). B exits 1 on the route (+625 LUT over the 500-LUT tolerance; 366
+77:| R446-1 F3: "net 101 LUTs and 95 FFs" mixes partitions | MINOR Docs | Both pages name one partition: the own logic of every instance the gate record lists outside `u_nvm_port`, 51 terms. Net +79 LUTs and +93 FFs; absolute 391 LUTs and 1
+104:| R446-2 S3: B's `armq_r` census | SUGGESTION | `armq_r` flip-flops at 1x1: A 1,153 and B 1,260 (+107), counted by name in each run's cell census; 8x8 and route rows too. | Re-derivable: count `armq_r` FD* cells in each run's `baseline_
+159:| 20 | `:296-304` | baseline record, candidate | `entry["record"]`, `base[...]`, `candidate[...]` | baseline: rows 1-15 and `entry_problems()` (`:531-533`); candidate: built by `record()` with every key (`:254-256`) |
+217:| R447-3 R1: a packet file the archive does not hold | RESIDUE Docs | The file is in the round-4 packet as `receipts/round4/armq-census.tsv`, and the Round 3 row above names it and how to re-derive it. | R447-3's `armq_count.py`: A 1,15
+274:| R447-3 | `hier_compare.py`, `armq_count.py`, `real_data.sh` | 0 | 7 reports, 0 differing; A 1,153, B 1,260; A 0, 0, 0, 10 ns 2, B 1, 0, 0 | |
+281:The round answers R446-4 (NEGATIVE on one MINOR) and R447-4 (POSITIVE, three RESIDUE items, two SUGGESTIONs) on PR #638, under the round-5 assignment on #234 (5970587136). Commits: `6a4fa92f` (the name class held for every key, arms, mu
+293:Mutants. The shipped campaign has 162, all killed. Seven reviewer round-4 mutants no longer apply because their spans were rewritten (four in R446-4's `probe_r4_generative.py`, three in R447-4's `probe_r4_fuzzkill.py`). Each was re-poin
+323:- `c7cde331` folds the self-test onto 16 fewer lines, every arm and generated case unchanged: 254 arms and round 5's
+326:- `d5f56313` is item 2.
+339:Mutants. The shipped campaign has 174 (round 5: 162), all killed. Of the twelve new ones, the round-5 self-test misses
+342:R447-2's classifier count them as CRASH, not ARM. The 500 generated cases alone detect 56 of 174 (round 5: 54 of 162).
+346:The self-test is now 1,000 lines, which is the limit `scripts/check_py_idiom.py` allows. It has 260 arms (round 5:
+347:254): two new `check` arms, and two new malformed baselines that each run through both commands.
+391:git switch --detach d5f56313dc5a5c2716211356f99796664dc843dd
+410:Expected result / pass criteria: every command exits 0; the gate self-test reports 260 arms and 500 generated cases, the mutant campaigns report every mutant failing and the control passing (174 for the gate), `--fuzz 20000` reports 0 f
