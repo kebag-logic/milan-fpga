@@ -60,16 +60,6 @@ COMPLETE = ("Design Route Status\n"
             "           # of fully routed nets............. :         100 :\n"
             "       # of nets with routing errors.......... :           0 :\n"
             "   ------------------------------------------- : ----------- :\n")
-#: The Design Timing Summary as Vivado lays it out, with the TNS, THS and TPWS endpoint columns.
-TIMING_HEAD = ("    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  "
-               "THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  "
-               "TPWS Total Endpoints  \n"
-               "    -------      -------  ---------------------  -------------------      -------      -------  "
-               "---------------------  -------------------     --------     --------  ----------------------  "
-               "--------------------  \n")
-VALUES = ("      0.500        0.000                      0                   10        0.100        0.000  "
-          "                    0                   12        0.264        0.000                       0  "
-          "                 7  \n")
 
 
 def report_header(design: str, state: str) -> str:
@@ -87,7 +77,10 @@ def write_reports(folder: Path, kind: str) -> None:
     (folder / "baseline_utilization.rpt").write_text(
         report_header(design, "Physopt postRoute" if kind == "route" else "Synthesized") + rows + REPEATED)
     (folder / "baseline_timing.rpt").write_text(
-        report_header(design, "Synthesized") + "| Design Timing Summary\n| ---\n\n" + TIMING_HEAD + VALUES)
+        report_header(design, "Synthesized") + "| Design Timing Summary\n| ---\n\n"
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)\n"
+        "    -------      -------  ---------------------  -------------------      -------      -------\n"
+        "      0.500        0.000                      0                   10        0.100        0.000\n")
     prefix = ["alinx_ax7101", "milan_datapath", "pp_shadow"] if kind == "route" else ["KL_pp_shadow"]
     lines = [f"| {'  ' * depth}{name} | m{depth} | {900 - depth} | {900 - depth} | 0 | 0 | 50 | 1 | 0 | 0 |"
              for depth, name in enumerate(prefix + ["u_pp", "u_srp"])]
@@ -165,6 +158,7 @@ def edit(*keys: str, value: object = REMOVE) -> Callable[[dict], None]:
 
 SOURCE = ("{repo}/hdl/milan/KL_pp_shadow.sv", "endmodule", "wire w; endmodule")
 TIMING = "baseline_timing.rpt"
+VALUES = "      0.500        0.000                      0                   10        0.100        0.000\n"
 FLOW = "baseline_integrated.tcl"
 ERRORS = (STATUS, "errors.......... :           0", "errors.......... :           3")
 ERROR_ROW = "       # of nets with routing errors.......... :           0 :\n"
@@ -208,14 +202,16 @@ ROUTE_ARMS = (
     ("WNS too long to be finite", (SOURCE, (TIMING, "  0.500  ", f"  {LONG}.063  ")), 2, "WNS is not finite"),
     ("WHS too long to be finite", (SOURCE, (TIMING, "0.100", f"{LONG}.036")), 2, "WHS is not finite"),
     ("no timed endpoint", (SOURCE, (TIMING, " 10 ", "  0 ")), 2, "times no endpoint"),
-    ("no hold-timed endpoint", (SOURCE, (TIMING, " 12 ", "  0 ")), 2, "times no endpoint"),
+    ("no hold-timed endpoint", (SOURCE, (TIMING, "THS(ns)\n", "THS(ns)  THS Total Endpoints\n"),
+                                (TIMING, "        0.000\n", "        0.000                    0\n")),
+     2, "times no endpoint"),
     ("timed endpoints in other digits", ((TIMING, " 10 ", " \uff11\uff10 "),), 2,
      "TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits: '\\uff11\\uff10'"),
     ("timed endpoints past the bound", (SOURCE, (TIMING, " 10 ", f" {BOUND} ")), 2,
      "TNS Total Endpoints is not a whole number of 1 to 15 ASCII digits"),
-    ("timing summary without its endpoint columns", (SOURCE, (TIMING, "TNS Total Endpoints", "TNS Other Endpoints"),
-                                                     (TIMING, "THS Total Endpoints", "THS Other Endpoints")),
+    ("timing summary without its endpoint columns", (SOURCE, (TIMING, "TNS Total Endpoints", "TNS Other Endpoints")),
      2, "total endpoints []"),
+    ("WNS without a fraction", (SOURCE, (TIMING, "  0.500  ", "  1  ")), 2, "not a finite decimal"),
     ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0,
      ("below the baseline", "re-baseline")),
     ("LUT improvement beyond the tolerance", (SOURCE, row("LUT", 1000, 950)), 0, "re-baseline recommended: LUT"),
@@ -458,6 +454,8 @@ MALFORMED = (
     ("an input digest that is no digest", edit("route", "record", "inputs_sha256", value="ab"),
      "not a sha256 hex digest"),
     ("an input digest that is a number", edit("route", "record", "inputs_sha256", value=5), "not a sha256 hex digest"),
+    ("an input digest in upper case", edit("route", "record", "inputs_sha256", value="AB" * 32),
+     "not a sha256 hex digest"),
     ("figures that are a list", edit("route", "record", "figures", value=[]), "figures are not exactly"),
     ("figures without LUT", edit("route", "record", "figures", "LUT"), "figures are not exactly"),
     ("figures with an extra figure", edit("route", "record", "figures", "URAM", value=0), "figures are not exactly"),
