@@ -1,0 +1,29 @@
+CRF window: events span 420.026 s; captured 19261920 frames = 401.29 s; capture_lost_frames 899009 = 18.729 s; captured + lost = 420.02 s
+CRF window polls: 798 in the grade; lockloss.json window polls 797; polls missing a word [618]
+  stall cluster 1: read gap 4.12 s, lost 219631 (4.58 s), starts 270.9 s captured / 270.9 s with prior losses, size_signature False, steps 27 steps
+  stall cluster 2: read gap 4.37 s, lost 218396 (4.55 s), starts 284.1 s captured / 288.7 s with prior losses, size_signature True, steps [2172, -23776]
+  stall cluster 3: read gap 9.77 s, lost 459278 (9.57 s), starts 285.5 s captured / 294.7 s with prior losses, size_signature False, steps 10 steps
+  clusters 9; stall clusters lost 18.69 s; all pass the rise rule: True
+  2172 = 48 n + 12: True
+#645: binds end 2.006 s before the set
+  -1.900 to -1.399 s: render_prefill=0
+  -1.399 to -0.899 s: slip_lb=[416, 0]
+  -0.899 to -0.068 s: slip_lb=[418, 0]
+  -0.068 to +0.105 s: servo=ACQUIRE
+  +2.134 to +2.634 s: slip_lb=[420, 0]
+  +6.636 to +7.136 s: servo=LOCKED
+  +9.151 to +9.652 s: slip_lb=[422, 0]
+  last pre-set slip ends 1.939 s after the binds' end
+  pre-set slips: 2; greatest separation 1.331 s; skips [0, 0]
+  post-LOCKED slip 2.015 to 3.016 s after the first LOCKED read
+  steady 5.92 ppm slip period 3.519 s
+NVM as-found: {'image_seq': '30', 'dirty': '0', 'commit_busy': '0', 'pend': '1', 'commits_ok': '30'}
+NVM pre-saved-0: {'image_seq': '31', 'dirty': '0', 'commit_busy': '0', 'pend': '1', 'commits_ok': '31'}
+NVM post-boot: {'image_seq': '31', 'dirty': '0', 'commit_busy': '0', 'pend': '0', 'commits_ok': '0'}
+NVM post-restore-0: {'image_seq': '32', 'dirty': '0', 'commit_busy': '0', 'pend': '1', 'commits_ok': '1'}
+NVM status line in identity/console-identity.txt: pend=1
+NVM status line in identity-resume/console-identity.txt: pend=1
+NVM status line in runs/sw/dut-before-bind.txt: pend=1
+NVM status line in runs/crfll/dut-final.txt: pend=1
+NVM status line in restore/dut-end2.txt: pend=0
+post-boot polls SLIP_LB: ['00000006', '00000006', '00000006']

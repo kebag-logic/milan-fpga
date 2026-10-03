@@ -1,0 +1,265 @@
+diff --git a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+index 8a6557743..8df39b24a 100644
+--- a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
++++ b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+@@ -1300,12 +1300,14 @@ restored everything.
+ | The INTERNAL-to-AAF set that started item 2 | #645 repeated | The listener ring slipped one frame 2.0 to 3.0 s after the servo first read LOCKED. See [B8: the INTERNAL-to-AAF set and #645](#b8-the-internal-to-aaf-set-and-645) |
+ | B-CRF repeated, the window before item 3 | PASS | Servo LOCKED at all 797 polls; 0 net steps in 19,261,920 frames |
+ | 3. Lock loss of a followed CRF stream | Observed as declared | HOLDOVER within 0.56 s, the index and the trim kept, one `mr` toggle, LOCKED 2.7 to 3.2 s after the return. See [B8: lock loss of the followed CRF stream](#b8-lock-loss-of-the-followed-crf-stream) |
+-| 4. The saved selection across a power cycle | PASS | GET_CLOCK_SOURCE read 2 after the boot, and the servo read LOCKED with no command sent. See [B8: the saved selection across a power cycle](#b8-the-saved-selection-across-a-power-cycle) |
++| 4. The saved selection across a power cycle | PASS | GET_CLOCK_SOURCE read 2 after the boot, and the servo read LOCKED with no state-changing command sent. See [B8: the saved selection across a power cycle](#b8-the-saved-selection-across-a-power-cycle) |
+ | Restore | Done | See [B8: bench as left](#b8-bench-as-left) |
+ 
+ These are operator observations, not review verdicts. Paths such as
+-`runs/sw/events.jsonl` are in the lane packet;
+-[B8: artifact hashes](#b8-artifact-hashes) names it.
++`runs/sw/events.jsonl` are in the lane packet, published on branch
++`629-b8-review-evidence` at `36ee6d8a`;
++[B8: artifact hashes](#b8-artifact-hashes) gives the full pin and maps each
++path to its place there.
+ 
+ ### B8: identity and setup
+ 
+@@ -1379,8 +1381,10 @@ range is lane B6's and lane B7's idle floor.
+ The stream itself arrived. The DUT's STREAM_INPUT 0 read MEDIA_LOCKED 1 and
+ MEDIA_UNLOCKED 0 at both of its counter reads, 12.6 s apart around the
+ recording. Between them FRAMES_RX rose by 103,998, with no interruption, no
+-sequence mismatch and no late or early timestamp. So the DUT received the peer's
+-talker stream throughout, and that stream carried no tone.
++sequence mismatch and no late or early timestamp. The DUT's render path was
++live: the four mapped channels carry a non-zero floor of a few LSB, while the
++four unmapped channels are exactly zero. So the DUT received the peer's talker
++stream throughout and rendered it, and that stream carried no tone.
+ 
+ **STOP, and item 1 NOT RUN.** The tone did not reach the peer's talker, so the
+ first session stopped. Where along the tone's path into the peer it was lost
+@@ -1415,7 +1419,7 @@ receive path is observed instead through four records:
+   stream on STREAM_INPUT 0; two dups are one slipped frame, one per channel
+   pair of that stream ([B7: Direction B](#b7-direction-b));
+ - `SLIP_TDM`, the TDM junction's
+-  ([0x8D4](../reference/REGISTER_MAP.md#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture));
++  (`0x8D8`, in [the media-boundary slip counters](../reference/REGISTER_MAP.md#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture));
+ - `RENDER_STAT`'s prefill and converged bits and its rail count for
+   STREAM_INPUT 0, the render stage that carries the #386 recentre
+   ([0x8DC](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state));
+@@ -1529,11 +1533,13 @@ The restore to INTERNAL toggled MEDIA_RESET once more, to 4.
+ | `RENDER_STAT` converged | Low at the poll that ended 0.11 s after the set, high again by 0.61 s; prefill never seen | Low at the poll that ended 0.09 s after the set, high again by 0.60 s; prefill never seen | High at every poll | One #386 recentre once the grid settles: 43 ms to 683 ms under following |
+ 
+ The converged bit fell within about 0.1 s after two of the three sets, inside
+-the settle bound, with no rail counted. That is the trace of a recentre that
+-found the queue short. After the third set no poll saw it, as when a recentre
+-finds the queue full, or when the 100 ms low falls between two polls. So each
+-set left at most the trace one recentre makes, and no rail; the recentre count
+-itself is not visible to the bench.
++the settle bound, with no rail counted. That is consistent with the declared
++recentre finding the queue short. An underrun leaves the same prefill and
++converged trace, and `RENDER_STAT` does not expose the stage's underrun count,
++so the bench cannot tell the two apart. After the third set no poll saw it, as
++when a recentre finds the queue full, or when the 100 ms low falls between two
++polls. So each set left at most the trace one recentre makes, and no rail; the
++recentre count itself is not visible to the bench.
+ 
+ <!-- b8-thdn-sw -->
+ | Span | Tone | Blocks | Blocks at the floor | THD+N there, dB (median / worst) | SNR there, dB (median / worst) | Worst THD+N, all blocks, dB |
+@@ -1555,7 +1561,7 @@ toggle each, at both ends; the CLOCK_DOMAIN counters one pair each; LOCKED
+ again in the declared time with the trim kept; GET_CLOCK_SOURCE the set index
+ throughout; and no slip on the listener ring, the TDM junction or the tone
+ path. The only discontinuity the bench can see at a switch is the converged
+-bit's fall, which the declared recentre makes. Item 2 PASSES for AAF to CRF
++bit's fall, consistent with the declared recentre. Item 2 PASSES for AAF to CRF
+ and CRF to AAF.
+ 
+ ### B8: the INTERNAL-to-AAF set and #645
+@@ -1575,11 +1581,18 @@ the binds to the restore:
+ | 9.15 to 9.65 | 422 | LOCKED | 1, 2.0 to 3.0 s after the first LOCKED read |
+ | To 437.3, the restore | 422 | LOCKED, with both stream-to-stream switches | 0 in 428 s |
+ 
+-The 414 is the count earlier lanes left; nothing clears it. On INTERNAL the
+-DUT's packet grid runs about 5.92 ppm off the peer's stream, so the ring
+-slipping there is the register map's reading for an upstream talker on another
+-clock. The slip during ACQUIRE comes before the servo locks. The slip 2.0 to
+-3.0 s after LOCKED is not declared: the design declares one #386 recentre
++The 414 is the count earlier lanes left; nothing clears it. The binds ended
++2.01 s before the set, with the DUT on INTERNAL. `RENDER_STAT` left prefill
++at -1.90 to -1.40 s. The next two polls each saw one slipped frame, at -1.40
++to -0.90 and at -0.90 to -0.07 s: two slips within 1.94 s of the binds' end,
++at most 1.33 s apart, with no skip counted. Lane B7 measured the DUT's
++INTERNAL clock +5.92 ppm off the peer
++([B7: the DUT's INTERNAL media clock](#b7-the-duts-internal-media-clock)). A
++steady offset of that size slips one frame every 3.52 s
++(1 / (48,000 x 5.92e-6)), so it puts at most one slip in 1.94 s. The two slips
++before the set are recorded here and not analysed; this lane gives no cause
++for them. The third slip fell in ACQUIRE, before the servo locked. The slip
++2.0 to 3.0 s after LOCKED is not declared: the design declares one #386 recentre
+ after a settled source change, and the servo locks frequency only
+ ([#632](https://github.com/kebag-logic/milan-fpga/issues/632)). Lane B7 saw the
+ same shape: one slip 14.7 to 44.9 s after LOCKED, and 6 dups before its window.
+@@ -1602,14 +1615,24 @@ B-CRF on the shorter window:
+ |---|---|---|---|---|---|---|---|---|---|---|
+ | 18:40:41 to 18:47:41 | LOCKED | -6.06 to -5.94 | 2.66 to 3.17 | +10.98 to +11.04 | 1 at all 3 marks | 10 / 9, 10 / 9 | 0 | 0 (0 net steps in 19,261,920 frames; 1 frame = 0.052) | -4.67 (+-24.96) | PASS |
+ 
+-Of the window's 420 s, 401.3 s of audio was captured: three read stalls on the
+-bench host, of 4.1, 4.4 and 9.8 s at 271 to 286 s into the window, lost
+-19.0 s. Each of the window's nine capture-path clusters passed on a read-time
+-rise matching its loss within 1 ms + 2 %. The three stall clusters are off the
+-48 n + 12 signature, as a multi-second overrun can be, and a listener event
+-inside them could not be seen. The timed ratio is wide for the same reason.
+-391 of the 401 blocks sit at the floor: THD+N -146.06 and -145.99 dB, SNR
+-146.07 and 145.99 dB, fitted offset under 2e-7 ppm.
++The window spans 798 polls. One, poll 618, missed a word, and `b8_events.py`
++leaves it out, so the table counts 797.
++
++The window's events span 420.03 s of host time. Of it, 401.29 s of audio was
++captured, 19,261,920 frames, and the capture path lost 899,009 frames, 18.73 s
++(`capture_lost_frames` in the window's grade, over 48,000 frames a second).
++The two sum to 420.02 s. Three read stalls on the bench host, read gaps of
++4.12, 4.37 and 9.77 s, made three of the window's nine capture-path clusters,
++which lost 18.69 s between them. The clusters begin at 270.9, 284.1 and
++285.5 s of captured audio into the window, or about 271, 289 and 295 s
++counting the frames lost before each. Each of the nine passed on a read-time
++rise matching its loss within 1 ms + 2 %. Two of the three stall clusters are
++off the 48 n + 12 signature, as a multi-second overrun can be. The third is
++on it, its one skip 2,172 frames, and it also holds a 23,776-frame
++capture-path repeat. A listener event inside the stalls could not be seen,
++and the timed ratio is wide for the same reason. 391 of the 401 blocks sit at
++the floor: THD+N -146.06 and -145.99 dB, SNR 146.07 and 145.99 dB, fitted
++offset under 2e-7 ppm.
+ 
+ After the window the peer's CRF talker was unbound from the DUT's
+ STREAM_INPUT 1, held off for 11.04 s, and rebound under the binding rule. The
+@@ -1653,12 +1676,12 @@ re-locks on it.
+ |---|---|
+ | 18:48:37, as found | CLOCK_SOURCE 0; every stream unbound; NVM image seq 30, 30 commits since boot |
+ | 18:48:37, set | The peer's AAF talker bound to STREAM_INPUT 0 under the binding rule; SET_CLOCK_SOURCE 2 SUCCESS, read back 2; servo LOCKED 6.67 to 7.17 s after the set |
+-| 18:48:45, saved | NVM 31 commits, image seq 31 in slot A, nothing dirty or in flight |
++| 18:48:45, saved | NVM 31 commits, image seq 31 in slot A, `dirty=0` and `commit_busy=0`, but `pend=1`: `nvm_pend`, accepted work that no verified slot holds ([SAVED_STATE_FASTCONNECT 9.1](../design/SAVED_STATE_FASTCONNECT.md#91-the-bits)). It read 1 at every NVM read before the cycle, so the status alone does not show the selection held in a slot; the read of 2 after the cold boot does |
+ | 18:49:51, the power cycle | The DUT's outlet switched off, 8 s, and on, by the power strip's documented command under the bench lock; the command returned at 18:49:59.7 |
+ | 18:50:00 to 18:50:08, boot | First console byte 0.3 s after the strip's command returned; BIOS CRC passed; the firmware copied the AEM image (CRC `5ba355eb`) and took NVM slot A seq 31, `VD_OK`, nothing rolled back; its prompt 8.4 s after the first byte |
+ | 18:51:19, boot verdict | UART grader 10 of 10 at its first run: the boot PASSES |
+ | 18:51:28, after the boot | GET_CLOCK_SOURCE 2, the first command sent. STREAM_INPUT 0's format `0205022001006000` and its binding to the peer's talker, connection count 1, restored by the DUT itself. Since the boot: CLOCK_DOMAIN LOCKED 1, UNLOCKED 0; STREAM_INPUT 0 MEDIA_LOCKED 1, MEDIA_UNLOCKED 0 |
+-| 18:51:28, re-lock | Servo LOCKED at the first poll, with no command sent |
++| 18:51:28, re-lock | Servo LOCKED at the first poll, with no state-changing command sent (only the reads above) |
+ | 18:51:34, restore | SET_CLOCK_SOURCE 0, read back 0; the unbind; the format restored and read back |
+ | 18:51:52, identity | The gate PASSES, verdict byte-equal |
+ | 18:52:41, end | NVM image seq 33, slots 33 and 32, `VD_OK`; 2 commits since the boot |
+@@ -1674,7 +1697,8 @@ STREAM_START across the cycle. That is recorded, not analysed; it is outside
+ 
+ NVM commits: 30 before the set, 31 after it with image seq 31, which the boot
+ restored; the commit counter restarts at boot, and after the restore it read
+-1, then 2 at the end, image seq 33.
++1, then 2 at the end, image seq 33. `pend` read 0 at the first read after the
++boot, 1 after the restore's first commit and 0 at the end.
+ 
+ ### B8: bench as left
+ 
+@@ -1696,8 +1720,12 @@ Residuals that no permitted command restores:
+ 
+ - **The power cycle.** The DUT's counters and words that clear only on reset
+   restarted at the boot. At the end `SLIP_LB` read 6 dups and `RENDER_STAT`
+-  0 rails. The 6 dups fell between the boot and the restore, while the DUT's
+-  restored binding was live, and were not timed.
++  0 rails. The 6 dups, three slipped frames, were already there at the first
++  poll after the boot, 18:51:28, and did not change to the end. They fell
++  after the DUT restored its binding to the peer's AAF talker, since a ring
++  that is not fed counts nothing, and before that poll, when the servo read
++  LOCKED on CLOCK_SOURCE 2. They were not timed, and are offered to
++  [#645](https://github.com/kebag-logic/milan-fpga/issues/645) as untimed data.
+ - **DUT NVM persistence** advanced through the method's format, map and
+   clock-source edits, 12 commits before the cycle, and the restore's 2 after.
+ 
+@@ -1727,8 +1755,11 @@ from INTERNAL to AAF keeps #645's undeclared ring slip. #629 stays open.
+   between polls. The recentre count is not readable on silicon.
+ - The windows are shorter than lane B7's: holds of 120 to 150 s and a 420 s
+   CRF window, because each bench command had to end within 10 minutes.
+-- The CRF window's three host stalls hid 19.0 s of its audio. The lock-loss
+-  segment had no read stall over 17 ms.
++- The CRF window's three host stalls hid 18.7 s of its audio: the capture path
++  lost 899,009 frames, and the three stall clusters 18.69 s of them. The
++  lock-loss segment had no read stall over 17 ms.
++- `mr` toggles are counted at both ends (GET_COUNTERS), not captured on the
++  wire.
+ - The boot-to-LOCKED time after the power cycle was not measured.
+ - The tool controls ran after the cases.
+ - One run per item, on one DUT, against one reference peer.
+@@ -1736,11 +1767,12 @@ from INTERNAL to AAF keeps #645's undeclared ring slip. #629 stays open.
+ 
+ ### B8: artifact hashes
+ 
+-The raw files stay outside the lane packet, on the bench host. Each run's
+-`events.jsonl` records the size and SHA-256 of its run's raw files, and the
+-packet's `RAW-ARTIFACTS.json` records every raw file by run directory. Both
+-withhold the size of each run's 10 s all-channel snippet, because it would
+-state the capture's layout.
++The raw files stay outside the lane packet, on the bench host. The SW and
++CRFLL runs' `events.jsonl` record the size and SHA-256 of their capture files;
++the packet's `RAW-ARTIFACTS.json` records every raw file by run directory, and
++is the only record of the tone proof's recording hash, the full grades and the
++boot record. Both withhold the size of each run's 10 s all-channel snippet,
++because it would state the capture's channel count.
+ 
+ | Run | Raw file | Bytes | SHA-256 |
+ |---|---|---|---|
+@@ -1759,15 +1791,45 @@ state the capture's layout.
+ | PC | `boot-console.jsonl` (the boot, recorded without typing) | 16,508 | `6b9f5408b06af16039e855cad6b5df2553555bc722887d10721b75532609ef9e` |
+ 
+ The lane packet, `629-b8-a521`, holds the evidence and the tools. Its manifest
+-covers every retained file except itself. Repeated redaction passes masked
+-private identifiers in 78 packet files, and `redaction.json` records each
+-masked file's original and retained SHA-256. Every row below is the retained
+-file. Three tools are masked: `b8_tone.py` and `tone_play_b8.sh` where they
+-describe the tone source, and `run_b8.py` at one line that would state the
+-capture's sample layout. Each is a record of the tool as run, not a runnable
+-copy, and `redaction.json` holds its as-run SHA-256. The second session's pass
+-masked `tone_play_b8.sh` further, so its retained SHA-256 is no longer the
+-`9574c591...` that the first session's version of this section gave.
++covers every retained file except itself. Redaction passes masked private
++identifiers in 79 packet files, and `redaction.json` records each masked
++file's original and retained SHA-256. Every row below is the retained file.
++Four tools are masked: `b8_tone.py` and `tone_play_b8.sh` where they describe
++the tone source; `run_b8.py` at one line, an assertion on the capture's
++sample-format name; and `grade_b8.py` at one docstring line that stated the
++capture's channel count. Each is a record of the tool as run, not a runnable
++copy, and `redaction.json` holds its as-run SHA-256. The external capture's
++sample-format name and channel count are masked, and this page states
++neither. The code that decodes the capture's samples, their byte width and
++byte order, is not masked: it is generic and needed to reproduce the grading,
++as in lanes B6 and B7
++([the manager's ruling](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5971696657)).
++The second session's pass masked `tone_play_b8.sh` further, so its retained
++SHA-256 is no longer the `9574c591...` that the first session's version of
++this section gave.
++
++**Where the packet is.** It is published on branch `629-b8-review-evidence`,
++pinned at commit `36ee6d8adca255ad5228c4258a3186a5f0cbc574`. The packet label
++`629-b8-a521` maps to `review-evidence/629-b8-r1/author/` there:
++`summary/sw/switches.json` is
++`review-evidence/629-b8-r1/author/summary/sw/switches.json`.
++`review-evidence/629-b8-r1/MANIFEST.json` gives each file's `original_sha256`,
++the lane packet's file, beside the published file's `published_sha256`. The
++packet was first published at `5bad6a43`, where `grade_b8.py` still stated the
++channel count. `36ee6d8a` masked that one line, on top of the branch with no
++force-push, and changed no other packet file; `5bad6a43` stays in the branch's
++history as published. The publication also masked host identifiers, USB
++positions and interface and account names, in eight restore records,
++`restore/controller-*.txt` and `restore/host-*.txt`. `MANIFEST.json` alone
++records their two hashes, and no row below cites them.
++
++Every row below equals its file's `published_sha256` at `36ee6d8a`. For
++`grade_b8.py`, `MANIFEST.json` records the tool as run as its
++`original_sha256`. The published `redaction.json` predates that mask; the lane
++packet's `redaction.json` records both of its hashes from round 2 on. For the
++other three masked tools the lane packet already held them masked, and
++`redaction.json` alone holds the as-run hash. Every raw row above is recorded
++in `RAW-ARTIFACTS.json` at `36ee6d8a`.
+ 
+ | Evidence file | Bytes | SHA-256 |
+ |---|---|---|
+@@ -1791,7 +1853,7 @@ masked `tone_play_b8.sh` further, so its retained SHA-256 is no longer the
+ | `runs/proof/soc-record.log` (the recording's board transcript) | 624 | `bb554bd49a0e73f6e763662652622f13500fc15f2af5b979f0dc98fd3664637f` |
+ | `restore/census-compare.txt` (the first session) | 64 | `1bfd339c3dd7dbdaad13ed256feaef4ae27b3bf4d9731d53440ea0868a0889d0` |
+ | `tools/run_b8.py` (masked; as run `efd07d51...`) | 33,824 | `05a37d7c73907e5c63ba4d1ee18eb268adaa462c171ba9e364f80c1489a9b4f3` |
+-| `tools/grade_b8.py` | 27,943 | `330c14cdc93b7cd13bcee0d7d2d101f42eaa608885e01cdd0fe75211646c405d` |
++| `tools/grade_b8.py` (masked; as run `330c14cd...`) | 27,959 | `77949fd1f73000a7cb123a54034dcf92f728e6d53475faba014d74265dcf81cd` |
+ | `tools/b8_events.py` | 16,325 | `2b848d3e007ddce3eb6ddf0077816e3c306f7bdadb08b71a8b33852b89faafc3` |
+ | `tools/console_poll_b8.py` | 4,345 | `1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7` |
+ | `tools/pc_b8.py` | 14,053 | `188c08ed957ef777210d47660f5ddcc37c99c7a521b2bf84d2266dd6c91cb020` |

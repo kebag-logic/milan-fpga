@@ -1,0 +1,52 @@
+RAW OK  Tone proof mcasp-all.raw size_in_RAW=True sha_in_RAW=True
+RAW OK  SW cap-lr.raw size_in_RAW=True sha_in_RAW=True
+RAW OK  SW cap-ts.bin size_in_RAW=True sha_in_RAW=True
+RAW OK  SW samples.txt size_in_RAW=True sha_in_RAW=True
+RAW OK  SW poll-run.jsonl size_in_RAW=True sha_in_RAW=True
+RAW OK  SW grade-full.json size_in_RAW=True sha_in_RAW=True
+RAW OK  CRFLL cap-lr.raw size_in_RAW=True sha_in_RAW=True
+RAW OK  CRFLL cap-ts.bin size_in_RAW=True sha_in_RAW=True
+RAW OK  CRFLL samples.txt size_in_RAW=True sha_in_RAW=True
+RAW OK  CRFLL poll-run.jsonl size_in_RAW=True sha_in_RAW=True
+RAW OK  CRFLL grade-full.json size_in_RAW=True sha_in_RAW=True
+RAW OK  CRFLL grade-lockloss-full.json size_in_RAW=True sha_in_RAW=True
+RAW OK  PC boot-console.jsonl size_in_RAW=True sha_in_RAW=True
+EV  OK  summary/sw/switches.json bytes=23494/23494 sha=True manifest_published=True
+EV  OK  summary/sw/grade.json bytes=33363/33363 sha=True manifest_published=True
+EV  OK  summary/crfll/lockloss.json bytes=17372/17372 sha=True manifest_published=True
+EV  OK  summary/crfll/grade.json bytes=27112/27112 sha=True manifest_published=True
+EV  OK  summary/crfll/grade-lockloss.json bytes=21764/21764 sha=True manifest_published=True
+EV  OK  summary/pc/pc.json bytes=6863/6863 sha=True manifest_published=True
+EV  OK  runs/sw/events.jsonl bytes=43104/43104 sha=True manifest_published=True
+EV  OK  runs/crfll/events.jsonl bytes=29972/29972 sha=True manifest_published=True
+EV  OK  runs/pc/events.jsonl bytes=13950/13950 sha=True manifest_published=True
+EV  OK  runs/pc/boot-console.txt bytes=4834/4834 sha=True manifest_published=True
+EV  OK  runs/pc/grader-boot-0.txt bytes=683/683 sha=True manifest_published=True
+EV  OK  controls/controls.json bytes=17070/17070 sha=True manifest_published=True
+EV  OK  identity/identity-verdict.txt bytes=3037/3037 sha=True manifest_published=True
+EV  OK  restore/census-compare-r2.txt bytes=1565/1565 sha=True manifest_published=True
+EV  OK  summary/proof/proof.json bytes=1104/1104 sha=True manifest_published=True
+EV  OK  runs/proof/events.jsonl bytes=1851/1851 sha=True manifest_published=True
+EV  OK  runs/proof/ctl.jsonl bytes=15059/15059 sha=True manifest_published=True
+EV  OK  runs/proof/soc-record.log bytes=624/624 sha=True manifest_published=True
+EV  OK  restore/census-compare.txt bytes=64/64 sha=True manifest_published=True
+EV  OK  tools/run_b8.py bytes=33824/33824 sha=True manifest_published=True
+EV  OK  tools/grade_b8.py bytes=27959/27959 sha=True manifest_published=True original=330c14cd
+EV  OK  tools/b8_events.py bytes=16325/16325 sha=True manifest_published=True
+EV  OK  tools/console_poll_b8.py bytes=4345/4345 sha=True manifest_published=True
+EV  OK  tools/pc_b8.py bytes=14053/14053 sha=True manifest_published=True
+EV  OK  tools/pc_cycle_b8.sh bytes=2371/2371 sha=True manifest_published=True
+EV  OK  tools/console_listen.py bytes=1897/1897 sha=True manifest_published=True
+EV  OK  tools/b7_decode.py bytes=10093/10093 sha=True manifest_published=True
+EV  OK  tools/probe_b8.py bytes=10722/10722 sha=True manifest_published=True
+EV  OK  tools/b8_proof.py bytes=2809/2809 sha=True manifest_published=True
+EV  OK  tools/b8_tone.py bytes=2262/2262 sha=True manifest_published=True
+EV  OK  tools/tone_play_b8.sh bytes=2263/2263 sha=True manifest_published=True
+EV  OK  tools/b6_thdn.py bytes=12423/12423 sha=True manifest_published=True
+EV  OK  tools/b6_tone.py bytes=2965/2965 sha=True manifest_published=True
+IDENTITY triple equal: True
+MANIFEST grade_b8 original prefix 330c14cd published prefix 77949fd1
+published redaction.json entries: 78 has grade_b8: False
+round-2 redaction.json grade_b8: {'labels': ['<capture-channels>'], 'note': 'round 2:', 'original_sha256': '330c14cd', 'retained_sha256': '77949fd1'}
+round-2 redaction.json entries: 79
+evidence rows: 33 bad: 0
