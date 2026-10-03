@@ -40,6 +40,7 @@ exact as a float, and real() refuses a decimal whose float is not finite.
     pp_resource_gate.py record <directory> --endpoint route-1x1 [--write]
     pp_resource_gate.py check-baseline
     pp_resource_gate.py --selftest
+    pp_resource_gate.py --fuzz 20000 [check <directory> --endpoint route-1x1] [--seed 234]
 """
 
 import argparse
@@ -47,8 +48,11 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import random
 import re
+import shutil
 import sys
+import tempfile
 
 from pp_baseline_rank import hierarchy, shown, whole
 
@@ -550,6 +554,95 @@ def check_baseline(baseline: dict, budget: Path) -> list[str]:
     return problems
 
 
+def run_case(work: Path, target: tuple[Path, str], files: dict, baseline: bytes, audit: bool) -> list[tuple]:
+    """Lay one generated case out, every file but the changed ones linked to the measurement; run it through main()."""
+    from pp_resource_gate_selftest import cli
+    (directory, endpoint), folder = target, work / "case"
+    shutil.rmtree(folder, ignore_errors=True)
+    folder.mkdir()
+    for entry in sorted(directory.iterdir()):
+        if entry.name not in files:
+            (folder / entry.name).symlink_to(entry)
+    for name, data in files.items():
+        if data is not None:
+            (folder / name).write_bytes(data)
+    (work / "baseline.json").write_bytes(baseline)
+    runs = [("check", *cli("check", folder, "--endpoint", endpoint, "--baseline", work / "baseline.json"))]
+    if audit:
+        runs.append(("check-baseline", *cli("check-baseline", "--baseline", work / "baseline.json",
+                                            "--budget", work / "budget.md")))
+    return runs
+
+
+def violations(runs: list[tuple], broken: bool) -> list[str]:
+    """Every way a case breaks the contract: 0, 1 or 2 with no traceback, a reason with 2, 2 for a broken shape."""
+    problems = []
+    for command, status, lines in runs:
+        if status not in (0, 1, 2) or (broken and status != 2) or (status == 2 and not lines):
+            problems.append(f"{command} exit {status} {ascii(lines[-3:])}")
+        elif command == "check" and status == 2 and not any(line.startswith("NOT COMPARABLE") for line in lines):
+            problems.append(f"check exit 2 without NOT COMPARABLE: {ascii(lines[-3:])}")
+    return problems
+
+
+def fuzz(cases: int, seed: int, directory: Path | None = None, endpoint: str | None = None,
+         baseline: Path | None = None, budget: Path | None = None) -> int:
+    """Run seeded generated cases through main(); return 0 only when every one keeps the exit-code contract.
+
+    The cases are the self-test's: random changes to a baseline and to the reports of its fixtures, or of one
+    measurement directory against --baseline and --budget, each knowing whether it breaks a documented shape.
+    Every case exits 0, 1 or 2 with no traceback, gives its reason with 2, and exits 2 when it breaks a shape.
+    Each target's recorded input digest is zeroed first, so a changed figure reaches judge(), not the
+    identical-inputs refusal.
+    """
+    import pp_resource_gate_selftest as generated
+    with tempfile.TemporaryDirectory(prefix="pp-resource-gate-fuzz-") as tmp:
+        work = Path(tmp)
+        if directory is None:
+            (targets, base, page), where = generated.fixtures(work), "the self-test fixtures"
+        else:
+            targets, base, page = [(directory.resolve(), endpoint)], json.loads(baseline.read_text()), \
+                budget.read_text()
+            where = f"{directory} as {endpoint}"
+        (work / "budget.md").write_text(page)
+        reports = []
+        for folder, name in targets:
+            base["endpoints"][name]["record"]["inputs_sha256"] = "0" * 64
+            names = [*generated.REPORTS, *(path.name for path in folder.glob("*_route_status.rpt")), "clock.xdc"]
+            reports.append({report: (folder / report).read_text() for report in names if (folder / report).is_file()})
+        pristine, rng, tally, failures = generated.dump(base, {}).encode(), random.Random(seed), {}, []
+        digest = hashlib.sha256()
+        for number in range(-len(targets), cases):
+            target = rng.randrange(len(targets)) if number >= 0 else number + len(targets)
+            folder, name = targets[target]
+            files, data, audit, broken, label = {}, pristine, True, False, "control"
+            if number >= 0 and rng.random() < 0.4:
+                operator, data, broken = generated.mutate_json(rng, base)
+                label = f"baseline: {operator}"
+            elif number >= 0:
+                report = rng.choice(sorted(reports[target]))
+                kind = "clock" if report == "clock.xdc" else kind_of(folder)
+                operator, files, broken = generated.mutate_report(rng, report, reports[target][report], kind)
+                label, audit = f"{report}: {operator}", False
+            runs = run_case(work, targets[target], files, data, audit)
+            statuses = tuple(status for _, status, _ in runs)
+            problems = violations(runs, broken)
+            if label == "control" and statuses != (0, 0):
+                problems.append(f"the unchanged control exits {statuses}")
+            tally.setdefault(label, []).append(statuses[0])
+            digest.update(f"{number} {name} {label} {broken} {statuses}\n".encode())
+            if problems:
+                failures.append(f"case {number} ({name}, {label}, broken {broken}): {'; '.join(problems)}")
+        for label, statuses in sorted(tally.items()):
+            print(f"resource gate fuzz: {label}: {len(statuses)} cases, check exits 0/1/2 = "
+                  + "/".join(str(statuses.count(status)) for status in (0, 1, 2)))
+        for failure in failures[:20]:
+            print(f"resource gate fuzz FAILURE: {failure}")
+        print(f"resource gate fuzz: {cases} cases at seed {seed} on {where}: {len(failures)} failures; "
+              f"case digest {digest.hexdigest()[:16]}")
+        return 1 if failures else 0
+
+
 def emit(lines: list[str]) -> None:
     """Print lines as printable ASCII, every other character but the line break escaped as ascii() writes it.
 
@@ -569,10 +662,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--budget", type=Path, default=BUDGET, help="check-baseline: the page with the policy table")
     parser.add_argument("--write", action="store_true", help="record: replace the endpoint's recorded figures")
     parser.add_argument("--selftest", action="store_true")
+    parser.add_argument("--fuzz", type=int, metavar="N", help="run N generated cases: on the self-test's fixtures, "
+                        "or, after check, on the directory and --endpoint against --baseline and --budget")
+    parser.add_argument("--seed", type=int, default=234, help="--fuzz: the seed every case derives from")
     args = parser.parse_args(argv)
     if args.selftest:
         from pp_resource_gate_selftest import selftest
         return selftest()
+    if args.fuzz is not None:
+        if args.directory is not None and args.endpoint is None:
+            parser.error("--fuzz on a measurement directory needs its --endpoint")
+        return fuzz(args.fuzz, args.seed, args.directory, args.endpoint, args.baseline, args.budget)
     printing = args.command == "record" and not args.write
     try:
         baseline = {"endpoints": {}} if printing else load(args.baseline)

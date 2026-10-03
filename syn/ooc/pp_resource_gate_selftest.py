@@ -11,6 +11,9 @@ drive the exit-code contract through main() into a stream that takes ASCII
 only: every unreadable measurement and unusable baseline exits 2 with its
 reason, only a regression exits 1, and an exception planted inside the gate
 exits 2. Each malformed baseline goes through both check and check-baseline.
+mutate_json() and mutate_report() generate the cases the gate's fuzz() runs:
+random changes to a baseline and to a measurement's reports, each knowing
+whether it breaks a shape the gate documents.
 """
 
 from collections.abc import Callable
@@ -18,7 +21,10 @@ import contextlib
 import copy
 import io
 import json
+import locale
 from pathlib import Path
+import random
+import re
 import shutil
 import tempfile
 
@@ -689,8 +695,271 @@ def command_line_arms(tmp: Path, entries: dict) -> int:
     return len(CHECK_ARMS) + len(AUDIT_ARMS) + 2 * len(MALFORMED) + 2 + barrier_arms(tmp, entries)
 
 
+#: Odd characters a generated case plants: other scripts' digits, lone surrogates, controls, marks, wide ones.
+ODD = ("\uff10", "\u0661", "\u00b2", "\U0001d7ce", "\ud800", "\udfff", "\x00", "\x1b", "\u200b", "\u0301",
+       "\u202e", "\ufeff", "\u00e9", "\U0001f600", "\t")
+#: Digits that int(), float() or str.isdigit() would take and that are not ASCII.
+OTHER_DIGITS = ("\uff10", "\uff15", "\u0661", "\u0966", "\u00b2", "\U0001d7ce")
+#: Keys outside every name class the baseline documents.
+BAD_NAMES = ("", "a b", "x" * 129, "\u00e9", "\ud800", "LUT\n", 'a"b', "\uff2c\uff35\uff34", "a|b", "{x}")
+#: JSON number texts the converters refuse: past 15 digits, too large to be finite, or not JSON numbers at all.
+OVERFLOWS = (LONG, "-" + "9" * 16, "9" * 16, "1e400", "-1e400", LONG + ".5", "NaN", "Infinity", "9" * 4401)
+#: Values of every JSON type, for a case that puts one where its path does not take it.
+SAMPLES = ("x", "", "\ud800", "\uff11", 7, -1, 1.5, 0, True, False, None, [], [1], ["x"], {}, {"a": 1})
+#: Report tokens that are not what a gated cell of each kind holds, none holding a space, bar or colon.
+GARBLES = {"count": ("n/a", "-", "1,000", "1e3", "0x10", "+5", "1.25", "1.5", "-1", "\uff11"),
+           "used": ("n/a", "-", "1,000", "1e3", "0x10", "+5", "1.25", "4.0", "-1", "\uff11"),
+           "slack": ("n/a", "-", "1,000", "1e3", "0x10", "+5", "-1", "\uff11", "1.", ".5", "inf", "nan", "1")}
+#: The changes to each report's own layout that break it.
+STRUCTURAL = {"baseline_utilization.rpt": ("header twice", "header removed"), "baseline_timing.rpt": ("summary twice",),
+              "baseline_cells.tsv": ("census header",), "route status": ("row twice", "row removed", "second report")}
+#: Byte sequences no UTF-8 text holds.
+UNDECODABLE = (b"\xff", b"\xc3(", b"\xed\xa0\x80", b"\x80", b"\xf8\x88\x80\x80\x80")
+#: The files of every measurement directory the gate reads and a generated case changes.
+REPORTS = ("baseline_utilization.rpt", "baseline_timing.rpt", "baseline_hierarchy.rpt", "baseline_cells.tsv",
+           "baseline_images.json")
+
+
+def rule(path: tuple) -> str | None:
+    """The shape the baseline documents at one path, or None where it documents none (notes, open tables)."""
+    match path:
+        case (("endpoints",) | ("endpoints", _) | ("endpoints", _, "record" | "tolerance" | "floor" | "ceiling")
+              | ("endpoints", _, "record", "identity" | "figures" | "scopes")
+              | ("endpoints", _, "record", "scopes", _)):
+            return "dict"
+        case ("endpoints", _, "record", "identity", "flow" | "standalone_clock_ns"):
+            return "texts"
+        case ("endpoints", _, "record", "identity", _) | ("endpoints", _, "record", "identity", _, int()):
+            return "text"
+        case ("endpoints", _, "record", "figures", _) | ("endpoints", _, "tolerance" | "floor" | "ceiling", _):
+            return "number"
+        case ("endpoints", _, "record", "scopes", _, _):
+            return "count"
+        case ("endpoints", _, "record", "kind" | "inputs_sha256"):
+            return path[-1]
+    return None
+
+
+def breaks(shape: str, value: object) -> bool:
+    """Whether a value breaks the shape the baseline documents for its path; any other kind breaks it."""
+    number = isinstance(value, (int, float)) and not isinstance(value, bool)
+    return {"dict": not isinstance(value, dict), "text": not isinstance(value, str),
+            "texts": not (isinstance(value, list) and all(isinstance(item, str) for item in value)),
+            "number": not number, "count": not (type(value) is int and value >= 0), "kind": True,
+            "inputs_sha256": not (isinstance(value, str) and re.fullmatch("[0-9a-f]{64}", value))}[shape]
+
+
+def closed(path: tuple, table: dict) -> tuple | None:
+    """The keys a closed object of the baseline must hold, or None when the object is open or undocumented."""
+    match path:
+        case ():
+            return ("endpoints",)
+        case ("endpoints", _):
+            return ("record",)
+        case ("endpoints", _, "record"):
+            return gate.RECORD
+        case ("endpoints", _, "record", "identity" | "figures"):
+            return tuple(gate.IDENTITY) if path[-1] == "identity" else tuple(table)
+        case ("endpoints", _, "record", "scopes", _):
+            return gate.SCOPE
+    return None
+
+
+def nodes(value: object, path: tuple = ()) -> list[tuple[tuple, object]]:
+    """Every (path, value) of a JSON tree, the root first."""
+    items = value.items() if isinstance(value, dict) else enumerate(value) if isinstance(value, list) else ()
+    return [(path, value)] + [found for key, item in items for found in nodes(item, path + (key,))]
+
+
+def dump(value: object, raw: dict, twice: tuple | None = None, path: tuple = ()) -> str:
+    """Write JSON, with raw text at the paths raw names and the pair at path twice written two times."""
+    if path in raw:
+        return raw[path]
+    if isinstance(value, dict):
+        pairs = [f"{json.dumps(key)}: {dump(item, raw, twice, path + (key,))}" for key, item in value.items()]
+        pairs += [pair for pair, key in zip(pairs, value) if path + (key,) == twice]
+        return "{" + ", ".join(pairs) + "}"
+    if isinstance(value, list):
+        return "[" + ", ".join(dump(item, raw, twice, path + (index,)) for index, item in enumerate(value)) + "]"
+    return json.dumps(value)
+
+
+def spliced(rng: random.Random, data: bytes) -> tuple[bytes, bool]:
+    """Insert bytes no UTF-8 text holds; return them and whether read_text(), in the locale's encoding, refuses."""
+    index = rng.randint(0, len(data))
+    data = data[:index] + rng.choice(UNDECODABLE) + data[index:]
+    try:
+        data.decode(locale.getpreferredencoding(False))
+    except UnicodeDecodeError:
+        return data, True
+    return data, False
+
+
+def mutate_json(rng: random.Random, base: dict) -> tuple[str, bytes, bool]:
+    """One random change to the baseline: (operator, the file's bytes, whether a documented shape breaks)."""
+    tree = copy.deepcopy(base)
+    every = nodes(tree)
+    keys = [path + (key,) for path, value in every if isinstance(value, dict) for key in value]
+    leaves = [path for path, value in every if path and not isinstance(value, (dict, list))]
+    numbers = [path for path, value in every if path and type(value) in (int, float)]
+    texts = [path for path, value in every if path and isinstance(value, str)]
+    operator = rng.choice(("type", "value", "remove", "add", "bad name", "bracket name", "duplicate", "overflow",
+                           "digit", "truncate", "unicode", "size", "bytes"))
+    raw, twice, broken = {}, None, True
+    if operator in ("type", "value", "unicode"):
+        path = rng.choice([path for path, _ in every if path and rule(path)] if operator == "type" else
+                          numbers if operator == "value" else texts)
+        value = at(tree, path)
+        if operator == "type":
+            value = rng.choice([sample for sample in SAMPLES if breaks(rule(path), sample)])
+        elif operator == "value":
+            count, broken = rule(path) in ("count", None), False
+            value = rng.randint(0, 10 ** 15 - 1) if count else rng.uniform(-9999, 9999)
+        else:
+            index = rng.randint(0, len(value))
+            value, broken = value[:index] + rng.choice(ODD) + value[index:], rule(path) in ("kind", "inputs_sha256")
+        at(tree, path[:-1])[path[-1]] = value
+    elif operator in ("remove", "bad name", "bracket name"):
+        path = rng.choice(keys)
+        held = at(tree, path[:-1])
+        need = closed(path[:-1], held) or ()
+        name = None if operator == "remove" else rng.choice(BAD_NAMES) if operator == "bad name" else path[-1] + "[1]"
+        pairs = [(name if key == path[-1] else key, value) for key, value in held.items()]
+        held.clear()
+        held.update((key, value) for key, value in pairs if key is not None)
+        scope = len(path) == 5 and path[2:4] == ("record", "scopes")
+        broken = path[-1] in need if operator == "remove" else operator == "bad name" or not scope
+    elif operator == "add":
+        path = rng.choice([path for path, value in every if isinstance(value, dict)])
+        at(tree, path)["fuzz_extra"] = 1
+        broken = closed(path, {}) is not None
+    elif operator == "duplicate":
+        twice = rng.choice(keys)
+    elif operator == "overflow":
+        raw = {rng.choice(leaves): rng.choice(OVERFLOWS)}
+    elif operator == "digit":
+        path = rng.choice(numbers)
+        number = json.dumps(at(tree, path))
+        index = rng.choice([index for index, char in enumerate(number) if char in "0123456789"])
+        raw = {path: number[:index] + rng.choice(OTHER_DIGITS) + number[index + 1:]}
+    elif operator == "truncate":
+        text = dump(tree, {})
+        return operator, text[:rng.randrange(len(text))].encode(), True
+    elif operator == "size":
+        operator = rng.choice(("size: deep nesting", "size: many scopes", "size: long text"))
+        if operator == "size: deep nesting":
+            raw = {rng.choice(leaves): "[" * 100000 + "]" * 100000}
+        elif operator == "size: long text":
+            path, broken = rng.choice(texts), False
+            at(tree, path[:-1])[path[-1]] = "x" * 200000
+        else:
+            record, broken = rng.choice(list(tree["endpoints"].values()))["record"], False
+            record["scopes"].update({f"fuzz/s{index}": dict(COUNTS) for index in range(2000)})
+    elif operator == "bytes":
+        return (operator, *spliced(rng, dump(tree, {}).encode()))
+    return operator, dump(tree, raw, twice).encode(), broken
+
+
+def tokens(name: str, text: str, kind: str) -> list[tuple[int, int, str]]:
+    """Every number the gate reads in one report, located as (start, end, kind of token)."""
+    found, offset = [], 0
+    for line in text.splitlines(keepends=True):
+        parts = line.split("|")
+        cells = range(0)
+        if name == "baseline_utilization.rpt" and len(parts) > 3 and parts[1].strip().rstrip("*").strip() \
+                in gate.ROWS[kind]:
+            cells = range(2, 3)
+        elif name == "baseline_hierarchy.rpt" and len(parts) == 12 and parts[3].strip() != "Total LUTs":
+            cells = range(3, 11)
+        position = offset
+        for index, part in enumerate(parts):
+            if index in cells and part.strip():
+                start = position + len(part) - len(part.lstrip())
+                found.append((start, start + len(part.strip()), "used" if len(cells) == 1 else "count"))
+            position += len(part) + 1
+        offset += len(line)
+    if name == "baseline_timing.rpt" and "| Design Timing Summary" in text:
+        block = text.index("| Design Timing Summary")
+        lines = [match for match in re.finditer(r"[^\n]*\S[^\n]*", text[block:])]
+        heads = next((index for index, match in enumerate(lines) if "WNS(ns)" in match[0]), len(lines))
+        if heads + 2 < len(lines):
+            names = re.split(r"\s{2,}", lines[heads][0].strip())
+            for index, value in enumerate(re.finditer(r"\S+", lines[heads + 2][0])):
+                if index in (0, 4) or names[index:index + 1] in (["TNS Total Endpoints"], ["THS Total Endpoints"]):
+                    start = block + lines[heads + 2].start() + value.start()
+                    found.append((start, start + len(value[0]), "slack" if index in (0, 4) else "count"))
+    if name.endswith("_route_status.rpt"):
+        found = [(match.start(2), match.end(2), "count") for match in gate.STATUS_ROW.finditer(text)]
+    return found
+
+
+def mutate_report(rng: random.Random, name: str, text: str, kind: str) -> tuple[str, dict, bool]:
+    """One random change to a report: (operator, {file: bytes, or None to delete it}, whether a shape breaks)."""
+    lines, found = text.splitlines(keepends=True), tokens(name, text, kind)
+    shaped = STRUCTURAL.get("route status" if name.endswith("_route_status.rpt") else name, ())
+    operators = ("missing", "empty", "bytes", "truncate", "lines", "unicode") + ("token",) * 3 * bool(found) + shaped
+    operator, broken, extra = rng.choice(operators), kind != "clock", {}
+    if operator == "token":
+        start, end, token = rng.choice(found)
+        value = text[start:end]
+        operator = rng.choice(("digit", "huge", "garble", "number"))
+        if operator == "digit":
+            index = rng.choice([index for index, char in enumerate(value) if char in "0123456789"])
+            value = value[:index] + rng.choice(OTHER_DIGITS) + value[index + 1:]
+        elif operator == "huge":
+            value = rng.choice((LONG + ".5", "-" + LONG + ".25") if token == "slack" else
+                               ("9" * rng.randint(16, 40), "9" * 4401) + ((LONG + ".5",) if token == "used" else ()))
+        elif operator == "garble":
+            value = rng.choice(GARBLES[token])
+        else:
+            value = f"{rng.uniform(-2, 2):.3f}" if token == "slack" else str(rng.randint(0, 10 ** 6))
+        text, broken = text[:start] + value + text[end:], operator != "number"
+    elif operator == "missing":
+        return operator, {name: None}, broken
+    elif operator == "empty":
+        text = ""
+    elif operator == "bytes":
+        data, broken = spliced(rng, text.encode())
+        return operator, {name: data}, broken
+    elif operator in ("truncate", "lines", "unicode"):
+        index, other, broken = rng.randrange(len(lines)), rng.randrange(len(lines)), False
+        if operator == "truncate":
+            lines = [text[:rng.randrange(len(text) + 1)]]
+        elif operator == "unicode":
+            lines[index] = lines[index][:other % 40] + rng.choice(ODD) + lines[index][other % 40:]
+        else:
+            operator = rng.choice(("delete line", "duplicate line", "swap lines", "junk lines"))
+            junk = ["".join(rng.choice(ODD + ("a", "|", ":", "#", " ", "9")) for _ in range(40)) + "\n"] * 500
+            lines[index:index + 1] = {"delete line": [], "duplicate line": [lines[index]] * 2, "junk lines": junk,
+                                      "swap lines": [lines[other]]}[operator]
+        text = "".join(lines)
+    elif operator in ("header twice", "header removed", "row twice", "row removed"):
+        pattern = r"\| (Tool Version|Design|Device|Design State)\s*: " if operator.startswith("header") else \
+            r".*# of (routable nets|fully routed nets|nets with routing errors)\."
+        index = rng.choice([index for index, line in enumerate(lines) if re.match(pattern, line)])
+        lines[index:index + 1] = [lines[index]] * (2 if operator.endswith("twice") else 0)
+        text = "".join(lines)
+    elif operator == "summary twice":
+        index = rng.randint(0, len(lines))
+        text = "".join(lines[:index] + ["| Design Timing Summary\n"] + lines[index:])
+    elif operator == "census header":
+        text = "cell\tref\n" + "".join(lines[1:])
+    elif operator == "second report":
+        extra = {"fuzz_route_status.rpt": text.encode()}
+    return operator, {name: text.encode("utf-8", "surrogatepass"), **extra}, broken
+
+
+def fixtures(work: Path) -> tuple[list[tuple[Path, str]], dict, str]:
+    """The self-test's fuzz targets: the route and standalone fixtures, a baseline of both, and its budget page."""
+    base = {"schema": 1, "description": "fixture baseline", "endpoints": {}}
+    for kind in ("route", "ooc"):
+        (work / kind).mkdir()
+        base["endpoints"][kind] = dict(recorded(work / kind, kind), measured="fixture")
+    return [(fresh(work / kind, kind), kind) for kind in ("route", "ooc")], base, BUDGET
+
+
 def selftest() -> int:
-    """Run every arm; return 0 only when each one produced its expected verdict."""
+    """Run every arm and 500 generated cases; return 0 only when each one produced its expected verdict."""
     count, entries = 0, {}
     with tempfile.TemporaryDirectory(prefix="pp-resource-gate-") as tmp:
         for kind, arms in (("route", ROUTE_ARMS), ("ooc", OOC_ARMS)):
@@ -706,7 +975,9 @@ def selftest() -> int:
         if status != 2 or "endpoint kind" not in lines[0]:
             raise AssertionError("a standalone record was compared with an integrated baseline")
         count += 1
-    print(f"resource gate selftest: {count} arms PASS")
+    if gate.fuzz(500, 234) != 0:
+        raise AssertionError("a generated case broke the exit-code contract")
+    print(f"resource gate selftest: {count} arms and 500 generated cases PASS")
     return 0
 
 
