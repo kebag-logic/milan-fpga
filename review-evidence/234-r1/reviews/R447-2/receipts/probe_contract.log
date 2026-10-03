@@ -1,0 +1,42 @@
+control: the recorded baseline
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record kind is a list
+    check rc 1 TRACEBACK: TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+    check-baseline rc 1 TRACEBACK: TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+record kind is an object
+    check rc 1 TRACEBACK: TypeError: cannot use 'dict' as a dict key (unhashable type: 'dict')
+    check-baseline rc 1 TRACEBACK: TypeError: cannot use 'dict' as a dict key (unhashable type: 'dict')
+record LUT is a string
+    check rc 1 TRACEBACK: TypeError: unsupported operand type(s) for -: 'int' and 'str'
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record LUT is null
+    check rc 1 TRACEBACK: TypeError: unsupported operand type(s) for -: 'int' and 'NoneType'
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record LUT is NaN
+    check rc 0: RESULT: PASS
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record WNS is NaN
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record identity is a string
+    check rc 1 TRACEBACK: TypeError: string indices must be integers, not 'str'
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record identity is a list
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 0: baseline PASS: 3 endpoints
+record scopes is a list
+    check rc 1 TRACEBACK: AttributeError: 'list' object has no attribute 'get'
+    check-baseline rc 0: baseline PASS: 3 endpoints
+LUT tolerance is Infinity
+    check rc 0: RESULT: PASS
+    check-baseline rc 2: route-1x1: tolerance LUT is inf in the baseline and 500.0 in the budget table
+WNS floor is NaN
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 2: route-1x1: floor WNS_ns is nan in the baseline and 0.03 in the budget table
+BRAM ceiling is NaN
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 2: route-1x1: ceiling BRAM_TILE is nan in the baseline and 121.5 in the budget table
+record figures is a list
+    check rc 2: NOT COMPARABLE: baseline endpoint route-1x1 is unusable: route-1x1: the record lacks a kind, identity, input digest, gated figure or scope table
+    check-baseline rc 2: route-1x1: the record lacks a kind, identity, input digest, gated figure or scope table
