@@ -1,0 +1,22 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r2/review-evidence/234-r1/reviews/R447-1/extra_mutants.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r2/probe-scratch/extra_mutants
+# head 0feff20fa228d0cb91d507943e6d39495b28b880
+control: PASS rc=0 resource gate selftest: 113 arms PASS
+KILLED     ooc RAMB36 not gated: rc=1 RESULT: PASS
+KILLED     ooc DSP not gated: rc=1 RESULT: PASS
+KILLED     route DSP not gated: rc=1 RESULT: PASS
+KILLED     route RAMB36 not gated: rc=1 RESULT: PASS
+KILLED     CLI refusal exits 0: rc=1 NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-m1g5qb5u/route/arm/gateware: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resou
+KILLED     CLI check-baseline exits 0: rc=1 route: has no record
+KILLED     design state not bound: rc=1 RESULT: PASS
+KILLED     design name not bound: rc=1 RESULT: PASS
+KILLED     header uniqueness: rc=1 RESULT: PASS
+KILLED     ceiling boundary: rc=1 RESULT: MATERIAL REGRESSION
+KILLED     floor boundary: rc=1 RESULT: MATERIAL REGRESSION
+KILLED     timing fall boundary: rc=1 RESULT: MATERIAL REGRESSION
+KILLED     one timing summary: rc=1 Design Timing Summary has no WNS row
+KILLED     timing header present: rc=1 unreadable measurement /tmp/pp-resource-gate-3mdiqfnw/route/arm/gateware: IndexError: list index out of range
+KILLED     one generated top: rc=1 RESULT: PASS
+KILLED     include dir present: rc=1 unreadable measurement /tmp/pp-resource-gate-v3d551_p/route/arm/gateware: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-gate-v3d551_
+KILLED     baseline floor value: rc=1 route: floor WHS_ns is 1.0 in the baseline and 0.0 in the budget table
+KILLED     candidate kind from directory: rc=1 NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-86jhsria/ooc/arm/ooc: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-gat
+extra mutants: 18 killed, 0 survived, 0 not unique, of 18

@@ -1,0 +1,10 @@
+$ python3 -B $LANES/234-area/syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/234-a516/A/work/ax8x8-ooc --endpoint ooc-8x8
+# head 0feff20fa228d0cb91d507943e6d39495b28b880
+endpoint ooc-8x8: $VALIDATION_STORAGE/234-a516/A/work/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              31562       31562         0  ok
+FF               33929       33929         0  ok
+RAMB36              26          26         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+RESULT: PASS

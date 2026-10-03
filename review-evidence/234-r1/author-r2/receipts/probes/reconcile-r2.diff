@@ -1,0 +1,39 @@
+--- ../review-evidence/234-r1/reviews/R446-1/reconcile.py	2026-10-03 11:58:55.000000000 +0200
++++ reconcile-r2.py	2026-10-03 12:46:31.736376990 +0200
+@@ -119,12 +119,30 @@
+       f"net FF {p_ff:+d}, abs LUT {p_abs}")
+ print(f"INFO whole wrapper minus u_nvm_port: LUT {s['B']['wrapper']['LUT'] - s['A']['wrapper']['LUT'] - 83:+d}, "
+       f"FF {s['B']['wrapper']['FF'] - s['A']['wrapper']['FF'] - 33:+d}")
+-check("findings :135-136 'net 101 LUTs', 'sum to 309' reproduce on that partition",
+-      "net 101 LUTs" in FIND and "sum to 309 LUTs" in FIND and p_lut == 101 and p_abs == 309,
+-      f"recomputed {p_lut:+d} / {p_abs}")
+-check("AREA_BUDGET 'net 101 LUTs and 95 FFs': FF on the same partition",
+-      "net 101 LUTs and 95 FFs" in BUDGET and p_ff == 95,
+-      f"same partition gives FF {p_ff:+d}; +95 is only reached by adding the processor top's own +107 FF")
++# Round 2 (A516 adaptation, the only change to this script): the two checks above asserted the
++# round-1 sentences. They now assert the round-2 sentences against the one partition both pages
++# name, recomputed here from the records: every scope's own logic outside u_nvm_port.
++def kids(key, sc):
++    if key == "wrapper":
++        return [k for k in sc if k != "wrapper" and "/" not in k]
++    return [k for k in sc if k.startswith(key + "/") and k.count("/") == key.count("/") + 1]
++
++
++def own(key, sc, f):
++    return sc[key][f] - sum(sc[k][f] for k in kids(key, sc))
++
++
++terms = [k for k in s["A"] if k != "u_pp/u_nvm_port"]
++d = {f: [own(k, s["B"], f) - own(k, s["A"], f) for k in terms] for f in ("LUT", "FF")}
++n_lut, n_ff, a_lut, a_ff = sum(d["LUT"]), sum(d["FF"]), sum(map(abs, d["LUT"])), sum(map(abs, d["FF"]))
++top = (own("u_pp", s["B"], "LUT") - own("u_pp", s["A"], "LUT"), own("u_pp", s["B"], "FF") - own("u_pp", s["A"], "FF"))
++for page, text in (("findings", FIND), ("AREA_BUDGET", BUDGET)):
++    check(f"{page}: own logic outside u_nvm_port, {len(terms)} terms: net {n_lut:+d} LUT / {n_ff:+d} FF, "
++          f"abs {a_lut} / {a_ff}",
++          f"a net {n_lut:+d} LUTs and {n_ff:+d} FFs" in text and f"sum to {a_lut} LUTs and {a_ff} FFs" in text
++          and f"{len(terms)} terms" in text)
++    check(f"{page}: the processor top's own logic {top[0]:+d} LUTs and {top[1]:+d} FFs, stated as one term",
++          f"{top[0]:+d} LUTs and {top[1]:+d} FFs" in text)
+ r = {c: REC[(c, "route-1x1")]["scopes"] for c in "AB"}
+ check("route wrapper +259 LUT (B-A pp_shadow scope)", r["B"]["wrapper"]["LUT"] - r["A"]["wrapper"]["LUT"] == 259)
+ check("route pp_shadow A LUT 23,937 / FF 24,263", r["A"]["wrapper"]["LUT"] == 23937 and r["A"]["wrapper"]["FF"] == 24263)

@@ -1,0 +1,5 @@
+$ python3 -B $VALIDATION_STORAGE/234-a516/r2/review-evidence/234-r1/reviews/R447-1/probe_route_status.py $LANES/234-area $VALIDATION_STORAGE/234-a516/r2/probe-scratch/probe_route_status
+# head 0feff20fa228d0cb91d507943e6d39495b28b880
+clean route status: exit 0 | RESULT: PASS
+route status with 37 unrouted nets: exit 1 | RESULT: MATERIAL REGRESSION
+references to route status in pp_resource_gate.py: 2

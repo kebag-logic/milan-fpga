@@ -1,0 +1,116 @@
+$ python3 syn/ooc/pp_resource_gate.py --selftest
+# cwd $LANES/234-area; head 0feff20fa228d0cb91d507943e6d39495b28b880
+resource gate route arm: unchanged control: exit 0 PASS
+resource gate route arm: changed source, unchanged figures: exit 0 PASS
+resource gate route arm: LUT growth at the tolerance: exit 0 PASS
+resource gate route arm: LUT growth over the tolerance: exit 1 PASS
+resource gate route arm: FF growth over the tolerance: exit 1 PASS
+resource gate route arm: register rows disagree: exit 2 PASS
+resource gate route arm: Slice growth over the tolerance: exit 1 PASS
+resource gate route arm: one more RAMB36: exit 1 PASS
+resource gate route arm: one more RAMB18: exit 1 PASS
+resource gate route arm: one more DSP: exit 1 PASS
+resource gate route arm: BRAM tiles over the ceiling: exit 1 PASS
+resource gate route arm: BRAM tiles at the ceiling: exit 0 PASS
+resource gate route arm: WNS below the floor: exit 1 PASS
+resource gate route arm: WNS at the floor: exit 0 PASS
+resource gate route arm: WNS fell more than the tolerance: exit 1 PASS
+resource gate route arm: WNS fell by exactly the tolerance: exit 0 PASS
+resource gate route arm: WNS fell within the tolerance: exit 0 PASS
+resource gate route arm: WHS below the floor: exit 1 PASS
+resource gate route arm: WHS at the floor: exit 0 PASS
+resource gate route arm: WNS not a number: exit 2 PASS
+resource gate route arm: WNS and WHS infinite: exit 2 PASS
+resource gate route arm: no timed endpoint: exit 2 PASS
+resource gate route arm: LUT improvement within the tolerance: exit 0 PASS
+resource gate route arm: LUT improvement beyond the tolerance: exit 0 PASS
+resource gate route arm: WNS rise beyond the tolerance: exit 0 PASS
+resource gate route arm: route status complete: exit 0 PASS
+resource gate route arm: nets with routing errors: exit 1 PASS
+resource gate route arm: unrouted nets: exit 1 PASS
+resource gate route arm: routable nets not fully routed: exit 1 PASS
+resource gate route arm: route status report missing: exit 2 PASS
+resource gate route arm: second route status report: exit 2 PASS
+resource gate route arm: route status without its error row: exit 2 PASS
+resource gate route arm: route status count unreadable: exit 2 PASS
+resource gate route arm: route status without its routable row: exit 2 PASS
+resource gate route arm: tool build changed: exit 2 PASS
+resource gate route arm: device changed: exit 2 PASS
+resource gate route arm: design changed: exit 2 PASS
+resource gate route arm: design state changed: exit 2 PASS
+resource gate route arm: project creation changed: exit 2 PASS
+resource gate route arm: thread count changed: exit 2 PASS
+resource gate route arm: synthesis directive changed: exit 2 PASS
+resource gate route arm: optimization directive changed: exit 2 PASS
+resource gate route arm: timing grade changed: exit 2 PASS
+resource gate route arm: placement directive changed: exit 2 PASS
+resource gate route arm: physical optimization directive changed: exit 2 PASS
+resource gate route arm: routing directive changed: exit 2 PASS
+resource gate route arm: identical inputs, different figures: exit 2 PASS
+resource gate route arm: identical inputs, different WNS: exit 2 PASS
+resource gate route arm: export date only: exit 2 PASS
+resource gate route arm: generated logic changed: exit 1 PASS
+resource gate route arm: include header changed: exit 1 PASS
+resource gate route arm: sourced constraint changed: exit 1 PASS
+resource gate route arm: memory image changed: exit 1 PASS
+resource gate route arm: image manifest of the wrong shape: exit 2 PASS
+resource gate route arm: duplicate conflicting row: exit 2 PASS
+resource gate route arm: duplicate conflicting header: exit 2 PASS
+resource gate route arm: malformed count: exit 2 PASS
+resource gate route arm: fractional count: exit 2 PASS
+resource gate route arm: missing Slice row: exit 2 PASS
+resource gate route arm: timing columns changed: exit 2 PASS
+resource gate route arm: second timing summary: exit 2 PASS
+resource gate route arm: timing value row missing: exit 2 PASS
+resource gate route arm: missing timing report: exit 2 PASS
+resource gate route arm: second generated top: exit 2 PASS
+resource gate route arm: read source missing: exit 2 PASS
+resource gate route arm: include directory missing: exit 2 PASS
+resource gate route arm: cell census header changed: exit 2 PASS
+resource gate route arm: second recipe script: exit 2 PASS
+resource gate ooc arm: standalone control: exit 0 PASS
+resource gate ooc arm: standalone clock changed: exit 2 PASS
+resource gate ooc arm: generic changed: exit 1 PASS
+resource gate ooc arm: image path moved, same image: exit 2 PASS
+resource gate ooc arm: standalone RAMB36: exit 1 PASS
+resource gate ooc arm: standalone RAMB18: exit 1 PASS
+resource gate ooc arm: standalone DSP: exit 1 PASS
+resource gate ooc arm: standalone FF: exit 1 PASS
+resource gate route arm: export built at another root: exit 2 PASS
+resource gate command-line arm: check within tolerance: exit 0 PASS
+resource gate command-line arm: check reads the kind from a standalone directory: exit 0 PASS
+resource gate command-line arm: check of a regression: exit 1 PASS
+resource gate command-line arm: check of an unrouted route: exit 1 PASS
+resource gate command-line arm: check of an unreadable measurement: exit 2 PASS
+resource gate command-line arm: check of a route without its status: exit 2 PASS
+resource gate command-line arm: check of a wrong-shape image manifest: exit 2 PASS
+resource gate command-line arm: check against a baseline that is not JSON: exit 2 PASS
+resource gate command-line arm: check against a missing baseline: exit 2 PASS
+resource gate command-line arm: check against a baseline without endpoints: exit 2 PASS
+resource gate command-line arm: check of an endpoint without a record: exit 2 PASS
+resource gate command-line arm: check of a gated figure without a tolerance: exit 2 PASS
+resource gate command-line arm: check of a ceiling naming no figure: exit 2 PASS
+resource gate check-baseline arm: a consistent baseline: exit 0 PASS
+resource gate check-baseline arm: a missing record: exit 2 PASS
+resource gate check-baseline arm: an incomplete record: exit 2 PASS
+resource gate check-baseline arm: a missing tolerance: exit 2 PASS
+resource gate check-baseline arm: a negative tolerance: exit 2 PASS
+resource gate check-baseline arm: a missing floor: exit 2 PASS
+resource gate check-baseline arm: a record below its floor: exit 2 PASS
+resource gate check-baseline arm: a record over its ceiling: exit 2 PASS
+resource gate check-baseline arm: a missing route ceiling: exit 2 PASS
+resource gate check-baseline arm: a ceiling naming no figure: exit 2 PASS
+resource gate check-baseline arm: a malformed policy: exit 2 PASS
+resource gate check-baseline arm: a tolerance the budget does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget value the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: an endpoint the budget lacks: exit 2 PASS
+resource gate check-baseline arm: a budget row the baseline lacks: exit 2 PASS
+resource gate check-baseline arm: no budget table: exit 2 PASS
+resource gate check-baseline arm: two budget tables: exit 2 PASS
+resource gate check-baseline arm: a repeated budget row: exit 2 PASS
+resource gate check-baseline arm: a budget cell that is no value: exit 2 PASS
+resource gate check-baseline arm: no budget page: exit 2 PASS
+resource gate CARRY4 attribution and record --write PASS
+resource gate selftest: 113 arms PASS
+
+# rc=0
