@@ -1326,6 +1326,7 @@ pass.
 | Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED. Separately, the meter's held lock cleared on a sequence gap: the servo enters HOLDOVER at the leg's first lost PDU, so UNLOCKED moves there, and each later loss, 0.3 s on, returns it to HOLDOVER before its two-window skip ends, so LOCKED moves only after the leg: 2.6 s after it ends in the round-5 desk model. The loss leg grades this mutant alone: under C0's level, C2's level or restart on any loss neither counter moves in it |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
+| `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling and holds through every phase; at every PDU end the fill is the setpoint plus that PDU, 14 events, under the tie rule below; every first event pops inside (8, 9] ticks of its PDU end, plus 64 cycles of registration slack | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
 **Why the switch row has three checks.** The round 3 evidence on PR #631
@@ -1350,6 +1351,37 @@ So the era-start rule has no wire-level mutant. It is graded at the meter's
 ports and at the request tap, where every one of its mutants fails at every
 switch. The request tap is a harness probe on a net, as `crf_clk_selected_r`
 already is (`hdl/milan/milan_datapath.sv:705`); it adds no port or register.
+
+**The render law's grading instant (#643).** The law table in
+[TIME_SYNC.md](TIME_SYNC.md#listener-render-latency) states the first-event
+delay "after accept". The suite grades it at the render stage's own
+reference, the PDU end: the cycle `KL_render_setpoint` takes the PDU's last
+beat. The stage snaps and judges its bands there, and its setpoint, "the fill
+just BEFORE every PDU push", reads there as the setpoint plus that PDU. The RX
+accept pulse lands 28 to 48 cycles before the push, so a pop between the two
+moved a reading taken at the pulse with the feed's phase, not with the law.
+The [ruling on #643](https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5973450039)
+accepts this as a test correction, not a change to the law.
+
+- **The tie rule.** A pop the stage takes in the cycle of a PDU's last beat
+  is counted in that end's fill; one taken a cycle later is not. One cycle of
+  feed jitter moves a pop across that boundary. So such a PDU may read one
+  event off, toward its side only: 13 when the pop was taken with the beat,
+  15 when it was taken a cycle later. The band is graded unchanged.
+- **What is not graded.** T30's own INTERNAL window opens while the aligner
+  is still pulling the grid in after T14's serial-clock hold. It keeps its pin
+  and A2-a checks and no longer grades the law. A stream already running
+  through such a pull-in keeps the displacement the pull gave it, one event
+  at some phases, because nothing re-centres it. That is the open design gap
+  [#647](https://github.com/kebag-logic/milan-fpga/issues/647).
+- **The boot pull-in.** From boot, at the model's 100 MHz, the aligner's
+  error swings from about -200 cycles through zero to about +49 and then
+  decays over some 10,000 ticks. The swing through zero spends just over
+  2,048 ticks inside the settle band, so the declared report can be met at
+  that crossing. The full leg reaches `[LAW]` long after it; the short
+  `--law-only` leg dwells past it, as `--crf-only` does. The settled-grid
+  trigger's comment in `milan_datapath.sv` calls the loop overdamped; this
+  overshoot is measured at the INTERNAL boot pull-in only.
 
 ### Bench
 

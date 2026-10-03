@@ -97,9 +97,15 @@
 // both listeners and grades the two halves of the qualification against each
 // other at the pins.
 //
-// Modes: no argument runs every phase. --serial-only, --epoch-only and
-// --crf-only are the short legs tdm8_render_mutants.py runs, and
-// --defect-stopped-clock, --defect-one-sample and --defect-internal-select
+// THE INTERNAL LAW AFTER SETTLE (#643). T30's INTERNAL window opens while
+// the aligner is still pulling the grid in after T14's hold, so the #386 law
+// is not graded there. The [LAW] phase waits for the aligner's settled report
+// and grades it on fresh streams at eighteen feed phases against the grid, at
+// the render stage's own reference: the PDU end.
+//
+// Modes: no argument runs every phase. --serial-only, --epoch-only,
+// --crf-only and --law-only are the short legs tdm8_render_mutants.py runs,
+// and --defect-stopped-clock, --defect-one-sample and --defect-internal-select
 // are its three leg-side defect arms. The multi-stream build takes no mode:
 // its one phase IS its leg.
 
@@ -164,9 +170,36 @@ constexpr long kPrefillPdus =
     (kPrefillTargetEvt + kEvents - 1) / kEvents;
 constexpr long kFirstEligibleEvent =
     kPrefillPdus * kEvents - kPrefillTargetEvt;
-//! registration slack on the band's upper edge: the accept pulse and the pop
-//! pulse are each one register behind their events
+//! registration slack on the band's upper edge: the pop pulse is one register
+//! behind its event, and the first event of a PDU whose end ties with a pop
+//! lands a cycle or two past nine ticks. #643 kept it when the reference
+//! moved from the accept pulse to the PDU end.
 constexpr long kBandSlackCycles = 64;
+//! THE ALIGNER'S SETTLED REPORT (#643), stated here as the LAW under test and
+//! never read back from the DUT: engaged, with its error inside 1/64 sample,
+//! for 2048 media ticks running, reached within the 32768-tick ceiling. These
+//! are milan_datapath's SRC_SETTLE_ERR_C, SRC_SETTLE_TICKS_C and
+//! SRC_SETTLE_CEIL_C at this model's 100 MHz: the settle band
+//! docs/design/TIME_SYNC.md declares for a followed source.
+constexpr int kSettleErrCycles = static_cast<int>(kModelAxisHz / 48000.0) / 64;
+constexpr long kSettleTicks = 2048;
+constexpr long kSettleCeilTicks = 32768;
+//! THE [LAW] PHASE SWEEP (#643): sixteen feed phases spread evenly over one
+//! INTERNAL media tick (2083.3 model cycles), plus +927 and +1156, the two
+//! shifts #643 names from processor #83's round 1b. A phase is the delay in
+//! axis cycles from an OBSERVED media tick to the fresh stream's first PDU,
+//! so it means the same thing against the grid whatever the processor or the
+//! leg's history. tdm8_render_mutants.py names the same eighteen.
+constexpr std::array<long, 18> kLawPhases = {
+    0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,
+    1562, 1693, 1823, 1953};
+//! ...and each phase's stream: a gap of four PDU slots, which drains the
+//! stage into prefill, then 16 PDUs of prefill (the snap is at the third PDU
+//! end), then 128 graded PDUs, of which the last four are left ungraded so
+//! that every graded first event has popped before the feed stops
+constexpr long kLawGapPdus = 4;
+constexpr long kLawPrefillPdus = 16;
+constexpr long kLawGradedPdus = 128;
 //! this shape's CRF CLOCK_SOURCE index. Not trusted: the SET_CLOCK_SOURCE
 //! below is graded SUCCESS and the media plane's own registered resolve is
 //! then required to read CRF, so a wrong index fails rather than passes.
@@ -253,6 +286,7 @@ class TdmRenderHarness {
     bool serial_only = false;
     bool epoch_only = false;
     bool crf_only = false;
+    bool law_only = false;
     bool defect_stopped_clock = false;
     bool defect_one_sample = false;
     //! the [CRF] phase's own defect arm: the command path is exercised in
@@ -563,13 +597,29 @@ class TdmRenderHarness {
     //  Records are kept by the PDU's own 12-bit wire id; the accept      //
     //  pulse carries no id, so accepts are matched to injections in      //
     //  order, which the depacketizer keeps and this leg never breaks.    //
+    //                                                                    //
+    //  THE INSTANT IS THE STAGE'S OWN (#643): the PDU END, the cycle     //
+    //  KL_render_setpoint takes a PDU's last beat. Its pdu_end_w is the  //
+    //  accepted clone beat with tlast, and the lb_tap strobes are that   //
+    //  same accepted clone (LOOPBACK_P = 1 on this leg), so the end is   //
+    //  read there and belongs to the PDU last accepted, 28 to 48 cycles  //
+    //  earlier. The fill is read one cycle after the end beat, once it   //
+    //  is in: the stage's fill_end_w, the value it snaps and judges its  //
+    //  bands against, with a pop taken in the end beat's cycle counted.  //
     // ---------------------------------------------------------------- //
     static constexpr size_t kIdSpace = 4096;
     std::vector<int> sent_ids;              //! wire ids, in injection order
     size_t accepts_seen = 0;
-    std::array<long, kIdSpace> accept_at{}; //! axis cycle of the accept pulse
-    std::array<int, kIdSpace> fill_at{};    //! the stage's fill at that instant
+    std::array<long, kIdSpace> end_at{};    //! axis cycle of the PDU-end beat
+    std::array<int, kIdSpace> fill_end{};   //! the stage's fill once it is in
+    //! the TIE RULE's evidence: 1 when a stream-0 pop is seen one cycle after
+    //! the end beat (taken with it, so counted in fill_end), 2 when seen two
+    //! cycles after (taken one cycle later, so not counted); 0 for neither
+    std::array<int, kIdSpace> tie_pop{};
     std::array<long, kIdSpace> pop_at{};    //! ...and of its event 0's pop
+    long last_accept_id = -1;               //! the PDU an end beat belongs to
+    long last_end_id = -1;                  //! ...the last one that ended
+    long end_fill_due = -1;                 //! ...whose fill is read next
     long recentre_pulses = 0;               //! render_recentre_p_w edges
     long src_recentre_pulses = 0;           //! the clock-source trigger's own
     //! ...and, for the multi-stream arm, the two per-stream observations that
@@ -582,9 +632,38 @@ class TdmRenderHarness {
     void law_reset() {
         sent_ids.clear();
         accepts_seen = 0;
-        accept_at.fill(-1);
-        fill_at.fill(-1);
+        end_at.fill(-1);
+        fill_end.fill(-1);
+        tie_pop.fill(0);
         pop_at.fill(-1);
+        last_accept_id = -1;
+        last_end_id = -1;
+        end_fill_due = -1;
+    }
+
+    //! the PDU-end half of the law instrument: the fill of the PDU whose last
+    //! beat the stage took last cycle, then this cycle's end beat, then a
+    //! stream-0 pop that lands inside the tie window of the last end
+    void observe_pdu_end() {
+        if (end_fill_due >= 0) {
+            fill_end[static_cast<size_t>(end_fill_due)] =
+                static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
+            end_fill_due = -1;
+        }
+        if (dut->rootp->milan_datapath__DOT__lb_tap_tvalid_w &&
+            dut->rootp->milan_datapath__DOT__lb_tap_tlast_w &&
+            dut->rootp->milan_datapath__DOT__lb_tap_tuser_w == 0 &&
+            last_accept_id >= 0) {
+            end_at[static_cast<size_t>(last_accept_id)] = axis_cycle;
+            end_fill_due = last_accept_id;
+            last_end_id = last_accept_id;
+        }
+        if ((dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1) && last_end_id >= 0) {
+            const size_t i = static_cast<size_t>(last_end_id);
+            const long after = axis_cycle - end_at[i];
+            if ((after == 1 || after == 2) && tie_pop[i] == 0)
+                tie_pop[i] = static_cast<int>(after);
+        }
     }
 
     void observe_law() {
@@ -596,13 +675,10 @@ class TdmRenderHarness {
         for (size_t s = 0; s < pops_by_stream.size(); s++)
             if ((dut->rootp->milan_datapath__DOT__rsp_pop_p_w >> s) & 1)
                 ++pops_by_stream[s];
+        observe_pdu_end();
         if (dut->rootp->milan_datapath__DOT__avtprx_accept_p &&
-            accepts_seen < sent_ids.size()) {
-            const size_t id = static_cast<size_t>(sent_ids[accepts_seen++]);
-            accept_at[id] = axis_cycle;
-            fill_at[id] =
-                static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
-        }
+            accepts_seen < sent_ids.size())
+            last_accept_id = sent_ids[accepts_seen++];
         if (dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1) {
             const uint64_t d = dut->rootp->milan_datapath__DOT__rsp_tdata_w;
             const uint32_t s0 = (static_cast<uint32_t>(d & 0xFF) << 16) |
@@ -616,7 +692,31 @@ class TdmRenderHarness {
         if (dut->rootp->milan_datapath__DOT__src_recentre_p_r) ++src_recentre_pulses;
     }
 
+    //! THE ALIGNER'S SETTLED REPORT (#643), followed at every media tick from
+    //! boot, from the aligner's own public engaged and error taps: the ticks
+    //! counted, the ticks running inside the settle band, and the ticks a
+    //! [LAW] phase saw outside it
+    long media_ticks = 0;
+    long settle_run = 0;
+    long unsettled_ticks = 0;
+
+    void observe_aligner() {
+        if (!dut->rootp->milan_datapath__DOT__media_tick_p) return;
+        ++media_ticks;
+        const int err =
+            static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
+        const int mag = (err < 0) ? -err : err;
+        if (dut->rootp->milan_datapath__DOT__mga_engaged_w &&
+            mag <= kSettleErrCycles) {
+            ++settle_run;
+        } else {
+            settle_run = 0;
+            ++unsettled_ticks;
+        }
+    }
+
     void observe_axis() {
+        observe_aligner();
         observe_law();
         observe_epoch();
         observe_commit_watch();
@@ -877,8 +977,9 @@ class TdmRenderHarness {
     //! disciplined to the same clock produces and the one the aligned packet
     //! grid follows (under CRF, and at INTERNAL since #629's A2-a).
     long pdu_frac_num = 0;
-    //! the INTERNAL dwell --crf-only takes before its CRF phase: 0.3 s of the
-    //! 100 MHz model clock, past the aligner's boot pull-in
+    //! the INTERNAL dwell --crf-only takes before its CRF phase, and
+    //! --law-only before its [LAW] phase: 0.3 s of the 100 MHz model clock,
+    //! past the aligner's boot pull-in and its overshoot
     static constexpr long kBootPullInCycles = 30'000'000;
     long pdu_frac_acc = 0;
     void advance_pdu_slot() {
@@ -1249,6 +1350,8 @@ class TdmRenderHarness {
     void prove_the_setpoint_law_still_holds(long first_id, long last_id,
                                             const char* tag);
     void deselect_back_to_internal(uint64_t epochs_before);
+    void phase_internal_law();
+    void grade_the_law_at_a_feed_phase(long phase);
 
     //! THE GRADING RULE. Every published frame is matched against the
     //! injection record at some advance a in 0..kMaxAdvance; the smallest a
@@ -2961,9 +3064,23 @@ void TdmRenderHarness::prove_the_aligned_window_is_the_acceptance_state(
                 plan_ppm, intr.walk_ppm, crf.walk_ppm);
 }
 
-//! #386's law, measured in THIS run rather than cited from another: the fill
-//! at accept is the 8-event setpoint and the first event's delay is inside
-//! (SETPOINT, SETPOINT + 1] media ticks.
+//! #386's law, measured in THIS run rather than cited from another, at the
+//! render stage's OWN reference (#643): at every PDU end the fill is the
+//! setpoint plus the PDU just pushed (TARGET, 14 events), and that PDU's first
+//! event pops inside (SETPOINT, SETPOINT + 1] media ticks of the end, with the
+//! registration slack on the upper edge. KL_render_setpoint states its
+//! setpoint as the fill just BEFORE every push and snaps and judges its bands
+//! at PDU ends. Until #643 this read the fill at the RX accept pulse, 28 to 48
+//! cycles before the push, so a pop between the two moved the reading with the
+//! feed's phase and not with the law.
+//!
+//! THE TIE RULE. A pop the stage takes in the cycle of a PDU's last beat is
+//! counted in that end's fill, and one taken a cycle later is not. One cycle
+//! of feed jitter moves a pop across that boundary, so which side it lands on
+//! is the feed's, not the law's. Such a PDU may read one event off TARGET, and
+//! only toward the boundary it straddles: TARGET - 1 when the pop was taken
+//! with the end beat (seen one cycle after it), TARGET + 1 when it was taken
+//! one cycle later (seen two after). The band is graded unchanged.
 void TdmRenderHarness::prove_the_setpoint_law_still_holds(long first_id,
                                                           long last_id,
                                                           const char* tag) {
@@ -2973,36 +3090,49 @@ void TdmRenderHarness::prove_the_setpoint_law_still_holds(long first_id,
     long n = 0;
     long in_band = 0;
     long fill_ok = 0;
+    long ties = 0;
     long dmin = 0;
     long dmax = 0;
+    int fmin = 0;
+    int fmax = 0;
     for (long id = first_id; id < last_id && id < static_cast<long>(kIdSpace);
          id++) {
         const size_t i = static_cast<size_t>(id);
-        if (accept_at[i] < 0 || pop_at[i] < 0) continue;
-        const long d = pop_at[i] - accept_at[i];
+        if (end_at[i] < 0 || fill_end[i] < 0 || pop_at[i] < 0) continue;
+        const long d = pop_at[i] - end_at[i];
+        const int f = fill_end[i];
         if (n == 0 || d < dmin) dmin = d;
         if (n == 0 || d > dmax) dmax = d;
+        if (n == 0 || f < fmin) fmin = f;
+        if (n == 0 || f > fmax) fmax = f;
         if (static_cast<double>(d) > lo && static_cast<double>(d) <= hi)
             ++in_band;
-        if (fill_at[i] == kRenderSetpointEvt) ++fill_ok;
+        const bool tie_ok =
+            (tie_pop[i] == 1 && f == kPrefillTargetEvt - 1) ||
+            (tie_pop[i] == 2 && f == kPrefillTargetEvt + 1);
+        if (f == kPrefillTargetEvt || tie_ok) ++fill_ok;
+        if (tie_pop[i] != 0) ++ties;
         ++n;
     }
-    std::printf("  [i]    %s: %ld PDUs, first-event delay %ld..%ld cycles = "
-                "%.3f..%.3f media ticks; the law is %d < d/T <= %d (+%ld "
-                "cycles of registration slack)\n",
-                tag, n, dmin, dmax, static_cast<double>(dmin) / kTickCycles,
-                static_cast<double>(dmax) / kTickCycles, kRenderSetpointEvt,
-                kRenderSetpointEvt + 1, kBandSlackCycles);
+    std::printf("  [i]    %s: %ld PDUs, fill at the PDU end %d..%d (%ld under "
+                "the tie rule), first-event delay from it %ld..%ld cycles = "
+                "%.3f..%.3f media ticks; the law is fill %d and %d < d/T <= %d "
+                "(+%ld cycles of registration slack)\n",
+                tag, n, fmin, fmax, ties, dmin, dmax,
+                static_cast<double>(dmin) / kTickCycles,
+                static_cast<double>(dmax) / kTickCycles, kPrefillTargetEvt,
+                kRenderSetpointEvt, kRenderSetpointEvt + 1, kBandSlackCycles);
     char what[160];
     std::snprintf(what, sizeof what,
                   "%s: PDUs measured for the #386 law in this window", tag);
     check.that(what, n >= 100);
     std::snprintf(what, sizeof what,
-                  "%s: the fill at accept is the 8-event setpoint for every "
-                  "PDU", tag);
+                  "%s: the fill at every PDU end is the setpoint plus that "
+                  "PDU, 14 events (tie rule)", tag);
     check.dec(what, static_cast<uint64_t>(fill_ok), static_cast<uint64_t>(n));
     std::snprintf(what, sizeof what,
-                  "%s: every PDU's first event is inside the law band", tag);
+                  "%s: every PDU's first event is inside the law band from its "
+                  "PDU end", tag);
     check.dec(what, static_cast<uint64_t>(in_band), static_cast<uint64_t>(n));
 }
 
@@ -3062,14 +3192,12 @@ void TdmRenderHarness::phase_crf() {
     const uint64_t epochs_before = lane_epochs();
 
     // the INTERNAL window, on the same pins and the same oracle (aligned
-    // since #629's A2-a; see prove_the_aligned_window_is_the_acceptance_state)
-    const long int_first = injected_events / kEvents;
+    // since #629's A2-a; see prove_the_aligned_window_is_the_acceptance_state).
+    // It opens while the aligner is still pulling the grid in after T14's
+    // hold, so the #386 law is graded at INTERNAL by [LAW], once settled.
     const Window intr = decode_and_grade_a_window(300 * kPduPeriodCycles,
                                                   "T30 INTERNAL");
     report_a_window(intr, "T30 INTERNAL");
-    prove_the_setpoint_law_still_holds(int_first + 4,
-                                       injected_events / kEvents - 4,
-                                       "T30 INTERNAL LAW");
 
     provision_the_crf_sink();
     const long src0 = src_recentre_pulses;
@@ -3110,6 +3238,90 @@ void TdmRenderHarness::phase_crf() {
                "graded a feed that had stopped",
                static_cast<size_t>(injected_events) + kEvents <= inj.size());
     feed_on = false;
+}
+
+// ====================================================================== //
+//  [LAW] T30's INTERNAL law, graded once the aligner reports settled      //
+// ====================================================================== //
+//! #643. Since #629's A2-a the INTERNAL grid is the aligner's. T14 stops the
+//! serial clock for less than the aligner's watchdog, so the aligner stays
+//! engaged and then pulls the grid back for about 150 ms, and T30's INTERNAL
+//! window lies inside that pull: graded there, the law passed or failed with
+//! the feed's phase against a moving grid. The law is a steady-state law, so
+//! this phase waits for the aligner's settled report, bounded by the declared
+//! ceiling, and grades it at every phase of kLawPhases, each a FRESH stream.
+//! A stream already running when a pull began keeps the displacement the pull
+//! gave it, because nothing re-centres it; that is the open design gap #647,
+//! and no check here claims otherwise.
+void TdmRenderHarness::phase_internal_law() {
+    std::printf("\n[LAW] T30's INTERNAL law once the aligner reports settled, "
+                "on fresh streams at %zu feed phases against the grid\n",
+                kLawPhases.size());
+    feed_on = false;
+    check.dec("T30 INTERNAL LAW: the media plane's registered resolve reads "
+              "INTERNAL",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__int_clk_selected_r), 1);
+    //! the ceiling is in ticks; the cycle guard, twice it, is only what keeps
+    //! a grid that stopped ticking from holding the leg forever
+    const long ticks0 = media_ticks;
+    const long guard = axis_cycle +
+        2 * static_cast<long>(static_cast<double>(kSettleCeilTicks) * kTickCycles);
+    while (settle_run < kSettleTicks &&
+           media_ticks - ticks0 < kSettleCeilTicks && axis_cycle < guard)
+        step();
+    std::printf("  [i]    LAW: waited %ld media ticks for the settled report "
+                "(%ld running inside +/-%d cycles; the ceiling is %ld)\n",
+                media_ticks - ticks0, settle_run, kSettleErrCycles,
+                kSettleCeilTicks);
+    check.that("T30 INTERNAL LAW: the aligner reported settled inside the "
+               "declared 32768-tick ceiling", settle_run >= kSettleTicks);
+    for (const long phase : kLawPhases) grade_the_law_at_a_feed_phase(phase);
+    //! the leg's later phases feed at the nominal cadence they always had
+    pdu_frac_num = 0;
+    pdu_frac_acc = 0;
+}
+
+//! One phase: a fresh stream whose first PDU leaves `phase` axis cycles after
+//! an observed media tick, at the INTERNAL grid's own cadence. Under A2-a the
+//! aligner holds that grid on the physical frame grid, so this is the
+//! physical cadence the [CRF] phase's talker takes: a talker on the same
+//! clock. The aligner must hold its settled report through the whole phase,
+//! gap and prefill included, or the law was graded on a grid that moved.
+void TdmRenderHarness::grade_the_law_at_a_feed_phase(long phase) {
+    char tag[48];
+    std::snprintf(tag, sizeof tag, "T30 INTERNAL LAW +%ld", phase);
+    unsettled_ticks = 0;
+    const long ticks0 = media_ticks;
+    feed_on = false;
+    steps(kLawGapPdus * kPduPeriodCycles);
+    build_injection_record(kLawPrefillPdus + kLawGradedPdus);
+    //! the anchor: the next media tick, waited for at most one PDU period
+    long guard = kPduPeriodCycles;
+    do {
+        step();
+    } while (!dut->rootp->milan_datapath__DOT__media_tick_p && --guard > 0);
+    next_pdu_at = axis_cycle + phase;
+    pdu_frac_num = kPduPhysFracNum;
+    pdu_frac_acc = 0;
+    feed_on = true;
+    run_fed(phase + kLawPrefillPdus * kPduPeriodCycles);
+    const long first = injected_events / kEvents;
+    run_fed(kLawGradedPdus * kPduPeriodCycles);
+    feed_on = false;
+    prove_the_setpoint_law_still_holds(first, injected_events / kEvents - 4,
+                                       tag);
+    //! held, and over a grid that really ticked: a stopped grid would leave
+    //! nothing outside the band because it left nothing at all
+    const long ticks = media_ticks - ticks0;
+    std::printf("  [i]    %s: %ld media ticks in the phase, %ld of them outside "
+                "the settle band\n", tag, ticks, unsettled_ticks);
+    char what[160];
+    std::snprintf(what, sizeof what,
+                  "%s: the aligner held its settled report through the phase",
+                  tag);
+    check.that(what, unsettled_ticks == 0 &&
+                     ticks >= kEvents * (kLawPrefillPdus + kLawGradedPdus));
 }
 
 // ====================================================================== //
@@ -3547,6 +3759,7 @@ int TdmRenderHarness::run(int argc, char** argv) {
         if (a == "--serial-only") serial_only = true;
         else if (a == "--epoch-only") epoch_only = true;
         else if (a == "--crf-only") crf_only = true;
+        else if (a == "--law-only") law_only = true;
         else if (a == "--defect-stopped-clock") { defect_stopped_clock = true; serial_only = true; }
         else if (a == "--defect-one-sample") { defect_one_sample = true; serial_only = true; corrupt_at = 400; }
         else if (a == "--defect-internal-select") { defect_internal_select = true; crf_only = true; }
@@ -3575,6 +3788,19 @@ int TdmRenderHarness::run(int argc, char** argv) {
         return check.report();
     }
     phase_map();
+    if (law_only) {
+        //! #643: the [LAW] phase alone, the short leg its planted defect runs.
+        //! From boot the aligner's pull-in overshoots: at this model's clock
+        //! its error swings from about -200 cycles through zero to about +49
+        //! and then decays over some 10 000 ticks, and the swing through
+        //! zero spends just over 2048 ticks inside the settle band. So the
+        //! declared report can be met at that crossing, and the full leg
+        //! never sees it there. This leg dwells past the overshoot, as
+        //! --crf-only does, and then takes the same bounded wait.
+        run_fed(kBootPullInCycles);
+        phase_internal_law();
+        return check.report();
+    }
     if (crf_only) {
         //! #629 A2-a: the aligner engages at INTERNAL from boot, and a CRF
         //! selection keeps it engaged rather than re-seating its target, so
@@ -3591,6 +3817,7 @@ int TdmRenderHarness::run(int argc, char** argv) {
     if (!epoch_only) phase_serial();
     if (!serial_only) {
         phase_crf();
+        if (!epoch_only) phase_internal_law();
         phase_csr();
         phase_reset();
         phase_bind_loss();

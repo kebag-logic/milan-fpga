@@ -22,8 +22,8 @@ TDMRM_SRC, DP_SRC, TDM8R_SHAPE and the object-directory variable overridden)
 and run in the short mode that holds the check.
 
 Each mutant must make the leg FAIL by its OWN verdict, with the named check
-among the failures; a crash or an abort is not a catch, and neither is a
-failure somewhere else. Two arms are CLEAN controls that must still PASS: the
+among the failures (every one of them, where an arm names several); a crash or
+an abort is not a catch, and neither is a failure somewhere else. Two arms are CLEAN controls that must still PASS: the
 unmutated leg, and the modelled-skew arm below.
 
 WHAT THE CDC CONTROL DOES AND DOES NOT CLAIM. An ordinary zero-delay Verilator
@@ -110,12 +110,23 @@ SOURCES = {
     "shape": (SHAPE_SVH, "TDM8R_SHAPE"),
 }
 
+#: #643: the [LAW] phase's eighteen feed phases, kLawPhases in
+#: sim_tdm8_render.cpp. Kept in step by hand; a phase this table names and the
+#: leg does not grade fails the arm below as "not the named check", never
+#: passes it.
+LAW_PHASES = (0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172,
+              1302, 1432, 1562, 1693, 1823, 1953)
+#: ...and the per-phase check the planted A2-a defect must fail, at EVERY one
+LAW_SETTLED = tuple(f"T30 INTERNAL LAW +{p}: the aligner held its settled "
+                    "report through the phase" for p in LAW_PHASES)
+
 #: (name, source, [(pattern, replacement), ...], leg, mode, the check it must
 #: break). A mutation is a list of edits because some defects are not
 #: expressible as one: the modelled-skew control needs a declaration, a reset
 #: and the synchroniser itself, and it is still ONE defect. `leg` names which
 #: elaboration holds the check (LEGS above); `mode` is the short argv that
-#: reaches it, or None where the leg's one phase is the whole run.
+#: reaches it, or None where the leg's one phase is the whole run. The check
+#: may be a TUPLE of names, every one of which must fail.
 MUTATIONS = [
     ("wrong physical base: the identity projection", "shape",
      [("localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:7] = "
@@ -288,6 +299,15 @@ MUTATIONS = [
        "       | 1'b0;")],
      "ship", "--crf-only",
      "T30 CRF: ...as exactly one render recentre pulse"),
+    # #643's planted defect: #629's A2-a undone, the aligner engaged under a
+    # followed source only. At INTERNAL the grid then free-runs and the
+    # aligner never reports settled, so the [LAW] phase must fail at every
+    # one of its eighteen feed phases, not at whichever the grid happens to
+    # put near a tick.
+    ("A2-a removed: the aligner is not engaged at INTERNAL", "datapath",
+     [("  wire        mga_sel_w = int_clk_selected_r | follow_sel_r;",
+       "  wire        mga_sel_w = follow_sel_r;")],
+     "ship", "--law-only", LAW_SETTLED),
     # The mask exists so that a fall on a stream the lane does not render
     # leaves the lane alone. Take the qualification away and the lane flushes
     # on somebody else's unbind - which is the defect the mask was added for.
@@ -439,18 +459,21 @@ def run_leg(exe: Path, mode: str | None) -> tuple[int, str]:
             proc.wait()
 
 
-def verdict(rc: int, out: str, must_fail: str | None) -> str:
-    """'pass', 'caught', or why the run is not evidence."""
+def verdict(rc: int, out: str, must_fail: str | tuple[str, ...] | None) -> str:
+    """'pass', 'caught', or why the run is not evidence. A tuple of names is
+    caught only when every one of them failed."""
     reason, failed = log_reports_failure(out)
     if rc == 0 and not failed:
         return "pass"
     if rc == 0 and failed:
         return f"exited 0 but {reason} - a masked verdict is not evidence"
     if failed:
-        if must_fail and not any(line.strip().startswith("[FAIL]")
-                                 and must_fail in line
-                                 for line in out.splitlines()):
-            return f"failed, but not the named check ({must_fail!r})"
+        names = (must_fail,) if isinstance(must_fail, str) else must_fail or ()
+        fails = [line for line in out.splitlines()
+                 if line.strip().startswith("[FAIL]")]
+        missing = [n for n in names if not any(n in line for line in fails)]
+        if missing:
+            return f"failed, but not the named check ({missing[0]!r})"
         return "caught"
     if rc < 0:
         return (f"died by signal {-rc} with no harness verdict - a crash is "
@@ -585,14 +608,16 @@ def run_mutations(work: Path) -> Tally:
                   "that cannot build proves nothing about the leg")
             continue
         answer = verdict(*run_leg(mexe, mode), breaks)
+        named = (breaks if isinstance(breaks, str)
+                 else f"{breaks[0]}\" and {len(breaks) - 1} more")
         if answer == "caught":
             passes += 1
             print(f"[PASS] mutant caught ({leg} {mode or 'whole'}): {name}"
-                  f" - breaks \"{breaks}\"")
+                  f" - breaks \"{named}\"")
         elif answer == "pass":
             fails += 1
             print(f"[FAIL] mutant SURVIVED: {name}. The leg does not "
-                  f"prove \"{breaks}\".")
+                  f"prove \"{named}\".")
         else:
             fails += 1
             print(f"[FAIL] mutant {name!r} {answer}")
