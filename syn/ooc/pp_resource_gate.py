@@ -21,10 +21,13 @@ report: an unrouted net or a routing error means the image does not fit.
 
 Exit status: 0 within tolerance; 1 a material regression, an incomplete route
 included; 2 not comparable, an unreadable measurement or an unusable baseline,
-each with its reason. A gated figure that improved by more than its tolerance
-still exits 0 and prints "re-baseline recommended". check-baseline exits 2
-when an endpoint's policy is incomplete, its own record breaks it, or it
-differs from the policy table of the budget page.
+each with its reason and never through a traceback. A gated figure that
+improved by more than its tolerance still exits 0 and prints "re-baseline
+recommended". check and check-baseline both read the baseline through one
+validator first: strict JSON, then every field of the recorded shape and every
+number finite. check-baseline then exits 2 when an endpoint's policy is
+incomplete, its own record breaks it, or it differs from the policy table of
+the budget page. Every count read from a report is ASCII digits.
 
     pp_resource_gate.py check <directory> --endpoint route-1x1
     pp_resource_gate.py record <directory> --endpoint route-1x1 [--write]
@@ -66,6 +69,16 @@ COLUMNS = {"LUT": ("tolerance", ("LUT",)), "FF": ("tolerance", ("FF",)), "Slice"
            "BRAM tile ceiling": ("ceiling", ("BRAM_TILE",))}
 POLICY = ("tolerance", "floor", "ceiling")
 RECORD = ("kind", "identity", "inputs_sha256", "figures", "scopes")
+#: The identity fields a record holds, each with the type it is recorded as.
+IDENTITY = {"tool": str, "device": str, "design": str, "state": str, "flow": list, "standalone_clock_ns": list}
+#: The counts every sub-block scope of a record holds.
+SCOPE = ("LUT", "FF", "RAMB36", "RAMB18", "DSP", "CARRY4")
+#: Notes a baseline file and each endpoint may carry beside the fields the gate reads.
+NOTES = {"file": ("schema", "description"), "endpoint": ("measured",)}
+#: A count as a report prints it: ASCII digits only, never another script's digit that int() would take.
+COUNT = re.compile(r"[0-9]+")
+#: A slack as the timing summary prints it: a finite decimal in ASCII digits.
+SLACK = re.compile(r"-?[0-9]+\.[0-9]+")
 SCRIPTS = {"route": "baseline_integrated.tcl", "ooc": "baseline_ooc.tcl"}
 ROOTS = {"route": "alinx_ax7101/milan_datapath/pp_shadow", "ooc": "KL_pp_shadow"}
 FLOW = re.compile(r"^(create_project|set_param|synth_design|opt_design|place_design"
@@ -102,7 +115,7 @@ def utilization(text: str, kind: str) -> dict[str, float]:
         if len(values) != 1:
             raise Refusal(f"utilization row {label!r} has values {sorted(values)}")
         value = values.pop()
-        if not re.fullmatch(r"\d+(\.5)?", value):
+        if not re.fullmatch(r"[0-9]+(\.5)?", value):
             raise Refusal(f"utilization row {label!r} is not a count: {value!r}")
         figures[figure] = float(value) if "." in value else int(value)
     return figures
@@ -121,16 +134,12 @@ def timing(text: str) -> dict[str, float]:
     values = lines[heads + 2].split()
     if len(names) != len(values) or len(names) < 5 or names[0] != "WNS(ns)" or names[4] != "WHS(ns)":
         raise Refusal("Design Timing Summary columns changed")
-    try:
-        slack = {"WNS_ns": float(values[0]), "WHS_ns": float(values[4])}
-    except ValueError as error:
-        raise Refusal(f"unreadable slack: {error}") from error
+    if not SLACK.fullmatch(values[0]) or not SLACK.fullmatch(values[4]):
+        raise Refusal(f"slack is not a finite decimal: WNS {values[0]!r}, WHS {values[4]!r}")
     paths = [value for name, value in zip(names, values) if name in ("TNS Total Endpoints", "THS Total Endpoints")]
-    if not paths or not all(value.isdigit() and int(value) > 0 for value in paths):
+    if not paths or not all(COUNT.fullmatch(value) and int(value) > 0 for value in paths):
         raise Refusal(f"Design Timing Summary times no endpoint: total endpoints {paths}")
-    if not all(math.isfinite(value) for value in slack.values()):
-        raise Refusal(f"non-finite slack {slack}: no constrained path was timed")
-    return slack
+    return {"WNS_ns": float(values[0]), "WHS_ns": float(values[4])}
 
 
 def located(directory: Path, script: str) -> tuple[list[Path], tuple[str, ...]]:
@@ -139,7 +148,7 @@ def located(directory: Path, script: str) -> tuple[list[Path], tuple[str, ...]]:
                for name in READS.findall(script)]
     generated = [path.parent for path in sources if path.name == "alinx_ax7101.v"]
     repository = [path.parents[2] for path in sources
-                  if path.name == "KL_pp_shadow.sv" and path.parent.name == "milan"]
+                  if path.name == "KL_pp_shadow.sv" and path.parent.name == "milan" and len(path.parents) > 2]
     if len(generated) != 1 or len(repository) != 1:
         raise Refusal("the script must read exactly one generated top and one KL_pp_shadow.sv")
     headers = []
@@ -245,7 +254,7 @@ def record(directory: Path, kind: str) -> dict:
         return {"kind": kind, "identity": identity(directory, script, report),
                 "inputs_sha256": inputs(directory, script), "figures": figures,
                 "scopes": scopes(directory, kind, carry)}
-    except (OSError, ValueError, KeyError, IndexError, TypeError) as error:
+    except (OSError, ValueError, KeyError, IndexError, TypeError, RecursionError) as error:
         raise Refusal(f"unreadable measurement {directory}: {type(error).__name__}: {error}") from error
 
 
@@ -262,18 +271,19 @@ def routing(directory: Path, kind: str) -> list[str]:
         raise Refusal(f"unreadable route status {reports[0].name}: {error}") from error
     counts: dict[str, list[int]] = {}
     for label, value in rows:
-        if not value.isdigit():
+        if not COUNT.fullmatch(value):
             raise Refusal(f"route status row {label!r} is not a count: {value!r}")
         counts.setdefault(label, []).append(int(value))
+    for label in ("routable nets", "fully routed nets"):
+        if len(counts.get(label, [])) != 1:
+            raise Refusal(f"{reports[0].name} has {len(counts.get(label, []))} {label!r} rows, not one")
     if len(counts.get("nets with routing errors", [])) != 1:
         raise Refusal(f"{reports[0].name} has no single 'nets with routing errors' row")
-    routable, routed = counts.get("routable nets", []), counts.get("fully routed nets", [])
-    if len(routable) != len(routed):
-        raise Refusal(f"{reports[0].name} counts routable nets and fully routed nets unequally often")
+    routable, routed = sum(counts.get("routable nets", [])), sum(counts.get("fully routed nets", []))
     problems = [f"{sum(values)} {label}" for label, values in counts.items()
                 if sum(values) and ("routing errors" in label or "unrouted" in label)]
-    if sum(routed) != sum(routable):
-        problems.append(f"{sum(routed)} of {sum(routable)} routable nets fully routed")
+    if routed != routable:
+        problems.append(f"{routed} of {routable} routable nets fully routed")
     return problems
 
 
@@ -349,45 +359,100 @@ def scope_deltas(before: dict, after: dict) -> list[str]:
     return ["sub-block movements, not gated:", *(line for _, line in moves[:12])] if moves else []
 
 
-def load(path: Path) -> dict:
-    """Read a baseline file, refusing one that is missing, not JSON or without an endpoint table."""
-    try:
-        baseline = json.loads(path.read_text())
-    except (OSError, ValueError) as error:
-        raise Refusal(f"baseline {path} is unreadable: {error}") from error
-    if not isinstance(baseline, dict) or not isinstance(baseline.get("endpoints"), dict):
-        raise Refusal(f"baseline {path} holds no endpoints table")
-    return baseline
+def finite(text: str) -> float:
+    """Read one JSON decimal, refusing one so large that it reads as infinity."""
+    value = float(text)
+    if not math.isfinite(value):
+        raise ValueError(f"the number {text} is not finite")
+    return value
 
 
-def entry_problems(name: str, entry: object) -> list[str]:
-    """List what keeps one baseline endpoint from being a complete policy its own record meets."""
+def constant(name: str) -> float:
+    """Refuse NaN and Infinity: JSON does not define them, and no figure or policy can be one."""
+    raise ValueError(f"the number {name} is not finite")
+
+
+def number(value: object) -> bool:
+    """Tell a JSON number from a bool, a string or null; load() has already refused a non-finite one."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def shape_problems(name: str, entry: object) -> list[str]:
+    """List every field of one baseline endpoint that is missing or not of the recorded shape."""
     base = entry.get("record") if isinstance(entry, dict) else None
     if not isinstance(base, dict):
         return [f"{name}: has no record"]
-    if (base.get("kind") not in GATED or any(key not in base for key in RECORD)
-            or not isinstance(base["figures"], dict) or any(key not in base["figures"] for key in GATED[base["kind"]])):
-        return [f"{name}: the record lacks a kind, identity, input digest, gated figure or scope table"]
+    lacking = [key for key in RECORD if key not in base]
+    if lacking:
+        return [f"{name}: the record lacks {', '.join(lacking)}"]
+    kind, identity, figures, scopes = base["kind"], base["identity"], base["figures"], base["scopes"]
+    if not isinstance(kind, str) or kind not in GATED:
+        return [f"{name}: the record kind {kind!r} is not one of {', '.join(GATED)}"]
+    problems = []
+    unknown = sorted(set(entry) - {"record", *POLICY, *NOTES["endpoint"]})
+    if unknown:
+        problems.append(f"{name}: the endpoint holds unknown fields {', '.join(unknown)}")
+    if not isinstance(identity, dict) or sorted(identity) != sorted(IDENTITY):
+        problems.append(f"{name}: the record identity does not hold exactly {', '.join(IDENTITY)}")
+    elif not all(isinstance(identity[key], recorded) for key, recorded in IDENTITY.items()):
+        problems.append(f"{name}: a record identity field is not of its recorded type")
+    elif not all(isinstance(item, str) for key in ("flow", "standalone_clock_ns") for item in identity[key]):
+        problems.append(f"{name}: the record identity's flow or standalone clock is not a list of text")
+    if not isinstance(base["inputs_sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", base["inputs_sha256"]):
+        problems.append(f"{name}: the record input digest is not a sha256 hex digest")
+    held = sorted({*ROWS[kind].values(), *TIMING, "CARRY4"})
+    if not isinstance(figures, dict) or sorted(figures) != held:
+        problems.append(f"{name}: the record figures are not exactly {', '.join(held)}")
+    elif not all(number(value) for value in figures.values()):
+        problems.append(f"{name}: a recorded figure is not a finite number")
+    if not isinstance(scopes, dict) or not all(isinstance(counts, dict) and sorted(counts) == sorted(SCOPE)
+                                               for counts in scopes.values()):
+        problems.append(f"{name}: the record scopes are not a table of {', '.join(SCOPE)} per sub-block")
+    elif not all(type(count) is int and count >= 0 for counts in scopes.values() for count in counts.values()):
+        problems.append(f"{name}: a recorded sub-block count is not a non-negative whole number")
+    for field in POLICY:
+        if not isinstance(entry.get(field, {}), dict):
+            problems.append(f"{name}: {field} is not a table of figures")
+        elif not all(number(value) for value in entry.get(field, {}).values()):
+            problems.append(f"{name}: a {field} value is not a finite number")
+    return problems
+
+
+def load(path: Path) -> dict:
+    """Read a baseline file whole: strict JSON, an endpoints table and every endpoint of the recorded shape."""
     try:
-        kind, figures = entry["record"]["kind"], entry["record"]["figures"]
-        problems = []
-        for figure in GATED[kind]:
-            if not entry.get("tolerance", {}).get(figure, -1) >= 0:
-                problems.append(f"{name}: {figure} has no non-negative tolerance")
-            if figure in TIMING and figure not in entry.get("floor", {}):
-                problems.append(f"{name}: {figure} has no floor")
-            elif figure in TIMING and figures[figure] < entry["floor"][figure]:
-                problems.append(f"{name}: the recorded {figure} is below its floor")
-        for figure in CEILINGS[kind]:
-            if figure not in entry.get("ceiling", {}):
-                problems.append(f"{name}: {figure} has no ceiling")
-        for figure, ceiling in entry.get("ceiling", {}).items():
-            if figure not in figures:
-                problems.append(f"{name}: the ceiling names {figure}, which is not a recorded figure")
-            elif figures[figure] > ceiling:
-                problems.append(f"{name}: the recorded {figure} exceeds its ceiling")
-    except (KeyError, TypeError, AttributeError) as error:
-        return [f"{name}: malformed policy ({type(error).__name__}: {error})"]
+        baseline = json.loads(path.read_text(), parse_constant=constant, parse_float=finite)
+    except (OSError, ValueError, RecursionError) as error:
+        raise Refusal(f"baseline {path} is unreadable: {error}") from error
+    if not isinstance(baseline, dict) or not isinstance(baseline.get("endpoints"), dict):
+        raise Refusal(f"baseline {path} holds no endpoints table")
+    unknown = sorted(set(baseline) - {"endpoints", *NOTES["file"]})
+    problems = [f"the file holds unknown fields {', '.join(unknown)}"] if unknown else []
+    problems += [problem for name, entry in baseline["endpoints"].items() for problem in shape_problems(name, entry)]
+    if problems:
+        raise Refusal(f"baseline {path} is malformed: {'; '.join(problems)}")
+    return baseline
+
+
+def entry_problems(name: str, entry: dict) -> list[str]:
+    """List what keeps one endpoint load() accepted from being a complete policy its own record meets."""
+    kind, figures = entry["record"]["kind"], entry["record"]["figures"]
+    problems = []
+    for figure in GATED[kind]:
+        if not entry.get("tolerance", {}).get(figure, -1) >= 0:
+            problems.append(f"{name}: {figure} has no non-negative tolerance")
+        if figure in TIMING and figure not in entry.get("floor", {}):
+            problems.append(f"{name}: {figure} has no floor")
+        elif figure in TIMING and figures[figure] < entry["floor"][figure]:
+            problems.append(f"{name}: the recorded {figure} is below its floor")
+    for figure in CEILINGS[kind]:
+        if figure not in entry.get("ceiling", {}):
+            problems.append(f"{name}: {figure} has no ceiling")
+    for figure, ceiling in entry.get("ceiling", {}).items():
+        if figure not in figures:
+            problems.append(f"{name}: the ceiling names {figure}, which is not a recorded figure")
+        elif figures[figure] > ceiling:
+            problems.append(f"{name}: the recorded {figure} exceeds its ceiling")
     return problems
 
 
@@ -408,7 +473,7 @@ def policy_table(text: str) -> dict[str, dict[str, dict[str, float]]]:
             raise Refusal(f"budget policy row is malformed or repeated: {line.strip()}")
         table[name[1]] = {field: {} for field in POLICY}
         for cell, (field, figures) in zip(cells[1:], COLUMNS.values()):
-            value = re.fullmatch(r"([+-]?\d+(?:\.\d+)?)(?: ns)?", cell)
+            value = re.fullmatch(r"([+-]?[0-9]+(?:\.[0-9]+)?)(?: ns)?", cell)
             if value is None and cell != "-":
                 raise Refusal(f"budget policy cell {cell!r} is neither a value nor '-'")
             for figure in figures if value else ():
@@ -428,9 +493,9 @@ def check_baseline(baseline: dict, budget: Path) -> list[str]:
         if name not in table or name not in endpoints:
             problems.append(f"{name}: only the {'baseline' if name in endpoints else 'budget table'} names it")
             continue
-        entry = endpoints[name] if isinstance(endpoints[name], dict) else {}
+        entry = endpoints[name]
         for field in POLICY:
-            held = entry.get(field, {}) if isinstance(entry.get(field, {}), dict) else {}
+            held = entry.get(field, {})
             for figure in sorted(set(held) | set(table[name][field])):
                 if held.get(figure) != table[name][field].get(figure):
                     problems.append(f"{name}: {field} {figure} is {held.get(figure)} in the baseline and "
@@ -462,10 +527,10 @@ def main(argv: list[str] | None = None) -> int:
         known = args.endpoint in baseline["endpoints"] or (args.command == "record" and args.endpoint)
         if args.command is None or args.directory is None or not known:
             parser.error(f"name a command, a directory and one of {sorted(baseline['endpoints'])}")
-        entry = baseline["endpoints"].get(args.endpoint, {})
-        problems = entry_problems(args.endpoint, entry) if args.command == "check" else []
-        if problems or not isinstance(entry, dict):
-            raise Refusal(f"baseline endpoint {args.endpoint} is unusable: {'; '.join(problems) or 'not an object'}")
+        endpoint = baseline["endpoints"].get(args.endpoint)
+        problems = entry_problems(args.endpoint, endpoint) if args.command == "check" else []
+        if problems:
+            raise Refusal(f"baseline endpoint {args.endpoint} is unusable: {'; '.join(problems)}")
         directory = args.directory.resolve()
         candidate = record(directory, kind_of(directory))
         unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []

@@ -10,10 +10,13 @@ cross-child LUT sharing in the vendor report.
 import argparse
 import csv
 from pathlib import Path
+import re
 import sys
 
 
 FIELDS = ("LUT", "logic_LUT", "LUTRAM", "SRL", "FF", "RAMB36", "RAMB18", "DSP")
+#: A count as the report prints it: ASCII digits only, never another script's digit that int() would take.
+COUNT = re.compile(r"[0-9]+")
 
 
 def hierarchy(path: Path) -> dict[str, dict[str, int]]:
@@ -22,8 +25,10 @@ def hierarchy(path: Path) -> dict[str, dict[str, int]]:
     ancestors = []
     for line in path.read_text().splitlines():
         fields = line.split("|")[1:-1]
-        if len(fields) != 10 or not fields[2].strip().isdigit():
+        if len(fields) != 10 or fields[2].strip() == "Total LUTs":
             continue
+        if not all(COUNT.fullmatch(value.strip()) for value in fields[2:]):
+            raise ValueError(f"hierarchy row is not a row of counts: {line.strip()}")
         indent = len(fields[0]) - len(fields[0].lstrip())
         depth = (indent - 1) // 2
         name = fields[0].strip()

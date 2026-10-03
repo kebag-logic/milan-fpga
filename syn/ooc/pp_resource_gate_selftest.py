@@ -8,7 +8,8 @@ own parser and judges it against a baseline recorded from the pristine copy.
 No arm hands the comparator a hand-built record, so a parser that stops seeing
 a row fails here exactly as it would on a real report. The command-line arms
 drive the exit-code contract through main(): every unreadable measurement and
-unusable baseline exits 2 with its reason, and only a regression exits 1.
+unusable baseline exits 2 with its reason, and only a regression exits 1. Each
+malformed baseline goes through both check and check-baseline.
 """
 
 import contextlib
@@ -25,13 +26,14 @@ import pp_resource_gate as gate
 FIGURES = {"LUT": 1000, "FF": 2000, "SLICE": 400, "BRAM_TILE": 4.5, "RAMB36": 4, "RAMB18": 1, "DSP": 2}
 POLICY = {"tolerance": {"LUT": 10, "FF": 10, "SLICE": 5, "RAMB36": 0, "RAMB18": 0, "DSP": 0,
                         "WNS_ns": 0.25, "WHS_ns": 0.25},
-          "floor": {"WNS_ns": 0.0, "WHS_ns": 0.0}, "ceiling": {"BRAM_TILE": 5.0}}
+          "floor": {"WNS_ns": 0.03, "WHS_ns": 0.0}, "ceiling": {"BRAM_TILE": 5.0}}
 OOC_POLICY = {"tolerance": {"LUT": 10, "FF": 10, "RAMB36": 0, "RAMB18": 0, "DSP": 0}}
 #: The budget page's policy table for the two fixture endpoints, written by hand as the budget writes it.
+#: The WNS floor is not zero, so a reader that drops floor cells reads a different policy.
 BUDGET = ("# Area budget\n\nThe gate holds each endpoint to this table.\n\n"
           "| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | DSP | WNS floor | WHS floor | Timing fall"
           " | BRAM tile ceiling |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n"
-          "| `route` | +10 | +10 | +5 | +0 | +0 | +0 | +0.000 ns | 0 ns | 0.25 ns | 5.0 |\n"
+          "| `route` | +10 | +10 | +5 | +0 | +0 | +0 | +0.030 ns | 0 ns | 0.25 ns | 5.0 |\n"
           "| `ooc` | +10 | +10 | - | +0 | +0 | +0 | - | - | - | - |\n\nProse after the table.\n")
 LABELS = {"LUT": "Slice LUTs", "FF": "Slice Registers", "SLICE": "Slice", "BRAM_TILE": "Block RAM Tile",
           "RAMB36": "RAMB36/FIFO*", "RAMB18": "RAMB18", "DSP": "DSPs"}
@@ -128,6 +130,8 @@ TIMING = "baseline_timing.rpt"
 VALUES = "      0.500        0.000                      0                   10        0.100        0.000\n"
 FLOW = "baseline_integrated.tcl"
 ERRORS = (STATUS, "errors.......... :           0", "errors.......... :           3")
+ROUTABLE = "       # of routable nets..................... :         100 :\n"
+ROUTED = "           # of fully routed nets............. :         100 :\n"
 MANIFEST = ("baseline_images.json", None, '["a"]')
 #: (label, plants, exit status, text the report must hold or (must hold, must not hold), policy edits)
 ROUTE_ARMS = (
@@ -154,10 +158,15 @@ ROUTE_ARMS = (
      ("RESULT: PASS", "re-baseline")),
     ("WHS below the floor", (SOURCE, (TIMING, "0.100", "-0.001")), 1, "WHS_ns"),
     ("WHS at the floor", (SOURCE, (TIMING, "0.100", "0.000")), 0, "RESULT: PASS"),
-    ("WNS not a number", (SOURCE, (TIMING, "  0.500  ", "  nan  ")), 2, "non-finite slack"),
+    ("WNS not a number", (SOURCE, (TIMING, "  0.500  ", "  nan  ")), 2, "not a finite decimal"),
+    ("WHS not a number", (SOURCE, (TIMING, "0.100", "nan")), 2, "not a finite decimal"),
     ("WNS and WHS infinite", (SOURCE, (TIMING, "  0.500  ", "  inf  "), (TIMING, "0.100", "inf")),
-     2, "non-finite slack"),
+     2, "not a finite decimal"),
+    ("WNS in other digits", ((TIMING, "  0.500  ", "  \uff10.\uff15\uff10\uff10  "),), 2, "not a finite decimal"),
     ("no timed endpoint", (SOURCE, (TIMING, " 10 ", "  0 ")), 2, "times no endpoint"),
+    ("timed endpoints in other digits", ((TIMING, " 10 ", " \uff11\uff10 "),), 2, "times no endpoint"),
+    ("timing summary without its endpoint columns", (SOURCE, (TIMING, "TNS Total Endpoints", "TNS Other Endpoints")),
+     2, "total endpoints []"),
     ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0,
      ("below the baseline", "re-baseline")),
     ("LUT improvement beyond the tolerance", (SOURCE, row("LUT", 1000, 950)), 0, "re-baseline recommended: LUT"),
@@ -176,8 +185,15 @@ ROUTE_ARMS = (
     ("route status without its error row", (SOURCE, (STATUS, "       # of nets with routing errors.......... :"
                                                      "           0 :\n", "")), 2, "'nets with routing errors' row"),
     ("route status count unreadable", (SOURCE, (STATUS, ":         120 :", ":        lots :")), 2, "not a count"),
-    ("route status without its routable row", (SOURCE, (STATUS, "       # of routable nets..................... :"
-                                                        "         100 :\n", "")), 2, "unequally often"),
+    ("route status count a superscript", (SOURCE, ERRORS[:2] + ("errors.......... :           \u00b2",)),
+     2, "not a count: '\u00b2'"),
+    ("route status count in other digits", (SOURCE, ERRORS[:2] + ("errors.......... :           \uff10",)),
+     2, "not a count: '\uff10'"),
+    ("route status without its routable row", (SOURCE, (STATUS, ROUTABLE, "")), 2, "0 'routable nets' rows"),
+    ("route status without its fully routed row", (SOURCE, (STATUS, ROUTED, "")), 2, "0 'fully routed nets' rows"),
+    ("route status without both net rows", (SOURCE, (STATUS, ROUTABLE + ROUTED, "")), 2, "0 'routable nets' rows"),
+    ("route status with a second routable row", (SOURCE, (STATUS, ROUTABLE, ROUTABLE * 2)),
+     2, "2 'routable nets' rows"),
     ("tool build changed", (("baseline_utilization.rpt", "Build 6511674", "Build 6511675"),), 2, "tool"),
     ("device changed", (("baseline_utilization.rpt", "xc7a100tfgg484-2", "xc7a200tfbg484-2"),), 2, "device"),
     ("design changed", (("baseline_utilization.rpt", "| Design       : alinx_ax7101", "| Design       : other"),),
@@ -204,11 +220,13 @@ ROUTE_ARMS = (
      (row("LUT", 1000, 1011), ("{repo}/sw/constraints.tcl", "proc kl", "proc kx")), 1, "LUT"),
     ("memory image changed", (row("LUT", 1000, 1011), ("baseline_images.json", '"ab"', '"cd"')), 1, "LUT"),
     ("image manifest of the wrong shape", (MANIFEST,), 2, "not a list of path and sha256"),
+    ("image manifest nested too deep", ((MANIFEST[0], None, "[" * 100000 + "]" * 100000),), 2, "RecursionError"),
     ("duplicate conflicting row", (("baseline_utilization.rpt", "| DSPs", "| DSPs | 9 |\n| DSPs"),), 2, "DSPs"),
     ("duplicate conflicting header", (("baseline_utilization.rpt", "| Device       : xc7a100tfgg484-2\n",
                                        "| Device       : xc7a100tfgg484-2\n| Device       : xc7a200tfbg484-2\n"),),
      2, "'Device' appears 2 times"),
     ("malformed count", (row("SLICE", 400, "x"),), 2, "not a count"),
+    ("count in other digits", (row("LUT", 1000, "\uff11\uff10\uff10\uff10"),), 2, "not a count"),
     ("fractional count", (row("SLICE", 400, "400.25"),), 2, "not a count"),
     ("missing Slice row", (("baseline_utilization.rpt", f"| {'Slice':<20} | 400 | 0 | 0 | 9 | 1.0 |\n", ""),),
      2, "'Slice' has values []"),
@@ -222,6 +240,13 @@ ROUTE_ARMS = (
     ("read source missing", (("{repo}/sw/constraints.tcl", None, None),), 2, "read source is missing"),
     ("include directory missing", ((FLOW, "/hdl/common}", "/hdl/absent}"),), 2, "include directory is missing"),
     ("cell census header changed", (("baseline_cells.tsv", "cell\tprimitive", "cell\tref"),), 2, "header changed"),
+    ("hierarchy count in other digits", (("baseline_hierarchy.rpt", "| m0 | 900 |", "| m0 | \uff19\uff10\uff10 |"),),
+     2, "not a row of counts"),
+    ("hierarchy row without counts", (("baseline_hierarchy.rpt", "| m4 | 896 |", "| m4 | n/a |"),),
+     2, "not a row of counts"),
+    ("wrapper source read from too near the root",
+     ((FLOW, "/hdl/milan/KL_pp_shadow.sv}\n", "/hdl/milan/KL_pp_shadow.sv}\nread_verilog {/milan/KL_pp_shadow.sv}\n"),),
+     2, "read source is missing: /milan/KL_pp_shadow.sv"),
     ("second recipe script", (("baseline_ooc.tcl", None, "quit\n"),), 2, "recipe scripts"),
 )
 OOC_ARMS = (
@@ -242,7 +267,8 @@ OOC_ARMS = (
 #: The policy table rows of BUDGET: its head, separator, route row and standalone row.
 TABLE = BUDGET.split("\n")[4:8]
 #: Commands through main(): (label, measurement kind, plants, baseline file, exit status, text the output holds).
-#: The baseline file is the recorded one (None), raw text, an edit of its endpoints, or an absent path.
+#: The baseline file is the recorded one (None), raw text, an edit of its endpoints, an (old, new) edit of the
+#: recorded file's text, or an absent path.
 CHECK_ARMS = (
     ("check within tolerance", "route", (SOURCE,), None, 0, "RESULT: PASS"),
     ("check reads the kind from a standalone directory", "ooc", (), None, 0, "RESULT: PASS"),
@@ -269,7 +295,7 @@ CHECK_ARMS = (
 AUDIT_ARMS = (
     ("a consistent baseline", None, None, 0, "baseline PASS: 2 endpoints"),
     ("a missing record", lambda ends: ends["route"].pop("record"), None, 2, "route: has no record"),
-    ("an incomplete record", lambda ends: ends["route"]["record"].pop("scopes"), None, 2, "record lacks"),
+    ("an incomplete record", lambda ends: ends["route"]["record"].pop("scopes"), None, 2, "the record lacks scopes"),
     ("a missing tolerance", lambda ends: ends["route"]["tolerance"].pop("LUT"), None,
      2, "LUT has no non-negative tolerance"),
     ("a negative tolerance", lambda ends: ends["route"]["tolerance"].update({"DSP": -1}), None,
@@ -283,11 +309,18 @@ AUDIT_ARMS = (
     ("a ceiling naming no figure", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILES": 5.0}), None,
      2, "not a recorded figure"),
     ("a malformed policy", lambda ends: ends["route"].update({"tolerance": [10]}), None,
-     2, "route: malformed policy"),
+     2, "route: tolerance is not a table of figures"),
     ("a tolerance the budget does not hold", lambda ends: ends["route"]["tolerance"].update({"LUT": 10 ** 9}), None,
      2, "tolerance LUT is 1000000000 in the baseline and 10.0 in the budget table"),
     ("a budget value the baseline does not hold", None, lambda page: page.replace("+5 |", "+6 |"),
      2, "tolerance SLICE is 5 in the baseline and 6.0 in the budget table"),
+    ("a budget floor the baseline does not hold", None, lambda page: page.replace("+0.030 ns", "+0.040 ns"),
+     2, "floor WNS_ns is 0.03 in the baseline and 0.04 in the budget table"),
+    ("a budget ceiling the baseline does not hold", None, lambda page: page.replace("| 5.0 |", "| 6.0 |"),
+     2, "ceiling BRAM_TILE is 5.0 in the baseline and 6.0 in the budget table"),
+    ("a baseline policy figure the budget table lacks", lambda ends: ends["route"]["ceiling"].update({"LUT": 2000}),
+     None, 2, "ceiling LUT is 2000 in the baseline and None in the budget table"),
+    ("a budget cell in other digits", None, lambda page: page.replace("| +5 |", "| +\uff15 |"), 2, "neither a value"),
     ("an endpoint the budget lacks", None, lambda page: page.replace("| `ooc` |", "Not a row: `ooc` |"),
      2, "ooc: only the baseline names it"),
     ("a budget row the baseline lacks", lambda ends: ends.pop("ooc"), None, 2, "ooc: only the budget table names it"),
@@ -297,6 +330,55 @@ AUDIT_ARMS = (
      2, "malformed or repeated"),
     ("a budget cell that is no value", None, lambda page: page.replace("| +5 |", "| five |"), 2, "neither a value"),
     ("no budget page", None, Path("absent.md"), 2, "budget absent.md"),
+)
+#: Baselines not of the recorded shape: (label, baseline file as in CHECK_ARMS, text the refusal holds). check and
+#: check-baseline both refuse each one with exit 2 before reading any field of it.
+MALFORMED = (
+    ("a NaN floor", lambda ends: ends["route"]["floor"].update({"WNS_ns": float("nan")}),
+     "the number NaN is not finite"),
+    ("an infinite tolerance", lambda ends: ends["route"]["tolerance"].update({"LUT": float("inf")}),
+     "the number Infinity is not finite"),
+    ("a ceiling too large to be finite", ('"BRAM_TILE": 5.0}', '"BRAM_TILE": 5e999}'),
+     "the number 5e999 is not finite"),
+    ("a file nested too deep to read", "[" * 100000 + "]" * 100000, "is unreadable"),
+    ("an unknown field in the file", ('{"endpoints": ', '{"note": "x", "endpoints": '), "unknown fields note"),
+    ("an unknown field in an endpoint", lambda ends: ends["route"].update({"ceilings": {}}), "unknown fields ceilings"),
+    ("a record kind that is a list", lambda ends: ends["route"]["record"].update({"kind": ["route"]}),
+     "kind ['route'] is not one of"),
+    ("an unknown record kind", lambda ends: ends["route"]["record"].update({"kind": "tile"}),
+     "kind 'tile' is not one of"),
+    ("an identity that is text", lambda ends: ends["route"]["record"].update({"identity": "Vivado"}),
+     "identity does not hold exactly"),
+    ("an identity without its device", lambda ends: ends["route"]["record"]["identity"].pop("device"),
+     "identity does not hold exactly"),
+    ("an identity field of another type", lambda ends: ends["route"]["record"]["identity"].update({"tool": 7}),
+     "not of its recorded type"),
+    ("a flow that is not text", lambda ends: ends["route"]["record"]["identity"].update({"flow": [1]}),
+     "not a list of text"),
+    ("an input digest that is no digest", lambda ends: ends["route"]["record"].update({"inputs_sha256": "ab"}),
+     "not a sha256 hex digest"),
+    ("figures that are a list", lambda ends: ends["route"]["record"].update({"figures": []}),
+     "figures are not exactly"),
+    ("figures without LUT", lambda ends: ends["route"]["record"]["figures"].pop("LUT"), "figures are not exactly"),
+    ("a gated figure that is text", lambda ends: ends["route"]["record"]["figures"].update({"LUT": "1000"}),
+     "recorded figure is not a finite number"),
+    ("a gated figure that is null", lambda ends: ends["route"]["record"]["figures"].update({"WNS_ns": None}),
+     "recorded figure is not a finite number"),
+    ("a gated figure that is a bool", lambda ends: ends["route"]["record"]["figures"].update({"DSP": True}),
+     "recorded figure is not a finite number"),
+    ("scopes that are a list", lambda ends: ends["route"]["record"].update({"scopes": []}),
+     "scopes are not a table"),
+    ("a scope without its CARRY4 count", lambda ends: ends["route"]["record"]["scopes"]["wrapper"].pop("CARRY4"),
+     "scopes are not a table"),
+    ("a fractional scope count", lambda ends: ends["route"]["record"]["scopes"]["u_pp/u_srp"].update({"LUT": 1.5}),
+     "sub-block count is not a non-negative whole number"),
+    ("a negative scope count", lambda ends: ends["route"]["record"]["scopes"]["u_pp/u_srp"].update({"FF": -1}),
+     "sub-block count is not a non-negative whole number"),
+    ("a tolerance that is text", lambda ends: ends["route"]["tolerance"].update({"LUT": "10"}),
+     "a tolerance value is not a finite number"),
+    ("a ceiling that is a bool", lambda ends: ends["route"]["ceiling"].update({"BRAM_TILE": True}),
+     "a ceiling value is not a finite number"),
+    ("a floor table that is a list", lambda ends: ends["route"].update({"floor": [0]}), "floor is not a table"),
 )
 
 
@@ -394,9 +476,14 @@ def baseline_file(tmp: Path, entries: dict, data: object) -> Path:
         path.write_text(data)
         return path
     baseline = copy.deepcopy({"endpoints": entries})
-    if data is not None:
+    if callable(data):
         data(baseline["endpoints"])
-    path.write_text(json.dumps(baseline))
+    text = json.dumps(baseline)
+    if isinstance(data, tuple):
+        if text.count(data[0]) != 1:
+            raise AssertionError(f"baseline edit {data[0]!r} is not unique")
+        text = text.replace(*data)
+    path.write_text(text)
     return path
 
 
@@ -407,6 +494,13 @@ def budget_file(tmp: Path, page: object) -> Path:
     path = tmp / "budget.md"
     path.write_text(BUDGET if page is None else page(BUDGET))
     return path
+
+
+def plant_source(tmp: Path) -> Path:
+    """A route measurement of a changed source with unchanged figures: within tolerance against the record."""
+    folder = fresh(tmp / "route", "route")
+    plant(folder, SOURCE[0].replace("{repo}", str(tmp / "route/arm/repo")), *SOURCE[1:])
+    return folder
 
 
 def command_line_arms(tmp: Path, entries: dict) -> int:
@@ -426,12 +520,19 @@ def command_line_arms(tmp: Path, entries: dict) -> int:
                             "--budget", budget_file(tmp, page))
         expect(f"check-baseline arm {label!r}", status, lines, wanted, needle)
         print(f"resource gate check-baseline arm: {label}: exit {status} PASS")
+    for label, data, needle in MALFORMED:
+        path = baseline_file(tmp, entries, data)
+        status, lines = cli("check", plant_source(tmp), "--endpoint", "route", "--baseline", path)
+        expect(f"malformed-baseline arm {label!r} through check", status, lines, 2, needle)
+        status, lines = cli("check-baseline", "--baseline", path, "--budget", budget_file(tmp, None))
+        expect(f"malformed-baseline arm {label!r} through check-baseline", status, lines, 2, needle)
+        print(f"resource gate malformed-baseline arm: {label}: exit 2 through check and check-baseline PASS")
     path = baseline_file(tmp, entries, None)
     status, _ = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy", "--baseline", path, "--write")
     if status != 0 or json.loads(path.read_text())["endpoints"]["copy"]["record"] != entries["route"]["record"]:
         raise AssertionError(f"record --write exited {status} or wrote a different record")
     print("resource gate CARRY4 attribution and record --write PASS")
-    return len(CHECK_ARMS) + len(AUDIT_ARMS) + 2
+    return len(CHECK_ARMS) + len(AUDIT_ARMS) + 2 * len(MALFORMED) + 2
 
 
 def selftest() -> int:
