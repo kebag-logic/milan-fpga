@@ -1,0 +1,37 @@
+== round 4 commits (b5894838..79e53831), message line counts
+82bc432b509761f12f5b90851feda08032cdccd0 1 line(s): Hold the resource gate's exit-code contract by construction: one barrier in main, ASCII-sa
+d8638e6ef13094b31e41496f711f12240a37754a 1 line(s): Add a seeded generative test of the resource gate's exit-code contract: 500 cases in its s
+e6710d1331142569d9c491752cba3d77fed41f6a 1 line(s): State the resource gate's exit-code contract as it holds by construction: the barrier, ASC
+39e9329b8ef234bc8ff3e2ca287f1697fe03f267 1 line(s): Refuse a check of an endpoint the baseline does not hold inside the barrier, as the genera
+79e53831a4f623a594f22765be1d05dffeb696a7 1 line(s): Keep the self-test's timing fixture in its round-3 layout so reviewer probes still plant i
+== round 4 diffstat
+ docs/design/AREA_BUDGET.md                |  20 +-
+ docs/testing/PP_SHADOW_BASELINE_RECIPE.md |  14 +-
+ syn/ooc/pp_baseline_rank.py               |  24 +-
+ syn/ooc/pp_resource_gate.py               | 256 +++++++++++---
+ syn/ooc/pp_resource_gate_mutants.py       | 133 +++++--
+ syn/ooc/pp_resource_gate_selftest.py      | 569 ++++++++++++++++++++++++++----
+ 6 files changed, 852 insertions(+), 164 deletions(-)
+== full lane name-status 1269cdaf..79e53831
+M	.github/workflows/rtl-fast.yml
+M	docs/design/AREA_BUDGET.md
+A	docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+M	docs/findings/README.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+M	scripts/ci_events.py
+M	scripts/ci_scope.py
+M	syn/ooc/pp_baseline.py
+M	syn/ooc/pp_baseline_mutants.py
+M	syn/ooc/pp_baseline_rank.py
+A	syn/ooc/pp_resource_baseline.json
+A	syn/ooc/pp_resource_gate.py
+A	syn/ooc/pp_resource_gate_mutants.py
+A	syn/ooc/pp_resource_gate_selftest.py
+== gitlinks base / head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 631eeb342ca1e3fa80e734077a56a943aee76ff1	protocol-processor
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 631eeb342ca1e3fa80e734077a56a943aee76ff1	protocol-processor

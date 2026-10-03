@@ -1,0 +1,15 @@
+control: PASS rc=0 resource gate selftest: 247 arms and 500 generated cases PASS
+KILLED     routing-error row may repeat: rc=1 AssertionError: route arm 'route status with a second error row': exit 0, wanted 2 naming "no single 'nets with routing errors' row"
+KILLED     undecodable budget page escapes: rc=1 "NOT COMPARABLE: ValueError: budget policy cell '+100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+KILLED     undecodable route status escapes: rc=1 "escaped ValueError: route status row 'logical nets' is not a whole number of 1 to 15 ASCII digits: 'lots'"
+KILLED     bool scope counts accepted: rc=1 AssertionError: malformed-baseline arm 'a scope count that is a bool' through check: exit 0, wanted 2 naming 'sub-block count is not a non-negative whole number'
+KILLED     standalone clock items unchecked: rc=1 AssertionError: malformed-baseline arm 'a standalone clock that is not text' through check: exit 0, wanted 2 naming "ooc: the record identity's flow or standalone clock i
+KILLED     flow items unchecked: rc=1 AssertionError: malformed-baseline arm 'a flow that is not text' through check: exit 2, wanted 2 naming 'not a list of text'
+KILLED     digest of any length: rc=1 AssertionError: malformed-baseline arm 'an input digest that is no digest' through check: exit 0, wanted 2 naming 'not a sha256 hex digest'
+KILLED     identity may hold extra keys: rc=1 AssertionError: malformed-baseline arm 'an identity with an extra key' through check: exit 2, wanted 2 naming 'identity does not hold exactly'
+KILLED     only TNS endpoints counted: rc=1 AssertionError: route arm 'no hold-timed endpoint': exit 0, wanted 2 naming 'times no endpoint'
+KILLED     only THS endpoints counted: rc=1 pp_resource_gate.Refusal: Design Timing Summary times no endpoint: total endpoints []
+KILLED     load refusal reaches judge: rc=1 "NOT COMPARABLE: KeyError: 'record'"
+KILLED     hierarchy counts from the fourth cell: rc=1 "unreadable measurement /tmp/pp-resource-gate-azwj54fa/route/arm/gateware: ValueError: hierarchy count of 'alinx_ax7101' is not a whole number of 1 to 15 ASCII digits: '\
+KILLED     hierarchy counts end early: rc=1 "unreadable measurement /tmp/pp-resource-gate-wbxxa85t/route/arm/gateware: ValueError: hierarchy count of 'alinx_ax7101' is not a whole number of 1 to 15 ASCII digits: '\
+round-3 extra mutants: 13 killed, 0 survived, 0 not unique, of 13
