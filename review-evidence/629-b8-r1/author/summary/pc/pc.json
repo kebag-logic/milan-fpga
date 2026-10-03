@@ -1,0 +1,386 @@
+{
+ "case": "PC",
+ "nvm": [
+  {
+   "stage": "pre",
+   "tag": "as-found",
+   "slot_a": "VD_OK",
+   "seq_a": 29,
+   "slot_b": "VD_OK",
+   "seq_b": 30,
+   "authoritative": "B",
+   "image_seq": 30,
+   "dirty": 0,
+   "commit_busy": 0,
+   "pend": 1,
+   "commits_ok": 30,
+   "commits_failed": 0,
+   "verdict": "VD_OK",
+   "version": "00020060"
+  },
+  {
+   "stage": "pre",
+   "tag": "pre-saved-0",
+   "slot_a": "VD_OK",
+   "seq_a": 31,
+   "slot_b": "VD_OK",
+   "seq_b": 30,
+   "authoritative": "A",
+   "image_seq": 31,
+   "dirty": 0,
+   "commit_busy": 0,
+   "pend": 1,
+   "commits_ok": 31,
+   "commits_failed": 0,
+   "verdict": "VD_OK",
+   "version": "00020060"
+  },
+  {
+   "stage": "post",
+   "tag": "post-boot",
+   "slot_a": "VD_OK",
+   "seq_a": 31,
+   "slot_b": "VD_OK",
+   "seq_b": 30,
+   "authoritative": "A",
+   "image_seq": 31,
+   "dirty": 0,
+   "commit_busy": 0,
+   "pend": 0,
+   "commits_ok": 0,
+   "commits_failed": 0,
+   "verdict": "VD_OK",
+   "version": "00020060"
+  },
+  {
+   "stage": "post",
+   "tag": "post-restore-0",
+   "slot_a": "VD_OK",
+   "seq_a": 31,
+   "slot_b": "VD_OK",
+   "seq_b": 32,
+   "authoritative": "B",
+   "image_seq": 32,
+   "dirty": 0,
+   "commit_busy": 0,
+   "pend": 1,
+   "commits_ok": 1,
+   "commits_failed": 0,
+   "verdict": "VD_OK",
+   "version": "00020060"
+  }
+ ],
+ "clock": [
+  {
+   "stage": "pre",
+   "tag": "as-found",
+   "source": 0
+  },
+  {
+   "stage": "pre",
+   "tag": "pre-locked",
+   "source": 2
+  },
+  {
+   "stage": "post",
+   "tag": "post-boot",
+   "source": 2
+  },
+  {
+   "stage": "post",
+   "tag": "post-locked",
+   "source": 2
+  },
+  {
+   "stage": "post",
+   "tag": "final",
+   "source": 0
+  }
+ ],
+ "sets": [
+  {
+   "stage": "pre",
+   "tag": "pre",
+   "src": 2,
+   "status": "SUCCESS",
+   "readback": 2
+  },
+  {
+   "stage": "post",
+   "tag": "restore",
+   "src": 0,
+   "status": "SUCCESS",
+   "readback": 0
+  }
+ ],
+ "rx": [
+  {
+   "stage": "pre",
+   "tag": "as-found",
+   "idx": 0,
+   "status": 0,
+   "conn_count": 0,
+   "talker_is_peer": false,
+   "flags": "0x0000"
+  },
+  {
+   "stage": "pre",
+   "tag": "as-found",
+   "idx": 1,
+   "status": 0,
+   "conn_count": 0,
+   "talker_is_peer": false,
+   "flags": "0x0000"
+  },
+  {
+   "stage": "post",
+   "tag": "post-boot",
+   "idx": 0,
+   "status": 0,
+   "conn_count": 1,
+   "talker_is_peer": true,
+   "flags": "0x0002"
+  },
+  {
+   "stage": "post",
+   "tag": "post-locked",
+   "idx": 0,
+   "status": 0,
+   "conn_count": 1,
+   "talker_is_peer": true,
+   "flags": "0x0002"
+  },
+  {
+   "stage": "post",
+   "tag": "final",
+   "idx": 0,
+   "status": 0,
+   "conn_count": 0,
+   "talker_is_peer": false,
+   "flags": "0x0000"
+  },
+  {
+   "stage": "post",
+   "tag": "final",
+   "idx": 1,
+   "status": 0,
+   "conn_count": 0,
+   "talker_is_peer": false,
+   "flags": "0x0000"
+  }
+ ],
+ "formats": [
+  {
+   "stage": "post",
+   "kind": "format-post-boot",
+   "fmt": "0205022001006000",
+   "as_found": null,
+   "equal": null
+  },
+  {
+   "stage": "post",
+   "kind": "format-final",
+   "fmt": "0205022002006000",
+   "as_found": "0205022002006000",
+   "equal": true
+  }
+ ],
+ "polls": [
+  {
+   "stage": "pre",
+   "tag": "lock",
+   "rc": 0,
+   "polls": 17,
+   "locked_s": [
+    6.673643749,
+    7.172382028
+   ],
+   "state_changes": [
+    [
+     0,
+     0.113
+    ],
+    [
+     3,
+     0.614
+    ],
+    [
+     4,
+     7.172
+    ]
+   ]
+  },
+  {
+   "stage": "post",
+   "tag": "relock-noaction",
+   "rc": 0,
+   "polls": 3,
+   "locked_s": [
+    0.0,
+    0.092784637
+   ],
+   "state_changes": [
+    [
+     4,
+     0.093
+    ]
+   ]
+  }
+ ],
+ "relock": [
+  {
+   "locked_s": [
+    0.0,
+    0.092784637
+   ],
+   "rebind_needed": false
+  }
+ ],
+ "counters": {
+  "pre-as-found": {
+   "dut-0x0024-0": {
+    "LOCKED": 11,
+    "UNLOCKED": 10
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 9,
+    "STREAM_STOP": 9,
+    "MEDIA_RESET": 3
+   },
+   "peer-0x0006-0": {
+    "STREAM_START": 9,
+    "STREAM_STOP": 9,
+    "MEDIA_RESET": 0
+   }
+  },
+  "pre-pre-locked": {
+   "dut-0x0024-0": {
+    "LOCKED": 12,
+    "UNLOCKED": 11
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 9,
+    "STREAM_STOP": 9,
+    "MEDIA_RESET": 3
+   },
+   "peer-0x0006-0": {
+    "STREAM_START": 10,
+    "STREAM_STOP": 9,
+    "MEDIA_RESET": 0
+   }
+  },
+  "post-post-boot": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 0
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 0,
+    "STREAM_STOP": 0,
+    "MEDIA_RESET": 0
+   },
+   "peer-0x0006-0": {
+    "STREAM_START": 11,
+    "STREAM_STOP": 10,
+    "MEDIA_RESET": 0
+   }
+  },
+  "post-post-locked": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 0
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 0,
+    "STREAM_STOP": 0,
+    "MEDIA_RESET": 0
+   },
+   "peer-0x0006-0": {
+    "STREAM_START": 11,
+    "STREAM_STOP": 10,
+    "MEDIA_RESET": 0
+   }
+  },
+  "post-final": {
+   "dut-0x0024-0": {
+    "LOCKED": 1,
+    "UNLOCKED": 0
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 0,
+    "STREAM_STOP": 0,
+    "MEDIA_RESET": 0
+   },
+   "peer-0x0006-0": {
+    "STREAM_START": 11,
+    "STREAM_STOP": 11,
+    "MEDIA_RESET": 0
+   }
+  }
+ },
+ "boot": {
+  "listen_start": 1791046188.953372,
+  "first_byte": 1791046200.016527,
+  "prompt": 1791046208.417112,
+  "first_byte_to_prompt_s": 8.401,
+  "bytes": 5107,
+  "milestone_lines": [
+   "BIOS CRC passed (3d1eea33)",
+   "Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.",
+   "Milan baremetal: AEM 7512 B copied QSPI +0x00400000 -> 0x7f700000, CRC 5ba355eb.",
+   "Milan NVM: slot A VD_OK seq 31, slot B VD_OK seq 30; offered A seq 31 (VD_OK), 3336 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0.",
+   "Milan baremetal: fabric entity enabled; UART diagnostics ready."
+  ]
+ },
+ "post_first_command_t": 1791046288.430001
+}

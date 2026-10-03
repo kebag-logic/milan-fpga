@@ -1,0 +1,84 @@
+### 2026-10-03T16:02:47.880098Z cmd='milan_status' elapsed=0.032s
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000cc4 AEM=loaded
+GPTP_GM=<grandmaster-id> GPTP_PARENT=<grandmaster-id> PDELAY_NS=385 AS_PATH_COUNT=1 AS_PATH_GEN=1 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 TU=0 GPTP_LAT=029000db
+TAI_NS=0x00010128d8235875
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:47.911959Z cmd='milan_nvm' elapsed=0.192s
+milan_nvm
+NVM: slot A VD_OK seq 17, slot B VD_OK seq 16, authoritative A, image seq 17, 54 records, 3336 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c34000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=1 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=17 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.103556Z cmd='mem_read 0x90000654 12' elapsed=0.014s
+mem_read 0x90000654 12
+Memory dump:
+0x90000654  01 00 02 00 01 fe 00 f0 e0 91 00 00              ............    
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.117954Z cmd='mem_read 0x90000660 20' elapsed=0.021s
+mem_read 0x90000660 20
+Memory dump:
+0x90000660  1a e8 ef 01 79 f7 9c 98 00 00 00 00 00 00 00 00  ....y...........
+0x90000670  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.139362Z cmd='mem_read 0x90000694 8' elapsed=0.014s
+mem_read 0x90000694 8
+Memory dump:
+0x90000694  00 00 00 00 00 00 00 00                          ........        
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.153691Z cmd='mem_read 0x900006a4 4' elapsed=0.014s
+mem_read 0x900006a4 4
+Memory dump:
+0x900006a4  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.167992Z cmd='mem_read 0x900006cc 12' elapsed=0.014s
+mem_read 0x900006cc 12
+Memory dump:
+0x900006cc  01 02 00 00 6e ea 00 00 06 00 00 00              ....n.......    
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.182415Z cmd='mem_read 0x900006dc 4' elapsed=0.014s
+mem_read 0x900006dc 4
+Memory dump:
+0x900006dc  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.196703Z cmd='mem_read 0x90000900 4' elapsed=0.028s
+mem_read 0x90000900 4
+Memory dump:
+0x90000900  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.224742Z cmd='mem_read 0x900008d4 12' elapsed=0.015s
+mem_read 0x900008d4 12
+Memory dump:
+0x900008d4  92 01 00 00 00 00 00 00 00 01 1f 00              ............    
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.239515Z cmd='mem_read 0x90000680 36' elapsed=0.028s
+mem_read 0x90000680 36
+Memory dump:
+0x90000680  13 00 00 00 02 00 00 00 01 fe 00 f0 e0 91 00 00  ................
+0x90000690  e0 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x900006a0  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.267803Z cmd='mem_read 0x900006e0 16' elapsed=0.014s
+mem_read 0x900006e0 16
+Memory dump:
+0x900006e0  00 00 00 00 81 01 00 00 00 00 00 00 e3 97 1e 00  ................
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.282225Z cmd='mem_read 0x90000738 4' elapsed=0.014s
+mem_read 0x90000738 4
+Memory dump:
+0x90000738  00 00 00 00                                      ....            
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.296545Z cmd='mem_read 0x90000748 8' elapsed=0.014s
+mem_read 0x90000748 8
+Memory dump:
+0x90000748  13 16 00 00 00 00 8e 02                          ........        
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.310842Z cmd='mem_read 0x900008f8 8' elapsed=0.014s
+mem_read 0x900008f8 8
+Memory dump:
+0x900008f8  20 00 00 00 00 00 00 00                           .......        
+[92;1mlitex[0m> 
+### 2026-10-03T16:02:48.325129Z cmd='mem_read 0x900008e0 8' elapsed=0.014s
+mem_read 0x900008e0 8
+Memory dump:
+0x900008e0  00 00 00 00 14 16 00 00                          ........        
+[92;1mlitex[0m> 

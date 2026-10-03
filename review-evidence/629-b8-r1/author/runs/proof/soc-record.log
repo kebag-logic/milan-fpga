@@ -1,0 +1,17 @@
+
+### 2026-10-03T18:05:12+0200 timeout=70.0 typed='wget -qO- http://<link-host-addr>:41649/A521_465298.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/45797 2>&1
+printf '%s_B\n' A521_465298
+cat /proc/uptime; arecord -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 10 > /dev/tcp/<link-host-addr>/45171; echo arecord_rc=$?; cat /proc/uptime
+printf '\n%s_E rc=%s\n' A521_465298 $?
+### reply:
+A521_465298_B
+283330.54 780895.94
+Recording raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+arecord_rc=0
+283340.59 780934.91
+
+A521_465298_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

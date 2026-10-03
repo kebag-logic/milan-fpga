@@ -1,0 +1,1004 @@
+{
+ "case": "CRFLL",
+ "name": "crfll",
+ "segment": "lockloss-begin..lockloss-end",
+ "channel_identification": {
+  "tone_pair_decoded": 479996,
+  "frames": 480000
+ },
+ "capture_reads": {
+  "records": 2577,
+  "read_gap_ms_max": 16.913,
+  "read_gap_ms_p99": 10.238,
+  "read_gap_ms_median": 9.999,
+  "stalls": 4,
+  "stall_gaps_ms": [
+   16.644,
+   16.913,
+   15.527,
+   16.841
+  ]
+ },
+ "skip_clusters": [],
+ "slip_tdm_window": {
+  "slip_tdm_delta": 0,
+  "slip_tdm_seconds": 24.765,
+  "slip_tdm_per_s": 0.0,
+  "first": "poll-849",
+  "last": "poll-898"
+ },
+ "beat_comb": null,
+ "attribution": {},
+ "dut_beat_spacing": {
+  "min": null,
+  "max": null,
+  "median": null
+ },
+ "listener_spacing": {
+  "median": null
+ },
+ "blocks": {
+  "clean": {
+   "ch0": {
+    "n": 25,
+    "thdn_db_median": -146.06,
+    "thdn_db_worst": -146.06,
+    "snr_db_median": 146.07,
+    "snr_db_worst": 146.07,
+    "ppm_median": 1.2878587085651816e-08,
+    "ppm_maxabs": 1.2878587085651816e-08
+   },
+   "ch1": {
+    "n": 25,
+    "thdn_db_median": -145.99,
+    "thdn_db_worst": -145.99,
+    "snr_db_median": 145.99,
+    "snr_db_worst": 145.99,
+    "ppm_median": -2.886579864025407e-09,
+    "ppm_maxabs": 2.886579864025407e-09
+   }
+  },
+  "listener": {
+   "ch0": null,
+   "ch1": null
+  },
+  "dut_beat_only": {
+   "ch0": null,
+   "ch1": null
+  },
+  "capture_path": {
+   "ch0": null,
+   "ch1": null
+  },
+  "all": {
+   "ch0": {
+    "n": 25,
+    "thdn_db_median": -146.06,
+    "thdn_db_worst": -146.06,
+    "snr_db_median": 146.07,
+    "snr_db_worst": 146.07,
+    "ppm_median": 1.2878587085651816e-08,
+    "ppm_maxabs": 1.2878587085651816e-08
+   },
+   "ch1": {
+    "n": 25,
+    "thdn_db_median": -145.99,
+    "thdn_db_worst": -145.99,
+    "snr_db_median": 145.99,
+    "snr_db_worst": 145.99,
+    "ppm_median": -2.886579864025407e-09,
+    "ppm_maxabs": 2.886579864025407e-09
+   }
+  }
+ },
+ "floor": [
+  {
+   "thdn_db": -146.065,
+   "snr_db": 146.067
+  },
+  {
+   "thdn_db": -145.993,
+   "snr_db": 145.993
+  }
+ ],
+ "tone": {
+  "blocks": 25,
+  "clean_blocks": 25,
+  "blocks_with_discontinuity": 0,
+  "events": 0,
+  "invalid": 0,
+  "torn": 0,
+  "skips": 0,
+  "repeats": 0,
+  "skipped_frames": 0,
+  "repeated_frames": 0,
+  "silent_inserts": 0,
+  "events_across_invalid": 0,
+  "ch0_clean_max_dev_from_floor_db": 4.735357720164757e-06,
+  "ch1_clean_max_dev_from_floor_db": 5.354298878046393e-06
+ },
+ "window": {
+  "frames": 1236960,
+  "seconds": 25.77,
+  "start_frame": 20744640,
+  "end_frame": 21981600
+ },
+ "effective_offset_ppm": {
+  "all_events": 0.0,
+  "without_capture_path": 0.0,
+  "listener_only": 0.0
+ },
+ "frame_rate_ratio": {
+  "counted": {
+   "steps_non_capture": 0,
+   "observed_frames": 1236960,
+   "capture_lost_frames": 0,
+   "ppm": 0.0,
+   "resolution_ppm": 0.8084335790971413
+  },
+  "samples_total": 2285,
+  "samples_window": 123,
+  "external_capture": {
+   "rate": 47996.84431006462,
+   "rate_lo": NaN,
+   "rate_hi": NaN,
+   "segments": 3,
+   "rate_first_half": NaN,
+   "rate_second_half": 47992.34519720691,
+   "floor_spread_ms": 0.569,
+   "reads": 2577
+  },
+  "mcasp_capture": {
+   "rate": 47999.2510336669,
+   "rate_lo": NaN,
+   "rate_hi": NaN,
+   "segments": 3,
+   "rate_first_half": NaN,
+   "rate_second_half": 47999.27954328642,
+   "floor_spread_ms": 0.0047,
+   "samples": 123,
+   "trigger": "285430.654127595",
+   "rate_board": 47997.67704304033,
+   "board_fit_resid_frames_rms": 1.183,
+   "board_fit_resid_frames_maxabs": 3.614,
+   "board_read_us_median": 188.0,
+   "board_s_per_host_s": 1.0000307034178029,
+   "board_s_per_host_s_lo": NaN,
+   "board_s_per_host_s_hi": NaN,
+   "rate_two_step": 47999.15073577215,
+   "ratio_ppm": 50.1433716502131,
+   "ratio_ppm_two_step": 48.053694793548374,
+   "ratio_ppm_first_half": NaN,
+   "ratio_ppm_second_half": 144.4885856487499,
+   "ratio_ppm_halfwidth95_bootstrap": NaN,
+   "ratio_ppm_halves_halfdiff": NaN,
+   "ratio_ppm_halfwidth95": NaN
+  },
+  "mcasp_playback": {
+   "rate": 47999.433025045604,
+   "rate_lo": NaN,
+   "rate_hi": NaN,
+   "segments": 3,
+   "rate_first_half": NaN,
+   "rate_second_half": 47999.5845189368,
+   "floor_spread_ms": 0.0323,
+   "samples": 123,
+   "trigger": "285430.655193750",
+   "rate_board": 47997.65907178569,
+   "board_fit_resid_frames_rms": 1.448,
+   "board_fit_resid_frames_maxabs": 4.721,
+   "board_read_us_median": 404.0,
+   "board_s_per_host_s": 1.0000287711034463,
+   "board_s_per_host_s_lo": NaN,
+   "board_s_per_host_s_hi": NaN,
+   "rate_two_step": 47999.040017400024,
+   "ratio_ppm": 53.935107988900555,
+   "ratio_ppm_two_step": 45.746910384725226,
+   "ratio_ppm_first_half": NaN,
+   "ratio_ppm_second_half": 150.8432584433894,
+   "ratio_ppm_halfwidth95_bootstrap": NaN,
+   "ratio_ppm_halves_halfdiff": NaN,
+   "ratio_ppm_halfwidth95": NaN
+  }
+ },
+ "dut_reads": [
+  {
+   "tag": "before-bind",
+   "t": 1791045615.836299,
+   "words": {
+    "0x8f8": "00000020",
+    "0x8fc": "00000000",
+    "0x8e0": "00000000",
+    "0x8e4": "00001607",
+    "0x738": "00000000",
+    "0x748": "00001604",
+    "0x74c": "01b90000",
+    "0x8d4": "000001a6",
+    "0x8d8": "00000000",
+    "0x8dc": "001f0100"
+   }
+  },
+  {
+   "tag": "final",
+   "t": 1791046096.709964,
+   "words": {
+    "0x8f8": "00000020",
+    "0x8fc": "00000000",
+    "0x8e0": "00000000",
+    "0x8e4": "00001607",
+    "0x738": "00000000",
+    "0x748": "00001603",
+    "0x74c": "000e0000",
+    "0x8d4": "000001a6",
+    "0x8d8": "00000000",
+    "0x8dc": "001f0100"
+   }
+  }
+ ],
+ "polls_in_segment": 50,
+ "servo_window": {
+  "reads": 50,
+  "servo_states": [
+   "ACQUIRE",
+   "HOLDOVER",
+   "LOCKED"
+  ],
+  "servo_locked_at_every_read": false,
+  "trim_ppm_min_max": [
+   -6.0625,
+   -5.9375
+  ],
+  "meter_locked_every_read": false,
+  "meter_rate_valid_every_read": false,
+  "meter_restarts_first_last": [
+   0,
+   0
+  ],
+  "meter_max_dev_ns_last": 0,
+  "meter_rate_ppm_min_max": null,
+  "crf_rate_ppm_min_max_when_locked": [
+   10.990234375,
+   11.009765625
+  ],
+  "slip_tdm_dups_first_last": [
+   0,
+   0
+  ],
+  "slip_tdm_skips_first_last": [
+   0,
+   0
+  ],
+  "slip_lb_dups_first_last": [
+   422,
+   422
+  ],
+  "slip_lb_skips_first_last": [
+   0,
+   0
+  ]
+ },
+ "lock_timing": [
+  {
+   "tag": "crf",
+   "state": "LOCKED",
+   "s_lo": 2.663,
+   "s_hi": 3.169
+  },
+  {
+   "tag": "ll-holdover",
+   "state": "HOLDOVER",
+   "s_lo": 0.0,
+   "s_hi": 0.555
+  },
+  {
+   "tag": "ll-return",
+   "state": "LOCKED",
+   "s_lo": 2.66,
+   "s_hi": 3.162
+  }
+ ],
+ "counters": {
+  "before-bind": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 9,
+     "UNLOCKED": 8
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 8,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 4,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 444
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 4,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3539001,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3539001
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 441
+    }
+   }
+  },
+  "after-binds": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 9,
+     "UNLOCKED": 8
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 5
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 40497,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 40497
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2
+    }
+   }
+  },
+  "window-mark-0": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 10,
+     "UNLOCKED": 9
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 200613,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 200613
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 22
+    }
+   }
+  },
+  "window-mark-1": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 10,
+     "UNLOCKED": 9
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 235
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 1881492,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 1881492
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 232
+    }
+   }
+  },
+  "window-mark-2": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 10,
+     "UNLOCKED": 9
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 430
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3442093,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3442093
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 427
+    }
+   }
+  },
+  "ll-before": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 10,
+     "UNLOCKED": 9
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 445
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3560791,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3560791
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 442
+    }
+   }
+  },
+  "ll-holdover": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 10,
+     "UNLOCKED": 10
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 456
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3649904,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3649904
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 445
+    }
+   }
+  },
+  "ll-after": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 11,
+     "UNLOCKED": 10
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 8,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 471
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3766883,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3766883
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 13
+    }
+   }
+  },
+  "final": {
+   "dut-0x0024-0": {
+    "valid": "0x00000003",
+    "counters": {
+     "LOCKED": 11,
+     "UNLOCKED": 10
+    }
+   },
+   "dut-0x0006-0": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 9,
+     "STREAM_STOP": 9,
+     "MEDIA_RESET": 3,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 472
+    }
+   },
+   "dut-0x0006-1": {
+    "valid": "0x0000001f",
+    "counters": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    }
+   },
+   "peer-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 3,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3766915,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3766915
+    }
+   },
+   "dut-0x0005-0": {
+    "valid": "0x00000fff",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 3511482,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 3511482
+    }
+   },
+   "dut-0x0005-1": {
+    "valid": "0x00000f3f",
+    "counters": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 14
+    }
+   }
+  }
+ }
+}

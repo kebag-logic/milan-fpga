@@ -1,0 +1,84 @@
+
+### 2026-10-03T17:58:00+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:34791/A521_241435.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/33285 2>&1
+printf '%s_B\n' A521_241435
+id; cat /proc/uptime; tdm8-uac2.sh status; which python3 nc socat sox; python3 -c "import numpy; print(numpy.__version__)" 2>&1 | tail -1; df -k /tmp | tail -1; free -k | head -2
+printf '\n%s_E rc=%s\n' A521_241435 $?
+### reply:
+A521_241435_B
+uid=0(root) gid=0(root) groups=0(root),10(wheel)
+282899.14 779564.63
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: running (pid 15380)
+to-host: running (pid 15379)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 15379
+trigger_time: 282899.111218805
+tstamp      : 0.000000000
+delay       : 1426
+avail       : 1424
+avail_max   : 1536
+-----
+hw_ptr      : 7760
+appl_ptr    : 6336
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 15380
+trigger_time: 275212.753613940
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 15380
+trigger_time: 275212.745892885
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 15379
+trigger_time: 275212.745939340
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+bash: line 3: python3: command not found
+tmpfs                   209564       304    209260   0% /tmp
+              total        used        free      shared  buff/cache   available
+Mem:         419128       48776       12884         440      357468      359352
+
+A521_241435_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

@@ -1,0 +1,1276 @@
+{
+ "case": "SW",
+ "binds_end_s_before_first_set": 2.006,
+ "phases": [
+  {
+   "tag": "aaf1",
+   "from_source": 0,
+   "to_source": 2,
+   "set_status": "SUCCESS",
+   "readback": 2,
+   "set_answer_ms_after_switch": 0.411,
+   "set_to_locked_s": [
+    6.636,
+    7.136
+   ],
+   "clock_reads": [
+    {
+     "tag": "aaf1-before-set",
+     "source": 0
+    },
+    {
+     "tag": "aaf1-locked",
+     "source": 2
+    },
+    {
+     "tag": "aaf1-mid",
+     "source": 2
+    },
+    {
+     "tag": "aaf1-end",
+     "source": 2
+    }
+   ],
+   "before_set": {
+    "servo": "IDLE",
+    "trim_ppm": 0.0,
+    "meter_locked": false,
+    "meter_rate_valid": false,
+    "meter_enabled": false,
+    "meter_restarts": 0,
+    "meter_max_dev_ns": 0,
+    "meter_rate_ppm": null,
+    "crf_locked": true,
+    "crf_rate_ppm": 11.0234375,
+    "slip_lb": [
+     418,
+     0
+    ],
+    "slip_tdm": [
+     0,
+     0
+    ],
+    "render_fill": 13,
+    "render_prefill": 0,
+    "render_converged": 1,
+    "render_rails": 31
+   },
+   "after_lock": {
+    "polls": 238,
+    "servo_states": [
+     "LOCKED"
+    ],
+    "trim_ppm": [
+     -6.0625,
+     -5.8125
+    ],
+    "meter_rate_ppm": [
+     11.001953125,
+     11.03125
+    ],
+    "crf_rate_ppm": [
+     10.990234375,
+     11.052734375
+    ],
+    "slip_lb_first_last": [
+     [
+      420,
+      0
+     ],
+     [
+      422,
+      0
+     ]
+    ],
+    "slip_tdm_first_last": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "render_rails_first_last": [
+     31,
+     31
+    ],
+    "render_fill_min_max": [
+     7,
+     13
+    ],
+    "meter_restarts_first_last": [
+     0,
+     0
+    ],
+    "meter_max_dev_ns_last": 29
+   },
+   "changes": [
+    {
+     "s_lo": -1.9,
+     "s_hi": -1.399,
+     "poll": 7,
+     "crf_locked": true,
+     "render_prefill": 0,
+     "render_converged": 1,
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": -1.399,
+     "s_hi": -0.899,
+     "poll": 8,
+     "slip_lb": [
+      416,
+      0
+     ],
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": -0.899,
+     "s_hi": -0.068,
+     "poll": 9,
+     "slip_lb": [
+      418,
+      0
+     ],
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": -0.068,
+     "s_hi": 0.105,
+     "poll": 10,
+     "servo": "ACQUIRE",
+     "meter_locked": true,
+     "meter_enabled": true,
+     "render_converged": 0,
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": 0.105,
+     "s_hi": 0.61,
+     "poll": 11,
+     "render_converged": 1,
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": 2.134,
+     "s_hi": 2.634,
+     "poll": 15,
+     "slip_lb": [
+      420,
+      0
+     ],
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": 4.135,
+     "s_hi": 4.635,
+     "poll": 19,
+     "meter_rate_valid": true,
+     "trim_ppm": 0.0
+    },
+    {
+     "s_lo": 6.636,
+     "s_hi": 7.136,
+     "poll": 24,
+     "servo": "LOCKED",
+     "trim_ppm": -5.625
+    },
+    {
+     "s_lo": 9.151,
+     "s_hi": 9.652,
+     "poll": 29,
+     "slip_lb": [
+      422,
+      0
+     ],
+     "trim_ppm": -6.0
+    }
+   ],
+   "bad_polls": []
+  },
+  {
+   "tag": "crf",
+   "from_source": 2,
+   "to_source": 1,
+   "set_status": "SUCCESS",
+   "readback": 1,
+   "set_answer_ms_after_switch": 0.476,
+   "set_to_locked_s": [
+    2.616,
+    3.116
+   ],
+   "clock_reads": [
+    {
+     "tag": "crf-before-set",
+     "source": 2
+    },
+    {
+     "tag": "crf-locked",
+     "source": 1
+    },
+    {
+     "tag": "crf-mid",
+     "source": 1
+    },
+    {
+     "tag": "crf-end",
+     "source": 1
+    }
+   ],
+   "before_set": {
+    "servo": "LOCKED",
+    "trim_ppm": -6.0,
+    "meter_locked": true,
+    "meter_rate_valid": true,
+    "meter_enabled": true,
+    "meter_restarts": 0,
+    "meter_max_dev_ns": 29,
+    "meter_rate_ppm": 11.03125,
+    "crf_locked": true,
+    "crf_rate_ppm": 11.01953125,
+    "slip_lb": [
+     422,
+     0
+    ],
+    "slip_tdm": [
+     0,
+     0
+    ],
+    "render_fill": 7,
+    "render_prefill": 0,
+    "render_converged": 1,
+    "render_rails": 31
+   },
+   "after_lock": {
+    "polls": 298,
+    "servo_states": [
+     "LOCKED"
+    ],
+    "trim_ppm": [
+     -6.0625,
+     -5.9375
+    ],
+    "meter_rate_ppm": null,
+    "crf_rate_ppm": [
+     10.9765625,
+     11.0390625
+    ],
+    "slip_lb_first_last": [
+     [
+      422,
+      0
+     ],
+     [
+      422,
+      0
+     ]
+    ],
+    "slip_tdm_first_last": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "render_rails_first_last": [
+     31,
+     31
+    ],
+    "render_fill_min_max": [
+     8,
+     14
+    ],
+    "meter_restarts_first_last": [
+     0,
+     0
+    ],
+    "meter_max_dev_ns_last": 0
+   },
+   "changes": [
+    {
+     "s_lo": -0.406,
+     "s_hi": 0.094,
+     "poll": 263,
+     "servo": "ACQUIRE",
+     "meter_locked": false,
+     "meter_rate_valid": false,
+     "meter_enabled": false,
+     "render_converged": 0,
+     "trim_ppm": -6.0625
+    },
+    {
+     "s_lo": 0.094,
+     "s_hi": 0.597,
+     "poll": 264,
+     "render_converged": 1,
+     "trim_ppm": -6.0625
+    },
+    {
+     "s_lo": 2.616,
+     "s_hi": 3.116,
+     "poll": 269,
+     "servo": "LOCKED",
+     "trim_ppm": -6.0
+    }
+   ],
+   "bad_polls": []
+  },
+  {
+   "tag": "aaf2",
+   "from_source": 1,
+   "to_source": 2,
+   "set_status": "SUCCESS",
+   "readback": 2,
+   "set_answer_ms_after_switch": 0.619,
+   "set_to_locked_s": [
+    5.959,
+    6.476
+   ],
+   "clock_reads": [
+    {
+     "tag": "aaf2-before-set",
+     "source": 1
+    },
+    {
+     "tag": "aaf2-locked",
+     "source": 2
+    },
+    {
+     "tag": "aaf2-mid",
+     "source": 2
+    },
+    {
+     "tag": "aaf2-end",
+     "source": 2
+    }
+   ],
+   "before_set": {
+    "servo": "LOCKED",
+    "trim_ppm": -6.0,
+    "meter_locked": false,
+    "meter_rate_valid": false,
+    "meter_enabled": false,
+    "meter_restarts": 0,
+    "meter_max_dev_ns": 0,
+    "meter_rate_ppm": null,
+    "crf_locked": true,
+    "crf_rate_ppm": 11.0234375,
+    "slip_lb": [
+     422,
+     0
+    ],
+    "slip_tdm": [
+     0,
+     0
+    ],
+    "render_fill": 10,
+    "render_prefill": 0,
+    "render_converged": 1,
+    "render_rails": 31
+   },
+   "after_lock": {
+    "polls": 298,
+    "servo_states": [
+     "LOCKED"
+    ],
+    "trim_ppm": [
+     -6.0625,
+     -5.9375
+    ],
+    "meter_rate_ppm": [
+     10.9921875,
+     11.015625
+    ],
+    "crf_rate_ppm": [
+     10.9765625,
+     11.037109375
+    ],
+    "slip_lb_first_last": [
+     [
+      422,
+      0
+     ],
+     [
+      422,
+      0
+     ]
+    ],
+    "slip_tdm_first_last": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "render_rails_first_last": [
+     31,
+     31
+    ],
+    "render_fill_min_max": [
+     8,
+     14
+    ],
+    "meter_restarts_first_last": [
+     0,
+     0
+    ],
+    "meter_max_dev_ns_last": 29
+   },
+   "changes": [
+    {
+     "s_lo": -0.095,
+     "s_hi": 0.402,
+     "poll": 568,
+     "servo": "ACQUIRE",
+     "meter_locked": true,
+     "meter_enabled": true,
+     "trim_ppm": -6.0
+    },
+    {
+     "s_lo": 3.932,
+     "s_hi": 4.439,
+     "poll": 576,
+     "meter_rate_valid": true,
+     "trim_ppm": -6.0
+    },
+    {
+     "s_lo": 5.959,
+     "s_hi": 6.476,
+     "poll": 580,
+     "servo": "LOCKED",
+     "trim_ppm": -6.0
+    }
+   ],
+   "bad_polls": []
+  }
+ ],
+ "restore": {
+  "status": "SUCCESS",
+  "readback": 0,
+  "changes": [
+   {
+    "s_lo": -0.262,
+    "s_hi": 0.239,
+    "poll": 879,
+    "servo": "IDLE",
+    "meter_locked": false,
+    "meter_rate_valid": false,
+    "meter_enabled": false,
+    "crf_locked": false,
+    "render_prefill": 1,
+    "render_converged": 0,
+    "trim_ppm": 0.0
+   }
+  ]
+ },
+ "from_binds": [
+  {
+   "s_lo": null,
+   "s_hi": -2.913,
+   "poll": 0,
+   "servo": "IDLE",
+   "meter_locked": false,
+   "meter_rate_valid": false,
+   "meter_enabled": false,
+   "meter_restarts": 0,
+   "crf_locked": false,
+   "slip_lb": [
+    414,
+    0
+   ],
+   "slip_tdm": [
+    0,
+    0
+   ],
+   "render_prefill": 1,
+   "render_converged": 0,
+   "render_rails": 31,
+   "trim_ppm": 0.0
+  },
+  {
+   "s_lo": 0.106,
+   "s_hi": 0.607,
+   "poll": 7,
+   "crf_locked": true,
+   "render_prefill": 0,
+   "render_converged": 1,
+   "trim_ppm": 0.0
+  },
+  {
+   "s_lo": 0.607,
+   "s_hi": 1.107,
+   "poll": 8,
+   "slip_lb": [
+    416,
+    0
+   ],
+   "trim_ppm": 0.0
+  },
+  {
+   "s_lo": 1.107,
+   "s_hi": 1.939,
+   "poll": 9,
+   "slip_lb": [
+    418,
+    0
+   ],
+   "trim_ppm": 0.0
+  }
+ ],
+ "counters": {
+  "before-bind": {
+   "dut-0x0024-0": {
+    "LOCKED": 6,
+    "UNLOCKED": 5
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 7,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "after-binds": {
+   "dut-0x0024-0": {
+    "LOCKED": 6,
+    "UNLOCKED": 5
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 0
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf1-before-set": {
+   "dut-0x0024-0": {
+    "LOCKED": 6,
+    "UNLOCKED": 5
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 0
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf1-locked": {
+   "dut-0x0024-0": {
+    "LOCKED": 7,
+    "UNLOCKED": 6
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf1-mid": {
+   "dut-0x0024-0": {
+    "LOCKED": 7,
+    "UNLOCKED": 6
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf1-end": {
+   "dut-0x0024-0": {
+    "LOCKED": 7,
+    "UNLOCKED": 6
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "crf-before-set": {
+   "dut-0x0024-0": {
+    "LOCKED": 7,
+    "UNLOCKED": 6
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 1
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "crf-locked": {
+   "dut-0x0024-0": {
+    "LOCKED": 8,
+    "UNLOCKED": 7
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "crf-mid": {
+   "dut-0x0024-0": {
+    "LOCKED": 8,
+    "UNLOCKED": 7
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "crf-end": {
+   "dut-0x0024-0": {
+    "LOCKED": 8,
+    "UNLOCKED": 7
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf2-before-set": {
+   "dut-0x0024-0": {
+    "LOCKED": 8,
+    "UNLOCKED": 7
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 2
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf2-locked": {
+   "dut-0x0024-0": {
+    "LOCKED": 9,
+    "UNLOCKED": 8
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf2-mid": {
+   "dut-0x0024-0": {
+    "LOCKED": 9,
+    "UNLOCKED": 8
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "aaf2-end": {
+   "dut-0x0024-0": {
+    "LOCKED": 9,
+    "UNLOCKED": 8
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 7,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 3
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 0,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  },
+  "final": {
+   "dut-0x0024-0": {
+    "LOCKED": 9,
+    "UNLOCKED": 8
+   },
+   "dut-0x0006-0": {
+    "STREAM_START": 8,
+    "STREAM_STOP": 8,
+    "MEDIA_RESET": 4
+   },
+   "dut-0x0006-1": {
+    "STREAM_START": 1,
+    "STREAM_STOP": 1,
+    "MEDIA_RESET": 1
+   },
+   "peer-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 4
+   },
+   "dut-0x0005-0": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   },
+   "dut-0x0005-1": {
+    "MEDIA_LOCKED": 1,
+    "MEDIA_UNLOCKED": 1,
+    "STREAM_INTERRUPTED": 0,
+    "SEQ_NUM_MISMATCH": 0,
+    "MEDIA_RESET": 0,
+    "TIMESTAMP_UNCERTAIN": 0,
+    "LATE_TIMESTAMP": 0,
+    "EARLY_TIMESTAMP": 0
+   }
+  }
+ },
+ "tone_events": [
+  {
+   "capture_frame": 15946484,
+   "step": 108,
+   "kind": "skip",
+   "cause": "capture path",
+   "phase": "aaf2"
+  }
+ ],
+ "tone": {
+  "window": {
+   "frames": 20030400,
+   "seconds": 417.3,
+   "start_frame": 1481760,
+   "end_frame": 21512160
+  },
+  "tone": {
+   "blocks": 417,
+   "clean_blocks": 416,
+   "blocks_with_discontinuity": 1,
+   "events": 1,
+   "invalid": 0,
+   "torn": 0,
+   "skips": 1,
+   "repeats": 0,
+   "skipped_frames": 108,
+   "repeated_frames": 0,
+   "silent_inserts": 0,
+   "events_across_invalid": 0,
+   "ch0_clean_max_dev_from_floor_db": 5.860486538722398e-06,
+   "ch1_clean_max_dev_from_floor_db": 6.137820014373574e-05
+  },
+  "attribution": {
+   "capture path": {
+    "events": 1,
+    "skips": 1,
+    "repeats": 0,
+    "skipped_frames": 108,
+    "repeated_frames": 0,
+    "sizes": {
+     "skip 108": 1
+    },
+    "lost_frames": 108,
+    "clusters": 1
+   }
+  },
+  "counted": {
+   "steps_non_capture": 0,
+   "observed_frames": 20030400,
+   "capture_lost_frames": 108,
+   "ppm": 0.0,
+   "resolution_ppm": 0.04992411534467609
+  },
+  "timed_ppm": -0.018243421218144817,
+  "timed_halfwidth95_ppm": 0.569475779623361,
+  "capture_reads": {
+   "records": 41726,
+   "read_gap_ms_max": 31.39,
+   "read_gap_ms_p99": 10.069,
+   "read_gap_ms_median": 10.0,
+   "stalls": 15,
+   "stall_gaps_ms": [
+    17.504,
+    15.051,
+    16.566,
+    16.684,
+    19.809,
+    22.739,
+    18.921,
+    15.377,
+    19.022,
+    21.974,
+    16.567,
+    18.946,
+    19.953,
+    31.39,
+    17.042
+   ]
+  },
+  "clusters": [
+   {
+    "cluster": 0,
+    "events": 1,
+    "first_frame": 15946484,
+    "net_step": 108,
+    "whole_loops_added": 0,
+    "lost_frames": 108,
+    "lost_ms": 2.25,
+    "read_rise_ms": 1.9532,
+    "recent_read_gap_ms": 17.042,
+    "size_signature": true,
+    "basis": "read-time rise",
+    "capture_path": true,
+    "steps": [
+     108
+    ]
+   }
+  ]
+ },
+ "polls": 889,
+ "polls_missing_a_word": []
+}

@@ -1,0 +1,16 @@
+
+### 2026-10-03T18:48:16+0200 timeout=30.0 typed='wget -qO- http://<link-host-addr>:35733/A521_344567.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/33853 2>&1
+printf '%s_B\n' A521_344567
+rm -f /tmp/a521-tone.raw /tmp/a521-sampler.sh /tmp/a521-play.log /tmp/a521-cap.log; ls /tmp
+printf '\n%s_E rc=%s\n' A521_344567 $?
+### reply:
+A521_344567_B
+dbus
+messages
+messages.0
+
+A521_344567_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1

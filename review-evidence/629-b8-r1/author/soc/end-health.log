@@ -1,0 +1,142 @@
+
+### 2026-10-03T18:07:04+0200 timeout=60.0 typed='wget -qO- http://<link-host-addr>:39529/A521_544083.sh | bash'
+### script:
+exec >/dev/tcp/<link-host-addr>/43987 2>&1
+printf '%s_B\n' A521_544083
+cat /proc/uptime; uname -a; tdm8-uac2.sh status; echo PIDFILES; cat /run/tdm8/*.pid; for p in $(cat /run/tdm8/*.pid); do echo "PID $p: $(tr "\0" " " < /proc/$p/cmdline)"; done; ps -o pid,args | grep -E "[a]lsaloop|[a]play|[a]record"; echo UDC=$(cat /sys/class/udc/*/state); for s in /proc/asound/card*/pcm*/sub0/status; do echo "== $s"; head -3 $s; done; cat /proc/asound/cards; df -k /tmp | tail -1; free -k | head -2; ls /tmp; echo BAD=$(dmesg | grep -ciE "self-detected|rcu_preempt detected|replenish|WARNING|teardown|refused to stop|Call trace|BUG:|Oops"); cat /proc/sys/kernel/tainted; dmesg | tail -3; grep -n alsaloop $(which tdm8-uac2.sh); sha256sum $(which tdm8-uac2.sh); cat /proc/uptime; grep dma-controller /proc/interrupts; sleep 5; cat /proc/uptime; grep dma-controller /proc/interrupts
+printf '\n%s_E rc=%s\n' A521_544083 $?
+### reply:
+A521_544083_B
+283442.89 781331.59
+Linux buildroot 7.1.0-tdm8-pb2 #6 SMP PREEMPT Mon Sep 28 11:59:54 CEST 2026 aarch64 GNU/Linux
+--- ALSA cards ---
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+--- gadget ---
+UDC:        31000000.usb
+functions:  ecm.usb0 uac2.0 
+uac2.p_chmask = 255
+uac2.c_chmask = 255
+uac2.p_srate = 48000
+uac2.c_srate = 48000
+uac2.p_ssize = 4
+uac2.c_ssize = 4
+uac2.c_sync = async
+uac2.fb_max = 5
+uac2.req_number = 4
+--- bridge ---
+from-host: running (pid 15676)
+to-host: running (pid 15675)
+--- PCM state ---
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 15675
+trigger_time: 283442.971720910
+tstamp      : 0.000000000
+delay       : 68
+avail       : 68
+avail_max   : 1536
+-----
+hw_ptr      : 2652
+appl_ptr    : 2584
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 15676
+trigger_time: 283433.912475025
+tstamp      : 0.000000000
+delay       : 0
+avail       : 1536
+avail_max   : 0
+-----
+hw_ptr      : 384
+appl_ptr    : 384
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 15676
+trigger_time: 283433.904677240
+tstamp      : 0.000000000
+delay       : 0
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 0
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 15675
+trigger_time: 283433.904926610
+tstamp      : 0.000000000
+delay       : 1536
+avail       : 0
+avail_max   : 0
+-----
+hw_ptr      : 0
+appl_ptr    : 1536
+PIDFILES
+15676
+15675
+PID 15676: alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+PID 15675: alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+15675 alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+15676 alsaloop -C hw:1,0 -P hw:0,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z
+UDC=configured
+== /proc/asound/card0/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 15675
+trigger_time: 283442.971720910
+== /proc/asound/card0/pcm0p/sub0/status
+state: XRUN
+owner_pid   : 15676
+trigger_time: 283433.912475025
+== /proc/asound/card1/pcm0c/sub0/status
+state: RUNNING
+owner_pid   : 15676
+trigger_time: 283433.904677240
+== /proc/asound/card1/pcm0p/sub0/status
+state: RUNNING
+owner_pid   : 15675
+trigger_time: 283433.904926610
+ 0 [TDM8           ]: simple-card - TDM8
+                      TDM8
+ 1 [UAC2Gadget     ]: UAC2_Gadget - UAC2_Gadget
+                      UAC2_Gadget 0
+tmpfs                   209564       348    209216   0% /tmp
+              total        used        free      shared  buff/cache   available
+Mem:         419128       48340       13256         484      357532      359748
+dbus
+messages
+messages.0
+BAD=1
+0
+[162911.661777] 26290 pages reserved
+[162911.665081] 32768 pages cma reserved
+[162911.668731] 0 pages hwpoisoned
+14:#   FPGA 8 slots out -> McASP AXR rx -> hw:TDM8 capture  -> alsaloop -> gadget playback -> USB IN  -> host
+15:#   host -> USB OUT  -> gadget capture -> alsaloop -> hw:TDM8 playback -> McASP AXR tx -> FPGA 8 slots in
+27:# runs a single alsaloop leg.
+204:	command -v alsaloop >/dev/null 2>&1 \
+205:		|| die "alsaloop is missing (BR2_PACKAGE_ALSA_UTILS_ALSALOOP)"
+206:	alsaloop -C "$capt" -P "$play" \
+56dbe517728d11fffc7eb940a43799d4e1c15632a699afaa7364015ff4d919f9  /usr/sbin/tdm8-uac2.sh
+283443.19 781332.02
+ 95:     202928          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         52          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   67852818          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:    1691749          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+283448.21 781345.54
+ 95:     202928          0          0          0 MSI-INTA 1714176 Edge      485c0100.dma-controller chan0
+107:         52          0          0          0 MSI-INTA 1714688 Level     485c0100.dma-controller chan0
+125:   67854070          0          0          0 MSI-INTA 1715718 Edge      485c0100.dma-controller chan1
+143:    1691780          0          0          0 MSI-INTA 1716230 Level     485c0100.dma-controller chan1
+237:          0          0          0          0 MSI-INTA 1970779 Level     485c0000.dma-controller chan2
+279:          0          0          0          0 MSI-INTA 1971755 Level     485c0000.dma-controller chan0
+280:          0          0          0          0 MSI-INTA 1971756 Level     485c0000.dma-controller chan1
+
+A521_544083_E rc=0
+
+[soccon_net] reply from <link-board-addr>; script requests 1
