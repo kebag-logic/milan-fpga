@@ -16,6 +16,8 @@ import sys
 import tempfile
 
 
+#: The name class of every key but a sub-block scope name; the mutants below narrow it by one group or one character.
+NAME = 'NAME = re.compile(r"[A-Za-z0-9_.:/-]{1,128}")'
 MUTANTS = {
     "identity comparison": ("    if changed:\n", "    if False:\n"),
     "endpoint kind comparison": ('    if candidate["kind"] != base["kind"]:\n', "    if False:\n"),
@@ -155,10 +157,23 @@ MUTANTS = {
                                        "            scope = len(scopes) > 0 or all("),
     "scope path matched in full": ("all(want in (None, key) for want, key in zip(scopes, path))",
                                    "path[-1:] == scopes[-1:]"),
+    "scope path matched from its first key": ("all(want in (None, key) for want, key in zip(scopes, path))",
+                                              "path[-2:] == scopes[-2:]"),
+    "scope path rooted at the endpoints table": ('SCOPES = ("endpoints", None, "record", "scopes")',
+                                                 'SCOPES = (None, None, "record", "scopes")'),
     "names inside lists": ("        elif isinstance(value, list):\n            stack +=",
                            "        elif False:\n            stack +="),
     "names past a list's first item": ("for index, item in reversed(list(enumerate(value)))]",
                                        "for index, item in list(enumerate(value))[:1]]"),
+    "names hold upper case": (NAME, 'NAME = re.compile(r"[a-z0-9_.:/-]{1,128}")'),
+    "names hold lower case": (NAME, 'NAME = re.compile(r"[A-Z0-9_.:/-]{1,128}")'),
+    "names hold digits": (NAME, 'NAME = re.compile(r"[A-Za-z_.:/-]{1,128}")'),
+    "names hold an underscore": (NAME, 'NAME = re.compile(r"[A-Za-z0-9.:/-]{1,128}")'),
+    "names hold a dot": (NAME, 'NAME = re.compile(r"[A-Za-z0-9_:/-]{1,128}")'),
+    "names hold a colon": (NAME, 'NAME = re.compile(r"[A-Za-z0-9_./-]{1,128}")'),
+    "names hold a slash": (NAME, 'NAME = re.compile(r"[A-Za-z0-9_.:-]{1,128}")'),
+    "names hold a hyphen": (NAME, 'NAME = re.compile(r"[A-Za-z0-9_.:/]{1,128}")'),
+    "names hold 128 characters": (NAME, 'NAME = re.compile(r"[A-Za-z0-9_.:/-]{1,127}")'),
     "names below the top level": (
         "            stack += [((*path, key), item) for key, item in reversed(value.items())]\n", "            pass\n"),
     "image manifest strict": ('    images = strict((directory / "baseline_images.json").read_text())\n',

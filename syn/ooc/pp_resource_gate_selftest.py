@@ -166,6 +166,8 @@ HIERARCHY = "baseline_hierarchy.rpt"
 TOP_ROW = "| m0 | 900 | 900 | 0 | 0 | 50 | 1 | 0 | 0 |"
 #: A number too long to be finite as a float, and one past the integer bound.
 LONG, BOUND = "1" + "0" * 400, "1" * 16
+#: A name of 128 characters holding every character NAME takes, so narrowing any group or the length refuses it.
+WIDE = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.:/-" * 2)[:128]
 #: (label, plants, exit status, text the report must hold or (must hold, must not hold), policy edits)
 ROUTE_ARMS = (
     ("unchanged control", (), 0, "RESULT: PASS"),
@@ -349,6 +351,8 @@ CHECK_ARMS = (
     ("check against a scope name with a generate index", "route", (SOURCE,), INDEXED, 0, "RESULT: PASS"),
     ("check of a bracketed key in the last image manifest entry", "route", ((MANIFEST[0], '"ef"', '"ef", "x[1]": 1'),),
      None, 2, "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"),
+    ("check of a 128-character key of every name character in a note and an image manifest entry", "route",
+     ((MANIFEST[0], '"ef"', f'"ef", "{WIDE}": 1'),), edit("route", "measured", value={WIDE: 1}), 0, "RESULT: PASS"),
     ("check of an endpoint the baseline does not hold", "route", (SOURCE,), edit("route"), 2,
      "holds no endpoint route, only ooc"),
     ("check of an endpoint without a record", "route", (SOURCE,), edit("route", "record"), 2, "route: has no record"),
@@ -432,6 +436,9 @@ MALFORMED = (
      "the key 'g_rx[5]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measured/scopes"),
     ("a bracketed key in a note list past its first item", edit("route", "measured", value=[{"a": 1}, [], {"x[1]": 1}]),
      "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measured/2"),
+    ("a note shaped as a record's scopes holding a bracketed key",
+     ('{"endpoints": ', '{"description": {"x": {"record": {"scopes": {"a[1]": 1}}}}, "endpoints": '),
+     "the key 'a[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/x/record/scopes"),
     ("an unknown field in the file", ('{"endpoints": ', '{"note": "x", "endpoints": '), "unknown fields note"),
     ("an unknown field in an endpoint", lambda ends: ends["route"].update({"ceilings": {}}), "unknown fields ceilings"),
     ("an unknown field in a record", edit("route", "record", "note", value="x"),
