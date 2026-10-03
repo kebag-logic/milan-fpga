@@ -1,0 +1,21 @@
+OK  check          control: real A route, digest differs                          want=0 rc=0 | RESULT: PASS
+OK  check-baseline control: real A route, digest differs                          want=0 rc=0 | baseline PASS: 3 endpoints
+BAD check          WNS slack of 401 digits (float() reads inf)                    want=2 rc=0 | RESULT: PASS
+OK  check-baseline WNS slack of 401 digits (float() reads inf)                    want=0 rc=0 | baseline PASS: 3 endpoints
+BAD check          WHS slack of 401 digits (float() reads inf)                    want=2 rc=0 | RESULT: PASS
+OK  check-baseline WHS slack of 401 digits (float() reads inf)                    want=0 rc=0 | baseline PASS: 3 endpoints
+BAD check          WNS slack of -401 digits (float() reads -inf)                  want=2 rc=1 | RESULT: MATERIAL REGRESSION
+OK  check-baseline WNS slack of -401 digits (float() reads -inf)                  want=0 rc=0 | baseline PASS: 3 endpoints
+OK  check          control: WNS slack 0.500 (finite, judged)                      want=0 rc=0 | RESULT: PASS
+OK  check-baseline control: WNS slack 0.500 (finite, judged)                      want=0 rc=0 | baseline PASS: 3 endpoints
+BAD check          Block RAM Tile used of 401 digits + .5 (float() reads inf)     want=2 rc=1 | RESULT: MATERIAL REGRESSION
+OK  check-baseline Block RAM Tile used of 401 digits + .5 (float() reads inf)     want=0 rc=0 | baseline PASS: 3 endpoints
+BAD check          route status count of 4401 digits                              want=2 rc=1 TRACEBACK | ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 4401 digits; use sys.set_int_max_str_digits() to increase the lim
+OK  check-baseline route status count of 4401 digits                              want=0 rc=0 | baseline PASS: 3 endpoints
+BAD check          baseline route WNS_ns recorded as a 401-digit JSON integer     want=2 rc=1 TRACEBACK | OverflowError: int too large to convert to float
+BAD check-baseline baseline route WNS_ns recorded as a 401-digit JSON integer     want=2 rc=0 | baseline PASS: 3 endpoints
+BAD check          baseline route WHS_ns recorded as a 401-digit JSON integer     want=2 rc=1 TRACEBACK | OverflowError: int too large to convert to float
+BAD check-baseline baseline route WHS_ns recorded as a 401-digit JSON integer     want=2 rc=0 | baseline PASS: 3 endpoints
+OK  check          control: baseline route WNS_ns recorded as 1e400 (decimal)     want=2 rc=2 | NOT COMPARABLE: baseline <packet>/scratch/r3numbers/case9.json is unreadable: the number 1e400 is not finite
+OK  check-baseline control: baseline route WNS_ns recorded as 1e400 (decimal)     want=2 rc=2 | NOT COMPARABLE: baseline <packet>/scratch/r3numbers/case9.json is unreadable: the number 1e400 is not finite
+9 case(s) not as the contract states

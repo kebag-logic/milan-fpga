@@ -1,0 +1,22 @@
+CONTROL   control                                        | resource gate selftest: 181 arms PASS
+SURVIVED  identity: extra key accepted                   | resource gate selftest: 181 arms PASS
+KILLED    identity: missing key accepted                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  figures: extra figure accepted                 | resource gate selftest: 181 arms PASS
+KILLED    figures: missing figure accepted               | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  scopes: extra count accepted                   | resource gate selftest: 181 arms PASS
+KILLED    scopes: missing count accepted                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    digest: any hex length                         | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  digest: upper-case hex                         | resource gate selftest: 181 arms PASS
+SURVIVED  digest: type test dropped                      | resource gate selftest: 181 arms PASS
+KILLED    kind: type test dropped                        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    number(): text accepted                        | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  load(): only the first endpoint validated      | resource gate selftest: 181 arms PASS
+KILLED    check-baseline bypasses load()                 | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    check bypasses load()                          | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  routing-errors row: duplicates accepted        | resource gate selftest: 181 arms PASS
+KILLED    routing-errors row: may be absent              | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  slack: integer accepted without fraction       | resource gate selftest: 181 arms PASS
+KILLED    utilization: any fraction accepted             | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    hierarchy: first count cell unchecked          | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  hierarchy: last count cell unchecked           | resource gate selftest: 181 arms PASS
+round-3 mutant probe: 20 mutants, 9 not killed or not applied (control included)

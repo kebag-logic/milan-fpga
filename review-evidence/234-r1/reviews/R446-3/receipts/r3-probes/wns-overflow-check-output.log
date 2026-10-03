@@ -1,0 +1,14 @@
+endpoint route-1x1: <scratch>/case1
+figure        baseline   candidate     delta  verdict
+LUT              50128       50128         0  ok
+FF               59006       59006         0  ok
+SLICE            15815       15815         0  ok
+RAMB36              79          79         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.063         inf       inf  ok
+WHS_ns           0.036       0.036       0.0  ok
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: WNS_ns improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+RESULT: PASS
+rc=0
