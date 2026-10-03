@@ -1,0 +1,55 @@
+replay .github/workflows/docs.yml :: docs-check at 2bc5adc0bfd981e63e82ada5e673ce69cab4f4ee
+HOME: $VALIDATION_STORAGE/629-a517/home-docs-check; maps: ['/opt/verilator=$VALIDATION_TOOLS/verilator-v5.050']
+make on PATH: $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make -> $VALIDATION_STORAGE/629-a517/make43/bin/make (GNU Make 4.3)
+[01] USES  actions/checkout@v4: the lane worktree at HEAD with full history; the hosted run checks out the PR merge into the base tip, whose tree is HEAD's while dev stays at the PR base
+[02] PASS  rc=0      3.2s  Build the validated HDL reference  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[03] USES  Upload the HDL reference HTML: not uploaded (local replay)
+[04] PASS  rc=0      0.3s  Install the python gate dependencies  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[05] USES  Cache the pinned Markdown renderer downloads: treated as a cache hit: the pinned tool or cache exists on this host
+[06] PASS  rc=0      1.7s  Install the pinned Markdown renderer  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[07] PASS  rc=0      3.5s  Install diagram gate dependencies  [SUBSTITUTED (runner provisioning)]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[08] PASS  rc=0      3.7s  Link health, wording, dead-reference and local-info gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[09] PASS  rc=0      3.8s  Added-line em-dash gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[10] PASS  rc=0      0.5s  Concise audience documentation gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[11] PASS  rc=0      1.5s  Audience diagram no-drift gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[12] PASS  rc=0      2.8s  Product solution source-fact gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[13] PASS  rc=0      1.3s  Verified submodule documentation gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[14] PASS  rc=0      1.0s  HDL timing diagram no-drift gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[15] PASS  rc=0      7.2s  Published diagram PNG gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[16] PASS  rc=0      0.7s  Milan feature-status consistency gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[17] PASS  rc=0      0.6s  Traceability matrix no-drift gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[18] PASS  rc=0      0.1s  Fetch the builder source dependencies  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[19] PASS  rc=0      0.8s  Imported gPTP documentation gate  [verbatim]  make: 1 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make
+[20] PASS  rc=0      0.2s  Code-quality measurement self-tests  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[21] PASS  rc=0      0.7s  Install the pinned sv2v release  [SUBSTITUTED (runner provisioning)]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[22] PASS  rc=0     20.7s  Bare-metal scope gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[23] USES  Cache the pinned RV32 SDK: treated as a cache hit: the pinned tool or cache exists on this host
+[24] PASS  rc=0     18.1s  Install and verify the pinned RV32 SDK  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[25] PASS  rc=0    400.2s  Compiler-absent firmware controls  [verbatim]  make: 1031 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make
+[26] PASS  rc=0    813.7s  End-station builder gates  [verbatim]  make: 1538 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make
+[27] PASS  rc=0     32.4s  NVM record-space gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[28] PASS  rc=0      0.7s  Capture measurement census and clock gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[29] PASS  rc=0     69.3s  Saved-state writer gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[30] PASS  rc=0      2.2s  SoC source-list gate (Vivado would fail 40 min in without this)  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[31] PASS  rc=0      3.6s  RTL source-list drift gate  [verbatim]  make: 14 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make
+[32] PASS  rc=0      0.8s  Boundary-unit naming ratchet  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[33] PASS  rc=0      4.9s  Port contract gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[34] PASS  rc=0      2.5s  Fail-fast ratchet  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[35] PASS  rc=0      2.7s  TODO ownership gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[36] PASS  rc=0     13.0s  Test-evidence ratchet  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[37] PASS  rc=0      0.7s  Mechanical hygiene ratchet  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[38] PASS  rc=0      0.6s  SystemVerilog idiom gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[39] PASS  rc=0      2.2s  C and C++ idiom gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[40] PASS  rc=0      6.8s  Python idiom gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[41] PASS  rc=0      0.4s  Shell idiom gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[42] PASS  rc=0     13.3s  CI event and SHA contract gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[43] PASS  rc=0      0.5s  Local act runner contract gate  [SUBSTITUTED (runner provisioning)]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[44] PASS  rc=0      0.1s  Doc cited-path gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[45] PASS  rc=0      0.3s  Archive integrity gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[46] PASS  rc=0      6.1s  Per-page contents gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[47] PASS  rc=0      0.1s  AEM store generator self-test  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[48] PASS  rc=0     12.0s  Sweep/build shape gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[49] PASS  rc=0      0.4s  Deploy shape gate  [verbatim]  make: not invoked (PATH make = $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make, GNU Make 4.3)
+[50] PASS  rc=0     40.8s  Entity shape gate  [verbatim]  make: 363 call(s), all GNU Make 4.3 via $VALIDATION_STORAGE/629-a517/replay/docs-check/bin/make
+steps: 50  failed: 0
+rc=0
