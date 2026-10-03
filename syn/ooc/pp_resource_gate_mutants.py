@@ -157,6 +157,8 @@ MUTANTS = {
                                    "path[-1:] == scopes[-1:]"),
     "names inside lists": ("        elif isinstance(value, list):\n            stack +=",
                            "        elif False:\n            stack +="),
+    "names past a list's first item": ("for index, item in reversed(list(enumerate(value)))]",
+                                       "for index, item in list(enumerate(value))[:1]]"),
     "names below the top level": (
         "            stack += [((*path, key), item) for key, item in reversed(value.items())]\n", "            pass\n"),
     "image manifest strict": ('    images = strict((directory / "baseline_images.json").read_text())\n',

@@ -43,6 +43,8 @@ LABELS = {"LUT": "Slice LUTs", "FF": "Slice Registers", "SLICE": "Slice", "BRAM_
           "RAMB36": "RAMB36/FIFO*", "RAMB18": "RAMB18", "DSP": "DSPs"}
 #: The distribution table repeats the register row, as the vendor report does.
 REPEATED = "| Slice Registers                            | 2000 |     0 |\n"
+#: The image manifest's (name, sha256) entries: three, so that a key can sit in an entry past the first.
+IMAGES = (("rom", "ab"), ("ram", "e0"), ("table", "ef"))
 STATUS = "alinx_ax7101_route_status.rpt"
 #: A complete route, laid out as report_route_status writes it.
 COMPLETE = ("Design Route Status\n"
@@ -116,7 +118,8 @@ def fixture(root: Path, kind: str) -> Path:
                    f"-part xc7a100t-fgg484-2 -include_dirs {{{repo}/hdl/common}} -mode out_of_context "
                    f'-generic {{N_STREAM_IN_P=2}} -generic {{UCODE_HEX_P="{repo}/ucode.hex"}}\n')
     (folder / gate.SCRIPTS[kind]).write_text(script)
-    (folder / "baseline_images.json").write_text(json.dumps([{"path": f"{repo}/rom.hex", "sha256": "ab"}]))
+    (folder / "baseline_images.json").write_text(json.dumps([{"path": f"{repo}/{name}.hex", "sha256": digest}
+                                                             for name, digest in IMAGES]))
     write_reports(folder, kind)
     return folder
 
@@ -344,6 +347,8 @@ CHECK_ARMS = (
     ("check against a missing baseline", "route", (SOURCE,), Path("absent.json"), 2, "is unreadable"),
     ("check against a baseline without endpoints", "route", (SOURCE,), "[]", 2, "holds no endpoints table"),
     ("check against a scope name with a generate index", "route", (SOURCE,), INDEXED, 0, "RESULT: PASS"),
+    ("check of a bracketed key in the last image manifest entry", "route", ((MANIFEST[0], '"ef"', '"ef", "x[1]": 1'),),
+     None, 2, "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /2"),
     ("check of an endpoint the baseline does not hold", "route", (SOURCE,), edit("route"), 2,
      "holds no endpoint route, only ooc"),
     ("check of an endpoint without a record", "route", (SOURCE,), edit("route", "record"), 2, "route: has no record"),
@@ -425,6 +430,8 @@ MALFORMED = (
      "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /description/0"),
     ("a note holding a bracketed key under scopes", edit("route", "measured", value={"scopes": {"g_rx[5]": 1}}),
      "the key 'g_rx[5]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measured/scopes"),
+    ("a bracketed key in a note list past its first item", edit("route", "measured", value=[{"a": 1}, [], {"x[1]": 1}]),
+     "the key 'x[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints/route/measured/2"),
     ("an unknown field in the file", ('{"endpoints": ', '{"note": "x", "endpoints": '), "unknown fields note"),
     ("an unknown field in an endpoint", lambda ends: ends["route"].update({"ceilings": {}}), "unknown fields ceilings"),
     ("an unknown field in a record", edit("route", "record", "note", value="x"),
@@ -850,7 +857,9 @@ def mutate_json(rng: random.Random, base: dict) -> tuple[str, bytes, bool]:
         key, notes = rng.choice(OPEN_KEYS), [(name,) for name in gate.NOTES["file"]] + [
             ("endpoints", end, name) for end in tree["endpoints"] for name in gate.NOTES["endpoint"]]
         value, note, broken = {key: rng.choice(SAMPLES)}, rng.choice(notes), key not in OPEN_KEYS[:2]
-        at(tree, note[:-1])[note[-1]] = rng.choice((value, [value], {"scopes": value}))
+        items = [{"run": index} for index in range(3)]
+        items.insert(rng.randint(0, 3), value)
+        at(tree, note[:-1])[note[-1]] = rng.choice((value, items, {"scopes": value}))
     return operator, dump(tree, raw, twice).encode(), broken
 
 
@@ -949,7 +958,8 @@ def mutate_report(rng: random.Random, name: str, text: str, kind: str) -> tuple[
 
 def fixtures(work: Path) -> tuple[list[tuple[Path, str]], dict, str]:
     """The self-test's fuzz targets: the route and standalone fixtures, a baseline of both, and its budget page."""
-    base = {"schema": 1, "description": {"text": "fixture baseline", "runs": [{"seconds": 12}]}, "endpoints": {}}
+    runs = [{"seconds": seconds} for seconds in (12, 9, 30)]
+    base = {"schema": 1, "description": {"text": "fixture baseline", "runs": runs}, "endpoints": {}}
     for kind in ("route", "ooc"):
         (work / kind).mkdir()
         base["endpoints"][kind] = dict(recorded(work / kind, kind), measured={"run": "fixture"})
