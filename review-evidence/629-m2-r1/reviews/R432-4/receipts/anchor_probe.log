@@ -1,0 +1,50 @@
+restart request mcr_restart_p_w: milan_datapath.sv:3229-3232
+campaign | control | file | occurrences | lines | in request | on lane-changed line
+gmstep | the policy level is tied low at the servo | hdl/milan/milan_datapath.sv | 1 | 5777-5777 | no | no
+gmstep | the policy level omits the applied-rate tail | hdl/milan/milan_datapath.sv | 1 | 2853-2853 | no | no
+gmstep | the policy level misses an extra addend stage | hdl/milan/milan_datapath.sv | 1 | 2922-2933 | no | no
+gmstep | the PHC re-base restart term is restored | hdl/milan/milan_datapath.sv | 1 | 3232-3232 | YES | YES
+gmstep | the source-change term is removed | hdl/ieee1722/avtp/KL_media_clock_restart.sv | 1 | 213-213 | no | no
+gmstep | selected CRF mr propagation is removed | hdl/milan/milan_datapath.sv | 1 | 3231-3231 | YES | YES
+gmstep | the grandmaster identity re-bases the render stage as well as the step | hdl/milan/milan_datapath.sv | 1 | 6322-6323 | no | no
+gmstep | the step does not re-centre the render stage | hdl/milan/milan_datapath.sv | 1 | 6322-6323 | no | no
+gmstep | the render re-base is keyed to the identity, not the step | hdl/milan/milan_datapath.sv | 1 | 6322-6323 | no | no
+gmstep | tu reaches the talkers four cycles late | hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv | 1 | 211-211 | no | no
+gmstep | the plane's step does not re-arm the holdover | hdl/milan/milan_datapath.sv | 1 | 2024-2024 | no | no
+gmstep | tu stops the talker | hdl/milan/milan_datapath.sv | 1 | 2100-2100 | no | no
+gmstep | the grandmaster change stops the talker for good | hdl/milan/milan_datapath.sv | 1 | 2100-2100 | no | no
+gmstep | the step's re-centre snaps one event off the setpoint | hdl/ieee1722/aaf/KL_render_setpoint.sv | 1 | 588-589 | no | no
+gmstep | software settime is restored as an mr cause | hdl/milan/milan_datapath.sv | 1 | 3232-3232 | YES | YES
+gmstep | PHC adjtime is restored as an mr cause | hdl/milan/milan_datapath.sv | 1 | 3232-3232 | YES | YES
+gmstep | both PHC restart causes are restored | hdl/milan/milan_datapath.sv | 1 | 3232-3232 | YES | YES
+gmstep | PHC adjtime becomes an mr cause 16 cycles later | hdl/milan/milan_datapath.sv | 1 | 3229-3232 | YES | YES
+gmstep | PHC adjtime becomes an mr cause 256 cycles later | hdl/milan/milan_datapath.sv | 1 | 3229-3232 | YES | YES
+gmstep | a PHC step suppresses a coincident CRF restart | hdl/milan/milan_datapath.sv | 1 | 3231-3231 | YES | YES
+render | prefill target three events high | hdl/ieee1722/aaf/KL_render_setpoint.sv | 1 | 224-224 | no | no
+render | recentre pulse ignored | hdl/ieee1722/aaf/KL_render_setpoint.sv | 1 | 617-617 | no | no
+render | recentre counted and cleared but not snapped | hdl/ieee1722/aaf/KL_render_setpoint.sv | 1 | 587-590 | no | no
+render | clock-source trigger dropped from the recentre set | hdl/milan/milan_datapath.sv | 1 | 6323-6323 | no | no
+crflic | every gate reads the raw verdict | hdl/milan/milan_datapath.sv | 1 | 6920-6921 | no | no
+crflic | the CRF licence alone reads the raw verdict | hdl/milan/milan_datapath.sv | 1 | 5434-5434 | no | no
+crflic | the AAF source 0 gate alone reads the raw verdict | hdl/milan/milan_datapath.sv | 1 | 1997-1997 | no | no
+crflic | every gate drops the real grant | hdl/milan/milan_datapath.sv | 1 | 6920-6921 | no | no
+crflic | the CRF licence alone drops the real grant | hdl/milan/milan_datapath.sv | 1 | 5434-5434 | no | no
+crflic | the AAF source 0 gate alone drops the real grant | hdl/milan/milan_datapath.sv | 1 | 1997-1997 | no | no
+gsi | the processor ties a sink's failure bridge id to zero | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3430-3430 | no | no
+gsi | selector 5 goes back to the parent, whose input answer is zero | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3407-3407 | no | no
+gsi | selector 5 goes back to the parent, whose input answer is zero | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3430-3430 | no | no
+gsi | the processor ties a sink's failure code to zero | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3429-3429 | no | no
+gsi | the failure-code byte is left to the parent, which no longer supplies it | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3429-3429 | no | no
+gsi | the processor ties probing/ACMP status to zero | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3431-3431 | no | no
+gsi | the processor reads the other sink's owners | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3410-3410 | no | no
+gsi | the parent's bound/settled approximation answers selector 7 again | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3407-3407 | no | no
+gsi | the parent's bound/settled approximation answers selector 7 again | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3431-3431 | no | no
+gsi | the parent's bound/settled approximation answers selector 7 again | hdl/milan/milan_datapath.sv | 1 | 4936-4937 | no | no
+gsi | the processor duplicates the withdrawal push after 4096 cycles | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3450-3450 | no | no
+gsi | the processor duplicates the withdrawal push after 4096 cycles | protocol-processor/hdl/top/protocol_processor_top.sv | 1 | 3458-3458 | no | no
+render-csr | wrong_fill | hdl/milan/milan_datapath.sv | 1 | 6455-6455 | no | no
+render-csr | bit9_window_selection | hdl/common/csr/milan_csr.sv | 1 | 2424-2424 | no | no
+render-csr | absent_stage (start) | hdl/milan/milan_datapath.sv | 1 | 6458-6458 | no | no
+render-csr | absent_stage (end) | hdl/milan/milan_datapath.sv | 1 | 6496-6496 | no | no
+46 edits; 42 controls; 0 anchor(s) not found exactly once
+rc=0
