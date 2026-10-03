@@ -1,0 +1,104 @@
+ok  head rc=0 want=0: committed baseline unchanged [baseline PASS: 3 endpoints]
+ok  head rc=0 want=0: scope name of 128 characters holding every SCOPE_NAME character [baseline PASS: 3 endpoints]
+ok  head rc=0 want=0: scope name with upper case, u_PP/Core [baseline PASS: 3 endpoints]
+ok  head rc=0 want=0: scope name with a colon, u_pp:core [baseline PASS: 3 endpoints]
+ok  head rc=0 want=0: scope name with a hyphen, u_pp-core [baseline PASS: 3 endpoints]
+ok  head rc=0 want=0: scope name of 128 characters, x * 128 [baseline PASS: 3 endpoints]
+ok  head rc=2 want=2: note: key in a list inside a list, description [[{x[1]: 1}]] [NOT COMPARABLE: baseline <scratch>/equiv6/case06.json is unreadable: the k]
+ok  head rc=2 want=2: note: key in the fourth list item, description [{}, {}, {}, {x[1]: 1}] [NOT COMPARABLE: baseline <scratch>/equiv6/case07.json is unreadable: the k]
+ok  head rc=2 want=2: note: two refused keys in items 0 and 1, description [{a b: 1}, {x[1]: 1}] [NOT COMPARABLE: baseline <scratch>/equiv6/case08.json is unreadable: the k]
+ok  head rc=2 want=2: note: record-shaped below endpoints at depth 5, description {endpoints: {x: {record: {scopes: {a[1]: 1}}}}} [NOT COMPARABLE: baseline <scratch>/equiv6/case09.json is unreadable: the k]
+ok  head rc=2 want=2: record figures: bracketed key LUT[0] [NOT COMPARABLE: baseline <scratch>/equiv6/case10.json is unreadable: the k]
+ok  head rc=2 want=2: record identity: bracketed key tool[0] [NOT COMPARABLE: baseline <scratch>/equiv6/case11.json is unreadable: the k]
+ok  head rc=2 want=2: measured note: record-shaped, {record: {scopes: {a[1]: 1}}} at endpoints/route-1x1/measured [NOT COMPARABLE: baseline <scratch>/equiv6/case12.json is unreadable: the k]
+
+DIFFERS  SCOPE_NAME__127_characters
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_closing_bracket
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_colon
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_digits
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_dot
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_hyphen
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_lower_case
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_opening_bracket
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_slash
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_underscore
+           committed baseline unchanged: head 0, mutant 2
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+           scope name with a colon, u_pp:core: head 0, mutant 2
+           scope name with a hyphen, u_pp-core: head 0, mutant 2
+           scope name of 128 characters, x * 128: head 0, mutant 2
+DIFFERS  SCOPE_NAME__no_upper_case
+           scope name of 128 characters holding every SCOPE_NAME character: head 0, mutant 2
+           scope name with upper case, u_PP/Core: head 0, mutant 2
+DIFFERS  list__a_list_inside_a_list_not_descended
+           note: key in a list inside a list, description [[{x[1]: 1}]]: head 2, mutant 0
+DIFFERS  list__even_indices_only
+           note: key in the fourth list item, description [{}, {}, {}, {x[1]: 1}]: head 2, mutant 0
+DIFFERS  list__every_item_but_the_first
+           note: key in a list inside a list, description [[{x[1]: 1}]]: head 2, mutant 0
+DIFFERS  list__every_item_but_the_last
+           note: key in a list inside a list, description [[{x[1]: 1}]]: head 2, mutant 0
+           note: key in the fourth list item, description [{}, {}, {}, {x[1]: 1}]: head 2, mutant 0
+DIFFERS  list__first_item_only__the_shipped_mutant_s_span_
+           note: key in the fourth list item, description [{}, {}, {}, {x[1]: 1}]: head 2, mutant 0
+DIFFERS  list__first_three_items_only
+           note: key in the fourth list item, description [{}, {}, {}, {x[1]: 1}]: head 2, mutant 0
+same     list__last_item_only
+DIFFERS  list__lists_below_the_top_level_not_descended
+           note: key in a list inside a list, description [[{x[1]: 1}]]: head 2, mutant 0
+           note: key in the fourth list item, description [{}, {}, {}, {x[1]: 1}]: head 2, mutant 0
+           note: two refused keys in items 0 and 1, description [{a b: 1}, {x[1]: 1}]: head 2, mutant 0
+DIFFERS  list__odd_indices_only
+           note: key in a list inside a list, description [[{x[1]: 1}]]: head 2, mutant 0
+same     list__the_index_a_refusal_names_is_always_0
+same     list__the_top_level_list__image_manifest__not_descended
+same     list__visit_order_reversed__equivalent__
+same     scope_path__first_key_free__shipped_
+same     scope_path__last_key_free
+same     scope_path__last_two_keys_only__shipped_
+DIFFERS  scope_path__suffix_match_at_any_depth
+           note: record-shaped below endpoints at depth 5, description {endpoints: {x: {record: {scopes: {a[1]: 1}}}}}: head 2, mutant 0
+same     scope_path__third_key_free

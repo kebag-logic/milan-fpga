@@ -1,0 +1,14 @@
+new shipped mutants: 12 (campaign 153 -> 165)
+scope path matched from its first key: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+scope path rooted at the endpoints table: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names past a list's first item: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold upper case: round-5 self-test KILLED (rc 1); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold lower case: round-5 self-test KILLED (rc 1); round-6 self-test KILLED (rc 1) | 
+names hold digits: round-5 self-test KILLED (rc 1); round-6 self-test KILLED (rc 1) | 
+names hold an underscore: round-5 self-test KILLED (rc 1); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold a dot: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold a colon: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold a slash: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold a hyphen: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+names hold 128 characters: round-5 self-test missed (rc 0); round-6 self-test KILLED (rc 1) | raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+probe_r6_newkill: 12 new; the round-5 self-test misses 8; the round-6 one kills 12

@@ -1,0 +1,31 @@
+gate-selftest	python3 syn/ooc/pp_resource_gate.py --selftest
+gate-mutants	python3 syn/ooc/pp_resource_gate_mutants.py
+gate-check-baseline	python3 syn/ooc/pp_resource_gate.py check-baseline
+pp-baseline-selftest	python3 syn/ooc/pp_baseline.py --selftest
+pp-baseline-mutants	python3 syn/ooc/pp_baseline_mutants.py
+pp-baseline-reports-selftest	python3 syn/ooc/pp_baseline_reports_selftest.py
+ci-scope-selftest	python3 scripts/ci_scope.py --selftest
+ci-events-check	python3 scripts/ci_events.py --check
+ci-events-selftest	python3 scripts/ci_events.py --selftest
+docs-check	python3 scripts/docs_check.py
+em-dash	python3 scripts/check_em_dash.py --base 1269cdafb4bb964c757baae0f0c5a932d43f540b
+doc-style	python3 scripts/check_doc_style.py
+doc-style-selftest	python3 scripts/check_doc_style.py --selftest
+gptp-docs	python3 scripts/check_gptp_docs.py
+gptp-docs-with-submodule	python3 scripts/check_gptp_docs.py --with-submodule
+gptp-make-docs	make -C gptp-processor docs
+doc-map	python3 docs/DOC_MAP.gen.py --check
+solution-docs	python3 scripts/check_solution_docs.py
+feature-status	python3 scripts/check_feature_status.py
+feature-status-selftest	python3 scripts/check_feature_status.py --self-test
+module-matrix	python3 docs/traceability/gen_module_matrix.py --check
+doc-paths	python3 scripts/check_doc_paths.py
+archive	python3 scripts/check_archive.py
+toc-anchors	python3 scripts/gen_toc.py --verify-anchors
+toc-check	python3 scripts/gen_toc.py --check
+py-idiom	python3 scripts/check_py_idiom.py
+fail-fast	python3 scripts/measure_fail_fast.py --check
+hygiene	python3 scripts/check_hygiene.py --check
+todo-ownership	python3 scripts/check_todo_ownership.py
+test-evidence	python3 scripts/measure_test_evidence.py --check
+baremetal-only	python3 scripts/check_baremetal_only.py --check
