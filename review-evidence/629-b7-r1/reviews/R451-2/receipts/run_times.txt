@@ -1,0 +1,128 @@
+== a0: 81 events, first 14:41:42.33 last 14:52:47.25
+  14:41:42.33 start {"name": "a0", "case": "A0", "window_s": 630.0}
+  14:41:43.29 capture-started {}
+  14:41:48.90 set-mark {}
+  14:42:08.90 window-start {}
+  14:52:39.33 window-end {}
+  14:52:42.12 clock-final {}
+  14:52:42.12 clock-final {}
+  14:52:42.13 unbind {"status": 0}
+  14:52:47.25 end {}
+== a1: 83 events, first 14:52:53.15 last 15:03:57.34
+  14:52:53.15 start {"name": "a1", "case": "A1", "window_s": 630.0}
+  14:52:53.96 capture-started {}
+  14:52:59.50 set-clock {"tag": "case", "status": "SUCCESS"}
+  14:52:59.50 set-mark {}
+  14:53:19.51 window-start {}
+  15:03:49.51 window-end {}
+  15:03:52.28 set-clock {"tag": "restore", "status": "SUCCESS"}
+  15:03:52.29 clock-final {}
+  15:03:52.29 clock-final {}
+  15:03:52.29 unbind {"status": 0}
+  15:03:57.34 end {}
+== a2: 86 events, first 15:04:02.85 last 15:15:07.51
+  15:04:02.85 start {"name": "a2", "case": "A2", "window_s": 630.0}
+  15:04:03.65 capture-started {}
+  15:04:09.35 set-clock {"tag": "case", "status": "SUCCESS"}
+  15:04:09.35 set-mark {}
+  15:04:29.36 window-start {}
+  15:14:59.75 window-end {}
+  15:15:02.53 set-clock {"tag": "restore", "status": "SUCCESS"}
+  15:15:02.53 clock-final {}
+  15:15:02.53 clock-final {}
+  15:15:02.55 unbind {"status": 0}
+  15:15:02.56 unbind {"status": 0}
+  15:15:07.51 end {}
+== b0: 88 events, first 15:15:16.41 last 15:26:20.84
+  15:15:16.41 start {"name": "b0", "case": "B0", "window_s": 630.0}
+  15:15:17.36 capture-started {}
+  15:15:22.90 set-mark {}
+  15:15:42.90 window-start {}
+  15:26:12.93 window-end {}
+  15:26:15.71 clock-final {}
+  15:26:15.71 clock-final {}
+  15:26:15.71 unbind {"status": 0}
+  15:26:15.72 unbind {"status": 0}
+  15:26:15.73 unbind {"status": 0}
+  15:26:20.84 end {}
+== baaf: 114 events, first 15:37:41.21 last 15:49:15.81
+  15:37:41.21 start {"name": "baaf", "case": "BAAF", "window_s": 630.0}
+  15:37:42.18 capture-started {}
+  15:37:47.75 set-clock {"tag": "case", "status": "SUCCESS"}
+  15:37:47.75 set-mark {}
+  15:37:47.75 poll-start {"tag": "lock-wait"}
+  15:37:55.84 poll-end {"tag": "lock-wait", "rc": 0}
+  15:37:55.84 servo-lock {"rc": 0}
+  15:38:07.85 window-start {}
+  15:48:38.01 window-end {}
+  15:48:38.19 lockloss-begin {}
+  15:48:38.19 ll-clock {"tag": "before"}
+  15:48:38.19 poll-start {"tag": "ll-holdover"}
+  15:48:39.69 ll-unbind {}
+  15:48:39.69 unbind {"status": 0}
+  15:48:50.28 poll-end {"tag": "ll-holdover", "rc": 0}
+  15:48:50.28 ll-clock {"tag": "holdover"}
+  15:48:50.28 poll-start {"tag": "ll-return"}
+  15:48:50.78 ll-rebind {}
+  15:48:57.91 poll-end {"tag": "ll-return", "rc": 0}
+  15:48:57.91 poll-start {"tag": "ll-after"}
+  15:49:07.99 poll-end {"tag": "ll-after", "rc": 0}
+  15:49:07.99 ll-clock {"tag": "after"}
+  15:49:08.17 lockloss-end {}
+  15:49:10.77 set-clock {"tag": "restore", "status": "SUCCESS"}
+  15:49:10.77 clock-final {}
+  15:49:10.77 clock-final {}
+  15:49:10.77 unbind {"status": 0}
+  15:49:10.78 unbind {"status": 0}
+  15:49:15.81 end {}
+== bcrf: 89 events, first 15:26:28.30 last 15:37:33.06
+  15:26:28.30 start {"name": "bcrf", "case": "BCRF", "window_s": 630.0}
+  15:26:29.27 capture-started {}
+  15:26:35.02 set-clock {"tag": "case", "status": "SUCCESS"}
+  15:26:35.02 set-mark {}
+  15:26:35.02 poll-start {"tag": "lock-wait"}
+  15:26:39.65 poll-end {"tag": "lock-wait", "rc": 0}
+  15:26:39.65 servo-lock {"rc": 0}
+  15:26:55.17 window-start {}
+  15:37:25.27 window-end {}
+  15:37:28.04 set-clock {"tag": "restore", "status": "SUCCESS"}
+  15:37:28.04 clock-final {}
+  15:37:28.05 clock-final {}
+  15:37:28.05 unbind {"status": 0}
+  15:37:28.05 unbind {"status": 0}
+  15:37:33.06 end {}
+== probe: 16 events, first 15:49:28.02 last 15:49:49.25
+  15:49:47.63 unbind {"status": 0}
+  15:49:48.63 clock-final {}
+  15:49:48.63 clock-final {}
+  15:49:49.25 end {}
+== smoke-baaf: 95 events, first 14:39:27.92 last 14:41:33.30
+  14:39:27.92 start {"name": "smoke-baaf", "case": "BAAF", "window_s": 60.0}
+  14:39:28.86 capture-started {}
+  14:39:34.53 set-clock {"tag": "case", "status": "SUCCESS"}
+  14:39:34.53 set-mark {}
+  14:39:34.53 poll-start {"tag": "lock-wait"}
+  14:39:42.67 poll-end {"tag": "lock-wait", "rc": 0}
+  14:39:42.67 servo-lock {"rc": 0}
+  14:39:54.67 window-start {}
+  14:40:55.06 window-end {}
+  14:40:55.23 lockloss-begin {}
+  14:40:55.24 ll-clock {"tag": "before"}
+  14:40:55.24 poll-start {"tag": "ll-holdover"}
+  14:40:56.74 ll-unbind {}
+  14:40:56.74 unbind {"status": 0}
+  14:41:07.37 poll-end {"tag": "ll-holdover", "rc": 0}
+  14:41:07.38 ll-clock {"tag": "holdover"}
+  14:41:07.38 poll-start {"tag": "ll-return"}
+  14:41:07.88 ll-rebind {}
+  14:41:15.52 poll-end {"tag": "ll-return", "rc": 0}
+  14:41:15.52 poll-start {"tag": "ll-after"}
+  14:41:25.61 poll-end {"tag": "ll-after", "rc": 0}
+  14:41:25.61 ll-clock {"tag": "after"}
+  14:41:25.80 lockloss-end {}
+  14:41:28.39 set-clock {"tag": "restore", "status": "SUCCESS"}
+  14:41:28.39 clock-final {}
+  14:41:28.39 clock-final {}
+  14:41:28.39 unbind {"status": 0}
+  14:41:28.40 unbind {"status": 0}
+  14:41:33.30 end {}
