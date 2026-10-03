@@ -1,0 +1,8 @@
+$ python3 syn/ooc/pp_resource_gate.py --fuzz 20000
+# head 68d26ea034789ce2519db22d0df4e4328bc1b0de
+resource gate fuzz: clock.xdc: swap lines: 48 cases, check exits 0/1/2 = 48/0/0
+resource gate fuzz: clock.xdc: truncate: 150 cases, check exits 0/1/2 = 76/0/74
+resource gate fuzz: clock.xdc: unicode: 170 cases, check exits 0/1/2 = 146/0/24
+resource gate fuzz: control: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: 20000 cases at seed 234 on the self-test fixtures: 0 failures; case digest 0596f2c893188fb0
+# rc 0

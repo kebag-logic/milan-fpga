@@ -1,0 +1,57 @@
+== merge 4d81e10d
+tree 04a0c948d8fabb836c64ac4c50271c3a8bc16c89
+parent d5f56313dc5a5c2716211356f99796664dc843dd
+parent 546437243e87eb5a78783a9e3cd5d1badcc3423e
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1791054182 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1791054182 +0200
+
+merge-tree:
+merge-tree: 546437243e87eb5a78783a9e3cd5d1badcc0ab01 - not something we can merge
+04a0c948d8fabb836c64ac4c50271c3a8bc16c89
+== merge 68d26ea0
+tree 4bc95158cc7e2b5f64051a100b770298ef194a70
+parent aabdc2839a272631222c30a62e83218d893b40d2
+parent 5fabb46e767c9308ab2580916237f43577698c6e
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1791060435 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1791060435 +0200
+
+merge-tree:
+4bc95158cc7e2b5f64051a100b770298ef194a70
+4bc95158cc7e2b5f64051a100b770298ef194a70
+== full parents
+d5f56313dc5a5c2716211356f99796664dc843dd
+546437243e87eb5a78783a9e3cd5d1badcc3423e
+aabdc2839a272631222c30a62e83218d893b40d2
+5fabb46e767c9308ab2580916237f43577698c6e
+== commit messages (body lines)
+4d81e10d lines=1
+a89d0696 lines=1
+469d1620 lines=1
+aabdc283 lines=1
+68d26ea0 lines=1
+== merge-tree d5f56313 + 54643724 (redo with full parent)
+04a0c948d8fabb836c64ac4c50271c3a8bc16c89
+04a0c948d8fabb836c64ac4c50271c3a8bc16c89
+== live dev on remote
+68d26ea034789ce2519db22d0df4e4328bc1b0de	refs/heads/234-area-baseline
+5fabb46e767c9308ab2580916237f43577698c6e	refs/heads/dev
+== git log first-parent check: no rebase of round-6 history
+d5f56313-ancestor
+1269cdaf-ancestor
+== candidate = head: diff dev..HEAD files
+.github/workflows/rtl-fast.yml               |    3 +
+ docs/design/AREA_BUDGET.md                   |  167 +++-
+ docs/findings/234_PP_SHADOW_AREA_BASELINE.md |  505 ++++++++++
+ docs/findings/README.md                      |    2 +
+ docs/testing/CI_WORKFLOWS.md                 |    5 +-
+ docs/testing/PP_SHADOW_BASELINE_RECIPE.md    |   72 ++
+ scripts/ci_events.py                         |    3 +
+ scripts/ci_scope.py                          |    7 +-
+ syn/ooc/pp_baseline.py                       |   50 +-
+ syn/ooc/pp_baseline_mutants.py               |    9 +
+ syn/ooc/pp_baseline_rank.py                  |   29 +-
+ syn/ooc/pp_resource_baseline.json            | 1384 ++++++++++++++++++++++++++
+ syn/ooc/pp_resource_gate.py                  |  740 ++++++++++++++
+ syn/ooc/pp_resource_gate_mutants.py          |  317 ++++++
+ syn/ooc/pp_resource_gate_selftest.py         | 1000 +++++++++++++++++++
+ 15 files changed, 4280 insertions(+), 13 deletions(-)

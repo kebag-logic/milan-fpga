@@ -1,0 +1,20 @@
+resource-gate-selftest|python3 syn/ooc/pp_resource_gate.py --selftest
+resource-gate-mutants|python3 syn/ooc/pp_resource_gate_mutants.py
+resource-gate-check-baseline|python3 syn/ooc/pp_resource_gate.py check-baseline
+pp-baseline-selftest|python3 syn/ooc/pp_baseline.py --selftest
+pp-baseline-mutants|python3 syn/ooc/pp_baseline_mutants.py
+ci-scope-selftest|python3 scripts/ci_scope.py --selftest
+ci-events-check|python3 scripts/ci_events.py --check
+docs-check|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+docs-check-no-git|env GIT_DIR=/dev/null $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+toc-check|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+toc-verify-anchors|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --verify-anchors
+doc-paths|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py
+em-dash|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base 5fabb46e767c9308ab2580916237f43577698c6e
+doc-style|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py
+doc-map-check|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python docs/DOC_MAP.gen.py --check
+archive|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_archive.py
+module-matrix-check|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python docs/traceability/gen_module_matrix.py --check
+solution-docs|$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_solution_docs.py
+feature-status-no-git|env GIT_DIR=/dev/null $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_feature_status.py
+diff-check-base|git diff --check 5fabb46e767c9308ab2580916237f43577698c6e HEAD

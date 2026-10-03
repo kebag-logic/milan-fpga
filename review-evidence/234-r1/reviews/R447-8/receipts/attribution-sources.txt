@@ -1,0 +1,36 @@
+      //! Generated beside the descriptor image from the same AEM model.
+      //! Large configured models therefore cannot inherit a small default.
+      .DESC_NAME_ENTRIES_P (AEM_NAME_ENTRIES_C),
+      .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P),
+      .RESP_BASE_P         (PP_RESP_BASE_P),
+== 1269cdafb4bb964c757baae0f0c5a932d43f540b
+endstation_ax7101_1x1_tdm8:   localparam int AEM_NAME_ENTRIES_C = 38;
+endstation_ax7101_8x8:   localparam int AEM_NAME_ENTRIES_C = 99;
+hdl/common/gen:   localparam int AEM_NAME_ENTRIES_C = 38;
+== HEAD
+endstation_ax7101_1x1_tdm8:   localparam int AEM_NAME_ENTRIES_C = 39;
+endstation_ax7101_8x8:   localparam int AEM_NAME_ENTRIES_C = 107;
+hdl/common/gen:   localparam int AEM_NAME_ENTRIES_C = 39;
+== protocol-processor sources unchanged (gitlink equal); wrapper source diff:
+== hdl files changed 1269cdaf..HEAD:
+ hdl/common/README-tests.md                   |  10 +-
+ hdl/common/csr/README-tests.md               |   2 +-
+ hdl/common/csr/milan_csr.sv                  |  16 +
+ hdl/common/eth_event_counter/README-tests.md |   4 +-
+ hdl/common/gen/adp_shape_defaults.svh        |  24 +-
+ hdl/ieee1722/aaf/README-tests.md             |  36 +-
+ hdl/ieee1722/avtp/README-tests.md            |  10 +-
+ hdl/ieee1722/crf/KL_aaf_clock_meter.sv       | 608 +++++++++++++++++++++++++++
+ hdl/ieee1722/crf/KL_media_grid_align.sv      |  12 +-
+ hdl/ieee1722/crf/KL_media_nco.sv             |  23 +-
+ hdl/ieee1722/crf/KL_mmcm_drp_servo.sv        |  81 ++--
+ hdl/ieee1722/crf/README-tests.md             |  11 +-
+ hdl/ieee1722/maap/README-tests.md            |   2 +-
+ hdl/ieee17221/adp/README-tests.md            |   2 +-
+ hdl/ieee8021as/gptp_plane/README-tests.md    |   6 +-
+ hdl/ieee8021as/ptp_timestamp/README-tests.md |   6 +-
+ hdl/ieee8021q/filtering/README-tests.md      |   4 +-
+ hdl/milan/README-tests.md                    |   8 +-
+ hdl/milan/milan_datapath.sv                  | 289 ++++++++++---
+ 19 files changed, 995 insertions(+), 159 deletions(-)
+== ROM init:

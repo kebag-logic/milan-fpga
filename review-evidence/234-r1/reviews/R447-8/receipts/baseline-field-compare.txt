@@ -1,0 +1,90 @@
+top-level keys ['schema', 'description', 'endpoints'] ['schema', 'description', 'endpoints']
+== endpoint route-1x1 keys ['record', 'measured', 'tolerance', 'floor', 'ceiling']
+CHANGED route-1x1/measured: "dev 1269cdaf, processor 631eeb34, issue #234" -> "dev 54643724, after PR #634, processor 631eeb34, issue #234 re-baseline of 2026-10-03; first recorded at dev 1269cdaf"
+CHANGED route-1x1/record/figures/CARRY4: 3405 -> 3506
+CHANGED route-1x1/record/figures/FF: 59006 -> 59634
+CHANGED route-1x1/record/figures/LUT: 50128 -> 50767
+CHANGED route-1x1/record/figures/SLICE: 15815 -> 15832
+CHANGED route-1x1/record/figures/WHS_ns: 0.036 -> 0.024
+CHANGED route-1x1/record/figures/WNS_ns: 0.063 -> 0.193
+CHANGED route-1x1/record/inputs_sha256: "e0db21f7fa476ae24b09b0ae6c9baf613e8707adc64a49698d344ac7ae0adf08" -> "91907a7d58df52543db1d91f883574519cedc5e342adaa948cc8b33df6bd4ac1"
+CHANGED route-1x1/record/scopes/u_nvm/CARRY4: 47 -> 45
+CHANGED route-1x1/record/scopes/u_nvm/FF: 475 -> 476
+CHANGED route-1x1/record/scopes/u_nvm/LUT: 486 -> 505
+CHANGED route-1x1/record/scopes/u_pp/CARRY4: 1524 -> 1522
+CHANGED route-1x1/record/scopes/u_pp/FF: 23434 -> 23435
+CHANGED route-1x1/record/scopes/u_pp/LUT: 23380 -> 23335
+CHANGED route-1x1/record/scopes/u_pp/g_rx_pool[2].u_rx_slots/LUT: 49 -> 50
+CHANGED route-1x1/record/scopes/u_pp/g_rx_pool[4].u_rx_slots/LUT: 35 -> 36
+CHANGED route-1x1/record/scopes/u_pp/u_adp/LUT: 442 -> 443
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/CARRY4: 459 -> 457
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/FF: 3500 -> 3501
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/LUT: 7278 -> 7223
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_d3/LUT: 1292 -> 1317
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_dyn/CARRY4: 46 -> 44
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_dyn/LUT: 1225 -> 1142
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_resp/LUT: 330 -> 332
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_store/LUT: 970 -> 979
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_ucpu/FF: 495 -> 496
+CHANGED route-1x1/record/scopes/u_pp/u_aecp/u_ucpu/LUT: 1709 -> 1716
+CHANGED route-1x1/record/scopes/u_pp/u_ca_builder/LUT: 128 -> 127
+CHANGED route-1x1/record/scopes/u_pp/u_dispatch/LUT: 780 -> 776
+CHANGED route-1x1/record/scopes/u_pp/u_dispatch/u_acmp_q/LUT: 288 -> 285
+CHANGED route-1x1/record/scopes/u_pp/u_dispatch/u_aecp_q/LUT: 383 -> 382
+CHANGED route-1x1/record/scopes/u_pp/u_event_router/LUT: 235 -> 221
+CHANGED route-1x1/record/scopes/u_pp/u_listener/LUT: 1406 -> 1407
+CHANGED route-1x1/record/scopes/u_pp/u_notify/FF: 3299 -> 3301
+CHANGED route-1x1/record/scopes/u_pp/u_notify/LUT: 3135 -> 3149
+CHANGED route-1x1/record/scopes/u_pp/u_nvm_port/LUT: 447 -> 439
+CHANGED route-1x1/record/scopes/u_pp/u_originator/LUT: 725 -> 726
+CHANGED route-1x1/record/scopes/u_pp/u_prng/LUT: 132 -> 133
+CHANGED route-1x1/record/scopes/u_pp/u_rx_validator/LUT: 543 -> 548
+CHANGED route-1x1/record/scopes/u_pp/u_scoreboard/LUT: 142 -> 138
+CHANGED route-1x1/record/scopes/u_pp/u_srp/FF: 6265 -> 6263
+CHANGED route-1x1/record/scopes/u_pp/u_srp/LUT: 4267 -> 4273
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_admission/LUT: 223 -> 224
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_decoder/LUT: 582 -> 584
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_domain/LUT: 71 -> 77
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_listener/LUT: 466 -> 474
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_talker/FF: 672 -> 671
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_talker/LUT: 619 -> 608
+CHANGED route-1x1/record/scopes/u_pp/u_srp/u_vlan/LUT: 139 -> 140
+CHANGED route-1x1/record/scopes/u_pp/u_talker/LUT: 709 -> 710
+CHANGED route-1x1/record/scopes/u_pp/u_tx_arbiter/LUT: 201 -> 204
+CHANGED route-1x1/record/scopes/wrapper/CARRY4: 1580 -> 1576
+CHANGED route-1x1/record/scopes/wrapper/FF: 24263 -> 24265
+CHANGED route-1x1/record/scopes/wrapper/LUT: 23937 -> 23904
+  figures: 
+  scopes: 0 -> 0; added [] removed []
+== endpoint ooc-1x1 keys ['record', 'measured', 'tolerance']
+CHANGED ooc-1x1/measured: "dev 1269cdaf, processor 631eeb34, issue #234" -> "dev 54643724, after PR #634, processor 631eeb34, issue #234 re-baseline of 2026-10-03; first recorded at dev 1269cdaf"
+CHANGED ooc-1x1/record/figures/FF: 25344 -> 25345
+CHANGED ooc-1x1/record/figures/LUT: 24343 -> 24332
+CHANGED ooc-1x1/record/inputs_sha256: "171587e66e2332dc52ac67f1177810e3cdb2f853e164b2dbf78eff83b407e630" -> "1a81af024aa497782110e13c1e25c0d57c574d2976497bbbe85a861db68b75a1"
+CHANGED ooc-1x1/record/scopes/u_nvm/FF: 475 -> 476
+CHANGED ooc-1x1/record/scopes/u_nvm/LUT: 603 -> 592
+CHANGED ooc-1x1/record/scopes/u_pp/u_aecp/u_d3/LUT: 1073 -> 1066
+CHANGED ooc-1x1/record/scopes/u_pp/u_aecp/u_store/LUT: 1023 -> 1030
+CHANGED ooc-1x1/record/scopes/u_pp/u_dispatch/LUT: 895 -> 896
+CHANGED ooc-1x1/record/scopes/u_pp/u_dispatch/u_aecp_q/LUT: 376 -> 377
+CHANGED ooc-1x1/record/scopes/u_pp/u_nvm_port/LUT: 453 -> 452
+CHANGED ooc-1x1/record/scopes/wrapper/FF: 25344 -> 25345
+CHANGED ooc-1x1/record/scopes/wrapper/LUT: 24343 -> 24332
+  figures: 
+  scopes: 0 -> 0; added [] removed []
+== endpoint ooc-8x8 keys ['record', 'measured', 'tolerance']
+CHANGED ooc-8x8/measured: "dev 1269cdaf, processor 631eeb34, issue #234" -> "dev 54643724, after PR #634, processor 631eeb34, issue #234 re-baseline of 2026-10-03; first recorded at dev 1269cdaf"
+CHANGED ooc-8x8/record/figures/FF: 33929 -> 33937
+CHANGED ooc-8x8/record/figures/LUT: 31562 -> 31556
+CHANGED ooc-8x8/record/inputs_sha256: "5ca559a7dfa40106467cd8c03a91bea62cff2629be6c0adc7fc6258052c37e00" -> "36e9085565b89c8dd88beba467d60b35bbd7c7852acb4a36287e722cfaa31fdf"
+CHANGED ooc-8x8/record/scopes/u_nvm/FF: 1026 -> 1034
+CHANGED ooc-8x8/record/scopes/u_nvm/LUT: 1118 -> 1113
+CHANGED ooc-8x8/record/scopes/u_pp/LUT: 30364 -> 30363
+CHANGED ooc-8x8/record/scopes/u_pp/u_aecp/LUT: 6141 -> 6139
+CHANGED ooc-8x8/record/scopes/u_pp/u_aecp/u_d3/LUT: 1282 -> 1283
+CHANGED ooc-8x8/record/scopes/u_pp/u_aecp/u_store/LUT: 1040 -> 1037
+CHANGED ooc-8x8/record/scopes/u_pp/u_nvm_arb/LUT: 20 -> 21
+CHANGED ooc-8x8/record/scopes/wrapper/FF: 33929 -> 33937
+CHANGED ooc-8x8/record/scopes/wrapper/LUT: 31562 -> 31556
+  figures: 
+  scopes: 0 -> 0; added [] removed []

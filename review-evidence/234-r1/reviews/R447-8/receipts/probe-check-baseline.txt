@@ -1,0 +1,11 @@
+PASS control-unchanged: rc=0 :: baseline PASS: 3 endpoints
+PASS route-LUT-tolerance-501: rc=2 :: route-1x1: tolerance LUT is 501 in the baseline and 500.0 in the budget table
+PASS route-FF-tolerance-599: rc=2 :: route-1x1: tolerance FF is 599 in the baseline and 600.0 in the budget table
+PASS ooc8x8-LUT-tolerance-315: rc=2 :: ooc-8x8: tolerance LUT is 315 in the baseline and 316.0 in the budget table
+PASS route-WNS-floor-0.02: rc=2 :: route-1x1: floor WNS_ns is 0.02 in the baseline and 0.03 in the budget table
+PASS route-BRAM-ceiling-122: rc=2 :: route-1x1: ceiling BRAM_TILE is 122 in the baseline and 121.5 in the budget table
+PASS route-record-WNS-below-floor: rc=2 :: route-1x1: the recorded WNS_ns is below its floor
+PASS route-record-BRAM-over-ceiling: rc=2 :: route-1x1: the recorded BRAM_TILE exceeds its ceiling
+PASS route-record-digest-not-hex: rc=2 :: NOT COMPARABLE: baseline $REVIEWS/234-r447-8-packet/scratch/probes/route-record-digest-not-hex.json is malformed: route-1x1: the record input digest is not a sha256 hex digest
+FAIL route-measured-note-removed: rc=0 :: baseline PASS: 3 endpoints
+SOME PROBE MISBEHAVED

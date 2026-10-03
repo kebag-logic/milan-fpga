@@ -1,0 +1,311 @@
+$ python3 syn/ooc/pp_resource_gate.py --selftest
+# head 68d26ea034789ce2519db22d0df4e4328bc1b0de
+resource gate route arm: unchanged control: exit 0 PASS
+resource gate route arm: changed source, unchanged figures: exit 0 PASS
+resource gate route arm: LUT growth at the tolerance: exit 0 PASS
+resource gate route arm: LUT growth over the tolerance: exit 1 PASS
+resource gate route arm: FF growth over the tolerance: exit 1 PASS
+resource gate route arm: register rows disagree: exit 2 PASS
+resource gate route arm: Slice growth over the tolerance: exit 1 PASS
+resource gate route arm: one more RAMB36: exit 1 PASS
+resource gate route arm: one more RAMB18: exit 1 PASS
+resource gate route arm: one more DSP: exit 1 PASS
+resource gate route arm: BRAM tiles over the ceiling: exit 1 PASS
+resource gate route arm: BRAM tiles at the ceiling: exit 0 PASS
+resource gate route arm: WNS below the floor: exit 1 PASS
+resource gate route arm: WNS at the floor: exit 0 PASS
+resource gate route arm: WNS fell more than the tolerance: exit 1 PASS
+resource gate route arm: WNS fell by exactly the tolerance: exit 0 PASS
+resource gate route arm: WNS fell within the tolerance: exit 0 PASS
+resource gate route arm: WHS below the floor: exit 1 PASS
+resource gate route arm: WHS at the floor: exit 0 PASS
+resource gate route arm: WNS not a number: exit 2 PASS
+resource gate route arm: WHS not a number: exit 2 PASS
+resource gate route arm: WNS and WHS infinite: exit 2 PASS
+resource gate route arm: WNS in other digits: exit 2 PASS
+resource gate route arm: WNS too long to be finite: exit 2 PASS
+resource gate route arm: WHS too long to be finite: exit 2 PASS
+resource gate route arm: no timed endpoint: exit 2 PASS
+resource gate route arm: no hold-timed endpoint: exit 2 PASS
+resource gate route arm: timed endpoints in other digits: exit 2 PASS
+resource gate route arm: timed endpoints past the bound: exit 2 PASS
+resource gate route arm: timing summary without its endpoint columns: exit 2 PASS
+resource gate route arm: WNS without a fraction: exit 2 PASS
+resource gate route arm: LUT improvement within the tolerance: exit 0 PASS
+resource gate route arm: LUT improvement beyond the tolerance: exit 0 PASS
+resource gate route arm: WNS rise beyond the tolerance: exit 0 PASS
+resource gate route arm: route status complete: exit 0 PASS
+resource gate route arm: nets with routing errors: exit 1 PASS
+resource gate route arm: unrouted nets: exit 1 PASS
+resource gate route arm: routable nets not fully routed: exit 1 PASS
+resource gate route arm: route status report missing: exit 2 PASS
+resource gate route arm: second route status report: exit 2 PASS
+resource gate route arm: route status without its error row: exit 2 PASS
+resource gate route arm: route status with a second error row: exit 2 PASS
+resource gate route arm: route status count unreadable: exit 2 PASS
+resource gate route arm: route status count a superscript: exit 2 PASS
+resource gate route arm: route status count in other digits: exit 2 PASS
+resource gate route arm: route status count negative: exit 2 PASS
+resource gate route arm: route status count past the bound: exit 2 PASS
+resource gate route arm: route status not UTF-8: exit 2 PASS
+resource gate route arm: route status without its routable row: exit 2 PASS
+resource gate route arm: route status without its fully routed row: exit 2 PASS
+resource gate route arm: route status without both net rows: exit 2 PASS
+resource gate route arm: route status with a second routable row: exit 2 PASS
+resource gate route arm: tool build changed: exit 2 PASS
+resource gate route arm: device changed: exit 2 PASS
+resource gate route arm: design changed: exit 2 PASS
+resource gate route arm: design state changed: exit 2 PASS
+resource gate route arm: project creation changed: exit 2 PASS
+resource gate route arm: thread count changed: exit 2 PASS
+resource gate route arm: synthesis directive changed: exit 2 PASS
+resource gate route arm: optimization directive changed: exit 2 PASS
+resource gate route arm: timing grade changed: exit 2 PASS
+resource gate route arm: placement directive changed: exit 2 PASS
+resource gate route arm: physical optimization directive changed: exit 2 PASS
+resource gate route arm: routing directive changed: exit 2 PASS
+resource gate route arm: identical inputs, different figures: exit 2 PASS
+resource gate route arm: identical inputs, different WNS: exit 2 PASS
+resource gate route arm: export date only: exit 2 PASS
+resource gate route arm: generated logic changed: exit 1 PASS
+resource gate route arm: include header changed: exit 1 PASS
+resource gate route arm: sourced constraint changed: exit 1 PASS
+resource gate route arm: memory image changed: exit 1 PASS
+resource gate route arm: image manifest of the wrong shape: exit 2 PASS
+resource gate route arm: image manifest nested too deep: exit 2 PASS
+resource gate route arm: image manifest with a repeated key: exit 2 PASS
+resource gate route arm: image manifest with a bracketed key: exit 2 PASS
+resource gate route arm: image manifest with another named key: exit 0 PASS
+resource gate route arm: duplicate conflicting row: exit 2 PASS
+resource gate route arm: duplicate conflicting header: exit 2 PASS
+resource gate route arm: malformed count: exit 2 PASS
+resource gate route arm: count in other digits: exit 2 PASS
+resource gate route arm: fractional count: exit 2 PASS
+resource gate route arm: count past the bound: exit 2 PASS
+resource gate route arm: BRAM tiles too long to be finite: exit 2 PASS
+resource gate route arm: missing Slice row: exit 2 PASS
+resource gate route arm: timing columns changed: exit 2 PASS
+resource gate route arm: second timing summary: exit 2 PASS
+resource gate route arm: timing value row missing: exit 2 PASS
+resource gate route arm: missing timing report: exit 2 PASS
+resource gate route arm: second generated top: exit 2 PASS
+resource gate route arm: read source missing: exit 2 PASS
+resource gate route arm: include directory missing: exit 2 PASS
+resource gate route arm: cell census header changed: exit 2 PASS
+resource gate route arm: hierarchy count in other digits: exit 2 PASS
+resource gate route arm: hierarchy count in other digits in a middle cell: exit 2 PASS
+resource gate route arm: hierarchy count in other digits in the last cell: exit 2 PASS
+resource gate route arm: hierarchy count past the bound: exit 2 PASS
+resource gate route arm: hierarchy row without counts: exit 2 PASS
+resource gate route arm: wrapper source read from too near the root: exit 2 PASS
+resource gate route arm: second recipe script: exit 2 PASS
+resource gate ooc arm: standalone control: exit 0 PASS
+resource gate ooc arm: standalone clock changed: exit 2 PASS
+resource gate ooc arm: generic changed: exit 1 PASS
+resource gate ooc arm: image path moved, same image: exit 2 PASS
+resource gate ooc arm: standalone RAMB36: exit 1 PASS
+resource gate ooc arm: standalone RAMB18: exit 1 PASS
+resource gate ooc arm: standalone DSP: exit 1 PASS
+resource gate ooc arm: standalone FF: exit 1 PASS
+resource gate route arm: export built at another root: exit 2 PASS
+resource gate command-line arm: check within tolerance: exit 0 PASS
+resource gate command-line arm: check reads the kind from a standalone directory: exit 0 PASS
+resource gate command-line arm: check of a regression: exit 1 PASS
+resource gate command-line arm: check of an unrouted route: exit 1 PASS
+resource gate command-line arm: check of an unreadable measurement: exit 2 PASS
+resource gate command-line arm: check of a route without its status: exit 2 PASS
+resource gate command-line arm: check of a route status count past the integer text limit: exit 2 PASS
+resource gate command-line arm: check of a WNS too long to be finite: exit 2 PASS
+resource gate command-line arm: check of a wrong-shape image manifest: exit 2 PASS
+resource gate command-line arm: check against a baseline that is not JSON: exit 2 PASS
+resource gate command-line arm: check against a missing baseline: exit 2 PASS
+resource gate command-line arm: check against a baseline without endpoints: exit 2 PASS
+resource gate command-line arm: check against a scope name with a generate index: exit 0 PASS
+resource gate command-line arm: check of a bracketed key in the last image manifest entry: exit 2 PASS
+resource gate command-line arm: check of a 128-character key of every name character in a note and an image manifest entry: exit 0 PASS
+resource gate command-line arm: check of an endpoint the baseline does not hold: exit 2 PASS
+resource gate command-line arm: check of an endpoint without a record: exit 2 PASS
+resource gate command-line arm: check of a gated figure without a tolerance: exit 2 PASS
+resource gate command-line arm: check of a ceiling naming no figure: exit 2 PASS
+resource gate check-baseline arm: a consistent baseline: exit 0 PASS
+resource gate check-baseline arm: a scope name with a generate index: exit 0 PASS
+resource gate check-baseline arm: a missing record: exit 2 PASS
+resource gate check-baseline arm: an incomplete record: exit 2 PASS
+resource gate check-baseline arm: a missing tolerance: exit 2 PASS
+resource gate check-baseline arm: a negative tolerance: exit 2 PASS
+resource gate check-baseline arm: a missing floor: exit 2 PASS
+resource gate check-baseline arm: a record below its floor: exit 2 PASS
+resource gate check-baseline arm: a record over its ceiling: exit 2 PASS
+resource gate check-baseline arm: a missing route ceiling: exit 2 PASS
+resource gate check-baseline arm: a ceiling naming no figure: exit 2 PASS
+resource gate check-baseline arm: a malformed policy: exit 2 PASS
+resource gate check-baseline arm: a tolerance the budget does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget value the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget floor the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget ceiling the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: a baseline policy figure the budget table lacks: exit 2 PASS
+resource gate check-baseline arm: a budget cell in other digits: exit 2 PASS
+resource gate check-baseline arm: a budget cell too long to be finite: exit 2 PASS
+resource gate check-baseline arm: an endpoint the budget lacks: exit 2 PASS
+resource gate check-baseline arm: a budget row the baseline lacks: exit 2 PASS
+resource gate check-baseline arm: no budget table: exit 2 PASS
+resource gate check-baseline arm: two budget tables: exit 2 PASS
+resource gate check-baseline arm: a repeated budget row: exit 2 PASS
+resource gate check-baseline arm: a budget cell that is no value: exit 2 PASS
+resource gate check-baseline arm: a budget page that is not UTF-8: exit 2 PASS
+resource gate check-baseline arm: no budget page: exit 2 PASS
+resource gate malformed-baseline arm: a NaN floor: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an infinite tolerance: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a ceiling too large to be finite: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a timing figure recorded as a long whole number: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope count past the bound: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a whole number past the integer text limit: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a file nested too deep to read: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a repeated key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an endpoint field named by a lone surrogate: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope named by a lone surrogate: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a key of 129 characters: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an endpoint name with a generate index: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a policy figure with a generate index: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a note of the file holding a bracketed key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a note holding a bracketed key under scopes: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a bracketed key in a note list past its first item: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a note shaped as a record's scopes holding a bracketed key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in the file: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in an endpoint: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in a record: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a record kind that is a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown record kind: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity without its device: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity with an extra key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity field of another type: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a flow that is not text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a standalone clock that is not text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest that is no digest: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest that is a number: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest in upper case: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures that are a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures without LUT: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures with an extra figure: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is null: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a malformed endpoint after the first: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: scopes that are a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope without its CARRY4 count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope with an extra count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a fractional scope count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a negative scope count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope count that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a tolerance that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a ceiling that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a floor table that is a list: exit 2 through check and check-baseline PASS
+resource gate CARRY4 attribution and record --write PASS
+resource gate planted-exception arm: load through check: exit 2 PASS
+resource gate planted-exception arm: census through check: exit 2 PASS
+resource gate planted-exception arm: routing through check: exit 2 PASS
+resource gate planted-exception arm: judge through check: exit 2 PASS
+resource gate planted-exception arm: entry_problems through check: exit 2 PASS
+resource gate planted-exception arm: load through check-baseline: exit 2 PASS
+resource gate planted-exception arm: check_baseline through check-baseline: exit 2 PASS
+resource gate command-line arm: a directory named in another script: exit 0 PASS
+resource gate command-line arm: record --write of an endpoint name the baseline refuses: exit 2 PASS
+resource gate fuzz: alinx_ax7101_route_status.rpt: bytes: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: digit: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: alinx_ax7101_route_status.rpt: duplicate line: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: alinx_ax7101_route_status.rpt: empty: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: alinx_ax7101_route_status.rpt: garble: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: huge: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: alinx_ax7101_route_status.rpt: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: missing: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: alinx_ax7101_route_status.rpt: number: 1 cases, check exits 0/1/2 = 0/1/0
+resource gate fuzz: alinx_ax7101_route_status.rpt: row removed: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: alinx_ax7101_route_status.rpt: row twice: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: second report: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: truncate: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: alinx_ax7101_route_status.rpt: unicode: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: baseline: add: 17 cases, check exits 0/1/2 = 6/0/11
+resource gate fuzz: baseline: bad name: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline: bracket name: 14 cases, check exits 0/1/2 = 0/0/14
+resource gate fuzz: baseline: bytes: 17 cases, check exits 0/1/2 = 0/0/17
+resource gate fuzz: baseline: digit: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline: duplicate: 14 cases, check exits 0/1/2 = 0/0/14
+resource gate fuzz: baseline: note: 9 cases, check exits 0/1/2 = 1/0/8
+resource gate fuzz: baseline: overflow: 15 cases, check exits 0/1/2 = 0/0/15
+resource gate fuzz: baseline: remove: 16 cases, check exits 0/1/2 = 3/0/13
+resource gate fuzz: baseline: size: deep nesting: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline: size: long text: 4 cases, check exits 0/1/2 = 2/0/2
+resource gate fuzz: baseline: size: many scopes: 5 cases, check exits 0/1/2 = 5/0/0
+resource gate fuzz: baseline: truncate: 10 cases, check exits 0/1/2 = 0/0/10
+resource gate fuzz: baseline: type: 10 cases, check exits 0/1/2 = 0/0/10
+resource gate fuzz: baseline: unicode: 12 cases, check exits 0/1/2 = 5/0/7
+resource gate fuzz: baseline: value: 17 cases, check exits 0/1/2 = 17/0/0
+resource gate fuzz: baseline_cells.tsv: bytes: 11 cases, check exits 0/1/2 = 0/0/11
+resource gate fuzz: baseline_cells.tsv: census header: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_cells.tsv: duplicate line: 4 cases, check exits 0/1/2 = 4/0/0
+resource gate fuzz: baseline_cells.tsv: empty: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_cells.tsv: junk lines: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_cells.tsv: missing: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_cells.tsv: swap lines: 3 cases, check exits 0/1/2 = 2/0/1
+resource gate fuzz: baseline_cells.tsv: truncate: 3 cases, check exits 0/1/2 = 3/0/0
+resource gate fuzz: baseline_cells.tsv: unicode: 15 cases, check exits 0/1/2 = 10/0/5
+resource gate fuzz: baseline_hierarchy.rpt: bytes: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_hierarchy.rpt: delete line: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: baseline_hierarchy.rpt: digit: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: duplicate line: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: empty: 13 cases, check exits 0/1/2 = 0/0/13
+resource gate fuzz: baseline_hierarchy.rpt: garble: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_hierarchy.rpt: huge: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_hierarchy.rpt: missing: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: baseline_hierarchy.rpt: number: 7 cases, check exits 0/1/2 = 7/0/0
+resource gate fuzz: baseline_hierarchy.rpt: swap lines: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: truncate: 2 cases, check exits 0/1/2 = 1/0/1
+resource gate fuzz: baseline_hierarchy.rpt: unicode: 6 cases, check exits 0/1/2 = 4/0/2
+resource gate fuzz: baseline_images.json: bytes: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_images.json: delete line: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_images.json: empty: 10 cases, check exits 0/1/2 = 0/0/10
+resource gate fuzz: baseline_images.json: entry key: 7 cases, check exits 0/1/2 = 1/0/6
+resource gate fuzz: baseline_images.json: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_images.json: missing: 11 cases, check exits 0/1/2 = 0/0/11
+resource gate fuzz: baseline_images.json: swap lines: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: baseline_images.json: truncate: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_images.json: unicode: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_timing.rpt: bytes: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_timing.rpt: digit: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: baseline_timing.rpt: duplicate line: 2 cases, check exits 0/1/2 = 1/0/1
+resource gate fuzz: baseline_timing.rpt: empty: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_timing.rpt: garble: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: baseline_timing.rpt: huge: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_timing.rpt: missing: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_timing.rpt: number: 4 cases, check exits 0/1/2 = 2/2/0
+resource gate fuzz: baseline_timing.rpt: summary twice: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_timing.rpt: swap lines: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: baseline_timing.rpt: truncate: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_timing.rpt: unicode: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_utilization.rpt: bytes: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_utilization.rpt: digit: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_utilization.rpt: duplicate line: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: baseline_utilization.rpt: empty: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: baseline_utilization.rpt: garble: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_utilization.rpt: header removed: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: header twice: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: baseline_utilization.rpt: huge: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: junk lines: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_utilization.rpt: missing: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_utilization.rpt: number: 2 cases, check exits 0/1/2 = 0/2/0
+resource gate fuzz: baseline_utilization.rpt: swap lines: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_utilization.rpt: truncate: 6 cases, check exits 0/1/2 = 1/0/5
+resource gate fuzz: baseline_utilization.rpt: unicode: 4 cases, check exits 0/1/2 = 2/0/2
+resource gate fuzz: clock.xdc: bytes: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: clock.xdc: delete line: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: clock.xdc: duplicate line: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: clock.xdc: empty: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: clock.xdc: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: clock.xdc: missing: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: clock.xdc: truncate: 2 cases, check exits 0/1/2 = 1/0/1
+resource gate fuzz: clock.xdc: unicode: 3 cases, check exits 0/1/2 = 3/0/0
+resource gate fuzz: control: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 151eb3fc6a0d989c
+resource gate selftest: 260 arms and 500 generated cases PASS
+# rc 0

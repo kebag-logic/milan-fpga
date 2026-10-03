@@ -1,0 +1,86 @@
+== 4d81e10d..HEAD files
+M	docs/design/AREA_BUDGET.md
+M	docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+M	docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+M	docs/findings/README.md
+M	syn/ooc/pp_resource_baseline.json
+== submodule gitlinks at HEAD vs 4d81e10d vs dev
+4d81e10d: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d protocol-processor=631eeb342ca1e3fa80e734077a56a943aee76ff1 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+HEAD: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d protocol-processor=631eeb342ca1e3fa80e734077a56a943aee76ff1 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+5fabb46e767c9308ab2580916237f43577698c6e: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d protocol-processor=631eeb342ca1e3fa80e734077a56a943aee76ff1 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+1269cdafb4bb964c757baae0f0c5a932d43f540b: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d protocol-processor=631eeb342ca1e3fa80e734077a56a943aee76ff1 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+== 1269cdaf..54643724 image-input files (dev delta)
+ tb/verilator/nvm_capture_cpu/sim_main.cpp          |   30 +-
+ tb/verilator/nvm_capture_cpu/soc.py                |   12 +-
+ 108 files changed, 7551 insertions(+), 1479 deletions(-)
+avdecc/aem_assemble.py
+avdecc/aem_descriptors.py
+avdecc/aem_emit.py
+avdecc/aem_rom.json
+avdecc/aem_specs.py
+avdecc/gen_aem_store.py
+configs/endstation_arty_4x4.yaml
+configs/endstation_arty_8ch.yaml
+configs/endstation_arty_current.yaml
+configs/endstation_ax7101_1x1_tdm8.yaml
+configs/endstation_ax7101_8x8.yaml
+configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+hdl/common/csr/milan_csr.sv
+hdl/common/gen/adp_shape_defaults.svh
+hdl/ieee1722/crf/KL_aaf_clock_meter.sv
+hdl/ieee1722/crf/KL_media_grid_align.sv
+hdl/ieee1722/crf/KL_media_nco.sv
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+hdl/milan/milan_datapath.sv
+scripts/check_nvm_capture.py
+scripts/entity_shape_selftest.py
+scripts/measure_test_evidence.py
+scripts/naming.budget
+scripts/nvm_map_checks.py
+scripts/nvm_shape.py
+scripts/port_docs.budget
+scripts/shape_consumer_inventory.py
+sw/builder/endstation_builder.py
+sw/builder/test_builder.py
+sw/litex/milan_soc.py
+syn/yosys/ooc.sh
+syn/yosys/run.sh
+tb/verilator/aaf_clock_meter/Makefile
+tb/verilator/aaf_clock_meter/meter_servo_wrap.sv
+tb/verilator/aaf_clock_meter/meter_wrap.sv
+tb/verilator/aaf_clock_meter/mutants.py
+tb/verilator/aaf_clock_meter/sim_main.cpp
+tb/verilator/aaf_clock_meter/sim_servo.cpp
+tb/verilator/crf_rx/crf_talker_wrap.sv
+tb/verilator/crf_rx/mutants.py
+tb/verilator/crf_rx/sim_talker_step.cpp
+tb/verilator/csr/sim_main.cpp
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/gmstep_mutants.py
+tb/verilator/milan_dp/sim_aclk.cpp
+tb/verilator/milan_dp/sim_main.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/milan_dp_mclk/.gitignore
+tb/verilator/milan_dp_mclk/Makefile
+tb/verilator/milan_dp_mclk/clkv_double.sv
+tb/verilator/milan_dp_mclk/gen_mclk_shape.py
+tb/verilator/milan_dp_mclk/mclk_mutants.py
+tb/verilator/milan_dp_mclk/sim_mclk.cpp
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+tb/verilator/milan_dp_render/tdm8_render_mutants.py
+tb/verilator/mmcm_servo/mmcm_model.h
+tb/verilator/mmcm_servo/rails_wrap.sv
+tb/verilator/mmcm_servo/sim_main.cpp
+tb/verilator/mmcm_servo/sim_phc_step.cpp
+tb/verilator/mmcm_servo/sim_rails.cpp
+tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+tb/verilator/nvm_backend/records_endstation_ax7101_1x1_tdm8.txt
+tb/verilator/nvm_backend/records_endstation_ax7101_8x8.txt
+tb/verilator/nvm_capture_cpu/measurements.json
+tb/verilator/nvm_capture_cpu/run.py
+tb/verilator/nvm_capture_cpu/sim_main.cpp
+tb/verilator/nvm_capture_cpu/soc.py
