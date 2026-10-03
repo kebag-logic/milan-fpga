@@ -1,0 +1,35 @@
+parents of c12886486c1e4acf2003bfaba25db2a307446428: 0b066b6e66df2a3ba3167805a6a591f8b96fa449 1269cdafb4bb964c757baae0f0c5a932d43f540b
+merge-base lane/dev: cdf49d1a28527562888f0a903de51b6b15b1244f
+conflicted paths:
+  CHANGELOG.md
+  docs/design/MEDIA_CLOCK_FOLLOWING.md
+  scripts/naming.budget
+auto-merged paths vs the committed merge:
+  SAME docs/diagrams/PNG_MANIFEST.json
+  SAME docs/diagrams/submodule_boundaries.drawio
+  SAME docs/diagrams/submodule_boundaries.png
+  SAME docs/diagrams/submodule_boundaries.svg
+  SAME docs/reference/REGISTER_MAP.md
+  SAME docs/reference/SUBMODULES.md
+  SAME hdl/milan/KL_pp_shadow.sv
+  SAME protocol-processor
+  SAME scripts/measure_test_evidence.py
+  DIFF scripts/port_docs.budget (auto ff034ede9fc74f63cbd1b8bcb02f057b697c92bd, committed 65202999c84438839e7c14c863c751fd45e765c0)
+  SAME syn/yosys/rom_digests.tsv
+port_docs.budget, auto-merged vs committed:
+  -# ports per tree: hdl 1916, gptp-processor 125, protocol-processor 1757
+  +# ports per tree: hdl 1940, gptp-processor 125, protocol-processor 1757
+naming.budget, committed merge vs lane parent: identical
+docs/reference/REGISTER_MAP.md: dev delta carried yes; lane delta carried yes
+scripts/measure_test_evidence.py: dev delta carried yes; lane delta carried yes
+CHANGELOG "## Unreleased - AAF or CRF media-clock following": lane c037277d0bedd906 dev e3b0c44298fc1c14 merge c037277d0bedd906
+CHANGELOG "## Unreleased - processor pin 631eeb34": lane e3b0c44298fc1c14 dev e6e067a7b8e242d0 merge e6e067a7b8e242d0
+design page header at the merge:
+  Relates to #629. **Implemented by lane M2** on branch `629-media-clock-impl`;
+  [Implementation notes](#implementation-notes) lists where the implementation
+  departs from a statement below. Its processor part **landed at `631eeb34`**
+  ([Protocol-processor changes](#protocol-processor-changes)). The design was
+  written against dev `d4dd7426`. Every code citation is `path:line` at that
+  commit, and every `protocol-processor/` path is at the then-pinned submodule
+  commit `b2db3a97`.
+rc=0

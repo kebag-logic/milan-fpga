@@ -1,0 +1,15 @@
+2026-10-03T08:19:55Z
+==== P1 round-4 form: veto appended to the request's last line
+[FAIL] control SURVIVED: P1 round-4 form: veto appended to the request's last line. The leg does not prove "coincident: a PHC step does not suppress the CRF restart".
+==== P2 round-4b form: veto inside the selected-CRF group
+[PASS] control caught: P2 round-4b form: veto inside the selected-CRF group - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+==== P3 veto over both followed-AAF terms on a re-base cycle
+[FAIL] control SURVIVED: P3 veto over both followed-AAF terms on a re-base cycle. The leg does not prove "coincident".
+
+SURVIVED: P1 round-4 form: veto appended to the request's last line
+caught: P2 round-4b form: veto inside the selected-CRF group
+SURVIVED: P3 veto over both followed-AAF terms on a re-base cycle
+as expected (P1 survives, P2 caught, P3 survives)
+rc=0
+2026-10-03T08:22:40Z
