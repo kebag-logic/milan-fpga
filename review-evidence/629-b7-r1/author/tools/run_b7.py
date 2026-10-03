@@ -27,7 +27,7 @@ Lane B5's run_a.py method, with the B6 tone and the clock-source steps:
     board link and check its SHA-256; fetch the timing sampler script the same way.
  2. Controller: start the b7_ctl.py agent; read the as-found state (formats, clock
     sources, RX states); DUT STREAM_PORT_OUTPUT 0 gets eight identity mappings, read back.
- 3. This host: start the external capture (20 channels, S24_3LE, 48 kHz). The reader keeps
+ 3. This host: start the external capture (<capture-channels> channels, <capture-format>, 48 kHz). The reader keeps
     the <capture-input> pair (<tone-channels>, identified by content in lane B5 and checked
     again here from ten seconds of all channels), stamps every read with this host's
     CLOCK_MONOTONIC_RAW and realtime, and decodes the tone online to pace the run.
@@ -513,7 +513,7 @@ try:
     rows = ag.cmd(op="map", act="add", dtype=0x000F, didx=0, n=8)
     event("map-add", status=[r.get("status") for r in rows], readback=rows[-1].get("payload") if rows else None)
     counters(ag, "before-bind", CTR)
-    cap = subprocess.Popen(["timeout", "-s", "INT", str(PLAY_S + 300), "arecord", "-D", f"hw:{CARD},0", "-f", "S24_3LE",
+    cap = subprocess.Popen(["timeout", "-s", "INT", str(PLAY_S + 300), "arecord", "-D", f"hw:{CARD},0", "-f", "<capture-format>",
                             "-r", str(FS), "-c", str(NCH), "-t", "raw", f"--period-size={CAP_PERIOD}",
                             f"--buffer-size={CAP_BUFFER}", "-v", "-"],
                            stdout=subprocess.PIPE, stderr=open(raw / "arecord.log", "w"))

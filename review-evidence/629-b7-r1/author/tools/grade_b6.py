@@ -3,7 +3,7 @@
 
 usage: grade_b6.py <packet_run_dir> <raw_run_dir> <out.json>
 
-1. Channel identification: which of the 20 capture channels carry the tone (ten seconds of
+1. Channel identification: which of the <capture-channels> capture channels carry the tone (ten seconds of
    all channels kept once the tone was valid).
 2. Tone grade over the window (b6_thdn.grade): per one-second block THD+N, SNR and fitted
    frequency per channel; every discontinuity; invalid and torn frames.
