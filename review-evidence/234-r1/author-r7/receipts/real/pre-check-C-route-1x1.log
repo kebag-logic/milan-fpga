@@ -1,0 +1,27 @@
+$ python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/234-a516/C/work/ax7101/gateware --endpoint route-1x1
+# head 4d81e10d3a710cef3c8abc286fd68aeba4513f7c (baseline recorded at 1269cdaf)
+endpoint route-1x1: $VALIDATION_STORAGE/234-a516/C/work/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50128       50767       639  REGRESSION: grew by more than 500
+FF               59006       59634       628  REGRESSION: grew by more than 600
+SLICE            15815       15832        17  ok
+RAMB36              79          79         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.063       0.193      0.13  ok
+WHS_ns           0.036       0.024    -0.012  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp/u_aecp/u_dyn: LUT -83, FF +0
+  u_pp/u_aecp: LUT -55, FF +1
+  u_pp: LUT -45, FF +1
+  wrapper: LUT -33, FF +2
+  u_pp/u_aecp/u_d3: LUT +25, FF +0
+  u_nvm: LUT +19, FF +1
+  u_pp/u_notify: LUT +14, FF +2
+  u_pp/u_event_router: LUT -14, FF +0
+  u_pp/u_srp/u_talker: LUT -11, FF -1
+  u_pp/u_aecp/u_store: LUT +9, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +7, FF +1
+  u_pp/u_nvm_port: LUT -8, FF +0
+RESULT: MATERIAL REGRESSION

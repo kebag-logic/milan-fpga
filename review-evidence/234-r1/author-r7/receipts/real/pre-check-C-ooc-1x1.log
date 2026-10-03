@@ -1,0 +1,18 @@
+$ python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/234-a516/C/work/ax7101-ooc --endpoint ooc-1x1
+# head 4d81e10d3a710cef3c8abc286fd68aeba4513f7c (baseline recorded at 1269cdaf)
+endpoint ooc-1x1: $VALIDATION_STORAGE/234-a516/C/work/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              24343       24332       -11  ok, below the baseline
+FF               25344       25345         1  ok
+RAMB36              21          21         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_nvm: LUT -11, FF +1
+  wrapper: LUT -11, FF +1
+  u_pp/u_aecp/u_d3: LUT -7, FF +0
+  u_pp/u_aecp/u_store: LUT +7, FF +0
+  u_pp/u_dispatch: LUT +1, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT +1, FF +0
+  u_pp/u_nvm_port: LUT -1, FF +0
+RESULT: PASS

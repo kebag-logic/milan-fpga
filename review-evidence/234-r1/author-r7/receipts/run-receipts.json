@@ -1,0 +1,174 @@
+[
+ {
+  "combination": "C",
+  "run": "Integrated route, 1x1",
+  "directory": "$VALIDATION_STORAGE/234-a516/C/work/ax7101/gateware",
+  "log": "baseline.log",
+  "rc": 0,
+  "start": "2026-10-03T21:06:11+02:00",
+  "end": "2026-10-03T21:45:22+02:00",
+  "minutes": 39.2,
+  "log_digest": {
+   "sha256": "57efe65ef4f02e2d2872057f3aea2270d2a64d717e571deb045e896045daa50b",
+   "bytes": 817907
+  },
+  "files": {
+   "baseline_utilization.rpt": {
+    "sha256": "5c3b314f772b9b85897cc7ff256040343324ea216a186639724f301e46f380a7",
+    "bytes": 13319
+   },
+   "baseline_hierarchy.rpt": {
+    "sha256": "01353be9839f6de5978458080fba601e014df886e659cd6e1ceb660386f3cb74",
+    "bytes": 46405
+   },
+   "baseline_timing.rpt": {
+    "sha256": "b5d4153d6153c47a2afcfb255449e6ea757e65f5e78085e4e47a265236ef2cfd",
+    "bytes": 1266906
+   },
+   "baseline_cells.tsv": {
+    "sha256": "f655d29ab5d775792683391cad31c16f266b3965522be0383d40571b8ac076e1",
+    "bytes": 8554496
+   },
+   "baseline_integrated.tcl": {
+    "sha256": "d2c7b8e3df3075b0503e425585be730f64615dec9f43508887032b7a6bbcb9a7",
+    "bytes": 30660
+   },
+   "baseline_images.json": {
+    "sha256": "fbc6385aab7062daef65527473581ea34cc97b187bb231a9bd74612264480bf4",
+    "bytes": 1453
+   },
+   "baseline_scope_timing.tsv": {
+    "sha256": "86cbedbbe188a9bf35e9d8a88db8c7b249d1ec2da1233ed218c4755c10aed5b8",
+    "bytes": 408
+   },
+   "alinx_ax7101_route_status.rpt": {
+    "sha256": "8cff564f36043ef3c3832761321b2c749612207fce8651e3aa434e42cec3582c",
+    "bytes": 651
+   },
+   "alinx_ax7101_signoff_all_timing.rpt": {
+    "sha256": "e269544e4a008e03500abcc4aad277a4eed0dc0eac43476256718d4d97606f42",
+    "bytes": 1350708
+   },
+   "alinx_ax7101_route.dcp": {
+    "sha256": "769a04bb733f228110f99677201b5e97e4e770c53338803cd3423c9faf69f0ec",
+    "bytes": 110069637
+   }
+  }
+ },
+ {
+  "combination": "C",
+  "run": "RTL elaboration, 8x8 parameters",
+  "directory": "$VALIDATION_STORAGE/234-a516/C/work/ax8x8-elab",
+  "log": "elaborate.log",
+  "rc": 0,
+  "start": "2026-10-03T21:04:54+02:00",
+  "end": "2026-10-03T21:06:03+02:00",
+  "minutes": 1.1,
+  "log_digest": {
+   "sha256": "ab04ec47f060de178be4a30eca8310b5e2908d1ff3267a4fe396d41370716f56",
+   "bytes": 213657
+  },
+  "files": {
+   "elaborate.tcl": {
+    "sha256": "7a1966b2d07f985e9f227087c12f8fda56ac63e8560c9053b1cee199b1f0e501",
+    "bytes": 26321
+   }
+  }
+ },
+ {
+  "combination": "C",
+  "run": "Standalone synthesis, 1x1",
+  "directory": "$VALIDATION_STORAGE/234-a516/C/work/ax7101-ooc",
+  "log": "baseline.log",
+  "rc": 0,
+  "start": "2026-10-03T21:45:22+02:00",
+  "end": "2026-10-03T22:04:40+02:00",
+  "minutes": 19.3,
+  "log_digest": {
+   "sha256": "c4a5ebf768070c2eb7ee4587dcac2b63bf65aaadeff961090eb39687eede034a",
+   "bytes": 247793
+  },
+  "files": {
+   "baseline_utilization.rpt": {
+    "sha256": "3fda94f271853bf4080aa9417ffeb70604d73211eda34bf29b755abeae58641b",
+    "bytes": 9254
+   },
+   "baseline_hierarchy.rpt": {
+    "sha256": "0a0d365694ae8bd02c6309791593f6db2db5282bf0d0fc7e715a5f03e016f7b8",
+    "bytes": 10264
+   },
+   "baseline_timing.rpt": {
+    "sha256": "d1e9656b6f389039a3e86eb395645b4b71e76c7dd113d9ff5e944fa1fedb171c",
+    "bytes": 166459
+   },
+   "baseline_cells.tsv": {
+    "sha256": "ea8f5a6244da187f98d536ef4b666524ccb7f83c145246c84523e6f77892e573",
+    "bytes": 2354197
+   },
+   "baseline_ooc.tcl": {
+    "sha256": "40b5682a31adfea91862233eabee25daf977145eea74548ed13efc014f47426a",
+    "bytes": 28615
+   },
+   "baseline_parameters.json": {
+    "sha256": "620c2ffab2ecaae895bbbb54d167699ce36cf0406e573c94e820ef1d229f6e68",
+    "bytes": 634
+   },
+   "clock.xdc": {
+    "sha256": "525f5b50b3f77c22da13d69150fe31fcd297954d5cacc81306740bb6ab8594dc",
+    "bytes": 56
+   },
+   "baseline_synth.dcp": {
+    "sha256": "bcc39d88c2140a979d3abf903bd4aab1d35f81babb06184eceaf6e1e6e9cc6dc",
+    "bytes": 9407910
+   }
+  }
+ },
+ {
+  "combination": "C",
+  "run": "Standalone synthesis, 8x8",
+  "directory": "$VALIDATION_STORAGE/234-a516/C/work/ax8x8-ooc",
+  "log": "baseline.log",
+  "rc": 0,
+  "start": "2026-10-03T22:04:40+02:00",
+  "end": "2026-10-03T22:28:09+02:00",
+  "minutes": 23.5,
+  "log_digest": {
+   "sha256": "312bacb6db2c49b6b466ec05f7ecc8633444be8cd10967db2045f55cb5c5220f",
+   "bytes": 247911
+  },
+  "files": {
+   "baseline_utilization.rpt": {
+    "sha256": "cc175c7fa2db51829268316b2addf3de3be085fbc1b6716b3cdf68de1252fb09",
+    "bytes": 9254
+   },
+   "baseline_hierarchy.rpt": {
+    "sha256": "e2331d1de603fc4b31293b4ea0d24842c5d5dab401dba80a2a12fdd099d85dd7",
+    "bytes": 10264
+   },
+   "baseline_timing.rpt": {
+    "sha256": "834bff7de5b0784f8ff7dc6ca2ec279f88747011cb178c60b1392a104b3b7a74",
+    "bytes": 177913
+   },
+   "baseline_cells.tsv": {
+    "sha256": "16121bbb4a17416747261a167c22f4c5d165d9a7e2aa25627a2e604de7150a38",
+    "bytes": 3092428
+   },
+   "baseline_ooc.tcl": {
+    "sha256": "1e7b7eacc03ad2eefbaab63d7cf17943c8d83e31369bf1c810e11807ece240c0",
+    "bytes": 28605
+   },
+   "baseline_parameters.json": {
+    "sha256": "d700d9ec03b3d3fa47e66d16189e654b52498550eaa22732e31bc5fdc48b3e06",
+    "bytes": 635
+   },
+   "clock.xdc": {
+    "sha256": "525f5b50b3f77c22da13d69150fe31fcd297954d5cacc81306740bb6ab8594dc",
+    "bytes": 56
+   },
+   "baseline_synth.dcp": {
+    "sha256": "3aaa3e08223c54a446bf1037908f298a8ad31bdd9c058153c041edc9acf57ac8",
+    "bytes": 12050669
+   }
+  }
+ }
+]
