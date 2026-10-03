@@ -80,8 +80,9 @@ The routed `endstation_ax7101_1x1_tdm8` image, whole design, default flow:
 | A, percent of `xc7a100t` | 79.07 | 46.53 | 99.78 | 58.52 | 10.00 | 68.52 | 5.83 | - | - | - |
 
 Both routes finish with zero routing errors and no failing endpoint.
-The resource gate reads each run's `alinx_ax7101_route_status.rpt` and records A's route status as clean.
+The resource gate reads each run's `alinx_ax7101_route_status.rpt`, and A's reads clean.
 A routes all 105,566 routable nets fully, with 0 nets with routing errors; B routes all 105,559.
+The gate reads that report at every check; the baseline file does not store it.
 All four signoff corners agree with the summary.
 Setup is worst at the slow corners and hold at the fast corners.
 Both meet the [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): WNS at least +0.03 ns, WHS at least 0.
@@ -135,7 +136,7 @@ In the 1x1 standalone synthesis, B grows `u_nvm_port` by 83 LUTs and 33 FFs.
 That block's deadline is the only functional processor change.
 The rest of the wrapper moved by a net +79 LUTs and +93 FFs.
 That partition is the own logic of every instance the gate record lists outside `u_nvm_port`, 51 terms.
-Each term is one instance without its listed children: the wrapper and three levels below it.
+The record lists the wrapper and three levels below it; each term is one listed instance without its listed children.
 Its absolute movements sum to 391 LUTs and 121 FFs.
 The processor top's own logic, `u_pp` outside its sub-blocks, is one term: -23 LUTs and +107 FFs.
 Those 107 FFs are its timer-arm queues `armq_r`, 1,260 flops in B against A's 1,153.
