@@ -1,0 +1,65 @@
+no_floor_assert__coincident_completion__10: rc=1 356 checks, 2 FAIL
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+no_floor_assert__coincident_completion__15: rc=1 356 checks, 2 FAIL
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+no_floor_assert__coincident_completion__19: rc=0 356 checks, 0 FAIL
+no_floor_assert__coincident_completion__5: rc=1 356 checks, 24 FAIL
+    FAIL: T4 commit done under stalls
+    FAIL: T4 store byte-exact under stalls
+    FAIL: T4 restore done under stalls
+    FAIL: T4 restored stream byte-exact under stalls
+    FAIL: T6 op still in flight at the poke, its ERASE taken and not done
+    FAIL: T6 exactly one done for the one op
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 original commit still byte-exact
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read 3)
+    FAIL: T19a the commit still completes with done, byte-exact on the bus
+    FAIL: T19a ERASE then WRITE, both issued
+    FAIL: T19b the commit still completes with done, byte-exact on the bus
+    FAIL: T19c the pulse landed with the WRITE requested and ungranted (dones 0, req 0, ops -1)
+    FAIL: T19c the commit still completes with done, byte-exact on the bus
+    FAIL: T20a the restore still completes with done, stream byte-exact
+    FAIL: T20a READ hdr then READ payload, both issued
+    FAIL: T20b the backend pulsed one done between the two reads, -1 header bytes forwarded (dones 0, req 0, ops -1)
+    FAIL: T20b the restore still completes with done, stream byte-exact
+    FAIL: T20c the pulse landed with the payload READ requested and ungranted (dones 0, req 0, ops -1)
+    FAIL: T20c the restore still completes with done, stream byte-exact
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+    FAIL: RW4 no DEADLINE where the device was not silent (9)
+no_floor_assert__pristine__10: rc=1 356 checks, 2 FAIL
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+no_floor_assert__pristine__15: rc=1 356 checks, 2 FAIL
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+no_floor_assert__pristine__19: rc=0 356 checks, 0 FAIL
+no_floor_assert__pristine__5: rc=1 356 checks, 25 FAIL
+    FAIL: T4 commit done under stalls
+    FAIL: T4 store byte-exact under stalls
+    FAIL: T4 restore done under stalls
+    FAIL: T4 restored stream byte-exact under stalls
+    FAIL: T6 op still in flight at the poke, its ERASE taken and not done
+    FAIL: T6 exactly one done for the one op
+    FAIL: T6 no extra device op from the spurious req
+    FAIL: T6 original commit still byte-exact
+    FAIL: T7 the WRITE was never issued after the erase error
+    FAIL: T7 the erase error is named DEVICE (read 3)
+    FAIL: T19a the commit still completes with done, byte-exact on the bus
+    FAIL: T19a ERASE then WRITE, both issued
+    FAIL: T19b the commit still completes with done, byte-exact on the bus
+    FAIL: T19c the pulse landed with the WRITE requested and ungranted (dones 0, req 0, ops -1)
+    FAIL: T19c the commit still completes with done, byte-exact on the bus
+    FAIL: T20a the restore still completes with done, stream byte-exact
+    FAIL: T20a READ hdr then READ payload, both issued
+    FAIL: T20b the backend pulsed one done between the two reads, -1 header bytes forwarded (dones 0, req 0, ops -1)
+    FAIL: T20b the restore still completes with done, stream byte-exact
+    FAIL: T20b the payload read was not closed on the header read's leftover: nothing requested (0), answered (1) or for
+    FAIL: T20c the pulse landed with the payload READ requested and ungranted (dones 0, req 0, ops -1)
+    FAIL: T20c the restore still completes with done, stream byte-exact
+    FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+    FAIL: RW4 no DEADLINE where the device was not silent (10)

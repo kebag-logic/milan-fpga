@@ -1,0 +1,4 @@
+FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 cycles after its request, is served byte-exact (rc 1, cause 3, pairs 1)
+FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 37 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+356 checks: 353 PASS, 3 FAIL

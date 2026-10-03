@@ -1,0 +1,11 @@
+fuzz: MEM_TIMEOUT_CYC_P = 1000, seeds 11 to 13, 600 operations per mode and seed
+PASS: FZ1 every operation of a legal device answered exactly once, busy low at the pulse (0 of 1800 operations broke it)
+PASS: FZ2 no DEADLINE against a device that presented every owed event within the bound (0 of 1800 operations broke it)
+PASS: FZ3 an err only where the device erred, and named DEVICE (0 of 1800 operations broke it)
+PASS: FZ4 every commit and restore answered done is byte-exact (0 of 1731 operations broke it)
+PASS: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (0 of 1800 operations broke it)
+PASS: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (0 of 1800 operations broke it)
+PASS: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0 of 1231 operations broke it)
+PASS: FZ8 both of FZ7's branches were taken (519 served, 712 DEADLINE)
+PASS: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only the bytes the READ owed (0 of 743 operations broke it)
+9 checks: 9 PASS, 0 FAIL

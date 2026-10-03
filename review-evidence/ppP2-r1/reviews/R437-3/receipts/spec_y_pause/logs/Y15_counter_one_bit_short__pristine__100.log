@@ -1,0 +1,69 @@
+FAIL: T24 S_WEREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WEREQ: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_WEREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_WEWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WEWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_WWREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WWREQ: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_WWREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_WHPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WHPUMP: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_WDPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WDPUMP: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_WWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_WWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RHREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RHREQ: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RHREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RHREQ: the abandoned READ's late bytes were drained, none forwarded (48 forwarded)
+FAIL: T24 S_RHCOLL: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RHCOLL: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RHCOLL: the abandoned READ's late bytes were drained, none forwarded (48 forwarded)
+FAIL: T24 S_RHWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RHWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RPREQ: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RPREQ: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (48 forwarded)
+FAIL: T24 S_RPPUMP: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RPPUMP: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (48 forwarded)
+FAIL: T24 S_RPWAIT: an event 101 cycles late ends the operation, one err, cause DEADLINE, never done (rc 0, cause -1)
+FAIL: T24 S_RPWAIT: busy low at the pulse, 1 cycles after the last event (want 102)
+FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 0, late 0, pairs 1)
+FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 1)
+FAIL: T24 a grant the backend never decided: DEADLINE, no command taken (rc 0, late 0, ops 2)
+FAIL: T24 served branch: the restore ended DEADLINE with the READ still owed
+FAIL: T24 DEADLINE branch: the commit ended DEADLINE with the ERASE still owed
+FAIL: T24 DEADLINE branch: the next request, while the device stays silent, is answered with one err DEADLINE, no command, nothing forwarded (rc 0, cause -1)
+FAIL: T24 a READ abandoned for three deadlines
+FAIL: T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)
+FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (busy 0)
+FAIL: T24 dones for no command during an ungranted request do not hold the deadline off (rc -1, pulse -55445 cycles after the accept)
+FAIL: T24 setup: region 2 committed for the WRITE arms
+FAIL: T24 contained: a WRITE whose device stops taking bytes at 20 ends DEADLINE
+FAIL: T24 contained: commit 0 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+FAIL: T24 contained: restore 0 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+FAIL: T24 contained: commit 1 after it ends DEADLINE, no command, no byte (rc -1, cause -1, ops 0)
+FAIL: T24 contained: restore 1 after it ends DEADLINE, no command, nothing forwarded (rc -1)
+FAIL: T24 contained: the device's own err ends the WRITE and the port serves again, byte-exact (rc -1 -1)
+FAIL: T24 contained: a WRITE abandoned in its header ends DEADLINE
+FAIL: T24 contained: ...and the next request ends DEADLINE with no command
+FAIL: T28a setup: a payload READ abandoned at its 10th byte, still owed
+FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operation and the restore is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+FAIL: T28b setup: an ERASE abandoned before its done, still owed
+FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operation and the commit is served byte-exact (waited 1, rc 1, cause 1, 0 commands)
+FAIL: T28c setup: a WRITE abandoned in its completion window (S_WWAIT), every byte sent, still owed
+FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over it and ends DEADLINE (rc 0, cause -1, 0 request cycles)
+FAIL: T28d setup: a slow payload READ abandoned at its 10th byte, still owed
+FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count, so the restore, held 0 cycles behind 0 drained bytes, is served byte-exact, never DEADLINE (rc 0, cause -1)
+FAIL: T28e setup: an ERASE abandoned before its done, still owed
+FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycles after it, is served byte-exact, never DEADLINE (rc -1, cause -1)
+FAIL: T28f setup: a payload READ abandoned before its 11th byte, 30 of its 40 still owed
+FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last of them, no command taken (rc -1, cause -1, 30 drained)
+FAIL: T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+FAIL: T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 50: one err DEADLINE, -1 cycles after the last byte, -1 of them held by the manager (rc -1, cause -1)
+FAIL: T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 1 cycles after the last byte, the one held included (rc 0, cause -1, held 0)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (19 wedged)
+FAIL: RW3 no device command was requested while the backend still owed one (599997 cycles)
+356 checks: 288 PASS, 68 FAIL

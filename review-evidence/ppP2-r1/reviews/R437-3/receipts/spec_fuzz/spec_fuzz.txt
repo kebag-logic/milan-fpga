@@ -1,0 +1,271 @@
+FZ_V1_verdict_one_early__pristine__1: rc=1 9 checks, 7 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1795 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1795 of 1800 operations broke it; first: cycle 22: c
+    FAIL: FZ4 every commit and restore answered done is byte-exact (0 of 0 operations broke it)
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_V1_verdict_one_early__pristine__2: rc=1 9 checks, 6 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1797 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1797 of 1800 operations broke it; first: cycle 24: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_V1_verdict_one_early__pristine__3: rc=1 9 checks, 6 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1793 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1793 of 1800 operations broke it; first: cycle 25: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_V1_verdict_one_early__pristine__37: rc=1 9 checks, 6 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1789 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1789 of 1800 operations broke it; first: cycle 59: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (4
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 4 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_V2_stray_done_progress__pristine__1: rc=1 9 checks, 1 FAIL
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (5 of 1800 operations broke it; fi
+FZ_V2_stray_done_progress__pristine__2: rc=1 9 checks, 1 FAIL
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (3 of 1800 operations broke it; fi
+FZ_V2_stray_done_progress__pristine__3: rc=1 9 checks, 1 FAIL
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (12 of 1800 operations broke it; f
+FZ_V2_stray_done_progress__pristine__37: rc=1 9 checks, 1 FAIL
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (78 of 1800 operations broke it; f
+FZ_Y11_verdict_on_paused_cycle__pristine__1: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (703 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (703 of 1800 operations broke it; first: cycle 155: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (424 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_Y11_verdict_on_paused_cycle__pristine__2: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (414 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (414 of 1800 operations broke it; first: cycle 502: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (352 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+FZ_Y11_verdict_on_paused_cycle__pristine__3: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (325 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (325 of 1800 operations broke it; first: cycle 66: co
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (315 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (7
+FZ_Y11_verdict_on_paused_cycle__pristine__37: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (18 of 1800 operations broke
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (18 of 1800 operations broke it; first: cycle 31803: 
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (172 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (5
+FZ_Y12_manager_handshake_is_progress__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_Y12_manager_handshake_is_progress__pristine__2: rc=0 9 checks, 0 FAIL
+FZ_Y12_manager_handshake_is_progress__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_Y12_manager_handshake_is_progress__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_Y13_rppump_pause_clears__pristine__1: rc=1 9 checks, 2 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (30 of 1800 operation
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (134 of 1800 operations broke it; 
+FZ_Y13_rppump_pause_clears__pristine__2: rc=1 9 checks, 2 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (45 of 1800 operation
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (162 of 1800 operations broke it; 
+FZ_Y13_rppump_pause_clears__pristine__3: rc=1 9 checks, 2 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (48 of 1800 operation
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (188 of 1800 operations broke it; 
+FZ_Y13_rppump_pause_clears__pristine__37: rc=1 9 checks, 2 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (145 of 1800 operatio
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (228 of 1800 operations broke it; 
+FZ_Y15_counter_one_bit_short__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_Y15_counter_one_bit_short__pristine__2: rc=1 9 checks, 5 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (1800 of 1800 operati
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y15_counter_one_bit_short__pristine__3: rc=1 9 checks, 5 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (1800 of 1800 operati
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y15_counter_one_bit_short__pristine__37: rc=1 9 checks, 5 FAIL
+    FAIL: FZ5 a device silent at one owed event ends the operation in one err DEADLINE, never done (1800 of 1800 operati
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y16_verdict_any_busy_cycle__pristine__1: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (703 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (703 of 1800 operations broke it; first: cycle 155: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (424 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_Y16_verdict_any_busy_cycle__pristine__2: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (414 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (414 of 1800 operations broke it; first: cycle 502: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (352 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+FZ_Y16_verdict_any_busy_cycle__pristine__3: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (325 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (325 of 1800 operations broke it; first: cycle 66: co
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (315 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (7
+FZ_Y16_verdict_any_busy_cycle__pristine__37: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (18 of 1800 operations broke
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (18 of 1800 operations broke it; first: cycle 31803: 
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (172 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (5
+FZ_Y1_wewait_owes_latched__pristine__1: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (228 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (228 of 1800 operations broke it; first: cycle 69: co
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (281 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (6
+FZ_Y1_wewait_owes_latched__pristine__2: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (213 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (213 of 1800 operations broke it; first: cycle 440: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (215 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (5
+FZ_Y1_wewait_owes_latched__pristine__3: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (213 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (213 of 1800 operations broke it; first: cycle 187: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (211 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (4
+FZ_Y1_wewait_owes_latched__pristine__37: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (144 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (144 of 1800 operations broke it; first: cycle 38726:
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (147 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (4
+FZ_Y2_rhwait_owes_latched__pristine__1: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (254 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (254 of 1800 operations broke it; first: cycle 264: r
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (151 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (4
+FZ_Y2_rhwait_owes_latched__pristine__2: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (236 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (236 of 1800 operations broke it; first: cycle 762: r
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (128 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (2
+FZ_Y2_rhwait_owes_latched__pristine__3: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (173 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (173 of 1800 operations broke it; first: cycle 1097: 
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (139 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (2
+FZ_Y2_rhwait_owes_latched__pristine__37: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (129 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (129 of 1800 operations broke it; first: cycle 9595: 
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (105 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (3
+FZ_Y3_wwait_owes_latched__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_Y3_wwait_owes_latched__pristine__2: rc=0 9 checks, 0 FAIL
+FZ_Y3_wwait_owes_latched__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_Y3_wwait_owes_latched__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_Y4_rpwait_owes_latched__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_Y4_rpwait_owes_latched__pristine__2: rc=0 9 checks, 0 FAIL
+FZ_Y4_rpwait_owes_latched__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_Y4_rpwait_owes_latched__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_Y5_count_paused_cycles__pristine__1: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1190 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1190 of 1800 operations broke it; first: cycle 69: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1261 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (8
+FZ_Y5_count_paused_cycles__pristine__2: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1341 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1341 of 1800 operations broke it; first: cycle 79: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1401 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_Y5_count_paused_cycles__pristine__3: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1382 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1382 of 1800 operations broke it; first: cycle 93: c
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1417 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+FZ_Y5_count_paused_cycles__pristine__37: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1088 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1088 of 1800 operations broke it; first: cycle 2378:
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1137 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_Y6_rhfwd_owed__pristine__1: rc=1 9 checks, 5 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (899 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (899 of 1800 operations broke it; first: cycle 257: r
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (485 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y6_rhfwd_owed__pristine__2: rc=1 9 checks, 5 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (822 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (822 of 1800 operations broke it; first: cycle 364: r
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (475 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (8
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y6_rhfwd_owed__pristine__3: rc=1 9 checks, 5 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (811 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (811 of 1800 operations broke it; first: cycle 539: r
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (461 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y6_rhfwd_owed__pristine__37: rc=1 9 checks, 4 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (501 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (501 of 1800 operations broke it; first: cycle 9588: 
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (294 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (6
+FZ_Y7_whdr_owed__pristine__1: rc=1 9 checks, 7 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1800 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1800 of 1800 operations broke it; first: cycle 12: c
+    FAIL: FZ4 every commit and restore answered done is byte-exact (0 of 0 operations broke it)
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y7_whdr_owed__pristine__2: rc=1 9 checks, 7 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1800 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1800 of 1800 operations broke it; first: cycle 13: c
+    FAIL: FZ4 every commit and restore answered done is byte-exact (0 of 0 operations broke it)
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y7_whdr_owed__pristine__3: rc=1 9 checks, 7 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (1800 of 1800 operations bro
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (1800 of 1800 operations broke it; first: cycle 14: c
+    FAIL: FZ4 every commit and restore answered done is byte-exact (0 of 0 operations broke it)
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (1800 of 1800 operations broke it;
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (0
+    FAIL: FZ8 both of FZ7's branches were taken (0 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y7_whdr_owed__pristine__37: rc=1 9 checks, 5 FAIL
+    FAIL: FZ2 no DEADLINE against a device that presented every owed event within the bound (771 of 1800 operations brok
+    FAIL: FZ3 an err only where the device erred, and named DEVICE (771 of 1800 operations broke it; first: cycle 2378: 
+    FAIL: FZ6 ...on exactly the (TMO + 1)-th owed cycle since the device's last event (741 of 1800 operations broke it; 
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (6
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y8_owed_wait_paused__pristine__1: rc=1 9 checks, 3 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+    FAIL: FZ8 both of FZ7's branches were taken (547 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y8_owed_wait_paused__pristine__2: rc=1 9 checks, 3 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+    FAIL: FZ8 both of FZ7's branches were taken (546 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y8_owed_wait_paused__pristine__3: rc=1 9 checks, 3 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (9
+    FAIL: FZ8 both of FZ7's branches were taken (535 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_Y8_owed_wait_paused__pristine__37: rc=1 9 checks, 3 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (8
+    FAIL: FZ8 both of FZ7's branches were taken (558 served, 0 DEADLINE)
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_base__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__10: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__100: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__1000: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__11: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__12: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__13: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__14: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__15: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__16: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__17: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__18: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__19: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__2: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__4: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__5: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__6: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__7: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__8: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__9: rc=0 9 checks, 0 FAIL

@@ -1,0 +1,190 @@
+P1_head__coincident_completion__100: rc=0 360 checks, 0 FAIL
+P1_head__coincident_completion__37: rc=0 360 checks, 0 FAIL
+P1_head__pristine__100: rc=0 360 checks, 0 FAIL
+P1_head__pristine__37: rc=0 360 checks, 0 FAIL
+W15__coincident_completion__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+W15__coincident_completion__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+W15__pristine__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+W15__pristine__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+W15b__coincident_completion__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+W15b__coincident_completion__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+W15b__pristine__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+W15b__pristine__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+W16__coincident_completion__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+W16__coincident_completion__37: rc=1 356 checks, 2 FAIL
+    FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+W16__pristine__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+W16__pristine__37: rc=1 356 checks, 4 FAIL
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+W6at_head__coincident_completion__100: rc=1 356 checks, 7 FAIL
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 ...and restores byte-exact over 950 cycles
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (3)
+W6at_head__coincident_completion__37: rc=1 356 checks, 7 FAIL
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: busy low at the pulse, 38 cycles after the last event (want 39)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 ...and restores byte-exact over 364 cycles
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (3)
+W6at_head__half-page__100: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__half-page__37: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__lazy_erase__100: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__lazy_erase__37: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__lazy_erase_p_page-buffered__100: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__lazy_erase_p_page-buffered__37: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__page-buffered_NOR__100: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__page-buffered_NOR__37: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__pristine__100: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__pristine__37: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__unsolicited_completion__100: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 100 
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+W6at_head__unsolicited_completion__37: rc=1 356 checks, 3 FAIL
+    FAIL: T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 37 c
+    FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload REA
+    FAIL: RW4 no DEADLINE where the device was not silent (2)
+X12__coincident_completion__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+    FAIL: RW3 no device command was requested while the backend still owed one (101 cycles)
+X12__coincident_completion__37: rc=1 356 checks, 2 FAIL
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+    FAIL: RW3 no device command was requested while the backend still owed one (38 cycles)
+X12__pristine__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+    FAIL: RW3 no device command was requested while the backend still owed one (101 cycles)
+X12__pristine__37: rc=1 356 checks, 2 FAIL
+    FAIL: T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over 
+    FAIL: RW3 no device command was requested while the backend still owed one (38 cycles)
+X17__coincident_completion__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycle
+X17__coincident_completion__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28e the owed ERASE's done, 22 cycles into a restore's wait, restarts the count: the restore, granted 22 cycle
+X17__pristine__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycle
+X17__pristine__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28e the owed ERASE's done, 22 cycles into a restore's wait, restarts the count: the restore, granted 22 cycle
+X18__coincident_completion__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+X18__coincident_completion__37: rc=1 356 checks, 2 FAIL
+    FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+X18__pristine__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+X18__pristine__37: rc=1 356 checks, 4 FAIL
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+X20__coincident_completion__100: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__coincident_completion__37: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__half-page__100: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__half-page__37: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__lazy_erase__100: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__lazy_erase__37: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__lazy_erase_p_page-buffered__100: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__lazy_erase_p_page-buffered__37: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__page-buffered_NOR__100: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__page-buffered_NOR__37: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__pristine__100: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__pristine__37: rc=1 356 checks, 2 FAIL
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+X20__unsolicited_completion__100: rc=0 356 checks, 0 FAIL
+X20__unsolicited_completion__37: rc=0 356 checks, 0 FAIL
+X24__coincident_completion__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+X24__coincident_completion__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+X24__pristine__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+X24__pristine__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+X24b__coincident_completion__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+X24b__coincident_completion__37: rc=1 356 checks, 2 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+X24b__pristine__100: rc=1 356 checks, 2 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat
+X24b__pristine__37: rc=1 356 checks, 2 FAIL
+    FAIL: T28a an owed READ ended by the device's err while a restore waits in S_RHREQ: the err is credited to no operat
+    FAIL: T28b an owed ERASE ended by the device's err while a commit waits in S_WEREQ: the err is credited to no operat

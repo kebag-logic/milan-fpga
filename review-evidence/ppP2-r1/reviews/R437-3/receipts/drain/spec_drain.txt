@@ -1,0 +1,717 @@
+B10_count_eight_bits__coincident_completion__100: rc=0 356 checks, 0 FAIL
+B10_count_eight_bits__coincident_completion__20: rc=0 356 checks, 0 FAIL
+B10_count_eight_bits__coincident_completion__37: rc=0 356 checks, 0 FAIL
+B10_count_eight_bits__pristine__100: rc=0 356 checks, 0 FAIL
+B10_count_eight_bits__pristine__20: rc=0 356 checks, 0 FAIL
+B10_count_eight_bits__pristine__37: rc=0 356 checks, 0 FAIL
+B12_drain_any_owed__coincident_completion__100: rc=0 356 checks, 0 FAIL
+B12_drain_any_owed__coincident_completion__20: rc=0 356 checks, 0 FAIL
+B12_drain_any_owed__coincident_completion__37: rc=0 356 checks, 0 FAIL
+B12_drain_any_owed__pristine__100: rc=0 356 checks, 0 FAIL
+B12_drain_any_owed__pristine__20: rc=0 356 checks, 0 FAIL
+B12_drain_any_owed__pristine__37: rc=0 356 checks, 0 FAIL
+B13_load_only_owned__coincident_completion__100: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B13_load_only_owned__coincident_completion__20: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B13_load_only_owned__coincident_completion__37: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B13_load_only_owned__pristine__100: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B13_load_only_owned__pristine__20: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B13_load_only_owned__pristine__37: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B1_rppump_one_short__coincident_completion__100: rc=1 356 checks, 18 FAIL
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+    FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+    FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (b
+    FAIL: T24 ...then the next restore is served
+    FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycle
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+B1_rppump_one_short__coincident_completion__20: rc=1 356 checks, 18 FAIL
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+    FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+    FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (b
+    FAIL: T24 ...then the next restore is served
+    FAIL: T28d an owed READ drained one byte every 10 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28e the owed ERASE's done, 12 cycles into a restore's wait, restarts the count: the restore, granted 12 cycle
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+B1_rppump_one_short__coincident_completion__37: rc=1 356 checks, 18 FAIL
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+    FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+    FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (b
+    FAIL: T24 ...then the next restore is served
+    FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28e the owed ERASE's done, 22 cycles into a restore's wait, restarts the count: the restore, granted 22 cycle
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+B1_rppump_one_short__pristine__100: rc=1 356 checks, 18 FAIL
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+    FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+    FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (b
+    FAIL: T24 ...then the next restore is served
+    FAIL: T28d an owed READ drained one byte every 50 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28e the owed ERASE's done, 60 cycles into a restore's wait, restarts the count: the restore, granted 60 cycle
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+B1_rppump_one_short__pristine__20: rc=1 356 checks, 18 FAIL
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+    FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+    FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (b
+    FAIL: T24 ...then the next restore is served
+    FAIL: T28d an owed READ drained one byte every 10 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28e the owed ERASE's done, 12 cycles into a restore's wait, restarts the count: the restore, granted 12 cycle
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+B1_rppump_one_short__pristine__37: rc=1 356 checks, 18 FAIL
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+    FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing
+    FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+    FAIL: T24 DEADLINE branch: the device ended the abandoned ERASE
+    FAIL: T24 DEADLINE branch: the request after the device's own terminal is served byte-exact (rc 1 1)
+    FAIL: T24 ...and the owed READ is still drained after that deadline: the device moved its late bytes and ended it (b
+    FAIL: T24 ...then the next restore is served
+    FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count
+    FAIL: T28e the owed ERASE's done, 22 cycles into a restore's wait, restarts the count: the restore, granted 22 cycle
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T30e ...and once the device has ended the abandoned READ the next restore is served (rc 1)
+B2_rhcoll_one_short__coincident_completion__100: rc=1 356 checks, 17 FAIL
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B2_rhcoll_one_short__coincident_completion__20: rc=1 356 checks, 17 FAIL
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B2_rhcoll_one_short__coincident_completion__37: rc=1 356 checks, 17 FAIL
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B2_rhcoll_one_short__pristine__100: rc=1 356 checks, 17 FAIL
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B2_rhcoll_one_short__pristine__20: rc=1 356 checks, 17 FAIL
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B2_rhcoll_one_short__pristine__37: rc=1 356 checks, 17 FAIL
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B3_request_one_short__coincident_completion__100: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B3_request_one_short__coincident_completion__20: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B3_request_one_short__coincident_completion__37: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B3_request_one_short__pristine__100: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B3_request_one_short__pristine__20: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B3_request_one_short__pristine__37: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B4_request_none__coincident_completion__100: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B4_request_none__coincident_completion__20: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B4_request_none__coincident_completion__37: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B4_request_none__pristine__100: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B4_request_none__pristine__20: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 20 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B4_request_none__pristine__37: rc=1 356 checks, 19 FAIL
+    FAIL: T24 S_RHREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHCOLL: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHCOLL: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RHWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RHWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPREQ: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+    FAIL: T24 S_RPREQ: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPREQ: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPPUMP: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPPUMP: the abandoned READ's late bytes were drained, none forwarded (0 forwarded)
+    FAIL: T24 S_RPPUMP: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 S_RPWAIT: an event 37 cycles late is tolerated, done and byte-exact (rc 1)
+    FAIL: T24 S_RPWAIT: the next commit and restore are served byte-exact (rc 1 1)
+    FAIL: T24 a late grant carrying its own done: DEADLINE, the grant taken late with its terminal (rc 1, late 0, pairs 
+    FAIL: T24 nothing was owed after a late grant that carried its done: the next commit is served (rc 1)
+    FAIL: T24 a late grant carrying an err: DEADLINE, the grant taken late with its err (rc 1, late 0, pairs 0)
+    FAIL: T24 nothing was owed after a late grant that carried an err: the next commit is served (rc 1)
+    FAIL: T24 ...and the next restore is served at once
+B5_rppump_one_over__coincident_completion__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+B5_rppump_one_over__coincident_completion__20: rc=1 356 checks, 1 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+B5_rppump_one_over__coincident_completion__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+B5_rppump_one_over__pristine__100: rc=1 356 checks, 1 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+B5_rppump_one_over__pristine__20: rc=1 356 checks, 1 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+B5_rppump_one_over__pristine__37: rc=1 356 checks, 1 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+B6_rhcoll_one_over__coincident_completion__100: rc=0 356 checks, 0 FAIL
+B6_rhcoll_one_over__coincident_completion__20: rc=0 356 checks, 0 FAIL
+B6_rhcoll_one_over__coincident_completion__37: rc=0 356 checks, 0 FAIL
+B6_rhcoll_one_over__pristine__100: rc=0 356 checks, 0 FAIL
+B6_rhcoll_one_over__pristine__20: rc=0 356 checks, 0 FAIL
+B6_rhcoll_one_over__pristine__37: rc=0 356 checks, 0 FAIL
+B6b_rhcoll_whole__coincident_completion__100: rc=0 356 checks, 0 FAIL
+B6b_rhcoll_whole__coincident_completion__20: rc=0 356 checks, 0 FAIL
+B6b_rhcoll_whole__coincident_completion__37: rc=0 356 checks, 0 FAIL
+B6b_rhcoll_whole__pristine__100: rc=0 356 checks, 0 FAIL
+B6b_rhcoll_whole__pristine__20: rc=0 356 checks, 0 FAIL
+B6b_rhcoll_whole__pristine__37: rc=0 356 checks, 0 FAIL
+B7_request_one_over__coincident_completion__100: rc=0 356 checks, 0 FAIL
+B7_request_one_over__coincident_completion__20: rc=0 356 checks, 0 FAIL
+B7_request_one_over__coincident_completion__37: rc=0 356 checks, 0 FAIL
+B7_request_one_over__pristine__100: rc=0 356 checks, 0 FAIL
+B7_request_one_over__pristine__20: rc=0 356 checks, 0 FAIL
+B7_request_one_over__pristine__37: rc=0 356 checks, 0 FAIL
+B8_wait_states_owe_eight__coincident_completion__100: rc=0 356 checks, 0 FAIL
+B8_wait_states_owe_eight__coincident_completion__20: rc=0 356 checks, 0 FAIL
+B8_wait_states_owe_eight__coincident_completion__37: rc=0 356 checks, 0 FAIL
+B8_wait_states_owe_eight__pristine__100: rc=0 356 checks, 0 FAIL
+B8_wait_states_owe_eight__pristine__20: rc=0 356 checks, 0 FAIL
+B8_wait_states_owe_eight__pristine__37: rc=0 356 checks, 0 FAIL
+B9_decrement_unguarded__coincident_completion__100: rc=1 356 checks, 3 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+B9_decrement_unguarded__coincident_completion__20: rc=1 356 checks, 3 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+B9_decrement_unguarded__coincident_completion__37: rc=1 356 checks, 3 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+B9_decrement_unguarded__pristine__100: rc=1 356 checks, 3 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+B9_decrement_unguarded__pristine__20: rc=1 356 checks, 3 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+B9_decrement_unguarded__pristine__37: rc=1 356 checks, 3 FAIL
+    FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no mor
+    FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+    FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+FZ_B10_count_eight_bits__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B10_count_eight_bits__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B10_count_eight_bits__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B12_drain_any_owed__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B12_drain_any_owed__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B12_drain_any_owed__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B13_load_only_owned__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B13_load_only_owned__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B13_load_only_owned__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B1_rppump_one_short__pristine__1: rc=1 9 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B1_rppump_one_short__pristine__3: rc=1 9 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B1_rppump_one_short__pristine__37: rc=1 9 checks, 2 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B2_rhcoll_one_short__pristine__1: rc=1 9 checks, 1 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_B2_rhcoll_one_short__pristine__3: rc=1 9 checks, 1 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_B2_rhcoll_one_short__pristine__37: rc=1 9 checks, 1 FAIL
+    FAIL: FZ7 a request behind an abandoned command is served if the device ends it within the bound, DEADLINE if not (1
+FZ_B3_request_one_short__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B3_request_one_short__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B3_request_one_short__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B4_request_none__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B4_request_none__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B4_request_none__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B5_rppump_one_over__pristine__1: rc=1 9 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B5_rppump_one_over__pristine__3: rc=1 9 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B5_rppump_one_over__pristine__37: rc=1 9 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B6_rhcoll_one_over__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B6_rhcoll_one_over__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B6_rhcoll_one_over__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B6b_rhcoll_whole__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B6b_rhcoll_whole__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B6b_rhcoll_whole__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B7_request_one_over__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B7_request_one_over__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B7_request_one_over__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B8_wait_states_owe_eight__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_B8_wait_states_owe_eight__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_B8_wait_states_owe_eight__pristine__37: rc=0 9 checks, 0 FAIL
+FZ_B9_decrement_unguarded__pristine__1: rc=1 9 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B9_decrement_unguarded__pristine__3: rc=1 9 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_B9_decrement_unguarded__pristine__37: rc=1 9 checks, 1 FAIL
+    FAIL: FZ9 a request behind a READ whose device presents bytes past its length ends DEADLINE, the port taking only th
+FZ_base__pristine__1: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__3: rc=0 9 checks, 0 FAIL
+FZ_base__pristine__37: rc=0 9 checks, 0 FAIL
+base__coincident_completion__100: rc=0 356 checks, 0 FAIL
+base__coincident_completion__20: rc=0 356 checks, 0 FAIL
+base__coincident_completion__37: rc=0 356 checks, 0 FAIL
+base__pristine__100: rc=0 356 checks, 0 FAIL
+base__pristine__20: rc=0 356 checks, 0 FAIL
+base__pristine__37: rc=0 356 checks, 0 FAIL

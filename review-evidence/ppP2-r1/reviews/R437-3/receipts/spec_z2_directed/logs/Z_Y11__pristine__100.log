@@ -1,0 +1,7 @@
+FAIL: Z1a payload byte 10 presented after TMO silent owed cycles, rready dropped on that cycle: tolerated, done, byte-exact (rc 1, cause 3, drops 1)
+FAIL: Z1b WRITE byte 20 taken after TMO silent owed cycles, wvalid dropped on that cycle: tolerated, done, byte-exact (rc 1, cause 3, drops 1)
+FAIL: T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 3, 1 drops)
+FAIL: T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the manager drops wvalid, the count at its bound, is taken next and the commit served byte-exact (rc 1, cause 3, 1 drops)
+FAIL: T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after the last byte, the one held included (rc 1, cause 3, held 1)
+FAIL: RW4 no DEADLINE where the device was not silent (4)
+362 checks: 356 PASS, 6 FAIL

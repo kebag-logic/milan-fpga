@@ -1,0 +1,142 @@
+make: Entering directory '$REVIEWS/ppP2-r437-3-packet/scratch/base_figures_clone/clone/tb/nvm_port'
+129 Verilator builds: 1 baseline + 7 for make run + 12 arms + 95 mutations + 9 models + 5 matrix
+baseline: 356 checks, 356 PASS, 0 FAIL
+make run, every build: [(356, 356, 0), (356, 356, 0), (356, 356, 0), (9, 9, 0), (9, 9, 0), (9, 9, 0), (9, 9, 0), (1104, 1104, 0)], rc 0
+
+arm coverage (measured vs README):
+  [ok ]  376 S_WEREQ    measured=0    readme=0
+  [ok ]  385 S_WEWAIT   measured=51   readme=51
+  [ok ]  395 S_WWREQ    measured=0    readme=0
+  [ok ]  405 S_WHPUMP   measured=41   readme=41
+  [ok ]  422 S_WDPUMP   measured=28   readme=28
+  [ok ]  437 S_WWAIT    measured=16   readme=16
+  [ok ]  448 S_RHREQ    measured=3    readme=3
+  [ok ]  458 S_RHCOLL   measured=20   readme=20
+  [ok ]  477 S_RHWAIT   measured=15   readme=15
+  [ok ]  504 S_RPREQ    measured=0    readme=0
+  [ok ]  514 S_RPPUMP   measured=47   readme=47
+  [ok ]  529 S_RPWAIT   measured=4    readme=4
+
+mutations and probes (measured vs README):
+  [ok ] M1               measured=69   readme=69
+  [ok ] M1-sibling       measured=34   readme=34
+  [ok ] M2               measured=12   readme=12
+  [ok ] M3               measured=126  readme=126
+  [ok ] M4               measured=28   readme=28
+  [ok ] M5               measured=16   readme=16
+  [ok ] M6               measured=55   readme=55
+  [ok ] M6-sibling       measured=52   readme=52
+  [ok ] probe-armearly   measured=1    readme=1
+  [ok ] probe-nodevice   measured=4    readme=4
+  [ok ] probe-t18        measured=4    readme=4
+  [ok ] done_seen_r/coincident measured=230  readme=230
+  [ok ] done_seen_r/pristine measured=23   readme=23
+  [ok ] own-states-dropped measured=51   readme=51
+  [ok ] own-minus-rhcoll measured=26   readme=26
+  [ok ] own-minus-wwait  measured=3    readme=3
+  [ok ] own-plus-rhreq   measured=26   readme=26
+  [ok ] C1               measured=69   readme=69
+  [ok ] C2               measured=7    readme=7
+  [ok ] C3               measured=23   readme=23
+  [ok ] C4               measured=1    readme=1
+  [ok ] M2-lo            measured=5    readme=5
+  [ok ] M7               measured=4    readme=4
+  [ok ] M8               measured=22   readme=22
+  [ok ] M6/unsolicited   measured=248  readme=248
+  [ok ] M8/short         measured=157  readme=157
+  [ok ] D1/silent        measured=298  readme=298
+  [ok ] D1               measured=68   readme=68
+  [ok ] D2               measured=42   readme=42
+  [ok ] D3               measured=42   readme=42
+  [ok ] D4               measured=44   readme=44
+  [ok ] D5               measured=5    readme=5
+  [ok ] D6               measured=5    readme=5
+  [ok ] D7               measured=9    readme=9
+  [ok ] D8               measured=39   readme=39
+  [ok ] D9               measured=38   readme=38
+  [ok ] D10              measured=25   readme=25
+  [ok ] D11              measured=4    readme=4
+  [ok ] D12              measured=4    readme=4
+  [ok ] D13              measured=3    readme=3
+  [ok ] D14              measured=8    readme=8
+  [ok ] D15              measured=29   readme=29
+  [ok ] D16              measured=3    readme=3
+  [ok ] D17              measured=11   readme=11
+  [ok ] D18              measured=1    readme=1
+  [ok ] D19              measured=1    readme=1
+  [ok ] D20              measured=2    readme=2
+  [ok ] D21              measured=1    readme=1
+  [ok ] D22              measured=2    readme=2
+  [ok ] D23              measured=0    readme=0
+  [ok ] D24              measured=4    readme=4
+  [ok ] D25              measured=7    readme=7
+  [ok ] D26              measured=3    readme=3
+  [ok ] D26/coincident   measured=7    readme=7
+  [ok ] Q1               measured=2    readme=2
+  [ok ] Q2               measured=2    readme=2
+  [ok ] Q3               measured=0    readme=0
+  [ok ] Q4               measured=0    readme=0
+  [ok ] Q5               measured=17   readme=17
+  [ok ] Q6               measured=3    readme=3
+  [ok ] Q7               measured=2    readme=2
+  [ok ] Q8               measured=0    readme=0
+  [ok ] Q9               measured=4    readme=4
+  [ok ] Q10              measured=0    readme=0
+  [ok ] Y1               measured=2    readme=2
+  [ok ] Y2               measured=2    readme=2
+  [ok ] Y3               measured=0    readme=0
+  [ok ] Y4               measured=0    readme=0
+  [ok ] Y5               measured=17   readme=17
+  [ok ] Y6               measured=7    readme=7
+  [ok ] Y7               measured=10   readme=10
+  [ok ] Y8               measured=12   readme=12
+  [ok ] Y9               measured=9    readme=9
+  [ok ] Y10              measured=15   readme=15
+  [ok ] Y11              measured=4    readme=4
+  [ok ] Y12              measured=0    readme=0
+  [ok ] Y13              measured=3    readme=3
+  [ok ] Y14              measured=2    readme=2
+  [ok ] Y15              measured=68   readme=68
+  [ok ] Y16              measured=4    readme=4
+  [ok ] Q1/fuzz          measured=4    readme=4
+  [ok ] Q9/fuzz          measured=4    readme=4
+  [ok ] coincident/4096  measured=0    readme=0
+  [ok ] T6-timed/coincident/4096 measured=16   readme=16
+  [ok ] D27              measured=3    readme=3
+  [ok ] D28              measured=1    readme=1
+  [ok ] D29              measured=3    readme=3
+  [ok ] D30              measured=3    readme=3
+  [ok ] D27/fuzz         measured=1    readme=1
+  [ok ] D31              measured=2    readme=2
+  [ok ] S1               measured=7    readme=7
+  [ok ] S2               measured=5    readme=5
+  [ok ] S3               measured=15   readme=15
+  [ok ] S4               measured=13   readme=13
+  [ok ] retraction       measured=2    readme=2
+
+device models (measured vs README):
+  [ok ] pristine                   measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] half-page                  measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] half-page                  measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] page-buffered NOR          measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] lazy erase                 measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] lazy erase + page-buffered measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] coincident completion      measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] unsolicited completion     measured=356 PASS, 0 FAIL  readme=(356, 0)
+  [ok ] short read                 measured=273 PASS, 83 FAIL  readme=(273, 83)
+  [ok ] silent                     measured=115 PASS, 241 FAIL  readme=(115, 241)
+
+pre-fix matrix (measured vs README), 5 builds:
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+  [ok ] T15 cut was real                   measured=pass pass pass pass FAIL
+  [ok ] T15 #70 property, unconditioned    measured=pass pass pass pass FAIL
+
+all measured figures agree with the tree
+
+NOT measured (waived, with the reason, so the exclusion set is
+derived from the file rather than asserted in a comment):
+  - /`fails 22 of the 356 checks` and `fails\s+22 out of 356`/ absorbs 2 (cap 4): two illustrative phrasings quoted inside the paragraph explaining what the inverted default does not close; not claims about this suite
+make: Leaving directory '$REVIEWS/ppP2-r437-3-packet/scratch/base_figures_clone/clone/tb/nvm_port'

@@ -1,0 +1,486 @@
+[
+ {
+  "job": "Y11_verdict_on_paused_cycle__coincident_completion__100",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "coincident completion",
+  "tmo": 100,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the ",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__coincident_completion__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "coincident completion",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 5,
+  "fail_names": [
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 10: one err DEADLINE, ",
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__coincident_completion__37",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "coincident completion",
+  "tmo": 37,
+  "rc": 1,
+  "total": 356,
+  "fail": 5,
+  "fail_names": [
+   "T29a a payload READ whose device never presents byte 10, the manager dropping rready one cycle in 18: one err ",
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 37 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 37 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 39 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__half-page__100",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "half-page",
+  "tmo": 100,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the ",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__half-page__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "half-page",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__half-page__37",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "half-page",
+  "tmo": 37,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 37 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 37 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 39 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__lazy_erase__100",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "lazy erase",
+  "tmo": 100,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the ",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__lazy_erase__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "lazy erase",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__lazy_erase__37",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "lazy erase",
+  "tmo": 37,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 37 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 37 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 39 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__lazy_erase_p_page-buffered__100",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "lazy erase + page-buffered",
+  "tmo": 100,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the ",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__lazy_erase_p_page-buffered__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "lazy erase + page-buffered",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__lazy_erase_p_page-buffered__37",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "lazy erase + page-buffered",
+  "tmo": 37,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 37 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 37 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 39 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__page-buffered_NOR__100",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "page-buffered NOR",
+  "tmo": 100,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the ",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__page-buffered_NOR__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "page-buffered NOR",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__page-buffered_NOR__37",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "page-buffered NOR",
+  "tmo": 37,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 37 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 37 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 39 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__pristine__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__unsolicited_completion__100",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "unsolicited completion",
+  "tmo": 100,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the ",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__unsolicited_completion__20",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "unsolicited completion",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y11_verdict_on_paused_cycle__unsolicited_completion__37",
+  "probe": "Y11_verdict_on_paused_cycle",
+  "model": "unsolicited completion",
+  "tmo": 37,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 37 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 37 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 39 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__coincident_completion__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "coincident completion",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 5,
+  "fail_names": [
+   "T29b a WRITE whose device never takes byte 20, the manager dropping wvalid one cycle in 10: one err DEADLINE, ",
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__half-page__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "half-page",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__lazy_erase__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "lazy erase",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__lazy_erase_p_page-buffered__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "lazy erase + page-buffered",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__page-buffered_NOR__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "page-buffered NOR",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__pristine__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y16_verdict_any_busy_cycle__unsolicited_completion__20",
+  "probe": "Y16_verdict_any_busy_cycle",
+  "model": "unsolicited completion",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 4,
+  "fail_names": [
+   "T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 20 cycles late on the one cycle ",
+   "T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 20 cycles late on the one cycle the m",
+   "T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 22 cycles after ",
+   "RW4 no DEADLINE where the device was not silent (2)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__coincident_completion__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "coincident completion",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__half-page__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "half-page",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__lazy_erase__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "lazy erase",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__lazy_erase_p_page-buffered__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "lazy erase + page-buffered",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__page-buffered_NOR__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "page-buffered NOR",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__pristine__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "pristine",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ },
+ {
+  "job": "Y1_wewait_owes_latched__unsolicited_completion__20",
+  "probe": "Y1_wewait_owes_latched",
+  "model": "unsolicited completion",
+  "tmo": 20,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T30a S_WEWAIT's latched terminal owes nothing: an ERASE answered on its own grant, then the WRITE granted 20 c",
+   "RW4 no DEADLINE where the device was not silent (1)"
+  ]
+ }
+]

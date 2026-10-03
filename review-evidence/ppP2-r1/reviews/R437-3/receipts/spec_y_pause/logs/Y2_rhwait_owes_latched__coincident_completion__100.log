@@ -1,0 +1,7 @@
+FAIL: T24 S_RPREQ: an event 100 cycles late is tolerated, done and byte-exact (rc 1)
+FAIL: T24 S_RPREQ: busy low at the pulse, 101 cycles after the last event (want 102)
+FAIL: T24 S_RPREQ: the backend's registered grant came after the request fell, and is owed (0)
+FAIL: T24 ...and restores byte-exact over 950 cycles
+FAIL: T30b S_RHWAIT's latched terminal owes nothing: a header READ answered on its eighth byte, then the payload READ granted 100 cycles after its request, is served byte-exact (rc 1, cause 3, 1 answered on a last byte)
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+356 checks: 350 PASS, 6 FAIL

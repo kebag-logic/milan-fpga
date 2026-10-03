@@ -1,0 +1,145 @@
+[
+ {
+  "job": "no_floor_assert__coincident_completion__10",
+  "probe": "no_floor_assert",
+  "model": "coincident completion",
+  "tmo": 10,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)",
+   "T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over "
+  ]
+ },
+ {
+  "job": "no_floor_assert__coincident_completion__15",
+  "probe": "no_floor_assert",
+  "model": "coincident completion",
+  "tmo": 15,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)",
+   "T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over "
+  ]
+ },
+ {
+  "job": "no_floor_assert__coincident_completion__19",
+  "probe": "no_floor_assert",
+  "model": "coincident completion",
+  "tmo": 19,
+  "rc": 0,
+  "total": 356,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "no_floor_assert__coincident_completion__5",
+  "probe": "no_floor_assert",
+  "model": "coincident completion",
+  "tmo": 5,
+  "rc": 1,
+  "total": 356,
+  "fail": 24,
+  "fail_names": [
+   "T4 commit done under stalls",
+   "T4 store byte-exact under stalls",
+   "T4 restore done under stalls",
+   "T4 restored stream byte-exact under stalls",
+   "T6 op still in flight at the poke, its ERASE taken and not done",
+   "T6 exactly one done for the one op",
+   "T6 no extra device op from the spurious req",
+   "T6 original commit still byte-exact",
+   "T7 the WRITE was never issued after the erase error",
+   "T7 the erase error is named DEVICE (read 3)",
+   "T19a the commit still completes with done, byte-exact on the bus",
+   "T19a ERASE then WRITE, both issued",
+   "T19b the commit still completes with done, byte-exact on the bus",
+   "T19c the pulse landed with the WRITE requested and ungranted (dones 0, req 0, ops -1)",
+   "T19c the commit still completes with done, byte-exact on the bus",
+   "T20a the restore still completes with done, stream byte-exact",
+   "T20a READ hdr then READ payload, both issued",
+   "T20b the backend pulsed one done between the two reads, -1 header bytes forwarded (dones 0, req 0, ops -1)",
+   "T20b the restore still completes with done, stream byte-exact",
+   "T20c the pulse landed with the payload READ requested and ungranted (dones 0, req 0, ops -1)",
+   "T20c the restore still completes with done, stream byte-exact",
+   "T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)",
+   "T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over ",
+   "RW4 no DEADLINE where the device was not silent (9)"
+  ]
+ },
+ {
+  "job": "no_floor_assert__pristine__10",
+  "probe": "no_floor_assert",
+  "model": "pristine",
+  "tmo": 10,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)",
+   "T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over "
+  ]
+ },
+ {
+  "job": "no_floor_assert__pristine__15",
+  "probe": "no_floor_assert",
+  "model": "pristine",
+  "tmo": 15,
+  "rc": 1,
+  "total": 356,
+  "fail": 2,
+  "fail_names": [
+   "T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)",
+   "T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over "
+  ]
+ },
+ {
+  "job": "no_floor_assert__pristine__19",
+  "probe": "no_floor_assert",
+  "model": "pristine",
+  "tmo": 19,
+  "rc": 0,
+  "total": 356,
+  "fail": 0,
+  "fail_names": []
+ },
+ {
+  "job": "no_floor_assert__pristine__5",
+  "probe": "no_floor_assert",
+  "model": "pristine",
+  "tmo": 5,
+  "rc": 1,
+  "total": 356,
+  "fail": 25,
+  "fail_names": [
+   "T4 commit done under stalls",
+   "T4 store byte-exact under stalls",
+   "T4 restore done under stalls",
+   "T4 restored stream byte-exact under stalls",
+   "T6 op still in flight at the poke, its ERASE taken and not done",
+   "T6 exactly one done for the one op",
+   "T6 no extra device op from the spurious req",
+   "T6 original commit still byte-exact",
+   "T7 the WRITE was never issued after the erase error",
+   "T7 the erase error is named DEVICE (read 3)",
+   "T19a the commit still completes with done, byte-exact on the bus",
+   "T19a ERASE then WRITE, both issued",
+   "T19b the commit still completes with done, byte-exact on the bus",
+   "T19c the pulse landed with the WRITE requested and ungranted (dones 0, req 0, ops -1)",
+   "T19c the commit still completes with done, byte-exact on the bus",
+   "T20a the restore still completes with done, stream byte-exact",
+   "T20a READ hdr then READ payload, both issued",
+   "T20b the backend pulsed one done between the two reads, -1 header bytes forwarded (dones 0, req 0, ops -1)",
+   "T20b the restore still completes with done, stream byte-exact",
+   "T20b the payload read was not closed on the header read's leftover: nothing requested (0), answered (1) or for",
+   "T20c the pulse landed with the payload READ requested and ungranted (dones 0, req 0, ops -1)",
+   "T20c the restore still completes with done, stream byte-exact",
+   "T24 ...a commit meanwhile ends DEADLINE with no command (rc 0)",
+   "T28c a deadline in the WRITE's completion window leaves the WRITE owed: the next commit requests nothing over ",
+   "RW4 no DEADLINE where the device was not silent (10)"
+  ]
+ }
+]

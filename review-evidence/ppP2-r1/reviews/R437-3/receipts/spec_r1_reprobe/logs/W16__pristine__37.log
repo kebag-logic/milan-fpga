@@ -1,0 +1,5 @@
+FAIL: T24 served branch: the next restore is served byte-exact once the device has ended the abandoned READ, nothing requested over it (rc 1)
+FAIL: T24 served branch: it issued its own two READs after the owed one (0 commands)
+FAIL: T28d an owed READ drained one byte every 18 cycles while a restore waits: each drained byte restarts the count, so the restore, held 542 cycles behind 29 drained bytes, is served byte-exact, never DEADLINE (rc 1, cause 3)
+FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE 1 cycles after the last of them, no command taken (rc 1, cause 3, 3 drained)
+356 checks: 352 PASS, 4 FAIL

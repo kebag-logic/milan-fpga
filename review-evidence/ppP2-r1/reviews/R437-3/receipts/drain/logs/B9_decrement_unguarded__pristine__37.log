@@ -1,0 +1,4 @@
+FAIL: T28f an owed READ whose device presents bytes past its length: the drain takes the 30 it still owed and no more, and the restore waiting on it ends DEADLINE -1 cycles after the last of them, no command taken (rc -1, cause -1, 1948 drained)
+FAIL: T28f ...the device's own done ends the READ, and the next restore is served byte-exact (rc 0)
+FAIL: RW1 every operation the port accepted was answered; none ran past run_op's guard (1 wedged)
+356 checks: 353 PASS, 3 FAIL

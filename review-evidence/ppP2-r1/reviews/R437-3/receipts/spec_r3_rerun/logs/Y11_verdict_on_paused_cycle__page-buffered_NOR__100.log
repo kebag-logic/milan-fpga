@@ -1,0 +1,5 @@
+FAIL: T30c a cycle that owes nothing is never a verdict: payload byte 10, presented 100 cycles late on the one cycle the manager drops rready, the count at its bound, is taken next and the restore served byte-exact (rc 1, cause 3, 1 drops)
+FAIL: T30d a cycle that owes nothing is never a verdict: WRITE byte 20, wanted 100 cycles late on the one cycle the manager drops wvalid, the count at its bound, is taken next and the commit served byte-exact (rc 1, cause 3, 1 drops)
+FAIL: T30e the control: payload byte 10 one owed cycle later, the same cycle dropped, ends DEADLINE 102 cycles after the last byte, the one held included (rc 1, cause 3, held 1)
+FAIL: RW4 no DEADLINE where the device was not silent (2)
+356 checks: 352 PASS, 4 FAIL
