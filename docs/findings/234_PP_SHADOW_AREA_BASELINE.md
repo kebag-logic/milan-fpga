@@ -1,12 +1,16 @@
 # Protocol processor area baseline for issue #234
 
 Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
+The [re-baseline](#re-baseline-of-2026-10-03-after-pr-634) measures the shipping image again after PR #634, at dev `54643724`.
+It is the resource gate's current record.
+The sections after it keep the first record, at dev `1269cdaf`, as history.
 This change modifies no RTL and no processor source.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Combinations](#combinations)** -- The current dev head and the next processor adoption, and the only functional HDL change between them.
+- **[Re-baseline of 2026-10-03, after PR #634](#re-baseline-of-2026-10-03-after-pr-634)** -- The three endpoints measured again at dev `54643724`, their delta from the first record per endpoint and sub-block, and its sources: the AAF clock meter, one more name entry and the firmware ROM.
+- **[Combinations](#combinations)** -- The first record's dev head and the next processor adoption, and the only functional HDL change between them.
 - **[Method](#method)** -- The recipe, tools and clocks, the standalone clock taken from the build, and the 8x8 parameters from an elaboration.
 - **[Shipping route](#shipping-route)** -- Whole-image LUT, FF, slice, block RAM, DSP and timing for both, the critical paths and the routed hierarchy.
 - **[Standalone synthesis](#standalone-synthesis)** -- The wrapper alone at 1x1 and 8x8, and how far blocks a change did not touch still move.
@@ -16,9 +20,114 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
 
+## Re-baseline of 2026-10-03, after PR #634
+
+After the first record, dev merged PR #634 (`bbf704ec`) and PR #644, which changes documentation only.
+PR #634 changes the shipping image's inputs, so the first record no longer described dev's image.
+Against it, dev's route exits 1 at the gate.
+This section measures the three endpoints again and records them as the gate's baseline.
+That records PR #634's growth as PR #634's, by the [re-baseline rule](../design/AREA_BUDGET.md#the-resource-gate).
+
+Combination C is this lane's merge of dev `546437243e87eb5a78783a9e3cd5d1badcc3423e`, commit `4d81e10d`.
+Its processor pin is still `631eeb34`.
+This PR changes no build input, so C's image is dev's.
+C used A's recipe, tools, host, directives and seed.
+
+PR #634 reaches the endpoints through three inputs:
+
+| Input | Change | Endpoints |
+|---|---|---|
+| AAF clock meter, `KL_aaf_clock_meter` | new: one instance, `g_aaf_meter.aaf_clock_meter`, because the 1x1 shape offers one AAF clock source | route |
+| AEM name entries | the shape header's `AEM_NAME_ENTRIES_C`, bound as the wrapper's `DESC_NAME_ENTRIES_P` (`milan_datapath.sv:7681`): 38 to 39 at 1x1, 99 to 107 at 8x8 | all three |
+| Firmware ROM, `alinx_ax7101_rom.init` | constants only, same size: the AEM image grows from 7,352 to 7,512 bytes with a new CRC, the entity model ID changes, and the NVM name count goes from 38 to 39 | route |
+
+`DESC_NAME_ENTRIES_P` is the only wrapper parameter that moved at either shape.
+No wrapper source changed, and the processor's microcode and timer ROMs are byte-identical.
+The parameter reaches two blocks.
+One is the AECP descriptor store, `u_pp/u_aecp/u_store`, whose name table holds eight 64-bit lanes per entry.
+The other is the NVM backend, `u_nvm`, which keeps one NAME record per entry.
+
+**Shipping route**
+
+| Combination | LUT | FF | Slice | RAMB36 | RAMB18 | BRAM tiles | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| A, dev `1269cdaf` | 50,128 | 59,006 | 15,815 | 79 | 27 | 92.5 | 14 | 3,405 | +0.063 | +0.036 |
+| C, dev `54643724` | 50,767 | 59,634 | 15,832 | 79 | 27 | 92.5 | 14 | 3,506 | +0.193 | +0.024 |
+| C minus A | +639 | +628 | +17 | 0 | 0 | 0 | 0 | +101 | +0.130 | -0.012 |
+| C, percent of `xc7a100t` | 80.07 | 47.03 | 99.89 | 58.52 | 10.00 | 68.52 | 5.83 | - | - | - |
+
+C routes all 106,622 routable nets fully, with 0 nets with routing errors.
+It meets the [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good), and 18 slices are left.
+Its critical path starts at `u_pp/u_notify/rows_r_reg[9][68]` and ends at `u_pp/u_tx_arbiter/slot_r_reg[0]`.
+That is 39 logic levels and 19.545 ns, 71 percent of it routing, and it starts in the registry that lever 1 below moves.
+Against the first record, C exceeds the LUT tolerance by 139 and the FF tolerance by 28.
+So the gate exits 1 on it with "RESULT: MATERIAL REGRESSION".
+
+| Scope in the routed hierarchy | LUT A / C | LUT change | FF A / C | FF change |
+|---|---:|---:|---:|---:|
+| Whole image | 50,128 / 50,767 | +639 | 59,006 / 59,634 | +628 |
+| `milan_datapath` | 41,527 / 42,200 | +673 | 47,804 / 48,433 | +629 |
+| `milan_datapath/g_aaf_meter.aaf_clock_meter`, the meter | - / 483 | +483 | - / 630 | +630 |
+| `milan_datapath/pp_shadow`, the wrapper | 23,937 / 23,904 | -33 | 24,263 / 24,265 | +2 |
+| The rest of `milan_datapath` | 17,590 / 17,813 | +223 | 23,541 / 23,538 | -3 |
+| CPU core | 3,526 / 3,524 | -2 | 4,735 / 4,734 | -1 |
+| SoC top-level logic | 4,857 / 4,847 | -10 | 6,072 / 6,072 | 0 |
+
+The meter is the largest source.
+It places 483 LUTs, 32 of them as memory, and 630 FFs, as PR #634 published.
+That is 76 percent of the image's LUT growth and all of its FF growth.
+The other top-level instances and the report's cross-child LUT-sharing adjustment make up the remaining -22 LUTs.
+
+The rest of `milan_datapath` grew by 223 LUTs.
+PR #634 changed the source of four of its moved instances: `csr` (`milan_csr.sv`) +58, `media_nco` +9, `media_grid_align` +1 and `g_mmcm_servo.mmcm_servo` -2.
+The other moved instances' modules are unchanged.
+The largest are `aaf_latency_tap_bank` +68, `talker_diag` +61, `ctl_tx_mux` +54 and `chan_map_capture` +33.
+Their movement comes from the changed `milan_datapath.sv` around them or from optimization; the reports do not separate the two.
+
+Inside the wrapper the name entry shows where it reaches: `u_nvm` +19 LUTs and `u_pp/u_aecp/u_store` +9.
+Blocks it does not reach moved more: `u_pp/u_aecp/u_dyn` -83, `u_pp/u_aecp/u_d3` +25 and `u_pp/u_notify` +14.
+The firmware ROM's new constants move no block RAM, and the SoC top-level logic around it moved by -10 LUTs.
+
+**Standalone synthesis**
+
+| Shape and combination | LUT | FF | RAMB36 | RAMB18 | BRAM tiles | DSP | CARRY4 | Internal WNS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1x1, A | 24,343 | 25,344 | 21 | 3 | 22.5 | 8 | 1,623 | -1.616 |
+| 1x1, C | 24,332 | 25,345 | 21 | 3 | 22.5 | 8 | 1,623 | -1.616 |
+| 1x1, C minus A | -11 | +1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 8x8, A | 31,562 | 33,929 | 26 | 5 | 28.5 | 8 | 2,001 | -1.947 |
+| 8x8, C | 31,556 | 33,937 | 26 | 5 | 28.5 | 8 | 2,001 | -1.947 |
+| 8x8, C minus A | -6 | +8 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+The name entries are the standalone endpoints' only changed input.
+At 1x1 the two blocks they reach move: `u_nvm` by -11 LUTs and +1 FF, and `u_pp/u_aecp/u_store` by +7 LUTs.
+`u_pp/u_aecp/u_d3`, which the parameter does not reach, moves by -7 LUTs, and two other blocks by one LUT each.
+At 8x8, eight more entries move `u_nvm` by -5 LUTs and +8 FFs, and `u_pp/u_aecp/u_store` by -3 LUTs.
+Two other blocks move by one LUT each.
+No block RAM, DSP or carry count moves at either shape.
+Both standalone endpoints pass the gate against the first record too.
+
+**Recorded**
+
+`record --write` wrote all three endpoints into [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
+Every tolerance, floor and ceiling stayed unchanged.
+Each endpoint's `measured` note names dev `54643724`.
+Against the new record, `check` exits 0 on all three runs and `check-baseline` passes.
+The ranking, storage mapping and Yosys reconciliation below stay A's: no wrapper source changed.
+
+| Combination | Run | rc | Minutes | Log | Log SHA-256, first 16 | Log bytes |
+|---|---|---:|---:|---|---|---:|
+| C | Integrated route, 1x1 | 0 | 39.2 | `baseline.log` | `57efe65ef4f02e2d` | 817,907 |
+| C | RTL elaboration, 8x8 parameters | 0 | 1.1 | `elaborate.log` | `ab04ec47f060de17` | 213,657 |
+| C | Standalone synthesis, 1x1 | 0 | 19.3 | `baseline.log` | `c4a5ebf768070c2e` | 247,793 |
+| C | Standalone synthesis, 8x8 | 0 | 23.5 | `baseline.log` | `312bacb6db2c49b6` | 247,911 |
+
+Each run held the host's Vivado lock and was this lane's only Vivado; another lane's Vivado shared the host during the route.
+No log contains a `Synth 8-4445` diagnostic, and every recorded image rehashed to its digest after the runs.
+
 ## Combinations
 
-Two trees were measured with the same recipe, tools and host.
+The first record measured two trees with the same recipe, tools and host.
 
 | Combination | Parent | Protocol processor | Parent patches |
 |---|---|---|---|
@@ -342,14 +451,14 @@ Every lever changes processor RTL, so each belongs to its own processor lane.
 
 Levers 1 to 5 together remove an estimated 5,600 FFs and 3,600 LUTs from the 1x1 wrapper.
 Lever 6 trades LUTs for block RAM and only matters if block RAM becomes short.
-Lever 1 also removes the source of B's critical path.
+Lever 1 also removes the source of B's and C's critical paths.
 
-Slices, not LUTs, stop placement today, with 35 left at A and 23 at B.
+Slices, not LUTs, stop placement: 35 were left at A and 23 at B, and 18 are left at C, after PR #634.
 Removing that many flops and LUTs should free several hundred slices or more.
 Only a route of the changed image can measure it, so no slice saving is claimed.
 
-Even levers 1 to 5 leave the image near 46,500 LUTs, about 73 percent of the device.
-That is still about 8,500 LUTs above NFR-RES-01's 60 percent.
+Even levers 1 to 5 leave C's image near 47,200 LUTs, about 74 percent of the device.
+That is still about 9,100 LUTs above NFR-RES-01's 60 percent; at A it was 46,500 and 8,500.
 The owner's decision on that gap is in the [budget](../design/AREA_BUDGET.md#allocation-to-the-protocol-processor): a redesign, #640.
 
 #233 is the 1x1 specialization.
