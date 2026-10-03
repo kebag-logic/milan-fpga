@@ -1,0 +1,44 @@
+diff --git a/scripts/processor_yosys_tops.budget b/scripts/processor_yosys_tops.budget
+index 9eee914..11e8f18 100644
+--- a/scripts/processor_yosys_tops.budget
++++ b/scripts/processor_yosys_tops.budget
+@@ -2,17 +2,11 @@
+ # portability gate (protocol-processor/syn/yosys/run.sh, the `tops` array) does
+ # not elaborate as a top, by NAME. Read by scripts/check_rtl_source_lists.py.
+ #
+-# Its hdl/README.md rule 2 says every module must elaborate; these six are
+-# drift at pin 3770ae02, not helper-module exceptions - each elaborates when
+-# asked. The fix is upstream (name them in the tops array); the pin bump that
+-# brings it in deletes the line here, because a name that has become a top is
+-# refused as STALE, and an omission that is not on this list is refused
+-# outright. Entries are never added to hide new drift.
++# Its hdl/README.md rule 2 says every module must elaborate. The six recorded
++# here from pin 3770ae02 were drift, not helper-module exceptions, and the
++# processor's lane C10 (its issue #25) named all six in the tops array, so this
++# pin bump deleted their lines: a name that has become a top is refused as
++# STALE, and an omission that is not on this list is refused outright. Entries
++# are never added to hide new drift.
+ #
+ # <module>  <reason>
+-KL_acmp_nvm_shadow      drift at pin 3770ae02: declared in hdl/acmp, absent from the tops array
+-KL_mrp_strip            drift at pin 3770ae02: declared in hdl/top, absent from the tops array
+-KL_pp_dispatch_fifo     drift at pin 3770ae02: declared in hdl/packet_engine, absent from the tops array
+-KL_srp_admission        drift at pin 3770ae02: declared in hdl/srp, absent from the tops array
+-KL_srp_top              drift at pin 3770ae02: declared in hdl/srp, absent from the tops array
+-protocol_processor_top  drift at pin 3770ae02: declared in hdl/top, absent from the tops array
+diff --git a/scripts/xvlog.budget b/scripts/xvlog.budget
+index f372154..134b10c 100644
+--- a/scripts/xvlog.budget
++++ b/scripts/xvlog.budget
+@@ -30,8 +30,7 @@
+ #
+ # --- section hdl: 0 finding(s) (hdl/) ---
+ #
+-# --- section submodules: 4 finding(s) (pinned processors) ---
+-protocol-processor:hdl/aecp/KL_aecp_notify.sv|VRFC 10-3380|pd_ix_w  # line(s) 502
++# --- section submodules: 3 finding(s) (pinned processors) ---
++protocol-processor:hdl/aecp/KL_aecp_notify.sv|VRFC 10-3380|pd_ix_w  # line(s) 557
+ protocol-processor:hdl/packet_engine/KL_pp_originator.sv|VRFC 10-3380|cancel_hit_w  # line(s) 194
+-protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w  # line(s) 364
+-protocol-processor:hdl/top/protocol_processor_top.sv|VRFC 10-3380|srp_class_a_prio_w  # line(s) 759
++protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w  # line(s) 383
