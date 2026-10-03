@@ -673,6 +673,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.directory is not None and args.endpoint is None:
             parser.error("--fuzz on a measurement directory needs its --endpoint")
         return fuzz(args.fuzz, args.seed, args.directory, args.endpoint, args.baseline, args.budget)
+    if args.command is None or args.command != "check-baseline" and (args.directory is None or not args.endpoint):
+        parser.error("name a command, and for check or record a directory and an --endpoint")
     printing = args.command == "record" and not args.write
     try:
         baseline = {"endpoints": {}} if printing else load(args.baseline)
@@ -680,9 +682,9 @@ def main(argv: list[str] | None = None) -> int:
             problems = check_baseline(baseline, args.budget)
             emit(problems or [f"baseline PASS: {len(baseline['endpoints'])} endpoints"])
             return 2 if problems else 0
-        known = args.endpoint in baseline["endpoints"] or (args.command == "record" and args.endpoint)
-        if args.command is None or args.directory is None or not known:
-            parser.error(f"name a command, a directory and one of {sorted(baseline['endpoints'])}")
+        if args.command == "check" and args.endpoint not in baseline["endpoints"]:
+            raise Refusal(f"baseline {args.baseline} holds no endpoint {args.endpoint}, only "
+                          f"{', '.join(sorted(baseline['endpoints'])) or 'none'}")
         endpoint = baseline["endpoints"].get(args.endpoint)
         problems = entry_problems(args.endpoint, endpoint) if args.command == "check" else []
         if problems:

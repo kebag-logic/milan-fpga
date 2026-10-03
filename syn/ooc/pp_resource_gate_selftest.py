@@ -356,6 +356,8 @@ CHECK_ARMS = (
     ("check against a baseline that is not JSON", "route", (SOURCE,), "{not json", 2, "is unreadable"),
     ("check against a missing baseline", "route", (SOURCE,), Path("absent.json"), 2, "is unreadable"),
     ("check against a baseline without endpoints", "route", (SOURCE,), "[]", 2, "holds no endpoints table"),
+    ("check of an endpoint the baseline does not hold", "route", (SOURCE,), edit("route"), 2,
+     "holds no endpoint route, only ooc"),
     ("check of an endpoint without a record", "route", (SOURCE,), edit("route", "record"), 2, "route: has no record"),
     ("check of a gated figure without a tolerance", "route", (SOURCE,),
      edit("route", "tolerance", "LUT"), 2, "LUT has no non-negative tolerance"),
@@ -577,6 +579,8 @@ def cli(*argv: object) -> tuple[int, list[str]]:
         with contextlib.redirect_stdout(out):
             status = gate.main([str(arg) for arg in argv])
         out.flush()
+    except SystemExit as error:  # argparse's usage exit: its status, with no reason on standard output
+        return error.code, [*raw.getvalue().decode("ascii", "replace").splitlines(), "exited through argparse"]
     except Exception as error:  # the contract is an exit status with a reason, so this fails the arm
         return -1, [*raw.getvalue().decode("ascii", "replace").splitlines(),
                     f"escaped {type(error).__name__}: {ascii(str(error))}"]

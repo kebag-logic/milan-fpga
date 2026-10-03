@@ -161,6 +161,8 @@ MUTANTS = {
                              'unknown fields {\', \'.join(unknown)}"] if False else []\n'),
     "baseline shape validated": ("    if problems:\n        raise Refusal(f\"baseline {path} is malformed:",
                                  "    if False:\n        raise Refusal(f\"baseline {path} is malformed:"),
+    "check names a recorded endpoint": (
+        '        if args.command == "check" and args.endpoint not in baseline["endpoints"]:\n', "        if False:\n"),
     "check validates its endpoint": (
         '        problems = entry_problems(args.endpoint, endpoint) if args.command == "check" else []\n',
         "        problems = []\n"),
