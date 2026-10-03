@@ -1,0 +1,65 @@
+diff --git a/tb/nvm_port/README.md b/tb/nvm_port/README.md
+index d63479a..b77c71b 100644
+--- a/tb/nvm_port/README.md
++++ b/tb/nvm_port/README.md
+@@ -97,8 +97,8 @@ implemented — in the manager, not here: `hdl/acmp/KL_acmp_nvm_shadow.sv`
+ serialises it (`:482-483`), accumulates it (`:775`) and gates the record on it
+ (`rrec_ok_w`, `:391-395`), with the per-record vendor-default policy at
+ `:90-92`; the D3 writer gates its records the same way (`frame_ok_w`,
+-`hdl/aecp/KL_aecp_nvm_writer.sv:482-485`). The shadow is
+-instantiated at `hdl/top/protocol_processor_top.sv:2714` and pinned by
++`hdl/aecp/KL_aecp_nvm_writer.sv:549-552`). The shadow is
++instantiated at `hdl/top/protocol_processor_top.sv:2730` and pinned by
+ `tb/acmp_nvm`. An earlier revision of this file said nothing implemented it,
+ which was wrong and is the third time this file has asserted an absence without
+ checking for the presence. It is NOT
+@@ -1061,10 +1061,10 @@ is written down here rather than left to be rediscovered, because a phase list
+ that reads as complete is worse than one that names its gaps. The other
+ outstanding item is the same: `09_verification.md:56` sets the bar as "cut at
+ randomized commit points ... every record type cut >= once", and this suite
+-uses fixed cut points on both sides, so the randomized half is still owed
+-(delivered at the top by `tb/pp_top` section D3KR, issue #83: every record type
+-both producers write, cut by `rst_n` at 32 seeded-random points each,
+-`--cut-seed S` reruns one; this suite's own cuts stay fixed).
++uses fixed cut points on both sides, so the randomized half is not cut by this
++suite (delivered at the top by `tb/pp_top` section D3KR, issue #83: every
++record type both producers write, cut by `rst_n` at 32 seeded-random points
++each, `--cut-seed S` reruns one; this suite's own cuts stay fixed).
+ 
+ ### Reachability pins, and why they exist
+ 
+@@ -1344,11 +1344,11 @@ Recorded so the phase list does not read as closing #70:
+   DEADLINE until the device ends it or a reset (T24). That is the ruled
+   behaviour: padding the WRITE would close a record whose bytes the manager
+   never supplied, and an abort would be an interface change.
+-- **The RANDOMIZED cut points `09_verification.md:56` asks for are still owed**
+-  on both sides: T15-T18 and T25 cut at fixed points named on the bus
+-  (delivered at the top by `tb/pp_top` section D3KR, issue #83: every record
+-  type both producers write, cut by `rst_n` at 32 seeded-random points each,
+-  `--cut-seed S` reruns one; this suite's own cuts stay fixed).
++- **The RANDOMIZED cut points `09_verification.md:56` asks for are not cut by
++  this suite** on either side: T15-T18 and T25 cut at fixed points named on
++  the bus (delivered at the top by `tb/pp_top` section D3KR, issue #83: every
++  record type both producers write, cut by `rst_n` at 32 seeded-random points
++  each, `--cut-seed S` reruns one; this suite's own cuts stay fixed).
+ - **The `err` clause of the rule has THREE known exceptions**, and T1 was
+   never among them: it asserted after a `done` and reddened only under lazy
+   erase, a `done`-clause exception, now conditioned on erase semantics. The three are T16's isolation checks, and a coarse-erase
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index b9b22b6..01f2933 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -4248,9 +4248,10 @@ struct AudioMapEditPhase {
+   // uCPU's OP_NVM_MARK effect out of the top, and the mark is the micro-op
+   // immediate that names the record group: 6 for the channel maps this phase
+   // edits, 7 for a user name. The mark is a completion notification, not a
+-  // persistence trigger: the saved-state contract's map and name stages
+-  // (not implemented yet) select their records from the accepted live
+-  // writes, and section D3 grades the scalar records. Graded here because
++  // persistence trigger: the D3 writer's name stage selects its records from
++  // the accepted live name write (`aecp_name_wr_o`, section D3N), the channel
++  // maps are the integrator's to persist (07 §5.1, the ruling on #83), and
++  // section D3 grades the scalar records. Graded here because
+   // a mark has no wire shape:
+   // the response of a marked command is identical to the response of one
+   // that marked nothing, which is the third arm below.
