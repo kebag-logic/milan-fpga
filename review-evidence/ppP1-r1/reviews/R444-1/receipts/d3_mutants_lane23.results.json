@@ -1,0 +1,591 @@
+[
+ {
+  "mutant": "golden-pp_top-adp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-cuts-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-volatile-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "cfg_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AD8: the first ENTITY_AVAILABLE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AD8: the record refused by its frame, COMPLETE, the row unset (premise)",
+   "AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)",
+   "AD8: GET_CONFIGURATION reads the same 1",
+   "AD8: ENTITY.current_configuration reads the same 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "identify_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V3"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3V3: IDENTIFY reads 0 in every cycle from restore_go_i on (5184 cycles otherwise) and GET_CONTROL reads 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V4",
+   "D3V7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3V4: aecp_lock_held_o is 0 in every cycle from restore_go_i on (5184 cycles held)",
+   "D3V5: a third controller's change after the cycle notifies neither former controller (0 and 0 frames)",
+   "D3V7: LOCK_ENTITY from the second controller answers SUCCESS (status 3) and takes the lock; its UNLOCK frees it",
+   "D3V9: the first former controller registers again and its first notification carries sequence_id 0, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V5",
+   "D3V8",
+   "D3V9"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3V5: a third controller's change after the cycle notifies neither former controller (1 and 1 frames)",
+   "D3V6: for 66000 ms after the change no frame reaches either former controller: no CONTROLLER_AVAILABLE, no expiry DEREGISTER (3 and 0)",
+   "D3V8: sixteen new controllers all register after the cycle (15 of 16 SUCCESS)",
+   "D3V9: the first former controller registers again and its first notification carries sequence_id 0, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "torn_read_not_an_abort_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AD9: the torn read"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AD9: the torn read fails the walk in pass 0, cause 3, nothing applied"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "clks_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C5 corrupt"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C5 corrupt: the image's index 0 stays in force: the row unset, GET reads 0 and the top exports 0 (fail 0 cause 0 refused 0, row 2 valid 1, export 2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "torn_read_not_an_abort",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C5 torn"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R5 payload torn after two bytes: DEFAULTS, cause 3, applied 0, rows at their defaults",
+   "D3C5 torn: the image's index 0 stays in force: the row unset, GET reads 0 and the top exports 0 (fail 1 cause 3 refused 0, row 0 valid 0, export 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "frame_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3K ptof cut at byte 11 of 12: the restore",
+   "D3K name cut at byte 71 of 72: the restore"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C5 corrupt: the image's index 0 stays in force: the row unset, GET reads 0 and the top exports 0 (fail 0 cause 0 refused 0, row 2 valid 1, export 2)",
+   "D3N4: COMPLETE, applied 2 refused 2, ordinal 20 left alone",
+   "D3N4: GET_NAME reads the image's names for the refused 3 and 4, the saved one for 5",
+   "D3K ptof cut at byte 11 of 12: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K ptof cut at byte 9 of 12: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 8 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 71 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 48 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "blank_applies_zero_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AD7: the first ENTITY_AVAILABLE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AD1: first ENTITY_AVAILABLE carries the image configuration 1 (current_cfg_i, nothing set yet)",
+   "AD1: GET_CONFIGURATION reads the same image default",
+   "AD1b: wire bytes 64..65 carry configuration 1, got 0",
+   "AD7: nothing restored, the row unset (premise)",
+   "AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)",
+   "AD7: GET_CONFIGURATION reads the same 1",
+   "AD7: ENTITY.current_configuration reads the same 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "blank_applies_zero",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C5 blank"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3S8 validity: clock source 0 on the unset row is written (0)",
+   "D3R1: COMPLETE 2813 cycles after the release, applied 59 refused 0 blank 50 of 59",
+   "D3R1 fmti: both input formats restored with their valid flags, GET reads them (valid 0xff)",
+   "D3R1 fmto: both output formats restored with their valid flags, GET reads them (valid 0xff)",
+   "D3R1 ptof: both presentation offsets restored with their valid flags, GET_STREAM_INFO reads them (valid 0xff)",
+   "D3R2: COMPLETE, applied 49 refused 10 blank 48 of 59",
+   "D3R2: only the neighbour's offset restored (valid 0xfe)",
+   "D3R3: configuration 0, rate 96000 and clock source 0 restored with their valid flags (applied 59)",
+   "D3R3b entry 7 of 10 (24000 Hz): applied 59 refused 0, rate 24000 valid 1",
+   "D3R3b entry 8 of 10 (16000 Hz): applied 58 refused 1, rate 0 valid 0",
+   "D3R9: the held SET answered after the restore applied A, and its B is in force (row 7654321)",
+   "D3C3 restore: COMPLETE from cleared rows with the saved record applied (applied 59 refused 0 blank 58 of -1104199682)",
+   "D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 58 refused 1 blank 58 of 13)",
+   "D3C4 above the count: the saved 9 over 3 sources is refused, COMPLETE (applied 58 refused 1 blank 58 of -1104274752)",
+   "D3C5 blank: the image's index 0 stays in force: the row unset, GET reads 0 and the top exports 0 (fail 0 cause 0 refused 0, row 0 valid 1, export 0)",
+   "D3N3: COMPLETE, applied 59 refused 0 blank 54 of 59",
+   "D3N4: COMPLETE, applied 56 refused 3, ordinal 20 left alone",
+   "D3N7: an image loaded late is walked before the name is written back: GET_NAME and READ_DESCRIPTOR read the saved entity_name",
+   "D3K cfg cut at byte 0 of 10: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)",
+   "D3K cfg cut at byte 0 of 10: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K rate cut at byte 0 of 12: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)",
+   "D3K clks cut at byte 0 of 10: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)",
+   "D3K clks cut at byte 1 of 10: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)",
+   "D3K fmti cut at byte 0 of 16: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)",
+   "D3K fmto cut at byte 0 of 16: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)",
+   "D3K ptof cut at byte 0 of 12: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 59 refused 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "TRG_name",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N1 ordinal"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N1 ordinal 0: record 0x80 erased and written once, byte-exact (0 writes)",
+   "D3N1 ordinal 1: record 0x81 erased and written once, byte-exact (0 writes)",
+   "D3N1 ordinal 2: record 0x82 erased and written once, byte-exact (0 writes)",
+   "D3N1 ordinal 9: record 0x89 erased and written once, byte-exact (0 writes)",
+   "D3N1 ordinal 10: record 0x8a erased and written once, byte-exact (0 writes)",
+   "D3N3: COMPLETE, applied 0 refused 0 blank 59 of 59",
+   "D3N3 ordinal 0: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 1: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 2: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 9: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 10: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3: READ_DESCRIPTOR(ENTITY) serves both restored names",
+   "D3N6 taint: 0 WRITEs of 0x82, the first carrying the latched name, the record holding the change made during it",
+   "D3K name cut at the ERASE: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at the ERASE: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 0 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 0 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 0 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 8 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 8 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 8 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 71 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 71 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 71 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 48 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 48 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 48 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "RPL_name",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3 ordinal"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N3: COMPLETE, applied 0 refused 5 blank 54 of 59",
+   "D3N3 ordinal 0: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 1: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 2: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 9: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 10: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3: READ_DESCRIPTOR(ENTITY) serves both restored names",
+   "D3N4: COMPLETE, applied 0 refused 4, ordinal 20 left alone",
+   "D3N4: GET_NAME reads the image's names for the refused 3 and 4, the saved one for 5",
+   "D3N5: the name applied, then pass 1's disagreement rolled back (cause 5, rolled back 1) (premise)",
+   "D3N7: an image loaded late is walked before the name is written back: GET_NAME and READ_DESCRIPTOR read the saved entity_name",
+   "D3K name cut at the ERASE: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at the ERASE: the restore does not fail, and the group holds A (fail 0 cause 0, applied 0 refused 1)",
+   "D3K name cut at byte 0 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 8 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 71 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 48 of 72: A restored, B accepted, the cut point reached (premise)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_rule_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N4: COMPLETE"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N4: COMPLETE, applied 2 refused 2, ordinal 20 left alone"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_empty_refused",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3: COMPLETE",
+   "D3N3 ordinal 2"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N3: COMPLETE, applied 4 refused 1 blank 54 of 59",
+   "D3N3 ordinal 2: the entry holds the saved name and GET_NAME reads it byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_record_id_shifted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N1 ordinal"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N1 ordinal 0: record 0x80 erased and written once, byte-exact (0 writes)",
+   "D3N1 ordinal 1: record 0x81 erased and written once, byte-exact (1 writes)",
+   "D3N1 ordinal 2: record 0x82 erased and written once, byte-exact (1 writes)",
+   "D3N1 ordinal 9: record 0x89 erased and written once, byte-exact (0 writes)",
+   "D3N1 ordinal 10: record 0x8a erased and written once, byte-exact (1 writes)",
+   "D3N1: no record outside the five names, nothing unflushed (4 operations)",
+   "D3N4: GET_NAME reads the image's names for the refused 3 and 4, the saved one for 5",
+   "D3N5: the name applied, then pass 1's disagreement rolled back (cause 5, rolled back 1) (premise)",
+   "D3N6 taint: 0 WRITEs of 0x82, the first carrying the latched name, the record holding the change made during it",
+   "D3N7: an image loaded late is walked before the name is written back: GET_NAME and READ_DESCRIPTOR read the saved entity_name",
+   "D3K name cut at the ERASE: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at the ERASE: the restore does not fail, and the group holds A (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at the ERASE: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 0 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 0 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 0 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 8 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 8 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 8 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 71 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 71 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 71 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left",
+   "D3K name cut at byte 48 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 48 of 72: the restore does not fail, and the group holds the image's value (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 48 of 72: once sink 0 is unbound, a later SET of B persists over what the cut left"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_entry_shifted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3 ordinal"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N3 ordinal 0: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 1: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 2: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 9: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3 ordinal 10: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3: READ_DESCRIPTOR(ENTITY) serves both restored names",
+   "D3N4: GET_NAME reads the image's names for the refused 3 and 4, the saved one for 5",
+   "D3N7: an image loaded late is walked before the name is written back: GET_NAME and READ_DESCRIPTOR read the saved entity_name",
+   "D3K name cut at the ERASE: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at the ERASE: the restore does not fail, and the group holds A (fail 0 cause 0, applied 1 refused 0)",
+   "D3K name cut at byte 0 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 8 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 71 of 72: A restored, B accepted, the cut point reached (premise)",
+   "D3K name cut at byte 48 of 72: A restored, B accepted, the cut point reached (premise)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_lanes_partial",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3 ordinal 1"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N3 ordinal 1: the entry holds the saved name and GET_NAME reads it byte-exact",
+   "D3N3: READ_DESCRIPTOR(ENTITY) serves both restored names"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_taint_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N6 taint"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N6 taint: 1 WRITEs of 0x82, the first carrying the latched name, the record holding the change made during it"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_restore_is_a_change",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3: the restore's name writes"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N3: the restore's name writes are no live writes (40 pulses of aecp_name_wr_o) and no changes (35962 pending cycles, 10 device operations)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "name_restore_pulses",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3: the restore's name writes"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3N3: the restore's name writes are no live writes (40 pulses of aecp_name_wr_o) and no changes (0 pending cycles, 0 device operations)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "names_before_the_image",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O2: CLOSED at -1 after the release at 122, cause 0, own 0, 0 descriptor requests",
+   "D3O2: CLOSED holds AECP (185 busy cycles, the command still queued) and leaves the listener released",
+   "D3O3: CLOSED -123 cycles after the release, cause 0",
+   "D3O4: an image loaded late is walked at the writer's LOCATE (0 requests from the release to the terminal), COMPLETE at 1776",
+   "D3O5: in CLOSED each GET_RX_STATE after each of 6 AECP commands is answered in 168 cycles, the idle latency (worst 246)",
+   "D3O5: one AECP command held, 0 dropped at the slot gate and counted, 6 answered",
+   "D3O5: after 2,000 ms in CLOSED the listener answers in 168 cycles",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)",
+   "D3O7: the returned slot frees the share: the next command held, the one after it dropped (0 counted), none answered",
+   "D3R14 image refused: CLOSED by clock 0, cause 3, AECP owned 0, ADP enabled 1",
+   "D3R19 past the bound: no image at reset (1) nor at the D3 walk's start (0); the binding walk (longest wait 19002 of 20001) fails whole at the bound (cause 3), released 3 clocks after it, the LOCATE proves the image -13563700 clocks after the release",
+   "D3R19 past the bound: DEFAULTS with no record READ; the restore ends DEFAULTS 3289 clocks after the bound, cause 0, rolled back 0, image valid 1, AECP owned 0, 172 D3 record READs",
+   "D3R19 inside the LOCATE: the binding walk completes (0x27 done on its placed clock 0, longest wait 11636 of 20001), the LOCATE starts -3 clocks before the bound and proves the image -1 clocks after it (want -6277696 of -12555392; -1: never)",
+   "D3R19 inside the LOCATE: DEFAULTS with no record READ; the restore ends DEFAULTS 20006 clocks after the bound, cause 3, rolled back 0, image valid 0, AECP owned 0, 0 D3 record READs",
+   "D3R20 W_IMGLOC: the binding walk completes (0x27 done on its placed clock 0, longest wait 11636 of 20001), the image valid at the D3 walk's start 0, proven -1 clocks after the bound (want 0; -1: never)",
+   "D3R20 W_IMGLOC: DEFAULTS with no record READ; the restore ends DEFAULTS 20006 clocks after the bound, cause 3, rolled back 0, image valid 0, AECP owned 0, 0 D3 record READs",
+   "D3N3: every saved name's entry holds the image's name when the D3 walk proves the image",
+   "D3N7: an image loaded late is walked before the name is written back: GET_NAME and READ_DESCRIPTOR read the saved entity_name"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cut_binding_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3KR bind seed"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3KR bind seed 0xD3C0FFEE, cut 18 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xAE676D19, cut 10 of 33 clocks after the ERASE's grant (a torn header at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x890DDA44, cut 20 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x274553FD, cut 25 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xC57CCDB6, cut 28 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x63B4476F, cut 24 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x01EBC128, cut 11 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xDC922E53, cut 29 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x7AC9A80C, cut 24 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x190121C5, cut 9 of 33 clocks after the ERASE's grant (a torn header at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xB7389B7E, cut 21 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xF3A78EF0, cut 21 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x30168262, cut 28 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xCE4DFC1B, cut 13 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x0ABCEF8D, cut 28 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xA8F46946, cut 20 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xE5635CB8, cut 24 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0x839AD671, cut 19 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xC009C9E3, cut 26 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)",
+   "D3KR bind seed 0xFC78BD55, cut 26 of 33 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 0 refused 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cut_frame_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3KR ptof seed",
+   "D3KR name seed"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3KR name seed 0xD3C0FFEE, cut 18 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x71F879A7, cut 52 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xAE676D19, cut 74 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x4C9EE6D2, cut 16 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xEAD6608B, cut 58 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x274553FD, cut 53 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xC57CCDB6, cut 44 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x63B4476F, cut 64 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x01EBC128, cut 43 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xA0233AE1, cut 36 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x3E5AB49A, cut 14 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xDC922E53, cut 65 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x7AC9A80C, cut 28 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR ptof seed 0xB7389B7E, cut 13 of 17 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xB7389B7E, cut 13 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x55701537, cut 42 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xF3A78EF0, cut 33 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x30168262, cut 24 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR ptof seed 0xCE4DFC1B, cut 13 of 17 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xCE4DFC1B, cut 69 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x6C8575D4, cut 72 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x0ABCEF8D, cut 48 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR ptof seed 0xA8F46946, cut 12 of 17 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x472BE2FF, cut 16 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xE5635CB8, cut 60 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x839AD671, cut 27 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x21D2502A, cut 27 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xC009C9E3, cut 70 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0x5E41439C, cut 18 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)",
+   "D3KR name seed 0xFC78BD55, cut 30 of 77 clocks after the ERASE's grant (a torn payload at rest): the restore does not fail and the default holds (fail 0 cause 0, applied 1 refused 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

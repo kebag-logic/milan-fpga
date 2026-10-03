@@ -1,0 +1,13 @@
+diff --git a/hdl/aecp/KL_aecp_dyn_state.sv b/hdl/aecp/KL_aecp_dyn_state.sv
+index 3c4cdf8..a2a014c 100644
+--- a/hdl/aecp/KL_aecp_dyn_state.sv
++++ b/hdl/aecp/KL_aecp_dyn_state.sv
+@@ -294,7 +294,7 @@ module KL_aecp_dyn_state #(
+       clksrc_v_r <= '0;
+       fmtin_v_r  <= '0;
+       fmtout_v_r <= '0;
+-      ptoff_v_r  <= '0;
++      // PLANT: ptoff_v_r keeps its value across rst_n
+       ident_v_r  <= '0;
+       rd_pend_r  <= 1'b0;
+       rd_data_r  <= 64'd0;

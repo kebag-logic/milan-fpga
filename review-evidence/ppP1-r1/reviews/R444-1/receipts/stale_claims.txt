@@ -1,0 +1,65 @@
+# R444-1 stale-claim evidence at c066dd83 (grep -n)
+== hdl/top/protocol_processor_top.sv:776,781
+   776	    //! 6 channel maps (ADD/REMOVE_AUDIO_MAPPINGS), 7 user names (SET_NAME).
+   777	    //! A COMPLETION notification only: nothing selects a record from it.
+   778	    //! Groups 1 and 7's records are written by the D3 writer from the
+   779	    //! accepted changing write itself (group 7's is aecp_name_wr_o); group 6
+   780	    //! is the saved-state contract's map stage, triggered by map edit phase
+   781	    //! 5, and not implemented in this release.
+== hdl/aecp/KL_aecp_engine.sv:467,470
+   467	    //! reply returns bit 0 = at least one mapping changed. The future
+   468	    //! SET_STREAM_FORMAT survival query uses the same value lane instead of
+   469	    //! opening a second map authority. Phase 5 is also the saved-state
+   470	    //! contract's map trigger (its map stage, not implemented here yet).
+== hdl/aecp/KL_aecp_nvm_writer.sv:115,118
+   115	//                the payload big-endian (the saved-state allocation, parent
+   116	//                FASTCONNECT §4.2). A name record is the store's 64-byte
+   117	//                entry verbatim, its eight lanes in wire order. Channel maps
+   118	//                are a later stage.
+== tb/pp_top/README.md:663,665
+   663	  the pin is the only place any of this is visible. A mark is a completion
+   664	  notification: R21 proves the notification, never persistence (section D3
+   665	  grades the scalar and name records; maps are a later stage).
+== tb/nvm_port/README.md:1062,1064
+  1062	outstanding item is the same: `09_verification.md:56` sets the bar as "cut at
+  1063	randomized commit points ... every record type cut >= once", and this suite
+  1064	uses fixed cut points on both sides, so the randomized half is still owed.
+== tb/nvm_port/README.md:1344,1345
+  1344	- **The RANDOMIZED cut points `09_verification.md:56` asks for are still owed**
+  1345	  on both sides: T15-T18 and T25 cut at fixed points named on the bus.
+== docs/architecture/07_memory_maps.md:557,566
+   557	| design decision (review §8): current configuration index | |
+   558	
+   559	**Who persists what.** The processor's two record producers (§5.3) persist every group
+   560	of the persisted column except the output and input mappings: the binding manager the
+   561	bound state, binding parameters and started/stopped; the D3 writer the configuration
+   562	index, sampling rates, stream formats, presentation offsets, clock sources and user
+   563	names. The **channel maps are the integrator's** (the manager's ruling on processor
+   564	issue #83, 2026-10-03, which amends the parent D3 contract's map stage; the parent's
+   565	restore is its issue #637). The map plane is the integrator's: the
+   566	processor reaches it only through the GET_AUDIO_MAP read face and the
+== docs/architecture/07_memory_maps.md:629,631
+   629	| `0x60` .. `0x6F` | channel map in | STREAM_PORT_INPUT | clusters × 8 B | the integrator (§5.1); the processor never writes or reads it |
+   630	| `0x70` .. `0x7F` | channel map out | STREAM_PORT_OUTPUT | max(clusters, STREAM_OUTPUT × 8) × 8 B for a dynamic port (#501), clusters × 8 B for a static one | the integrator (§5.1); the processor never writes or reads it |
+   631	| `0x80` .. `0xFF` | user name | writable-name ordinal | 64 B | D3 writer (name stage): `DESC_NAME_ENTRIES_P` records, at most 128 |
+== blame
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 778)     //! Groups 1 and 7's records are written by the D3 writer from the
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 779)     //! accepted changing write itself (group 7's is aecp_name_wr_o); group 6
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 780)     //! is the saved-state contract's map stage, triggered by map edit phase
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 781)     //! 5, and not implemented in this release.
+39789f98 (hackerman-kl 2026-09-28 15:48:38 +0200 469)     //! opening a second map authority. Phase 5 is also the saved-state
+39789f98 (hackerman-kl 2026-09-28 15:48:38 +0200 470)     //! contract's map trigger (its map stage, not implemented here yet).
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 117) //                entry verbatim, its eight lanes in wire order. Channel maps
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 118) //                are a later stage.
+a1f5cd5e (hackerman-kl 2026-10-03 08:38:04 +0200 665)   grades the scalar and name records; maps are a later stage).
+44489453 (hackerman-kl 2026-08-20 20:50:48 +0200 1064) uses fixed cut points on both sides, so the randomized half is still owed.
+5425dc2e (hackerman-kl 2026-10-02 15:22:57 +0200 1344) - **The RANDOMIZED cut points `09_verification.md:56` asks for are still owed**
+5425dc2e (hackerman-kl 2026-10-02 15:22:57 +0200 1345)   on both sides: T15-T18 and T25 cut at fixed points named on the bus.
+== PR body (published evidence PR-BODY.md, sha256 0d16c50a...)
+229:- Parent gate 16 at dev `bbf704ec` (Round 1b, below) waits for a decision.
+284:  re-based **`parent-adoption-c8-bbf704ec.patch`** keeps all 13 hunks, so no hunk
+299:  stopped there for a decision:
+== live PR #150 body
+229:- Parent gate 16 at dev `bbf704ec` (Round 1b, below) waits for a decision.
+284:  re-based **`parent-adoption-c8-bbf704ec.patch`** keeps all 13 hunks, so no hunk
+299:  stopped there for a decision:

@@ -1,0 +1,14 @@
+hunks cdf49d1a: 11  bbf704ec: 11
+changed lines identical
+< @@ -600,7 +600,8 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
+<                  CRF_CLKSRC=_crf_ix,
+> @@ -603,7 +603,8 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
+>                  CLKSRC_TABLE=clock_source_table(spec["clock_sources"]),
+< @@ -296,5 +296,6 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
+> @@ -297,5 +297,6 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
+< @@ -4397,6 +4397,9 @@ def load_config(path: str) -> dict[str, Any]:
+> @@ -4430,6 +4430,9 @@ def load_config(path: str) -> dict[str, Any]:
+< @@ -5188,6 +5191,10 @@ def _overlay_document(cfg, parts):
+> @@ -5231,6 +5234,10 @@ def _overlay_document(cfg, parts):
+< @@ -28126,7 +28126,9 @@ def _assert_image_contract_case(cfg, overlay, case, emit_image=None):
+> @@ -28193,7 +28193,9 @@ def _assert_image_contract_case(cfg, overlay, case, emit_image=None):

@@ -1,0 +1,22 @@
+diff --git a/hdl/aecp/KL_aecp_nvm_writer.sv b/hdl/aecp/KL_aecp_nvm_writer.sv
+index aff2fcf..18e14d9 100644
+--- a/hdl/aecp/KL_aecp_nvm_writer.sv
++++ b/hdl/aecp/KL_aecp_nvm_writer.sv
+@@ -765,7 +765,7 @@ module KL_aecp_nvm_writer #(
+         end
+         W_RD: begin
+           if (m_rvalid_i) begin
+-            if ((rbcnt_r != 17'd6) && (rbcnt_r != 17'd7))
++            if ((rbcnt_r != 17'd6) && (rbcnt_r != 17'd7) && (rbcnt_r <= 17'd8))
+               rcrc_acc_r <= crc16_f(rcrc_acc_r, m_rdata_i);
+             unique case (rbcnt_r)
+               17'd0:   rmagic_r    <= {m_rdata_i, rmagic_r[7:0]};
+@@ -1085,7 +1085,7 @@ module KL_aecp_nvm_writer #(
+ 
+   // ---- the flush -------------------------------------------------------------
+   logic [6:0] crc_last_w, stream_last_w;
+-  assign crc_last_w    = 7'd5 + hplen_w;           // header 0..5, payload
++  assign crc_last_w    = 7'd6;                     // PLANT: header + 1 payload byte
+   assign stream_last_w = 7'd7 + hplen_w;
+ 
+   //! the crc pass skips the crc field itself: cursor 0..5 -> byte 0..5,
