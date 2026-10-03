@@ -232,6 +232,16 @@ The classifier files this page as read by a gate, so a change to it alone still 
 The measurement and `check` need Vivado, so they run in the manager's local bank.
 The manager's merge bank runs it for every PR that changes RTL, the processor pin or the build recipe (manager ruling).
 That is the route and the 1x1 standalone synthesis.
+
+The bank also catches a predecessor that moved the image without recording its re-baseline ([manager ruling](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5972491855)).
+The trigger is the merge result's delta from the recorded baseline, not the PR's own diff.
+That baseline is the dev revision each endpoint's `measured` note names.
+So the bank runs the comparison for any merge whose dev delta since that revision touches RTL, the processor pin or the build recipe.
+That holds even when the PR itself changes none of them.
+Growth the PR did not make is not charged to it.
+The predecessor's growth is first recorded as a re-baseline that names it, as issue #234 recorded PR #634's.
+The PR is then judged against that record.
+This is the bank's rule, stated here; it adds no tooling.
 Here a route took 39 to 56 minutes and a 1x1 standalone synthesis 15 to 24, sharing the host.
 That bank run is the local half of #234's fourth criterion (manager ruling); CONTRIBUTING is unchanged here.
 
