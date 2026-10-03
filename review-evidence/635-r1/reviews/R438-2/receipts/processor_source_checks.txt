@@ -1,0 +1,197 @@
+# processor source checks, R438-2
+## 631eeb34 KL_aecp_engine.sv st_echo_w (1743-1753)
+  //! IEEE 1722.1-2021 Table 7-141's status 10 is an AEM_COMMAND's alone.
+  //! Every other AECP message type shares only SUCCESS and NOT_IMPLEMENTED
+  //! with it (Table 9-2) and defines its own codes above them
+  //! (ADDRESS_ACCESS Table 9-4, AV/C Table 9-5, HDCP APM Table 9-8, MVU Milan
+  //! v1.2 §5.4.3.3 Table 5.19), so an answer the engine forces on one, past
+  //! its deadline (A_RUN) or when its response memory fails (A_ALLOC, A_WR),
+  //! is NOT_IMPLEMENTED with the command echoed. `PP_PROTO_AEM` is the
+  //! validator's residual bucket, so message_type 0 is what says AEM.
+  logic st_echo_w;
+  assign st_echo_w = !((cmd_r.protocol == PP_PROTO_AEM)
+                       && (cmd_r.msg_type == 4'd0));
+## 631eeb34 A_ALLOC fault rebuild (3756-3781)
+        A_ALLOC: begin
+          if (rsp_fail_w) begin
+            err_mode_r  <= 1'b1;
+            status_r    <= ST_ENTITY_MISBEHAVING_C;
+            pld_r       <= amap_edit_r ? amap_edit_pld_w : 11'd0;
+            frame_len_r <= amap_edit_r
+                           ? ((11'(FRAME_HDR_C) + amap_edit_pld_w
+                               < 11'(ETH_MIN_C))
+                              ? 11'(ETH_MIN_C)
+                              : 11'(FRAME_HDR_C) + amap_edit_pld_w)
+                           : 11'(ETH_MIN_C);
+            //! Milan v1.2 §5.4.3.3 Table 5.19: an MVU status is SUCCESS or
+            //! NOT_IMPLEMENTED, so a voided MVU answer, like that of every
+            //! other message type but AEM's, is its refusal form, the
+            //! command echoed, as the deadline's is (A_RUN, `st_echo_w`)
+            if (st_echo_w) begin
+              status_r    <= ST_NOT_IMPLEMENTED_C;
+              echo_r      <= 1'b1;
+              pld_r       <= pld_cmd_r;
+              frame_len_r <= echo_len_w;
+            end
+            bidx_r      <= 11'd0;
+            if (rerr_cnt_r != 16'hFFFF) rerr_cnt_r <= rerr_cnt_r + 16'd1;
+          end else if (txs_alloc_gnt_i) begin
+            tx_slot_r <= txs_alloc_slot_i;
+            a_st_r    <= A_WR;
+## 631eeb34 A_WR fault rebuild (3783-3808)
+        end
+
+        A_WR: begin
+          //! The response memory died under a frame that is already partly
+          //! written. Rewrite it from byte 0 using only registered state.
+          //! Mapping edits retain Figure 7-71's fixed body and staged records.
+          if (rsp_fail_w) begin
+            err_mode_r  <= 1'b1;
+            status_r    <= ST_ENTITY_MISBEHAVING_C;
+            pld_r       <= amap_edit_r ? amap_edit_pld_w : 11'd0;
+            frame_len_r <= amap_edit_r
+                           ? ((11'(FRAME_HDR_C) + amap_edit_pld_w
+                               < 11'(ETH_MIN_C))
+                              ? 11'(ETH_MIN_C)
+                              : 11'(FRAME_HDR_C) + amap_edit_pld_w)
+                           : 11'(ETH_MIN_C);
+            //! the command echoed, as at A_ALLOC; its slot was sized for the
+            //! echo (txs_oversize_o)
+            if (st_echo_w) begin
+              status_r    <= ST_NOT_IMPLEMENTED_C;
+              echo_r      <= 1'b1;
+              pld_r       <= pld_cmd_r;
+              frame_len_r <= echo_len_w;
+            end
+            bidx_r      <= 11'd0;
+            if (rerr_cnt_r != 16'hFFFF) rerr_cnt_r <= rerr_cnt_r + 16'd1;
+## b2db3a97 A_ALLOC/A_WR (no st_echo_w; status 10 for every type)
+0
+        A_ALLOC: begin
+          if (rsp_fail_w) begin
+            err_mode_r  <= 1'b1;
+            status_r    <= ST_ENTITY_MISBEHAVING_C;
+            pld_r       <= amap_edit_r ? amap_edit_pld_w : 11'd0;
+            frame_len_r <= amap_edit_r
+                           ? ((11'(FRAME_HDR_C) + amap_edit_pld_w
+                               < 11'(ETH_MIN_C))
+                              ? 11'(ETH_MIN_C)
+                              : 11'(FRAME_HDR_C) + amap_edit_pld_w)
+                           : 11'(ETH_MIN_C);
+            bidx_r      <= 11'd0;
+            if (rerr_cnt_r != 16'hFFFF) rerr_cnt_r <= rerr_cnt_r + 16'd1;
+          end else if (txs_alloc_gnt_i) begin
+            tx_slot_r <= txs_alloc_slot_i;
+            a_st_r    <= A_WR;
+          end
+        end
+
+        A_WR: begin
+          //! The response memory died under a frame that is already partly
+          //! written. Rewrite it from byte 0 using only registered state.
+          //! Mapping edits retain Figure 7-71's fixed body and staged records.
+          if (rsp_fail_w) begin
+            err_mode_r  <= 1'b1;
+            status_r    <= ST_ENTITY_MISBEHAVING_C;
+            pld_r       <= amap_edit_r ? amap_edit_pld_w : 11'd0;
+            frame_len_r <= amap_edit_r
+                           ? ((11'(FRAME_HDR_C) + amap_edit_pld_w
+                               < 11'(ETH_MIN_C))
+                              ? 11'(ETH_MIN_C)
+                              : 11'(FRAME_HDR_C) + amap_edit_pld_w)
+                           : 11'(ETH_MIN_C);
+            bidx_r      <= 11'd0;
+            if (rerr_cnt_r != 16'hFFFF) rerr_cnt_r <= rerr_cnt_r + 16'd1;
+          end else if (byte_ok_w) begin
+            if (bidx_r + 11'd1 >= frame_len_r) a_st_r <= A_CMT;
+            bidx_r <= bidx_r + 11'd1;
+          end
+        end
+
+        A_CMT: begin
+## 631eeb34 deadline-kill contract (1723-1740)
+  // ---- THE DEADLINE KILL (03 §6 rule (e), 06 §8, 08 §4) -------------------
+  //! The top reads the transaction deadline at admission and holds
+  //! `dl_kill_i` from its expiry until the hold ends; it is taken here only
+  //! for the solicited command in flight and kept until that command retires.
+  //! The µCPU is then preempted into E_DLKILL, which answers the best current
+  //! status through E_FAILSAFE (a SUCCESS not yet built becomes
+  //! ENTITY_MISBEHAVING), unless the program has already produced an effect:
+  //! then it ends with its own answer, so no partial commit survives. Three
+  //! commands are never preempted, because their change rides a gather face
+  //! the µCPU cannot see as an effect: REGISTER/DEREGISTER and LOCK_ENTITY on
+  //! the registry face, ADD/REMOVE_AUDIO_MAPPINGS on the edit face (phase 1
+  //! is its point of no return). Each wait they make is watchdog-bounded.
+  //! A preempted command of any message type but AEM_COMMAND answers
+  //! NOT_IMPLEMENTED with the command echoed (`st_echo_w`); a
+  //! GET_DYNAMIC_INFO is voided at its next record boundary. The key is
+  //! released at `dl_queued_o`, the forced response's hand-off to its lane.
+  logic dl_kill_r;
+  logic ucpu_preempt_w;
+## scoreboard kill face: b2db3a97 tie-offs vs 631eeb34 drive
+      .kill_valid_i       (1'b0),
+      .kill_id_i          (3'd0),
+      .kill_resp_queued_i (1'b0),
+      .kill_valid_i       (aecp_dl_kill_w),
+      .kill_id_i          (aecp_sb_id_r),
+      .kill_resp_queued_i (aecp_dl_queued_w),
+## top port/parameter declaration diff b2db3a97..631eeb34
++    parameter bit          EN_IDENTIFY_NOTIF_P = 1'b0,
+-    input  wire  [15:0] current_cfg_i,         //! current_configuration_index
++    input  wire  [15:0] current_cfg_i,
++    input  wire         identify_button_i,
++                                         input logic [15:0] ix);
+## ADPDU fallback mux (631eeb34 top 1852-1862)
+  //! The ADPDU's current_configuration_index is the entity's CURRENT
+  //! configuration (IEEE §6.2.2.18), the value GET_CONFIGURATION and the
+  //! ENTITY descriptor serve: the dynamic overlay while its row is written
+  //! (a SET_CONFIGURATION, or the D3 restore of the saved record), the image
+  //! default while it is unset (from reset, and after a D3 roll-back). The
+  //! integrator supplies that default on current_cfg_i; the overlay's own
+  //! reset value is 0, which is only the default of an image whose current
+  //! configuration is 0.
+  logic        aecp_cur_cfg_v_w;
+  logic [15:0] adp_cur_cfg_w;
+  assign adp_cur_cfg_w = aecp_cur_cfg_v_w ? aecp_cur_config_o : current_cfg_i;
+## roll-back store reset (engine 1606-1610) and valid flag (1902-1929)
+  logic        d3_own_w, d3_bus_w;
+  //! the roll-back: both stores reset together (D3 stage 1), the guard never
+  logic        d3_rb_rst_w;
+  logic        store_rst_n_w;
+  assign store_rst_n_w = rst_n && !d3_rb_rst_w;
+  //! ---- the configuration row's valid flag, published (04 §3) ------------
+  //! The store keeps its valid flags private, and its port list is a
+  //! consumer contract (the reference platform instantiates it by name), so
+  //! the flag is not exported from there. It is set by an accepted
+  //! value-region write of the configuration selector at row 0, taken in
+  //! the cycle it is presented (the store's st_ready_o is st_req_i &&
+  //! st_we_i), and cleared only by the store's own reset. The decode reads
+  //! the bus the store takes, AFTER the state-bus selection: the µCPU's
+  //! SET_CONFIGURATION, and the D3 writer's restore of record 0x00 while it
+  //! owns the bus, each judged by the row that client names (`dyn_didx_w`).
+  //! The reset is the store's too (`store_rst_n_w`), so the D3 roll-back
+  //! clears it with the row. The same decode of the same bus into one flop
+  //! under the same reset is therefore that flag, cycle for cycle.
+  localparam logic [12:0] SEL_CFG_C = 13'd0;   //! KL_aecp_dyn_state SEL_CFG_C
+  logic dyn_cfg_v_r;
+
+  always_ff @(posedge clk_i) begin : dyn_cfg_valid
+    if (!store_rst_n_w) begin
+      dyn_cfg_v_r <= 1'b0;
+    end else if (st_req_w && dyn_sel_w && st_we_w
+                 && (st_addr_w[19:16] == RGN_DYN_C)
+                 && (st_addr_w[15:3] == SEL_CFG_C)
+                 && (dyn_didx_w == 16'd0)) begin
+      dyn_cfg_v_r <= 1'b1;
+    end
+  end
+
+  assign dyn_cur_config_v_o = dyn_cfg_v_r;
+## parent: ADP_IDX0[15:0] -> current_cfg_i
+752:    A_ADP_IDX0    = 'h630, A_ADP_IDX1 = 'h634, A_ADP_ASLO = 'h638, A_ADP_ASHI  = 'h63C,
+2831:  assign o_adp_current_config  = adp_idx0[15:0];
+7611:      .current_cfg_i     (cfg_adp_current_config),
+## processor operator guide 631eeb34 :55-56, :326
+| Anything, while the response memory is broken | a well-formed 60-byte `ENTITY_MISBEHAVING`, or, for a command that is not an AEM command (a Milan Vendor Unique one), `NOT_IMPLEMENTED` with the command echoed. It is an honest failure, not a hang |
+| A command still executing at its deadline (`T-BUDGET-AECP-WC` after it arrived) because a face or a memory answers slowly | a well-formed 60-byte `ENTITY_MISBEHAVING` inside `T-AECP-RESP`, or, for a command that is not an AEM command (Milan Vendor Unique, ADDRESS_ACCESS, AV/C), `NOT_IMPLEMENTED` with the command echoed. A command that had already changed state answers for itself |
+| `NOT_IMPLEMENTED` with the command echoed | that opcode is genuinely not implemented yet. It is a correct answer, not a fault. For GET_MILAN_INFO, which is implemented, it is the fault answer instead: its response memory failed (snapshot words 35 and 36 moved) or it outlived its deadline, because Milan Table 5.19 gives a Vendor Unique answer no other failure code |
