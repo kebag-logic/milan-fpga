@@ -1,0 +1,55 @@
+request mcr_restart_p_w at milan_datapath.sv:3229-3232
+render     | prefill target three events high                                       | KL_render_setpoint.sv:224-224 | count=1 | in_request=no | lane_changed=no
+render     | recentre pulse ignored                                                 | KL_render_setpoint.sv:617-617 | count=1 | in_request=no | lane_changed=no
+render     | recentre counted and cleared but not snapped                           | KL_render_setpoint.sv:587-590 | count=1 | in_request=no | lane_changed=no
+render     | clock-source trigger dropped from the recentre set                     | milan_datapath.sv:6323-6323 | count=1 | in_request=no | lane_changed=no
+render-csr | wrong_fill                                                             | milan_datapath.sv:6455-6455 | count=1 | in_request=no | lane_changed=no
+render-csr | bit9_window_selection                                                  | milan_csr.sv:2424-2424 | count=1 | in_request=no | lane_changed=no
+render-csr | absent_stage (start)                                                   | milan_datapath.sv:6458-6458 | count=1 | in_request=no | lane_changed=no
+crflic     | every gate reads the raw verdict                                       | milan_datapath.sv:6920-6921 | count=1 | in_request=no | lane_changed=no
+crflic     | the CRF licence alone reads the raw verdict                            | milan_datapath.sv:5434-5434 | count=1 | in_request=no | lane_changed=no
+crflic     | the AAF source 0 gate alone reads the raw verdict                      | milan_datapath.sv:1997-1997 | count=1 | in_request=no | lane_changed=no
+crflic     | every gate drops the real grant                                        | milan_datapath.sv:6920-6921 | count=1 | in_request=no | lane_changed=no
+crflic     | the CRF licence alone drops the real grant                             | milan_datapath.sv:5434-5434 | count=1 | in_request=no | lane_changed=no
+crflic     | the AAF source 0 gate alone drops the real grant                       | milan_datapath.sv:1997-1997 | count=1 | in_request=no | lane_changed=no
+gsi        | the processor ties a sink's failure bridge id to zero                  | protocol_processor_top.sv:3430-3430 | count=1 | in_request=no | lane_changed=no
+gsi        | selector 5 goes back to the parent, whose input answer is zero         | protocol_processor_top.sv:3407-3407 | count=1 | in_request=no | lane_changed=no
+gsi        | selector 5 goes back to the parent, whose input answer is zero         | protocol_processor_top.sv:3430-3430 | count=1 | in_request=no | lane_changed=no
+gsi        | the processor ties a sink's failure code to zero                       | protocol_processor_top.sv:3429-3429 | count=1 | in_request=no | lane_changed=no
+gsi        | the failure-code byte is left to the parent, which no longer supplies  | protocol_processor_top.sv:3429-3429 | count=1 | in_request=no | lane_changed=no
+gsi        | the processor ties probing/ACMP status to zero                         | protocol_processor_top.sv:3431-3431 | count=1 | in_request=no | lane_changed=no
+gsi        | the processor reads the other sink's owners                            | protocol_processor_top.sv:3410-3410 | count=1 | in_request=no | lane_changed=no
+gsi        | the parent's bound/settled approximation answers selector 7 again      | protocol_processor_top.sv:3407-3407 | count=1 | in_request=no | lane_changed=no
+gsi        | the parent's bound/settled approximation answers selector 7 again      | protocol_processor_top.sv:3431-3431 | count=1 | in_request=no | lane_changed=no
+gsi        | the parent's bound/settled approximation answers selector 7 again      | milan_datapath.sv:4936-4937 | count=1 | in_request=no | lane_changed=no
+gsi        | the processor duplicates the withdrawal push after 4096 cycles         | protocol_processor_top.sv:3450-3450 | count=1 | in_request=no | lane_changed=no
+gsi        | the processor duplicates the withdrawal push after 4096 cycles         | protocol_processor_top.sv:3458-3458 | count=1 | in_request=no | lane_changed=no
+gmstep     | the policy level is tied low at the servo                              | milan_datapath.sv:5777-5777 | count=1 | in_request=no | lane_changed=no
+gmstep     | the policy level omits the applied-rate tail                           | milan_datapath.sv:2853-2853 | count=1 | in_request=no | lane_changed=no
+gmstep     | the policy level misses an extra addend stage                          | milan_datapath.sv:2922-2933 | count=1 | in_request=no | lane_changed=no
+gmstep     | the PHC re-base restart term is restored                               | milan_datapath.sv:3232-3232 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | media_rebase_p_w;
+gmstep     | the source-change term is removed                                      | KL_media_clock_restart.sv:213-213 | count=1 | in_request=no | lane_changed=no
+gmstep     | selected CRF mr propagation is removed                                 | milan_datapath.sv:3231-3231 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & (tkd_crflk_q_r & ~crf_locked_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
+gmstep     | the grandmaster identity re-bases the render stage as well as the step | milan_datapath.sv:6322-6323 | count=1 | in_request=no | lane_changed=no
+gmstep     | the step does not re-centre the render stage                           | milan_datapath.sv:6322-6323 | count=1 | in_request=no | lane_changed=no
+gmstep     | the render re-base is keyed to the identity, not the step              | milan_datapath.sv:6322-6323 | count=1 | in_request=no | lane_changed=no
+gmstep     | tu reaches the talkers four cycles late                                | KL_ptp_clock_validity.sv:211-211 | count=1 | in_request=no | lane_changed=no
+gmstep     | the plane's step does not re-arm the holdover                          | milan_datapath.sv:2024-2024 | count=1 | in_request=no | lane_changed=no
+gmstep     | tu stops the talker                                                    | milan_datapath.sv:2100-2100 | count=1 | in_request=no | lane_changed=no
+gmstep     | the grandmaster change stops the talker for good                       | milan_datapath.sv:2100-2100 | count=1 | in_request=no | lane_changed=no
+gmstep     | the step's re-centre snaps one event off the setpoint                  | KL_render_setpoint.sv:588-589 | count=1 | in_request=no | lane_changed=no
+gmstep     | software settime is restored as an mr cause                            | milan_datapath.sv:3232-3232 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | cfg_ptp_cmd_load;
+gmstep     | PHC adjtime is restored as an mr cause                                 | milan_datapath.sv:3232-3232 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | eff_ptp_adjust_w;
+gmstep     | both PHC restart causes are restored                                   | milan_datapath.sv:3232-3232 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | media_rebase_p_w;
+gmstep     | PHC adjtime becomes an mr cause 16 cycles later                        | milan_datapath.sv:3229-3232 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | probe_adj_sr_r[15];
+gmstep     | PHC adjtime becomes an mr cause 256 cycles later                       | milan_datapath.sv:3229-3232 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w | (probe_adj_cnt_r == 9'd1);
+gmstep     | a PHC step suppresses a coincident CRF restart                         | milan_datapath.sv:3231-3231 | count=1 | in_request=YES | lane_changed=YES
+    planted request: wire mcr_restart_p_w /* verilator public_flat_rd */ = (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) & ~media_rebase_p_w) | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
+anchors: 45; anchors not found exactly once: 0

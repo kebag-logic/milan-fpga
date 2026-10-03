@@ -1,0 +1,9 @@
+== V1 whole selected-CRF group vetoed: CAUGHT (expected caught) -> OK
+[PASS] control caught: V1 whole selected-CRF group vetoed - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+== V2 round-4 form: veto ANDed onto the last line: NOT CAUGHT (expected survives) -> OK
+[FAIL] control SURVIVED: V2 round-4 form: veto ANDed onto the last line. The leg does not prove "coincident: a PHC step does not suppress the CRF restart".
+== V3 veto on the received-toggle term only: CAUGHT (expected informational) -> OK
+[PASS] control caught: V3 veto on the received-toggle term only - breaks "coincident: a PHC step does not suppress the CRF restart"
+    it broke 1 check(s): coincident: a PHC step does not suppress the CRF restart
+probe: 3/3 as expected

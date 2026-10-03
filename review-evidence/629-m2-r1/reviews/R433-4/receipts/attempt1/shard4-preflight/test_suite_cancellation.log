@@ -1,0 +1,31 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 3182383, "cwd": "/tmp/suite-cancellation-cturf3ae/normal-orphan input [523]", "identities": {"3182345": ["16523095", "S"], "3182383": ["16523100", "S"]}, "pid": 3182345}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3186349, "cwd": "/tmp/suite-cancellation-cturf3ae/cancel-selection-SIGINT input [523]", "identities": {"3186316": ["16523433", "S"], "3186349": ["16523436", "S"]}, "pid": 3186316}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3189411, "cwd": "/tmp/suite-cancellation-cturf3ae/cancel-selection-SIGTERM input [523]", "identities": {"3189387": ["16523670", "S"], "3189411": ["16523673", "S"]}, "pid": 3189387}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3192401, "cwd": "/tmp/suite-cancellation-cturf3ae/cancel-preflight-SIGINT input [523]", "identities": {"3192346": ["16523924", "S"], "3192401": ["16523927", "S"]}, "pid": 3192346}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3195118, "cwd": "/tmp/suite-cancellation-cturf3ae/cancel-preflight-SIGTERM input [523]", "identities": {"3195056": ["16524172", "S"], "3195118": ["16524175", "S"]}, "pid": 3195056}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3198741, "cwd": "/tmp/suite-cancellation-cturf3ae/cancel-command-SIGINT input [523]", "identities": {"3198716": ["16524443", "S"], "3198741": ["16524446", "S"]}, "pid": 3198716}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3202215, "cwd": "/tmp/suite-cancellation-cturf3ae/cancel-command-SIGTERM input [523]", "identities": {"3202161": ["16524717", "S"], "3202215": ["16524720", "S"]}, "pid": 3202161}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/A/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/A/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/A/scripts/test_suite_cancellation.py", line 184, in cancellation
+    status, output = probe.finish()
+                     ~~~~~~~~~~~~^^
+  File "<packet>/scratch/A/scripts/process_test_support.py", line 215, in finish
+    status = self.process.wait(timeout=12)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '/tmp/suite-cancellation-cturf3ae/cancel-transition-SIGINT input [523]/scripts/run_all_suites.sh', '/tmp/suite-cancellation-cturf3ae/cancel-transition-SIGINT input [523]/logs']' timed out after 12 seconds
