@@ -62,7 +62,9 @@ RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
 #: ORs the cause into the whole request (#629 added the AAF meter's two terms
 #: after the CRF ones, so the request ends here)
 RESTART_TRIGGER = "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;"
-#: the selected CRF stream's two terms, the disruption and the received toggle
+#: the selected CRF stream's two terms, the disruption and the received toggle:
+#: a control that ANDs a veto into the CRF restart plants it inside this group,
+#: since on RESTART_TRIGGER the `&` binds to the AAF toggle alone
 CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))"
 RESTART_DECL = ("  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"
                 "       (crf_clk_selected_r\n" + CRF_RESTART_TERMS + "\n" + RESTART_TRIGGER)
@@ -226,8 +228,8 @@ CONTROLS = [
             "option-off", ("CLKV: the settime leaves mr unchanged (#602)",
                            "CLKV: settime adds no MEDIA_RESET (#602)")),
     Control("a PHC step suppresses a coincident CRF restart", "datapath",
-            RESTART_TRIGGER,
-            RESTART_TRIGGER[:-1] + " & ~media_rebase_p_w;",
+            CRF_RESTART_TERMS,
+            CRF_RESTART_TERMS[:-1] + " & ~media_rebase_p_w)",
             "coincident: a PHC step does not suppress the CRF restart", False),
 ]
 
