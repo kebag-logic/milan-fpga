@@ -239,6 +239,7 @@ The threshold is zero: every reported direct child appears.
 The wrapper and processor each include their own logic.
 Reconciliation rows retain the report's cross-child LUT-sharing adjustment.
 Storage and DSP counts must sum exactly, without adjustments.
+Apart from its column heads, every table row of the report must hold ASCII-digit counts; the parser refuses any other row rather than skip it.
 
 ## Standalone measurements
 
@@ -452,14 +453,20 @@ python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101-ooc" --endpoint ooc-1x1
 python3 syn/ooc/pp_resource_gate.py check "$WORK/ax8x8-ooc" --endpoint ooc-8x8
 ```
 
-Exit 0 is within tolerance and 1 is a material regression.
+Exit 0 is within tolerance and 1 is a material regression, nothing else.
 A route whose status report names an unrouted net or a routing error is a material regression too.
 The route endpoint reads the run's one `*_route_status.rpt` beside its other reports.
-Exit 2 means the measurement is not comparable or the baseline is unusable, and the output names the reason.
+That report carries no header, so the gate cannot tell it from a stale one an earlier build left in the same directory.
+Run each measurement in a fresh directory: the bank deletes nothing, and a stale report would be read as this run's.
+Exit 2 means the measurement is not comparable or the baseline is unusable.
+The output names the reason, and no input reaches a traceback.
 A different tool build, device, design, design state, flow command or standalone clock gives 2.
-So do unreadable reports, a slack that is not finite and a timing summary with no timed endpoint.
-A missing route status report and identical inputs with different figures give 2 as well.
-A missing, non-JSON or incomplete baseline gives 2, never 1.
+So do unreadable reports: a count that is not ASCII digits, a slack that is not a finite decimal, and a timing summary with no timed endpoint or no endpoint columns.
+A route status report that is missing, or lacks exactly one routable-nets, fully-routed-nets and routing-errors row, gives 2.
+Identical inputs with different figures give 2 as well.
+`check` and `check-baseline` validate the whole baseline file before using any field.
+A missing file, one that is not strict JSON, NaN, Infinity or a number too large to be finite gives 2.
+Any field not of the recorded shape gives 2 too, and so does a policy value that is not a number.
 The output lists the largest sub-block movements without gating them.
 A gated figure that improved by more than its tolerance passes and prints "re-baseline recommended".
 

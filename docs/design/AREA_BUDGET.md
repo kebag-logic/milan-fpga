@@ -167,7 +167,7 @@ It changes one processor block's logic, `u_nvm_port`, which grows by 83 LUTs and
 In the 1x1 standalone synthesis, the rest of the wrapper moved by a net +79 LUTs and +93 FFs.
 That partition is the own logic of every instance the record lists outside `u_nvm_port`, 51 terms.
 Its absolute movements sum to 391 LUTs and 121 FFs.
-The processor top's own logic is one of those terms: -23 LUTs and +107 FFs, its timer-arm queues.
+The processor top's own logic is one of those terms: -23 LUTs and +107 FFs; the 107 FFs are its timer-arm queues.
 At 8x8 the whole wrapper came out 172 LUTs smaller.
 A standalone tolerance below that movement would judge noise, not the change.
 Both standalone endpoints pass B.
@@ -186,8 +186,14 @@ That covers the Vivado build, the device, the design and its state, every flow c
 Identical inputs with different figures are refused the same way.
 So a tool's mapping change is never reported as an architectural regression.
 Such a change needs a new baseline, recorded with `record --write` and reviewed as a diff.
-An unreadable measurement, a slack that is not finite, a timing summary with no timed endpoint and a missing route status report also exit 2.
-So does a baseline file that is missing, not JSON or incomplete; exit 1 means a material regression only.
+The exit status is total: 0 within tolerance, 1 a material regression only, and 2 for everything else.
+Exit 2 always prints its reason, and no input reaches a traceback.
+An unreadable measurement exits 2.
+That covers a count that is not ASCII digits, a slack that is not a finite decimal and a timing summary with no timed endpoint or without its endpoint columns.
+It also covers a route status report that is missing or lacks exactly one routable-nets, fully-routed-nets and routing-errors row.
+`check` and `check-baseline` read the baseline file through one validator before using any field.
+A baseline file that is missing or not strict JSON exits 2, and NaN, Infinity or a number too large to be finite is not strict JSON here.
+A field not of the recorded shape exits 2 too: the kind, the identity's fields and types, the input digest, the figures, the sub-block scopes, or a policy value that is not a number.
 
 ### Where the gate runs
 
