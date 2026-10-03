@@ -1,0 +1,112 @@
+diff --git a/docs/development/CODE_QUALITY.md b/docs/development/CODE_QUALITY.md
+index 3f4597d..a395a1a 100644
+--- a/docs/development/CODE_QUALITY.md
++++ b/docs/development/CODE_QUALITY.md
+@@ -609,11 +609,12 @@ is the one consumer that cannot be asked (its expansion path is Yosys), and
+ splitting the raw text had credited a commented-out top as elaborated. Every
+ declared module is a top, or it is named in
+ [`scripts/processor_yosys_tops.budget`](../../scripts/processor_yosys_tops.budget)
+-with the reason it is not. The six are recorded there as **drift at the pin**,
+-not as helper exceptions, because that is what they are; the fix is upstream,
+-and the pin bump that brings it in deletes the lines, since a recorded name
+-that has become a top is refused as stale and an omission that is not recorded
+-is refused outright. The record can therefore only shrink.
++with the reason it is not. The six recorded there from pin 3770ae02 were
++**drift at the pin**, not helper exceptions; the processor's lane C10 (its
++issue #25) named all six as tops, and the pin bump that brought it in deleted
++their lines, since a recorded name that has become a top is refused as stale
++and an omission that is not recorded is refused outright. The record can
++therefore only shrink.
+ 
+ The gPTP processor keeps no native tops list. Its portability coverage is the
+ closure walk itself — every one of its six sources is reached from
+diff --git a/scripts/check_rtl_source_lists_selftest.py b/scripts/check_rtl_source_lists_selftest.py
+index 6b9543f..a874a64 100644
+--- a/scripts/check_rtl_source_lists_selftest.py
++++ b/scripts/check_rtl_source_lists_selftest.py
+@@ -371,19 +371,34 @@ def _arms_processor_tops_live(tally, cl, need):
+     ck("the live processor tops array was read", bool(live) and len(live[0][2]) >= 30,
+        "no PROCESSOR_TOPS entry was reachable, or the array parsed as nearly empty")
+     if live:
+-        sub, script, l_tops, l_decl, l_rec, l_unrec, l_stale, _ = live[0]
++        sub, script, l_tops, l_decl, _, l_unrec, l_stale, _ = live[0]
+         ck("every recorded omission is real drift at this pin, and every drift is recorded",
+            not l_unrec and not l_stale,
+            f"unrecorded {l_unrec}, stale {l_stale}")
+-        ck("the record is non-empty at this pin, so the refusal arms grade a live population",
+-           bool(l_rec), "an empty record would make the stale/unrecorded arms vacuous here")
+-        mutated = compare_tops(l_tops, l_decl | {"KL_zz_probe"},
+-                               read_tops_budget(TOPS_BUDGET.read_text()))
++        # The record is empty once every declared module is a top, so the two
++        # refusals are graded on a synthetic population drawn from this pin,
++        # whatever the record holds: one live top taken out of the array, then
++        # recorded, then put back with its record left behind.
++        recorded = read_tops_budget(TOPS_BUDGET.read_text())
++        probe = min(l_tops & l_decl)
++        out, owed = l_tops - {probe}, {**recorded, probe: "synthetic"}
++        complete = [Row("fixture complete list", "ok", [], [], None)]
++        rc, lines = verdict(cl, need, complete, [(sub, script, out, l_decl, [],
++                                                  *compare_tops(out, l_decl, recorded), None)])
++        ck("a live top taken out of the array, unrecorded, reaches the verdict as TOPS DRIFT and exit 1",
++           rc == 1 and any(l.startswith("TOPS DRIFT") and f"'{probe}'" in l for l in lines)
++           and compare_tops(out, l_decl, owed) == ([], []), f"rc {rc}: {lines}")
++        rc, lines = verdict(cl, need, complete, [(sub, script, l_tops, l_decl, [],
++                                                  *compare_tops(l_tops, l_decl, owed), None)])
++        ck("its record left behind once it is a top again reaches the verdict as STALE RECORD and exit 1",
++           rc == 1 and any(l.startswith("STALE RECORD") and f"'{probe}'" in l for l in lines),
++           f"rc {rc}: {lines}")
++        mutated = compare_tops(l_tops, l_decl | {"KL_zz_probe"}, recorded)
+         ck("a new declared processor module is refused by the live comparison",
+            mutated[0] == ["KL_zz_probe"], f"got {mutated}")
+     else:
+-        tally.failures += 3
+-        tally.checks += 3
++        tally.failures += 4
++        tally.checks += 4
+ 
+ 
+ def run_arms() -> int:
+diff --git a/scripts/processor_yosys_tops.budget b/scripts/processor_yosys_tops.budget
+index 9eee914..11e8f18 100644
+--- a/scripts/processor_yosys_tops.budget
++++ b/scripts/processor_yosys_tops.budget
+@@ -2,17 +2,11 @@
+ # portability gate (protocol-processor/syn/yosys/run.sh, the `tops` array) does
+ # not elaborate as a top, by NAME. Read by scripts/check_rtl_source_lists.py.
+ #
+-# Its hdl/README.md rule 2 says every module must elaborate; these six are
+-# drift at pin 3770ae02, not helper-module exceptions - each elaborates when
+-# asked. The fix is upstream (name them in the tops array); the pin bump that
+-# brings it in deletes the line here, because a name that has become a top is
+-# refused as STALE, and an omission that is not on this list is refused
+-# outright. Entries are never added to hide new drift.
++# Its hdl/README.md rule 2 says every module must elaborate. The six recorded
++# here from pin 3770ae02 were drift, not helper-module exceptions, and the
++# processor's lane C10 (its issue #25) named all six in the tops array, so this
++# pin bump deleted their lines: a name that has become a top is refused as
++# STALE, and an omission that is not on this list is refused outright. Entries
++# are never added to hide new drift.
+ #
+ # <module>  <reason>
+-KL_acmp_nvm_shadow      drift at pin 3770ae02: declared in hdl/acmp, absent from the tops array
+-KL_mrp_strip            drift at pin 3770ae02: declared in hdl/top, absent from the tops array
+-KL_pp_dispatch_fifo     drift at pin 3770ae02: declared in hdl/packet_engine, absent from the tops array
+-KL_srp_admission        drift at pin 3770ae02: declared in hdl/srp, absent from the tops array
+-KL_srp_top              drift at pin 3770ae02: declared in hdl/srp, absent from the tops array
+-protocol_processor_top  drift at pin 3770ae02: declared in hdl/top, absent from the tops array
+diff --git a/scripts/xvlog.budget b/scripts/xvlog.budget
+index f372154..134b10c 100644
+--- a/scripts/xvlog.budget
++++ b/scripts/xvlog.budget
+@@ -30,8 +30,7 @@
+ #
+ # --- section hdl: 0 finding(s) (hdl/) ---
+ #
+-# --- section submodules: 4 finding(s) (pinned processors) ---
+-protocol-processor:hdl/aecp/KL_aecp_notify.sv|VRFC 10-3380|pd_ix_w  # line(s) 502
++# --- section submodules: 3 finding(s) (pinned processors) ---
++protocol-processor:hdl/aecp/KL_aecp_notify.sv|VRFC 10-3380|pd_ix_w  # line(s) 557
+ protocol-processor:hdl/packet_engine/KL_pp_originator.sv|VRFC 10-3380|cancel_hit_w  # line(s) 194
+-protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w  # line(s) 364
+-protocol-processor:hdl/top/protocol_processor_top.sv|VRFC 10-3380|srp_class_a_prio_w  # line(s) 759
++protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w  # line(s) 383
