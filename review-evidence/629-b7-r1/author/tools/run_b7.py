@@ -188,7 +188,7 @@ class Reader(threading.Thread):
     def keep_full(self, seconds):
         with self.lock:
             if self.full is None:
-                self.full = open(raw / "cap-all-20ch.raw", "wb")
+                self.full = open(raw / "cap-all-<capture-channels>ch.raw", "wb")
                 self.full_left = int(seconds * FS)
                 event("full-snippet", start_frame=self.total, frames=self.full_left)
 

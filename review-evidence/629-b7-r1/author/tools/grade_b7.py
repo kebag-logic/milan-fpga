@@ -96,7 +96,7 @@ def words24(path, nch):
 res = dict(case=ev("start")[0]["case"], name=ev("start")[0]["name"], segment=SEG)
 
 # 1. channel identification
-full = raw_dir / "cap-all-20ch.raw"
+full = raw_dir / "cap-all-<capture-channels>ch.raw"
 if full.exists():
     w = words24(full, 20)
     tab = T.table()
