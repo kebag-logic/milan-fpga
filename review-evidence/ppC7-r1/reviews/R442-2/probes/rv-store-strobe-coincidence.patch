@@ -1,0 +1,11 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -932,7 +932,7 @@
+     const bool link = d->link_up_i != 0;
+     if (link != itf.link_q) ++(link ? itf.link_up : itf.link_down);
+     itf.link_q = link;
+-    if (d->gm_change_i) {
++    if (d->gm_change_i && d->gsi_asp_chg_i) {
+       if (d->gm_id_i != itf.gm_q) ++itf.gm_changed;
+       itf.gm_q = d->gm_id_i;
+     }

@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -489,7 +489,7 @@
+     ctr_ev_ok_w = 1'b0;
+     ctr_ev_ix_w = '0;
+     if ((ev_ctr_type_i == DT_STREAM_INPUT_C)
+-        && (32'(ev_ctr_index_i) < N_STREAM_IN_P)) begin
++        && (32'(ev_ctr_index_i) <= N_STREAM_IN_P)) begin
+       ctr_ev_ok_w = 1'b1;
+       ctr_ev_ix_w = CTX_W_C'(ev_ctr_index_i);
+     end else if ((ev_ctr_type_i == DT_STREAM_OUTPUT_C)

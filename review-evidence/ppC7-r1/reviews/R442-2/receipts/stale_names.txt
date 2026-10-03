@@ -1,0 +1,51 @@
+$ search_removed.sh (HEAD working tree = 81edaaa)
+docs/architecture/01_overview.md:36:| Controller registry, notifications, lock, GET_COUNTERS reporting, identify | gPTP time sync datapath (802.1AS-2011 profile); the counter banks GET_COUNTERS reports ([integrator guide §7.1](../guides/integrator.md#counters-face)) |
+docs/architecture/05_acmp_engine.md:293:| A15 | latch {stream_id, dest MAC, VLAN} from response; publish the bound view (`acmp_bound_*`, from which the integrator arms its RX filter, [02 §4.4](02_interfaces.md)); start SRP listen (adapter declares Listener READY when a matching talker attribute registers — Milan §5.3.8.5); arm `T-ACMP-NOTK`; pbsta←COMPLETED, acmpsta←0 |
+docs/architecture/05_acmp_engine.md:303:`EVT_TK_REGISTERED` — the `srp` adapter matches exactly {stream_id, DA, VLAN}
+docs/architecture/05_acmp_engine.md:429:pending work coalesces rather than accumulating. Initial enable and conflict
+docs/architecture/05_acmp_engine.md:449:plus a source sweep. For the parent one-cycle block adapter, conservatively
+docs/architecture/06_aecp_engine.md:151:  ctrs["ctr read face: the integrator's counters"] <--> ucpu
+docs/architecture/06_aecp_engine.md:320:selectors 0..7 = flags / stream_format / stream_id / msrp_accumulated_latency /
+docs/architecture/06_aecp_engine.md:336:SEL_PTOFF row is the accumulated latency; an input's latency stays the SRP
+docs/architecture/06_aecp_engine.md:367:  {"bits": 32, "name": "msrp_accumulated_latency @48"},
+docs/architecture/06_aecp_engine.md:407:| msrp_accumulated_latency | srp | `acc_latency[sink]` + `P-INTERNAL-INGRESS-DELAY-NS` | committed per-sink latch change on a registering Talker attribute, including a latency-only refresh; unchanged refresh is silent | yes (input), §5.4.5.2 / Table 5.22 |
+docs/architecture/06_aecp_engine.md:558:answer is now said only about a REAL object of a SUPPORTED type: `E_GCTRS` opens
+docs/architecture/06_aecp_engine.md:600:<a id="fig-06-counters"></a>**F06.15 — The counter banks the integrator keeps** (Milan
+docs/architecture/06_aecp_engine.md:678:GET_COUNTERS, GET_MEMORY_OBJECT_LENGTH, GET_STREAM_BACKUP — and **the gate is
+docs/architecture/06_aecp_engine.md:983:per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+docs/architecture/06_aecp_engine.md:1137:**GET_COUNTERS keeps no counters, and that is the design.** The events Milan
+docs/architecture/06_aecp_engine.md:1143:values and the claim about them. The µprogram (`E_GCTRS`, `gen_ucode.py`) opens
+docs/architecture/06_aecp_engine.md:1145:`BR_STATUS`, then the mask and the 32 quadlets (eight four-beat `READ_CTRS`) with
+docs/architecture/06_aecp_engine.md:1166:essentially unchanged — the 2048-word µcode ROM absorbed `E_GCTRS` in its fill,
+docs/architecture/06_aecp_engine.md:1310:selects READ_DESCRIPTOR, GET_COUNTERS, GET_AUDIO_MAP, and opcode-specific
+docs/README.md:140:| `SRP` | SRP/MSRP + MAAP adapter (and, transitively, the SRP network) |
+rc=0
+
+$ grep -rnE "avtp\.[A-Z_]+|srp \+ avtp adapters|gptp · avtp · mclk adapters" docs
+rc=1 (1 = no match)
+
+$ removed-op names over docs hdl tb README.md (recursive)
+docs/architecture/02_interfaces.md:525:| `mc_locked[domain]` | 1 | mclk | level, the integrator's | the integrator's CLOCK_DOMAIN counters | no port: the LOCKED / UNLOCKED counters it drives are `ctr_
+
+$ draw.io figure labels naming adapters or counters (sources; the SVG exports carry the same labels)
+docs/diagrams/src/01-system-context.drawio: value="&lt;b&gt;IEEE 1722.1 PROTOCOL PROCESSOR&lt;/b&gt;&#10;(this architecture)&#10;&#10;ADP &#183; ACMP &#183; AECP/AEM &#183; Milan MVU&#10;registry &#183; notifications &#183; counters&#10;lock &#183; timers &#183; persistence manager"
+docs/diagrams/src/01-top-level.drawio: value="Counters&#10;subsystem"
+docs/diagrams/src/01-top-level.drawio: value="External-engine adapters"
+docs/diagrams/src/01-top-level.drawio: value="gPTP&#10;adapter"
+docs/diagrams/src/01-top-level.drawio: value="SRP/MAAP&#10;adapter"
+docs/diagrams/src/01-top-level.drawio: value="AVTP&#10;adapter"
+docs/diagrams/src/01-top-level.drawio: value="Media-clock&#10;adapter"
+docs/diagrams/src/03-shared-datapath.drawio: value="counter&#10;banks"
+docs/diagrams/src/03-shared-datapath.drawio: value="adapter events&#10;srp &#183; maap &#183; gptp &#183; avtp &#183; mclk"
+docs/diagrams/src/03-shared-datapath.drawio: value="to SMs / counters"
+
+$ where the exports are embedded
+docs/architecture/01_overview.md:30:![F01.1 System context](../diagrams/01-system-context.svg)
+docs/architecture/01_overview.md:74:![F01.2 Top level](../diagrams/01-top-level.svg)
+docs/architecture/03_packet_engine.md:16:![F03.1 Shared datapath](../diagrams/03-shared-datapath.svg)
+
+$ last commits touching those sources/exports
+fdc8726 2026-08-11 Add SRP endpoint engine document
+cb0d006 2026-08-11 Fix drawio edge routing and label overlap
+f06b845 2026-08-11 Add interface contracts and shared packet engine documents
+b37b9d7 2026-08-11 Add overview document with system and top-level diagrams

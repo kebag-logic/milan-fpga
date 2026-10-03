@@ -1,0 +1,10 @@
+FAIL: K11: five grandmaster changes, GPTP_GM_CHANGED 0
+FAIL: K11: a domain-only gm_change_i is not a grandmaster change, GPTP_GM_CHANGED 0
+FAIL: K11: AVB_INTERFACE 0 byte-exact at block offsets 0, 4, 20: LINK_UP 3, LINK_DOWN 2, GPTP_GM_CHANGED 5, mask 0x23, every other quadlet 0
+FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 1 and 1)
+FAIL: K14: the two changes go out as one push per controller, 1000 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 1 and 1)
+FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (1)
+FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 1 and 1)
+K-AVB: 28 checks, 8 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 28 checks, 8 failures

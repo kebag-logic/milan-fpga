@@ -1,0 +1,30 @@
+Authority cross-check for the GPTP_GM_CHANGED rule and the STREAM_INPUT quadlets 6 and 7
+(read from the printed standards; short symbol rows only)
+
+IEEE 1722.1-2021 7.4.42.2.2
+  Table 7-152 counters_valid field for AVB_INTERFACE: bit 26 GPTP_GM_CHANGED (bit value 0x20)
+  Table 7-153 counter offsets for AVB_INTERFACE: offset 20 GPTP_GM_CHANGED, "gPTP grandmaster change count"
+  Table 7-112 is the IEEE 802.3 passive-optical-network media-subtype table, not a counter table
+  -> the guide's citation of Tables 7-152/7-153 (and the PR body's correction of 7-112) is right.
+IEEE 1722.1-2021 STREAM_INPUT
+  Table 7-156 bits 25 TIMESTAMP_VALID, 24 TIMESTAMP_NOT_VALID (bit values 0x40, 0x80)
+  Table 7-157 offsets 24 TIMESTAMP_VALID, 28 TIMESTAMP_NOT_VALID: per received stream data AVTPDU with tv set / clear
+  -> quadlets 6 and 7; 0x00000F3F | 0xC0 = 0x00000FFF. The guide's row matches.
+Milan v1.2
+  5.3.6.3 Table 5.1: GPTP_GM_CHANGED "Number of gPTP GM changes, since boot"; LINK_UP = LINK_DOWN or LINK_DOWN + 1
+  5.3.8.10 Table 5.6 and its reset rule ("all of these counters" to zero on not bound -> bound; Table 5.6 does not
+    list TIMESTAMP_VALID/NOT_VALID, so resetting them with the input bank is the guide's own convention, not a
+    spec conflict)
+  5.4.2.25 Table 5.13: AVB_INTERFACE mandatory 0x01 LINK_UP, 0x02 LINK_DOWN, 0x20 GPTP_GM_CHANGED (mask 0x23)
+  5.4.2.25 Table 5.16: STREAM_INPUT bits 0x001..0x020 and 0x100..0x800 (mask 0xF3F)
+
+Reference parent (milan-fpga dev 1269cdafb4bb964c757baae0f0c5a932d43f540b, read only)
+  hdl/milan/milan_datapath.sv:7267-7281  pp_gm_id_edge_w = (|pp_gm_id_q_r) & (pp_gm_id_q_r != cfg_adp_gptp_gm)
+    -> an identity comparison against the identity in force; the first identity after reset (prior all-zero) counts nothing
+  hdl/milan/milan_datapath.sv:3496-3534  ctr_gmchg_r increments on pp_gm_id_change_p_w only; served at block quadlet 5 (@20)
+Harness store (this head)
+  tb/pp_top/sim_main.cpp:930-937  on a gm_change_i update, count when gm_id_i != the identity in force (gm_q); gm_q reset to GM0
+  tb/pp_top/counters_phases.hpp:203-212  K11: five identity changes count 5; a domain-only strobe counts nothing
+Integrator guide (this head)
+  docs/guides/integrator.md:466, 486-498  identity comparison; first identity counts nothing; neither strobe nor their
+    coincidence identifies a GM change. Consistent with all of the above.
