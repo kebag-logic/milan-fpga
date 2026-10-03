@@ -1,0 +1,22 @@
+2bc5adc0bfd981e63e82ada5e673ce69cab4f4ee
+== author r4b body vs body R432-4 reviewed (expect identical)
+identical
+== body R432-4 reviewed vs live body
+195c195
+< | 1 | The other campaigns' controls against the reshaped request | A probe reads all 45 control anchors of the five `milan_dp` campaigns from the campaign scripts and finds each exactly once. None of the render (4), render-CSR (3), crflic (6) or gsi (11, ten in the processor top) anchors lies in the request or on a line this lane changed. The render control that drops `src_recentre_p_r` removes that term whole at its one consumer, `render_recentre_p_w`; this lane changed only the term's settle gate. Eight gmstep controls edit the request. Six OR a cause onto its last line, which binds to the whole request and suppresses nothing. One rewrites the CRF group in place: selected CRF `mr` propagation removed. That leaves the coincident veto as the only control the reshaped precedence disarmed. Every campaign is green (item 3) |
+---
+> | 1 | The other campaigns' controls against the reshaped request | A probe reads all 45 control anchors of the five `milan_dp` campaigns from the campaign scripts and finds each exactly once. None of the render (4), render-CSR (3), crflic (6) or gsi (12, eleven in the processor top) anchors lies in the request or on a line this lane changed. The render control that drops `src_recentre_p_r` removes that term whole at its one consumer, `render_recentre_p_w`; this lane changed only the term's settle gate. Eight gmstep controls edit the request. Six OR a cause onto its last line, which binds to the whole request and suppresses nothing. One rewrites the CRF group in place: selected CRF `mr` propagation removed. That leaves the coincident veto as the only control the reshaped precedence disarmed. Every campaign is green (item 3) |
+323a324
+> 
+== receipt per-campaign rows
+      6 [crflic]
+     20 [gmstep]
+      1 [gmstep, as published at c1288648]
+     12 [gsi]
+      4 [render]
+      3 [render-csr]
+== gsi anchors by file
+      1 at milan_datapath.sv
+     11 at protocol_processor_top.sv
+46 anchors, 0 not found exactly once
+rc=0
