@@ -15,6 +15,7 @@ The [baseline](../findings/PP_SHADOW_BASELINE.md) records the measured revisions
 - **[Yosys comparison](#yosys-comparison)** -- Map the same numeric geometry.
 - **[Hierarchical mapping comparison](#hierarchical-mapping-comparison)** -- Locate the raw logic-count gap.
 - **[Evidence checks](#evidence-checks)** -- Verify images and retain reports.
+- **[Resource gate](#resource-gate)** -- Judge a measurement against the recorded baseline, record an accepted one, and run the Vivado-free self-test.
 
 ## Prerequisites
 
@@ -238,6 +239,7 @@ The threshold is zero: every reported direct child appears.
 The wrapper and processor each include their own logic.
 Reconciliation rows retain the report's cross-child LUT-sharing adjustment.
 Storage and DSP counts must sum exactly, without adjustments.
+Apart from its column heads, every table row of the report must hold counts of 1 to 15 ASCII digits; the parser refuses any other row rather than skip it.
 
 ## Standalone measurements
 
@@ -264,6 +266,19 @@ The standalone constraint is 10 ns, loaded before synthesis.
 Only the top and out-of-context mode change.
 Standalone ports remain unconstrained except for their clock.
 These timing estimates cannot establish placed timing closure.
+
+Add `--integrated-clock` to constrain `clk_i` at the build's own clock instead.
+The period is derived from the wrapper's bound `CLK_HZ_P`, never typed.
+Both product shapes bind 50 MHz, so the period is 20 ns.
+Issue #234 measures this way; the 10 ns default keeps #231 reproducible.
+The flag requires `--integrated-log`; a missing `CLK_HZ_P` is refused.
+
+An RTL elaboration supplies the same parameter block as a full synthesis.
+Issue #234 used it for the 8x8 shape, where no integrated synthesis is needed.
+Cut the integrated script after its `synth_design` line and add `-rtl -rtl_skip_mlo` to it.
+Run it in a separate directory holding copies of the export's `.xdc` and `.init` files.
+Its log is then a valid `--integrated-log`.
+At 1x1 its 21 wrapper parameters equal the full synthesis log's.
 
 Product 1x1 includes two processor sinks and sources.
 Product 8x8 includes nine processor sinks and sources.
@@ -422,4 +437,61 @@ unlink sw/builder/out
 unlink configs/generated/ltn_rom.hex
 unlink configs/generated/ucode.hex
 git diff --check
+```
+
+## Resource gate
+
+[`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory.
+It compares the directory with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
+The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the policy.
+Run the shipping route and the 1x1 standalone synthesis as above.
+Use `--integrated-clock` for every standalone endpoint the gate judges.
+
+```sh
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101/gateware" --endpoint route-1x1
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101-ooc" --endpoint ooc-1x1
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax8x8-ooc" --endpoint ooc-8x8
+```
+
+Exit 0 is within tolerance and 1 is a material regression, nothing else.
+A route whose status report names an unrouted net or a routing error is a material regression too.
+The route endpoint reads the run's one `*_route_status.rpt` beside its other reports.
+That report carries no header, so the gate cannot tell it from a stale one an earlier build left in the same directory.
+Run each measurement in a fresh directory: the bank deletes nothing, and a stale report would be read as this run's.
+Exit 2 means the measurement is not comparable or the baseline is unusable.
+The output names the reason after `NOT COMPARABLE:`, in printable ASCII with any other character escaped.
+Exit 2 holds by construction: one barrier turns every exception after the arguments are read into exit 2.
+So no input reaches a traceback, and exit 1 comes only from the comparison.
+A different tool build, device, design, design state, flow command or standalone clock gives 2.
+So do unreadable reports: a count that is not 1 to 15 ASCII digits, a slack that is not a decimal with a finite float, and a timing summary with no timed endpoint or no endpoint columns.
+A route status report that is missing, or lacks exactly one routable-nets, fully-routed-nets and routing-errors row, gives 2.
+Identical inputs with different figures give 2 as well.
+`check` and `check-baseline` validate the whole baseline file before using any field.
+A missing file or one that is not strict JSON gives 2: NaN, Infinity, a repeated key, or a key outside the name class.
+The name class is 1 to 128 of `A-Z a-z 0-9 _ . : / -` for every key, the keys inside notes included; only a sub-block scope name may also hold `[` and `]`.
+The image manifest `baseline_images.json` is read the same way, the keys of its entries included, so a key outside the class gives 2 there too.
+So does a whole number of more than 15 digits, or a decimal too large to be finite.
+Any field not of the recorded shape gives 2 too, and so does a policy value that is not a number.
+`record --write` refuses, with 2, to write a baseline that this validation would refuse.
+`pp_resource_gate.py --fuzz N check <directory> --endpoint <endpoint>` runs N seeded generated cases on a measurement.
+Each case changes the baseline or one report at random; it must exit 0, 1 or 2 without a traceback, and 2 when it breaks a documented shape.
+The output lists the largest sub-block movements without gating them.
+A gated figure that improved by more than its tolerance passes and prints "re-baseline recommended".
+
+An accepted change records its measurement as the new baseline:
+
+```sh
+python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 --write
+python3 syn/ooc/pp_resource_gate.py check-baseline
+```
+
+`--write` replaces only the record; tolerances, floors and ceilings stay.
+Review the diff of the JSON file like any other budget change.
+`check-baseline` holds every endpoint's policy to the area budget's policy table, cell by cell.
+So a policy change edits the table and the JSON file together, in one review.
+The self-test and its mutant campaign need no Vivado:
+
+```sh
+python3 syn/ooc/pp_resource_gate.py --selftest
+python3 syn/ooc/pp_resource_gate_mutants.py
 ```
