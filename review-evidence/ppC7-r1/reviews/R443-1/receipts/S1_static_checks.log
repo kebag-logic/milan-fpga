@@ -1,0 +1,41 @@
+head e2c7d97d158a30e44289a06a33f8ff4c5e289b87 tree 2334d3020826afef3d61625b3b2f08b008c848e9
+gitlinks (mode 160000): 0
+merge-base 88969246cbb82bf9d4975496f93a5420bbe3aa21
+== (6) merge keeps both sides of the two shared READMEs
+tb/pp_top/README.md main-side-hunks:same lane-side-hunks:same
+tb/adp_engine/README.md main-side-hunks:same lane-side-hunks:same
+files changed on both sides: tb/adp_engine/README.md tb/pp_top/README.md 
+== (3) removed tick: readers at base, references at head
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:hdl/adp/KL_adp_engine.sv:182:    output logic [N_IF_P-1:0]          gm_changed_tick_o,  //! per-interface counter tick
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:hdl/adp/KL_adp_engine.sv:265:  assign gm_changed_tick_o = gm_tick_r;
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:hdl/top/protocol_processor_top.sv:1841:  logic [0:0]  adp_gm_tick_nc_w;
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:hdl/top/protocol_processor_top.sv:1935:      .gm_changed_tick_o     (adp_gm_tick_nc_w),
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:tb/adp_engine/sim_main.cpp:427:    if (d->gm_changed_tick_o & 1) ++gm_ticks;
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:tb/adp_engine/sim_main.cpp:771:  for (int i = 0; i < 4; ++i) { if (d->gm_changed_tick_o & 1) ++ticks; tick(); }
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:tb/adp_engine/tb_adp_top.sv:87:    output logic [N_IF_P-1:0]      gm_changed_tick_o,
+base: c74711d45a8bbc0d6b38cb49211b26a4a6413e88:tb/adp_engine/tb_adp_top.sv:171:      .gm_changed_tick_o     (gm_changed_tick_o),
+head: e2c7d97d158a30e44289a06a33f8ff4c5e289b87:syn/ooc/README.md:224:The change removes `KL_adp_engine`'s `gm_changed_tick_o` (one flip-flop per
+== (4) 02 and the docs: removed adapter op/event names
+READ_AS_PATH 02:0 all-docs:0
+INPUT_CONFIGURE 02:0 all-docs:0
+INPUT_ENABLE 02:0 all-docs:0
+INPUT_DISABLE 02:0 all-docs:1
+INPUT_START 02:0 all-docs:0
+INPUT_STOP 02:0 all-docs:0
+OUTPUT_SET_PT_OFFSET 02:0 all-docs:0
+OUTPUT_STATUS 02:0 all-docs:0
+GET_MCR_DEFAULTS 02:0 all-docs:0
+MC_LOCKED 02:0 all-docs:0
+AS_CAPABLE_CHANGE 02:0 all-docs:0
+PATH_CHANGE 02:0 all-docs:0
+docs/architecture/01_overview.md:238:    adapters["srp/maap · gptp · avtp · mclk adapters · side-port · nvm port"]
+docs/architecture/05_acmp_engine.md:106:  exec -- "declare/withdraw, configure/enable" --> srpav["srp + avtp adapters"]
+docs/architecture/05_acmp_engine.md:286:| A8 | teardown SRP: `WITHDRAW_LISTENER`; `avtp.INPUT_DISABLE`; clear settled {stream_id, DA, VLAN}; talker_registered←0 |
+hdl/acmp/KL_pp_acmp_listener.sv:25://                A15/A8 settle/teardown faces toward the srp+avtp adapters,
+== (1) face wiring at head
+2174:  assign ctr_desc_type_o  = cfg_ix_r;
+2175:  assign ctr_desc_index_o = desc_ix_r;
+2176:  assign ctr_word_o       = gx_sel_w[7] ? 6'd32
+500:                 && (ev_ctr_index_i == 16'd0)) begin
+504:                 && (ev_ctr_index_i == 16'd0)) begin
+1037:                || ((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin

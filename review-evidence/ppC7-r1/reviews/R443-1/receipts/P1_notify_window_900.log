@@ -1,0 +1,21 @@
+--- hdl/aecp/KL_aecp_notify.sv	2026-10-03 02:38:23.000000000 +0200
++++ hdl/aecp/KL_aecp_notify.sv	2026-10-03 02:49:18.757448546 +0200
+@@ -1034,7 +1034,7 @@
+       for (int unsigned c = 0; c < N_CTR_DESC_C; c++) begin
+         if (ctr_dirty_r[c] && !ctr_pend_r[c]
+             && (!ctr_sent_r[c]
+-                || ((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin
++                || ((now_ms_i - ctr_last_r[c]) >= 32'd900))) begin
+           ctr_dirty_r[c] <= 1'b0;
+           ctr_pend_r[c]  <= 1'b1;
+         end
+PROBE P1_notify_window_900: sim rc=1
+FAIL: U9c: throttled counter update waited 891 ms, want at least 900
+FAIL: ST2b: descriptor 0005:0 rounds 90000 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+FAIL: ST2b: descriptor 0005:1 rounds 90000 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+FAIL: ST2b: descriptor 0006:0 rounds 90000 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+FAIL: ST2b: descriptor 0009:0 rounds 90000 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+FAIL: ST2b: descriptor 0024:0 rounds 90000 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+RN: 4 checks, 0 failures
+K-AVB: 23 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 8719 checks, 6 failures
