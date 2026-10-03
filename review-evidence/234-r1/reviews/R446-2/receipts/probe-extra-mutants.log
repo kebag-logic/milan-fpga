@@ -1,0 +1,12 @@
+CONTROL   control                                                        | resource gate selftest: 113 arms PASS
+SURVIVED  check-baseline compares tolerances only                        | resource gate selftest: 113 arms PASS
+SURVIVED  check-baseline compares table figures only                     | resource gate selftest: 113 arms PASS
+SURVIVED  budget floors read as zero                                     | resource gate selftest: 113 arms PASS
+KILLED    budget ceiling column ignored                                  |     raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    Slice row and gate removed together                            |     raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    timed endpoints at zero accepted                               |     raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+SURVIVED  timed endpoint columns optional                                | resource gate selftest: 113 arms PASS
+NOTE      route status: routable rows may both be absent (as shipped)    | not a mutant: recorded for the route-status finding
+KILLED    routing-error label exact                                      |     raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    improvement report on timing only                              |     raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
+KILLED    check skips the ceiling list                                   |     raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"

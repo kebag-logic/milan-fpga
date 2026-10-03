@@ -1,0 +1,17 @@
+BAD check          record identity is a list                      rc=1 TRACEBACK | TypeError: list indices must be integers or slices, not str
+BAD check-baseline record identity is a list                      rc=0 | baseline PASS: 1 endpoints
+BAD check          record identity is a string                    rc=1 TRACEBACK | TypeError: string indices must be integers, not 'str'
+BAD check-baseline record identity is a string                    rc=0 | baseline PASS: 1 endpoints
+BAD check          record scopes is a list                        rc=1 TRACEBACK | AttributeError: 'list' object has no attribute 'get'
+BAD check-baseline record scopes is a list                        rc=0 | baseline PASS: 1 endpoints
+BAD check          record gated figure LUT is a string            rc=1 TRACEBACK | TypeError: unsupported operand type(s) for -: 'int' and 'str'
+BAD check-baseline record gated figure LUT is a string            rc=0 | baseline PASS: 1 endpoints
+OK  check          record gated figure WNS_ns is null             rc=2 | NOT COMPARABLE: baseline endpoint route is unusable: route: malformed policy (TypeError: '<' not supported between instances of 'NoneType' and 'float'
+OK  check-baseline record gated figure WNS_ns is null             rc=2 | route: malformed policy (TypeError: '<' not supported between instances of 'NoneType' and 'float')
+BAD check          record kind is a list                          rc=1 TRACEBACK | TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+BAD check-baseline record kind is a list                          rc=1 TRACEBACK | TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+OK  check          tolerance LUT is a string                      rc=2 | NOT COMPARABLE: baseline endpoint route is unusable: route: malformed policy (TypeError: '>=' not supported between instances of 'str' and 'int')
+OK  check-baseline tolerance LUT is a string                      rc=2 | route: tolerance LUT is 10 in the baseline and 10.0 in the budget table
+BAD check          floor WNS_ns is NaN (written by json as NaN)   rc=0 | RESULT: PASS
+OK  check-baseline floor WNS_ns is NaN (written by json as NaN)   rc=2 | route: floor WNS_ns is nan in the baseline and 0.0 in the budget table
+malformed record probe: 11 case(s) not exit 2 with a named reason
