@@ -1,0 +1,28 @@
+4eee41a5: 130 keyed rows
+f4eb39d3: 130 keyed rows; first-cell keys added=1 removed=1 second-cell changed=1
+  CHANGED 'Fabric: recover the media clock from the selected AAF stream through t': 'Met for recovery and gating; the stream-to-stream switch not run at the bench' -> 'Met for recovery and gating. The INTERNAL-to-AAF switch run here is not shown fr'
+40714c1b: 130 keyed rows; first-cell keys added=2 removed=2 second-cell changed=1
+  CHANGED 'Fabric: recover the media clock from the selected AAF stream through t': 'Met for recovery and gating; the stream-to-stream switch not run at the bench' -> 'Met for recovery and gating. The INTERNAL-to-AAF switch run here is not shown fr'
+verdict-like cells at last commit:
+  'Identity gate, dev `bbf704ec`': 'PASS'
+  'Analysis tool, synthetic controls': 'PASS'
+  'A0, the peer on INTERNAL (control)': 'PASS as a control'
+  "A1, the peer following the DUT's AAF stream": 'PASS'
+  "A2, the peer following the DUT's CRF stream": 'PASS'
+  "B0, the DUT on INTERNAL with both of the peer's talkers boun": 'PASS as a control'
+  "B-CRF, the DUT following the peer's CRF stream": 'PASS'
+  "B-AAF, the DUT following the peer's AAF stream": 'PASS'
+  "B, THD+N of a known signal from the peer's talker": 'NOT RUN'
+  '(a) Lock loss of the followed AAF stream': 'Observed as declared'
+  "(b) The DUT's INTERNAL media clock": 'Observed'
+  'Identity gate': 'PASS'
+  'Requirements: FR-CLK-03, FR-CLK-04 and the #389 record amend': 'Met'
+  'Model and builder: one INPUT_STREAM source per AAF Stream In': 'Met on this image'
+  'Fabric: recover the media clock from the selected AAF stream': 'Met for recovery and gating. The INTERNAL-to-AAF switch run here is no'
+  'Lock loss: declared holdover and restart, and `mr` per IEEE ': 'Met for the AAF source'
+  'Protocol processor: SET/GET_CLOCK_SOURCE over the longer lis': 'Met in part at the bench'
+  'Simulation: each source in turn; the clock follows within to': "Met by the merged PR's evidence, not re-run here"
+  "Bench, both directions, each followed source: the listener's": 'Met'
+  'Bench quality metric: THD+N and SNR of a known tone on the s': 'Met for Direction A; NOT met for Direction B'
+  "Owner's A2-a addition: A2 passes at INTERNAL; the INTERNAL c": 'Met; observed'
+RESULT 8 differences

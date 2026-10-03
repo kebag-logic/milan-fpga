@@ -1,0 +1,15 @@
+head 40714c1bd166c2a05f9607a861e8550c705d183a
+docs_check rc=0
+check_doc_style rc=0
+gen_toc_check rc=0
+gen_toc_verify_anchors rc=0
+check_em_dash_base_bbf704ec rc=0
+check_doc_paths rc=0
+ci_scope_selftest rc=0
+check_baremetal_only_check rc=2
+check_baremetal_only_selftest rc=2
+check_feature_status_selftest rc=0
+git_diff_check_base rc=0
+git_diff_check_round3 rc=0
+check_baremetal_only --check (system python3 with pyyaml) rc=0
+check_baremetal_only --selftest (system python3 with pyyaml) rc=0

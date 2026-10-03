@@ -1,0 +1,67 @@
+rows: raw=26 evidence=19 total=45
+ok  raw :1174 'Tone loop (`b6_tone.py`)' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1175 "`a0/cap-lr.raw` (the tone's two channels" events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1176 '`a0/cap-ts.bin` (capture read times)' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1177 '`a0/samples.txt` (McASP0 timing samples)' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1178 '`a1/cap-lr.raw`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1179 '`a1/cap-ts.bin`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1180 '`a1/samples.txt`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1181 '`a2/cap-lr.raw`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1182 '`a2/cap-ts.bin`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1183 '`a2/samples.txt`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1184 '`b0/cap-lr.raw`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1185 '`b0/cap-ts.bin`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1186 '`b0/samples.txt`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1187 '`bcrf/cap-lr.raw`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1188 '`bcrf/cap-ts.bin`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1189 '`bcrf/samples.txt`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1190 '`baaf/cap-lr.raw`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1191 '`baaf/cap-ts.bin`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1192 '`baaf/samples.txt`' events.jsonl=True RAW-ARTIFACTS=True expect_events=True
+ok  raw :1193 '`a0/grade-full.json` (full grade, `grade' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  raw :1194 '`a1/grade-full.json`' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  raw :1195 '`a2/grade-full.json`' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  raw :1196 '`b0/grade-full.json`' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  raw :1197 '`bcrf/grade-full.json`' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  raw :1198 '`baaf/grade-full.json`' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  raw :1199 '`baaf/grade-lockloss-full.json` (the loc' events.jsonl=False RAW-ARTIFACTS=True expect_events=False
+ok  ev  :1242 controls/controls.json bytes=17070 match=published manifest_published_ok=True
+ok  ev  :1243 summary/tables.md bytes=4283 match=published manifest_published_ok=True
+ok  ev  :1244 summary/verdicts.json bytes=3890 match=published manifest_published_ok=True
+ok  ev  :1245 summary/checks/absorb.jsonl bytes=7446 match=published manifest_published_ok=True
+ok  ev  :1246 identity/identity-verdict.txt bytes=3037 match=published manifest_published_ok=True
+ok  ev  :1247 identity/expected.json bytes=1068 match=published manifest_published_ok=True
+ok  ev  :1248 restore/census-compare.txt bytes=387 match=published manifest_published_ok=True
+ok  ev  :1249 runs/probe/soc-record.log bytes=1729 match=published manifest_published_ok=True
+ok  ev  :1250 tools/run_b7.py bytes=32321 match=original(redaction.json) manifest_published_ok=True
+ok  ev  :1251 tools/grade_b7.py bytes=27057 match=original(redaction.json) manifest_published_ok=True
+ok  ev  :1252 tools/b7_decode.py bytes=10093 match=published manifest_published_ok=True
+ok  ev  :1253 tools/b7_tables.py bytes=9936 match=published manifest_published_ok=True
+ok  ev  :1254 tools/b7_absorb.py bytes=3610 match=published manifest_published_ok=True
+ok  ev  :1255 tools/console_poll.py bytes=3746 match=published manifest_published_ok=True
+ok  ev  :1256 tools/b7_ctl.py bytes=12532 match=published manifest_published_ok=True
+ok  ev  :1257 tools/identity_cmp.py bytes=6748 match=published manifest_published_ok=True
+ok  ev  :1258 tools/probe_b7.py bytes=9375 match=published manifest_published_ok=True
+ok  ev  :1259 tools/b6_thdn.py bytes=12423 match=published manifest_published_ok=True
+ok  ev  :1260 tools/b6_tone.py bytes=2965 match=published manifest_published_ok=True
+rows matched via original_sha256 (masked tools): ['tools/run_b7.py', 'tools/grade_b7.py']
+d36de704 changed 5 files; cited among them: ['tools/grade_b7.py', 'tools/run_b7.py']
+c6ad37e7 changed 20 files; cited among them: ['tools/grade_b7.py', 'tools/run_b7.py']
+c6ad37e7 files excluding MANIFEST.json: 19
+ok  only the capture name changed: review-evidence/629-b7-r1/author/RAW-ARTIFACTS.json
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/a0-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/a0/events.jsonl
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/a1-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/a1/events.jsonl
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/a2-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/a2/events.jsonl
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/b0-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/b0/events.jsonl
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/baaf-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/baaf/events.jsonl
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/bcrf-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/bcrf/events.jsonl
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/smoke-baaf-lock.txt
+ok  only the capture name changed: review-evidence/629-b7-r1/author/runs/smoke-baaf/events.jsonl
+ok  RAW-ARTIFACTS (bytes, sha256) set identical at 95448218 and the pin
+RESULT 0 problems

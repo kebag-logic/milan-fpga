@@ -1,0 +1,39 @@
+derived: channel-count values=1 format values=1 (values withheld)
+evidence blobs scanned at c6ad37e7: 481
+ok  	ch=0	fmt=0	alsa_any=1	alsa_private=0	other_alsa_shapes=S<N>_LE	head:docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+ok  	ch=0	fmt=0	alsa_any=0	alsa_private=0	other_alsa_shapes=-	head:docs/findings/README.md
+ok  	ch=0	fmt=0	alsa_any=0	alsa_private=0	other_alsa_shapes=-	diff bbf704ec..head, added lines
+info	removed-by-this-PR lines: ch=0 fmt=1 alsa_private=1 (dev text this PR deletes)
+ok  	ch=0	fmt=0	alsa_any=0	alsa_private=0	other_alsa_shapes=-	commit messages bbf704ec..head
+ok  	ch=0	fmt=0	alsa_any=0	alsa_private=0	other_alsa_shapes=-	file:receipts/pr644_body_live.md
+ok  	ch=0	fmt=0	alsa_any=0	alsa_private=0	other_alsa_shapes=-	file:scratch/author-r3-PR-BODY.md
+ok  	ch=0	fmt=0	alsa_any=0	alsa_private=0	other_alsa_shapes=-	file:scratch/author-r3-HANDOFF.md
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/a0/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/a0/soc-stop.log
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/a1/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/a1/soc-stop.log
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/a2/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/a2/soc-stop.log
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/b0/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/b0/soc-stop.log
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/baaf/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/baaf/soc-stop.log
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/bcrf/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/bcrf/soc-stop.log
+note	alsa_any=1	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/probe/soc-record.log
+note	alsa_any=7	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/smoke-baaf/soc-play-start.log
+note	alsa_any=8	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/runs/smoke-baaf/soc-stop.log
+note	alsa_any=4	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/soc/end-health.log
+note	alsa_any=4	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/soc/s01-stop-legs.log
+note	alsa_any=4	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/soc/s02-start-legs.log
+note	alsa_any=4	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/soc/start-health.log
+note	alsa_any=1	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/b6_tone.py
+note	alsa_any=1	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/probe_b6.py
+note	alsa_any=1	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/probe_b7.py
+note	alsa_any=2	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/run_b6.py
+note	alsa_any=2	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/run_b7.py
+note	alsa_any=2	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/soc_legs_b7.sh
+note	alsa_any=2	other_alsa_shapes=S<N>_LE	evidence:review-evidence/629-b7-r1/author/tools/soc_legs_locked.sh
+positive control (run_b7.py at 95448218, pre-mask): ch_hits=2 fmt_hits=2 (both must be >0)
+positive control (RAW-ARTIFACTS.json at d36de704, pre-name-mask): ch_hits=7 (must be >0)
+RESULT CLEAN fails=0
