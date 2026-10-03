@@ -1,0 +1,246 @@
+diff --git a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+index 6a7ac7b33..1caffc744 100644
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -585,6 +585,8 @@ class TdmRenderHarness {
+         accept_at.fill(-1);
+         fill_at.fill(-1);
+         pop_at.fill(-1);
++        push_at.fill(-1);
++        await_id = -1;
+     }
+ 
+     void observe_law() {
+@@ -616,7 +618,78 @@ class TdmRenderHarness {
+         if (dut->rootp->milan_datapath__DOT__src_recentre_p_r) ++src_recentre_pulses;
+     }
+ 
++    // DIAG (#643 item 1, scratch): the aligner's own settle report
++    long diag_off = -1;
++    bool diag_phys = false;
++    long t14_release = -1;
++    bool trk_on = false;
++    long trk_band = 0;
++    long trk_settled_at = -1;
++    long trk_ticks = 0;
++    //! DIAG: the PUSH instant - the first cycle after the accept pulse at
++    //! which the stage's fill rises (the PDU's first event row landing) - and
++    //! the fill just before it, with the ticks seen between accept and push
++    std::array<long, kIdSpace> push_at{};
++    std::array<int, kIdSpace> fill_push{};
++    std::array<int, kIdSpace> ticks_ap{};
++    long await_id = -1;
++    int prev_fill = 0;
++    int ap_ticks = 0;
++    long trace_left = 0;
++    long trace_pdus = 0;
++    void observe_push() {
++        const int f = static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
++        if (trace_pdus > 0 && dut->rootp->milan_datapath__DOT__avtprx_accept_p) {
++            trace_left = 140; --trace_pdus;
++            std::printf("  [ptrace] --- accept at %ld\n", axis_cycle);
++        }
++        if (trace_left > 0) {
++            --trace_left;
++            if (f != prev_fill || dut->rootp->milan_datapath__DOT__media_tick_p ||
++                (dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1))
++                std::printf("  [ptrace] +%ld fill %d tick %d pop %d\n",
++                            140 - trace_left - 1, f,
++                            dut->rootp->milan_datapath__DOT__media_tick_p ? 1 : 0,
++                            static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1));
++        }
++        if (await_id >= 0) {
++            if (dut->rootp->milan_datapath__DOT__media_tick_p) ++ap_ticks;
++            if (f > prev_fill) {
++                const size_t i = static_cast<size_t>(await_id);
++                push_at[i] = axis_cycle;
++                fill_push[i] = prev_fill;
++                ticks_ap[i] = ap_ticks;
++                await_id = -1;
++            }
++        }
++        if (dut->rootp->milan_datapath__DOT__avtprx_accept_p &&
++            accepts_seen < sent_ids.size()) {
++            await_id = sent_ids[accepts_seen];
++            ap_ticks = 0;
++        }
++        prev_fill = f;
++    }
++    void observe_aligner() {
++        if (!trk_on || !dut->rootp->milan_datapath__DOT__media_tick_p) return;
++        const int e = static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
++        const bool eng = dut->rootp->milan_datapath__DOT__mga_engaged_w;
++        const int a = e < 0 ? -e : e;
++        ++trk_ticks;
++        if (diag_off >= 0 && (trk_ticks % 4096) == 0)
++            std::printf("  [trace] t14+%ld cyc: eng %d err %d trim %d band %ld\n",
++                        axis_cycle - t14_release, eng ? 1 : 0, e,
++                        static_cast<int>(static_cast<int16_t>(
++                            dut->rootp->milan_datapath__DOT__mnco_servo_trim_w)),
++                        trk_band);
++        if (eng && a <= 32) {
++            if (++trk_band == 2048 && trk_settled_at < 0) trk_settled_at = axis_cycle;
++        } else {
++            trk_band = 0;
++        }
++    }
+     void observe_axis() {
++        observe_aligner();
++        observe_push();
+         observe_law();
+         observe_epoch();
+         observe_commit_watch();
+@@ -1242,6 +1315,9 @@ class TdmRenderHarness {
+     void phase_reset();
+     void phase_bind_loss();
+     void phase_crf();
++    void diag_t30(long off);
++    void diag_law(long first_pdu, long last_pdu, const char* tag);
++    void diag_restart_feed(bool phys);
+     long set_clock_source(uint16_t index);
+     long get_clock_source();
+     void provision_the_crf_sink();
+@@ -2040,6 +2116,8 @@ void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
+         // nothing; that limit is recorded in docs/CHANNEL_MAP_64.md.
+         run_fed(5200);
+         tdm_frozen = false;
++        t14_release = axis_cycle;
++        trk_on = true; trk_band = 0; trk_settled_at = -1; trk_ticks = 0;
+         run_fed(10 * kPduPeriodCycles);
+         check.that("T14 SKIP LAW: the forced surplus was COUNTED as skips",
+                    lane_skips() >= skips0 + 1);
+@@ -3112,6 +3190,113 @@ void TdmRenderHarness::phase_crf() {
+     feed_on = false;
+ }
+ 
++// DIAG (#643 item 1, scratch): the law over absolute PDU numbers, the ids
++// wrapping at 4096, every window shorter than that and cleared before it
++void TdmRenderHarness::diag_law(long first_pdu, long last_pdu, const char* tag) {
++    const double lo = kRenderSetpointEvt * kTickCycles;
++    const double hi = (kRenderSetpointEvt + 1) * kTickCycles
++                    + static_cast<double>(kBandSlackCycles);
++    long n = 0, in_band = 0, fill_ok = 0, dmin = 0, dmax = 0;
++    int fmin = 99, fmax = -1;
++    for (long p = first_pdu; p < last_pdu; p++) {
++        const size_t i = static_cast<size_t>(p & 0xFFF);
++        if (accept_at[i] < 0 || pop_at[i] < 0) continue;
++        const long d = pop_at[i] - accept_at[i];
++        if (n == 0 || d < dmin) dmin = d;
++        if (n == 0 || d > dmax) dmax = d;
++        if (static_cast<double>(d) > lo && static_cast<double>(d) <= hi) ++in_band;
++        if (fill_at[i] == kRenderSetpointEvt) ++fill_ok;
++        if (fill_at[i] < fmin) fmin = fill_at[i];
++        if (fill_at[i] > fmax) fmax = fill_at[i];
++        ++n;
++    }
++    std::printf("  [diag] %s off=%ld: n %ld fill_ok %ld in_band %ld fill %d..%d "
++                "delay %.3f..%.3f ticks err_now %d\n", tag, diag_off, n, fill_ok,
++                in_band, fmin, fmax, static_cast<double>(dmin) / kTickCycles,
++                static_cast<double>(dmax) / kTickCycles,
++                static_cast<int>(static_cast<int16_t>(
++                    dut->rootp->milan_datapath__DOT__mga_err_w)));
++    long pn = 0, pfill_ok = 0, pband = 0, pdmin = 0, pdmax = 0, apmin = 0, apmax = 0;
++    int pfmin = 99, pfmax = -1, tmax = 0;
++    const double plo = kRenderSetpointEvt * kTickCycles;
++    const double phi = (kRenderSetpointEvt + 1) * kTickCycles;
++    for (long p = first_pdu; p < last_pdu; p++) {
++        const size_t i = static_cast<size_t>(p & 0xFFF);
++        if (accept_at[i] < 0 || pop_at[i] < 0 || push_at[i] < 0) continue;
++        const long d = pop_at[i] - push_at[i];
++        const long ap = push_at[i] - accept_at[i];
++        if (pn == 0 || d < pdmin) pdmin = d;
++        if (pn == 0 || d > pdmax) pdmax = d;
++        if (pn == 0 || ap < apmin) apmin = ap;
++        if (pn == 0 || ap > apmax) apmax = ap;
++        if (static_cast<double>(d) > plo && static_cast<double>(d) <= phi) ++pband;
++        if (fill_push[i] == kRenderSetpointEvt) ++pfill_ok;
++        if (fill_push[i] < pfmin) pfmin = fill_push[i];
++        if (fill_push[i] > pfmax) pfmax = fill_push[i];
++        if (ticks_ap[i] > tmax) tmax = ticks_ap[i];
++        ++pn;
++    }
++    std::printf("  [diag] %s-PUSH off=%ld: n %ld fill_ok %ld in_band(no slack) %ld "
++                "fill %d..%d delay %ld..%ld cyc = %.4f..%.4f ticks; accept->push "
++                "%ld..%ld cyc; ticks between %d\n", tag, diag_off, pn, pfill_ok,
++                pband, pfmin, pfmax, pdmin, pdmax,
++                static_cast<double>(pdmin) / kTickCycles,
++                static_cast<double>(pdmax) / kTickCycles, apmin, apmax, tmax);
++}
++
++void TdmRenderHarness::diag_restart_feed(bool phys) {
++    feed_on = false;
++    for (int k = 0; k < 4; k++) {
++        while (axis_cycle < next_pdu_at) step();
++        advance_pdu_slot();
++    }
++    pdu_frac_num = phys ? kPduPhysFracNum : 0;
++    feed_on = true;
++}
++
++void TdmRenderHarness::diag_t30(long off) {
++    diag_off = off;
++    std::printf("\n[DIAG] T30 INTERNAL, feed start +%ld cycles\n", off);
++    build_injection_record(20000);
++    feed_on = true;
++    pdu_frac_num = diag_phys ? kPduPhysFracNum : 0;
++    pdu_frac_acc = 0;
++    std::printf("  [diag] feed cadence from the T30 start: %s\n",
++                diag_phys ? "physical" : "nominal");
++    const long feed_start = axis_cycle;
++    next_pdu_at = axis_cycle + 64 + off;
++    run_fed(40 * kPduPeriodCycles);
++    const long int_first = injected_events / kEvents;
++    const Window intr = decode_and_grade_a_window(300 * kPduPeriodCycles,
++                                                  "D30 INTERNAL");
++    report_a_window(intr, "D30 INTERNAL");
++    diag_law(int_first + 4, injected_events / kEvents - 4, "IN");
++    const long cap = axis_cycle + 400'000'000;
++    while (trk_settled_at < 0 && axis_cycle < cap) run_fed(kPduPeriodCycles);
++    std::printf("  [diag] SETTLE off=%ld: settled_at %ld = t14+%ld cyc = "
++                "feed+%ld cyc (t14 at %ld, feed start %ld)\n", off,
++                trk_settled_at, trk_settled_at - t14_release,
++                trk_settled_at - feed_start, t14_release, feed_start);
++    for (size_t i = 0; i < kIdSpace; i++) { accept_at[i] = -1; fill_at[i] = -1; pop_at[i] = -1; push_at[i] = -1; }
++    long s_first = injected_events / kEvents;
++    run_fed(300 * kPduPeriodCycles);
++    diag_law(s_first + 4, injected_events / kEvents - 4, "SAME");
++    diag_restart_feed(false);
++    run_fed(40 * kPduPeriodCycles);
++    for (size_t i = 0; i < kIdSpace; i++) { accept_at[i] = -1; fill_at[i] = -1; pop_at[i] = -1; push_at[i] = -1; }
++    s_first = injected_events / kEvents;
++    run_fed(300 * kPduPeriodCycles);
++    diag_law(s_first + 4, injected_events / kEvents - 4, "FRESH-NOM");
++    diag_restart_feed(true);
++    run_fed(40 * kPduPeriodCycles);
++    trace_pdus = 3;
++    for (size_t i = 0; i < kIdSpace; i++) { accept_at[i] = -1; fill_at[i] = -1; pop_at[i] = -1; push_at[i] = -1; }
++    s_first = injected_events / kEvents;
++    run_fed(300 * kPduPeriodCycles);
++    diag_law(s_first + 4, injected_events / kEvents - 4, "FRESH-PHYS");
++    feed_on = false;
++}
++
+ // ====================================================================== //
+ //  [MULTI] the stream-qualified render epoch, and the legal cluster key   //
+ //  with no pin. Both need a shape with more than one listener stream,     //
+@@ -3550,6 +3735,8 @@ int TdmRenderHarness::run(int argc, char** argv) {
+         else if (a == "--defect-stopped-clock") { defect_stopped_clock = true; serial_only = true; }
+         else if (a == "--defect-one-sample") { defect_one_sample = true; serial_only = true; corrupt_at = 400; }
+         else if (a == "--defect-internal-select") { defect_internal_select = true; crf_only = true; }
++        else if (a == "--diag-t30" && i + 1 < argc) diag_off = std::stol(argv[++i]);
++        else if (a == "--diag-phys") diag_phys = true;
+     }
+     const milan::tb::Model<Vmilan_datapath> model;
+     dut = model.get();
+@@ -3575,6 +3762,11 @@ int TdmRenderHarness::run(int argc, char** argv) {
+         return check.report();
+     }
+     phase_map();
++    if (diag_off >= 0) {
++        phase_serial();
++        diag_t30(diag_off);
++        return check.report();
++    }
+     if (crf_only) {
+         //! #629 A2-a: the aligner engages at INTERNAL from boot, and a CRF
+         //! selection keeps it engaged rather than re-seating its target, so

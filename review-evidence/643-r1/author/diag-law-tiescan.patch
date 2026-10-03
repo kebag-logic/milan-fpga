@@ -1,0 +1,38 @@
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -190,9 +190,8 @@
+ //! axis cycles from an OBSERVED media tick to the fresh stream's first PDU,
+ //! so it means the same thing against the grid whatever the processor or the
+ //! leg's history. tdm8_render_mutants.py names the same eighteen.
+-constexpr std::array<long, 18> kLawPhases = {
+-    0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,
+-    1562, 1693, 1823, 1953};
++constexpr std::array<long, 36> kLawPhases = {
++    2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039, 2040, 2041, 2042, 2043, 2044, 2045};
+ //! ...and each phase's stream: a gap of four PDU slots, which drains the
+ //! stage into prefill, then 16 PDUs of prefill (the snap is at the third PDU
+ //! end), then 128 graded PDUs, of which the last four are left ungraded so
+@@ -3091,6 +3090,7 @@
+     long in_band = 0;
+     long fill_ok = 0;
+     long ties = 0;
++    long diag_t1 = 0, diag_t2 = 0, diag_f13 = 0, diag_f15 = 0, diag_bad = 0;
+     long dmin = 0;
+     long dmax = 0;
+     int fmin = 0;
+@@ -3112,8 +3112,15 @@
+             (tie_pop[i] == 2 && f == kPrefillTargetEvt + 1);
+         if (f == kPrefillTargetEvt || tie_ok) ++fill_ok;
+         if (tie_pop[i] != 0) ++ties;
++        if (tie_pop[i] == 1) ++diag_t1;
++        if (tie_pop[i] == 2) ++diag_t2;
++        if (f == kPrefillTargetEvt - 1) ++diag_f13;
++        if (f == kPrefillTargetEvt + 1) ++diag_f15;
++        if (f != kPrefillTargetEvt && !tie_ok) ++diag_bad;
+         ++n;
+     }
++    std::printf("  [diag] %s: tie@+1 %ld tie@+2 %ld fill13 %ld fill15 %ld off-and-not-tie %ld\n", tag,
++                diag_t1, diag_t2, diag_f13, diag_f15, diag_bad);
+     std::printf("  [i]    %s: %ld PDUs, fill at the PDU end %d..%d (%ld under "
+                 "the tie rule), first-event delay from it %ld..%ld cycles = "
+                 "%.3f..%.3f media ticks; the law is fill %d and %d < d/T <= %d "

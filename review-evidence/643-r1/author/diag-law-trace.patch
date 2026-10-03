@@ -1,0 +1,13 @@
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -706,6 +706,10 @@
+         const int err =
+             static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
+         const int mag = (err < 0) ? -err : err;
++        if (getenv("DIAG_ERR") && (media_ticks % 256) == 0)
++            std::printf("  [trace] tick %ld cyc %ld eng %d err %d trim %d run %ld\n", media_ticks, axis_cycle,
++                        static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w), err,
++                        static_cast<int>(static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mnco_servo_trim_w)), settle_run);
+         if (dut->rootp->milan_datapath__DOT__mga_engaged_w &&
+             mag <= kSettleErrCycles) {
+             ++settle_run;
