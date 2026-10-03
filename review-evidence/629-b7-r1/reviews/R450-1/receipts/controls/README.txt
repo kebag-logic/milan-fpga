@@ -1,0 +1,3 @@
+controls-rerun.json: output of `python3 b6_thdn.py controls` run by the reviewer on the packet's b6_thdn.py (sha256 d4673f55...) and b6_tone.py (d188a1a9...); byte-equal to the packet's controls/controls.json and to lane B6's published hash 7bbefc71...
+mutant-m1.log: b6_thdn.py with one-frame events dropped (np.abs(e) > 1): ALL_PASS False (drop1, repeat1, both slip controls fail).
+mutant-m2.log: b6_thdn.py with repeats reported as skips (e = np.abs(e)): ALL_PASS False (repeat1 fails).

@@ -1,0 +1,44 @@
+## run timeline, CEST
+smoke-baaf  first 14:39:27 last 14:41:33 {'set-clock': '14:39:34', 'window-start': '14:39:54', 'window-end': '14:40:55'}
+a0          first 14:41:42 last 14:52:47 {'window-start': '14:42:08', 'window-end': '14:52:39'}
+a1          first 14:52:53 last 15:03:57 {'set-clock': '14:52:59', 'window-start': '14:53:19', 'window-end': '15:03:49'}
+a2          first 15:04:02 last 15:15:07 {'set-clock': '15:04:09', 'window-start': '15:04:29', 'window-end': '15:14:59'}
+b0          first 15:15:16 last 15:26:20 {'window-start': '15:15:42', 'window-end': '15:26:12'}
+bcrf        first 15:26:28 last 15:37:33 {'set-clock': '15:26:35', 'window-start': '15:26:55', 'window-end': '15:37:25'}
+baaf        first 15:37:41 last 15:49:15 {'set-clock': '15:37:47', 'window-start': '15:38:07', 'window-end': '15:48:38'}
+probe       first 15:49:28 last 15:49:49 {}
+## B-AAF SLIP_LB (0x8D4[15:0]) at every DUT read
+before-bind   t-window   -20.3 s  SLIP_LB dups 380
+window-0      t-window     1.2 s  SLIP_LB dups 386
+window-1      t-window    31.4 s  SLIP_LB dups 388
+window-2      t-window    61.6 s  SLIP_LB dups 388
+window-3      t-window    91.6 s  SLIP_LB dups 388
+window-4      t-window   121.3 s  SLIP_LB dups 388
+window-5      t-window   151.5 s  SLIP_LB dups 388
+window-6      t-window   181.6 s  SLIP_LB dups 388
+window-7      t-window   211.3 s  SLIP_LB dups 388
+window-8      t-window   241.5 s  SLIP_LB dups 388
+window-9      t-window   271.2 s  SLIP_LB dups 388
+window-10     t-window   301.4 s  SLIP_LB dups 388
+window-11     t-window   331.6 s  SLIP_LB dups 388
+window-12     t-window   361.5 s  SLIP_LB dups 388
+window-13     t-window   391.3 s  SLIP_LB dups 388
+window-14     t-window   421.5 s  SLIP_LB dups 388
+window-15     t-window   451.7 s  SLIP_LB dups 388
+window-16     t-window   481.3 s  SLIP_LB dups 388
+window-17     t-window   511.5 s  SLIP_LB dups 388
+window-18     t-window   541.2 s  SLIP_LB dups 388
+window-19     t-window   571.4 s  SLIP_LB dups 388
+window-20     t-window   601.6 s  SLIP_LB dups 388
+after-window  t-window   630.3 s  SLIP_LB dups 388
+ll-after      t-window   660.3 s  SLIP_LB dups 390
+final         t-window   667.0 s  SLIP_LB dups 390
+## AECP answers per run log (role, status)
+runs/a0/ctl.jsonl {('peer', 'SUCCESS'): 21, ('dut', 'SUCCESS'): 33} []
+runs/a1/ctl.jsonl {('peer', 'SUCCESS'): 30, ('dut', 'SUCCESS'): 33} []
+runs/a2/ctl.jsonl {('peer', 'SUCCESS'): 36, ('dut', 'SUCCESS'): 34} []
+runs/b0/ctl.jsonl {('peer', 'SUCCESS'): 23, ('dut', 'SUCCESS'): 47, ('dut', 'TIMEOUT'): 1} [{'cmd': 'GET_COUNTERS', 'status': 'TIMEOUT', 'what': 'counters-dut-36-0', 't_tx': '15:20:58'}]
+runs/baaf/ctl.jsonl {('peer', 'SUCCESS'): 26, ('dut', 'SUCCESS'): 65} []
+runs/bcrf/ctl.jsonl {('peer', 'SUCCESS'): 22, ('dut', 'SUCCESS'): 43} []
+runs/probe/ctl.jsonl {('dut', 'SUCCESS'): 15, ('peer', 'SUCCESS'): 3} []
+runs/smoke-baaf/ctl.jsonl {('peer', 'SUCCESS'): 26, ('dut', 'SUCCESS'): 65} []

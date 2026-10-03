@@ -1,0 +1,230 @@
+[
+ {
+  "case": "A0",
+  "verdict": "PASS as a control",
+  "checks": [
+   {
+    "check": "listener net rate beyond 2 ppm",
+    "ok": true,
+    "value": 5.916
+   },
+   {
+    "check": "blocks free of discontinuities at the floor within 0.01 dB",
+    "ok": true,
+    "value": {
+     "clean_blocks": 444,
+     "max_dev_db": 0.0004050495938656695
+    }
+   }
+  ]
+ },
+ {
+  "case": "A1",
+  "verdict": "PASS",
+  "checks": [
+   {
+    "check": "0 listener discontinuities",
+    "ok": true,
+    "value": 0
+   },
+   {
+    "check": "blocks free of discontinuities at the floor within 0.01 dB",
+    "ok": true,
+    "value": {
+     "clean_blocks": 597,
+     "max_dev_db": 0.00030648690494672337
+    }
+   },
+   {
+    "check": "fitted offset on those blocks under 0.001 ppm",
+    "ok": true,
+    "value": 2.3248070135650778e-07
+   },
+   {
+    "check": "clock source set and read back",
+    "ok": true,
+    "value": [
+     {
+      "who": "peer",
+      "src": 3,
+      "readback": 3
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "A2",
+  "verdict": "PASS",
+  "checks": [
+   {
+    "check": "0 listener discontinuities",
+    "ok": true,
+    "value": 0
+   },
+   {
+    "check": "blocks free of discontinuities at the floor within 0.01 dB",
+    "ok": true,
+    "value": {
+     "clean_blocks": 578,
+     "max_dev_db": 0.00023554975715001092
+    }
+   },
+   {
+    "check": "fitted offset on those blocks under 0.001 ppm",
+    "ok": true,
+    "value": 2.0539125955565396e-07
+   },
+   {
+    "check": "clock source set and read back",
+    "ok": true,
+    "value": [
+     {
+      "who": "peer",
+      "src": 1,
+      "readback": 1
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "B0",
+  "verdict": "PASS as a control",
+  "checks": [
+   {
+    "check": "counted ratio beyond 2 ppm",
+    "ok": true,
+    "value": 5.924
+   }
+  ]
+ },
+ {
+  "case": "BCRF",
+  "verdict": "PASS",
+  "checks": [
+   {
+    "check": "servo LOCKED at every DUT read in the window",
+    "ok": true,
+    "value": [
+     "LOCKED"
+    ]
+   },
+   {
+    "check": "counted ratio within 0.5 ppm of zero",
+    "ok": true,
+    "value": 0.0
+   },
+   {
+    "check": "timed ratio's interval holds zero",
+    "ok": true,
+    "value": {
+     "ratio_ppm": 1.9819977357116159,
+     "halfwidth": 6.516932484898904
+    }
+   },
+   {
+    "check": "0 listener discontinuities on the tone path",
+    "ok": true,
+    "value": 0
+   },
+   {
+    "check": "clock source set and read back",
+    "ok": true,
+    "value": [
+     {
+      "who": "dut",
+      "src": 1,
+      "readback": 1
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "BAAF",
+  "verdict": "PASS",
+  "checks": [
+   {
+    "check": "servo LOCKED at every DUT read in the window",
+    "ok": true,
+    "value": [
+     "LOCKED"
+    ]
+   },
+   {
+    "check": "counted ratio within 0.5 ppm of zero",
+    "ok": true,
+    "value": 0.0
+   },
+   {
+    "check": "timed ratio's interval holds zero",
+    "ok": true,
+    "value": {
+     "ratio_ppm": -1.4926980518303878,
+     "halfwidth": 11.639544930173193
+    }
+   },
+   {
+    "check": "0 listener discontinuities on the tone path",
+    "ok": true,
+    "value": 0
+   },
+   {
+    "check": "clock source set and read back",
+    "ok": true,
+    "value": [
+     {
+      "who": "dut",
+      "src": 2,
+      "readback": 2
+     }
+    ]
+   },
+   {
+    "check": "servo LOCKED within 15 s of the set",
+    "ok": true,
+    "value": [
+     6.578,
+     7.08
+    ]
+   },
+   {
+    "check": "CLOCK_DOMAIN LOCKED and UNLOCKED unchanged across the window",
+    "ok": true,
+    "value": {
+     "first": {
+      "LOCKED": 5,
+      "UNLOCKED": 4
+     },
+     "last": {
+      "LOCKED": 5,
+      "UNLOCKED": 4
+     }
+    }
+   },
+   {
+    "check": "SLIP_TDM static",
+    "ok": true,
+    "value": {
+     "dups": [
+      0,
+      0
+     ],
+     "skips": [
+      0,
+      0
+     ]
+    }
+   },
+   {
+    "check": "meter history-restart count unchanged across the window",
+    "ok": true,
+    "value": [
+     0,
+     0
+    ]
+   }
+  ]
+ }
+]

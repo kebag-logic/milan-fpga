@@ -1,0 +1,2480 @@
+{
+ "a0": {
+  "dut_reads": 21,
+  "servo_states": [
+   "IDLE"
+  ],
+  "trim_ppm": [
+   0.0,
+   0.0
+  ],
+  "drp_mismatch_any": false,
+  "meter_enabled_any": false,
+  "crf_locked_reads": 0,
+  "slip_tdm_first_last": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "slip_lb_first_last": [
+   [
+    8,
+    0
+   ],
+   [
+    8,
+    0
+   ]
+  ],
+  "listener": {
+   "drops": 470,
+   "inserts": 291,
+   "repeats": 0,
+   "sizes": [
+    1
+   ],
+   "net_step": 179
+  },
+  "dut_beat_events": 0,
+  "capture_events": 15,
+  "capture_clusters": 7,
+  "clusters_with_off_signature_step": [
+   {
+    "cluster": 1,
+    "steps": [
+     204,
+     204,
+     684,
+     1314,
+     180
+    ],
+    "net": 2586,
+    "net_mod48": 42,
+    "expected_mod48": 12,
+    "frames_off": -18
+   }
+  ],
+  "window_s": 630.31,
+  "window_frames": 30254880,
+  "counted_ratio_ppm_rederived": 5.9164,
+  "counted_ratio_ppm_grade": 5.916400924412855,
+  "observed_frames": 30254880,
+  "capture_lost_frames_grade": 5058,
+  "timed_ratio_ppm": [
+   5.71,
+   0.55,
+   5.96,
+   4.98
+  ],
+  "external_capture_rate": 47999.16192793774,
+  "external_capture_deficit_fps": 0.838,
+  "capture_reads": 63027,
+  "read_stalls": 10,
+  "read_gap_max_ms": 74.512,
+  "blocks": 630,
+  "clean_blocks": 444,
+  "blocks_with_listener_event": 180,
+  "clean_thdn_997": [
+   -146.065,
+   -146.065
+  ],
+  "clean_ppm_maxabs_997": 2.67453e-07,
+  "worst_thdn_all_997": -2.22,
+  "clean_thdn_9973": [
+   -145.993,
+   -145.993
+  ],
+  "clean_ppm_maxabs_9973": 4.44089e-09,
+  "worst_thdn_all_9973": 23.844,
+  "worst_thdn_listener_block": [
+   -7.188,
+   1.009
+  ],
+  "clean_thdn_median": [
+   -146.065,
+   -145.993
+  ],
+  "clean_snr": [
+   146.067,
+   145.993
+  ],
+  "blocks_capture_path_only_positive_thdn": true,
+  "torn": 0,
+  "invalid": 291,
+  "slip_tdm_window_grade": {
+   "slip_tdm_delta": 0,
+   "slip_tdm_seconds": 600.243,
+   "slip_tdm_per_s": 0.0,
+   "first": "window-0",
+   "last": "window-20"
+  },
+  "counters_marks": {
+   "before-bind": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 3,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 114
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 3,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 911372,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 1,
+     "FRAMES_RX": 911372
+    }
+   },
+   "window-mark-0": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 2,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 201686,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 201686
+    }
+   },
+   "window-mark-1": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 2,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 335
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2680595,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2680595
+    }
+   },
+   "window-mark-2": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 2,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 635
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5083592,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5083592
+    }
+   },
+   "final": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 2,
+     "STREAM_STOP": 2,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5225946,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5225946
+    }
+   }
+  },
+  "window_start_t": 1791031328.907352
+ },
+ "a1": {
+  "dut_reads": 21,
+  "servo_states": [
+   "IDLE"
+  ],
+  "trim_ppm": [
+   0.0,
+   0.0
+  ],
+  "drp_mismatch_any": false,
+  "meter_enabled_any": false,
+  "crf_locked_reads": 0,
+  "slip_tdm_first_last": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "slip_lb_first_last": [
+   [
+    8,
+    0
+   ],
+   [
+    8,
+    0
+   ]
+  ],
+  "listener": {
+   "drops": 0,
+   "inserts": 0,
+   "repeats": 0,
+   "sizes": [],
+   "net_step": 0
+  },
+  "dut_beat_events": 0,
+  "capture_events": 37,
+  "capture_clusters": 32,
+  "clusters_with_off_signature_step": [],
+  "window_s": 629.88,
+  "window_frames": 30234240,
+  "counted_ratio_ppm_rederived": 0.0,
+  "counted_ratio_ppm_grade": 0.0,
+  "observed_frames": 30234240,
+  "capture_lost_frames_grade": 5580,
+  "timed_ratio_ppm": [
+   -0.28,
+   1.4,
+   -2.33,
+   0.33
+  ],
+  "external_capture_rate": 47999.45712073385,
+  "external_capture_deficit_fps": 0.543,
+  "capture_reads": 62970,
+  "read_stalls": 42,
+  "read_gap_max_ms": 75.976,
+  "blocks": 629,
+  "clean_blocks": 597,
+  "blocks_with_listener_event": 0,
+  "clean_thdn_997": [
+   -146.065,
+   -146.065
+  ],
+  "clean_ppm_maxabs_997": 2.32481e-07,
+  "worst_thdn_all_997": 12.711,
+  "clean_thdn_9973": [
+   -145.993,
+   -145.993
+  ],
+  "clean_ppm_maxabs_9973": 1.26565e-08,
+  "worst_thdn_all_9973": 21.579,
+  "worst_thdn_listener_block": null,
+  "clean_thdn_median": [
+   -146.065,
+   -145.993
+  ],
+  "clean_snr": [
+   146.067,
+   145.993
+  ],
+  "blocks_capture_path_only_positive_thdn": true,
+  "torn": 0,
+  "invalid": 0,
+  "slip_tdm_window_grade": {
+   "slip_tdm_delta": 0,
+   "slip_tdm_seconds": 600.314,
+   "slip_tdm_per_s": 0.0,
+   "first": "window-0",
+   "last": "window-20"
+  },
+  "counters_marks": {
+   "before-bind": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 2,
+     "STREAM_STOP": 2,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5225946,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5225946
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 4,
+     "UNLOCKED": 3
+    }
+   },
+   "window-mark-0": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 3,
+     "STREAM_STOP": 2,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 201722,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 201722
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    }
+   },
+   "window-mark-1": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 3,
+     "STREAM_STOP": 2,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 335
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2680784,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2680784
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    }
+   },
+   "window-mark-2": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 3,
+     "STREAM_STOP": 2,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 635
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5084207,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5084207
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    }
+   },
+   "final": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 3,
+     "STREAM_STOP": 3,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 653
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5222462,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5222462
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    }
+   }
+  },
+  "set_event_t": 1791031979.502857,
+  "set_clock": {
+   "who": "peer",
+   "src": 3,
+   "status": "SUCCESS",
+   "readback": 3
+  },
+  "window_start_t": 1791031999.510605
+ },
+ "a2": {
+  "dut_reads": 21,
+  "servo_states": [
+   "IDLE"
+  ],
+  "trim_ppm": [
+   0.0,
+   0.0
+  ],
+  "drp_mismatch_any": false,
+  "meter_enabled_any": false,
+  "crf_locked_reads": 0,
+  "slip_tdm_first_last": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "slip_lb_first_last": [
+   [
+    8,
+    0
+   ],
+   [
+    8,
+    0
+   ]
+  ],
+  "listener": {
+   "drops": 0,
+   "inserts": 0,
+   "repeats": 0,
+   "sizes": [],
+   "net_step": 0
+  },
+  "dut_beat_events": 0,
+  "capture_events": 62,
+  "capture_clusters": 53,
+  "clusters_with_off_signature_step": [
+   {
+    "cluster": 0,
+    "steps": [
+     204,
+     1164,
+     60,
+     3274,
+     108
+    ],
+    "net": 4810,
+    "net_mod48": 10,
+    "expected_mod48": 12,
+    "frames_off": -2
+   },
+   {
+    "cluster": 9,
+    "steps": [
+     59,
+     156
+    ],
+    "net": 215,
+    "net_mod48": 23,
+    "expected_mod48": 24,
+    "frames_off": -1
+   }
+  ],
+  "window_s": 628.04,
+  "window_frames": 30145920,
+  "counted_ratio_ppm_rederived": 0.0,
+  "counted_ratio_ppm_grade": 0.0,
+  "observed_frames": 30145920,
+  "capture_lost_frames_grade": 112533,
+  "timed_ratio_ppm": [
+   2.15,
+   4.42,
+   3.73,
+   0.14
+  ],
+  "external_capture_rate": 47999.34978860798,
+  "external_capture_deficit_fps": 0.65,
+  "capture_reads": 62745,
+  "read_stalls": 79,
+  "read_gap_max_ms": 2154.747,
+  "blocks": 628,
+  "clean_blocks": 578,
+  "blocks_with_listener_event": 0,
+  "clean_thdn_997": [
+   -146.065,
+   -146.065
+  ],
+  "clean_ppm_maxabs_997": 2.05391e-07,
+  "worst_thdn_all_997": 13.226,
+  "clean_thdn_9973": [
+   -145.993,
+   -145.993
+  ],
+  "clean_ppm_maxabs_9973": 1.39888e-08,
+  "worst_thdn_all_9973": 19.668,
+  "worst_thdn_listener_block": null,
+  "clean_thdn_median": [
+   -146.065,
+   -145.993
+  ],
+  "clean_snr": [
+   146.067,
+   145.993
+  ],
+  "blocks_capture_path_only_positive_thdn": true,
+  "torn": 0,
+  "invalid": 0,
+  "slip_tdm_window_grade": {
+   "slip_tdm_delta": 0,
+   "slip_tdm_seconds": 600.2,
+   "slip_tdm_per_s": 0.0,
+   "first": "window-0",
+   "last": "window-20"
+  },
+  "counters_marks": {
+   "before-bind": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 3,
+     "STREAM_STOP": 3,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 653
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 0,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 0
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5222462,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5222462
+    },
+    "peer-0x0005-8": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 326410,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 326410
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    }
+   },
+   "window-mark-0": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 4,
+     "STREAM_STOP": 3,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 26
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 202116,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 1,
+     "FRAMES_RX": 202116
+    },
+    "peer-0x0005-8": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 12532,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 12532
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 6,
+     "UNLOCKED": 5
+    }
+   },
+   "window-mark-1": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 4,
+     "STREAM_STOP": 3,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 335
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 334
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2680763,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 1,
+     "FRAMES_RX": 2680763
+    },
+    "peer-0x0005-8": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 167448,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 167448
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 6,
+     "UNLOCKED": 5
+    }
+   },
+   "window-mark-2": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 4,
+     "STREAM_STOP": 3,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 636
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 635
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5083688,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 1,
+     "FRAMES_RX": 5083688
+    },
+    "peer-0x0005-8": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 317631,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 317631
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 6,
+     "UNLOCKED": 5
+    }
+   },
+   "final": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 4,
+     "STREAM_STOP": 4,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 655
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5226175,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 1,
+     "FRAMES_RX": 5226175
+    },
+    "peer-0x0005-8": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 326525,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 326525
+    },
+    "peer-0x0024-0": {
+     "LOCKED": 6,
+     "UNLOCKED": 5
+    }
+   }
+  },
+  "set_event_t": 1791032649.350422,
+  "set_clock": {
+   "who": "peer",
+   "src": 1,
+   "status": "SUCCESS",
+   "readback": 1
+  },
+  "window_start_t": 1791032669.360258
+ },
+ "b0": {
+  "dut_reads": 21,
+  "servo_states": [
+   "IDLE"
+  ],
+  "trim_ppm": [
+   0.0,
+   0.0
+  ],
+  "drp_mismatch_any": false,
+  "meter_enabled_any": false,
+  "crf_locked_reads": 21,
+  "crf_rate_ppm": [
+   11.025390625,
+   11.056640625
+  ],
+  "slip_tdm_first_last": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "slip_lb_first_last": [
+   [
+    20,
+    0
+   ],
+   [
+    362,
+    0
+   ]
+  ],
+  "listener": {
+   "drops": 457,
+   "inserts": 278,
+   "repeats": 0,
+   "sizes": [
+    1
+   ],
+   "net_step": 179
+  },
+  "dut_beat_events": 0,
+  "capture_events": 39,
+  "capture_clusters": 19,
+  "clusters_with_off_signature_step": [],
+  "window_s": 629.55,
+  "window_frames": 30218400,
+  "counted_ratio_ppm_rederived": 5.9235,
+  "counted_ratio_ppm_grade": 5.923543271649061,
+  "observed_frames": 30218400,
+  "capture_lost_frames_grade": 22404,
+  "timed_ratio_ppm": [
+   5.62,
+   0.44,
+   5.67,
+   5.81
+  ],
+  "external_capture_rate": 47999.173885264594,
+  "external_capture_deficit_fps": 0.826,
+  "capture_reads": 62860,
+  "read_stalls": 66,
+  "read_gap_max_ms": 208.58,
+  "blocks": 629,
+  "clean_blocks": 434,
+  "blocks_with_listener_event": 179,
+  "clean_thdn_997": [
+   -146.065,
+   -146.065
+  ],
+  "clean_ppm_maxabs_997": 2.37366e-07,
+  "worst_thdn_all_997": -2.132,
+  "clean_thdn_9973": [
+   -145.993,
+   -145.993
+  ],
+  "clean_ppm_maxabs_9973": 1.19904e-08,
+  "worst_thdn_all_9973": 19.008,
+  "worst_thdn_listener_block": [
+   -6.306,
+   4.137
+  ],
+  "clean_thdn_median": [
+   -146.065,
+   -145.993
+  ],
+  "clean_snr": [
+   146.067,
+   145.993
+  ],
+  "blocks_capture_path_only_positive_thdn": true,
+  "torn": 0,
+  "invalid": 278,
+  "slip_tdm_window_grade": {
+   "slip_tdm_delta": 0,
+   "slip_tdm_seconds": 600.341,
+   "slip_tdm_per_s": 0.0,
+   "first": "window-0",
+   "last": "window-20"
+  },
+  "counters_marks": {
+   "before-bind": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 4,
+     "STREAM_STOP": 4,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 655
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5226175,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 1,
+     "FRAMES_RX": 5226175
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 163005,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 163005
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 0,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 0
+    }
+   },
+   "window-mark-0": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 5,
+     "STREAM_STOP": 4,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 201685,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 201685
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 200499,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 195170
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 25
+    }
+   },
+   "window-mark-1": {
+    "dut-0x0024-0": "TIMEOUT",
+    "dut-0x0006-0": {
+     "STREAM_START": 5,
+     "STREAM_STOP": 4,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 336
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2688976,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2688976
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2687777,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2683129
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 336
+    }
+   },
+   "window-mark-2": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 5,
+     "STREAM_STOP": 4,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 635
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5080387,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5080387
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5079174,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5075089
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 635
+    }
+   },
+   "final": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 5,
+     "STREAM_STOP": 5,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5222691,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5222691
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5221464,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5221464
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 654
+    }
+   }
+  },
+  "window_start_t": 1791033342.908872,
+  "ll_unbind_t": 1791033975.719955
+ },
+ "bcrf": {
+  "dut_reads": 21,
+  "servo_states": [
+   "LOCKED"
+  ],
+  "trim_ppm": [
+   -6.0,
+   -5.9375
+  ],
+  "drp_mismatch_any": true,
+  "meter_enabled_any": false,
+  "crf_locked_reads": 21,
+  "crf_rate_ppm": [
+   11.0078125,
+   11.056640625
+  ],
+  "slip_tdm_first_last": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "slip_lb_first_last": [
+   [
+    380,
+    0
+   ],
+   [
+    380,
+    0
+   ]
+  ],
+  "listener": {
+   "drops": 0,
+   "inserts": 0,
+   "repeats": 0,
+   "sizes": [],
+   "net_step": 0
+  },
+  "dut_beat_events": 0,
+  "capture_events": 86,
+  "capture_clusters": 69,
+  "clusters_with_off_signature_step": [],
+  "window_s": 628.53,
+  "window_frames": 30169440,
+  "counted_ratio_ppm_rederived": 0.0,
+  "counted_ratio_ppm_grade": 0.0,
+  "observed_frames": 30169440,
+  "capture_lost_frames_grade": 74568,
+  "timed_ratio_ppm": [
+   1.98,
+   6.52,
+   -0.6,
+   9.14
+  ],
+  "external_capture_rate": 47999.07050324711,
+  "external_capture_deficit_fps": 0.929,
+  "capture_reads": 62699,
+  "read_stalls": 130,
+  "read_gap_max_ms": 883.257,
+  "blocks": 628,
+  "clean_blocks": 559,
+  "blocks_with_listener_event": 0,
+  "clean_thdn_997": [
+   -146.065,
+   -146.065
+  ],
+  "clean_ppm_maxabs_997": 2.94431e-07,
+  "worst_thdn_all_997": 15.743,
+  "clean_thdn_9973": [
+   -145.993,
+   -145.993
+  ],
+  "clean_ppm_maxabs_9973": 1.27676e-08,
+  "worst_thdn_all_9973": 18.726,
+  "worst_thdn_listener_block": null,
+  "clean_thdn_median": [
+   -146.065,
+   -145.993
+  ],
+  "clean_snr": [
+   146.067,
+   145.993
+  ],
+  "blocks_capture_path_only_positive_thdn": true,
+  "torn": 0,
+  "invalid": 0,
+  "slip_tdm_window_grade": {
+   "slip_tdm_delta": 0,
+   "slip_tdm_seconds": 600.408,
+   "slip_tdm_per_s": 0.0,
+   "first": "window-0",
+   "last": "window-20"
+  },
+  "counters_marks": {
+   "before-bind": {
+    "dut-0x0024-0": {
+     "LOCKED": 3,
+     "UNLOCKED": 2
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 5,
+     "STREAM_STOP": 5,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5222691,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5222691
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 654
+    }
+   },
+   "window-mark-0": {
+    "dut-0x0024-0": {
+     "LOCKED": 4,
+     "UNLOCKED": 3
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 6,
+     "STREAM_STOP": 5,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 203884,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 203884
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 25
+    }
+   },
+   "window-mark-1": {
+    "dut-0x0024-0": {
+     "LOCKED": 4,
+     "UNLOCKED": 3
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 6,
+     "STREAM_STOP": 5,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 335
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2683310,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2683310
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 335
+    }
+   },
+   "window-mark-2": {
+    "dut-0x0024-0": {
+     "LOCKED": 4,
+     "UNLOCKED": 3
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 6,
+     "STREAM_STOP": 5,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 635
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5083084,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5083084
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 635
+    }
+   },
+   "final": {
+    "dut-0x0024-0": {
+     "LOCKED": 4,
+     "UNLOCKED": 3
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 6,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5225297,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5225297
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 654
+    }
+   }
+  },
+  "poll_lock-wait": {
+   "n": 10,
+   "states": [
+    [
+     0.0,
+     "IDLE",
+     0.0,
+     false,
+     false,
+     0
+    ],
+    [
+     0.505,
+     "ACQUIRE",
+     0.0,
+     false,
+     false,
+     0
+    ],
+    [
+     3.534,
+     "LOCKED",
+     -5.625,
+     false,
+     false,
+     0
+    ]
+   ]
+  },
+  "set_event_t": 1791033995.026752,
+  "set_clock": {
+   "who": "dut",
+   "src": 1,
+   "status": "SUCCESS",
+   "readback": 1
+  },
+  "window_start_t": 1791034015.178826,
+  "set_to_locked_s": [
+   3.085,
+   3.589
+  ],
+  "set_to_meter_locked_s": null,
+  "set_to_meter_valid_s": null,
+  "set_to_acquire_s": [
+   0.054,
+   0.559
+  ],
+  "window_start_after_set_s": 20.15
+ },
+ "baaf": {
+  "dut_reads": 21,
+  "servo_states": [
+   "LOCKED"
+  ],
+  "trim_ppm": [
+   -6.0,
+   -5.9375
+  ],
+  "drp_mismatch_any": true,
+  "meter_enabled_any": true,
+  "meter_locked_all": true,
+  "meter_valid_all": true,
+  "meter_restarts": [
+   0,
+   0
+  ],
+  "meter_maxdev_ns": 29,
+  "meter_rate_ppm": [
+   11.017578125,
+   11.04296875
+  ],
+  "crf_locked_reads": 0,
+  "slip_tdm_first_last": [
+   [
+    0,
+    0
+   ],
+   [
+    0,
+    0
+   ]
+  ],
+  "slip_lb_first_last": [
+   [
+    386,
+    0
+   ],
+   [
+    388,
+    0
+   ]
+  ],
+  "listener": {
+   "drops": 0,
+   "inserts": 0,
+   "repeats": 0,
+   "sizes": [],
+   "net_step": 0
+  },
+  "dut_beat_events": 0,
+  "capture_events": 78,
+  "capture_clusters": 65,
+  "clusters_with_off_signature_step": [
+   {
+    "cluster": 4,
+    "steps": [
+     60,
+     60,
+     9275
+    ],
+    "net": 9395,
+    "net_mod48": 35,
+    "expected_mod48": 36,
+    "frames_off": -1
+   },
+   {
+    "cluster": 17,
+    "steps": [
+     155
+    ],
+    "net": 155,
+    "net_mod48": 11,
+    "expected_mod48": 12,
+    "frames_off": -1
+   },
+   {
+    "cluster": 24,
+    "steps": [
+     4331
+    ],
+    "net": 4331,
+    "net_mod48": 11,
+    "expected_mod48": 12,
+    "frames_off": -1
+   }
+  ],
+  "window_s": 627.74,
+  "window_frames": 30131520,
+  "counted_ratio_ppm_rederived": 0.0,
+  "counted_ratio_ppm_grade": 0.0,
+  "observed_frames": 30131520,
+  "capture_lost_frames_grade": 115701,
+  "timed_ratio_ppm": [
+   -1.49,
+   11.64,
+   0.16,
+   -22.6
+  ],
+  "external_capture_rate": 47999.23493740692,
+  "external_capture_deficit_fps": 0.765,
+  "capture_reads": 62642,
+  "read_stalls": 112,
+  "read_gap_max_ms": 1216.381,
+  "blocks": 627,
+  "clean_blocks": 564,
+  "blocks_with_listener_event": 0,
+  "clean_thdn_997": [
+   -146.065,
+   -146.065
+  ],
+  "clean_ppm_maxabs_997": 3.18079e-07,
+  "worst_thdn_all_997": 0.601,
+  "clean_thdn_9973": [
+   -145.993,
+   -145.993
+  ],
+  "clean_ppm_maxabs_9973": 1.26565e-08,
+  "worst_thdn_all_9973": 21.258,
+  "worst_thdn_listener_block": null,
+  "clean_thdn_median": [
+   -146.065,
+   -145.993
+  ],
+  "clean_snr": [
+   146.067,
+   145.993
+  ],
+  "blocks_capture_path_only_positive_thdn": true,
+  "torn": 0,
+  "invalid": 0,
+  "slip_tdm_window_grade": {
+   "slip_tdm_delta": 0,
+   "slip_tdm_seconds": 600.455,
+   "slip_tdm_per_s": 0.0,
+   "first": "window-0",
+   "last": "window-20"
+  },
+  "counters_marks": {
+   "before-bind": {
+    "dut-0x0024-0": {
+     "LOCKED": 4,
+     "UNLOCKED": 3
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 6,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5225297,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5225297
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5221464,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5221464
+    }
+   },
+   "window-mark-0": {
+    "dut-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 25
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 202874,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 202874
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 200127,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 195180
+    }
+   },
+   "window-mark-1": {
+    "dut-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 335
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2684331,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2684331
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 2681585,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 2675139
+    }
+   },
+   "window-mark-2": {
+    "dut-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 635
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5082536,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5082536
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5079790,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5075099
+    }
+   },
+   "ll-before": {
+    "dut-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 4
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 650
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5204024,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5204024
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5201277,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5195097
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 654
+    }
+   },
+   "ll-holdover": {
+    "dut-0x0024-0": {
+     "LOCKED": 5,
+     "UNLOCKED": 5
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 662
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5300717,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5300717
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5213301,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5213301
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 654
+    }
+   },
+   "ll-after": {
+    "dut-0x0024-0": {
+     "LOCKED": 6,
+     "UNLOCKED": 5
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 6,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 680
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 2,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5442421,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5442421
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 0,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 137364,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 132782
+    },
+    "dut-0x0005-1": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 654
+    }
+   },
+   "final": {
+    "dut-0x0024-0": {
+     "LOCKED": 6,
+     "UNLOCKED": 5
+    },
+    "dut-0x0006-0": {
+     "STREAM_START": 7,
+     "STREAM_STOP": 7,
+     "MEDIA_RESET": 3,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 684
+    },
+    "dut-0x0006-1": {
+     "STREAM_START": 1,
+     "STREAM_STOP": 1,
+     "MEDIA_RESET": 1,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "FRAMES_TX": 654
+    },
+    "peer-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 3,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 5464649,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 1,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 5464649
+    },
+    "dut-0x0005-0": {
+     "MEDIA_LOCKED": 1,
+     "MEDIA_UNLOCKED": 1,
+     "STREAM_INTERRUPTED": 0,
+     "SEQ_NUM_MISMATCH": 0,
+     "MEDIA_RESET": 0,
+     "TIMESTAMP_UNCERTAIN": 0,
+     "TIMESTAMP_VALID": 159585,
+     "TIMESTAMP_NOT_VALID": 0,
+     "UNSUPPORTED_FORMAT": 0,
+     "LATE_TIMESTAMP": 0,
+     "EARLY_TIMESTAMP": 0,
+     "FRAMES_RX": 159585
+    }
+   }
+  },
+  "poll_ll-after": {
+   "n": 20,
+   "states": [
+    [
+     0.0,
+     "LOCKED",
+     -5.875,
+     true,
+     true,
+     0
+    ]
+   ]
+  },
+  "poll_ll-holdover": {
+   "n": 24,
+   "states": [
+    [
+     0.0,
+     "LOCKED",
+     -5.9375,
+     true,
+     true,
+     0
+    ],
+    [
+     2.008,
+     "HOLDOVER",
+     -5.9375,
+     false,
+     false,
+     0
+    ]
+   ]
+  },
+  "poll_ll-return": {
+   "n": 16,
+   "states": [
+    [
+     0.0,
+     "HOLDOVER",
+     -5.9375,
+     false,
+     false,
+     0
+    ],
+    [
+     1.005,
+     "ACQUIRE",
+     -5.9375,
+     true,
+     false,
+     0
+    ],
+    [
+     5.027,
+     "ACQUIRE",
+     -6.0,
+     true,
+     true,
+     0
+    ],
+    [
+     6.533,
+     "LOCKED",
+     -5.9375,
+     true,
+     true,
+     0
+    ]
+   ]
+  },
+  "poll_lock-wait": {
+   "n": 17,
+   "states": [
+    [
+     0.0,
+     "IDLE",
+     0.0,
+     false,
+     false,
+     0
+    ],
+    [
+     0.502,
+     "ACQUIRE",
+     0.0,
+     true,
+     false,
+     0
+    ],
+    [
+     4.506,
+     "ACQUIRE",
+     0.0,
+     true,
+     true,
+     0
+    ],
+    [
+     7.017,
+     "LOCKED",
+     -5.5625,
+     true,
+     true,
+     0
+    ]
+   ]
+  },
+  "set_event_t": 1791034667.751751,
+  "set_clock": {
+   "who": "dut",
+   "src": 2,
+   "status": "SUCCESS",
+   "readback": 2
+  },
+  "window_start_t": 1791034687.854202,
+  "ll_unbind_t": 1791035319.699469,
+  "ll_rebind_t": 1791035330.786646,
+  "set_to_locked_s": [
+   6.578,
+   7.08
+  ],
+  "set_to_meter_locked_s": [
+   0.064,
+   0.566
+  ],
+  "set_to_meter_valid_s": [
+   4.07,
+   4.57
+  ],
+  "set_to_acquire_s": [
+   0.064,
+   0.566
+  ],
+  "ll_held_s": 11.09,
+  "ll_unbind_to_holdover_s": [
+   0.054,
+   0.556
+  ],
+  "ll_holdover_states": [
+   "HOLDOVER",
+   "LOCKED"
+  ],
+  "ll_holdover_trims": [
+   -5.9375
+  ],
+  "ll_rebind_to_meter_locked_s": [
+   0.051,
+   0.553
+  ],
+  "ll_rebind_to_meter_valid_s": [
+   4.073,
+   4.575
+  ],
+  "ll_rebind_to_locked_s": [
+   5.579,
+   6.081
+  ],
+  "window_start_after_set_s": 20.1
+ }
+}
