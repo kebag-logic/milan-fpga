@@ -1,0 +1,9 @@
+docs/00_MILAN_COMPLIANCE_REVIEW.md:264:(2026-10-03), which amends the D3 contract's map stage: the map plane is the
+docs/architecture/02_interfaces.md:683:#83, which amends the saved-state contract's map stage): it writes records `0x60`/`0x70`
+docs/architecture/06_aecp_engine.md:854:(the audio-map record counter, reused) numbers them. Existence comes from the
+docs/architecture/07_memory_maps.md:462:writes and restores no map record. The store's sticky `dirty_o`
+docs/architecture/07_memory_maps.md:564:issue #83, 2026-10-03, which amends the parent D3 contract's map stage; the parent's
+docs/architecture/07_memory_maps.md:708:one ACQUIRE. The channel-map records are the integrator's (§5.1): it writes a port's set
+hdl/aecp/KL_aecp_engine.sv:470:    //! map-persistence trigger (07 §5.1); the processor writes no map record.
+hdl/aecp/ucpu_pkg.sv:124:  //! the most 8-byte GET_AUDIO_MAP records E_GAMAP serves in one page: the
+hdl/top/protocol_processor_top.sv:782:    //! and the processor writes and restores no map record.

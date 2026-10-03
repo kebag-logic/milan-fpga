@@ -1,0 +1,109 @@
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 33767bc..52b6fec 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -466,8 +466,8 @@ module KL_aecp_engine
+     //! the processor ignores `amap_edit_wait_i` on those phases. A finish
+     //! reply returns bit 0 = at least one mapping changed. The future
+     //! SET_STREAM_FORMAT survival query uses the same value lane instead of
+-    //! opening a second map authority. Phase 5 is also the saved-state
+-    //! contract's map trigger (its map stage, not implemented here yet).
++    //! opening a second map authority. Phase 5 is also the integrator's
++    //! map-persistence trigger (07 §5.1); the processor writes no map record.
+     output logic        amap_edit_req_o,
+     output logic  [2:0] amap_edit_phase_o,
+     output logic        amap_edit_remove_o,
+diff --git a/hdl/aecp/KL_aecp_nvm_writer.sv b/hdl/aecp/KL_aecp_nvm_writer.sv
+index aff2fcf..512651c 100644
+--- a/hdl/aecp/KL_aecp_nvm_writer.sv
++++ b/hdl/aecp/KL_aecp_nvm_writer.sv
+@@ -91,12 +91,14 @@
+ //                below the located CLOCK_DOMAIN's clock_sources_count
+ //                (lane 72, bits 47:32); a stream format that the
+ //                integrator's judge reports supported (Milan-info kind 0
+-//                selector 15, bit 0 alone: the maps it will be checked
+-//                against reset EMPTY in this stage, so nothing restored can
+-//                be orphaned); a presentation offset with bit 31 clear; a
+-//                user name whose ordinal the image's name table holds (the
+-//                store's region 0xA, its name count): SET_NAME refuses only a
+-//                name index the descriptor lacks, and takes any 64 bytes.
++//                selector 15, bit 0 alone: the maps are the integrator's,
++//                restored after restore_done_o and judged against the
++//                formats this walk restored (07 §5.1), so the format/map
++//                coupling is the integrator's); a presentation offset with
++//                bit 31 clear; a user name whose ordinal the image's name
++//                table holds (the store's region 0xA, its name count):
++//                SET_NAME refuses only a name index the descriptor lacks, and
++//                takes any 64 bytes.
+ //                The LOCATEs use configuration 0, as the SET programs do.
+ //
+ //                THE RECORDS (scalar and name stages). One record per
+@@ -115,7 +117,8 @@
+ //                the payload big-endian (the saved-state allocation, parent
+ //                FASTCONNECT §4.2). A name record is the store's 64-byte
+ //                entry verbatim, its eight lanes in wire order. Channel maps
+-//                are a later stage.
++//                are the integrator's (07 §5.1); this writer never writes or
++//                reads them.
+ //
+ //                THE TRIGGER IS THE LIVE WRITE, NEVER A MARK. `chg_i` is the
+ //                µCPU's accepted state-bus write to a persisted row that
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 71568a0..64e09a9 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -776,9 +776,10 @@ module protocol_processor_top
+     //! 6 channel maps (ADD/REMOVE_AUDIO_MAPPINGS), 7 user names (SET_NAME).
+     //! A COMPLETION notification only: nothing selects a record from it.
+     //! Groups 1 and 7's records are written by the D3 writer from the
+-    //! accepted changing write itself (group 7's is aecp_name_wr_o); group 6
+-    //! is the saved-state contract's map stage, triggered by map edit phase
+-    //! 5, and not implemented in this release.
++    //! accepted changing write itself (group 7's is aecp_name_wr_o); group
++    //! 6's records, the channel maps, are the integrator's to persist (07
++    //! §5.1, the ruling on #83): it saves a port's set from map edit phase 5,
++    //! and the processor writes and restores no map record.
+     output logic                         aecp_nvm_stb_o,      //! one cycle: a committed command marked a record group
+     output logic  [7:0]                  aecp_nvm_mark_o,     //! that group's mark code, valid with the strobe
+     output logic                         aecp_lock_held_o,    //! LOCK_ENTITY ownership is live
+diff --git a/tb/nvm_port/README.md b/tb/nvm_port/README.md
+index 4e48cef..d63479a 100644
+--- a/tb/nvm_port/README.md
++++ b/tb/nvm_port/README.md
+@@ -1061,7 +1061,10 @@ is written down here rather than left to be rediscovered, because a phase list
+ that reads as complete is worse than one that names its gaps. The other
+ outstanding item is the same: `09_verification.md:56` sets the bar as "cut at
+ randomized commit points ... every record type cut >= once", and this suite
+-uses fixed cut points on both sides, so the randomized half is still owed.
++uses fixed cut points on both sides, so the randomized half is still owed
++(delivered at the top by `tb/pp_top` section D3KR, issue #83: every record type
++both producers write, cut by `rst_n` at 32 seeded-random points each,
++`--cut-seed S` reruns one; this suite's own cuts stay fixed).
+ 
+ ### Reachability pins, and why they exist
+ 
+@@ -1342,7 +1345,10 @@ Recorded so the phase list does not read as closing #70:
+   behaviour: padding the WRITE would close a record whose bytes the manager
+   never supplied, and an abort would be an interface change.
+ - **The RANDOMIZED cut points `09_verification.md:56` asks for are still owed**
+-  on both sides: T15-T18 and T25 cut at fixed points named on the bus.
++  on both sides: T15-T18 and T25 cut at fixed points named on the bus
++  (delivered at the top by `tb/pp_top` section D3KR, issue #83: every record
++  type both producers write, cut by `rst_n` at 32 seeded-random points each,
++  `--cut-seed S` reruns one; this suite's own cuts stay fixed).
+ - **The `err` clause of the rule has THREE known exceptions**, and T1 was
+   never among them: it asserted after a `done` and reddened only under lazy
+   erase, a `done`-clause exception, now conditioned on erase semantics. The three are T16's isolation checks, and a coarse-erase
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 93e7409..a946f33 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -662,7 +662,7 @@ five into the one canonical tally.
+   each, and the GET between them carries none — a mark has no wire shape, so
+   the pin is the only place any of this is visible. A mark is a completion
+   notification: R21 proves the notification, never persistence (section D3
+-  grades the scalar and name records; maps are a later stage).
++  grades the scalar and name records; maps are the integrator's, 07 §5.1).
+ - **R** boot restore over a blank NVM device: all 8 BINDING regions read,
+   the walk's terminal without `restore_fail`. The loop waits on the binding
+   manager's own terminal (`dbg_walk_done_o`), not on `restore_done_o`, so every

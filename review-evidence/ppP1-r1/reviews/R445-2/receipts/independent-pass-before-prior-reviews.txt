@@ -1,0 +1,12 @@
+Written 2026-10-03T16:10:51+02:00 before reading R444-1 / R445-1 bodies.
+Round-2 delta c066dd83..5960d8fc: 7 hunks, 5 files (3 HDL comment-only, 2 tb READMEs).
+- 28 changed HDL lines, all '//' comment lines; comment-stripped tokens, regenerated ROMs and the
+  elaborated top JSON netlist (line refs normalised) identical base vs head; one-token control caught.
+- Stale-claim grep: no processor map-stage claim left in hdl/, tb/, scripts.
+- New banner text agrees with 07 §5.1 (save from phase 5, restore after restore_done_o judged against
+  restored formats, roll-back excludes maps).
+- Own candidate items: tb/nvm_port/README.md:100-101 stale citations (writer :482-485 -> :549-552 at head,
+  stale since 53e1474; top :2714 -> :2730, stale already at base :2727); PR body "Seen, not fixed" says
+  writer ":550-553 since the name stage" but it is :546-549 at 53e1474/c066dd83 and :549-552 at head.
+- Hunk count: both c8 patches 11 '@@' / 7 'diff --git', +/- lines identical; live PR body says 11 (7 files);
+  round-1 evidence HANDOFF (3a65708) still says 13 - round-2 HANDOFF not in public evidence.
