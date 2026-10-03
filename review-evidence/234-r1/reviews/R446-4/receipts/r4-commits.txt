@@ -1,0 +1,6 @@
+79e53831a4f623a594f22765be1d05dffeb696a7 Keep the self-test's timing fixture in its round-3 layout so reviewer probes still plant it, and arm and kill an upper-case input digest and a slack without a fraction
+39e9329b8ef234bc8ff3e2ca287f1697fe03f267 Refuse a check of an endpoint the baseline does not hold inside the barrier, as the generative test found it leaving through argparse
+e6710d1331142569d9c491752cba3d77fed41f6a State the resource gate's exit-code contract as it holds by construction: the barrier, ASCII output, the two converters, named baseline keys and the generative test
+d8638e6ef13094b31e41496f711f12240a37754a Add a seeded generative test of the resource gate's exit-code contract: 500 cases in its self-test and a --fuzz mode for real measurements
+82bc432b509761f12f5b90851feda08032cdccd0 Hold the resource gate's exit-code contract by construction: one barrier in main, ASCII-safe output, one bounded converter per number type, named and unrepeated baseline keys, with arms and killed mutants
+5
