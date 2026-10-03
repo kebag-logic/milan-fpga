@@ -1,0 +1,12 @@
+control aecp-dispatch: rc=0 PASS
+sclks-miss-target-next-word: rc=2 failures=2 named=1 KILLED
+    FAIL: LK4 foreign SET_CLOCK_SOURCE on CLOCK_DOMAIN 3 (absent): ENTITY_LOCKED byte-exact (status 2, cdl 20)
+    FAIL: NSD3 foreign SET_CLOCK_SOURCE(2) on CLOCK_DOMAIN 1 (absent), the lock first: ENTITY_LOCKED byte-exact (status 2, cdl 20)
+sclks-miss-preload-dropped: rc=2 failures=2 named=1 KILLED
+    FAIL: NSD1 a second controller's SET_CLOCK_SOURCE(2) on CLOCK_DOMAIN 1 (absent), zero body: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 20)
+    FAIL: NSD3 foreign SET_CLOCK_SOURCE(2) on CLOCK_DOMAIN 1 (absent), the lock first: ENTITY_LOCKED byte-exact (status 3, cdl 20)
+sclks-miss-branch-dropped: rc=2 failures=2 named=1 KILLED
+    FAIL: LK5 the holder's SET (clock source) on an absent descriptor is NO_SUCH_DESCRIPTOR, zero body (status 7)
+    FAIL: NSD1 a second controller's SET_CLOCK_SOURCE(2) on CLOCK_DOMAIN 1 (absent), zero body: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 20)
+4 checks: 4 PASS, 0 FAIL
+wall 41.84 s maxrss 493604 KB

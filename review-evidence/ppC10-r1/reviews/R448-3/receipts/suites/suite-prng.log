@@ -1,0 +1,46 @@
+<scratch>/bin/verilator --cc --exe --build -j 0 --top-module KL_pp_prng -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/trees/run/tb/prng -Wall -Wextra" ../../hdl/common/KL_pp_prng.sv sim_main.cpp -o Vprng_sim
+make[1]: Entering directory '<scratch>/trees/run/tb/prng/obj_dir'
+g++  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/prng -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/prng -Wall -Wextra   -c -o verilated.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/prng -Wall -Wextra   -c -o verilated_threads.o <home path>
+python3 <home path> -DVL_INCLUDE_OPT=include VKL_pp_prng.cpp VKL_pp_prng___024root__0.cpp VKL_pp_prng__ConstPool__0__Slow.cpp VKL_pp_prng___024root__Slow.cpp VKL_pp_prng___024root__0__Slow.cpp VKL_pp_prng__Syms__Slow.cpp > VKL_pp_prng__ALL.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/prng -Wall -Wextra   -c -o VKL_pp_prng__ALL.o VKL_pp_prng__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_pp_prng__ALL.a    -pthread -lpthread -latomic   -o Vprng_sim
+rm VKL_pp_prng__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/trees/run/tb/prng/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.049 MB sources in 2 modules, into 0.054 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 10.275 s (elab=0.001, cvt=0.006, bld=10.257); cpu 0.015 s on 16 threads; allocated 498.832 MB
+./obj_dir/Vprng_sim
+  kind 0: n=6000 min=0 max=1000 mean=505.4 rejected-draw-frac=2%
+  kind 1: n=9000 min=0 max=2000 mean=991.9 rejected-draw-frac=2%
+  kind 2: n=12000 min=0 max=4000 mean=1990.8 rejected-draw-frac=2%
+  kind 3: n=2200 min=10000 max=15000 mean=12527.3 rejected-draw-frac=39%
+  kind 4: n=2200 min=30025 max=59954 mean=45304.3 rejected-draw-frac=8%
+  kind 5: n=4000 min=501 max=599 mean=549.9 rejected-draw-frac=23%
+  kind 6: n=6000 min=30001 max=31999 mean=31015.1 rejected-draw-frac=2%
+  kind 7: n=2200 min=1 max=65020 mean=32494.5 rejected-draw-frac=0%
+76 checks: 76 PASS, 0 FAIL
+	Command being timed: "bash -c make VERILATOR=<scratch>/bin/verilator"
+	User time (seconds): 10.19
+	System time (seconds): 0.86
+	Percent of CPU this job got: 106%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:10.40
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 350128
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 152676
+	Voluntary context switches: 151
+	Involuntary context switches: 2473
+	Swaps: 0
+	File system inputs: 40
+	File system outputs: 4976
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

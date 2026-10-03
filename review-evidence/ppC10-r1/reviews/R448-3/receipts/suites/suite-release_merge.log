@@ -1,0 +1,38 @@
+<scratch>/bin/verilator --cc --exe --build -j 0 --top-module KL_pp_release_merge -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/trees/run/tb/release_merge -Wall -Wextra" ../../hdl/packet_engine/KL_pp_release_merge.sv sim_main.cpp -o Vrelease_merge_sim
+make[1]: Entering directory '<scratch>/trees/run/tb/release_merge/obj_dir'
+g++  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/release_merge -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/release_merge -Wall -Wextra   -c -o verilated.o <home path>
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/release_merge -Wall -Wextra   -c -o verilated_threads.o <home path>
+python3 <home path> -DVL_INCLUDE_OPT=include VKL_pp_release_merge.cpp VKL_pp_release_merge___024root__0.cpp VKL_pp_release_merge__ConstPool__0__Slow.cpp VKL_pp_release_merge___024root__Slow.cpp VKL_pp_release_merge___024root__0__Slow.cpp VKL_pp_release_merge__Syms__Slow.cpp > VKL_pp_release_merge__ALL.cpp
+g++ -Os  -I.  -MMD -I<home path> -I<home path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/trees/run/tb/release_merge -Wall -Wextra   -c -o VKL_pp_release_merge__ALL.o VKL_pp_release_merge__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_pp_release_merge__ALL.a    -pthread -lpthread -latomic   -o Vrelease_merge_sim
+rm VKL_pp_release_merge__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/trees/run/tb/release_merge/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.046 MB sources in 2 modules, into 0.039 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 9.090 s (elab=0.001, cvt=0.005, bld=9.077); cpu 0.013 s on 16 threads; allocated 626.527 MB
+./obj_dir/Vrelease_merge_sim
+18 checks: 18 PASS, 0 FAIL
+	Command being timed: "bash -c make VERILATOR=<scratch>/bin/verilator"
+	User time (seconds): 9.43
+	System time (seconds): 0.43
+	Percent of CPU this job got: 107%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:09.16
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 351212
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 55897
+	Voluntary context switches: 154
+	Involuntary context switches: 1257
+	Swaps: 0
+	File system inputs: 16
+	File system outputs: 4896
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

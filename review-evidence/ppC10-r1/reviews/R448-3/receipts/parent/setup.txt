@@ -1,0 +1,15 @@
+parent: milan-fpga dev 1269cdafb4bb964c757baae0f0c5a932d43f540b, git archive into a fresh repo; index entries 984, tree 845371799bcdb235cfe12ad4db2aeaf5fcafb61d == dev tree 845371799bcdb235cfe12ad4db2aeaf5fcafb61d
+submodule: -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule:  5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+submodule:  39298e03aa53d5f82c7485b8d12d2b69a47b0d55 protocol-processor (v2.0-528-g39298e0)
+submodule:  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+external (private) not checked out (empty directory); every command run here is rc 0 without it
+applied in order, each after a clean git apply --check:
+  aa5a88eb8e04e5ce0d44ec65973e88215860a9ea5317255016409442000ad209  parent-adoption-c8-cdf49d1a.patch
+  d3034e89dba34862a0c8534472043212fd1f56412a90397997dcce3441613d84  p1/parent-adoption-p2-p1-1269cdaf.patch
+  55e62329f52e352bdd56b6d37bf2877aa952063f43221bb3f1d8583274ea34b9  r2/parent-adoption-c10-1269cdaf.patch
+configurations: tag c8p2p1 (c8 + p2-p1) and tag c10 (c8 + p2-p1 + c10); protocol-processor gitlink 39298e03aa53d5f82c7485b8d12d2b69a47b0d55 in both
+  bfea2db c10
+  d371d98 c8+p2p1
+  2da5057 pin protocol-processor 39298e03
+  0802b4b dev-1269cdaf
