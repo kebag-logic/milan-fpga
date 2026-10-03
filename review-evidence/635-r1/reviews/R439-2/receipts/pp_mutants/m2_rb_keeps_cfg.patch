@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv	2026-10-03 01:57:40.090000000 +0200
++++ b/hdl/aecp/KL_aecp_engine.sv	2026-10-03 02:03:28.639000000 +0200
+@@ -1916,7 +1916,7 @@
+   logic dyn_cfg_v_r;
+ 
+   always_ff @(posedge clk_i) begin : dyn_cfg_valid
+-    if (!store_rst_n_w) begin
++    if (!rst_n) begin
+       dyn_cfg_v_r <= 1'b0;
+     end else if (st_req_w && dyn_sel_w && st_we_w
+                  && (st_addr_w[19:16] == RGN_DYN_C)

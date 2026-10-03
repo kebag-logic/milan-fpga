@@ -1,0 +1,20 @@
+--- a/hdl/aecp/KL_aecp_engine.sv	2026-10-03 01:57:40.090000000 +0200
++++ b/hdl/aecp/KL_aecp_engine.sv	2026-10-03 02:03:28.637000000 +0200
+@@ -3768,7 +3768,7 @@
+             //! NOT_IMPLEMENTED, so a voided MVU answer, like that of every
+             //! other message type but AEM's, is its refusal form, the
+             //! command echoed, as the deadline's is (A_RUN, `st_echo_w`)
+-            if (st_echo_w) begin
++            if (1'b0 && st_echo_w) begin
+               status_r    <= ST_NOT_IMPLEMENTED_C;
+               echo_r      <= 1'b1;
+               pld_r       <= pld_cmd_r;
+@@ -3798,7 +3798,7 @@
+                            : 11'(ETH_MIN_C);
+             //! the command echoed, as at A_ALLOC; its slot was sized for the
+             //! echo (txs_oversize_o)
+-            if (st_echo_w) begin
++            if (1'b0 && st_echo_w) begin
+               status_r    <= ST_NOT_IMPLEMENTED_C;
+               echo_r      <= 1'b1;
+               pld_r       <= pld_cmd_r;
